@@ -222,6 +222,15 @@ layer for all daemon file operations. This is binding on sub-E:
 - **Sub-project F (hierarchy + actors)** — owns the `Actor` behaviour,
   message types (Dispatch/Query), and vault catalog. Stage 5's expert
   dispatch uses F's Query message infrastructure.
+- **Sub-project H (TUI actions) — scoping boundary (Session 20, 2026-04-16).**
+  The curate command (formerly `curate-global`, which let users prompt expert
+  review/curation from the CLI) is **not** sub-E's scope. It has been folded
+  into sub-H's TUI-actions scope as a TUI action that dispatches a query to
+  ExpertActors. Sub-E owns the automated post-session ingestion pipeline
+  (extract → classify → contradict → score → dispatch to experts) and does
+  NOT expose any user-facing curation trigger. Any backlog task that would
+  add a curate command or equivalent human-invocable expert-dispatch shortcut
+  belongs in sub-H, not here.
 
 These stub fallbacks let sub-project E make forward progress in isolation;
 real integrations replace the stubs as their sibling sub-projects land.

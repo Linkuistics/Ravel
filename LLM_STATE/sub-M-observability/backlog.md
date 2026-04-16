@@ -537,6 +537,26 @@ input from the user.
   **Discipline.** Adding these variants to the sealed set requires a Decision Trail entry per §4.1's "sealed for v1" rule. The entry should cite sub-N's §9.5 as the producer-side commitment and note that this is the only expansion of the sealed set between v1 and v1.5.
 - **Results:** _pending_
 
+### Task 26 — Sub-H adoption: add `mnemosyne.tui_action` to sealed struct set and Handler `[coordination]`
+- **Status:** not_started
+- **Dependencies:** Task 0 (task-list rewrite); sub-H Session 20 amendment (2026-04-16) has landed and locked the contract
+- **Description:** Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7 legacy Claude Code skills to daemon-native TUI actions and established a concrete observability requirement: **each TUI action invocation must emit `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: ...}}`**. Sub-H emits these diagnostics; sub-M must ensure the framework handles them correctly.
+
+  **Required changes:**
+
+  1. **Sealed struct set (§4.1 of design doc):** Verify that `%Diagnostic{}` in the sealed set carries a `target` field and a `fields` map (it should, as the current `Diagnostic` escape-hatch struct is generic). If `%Diagnostic{}` does not yet carry `fields: map()`, add it. Add a Decision Trail entry noting that `"mnemosyne.tui_action"` is an established target value, introduced by sub-H Session 20, 2026-04-16.
+
+  2. **Handler attachment (§5 of design doc):** Ensure `Mnemosyne.Observability.Handler.attach/0` includes the telemetry event prefix that sub-H uses when emitting TUI action diagnostics. Verify the prefix against sub-H's implementation when it lands (sub-H emits via `Mnemosyne.Observability.emit/1` which wraps `:telemetry.execute/3`; the derived prefix for `%Diagnostic{target: "mnemosyne.tui_action"}` is likely `[:mnemosyne, :diagnostic]` or `[:mnemosyne, :tui_action]` — confirm against §4.2 of the design doc).
+
+  3. **Metric catalogue (§6 of design doc):** Add a `counter("mnemosyne.tui_action")` with a `keep:` filter on the `action` field, so per-action invocation counts are tracked. This enables TUI action usage analytics in `mix mnemosyne.metrics`.
+
+  4. **Unit test:** Add a test that constructs `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: "some_action"}}`, encodes it via `Jason.encode!/1`, and round-trips it via `Jason.decode!/1`. Also verify it flows through the `Handler` dispatch chain without error.
+
+  5. **Update adoption table:** Mark `sub-H-skills` as `done` in the cross-plan adoption table in `memory.md`.
+
+  **Note:** This task is independent of the full Task 0 rewrite for its scope definition, but must be executed after Task 0 so it can be written against the Elixir-native task list.
+- **Results:** _pending_
+
 ### Task 25 — Sub-D adoption: wire coordination telemetry events into Handler `[coordination]`
 - **Status:** not_started
 - **Dependencies:** Task 0 (task-list rewrite), sub-D implementation (provides `[:mnemosyne, :coordination, :*]` telemetry events)

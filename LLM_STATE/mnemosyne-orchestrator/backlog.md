@@ -19,29 +19,11 @@ The Sub-I amendment is the last outstanding P1 amendment; it gates the Sub-I bra
 ## Priority 2 — Remaining sub-project brainstorms
 
 ### Sub-H — Fold 7 Claude Code skills (unblocked)
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** Sub-H amendment complete (satisfied, Session 20); Sub-B amendment complete (satisfied)
-- **Description:** Design how the 7 legacy Claude Code skills fold into attached-client TUI actions under F's actor/dispatch/TUI architecture. The Sub-H amendment (Priority 1, done Session 20) established the complete mapping:
-  - 3 skills **superseded** by existing mechanisms: `begin-work`/`reflect` → `run_phase`; `setup-knowledge` → `adopt-project`
-  - 3 skills **collapse** to dispatch/query to ExpertActors: `curate-global`, `promote-global`, `explore-knowledge`
-  - 1 skill **requires new** daemon command: `create-plan` (child plan creation)
-  - No Mnemosyne-provided harness plugin ships with v1 — all user actions flow through the client-daemon NDJSON socket
-  - No slash commands in the harness — harness is a pure worker with no user-facing command surface
-  - Co-equal-actors: every action must have both an LLM-driven form (daemon command or phase prompt) and a human-driven form (TUI action or Obsidian CRUD)
-  - Sub-H's mapping must go through the client-socket boundary, not through harness tricks
-  - Sub-N: dynamic expert creation via TUI (v1 file-based; TUI commands belong to H)
-  - Sub-M: `%Diagnostic{target: "mnemosyne.tui_action"}` instrumentation for each action
-  - Sub-E: curate command redesign folded into sub-H's scope
-  - Sub-B: human-driven counterparts open files in `$EDITOR` or provide direct CRUD via TUI/Obsidian
-  Open questions for the brainstorm:
-  1. For dispatch/query-based actions (curate, promote, explore): new NDJSON commands or existing `send` cmd with typed message payloads?
-  2. TUI surface area: command palette, keybindings, contextual menus, or a combination?
-  3. Legacy transition: clean break from the Claude Code plugin at G's Phase 1 daemon switch-over, or interim compatibility?
-  4. Dynamic expert creation: new NDJSON command vs. purely file-system-based (Obsidian/editor)?
-  5. Which actions are plan-scoped (require an attached plan context) vs. vault-scoped (operate at daemon level)?
-  6. How does `create-plan` interact with B's `plan-state.md` initialization and F's `project-root` convention?
-  Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-H-skills-design.md` and sibling plan at `LLM_STATE/sub-H-skills/`.
-- **Results:** _pending_
+- **Description:** Design how the 7 legacy Claude Code skills fold into attached-client TUI actions under F's actor/dispatch/TUI architecture.
+  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-H-skills-design.md` and sibling plan at `LLM_STATE/sub-H-skills/`.
+- **Results:** Design complete (Session 21, 2026-04-16). Key decisions: (1) Architecture-first derivation — 17 commands derived from daemon needs, not legacy mapping. Three legacy concepts disappear: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` (expert query IS knowledge exploration), curate/promote distinction (unified into `knowledge.submit`). (2) Uniform protocol — reuse `send` with typed payloads; only `create_plan` and `adopt_project` are new NDJSON commands. (3) Command palette with user-configurable keybindings for every command, modal which-key support, hot-reloaded from `tui-keybindings.toml`. (4) `mnemosyne cmd` CLI wrapper for external automation via NDJSON socket. (5) Expert CRUD via filesystem + `$EDITOR` — `DeclarationLoader` hot-reload is the single registration path. (6) Clean break at G's Phase 1 — no shim. (7) Local docs server hosted by daemon for command help pages. (8) Every command has description ≤80 chars + help URL. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks (Task 0 gate + 8 daemon-side Elixir + 4 TUI-side Rust + 1 integration/stubs).
 
 ### Sub-I — Obsidian coverage (blocked on P1 amendment)
 - **Status:** not_started

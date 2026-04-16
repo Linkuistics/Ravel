@@ -189,6 +189,31 @@ The adoption table entry for `sub-D-concurrency` in the section below is now
 resolved — sub-D's brainstorm has landed (2026-04-16). The queued adoption
 task should be updated per the note below.
 
+## Sub-H skills design — `mnemosyne.tui_action` diagnostic commitment (2026-04-16)
+
+Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7
+legacy Claude Code skills to daemon-native TUI actions and established the
+following observability contract that sub-M must honour:
+
+**Sub-H will emit, for every TUI action invocation:**
+```
+%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: <action_name>}}
+```
+
+This is a cross-sub-project commitment: sub-H emits; sub-M must handle.
+
+### What sub-M must do (backlog Task 26)
+
+1. **Sealed struct set (§4.1):** Confirm `%Diagnostic{}` carries `target: String.t()` and `fields: map()`. If not present, add `fields`. Record `"mnemosyne.tui_action"` as an established target value in the Decision Trail.
+
+2. **Handler attachment (§5):** Verify that `Mnemosyne.Observability.Handler.attach/0` attaches to the telemetry prefix sub-H uses. Per §4.2, `%Diagnostic{target: "mnemosyne.tui_action"}` derives a prefix of `[:mnemosyne, :tui_action]` or `[:mnemosyne, :diagnostic]` — confirm against the design doc's emission table and sub-H's implementation.
+
+3. **Metric catalogue (§6):** Add `counter("mnemosyne.tui_action")` with a `keep:` filter branching on the `action` field, enabling per-action invocation counts in `mix mnemosyne.metrics`.
+
+4. **Unit test:** Round-trip `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: "some_action"}}` through `Jason.encode!/1` + `Jason.decode!/1`; verify it flows through the Handler dispatch chain without error.
+
+The `%Diagnostic{}` escape-hatch struct is already part of the sealed set; no new top-level variant is needed. This is a pure target-value registration plus a new metric catalogue entry.
+
 ## Cross-plan adoption coordination
 
 Adoption tasks landed by M's brainstorm session:
@@ -206,7 +231,7 @@ Adoption tasks queued for sibling plans that don't yet exist:
 |---|---|---|
 | `sub-D-coordination` | **brainstorm done (2026-04-16)** — add adoption task to D's backlog. Sub-M must: (1) subscribe to `[:mnemosyne, :coordination, :*]` telemetry events in `Handler.attach_many`; (2) route `JsonlWriter` file writes through `FileIO.write_safe/3` with `:exclusive` category. See "Sub-D coordination design" section above. | Sub-D brainstorm completed 2026-04-16 |
 | `sub-F-hierarchy` | plan scaffolded (Session 13); F's Task 24 is the adoption task; F's Task 0 gate blocks on M's amendment. Sub-A gate condition cleared (Session 14, 2026-04-15); M amendment is now the sole remaining orchestrator-level gate condition for F Task 0 (other two gates are sibling-level: sub-B and sub-C task-list rewrites) | Sub-M amendment (backlog Task 0) is critical-path — F cannot start implementation until M's design doc is rewritten for Elixir/OTP |
-| `sub-H-skills` | queued | Same trigger as D |
+| `sub-H-skills` | **contract locked (Session 20, 2026-04-16)** — backlog Task 26 added. Sub-H emits `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: ...}}` for every TUI action invocation. Sub-M must: (1) confirm `%Diagnostic{}` carries a `fields` map in §4.1; (2) ensure Handler attaches to the relevant telemetry prefix; (3) add `counter("mnemosyne.tui_action")` with `keep:` filter on `action` field to §6 metric catalogue. See "Sub-H skills design" section below. | Sub-H Session 20 amendment landed 2026-04-16 |
 | `sub-I-obsidian-coverage` | queued | Same trigger as D — and I's coverage doc itself absorbs the v1.5 Obsidian session-summary format |
 | `sub-G-migration` | queued | When G's brainstorm lands, add a "delete `<staging>/spawn-latency.json` from staging schema after M parallel-emit window closes" task |
 

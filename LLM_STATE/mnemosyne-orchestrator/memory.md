@@ -218,7 +218,7 @@ Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the exper
 
 ## Sub-projects
 
-Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, M, N (nine of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
+Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, M, N (ten of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
 
 | ID | Sub-project | Complexity | Status | Notes |
 |----|-------------|-----------|--------|-------|
@@ -229,7 +229,7 @@ Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, 
 | E  | Post-session knowledge ingestion | Medium | **done** (F amendment absorbed) | Design doc `specs/2026-04-12-sub-E-ingestion-design.md`. §1–§5 + Decision Trail rewritten inline: BEAM/Elixir, Stage 5 dispatch-to-experts; sub-E emits directly to sub-M's bus from Stage 5 (no standalone `IngestionEvent` channel). Downstream task list still carries pre-pivot Rust framing; Task 0 gate required before implementation. |
 | F  | Plan hierarchy + actor model + dispatch + declarative routing | **Large** | **done** (sibling plan scaffolded) | Design doc `specs/2026-04-14-sub-F-hierarchy-design.md`. Committed: persistent BEAM daemon, two sealed actor types, two message types, `project-root` convention, path-based qualified IDs, dispatch asymmetry, vault catalog, Datalog-ish declarative routing with Level 2 fallback, Elixir runtime, Rust TUI client. Sibling plan at `LLM_STATE/sub-F-hierarchy/` with 28 implementation tasks + Task 0 readiness gate; implementation blocked on sub-B + sub-C task-list rewrites and sub-A + sub-M amendment absorption. |
 | G  | Migration: LLM_CONTEXT + v0.1.0 transition | Medium | **done** | Design doc `specs/2026-04-16-sub-G-migration-design.md`. Four-phase ordering: Phase 0 (artifact retirement, executed immediately — `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/` deleted), Phase 1 (Mnemosyne rename at daemon switch-over), Phase 2 (dependent projects stagger), Phase 3 (LLM_CONTEXT retirement). Two tools: `scripts/migrate-project.sh` for filesystem restructure, `mnemosyne adopt-project` for vault integration — cleanly separable with different lifecycles and error models. Per-project staggering, git-native reversibility, plan-state.md phase-only at migration. Phase 1 rename is the daemon switch-over event: no intermediate partial-migration states exist. G imposes no design changes on any sibling sub-project — post-migration layout conforms to what A, B, E, F, N already expect. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks. |
-| H  | Fold 7 Claude Code skills | Small-med | not started | **F amendment absorbed**: 3 skills superseded by `run_phase`/`adopt-project`, 3 collapse to expert dispatch/query, 1 needs new `create-plan` daemon command. Brainstorm unblocked. |
+| H  | Fold 7 Claude Code skills | Small-med | **done** | Design doc `specs/2026-04-16-sub-H-skills-design.md`. Architecture-first derivation: 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappear (`promote-global`, `explore-knowledge`, curate/promote distinction). Uniform protocol (reuse `send`; only `create_plan` + `adopt_project` new). Command palette with configurable keybindings + which-key. `mnemosyne cmd` CLI for external automation. Expert CRUD via filesystem + `$EDITOR`. Clean break at G's Phase 1. Local docs server. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks. |
 | I  | Obsidian coverage (re-scoped) | Small-med | not started | Document which Obsidian features cover which data surfaces. **F amendment pending**: Obsidian as daemon client, not just file viewer. |
 | J  | Human-mode phase affordances | N/A | **obsolete** | Folded into B as `ManualEditorExecutor`. |
 | K  | Obsidian plugin client | Medium | not started (v1.5+) | Daemon-as-backend makes K more attractive. Client of F's Unix socket protocol. Re-evaluate at v1 scope cut. |
@@ -243,9 +243,9 @@ Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, 
 
 ### Recommended sub-project ordering (post-N)
 
-Brainstorms complete: A, B, C, D, E, F, G, M, N (nine of sixteen). Amendments absorbed: A, B, C, E, G, M. Immediate pipeline: sub-E task-list gate task + sub-B/sub-C task-list rewrites → sub-F Task 0 → remaining brainstorms H (amendment absorbed, brainstorm ready), I (amendment pending) → sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
+Brainstorms complete: A, B, C, D, E, F, G, H, M, N (ten of sixteen). Amendments absorbed: A, B, C, E, G, H, M. Immediate pipeline: sub-I amendment → sub-I brainstorm → sub-E/sub-B/sub-C task-list rewrites → sub-F Task 0 → implementation. Sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
 
-Critical next steps: **(1)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(3)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. **(4)** H and I amendment tasks still pending; both are scope-framing exercises for their respective brainstorms. Sub-M's task-list rewrite is internal and not on F's critical path. Sub-Q and sub-R reserved for v1.5+.
+Critical next steps: **(1)** Sub-I amendment (last P1 blocker) → sub-I brainstorm. **(2)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(3)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(4)** Sub-F Task 0 readiness check once (3) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. Sub-Q and sub-R reserved for v1.5+.
 
 ## Open questions
 
@@ -258,8 +258,8 @@ Six starter expert declarations: `rust-expert`, `elixir-expert`, `research-exper
 ### Team-mode design
 Solo-developer by design at v1 (A's single-vault discovery, F's single-daemon architecture, E's sequential ingestion). Multi-developer shared vault needs network transport (sub-P's scope), conflict resolution, curation workflow changes, possibly per-user identity. F reserves the schema hooks (`[peers]`, `<peer>@<id>`) but doesn't wire them. Sub-P brainstorm at v2 milestone.
 
-### Fate of 7 Claude Code skills
-Mapping resolved by sub-H amendment: 3 superseded by existing mechanisms (`run_phase`/`adopt-project`), 3 collapse to expert dispatch/query, 1 needs a new `create-plan` daemon command. UX details are H's brainstorm to resolve.
+### Fate of 7 Claude Code skills — resolved by sub-H brainstorm
+Architecture-first derivation produced 17 daemon commands; legacy skills map as consequence: `begin-work`/`reflect` → `phase.*`, `setup-knowledge` → `vault.adopt`, `create-plan` → `plan.create` (new NDJSON command), `explore-knowledge` → `expert.query`, `curate-global`/`promote-global` → unified `knowledge.submit`. Three legacy concepts disappeared: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` as distinct concept (expert query IS knowledge exploration), curate/promote distinction (unified). Command palette with user-configurable keybindings + which-key. `mnemosyne cmd` CLI for external automation. Clean break at G's Phase 1.
 
 ### What in `LLM_CONTEXT/` survives the merge
 G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Mnemosyne's embedded prompts, a separate docs repo, or stay until LLM_CONTEXT retires.

@@ -312,7 +312,7 @@ Every workflow must work with a human driver or an LLM driver. Phase cycles supp
 
 ## Status
 
-**Currently in architectural design phase.** Nine sub-project brainstorms are substantially complete. Implementation has not started on the daemon; a previous v0.1.0 existed as a Rust CLI but has been subsumed by this pivot to the actor-daemon architecture.
+**Currently in architectural design phase.** Ten sub-project brainstorms are substantially complete. Implementation has not started on the daemon; a previous v0.1.0 existed as a Rust CLI but has been subsumed by this pivot to the actor-daemon architecture.
 
 Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/specs/):
 
@@ -321,17 +321,17 @@ Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/spec
 | A (global store) | design complete | `2026-04-13-sub-A-global-store-design.md` |
 | B (phase cycle) | design complete (pending F amendment) | `2026-04-12-sub-B-phase-cycle-design.md` |
 | C (harness adapters) | design complete (pending F amendment + BEAM spike) | `2026-04-13-sub-C-adapters-design.md` |
+| D (concurrency) | design complete | `2026-04-16-sub-D-coordination-design.md` |
 | E (knowledge ingestion) | design complete (pending F amendment) | `2026-04-12-sub-E-ingestion-design.md` |
 | F (hierarchy, actor model, routing) | design complete | `2026-04-14-sub-F-hierarchy-design.md` |
+| G (migration) | design complete | `2026-04-16-sub-G-migration-design.md` |
+| H (skill fold) | design complete | `2026-04-16-sub-H-skills-design.md` |
 | M (observability) | design complete (pending F amendment) | `2026-04-13-sub-M-observability-design.md` |
-| D (concurrency) | design pending (scope collapsed by F) | — |
-| G (migration) | design pending | — |
-| H (skill fold) | design pending | — |
+| N (domain experts) | design complete | `2026-04-15-sub-N-domain-experts-design.md` |
 | I (Obsidian coverage) | design pending | — |
 | L (terminal spike) | design pending | — |
-| N (domain experts) | **new** — added by F's brainstorm | — |
-| O (mixture of models) | **new** — reserved for v1.5+ | — |
-| P (team mode) | **new** — reserved for v2+ | — |
+| O (mixture of models) | reserved for v1.5+ | — |
+| P (team mode) | reserved for v2+ | — |
 
 The comprehensive architectural overview is in [`docs/architecture.md`](docs/architecture.md). Research sources grounding the design are in [`docs/research-sources.md`](docs/research-sources.md).
 
