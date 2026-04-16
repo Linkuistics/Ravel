@@ -214,7 +214,7 @@ Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the exper
 
 ## Sub-projects
 
-Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, E, F, M, N (seven of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
+Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, D, E, F, M, N (eight of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
 
 | ID | Sub-project | Complexity | Status | Notes |
 |----|-------------|-----------|--------|-------|
@@ -239,9 +239,9 @@ Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, 
 
 ### Recommended sub-project ordering (post-N)
 
-Brainstorms complete: A, B, C, E, F, M, N. Amendments absorbed: A, B, C, E, M. Immediate pipeline: sub-E task-list gate task + sub-B/sub-C task-list rewrites → sub-F Task 0 → remaining brainstorms D, G, H, I → sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
+Brainstorms complete: A, B, C, D, E, F, M, N. Amendments absorbed: A, B, C, E, M. Immediate pipeline: sub-E task-list gate task + sub-B/sub-C task-list rewrites → sub-F Task 0 → remaining brainstorms G, H, I → sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
 
-Critical next steps: **(1)** Sub-E task-list rewrite gate task — analog of sub-B/sub-C/sub-M Task 0; sub-E’s sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place in both sibling plans; two remaining gate conditions for sub-F’s Task 0). **(3)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. **(4)** Remaining brainstorm/amendment tasks for D, G, H, I in any order; all four produce scope-framing documents. Sub-M’s task-list rewrite is internal and not on F’s critical path. Sub-Q and sub-R reserved for v1.5+.
+Critical next steps: **(1)** Sub-E task-list rewrite gate task — analog of sub-B/sub-C/sub-M Task 0; sub-E’s sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place in both sibling plans; two remaining gate conditions for sub-F’s Task 0). **(3)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. **(4)** Remaining amendment tasks for G, H, I in any order; all three produce scope-framing documents. Sub-M’s task-list rewrite is internal and not on F’s critical path. Sub-Q and sub-R reserved for v1.5+.
 ## Open questions
 
 ### Pattern-matched Elixir routing vs Erlog
