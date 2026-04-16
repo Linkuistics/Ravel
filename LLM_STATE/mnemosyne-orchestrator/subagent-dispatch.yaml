@@ -1,0 +1,21 @@
+dispatches:
+  - target: /Users/antony/Development/Mnemosyne/LLM_STATE/sub-B-phase-cycle
+    kind: child
+    summary: |
+      Sub-R (knowledge ontology) brainstorm completed on 2026-04-16 and introduced
+      `{{ONTOLOGY_CONTEXT}}` as a new passive placeholder to be injected into LLM
+      sessions. Sub-B owns `StagingDirectory::render` and all placeholder substitution
+      logic. Sub-B needs an amendment task to support `{{ONTOLOGY_CONTEXT}}` injection.
+
+      During the sub-R brainstorm, adoption stubs were pushed to eight sibling backlogs
+      (A, C, E, F, H, I, M, N). Sub-B was not among them — this dispatch fills that gap.
+
+      The specific requirement for sub-B: when rendering a staging directory, if the
+      vault has an `<vault>/ontology/` directory, substitute `{{ONTOLOGY_CONTEXT}}` with
+      a compact summary of the loaded ontology (tag hierarchy and synonym sets, formatted
+      for LLM readability). If the ontology is not yet initialised, substitute an empty
+      string (no hard error — the ontology is an optional v1 surface that may not be
+      present at plan-creation time). The active half (`ontology.query` LLM tool) is
+      sub-R's own implementation concern; sub-B only needs to handle the passive
+      placeholder side. Add an amendment task to sub-B's backlog capturing this
+      requirement so it is not missed when Task 0 gates lift and implementation begins.

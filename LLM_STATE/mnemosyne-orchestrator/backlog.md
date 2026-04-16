@@ -1,35 +1,7 @@
 # Backlog — Mnemosyne Orchestrator
 Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
-## Priority 1 — Sub-R brainstorm (v1, immediate)
-
-### Sub-R — Knowledge ontology (v1)
-- **Status:** done (brainstorm complete, design doc + sibling plan scaffolded)
-- **Dependencies:** sub-N done (satisfied). Sub-R does not block sub-N initial implementation — sub-N ships exact-string tag matching behind the `ScopeMatcher` interface, and sub-R's richer resolver drops in behind the same interface. Elevated to v1 because tag-vocabulary drift compounds from day one.
-- **Description:** **Surfaced during sub-N brainstorm Session 16.** When sub-N locked tag-based scope matching for Stage 5, the user observed that tag-vocabulary drift is inevitable (e.g., `rust` vs `rustlang` vs `Rust`) and that the right long-term answer is an ontology — and that this should be handled as a separate research task, not inline with sub-N. Sub-R is that research brainstorm. **Elevated to v1** — drift compounds from day one once experts accumulate knowledge; retrofitting an ontology after vocabulary has already diverged is harder than starting with one.
-  Cross-cutting consumers of the ontology:
-  - **Sub-N expert scope matching** — the `ScopeMatcher` becomes ontology-aware (synonyms, hierarchy, polysemy)
-  - **Sub-E Stage 2 classification** — tag inference from extracted facts needs a canonical vocabulary
-  - **Sub-F fact extraction** — concern keywords in `routing.ex` rules should match a canonical vocabulary
-  - **Sub-H TUI skills** — displaying tags to the user needs consistent presentation
-  Scope for the brainstorm (research-heavy):
-  - **Formal ontology vs folksonomy vs hybrid**: what's the right model for a single-developer knowledge system?
-  - **Synonym handling**: `rust` ≡ `rustlang` — dictionary-driven? user-editable? auto-inferred?
-  - **Hierarchy**: `rust ⊂ systems-programming ⊂ programming` — what does this buy for scope matching and retrieval?
-  - **Polysemy**: `async` in Rust vs JavaScript vs Python — how does context disambiguate?
-  - **Vocabulary evolution**: how does the ontology grow as new domains appear without breaking existing tags?
-  - **Hooks already reserved in v1**:
-    - Sub-A's vault layout has a reserved `tag-vocabulary.md` file path (currently unused)
-    - Sub-N's `ScopeMatcher` is a behaviour-shaped interface that a richer resolver can drop into
-  - **Literature survey**: 40 years of ontology research in AI/KR; what's the minimum viable ontology for Mnemosyne's scale (single user, <10k knowledge entries initially)?
-  - **Integration with existing tools**: Obsidian's tag system, Dataview queries — what's preserved, what's superseded?
-  Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-R-knowledge-ontology-design.md` and sibling plan at `LLM_STATE/sub-R-knowledge-ontology/`.
-- **Results:** Brainstorm complete (2026-04-16). Design doc at `docs/superpowers/specs/2026-04-16-sub-R-knowledge-ontology-design.md` (11 sections, 7 decision trail entries). Sibling plan at `LLM_STATE/sub-R-knowledge-ontology/` with 21 tasks across research (3), implementation (12), testing (3), and amendment (3) categories.
-  **Key decisions:** (1) Sub-R is "Mnemosyne's declarative reasoning substrate" — owns both the Datalog engine and the ontology, co-designed. (2) Purpose-built minimal Datalog in Elixir, not Erlog — clean Datalog from scratch is simpler/safer than restricting Prolog, guaranteed termination by construction. (3) Rich ontology with typed relations (synonyms, hierarchy, `bridges`, `uses`, `requires`, `related` — open predicate set). (4) Datalog replaces `routing.ex` in v1 — one reasoning substrate, not two; Datalog is fundamentally better than imperative Elixir for user-facing rules. (5) `.dl` source of truth with auto-generated Obsidian views (Phoenix replaces views post-v1). (6) Three literature surveys gate implementation: evaluation strategies, ontology design literature, BEAM Datalog audit. (7) LLM exposure: passive `{{ONTOLOGY_CONTEXT}}` placeholder + active `ontology.query` tool.
-  **Scope expansion from original brief:** Sub-R grew from "tag vocabulary management" to "declarative reasoning substrate" after the user identified that (a) typed relations unlock qualitatively richer scope matching and routing, (b) Datalog is the right language for both ontology representation and limited reasoning, and (c) Datalog is fundamentally better than Elixir pattern matching for exposing rules to users and LLMs. The user has AI/KR background from the 1980s and sees this as a path toward CYC-like structured knowledge for LLMs.
-  **Cross-sub-project impact:** Amendment tasks for F (routing migration), N (ScopeMatcher), E (Stage 2), A (vault layout), C (tool profile), H (TUI), M (event structs), I (Obsidian coverage). Nine siblings affected. Adoption stubs detailed in design doc §7.3.
-
-## Priority 2 — v2 sub-project brainstorms
+## Priority 1 — v2 sub-project brainstorms
 
 ### Sub-O — Mixture of models (v2)
 - **Status:** not_started (v2)
