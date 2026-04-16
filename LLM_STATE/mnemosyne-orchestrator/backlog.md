@@ -4,6 +4,8 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 ## Recent history
 
+**Triage (2026-04-16) — Sub-D done; FileIO propagation dispatched to four sibling plans.** Sub-D brainstorm task removed (done Session 18: design doc, system-wide singleton lock, `Mnemosyne.FileIO` mandatory I/O layer, sub-A inline update, sibling plan scaffolded). Priority 1 execution note updated (D removed from remaining orchestrator-level work). Dispatched subagents to: sub-B (FileIO.write_safe/3 for copy_back/2 → `:phase_owned`), sub-E (FileIO delegation for SafeFileWriter → `:human_editable`/`:exclusive`), sub-F (FileIO for plan-catalog writes → `:exclusive`; DaemonLock as Task 0 dependency), sub-N (FileIO for expert absorb writes → `:human_editable`). Phase: work.
+
 **Triage (2026-04-16) — Sub-E amendment done; Priority 0 and sub-E task cleared; cross-plan propagations dispatched.** Sub-E amendment removed (done Session 17: inline rewrite of ingestion design doc, BEAM/Elixir + Stage 5 dispatch-to-experts). Priority 0 section removed (heading-only holdover). Priority 1 execution note updated. Dispatched subagents to: sub-E (add Task 0 gate for pre-pivot Rust task-list rewrite), sub-M (update sub-E adoption matrix from "wrap and migrate" to "verify schema"), sub-N (verify sub-E interface finalization — no blocking update expected), sub-F (verify sub-E amendment doesn't change Task 0 gate conditions). Phase: work.
 
 **Triage (2026-04-15) — Sub-N done; all orchestrator amendment tasks complete; cross-plan propagations dispatched.** Done tasks cleared from backlog: Priority 0 BEAM spike, Sub-A/B/C/M amendments, Sub-N brainstorm, Sub-F sibling plan scaffold, entire Completed section. Sub-E amendment updated to reference sub-N Task 15 concrete interface contracts (`%ExpertAbsorbCandidate{}`, `ScopeMatcher`, verdict structs, `%Expert.*` events). Priority 1 execution note updated. Dispatched: sub-E (Task 15 types unblock the Stage 5 amendment), sub-M (sub-N adds `Mnemosyne.Event.Expert.*` as a new sealed-struct producer not yet in M's backlog), sub-F (sub-N Tasks 16+ gate on sub-F's `Mnemosyne.Actor` behaviour + `ActorSupervisor` API). Phase: work.
@@ -34,18 +36,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 F's architecture commitment affects every done brainstorm. Each amendment is a short work phase: read the existing design doc, identify Rust-specific or pre-F-specific sections, replace with BEAM/actor/dispatch-aware equivalents, commit.
 
-**Execution note (triage 2026-04-16, post-Session 17):** Sub-E amendment done (Session 17 — inline rewrite complete, Stage 5 dispatch-to-experts landed; sub-E task-list rewrite tracked in sub-E's sibling plan as Task 0 gate). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** D, G, H, I amendment/brainstorm tasks produce scope-framing documents. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to all remaining amendments.
-
-### Sub-D brainstorm (scope collapsed) — daemon singleton + external-tool coordination `[brainstorm]`
-- **Status:** done
-- **Dependencies:** F done
-- **Description:** **D's original scope (per-plan advisory locks for multi-process coordination) is collapsed by F's daemon commitment.** OTP actor mailboxes serialize writes naturally; the daemon is a singleton so per-plan locking is not needed for Mnemosyne's own coordination. D's remaining scope is much smaller:
-  - **Daemon singleton lock** — system-wide at `<runtime_dir>/mnemosyne/daemon.lock` via `flock(2)`. Contains PID + vault path. Not inside the vault (invisible to Obsidian).
-  - **External-tool coordination** — content-hash freshness checking (SHA-256, always read-before-write) with three file categories: `:exclusive` (no check), `:phase_owned` (daemon-authoritative, warn), `:human_editable` (human-authoritative, discard).
-  - **Vault git concurrency** — non-issue in v1 by design constraint (no autonomous daemon git commits; all human-mediated).
-
-  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`. Sibling plan at `LLM_STATE/sub-D-coordination/` with 7 tasks.
-- **Results:** Session 18 (2026-04-16). Design doc landed (458→~500 lines). Three concerns resolved: (1) system-wide `flock` singleton lock outside vault, (2) content-hash freshness + `FileIO.write_safe/3` as mandatory I/O layer with category-based conflict strategies, (3) vault git deferred to v2+. Sub-A design doc updated inline: `daemon.lock` and `daemon.pid` removed from vault layout, boot sequence collapsed from 11 to 10 steps. Sibling plan scaffolded with 7 implementation tasks (~350 lines Elixir). Key user decisions: lock should be system-wide (not visible to Obsidian), `daemon.pid` redundant (lock file carries PID + vault path), content hash preferred over mtime.
+**Execution note (triage 2026-04-16, post-Session 18):** Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18 — singleton lock, FileIO pattern, sub-A inline update, sibling plan scaffolded). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** G, H, I amendment/brainstorm tasks produce scope-framing documents. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to all remaining amendments.
 
 ### Sub-G amendment — daemon invocation pattern in migration `[amendment]`
 - **Status:** not_started
