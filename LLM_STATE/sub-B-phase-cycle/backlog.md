@@ -382,6 +382,13 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
       two-plan cutover).
   12. Update the live smoke test task to tag tests `:live` (ExUnit
       tag) instead of CI-gated Rust test discovery.
+  13. Ensure every rewritten task that writes plan files calls
+      `Mnemosyne.FileIO.write_safe/3` with `:phase_owned`, and every
+      task that reads plan files for prompt context calls
+      `Mnemosyne.FileIO.read_tracked/1`. `FileIO` is the mandatory
+      I/O abstraction for both `copy_back/2` writes and
+      `StagingDirectory.render/4` reads; direct `File.*` calls are
+      forbidden in B's implementation.
 
   This is **backlog editing only** — no runtime code. The
   acceptance criterion: every downstream task description is

@@ -142,6 +142,53 @@ order:
     through the full Registry stack and assert no panics or stack
     overflows.
 
+## Sub-D coordination design — dependencies on sub-M (2026-04-16)
+
+Sub-D's design doc (`docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`)
+locks two contracts that sub-M must honour:
+
+### `JsonlWriter` must use `FileIO.write_safe/3` with `:exclusive` category
+
+`Mnemosyne.FileIO` is the **mandatory I/O layer for all daemon file writes**.
+Sub-M's `JsonlWriter` subscriber writes the event log to JSONL files under
+`<vault>/runtime/events/` — these are daemon-authoritative runtime files,
+which fall under the `:exclusive` category (§3.1 of the sub-D design).
+
+**Requirement:** `JsonlWriter` file writes must route through
+`FileIO.write_safe(path, content, :exclusive)` rather than calling
+`File.write/3` directly. For `:exclusive` category, `write_safe/3` skips
+the freshness check and performs an atomic write (temp-then-rename) — no
+conflict detection needed since runtime files are machine-generated and
+overwritten unconditionally.
+
+**Append vs rewrite clarification:** The current Task 8 description opens a
+`File` handle with `[:append, :raw, :binary, :delayed_write]` for streaming
+appends. The Task 0 rewrite of Task 8 must resolve whether `JsonlWriter`
+(a) wraps each append call through `FileIO` (which currently does atomic
+temp-then-rename — appropriate for rewrite, not append), or (b) holds an
+open append handle directly and only routes session-finalisation rewrites
+through `FileIO`. The `FreshnessTracker` SHA-256 mechanism applies to reads,
+not writes; `JsonlWriter` is write-only, so the main constraint is routing
+file creation and path management through `FileIO` for consistency and
+auditability — not for conflict detection.
+
+### Sub-M subscribes to coordination diagnostic events
+
+Sub-D §6 requires sub-M to subscribe to coordination events via its
+standard `Mnemosyne.Observability.Handler` telemetry attachment:
+
+- `[:mnemosyne, :coordination, :*]` telemetry prefix
+- `%Diagnostic{target: "mnemosyne.lock"}` — lock acquired / released / contended (emitted at daemon startup / shutdown)
+- `%Diagnostic{target: "mnemosyne.coordination"}` — external-modification freshness conflicts (warn for phase-owned overwrites, info for human-editable discards)
+
+These flow through `RingBuffer → Metrics → TuiBridge → JsonlWriter` like any
+other event. The telemetry name list passed to `Handler.attach_many/4` must
+include these coordination event prefixes.
+
+The adoption table entry for `sub-D-concurrency` in the section below is now
+resolved — sub-D's brainstorm has landed (2026-04-16). The queued adoption
+task should be updated per the note below.
+
 ## Cross-plan adoption coordination
 
 Adoption tasks landed by M's brainstorm session:
@@ -157,7 +204,7 @@ Adoption tasks queued for sibling plans that don't yet exist:
 
 | Sibling plan | Status | Trigger |
 |---|---|---|
-| `sub-D-concurrency` | queued | When sub-D's brainstorm lands its sibling plan, this plan's triage adds a "M observability adoption" task to D's backlog |
+| `sub-D-coordination` | **brainstorm done (2026-04-16)** — add adoption task to D's backlog. Sub-M must: (1) subscribe to `[:mnemosyne, :coordination, :*]` telemetry events in `Handler.attach_many`; (2) route `JsonlWriter` file writes through `FileIO.write_safe/3` with `:exclusive` category. See "Sub-D coordination design" section above. | Sub-D brainstorm completed 2026-04-16 |
 | `sub-F-hierarchy` | plan scaffolded (Session 13); F's Task 24 is the adoption task; F's Task 0 gate blocks on M's amendment. Sub-A gate condition cleared (Session 14, 2026-04-15); M amendment is now the sole remaining orchestrator-level gate condition for F Task 0 (other two gates are sibling-level: sub-B and sub-C task-list rewrites) | Sub-M amendment (backlog Task 0) is critical-path — F cannot start implementation until M's design doc is rewritten for Elixir/OTP |
 | `sub-H-skills` | queued | Same trigger as D |
 | `sub-I-obsidian-coverage` | queued | Same trigger as D — and I's coverage doc itself absorbs the v1.5 Obsidian session-summary format |

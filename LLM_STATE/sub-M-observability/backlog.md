@@ -96,6 +96,14 @@ input from the user.
      `{:max_messages, 4096}` process flag for bounded mailbox. Tests:
      round-trip, line-per-event, truncation safety, supervisor
      restart on mailbox overflow.
+     **Sub-D FileIO constraint (2026-04-16):** `JsonlWriter` must not
+     call `File.write/3` or `File.open/2` directly. All file writes
+     must route through `Mnemosyne.FileIO.write_safe/3` with category
+     `:exclusive` (daemon-authoritative, no freshness check). Resolve
+     the append-vs-rewrite tension in the rewritten task: for
+     streaming line-append writes, clarify whether `FileIO` wraps the
+     append handle or only governs session-start file creation. See
+     memory.md "Sub-D coordination design" section.
   9. **Rewrite `MetricsRecorderLayer` task (current Task 9).** Replace
      with `Mnemosyne.Observability.Metrics` supervisor hosting
      `Telemetry.Metrics.ConsoleReporter` + a new
@@ -527,6 +535,30 @@ input from the user.
   3. Update the catalogue-integrity test (backlog Task 4 rewrite under Task 0) to count the new definitions.
 
   **Discipline.** Adding these variants to the sealed set requires a Decision Trail entry per §4.1's "sealed for v1" rule. The entry should cite sub-N's §9.5 as the producer-side commitment and note that this is the only expansion of the sealed set between v1 and v1.5.
+- **Results:** _pending_
+
+### Task 25 — Sub-D adoption: wire coordination telemetry events into Handler `[coordination]`
+- **Status:** not_started
+- **Dependencies:** Task 0 (task-list rewrite), sub-D implementation (provides `[:mnemosyne, :coordination, :*]` telemetry events)
+- **Description:** Sub-D's brainstorm (2026-04-16) locked the coordination
+  telemetry contract. Sub-M's adoption task is:
+  1. Add `[:mnemosyne, :coordination, :lock]` and
+     `[:mnemosyne, :coordination, :freshness]` (or the actual prefixes
+     sub-D uses — verify against sub-D's implementation) to the event
+     name list passed to `Handler.attach_many/4` in
+     `Mnemosyne.Observability.Handler.attach/0`.
+  2. Ensure `handle_event/4` handles `%Diagnostic{target: "mnemosyne.lock"}`
+     and `%Diagnostic{target: "mnemosyne.coordination"}` structs — these
+     should flow through without special casing since they are standard
+     `%Diagnostic{}` structs in the sealed set.
+  3. Verify the `JsonlWriter` file write path routes through
+     `Mnemosyne.FileIO.write_safe/3` with `:exclusive` category (no direct
+     `File.write/3` calls). Resolve append-vs-rewrite per the note added to
+     Task 0 checklist item 8. Write a test that confirms no `File.open/2` or
+     `File.write/3` call sites exist in `jsonl_writer.ex`.
+  4. Update the cross-plan adoption table in memory.md to mark sub-D as
+     `done`.
+  See memory.md "Sub-D coordination design" section for full context.
 - **Results:** _pending_
 
 ### Task 23 — v1 ship gate `[release]`

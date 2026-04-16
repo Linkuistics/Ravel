@@ -1,3 +1,0 @@
-languages: [python]
-dependencies: [numpy, pandas, scikit-learn]
-expected_tags: [numpy, pandas, python, scikit-learn]

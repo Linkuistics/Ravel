@@ -134,6 +134,11 @@ layer for all daemon file operations. This is binding on sub-E:
   inside `SafeFileWriter` as guard logic before calling FileIO.
 - All writes are atomic (temp-then-rename) inside FileIO — sub-E must not
   replicate this.
+- **Conflict response (sub-D §6).** When `FileIO.write_safe/3` returns
+  `{:conflict, :external_modification}` for a `:human_editable` knowledge
+  file write, sub-E treats the candidate as "not written" and emits
+  `%Ingestion.CandidateSkipped{reason: :external_modification}`. This is
+  non-fatal — the ingestion cycle continues with remaining candidates.
 
 ## Dependencies on sibling sub-projects
 

@@ -235,11 +235,19 @@ amendment task below makes this explicit.
      `SafeFileWriter` layer as guard logic before calling
      `FileIO.write_safe/3`. The physical write path delegates to FileIO;
      the semantic safety checks remain in `SafeFileWriter`.
-  5. **Unit tests.** Verify that: (a) absorbed knowledge files call
+  5. **Conflict response.** When `FileIO.write_safe/3` returns
+     `{:conflict, :external_modification}` for a knowledge file write, treat
+     the candidate as "not written" and emit
+     `%Ingestion.CandidateSkipped{reason: :external_modification}`. This is
+     non-fatal — the conflict is logged and the ingestion cycle continues
+     with remaining candidates (per sub-D §6 "On sub-E").
+  6. **Unit tests.** Verify that: (a) absorbed knowledge files call
      `FileIO.write_safe/3` with `:human_editable`; (b) staging files call it
      with `:exclusive`; (c) all reads go through `FileIO.read_tracked/1`;
      (d) `SafeFileWriter` contains no direct `File.write/File.rename`
-     calls (enforce via Credo custom check or module boundary rule).
+     calls (enforce via Credo custom check or module boundary rule);
+     (e) a `{:conflict, :external_modification}` response emits
+     `%Ingestion.CandidateSkipped{}` and the cycle continues.
 - **Results:** _pending_
 
 ### Define core ingestion types `[types]`

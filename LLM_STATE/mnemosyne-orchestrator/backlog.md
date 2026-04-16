@@ -127,41 +127,11 @@ F's architecture commitment affects every done brainstorm. Each amendment is a s
 ## Priority 2 — Remaining sub-project brainstorms
 
 ### Brainstorm sub-project G — migration `[brainstorm]`
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** Sub-G amendment complete (Priority 1) — **satisfied**
-- **Description:** Design the migration path from `LLM_STATE/` + `LLM_CONTEXT/` to `<project>/mnemosyne/` + the BEAM daemon. Consolidated scope from the Sub-G amendment (15 items across 4 categories):
-
-  **Category 1 — Directory structure transformation:**
-  - `LLM_STATE/` → `<project>/mnemosyne/project-root/` (F-4 collapsed `plans/`; root plan at `project-root/` directly)
-  - `LLM_STATE/<orchestrator>/` files become the project-root plan; `LLM_STATE/<sub-X>/` directories nest under `project-root/`
-  - Create `<project>/mnemosyne/knowledge/` as sibling of `project-root/` (Tier 1 per-project knowledge)
-  - `phase.md` → `plan-state.md` rename in every plan directory
-  - `plan-state.md` schema: remove `plan-id`/`host-project`/`dev-root` (filesystem-derivable per F-5), add `description:` (≤120c, non-placeholder, enforced per §1.4), rename `mnemosyne-pid` → `daemon-pid`
-  - `related-plans.md` files deleted entirely (F replaced with vault catalog; supersedes Session 8's schema-change framing)
-  - Preserve per-plan optional files: `pre-work.sh`, `prompt-reflect.md`, `prompt-triage.md`, `prompt-compact.md`, `compact-baseline`
-
-  **Category 2 — Vault creation:**
-  - Create `<dev-root>/Mnemosyne-vault/` with full A4 layout: `mnemosyne.toml` (identity marker + schema version), `daemon.toml` (runtime config), `routing.ex` (minimal stub), `plan-catalog.md` (auto-generated), `experts/` (default declarations from sub-N), `.obsidian/` template
-  - Create `<vault>/projects/<name>` symlinks → `<project>/mnemosyne/` for each adopted project
-  - Gitignore policy per A5: `runtime/` contents (daemon.sock, mailboxes/, staging/, etc.) are gitignored; system-wide singleton lock at `<runtime_dir>/mnemosyne/daemon.lock` is outside the vault
-  - `adopt-project` is per-machine; G produces a one-shot migration script that loops over a project list (per sub-A §A8)
-
-  **Category 3 — Retirement:**
-  - Rust v0.1.0 CLI: entire `src/` codebase retired (daemon + TUI split replaces it); `Cargo.toml`/`Cargo.lock` at project root retired
-  - `eval/` stays as standalone Rust CLI (evaluation framework over knowledge files, independent of daemon)
-  - `defaults/` directory retired (v0.1.0 config format, `config.yml` + `gitignore`)
-  - `adapters/claude-code/` — legacy Claude Code plugin (markdown skills), not a harness adapter; G owns retiring or renaming it (per sub-C §11.6)
-  - `~/.mnemosyne/` hardcoded paths deleted outright (v0.1.0 has no real users, no migration path)
-
-  **Category 4 — Post-migration steps:**
-  - Daemon start: user runs `mnemosyne daemon --init` post-migration
-  - Vault catalog regenerated on first daemon start (auto-walks all adopted projects)
-  - Four dependent projects (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro) need the same `LLM_STATE/` → `mnemosyne/project-root/` transformation; non-disruption constraint means migration must be atomic per-project and reversible
-
-  **Cross-references:** F design doc §1/§1.2–§1.5/F-4/F-5, sub-A contract table + §A8, sub-C §11.6, sub-D (FileIO + singleton lock), Session 8 carry-forwards.
-
-  Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-G-migration-design.md` and sibling plan at `LLM_STATE/sub-G-migration/`.
-- **Results:** _pending_
+- **Description:** Design the migration path from `LLM_STATE/` + `LLM_CONTEXT/` to `<project>/mnemosyne/` + the BEAM daemon.
+  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-G-migration-design.md` and sibling plan at `LLM_STATE/sub-G-migration/`.
+- **Results:** Design complete (Session 18). Key decisions: (1) per-project staggering — Mnemosyne first at daemon switch-over, dependents later; (2) two tools — shell script for filesystem restructure, `mnemosyne adopt-project` for vault integration; (3) git-native reversibility; (4) `plan-state.md` is phase-only at migration — schema enforcement is daemon's job; (5) `eval/` deleted (depends on root crate, not standalone); (6) `adapters/claude-code/` deleted outright. Phase 0 (artifact retirement) executed immediately: deleted `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/`. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks across 3 phases. Design doc 491 lines, 12 decision-trail entries.
 
 ### Brainstorm sub-project H — skills as TUI actions `[brainstorm]`
 - **Status:** not_started

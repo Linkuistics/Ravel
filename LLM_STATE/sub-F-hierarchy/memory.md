@@ -166,14 +166,25 @@ explicit dependency in Task 0's readiness gate.
 
 ### Consumes from sub-D — FileIO mandatory I/O layer
 
-`Mnemosyne.FileIO` is the mandatory layer for all daemon file writes
-(also from sub-D). Every daemon write must use `FileIO.write_safe/3`
-with an appropriate file category:
+`Mnemosyne.FileIO` is the mandatory layer for all daemon file I/O
+(also from sub-D). Design doc:
+`{{PROJECT}}/docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`.
+
+**Writes** — every daemon write must use `FileIO.write_safe/3` with
+an appropriate file category:
 - `:exclusive` — daemon regenerates unconditionally, no conflict check
   (e.g. `<vault>/plan-catalog.md` written by `CatalogRenderer`)
 - `:phase_owned` — daemon-authoritative, warn on conflict
 - `:human_editable` — human-authoritative, discard on conflict
 F's `CatalogRenderer` (Task 9) uses `:exclusive`.
+
+**Reads** — all plan-file reads in `PlanActor` and routing must use
+`FileIO.read_tracked/1` (not bare `File.read/1`). This causes
+`FreshnessTracker` (a GenServer in sub-D's coordination layer) to
+record SHA-256 hashes of each read, which is the mechanism that makes
+content-hash freshness checking work for plan files. Tasks 1, 4, 6,
+7, and 8 all read plan files and must route those reads through
+`read_tracked/1`.
 
 ### Consumes from sub-M
 

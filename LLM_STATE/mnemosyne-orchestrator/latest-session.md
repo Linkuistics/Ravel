@@ -1,16 +1,23 @@
-### Session 19 (2026-04-16T02:50:06Z) — Sub-G amendment absorbed; migration brainstorm unblocked
-- **Attempted:** Absorb the sub-G amendment task — consolidate all F-triggered scope changes for G's pending migration brainstorm by cross-referencing F's design doc, sub-A's contract table, sub-C §11.6, sub-D's contributions, and Session 8 carry-forwards.
+### Session 18 (2026-04-16T04:41:21Z) — Sub-G migration brainstorm + Phase 0 artifact retirement
+
+- **What was attempted:** Brainstorm for Sub-G (migration: LLM_STATE/ + v0.1.0 transition). Design the migration path from LLM_STATE/ + LLM_CONTEXT/ to `<project>/mnemosyne/` + the BEAM daemon. Also executed Phase 0 — immediate artifact retirement.
+
 - **What worked:**
-  - Confirmed the original 7 F-impact items in the amendment task description were correct and complete.
-  - Identified 8 additional scope items not captured in the original description: `plan-state.md` schema changes (field removals/additions/renames), legacy `adapters/claude-code/` retirement (sub-C §11.6), `<project>/mnemosyne/knowledge/` creation, vault creation with full A4 layout, symlink creation, gitignore policy per A5, four dependent projects needing same transformation, `eval/` + `defaults/` disposition.
-  - Noted that Session 8's `related-plans.md` schema change is superseded by F's complete deletion of the concept (vault catalog replaces it) — the amendment correctly captures the stronger framing.
-  - All 15 scope items consolidated into 4 categories (directory structure, vault creation, retirement, post-migration steps) in the sub-G brainstorm task description.
-- **What didn't:** Nothing blocked. The amendment was purely consolidation work — no design decisions were needed, no conflicts between sources.
-- **What this suggests next:**
-  - G brainstorm is now unblocked and ready to execute (Priority 2 task, dependencies satisfied).
-  - H and I amendments remain as the other two pending scope-framing tasks. Both are similar consolidation exercises and can proceed in any order.
-  - The G brainstorm itself is the most architecturally consequential remaining brainstorm — it affects every project currently on LLM_CONTEXT and defines the concrete transition path from the bootstrap machinery to the BEAM daemon.
+  - Full brainstorm completed with 12 design decisions captured in decision trail
+  - Design doc written at `docs/superpowers/specs/2026-04-16-sub-G-migration-design.md` (491 lines, 8 sections + appendix)
+  - Sibling plan scaffolded at `LLM_STATE/sub-G-migration/` with 8 tasks across 3 phases
+  - Phase 0 executed immediately: deleted `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/claude-code/`, `defaults/`, `eval/`, `tests/` — all v0.1.0 artifacts
+  - Key discovery: `eval/` is NOT standalone — it depends on the root crate via `mnemosyne = { path = ".." }`, so it was deleted rather than preserved
+
+- **What didn't work:** Nothing — clean brainstorm session
+
+- **What this suggests trying next:**
+  - Sub-H amendment and Sub-I amendment are the last pending Priority 1 tasks
+  - Sub-G Task 2-3 (write `migrate-project.sh`) can proceed independently of the daemon — the script can be written and tested before the daemon is ready
+  - Sub-B/sub-C task-list rewrites remain on the critical path for Sub-F Task 0
+
 - **Key learnings:**
-  - Amendment tasks for pending brainstorms are scope-consolidation exercises, not design-doc rewrites. Their value is preventing the brainstorm from wasting fresh context on cross-referencing archaeology.
-  - G's migration scope is uniquely fragmented across 5+ source documents — without this consolidation, the brainstorm would need to rediscover constraints that are scattered across F §1, A's contract table, C §11.6, D's FileIO, and Session 8's reconciliation notes.
-  - The `adapters/claude-code/` directory and `defaults/` directory are easily-missed retirement targets that aren't obvious from F's design doc alone — sub-C §11.6 and the filesystem tree were necessary cross-references.
+  - eval/'s dependency on the root crate makes it non-standalone — corrects the earlier memory entry that said "eval stays as Rust"
+  - Per-project staggering with Mnemosyne-first is the natural ordering: the rename IS the daemon switch-over event, no intermediate states needed
+  - The migration script and daemon adoption are cleanly separable: different lifecycles, different error models
+  - G imposes no design changes on any sibling sub-project — the post-migration layout conforms to what A, B, F, E, N already expect

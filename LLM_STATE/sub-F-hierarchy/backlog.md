@@ -21,7 +21,15 @@ yet; Task 0 is the gate.
   task); sub-A amendment absorbed; sub-M amendment absorbed;
   `Mnemosyne.DaemonLock` module delivered by sub-D (Tasks 10 and 12
   require this API — daemon boot acquires the singleton lock via it;
-  confirm sub-D's lock module is landed before Tasks 10/12 run)
+  confirm sub-D's lock module is landed before Tasks 10/12 run);
+  `Mnemosyne.FileIO` module delivered by sub-D (all daemon file
+  writes must use `FileIO.write_safe/3` with the appropriate
+  category; all plan-file reads in `PlanActor` and routing must use
+  `FileIO.read_tracked/1` so `FreshnessTracker` records SHA-256
+  hashes — this is what makes content-hash freshness checking work
+  for plan files; confirm `FileIO` is landed before Tasks 1, 4, 6,
+  7, 8, 9 run — see sub-D design doc at
+  `docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`)
 - **Description:** Meta-task guarding the start of real implementation
   work. Before any Task 1+ runs, verify:
   1. `{{PROJECT}}/LLM_STATE/sub-B-phase-cycle/backlog.md` Tasks 1+

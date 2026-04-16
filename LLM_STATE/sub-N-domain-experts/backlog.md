@@ -279,7 +279,9 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   filesystem at boot, file watcher optional at startup)
 - **Description:** Implement the singleton GenServer per spec §2.2
   and §7.2. Runs `File.ls/1` on `<vault>/experts/` at `init/1`,
-  parses every `*.md`, validates, registers valid ones in an
+  reads each `*.md` via **`FileIO.read_tracked/1`** (never raw
+  `File.read/2` — sub-D's coordination layer), passes content to
+  `Declaration.parse/1`, validates, registers valid ones in an
   internal ETS or Map cache, emits `%DeclarationError{}` for
   failures and `%ExpertRegistryReady{count, skipped}` when done.
   File watcher via `FileSystem` hex dep (add to `mix.exs` per spec
