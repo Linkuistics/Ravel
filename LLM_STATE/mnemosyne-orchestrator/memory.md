@@ -32,7 +32,7 @@ Same-project and cross-project dispatches use different mechanisms:
 - **Same-project** → origin names the specific `target-plan: <qualified-id>`. Mnemosyne writes to the target's `Received` section mechanically. No LLM in the loop.
 - **Cross-project** → origin names only `target-project: <name>`. Mnemosyne spawns a **Level 2 routing agent** — fresh-context Claude Code session scoped to the target project's vault subtree (plans + source code), with authority to pick a specific target plan or reject with reasoning. Optional `suggested-target-plan:` hint the agent may override.
 
-Origin lacks enough context to reason about foreign plans; the Level 2 agent does. Context depth scales with decision specificity.
+Origin lacks enough context to reason about foreign plans; the Level 2 agent does.
 
 ### Vault catalog substitutes `{{VAULT_CATALOG}}` placeholder
 `{{RELATED_PLANS}}` placeholder renamed to `{{VAULT_CATALOG}}`. Substituted content is the full vault catalog at `<vault>/plan-catalog.md` — every plan and expert, grouped by project, with 120-char descriptions and dispatch rules. `related-plans.md` is deleted. Auto-regenerated on plan mutation and every phase-prompt render. Committed to vault git as a human-visible Obsidian dashboard.
@@ -46,7 +46,7 @@ Routing rules live in `<vault>/routing.ex` — user-editable Elixir module with 
 ### Prefer integration over reinvention
 When scope overlaps with existing mature tools — Karpathy's LLM Wiki, knowledge-graph tools, TUI frameworks, session/workflow/state-machine libraries, knowledge-storage formats, PTY wrappers, **OTP itself** — the default is adopt or integrate. Rationale: reduces build surface, eases adoption via familiar mental models, avoids NIH tax. Every sub-project brainstorm must surface "what existing tool covers this ground, and why not use it?" Silent reinvention is not allowed.
 
-**Cross-cutting infrastructure sub-projects pick the standard tool at every internal decision.** When scope is "design infrastructure everything else uses" (M is the exemplar; D, F, H, I face the same shape), after the architectural fork question lands, treat every remaining decision as "pick the standard tool" and bound custom code tightly.
+For cross-cutting infrastructure sub-projects (M is the exemplar; D, F, H, I face the same shape), after the architectural fork question lands, treat every remaining decision as "pick the standard tool" and bound custom code tightly.
 
 ### Hard errors by default
 Soft fallbacks require explicit written rationale. Unexpected conditions, invariant violations, I/O failures, and ambiguous state fail hard with clear diagnostics. Documented exceptions must name the rationale in the design doc. Project-wide.
@@ -124,7 +124,7 @@ Every daemon startup resolves the vault: `--vault <path>` → `MNEMOSYNE_VAULT` 
 A directory is a vault iff `mnemosyne.toml` at root contains a parseable `[vault]` table with `schema_version`. Missing file, parse error, or unsupported version are hard errors. The same file hosts optional vault-level overrides (language profiles, context mappings). Verified every invocation via `verify_vault`. **`daemon.toml` is a separate file** for runtime configuration knobs (socket paths, timeouts, harness settings). The two-file split is load-bearing: swapping daemon versions or reconfiguring harnesses must not touch vault identity.
 
 ### v0.1.0 has no real users — legacy paths deleted
-No `migrate` subcommand. Hardcoded `~/.mnemosyne/` in old Rust CLI deleted. Legacy YAML config format deleted. Previous Rust CLI scope subsumed by the daemon + TUI split. Rust CLI implementation discarded: CLI subcommand wiring, knowledge store read/write glue, and `eval/` (depends on root crate, not standalone). Markdown+YAML knowledge format stays. Every design-level decision from A/B/C/E/M stays. Phase 0 artifact retirement complete: `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/claude-code/`, `defaults/`, `eval/`, `tests/` all deleted.
+Less than a day of Rust implementation. No `migrate` subcommand. Hardcoded `~/.mnemosyne/` in old Rust CLI deleted. Legacy YAML config format deleted. Previous Rust CLI scope subsumed by the daemon + TUI split. Rust CLI implementation discarded: CLI subcommand wiring, knowledge store read/write glue, and `eval/` (depends on root crate, not standalone). Markdown+YAML knowledge format stays. Every design-level decision from A/B/C/E/M stays. Phase 0 artifact retirement complete: `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/claude-code/`, `defaults/`, `eval/`, `tests/` all deleted.
 
 ### Knowledge ingestion via post-session inspection
 Mnemosyne reads plan outputs (`memory.md`, `session-log.md`) after sessions end or at phase boundaries. The LLM never invokes CLI to "promote." E's pipeline stages: extract → classify → contradict → score → **dispatch to experts** (Stage 5). Experts review candidate entries in fresh context and absorb, reject, or cross-link them.
@@ -257,19 +257,19 @@ Critical next steps: **(1)** Sub-R brainstorm — research-heavy but can run in 
 ### Pattern-matched Elixir routing vs Erlog
 Will user-authored `defp route/2` clauses be expressive enough, or will Erlog (embedded Prolog) be needed? Unknown until real users write rules. V1 ships with pattern matching; Erlog reserved for v2 if the need arises.
 
-### Default expert set resolved by sub-N brainstorm
+### Default expert set is six starter declarations
 Six starter expert declarations: `rust-expert`, `elixir-expert`, `research-expert`, `software-architect`, `obsidian-expert`, `ffi-expert`. `distributed-systems-expert` dropped (scope absorbed by `software-architect`); `elixir-expert` added for dogfooding. Authoring in sub-N's Task 8 against design doc §3.5/§3.1 template.
 
 ### Team-mode design
 Solo-developer by design at v1 (A's single-vault discovery, F's single-daemon architecture, E's sequential ingestion). Multi-developer shared vault needs network transport (sub-P's scope), conflict resolution, curation workflow changes, possibly per-user identity. F reserves the schema hooks (`[peers]`, `<peer>@<id>`) but doesn't wire them. Sub-P brainstorm at v2 milestone.
 
-### Fate of 7 Claude Code skills — resolved by sub-H brainstorm
-Architecture-first derivation produced 17 daemon commands; legacy skills map as consequence: `begin-work`/`reflect` → `phase.*`, `setup-knowledge` → `vault.adopt`, `create-plan` → `plan.create` (new NDJSON command), `explore-knowledge` → `expert.query`, `curate-global`/`promote-global` → unified `knowledge.submit`. Three legacy concepts disappeared: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` as distinct concept (expert query IS knowledge exploration), curate/promote distinction (unified). Command palette with user-configurable keybindings + which-key. `mnemosyne cmd` CLI for external automation. Clean break at G's Phase 1.
+### Seven Claude Code skills map to 17 daemon commands
+Architecture-first derivation produced 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappeared: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` as distinct concept (expert query IS knowledge exploration), curate/promote distinction (unified). Command palette with user-configurable keybindings + which-key. `mnemosyne cmd` CLI for external automation. Clean break at G's Phase 1.
 
 ### What in `LLM_CONTEXT/` survives the merge
 G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Mnemosyne's embedded prompts, a separate docs repo, or stay until LLM_CONTEXT retires.
 
-### Which Obsidian features cover which data surfaces — resolved by sub-I brainstorm
+### Obsidian covers all 15+ Mnemosyne data surfaces
 Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Templater, Homepage). Four starter Dataview views in `views/` directory. Obsidian's native file tree, search, tags panel, and backlinks cover the core surfaces. Non-markdown files (`.toml`, `.ex`) are plain-text-only in Obsidian — users edit in IDE. V1 event coverage is indirect (file changes only); live event streaming is a v2 candidate (sub-K eliminated). Obsidian is a pragmatic bridge to Phoenix LiveView, not the destination.
 
 ## Constraints / non-goals
@@ -281,9 +281,6 @@ Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Temp
 This plan runs on existing LLM_CONTEXT machinery. No assumed features beyond what LLM_CONTEXT supports.
 
 **Dogfooded improvements may land back into LLM_CONTEXT** when: (1) additive documentation only; (2) four dependents absorb with zero migration; (3) flows into v1 when B's embedded prompts vendor the canonical files.
-
-### Mnemosyne v0.1.0 sunk cost is tiny
-Less than a day of Rust implementation. Rust CLI implementation discarded: CLI subcommand wiring, knowledge store read/write glue, and `eval/` (depends on root crate, not standalone). Markdown+YAML knowledge format stays. Every design-level decision from A/B/C/E/M stays. Phase 0 artifact retirement complete: `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/claude-code/`, `defaults/`, `eval/`, `tests/` all deleted.
 
 ### Never bulk-stage in APIAnyware-MacOS or GUIVisionVMDriver
 Both repos carry uncommitted WIP on `main`. Any task must `git add` specific paths — never `git add -A`, `git add .`, or `git commit -a`.
