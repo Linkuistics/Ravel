@@ -312,7 +312,7 @@ Every workflow must work with a human driver or an LLM driver. Phase cycles supp
 
 ## Status
 
-**Currently in architectural design phase.** Ten sub-project brainstorms are substantially complete. Implementation has not started on the daemon; a previous v0.1.0 existed as a Rust CLI but has been subsumed by this pivot to the actor-daemon architecture.
+**Currently in architectural design phase.** Eleven sub-project brainstorms are substantially complete. All v1-scope brainstorms are done. Implementation has not started on the daemon; a previous v0.1.0 existed as a Rust CLI but has been subsumed by this pivot to the actor-daemon architecture.
 
 Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/specs/):
 
@@ -328,7 +328,7 @@ Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/spec
 | H (skill fold) | design complete | `2026-04-16-sub-H-skills-design.md` |
 | M (observability) | design complete (pending F amendment) | `2026-04-13-sub-M-observability-design.md` |
 | N (domain experts) | design complete | `2026-04-15-sub-N-domain-experts-design.md` |
-| I (Obsidian coverage) | design pending | — |
+| I (Obsidian coverage) | design complete | `2026-04-16-sub-I-obsidian-coverage-design.md` |
 | L (terminal spike) | design pending | — |
 | O (mixture of models) | reserved for v1.5+ | — |
 | P (team mode) | reserved for v2+ | — |

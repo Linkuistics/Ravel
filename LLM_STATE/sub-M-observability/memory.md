@@ -263,9 +263,11 @@ tasks below.
 - **§4.1** — sealed `Mnemosyne.Event.*` struct set. 20+ variants grouped
   by producer: sub-B (one struct with seven `kind` variants), sub-C
   (five), sub-F (nine), sub-E (six Ingestion variants), sub-A (two
-  Vault variants), M-owned escape hatches (`Metric`, `Diagnostic`,
-  `Error`). Sealed for v1; adding a variant needs a Decision Trail
-  entry.
+  Vault variants), sub-N (six `Expert.*` structs: `ConsultationStarted`,
+  `ConsultationCompleted`, `ConflictDetected`, `DialogueStarted`,
+  `DialogueTurnCompleted`, `DialogueExpired` — absorbed by backlog Task 24),
+  M-owned escape hatches (`Metric`, `Diagnostic`, `Error`). Sealed for v1;
+  adding a variant needs a Decision Trail entry.
 - **§4.2** — emission via `Mnemosyne.Observability.emit/1` which wraps
   `:telemetry.execute/3` with the struct in `metadata.event` and a
   derived event name prefix (`%Event.PhaseLifecycle{}` →

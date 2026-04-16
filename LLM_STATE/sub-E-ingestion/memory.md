@@ -210,6 +210,14 @@ layer for all daemon file operations. This is binding on sub-E:
      Trivial rejections (scope-miss, no reason given) do not constitute a
      conflict.
 
+  **`Mnemosyne.Expert.DialogueRegistry` and single-turn call pattern (binding on Stage 5):**
+  Sub-N provides `Mnemosyne.Expert.DialogueRegistry` as the dispatch interface.
+  Stage 5 must use **stateless single-turn calls** through this registry — not
+  multi-turn dialogue sessions. Each `%ExpertAbsorbCandidate{}` dispatch is a
+  self-contained single exchange; the expert responds with exactly one verdict
+  struct and the session ends. Do not design Stage 5's fan-out collector around
+  conversational back-and-forth — the registry does not support it.
+
   **Timeout distinction (binding on Stage 5 implementation — do not collapse):**
   - **Retrieval pipeline timeout (5 seconds)** — structural sanity check; bounds
     `ScopeMatcher.match_candidate/2` and initial message-send phase. Treat a

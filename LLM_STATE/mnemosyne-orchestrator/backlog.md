@@ -4,43 +4,11 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 ## Priority 2 — Remaining sub-project brainstorms
 
 ### Sub-I — Obsidian coverage
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** none (P1 amendment absorbed)
-- **Description:** Document which Obsidian features cover which Mnemosyne data surfaces, and produce the `.obsidian/` template that ships with v1. F reframes Obsidian's role: it is a **concrete daemon client** (v1 via direct file observation of vault state; v1.5+ via sub-K's NDJSON protocol plugin), not just a passive file viewer.
-  **Complete data-surface inventory** (the brainstorm must map each to Obsidian capabilities):
-  *Vault-level tracked surfaces:*
-  - `mnemosyne.toml` — vault identity + optional overrides (TOML; read-only for most users)
-  - `daemon.toml` — daemon runtime config: harnesses, peers, log levels (TOML; user-edited)
-  - `routing.ex` — user-editable declarative routing rules (Elixir source; syntax-highlighting and code-intelligence concerns — Obsidian's code block rendering, possible CodeMirror language mode in `.obsidian/snippets/`)
-  - `plan-catalog.md` — auto-regenerated vault catalog, machine-owned (Markdown; primary Dataview target for "what's in my vault" dashboard queries; manual edits overwritten)
-  - `experts/*.md` — expert declarations with YAML frontmatter: persona, scope globs, retrieval config (browsable, user-editable; Dataview-queryable for expert inventory views)
-  - `knowledge/` — Tier 2 global knowledge entries with YAML frontmatter + tags (expert-owned writes; human review/edit/reject via Obsidian; Dataview for cross-domain queries)
-  - `archive/` — auditable session/ingestion history (Obsidian file history + git history)
-  - `.obsidian/` — curated template subset (the deliverable of this brainstorm)
-  *Per-project surfaces (visible via `<vault>/projects/<name>` symlinks):*
-  - `<project>/mnemosyne/knowledge/` — Tier 1 per-project knowledge (same format as Tier 2; plan-owned)
-  - `<project>/mnemosyne/project-root/plan-state.md` — plan marker + phase state (YAML frontmatter with `description:` ≤120c)
-  - `<project>/mnemosyne/project-root/backlog.md` — plan backlog
-  - `<project>/mnemosyne/project-root/memory.md` — plan memory (provisional scratch, not durable knowledge)
-  - `<project>/mnemosyne/project-root/session-log.md` — session history
-  - Nested child plans at arbitrary depth under `project-root/`
-  *Runtime/ephemeral surfaces (gitignored, not directly Obsidian-browsable but observable):*
-  - `runtime/daemon.sock` — Unix socket (existence = daemon is running)
-  - `runtime/staging/` — phase staging dirs (transient per-phase)
-  - `runtime/mailboxes/` — actor mailboxes as JSONL (rebuildable from archive)
-  - `runtime/events/` — ingestion event queue
-  *Daemon event stream (v1.5+ via sub-K):*
-  - `phase_transition`, `mailbox_received`, `harness_output`, `dispatch_processed`, `query_answered`, `rule_fired`, `rule_suggestion`, `actor_state_change` — F's §7.2 event types. These enable live-view panels in Obsidian when sub-K's plugin consumes the NDJSON protocol. V1 coverage doc should document these as "observable via TUI; Obsidian live view deferred to K."
-  **Brainstorm questions:**
-  - Which Obsidian core features (file tree, backlinks, tags, search, graph view, file history) cover which surfaces?
-  - Which community plugins are required vs. optional? (Dataview is required per memory.md; Templater optional)
-  - What Dataview queries ship in the template? (plan inventory, expert inventory, knowledge by tag, session history)
-  - What CSS snippets ship? (routing.ex Elixir highlighting, plan-state frontmatter styling, catalog formatting)
-  - What `.obsidian/` files are tracked vs. gitignored? (A5 policy: curated subset tracked, workspace/cache gitignored)
-  - How does the template handle symlinked project directories? (Obsidian follows symlinks natively on macOS/Linux — verify)
-  - What's the "first open" experience for a user opening the vault in Obsidian for the first time?
-  Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-I-obsidian-coverage-design.md`.
-- **Results:** _pending_
+- **Description:** Document which Obsidian features cover which Mnemosyne data surfaces, and produce the `.obsidian/` template that ships with v1.
+  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-I-obsidian-coverage-design.md`.
+- **Results:** Brainstorm complete (Session 23). Design doc produced with 10 sections covering: complete data-surface inventory (§2, 15+ surfaces mapped to Obsidian features), three required community plugins — Dataview, Templater, Homepage (§3), two Templater templates for knowledge entries and expert declarations (§4), four starter Dataview view files in `views/` directory (§5), `.obsidian/` file manifest with git-tracking policy (§6), symlink handling verification requirement (§7), first-open experience flow (§8), cross-sub-project requirements — lightweight, two minor additions to Sub-A init scaffolding, one confirmation on Sub-E (§9), seven implementation tasks (§10). Key design decisions: Obsidian is a pragmatic bridge to Phoenix LiveView (not the destination); no graph view; no CSS snippets; no custom dashboard (plan-catalog.md as homepage); zero shipped CSS. Sibling plan scaffolded at `LLM_STATE/sub-I-obsidian-coverage/` with 7 tasks.
 
 ### Sub-L — Obsidian terminal plugin spike (independent)
 - **Status:** not_started
@@ -135,7 +103,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 ## Priority 3 — Decisions and gates
 
 - **Status:** not_started
-- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, H, M, N done; I pending; K, L pending but v1.5+)
+- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, H, I, M, N done; K, L pending but v1.5+)
 - **Description:** Once every in-scope sub-project has been brainstormed and its design doc and implementation plan exist, decide what's actually in v1 vs. deferred to v1.5/v2. Update memory.md with the v1 cut. Adjust dependent implementation plans accordingly.
   Sub-N (domain experts) is **in v1** — F relies on ExpertActor shipping alongside PlanActor. Without experts, Query messages have no interesting targets.
   Sub-O (MoM) and sub-P (team mode) are **v1.5+ and v2+ by design** — not candidates for v1 scope cut.

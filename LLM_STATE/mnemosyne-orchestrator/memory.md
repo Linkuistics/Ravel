@@ -223,7 +223,7 @@ Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the exper
 
 ## Sub-projects
 
-Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, M, N (ten of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
+Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N (eleven of sixteen). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`.
 
 | ID | Sub-project | Complexity | Status | Notes |
 |----|-------------|-----------|--------|-------|
@@ -235,7 +235,7 @@ Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, 
 | F  | Plan hierarchy + actor model + dispatch + declarative routing | **Large** | **done** (sibling plan scaffolded) | Design doc `specs/2026-04-14-sub-F-hierarchy-design.md`. Committed: persistent BEAM daemon, two sealed actor types, two message types, `project-root` convention, path-based qualified IDs, dispatch asymmetry, vault catalog, Datalog-ish declarative routing with Level 2 fallback, Elixir runtime, Rust TUI client. Sibling plan at `LLM_STATE/sub-F-hierarchy/` with 28 implementation tasks + Task 0 readiness gate; implementation blocked on sub-B + sub-C task-list rewrites and sub-A + sub-M amendment absorption. |
 | G  | Migration: LLM_CONTEXT + v0.1.0 transition | Medium | **done** | Design doc `specs/2026-04-16-sub-G-migration-design.md`. Four-phase ordering: Phase 0 (artifact retirement, executed immediately — `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/` deleted), Phase 1 (Mnemosyne rename at daemon switch-over), Phase 2 (dependent projects stagger), Phase 3 (LLM_CONTEXT retirement). Two tools: `scripts/migrate-project.sh` for filesystem restructure, `mnemosyne adopt-project` for vault integration — cleanly separable with different lifecycles and error models. Per-project staggering, git-native reversibility, plan-state.md phase-only at migration. Phase 1 rename is the daemon switch-over event: no intermediate partial-migration states exist. `migrate-project.sh` must execute as a single atomic transaction (no partial-state window): sub-H's 17-command palette has no shim and is inoperative until Phase 1 completes. G imposes no design changes on any sibling sub-project — post-migration layout conforms to what A, B, E, F, N already expect. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks. |
 | H  | Fold 7 Claude Code skills | Small-med | **done** | Design doc `specs/2026-04-16-sub-H-skills-design.md`. Architecture-first derivation: 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappear (`promote-global`, `explore-knowledge`, curate/promote distinction). Uniform protocol (reuse `send`; only `create_plan` + `adopt_project` new). Command palette with configurable keybindings + which-key. `mnemosyne cmd` CLI for external automation. Expert CRUD via filesystem + `$EDITOR`. Clean break at G's Phase 1. Local docs server. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks. |
-| I  | Obsidian coverage (re-scoped) | Small-med | not started (unblocked) | Document which Obsidian features cover which data surfaces. F amendment absorbed: Obsidian as daemon client, vault catalog, routing.ex, expert declarations, daemon event stream all in brainstorm scope. Complete data-surface inventory in backlog. |
+| I  | Obsidian coverage | Small-med | **done** | Design doc `specs/2026-04-16-sub-I-obsidian-coverage-design.md`. Complete data-surface inventory (15+ surfaces mapped to Obsidian features), three required plugins (Dataview, Templater, Homepage), two Templater templates, four starter Dataview views, zero CSS snippets. Obsidian is a pragmatic bridge to Phoenix LiveView. No graph view. Sibling plan at `LLM_STATE/sub-I-obsidian-coverage/` with 7 tasks. |
 | J  | Human-mode phase affordances | N/A | **obsolete** | Folded into B as `ManualEditorExecutor`. |
 | K  | Obsidian plugin client | Medium | not started (v1.5+) | Daemon-as-backend makes K more attractive. Client of F's Unix socket protocol. Re-evaluate at v1 scope cut. |
 | L  | Obsidian terminal plugin spike | Small | not started | Prerequisite for K. Independent — can start any time. |
@@ -248,9 +248,9 @@ Seventeen sub-projects (sixteen active, one obsolete). Brainstorms complete: A, 
 
 ### Recommended sub-project ordering (post-N)
 
-Brainstorms complete: A, B, C, D, E, F, G, H, M, N (ten of sixteen). Amendments absorbed: A, B, C, E, G, H, I, M. Immediate pipeline: sub-I brainstorm → sub-E/sub-B/sub-C task-list rewrites → sub-F Task 0 → implementation. Sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
+Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N (eleven of sixteen). Amendments absorbed: A, B, C, E, G, H, I, M. All v1-scope brainstorms are now complete — the P3 v1 scope-cut decision is unblocked. Immediate pipeline: P3 scope cut → sub-E/sub-B/sub-C task-list rewrites → sub-F Task 0 → implementation. Sub-O (v1.5) → sub-Q (v1.5, research) → sub-R (v1.5, research) → sub-P (v2).
 
-Critical next steps: **(1)** Sub-I brainstorm (unblocked — P1 amendment absorbed, complete data-surface inventory in brainstorm scope). **(2)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(3)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(4)** Sub-F Task 0 readiness check once (3) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. Sub-Q and sub-R reserved for v1.5+.
+Critical next steps: **(1)** P3 v1 scope-cut decision (all in-scope brainstorms complete — I was the last one). **(2)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(3)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(4)** Sub-F Task 0 readiness check once (3) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. Sub-Q and sub-R reserved for v1.5+.
 
 ## Open questions
 
@@ -269,8 +269,8 @@ Architecture-first derivation produced 17 daemon commands; legacy skills map as 
 ### What in `LLM_CONTEXT/` survives the merge
 G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Mnemosyne's embedded prompts, a separate docs repo, or stay until LLM_CONTEXT retires.
 
-### Which Obsidian features cover which data surfaces
-I's work (re-scoped). "Which plugin + Dataview query covers each surface (Tier 1, Tier 2, plan state, sessions, ingestion provenance), and what `.obsidian/` template ships by default." Undo/history collapses to Obsidian's file history + vault git.
+### Which Obsidian features cover which data surfaces — resolved by sub-I brainstorm
+Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Templater, Homepage). Four starter Dataview views in `views/` directory. Obsidian's native file tree, search, tags panel, and backlinks cover the core surfaces. Non-markdown files (`.toml`, `.ex`) are plain-text-only in Obsidian — users edit in IDE. V1 event coverage is indirect (file changes only); live event streaming deferred to sub-K (v1.5+). Obsidian is a pragmatic bridge to Phoenix LiveView, not the destination.
 
 ## Constraints / non-goals
 

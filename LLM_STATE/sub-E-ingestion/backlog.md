@@ -128,7 +128,13 @@ amendment task below makes this explicit.
      to `<vault>/knowledge/uncategorized/` using the same `SafeFileWriter`
      invariants as Stage 5's normal write path. Emit an
      `Ingestion.Applied` event with `source: :uncategorized`.
-  7. **Implement two distinct timeouts** — do not collapse them:
+  7. **Use `Mnemosyne.Expert.DialogueRegistry` with stateless single-turn calls.**
+     Sub-N provides `Mnemosyne.Expert.DialogueRegistry` as the dispatch interface.
+     Stage 5 must invoke it as a stateless single-turn call — one
+     `%ExpertAbsorbCandidate{}` in, one verdict struct back, session ends.
+     Do not design the fan-out collector around multi-turn dialogue; the registry
+     does not support conversational back-and-forth.
+  9. **Implement two distinct timeouts** — do not collapse them:
      - **Retrieval pipeline timeout (5 seconds):** bounds `ScopeMatcher`
        match and initial message-send phase. Breach = infrastructure failure;
        abort the cycle.
@@ -136,7 +142,7 @@ amendment task below makes this explicit.
        per ExpertActor session. Configurable in `daemon.toml` under
        `[experts] turn_timeout_seconds`. Breach = treat as `READY REJECT`
        for that expert; cycle continues with remaining verdicts.
-  8. Write unit tests for: parallel matched dispatch (all experts receive msg),
+  10. Write unit tests for: parallel matched dispatch (all experts receive msg),
      orphan path, cross-link re-dispatch (depth 1 and depth 2), multi-expert
      absorption (provenance field present on each write), conflict event
      surfacing (absorb + non-trivial reject → conflict; scope-miss → no
