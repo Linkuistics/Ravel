@@ -223,7 +223,7 @@ Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the exper
 
 ## Sub-projects
 
-Seventeen sub-projects (fourteen active, two eliminated, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N (eleven of fourteen active). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`. Two version tiers: **v1** (A, B, C, D, E, F, G, H, I, M, N, R) and **v2** (O, Q, P).
+Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N (eleven of fifteen active; eleven of twelve v1 sub-projects — sub-R outstanding). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`. Two version tiers: **v1** (A, B, C, D, E, F, G, H, I, M, N, R) and **v2** (O, Q, P).
 
 | ID | Sub-project | Complexity | Status | Notes |
 |----|-------------|-----------|--------|-------|
