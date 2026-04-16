@@ -1,7 +1,30 @@
 # Backlog — Mnemosyne Orchestrator
 Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
-## Priority 1 — v2 sub-project brainstorms
+## Priority 1 — Implementation phase coordination
+
+### Implementation Critical Path Monitor
+- **Status:** not_started
+- **Dependencies:** All v1 brainstorms complete (satisfied 2026-04-16)
+- **Description:** All twelve v1 brainstorms are done (A, B, C, D, E, F, G, H, I, M, N, R). Implementation phase begins. Orchestrator role: dispatch subagents to monitor critical path and surface blockers.
+
+  **Critical path (ordered):**
+  1. **Sub-B and Sub-C task-list rewrites** — pre-pivot Rust framing must be removed (gate tasks already in each sub-project's backlog). These two directly unblock Sub-F Task 0.
+  2. **Sub-E task-list rewrite** — same Rust-framing issue; gate task in Sub-E backlog. Independent of B/C.
+  3. **Sub-C model-configurability absorption** — per-actor `model:` field → `--model` CLI flag on harness spawn; required for cost control (Opus for plan phases, Haiku for ingestion/extraction).
+  4. **Sub-R Tasks 1–3 (literature surveys)** — can run immediately, no cross-project dependencies; Sub-R is fully unblocked.
+  5. **Sub-F Task 0 readiness check** — triggers once B+C rewrites land; unblocks Sub-F's 28 implementation tasks (largest block in v1).
+
+  **Actions when this task runs (work phase):**
+  - Dispatch subagents to Sub-B, Sub-C, Sub-E, Sub-F, Sub-R to report task-list and gate status.
+  - Identify which sub-projects are unblocked vs. waiting.
+  - Dispatch coordination signals (via Received section) to sub-projects if ordering adjustments are needed.
+  - Verify Sub-R adoption stubs landed in all nine sibling backlogs (N, E, F, H, A, M, I, G, and one of B/C).
+
+  **Output:** updated orchestrator memory reflecting current implementation status, which sub-projects are running, which are blocked, and the next unblocking event.
+- **Results:** _pending_
+
+## Priority 2 — v2 sub-project brainstorms (deferred)
 
 ### Sub-O — Mixture of models (v2)
 - **Status:** not_started (v2)
