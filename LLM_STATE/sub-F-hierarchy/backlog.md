@@ -92,6 +92,13 @@ yet; Task 0 is the gate.
   child-spec API. Sub-N Tasks 1–15 are independent of F and can run
   immediately; sub-N Phase 5+ is blocked on F delivering these two
   interfaces. Prioritise Tasks 2 and 5 to avoid delaying sub-N.
+- **ExpertRetrieval constraint (2026-04-16):** Sub-N's plan is now
+  complete (29 tasks). The `@behaviour Mnemosyne.ExpertRetrieval`
+  has a locked signature: `retrieve/3 :: (expert_id, query_text,
+  opts) -> {:ok, [%KnowledgeEntry{}]} | {:error, term()}`. The
+  `Mnemosyne.Actor` callback set **must not constrain** how sub-N
+  implements this retrieval behaviour — keep retrieval out of the
+  shared actor callbacks entirely.
 - **Results:** _pending_
 
 ### Task 3 — `Mnemosyne.ExpertActor` stub `[foundation]`
@@ -146,6 +153,13 @@ yet; Task 0 is the gate.
   child-spec API exists sub-N cannot wire its GenServer into the
   supervision tree. Ship Tasks 2 and 5 before sub-N reaches its
   internal Task 0 gate.
+- **API spec update (2026-04-16):** Sub-N's completed plan locked
+  the `ActorSupervisor` child-spec API as used by sub-N. In addition
+  to `start_plan_actor/1` and `start_expert_actor/1`, the module
+  must expose: `start_actor/2`, `stop_actor/1`, `send_message/2`.
+  Sub-N's ExpertActor implementation (Tasks 16+) calls these
+  generic forms. Ensure all three are part of the public API when
+  this task ships.
 - **Results:** _pending_
 
 ### Task 6 — `Mnemosyne.Router.Server` + mailbox NDJSON + cursor `[foundation]`

@@ -193,7 +193,7 @@ F emits `%ActorStateChange{}`, `%MessageRouted{}`, `%RuleFired{}`,
 `%RuleSuggestion{}`, and `%DispatchProcessed{}` / `%QueryAnswered{}`
 structs at the boundary. M owns the transport and subscribers.
 
-### Depended on by sub-N (added 2026-04-15)
+### Depended on by sub-N (added 2026-04-15; updated 2026-04-16)
 
 F's `Mnemosyne.Actor` behaviour (Task 2) and `ActorSupervisor`
 child-spec API (Task 5) are on the **critical path for sub-N Phase 5+**.
@@ -205,6 +205,31 @@ retrieval strategies, message/event structs) lives at
 `{{PROJECT}}/docs/superpowers/specs/2026-04-15-sub-N-domain-experts-design.md`
 and must be consulted when Task 3's stub is replaced. **Prioritise
 delivering Tasks 2 and 5 early** so sub-N's Phase 5 is not delayed.
+
+**Sub-N plan complete (2026-04-16):** Sub-N's brainstorm has produced
+a concrete 29-task implementation plan. ExpertActor internals are now
+locked — the following must be treated as fixed contracts when
+implementing F's interfaces:
+
+- **ExpertActor model:** stateless dialogue over ETS-backed
+  `Mnemosyne.Expert.DialogueRegistry`; tag-based exact-string scope
+  matching via `ScopeMatcher` behaviour; `KeywordSection` retrieval
+  strategy behind `ExpertRetrieval` behaviour; parallel Stage 5
+  fan-out with per-expert absorb writes.
+- **`ExpertRetrieval` behaviour:** `@behaviour Mnemosyne.ExpertRetrieval`
+  with locked signature `retrieve/3 :: (expert_id, query_text, opts)
+  -> {:ok, [%KnowledgeEntry{}]} | {:error, term()}`. F's `Mnemosyne.Actor`
+  callback set must not constrain how sub-N implements this.
+- **`ActorSupervisor` API:** sub-N calls `start_actor/2`, `stop_actor/1`,
+  `send_message/2` (generic forms) in addition to the per-type
+  `start_plan_actor/1` / `start_expert_actor/1`. All five must be in
+  Task 5's public API.
+- **Message/event structs from sub-N** (for consistency when F's
+  actor behaviour is designed): `%ExpertAbsorbCandidate{}`, verdict
+  structs (`READY ABSORB`, `READY REJECT`, `READY CROSS_LINK`),
+  `%Expert.DialogueStarted{}`, `%Expert.TurnCompleted{}`,
+  `%Expert.ConflictDetected{}`. These flow into sub-M's event bus;
+  F's actor behaviour must not conflict with these shapes.
 
 ### Depends on (not yet landed at F's scaffolding time)
 

@@ -102,28 +102,46 @@ amendment task below makes this explicit.
      exact-string set intersection on frontmatter `tags:` fields). Stage 5 uses
      `ScopeMatcher.match(candidate_tags, expert_tag_set)` to select which
      ExpertActors receive a given candidate.
-  2. Use `%ExpertAbsorbCandidate{}` as the message struct Stage 5 sends to each
+  2. **Parallel fan-out.** Dispatch `%ExpertAbsorbCandidate{}` messages to
+     every tag-matching expert **simultaneously** (not sequentially). Use
+     `Task.async_stream/3` or equivalent OTP parallel-dispatch primitive;
+     the collector waits on all in-flight verdicts before proceeding.
+  3. Use `%ExpertAbsorbCandidate{}` as the message struct Stage 5 sends to each
      matched ExpertActor. Ensure the struct carries the `ingestion-event-id`
      provenance field (required for physical-duplication tracing when multiple
      experts absorb the same candidate).
-  3. Handle all three verdict structs from ExpertActors in the Stage 5
+  4. Handle all three verdict structs from ExpertActors in the Stage 5
      collector loop:
      - `READY ABSORB` — record absorbed; expert writes to its domain subtree.
      - `READY REJECT` — record rejected; move on.
      - `READY CROSS_LINK <expert-id>` — re-dispatch to the suggested expert
        (max depth 2; no recursive cross-linking). Second-round dispatch is
        non-blocking and uses the same `%ExpertAbsorbCandidate{}` struct.
-  4. Handle `%ExpertConflict{}` and other `%Expert.*` event structs: surface
+  5. Handle `%ExpertConflict{}` and other `%Expert.*` event structs: surface
      them via the sub-M observability bus for human review; do not block
-     the ingestion cycle.
-  5. Implement the **orphan-candidate path**: when `ScopeMatcher` returns an
+     the ingestion cycle. **Conflict definition:** `%ExpertConflict{}` is
+     raised when one expert returns `READY ABSORB` and a different expert
+     returns `READY REJECT` with a non-trivial reason for the same candidate.
+     Trivial rejections (scope-miss, no reason) do not constitute a conflict.
+  6. Implement the **orphan-candidate path**: when `ScopeMatcher` returns an
      empty set (zero tag-matching experts), sub-E writes the candidate directly
      to `<vault>/knowledge/uncategorized/` using the same `SafeFileWriter`
      invariants as Stage 5's normal write path. Emit an
      `Ingestion.Applied` event with `source: :uncategorized`.
-  6. Write unit tests for: matched dispatch, orphan path, cross-link
-     re-dispatch (depth 1 and depth 2), multi-expert absorption (provenance
-     field present on each write), conflict event surfacing.
+  7. **Implement two distinct timeouts** — do not collapse them:
+     - **Retrieval pipeline timeout (5 seconds):** bounds `ScopeMatcher`
+       match and initial message-send phase. Breach = infrastructure failure;
+       abort the cycle.
+     - **Per-turn session timeout (5 minutes default):** bounds LLM reasoning
+       per ExpertActor session. Configurable in `daemon.toml` under
+       `[experts] turn_timeout_seconds`. Breach = treat as `READY REJECT`
+       for that expert; cycle continues with remaining verdicts.
+  8. Write unit tests for: parallel matched dispatch (all experts receive msg),
+     orphan path, cross-link re-dispatch (depth 1 and depth 2), multi-expert
+     absorption (provenance field present on each write), conflict event
+     surfacing (absorb + non-trivial reject → conflict; scope-miss → no
+     conflict), per-turn timeout → reject (cycle continues), retrieval
+     pipeline timeout → abort.
 - **Results:** _pending_
 
 ### F amendment — expert-dispatched knowledge curation `[amendment]`

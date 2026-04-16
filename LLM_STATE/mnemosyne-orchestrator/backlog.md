@@ -40,20 +40,40 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 F's architecture commitment affects every done brainstorm. Each amendment is a short work phase: read the existing design doc, identify Rust-specific or pre-F-specific sections, replace with BEAM/actor/dispatch-aware equivalents, commit.
 
-**Execution note (Session 19, 2026-04-16):** Sub-G amendment done (Session 19 — consolidated 15 scope items from F, A, C, D, Session 8 into brainstorm task description). Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** H amendment + brainstorm, I amendment + brainstorm. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to remaining amendments (H, I).
+**Execution note (Session 20, 2026-04-16):** Sub-H amendment done (Session 20 — mapped all 7 legacy skills to F-architecture equivalents, compiled cross-project requirements from B/E/M/N, folded comprehensive framing into H brainstorm task). Sub-G amendment done (Session 19). Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** H brainstorm (now unblocked), I amendment + brainstorm. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to remaining amendment (I only).
 
 ### Sub-H amendment — skills as attached-client TUI actions `[amendment]`
-- **Status:** not_started
-- **Dependencies:** F done
-- **Description:** Amend sub-H's (still-pending) design to account for:
-  - Skills become **attached-client TUI actions**, not standalone commands or harness slash commands
-  - Each skill maps to a TUI command that the TUI sends to the daemon over the NDJSON protocol
-  - The daemon routes the command to the appropriate actor, which executes the skill's behavior
-  - Co-equal-actors principle unchanged: every skill must have a human-driven form, now explicitly via the TUI client
-  - Dispatched tasks (new concept from F) may supersede some skills entirely (e.g., `/promote-global` becomes "dispatch to rust-expert for review")
+- **Status:** done
+- **Dependencies:** F done (satisfied)
+- **Description:** Establish the F-impact framing constraints for sub-H's brainstorm. Map all 7 legacy Claude Code skills to F-architecture equivalents and compile cross-project requirements from B, E, M, N.
+- **Results:** Done Session 20 (2026-04-16). Cross-referenced F §7.2/§8.1/F-11, B §"On sub-project H"/Q10, E §"Sub-H (TUI actions / skill fold)", N §non-goals (dynamic expert creation), M §10 adoption matrix. All 7 legacy skills mapped:
 
-  H's brainstorm can proceed after this amendment is absorbed.
-- **Results:** _pending_
+  **Superseded by existing mechanisms (3):**
+  - `begin-work` → `run_phase work` (PlanActor handles context loading, staging, harness spawning)
+  - `reflect` → `run_phase reflect` (first-class phase in B's cycle; promotes observations to knowledge)
+  - `setup-knowledge` → `adopt-project` (sub-A; scaffolds `<project>/mnemosyne/knowledge/` + `project-root/`)
+
+  **Collapse to dispatch/query messages to ExpertActors (3):**
+  - `curate-global` → expert query: "review and curate your knowledge scope" (experts own Tier 2; human equivalent is Obsidian CRUD)
+  - `promote-global` → manual Stage 5 dispatch to tag-matched expert(s) for absorption (manual variant of E's pipeline)
+  - `explore-knowledge` → expert query: "identify gaps, new developments, open questions in your domain"
+
+  **Requires new daemon command (1):**
+  - `create-plan` → new `create_plan` TUI command (creates child plan directory with `plan-state.md`, `backlog.md`, `memory.md`, `session-log.md`)
+
+  **Cross-project responsibilities landed on sub-H:**
+  - Sub-N: dynamic expert creation via TUI (v1 users edit files directly; TUI commands for this belong to H)
+  - Sub-M: emit `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: ...}}` for each action invocation
+  - Sub-E: curate command redesign folded into sub-H's TUI-actions scope
+  - Sub-B: no Mnemosyne-provided harness plugin ships with v1; all actions through client-socket boundary; human-driven counterparts mandatory per co-equal-actors principle
+
+  **Key design questions for H's brainstorm:**
+  1. Which dispatch/query actions need new NDJSON commands vs. using the existing `send` command with appropriate message payloads?
+  2. TUI layout/UX — how do these actions surface in ratatui? Command palette? Keybindings? Context menus?
+  3. Legacy transition — do any skills stay as a Claude Code plugin during G's Phase 2 staggered migration, or is the break clean?
+  4. Dynamic expert creation — new NDJSON command or purely file-system-based (Obsidian/editor)?
+
+  Comprehensive framing folded into the Sub-H brainstorm task description (Priority 2). H's brainstorm is now unblocked.
 
 ### Sub-I amendment — Obsidian as daemon client `[amendment]`
 - **Status:** not_started
@@ -128,8 +148,33 @@ F's architecture commitment affects every done brainstorm. Each amendment is a s
 
 ### Brainstorm sub-project H — skills as TUI actions `[brainstorm]`
 - **Status:** not_started
-- **Dependencies:** Sub-H amendment complete (Priority 1); Sub-B amendment complete
-- **Description:** Design how the 7 Claude Code skills fold into attached-client TUI actions. F-impact notes in the Sub-H amendment task (Priority 1) define the framing: skills become daemon commands routed through the NDJSON protocol, not harness slash commands. Co-equal-actors principle means every skill must have a human-driven TUI form. Some skills may be superseded by dispatch-to-experts.
+- **Dependencies:** Sub-H amendment complete (satisfied, Session 20); Sub-B amendment complete (satisfied)
+- **Description:** Design how the 7 legacy Claude Code skills fold into attached-client TUI actions under F's actor/dispatch/TUI architecture. The Sub-H amendment (Priority 1, done Session 20) established the complete mapping:
+
+  **Starting-point mapping (from amendment):**
+  - 3 skills **superseded** by existing mechanisms: `begin-work`/`reflect` → `run_phase`; `setup-knowledge` → `adopt-project`
+  - 3 skills **collapse** to dispatch/query to ExpertActors: `curate-global`, `promote-global`, `explore-knowledge`
+  - 1 skill **requires new** daemon command: `create-plan` (child plan creation)
+
+  **Architectural constraints (from B Q10, F §7.2, F-11):**
+  - No Mnemosyne-provided harness plugin ships with v1 — all user actions flow through the client-daemon NDJSON socket
+  - No slash commands in the harness — harness is a pure worker with no user-facing command surface
+  - Co-equal-actors: every action must have both an LLM-driven form (daemon command or phase prompt) and a human-driven form (TUI action or Obsidian CRUD)
+  - Sub-H's mapping must go through the client-socket boundary, not through harness tricks
+
+  **Cross-project responsibilities that land on sub-H:**
+  - Sub-N: dynamic expert creation via TUI (v1 file-based; TUI commands belong to H)
+  - Sub-M: `%Diagnostic{target: "mnemosyne.tui_action"}` instrumentation for each action
+  - Sub-E: curate command redesign folded into sub-H's scope
+  - Sub-B: human-driven counterparts open files in `$EDITOR` or provide direct CRUD via TUI/Obsidian
+
+  **Design questions for the brainstorm to resolve:**
+  1. For dispatch/query-based actions (curate, promote, explore): new NDJSON commands or existing `send` cmd with typed message payloads?
+  2. TUI surface area: command palette, keybindings, contextual menus, or a combination?
+  3. Legacy transition: clean break from the Claude Code plugin at G's Phase 1 daemon switch-over, or interim compatibility?
+  4. Dynamic expert creation: new NDJSON command vs. purely file-system-based (Obsidian/editor)?
+  5. Which actions are plan-scoped (require an attached plan context) vs. vault-scoped (operate at daemon level)?
+  6. How does `create-plan` interact with B's `plan-state.md` initialization and F's `project-root` convention?
 
   Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-H-skills-design.md` and sibling plan at `LLM_STATE/sub-H-skills/`.
 - **Results:** _pending_

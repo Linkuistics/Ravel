@@ -189,17 +189,36 @@ layer for all daemon file operations. This is binding on sub-E:
   - Event structs: `%ExpertConflict{}` and other `%Expert.*` variants that
     surface contentious multi-expert outcomes for human review
 
-  **Three key Stage 5 design decisions from sub-N brainstorm (binding on sub-E):**
-  1. **Orphan candidates** (zero tag-matching experts) write directly to
+  **Key Stage 5 design decisions from sub-N brainstorm (binding on sub-E):**
+  1. **Parallel fan-out** — Stage 5 dispatches `%ExpertAbsorbCandidate{}`
+     messages to every tag-matching expert **simultaneously** (not
+     sequentially). All matched experts receive the candidate in parallel;
+     the collector then aggregates verdicts.
+  2. **Orphan candidates** (zero tag-matching experts) write directly to
      `<vault>/knowledge/uncategorized/` via sub-E — no expert fan-out at all.
-  2. **`READY CROSS_LINK <expert-id>`** means rejection-with-suggestion; sub-E's
+  3. **`READY CROSS_LINK <expert-id>`** means rejection-with-suggestion; sub-E's
      collector does a second-round dispatch to the suggested expert
      non-recursively (max depth 2 total — one initial dispatch + one
      cross-link re-dispatch).
-  3. **Physical duplication** is accepted when multiple experts absorb the same
+  4. **Physical duplication** is accepted when multiple experts absorb the same
      candidate; provenance frontmatter carries the matching `ingestion-event-id`
      to link duplicates. Sub-E must write this field into every dispatched
      `%ExpertAbsorbCandidate{}`.
+  5. **ExpertConflict definition** — `%ExpertConflict{}` is raised on contentful
+     disagreement: one expert returns `READY ABSORB` and a different expert
+     returns `READY REJECT` with a non-trivial reason for the same candidate.
+     Trivial rejections (scope-miss, no reason given) do not constitute a
+     conflict.
+
+  **Timeout distinction (binding on Stage 5 implementation — do not collapse):**
+  - **Retrieval pipeline timeout (5 seconds)** — structural sanity check; bounds
+    `ScopeMatcher.match_candidate/2` and initial message-send phase. Treat a
+    breach as an infrastructure failure; hard abort.
+  - **Per-turn session timeout (5 minutes default)** — bounds LLM reasoning time
+    inside each ExpertActor session. Configurable in `daemon.toml` under
+    `[experts] turn_timeout_seconds`. A timed-out expert turn is treated as
+    `READY REJECT` for that expert (not an infrastructure failure); the
+    ingestion cycle continues with remaining verdicts.
 - **Sub-project F (hierarchy + actors)** — owns the `Actor` behaviour,
   message types (Dispatch/Query), and vault catalog. Stage 5's expert
   dispatch uses F's Query message infrastructure.
