@@ -4,6 +4,8 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 ## Recent history
 
+**Triage (2026-04-16) — Sub-G brainstorm done; cleared from backlog; Priority 3 dependency updated.** Removed sub-G brainstorm task (done Session 18: design doc complete, sibling plan scaffolded) and empty sub-G amendment heading holdover. Priority 1 execution note updated: G brainstorm removed from remaining orchestrator-level work. Priority 3 scope-cut dependency updated: D and G added to done brainstorms, pending reduced to H and I only. Dispatched: sub-E (sub-N Stage 5 concurrent design contracts — parallel fan-out, per-expert file write, cross-link as rejection+suggestion, ExpertConflict events, max-depth-2 non-recursion); sub-F (sub-N fills ExpertActor type hole — 29-task plan, Task 0 gating on sub-F's Actor behaviour API). Phase: git-commit-triage.
+
 **Session 19 (2026-04-16) — Sub-G amendment absorbed; G brainstorm unblocked.** Cross-referenced F §1/§1.2–§1.5/F-4/F-5, sub-A contract table + §A8, sub-C §11.6, sub-D (FileIO + singleton lock), Session 8 carry-forwards. Original 7 F-impact items confirmed; 8 additional scope items identified (plan-state.md schema changes, adapters/claude-code/ retirement, knowledge/ creation, vault creation with A4 layout, symlinks, gitignore policy, four dependent projects, eval/ + defaults/ disposition). All 15 items consolidated into 4 categories in sub-G brainstorm task description. Session 8's `related-plans.md` schema change superseded by F's complete deletion of the concept. G brainstorm is now unblocked; remaining amendments: H, I.
 
 **Triage (2026-04-16) — Sub-D done; FileIO propagation dispatched to four sibling plans.** Sub-D brainstorm task removed (done Session 18: design doc, system-wide singleton lock, `Mnemosyne.FileIO` mandatory I/O layer, sub-A inline update, sibling plan scaffolded). Priority 1 execution note updated (D removed from remaining orchestrator-level work). Dispatched subagents to: sub-B (FileIO.write_safe/3 for copy_back/2 → `:phase_owned`), sub-E (FileIO delegation for SafeFileWriter → `:human_editable`/`:exclusive`), sub-F (FileIO for plan-catalog writes → `:exclusive`; DaemonLock as Task 0 dependency), sub-N (FileIO for expert absorb writes → `:human_editable`). Phase: work.
@@ -38,9 +40,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 F's architecture commitment affects every done brainstorm. Each amendment is a short work phase: read the existing design doc, identify Rust-specific or pre-F-specific sections, replace with BEAM/actor/dispatch-aware equivalents, commit.
 
-**Execution note (Session 19, 2026-04-16):** Sub-G amendment done (Session 19 — consolidated 15 scope items from F, A, C, D, Session 8 into brainstorm task description). Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** G brainstorm (unblocked), H amendment + brainstorm, I amendment + brainstorm. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to remaining amendments (H, I).
-
-### Sub-G amendment — daemon invocation pattern in migration `[amendment]`
+**Execution note (Session 19, 2026-04-16):** Sub-G amendment done (Session 19 — consolidated 15 scope items from F, A, C, D, Session 8 into brainstorm task description). Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** H amendment + brainstorm, I amendment + brainstorm. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to remaining amendments (H, I).
 
 ### Sub-H amendment — skills as attached-client TUI actions `[amendment]`
 - **Status:** not_started
@@ -126,13 +126,6 @@ F's architecture commitment affects every done brainstorm. Each amendment is a s
 
 ## Priority 2 — Remaining sub-project brainstorms
 
-### Brainstorm sub-project G — migration `[brainstorm]`
-- **Status:** done
-- **Dependencies:** Sub-G amendment complete (Priority 1) — **satisfied**
-- **Description:** Design the migration path from `LLM_STATE/` + `LLM_CONTEXT/` to `<project>/mnemosyne/` + the BEAM daemon.
-  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-G-migration-design.md` and sibling plan at `LLM_STATE/sub-G-migration/`.
-- **Results:** Design complete (Session 18). Key decisions: (1) per-project staggering — Mnemosyne first at daemon switch-over, dependents later; (2) two tools — shell script for filesystem restructure, `mnemosyne adopt-project` for vault integration; (3) git-native reversibility; (4) `plan-state.md` is phase-only at migration — schema enforcement is daemon's job; (5) `eval/` deleted (depends on root crate, not standalone); (6) `adapters/claude-code/` deleted outright. Phase 0 (artifact retirement) executed immediately: deleted `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/`. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks across 3 phases. Design doc 491 lines, 12 decision-trail entries.
-
 ### Brainstorm sub-project H — skills as TUI actions `[brainstorm]`
 - **Status:** not_started
 - **Dependencies:** Sub-H amendment complete (Priority 1); Sub-B amendment complete
@@ -209,7 +202,7 @@ F's architecture commitment affects every done brainstorm. Each amendment is a s
 
 ### Decide v1 scope cut `[decision]`
 - **Status:** not_started
-- **Dependencies:** all in-scope brainstorms complete (A, B, C, E, F, M, N done; D, G, H, I pending; K, L pending but v1.5+)
+- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, M, N done; H, I pending; K, L pending but v1.5+)
 - **Description:** Once every in-scope sub-project has been brainstormed and its design doc and implementation plan exist, decide what's actually in v1 vs. deferred to v1.5/v2. Update memory.md with the v1 cut. Adjust dependent implementation plans accordingly.
 
   Sub-N (domain experts) is **in v1** — F relies on ExpertActor shipping alongside PlanActor. Without experts, Query messages have no interesting targets.
