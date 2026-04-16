@@ -1,1 +1,1 @@
-reflect
+git-commit-reflect
