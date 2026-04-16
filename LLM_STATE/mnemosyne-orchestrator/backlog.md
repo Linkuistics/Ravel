@@ -18,13 +18,6 @@ The Sub-I amendment is the last outstanding P1 amendment; it gates the Sub-I bra
 
 ## Priority 2 — Remaining sub-project brainstorms
 
-### Sub-H — Fold 7 Claude Code skills (unblocked)
-- **Status:** done
-- **Dependencies:** Sub-H amendment complete (satisfied, Session 20); Sub-B amendment complete (satisfied)
-- **Description:** Design how the 7 legacy Claude Code skills fold into attached-client TUI actions under F's actor/dispatch/TUI architecture.
-  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-H-skills-design.md` and sibling plan at `LLM_STATE/sub-H-skills/`.
-- **Results:** Design complete (Session 21, 2026-04-16). Key decisions: (1) Architecture-first derivation — 17 commands derived from daemon needs, not legacy mapping. Three legacy concepts disappear: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` (expert query IS knowledge exploration), curate/promote distinction (unified into `knowledge.submit`). (2) Uniform protocol — reuse `send` with typed payloads; only `create_plan` and `adopt_project` are new NDJSON commands. (3) Command palette with user-configurable keybindings for every command, modal which-key support, hot-reloaded from `tui-keybindings.toml`. (4) `mnemosyne cmd` CLI wrapper for external automation via NDJSON socket. (5) Expert CRUD via filesystem + `$EDITOR` — `DeclarationLoader` hot-reload is the single registration path. (6) Clean break at G's Phase 1 — no shim. (7) Local docs server hosted by daemon for command help pages. (8) Every command has description ≤80 chars + help URL. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks (Task 0 gate + 8 daemon-side Elixir + 4 TUI-side Rust + 1 integration/stubs).
-
 ### Sub-I — Obsidian coverage (blocked on P1 amendment)
 - **Status:** not_started
 - **Dependencies:** Sub-I amendment complete (Priority 1)
@@ -125,7 +118,7 @@ The Sub-I amendment is the last outstanding P1 amendment; it gates the Sub-I bra
 ## Priority 3 — Decisions and gates
 
 - **Status:** not_started
-- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, M, N done; H, I pending; K, L pending but v1.5+)
+- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, H, M, N done; I pending; K, L pending but v1.5+)
 - **Description:** Once every in-scope sub-project has been brainstormed and its design doc and implementation plan exist, decide what's actually in v1 vs. deferred to v1.5/v2. Update memory.md with the v1 cut. Adjust dependent implementation plans accordingly.
   Sub-N (domain experts) is **in v1** — F relies on ExpertActor shipping alongside PlanActor. Without experts, Query messages have no interesting targets.
   Sub-O (MoM) and sub-P (team mode) are **v1.5+ and v2+ by design** — not candidates for v1 scope cut.
