@@ -226,7 +226,7 @@ Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the exper
 
 ## Sub-projects
 
-Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N (eleven of fifteen active; eleven of twelve v1 sub-projects — sub-R outstanding). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`. Two version tiers: **v1** (A, B, C, D, E, F, G, H, I, M, N, R) and **v2** (O, Q, P).
+Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N, R (twelve of fifteen active; all twelve v1 sub-projects complete). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`. Two version tiers: **v1** (A, B, C, D, E, F, G, H, I, M, N, R) and **v2** (O, Q, P).
 
 | ID | Sub-project | Complexity | Status | Notes |
 |----|-------------|-----------|--------|-------|
@@ -253,7 +253,7 @@ Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorm
 
 V1 scope cut locked. **All twelve v1 brainstorms complete:** A, B, C, D, E, F, G, H, I, M, N, R. Amendments absorbed: A, B, C, E, G, H, I, M. Two version tiers: v1 and v2. K and L eliminated.
 
-Critical next steps: **(1)** Sub-R imposes amendments on nine siblings (F, N, E, A, C, H, M, I, G) — these should be triaged into their respective backlogs. Sub-F's routing amendment is the most impactful (`routing.ex` → Datalog). **(2)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(3)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(4)** Sub-C must also absorb model-configurability requirement (per-actor `model:` field → `--model` flag on CLI spawn). **(5)** Sub-F Task 0 readiness check once (3) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. **(6)** Sub-R's three research tasks (Tasks 1-3) can start immediately and in parallel — they have no dependencies on other sub-projects. Sub-O, sub-Q, sub-P reserved for v2.
+Critical next steps: **(1)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(3)** Sub-C must also absorb model-configurability requirement (per-actor `model:` field → `--model` flag on CLI spawn). **(4)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. **(5)** Sub-R's three research tasks (Tasks 1-3) can start immediately and in parallel — they have no dependencies on other sub-projects. Sub-O, sub-Q, sub-P reserved for v2.
 
 ## Open questions
 
