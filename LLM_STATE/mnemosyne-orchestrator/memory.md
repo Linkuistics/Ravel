@@ -260,6 +260,13 @@ V1 scope cut locked. **All twelve v1 brainstorms complete:** A, B, C, D, E, F, G
 
 Critical next steps: **(1)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(3)** Sub-C must also absorb model-configurability requirement (per-actor `model:` field → `--model` flag on CLI spawn). **(4)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. **(5)** Sub-R's three research tasks (Tasks 1-3) can start immediately and in parallel — they have no dependencies on other sub-projects. Sub-O, sub-Q, sub-P reserved for v2.
 
+### Implementation status snapshot (2026-04-16)
+Critical path monitor audit completed. All twelve v1 brainstorms done; zero implementation tasks started across any sub-project. Three independent work streams are unblocked:
+- **Stream 1 (critical path):** Sub-B gate task → Sub-C gate task (dispatched; needs creation + execution) → Sub-F Task 0 readiness → Sub-F's 30+ implementation tasks. Sub-B and Sub-C rewrites can proceed in parallel. Sub-D's `DaemonLock` and `FileIO` also gate Sub-F Tasks 1/4/6–12.
+- **Stream 2 (independent):** Sub-E Task 0 gate → Sub-E's 28 implementation tasks. No dependency on Stream 1.
+- **Stream 3 (independent research):** Sub-R Tasks 1–3 (literature surveys) → Sub-R engine implementation. No cross-project dependencies.
+Sub-N Tasks 1–15 can also start immediately (pure Elixir + fixtures), gated on Sub-F only at Task 16+. Sub-R adoption stubs verified present in all 8 target siblings. Sub-C has two coordination dispatches pending: formal gate task creation and model-configurability task creation.
+
 ## Open questions
 
 ### ~~Pattern-matched Elixir routing vs Erlog~~ — RESOLVED

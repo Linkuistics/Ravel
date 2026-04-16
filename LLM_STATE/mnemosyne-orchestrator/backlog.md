@@ -4,7 +4,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 ## Priority 1 — Implementation phase coordination
 
 ### Implementation Critical Path Monitor
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** All v1 brainstorms complete (satisfied 2026-04-16)
 - **Description:** All twelve v1 brainstorms are done (A, B, C, D, E, F, G, H, I, M, N, R). Implementation phase begins. Orchestrator role: dispatch subagents to monitor critical path and surface blockers.
 
@@ -22,7 +22,19 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
   - Verify Sub-R adoption stubs landed in all nine sibling backlogs (N, E, F, H, A, M, I, G, and one of B/C).
 
   **Output:** updated orchestrator memory reflecting current implementation status, which sub-projects are running, which are blocked, and the next unblocking event.
-- **Results:** _pending_
+- **Results:** Completed 2026-04-16. Dispatched six parallel subagents (Sub-B, Sub-C, Sub-E, Sub-F, Sub-R, plus cross-backlog Sub-R stub checker).
+
+  **Findings:**
+  - **Sub-B:** Gate task exists ("Rewrite downstream implementation tasks against Session-12 design doc"), `not_started`. 22 impl tasks remaining, 4 done (amendments/spikes). **Unblocked** — can start anytime.
+  - **Sub-C:** ⚠️ No formal gate task — rewrite requirement is prose only in backlog header. No model-configurability task exists. 26 tasks all `not_started`. Two coordination dispatches sent to Sub-C Received section.
+  - **Sub-E:** Task 0 gate exists, `not_started`. 28 impl tasks (1 `in_progress` = F amendment). **Unblocked** — independent of B/C.
+  - **Sub-F:** Task 0 readiness gate exists, `not_started`. **Blocked** on B+C rewrites + Sub-D deliverables. 30+ tasks all `not_started`. Sub-A/Sub-M conditions CLEARED.
+  - **Sub-R:** 3 done (design amendments), 18 `not_started`. Tasks 1–3 (literature surveys) **fully unblocked**, can start immediately in parallel.
+  - **Sub-R adoption stubs:** Verified complete — all 8 target siblings (F, N, E, A, C, H, M, I) have stubs, plus bonus stub in Sub-B. Sub-G/Sub-D correctly have none.
+
+  **Actions taken:** Dispatched coordination to Sub-C backlog (create formal gate task; create model-configurability task). Updated orchestrator memory with implementation status snapshot.
+
+  **Next unblocking events:** (1) Sub-B gate execution → partially unblocks Sub-F Task 0. (2) Sub-C gate creation + execution → fully unblocks Sub-F Task 0 (with Sub-D). (3) Sub-R Tasks 1–3 → unblocks Sub-R implementation (independent track).
 
 ## Priority 2 — v2 sub-project brainstorms (deferred)
 
