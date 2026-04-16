@@ -3,25 +3,51 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 ## Priority 1 — Blocking amendments (v1)
 
-The Sub-I amendment is the last outstanding P1 amendment; it gates the Sub-I brainstorm. All other F-triggered amendments are absorbed.
+All F-triggered amendments are now absorbed. Sub-I brainstorm is unblocked.
 
-- **Status:** not_started
-- **Dependencies:** F done
-- **Description:** Amend sub-I's (still-pending) design to account for:
-  - Obsidian is now **a concrete daemon client** (via Obsidian plugin in sub-K, or via direct file observation for v1)
-  - Coverage document still describes which Obsidian features cover which data surfaces
-  - Vault catalog (`<vault>/plan-catalog.md`) is a major new data surface to document
-  - Routing module (`<vault>/routing.ex`) is a user-editable surface with syntax-highlighting concerns
-  - Daemon event stream (via sub-K protocol) opens new "live view" possibilities
-  I's brainstorm can proceed after this amendment is absorbed.
-- **Results:** _pending_
+- **Status:** done
+- **Dependencies:** F done ✓
+- **Description:** Amend sub-I's (still-pending) design scope to account for F's architectural impact on Obsidian's role and data surfaces.
+- **Results:** F-impact fully absorbed into Sub-I brainstorm scope (P2). Five amendments folded: (1) Obsidian reframed as daemon client — v1 coverage splits into file-native surfaces vs. daemon-observable surfaces; (2) vault catalog (`plan-catalog.md`) added as machine-owned Dataview target; (3) routing module (`routing.ex`) added as user-editable Elixir source with syntax-highlighting concerns; (4) expert declarations (`experts/*.md`) added as browsable/editable configuration surface; (5) daemon event stream documented as v1.5+ live-view opportunity via sub-K's NDJSON protocol. Complete data-surface inventory enumerated in the brainstorm scope.
 
 ## Priority 2 — Remaining sub-project brainstorms
 
-### Sub-I — Obsidian coverage (blocked on P1 amendment)
+### Sub-I — Obsidian coverage
 - **Status:** not_started
-- **Dependencies:** Sub-I amendment complete (Priority 1)
-- **Description:** Document which Obsidian features cover which Mnemosyne data surfaces (Tier 1/2 knowledge, plan state, sessions, ingestion provenance, vault catalog, routing rules). F-impact notes in the Sub-I amendment task (Priority 1) add: Obsidian as daemon client, vault catalog as new data surface, daemon event stream possibilities. Produce the `.obsidian/` template that ships with v1.
+- **Dependencies:** none (P1 amendment absorbed)
+- **Description:** Document which Obsidian features cover which Mnemosyne data surfaces, and produce the `.obsidian/` template that ships with v1. F reframes Obsidian's role: it is a **concrete daemon client** (v1 via direct file observation of vault state; v1.5+ via sub-K's NDJSON protocol plugin), not just a passive file viewer.
+  **Complete data-surface inventory** (the brainstorm must map each to Obsidian capabilities):
+  *Vault-level tracked surfaces:*
+  - `mnemosyne.toml` — vault identity + optional overrides (TOML; read-only for most users)
+  - `daemon.toml` — daemon runtime config: harnesses, peers, log levels (TOML; user-edited)
+  - `routing.ex` — user-editable declarative routing rules (Elixir source; syntax-highlighting and code-intelligence concerns — Obsidian's code block rendering, possible CodeMirror language mode in `.obsidian/snippets/`)
+  - `plan-catalog.md` — auto-regenerated vault catalog, machine-owned (Markdown; primary Dataview target for "what's in my vault" dashboard queries; manual edits overwritten)
+  - `experts/*.md` — expert declarations with YAML frontmatter: persona, scope globs, retrieval config (browsable, user-editable; Dataview-queryable for expert inventory views)
+  - `knowledge/` — Tier 2 global knowledge entries with YAML frontmatter + tags (expert-owned writes; human review/edit/reject via Obsidian; Dataview for cross-domain queries)
+  - `archive/` — auditable session/ingestion history (Obsidian file history + git history)
+  - `.obsidian/` — curated template subset (the deliverable of this brainstorm)
+  *Per-project surfaces (visible via `<vault>/projects/<name>` symlinks):*
+  - `<project>/mnemosyne/knowledge/` — Tier 1 per-project knowledge (same format as Tier 2; plan-owned)
+  - `<project>/mnemosyne/project-root/plan-state.md` — plan marker + phase state (YAML frontmatter with `description:` ≤120c)
+  - `<project>/mnemosyne/project-root/backlog.md` — plan backlog
+  - `<project>/mnemosyne/project-root/memory.md` — plan memory (provisional scratch, not durable knowledge)
+  - `<project>/mnemosyne/project-root/session-log.md` — session history
+  - Nested child plans at arbitrary depth under `project-root/`
+  *Runtime/ephemeral surfaces (gitignored, not directly Obsidian-browsable but observable):*
+  - `runtime/daemon.sock` — Unix socket (existence = daemon is running)
+  - `runtime/staging/` — phase staging dirs (transient per-phase)
+  - `runtime/mailboxes/` — actor mailboxes as JSONL (rebuildable from archive)
+  - `runtime/events/` — ingestion event queue
+  *Daemon event stream (v1.5+ via sub-K):*
+  - `phase_transition`, `mailbox_received`, `harness_output`, `dispatch_processed`, `query_answered`, `rule_fired`, `rule_suggestion`, `actor_state_change` — F's §7.2 event types. These enable live-view panels in Obsidian when sub-K's plugin consumes the NDJSON protocol. V1 coverage doc should document these as "observable via TUI; Obsidian live view deferred to K."
+  **Brainstorm questions:**
+  - Which Obsidian core features (file tree, backlinks, tags, search, graph view, file history) cover which surfaces?
+  - Which community plugins are required vs. optional? (Dataview is required per memory.md; Templater optional)
+  - What Dataview queries ship in the template? (plan inventory, expert inventory, knowledge by tag, session history)
+  - What CSS snippets ship? (routing.ex Elixir highlighting, plan-state frontmatter styling, catalog formatting)
+  - What `.obsidian/` files are tracked vs. gitignored? (A5 policy: curated subset tracked, workspace/cache gitignored)
+  - How does the template handle symlinked project directories? (Obsidian follows symlinks natively on macOS/Linux — verify)
+  - What's the "first open" experience for a user opening the vault in Obsidian for the first time?
   Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-I-obsidian-coverage-design.md`.
 - **Results:** _pending_
 

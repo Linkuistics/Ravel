@@ -74,7 +74,7 @@ project coding-style guides — the test suite drives implementation.
   `project-root` except the reserved root") guarantee termination
   and non-false-match. F also adds four tracked files at the vault
   root that A scaffolds at init (`daemon.toml`, `routing.ex`,
-  `plan-catalog.md`, empty `experts/`), plus the gitignored
+  `plan-catalog.md`, empty `experts/`, `tui-keybindings.toml`), plus the gitignored
   `runtime/{daemon.sock,daemon.lock,daemon.pid,mailboxes/}` set.
   The vault root must remain a real directory, not a symlink — A's
   `verify_vault` adds an `lstat` check at boot.
@@ -107,7 +107,7 @@ commitments) record the amendment substance.
 **Net change to A4 vault layout:**
 
 - New tracked at vault root: `daemon.toml`, `routing.ex`,
-  `plan-catalog.md`, `experts/`.
+  `plan-catalog.md`, `experts/`, `tui-keybindings.toml`.
 - New gitignored under `runtime/`: `daemon.sock`, `daemon.lock`,
   `daemon.pid`, `mailboxes/<qualified-id>.jsonl`.
 - `<project>/mnemosyne/plans/` → `<project>/mnemosyne/project-root/`
@@ -117,7 +117,8 @@ commitments) record the amendment substance.
 
 **Net change to A6 init flow:** init scaffolds the new tracked files
 with minimal stubs (no-route `routing.ex`, two-section `daemon.toml`,
-machine-owned-header `plan-catalog.md`, empty `experts/`). The
+machine-owned-header `plan-catalog.md`, empty `experts/`,
+default-keybindings `tui-keybindings.toml`). The
 running daemon creates `daemon.sock`, `daemon.lock`, `daemon.pid` at
 boot, not at init.
 

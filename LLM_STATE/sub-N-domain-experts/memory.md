@@ -253,6 +253,32 @@ Do not invent a bare `File.write/2` + manual rename anywhere in
 sub-N. If sub-D has not yet shipped `FileIO` when a sub-N task
 starts, block on Task 0 or coordinate via the orchestrator.
 
+### N-15. Daemon socket protocol: `expert.query` is the only expert command
+
+Confirmed in sub-H brainstorm (Session 21, 2026-04-16): the daemon NDJSON
+socket protocol has exactly **one** expert-related command: `expert.query`.
+This command maps directly to sub-N's `%Mnemosyne.Message.ExpertQuery{}`
+dispatch path — the TUI sends `expert.query` → daemon routes to the target
+`ExpertActor` → response flows back over the socket.
+
+There are **no** NDJSON commands for expert CRUD (create / edit / delete).
+Expert management is a filesystem + `$EDITOR` operation handled entirely by
+the TUI via the `DeclarationLoader` hot-reload path. The daemon receives
+file-system events (via the `FileSystem` watcher in `DeclarationLoader`) and
+reacts; it does not expose a "create expert" or "delete expert" socket
+command.
+
+`expert.list` is TUI-local: the TUI reads `<vault>/experts/*.md` directly
+from the filesystem without a daemon round-trip.
+
+Implications for sub-N:
+- No new NDJSON command structs are needed in sub-N beyond the three message
+  structs already defined in Task 12 (`ExpertQuery`, `ExpertDialogueReply`,
+  `ExpertAbsorbCandidate`).
+- `DeclarationLoader`'s file-watcher (Task 14 / Task 21) is the **sole**
+  mechanism by which the daemon learns about new, edited, or deleted expert
+  declarations. No socket-layer handler for declaration mutations is needed.
+
 ## Hard errors by default
 
 Per project-wide discipline, fail hard on unexpected conditions,

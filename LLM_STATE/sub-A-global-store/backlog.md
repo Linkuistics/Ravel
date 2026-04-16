@@ -47,7 +47,9 @@ what the original Session-7 design listed:
 
 - Tracked at vault root: `daemon.toml` (two-section stub),
   `routing.ex` (no-route stub), `plan-catalog.md` (machine-owned
-  header, zero entries), empty `experts/` directory.
+  header, zero entries), empty `experts/` directory,
+  `tui-keybindings.toml` (default keybindings stub, hot-reloaded by
+  the TUI — introduced by sub-H brainstorm, Session 21, 2026-04-16).
 - Gitignored under `runtime/`: `mailboxes/` directory only — the
   daemon creates `daemon.sock`, `daemon.lock`, `daemon.pid` at boot,
   not at init.

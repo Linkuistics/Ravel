@@ -248,10 +248,24 @@ yet; Task 0 is the gate.
   per §7.2. Per-connection `GenServer` handling the command set:
   `attach-plan`, `detach`, `run-phase`, `list-plans`,
   `show-catalog`, `subscribe-events`, `review-rule-suggestion`,
-  etc. Forward-compatibility per §7.3 (unknown commands →
+  `create_plan`, `adopt_project`, etc. `create_plan` creates a
+  new plan directory under an existing project (initialises
+  `plan-state.md` with required frontmatter and description).
+  `adopt_project` registers an external directory as a
+  Mnemosyne-managed project under the vault's `projects/` tree
+  (symlink + `VaultDirectory` reload). These two commands were
+  finalised in sub-H's brainstorm (Session 21, 2026-04-16) as
+  part of the 17-command daemon palette; they are daemon-side
+  commands handled here, not by the TUI or `mnemosyne cmd`.
+  Forward-compatibility per §7.3 (unknown commands →
   structured error, not crash). Multi-client semantics per §7.4
   (multiple attached clients on one plan share event stream;
   `run-phase` requires exclusive control).
+  **Note (2026-04-16):** `mnemosyne cmd` (a headless CLI wrapper
+  also finalised in sub-H Session 21) speaks the same NDJSON
+  socket protocol as the TUI — it is a second official client.
+  No extra daemon-side ceremony is required; the existing
+  forward-compat and multi-client design already supports it.
 - **Results:** _pending_
 
 ### Task 12 — Daemon singleton lock `[daemon]`
@@ -277,6 +291,30 @@ yet; Task 0 is the gate.
   with forward-compat warning per §9.3), `[peers]` (reserved for
   sub-P; hard error if non-empty per §9.3). Use `toml_elixir`
   or equivalent.
+- **Results:** _pending_
+
+### Task 13a — Local HTTP docs server `[daemon]` `[scope-tbd]`
+- **Status:** not_started
+- **Dependencies:** Task 10
+- **Scope note (2026-04-16):** Identified in sub-H's brainstorm
+  (Session 21) as a daemon capability: the daemon hosts a local
+  HTTP server serving per-command help pages (each of the 17
+  daemon commands has a help URL). The allocation between sub-F
+  (daemon binary owner) and sub-H (TUI/client owner) is not yet
+  settled. Provisional decision: sub-F owns the HTTP server
+  because it runs inside the daemon process, not the TUI process.
+  This task is a placeholder — before implementation begins,
+  confirm the allocation and update the design doc accordingly.
+- **Description (provisional):** Start a `Plug`/`Bandit` HTTP
+  listener on a loopback port (configurable in `daemon.toml`
+  under a new `[docs]` section; default: e.g. `127.0.0.1:4040`).
+  Serve one HTML page per command at `/commands/<name>` (content
+  is static, bundled at compile time or read from a priv/ tree).
+  The TUI (sub-H) and `mnemosyne cmd` can open help URLs in the
+  user's browser via `xdg-open` / `open`. Hard error at startup
+  if the port is already in use (do not fall back silently to a
+  random port). The `[docs]` section of `daemon.toml` should be
+  parsed in Task 13 once scope is confirmed.
 - **Results:** _pending_
 
 ---

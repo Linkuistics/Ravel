@@ -1,21 +1,21 @@
-### Session 22 (2026-04-16T07:03:13Z) — Sub-H brainstorm: fold 7 legacy skills into daemon TUI commands
+### Session 23 (2026-04-16T07:34:54Z) — Absorb Sub-I P1 amendment + propagate Sub-H cross-cutting impacts
 
-- **What was attempted:** Execute the Sub-H brainstorm — design how the 7 legacy Claude Code skills fold into attached-client TUI actions under F's actor/dispatch/TUI architecture. Produce a design doc and sibling implementation plan.
+- **What was attempted:** Complete the last Priority 1 blocker: absorb F's architectural impact into Sub-I's brainstorm scope. Simultaneously propagate Sub-H's cross-cutting findings (17-command palette, `tui-keybindings.toml`, `mnemosyne cmd`, local docs server, atomic cut-over) into sub-A, sub-F, sub-G, and sub-N.
 
 - **What worked:**
-  - Design doc produced at `docs/superpowers/specs/2026-04-16-sub-H-skills-design.md`. Architecture-first derivation yielded 17 daemon commands from daemon needs rather than mapping legacy skills 1:1. Key decisions: (1) Three legacy concepts disappear — `promote-global` (Tier 2 is expert-owned), `explore-knowledge` (expert query IS knowledge exploration), and the curate/promote distinction (unified into `knowledge.submit`). (2) Uniform protocol: reuse `send` with typed payloads; only `create_plan` and `adopt_project` are genuinely new NDJSON commands. (3) Command palette with user-configurable keybindings, modal which-key support, hot-reloaded from `tui-keybindings.toml`. (4) `mnemosyne cmd` CLI wrapper for external automation via the NDJSON socket. (5) Expert CRUD via filesystem + `$EDITOR`, with `DeclarationLoader` hot-reload as the single registration path. (6) Clean break at G's Phase 1 — no compatibility shim. (7) Local docs server hosted by the daemon; every command carries a description ≤80 chars and a help URL.
-  - Sibling plan scaffolded at `LLM_STATE/sub-H-skills/` with 14 tasks: Task 0 readiness gate, 8 daemon-side Elixir tasks, 4 TUI-side Rust tasks, 1 integration/stubs task.
-  - Cross-project propagation: Sub-M received Task 26 (`mnemosyne.tui_action` diagnostic contract — confirm `%Diagnostic{}` carries `fields: map()`, attach Handler, add `counter("mnemosyne.tui_action")` to metric catalogue). Sub-M adoption table updated from "queued" to "contract locked". Sub-E memory updated with explicit scoping boundary: curate command belongs to Sub-H, not Sub-E. README updated to reflect ten brainstorms complete and corrected sub-project table.
-  - Orchestrator backlog, memory, and pipeline description updated: H marked done; recommended next steps updated to sub-I amendment as the sole remaining P1 blocker.
-
-- **What didn't work:** Nothing — clean brainstorm session. Note: the backlog recorded results as "Session 21" (a numbering error by the work LLM — this is in fact Session 22, since session-log.md already contained 21 entries at session start).
+  - Sub-I P1 amendment fully absorbed. Backlog task status changed to `done`. Sub-I brainstorm scope expanded substantially: Obsidian reframed as a concrete daemon client (v1 via file observation; v1.5+ via sub-K plugin), and a complete data-surface inventory enumerated — vault-level tracked surfaces (`mnemosyne.toml`, `daemon.toml`, `routing.ex`, `plan-catalog.md`, `experts/*.md`, `knowledge/`, `archive/`, `.obsidian/`), per-project surfaces (visible via symlinks), runtime/ephemeral surfaces (gitignored), and the v1.5+ daemon event stream types. Seven brainstorm questions added. Sub-I is now unblocked.
+  - Sub-A backlog and memory updated to include `tui-keybindings.toml` in the vault layout and init flow (hot-reloaded by the TUI; introduced by sub-H Session 21).
+  - Sub-F Task 11 expanded: `create_plan` and `adopt_project` commands added explicitly to the daemon command set (both finalised in sub-H); `mnemosyne cmd` headless client documented as a second official NDJSON socket client. New Task 13a added as a placeholder for the local HTTP docs server (per-command help pages; provisionally sub-F's scope; scope must be confirmed before implementation). Memory updated: F-11 retitled to reflect two official clients; sub-H/sub-F relationship section added; scope boundary updated to name both clients as sub-H's implementation scope.
+  - Sub-G Task 4 updated with an atomic cut-over constraint: `migrate-project.sh` must execute as a single atomic transaction (no partial-state window); sub-G memory initialised with the sub-H dependency rationale.
+  - Sub-N memory updated with N-15: `expert.query` confirmed as the only NDJSON expert command; expert CRUD is filesystem + `$EDITOR` + `DeclarationLoader` hot-reload only; no additional socket command structs needed in sub-N.
+  - Orchestrator memory updated: Sub-I status updated to "unblocked", amendments-absorbed list updated to include I, pipeline description updated to remove the amendment step and promote Sub-I brainstorm as the immediate next action.
 
 - **What this suggests trying next:**
-  - Sub-I amendment (Obsidian as daemon client) is the only remaining Priority 1 blocker; it gates the Sub-I brainstorm.
-  - Sub-E, Sub-B, Sub-C task-list rewrites remain on the critical path for Sub-F Task 0.
-  - Sub-H's 14-task implementation plan is ready but gated behind Sub-F Task 0.
+  - Sub-I brainstorm is now the immediate priority — P1 is clear. Produce the Obsidian coverage design doc with `.obsidian/` template design.
+  - Sub-E, Sub-B, Sub-C task-list rewrites remain on the critical path toward Sub-F Task 0.
+  - Task 13a scope confirmation (sub-F vs sub-H allocation for local docs server) should be resolved before sub-F implementation reaches Task 13.
 
 - **Key learnings:**
-  - Architecture-first derivation (what does the daemon need to expose?) produces a cleaner command surface than legacy-skills-first mapping — three legacy concepts vanished entirely because they were redundant with the new architecture.
-  - The `mnemosyne cmd` CLI wrapper for socket automation was not in the original scope; it emerged naturally from the protocol design (NDJSON over a Unix socket is trivially scriptable).
-  - The local docs server (daemon hosts help pages for all commands) removes the need for a separate docs deployment, keeps help always version-matched to the running daemon, and is accessible from TUI, Obsidian, and external tools alike.
+  - The P1 amendment turned into a much richer scope expansion than the original brief suggested — the complete data-surface inventory (tracked, per-project, runtime, event stream) is itself the most valuable output, giving the sub-I brainstorm a precise checklist rather than an open-ended question.
+  - The atomic cut-over requirement for sub-G (sub-H's command palette has no shim and is inoperative before Phase 1 completes) was not previously explicit in sub-G's scope; the triage surfaced it as a hard constraint on `migrate-project.sh` design.
+  - Sub-N benefits cleanly from the sub-H confirmation: `expert.query` is the only command, CRUD is filesystem-only, so no new Task structs are needed. The boundary is now fully locked.

@@ -48,6 +48,15 @@ and retiring Mnemosyne v0.1.0 artifacts. Design doc:
   `mnemosyne/knowledge/` exists, all `plan-state.md` files present,
   no `related-plans.md` files remain, `LLM_STATE/` gone. This is the
   daemon switch-over event per §2 Phase 1.
+- **Atomic cut-over constraint (sub-H dependency):** Sub-H's 17-command
+  palette becomes active the moment Phase 1 completes and is entirely
+  inoperative before it. The legacy skills are dropped with no shim.
+  `migrate-project.sh` must therefore be structured as a single atomic
+  operation: all moves and renames succeed or nothing is committed. No
+  intermediate state (e.g., `LLM_STATE/` still present alongside partial
+  `mnemosyne/` structure) should ever be left in place. A single git
+  commit that atomically records the new structure and removes the old is
+  the required delivery form.
 - **Results:** _pending_
 
 ## Phase 2 — Dependent project migration (staggered)

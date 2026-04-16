@@ -113,7 +113,7 @@ Rust is used only for the TUI client binary (separate implementation
 plan). Gleam is a future migration target if Elixir's dynamic typing
 proves painful for the invariant-heavy design.
 
-### F-11. TUI is a separate Rust client binary over Unix socket NDJSON
+### F-11. Two official clients over Unix socket NDJSON (updated 2026-04-16)
 
 `mnemosyne-tui` is a standalone Rust binary using `ratatui` + `tokio`
 + `serde_json`. Connects to the daemon over a local Unix socket at
@@ -121,6 +121,14 @@ proves painful for the invariant-heavy design.
 the socket is the integration boundary. This plan scaffolds the
 daemon side of that contract; the TUI binary itself belongs to a
 **separate implementation plan to be scaffolded later**.
+
+`mnemosyne cmd` (finalised in sub-H's brainstorm, Session 21,
+2026-04-16) is a second official client: a headless CLI wrapper that
+speaks the same NDJSON socket protocol. It enables scripted / CI
+access to the daemon without a TUI session. No extra daemon-side
+ceremony is required — the existing forward-compat (§7.3) and
+multi-client (§7.4) design already covers it. Sub-F owns only the
+daemon socket; both clients are sub-H's implementation scope.
 
 ### F-12. Reserved extensibility hooks (sub-O, sub-P)
 
@@ -193,6 +201,20 @@ F emits `%ActorStateChange{}`, `%MessageRouted{}`, `%RuleFired{}`,
 `%RuleSuggestion{}`, and `%DispatchProcessed{}` / `%QueryAnswered{}`
 structs at the boundary. M owns the transport and subscribers.
 
+### Relationship with sub-H (added 2026-04-16)
+
+Sub-H owns the TUI binary (`mnemosyne-tui`) and the `mnemosyne cmd`
+CLI wrapper. Both speak the NDJSON socket protocol that F's Task 11
+defines. Sub-H's Session-21 brainstorm finalised a 17-command daemon
+palette; two of those commands (`create_plan`, `adopt_project`) are
+now listed explicitly in Task 11's command set and must be handled
+daemon-side by F. Sub-H also identified a **local HTTP docs server**
+capability (per-command help pages, each with a help URL). Scope
+allocation: provisionally sub-F (the HTTP listener runs in the daemon
+process). Task 13a in this backlog is the placeholder; the design doc
+must be updated to confirm scope and describe the `[docs]` section in
+`daemon.toml` before Task 13a is implemented.
+
 ### Depended on by sub-N (added 2026-04-15; updated 2026-04-16)
 
 F's `Mnemosyne.Actor` behaviour (Task 2) and `ActorSupervisor`
@@ -250,9 +272,10 @@ become real only once those siblings land.
   not wire them.
 - **Sub-P (team mode)** — F reserves the schema hooks; does not wire
   them.
-- **Rust TUI binary (`mnemosyne-tui`)** — a separate implementation
-  plan. This plan scaffolds only the daemon-side client-listener
-  (Task 11) that the TUI will connect to.
+- **Rust TUI binary (`mnemosyne-tui`) and `mnemosyne cmd` CLI** —
+  both belong to sub-H's implementation scope. This plan scaffolds
+  only the daemon-side client-listener (Task 11) that both clients
+  connect to.
 - **Phase-cycle mechanics (B's scope)** — F consumes `PhaseRunner`;
   it does not reimplement or extend the phase flow.
 
