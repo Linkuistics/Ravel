@@ -41,7 +41,7 @@ Origin lacks enough context to reason about foreign plans; the Level 2 agent doe
 Every plan and expert has a `description:` frontmatter field, ≤120 characters, enforced at load time (hard error on overflow). Keyword-dense, noun-phrase-led, no self-reference, no placeholders. Permanent scope declaration, not current-state description. Cap is load-bearing: forces LLM-skimmable catalog rhythm and prevents verbose drift. Written at plan creation (brainstorm exit criterion), updated during reflect only if scope has genuinely drifted.
 
 ### Declarative routing via Datalog with LLM-fallback learning loop
-Routing rules live in `<vault>/ontology/routing.dl` — user-editable Datalog rules loaded by `Mnemosyne.Datalog.Server`. Hot reload via filesystem-watcher-triggered re-parse + re-evaluate. Facts (concern keywords) are extracted from each message body by a small cheap LLM pass (Claude Haiku via sub-C adapter; sub-O ideal consumer for local models), then normalized against the ontology via `resolves_to/2` queries. When rules don't decide, a Level 2 routing agent runs as fallback and may propose a new Datalog rule the user accepts into `routing.dl` — novel cases train the deterministic path. **Sub-R replaced `routing.ex` (Elixir pattern matching) with Datalog** — one reasoning substrate for both ontology resolution and routing, rather than two. Datalog is fundamentally better than imperative Elixir for user-facing and LLM-facing rules.
+Routing rules live in `<vault>/ontology/routing.dl` — user-editable Datalog rules loaded by `Mnemosyne.Datalog.Server`. Hot reload via filesystem-watcher-triggered re-parse + re-evaluate. Facts (concern keywords) are extracted from each message body by a small cheap LLM pass (Claude Haiku via sub-C adapter; sub-O ideal consumer for local models), then normalized against the ontology via `resolves_to/2` queries. When rules don't decide, a Level 2 routing agent runs as fallback and may propose a new Datalog rule the user accepts into `routing.dl` — novel cases train the deterministic path. `routing.dl` replaces `routing.ex` (Elixir pattern matching) — one Datalog substrate for both ontology resolution and routing. Datalog is fundamentally better than imperative Elixir for user-facing and LLM-facing rules.
 
 ### Datalog is Mnemosyne's declarative reasoning substrate
 Sub-R delivers a purpose-built, domain-agnostic Datalog engine in Elixir (`Mnemosyne.Datalog`) with a typed ontology fact schema. The engine uses bottom-up evaluation with guaranteed termination over finite domains (evaluation strategy informed by literature survey). The ontology provides canonical tags, synonyms, hierarchy, and typed relations (open predicate set). Four consumers: ScopeMatcher (sub-N), Stage 2 classification (sub-E), fact extraction normalization (sub-F), and routing (sub-F). LLM exposure: passive `{{ONTOLOGY_CONTEXT}}` placeholder injection + active `ontology.query` tool. Source of truth is `.dl` files in `<vault>/ontology/`; auto-generated Markdown views for Obsidian browsing.
@@ -55,7 +55,10 @@ For cross-cutting infrastructure sub-projects (M is the exemplar; D, F, H, I fac
 Soft fallbacks require explicit written rationale. Unexpected conditions, invariant violations, I/O failures, and ambiguous state fail hard with clear diagnostics. Documented exceptions must name the rationale in the design doc. Project-wide.
 
 ### Always-on instrumentation; tactical seeds disclaim framework scope
-Instrumentation is emitted unconditionally — no debug flag, no env var, no gated build. Tactical instrumentation must disclaim being a framework: purpose-built measurement is a tactical seed, not a metrics framework, and must not accrete framework-shaped scope creep. The observability framework lives in M. **Staged migration of seeds into M's framework uses parallel-emit + mechanical verification, never atomic cutover:** (1) seed-owning sub-project's v1 ships its tactical writer unchanged; (2) M's v1 lands instrumentation at the same measurement points in parallel; (3) mechanical verification confirms M's data matches the seed within explicit tolerance, then the seed's writer is deleted.
+Instrumentation is emitted unconditionally — no debug flag, no env var, no gated build. Tactical instrumentation must disclaim being a framework: purpose-built measurement is a tactical seed, not a metrics framework, and must not accrete framework-shaped scope creep. The observability framework lives in M.
+
+### Seed migration to M uses parallel-emit then mechanical verification
+Staged migration of tactical seeds into M's framework: (1) seed-owning sub-project's v1 ships its tactical writer unchanged; (2) M's v1 lands instrumentation at the same measurement points in parallel; (3) mechanical verification confirms M's data matches the seed within explicit tolerance, then the seed's writer is deleted. Never atomic cutover.
 
 ### No slash commands in the harness
 The harness runs as a pure worker with no user-facing command surface. Every user action flows through the client-daemon protocol. Three observation surfaces: chunk-level (assistant text, tool use, tool result), protocol-level (session lifecycle via stream-json), task-level (prompt-instructed sentinel strings detected by B's executor in assistant-text stream).
@@ -102,25 +105,25 @@ Both reflect, triage, and curate. The orchestrator supports human-driven flows a
 ### Explorers are the accountability substrate for auto-absorb
 Post-session auto-ingestion is safe only because explorers give humans full-CRUD over everything absorbed. Without explorers, auto-ingestion is unsafe. Scope: knowledge (Tier 1/2), plan state, session artifacts, ingestion provenance. Obsidian is the v1 explorer.
 
-### Mnemosyne is an LLM client via embedded harness adapter
+### Daemon spawns internal sessions via C's harness adapter
 The daemon spawns internal reasoning sessions (fact extraction, Level 2 routing, ingestion analysis, reflection distillation) plus child harness sessions for plans. Internal sessions use C's adapter, making C a real first-class abstraction. Requirement on C: configurable tool profiles at spawn time so internal sessions can be sandboxed. Ingestion Stage 5 becomes dispatch-to-experts (F/sub-N integration).
 
 ### TheExperimentalist is retired
 Conceptual scope met by the backlog/reflect/triage cycle plus plan hierarchy. Git branching models parallel state, but exploratory development needs temporal structure with reflection points, which the phase cycle provides.
 
-### Mnemosyne replaces LLM_CONTEXT as the single user-facing tool
+### Mnemosyne replaces LLM_CONTEXT as the user-facing tool
 Plans, phases, knowledge, and curation are Mnemosyne's scope. `LLM_CONTEXT/` retires once fully replaced. Until then, LLM_CONTEXT and its four dependents (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro) continue unchanged.
 
-### Mnemosyne owns all knowledge — Tier 1 and Tier 2
+### Mnemosyne owns Tier 1 and Tier 2 knowledge
 Per-project knowledge in Tier 1 (`<project>/mnemosyne/knowledge/`). Cross-project knowledge in Tier 2 (`<vault>/knowledge/`). Plan memory (`<plan>/memory.md`) is provisional scratch for in-flight reflections, not durable knowledge. Knowledge is **consultative** — accessed through ExpertActor queries, not loaded into plan sessions directly.
 
-### Vault is a git-tracked asset at a user-specified absolute path
+### Vault is git-tracked at a user-specified path
 First-class git-tracked dev asset visible alongside project repos. User-specified path (default `~/Mnemosyne-vault/`), discovered via explicit precedence chain. No implicit dev-root.
 
-### Vault root must be a real directory, not a symlink
+### Vault root must be a real directory
 `<vault>/projects/<name>/` entries are symlinks created relative to the vault root. If the root itself were a symlink, relative symlink targets would resolve incorrectly. Boot-time `File.lstat!/1` check rejects symlinked vault roots.
 
-### Vault discovery is explicit — flag → env → config → hard error
+### Vault discovery uses an explicit precedence chain
 Every daemon startup resolves the vault: `--vault <path>` → `MNEMOSYNE_VAULT` → user config at `dirs::config_dir().join("mnemosyne/config.toml")` → hard error. No walk-up, no implicit dev-root, no vault registry. Single-vault-per-machine. Detail in A's design doc §A1.
 
 ### Vault identity via `mnemosyne.toml` schema-versioned marker
@@ -135,11 +138,13 @@ Mnemosyne reads plan outputs (`memory.md`, `session-log.md`) after sessions end 
 ### Harness adapter layer abstracts multiple harnesses
 Each adapter handles spawn, prompt-passing, output capture, and lifecycle. **V1 ships Claude Code adapter only** in Elixir (pipes via `erlexec`). Codex and Pi follow post-v1. **V1 includes per-actor model selection** — the `model:` field in actor declarations and daemon config is honored, and the Claude Code adapter passes `--model` to the CLI. This is essential for cost control: plan phases use Opus, fact extraction/ingestion/expert absorb use Haiku. Sub-O (v2) adds multi-adapter support, local-model adapters, and cost telemetry. Protocol: bidirectional stream-json over stdio pipes. Process-group termination is a v1 requirement.
 
-### Hybrid `:telemetry` + typed-event-struct is the project-wide pattern
+### Typed event structs + `:telemetry` is the instrumentation pattern
 Typed `Mnemosyne.Event.*` structs at the boundary (exhaustive-match safety for CLI display, Obsidian ingestion, TUI event rendering, E's pipeline); `:telemetry` for transport, spans, third-party integration below the boundary. Custom code bounded to minimal event definitions + a small `:telemetry` handler module.
 
+### `:telemetry` handlers must wrap all logic in try/rescue
 `:telemetry` silently detaches handlers that raise — every `Handler.handle_event/4` body must be wrapped in `try/rescue` and log errors via `Logger` directly (not through M). Without this, any subscriber bug permanently blinds the daemon.
 
+### `:telemetry_metrics` reporter definitions are pluggable
 `:telemetry_metrics` is reporter-independent by design: the same `counter(...)` / `distribution(...)` definitions feed any reporter attached to the supervisor tree. Switching or adding reporters is purely additive.
 
 ### `:pg` handles intra-daemon multi-client fan-out
@@ -158,7 +163,7 @@ When a design imposes adoption work on siblings, the brainstorm must produce con
 ### Cross-plan coordination via subagents and vault catalog
 A plan's LLM phases must not read another plan's files. Cross-plan awareness arrives via `{{VAULT_CATALOG}}` (descriptions only, never content) and dispatched subagents. Level 2 routing agent is the primary mechanism for cross-project reasoning.
 
-### Brainstorming methodology
+### Brainstorming follows three linked disciplines
 Three linked disciplines that compound: (1) **code-shaped contracts at brainstorm exit** — struct names, function specs, verdict atoms that let downstream amendment authors work mechanically rather than reason about intent; (2) **cross-sub-project requirements per-sibling** — one named section per affected sibling so each can find its own commitments without reading the whole spec; (3) **adoption stubs pushed to sibling backlogs before exiting** — brainstorm fresh context is the right moment to identify what each sibling must absorb; triage is too late.
 
 **Amendment tasks for pending brainstorms are scope-consolidation exercises.** Not design-doc rewrites — they collate constraints scattered across multiple source documents into the brainstorm task description so the brainstorm begins with a complete picture.
@@ -194,34 +199,34 @@ Stream-json is stdio NDJSON, not a terminal interaction. PTY is only needed for 
 ### cmux hooks require `--setting-sources` for clean stream-json
 User-global cmux SessionStart hooks inject spurious JSON into stream-json output. `--setting-sources project,local` suppresses them. Required for all daemon-spawned claude sessions. `--no-session-persistence` prevents cmux session-id injection.
 
-### ExpertActor scope spans both tiers with explicit opt-in
+### ExpertActor spans both tiers via explicit opt-in
 Experts can read both Tier 2 (`<vault>/knowledge/`) and Tier 1 (`<project>/mnemosyne/knowledge/`) via `scope.tier2` and `scope.tier1` globs in the declaration. Literal `*` in the first segment of a `tier1` glob means "any project" — no implicit cross-project inclusion. Grep `<vault>/experts/*.md` for `tier1:` to audit cross-project scope. An expert that omits `scope.tier1` is Tier-2-only. Per-project opt-in is the cross-project-leakage control mechanism.
 
 ### Experts own Tier 2; Tier 1 is plan-owned
 Experts have exclusive write authority over dedicated Tier 2 directories (resolved from the first entry of `scope.tier2`). Tier 1 is plan-owned read-only from the expert's perspective. Stage 5 candidates that belong in Tier 1 are plan-owned writes (sub-E handles directly); Tier 2 candidates flow through experts. Three-way Stage 5 decision: Tier 1 = plan-owned, Tier 2 = expert-owned, orphan = `knowledge/uncategorized/`.
 
-### Expert CRUD via filesystem; `expert.query` is sole socket command
+### Expert CRUD is filesystem-only; `expert.query` is sole command
 Expert declarations are created, edited, and deleted via filesystem + `$EDITOR` + `DeclarationLoader` hot-reload. No socket command structs exist for expert CRUD. `expert.query` is the only NDJSON command in the expert namespace. Sub-N requires no new socket command structs beyond what sub-H's 17-command palette already defines.
 
-### Expert dialogues are stateless turns over ETS-backed registry
+### Expert dialogues are stateless ETS-backed turns
 Expert dialogues use stateless turns over a singleton `Mnemosyne.Expert.DialogueRegistry` backed by ETS. Every turn spawns a brand-new fresh-context session; the actor does NOT hold a long-lived harness across turns. Dialogue TTL is idle-based (default 30 min, resets on activity). Daemon restart wipes the table — consumers get `:dialogue_not_found_or_expired` and fall back to a fresh `ask_expert`. Audit trail lives in sub-M's event log. Dialogue state is transient; belongs in ETS memory, not on disk.
 
-### Stage 5 scope matching is tag-based exact-string intersection
+### Stage 5 scope matching is tag-based exact-string
 Stage 5 scope matching is pure set-intersection on frontmatter `tags:` fields. Exact-string matching only in v1 — `rust` ≠ `rustlang`, no stemming, no case-insensitivity. Orphan candidates (zero matching experts) bypass expert fan-out and write directly to `<vault>/knowledge/uncategorized/`. Sub-R will replace this with a richer resolver behind the same `ScopeMatcher` interface.
 
-### Stage 5 dispatches in parallel; each expert writes its own file
+### Stage 5 dispatches in parallel; experts write own files
 Stage 5 calls `Mnemosyne.Expert.DialogueRegistry` via stateless single-turn calls — one `%ExpertAbsorbCandidate{}` in, one verdict struct back, no multi-turn dialogue — dispatching in parallel to every tag-matching expert. Each expert that returns `READY ABSORB` writes the candidate file into its own Tier 2 directory. Physical duplication across directories is accepted — two experts absorbing the same candidate produce two files with matching `ingestion-event-id` in their provenance frontmatter. Wikilinks between them are NOT auto-inserted in v1. `READY CROSS_LINK <expert-id>` is interpreted as a rejection-with-suggestion; the sub-E collector second-round dispatches non-recursively (max depth 2). Contentful disagreement (absorb + non-trivial reject) surfaces `%ExpertConflict{}` events for human review; scope-miss alone does not constitute a conflict.
 
 ### Three distinct sub-N timeouts: retrieval, session, dialogue
 Retrieval pipeline timeout (5 seconds) is a **structural sanity check** on the ripgrep pipeline, not a reasoning budget. Per-turn session timeout (5 minutes default, configurable in `daemon.toml` under `[experts] turn_timeout_seconds`) bounds actual LLM reasoning time. Dialogue TTL (30 minutes default) is an **idle** timer that resets on every successful turn — a dialogue whose turns each take 4 minutes of reasoning can run for hours. Three distinct concepts; do not collapse them. Pattern generalizes: deterministic work gets tight structural caps; LLM work gets generous reasoning budgets; dialogue/session idle timers are independent.
 
-### Retrieval uses keyword + section scoring behind behaviour chokepoint
+### Retrieval uses keyword+section scoring behind a chokepoint
 V1 ships exactly one retrieval strategy, `Mnemosyne.ExpertRetrieval.KeywordSection`, behind an `@behaviour Mnemosyne.ExpertRetrieval` chokepoint. Uses ripgrep over scope globs + section-aware scoring with module-level constant weights (1.0 × frontmatter tags, 0.6 × headings, 0.4 × first paragraph, 0.2 × body, 0.1 × recency with 30-day half-life). Tuning weights requires a code change, not per-user config — prevents per-vault drift on load-bearing scoring parameters. Future strategies (semantic via vector store — sub-Q) drop in behind the chokepoint.
 
-### Vector store is shared daemon infrastructure, not sub-N internal
+### Vector store is shared daemon infrastructure
 A vector database has consumers beyond expert retrieval — sub-F's vault-catalog search, sub-E's Stage 3 contradiction detection, plan actors searching Tier 1/2 knowledge, and sub-O's local-model infrastructure. Sub-Q is a dedicated brainstorm on vector-store infrastructure as a shared daemon service. The `ExpertRetrieval` behaviour chokepoint is sub-N's hook for consuming sub-Q's output. Reserved for v2; does not block v1.
 
-### Tag ontology is a v1 research sub-project, not inline with sub-N
+### Tag ontology is sub-R's dedicated v1 research scope
 Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the expert set grows; the correct answer is an ontology — but that's real research (formal ontologies vs folksonomies, synonym handling, hierarchy, polysemy). Sub-R is the dedicated research brainstorm, elevated to v1 because drift compounds from day one once experts accumulate knowledge. Cross-cutting consumers: sub-N `ScopeMatcher`, sub-E Stage 2 classification, sub-F fact extraction, sub-H TUI presentation. Sub-A's vault layout has a reserved `tag-vocabulary.md` path. Sub-R's richer resolver drops in behind sub-N's `ScopeMatcher` interface — sub-N can ship exact-string matching first, then sub-R upgrades it.
 
 ## Sub-projects
