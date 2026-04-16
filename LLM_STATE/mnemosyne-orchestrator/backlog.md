@@ -1,15 +1,6 @@
 # Backlog — Mnemosyne Orchestrator
 Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
-## Priority 1 — Blocking amendments (v1)
-
-All F-triggered amendments are now absorbed. Sub-I brainstorm is unblocked.
-
-- **Status:** done
-- **Dependencies:** F done ✓
-- **Description:** Amend sub-I's (still-pending) design scope to account for F's architectural impact on Obsidian's role and data surfaces.
-- **Results:** F-impact fully absorbed into Sub-I brainstorm scope (P2). Five amendments folded: (1) Obsidian reframed as daemon client — v1 coverage splits into file-native surfaces vs. daemon-observable surfaces; (2) vault catalog (`plan-catalog.md`) added as machine-owned Dataview target; (3) routing module (`routing.ex`) added as user-editable Elixir source with syntax-highlighting concerns; (4) expert declarations (`experts/*.md`) added as browsable/editable configuration surface; (5) daemon event stream documented as v1.5+ live-view opportunity via sub-K's NDJSON protocol. Complete data-surface inventory enumerated in the brainstorm scope.
-
 ## Priority 2 — Remaining sub-project brainstorms
 
 ### Sub-I — Obsidian coverage
