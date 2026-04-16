@@ -1,1 +1,1 @@
-git-commit-dream
+git-commit-triage

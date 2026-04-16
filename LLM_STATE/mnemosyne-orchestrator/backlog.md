@@ -1,14 +1,19 @@
 # Backlog — Mnemosyne Orchestrator
 Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
-## Priority 2 — Remaining sub-project brainstorms
+## Priority 1 — Decisions and gates
 
-### Sub-I — Obsidian coverage
-- **Status:** done
-- **Dependencies:** none (P1 amendment absorbed)
-- **Description:** Document which Obsidian features cover which Mnemosyne data surfaces, and produce the `.obsidian/` template that ships with v1.
-  Output: design doc at `docs/superpowers/specs/2026-04-16-sub-I-obsidian-coverage-design.md`.
-- **Results:** Brainstorm complete (Session 23). Design doc produced with 10 sections covering: complete data-surface inventory (§2, 15+ surfaces mapped to Obsidian features), three required community plugins — Dataview, Templater, Homepage (§3), two Templater templates for knowledge entries and expert declarations (§4), four starter Dataview view files in `views/` directory (§5), `.obsidian/` file manifest with git-tracking policy (§6), symlink handling verification requirement (§7), first-open experience flow (§8), cross-sub-project requirements — lightweight, two minor additions to Sub-A init scaffolding, one confirmation on Sub-E (§9), seven implementation tasks (§10). Key design decisions: Obsidian is a pragmatic bridge to Phoenix LiveView (not the destination); no graph view; no CSS snippets; no custom dashboard (plan-catalog.md as homepage); zero shipped CSS. Sibling plan scaffolded at `LLM_STATE/sub-I-obsidian-coverage/` with 7 tasks.
+- **Status:** not_started
+- **Dependencies:** all in-scope brainstorms complete ✓ (A, B, C, D, E, F, G, H, I, M, N done; K, L pending but v1.5+)
+- **Description:** All in-scope v1 brainstorms are now complete (Sub-I was the last one, finished Session 23). Decide what's actually in v1 vs. deferred to v1.5/v2. Update memory.md with the v1 cut. Adjust dependent implementation plans accordingly.
+  Sub-N (domain experts) is **in v1** — F relies on ExpertActor shipping alongside PlanActor. Without experts, Query messages have no interesting targets.
+  Sub-O (MoM) and sub-P (team mode) are **v1.5+ and v2+ by design** — not candidates for v1 scope cut.
+  Sub-K (Obsidian plugin client) remains v1.5+ per F's TUI-first commitment.
+  Sub-I and sub-L are small documentation/spike work that can land wherever convenient.
+  **Immediate pipeline after this decision:** sub-E/sub-B/sub-C task-list rewrites → sub-F Task 0 readiness check → Task 1+ implementation.
+- **Results:** _pending_
+
+## Priority 2 — Remaining sub-project brainstorms
 
 ### Sub-L — Obsidian terminal plugin spike (independent)
 - **Status:** not_started
@@ -98,15 +103,4 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
   - Curation workflow: whose expert accepts a dispatched candidate when multiple users have matching experts?
   A substantial brainstorm at v2 milestone.
   Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-P-team-mode-design.md` and sibling plan.
-- **Results:** _pending_
-
-## Priority 3 — Decisions and gates
-
-- **Status:** not_started
-- **Dependencies:** all in-scope brainstorms complete (A, B, C, D, E, F, G, H, I, M, N done; K, L pending but v1.5+)
-- **Description:** Once every in-scope sub-project has been brainstormed and its design doc and implementation plan exist, decide what's actually in v1 vs. deferred to v1.5/v2. Update memory.md with the v1 cut. Adjust dependent implementation plans accordingly.
-  Sub-N (domain experts) is **in v1** — F relies on ExpertActor shipping alongside PlanActor. Without experts, Query messages have no interesting targets.
-  Sub-O (MoM) and sub-P (team mode) are **v1.5+ and v2+ by design** — not candidates for v1 scope cut.
-  Sub-K (Obsidian plugin client) remains v1.5+ per F's TUI-first commitment.
-  Sub-I and sub-L are small documentation/spike work that can land wherever convenient.
 - **Results:** _pending_
