@@ -115,6 +115,26 @@ once the pipeline is running.
 the backstop (dropping Stage 4 as degradation path) means the pipeline can
 ship slow. Do not optimise session spawn until measurements justify it.
 
+## FileIO: mandatory I/O layer (sub-D Session 18)
+
+Sub-D's Session 18 established `Mnemosyne.FileIO` as the mandatory file I/O
+layer for all daemon file operations. This is binding on sub-E:
+
+- **All reads** must use `FileIO.read_tracked/1` (records SHA-256 hash).
+- **All writes** must use `FileIO.write_safe/3` with an explicit file category:
+  - `:human_editable` — knowledge files being absorbed from ingestion.
+    Human-authoritative; daemon's copy is discarded on conflict.
+  - `:exclusive` — ingestion staging files (provenance files, cycle state).
+    Daemon owns them entirely; no conflict check.
+  - `:phase_owned` — daemon-authoritative with conflict warning; no current
+    sub-E use case identified.
+- **`SafeFileWriter` must delegate to `FileIO.write_safe/3`**, not implement
+  its own atomic-write or conflict-detection logic. The Rule 6 semantic safety
+  checks (no writes outside `knowledge/`, no plan-file writes, etc.) remain
+  inside `SafeFileWriter` as guard logic before calling FileIO.
+- All writes are atomic (temp-then-rename) inside FileIO — sub-E must not
+  replicate this.
+
 ## Dependencies on sibling sub-projects
 
 - **Sub-project C (harness adapter)** — required for Stages 3 and 4, and

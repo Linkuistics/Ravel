@@ -4,6 +4,8 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 ## Recent history
 
+**Session 19 (2026-04-16) — Sub-G amendment absorbed; G brainstorm unblocked.** Cross-referenced F §1/§1.2–§1.5/F-4/F-5, sub-A contract table + §A8, sub-C §11.6, sub-D (FileIO + singleton lock), Session 8 carry-forwards. Original 7 F-impact items confirmed; 8 additional scope items identified (plan-state.md schema changes, adapters/claude-code/ retirement, knowledge/ creation, vault creation with A4 layout, symlinks, gitignore policy, four dependent projects, eval/ + defaults/ disposition). All 15 items consolidated into 4 categories in sub-G brainstorm task description. Session 8's `related-plans.md` schema change superseded by F's complete deletion of the concept. G brainstorm is now unblocked; remaining amendments: H, I.
+
 **Triage (2026-04-16) — Sub-D done; FileIO propagation dispatched to four sibling plans.** Sub-D brainstorm task removed (done Session 18: design doc, system-wide singleton lock, `Mnemosyne.FileIO` mandatory I/O layer, sub-A inline update, sibling plan scaffolded). Priority 1 execution note updated (D removed from remaining orchestrator-level work). Dispatched subagents to: sub-B (FileIO.write_safe/3 for copy_back/2 → `:phase_owned`), sub-E (FileIO delegation for SafeFileWriter → `:human_editable`/`:exclusive`), sub-F (FileIO for plan-catalog writes → `:exclusive`; DaemonLock as Task 0 dependency), sub-N (FileIO for expert absorb writes → `:human_editable`). Phase: work.
 
 **Triage (2026-04-16) — Sub-E amendment done; Priority 0 and sub-E task cleared; cross-plan propagations dispatched.** Sub-E amendment removed (done Session 17: inline rewrite of ingestion design doc, BEAM/Elixir + Stage 5 dispatch-to-experts). Priority 0 section removed (heading-only holdover). Priority 1 execution note updated. Dispatched subagents to: sub-E (add Task 0 gate for pre-pivot Rust task-list rewrite), sub-M (update sub-E adoption matrix from "wrap and migrate" to "verify schema"), sub-N (verify sub-E interface finalization — no blocking update expected), sub-F (verify sub-E amendment doesn't change Task 0 gate conditions). Phase: work.
@@ -36,22 +38,13 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 F's architecture commitment affects every done brainstorm. Each amendment is a short work phase: read the existing design doc, identify Rust-specific or pre-F-specific sections, replace with BEAM/actor/dispatch-aware equivalents, commit.
 
-**Execution note (triage 2026-04-16, post-Session 18):** Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18 — singleton lock, FileIO pattern, sub-A inline update, sibling plan scaffolded). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** G, H, I amendment/brainstorm tasks produce scope-framing documents. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to all remaining amendments.
+**Execution note (Session 19, 2026-04-16):** Sub-G amendment done (Session 19 — consolidated 15 scope items from F, A, C, D, Session 8 into brainstorm task description). Sub-E amendment done (Session 17); sub-D brainstorm done (Session 18). Sub-F's Task 0 readiness gate has **two remaining conditions**, both sibling-level: (1) sub-B downstream task-list rewrite (sibling plan), (2) sub-C downstream task-list rewrite (sibling plan). **Remaining orchestrator-level work (any order):** G brainstorm (unblocked), H amendment + brainstorm, I amendment + brainstorm. The pivot-rewrite pattern (inline rewrite, not supersede layers) applies to remaining amendments (H, I).
 
 ### Sub-G amendment — daemon invocation pattern in migration `[amendment]`
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** F done
-- **Description:** Amend sub-G's (still-pending) design to account for:
-  - Migration now renames `LLM_STATE/` → `<project>/mnemosyne/project-root/` (not `<project>/mnemosyne/plans/`)
-  - `phase.md` → `plan-state.md` rename still applies
-  - Migration gains a "start the daemon" step (user runs `mnemosyne daemon --init` post-migration)
-  - Rust v0.1.0 CLI deletion scope expands: the entire previous CLI is retired (daemon + TUI split), not just the hardcoded `~/.mnemosyne/` paths
-  - Per-project `project-root/` directory creation during migration
-  - Vault catalog regeneration on first daemon start
-  - Previous amendment tasks from Session 8 (`pre-work.sh`, `prompt-*.md`, `compact-baseline`, `related-plans.md` schema) still apply
-
-  G's brainstorm can proceed after this amendment is absorbed.
-- **Results:** _pending_
+- **Description:** Amend sub-G's (still-pending) design to account for F's BEAM pivot, sub-A's contract table, sub-C §11.6, sub-D's FileIO, and Session 8 carry-forwards. Consolidated scope captured in the sub-G brainstorm task description (Priority 2).
+- **Results:** Cross-referenced F's design doc (§1, §1.2–§1.5, F-4, F-5), sub-A's contract table, sub-C §11.6 (legacy adapters note), sub-D (FileIO, singleton lock), and Session 8 carry-forwards. Confirmed the original 7 F-impact items and identified 8 additional scope items not in the original description: (1) `plan-state.md` schema changes (remove `plan-id`/`host-project`/`dev-root`, add `description:` ≤120c, rename `mnemosyne-pid` → `daemon-pid`); (2) legacy `adapters/claude-code/` retirement per sub-C §11.6; (3) `<project>/mnemosyne/knowledge/` creation as sibling of `project-root/`; (4) vault creation with full A4 layout (`mnemosyne.toml`, `daemon.toml`, `routing.ex`, `experts/`, `runtime/`, `.obsidian/` template, `plan-catalog.md`); (5) symlink creation `<vault>/projects/<name>` → `<project>/mnemosyne/`; (6) gitignore policy per A5 (vault `runtime/` contents); (7) four dependent projects need same transformation; (8) `eval/` stays as standalone Rust CLI, `defaults/` retired alongside v0.1.0. Session 8's `related-plans.md` schema change superseded by F's complete deletion of the concept (vault catalog replaces it). All 15 scope items consolidated into the sub-G brainstorm task description. G's brainstorm is unblocked.
 
 ### Sub-H amendment — skills as attached-client TUI actions `[amendment]`
 - **Status:** not_started
@@ -139,8 +132,37 @@ F's architecture commitment affects every done brainstorm. Each amendment is a s
 
 ### Brainstorm sub-project G — migration `[brainstorm]`
 - **Status:** not_started
-- **Dependencies:** Sub-G amendment complete (Priority 1)
-- **Description:** Design the migration path from `LLM_STATE/` + `LLM_CONTEXT/` to `<project>/mnemosyne/` + the BEAM daemon. Scope includes: directory renames, `phase.md` → `plan-state.md`, daemon start step, Rust CLI retirement, per-project `project-root/` creation, vault catalog regeneration, and the Session 8 carry-forward items (`pre-work.sh`, `prompt-*.md`, `compact-baseline`, `related-plans.md` schema deletion). F-impact notes in the Sub-G amendment task (Priority 1) define the scope constraints.
+- **Dependencies:** Sub-G amendment complete (Priority 1) — **satisfied**
+- **Description:** Design the migration path from `LLM_STATE/` + `LLM_CONTEXT/` to `<project>/mnemosyne/` + the BEAM daemon. Consolidated scope from the Sub-G amendment (15 items across 4 categories):
+
+  **Category 1 — Directory structure transformation:**
+  - `LLM_STATE/` → `<project>/mnemosyne/project-root/` (F-4 collapsed `plans/`; root plan at `project-root/` directly)
+  - `LLM_STATE/<orchestrator>/` files become the project-root plan; `LLM_STATE/<sub-X>/` directories nest under `project-root/`
+  - Create `<project>/mnemosyne/knowledge/` as sibling of `project-root/` (Tier 1 per-project knowledge)
+  - `phase.md` → `plan-state.md` rename in every plan directory
+  - `plan-state.md` schema: remove `plan-id`/`host-project`/`dev-root` (filesystem-derivable per F-5), add `description:` (≤120c, non-placeholder, enforced per §1.4), rename `mnemosyne-pid` → `daemon-pid`
+  - `related-plans.md` files deleted entirely (F replaced with vault catalog; supersedes Session 8's schema-change framing)
+  - Preserve per-plan optional files: `pre-work.sh`, `prompt-reflect.md`, `prompt-triage.md`, `prompt-compact.md`, `compact-baseline`
+
+  **Category 2 — Vault creation:**
+  - Create `<dev-root>/Mnemosyne-vault/` with full A4 layout: `mnemosyne.toml` (identity marker + schema version), `daemon.toml` (runtime config), `routing.ex` (minimal stub), `plan-catalog.md` (auto-generated), `experts/` (default declarations from sub-N), `.obsidian/` template
+  - Create `<vault>/projects/<name>` symlinks → `<project>/mnemosyne/` for each adopted project
+  - Gitignore policy per A5: `runtime/` contents (daemon.sock, mailboxes/, staging/, etc.) are gitignored; system-wide singleton lock at `<runtime_dir>/mnemosyne/daemon.lock` is outside the vault
+  - `adopt-project` is per-machine; G produces a one-shot migration script that loops over a project list (per sub-A §A8)
+
+  **Category 3 — Retirement:**
+  - Rust v0.1.0 CLI: entire `src/` codebase retired (daemon + TUI split replaces it); `Cargo.toml`/`Cargo.lock` at project root retired
+  - `eval/` stays as standalone Rust CLI (evaluation framework over knowledge files, independent of daemon)
+  - `defaults/` directory retired (v0.1.0 config format, `config.yml` + `gitignore`)
+  - `adapters/claude-code/` — legacy Claude Code plugin (markdown skills), not a harness adapter; G owns retiring or renaming it (per sub-C §11.6)
+  - `~/.mnemosyne/` hardcoded paths deleted outright (v0.1.0 has no real users, no migration path)
+
+  **Category 4 — Post-migration steps:**
+  - Daemon start: user runs `mnemosyne daemon --init` post-migration
+  - Vault catalog regenerated on first daemon start (auto-walks all adopted projects)
+  - Four dependent projects (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro) need the same `LLM_STATE/` → `mnemosyne/project-root/` transformation; non-disruption constraint means migration must be atomic per-project and reversible
+
+  **Cross-references:** F design doc §1/§1.2–§1.5/F-4/F-5, sub-A contract table + §A8, sub-C §11.6, sub-D (FileIO + singleton lock), Session 8 carry-forwards.
 
   Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-G-migration-design.md` and sibling plan at `LLM_STATE/sub-G-migration/`.
 - **Results:** _pending_

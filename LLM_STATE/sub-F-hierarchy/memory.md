@@ -155,6 +155,26 @@ fact-extraction LLM pass spawn sessions via the same adapter the
 phase runner uses. F's Query messages are delivered mid-session via
 C's tool-call boundary (`Mnemosyne.Router.handle_tool_call/4`).
 
+### Consumes from sub-D
+
+`Mnemosyne.DaemonLock` — the singleton lock module owned by sub-D's
+coordination implementation plan. F's daemon boot sequence (Task 10)
+calls this module to acquire `flock(2)` on
+`<runtime_dir>/mnemosyne/daemon.lock` (Task 12). Sub-D's lock module
+must be landed before Tasks 10 and 12 run; this is tracked as an
+explicit dependency in Task 0's readiness gate.
+
+### Consumes from sub-D — FileIO mandatory I/O layer
+
+`Mnemosyne.FileIO` is the mandatory layer for all daemon file writes
+(also from sub-D). Every daemon write must use `FileIO.write_safe/3`
+with an appropriate file category:
+- `:exclusive` — daemon regenerates unconditionally, no conflict check
+  (e.g. `<vault>/plan-catalog.md` written by `CatalogRenderer`)
+- `:phase_owned` — daemon-authoritative, warn on conflict
+- `:human_editable` — human-authoritative, discard on conflict
+F's `CatalogRenderer` (Task 9) uses `:exclusive`.
+
 ### Consumes from sub-M
 
 `:telemetry` + typed `Mnemosyne.Event.*` structs for observability.

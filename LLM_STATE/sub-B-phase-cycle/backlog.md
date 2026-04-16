@@ -507,6 +507,45 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   tests cover: clean write-through, unchanged-file detection, new-file
   propagation, reverse substitution correctness, rejection rule
   enforcement, atomic rename semantics.
+
+  **FileIO constraint (from sub-D Session 18):** All writes must
+  delegate to `Mnemosyne.FileIO.write_safe/3` rather than writing
+  files directly. Plan files written by `copy_back` are
+  `:phase_owned` — the daemon is authoritative during an active phase.
+  See the "Delegate `copy_back` writes to `FileIO.write_safe/3`"
+  task below.
+- **Results:** _pending_
+
+### Delegate `copy_back` writes to `FileIO.write_safe/3` `[staging]` `[file-io]`
+- **Status:** not_started
+- **Dependencies:** Implement `StagingDirectory::copy_back`, sub-D
+  `Mnemosyne.FileIO` module landed
+- **Description:** Ensure `StagingDirectory.copy_back/2` delegates all
+  plan-file writes to `Mnemosyne.FileIO.write_safe/3` rather than
+  performing direct filesystem writes. `Mnemosyne.FileIO` is the
+  mandatory I/O layer for all daemon file operations (established by
+  sub-D Session 18). The file category for plan files written at
+  phase exit is `:phase_owned` — the daemon is authoritative for them
+  during an active phase, meaning conflicts surface as warnings (not
+  hard errors) and the daemon copy wins.
+
+  **Contract summary (from sub-D design):**
+  - `FileIO.read_tracked/1` — reads a file and records its SHA-256
+    hash for subsequent conflict detection.
+  - `FileIO.write_safe/3` — atomic temp-then-rename write with a
+    file category argument: `:exclusive` (no conflict check,
+    overwrite), `:phase_owned` (daemon-authoritative, warn on
+    conflict), `:human_editable` (human-authoritative, discard on
+    conflict).
+  - Plan files written by `copy_back` are `:phase_owned`.
+
+  **Work to perform:** Replace any direct `File.write/2` or
+  `File.rename/2` calls inside `copy_back` with
+  `FileIO.write_safe(path, content, :phase_owned)`. Reads inside
+  `copy_back` (for content-hash comparison against the canonical plan
+  directory) should use `FileIO.read_tracked/1`. Adjust unit tests to
+  assert that `FileIO.write_safe/3` is called with `:phase_owned`
+  for each written file.
 - **Results:** _pending_
 
 ### Implement `StagingDirectory::preserve_on_interrupt` and `cleanup` `[staging]`

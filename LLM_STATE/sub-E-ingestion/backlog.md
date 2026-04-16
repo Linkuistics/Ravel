@@ -205,6 +205,43 @@ amendment task below makes this explicit.
   task-list-rewrite gate-task pattern before any implementation task can be
   picked up.
 
+### Delegate `SafeFileWriter` to `FileIO.write_safe/3` `[architecture]`
+- **Status:** not_started
+- **Dependencies:** sub-D `Mnemosyne.FileIO` module (ships as part of sub-D
+  coordination; Session 18 confirmed it is the mandatory I/O layer for all
+  daemon file operations)
+- **Description:** Sub-D's Session 18 established `Mnemosyne.FileIO` as the
+  mandatory file I/O layer for all daemon file operations. Sub-E's
+  `SafeFileWriter` must be re-cast as a thin wrapper that delegates all file
+  writes to `FileIO.write_safe/3` rather than implementing its own
+  atomic-write and conflict-detection logic. Concrete items:
+  1. **Remove `SafeFileWriter`'s own write-safe logic.** Any
+     temp-then-rename, hash-check, or lock implementation inside
+     `SafeFileWriter` must be deleted; `FileIO.write_safe/3` provides this
+     for all callers.
+  2. **Wire file categories correctly.**
+     - Knowledge files being absorbed from ingestion are **`:human_editable`**
+       — human-authoritative; daemon's copy is discarded on conflict.
+     - Ingestion staging files (provenance files, cycle state) are
+       **`:exclusive`** — daemon owns them entirely, no conflict check
+       needed.
+     - There is no `:phase_owned` use case in sub-E currently; document if
+       one surfaces during implementation.
+  3. **`FileIO.read_tracked/1` for all reads.** Any file read that
+     `SafeFileWriter` or Stage 5 performs must use `FileIO.read_tracked/1`
+     (records SHA-256 hash) rather than plain `File.read/1`.
+  4. **Note for "Implement Rule 6" task.** Rule 6's invariants (no writes
+     outside `knowledge/`, no plan-file writes, etc.) remain enforced at the
+     `SafeFileWriter` layer as guard logic before calling
+     `FileIO.write_safe/3`. The physical write path delegates to FileIO;
+     the semantic safety checks remain in `SafeFileWriter`.
+  5. **Unit tests.** Verify that: (a) absorbed knowledge files call
+     `FileIO.write_safe/3` with `:human_editable`; (b) staging files call it
+     with `:exclusive`; (c) all reads go through `FileIO.read_tracked/1`;
+     (d) `SafeFileWriter` contains no direct `File.write/File.rename`
+     calls (enforce via Credo custom check or module boundary rule).
+- **Results:** _pending_
+
 ### Define core ingestion types `[types]`
 - **Status:** not_started
 - **Dependencies:** none

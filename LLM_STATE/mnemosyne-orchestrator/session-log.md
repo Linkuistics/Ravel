@@ -1361,3 +1361,20 @@
   - **The parallel-emit transition pattern (sub-M's safety net) collapsing to zero is a strong signal that sub-E was rewritten cleanly in-place.** The pattern exists for cases where the migration is risky enough to warrant dual-emission for verification; when the rewrite is fully contract-driven and the new emission path is statically equivalent to the old, the safety net isn't needed. This is a design-time signal worth watching for in the remaining amendments.
   - **Sub-M's sealed event set was the single largest lever in the rewrite.** Without `%Mnemosyne.Event.Ingestion.*` already declared in sub-M §4.1 (with field-level definitions from the Session 15 inline rewrite), sub-E's amendment would have had to invent event shapes that sub-M would then need to absorb in its own amendment cycle. The sealed-set discipline is paying compound interest across amendments.
   - **Cross-sub-project requirements restructured per-sibling** is a clearer pattern than the original "flat bullet list" form. It lets each sibling read sub-E's spec and find their own commitments in one place. Worth replicating in future amendments and brainstorms.
+
+### Session 19 (2026-04-16T02:50:06Z) — Sub-G amendment absorbed; migration brainstorm unblocked
+- **Attempted:** Absorb the sub-G amendment task — consolidate all F-triggered scope changes for G's pending migration brainstorm by cross-referencing F's design doc, sub-A's contract table, sub-C §11.6, sub-D's contributions, and Session 8 carry-forwards.
+- **What worked:**
+  - Confirmed the original 7 F-impact items in the amendment task description were correct and complete.
+  - Identified 8 additional scope items not captured in the original description: `plan-state.md` schema changes (field removals/additions/renames), legacy `adapters/claude-code/` retirement (sub-C §11.6), `<project>/mnemosyne/knowledge/` creation, vault creation with full A4 layout, symlink creation, gitignore policy per A5, four dependent projects needing same transformation, `eval/` + `defaults/` disposition.
+  - Noted that Session 8's `related-plans.md` schema change is superseded by F's complete deletion of the concept (vault catalog replaces it) — the amendment correctly captures the stronger framing.
+  - All 15 scope items consolidated into 4 categories (directory structure, vault creation, retirement, post-migration steps) in the sub-G brainstorm task description.
+- **What didn't:** Nothing blocked. The amendment was purely consolidation work — no design decisions were needed, no conflicts between sources.
+- **What this suggests next:**
+  - G brainstorm is now unblocked and ready to execute (Priority 2 task, dependencies satisfied).
+  - H and I amendments remain as the other two pending scope-framing tasks. Both are similar consolidation exercises and can proceed in any order.
+  - The G brainstorm itself is the most architecturally consequential remaining brainstorm — it affects every project currently on LLM_CONTEXT and defines the concrete transition path from the bootstrap machinery to the BEAM daemon.
+- **Key learnings:**
+  - Amendment tasks for pending brainstorms are scope-consolidation exercises, not design-doc rewrites. Their value is preventing the brainstorm from wasting fresh context on cross-referencing archaeology.
+  - G's migration scope is uniquely fragmented across 5+ source documents — without this consolidation, the brainstorm would need to rediscover constraints that are scattered across F §1, A's contract table, C §11.6, D's FileIO, and Session 8's reconciliation notes.
+  - The `adapters/claude-code/` directory and `defaults/` directory are easily-missed retirement targets that aren't obvious from F's design doc alone — sub-C §11.6 and the filesystem tree were necessary cross-references.

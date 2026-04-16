@@ -18,7 +18,10 @@ yet; Task 0 is the gate.
 - **Status:** not_started
 - **Dependencies:** sub-B downstream task-list rewrite (sub-B backlog
   gate task); sub-C downstream task-list rewrite (sub-C backlog gate
-  task); sub-A amendment absorbed; sub-M amendment absorbed
+  task); sub-A amendment absorbed; sub-M amendment absorbed;
+  `Mnemosyne.DaemonLock` module delivered by sub-D (Tasks 10 and 12
+  require this API — daemon boot acquires the singleton lock via it;
+  confirm sub-D's lock module is landed before Tasks 10/12 run)
 - **Description:** Meta-task guarding the start of real implementation
   work. Before any Task 1+ runs, verify:
   1. `{{PROJECT}}/LLM_STATE/sub-B-phase-cycle/backlog.md` Tasks 1+
@@ -186,6 +189,10 @@ yet; Task 0 is the gate.
   from the router, and every phase-prompt render. File header
   marks it "machine-owned" (§9.3). Hard error on description
   violations discovered at render time.
+  Write `<vault>/plan-catalog.md` via
+  `Mnemosyne.FileIO.write_safe/3` with category `:exclusive` —
+  the daemon regenerates this file unconditionally; no conflict
+  check needed.
 - **Results:** _pending_
 
 ---
@@ -227,13 +234,15 @@ yet; Task 0 is the gate.
 
 ### Task 12 — Daemon singleton lock `[daemon]`
 - **Status:** not_started
-- **Dependencies:** Task 10
+- **Dependencies:** Task 10, `Mnemosyne.DaemonLock` from sub-D
 - **Description:** Acquire `flock` on
-  `<vault>/runtime/daemon.lock` at startup. Second daemon fails
-  with actionable diagnostic naming the first daemon's PID
-  (§9.3). Lock released on shutdown via the OS (not a
-  `defer` / `on_exit` — flock is released when the file handle
-  closes, which happens on process exit regardless of path).
+  `<runtime_dir>/mnemosyne/daemon.lock` at startup via
+  `Mnemosyne.DaemonLock` (the lock module owned by sub-D's
+  implementation plan). Second daemon fails with actionable
+  diagnostic naming the first daemon's PID (§9.3). Lock released
+  on shutdown via the OS (not a `defer` / `on_exit` — flock is
+  released when the file handle closes, which happens on process
+  exit regardless of path).
 - **Results:** _pending_
 
 ### Task 13 — `daemon.toml` parser `[daemon]`

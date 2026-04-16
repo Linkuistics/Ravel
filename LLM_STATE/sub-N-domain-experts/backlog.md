@@ -390,14 +390,20 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   retrieval on candidate body + instruction block with ingestion
   sentinels) → spawn session → sentinel match → apply verdict: on
   `READY ABSORB`, resolve write target from first `scope.tier2`
-  glob entry, atomic write with temp-then-rename, append provenance
-  frontmatter (`absorbed-by`, `ingestion-event-id`, `absorbed-at`),
-  emit `%ExpertAbsorb{}` with written path; on `READY REJECT
-  <reason>`, emit `%ExpertReject{}`, return
+  glob entry, write via **`FileIO.write_safe(path, content,
+  :human_editable)`** (human-authoritative — if the human has
+  edited the file since the expert last read it, the expert's new
+  content is silently discarded per sub-D coordination rules; do
+  NOT use a raw `File.write/2` or manual temp-then-rename here —
+  `FileIO.write_safe/3` handles atomicity internally), append
+  provenance frontmatter (`absorbed-by`, `ingestion-event-id`,
+  `absorbed-at`), emit `%ExpertAbsorb{}` with written path; on
+  `READY REJECT <reason>`, emit `%ExpertReject{}`, return
   `{:rejected, reason}`; on `READY CROSS_LINK <expert-id>`, emit
   `%ExpertCrossLinkSuggested{}`, return
   `{:cross_link_suggested, to_expert}`. Layer 2 tests for all three
-  verdict paths including provenance frontmatter verification.
+  verdict paths including provenance frontmatter verification and a
+  conflict-discard scenario (file mutated between read and write).
 - **Results:** _pending_
 
 ---

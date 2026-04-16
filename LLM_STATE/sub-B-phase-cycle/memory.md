@@ -303,6 +303,24 @@ Mnemosyne.PhaseExecutor`; `PhaseRunner` owning its own event channel
 an `emit_fn` closure; `InteractionDriver` + three drivers deleted
 entirely (TUI is sub-F's separate Rust client binary).
 
+## `Mnemosyne.FileIO` is the mandatory I/O layer (sub-D Session 18)
+
+All daemon file operations must go through `Mnemosyne.FileIO`. Direct
+`File.write/2` / `File.rename/2` calls are forbidden in B's implementation.
+
+- `FileIO.read_tracked/1` — reads a file and records its SHA-256 hash.
+- `FileIO.write_safe/3` — atomic temp-then-rename write; third argument
+  is the file category:
+  - `:exclusive` — no conflict check, overwrite.
+  - `:phase_owned` — daemon-authoritative; warn on conflict, daemon wins.
+  - `:human_editable` — human-authoritative; discard on conflict.
+
+**Impact on `copy_back/2`:** Plan files written by `StagingDirectory.copy_back/2`
+at phase exit are `:phase_owned`. The implementation must call
+`FileIO.write_safe(path, content, :phase_owned)` for each written file and
+`FileIO.read_tracked/1` for content-hash reads. A dedicated backlog task
+("Delegate `copy_back` writes to `FileIO.write_safe/3`") tracks this work.
+
 ## Sentinel sliding-buffer matcher: validated by spike
 
 The BEAM PTY spike (Session 10, 2026-04-15; code at `spikes/beam_pty/`)

@@ -227,6 +227,32 @@ work runs in fresh LLM_CONTEXT sessions, not inside a running
 Mnemosyne daemon. All tasks are code, tests, and specs that will later
 be executed by the daemon once sub-F + sub-G ship.
 
+### N-14. Mandatory FileIO layer for all expert file operations
+
+`Mnemosyne.FileIO` is the mandatory I/O layer for all daemon file
+operations; raw `File.*` calls inside `ExpertActor` or
+`DeclarationLoader` are forbidden. Two relevant entry points:
+
+- **`FileIO.read_tracked/1`** — use for all reads (records SHA-256
+  hash; subsequent `write_safe` can detect human edits since the
+  last read).
+- **`FileIO.write_safe(path, content, category)`** — use for all
+  writes; handles atomic temp-then-rename internally.
+
+Category for expert-absorbed knowledge files (Task 20 absorb path):
+**`:human_editable`** — human-authoritative. If the human has
+edited the target file since the expert read it via `read_tracked`,
+`write_safe` discards the expert's new content silently (no error,
+no merge). This is the correct behaviour for knowledge files the
+user may curate manually.
+
+Category for expert declaration files (`<vault>/experts/*.md`):
+**`:human_editable`** — user-authored, same rationale.
+
+Do not invent a bare `File.write/2` + manual rename anywhere in
+sub-N. If sub-D has not yet shipped `FileIO` when a sub-N task
+starts, block on Task 0 or coordinate via the orchestrator.
+
 ## Hard errors by default
 
 Per project-wide discipline, fail hard on unexpected conditions,
