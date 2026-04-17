@@ -153,6 +153,9 @@ Typed `Mnemosyne.Event.*` structs at the boundary (exhaustive-match safety for C
 ### Behaviour chokepoints enable staged extension
 Every sub-project that may need a second implementation strategy must identify its chokepoint behaviour before committing to v1. Two instances: `Mnemosyne.ExpertRetrieval` (lets sub-Q drop in a vector strategy without touching sub-N internals) and `Mnemosyne.HarnessAdapter` (lets sub-O add adapters without touching sub-C internals). Brainstorm exit criterion: "what's the chokepoint here?" answered explicitly.
 
+### Gate conditions require discrete backlog tasks, not prose
+A sub-project's phase cycle cannot act on gate conditions embedded only in prose. Gate conditions controlling implementation start must be named, discrete backlog tasks — one per condition. Prose-only gates are invisible to LLM phases reading the backlog; audit dispatch is required to create missing tasks retroactively.
+
 ### Cross-cutting brainstorms own adoption stubs
 When a design imposes adoption work on siblings, the brainstorm must produce concrete stubs in every affected sibling backlog before stopping. Triage is too late — the brainstorm's fresh context is lost. F is the largest instance: the brainstorm commits to pushing amendment tasks for A, B, C, D, E, G, H, I, M plus new brainstorm tasks for N, O, P to the orchestrator backlog via F's own dispatch mechanism.
 
