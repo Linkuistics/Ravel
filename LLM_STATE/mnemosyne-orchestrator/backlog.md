@@ -3,38 +3,46 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 
 ## Priority 1 — Implementation phase coordination
 
-### Implementation Critical Path Monitor
-- **Status:** done
-- **Dependencies:** All v1 brainstorms complete (satisfied 2026-04-16)
-- **Description:** All twelve v1 brainstorms are done (A, B, C, D, E, F, G, H, I, M, N, R). Implementation phase begins. Orchestrator role: dispatch subagents to monitor critical path and surface blockers.
-
-  **Critical path (ordered):**
-  1. **Sub-B and Sub-C task-list rewrites** — pre-pivot Rust framing must be removed (gate tasks already in each sub-project's backlog). These two directly unblock Sub-F Task 0.
-  2. **Sub-E task-list rewrite** — same Rust-framing issue; gate task in Sub-E backlog. Independent of B/C.
-  3. **Sub-C model-configurability absorption** — per-actor `model:` field → `--model` CLI flag on harness spawn; required for cost control (Opus for plan phases, Haiku for ingestion/extraction).
-  4. **Sub-R Tasks 1–3 (literature surveys)** — can run immediately, no cross-project dependencies; Sub-R is fully unblocked.
-  5. **Sub-F Task 0 readiness check** — triggers once B+C rewrites land; unblocks Sub-F's 28 implementation tasks (largest block in v1).
+### Verify Sub-C Coordination Dispatches
+- **Status:** not_started
+- **Dependencies:** none
+- **Description:** The critical path monitor (2026-04-16) dispatched coordination to Sub-C's Received section with two instructions: (1) create a formal gate task for the pre-pivot Rust task-list rewrite, (2) create a model-configurability task (per-actor `model:` field → `--model` CLI flag on harness spawn). Sub-C's triage must have processed these dispatches into concrete backlog items.
 
   **Actions when this task runs (work phase):**
-  - Dispatch subagents to Sub-B, Sub-C, Sub-E, Sub-F, Sub-R to report task-list and gate status.
-  - Identify which sub-projects are unblocked vs. waiting.
-  - Dispatch coordination signals (via Received section) to sub-projects if ordering adjustments are needed.
-  - Verify Sub-R adoption stubs landed in all nine sibling backlogs (N, E, F, H, A, M, I, G, and one of B/C).
+  - Dispatch a subagent to Sub-C's backlog to verify both tasks exist as discrete backlog items.
+  - If either task is missing, write a direct coordination dispatch to Sub-C's Received section with explicit task wording.
+  - Report status to orchestrator memory.
 
-  **Output:** updated orchestrator memory reflecting current implementation status, which sub-projects are running, which are blocked, and the next unblocking event.
-- **Results:** Completed 2026-04-16. Dispatched six parallel subagents (Sub-B, Sub-C, Sub-E, Sub-F, Sub-R, plus cross-backlog Sub-R stub checker).
+### Dispatch Sub-R Literature Survey Kickoff (Tasks 1–3)
+- **Status:** not_started
+- **Dependencies:** none (Sub-R Tasks 1–3 are fully unblocked)
+- **Description:** Sub-R's three literature survey tasks (Task 1: Datalog foundations, Task 2: ontology/folksonomy, Task 3: LLM ontology interfaces) have no cross-project dependencies and can start immediately. These gate Sub-R's Datalog engine implementation (Tasks 4+).
 
-  **Findings:**
-  - **Sub-B:** Gate task exists ("Rewrite downstream implementation tasks against Session-12 design doc"), `not_started`. 22 impl tasks remaining, 4 done (amendments/spikes). **Unblocked** — can start anytime.
-  - **Sub-C:** ⚠️ No formal gate task — rewrite requirement is prose only in backlog header. No model-configurability task exists. 26 tasks all `not_started`. Two coordination dispatches sent to Sub-C Received section.
-  - **Sub-E:** Task 0 gate exists, `not_started`. 28 impl tasks (1 `in_progress` = F amendment). **Unblocked** — independent of B/C.
-  - **Sub-F:** Task 0 readiness gate exists, `not_started`. **Blocked** on B+C rewrites + Sub-D deliverables. 30+ tasks all `not_started`. Sub-A/Sub-M conditions CLEARED.
-  - **Sub-R:** 3 done (design amendments), 18 `not_started`. Tasks 1–3 (literature surveys) **fully unblocked**, can start immediately in parallel.
-  - **Sub-R adoption stubs:** Verified complete — all 8 target siblings (F, N, E, A, C, H, M, I) have stubs, plus bonus stub in Sub-B. Sub-G/Sub-D correctly have none.
+  **Actions when this task runs (work phase):**
+  - Read Sub-R backlog via subagent to confirm Tasks 1–3 are correctly scoped and `not_started`.
+  - Dispatch work-phase signals to Sub-R for Tasks 1–3 via its Received section.
+  - Update orchestrator memory with Sub-R start status.
 
-  **Actions taken:** Dispatched coordination to Sub-C backlog (create formal gate task; create model-configurability task). Updated orchestrator memory with implementation status snapshot.
+### Sub-B + Sub-C Rewrite Monitoring and Sub-F Task 0 Trigger
+- **Status:** not_started
+- **Dependencies:** Verify Sub-C Coordination Dispatches (gate task existence confirmed)
+- **Description:** Sub-B gate task ("Rewrite downstream implementation tasks against Session-12 design doc") and Sub-C's formal gate task (to be verified) are the two preconditions for Sub-F Task 0 readiness check. Sub-D's `DaemonLock` and `FileIO` deliverables also gate Sub-F Tasks 1/4/6–12.
 
-  **Next unblocking events:** (1) Sub-B gate execution → partially unblocks Sub-F Task 0. (2) Sub-C gate creation + execution → fully unblocks Sub-F Task 0 (with Sub-D). (3) Sub-R Tasks 1–3 → unblocks Sub-R implementation (independent track).
+  **Actions when this task runs (work phase):**
+  - Dispatch subagents to Sub-B, Sub-C, and Sub-D to check gate task and delivery status.
+  - If Sub-B gate **and** Sub-C gate are both done: dispatch Sub-F Task 0 readiness check via Sub-F Received section.
+  - If either is not done: record blocking status in orchestrator memory and carry task to next cycle.
+  - Report Sub-D progress on `DaemonLock` + `FileIO` as secondary gate for Sub-F Tasks 1/4/6–12.
+
+### Sub-E + Sub-N Independent Stream Kickoff
+- **Status:** not_started
+- **Dependencies:** none (both streams are independent of Stream 1)
+- **Description:** Two independent implementation streams are unblocked: (1) Sub-E — Task 0 gate is `not_started` and independent of Sub-B/C, (2) Sub-N — Tasks 1–15 can start immediately (pure Elixir + fixtures; gated on Sub-F only at Task 16+).
+
+  **Actions when this task runs (work phase):**
+  - Dispatch subagent to Sub-E to verify Task 0 gate status and trigger work phase if ready.
+  - Dispatch subagent to Sub-N to verify Tasks 1–15 scope and trigger work phase.
+  - Update orchestrator memory with both streams' start status.
 
 ## Priority 2 — v2 sub-project brainstorms (deferred)
 
