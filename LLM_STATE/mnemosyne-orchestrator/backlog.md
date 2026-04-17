@@ -4,7 +4,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 ## Priority 1 — Implementation phase coordination
 
 ### Verify Sub-C Coordination Dispatches
-- **Status:** not_started
+- **Status:** done (2026-04-17) — re-verification required after Sub-C runs its own triage cycle
 - **Dependencies:** none
 - **Description:** The critical path monitor (2026-04-16) dispatched coordination to Sub-C's Received section with two instructions: (1) create a formal gate task for the pre-pivot Rust task-list rewrite, (2) create a model-configurability task (per-actor `model:` field → `--model` CLI flag on harness spawn). Sub-C's triage must have processed these dispatches into concrete backlog items.
 
@@ -12,6 +12,14 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
   - Dispatch a subagent to Sub-C's backlog to verify both tasks exist as discrete backlog items.
   - If either task is missing, write a direct coordination dispatch to Sub-C's Received section with explicit task wording.
   - Report status to orchestrator memory.
+
+- **Results (2026-04-17):**
+  - Subagent inspected `LLM_STATE/sub-C-adapters/backlog.md` and `memory.md`.
+  - **Both dispatches present in Sub-C's `## Received` section** with explicit task wording from the 2026-04-16 critical-path audit (item #1: "Create a formal gate task (Task 0) for the Elixir backlog rewrite"; item #2: model-configurability — `model:` field → `--model` CLI flag).
+  - **Neither dispatch has been promoted to a numbered backlog task yet.** Sub-C has not run a triage cycle since the dispatches landed. All 26 enumerated tasks remain in pre-pivot Rust framing (Cargo.toml, `src/harness/`, crossbeam-channel, `nix::killpg`, `std::process::Command`).
+  - **No re-dispatch needed:** the dispatches already in Received use the same explicit wording the orchestrator would write. Re-dispatching would create duplicate noise.
+  - **Implication for Task 3 (Sub-B + Sub-C Rewrite Monitoring):** Task 3's premise — "gate tasks exist and we can monitor their status" — is not yet true. Task 3 must wait for Sub-C to run its own work→reflect→compact→triage cycle to promote the Received items into numbered tasks. A re-verification of Sub-C is required at that point before Sub-F Task 0 readiness check can fire.
+  - **Suggests next:** invoke a Sub-C work cycle (`run-plan.sh sub-C-adapters`) so its triage promotes the Received items. Until then, Stream 1 is blocked on Sub-C triage, not on missing dispatches. Streams 2 (Sub-R literature surveys) and 3 (Sub-E/Sub-N kickoff) remain independently unblocked.
 
 ### Dispatch Sub-R Literature Survey Kickoff (Tasks 1–3)
 - **Status:** not_started
