@@ -1,12 +1,12 @@
 # Configuration Reference
 
-> **Status:** Mnemosyne is in architectural design phase. This document describes the **intended v1 configuration surface** based on the committed architecture. Field names and defaults may adjust during implementation.
+> **Status:** Ravel is in architectural design phase. This document describes the **intended v1 configuration surface** based on the committed architecture. Field names and defaults may adjust during implementation.
 
-Mnemosyne's configuration lives in three files inside the vault:
+Ravel's configuration lives in three files inside the vault:
 
 | File | Purpose |
 |---|---|
-| `<vault>/mnemosyne.toml` | Vault identity marker and vault-level overrides (owned by sub-A) |
+| `<vault>/ravel.toml` | Vault identity marker and vault-level overrides (owned by sub-A) |
 | `<vault>/daemon.toml` | Daemon runtime config: harnesses, routing, logging, extensibility hooks (owned by sub-F) |
 | `<vault>/routing.ex` | User-editable declarative routing rules (owned by sub-F) |
 
@@ -14,15 +14,15 @@ This document specifies the first two. For `routing.ex`, see [`user-guide.md#edi
 
 ## Contents
 
-1. [mnemosyne.toml — vault identity](#mnemosynetoml--vault-identity)
+1. [ravel.toml — vault identity](#raveltoml--vault-identity)
 2. [daemon.toml — daemon runtime](#daemontoml--daemon-runtime)
 3. [Environment variables](#environment-variables)
 4. [Vault discovery precedence](#vault-discovery-precedence)
 5. [Default values](#default-values)
 
-## mnemosyne.toml — vault identity
+## ravel.toml — vault identity
 
-Lives at `<vault>/mnemosyne.toml`. Its **presence plus a parseable `[vault]` table with a known `schema_version`** is what makes a directory a valid Mnemosyne vault. The daemon checks this on every startup via `verify_vault`.
+Lives at `<vault>/ravel.toml`. Its **presence plus a parseable `[vault]` table with a known `schema_version`** is what makes a directory a valid Ravel vault. The daemon checks this on every startup via `verify_vault`.
 
 ### Example
 
@@ -30,7 +30,7 @@ Lives at `<vault>/mnemosyne.toml`. Its **presence plus a parseable `[vault]` tab
 [vault]
 schema_version = 1
 created_at = "2026-04-14T11:48:52Z"
-name = "Mnemosyne development vault"
+name = "Ravel development vault"
 
 # Optional: override language profiles (otherwise uses binary-embedded defaults)
 [languages.rust]
@@ -71,15 +71,15 @@ Lives at `<vault>/daemon.toml`. Defaults are reasonable; most users don't need t
 
 ```toml
 # ============================================================
-# Mnemosyne daemon configuration
+# Ravel daemon configuration
 # ============================================================
 
 [daemon]
 # Unix socket path for client attachment. Defaults to <vault>/runtime/daemon.sock.
-socket_path = "/Users/you/Mnemosyne-vault/runtime/daemon.sock"
+socket_path = "/Users/you/Ravel-vault/runtime/daemon.sock"
 
 # Log file path. "stderr" means log to stderr (foreground mode only).
-log_path = "/Users/you/Mnemosyne-vault/runtime/daemon.log"
+log_path = "/Users/you/Ravel-vault/runtime/daemon.log"
 log_level = "info"  # debug | info | warn | error
 
 # Number of tokio-style worker threads for actor message processing.
@@ -266,26 +266,26 @@ Most configuration lives in `daemon.toml`. A small number of environment variabl
 
 | Variable | Purpose |
 |---|---|
-| `MNEMOSYNE_VAULT` | Override vault discovery; takes precedence over config-file lookup |
-| `MNEMOSYNE_TIER1_ROOT` | Test fixture override for per-project knowledge root |
-| `MNEMOSYNE_TIER2_ROOT` | Test fixture override for global knowledge root |
-| `MNEMOSYNE_LOG_LEVEL` | Override `daemon.log_level` (useful for debugging startup) |
-| `MNEMOSYNE_NO_COLOR` | Disable ANSI colors in logs (detected automatically in non-TTY) |
+| `RAVEL_VAULT` | Override vault discovery; takes precedence over config-file lookup |
+| `RAVEL_TIER1_ROOT` | Test fixture override for per-project knowledge root |
+| `RAVEL_TIER2_ROOT` | Test fixture override for global knowledge root |
+| `RAVEL_LOG_LEVEL` | Override `daemon.log_level` (useful for debugging startup) |
+| `RAVEL_NO_COLOR` | Disable ANSI colors in logs (detected automatically in non-TTY) |
 
 ## Vault discovery precedence
 
 When the daemon starts, it resolves the vault via this precedence chain (sub-A's discipline):
 
 1. **`--vault <path>` command-line flag** — highest precedence
-2. **`MNEMOSYNE_VAULT` environment variable**
-3. **User config at `<config-dir>/mnemosyne/config.toml`** (standard platform config dir: `~/.config/mnemosyne/config.toml` on Linux/macOS, `%APPDATA%\mnemosyne\config.toml` on Windows)
+2. **`RAVEL_VAULT` environment variable**
+3. **User config at `<config-dir>/ravel/config.toml`** (standard platform config dir: `~/.config/ravel/config.toml` on Linux/macOS, `%APPDATA%\ravel\config.toml` on Windows)
 4. **Hard error** — no default vault discovery, no walk-up, no implicit dev-root
 
 The config file form is trivial:
 
 ```toml
 [vault]
-path = "/Users/you/Mnemosyne-vault"
+path = "/Users/you/Ravel-vault"
 ```
 
 This explicit-chain design is deliberate: no "find my vault" magic that can guess wrong. The user always knows where their vault is.
@@ -296,7 +296,7 @@ All default values are **embedded in the binary** and used when the correspondin
 
 This means:
 
-- A minimal `mnemosyne.toml` is just `[vault]\nschema_version = 1`
+- A minimal `ravel.toml` is just `[vault]\nschema_version = 1`
 - A minimal `daemon.toml` can be empty
 - A vault with neither file fails vault discovery with an actionable error
 

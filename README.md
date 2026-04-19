@@ -1,4 +1,4 @@
-# Mnemosyne
+# Ravel
 
 > A persistent actor daemon for AI-assisted development.
 > Plans, phases, knowledge, and fresh-context reasoning, unified.
@@ -11,11 +11,11 @@ A [Linkuistics](https://github.com/Linkuistics) project.
 
 AI coding assistants start every session from scratch. Even within a single session they accumulate context until it rots. Knowledge from yesterday vanishes by tomorrow. Cross-project learning is impossible. Long-running development — the kind that actually matters on real projects — drowns in the mismatch between the way developers think (continuous, hierarchical, specialist-consulting) and the way stateless LLM sessions work.
 
-Senior developers are effective because they carry expertise across projects, ask each other questions, bring different perspectives to shared problems, and reflect on what they've learned over years. AI assistants today have none of that. **Mnemosyne gives them the architectural primitives to build it.**
+Senior developers are effective because they carry expertise across projects, ask each other questions, bring different perspectives to shared problems, and reflect on what they've learned over years. AI assistants today have none of that. **Ravel gives them the architectural primitives to build it.**
 
 ## The vision
 
-Mnemosyne is a persistent orchestration daemon built around three convictions:
+Ravel is a persistent orchestration daemon built around three convictions:
 
 ### 1. Fresh context is first-class
 
@@ -43,7 +43,7 @@ flowchart TB
         Web["Web UI<br/>(v2+)"]
     end
 
-    subgraph Daemon["Mnemosyne daemon (Elixir / BEAM / OTP)"]
+    subgraph Daemon["Ravel daemon (Elixir / BEAM / OTP)"]
         direction TB
         Router["Message router<br/>+ declarative routing<br/>+ Level 2 LLM fallback"]
 
@@ -64,8 +64,8 @@ flowchart TB
     end
 
     subgraph Files["Filesystem (durable substrate)"]
-        Vault["Mnemosyne-vault/<br/>plans • knowledge • experts<br/>routing.ex • daemon.toml"]
-        Projects["&lt;project&gt;/mnemosyne/<br/>project-root/<br/>knowledge/"]
+        Vault["Ravel-vault/<br/>plans • knowledge • experts<br/>routing.ex • daemon.toml"]
+        Projects["&lt;project&gt;/ravel/<br/>project-root/<br/>knowledge/"]
     end
 
     TUI & Obs & Web <--> Router
@@ -89,10 +89,10 @@ A plan represents an ongoing work effort: a feature, investigation, refactor, ex
 - A **phase cycle** (work → reflect → compact → triage)
 - A **mailbox** for incoming dispatches and queries
 
-Plans **nest**. A project has a single root plan. That root may have sub-plans, which may have sub-sub-plans, at arbitrary depth. The hierarchy lives on the filesystem — a directory is a plan if and only if it contains `plan-state.md`. This lets Mnemosyne host dozens of fine-grained, tightly-scoped plans across many projects without any single plan's context exploding.
+Plans **nest**. A project has a single root plan. That root may have sub-plans, which may have sub-sub-plans, at arbitrary depth. The hierarchy lives on the filesystem — a directory is a plan if and only if it contains `plan-state.md`. This lets Ravel host dozens of fine-grained, tightly-scoped plans across many projects without any single plan's context exploding.
 
 ```
-<project>/mnemosyne/
+<project>/ravel/
 ├── knowledge/                            # Tier 1 per-project
 └── project-root/                         # always exactly one root plan
     ├── plan-state.md                     # marker + phase state
@@ -115,7 +115,7 @@ An expert represents a domain of knowledge. Each expert is an actor with:
 
 When a plan has a question, it asks an expert. The expert spawns a fresh-context session with just the relevant knowledge entries, its persona, and the question. It answers, and the answer flows back to the originating session inline — the originating session **never loads the expert's knowledge into its own context**. Fresh context preserved at both ends.
 
-Expert declarations live at `<vault>/experts/<expert-id>.md` and are user-editable. Default experts ship with Mnemosyne (Rust, research, distributed systems, architecture, FFI, Obsidian); users add their own by dropping in new declaration files.
+Expert declarations live at `<vault>/experts/<expert-id>.md` and are user-editable. Default experts ship with Ravel (Rust, research, distributed systems, architecture, FFI, Obsidian); users add their own by dropping in new declaration files.
 
 ## Two message types
 
@@ -131,7 +131,7 @@ Both types support three **target variants**: same-project plan (named directly)
 
 ## Hierarchical reasoning with fresh context
 
-The deepest insight in Mnemosyne's architecture: **reasoning depth should scale with decision specificity, not accumulate**.
+The deepest insight in Ravel's architecture: **reasoning depth should scale with decision specificity, not accumulate**.
 
 ```mermaid
 flowchart LR
@@ -151,10 +151,10 @@ Each level has **fresh context** and takes on a **more specific question** than 
 
 ## Declarative, user-visible routing
 
-Routing decisions are **user-visible and user-editable**. When a plan dispatches a task, Mnemosyne consults a routing module at `<vault>/routing.ex` — an Elixir module with pattern-matched `route/2` clauses:
+Routing decisions are **user-visible and user-editable**. When a plan dispatches a task, Ravel consults a routing module at `<vault>/routing.ex` — an Elixir module with pattern-matched `route/2` clauses:
 
 ```elixir
-defmodule Mnemosyne.UserRouting do
+defmodule Ravel.UserRouting do
   def route(:query, facts) do
     cond do
       "rust" in facts           -> {:target_expert, "rust-expert"}
@@ -175,16 +175,16 @@ When rules don't decide, a **Level 2 routing agent** takes over — a fresh-cont
 
 ```
 <dev-root>/
-├── Mnemosyne-vault/                      # dedicated Obsidian-native vault, git-backed
-│   ├── mnemosyne.toml                    # vault identity marker
+├── Ravel-vault/                      # dedicated Obsidian-native vault, git-backed
+│   ├── ravel.toml                    # vault identity marker
 │   ├── daemon.toml                       # daemon config
 │   ├── routing.ex                        # user-editable routing rules
 │   ├── plan-catalog.md                   # auto-generated vault catalog
 │   ├── knowledge/                        # Tier 2 global knowledge
 │   ├── experts/                          # expert declarations
 │   ├── projects/                         # symlinks into project repos
-│   │   ├── Mnemosyne -> .../Mnemosyne/mnemosyne/
-│   │   └── APIAnyware-MacOS -> .../APIAnyware-MacOS/mnemosyne/
+│   │   ├── Ravel -> .../Ravel/ravel/
+│   │   └── APIAnyware-MacOS -> .../APIAnyware-MacOS/ravel/
 │   └── runtime/                          # ephemeral state
 │       ├── daemon.sock
 │       ├── mailboxes/
@@ -192,13 +192,13 @@ When rules don't decide, a **Level 2 routing agent** takes over — a fresh-cont
 │       └── ...
 └── <project>/
     ├── .git/
-    └── mnemosyne/
+    └── ravel/
         ├── knowledge/                    # Tier 1 per-project
         └── project-root/                 # root plan (always)
 ```
 
-- **Mnemosyne-vault** is a dedicated Obsidian-native vault with its own git history. Hosts cross-project knowledge, expert declarations, routing rules, and runtime state. Accesses per-project content via symlinks so plans live in project repos under sovereign git ownership, but are visible in one place for Obsidian and Dataview.
-- **Per-project `mnemosyne/`** contains that project's Tier 1 knowledge and its plan tree. Symlinked from the vault so Obsidian sees it.
+- **Ravel-vault** is a dedicated Obsidian-native vault with its own git history. Hosts cross-project knowledge, expert declarations, routing rules, and runtime state. Accesses per-project content via symlinks so plans live in project repos under sovereign git ownership, but are visible in one place for Obsidian and Dataview.
+- **Per-project `ravel/`** contains that project's Tier 1 knowledge and its plan tree. Symlinked from the vault so Obsidian sees it.
 - **Filesystem is the durable substrate.** Everything non-transient lives as files. The daemon is an orchestrator over filesystem state, not a state owner. Daemon restart rebuilds everything from files; no data can be lost by a crash.
 
 ## Obsidian-native
@@ -209,10 +209,10 @@ Every file format decision targets Obsidian-first browsing:
 - Dataview-friendly kebab-case field names
 - Wikilinks for cross-references between plans, knowledge entries, and session logs
 - Tags as first-class metadata
-- A `.obsidian/` template that ships with Mnemosyne (Dataview required, Templater optional)
+- A `.obsidian/` template that ships with Ravel (Dataview required, Templater optional)
 - Auto-generated `plan-catalog.md` as a "what's in my vault" dashboard
 
-Humans browse, review, edit, and audit everything Mnemosyne writes through a full-featured explorer that Mnemosyne doesn't have to build. This is the accountability substrate that makes post-session auto-ingestion safe: every knowledge entry Mnemosyne creates can be reviewed, edited, or rejected by a human using tools they already know.
+Humans browse, review, edit, and audit everything Ravel writes through a full-featured explorer that Ravel doesn't have to build. This is the accountability substrate that makes post-session auto-ingestion safe: every knowledge entry Ravel creates can be reviewed, edited, or rejected by a human using tools they already know.
 
 ## Mixture of experts + mixture of models
 
@@ -228,7 +228,7 @@ For power users with capable local models, most queries stay on-device. API spen
 
 ## Team mode
 
-Multiple Mnemosyne daemons on different machines communicate via BEAM's native distribution or a custom TCP transport. Actors address each other with qualified IDs prefixed by peer name. Cross-daemon dispatch is a **transport change, not an architectural change** — the message routing, actor model, and semantics are unchanged. Team mode is where "co-workers asking each other questions" becomes literal: different team members' plan actors and expert actors all reachable from a single catalog.
+Multiple Ravel daemons on different machines communicate via BEAM's native distribution or a custom TCP transport. Actors address each other with qualified IDs prefixed by peer name. Cross-daemon dispatch is a **transport change, not an architectural change** — the message routing, actor model, and semantics are unchanged. Team mode is where "co-workers asking each other questions" becomes literal: different team members' plan actors and expert actors all reachable from a single catalog.
 
 (Team mode is **v2+** — the daemon config reserves the `[peers]` section and qualified IDs reserve the `<peer>@<id>` syntax, but v1 is strictly single-vault-per-machine.)
 
@@ -275,7 +275,7 @@ Multiple Mnemosyne daemons on different machines communicate via BEAM's native d
 
 The architecture is literally OTP. Actor model, supervision, message passing, hot code reload, distribution transparency — every single one is a BEAM primitive we would otherwise hand-roll. When a design process independently arrives at OTP's design decisions, that's the universe telling you which runtime to use.
 
-Gleam (statically typed BEAM language) is reserved as a migration target if Elixir's dynamic typing proves painful for Mnemosyne's invariant-heavy design discipline. The two interop cleanly on BEAM — new sub-projects could be written in Gleam without disrupting the Elixir daemon core.
+Gleam (statically typed BEAM language) is reserved as a migration target if Elixir's dynamic typing proves painful for Ravel's invariant-heavy design discipline. The two interop cleanly on BEAM — new sub-projects could be written in Gleam without disrupting the Elixir daemon core.
 
 ### Why Rust for the TUI?
 
@@ -285,7 +285,7 @@ The TUI needs first-class terminal rendering, which Rust's `ratatui` provides in
 
 ### Fresh context is a first-class architectural goal
 
-Context rot, drift, and noise are primary failure modes for long LLM sessions. Mnemosyne designs for many short fresh sessions with explicit state handoff through files, rather than monolithic accumulating sessions. Every phase boundary, every harness spawn, every expert consultation, every routing agent invocation is a deliberate fresh-context opportunity.
+Context rot, drift, and noise are primary failure modes for long LLM sessions. Ravel designs for many short fresh sessions with explicit state handoff through files, rather than monolithic accumulating sessions. Every phase boundary, every harness spawn, every expert consultation, every routing agent invocation is a deliberate fresh-context opportunity.
 
 ### Integration over reinvention
 
@@ -301,7 +301,7 @@ Unexpected conditions, invariant violations, I/O failures, and ambiguous states 
 
 ### Obsidian-native explorer
 
-The human is the final accountability substrate for auto-ingestion, dispatch correctness, routing decisions, and knowledge curation. Mnemosyne cannot validate its own LLM outputs — but a human browsing a well-organized vault with Dataview queries, wikilinks, and file history can review, edit, reject, and audit everything. This is what makes Mnemosyne trustworthy despite running autonomous LLM sessions continuously.
+The human is the final accountability substrate for auto-ingestion, dispatch correctness, routing decisions, and knowledge curation. Ravel cannot validate its own LLM outputs — but a human browsing a well-organized vault with Dataview queries, wikilinks, and file history can review, edit, reject, and audit everything. This is what makes Ravel trustworthy despite running autonomous LLM sessions continuously.
 
 ### Human and LLM are co-equal actors
 
@@ -335,7 +335,7 @@ The comprehensive architectural overview is in [`docs/architecture.md`](docs/arc
 
 ## Relationship to LLM_CONTEXT
 
-Mnemosyne is the successor to **[LLM_CONTEXT](https://github.com/Linkuistics/LLM_CONTEXT)**, the earlier Linkuistics project that ships the four-phase work cycle (work → reflect → compact → triage), the phase-file-factored plan layout, and the `run-plan.sh` driver that Mnemosyne's persistent-daemon architecture absorbs and extends. LLM_CONTEXT continues to ship unchanged until Mnemosyne v1 is demonstrably equivalent or better; the migration lands in sub-G. Until then, bootstrap discipline applies: this plan and all sub-project plans run on LLM_CONTEXT's machinery, not on Mnemosyne's own.
+Ravel is the successor to **[LLM_CONTEXT](https://github.com/Linkuistics/LLM_CONTEXT)**, the earlier Linkuistics project that ships the four-phase work cycle (work → reflect → compact → triage), the phase-file-factored plan layout, and the `run-plan.sh` driver that Ravel's persistent-daemon architecture absorbs and extends. LLM_CONTEXT continues to ship unchanged until Ravel v1 is demonstrably equivalent or better; the migration lands in sub-G. Until then, bootstrap discipline applies: this plan and all sub-project plans run on LLM_CONTEXT's machinery, not on Ravel's own.
 
 ## License
 

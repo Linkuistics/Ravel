@@ -1,6 +1,6 @@
 # Research Sources
 
-Mnemosyne is grounded in cognitive science and knowledge management research. This document is an annotated bibliography of the key sources that have shaped the design, with notes on how each influenced the system.
+Ravel is grounded in cognitive science and knowledge management research. This document is an annotated bibliography of the key sources that have shaped the design, with notes on how each influenced the system.
 
 ## Contents
 
@@ -24,7 +24,7 @@ Mnemosyne is grounded in cognitive science and knowledge management research. Th
 
 Mastra's approach formalises the Do → Verify → Observe cycle: for each implementation step, do the work, verify it works, and record what you learned. Observations are graded by priority (critical, useful, informational) and promoted to a knowledge base indexed by project structure.
 
-**Influence on Mnemosyne:** The per-project Tier 1 of Mnemosyne is a direct implementation of Mastra's observational memory concepts. The observation priority codes (🔴🟡🟢⚪), the `/reflect` promotion cycle, and the plan format with `## Observations` and `## Promoted` sections are all drawn from this model. The key Mnemosyne contribution is extending this per-project model to a global, cross-project Tier 2 with evidence-based evolution.
+**Influence on Ravel:** The per-project Tier 1 of Ravel is a direct implementation of Mastra's observational memory concepts. The observation priority codes (🔴🟡🟢⚪), the `/reflect` promotion cycle, and the plan format with `## Observations` and `## Promoted` sections are all drawn from this model. The key Ravel contribution is extending this per-project model to a global, cross-project Tier 2 with evidence-based evolution.
 
 ---
 
@@ -38,7 +38,7 @@ Tulving's foundational distinction separates two memory systems: *episodic memor
 
 Expert practitioners naturally consolidate episodic memories into semantic knowledge over time. "I remember the specific incident where unbounded channels caused memory exhaustion in the api-server project in 2026" (episodic) becomes "unbounded channels cause memory exhaustion under sustained load" (semantic).
 
-**Influence on Mnemosyne:** The `origins` field in knowledge entries preserves the episodic provenance (which project, when, what context) while the entry title and body express semantic knowledge (the transferable insight). The promotion pathway — from plan observation to per-project learning to global knowledge — mirrors the episodic-to-semantic consolidation process. The `last_validated` field represents semantic validation: confirming that the generalisation still holds.
+**Influence on Ravel:** The `origins` field in knowledge entries preserves the episodic provenance (which project, when, what context) while the entry title and body express semantic knowledge (the transferable insight). The promotion pathway — from plan observation to per-project learning to global knowledge — mirrors the episodic-to-semantic consolidation process. The `last_validated` field represents semantic validation: confirming that the generalisation still holds.
 
 ---
 
@@ -48,7 +48,7 @@ Expert practitioners naturally consolidate episodic memories into semantic knowl
 
 This paper proposes the complementary learning systems (CLS) theory: fast, plastic learning in the hippocampus captures specific episodes, while slow, distributed learning in the neocortex builds stable semantic representations. Sleep replay gradually integrates episodic memories into semantic knowledge.
 
-**Influence on Mnemosyne:** The two-tier architecture mirrors CLS theory. Per-project knowledge (Tier 1) is like hippocampal storage — fast, specific, episodic. Global knowledge (Tier 2) is like neocortical storage — stable, general, semantic. The promotion ceremony (promotion from per-project to global during `/reflect`) is the system's version of memory consolidation. This is why promotion is not automatic: it requires deliberate review, analogous to the active consolidation process.
+**Influence on Ravel:** The two-tier architecture mirrors CLS theory. Per-project knowledge (Tier 1) is like hippocampal storage — fast, specific, episodic. Global knowledge (Tier 2) is like neocortical storage — stable, general, semantic. The promotion ceremony (promotion from per-project to global during `/reflect`) is the system's version of memory consolidation. This is why promotion is not automatic: it requires deliberate review, analogous to the active consolidation process.
 
 ---
 
@@ -62,7 +62,7 @@ The AGM framework is the foundational formal theory of how a rational agent shou
 
 AGM's rationality postulates require that revision minimise change: when incorporating new information, retain as much existing belief as possible. This is the principle of *minimal change* or *conservative revision*.
 
-**Influence on Mnemosyne:** The contradiction detection and resolution workflow is an application of AGM belief revision. When a new entry contradicts an existing one, the `[s]upersede / [c]oexist / [d]iscard / [r]efine` choices correspond to the three types of change: supersede is revision (new replaces old), coexist is expansion (both can be true), discard is contraction (new information rejected), refine is a nuanced revision. The supersession record honours minimal change by preserving the old content inline rather than deleting it.
+**Influence on Ravel:** The contradiction detection and resolution workflow is an application of AGM belief revision. When a new entry contradicts an existing one, the `[s]upersede / [c]oexist / [d]iscard / [r]efine` choices correspond to the three types of change: supersede is revision (new replaces old), coexist is expansion (both can be true), discard is contraction (new information rejected), refine is a nuanced revision. The supersession record honours minimal change by preserving the old content inline rather than deleting it.
 
 ---
 
@@ -74,7 +74,7 @@ AGM's rationality postulates require that revision minimise change: when incorpo
 
 Ericsson's deliberate practice framework identifies the key features of expertise-building activities: focused effort on performance just beyond current competence, immediate feedback, and structured reflection on results. Mere repetition without reflection does not build expertise — deliberate engagement with what went wrong, why, and how to improve is essential.
 
-**Influence on Mnemosyne:** The curation session is designed as deliberate practice. Rather than passively accumulating knowledge entries, the `curate` command asks you to actively evaluate each entry: does it still hold? Has your understanding deepened? This reflective engagement — requiring explicit confirmation or revision rather than passive review — mirrors the deliberate practice framework.
+**Influence on Ravel:** The curation session is designed as deliberate practice. Rather than passively accumulating knowledge entries, the `curate` command asks you to actively evaluate each entry: does it still hold? Has your understanding deepened? This reflective engagement — requiring explicit confirmation or revision rather than passive review — mirrors the deliberate practice framework.
 
 ---
 
@@ -84,7 +84,7 @@ Ericsson's deliberate practice framework identifies the key features of expertis
 
 Chase and Simon's landmark study showed that chess masters recognise roughly 50,000 meaningful "chunks" — patterns of pieces they have seen and understood in context — compared to a few hundred for novices. Expert performance relies not on faster computation but on a much richer repertoire of meaningful patterns.
 
-**Influence on Mnemosyne:** Each knowledge entry is a chunk: a recognised pattern with associated meaning, constraints, and implications. The axis organisation (languages, domains, tools, techniques) corresponds to the taxonomies experts use to organise chunks. The tag system enables the cross-referencing that makes chunks useful across contexts, mirroring how expert knowledge is not isolated facts but a web of related patterns.
+**Influence on Ravel:** Each knowledge entry is a chunk: a recognised pattern with associated meaning, constraints, and implications. The axis organisation (languages, domains, tools, techniques) corresponds to the taxonomies experts use to organise chunks. The tag system enables the cross-referencing that makes chunks useful across contexts, mirroring how expert knowledge is not isolated facts but a web of related patterns.
 
 ---
 
@@ -96,7 +96,7 @@ Chase and Simon's landmark study showed that chess masters recognise roughly 50,
 
 Retrieval practice — the act of retrieving information from memory — is more effective for long-term retention than re-studying the same material. The "testing effect" is robust across many domains and memory types.
 
-**Influence on Mnemosyne:** The `query` command is a form of retrieval practice. When you query global knowledge at the start of a session, you are retrieving relevant entries — reinforcing them. The `last_validated` field records when an entry was last retrieved and confirmed, providing weak spaced retrieval scheduling signals during curation.
+**Influence on Ravel:** The `query` command is a form of retrieval practice. When you query global knowledge at the start of a session, you are retrieving relevant entries — reinforcing them. The `last_validated` field records when an entry was last retrieved and confirmed, providing weak spaced retrieval scheduling signals during curation.
 
 ---
 
@@ -106,7 +106,7 @@ Retrieval practice — the act of retrieving information from memory — is more
 
 Ebbinghaus's forgetting curve describes the exponential decay of memory over time. Spaced repetition systems (Anki, Supermemo) exploit the spacing effect: reviewing material at increasing intervals, just before it would be forgotten, is far more efficient than massed practice.
 
-**Influence on Mnemosyne (by contrast):** Mnemosyne deliberately does not implement spaced repetition for knowledge maintenance. The reason: spaced repetition is designed for the retrieval of specific facts (vocabulary, formulae). Expert developer knowledge is not facts to be recalled but models to be applied. A principle about connection pooling does not decay through non-use — it remains valid until the libraries change. Forcing spaced review of stable knowledge wastes effort; reviewing unstable knowledge (via divergence detection) focuses effort where it matters.
+**Influence on Ravel (by contrast):** Ravel deliberately does not implement spaced repetition for knowledge maintenance. The reason: spaced repetition is designed for the retrieval of specific facts (vocabulary, formulae). Expert developer knowledge is not facts to be recalled but models to be applied. A principle about connection pooling does not decay through non-use — it remains valid until the libraries change. Forcing spaced review of stable knowledge wastes effort; reviewing unstable knowledge (via divergence detection) focuses effort where it matters.
 
 ---
 
@@ -118,7 +118,7 @@ Ebbinghaus's forgetting curve describes the exponential decay of memory over tim
 
 Niklas Luhmann, the prolific sociologist, used a card-based knowledge management system (Zettelkasten, or "slip box") to build a web of 90,000 interconnected ideas over 40 years. The key insight is that knowledge grows not just by adding cards but by creating links: each new card is connected to existing cards, creating emergent structures that the creator did not explicitly design.
 
-**Influence on Mnemosyne:** The tag-based cross-referencing system is inspired by Zettelkasten linking. Tags serve as the Mnemosyne equivalent of Luhmann's reference numbers: they connect entries across axis boundaries, enabling emergent cross-domain knowledge clusters to form naturally over time. The `supersedes` field in frontmatter is a direct link, analogous to a Zettelkasten reference to a card this one revises.
+**Influence on Ravel:** The tag-based cross-referencing system is inspired by Zettelkasten linking. Tags serve as the Ravel equivalent of Luhmann's reference numbers: they connect entries across axis boundaries, enabling emergent cross-domain knowledge clusters to form naturally over time. The `supersedes` field in frontmatter is a direct link, analogous to a Zettelkasten reference to a card this one revises.
 
 ---
 
@@ -126,9 +126,9 @@ Niklas Luhmann, the prolific sociologist, used a card-based knowledge management
 
 **Forte, T. (2022).** *Building a Second Brain: A Proven Method to Organise Your Digital Life and Unlock Your Creative Potential*. Profile Books.
 
-Forte's "second brain" methodology (also PARA — Projects, Areas, Resources, Archives) organises personal knowledge around the actionability of information. The insight most relevant to Mnemosyne is the CODE framework: Capture, Organise, Distil, Express.
+Forte's "second brain" methodology (also PARA — Projects, Areas, Resources, Archives) organises personal knowledge around the actionability of information. The insight most relevant to Ravel is the CODE framework: Capture, Organise, Distil, Express.
 
-**Influence on Mnemosyne:** The promotion pathway (capture via plan observations → organise by axis → distil during curation → express via query) directly mirrors the CODE cycle. The `archive/` directory in Mnemosyne corresponds to Forte's Archive: material that is no longer active but preserved for potential future relevance.
+**Influence on Ravel:** The promotion pathway (capture via plan observations → organise by axis → distil during curation → express via query) directly mirrors the CODE cycle. The `archive/` directory in Ravel corresponds to Forte's Archive: material that is no longer active but preserved for potential future relevance.
 
 ---
 
@@ -142,7 +142,7 @@ Forte's "second brain" methodology (also PARA — Projects, Areas, Resources, Ar
 
 Cognitive load theory distinguishes intrinsic load (the complexity of the material itself), extraneous load (load imposed by poor presentation or unnecessary complexity), and germane load (load that contributes to schema formation). Effective learning maximises germane load while minimising extraneous load.
 
-**Influence on Mnemosyne:** The knowledge format — title, tags, dated entries, priority codes — is designed to minimise extraneous cognitive load when the LLM or developer processes it. The axis hierarchy provides a pre-organised schema that reduces the mental effort of locating relevant knowledge. The `--max-tokens` flag on `query` prevents context overload: too much knowledge injected at once overwhelms rather than helps, similar to extraneous cognitive load.
+**Influence on Ravel:** The knowledge format — title, tags, dated entries, priority codes — is designed to minimise extraneous cognitive load when the LLM or developer processes it. The axis hierarchy provides a pre-organised schema that reduces the mental effort of locating relevant knowledge. The `--max-tokens` flag on `query` prevents context overload: too much knowledge injected at once overwhelms rather than helps, similar to extraneous cognitive load.
 
 ---
 
@@ -154,7 +154,7 @@ Cognitive load theory distinguishes intrinsic load (the complexity of the materi
 
 Tautz and Althoff document the challenge of capturing and reusing tacit knowledge in software engineering. Unlike explicit knowledge (documented procedures, specifications), tacit knowledge consists of heuristics, pattern recognition, and contextual judgement built through experience. Making tacit knowledge explicit without losing fidelity is one of the hardest problems in software knowledge management.
 
-**Influence on Mnemosyne:** The observation-to-knowledge promotion cycle is designed to externalise tacit knowledge at the moment it surfaces — during active implementation, when the developer has just encountered the situation that activated the knowledge. The plan format's `## Observations` section captures this in-context, while the `## Promoted` section records what was successfully externalised. The quality of the externalisation depends on the developer's articulation; Mnemosyne provides the structure and prompts, not the words.
+**Influence on Ravel:** The observation-to-knowledge promotion cycle is designed to externalise tacit knowledge at the moment it surfaces — during active implementation, when the developer has just encountered the situation that activated the knowledge. The plan format's `## Observations` section captures this in-context, while the `## Promoted` section records what was successfully externalised. The quality of the externalisation depends on the developer's articulation; Ravel provides the structure and prompts, not the words.
 
 ---
 
@@ -164,7 +164,7 @@ Tautz and Althoff document the challenge of capturing and reusing tacit knowledg
 
 Birk et al. survey "lessons learned" systems in software organisations and identify why they so frequently fail to deliver value: lessons are captured too late (after the project), too abstractly (without the context that makes them actionable), or too rarely retrieved (the system exists but is not consulted). They recommend capture during projects, at the level of specificity needed to apply the lesson, with explicit retrieval mechanisms.
 
-**Influence on Mnemosyne:** This research directly motivates several Mnemosyne design decisions. Lessons are captured during projects (via plan observations) rather than in post-mortems. The `origins` provenance preserves the specific context that makes lessons actionable. Context-inferred query (`--context`) makes retrieval automatic at session start, solving the "rarely consulted" failure mode. Confidence levels address the abstraction problem by marking the degree of generalisation explicitly.
+**Influence on Ravel:** This research directly motivates several Ravel design decisions. Lessons are captured during projects (via plan observations) rather than in post-mortems. The `origins` provenance preserves the specific context that makes lessons actionable. Context-inferred query (`--context`) makes retrieval automatic at session start, solving the "rarely consulted" failure mode. Confidence levels address the abstraction problem by marking the degree of generalisation explicitly.
 
 ---
 
@@ -178,10 +178,10 @@ An early and still-relevant exploration of how programmers think, communicate, a
 
 **Dreyfus, H.L., & Dreyfus, S.E. (1986).** *Mind over Machine: The Power of Human Intuition and Expertise in the Era of the Computer*. Free Press.
 
-The Dreyfus model of skill acquisition — novice, advanced beginner, competent, proficient, expert — describes how practitioners move from rule-following to pattern recognition to intuitive judgement. Expert knowledge is characterised by holistic recognition: the expert does not consult rules, they recognise situations. Mnemosyne's knowledge entries attempt to capture the rules and patterns that novices and intermediates need, while acknowledging that expert practice transcends them.
+The Dreyfus model of skill acquisition — novice, advanced beginner, competent, proficient, expert — describes how practitioners move from rule-following to pattern recognition to intuitive judgement. Expert knowledge is characterised by holistic recognition: the expert does not consult rules, they recognise situations. Ravel's knowledge entries attempt to capture the rules and patterns that novices and intermediates need, while acknowledging that expert practice transcends them.
 
 ---
 
 **Norman, D.A. (2013).** *The Design of Everyday Things* (revised edition). Basic Books.
 
-Norman's concept of affordances — the properties of an object that suggest how it can be used — informs the Mnemosyne knowledge format design. Each frontmatter field, body section convention, and priority code is designed to make its intended use self-evident. An entry should "afford" retrieval, validation, and evolution without requiring the user to remember a procedure.
+Norman's concept of affordances — the properties of an object that suggest how it can be used — informs the Ravel knowledge format design. Each frontmatter field, body section convention, and priority code is designed to make its intended use self-evident. An entry should "afford" retrieval, validation, and evolution without requiring the user to remember a procedure.

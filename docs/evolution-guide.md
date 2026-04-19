@@ -1,6 +1,6 @@
 # Knowledge Evolution Guide
 
-This document explains the philosophy and mechanics of how knowledge evolves in Mnemosyne: why it is designed the way it is, how the technical mechanisms work, and how to use them effectively.
+This document explains the philosophy and mechanics of how knowledge evolves in Ravel: why it is designed the way it is, how the technical mechanisms work, and how to use them effectively.
 
 ## Contents
 
@@ -25,7 +25,7 @@ Time alone tells you nothing about whether a piece of knowledge is still accurat
 - A principle recorded in 2018 about how memory allocators behave under fragmentation may be as valid in 2026 as when it was written — possibly more so, because it has been confirmed in multiple projects over those eight years.
 - A note recorded last week about a specific API behaviour may already be wrong if the library shipped a breaking change yesterday.
 
-Mnemosyne uses **evidence-based evolution**. Knowledge is valid until it is contradicted by observation. The mechanisms that update knowledge are:
+Ravel uses **evidence-based evolution**. Knowledge is valid until it is contradicted by observation. The mechanisms that update knowledge are:
 
 1. **Contradiction detection** at promotion time — when a new entry overlaps with existing ones
 2. **Divergence detection** during curation — when recent project activity implicitly contradicts global knowledge
@@ -43,7 +43,7 @@ The temptation to auto-expire exists because old knowledge can be wrong, and sta
 
 **False negatives (not expired when it should be):** Knowledge that should be updated isn't, because the user has reviewed it within the time window even though nothing has changed. Time-based review does not guarantee correctness — it guarantees process.
 
-The Mnemosyne approach trades administrative simplicity for epistemic honesty: knowledge is reviewed when evidence creates tension, not on a schedule. The `last_validated` field records when an entry was last deliberately confirmed, providing a weak signal about how recently it has been considered — but `last_validated` is used as context in curation, not as an expiry gate.
+The Ravel approach trades administrative simplicity for epistemic honesty: knowledge is reviewed when evidence creates tension, not on a schedule. The `last_validated` field records when an entry was last deliberately confirmed, providing a weak signal about how recently it has been considered — but `last_validated` is used as context in curation, not as an expiry gate.
 
 ---
 
@@ -104,7 +104,7 @@ High tag overlap does not mean the entries conflict — it means they are about 
 
 ## Supersession
 
-Supersession is the mechanism for recording that an old piece of knowledge has been replaced. Mnemosyne's supersession model has three properties:
+Supersession is the mechanism for recording that an old piece of knowledge has been replaced. Ravel's supersession model has three properties:
 
 1. **Inline preservation** — superseded content is preserved in the file itself, not deleted or archived separately
 2. **Date ranges** — the record shows when the old knowledge was created and when it was superseded
@@ -118,7 +118,7 @@ The `## Superseded` section at the end of a file keeps the history accessible wi
 
 ### Supersession During Promotion
 
-When you choose `s` (supersede) during `mnemosyne promote`, the CLI:
+When you choose `s` (supersede) during `ravel promote`, the CLI:
 1. Saves your new entry to the appropriate axis file
 2. Appends a `## Superseded` record to the existing contradicting entry with the old content, a date range, and a reason
 
@@ -126,7 +126,7 @@ The existing entry's `supersedes` list is not modified automatically — the old
 
 ### Supersession During Curation
 
-When you choose `s` (supersede) during `mnemosyne curate`, the CLI:
+When you choose `s` (supersede) during `ravel curate`, the CLI:
 1. Appends a `## Superseded` record to the current entry's body
 2. Prompts you for new content (currently in the `refine` implementation path)
 3. Updates `last_validated` to today
@@ -162,11 +162,11 @@ The default divergence threshold is **2 projects**. A single diverging project m
 
 ## Reflective Curation
 
-Curation in Mnemosyne is modelled on the expert practice of deliberate knowledge consolidation. It is not a maintenance chore — it is an investment in the quality of your accumulated expertise.
+Curation in Ravel is modelled on the expert practice of deliberate knowledge consolidation. It is not a maintenance chore — it is an investment in the quality of your accumulated expertise.
 
 ### When to Curate
 
-Run `mnemosyne curate`:
+Run `ravel curate`:
 - After completing a major project or milestone
 - When you sense your understanding in an area has shifted significantly
 - When you want to deliberately consolidate recent learnings
@@ -221,13 +221,13 @@ The entry is saved at a confidence level you choose. A just-confirmed insight fr
 
 ## The Full Evolution Pathway
 
-A complete knowledge lifecycle in Mnemosyne follows this path:
+A complete knowledge lifecycle in Ravel follows this path:
 
 ```
 Raw observation (in plan 🟡🔴)
     ↓ /reflect
 Per-project learning (knowledge/ file)
-    ↓ mnemosyne promote
+    ↓ ravel promote
 Global learning (confidence: medium)
     ↓ used in multiple projects without contradiction
 Global learning (confidence: high)

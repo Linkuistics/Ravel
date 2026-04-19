@@ -1,36 +1,36 @@
-# Mnemosyne CLI Reference
+# Ravel CLI Reference
 
-Complete reference for all `mnemosyne` commands, flags, and expected output.
+Complete reference for all `ravel` commands, flags, and expected output.
 
 ## Contents
 
-- [mnemosyne init](#mnemosyne-init)
-- [mnemosyne query](#mnemosyne-query)
-- [mnemosyne promote](#mnemosyne-promote)
-- [mnemosyne status](#mnemosyne-status)
-- [mnemosyne curate](#mnemosyne-curate)
-- [mnemosyne explore](#mnemosyne-explore)
-- [mnemosyne install](#mnemosyne-install)
+- [ravel init](#ravel-init)
+- [ravel query](#ravel-query)
+- [ravel promote](#ravel-promote)
+- [ravel status](#ravel-status)
+- [ravel curate](#ravel-curate)
+- [ravel explore](#ravel-explore)
+- [ravel install](#ravel-install)
 
 ---
 
-## mnemosyne init
+## ravel init
 
-Create `~/.mnemosyne/` with the default knowledge store structure.
+Create `~/.ravel/` with the default knowledge store structure.
 
 ### Synopsis
 
 ```
-mnemosyne init [--from <url>]
+ravel init [--from <url>]
 ```
 
 ### Description
 
-`init` creates the knowledge store at `~/.mnemosyne/`. When called without arguments, it creates a fresh store with default configuration, the five axis directories, an `archive/` directory, a `cache/` directory, and a `.gitignore` excluding `cache/`. It then initialises a Git repository and makes an initial commit.
+`init` creates the knowledge store at `~/.ravel/`. When called without arguments, it creates a fresh store with default configuration, the five axis directories, an `archive/` directory, a `cache/` directory, and a `.gitignore` excluding `cache/`. It then initialises a Git repository and makes an initial commit.
 
-When `--from` is provided, it clones the specified Git repository instead of creating a fresh store. This is the recommended path when setting up Mnemosyne on a new machine where a knowledge base already exists.
+When `--from` is provided, it clones the specified Git repository instead of creating a fresh store. This is the recommended path when setting up Ravel on a new machine where a knowledge base already exists.
 
-`init` fails if `~/.mnemosyne/` already exists.
+`init` fails if `~/.ravel/` already exists.
 
 ### Flags
 
@@ -42,37 +42,37 @@ When `--from` is provided, it clones the specified Git repository instead of cre
 
 ```bash
 # Create a fresh knowledge store
-mnemosyne init
+ravel init
 
 # Clone an existing knowledge base from GitHub
-mnemosyne init --from git@github.com:you/mnemosyne-knowledge.git
+ravel init --from git@github.com:you/ravel-knowledge.git
 
 # Clone from a local path (useful for migrations or testing)
-mnemosyne init --from /path/to/existing/mnemosyne
+ravel init --from /path/to/existing/ravel
 ```
 
 ### Expected Output
 
 ```
-Mnemosyne initialized at /Users/you/.mnemosyne
+Ravel initialized at /Users/you/.ravel
 ```
 
 On failure (store already exists):
 
 ```
-Error: Directory already exists: /Users/you/.mnemosyne. Use a different path or remove it first.
+Error: Directory already exists: /Users/you/.ravel. Use a different path or remove it first.
 ```
 
 ---
 
-## mnemosyne query
+## ravel query
 
 Search the global knowledge base.
 
 ### Synopsis
 
 ```
-mnemosyne query [<terms>...] [--context] [--format <format>] [--max-tokens <n>]
+ravel query [<terms>...] [--context] [--format <format>] [--max-tokens <n>]
 ```
 
 ### Description
@@ -140,22 +140,22 @@ title: Rust Async Channel Patterns | confidence: high | tags: rust, async, tokio
 
 ```bash
 # Search by keyword
-mnemosyne query async error handling
+ravel query async error handling
 
 # Infer context from current project
-mnemosyne query --context
+ravel query --context
 
 # Context query with token budget for injection into a 4K context window
-mnemosyne query --context --max-tokens 4000
+ravel query --context --max-tokens 4000
 
 # JSON output for programmatic processing
-mnemosyne query --context --format json
+ravel query --context --format json
 
 # Plain output for shell scripting
-mnemosyne query rust --format plain
+ravel query rust --format plain
 
 # Combine context with token limit
-mnemosyne query --context --format markdown --max-tokens 8000
+ravel query --context --format markdown --max-tokens 8000
 ```
 
 ### Expected Output (no results)
@@ -166,14 +166,14 @@ No matching knowledge found.
 
 ---
 
-## mnemosyne promote
+## ravel promote
 
 Promote a learning to global knowledge.
 
 ### Synopsis
 
 ```
-mnemosyne promote [--tags <tags>] [--origin <project>]
+ravel promote [--tags <tags>] [--origin <project>]
 ```
 
 ### Description
@@ -194,7 +194,7 @@ If tags or origin project are provided as flags, those steps are skipped in the 
 ### Interactive Session
 
 ```
-Mnemosyne — Promote to Global Knowledge
+Ravel — Promote to Global Knowledge
 
 Title for this knowledge entry:
 > Rust async channel patterns
@@ -249,14 +249,14 @@ The CLI chooses an axis based on tag content in this priority order:
 
 ---
 
-## mnemosyne status
+## ravel status
 
 Display a summary of the knowledge base.
 
 ### Synopsis
 
 ```
-mnemosyne status
+ravel status
 ```
 
 ### Description
@@ -266,9 +266,9 @@ mnemosyne status
 ### Expected Output
 
 ```
-Mnemosyne Knowledge Base
+Ravel Knowledge Base
 
-Location: /Users/you/.mnemosyne
+Location: /Users/you/.ravel
 Total entries: 47
 
 Entries by axis:
@@ -286,16 +286,16 @@ Entries by confidence:
 Origin projects:
   api-server
   cli-tool
-  mnemosyne
+  ravel
   web-app
 ```
 
 If no entries exist yet:
 
 ```
-Mnemosyne Knowledge Base
+Ravel Knowledge Base
 
-Location: /Users/you/.mnemosyne
+Location: /Users/you/.ravel
 Total entries: 0
 
 Entries by axis:
@@ -307,14 +307,14 @@ Origin projects:
 
 ---
 
-## mnemosyne curate
+## ravel curate
 
 Run a reflective curation session.
 
 ### Synopsis
 
 ```
-mnemosyne curate
+ravel curate
 ```
 
 ### Description
@@ -343,14 +343,14 @@ Curation session complete.
 
 ---
 
-## mnemosyne explore
+## ravel explore
 
 Run an interactive knowledge exploration session.
 
 ### Synopsis
 
 ```
-mnemosyne explore
+ravel explore
 ```
 
 ### Description
@@ -375,14 +375,14 @@ Exploration session complete.
 
 ---
 
-## mnemosyne install
+## ravel install
 
 Install an adapter plugin.
 
 ### Synopsis
 
 ```
-mnemosyne install <adapter>
+ravel install <adapter>
 ```
 
 ### Description
@@ -401,13 +401,13 @@ mnemosyne install <adapter>
 
 Installs the Claude Code observational-memory plugin to `~/.claude/plugins/observational-memory/`. This includes skills (slash commands) for `/begin-work`, `/reflect`, `/promote-global`, `/curate-global`, `/explore-knowledge`, `/create-plan`, and `/setup-knowledge`, plus reference documents for global knowledge, observational memory, plan format, and coding conventions.
 
-The install command must be run from the Mnemosyne repository directory or from a location where the adapter files are available alongside the binary.
+The install command must be run from the Ravel repository directory or from a location where the adapter files are available alongside the binary.
 
 ### Examples
 
 ```bash
 # Install the Claude Code plugin
-mnemosyne install claude-code
+ravel install claude-code
 ```
 
 ### Expected Output
@@ -425,5 +425,5 @@ Unknown adapter: neovim. Available: claude-code
 On failure (adapter files not found):
 
 ```
-Error: Could not find adapter files. Run from the Mnemosyne repo directory.
+Error: Could not find adapter files. Run from the Ravel repo directory.
 ```

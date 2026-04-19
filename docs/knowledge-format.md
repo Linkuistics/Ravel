@@ -1,6 +1,6 @@
 # Knowledge File Format
 
-This document specifies the format for knowledge entries stored in `~/.mnemosyne/knowledge/`.
+This document specifies the format for knowledge entries stored in `~/.ravel/knowledge/`.
 
 ## Contents
 
@@ -27,7 +27,7 @@ Each knowledge entry is a Markdown file with YAML frontmatter. The structure is:
 <body>
 ```
 
-Files are stored under `~/.mnemosyne/knowledge/<axis>/<filename>.md`. Filenames are derived from titles by lowercasing, replacing non-alphanumeric characters with hyphens, and collapsing consecutive hyphens.
+Files are stored under `~/.ravel/knowledge/<axis>/<filename>.md`. Filenames are derived from titles by lowercasing, replacing non-alphanumeric characters with hyphens, and collapsing consecutive hyphens.
 
 The format is designed to be:
 - **Human-readable and editable** — a plain text editor is sufficient for all operations
@@ -307,7 +307,7 @@ Entries about specific codebases: architectural decisions, project-specific idio
 Examples:
 - `api-server.md`
 - `cli-tool.md`
-- `mnemosyne.md`
+- `ravel.md`
 
 **Tag convention:** Include the project name and the primary language(s) and domain(s) as tags.
 
@@ -332,7 +332,7 @@ origins:
   - project: cli-tool
     date: 2025-11-15
     context: "Async refactor — lifetime issues with futures"
-  - project: mnemosyne
+  - project: ravel
     date: 2026-01-10
     context: "Entry parsing — lifetime-annotated references in parse functions"
 supersedes: []

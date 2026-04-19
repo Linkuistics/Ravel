@@ -1,12 +1,12 @@
-# Mnemosyne User Guide
+# Ravel User Guide
 
-> **Status:** Mnemosyne is in architectural design phase. This guide describes the **intended v1 user experience** based on the committed architecture. Code has not yet been written. Commands and flags are indicative, not final.
+> **Status:** Ravel is in architectural design phase. This guide describes the **intended v1 user experience** based on the committed architecture. Code has not yet been written. Commands and flags are indicative, not final.
 
-This guide walks through the Mnemosyne user experience: installation, first-time setup, daily workflow, and the mental model for using the daemon + TUI.
+This guide walks through the Ravel user experience: installation, first-time setup, daily workflow, and the mental model for using the daemon + TUI.
 
 ## Contents
 
-1. [What Mnemosyne is](#what-mnemosyne-is)
+1. [What Ravel is](#what-ravel-is)
 2. [Mental model](#mental-model)
 3. [Installation](#installation)
 4. [First-time setup](#first-time-setup)
@@ -22,9 +22,9 @@ This guide walks through the Mnemosyne user experience: installation, first-time
 14. [Multi-machine sync](#multi-machine-sync)
 15. [Troubleshooting](#troubleshooting)
 
-## What Mnemosyne is
+## What Ravel is
 
-Mnemosyne is a **persistent orchestration daemon** for AI-assisted development. Instead of opening individual Claude Code sessions and hoping they remember yesterday's context, you run Mnemosyne once on your machine and it hosts:
+Ravel is a **persistent orchestration daemon** for AI-assisted development. Instead of opening individual Claude Code sessions and hoping they remember yesterday's context, you run Ravel once on your machine and it hosts:
 
 - **Plan actors** — one per plan you're working on, tracking phase cycles, backlogs, memory, and dispatched tasks
 - **Expert actors** — consultative domain experts you can query like co-workers
@@ -37,9 +37,9 @@ For the architectural overview, see [`architecture.md`](architecture.md).
 
 ## Mental model
 
-The shift from Mnemosyne v0.1.0 (a CLI tool) to v1 (a daemon) is significant. The key ideas:
+The shift from Ravel v0.1.0 (a CLI tool) to v1 (a daemon) is significant. The key ideas:
 
-### You don't "run Mnemosyne" per plan
+### You don't "run Ravel" per plan
 
 The daemon is **always on**, like a background service. You start it once per machine (or let it auto-start on first login) and it hosts every plan across every adopted project.
 
@@ -67,14 +67,14 @@ Dispatches have audit trails on both ends: the origin's `Dispatched` section and
 
 ```bash
 # Install the Elixir daemon
-mix archive.install hex mnemosyne
+mix archive.install hex ravel
 
 # Install the Rust TUI client
-cargo install mnemosyne-tui
+cargo install ravel-tui
 
 # Verify
-mnemosyne --version
-mnemosyne-tui --version
+ravel --version
+ravel-tui --version
 ```
 
 Prerequisites:
@@ -87,12 +87,12 @@ Prerequisites:
 
 ## First-time setup
 
-On first run, Mnemosyne creates a dedicated vault at `~/Mnemosyne-vault/` (configurable):
+On first run, Ravel creates a dedicated vault at `~/Ravel-vault/` (configurable):
 
 ```bash
-$ mnemosyne daemon --init
-Creating vault at /Users/you/Mnemosyne-vault/...
-  • Vault identity: mnemosyne.toml (schema v1)
+$ ravel daemon --init
+Creating vault at /Users/you/Ravel-vault/...
+  • Vault identity: ravel.toml (schema v1)
   • Obsidian template: .obsidian/ with Dataview + Templater
   • Default routing rules: routing.ex (empty scaffolding)
   • Default daemon config: daemon.toml
@@ -100,11 +100,11 @@ Creating vault at /Users/you/Mnemosyne-vault/...
   • Experts directory: experts/ (starter set of 6 experts)
   • Runtime directory: runtime/ (ephemeral)
 
-Daemon started. Socket: /Users/you/Mnemosyne-vault/runtime/daemon.sock
-Attach a client with `mnemosyne-tui` in another terminal.
+Daemon started. Socket: /Users/you/Ravel-vault/runtime/daemon.sock
+Attach a client with `ravel-tui` in another terminal.
 ```
 
-The vault is a **git repository**. Mnemosyne commits its own writes automatically; you can commit manual edits anytime. The vault can be synced between machines via `git push` / `git pull`.
+The vault is a **git repository**. Ravel commits its own writes automatically; you can commit manual edits anytime. The vault can be synced between machines via `git push` / `git pull`.
 
 ## Adopting a project
 
@@ -112,22 +112,22 @@ Before you can drive a plan inside a project, you adopt the project into your va
 
 ```bash
 $ cd ~/dev/my-awesome-project
-$ mnemosyne adopt-project .
-Adopting my-awesome-project into vault at /Users/you/Mnemosyne-vault/
-  • Creating /Users/you/dev/my-awesome-project/mnemosyne/
+$ ravel adopt-project .
+Adopting my-awesome-project into vault at /Users/you/Ravel-vault/
+  • Creating /Users/you/dev/my-awesome-project/ravel/
   • Creating project-root plan
-  • Creating vault symlink: /Users/you/Mnemosyne-vault/projects/my-awesome-project
+  • Creating vault symlink: /Users/you/Ravel-vault/projects/my-awesome-project
   • Regenerating plan-catalog.md
   • Rescanning vault
 
 Project adopted. Root plan: my-awesome-project/project-root
-Run `mnemosyne-tui attach my-awesome-project/project-root` to start working.
+Run `ravel-tui attach my-awesome-project/project-root` to start working.
 ```
 
 Adoption does three things:
 
-1. Creates `<project>/mnemosyne/project-root/` with an empty root plan.
-2. Creates a vault symlink at `<vault>/projects/<project-name>` pointing at the project's mnemosyne directory. This makes the project visible in Obsidian and to the daemon.
+1. Creates `<project>/ravel/project-root/` with an empty root plan.
+2. Creates a vault symlink at `<vault>/projects/<project-name>` pointing at the project's ravel directory. This makes the project visible in Obsidian and to the daemon.
 3. Regenerates `<vault>/plan-catalog.md` so the new project appears in catalogs.
 
 ## Running the daemon
@@ -136,26 +136,26 @@ After initial setup, the daemon runs as a background process:
 
 ```bash
 # Start in the background (daemonize)
-$ mnemosyne daemon --background
-Daemon started. PID: 48291. Logs: /Users/you/Mnemosyne-vault/runtime/daemon.log
+$ ravel daemon --background
+Daemon started. PID: 48291. Logs: /Users/you/Ravel-vault/runtime/daemon.log
 
 # Or start in the foreground with log output
-$ mnemosyne daemon
-[info] Loading vault at /Users/you/Mnemosyne-vault/
+$ ravel daemon
+[info] Loading vault at /Users/you/Ravel-vault/
 [info] VaultDirectory cached: 12 plans, 6 experts
-[info] Listening on /Users/you/Mnemosyne-vault/runtime/daemon.sock
+[info] Listening on /Users/you/Ravel-vault/runtime/daemon.sock
 [info] Daemon ready
 ```
 
 Common daemon commands:
 
 ```bash
-mnemosyne daemon                 # start in foreground
-mnemosyne daemon --background    # start in background
-mnemosyne stop                   # graceful shutdown
-mnemosyne status                 # query daemon health
-mnemosyne rescan                 # refresh vault catalog and routing rules
-mnemosyne logs                   # tail daemon logs
+ravel daemon                 # start in foreground
+ravel daemon --background    # start in background
+ravel stop                   # graceful shutdown
+ravel status                 # query daemon health
+ravel rescan                 # refresh vault catalog and routing rules
+ravel logs                   # tail daemon logs
 ```
 
 ## Using the TUI
@@ -163,16 +163,16 @@ mnemosyne logs                   # tail daemon logs
 The TUI is where you interact with plans day-to-day.
 
 ```bash
-$ mnemosyne-tui
+$ ravel-tui
 ```
 
 The TUI opens and shows the **plan catalog** — every plan in the vault, grouped by project, with current phase states. You navigate with arrow keys, select a plan, and press Enter to attach.
 
 ```
-┌─ Mnemosyne ─────────────────────────────────────────────────┐
+┌─ Ravel ─────────────────────────────────────────────────┐
 │ Plans in vault                                               │
 │                                                              │
-│ ▼ Mnemosyne                                                  │
+│ ▼ Ravel                                                  │
 │     project-root                 [reflect]  2h ago          │
 │   ▼ sub-F-hierarchy              [work*]    active now      │
 │       sub-F-dispatch             [idle]                     │
@@ -196,7 +196,7 @@ The TUI opens and shows the **plan catalog** — every plan in the vault, groupe
 Attaching to a plan shows the plan's state: current phase, backlog, memory summary, recent session log, and live harness output if a phase is running.
 
 ```
-┌─ Mnemosyne/project-root/sub-F-hierarchy ──── [work] ─────────┐
+┌─ Ravel/project-root/sub-F-hierarchy ──── [work] ─────────┐
 │ Description: Plan hierarchy, actor model, inter-plan        │
 │              dispatch, declarative routing.                  │
 │                                                              │
@@ -256,11 +256,11 @@ Press `t`. Triage plans the next work cycle: updates backlog priorities, process
 
 As a plan grows, you'll want to split off focused sub-plans to keep each plan's scope tight and avoid context bloat.
 
-From the plan view, press `n` (or run `mnemosyne-tui new-plan` from the shell):
+From the plan view, press `n` (or run `ravel-tui new-plan` from the shell):
 
 ```
 ┌─ Create sub-plan ───────────────────────────────────────────┐
-│ Parent: Mnemosyne/project-root/sub-F-hierarchy               │
+│ Parent: Ravel/project-root/sub-F-hierarchy               │
 │                                                              │
 │ Name:        sub-F-datalog                                   │
 │ Description: Datalog rules format + Erlog integration for   │
@@ -310,7 +310,7 @@ The LLM writes:
 
 ```yaml
 dispatches:
-  - target-plan: Mnemosyne/project-root/sub-A-global-store
+  - target-plan: Ravel/project-root/sub-A-global-store
     reason: Lock directory pinning question belongs to sub-A's scope.
     body: |
       Confirm the lock dir at <vault>/runtime/locks/ is the final
@@ -350,7 +350,7 @@ This is the **human driver path** — the same dispatch mechanism, but initiated
 Routing rules live in `<vault>/routing.ex`, a user-editable Elixir module. You edit it in your editor of choice:
 
 ```elixir
-defmodule Mnemosyne.UserRouting do
+defmodule Ravel.UserRouting do
   def route(:query, facts) do
     cond do
       "rust" in facts or "cargo" in facts ->
@@ -367,7 +367,7 @@ defmodule Mnemosyne.UserRouting do
   def route(:dispatch, facts) do
     cond do
       "migration" in facts or "rename" in facts ->
-        {:target_plan, "Mnemosyne/project-root/sub-G-migration"}
+        {:target_plan, "Ravel/project-root/sub-G-migration"}
 
       true ->
         :no_route
@@ -376,7 +376,7 @@ defmodule Mnemosyne.UserRouting do
 end
 ```
 
-Save the file. The daemon detects the change (or you run `mnemosyne rescan`), recompiles the module via BEAM's hot code reload, and the new rules take effect immediately — **no daemon restart needed**.
+Save the file. The daemon detects the change (or you run `ravel rescan`), recompiles the module via BEAM's hot code reload, and the new rules take effect immediately — **no daemon restart needed**.
 
 If the file has a compile error, the previous version stays loaded and the error is surfaced in the TUI.
 
@@ -413,13 +413,13 @@ Accepting appends the rule to `routing.ex` and commits the change to vault git. 
 Open the vault in Obsidian:
 
 ```bash
-obsidian ~/Mnemosyne-vault/
+obsidian ~/Ravel-vault/
 ```
 
 You'll see:
 
 - **`plan-catalog.md`** — the auto-generated list of every plan and expert, with descriptions. Your at-a-glance "what's in my vault."
-- **`projects/` directory** — symlinks to every adopted project's mnemosyne/ directory. Browse plans, read memories, follow wikilinks between them.
+- **`projects/` directory** — symlinks to every adopted project's ravel/ directory. Browse plans, read memories, follow wikilinks between them.
 - **`knowledge/` directory** — Tier 2 global knowledge entries, organized by axis.
 - **`experts/` directory** — expert declaration files (one per expert).
 - **`routing.ex`** — the routing rules, visible as source code.
@@ -438,13 +438,13 @@ The vault is a git repository. To move to a new machine:
 
 ```bash
 # On machine A:
-$ cd ~/Mnemosyne-vault
+$ cd ~/Ravel-vault
 $ git push origin main
 
 # On machine B:
-$ git clone git@github.com:you/mnemosyne-vault.git ~/Mnemosyne-vault
-$ mnemosyne daemon --init-from-existing
-Existing vault detected at /Users/you/Mnemosyne-vault/
+$ git clone git@github.com:you/ravel-vault.git ~/Ravel-vault
+$ ravel daemon --init-from-existing
+Existing vault detected at /Users/you/Ravel-vault/
   • Rebuilding project symlinks (may need manual path adjustments)
   • Regenerating plan-catalog.md
   • Starting daemon
@@ -462,7 +462,7 @@ Project symlinks are **not in git** (absolute paths are per-machine). The daemon
 Error: another daemon is already running (pid 48291)
 ```
 
-Check with `mnemosyne status`. If the other daemon is stale, `mnemosyne stop --force` will release the singleton lock.
+Check with `ravel status`. If the other daemon is stale, `ravel stop --force` will release the singleton lock.
 
 ### Daemon refuses to start due to routing.ex compile error
 
@@ -477,7 +477,7 @@ Edit `routing.ex` to fix the error, then start again. The daemon **refuses to st
 
 ```
 Error: plan description exceeds 120 character cap
-  plan: Mnemosyne/project-root/sub-F-hierarchy
+  plan: Ravel/project-root/sub-F-hierarchy
   description: (127 chars) ...
 ```
 
@@ -486,20 +486,20 @@ Edit the plan's `plan-state.md` frontmatter, shorten the description, save. The 
 ### Vault catalog out of sync
 
 ```bash
-$ mnemosyne rescan
+$ ravel rescan
 ```
 
 This regenerates `plan-catalog.md`, reloads routing.ex, re-verifies vault invariants, and emits a summary of any problems.
 
 ### Harness session hangs or crashes
 
-The actor transitions to Faulted. The TUI shows it in red. Investigate via `mnemosyne logs` and retry via the TUI's retry command (`R` in the faulted plan view).
+The actor transitions to Faulted. The TUI shows it in red. Investigate via `ravel logs` and retry via the TUI's retry command (`R` in the faulted plan view).
 
 ---
 
 ## Further reading
 
 - [Architecture overview](architecture.md) — the full architectural picture
-- [Configuration reference](configuration.md) — `daemon.toml`, `mnemosyne.toml`, and related config files
+- [Configuration reference](configuration.md) — `daemon.toml`, `ravel.toml`, and related config files
 - [Knowledge format](knowledge-format.md) — how knowledge entries are structured
 - [Research sources](research-sources.md) — the cognitive science grounding

@@ -1,6 +1,6 @@
-# Mnemosyne Architecture
+# Ravel Architecture
 
-A comprehensive overview of Mnemosyne's architecture, synthesized from nine sub-project design documents and the April 2026 F-brainstorm that pivoted the project to an actor-daemon model on BEAM.
+A comprehensive overview of Ravel's architecture, synthesized from nine sub-project design documents and the April 2026 F-brainstorm that pivoted the project to an actor-daemon model on BEAM.
 
 > This document is the authoritative architectural overview. Individual sub-project design docs in [`superpowers/specs/`](superpowers/specs/) go deeper on each component. The top-level [README](../README.md) is a shorter pitch for sharing.
 
@@ -31,7 +31,7 @@ These are the load-bearing convictions behind every architectural choice. They c
 
 ### Fresh context is first-class
 
-Context rot (drift, noise, stale assumptions, accumulated irrelevance) is the primary failure mode of long LLM sessions. Mnemosyne is designed around **many short fresh sessions** rather than one long accumulating session.
+Context rot (drift, noise, stale assumptions, accumulated irrelevance) is the primary failure mode of long LLM sessions. Ravel is designed around **many short fresh sessions** rather than one long accumulating session.
 
 Every phase boundary, every expert consultation, every routing decision, every ingestion analysis is a **fresh-context opportunity**. State flows between sessions through durable files, not through context accumulation. The orchestrator's core job is to ensure each session receives exactly the context it needs — nothing more, nothing less.
 
@@ -84,7 +84,7 @@ Every workflow must work with either a human or an LLM as the driver. Phase cycl
 
 ### Obsidian-native explorer is the accountability substrate
 
-The human is the final accountability substrate for auto-ingestion, dispatch correctness, routing decisions, and knowledge curation. Mnemosyne cannot validate its own LLM outputs — but a human browsing a well-organized vault with Dataview queries, wikilinks, and file history can review, edit, reject, and audit everything. Obsidian delivers this experience out of the box. Mnemosyne's file-format decisions are chosen to make Obsidian maximally useful.
+The human is the final accountability substrate for auto-ingestion, dispatch correctness, routing decisions, and knowledge curation. Ravel cannot validate its own LLM outputs — but a human browsing a well-organized vault with Dataview queries, wikilinks, and file history can review, edit, reject, and audit everything. Obsidian delivers this experience out of the box. Ravel's file-format decisions are chosen to make Obsidian maximally useful.
 
 ---
 
@@ -99,7 +99,7 @@ flowchart TB
         Script["Headless scripts /<br/>CI clients"]
     end
 
-    subgraph Daemon["Mnemosyne daemon (Elixir / BEAM)"]
+    subgraph Daemon["Ravel daemon (Elixir / BEAM)"]
         direction TB
 
         subgraph TopSup["Application supervisor (:one_for_one)"]
@@ -133,8 +133,8 @@ flowchart TB
     end
 
     subgraph FS["Filesystem (durable substrate)"]
-        Vault["Mnemosyne-vault/"]
-        Projects["&lt;project&gt;/mnemosyne/"]
+        Vault["Ravel-vault/"]
+        Projects["&lt;project&gt;/ravel/"]
     end
 
     Clients -->|"Unix socket<br/>NDJSON protocol"| Listener
@@ -172,12 +172,12 @@ flowchart TB
 
 ## The actor model
 
-Mnemosyne's actor model is pragmatic OTP: one `GenServer` per active actor, supervised by a `DynamicSupervisor`, with mailboxes backed by NDJSON files for crash recovery.
+Ravel's actor model is pragmatic OTP: one `GenServer` per active actor, supervised by a `DynamicSupervisor`, with mailboxes backed by NDJSON files for crash recovery.
 
 ### Actor trait
 
 ```elixir
-defmodule Mnemosyne.Actor do
+defmodule Ravel.Actor do
   @type message ::
     {:dispatch, DispatchMessage.t()} |
     {:query, QueryMessage.t()}
@@ -197,7 +197,7 @@ defmodule Mnemosyne.Actor do
 end
 ```
 
-Two sealed implementations: `Mnemosyne.PlanActor` and `Mnemosyne.ExpertActor`. The set is closed for v1 — adding a third type is a code change, not a plugin mechanism. Extensibility to a third type is a v3+ conversation.
+Two sealed implementations: `Ravel.PlanActor` and `Ravel.ExpertActor`. The set is closed for v1 — adding a third type is a code change, not a plugin mechanism. Extensibility to a third type is a v3+ conversation.
 
 ### Lifecycle
 
@@ -226,14 +226,14 @@ stateDiagram-v2
 Standard OTP supervision, no custom supervisor logic:
 
 ```
-Mnemosyne.Application
-└── Mnemosyne.Supervisor (:one_for_one)
-    ├── Mnemosyne.VaultDirectory.Server       (gen_server)
-    ├── Mnemosyne.Router.Server               (gen_server)
-    ├── Mnemosyne.ClientListener              (task)
-    ├── Mnemosyne.ClientConnection.Supervisor (dynamic_supervisor)
-    ├── Mnemosyne.ActorSupervisor             (dynamic_supervisor, :transient)
-    └── Mnemosyne.FactExtractor.Server        (gen_server)
+Ravel.Application
+└── Ravel.Supervisor (:one_for_one)
+    ├── Ravel.VaultDirectory.Server       (gen_server)
+    ├── Ravel.Router.Server               (gen_server)
+    ├── Ravel.ClientListener              (task)
+    ├── Ravel.ClientConnection.Supervisor (dynamic_supervisor)
+    ├── Ravel.ActorSupervisor             (dynamic_supervisor, :transient)
+    └── Ravel.FactExtractor.Server        (gen_server)
 ```
 
 - `:one_for_one` at the top level — independent restart of singletons.
@@ -265,7 +265,7 @@ A **plan** is a directory containing `plan-state.md`. That marker file is the *o
 ### Layout
 
 ```
-<project>/mnemosyne/
+<project>/ravel/
 ├── knowledge/                    # Tier 1 per-project knowledge (not a plan)
 └── project-root/                 # always exactly one; reserved name
     ├── plan-state.md             # required marker with phase state
@@ -292,24 +292,24 @@ qualified_id = strip_prefix(plan_path, "<vault>/projects/")
 
 Examples:
 
-- `Mnemosyne/project-root`
-- `Mnemosyne/project-root/sub-F-hierarchy`
+- `Ravel/project-root`
+- `Ravel/project-root/sub-F-hierarchy`
 - `APIAnyware-MacOS/project-root/sub-ffi-callbacks/sub-ffi-gc-protect`
 
 **Never stored in frontmatter** — storing it would be a duplicate source of truth that could drift. The filesystem is authoritative; qualified IDs are computed at read time.
 
 ### Invariants
 
-Every invariant below is checked by `verify_vault` on every daemon startup and every `mnemosyne rescan`:
+Every invariant below is checked by `verify_vault` on every daemon startup and every `ravel rescan`:
 
 | # | Invariant |
 |---|---|
 | 1 | A directory is a plan iff it contains `plan-state.md`. |
 | 2 | `StagingDirectory::render` refuses descent into subdirectories containing `plan-state.md`. |
-| 3 | Every adopted project has exactly one `project-root/` directory as a direct child of `<project>/mnemosyne/`. |
+| 3 | Every adopted project has exactly one `project-root/` directory as a direct child of `<project>/ravel/`. |
 | 4 | No plan directory at any depth is named `project-root` except the single reserved root. |
 | 5 | Every plan has exactly one host project. |
-| 6 | `<project>/mnemosyne/knowledge/` is never a plan and never contains `plan-state.md`. |
+| 6 | `<project>/ravel/knowledge/` is never a plan and never contains `plan-state.md`. |
 | 7 | Every plan has a non-empty, non-placeholder `description:` ≤120 characters. |
 | 8 | `project-root` appears only at the single reserved location (no nested roots). |
 
@@ -351,11 +351,11 @@ Optional `suggested-target-plan:` accompanies `target-project:` entries as a hin
 
 ### Same-project dispatch
 
-The origin knows enough about its own project to name a specific target plan. Mnemosyne writes to that target's `Received` section directly — no Level 2 agent, no LLM in the loop. The decision was made during the origin's phase.
+The origin knows enough about its own project to name a specific target plan. Ravel writes to that target's `Received` section directly — no Level 2 agent, no LLM in the loop. The decision was made during the origin's phase.
 
 ```yaml
 dispatches:
-  - target-plan: Mnemosyne/project-root/sub-A-global-store
+  - target-plan: Ravel/project-root/sub-A-global-store
     reason: Lock directory pinning question belongs to sub-A's scope.
     body: |
       The D concurrency brainstorm needs to know whether the lock
@@ -383,7 +383,7 @@ The Level 2 agent receives a fresh session with **read access to the target proj
 ```mermaid
 sequenceDiagram
     participant Plan as Level 1<br/>Origin plan phase
-    participant Router as Mnemosyne router
+    participant Router as Ravel router
     participant L2 as Level 2<br/>Routing agent<br/>(fresh context)
     participant L3 as Level 3<br/>Verification agent<br/>(fresh context)
     participant Target as Target plan
@@ -408,7 +408,7 @@ Each level has a more specific context budget. Level 1's broad vault awareness s
 The daemon consults `<vault>/routing.ex`, a user-editable Elixir module with pattern-matched `route/2` clauses, **before** spawning a Level 2 agent. If rules fire unambiguously, the dispatch routes deterministically — no LLM in the loop.
 
 ```elixir
-defmodule Mnemosyne.UserRouting do
+defmodule Ravel.UserRouting do
   def route(:query, facts) do
     cond do
       "rust" in facts or "cargo" in facts ->
@@ -428,7 +428,7 @@ defmodule Mnemosyne.UserRouting do
   def route(:dispatch, facts) do
     cond do
       "migration" in facts ->
-        {:target_plan, "Mnemosyne/project-root/sub-G-migration"}
+        {:target_plan, "Ravel/project-root/sub-G-migration"}
 
       "ffi" in facts ->
         {:target_project, "APIAnyware-MacOS"}
@@ -452,7 +452,7 @@ timeout_ms = 5000
 
 **Hot reload**: BEAM's native code reload means edits to `routing.ex` take effect without daemon restart. Users watch their rules, tweak them, see the effect immediately.
 
-**Learning loop**: when rules don't fire (or fire ambiguously), the Level 2 agent handles the case AND its response may include a `suggested-rule:` field proposing a new `route/2` clause. Mnemosyne captures the suggestion in the TUI as "Rule suggestion pending review." The user accepts → the rule is appended to `routing.ex` and committed to vault git. Novel cases train the deterministic path over time.
+**Learning loop**: when rules don't fire (or fire ambiguously), the Level 2 agent handles the case AND its response may include a `suggested-rule:` field proposing a new `route/2` clause. Ravel captures the suggestion in the TUI as "Rule suggestion pending review." The user accepts → the rule is appended to `routing.ex` and committed to vault git. Novel cases train the deterministic path over time.
 
 ---
 
@@ -499,11 +499,11 @@ The LLM session reads and writes the staging directory. On clean phase exit, `St
 
 ## Knowledge and experts
 
-Knowledge in Mnemosyne is **consultative**, not loaded. The two-tier structure (per-project Tier 1 and global Tier 2) persists, but every read happens through an ExpertActor that runs in its own fresh context.
+Knowledge in Ravel is **consultative**, not loaded. The two-tier structure (per-project Tier 1 and global Tier 2) persists, but every read happens through an ExpertActor that runs in its own fresh context.
 
 ### Two tiers
 
-- **Tier 1** — per-project knowledge at `<project>/mnemosyne/knowledge/`. Observations specific to one codebase: patterns discovered, decisions made, techniques that worked.
+- **Tier 1** — per-project knowledge at `<project>/ravel/knowledge/`. Observations specific to one codebase: patterns discovered, decisions made, techniques that worked.
 - **Tier 2** — cross-project knowledge at `<vault>/knowledge/`, organized along five axes: `languages/`, `domains/`, `tools/`, `techniques/`, `projects/`. Promoted from Tier 1 when an insight proves useful across projects.
 
 ### ExpertActor
@@ -554,16 +554,16 @@ The originating session **never loads the expert's knowledge into its own contex
 
 ### Default experts (sub-N)
 
-Mnemosyne ships a starter set:
+Ravel ships a starter set:
 
 - `rust-expert` — Rust systems programming
-- `research-expert` — Cognitive science + LLM memory research (Mnemosyne's grounding)
+- `research-expert` — Cognitive science + LLM memory research (Ravel's grounding)
 - `distributed-systems-expert` — CAP, consensus, durability, concurrency patterns
 - `software-architect` — Component boundaries, dependency flow, evolution over time
 - `obsidian-expert` — Vault conventions, Dataview query patterns, plugin ecosystem
 - `ffi-expert` — Cross-language boundaries, lifetime management, callback safety
 
-Users add their own by dropping new declaration files into `<vault>/experts/`. `mnemosyne rescan` picks them up; the daemon bootstraps the corresponding actors on next startup.
+Users add their own by dropping new declaration files into `<vault>/experts/`. `ravel rescan` picks them up; the daemon bootstraps the corresponding actors on next startup.
 
 **Expert internals are sub-N's scope.** F defines the actor interface and reserves the declaration file location; sub-N designs personas, retrieval strategies, curation workflows, and the default set.
 
@@ -605,7 +605,7 @@ The pipeline's other stages (extract, classify, contradict, score) are unchanged
 
 ## Harness adapter layer
 
-Sub-C's harness adapter layer is Mnemosyne's boundary with the outside world of LLM harnesses (Claude Code, Codex, local models). Each adapter encapsulates spawn, PTY lifecycle, stream-json protocol, sentinel detection, and process-group termination.
+Sub-C's harness adapter layer is Ravel's boundary with the outside world of LLM harnesses (Claude Code, Codex, local models). Each adapter encapsulates spawn, PTY lifecycle, stream-json protocol, sentinel detection, and process-group termination.
 
 ### V1 ships one adapter
 
@@ -622,7 +622,7 @@ If `erlexec` works, sub-C's amendment is straightforward. If it doesn't, the fal
 C's adapter serves two kinds of sessions:
 
 - **Plan sessions** — long-running LLM sessions attached to a plan's phase cycle. Visible to users via the TUI.
-- **Internal sessions** — short-lived, fresh-context sessions spawned by Mnemosyne itself for internal reasoning: fact extraction, Level 2 routing, expert consultations, ingestion analysis.
+- **Internal sessions** — short-lived, fresh-context sessions spawned by Ravel itself for internal reasoning: fact extraction, Level 2 routing, expert consultations, ingestion analysis.
 
 Both use the same adapter. Internal sessions have configurable tool profiles at spawn time (read-only vs read-write, restricted filesystem scope, etc.) so they can be sandboxed.
 
@@ -634,13 +634,13 @@ Every adapter emits a `SpawnLatencyReport` via sub-M's observability framework o
 
 ## Vault and filesystem layout
 
-### Mnemosyne-vault
+### Ravel-vault
 
 ```
-<dev-root>/Mnemosyne-vault/
+<dev-root>/Ravel-vault/
 ├── .git/                                 # vault git history
 ├── .obsidian/                            # shipped template
-├── mnemosyne.toml                        # vault identity marker (schema version + overrides)
+├── ravel.toml                        # vault identity marker (schema version + overrides)
 ├── daemon.toml                           # daemon config
 ├── routing.ex                            # user-editable routing rules
 ├── plan-catalog.md                       # auto-generated catalog of plans and experts
@@ -655,8 +655,8 @@ Every adapter emits a `SpawnLatencyReport` via sub-M's observability framework o
 │   ├── research-expert.md
 │   └── ...
 ├── projects/                             # symlinks into project repos
-│   ├── Mnemosyne -> .../Mnemosyne/mnemosyne/
-│   └── APIAnyware-MacOS -> .../APIAnyware-MacOS/mnemosyne/
+│   ├── Ravel -> .../Ravel/ravel/
+│   └── APIAnyware-MacOS -> .../APIAnyware-MacOS/ravel/
 └── runtime/                              # ephemeral, gitignored
     ├── daemon.sock                       # client attach point
     ├── daemon.lock                       # singleton daemon lock
@@ -672,7 +672,7 @@ Every adapter emits a `SpawnLatencyReport` via sub-M's observability framework o
 ```
 <project>/
 ├── .git/                                 # project-owned git history
-└── mnemosyne/                            # Mnemosyne's per-project footprint
+└── ravel/                            # Ravel's per-project footprint
     ├── knowledge/                        # Tier 1 per-project knowledge
     └── project-root/                     # always exactly one; F-reserved name
         ├── plan-state.md
@@ -684,24 +684,24 @@ Every adapter emits a `SpawnLatencyReport` via sub-M's observability framework o
 
 ### Git boundaries
 
-Two git repos are touched by Mnemosyne:
+Two git repos are touched by Ravel:
 
-- **Mnemosyne-vault** — vault-owned. Mnemosyne writes freely: knowledge/, experts/, routing.ex, plan-catalog.md, daemon.toml, mnemosyne.toml. Runtime state is gitignored.
-- **`<project>`** — project-owned. Mnemosyne only writes inside `<project>/mnemosyne/` (the plans tree + Tier 1 knowledge). Never touches `<project>/.git` or source code outside the mnemosyne/ directory.
+- **Ravel-vault** — vault-owned. Ravel writes freely: knowledge/, experts/, routing.ex, plan-catalog.md, daemon.toml, ravel.toml. Runtime state is gitignored.
+- **`<project>`** — project-owned. Ravel only writes inside `<project>/ravel/` (the plans tree + Tier 1 knowledge). Never touches `<project>/.git` or source code outside the ravel/ directory.
 
-Vault symlinks point at `<project>/mnemosyne/` from `<vault>/projects/<name>`. Symlinks themselves are gitignored (per-machine absolute paths); a vault clone rebuilds them on first startup via `mnemosyne rescan`.
+Vault symlinks point at `<project>/ravel/` from `<vault>/projects/<name>`. Symlinks themselves are gitignored (per-machine absolute paths); a vault clone rebuilds them on first startup via `ravel rescan`.
 
 ### Bootstrap
 
-First run of `mnemosyne daemon` against a non-existent vault triggers bootstrap:
+First run of `ravel daemon` against a non-existent vault triggers bootstrap:
 
 1. Create `<vault>/` directory tree.
-2. Write `mnemosyne.toml` with current schema version.
+2. Write `ravel.toml` with current schema version.
 3. Write `.obsidian/` template (required plugins list, default graph settings).
 4. Write empty `daemon.toml` with commented examples.
 5. Write empty `routing.ex` with a single `:no_route` fallback clause.
 6. Create empty `knowledge/`, `experts/`, `projects/`, `runtime/` subdirectories.
-7. Prompt the user to adopt their first project via `mnemosyne adopt-project <path>`.
+7. Prompt the user to adopt their first project via `ravel adopt-project <path>`.
 
 Subsequent runs verify the vault via `verify_vault` — hard-error on schema mismatch, broken symlinks, or invariant violations.
 
@@ -761,22 +761,22 @@ Sub-M's hybrid `:telemetry` + typed struct event architecture.
 
 1. **`:telemetry`** — handles async transport, span propagation, third-party integration. Open-schema events emitted at fine granularity throughout the daemon. Used by metrics exporters, tracing backends, and log aggregators.
 
-2. **Typed Elixir struct events** — exhaustive sealed set of `Mnemosyne.Event.*` structs. Emitted at semantic boundaries (phase transitions, dispatches processed, routing decisions, actor state changes, ingestion events). Exhaustive-match safety for CLI display, Obsidian ingestion, and TUI event rendering.
+2. **Typed Elixir struct events** — exhaustive sealed set of `Ravel.Event.*` structs. Emitted at semantic boundaries (phase transitions, dispatches processed, routing decisions, actor state changes, ingestion events). Exhaustive-match safety for CLI display, Obsidian ingestion, and TUI event rendering.
 
 The typed events are the **boundary** between the daemon and its consumers (TUI, Obsidian, potential future Web UI). The `:telemetry` stream is the **transport** underneath.
 
 ### Event surfaces
 
-- `Mnemosyne.Event.PhaseTransition` — an actor moved from one phase to another
-- `Mnemosyne.Event.MessageRouted` — a message was routed to a target
-- `Mnemosyne.Event.RuleFired` — a declarative rule matched and routed
-- `Mnemosyne.Event.RuleSuggestion` — Level 2 proposed a new rule
-- `Mnemosyne.Event.ActorStateChange` — Dormant/Spawning/Active/Faulted transition
-- `Mnemosyne.Event.HarnessOutput` — streaming output from a session
-- `Mnemosyne.Event.DispatchProcessed` — a dispatch was routed and written
-- `Mnemosyne.Event.QueryAnswered` — a query returned
-- `Mnemosyne.Event.Ingestion.*` — sub-E pipeline events
-- `Mnemosyne.Event.SpawnLatencyReport` — always-on C adapter metrics
+- `Ravel.Event.PhaseTransition` — an actor moved from one phase to another
+- `Ravel.Event.MessageRouted` — a message was routed to a target
+- `Ravel.Event.RuleFired` — a declarative rule matched and routed
+- `Ravel.Event.RuleSuggestion` — Level 2 proposed a new rule
+- `Ravel.Event.ActorStateChange` — Dormant/Spawning/Active/Faulted transition
+- `Ravel.Event.HarnessOutput` — streaming output from a session
+- `Ravel.Event.DispatchProcessed` — a dispatch was routed and written
+- `Ravel.Event.QueryAnswered` — a query returned
+- `Ravel.Event.Ingestion.*` — sub-E pipeline events
+- `Ravel.Event.SpawnLatencyReport` — always-on C adapter metrics
 
 All events are immutable structs; consumers pattern-match on them. The set is closed — adding an event is a code change.
 
@@ -827,7 +827,7 @@ The same instrumentation runs in dev and production. No conditional compilation,
 
 ## Glossary
 
-- **Actor** — a long-lived unit of orchestration with its own state, mailbox, and message handler. Implements `Mnemosyne.Actor` behavior.
+- **Actor** — a long-lived unit of orchestration with its own state, mailbox, and message handler. Implements `Ravel.Actor` behavior.
 - **PlanActor** — an actor that progresses through phases of work toward a goal. Backed by a plan directory containing `plan-state.md`.
 - **ExpertActor** — an actor that consults on a domain using curated knowledge and a persona. Backed by a declaration file at `<vault>/experts/<id>.md`.
 - **Qualified ID** — a path-derived stable identifier of the form `<project>/project-root/<nested-path>` for plans or `expert:<id>` for experts.
@@ -840,7 +840,7 @@ The same instrumentation runs in dev and production. No conditional compilation,
 - **Client** — an external process attached to the daemon over the Unix socket protocol.
 - **Routing module** — the user-editable Elixir module at `<vault>/routing.ex` containing pattern-matched dispatch rules.
 - **Facts** — concern keywords extracted from a message body by the fact-extraction LLM pass, passed as input to routing rules.
-- **Tier 1 knowledge** — per-project knowledge at `<project>/mnemosyne/knowledge/`.
+- **Tier 1 knowledge** — per-project knowledge at `<project>/ravel/knowledge/`.
 - **Tier 2 knowledge** — cross-project knowledge at `<vault>/knowledge/`.
 - **Staging directory** — the pre-rendered plan file tree at `<vault>/runtime/staging/<qualified-id>/<phase>-<ts>/` used by a phase's LLM session.
 - **Fresh context** — an LLM session that starts empty and receives only task-specific input. The opposite of accumulated context.
@@ -853,7 +853,7 @@ The same instrumentation runs in dev and production. No conditional compilation,
 - **Research sources** — [`research-sources.md`](research-sources.md) documents the cognitive science underpinning the fresh-context and memory-evolution decisions.
 - **Knowledge format** — [`knowledge-format.md`](knowledge-format.md) specifies the Markdown + YAML frontmatter conventions for knowledge entries.
 - **Evolution guide** — [`evolution-guide.md`](evolution-guide.md) explains the philosophy and mechanics of knowledge evolution (contradiction, supersession, confidence).
-- **Configuration** — [`configuration.md`](configuration.md) documents `daemon.toml`, `mnemosyne.toml`, and related config files.
+- **Configuration** — [`configuration.md`](configuration.md) documents `daemon.toml`, `ravel.toml`, and related config files.
 - **User guide** — [`user-guide.md`](user-guide.md) walks through daily workflow with the daemon + TUI.
 
 ---

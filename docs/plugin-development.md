@@ -1,6 +1,6 @@
 # Plugin Development Guide
 
-This guide explains how to build a Mnemosyne adapter for a new editor, IDE, or AI tool. The Claude Code adapter is the reference implementation.
+This guide explains how to build a Ravel adapter for a new editor, IDE, or AI tool. The Claude Code adapter is the reference implementation.
 
 ## Contents
 
@@ -18,20 +18,20 @@ This guide explains how to build a Mnemosyne adapter for a new editor, IDE, or A
 
 ## What Adapters Do
 
-An adapter integrates Mnemosyne's global knowledge capabilities into a specific tool's plugin or extension system. The adapter's responsibilities are:
+An adapter integrates Ravel's global knowledge capabilities into a specific tool's plugin or extension system. The adapter's responsibilities are:
 
-1. **Check availability** — determine whether `mnemosyne` is installed before invoking it
-2. **Query on context load** — run `mnemosyne query --context` when the user begins a session, injecting results into the tool's context
-3. **Offer promotion pathways** — when the user records a significant learning, offer to run `mnemosyne promote` to promote it globally
-4. **Surface curation and exploration** — provide user-facing commands that delegate to `mnemosyne curate` and `mnemosyne explore`
-5. **Degrade gracefully** — if `mnemosyne` is not installed, continue working without it; no errors, no warnings to the user
+1. **Check availability** — determine whether `ravel` is installed before invoking it
+2. **Query on context load** — run `ravel query --context` when the user begins a session, injecting results into the tool's context
+3. **Offer promotion pathways** — when the user records a significant learning, offer to run `ravel promote` to promote it globally
+4. **Surface curation and exploration** — provide user-facing commands that delegate to `ravel curate` and `ravel explore`
+5. **Degrade gracefully** — if `ravel` is not installed, continue working without it; no errors, no warnings to the user
 
 What adapters do NOT do:
 - Manage the knowledge store directly (that is the CLI's job)
 - Implement their own knowledge format parsers
-- Call the Mnemosyne library (Rust crate) directly — only the CLI binary
+- Call the Ravel library (Rust crate) directly — only the CLI binary
 
-All adapter-to-Mnemosyne communication is through the CLI's stdout.
+All adapter-to-Ravel communication is through the CLI's stdout.
 
 ---
 
@@ -41,11 +41,11 @@ The CLI is the sole interface between adapters and the knowledge store. Relevant
 
 | Command | Output | Use case |
 |---------|--------|---------|
-| `mnemosyne query [terms] [--context] [--format F] [--max-tokens N]` | Formatted knowledge | Context loading at session start |
-| `mnemosyne promote [--tags T] [--origin P]` | Interactive session | Global promotion after per-project promotion |
-| `mnemosyne status` | Summary text | Dashboard display or health check |
-| `mnemosyne curate` | Interactive session | User-initiated curation |
-| `mnemosyne explore` | Interactive session | User-initiated exploration |
+| `ravel query [terms] [--context] [--format F] [--max-tokens N]` | Formatted knowledge | Context loading at session start |
+| `ravel promote [--tags T] [--origin P]` | Interactive session | Global promotion after per-project promotion |
+| `ravel status` | Summary text | Dashboard display or health check |
+| `ravel curate` | Interactive session | User-initiated curation |
+| `ravel explore` | Interactive session | User-initiated exploration |
 
 The CLI writes results to stdout. Interactive sessions (`promote`, `curate`, `explore`) read from stdin and write prompts to stdout — they require a connected terminal.
 
@@ -53,7 +53,7 @@ The CLI writes results to stdout. Interactive sessions (`promote`, `curate`, `ex
 
 ## The Graceful Degradation Pattern
 
-Every adapter must implement graceful degradation: all Mnemosyne-dependent features must be silently skipped if the CLI is not installed.
+Every adapter must implement graceful degradation: all Ravel-dependent features must be silently skipped if the CLI is not installed.
 
 ### Availability Check
 
@@ -61,22 +61,22 @@ Check for the CLI binary before any invocation:
 
 **Shell (bash/zsh):**
 ```bash
-if command -v mnemosyne > /dev/null 2>&1; then
-    # mnemosyne is available
+if command -v ravel > /dev/null 2>&1; then
+    # ravel is available
 fi
 ```
 
 **In a Claude Code skill (Markdown):**
 ```markdown
-Check whether `mnemosyne` is installed:
+Check whether `ravel` is installed:
 
 ```bash
-which mnemosyne
+which ravel
 ```
 
 If found, run:
 ```bash
-mnemosyne query --context --format markdown
+ravel query --context --format markdown
 ```
 
 If the command fails or produces no output, skip silently.
@@ -86,9 +86,9 @@ If the command fails or produces no output, skip silently.
 ```typescript
 import { execSync } from 'child_process';
 
-function isMnemosyneAvailable(): boolean {
+function isRavelAvailable(): boolean {
   try {
-    execSync('which mnemosyne', { stdio: 'pipe' });
+    execSync('which ravel', { stdio: 'pipe' });
     return true;
   } catch {
     return false;
@@ -100,18 +100,18 @@ function isMnemosyneAvailable(): boolean {
 ```python
 import shutil
 
-def is_mnemosyne_available() -> bool:
-    return shutil.which('mnemosyne') is not None
+def is_ravel_available() -> bool:
+    return shutil.which('ravel') is not None
 ```
 
 ### What "Graceful" Means
 
-- Do not show error messages, warnings, or "Mnemosyne not found" notices to the user
-- Do not change the layout of your plugin's output based on Mnemosyne's absence
-- Simply omit the sections that Mnemosyne would have populated
-- Do not retry, poll, or cache the availability check for the session (re-check on each invocation — the user may install Mnemosyne mid-session)
+- Do not show error messages, warnings, or "Ravel not found" notices to the user
+- Do not change the layout of your plugin's output based on Ravel's absence
+- Simply omit the sections that Ravel would have populated
+- Do not retry, poll, or cache the availability check for the session (re-check on each invocation — the user may install Ravel mid-session)
 
-The rationale: users who have not installed Mnemosyne should get a seamless experience with the per-project features, not constant reminders about a tool they may not want.
+The rationale: users who have not installed Ravel should get a seamless experience with the per-project features, not constant reminders about a tool they may not want.
 
 ---
 
@@ -123,12 +123,12 @@ The CLI uses the working directory for context detection (`query --context`). Al
 
 **Shell:**
 ```bash
-cd /path/to/project && mnemosyne query --context --format markdown
+cd /path/to/project && ravel query --context --format markdown
 ```
 
 **Node.js:**
 ```typescript
-const result = execSync('mnemosyne query --context --format markdown', {
+const result = execSync('ravel query --context --format markdown', {
   cwd: projectRoot,
   encoding: 'utf8'
 });
@@ -138,7 +138,7 @@ const result = execSync('mnemosyne query --context --format markdown', {
 ```python
 import subprocess
 result = subprocess.run(
-    ['mnemosyne', 'query', '--context', '--format', 'markdown'],
+    ['ravel', 'query', '--context', '--format', 'markdown'],
     cwd=project_root,
     capture_output=True,
     text=True
@@ -151,10 +151,10 @@ CLI invocations may fail for various reasons (misconfigured store, empty knowled
 
 ```typescript
 function queryGlobalKnowledge(projectRoot: string): string | null {
-  if (!isMnemosyneAvailable()) return null;
+  if (!isRavelAvailable()) return null;
   try {
     const output = execSync(
-      'mnemosyne query --context --format markdown',
+      'ravel query --context --format markdown',
       { cwd: projectRoot, encoding: 'utf8', timeout: 5000 }
     );
     return output.trim() || null;
@@ -186,7 +186,7 @@ Load global knowledge:
 Use `--max-tokens` to keep the injection size within the LLM's context window budget:
 
 ```bash
-mnemosyne query --context --format markdown --max-tokens 4000
+ravel query --context --format markdown --max-tokens 4000
 ```
 
 The CLI approximates 500 tokens per result and limits accordingly. Adjust the budget based on:
@@ -203,7 +203,7 @@ When injecting into an LLM context, wrap the output in a clear section heading s
 ```markdown
 ### Global knowledge loaded
 
-<mnemosyne query output here>
+<ravel query output here>
 ```
 
 If the query returns no results or fails, omit the section entirely.
@@ -256,7 +256,7 @@ title: Rust Async Channel Patterns | confidence: high | tags: rust, async, tokio
 
 ## Installing an Adapter
 
-When a user runs `mnemosyne install <adapter-name>`, the CLI copies the adapter's files from the repository's `adapters/<adapter-name>/` directory to the tool-specific location.
+When a user runs `ravel install <adapter-name>`, the CLI copies the adapter's files from the repository's `adapters/<adapter-name>/` directory to the tool-specific location.
 
 ### Registering Your Adapter
 
@@ -266,7 +266,7 @@ To register a new adapter with the CLI's `install` command, add a match arm in `
 "your-tool" => {
     let plugin_target = dirs::home_dir()
         .expect("Could not determine home directory")
-        .join(".your-tool/plugins/mnemosyne");
+        .join(".your-tool/plugins/ravel");
 
     let exe_dir = std::env::current_exe()
         .ok()
@@ -281,11 +281,11 @@ To register a new adapter with the CLI's `install` command, add a match arm in `
         .flatten()
         .find(|p| p.exists())
         .ok_or_else(|| anyhow::anyhow!(
-            "Could not find adapter files. Run from the Mnemosyne repo directory."
+            "Could not find adapter files. Run from the Ravel repo directory."
         ))?;
 
     commands::install::run_install_claude_code(source, &plugin_target)?;
-    println!("✓ Mnemosyne adapter installed to {}", plugin_target.display());
+    println!("✓ Ravel adapter installed to {}", plugin_target.display());
 }
 ```
 
@@ -297,32 +297,32 @@ The `run_install_claude_code` function performs a recursive directory copy; it w
 
 Here is a complete example of a minimal adapter for a hypothetical tool that supports Markdown-based skills.
 
-### Skill: `mnemosyne-context.md`
+### Skill: `ravel-context.md`
 
 This skill queries global knowledge and injects it into the session:
 
 ```markdown
 ---
-name: mnemosyne-context
-description: Load relevant global knowledge from Mnemosyne. Usage: /mnemosyne-context
+name: ravel-context
+description: Load relevant global knowledge from Ravel. Usage: /ravel-context
 ---
 
-Load global knowledge from Mnemosyne if available.
+Load global knowledge from Ravel if available.
 
 ## Check availability
 
 ```bash
-which mnemosyne
+which ravel
 ```
 
-If mnemosyne is not installed, skip this skill entirely — do not report any errors.
+If ravel is not installed, skip this skill entirely — do not report any errors.
 
 ## Query global knowledge
 
 Run in the current project directory:
 
 ```bash
-mnemosyne query --context --format markdown --max-tokens 4000
+ravel query --context --format markdown --max-tokens 4000
 ```
 
 ## Present results
@@ -331,31 +331,31 @@ If the command succeeds and produces output, display it under the heading:
 
 ### Global knowledge loaded
 
-<output from mnemosyne query>
+<output from ravel query>
 
 If the command fails or produces no output, omit the section entirely.
 ```
 
-### Skill: `mnemosyne-promote.md`
+### Skill: `ravel-promote.md`
 
 This skill promotes a learning to global:
 
 ```markdown
 ---
-name: mnemosyne-promote
-description: Promote a learning to Mnemosyne global knowledge. Usage: /mnemosyne-promote
+name: ravel-promote
+description: Promote a learning to Ravel global knowledge. Usage: /ravel-promote
 ---
 
-Promote the most recent significant learning to Mnemosyne global knowledge.
+Promote the most recent significant learning to Ravel global knowledge.
 
 ## Check availability
 
 ```bash
-which mnemosyne
+which ravel
 ```
 
-If mnemosyne is not installed, inform the user that global promotion requires
-the Mnemosyne CLI and stop.
+If ravel is not installed, inform the user that global promotion requires
+the Ravel CLI and stop.
 
 ## Prepare for promotion
 
@@ -366,7 +366,7 @@ Ask the user:
 ## Run promotion
 
 ```bash
-mnemosyne promote --tags <tags> --origin <project-name>
+ravel promote --tags <tags> --origin <project-name>
 ```
 
 This starts an interactive session. The CLI will prompt for the title and
@@ -384,25 +384,25 @@ adapters/
 └── your-tool/
     ├── plugin.json           # Adapter metadata (name, version, description)
     ├── skills/               # Slash commands or equivalent
-    │   ├── mnemosyne-context.md
-    │   ├── mnemosyne-promote.md
-    │   ├── mnemosyne-curate.md
-    │   └── mnemosyne-explore.md
+    │   ├── ravel-context.md
+    │   ├── ravel-promote.md
+    │   ├── ravel-curate.md
+    │   └── ravel-explore.md
     └── references/           # Context documents
-        └── mnemosyne-guide.md
+        └── ravel-guide.md
 ```
 
 ### `plugin.json`
 
 ```json
 {
-  "name": "mnemosyne-your-tool",
+  "name": "ravel-your-tool",
   "version": "0.1.0",
-  "description": "Mnemosyne global knowledge integration for your-tool",
+  "description": "Ravel global knowledge integration for your-tool",
   "author": "Your Name"
 }
 ```
 
-### `references/mnemosyne-guide.md`
+### `references/ravel-guide.md`
 
 A brief guide explaining the two-tier model, the knowledge format, and how to use the skills. This is injected as a reference document (read once per session or on demand, not on every message). See `adapters/claude-code/references/global-knowledge-guide.md` for the reference implementation.

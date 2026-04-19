@@ -1,6 +1,6 @@
 # Evaluation Strategy
 
-This document describes how to evaluate whether Mnemosyne works — not just whether the code runs correctly, but whether the system achieves its purpose: enabling AI assistants to accumulate expertise that transfers across projects and improves over time.
+This document describes how to evaluate whether Ravel works — not just whether the code runs correctly, but whether the system achieves its purpose: enabling AI assistants to accumulate expertise that transfers across projects and improves over time.
 
 ## Contents
 
@@ -28,7 +28,7 @@ This document describes how to evaluate whether Mnemosyne works — not just whe
 
 ## The Evaluation Problem
 
-Mnemosyne occupies an unusual position for evaluation. It is not a compiler (where correctness is binary), not a web service (where latency and throughput provide clear signals), and not an ML model (where a loss function drives optimisation). It is a knowledge management system whose value is measured in how well an AI assistant performs *over time* and *across projects* — a deeply qualitative, longitudinal outcome.
+Ravel occupies an unusual position for evaluation. It is not a compiler (where correctness is binary), not a web service (where latency and throughput provide clear signals), and not an ML model (where a loss function drives optimisation). It is a knowledge management system whose value is measured in how well an AI assistant performs *over time* and *across projects* — a deeply qualitative, longitudinal outcome.
 
 This creates a fundamental tension. The system's purpose is to replicate how senior developers accumulate expertise: through contradiction resolution, belief revision, and reflective practice. But the outcome of expertise — better judgement, fewer mistakes, richer contextual awareness — resists simple quantification. A developer who avoids a concurrency pitfall because they recall a lesson from a previous project has benefited from their knowledge system, but that benefit is visible only as the absence of an error.
 
@@ -44,7 +44,7 @@ Information retrieval research draws a foundational distinction between two eval
 
 **Extrinsic evaluation** measures whether users (or AI agents) accomplish their goals more effectively with the system than without it. This is what ultimately matters, but it is expensive, noisy, and confounded by many variables.
 
-Most retrieval systems settle for intrinsic evaluation because extrinsic evaluation is prohibitively expensive. Mnemosyne's entire value proposition, however, is extrinsic: the system succeeds only if the knowledge it manages actually helps. The evaluation strategy must therefore include both — intrinsic evaluation for rapid, rigorous feedback on components, and extrinsic evaluation for periodic validation that the system delivers on its promise.
+Most retrieval systems settle for intrinsic evaluation because extrinsic evaluation is prohibitively expensive. Ravel's entire value proposition, however, is extrinsic: the system succeeds only if the knowledge it manages actually helps. The evaluation strategy must therefore include both — intrinsic evaluation for rapid, rigorous feedback on components, and extrinsic evaluation for periodic validation that the system delivers on its promise.
 
 ---
 
@@ -90,7 +90,7 @@ This tier requires human judgement or LLM-based proxy judgement (see [LLM-as-Jud
 
 ### Tier 3: Downstream Impact
 
-**What it validates:** The system's actual purpose — whether AI assistants that use Mnemosyne produce better outcomes than those that don't.
+**What it validates:** The system's actual purpose — whether AI assistants that use Ravel produce better outcomes than those that don't.
 
 **Why this is hardest:** The benefit of accumulated knowledge is diffuse and longitudinal. It manifests as:
 
@@ -103,7 +103,7 @@ Each of these is real but hard to isolate from confounding variables (the qualit
 
 **Key questions this tier answers:**
 
-- Does a Claude Code session *with* Mnemosyne produce measurably better outcomes than *without*?
+- Does a Claude Code session *with* Ravel produce measurably better outcomes than *without*?
 - Does knowledge accumulate correctly over multiple simulated sessions?
 - Does cross-project knowledge transfer actually help on new tasks?
 - Does the system's value compound over time (more knowledge → better outcomes → more valuable knowledge)?
@@ -250,7 +250,7 @@ actionability:
 
 ### Multi-Session Simulation
 
-To evaluate whether knowledge accumulates correctly over time, simulate the multi-session workflow that Mnemosyne is designed to support.
+To evaluate whether knowledge accumulates correctly over time, simulate the multi-session workflow that Ravel is designed to support.
 
 **Simulation structure:**
 
@@ -284,12 +284,12 @@ Session 3: Curation
 
 ### A/B Experimental Design
 
-The gold standard for Tier 3 evaluation: does Mnemosyne actually help?
+The gold standard for Tier 3 evaluation: does Ravel actually help?
 
 **Design:**
 
 1. Define a set of coding tasks that exercise cross-project knowledge (e.g., "set up a connection pool in a new Rust project" when the knowledge base contains entries about connection pool pitfalls from a Python project).
-2. Run each task twice: once with Mnemosyne providing context (treatment), once without (control).
+2. Run each task twice: once with Ravel providing context (treatment), once without (control).
 3. Evaluate outcomes on:
    - Task completion (did the agent finish?)
    - Error presence (did the agent make the known pitfall error?)
@@ -298,7 +298,7 @@ The gold standard for Tier 3 evaluation: does Mnemosyne actually help?
 
 **Controls:**
 
-- Same LLM, same temperature, same system prompt (except Mnemosyne context injection)
+- Same LLM, same temperature, same system prompt (except Ravel context injection)
 - Multiple runs per condition to account for LLM non-determinism
 - Task difficulty should be calibrated so that the control condition sometimes fails — if both conditions always succeed, you cannot detect a difference
 
@@ -312,7 +312,7 @@ The gold standard for Tier 3 evaluation: does Mnemosyne actually help?
 
 ## Connecting Evaluation to Theory
 
-Mnemosyne's design is grounded in cognitive science (see `research-sources.md`). Each theoretical foundation implies specific testable properties:
+Ravel's design is grounded in cognitive science (see `research-sources.md`). Each theoretical foundation implies specific testable properties:
 
 ### Tulving's Episodic-Semantic Distinction
 
@@ -374,7 +374,7 @@ Mnemosyne's design is grounded in cognitive science (see `research-sources.md`).
 
 The contradiction F1 of 0.667 at the default threshold of 0.50 matches the designed expectation (3 true positives, 3 false positives from tag-overlapping non-contradictions, 0 false negatives). The threshold sweep shows F1 peaks at 0.30–0.50 and precision reaches 1.0 at threshold 0.65 at the cost of recall (0.33).
 
-**Known limitation:** The `context` field on queries (used by q06, q10, q18) is parsed but not passed to the search function, because the `Query` struct in the mnemosyne library does not yet support context-filtered search. This means the benchmark does not currently test context-aware retrieval. When the library adds a context field to `Query`, the harness will need to be updated.
+**Known limitation:** The `context` field on queries (used by q06, q10, q18) is parsed but not passed to the search function, because the `Query` struct in the ravel library does not yet support context-filtered search. This means the benchmark does not currently test context-aware retrieval. When the library adds a context field to `Query`, the harness will need to be updated.
 
 **Usage:**
 
@@ -438,13 +438,13 @@ PYTHONPATH=../.. python3 -m pytest tests/ -v    # 5 tests
 
 ### Phase 4: Controlled Impact Experiments — TODO
 
-**Goal:** Demonstrate that Mnemosyne measurably improves AI assistant outcomes.
+**Goal:** Demonstrate that Ravel measurably improves AI assistant outcomes.
 
 **Deliverables:**
 - A set of 5-10 coding tasks with known pitfalls that cross-project knowledge could prevent
-- An A/B harness that runs tasks with and without Mnemosyne context
+- An A/B harness that runs tasks with and without Ravel context
 - Statistical analysis of effect sizes across conditions
-- A report documenting the conditions under which Mnemosyne helps (and doesn't)
+- A report documenting the conditions under which Ravel helps (and doesn't)
 
 **Open design questions:**
 - Task design — what pitfalls are concrete enough to test but general enough to matter?

@@ -1,4 +1,4 @@
-# Mnemosyne -- Next Steps
+# Ravel -- Next Steps
 
 Actionable tasks with Claude Code prompts. Each task is self-contained.
 
@@ -52,7 +52,7 @@ Run the eval quality harness against my live knowledge store to score the
 prospective entries created by horizon scanning:
 
   cd eval/quality
-  PYTHONPATH=../.. python3 -m eval.quality.src.__main__ --store ~/.mnemosyne/knowledge/ --single-pass --verbose
+  PYTHONPATH=../.. python3 -m eval.quality.src.__main__ --store ~/.ravel/knowledge/ --single-pass --verbose
 
 Check that the new horizon_relevance dimension appears for prospective entries
 and that scores are reasonable (3+ on all dimensions). If any entries score
@@ -62,14 +62,14 @@ adapters/claude-code/skills/explore-knowledge.md.
 
 ---
 
-## 4. Add a `--tags` flag to `mnemosyne query`
+## 4. Add a `--tags` flag to `ravel query`
 
-The CLI currently supports term-based search and `--context` auto-detection, but has no way to query by explicit tags from the command line. The horizon-scanning skill spec references `mnemosyne query --tags <area_tags> --format json` which does not exist yet. Adding this would also be useful for scripting and other adapters.
+The CLI currently supports term-based search and `--context` auto-detection, but has no way to query by explicit tags from the command line. The horizon-scanning skill spec references `ravel query --tags <area_tags> --format json` which does not exist yet. Adding this would also be useful for scripting and other adapters.
 
 ### Prompt
 
 ```
-Add a --tags flag to the mnemosyne query command. It should accept a comma-separated
+Add a --tags flag to the ravel query command. It should accept a comma-separated
 list of tags and use them for tag-based retrieval (same as the context path but with
 explicitly provided tags instead of auto-detected ones). --tags and --context should
 be mutually exclusive. Update the CLI Reference doc at docs/reference.md to document
@@ -90,7 +90,7 @@ See the Phase 3 intent section in the [evaluation framework spec](docs/superpowe
 ### Prompt
 
 ```
-Design and implement the Phase 3 multi-session simulation for the Mnemosyne
+Design and implement the Phase 3 multi-session simulation for the Ravel
 evaluation framework. The intent is described in Section 5.1 of
 docs/superpowers/specs/2026-04-01-evaluation-framework-design.md.
 
@@ -106,14 +106,14 @@ Then write an implementation plan and execute it.
 
 ## 6. Evaluation Phase 4: Controlled impact experiments
 
-A/B experimental harness demonstrating that Mnemosyne measurably improves AI assistant outcomes on coding tasks. Requires task design, sample size planning, and cost management for multi-run API experiments.
+A/B experimental harness demonstrating that Ravel measurably improves AI assistant outcomes on coding tasks. Requires task design, sample size planning, and cost management for multi-run API experiments.
 
 See the Phase 4 intent section in the same spec.
 
 ### Prompt
 
 ```
-Design the Phase 4 controlled impact experiment for the Mnemosyne evaluation
+Design the Phase 4 controlled impact experiment for the Ravel evaluation
 framework. The intent is described in Section 5.2 of
 docs/superpowers/specs/2026-04-01-evaluation-framework-design.md.
 
@@ -178,9 +178,9 @@ The CLI defines `--version` implicitly via clap but does not include a version s
 ### Prompt
 
 ```
-Add version output to the mnemosyne CLI. Update the #[command] attribute in
+Add version output to the ravel CLI. Update the #[command] attribute in
 src/main.rs to include version = env!("CARGO_PKG_VERSION"). Verify that
-`cargo run -- --version` prints "mnemosyne 0.1.0". Update the user guide
+`cargo run -- --version` prints "ravel 0.1.0". Update the user guide
 prerequisites section if needed.
 ```
 
@@ -193,7 +193,7 @@ Once the core is stable and horizon scanning is implemented.
 ### Prompt
 
 ```
-Prepare Mnemosyne for publishing to crates.io:
+Prepare Ravel for publishing to crates.io:
 1. Review Cargo.toml metadata (description, repository, homepage, keywords, categories)
 2. Ensure all public API items have doc comments
 3. Add a lib-level doc comment with examples
