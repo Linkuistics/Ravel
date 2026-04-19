@@ -5,7 +5,7 @@ defmodule BeamPty.Sentinel do
   so a sentinel straddling two or more chunks is still detected.
 
   The buffer never grows unboundedly: after each feed, everything older than
-  the sentinel window is discarded. This is load-bearing for Mnemosyne's
+  the sentinel window is discarded. This is load-bearing for Ravel's
   phase-cycle: assistant sessions can emit megabytes of text, and the
   detector must run the whole lifetime of the session without retaining
   the stream.
