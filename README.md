@@ -238,26 +238,23 @@ Multiple Mnemosyne daemons on different machines communicate via BEAM's native d
 
 - Persistent Elixir daemon with OTP supervision
 - PlanActor (wraps sub-B's four-phase cycle)
-- ExpertActor stub (real implementation from sub-N)
+- ExpertActor with full implementation (sub-N): personas, retrieval strategies, curation integration, default expert set
 - Dispatch + Query message types, full audit trail
 - Plan hierarchy with `project-root` convention and path-based qualified IDs
 - Declarative routing (pattern-matched Elixir + hot reload) with Level 2 LLM fallback
 - User-editable `routing.ex` with rule suggestion learning loop
 - Vault discovery, identity marker, adopt-project command
-- Claude Code harness adapter (sub-C)
+- Claude Code harness adapter with per-actor model selection (sub-C)
 - Post-session knowledge ingestion pipeline (sub-E)
+- Knowledge ontology for tag-vocabulary consistency (sub-R)
 - Rust TUI client (ratatui) over Unix socket NDJSON protocol
 - Obsidian-native vault format with plan catalog
 - Observability via `:telemetry` + typed Elixir struct events (sub-M)
 
-### V1.5 — richer experts, more models
+### V2 — richer models, collaboration, and scale
 
-- **Sub-N (domain experts)**: full ExpertActor implementation with personas, retrieval strategies, curation integration, default expert set
-- **Sub-O (mixture of models)**: multi-adapter harness layer, per-actor model selection, local-model adapters, cost telemetry
-- **Sub-K (Obsidian plugin)**: alternative daemon client with first-class Obsidian integration
-
-### V2+ — collaboration and scale
-
+- **Sub-O (mixture of models)**: multi-adapter harness layer, local-model adapters (Ollama, llama.cpp), cost telemetry
+- **Sub-Q (vector-store infrastructure)**: shared daemon service for semantic retrieval across experts, plans, and ingestion
 - **Sub-P (team mode)**: multi-daemon transport, peer discovery, cross-daemon auth, shared-vault conflict resolution, distributed experts
 - **Joint brainstorm sessions**: multi-actor shared-context reasoning for architectural discussions
 - **Gleam migration** (if needed): static typing for invariant preservation, new sub-projects written alongside Elixir core
@@ -270,7 +267,7 @@ Multiple Mnemosyne daemons on different machines communicate via BEAM's native d
 | **TUI client** | Rust | `ratatui` + `tokio` + `serde_json` |
 | **Knowledge format** | — | Markdown + YAML frontmatter (Obsidian-native) |
 | **Vault** | — | Git-backed Obsidian vault |
-| **Rule engine** | Elixir | pattern-matched `defp` + hot code reload |
+| **Rule engine** | Elixir | purpose-built Datalog (sub-R) + hot fact-base reload |
 | **Harness adapter** | Elixir | `erlexec` for PTY (sub-C, pending BEAM spike) |
 | **Integration boundary** | — | Unix socket + NDJSON (protocol frozen early) |
 
@@ -329,9 +326,10 @@ Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/spec
 | M (observability) | design complete (pending F amendment) | `2026-04-13-sub-M-observability-design.md` |
 | N (domain experts) | design complete | `2026-04-15-sub-N-domain-experts-design.md` |
 | I (Obsidian coverage) | design complete | `2026-04-16-sub-I-obsidian-coverage-design.md` |
-| L (terminal spike) | design pending | — |
-| O (mixture of models) | reserved for v1.5+ | — |
-| P (team mode) | reserved for v2+ | — |
+| R (knowledge ontology) | design complete | `2026-04-16-sub-R-knowledge-ontology-design.md` |
+| O (mixture of models) | reserved for v2 | — |
+| Q (vector-store infrastructure) | reserved for v2 | — |
+| P (team mode) | reserved for v2 | — |
 
 The comprehensive architectural overview is in [`docs/architecture.md`](docs/architecture.md). Research sources grounding the design are in [`docs/research-sources.md`](docs/research-sources.md).
 

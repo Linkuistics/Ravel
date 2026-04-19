@@ -6,7 +6,7 @@
 
 **Parent plan:** `LLM_STATE/mnemosyne-orchestrator/`
 
-**Primary dependencies:** sub-A (vault layout, init scaffolding, git-tracking policy), sub-F (plan-catalog.md, plan-state.md frontmatter schema, NDJSON event types), sub-N (expert declaration format, default expert set), sub-E (knowledge entry format, Stage 5 output), sub-B (phase cycle frontmatter fields), sub-H (command palette — TUI-native, not Obsidian-surfaced in v1).
+**Primary dependencies:** sub-A (vault layout, init scaffolding, git-tracking policy), sub-F (plan-catalog.md, plan-state.md frontmatter schema, NDJSON event types), sub-N (expert declaration format, default expert set), sub-E (knowledge entry format, Stage 5 output), sub-B (phase cycle frontmatter fields), sub-H (command palette — TUI-native, not Obsidian-surfaced in v1), sub-R (knowledge ontology — auto-generated Markdown views from Datalog fact base).
 
 ---
 
@@ -54,8 +54,8 @@ Templater for correct file creation.
 
 - Graph view configuration (not useful in practice; plan hierarchy is
   a filesystem tree that Obsidian's file explorer already shows)
-- CSS snippets (non-markdown files like `.toml` and `.ex` render as
-  plain text in Obsidian's editor; no CSS snippet can add syntax
+- CSS snippets (non-markdown files like `.toml`, `.ex`, and `.dl` render
+  as plain text in Obsidian's editor; no CSS snippet can add syntax
   highlighting to them; users who need code intelligence edit in their
   IDE)
 - Custom dashboard note (plan-catalog.md is the homepage; no separate
@@ -78,6 +78,11 @@ Templater for correct file creation.
 | `experts/*.md` | Markdown + YAML frontmatter | Full rendering. Frontmatter visible in reading mode properties view. Dataview-queryable. Tags panel indexes expert tags. Search indexes persona body. | User-editable; Templater template for creation |
 | `knowledge/` (Tier 2) | Markdown + YAML frontmatter | Full rendering. Dataview-queryable by tags, date, provenance. Backlinks show cross-references. Tags panel for navigation. | Expert-owned writes; human review/edit/reject |
 | `archive/` | Mixed (session artifacts) | File tree browse + git history. Not Dataview-queryable unless entries have markdown with frontmatter. | Audit trail — browse, don't query |
+| `ontology/*.dl` | Datalog source | Plain text editing. No syntax highlighting for `.dl` — same situation as `.toml` and `.ex`. Obsidian is the browser; users who need code intelligence for complex edits use their IDE. | User-edited; Sub-R fact base |
+| `ontology/views/tag-index.md` | Markdown + YAML frontmatter | Full rendering — headings, wikilinks to expert declarations, kebab-case tag display. Frontmatter: `generated: true`, `generator: mnemosyne-ontology`. Dataview-queryable. | Machine-owned, auto-generated from Datalog fact base. Never hand-edited. |
+| `ontology/views/taxonomy.md` | Markdown + YAML frontmatter | Full rendering — hierarchy as indented tree. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
+| `ontology/views/relations.md` | Markdown + YAML frontmatter | Full rendering — typed relations as tables. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
+| `ontology/views/routing-rules.md` | Markdown + YAML frontmatter | Full rendering — current routing rules in human-readable form, plus pending proposals. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
 | `.obsidian/` | JSON/CSS config | Not user-browsed — Obsidian's own settings UI is the interface. | Template is the deliverable |
 
 ### §2.2 Per-project surfaces (via `<vault>/projects/<name>` symlinks)
@@ -417,9 +422,10 @@ Complete init-time file set:
 ### §6.4 CSS snippets
 
 Zero shipped. Non-markdown files (`mnemosyne.toml`, `daemon.toml`,
-`routing.ex`) render as plain text in Obsidian's editor — no CSS snippet
-can add syntax highlighting to non-markdown files. Users who need code
-intelligence for `routing.ex` edit in their IDE.
+`routing.ex`, `ontology/*.dl`) render as plain text in Obsidian's
+editor — no CSS snippet can add syntax highlighting to non-markdown
+files. Users who need code intelligence for `routing.ex` or Datalog
+source files edit in their IDE.
 
 ---
 
@@ -461,9 +467,11 @@ Obsidian:
    (for a fresh vault) zero plan entries. Expected — the vault is empty
    until the user adopts projects.
 3. **File tree shows vault structure.** User sees: `archive/`,
-   `experts/`, `knowledge/`, `templates/`, `views/`, plus root-level
-   `.toml` and `.ex` files. `projects/` appears empty (no symlinks yet).
-   `runtime/` appears only if the daemon is running.
+   `experts/`, `knowledge/`, `ontology/`, `templates/`, `views/`, plus
+   root-level `.toml` and `.ex` files. `projects/` appears empty (no
+   symlinks yet). `runtime/` appears only if the daemon is running.
+   `ontology/views/` populates with auto-generated Markdown views once
+   the ontology system has run.
 4. **User explores `views/`.** Four starter queries visible. Opening any
    view shows a Dataview table — empty on first open, but query structure
    visible and will populate as projects are adopted and experts arrive.
@@ -516,6 +524,23 @@ confirmations of existing commitments.
 
 - **No impact.** `templates/` and `views/` live in the vault, not in
   project repos. Unaffected by G's Phase 1 rename.
+
+### On Sub-R (knowledge ontology)
+
+- **Auto-generated views use Dataview-friendly frontmatter.** All four
+  Markdown views in `ontology/views/` must include YAML frontmatter with
+  `generated: true` and `generator: mnemosyne-ontology`. This allows
+  Dataview queries to distinguish auto-generated ontology views from
+  human-authored content, and signals to users that the files are
+  machine-owned.
+- **Wikilinks in `tag-index.md` target expert declarations.** The tag
+  index uses `[[expert-name]]` wikilinks pointing to files in `experts/`.
+  Sub-R must use the same filenames that Sub-N's `DeclarationLoader`
+  expects (kebab-case `.md` files in `experts/`).
+- **`ontology/views/` directory convention.** Sub-R writes its generated
+  views to `<vault>/ontology/views/`, not to the human-owned
+  `<vault>/views/` directory. This separation prevents auto-generation
+  from overwriting user-authored Dataview queries.
 
 ### On Sub-E (ingestion)
 
@@ -607,3 +632,23 @@ static content with dynamic Dataview), satellite `views/` directory
 Plan-catalog.md stays machine-owned static text (consumed by LLM phases
 via `{{VAULT_CATALOG}}`). View files are starter material, not
 machine-managed.
+
+### Q6. How should Sub-R's ontology views appear in the data-surface inventory?
+
+**Context:** Sub-R (knowledge ontology) generates four Markdown views
+from its Datalog fact base, written to `<vault>/ontology/views/`. These
+are auto-generated like `plan-catalog.md` — never hand-edited. The
+`.dl` source files in `<vault>/ontology/` are also vault-visible but
+render as plain text (no Datalog syntax highlighting in Obsidian).
+
+**Decision (amendment, 2026-04-16):** Add six new rows to §2.1:
+`ontology/*.dl` (plain text, same treatment as `.toml`/`.ex`) and the
+four generated views (`tag-index.md`, `taxonomy.md`, `relations.md`,
+`routing-rules.md`). The views use Obsidian features effectively:
+wikilinks to expert declarations for navigation, Dataview-friendly
+YAML frontmatter (`generated: true`, `generator: mnemosyne-ontology`),
+and kebab-case tag display. They live in `ontology/views/` rather than
+the human-owned `views/` directory to prevent auto-generation from
+overwriting user content. No new plugins required — existing Dataview
+and core rendering cover all ontology surfaces. Added Sub-R as a
+primary dependency and a cross-sub-project requirement in §9.

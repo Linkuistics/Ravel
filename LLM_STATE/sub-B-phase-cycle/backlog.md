@@ -325,6 +325,54 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   descriptions**; the follow-up gate task ("Rewrite downstream
   implementation tasks") is the next thing to land.
 
+### Adopt sub-R `{{ONTOLOGY_CONTEXT}}` passive placeholder in `StagingDirectory.render` `[substitution]` `[amendment]`
+- **Status:** not_started
+- **Dependencies:** none (feeds into "Implement placeholder substitution algorithm" and "Implement `StagingDirectory::render`" before those tasks start)
+- **Description:** Sub-R (knowledge ontology) brainstorm (2026-04-16) introduced
+  `{{ONTOLOGY_CONTEXT}}` as a new passive placeholder injected into LLM sessions at
+  staging-render time. Sub-B owns all placeholder substitution logic and
+  `StagingDirectory.render/4`; this amendment captures sub-B's share of the
+  adoption contract.
+
+  **The requirement:** When `StagingDirectory.render/4` renders a staging directory,
+  substitute `{{ONTOLOGY_CONTEXT}}` with a compact, LLM-readable summary of the
+  vault's loaded ontology — tag hierarchy and synonym sets. The source is the
+  `<vault>/ontology/` directory. If that directory is absent or empty (ontology not
+  yet initialised), substitute an empty string. **No hard error** on missing
+  ontology — it is an optional v1 surface that may not be present at plan-creation
+  time. The active half (`ontology.query` LLM tool) is sub-R's own implementation
+  concern; sub-B only handles the passive read-and-format side.
+
+  **Work to perform:**
+
+  (a) Add `{{ONTOLOGY_CONTEXT}}` to the placeholder table in
+  `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md` §2.4
+  alongside the existing five (`{{DEV_ROOT}}`, `{{PROJECT}}`, `{{PLAN}}`,
+  `{{PROMPTS}}`, `{{VAULT_CATALOG}}`). Mark it **forward-only** — reverse
+  substitution does not apply (same as `{{VAULT_CATALOG}}`).
+
+  (b) Specify the rendering contract in the spec: walk `<vault>/ontology/`; if the
+  directory does not exist or contains no loaded data, the substituted value is `""`
+  (empty string, no error, no warning); otherwise produce a compact Markdown summary
+  (tag hierarchy as a nested list, synonym sets as indented entries). The exact
+  output format is to be agreed with sub-R before the rendering task is implemented;
+  a sensible default is a flat Markdown list of tags with indented synonyms.
+
+  (c) Update the "Implement placeholder substitution algorithm" task (once rewritten
+  by the "Rewrite downstream" gate task) to include test coverage for:
+  `{{ONTOLOGY_CONTEXT}}` with a fixture `<vault>/ontology/` tree; `{{ONTOLOGY_CONTEXT}}`
+  with no ontology directory (must produce empty string, no error); and that
+  `{{ONTOLOGY_CONTEXT}}` is excluded from reverse substitution.
+
+  (d) Update the "Implement `StagingDirectory::render`" task (once rewritten) to
+  reference the six-placeholder list and include an ontology-load step before
+  substitution.
+
+  **Backlog + spec editing only** — no runtime code. Acceptance: the spec's §2.4
+  placeholder table lists all six placeholders, and the two downstream implementation
+  tasks reference `{{ONTOLOGY_CONTEXT}}` consistently.
+- **Results:** _pending_
+
 ### Rewrite downstream implementation tasks against Session-12 design doc `[amendment]`
 - **Status:** not_started
 - **Dependencies:** (the three amendment tasks above, all now done)

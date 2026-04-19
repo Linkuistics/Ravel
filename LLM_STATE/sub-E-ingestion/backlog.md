@@ -596,3 +596,23 @@ amendment task below makes this explicit.
   `PromptRequired` / etc. event types. Both E's channel and M's bus
   coexist during the parallel-emit window.
 - **Results:** _pending_
+
+## Sub-R adoption
+
+### Task 1 — Absorb Sub-R: Stage 2 classification via Datalog queries `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Task 0 (gate), Sub-R engine landed
+- **Description:** Per Sub-R design doc §4.2. Replace flat tag-set
+  intersection in Stage 2 with Datalog queries:
+  1. Extract candidate terms from section title (unchanged heuristic)
+  2. For each term, query `resolves_to(Term, Canonical)` to normalize
+     synonyms
+  3. Optionally query `ancestor(Canonical, Broader)` to include broader
+     tags when the candidate term is highly specific
+  4. Return the canonical tag set as the candidate's `tags:` frontmatter
+  Stays deterministic Elixir — the Datalog query is a function call via
+  `Mnemosyne.Datalog.Server`, not an LLM pass. Fast.
+  **Note:** Task numbering starts at 1 because Task 0 is the gate task
+  that rewrites the full task list. This adoption stub is appended so
+  it survives the rewrite — the rewriter should incorporate it.
+- **Results:** _pending_

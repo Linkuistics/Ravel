@@ -531,3 +531,51 @@ and must NOT be implemented here:
   are v1.5+ work.
 - **Sub-P team mode** — F reserves the schema hooks in Task 13
   only. Cross-daemon transport is v2+ work.
+
+## Sub-R adoption
+
+### Task 29 — Absorb Sub-R: routing migration from `routing.ex` to Datalog `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Task 14 (`UserRouting` behaviour), Task 15
+  (`FactExtractor`), Task 16 (hot reload watcher), Sub-R engine landed
+- **Description:** Per Sub-R design doc §4.4 and §7. This is the
+  largest Sub-R adoption task in any sibling:
+  1. **`Router.evaluate_rules/2`** — replace call to compiled Elixir
+     module with Datalog query against `Mnemosyne.Datalog.Server`.
+     Extracted fact keywords are first normalized via `resolves_to/2`.
+  2. **`routing.ex` → `ontology/routing.dl`** — file path change.
+     `UserRouting` behaviour may be simplified or removed since
+     Datalog rules don't need a compiled Elixir module.
+  3. **Task 16 (hot reload watcher)** — change from watching `routing.ex`
+     for BEAM code reload to watching `ontology/routing.dl` for
+     Datalog fact-base reload. May be absorbed into
+     `Mnemosyne.Datalog.Server`'s own filesystem watcher.
+  4. **Task 17 (rule validation)** — Datalog validation (syntax,
+     stratifiability, range restriction) replaces Elixir compile-time
+     checks. Actionable error reporting still required.
+  5. **Task 18 (Level 2 prompt)** — update to request Datalog rules
+     instead of Elixir clauses.
+  6. **Task 20 (rule suggestion)** — proposed rules staged as `.dl`
+     fragments in `<vault>/runtime/staging/proposed-rules/`.
+  7. **Task 21 (TUI events)** — emit `%RoutingRuleProposed{}` (sub-M).
+  8. **Supervision dependency** — `Router.Server` depends on
+     `Datalog.Server` in the supervision tree.
+  Note: this task may partially overlap with or supersede Tasks 14-17
+  and 20-21. During implementation, determine which existing tasks
+  are absorbed vs need rework.
+- **Results:** _pending_
+
+### Task 30 — Absorb Sub-R: fact extraction normalization via Datalog `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Task 15 (`FactExtractor`), Sub-R engine landed
+- **Description:** Per Sub-R design doc §4.3. After the LLM extracts
+  keywords from a message body, add a normalization pass:
+  1. For each extracted keyword, query
+     `resolves_to(Keyword, Canonical)` against
+     `Mnemosyne.Datalog.Server`
+  2. Unresolved keywords pass through unchanged
+  3. Normalized keywords feed into routing queries
+  Catches cases where the LLM extracts `"rust_lang"` or
+  `"foreign_function_interface"` — both resolve to canonical forms
+  before routing sees them.
+- **Results:** _pending_

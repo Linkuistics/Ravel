@@ -52,7 +52,7 @@ will land on the orchestrator backlog.
   signal handling, crash recovery from the filesystem substrate.
 - Inter-actor message passing: `Dispatch` and `Query` semantics, target
   variants, same-project vs cross-project asymmetry, audit trail conventions.
-- Declarative routing: routing module format, hot reload, fact extraction,
+- Declarative routing: Datalog routing rule format, hot reload, fact extraction,
   Level 2 fallback, rule suggestion learning loop.
 - Client-daemon protocol: Unix socket location, NDJSON command set, forward
   compatibility discipline, multi-client attach semantics.
@@ -203,17 +203,20 @@ catalog's purpose.
 
 ### F-9. Declarative routing with LLM-fallback learning loop
 
-Routing is user-visible and user-editable. Users edit an Elixir routing
-module that uses pattern-matched `defp route/2` clauses. Hot code reload
-makes edits live without daemon restart. When rules don't fire (or fire
+Routing is user-visible and user-editable. Users edit Datalog rules in
+`<vault>/ontology/routing.dl`, loaded by `Mnemosyne.Datalog.Server`. Hot
+reload via a filesystem watcher (fact-base re-parse + re-evaluate) makes
+edits live without daemon restart. When rules don't fire (or fire
 ambiguously), the Level 2 routing agent is the fallback — and its decisions
-can propose new rules the user accepts into the routing module, closing a
+can propose new Datalog rules the user accepts into `routing.dl`, closing a
 learning loop.
 
-Rule engine choice: **start with pattern-matched Elixir dispatch**, defer
-Erlog / embedded Prolog to later if expressiveness pressure arises. Facts
-are extracted by a small cheap LLM pass (sub-O ideal consumer when it
-lands; v1 uses the Claude Code adapter with Haiku).
+Rule engine choice: **purpose-built Datalog engine** delivered by sub-R
+(knowledge ontology). Datalog unifies ontology resolution and routing in a
+single declarative substrate. Facts are extracted by a small cheap LLM pass
+(sub-O ideal consumer when it lands; v1 uses the Claude Code adapter with
+Haiku). Extracted keywords are normalized via `resolves_to/2` Datalog query
+before rule evaluation.
 
 ### F-10. Runtime: Elixir on BEAM
 
@@ -268,7 +271,8 @@ v1.
 │   ├── .obsidian/                             # shipped template
 │   ├── mnemosyne.toml                         # vault identity marker
 │   ├── daemon.toml                            # F's daemon config
-│   ├── routing.ex                             # F's declarative routing module
+│   ├── ontology/                              # sub-R knowledge ontology
+│   │   ├── routing.dl                         # F's declarative routing rules (Datalog)
 │   ├── plan-catalog.md                        # F's auto-generated catalog
 │   ├── knowledge/                             # Tier 2 global knowledge
 │   │   ├── languages/
@@ -288,6 +292,7 @@ v1.
 │       ├── mailboxes/<qualified-id>.jsonl     # F's mailbox files
 │       ├── mailboxes/<qualified-id>.cursor    # F's processing cursor
 │       ├── staging/<qualified-id>/            # sub-B staging dirs
+│       ├── staging/proposed-rules/*.dl        # Level 2 Datalog rule suggestions
 │       ├── interrupted/<qualified-id>/        # sub-B crash forensics
 │       └── ingestion-events/*.jsonl           # sub-E events
 └── <project>/
@@ -828,7 +833,8 @@ supervisor logic.
 Mnemosyne.Application
 └── Mnemosyne.Supervisor (:one_for_one)
     ├── Mnemosyne.VaultDirectory.Server    (gen_server, singleton, holds VaultDirectory cache)
-    ├── Mnemosyne.Router.Server            (gen_server, singleton, routes messages)
+    ├── Mnemosyne.Datalog.Server           (gen_server, singleton, loads ontology/routing.dl, evaluates rules)
+    ├── Mnemosyne.Router.Server            (gen_server, singleton, routes messages via Datalog queries)
     ├── Mnemosyne.ClientListener           (task, accepts Unix socket connections)
     ├── Mnemosyne.ClientConnection.Supervisor (dynamic_supervisor)
     │   └── (one task per connected client)
@@ -858,16 +864,19 @@ Mnemosyne.Application
    daemon-level guard — see §8.)
 3. `VaultDirectory.Server` starts, runs `verify_vault`, walks the vault,
    caches the result.
-4. `Router.Server` starts empty.
-5. `FactExtractor.Server` starts with the configured cheap model.
-6. `ActorSupervisor` starts. For each plan/expert in `VaultDirectory`,
+4. `Datalog.Server` starts, parses `<vault>/ontology/routing.dl`, builds
+   the initial fact base. Parse error is a hard startup failure.
+5. `Router.Server` starts, connected to `Datalog.Server` for rule
+   evaluation.
+6. `FactExtractor.Server` starts with the configured cheap model.
+7. `ActorSupervisor` starts. For each plan/expert in `VaultDirectory`,
    register a dormant child spec (actor not yet started — will start on
    first message).
-7. `ClientListener` binds `<vault>/runtime/daemon.sock`.
-8. Scan `<vault>/runtime/mailboxes/*.jsonl` for persisted messages. For
+8. `ClientListener` binds `<vault>/runtime/daemon.sock`.
+9. Scan `<vault>/runtime/mailboxes/*.jsonl` for persisted messages. For
    each file with unprocessed entries, re-queue the entries to their
    target actor (which spawns it out of Dormant).
-9. Daemon enters its main loop.
+10. Daemon enters its main loop.
 
 **Graceful shutdown** (SIGTERM):
 
@@ -965,17 +974,18 @@ file (threshold configurable, default 1000 entries), the daemon rewrites
 the file keeping only entries at index `cursor+1` onward and resets the
 cursor to 0. Rewrites use atomic-rename.
 
-### §4.9 Hot code reload
+### §4.9 Hot reload
 
-BEAM's native hot code reload is used for two specific things in v1:
+Hot reload in v1 covers two specific things:
 
-1. **`routing.ex`** — user edits the routing module. The daemon detects
-   the file change (or the user runs `mnemosyne rescan`), recompiles
-   the module via `Code.compile_file/1`, and the new rules take effect
-   immediately with no actor restart.
+1. **`ontology/routing.dl`** — user edits the Datalog routing rules. A
+   filesystem watcher detects the change (or the user runs `mnemosyne
+   rescan`), and `Mnemosyne.Datalog.Server` re-parses the fact base and
+   re-evaluates. The new rules take effect immediately with no actor
+   restart.
 2. **Experts** (sub-N's scope, but F reserves the hook) — adding or
    editing a new expert declaration file causes the daemon to reload
-   the expert module.
+   the expert configuration.
 
 Full hot-reload of PlanActor internals is **not** supported in v1 —
 changes to actor behavior require a daemon restart. This is a deliberate
@@ -1068,83 +1078,94 @@ proceed without the answer. No state is lost.
 
 ## §6 Declarative routing
 
-### §6.1 Routing module (pattern-matched Elixir)
+### §6.1 Routing rules (Datalog)
 
-`<vault>/routing.ex` is a user-editable Elixir module with a well-defined
+`<vault>/ontology/routing.dl` is a user-editable Datalog rule file loaded
+by `Mnemosyne.Datalog.Server`. Rules are pure Datalog with a well-defined
 shape:
 
-```elixir
-defmodule Mnemosyne.UserRouting do
-  @moduledoc """
-  User-editable routing rules. Mnemosyne hot-reloads this module on
-  save, so edits take effect without daemon restart.
+```prolog
+%% User-editable routing rules. Mnemosyne hot-reloads this file on
+%% save (filesystem watcher), so edits take effect without daemon restart.
+%%
+%% Each rule derives a `route/3` fact:
+%%   route(MsgType, Target, TargetKind).
+%%     MsgType    = dispatch | query
+%%     Target     = qualified ID, project name, or expert ID
+%%     TargetKind = target_plan | target_project | target_expert
+%%
+%% Input facts (asserted by FactExtractor before evaluation):
+%%   concerns(Topic).           — extracted keyword
+%%   msg_type(Type).            — dispatch | query
+%%   resolves_to(Alias, Canon). — ontology normalization (sub-R)
+%%
+%% If no route/3 is derived, the Level 2 routing agent is the fallback.
 
-  Each `route/2` clause takes:
-    - message type (`:dispatch` | `:query`)
-    - a list of `concerns(topic)` facts extracted from the message body
-  and returns:
-    - `{:target_plan, qualified_id}` for same-project targeting
-    - `{:target_project, project_name}` for cross-project
-    - `{:target_expert, expert_id}` for expert consultation
-    - `:no_route` to fall through to the Level 2 agent
-  """
+%% Rust-related concerns → rust expert
+route(query, "rust-expert", target_expert) :-
+    msg_type(query),
+    concerns(T),
+    resolves_to(T, "rust").
 
-  @behaviour Mnemosyne.Routing.UserRoutes
+route(query, "rust-expert", target_expert) :-
+    msg_type(query),
+    concerns("cargo").
 
-  # Rust-related concerns → rust expert
-  def route(:query, facts) do
-    cond do
-      "rust" in facts or "cargo" in facts ->
-        {:target_expert, "rust-expert"}
+%% FFI + callback registration → cross-project
+route(query, "APIAnyware-MacOS", target_project) :-
+    msg_type(query),
+    concerns(T1), resolves_to(T1, "ffi"),
+    concerns(T2), resolves_to(T2, "callback_registration").
 
-      "ffi" in facts and "callback_registration" in facts ->
-        {:target_project, "APIAnyware-MacOS"}
+%% Obsidian concerns → obsidian expert
+route(query, "obsidian-expert", target_expert) :-
+    msg_type(query),
+    concerns(T),
+    resolves_to(T, "obsidian").
 
-      "obsidian" in facts or "dataview" in facts ->
-        {:target_expert, "obsidian-expert"}
+%% Migration/rename dispatches → sub-G
+route(dispatch, "Mnemosyne/project-root/sub-G-migration", target_plan) :-
+    msg_type(dispatch),
+    concerns(T),
+    resolves_to(T, "migration").
 
-      true ->
-        :no_route
-    end
-  end
+route(dispatch, "Mnemosyne/project-root/sub-G-migration", target_plan) :-
+    msg_type(dispatch),
+    concerns(T),
+    resolves_to(T, "rename").
 
-  def route(:dispatch, facts) do
-    cond do
-      "migration" in facts or "rename" in facts ->
-        {:target_plan, "Mnemosyne/project-root/sub-G-migration"}
-
-      "ffi" in facts ->
-        {:target_project, "APIAnyware-MacOS"}
-
-      true ->
-        :no_route
-    end
-  end
-end
+%% FFI dispatches → cross-project
+route(dispatch, "APIAnyware-MacOS", target_project) :-
+    msg_type(dispatch),
+    concerns(T),
+    resolves_to(T, "ffi").
 ```
 
-The module is plain Elixir — the "DSL" is just pattern matching on
-lists. Users get full Elixir expressiveness (guards, conditionals,
-helper functions) without a separate rule language.
+The file is pure Datalog — no imperative control flow, no host-language
+dependencies. Users get the full expressiveness of Datalog's join-based
+rule evaluation. Keyword normalization via `resolves_to/2` (maintained by
+sub-R's ontology) means rules match canonicalized concepts, not raw
+surface strings.
 
 ### §6.2 Hot reload for rules
 
-The daemon watches `<vault>/routing.ex` for changes (via BEAM's
-`FileSystem` library or equivalent). On detection:
+The daemon watches `<vault>/ontology/routing.dl` for changes via a
+filesystem watcher. On detection:
 
-1. Recompile via `Code.compile_file/1`.
-2. On success: the new module is active; subsequent routing decisions
-   use it.
-3. On failure (parse error, compile error): log the error, keep the
-   previous module loaded, surface the failure in the TUI.
+1. `Mnemosyne.Datalog.Server` re-parses the `.dl` file and re-evaluates
+   the fact base.
+2. On success: the new rules are active; subsequent routing decisions
+   use them.
+3. On failure (parse error, invalid rule): log the error, keep the
+   previous rule set loaded, surface the failure in the TUI.
 
 Users can also trigger a reload manually via `mnemosyne rescan` or a
 TUI command.
 
 ### §6.3 Fact extraction LLM pass
 
-Before `route/2` is called, the daemon runs a fact-extraction pass on
-the message body via a cheap LLM session:
+Before Datalog routing rules are evaluated, the daemon runs a
+fact-extraction pass on the message body via a cheap LLM session:
 
 ```
 Prompt template:
@@ -1161,8 +1182,10 @@ Output (parsed by F):
   concerns('memory_management').
 ```
 
-The fact list `["ffi", "callback_registration", "memory_management"]` is
-passed to `route/2` as the `facts` argument.
+The extracted keywords are asserted as `concerns/1` facts into the Datalog
+fact base. Before rule evaluation, each keyword is normalized via
+`resolves_to/2` queries against sub-R's ontology, so that synonyms and
+aliases map to canonical concepts.
 
 **Model choice**: the daemon config specifies which harness + model to
 use for fact extraction. V1 default: the Claude Code adapter with
@@ -1182,46 +1205,46 @@ of API cost.
 
 ### §6.4 Level 2 fallback
 
-When `route/2` returns `:no_route` (or ambiguously returns multiple
-targets — F's router deduplicates first), the daemon spawns a Level 2
-routing agent per the prompt in §2.4. The agent has fresh context, reads
-the target project's plans and source code, and makes a decision.
+When Datalog evaluation derives no `route/3` fact (or ambiguously derives
+multiple targets — F's router deduplicates first), the daemon spawns a
+Level 2 routing agent per the prompt in §2.4. The agent has fresh context,
+reads the target project's plans and source code, and makes a decision.
 
 ### §6.5 Rule suggestion learning loop
 
 The Level 2 agent's response prompt asks for an optional `suggested-rule:`
-field proposing a new `route/2` clause the user could add:
+field proposing a new Datalog rule the user could add:
 
 ```yaml
 accept:
   target-plan: APIAnyware-MacOS/project-root/sub-ffi-callbacks
   justification: Matches this plan's FFI callback GC-protection scope exactly.
   suggested-rule: |
-    def route(:dispatch, facts) do
-      if "gc_protect" in facts and "callback_registration" in facts do
-        {:target_plan, "APIAnyware-MacOS/project-root/sub-ffi-callbacks"}
-      else
-        super(:dispatch, facts)
-      end
-    end
+    route(dispatch, "APIAnyware-MacOS/project-root/sub-ffi-callbacks", target_plan) :-
+        msg_type(dispatch),
+        concerns(T1), resolves_to(T1, "gc_protect"),
+        concerns(T2), resolves_to(T2, "callback_registration").
 ```
 
-F captures suggestions and surfaces them in the TUI as "Rule suggestion
-pending review." The user reviews, optionally edits, and accepts → the
-suggestion is appended to `routing.ex` and committed to vault git. Level
-2 only runs for novel cases; its decisions train the deterministic path.
+F captures suggestions as `.dl` fragments staged at
+`<vault>/runtime/staging/proposed-rules/`. The TUI surfaces them as
+"Rule suggestion pending review." The user reviews, optionally edits, and
+accepts → the suggestion is appended to `ontology/routing.dl` and
+committed to vault git. Level 2 only runs for novel cases; its decisions
+train the deterministic path.
 
-### §6.6 Future: Erlog if pattern matching becomes insufficient
+### §6.6 Datalog as the unified routing substrate
 
-If users hit expressiveness limits with pattern-matched Elixir routing,
-Erlog (embedded Prolog) is the drop-in upgrade path. The rule module
-interface stays the same — it would just run Prolog queries internally
-instead of pattern matching. Users who want Prolog-style rules can edit
-a `routing.pl` file instead of `routing.ex`.
+Sub-R's Datalog engine replaces both the earlier pattern-matched Elixir
+design and the Erlog reservation. Datalog is fundamentally better than
+imperative Elixir for user-facing rules: it is declarative, join-based,
+and naturally composable. The `resolves_to/2` ontology normalization
+layer (maintained by sub-R) gives routing rules semantic stability even
+as the vocabulary of extracted keywords evolves.
 
-This is **not shipped in v1**. Pattern-matched Elixir is the v1 starting
-point. Erlog integration is a v1.5+ decision based on actual user
-experience.
+Erlog / embedded Prolog is **no longer reserved** — Datalog covers the
+expressiveness needs that Erlog was held in reserve for. See sub-R design
+doc §4.4, §7.
 
 ---
 
@@ -1396,8 +1419,8 @@ plan's backlog:
 |---|---|
 | Two daemons try to start on same vault | Second fails via singleton lock with actionable diagnostic naming the first daemon's PID. |
 | `<vault>/projects/<name>` symlink broken | Hard error on startup. Named in diagnostic. |
-| `<vault>/routing.ex` has compile error on startup | Hard error with line number. Daemon refuses to start. |
-| `<vault>/routing.ex` has compile error during hot reload | Warning logged. Previous module stays loaded. Surfaced in TUI. |
+| `<vault>/ontology/routing.dl` has parse error on startup | Hard error with line number. Daemon refuses to start. |
+| `<vault>/ontology/routing.dl` has parse error during hot reload | Warning logged. Previous rule set stays loaded. Surfaced in TUI. |
 | `<vault>/daemon.toml` has unknown `[harnesses.foo]` section | Parsed and ignored with a warning. Forward compatibility discipline. |
 | `<vault>/daemon.toml` has `peers: []` but non-empty | Hard error: "team mode not supported in v1." |
 | Manual edit to `<vault>/plan-catalog.md` | Overwritten on next regeneration. File has a "machine-owned" warning header. |
@@ -1453,7 +1476,8 @@ for the same purpose — the crash-recovery logic is shared.
   minimal passing fixture and one minimal violating fixture.
 - **Catalog rendering.** Snapshot tests: fixture vault → expected
   rendered catalog string.
-- **Routing module.** Test clauses against generated fact sets.
+- **Routing rules.** Test Datalog `route/3` derivation against asserted
+  `concerns/1` + `resolves_to/2` fact sets.
 
 ### §10.2 Integration tests — fixture vaults
 
@@ -1516,14 +1540,16 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 3. `Mnemosyne.PlanActor` implementation wrapping sub-B's `PhaseRunner`.
 4. `Mnemosyne.ExpertActor` stub returning `:not_yet_implemented`.
 5. `Mnemosyne.ActorSupervisor` with `:transient` restart strategy.
-6. `Mnemosyne.Router.Server` + mailbox NDJSON format + cursor.
+6. `Mnemosyne.Router.Server` (delegates to `Datalog.Server` for rule
+   evaluation) + mailbox NDJSON format + cursor.
 7. `Mnemosyne.DispatchProcessor` and `Mnemosyne.QueryProcessor` modules.
 8. `Mnemosyne.CatalogRenderer` for `{{VAULT_CATALOG}}` substitution.
 
 ### §11.2 Daemon binary
 
-9. `mnemosyne daemon` mix task / escript: startup sequence, OTP
-   application, signal handlers, shutdown path.
+9. `mnemosyne daemon` mix task / escript: startup sequence (including
+   `Datalog.Server` init from `ontology/routing.dl`), OTP application,
+   signal handlers, shutdown path.
 10. `Mnemosyne.ClientListener` and `Mnemosyne.ClientConnection` for Unix
     socket + NDJSON protocol.
 11. Daemon-level singleton lock via flock on
@@ -1532,18 +1558,22 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 
 ### §11.3 Declarative routing
 
-13. `Mnemosyne.UserRouting` behavior and loading logic.
+13. `Mnemosyne.Datalog.Server` integration for `ontology/routing.dl`
+    loading and evaluation (engine provided by sub-R).
 14. `Mnemosyne.FactExtractor.Server` with cheap-model invocation via
-    sub-C's adapter.
-15. Hot code reload watcher on `<vault>/routing.ex`.
-16. Rule validation (typecheck against known predicate shape) and
-    actionable error reporting.
+    sub-C's adapter, plus `resolves_to/2` normalization query.
+15. Filesystem watcher on `<vault>/ontology/routing.dl` triggering
+    fact-base re-parse and re-evaluate.
+16. Rule validation (check `route/3` derivation shape) and actionable
+    error reporting.
 
 ### §11.4 Level 2 routing agent
 
-17. Level 2 prompt template + spawn path via sub-C.
+17. Level 2 prompt template (proposing Datalog rules) + spawn path via
+    sub-C.
 18. Rejection + retarget feedback flow to origin's Dispatched section.
-19. Rule suggestion extraction from Level 2 output.
+19. Datalog rule suggestion extraction from Level 2 output; staging as
+    `.dl` fragments in `<vault>/runtime/staging/proposed-rules/`.
 20. TUI event emission for pending rule suggestions.
 
 ### §11.5 Integration
@@ -1642,12 +1672,13 @@ simple line protocol.
 
 **Owner:** sub-C's amendment task includes the spike.
 
-### Q2 — Pattern-matched Elixir routing vs Erlog
+### Q2 — Datalog routing expressiveness
 
-Will pattern-matched `defp route/2` clauses be expressive enough for
-users, or will they hit limits that force Erlog adoption? Unknown until
-real users write real rules. V1 ships with pattern matching; Erlog is
-v1.5+ if the need arises.
+**Resolved.** Sub-R delivers a purpose-built Datalog engine that unifies
+ontology resolution and routing. Datalog's join-based evaluation and
+`resolves_to/2` normalization cover the expressiveness needs that
+pattern-matched Elixir and reserved-Erlog were intended to address.
+Erlog is no longer reserved. See Decision Trail Q7.
 
 ### Q3 — Default expert set
 
@@ -1707,10 +1738,12 @@ F itself.
 - **Client**: a process that connects to the daemon over the Unix socket
   protocol to observe or drive actors. Examples: Rust TUI, Obsidian
   plugin (future), web UI (future).
-- **Routing module**: the user-editable Elixir module at
-  `<vault>/routing.ex` containing pattern-matched dispatch rules.
+- **Routing rules**: the user-editable Datalog rules at
+  `<vault>/ontology/routing.dl`, loaded by `Mnemosyne.Datalog.Server`,
+  deriving `route/3` facts for dispatch decisions.
 - **Facts**: concern keywords extracted from a message body by the
-  fact-extraction LLM pass, passed as input to routing rules.
+  fact-extraction LLM pass, asserted as `concerns/1` facts and normalized
+  via `resolves_to/2` before Datalog rule evaluation.
 
 ---
 
@@ -1737,6 +1770,14 @@ re-brainstorm.
 | 13 | `:telemetry` + typed Elixir struct events replace `tracing` + typed Rust enum | sub-M |
 | 14 | Skills folded into attached-client TUI actions | sub-H |
 | 15 | Obsidian as daemon client, not just file viewer | sub-I |
+
+---
+
+## Appendix C — Decision trail
+
+| # | Question | Answer |
+|---|---|---|
+| Q7 | Sub-R replaces routing.ex with Datalog? | Yes. Sub-R (knowledge ontology, 2026-04-16) delivers a purpose-built Datalog engine that unifies ontology resolution and routing. `routing.ex` → `ontology/routing.dl`. Datalog is fundamentally better than imperative Elixir for user-facing rules. Erlog is no longer reserved. See Sub-R design doc §4.4, §7. |
 
 ---
 

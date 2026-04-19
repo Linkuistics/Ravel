@@ -272,9 +272,12 @@ substance.
   `LlmHarnessExecutor` consumes sub-C's session GenServer via
   `attach_consumer/2` + `handle_info/2` + sliding-buffer sentinel
   matcher.
-- §2.3.5 — `StagingDirectory.render/4` with five placeholders
+- §2.3.5 — `StagingDirectory.render/4` with six placeholders
   (`{{DEV_ROOT}}`, `{{PROJECT}}`, `{{PLAN}}`, `{{PROMPTS}}`,
-  `{{VAULT_CATALOG}}`). `{{RELATED_PLANS}}` retired.
+  `{{VAULT_CATALOG}}`, `{{ONTOLOGY_CONTEXT}}`). `{{RELATED_PLANS}}` retired.
+  `{{ONTOLOGY_CONTEXT}}` is forward-only; reads `<vault>/ontology/` and
+  substitutes a compact tag-hierarchy + synonym-set summary, or `""` if the
+  ontology directory is absent (no hard error — optional v1 surface).
 - §2.5 — `Mnemosyne.Prompts` module with `@external_resource` +
   `File.read!/1` compile-time embedding. Vendor list is
   `phases/{work,reflect,compact,triage}.md` +

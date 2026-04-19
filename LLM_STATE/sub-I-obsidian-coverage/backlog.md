@@ -109,3 +109,20 @@ Mnemosyne data surfaces. Design doc:
   Evidence artifacts at
   `{{PROJECT}}/tests/fixtures/obsidian-e2e/results/macos/`.
 - **Results:** _pending_
+
+## Sub-R adoption
+
+## Task 8 — Absorb Sub-R: document ontology views in data-surface inventory
+
+- **Status:** not_started
+- **Dependencies:** none (design doc amendment — no code dependency)
+- **Description:** Per Sub-R design doc §7.3. Add `ontology/views/`
+  surfaces to Sub-I's data-surface inventory. The design doc amendment
+  is being done by a Sub-R adoption agent. This backlog task covers
+  any remaining implementation-time work:
+  - Add an `ontology-views.md` Dataview query file to
+    `priv/obsidian/views/` if useful (e.g., a view that aggregates
+    all auto-generated ontology views)
+  - Verify `.dl` files render correctly as plain text in Obsidian
+  - Update Task 7 acceptance test to verify ontology views render
+- **Results:** _pending_

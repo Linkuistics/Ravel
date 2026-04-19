@@ -1,29 +1,34 @@
 # Sub-project A — Vault location, discovery, and bootstrap
 
-**Status:** design complete (Session 14 amendment absorbed inline)
+**Status:** design complete (Session 14 + sub-R amendments absorbed inline)
 **Brainstorm date:** 2026-04-13
-**Amendment date:** 2026-04-15 (Session 14 — BEAM daemon + sub-F commitments)
+**Amendment date:** 2026-04-16 (sub-R ontology; prior: 2026-04-15 Session 14 — BEAM daemon + sub-F commitments)
 **Parent plan:** `LLM_STATE/mnemosyne-orchestrator/`
 **Sibling implementation plan:** `LLM_STATE/sub-A-global-store/`
 
 > **Amendment status:** rewritten inline 2026-04-15 (Session 14) to
 > absorb the persistent BEAM daemon commitment (Session 9, sub-F) and
 > the `project-root/` + vault-catalog + routing module commitments that
-> sub-F locked in its design doc. The original Rust CLI framing is
-> replaced throughout — no supersede-amendment layer. The Session-7
+> sub-F locked in its design doc. Further amended 2026-04-16 to absorb
+> sub-R's ontology commitment: `routing.ex` replaced by `ontology/routing.dl`,
+> `tag-vocabulary.md` reservation replaced by `ontology/` directory, and
+> `runtime/staging/proposed-rules/` added. The original Rust CLI framing
+> is replaced throughout — no supersede-amendment layer. The Session-7
 > forking decisions are preserved verbatim in **Appendix A (Decision
 > Trail)** with inline correction notes; the new pivots are recorded as
-> Q6 (BEAM pivot) and Q7 (sub-F architectural commitments). Every A1–A10
-> header is kept stable so sibling plan references remain resolvable.
+> Q6 (BEAM pivot), Q7 (sub-F architectural commitments), and Q8 (sub-R
+> ontology). Every A1–A10 header is kept stable so sibling plan
+> references remain resolvable.
 
 ## Purpose
 
 Replace Mnemosyne v0.1.0's hardcoded `~/.mnemosyne/` knowledge store
 with an explicit, user-chosen, git-tracked **vault** that hosts Tier 2
 global knowledge, runtime state (daemon socket, mailboxes, staging,
-interrupts, ingestion events), the shipped Obsidian template, sub-F's
-user-editable routing module, sub-F's auto-regenerated plan catalog,
-sub-F's expert declaration files, daemon configuration, and the
+interrupts, ingestion events), the shipped Obsidian template, sub-R's
+Datalog-based ontology (including routing rules), sub-F's
+auto-regenerated plan catalog, sub-F's expert declaration files, daemon
+configuration, and the
 per-project symlink mounts. Define how the **Mnemosyne daemon**
 (persistent Elixir/OTP application) discovers the vault at startup, how
 it verifies a directory really is a vault, how it bootstraps a fresh
@@ -36,7 +41,7 @@ contracts the rest of the orchestrator's sub-projects can rely on.
 In scope:
 
 - Vault directory layout, including every F-committed surface
-  (`routing.ex`, `daemon.toml`, `plan-catalog.md`, `experts/`,
+  (`ontology/`, `daemon.toml`, `plan-catalog.md`, `experts/`,
   `runtime/daemon.sock`, `runtime/mailboxes/`), plus the B/E
   surfaces (`runtime/staging/`, `runtime/events/`,
   `runtime/interrupts/`). D's singleton lock is system-wide, not in
@@ -60,8 +65,9 @@ Out of scope (explicit non-goals listed in detail at the end):
 - Tier 2 axis structure (deferred to a future knowledge-format
   brainstorm).
 - Team-mode multi-developer use (sub-P scope; v2+).
-- The contents of sub-F's `routing.ex`, `plan-catalog.md` regenerator,
-  and `experts/<id>.md` files (all owned by sub-F and sub-N).
+- The contents of sub-R's `ontology/*.dl` files, sub-F's `plan-catalog.md`
+  regenerator, and `experts/<id>.md` files (owned by sub-R, sub-F, and
+  sub-N respectively).
 - No opinionated Obsidian template refinement (sub-I's scope).
 - No daemon lifecycle, supervision, or actor wiring beyond "vault
   resolution happens inside the application boot hook" (sub-F owns the
@@ -98,10 +104,11 @@ Non-negotiable inputs from sub-projects B, C, E, F, M:
   `strip_prefix(plan_path, "<vault>/projects/")`. Never stored in
   frontmatter. A's walk-up logic for Tier 1 resolution must respect
   this invariant.
-- **User-editable routing module** (F): `<vault>/routing.ex` is an
-  Elixir module with pattern-matched `defp route/2` clauses, hot-code
-  reloaded by the daemon on file change. A ships it tracked in git;
-  init scaffolds a minimal stub.
+- **User-editable routing rules** (F, R): `<vault>/ontology/routing.dl`
+  is a Datalog file with routing rules, loaded by the daemon on file
+  change. A ships it tracked in git; init scaffolds a minimal stub.
+  (Replaces the earlier `<vault>/routing.ex` Elixir module; sub-R's
+  Datalog-based ontology subsumes routing into the ontology directory.)
 - **Vault catalog** (F): `<vault>/plan-catalog.md` is auto-regenerated
   on plan mutation and every phase-prompt render. Machine-owned. A
   ships it tracked in git for Obsidian visibility but init leaves it
@@ -286,8 +293,17 @@ identity marker.
 <vault>/
 ├── mnemosyne.toml                    # marker + optional vault-format overrides — tracked
 ├── daemon.toml                       # sub-F daemon config (harnesses, peers, log levels) — tracked
-├── routing.ex                        # sub-F user-editable routing rules — tracked
 ├── plan-catalog.md                   # sub-F auto-regenerated vault catalog — tracked (machine-owned)
+├── ontology/                         # sub-R Datalog-based ontology — tracked
+│   ├── vocabulary.dl                 # canonical tags, synonyms, hierarchy
+│   ├── relations.dl                  # typed relations between concepts
+│   ├── rules.dl                      # derived predicates (ships with Mnemosyne)
+│   ├── routing.dl                    # routing rules (replaces former routing.ex)
+│   └── views/                        # auto-generated Obsidian Markdown views
+│       ├── tag-index.md              # machine-owned
+│       ├── taxonomy.md               # machine-owned
+│       ├── relations.md              # machine-owned
+│       └── routing-rules.md          # machine-owned
 ├── .git/                             # vault's own git
 ├── .gitignore                        # tracked
 ├── .obsidian/                        # curated subset tracked
@@ -307,6 +323,7 @@ identity marker.
 ├── runtime/                          # all gitignored, machine-local, ephemeral
 │   ├── daemon.sock                   # sub-F Unix socket for TUI/Obsidian/web clients
 │   ├── staging/<plan-path>/          # sub-B phase staging dirs (incl. materialised prompts/)
+│   ├── staging/proposed-rules/       # Level 2 routing agent rule proposals
 │   ├── mailboxes/<qualified-id>.jsonl # sub-F actor mailboxes
 │   ├── interrupts/<qualified-id>/    # pending interrupt commands for live sessions
 │   └── events/                       # sub-E ingestion event queue
@@ -320,8 +337,8 @@ identity marker.
 Changes from the Session-7 layout (all driven by sub-F or sub-C/D/E
 commitments after Session 9):
 
-- **Added at vault root (tracked)**: `daemon.toml`, `routing.ex`,
-  `plan-catalog.md`, `experts/`. All four are owned by sub-F but A
+- **Added at vault root (tracked)**: `daemon.toml`, `ontology/`,
+  `plan-catalog.md`, `experts/`. All four are owned by sub-F/sub-R but A
   scaffolds them at init time so a fresh vault is immediately
   openable in Obsidian with the expected tree shape.
 - **`runtime/daemon.sock` added**: the Unix socket sub-F's Rust TUI
@@ -360,17 +377,13 @@ Notes:
   self-containment story applies to A's `.obsidian/` template files
   (embedded from `priv/obsidian/`).
 - **`init` scaffolds an empty `knowledge/`, an empty `experts/`, and a
-  minimal `routing.ex` stub.** No Tier 2 axes pre-committed. No default
-  expert declarations (sub-N's scope). The minimal `routing.ex` stub
-  is:
-  ```elixir
-  defmodule Mnemosyne.UserRouting do
-    @moduledoc "User-editable routing rules. Safe to edit; hot-reloaded."
-    def route(_kind, _facts), do: :no_route
-  end
-  ```
-  Compiles cleanly, hot-reloads cleanly, fires zero rules — the
-  Level 2 fallback handles everything until the user adds a clause.
+  minimal `ontology/` directory.** No Tier 2 axes pre-committed. No
+  default expert declarations (sub-N's scope). The `ontology/` directory
+  is scaffolded with minimal `.dl` stubs (`vocabulary.dl`, `relations.dl`,
+  `rules.dl`, `routing.dl`) and an empty `views/` directory. The minimal
+  `routing.dl` stub contains zero routing rules — the Level 2 fallback
+  handles everything until the user adds a rule. Sub-R owns the ontology
+  file formats; A just creates the directory structure.
 - **`plan-catalog.md` is scaffolded with a machine-owned header** but
   zero entries. The daemon writes the full catalog on first boot after
   it has an actor tree to enumerate. A's init leaves just:
@@ -392,7 +405,8 @@ Notes:
 |---|---|---|
 | `mnemosyne.toml` | yes | Vault identity + optional vault-format overrides |
 | `daemon.toml` | yes | Daemon runtime config is user-authored, machine-portable |
-| `routing.ex` | yes | User-authored routing rules — the whole point of user-visible routing |
+| `ontology/*.dl` | yes | Sub-R Datalog ontology: vocabulary, relations, rules, routing — user-authored and machine-authored |
+| `ontology/views/` | yes | Auto-generated Obsidian Markdown views of ontology — machine-owned but tracked for Obsidian visibility |
 | `plan-catalog.md` | yes | Machine-owned but committed so Obsidian shows it in file tree + git history tracks catalog evolution |
 | `experts/*.md` | yes | Expert declarations are authored config and shared across machines |
 | `.gitignore` | yes | Bootstrapping |
@@ -425,8 +439,9 @@ makes sure the directory exists.
 
 This policy has the property that the vault remains a clean
 push/pullable git repo from the user's perspective: `git push` ships
-knowledge, archive, expert declarations, routing rules, daemon config,
-catalog, vault-format identity, and the shared Obsidian template. It
+knowledge, archive, expert declarations, ontology (including routing
+rules), daemon config, catalog, vault-format identity, and the shared
+Obsidian template. It
 does not ship runtime state, the socket, the lock, machine-local
 symlink targets, or workspace pane state. The gitignore file at vault
 root encodes the policy.
@@ -458,8 +473,10 @@ Step-by-step:
    <path>/
    <path>/knowledge/
    <path>/experts/
+   <path>/ontology/views/
    <path>/archive/
    <path>/runtime/staging/
+   <path>/runtime/staging/proposed-rules/
    <path>/runtime/mailboxes/
    <path>/runtime/interrupts/
    <path>/runtime/events/
@@ -496,7 +513,9 @@ Step-by-step:
    ```
    Sub-F owns this file's full schema. A ships just enough to make
    the daemon boot cleanly against a fresh vault.
-7. **Write minimal `routing.ex`** with the no-route stub shown in A4.
+7. **Scaffold `ontology/` directory** with minimal `.dl` stubs
+   (`vocabulary.dl`, `relations.dl`, `rules.dl`, `routing.dl`) and an
+   empty `views/` directory, as shown in A4.
 8. **Write empty `plan-catalog.md`** with the machine-owned header
    shown in A4.
 9. **Write `.gitignore`** with the tracked-vs-gitignored policy from
@@ -643,7 +662,7 @@ MNEMOSYNE_TIER2_ROOT=/tmp/fixture/tier2
 When set and non-empty, each variable bypasses the corresponding
 default derivation. Set independently. The vault discovery chain is
 still honoured for everything else (`runtime/`, `archive/`,
-`.obsidian/`, `routing.ex`, `experts/`); only the two knowledge roots
+`.obsidian/`, `ontology/`, `experts/`); only the two knowledge roots
 are decoupled.
 
 Resolution function (Elixir):
@@ -839,7 +858,8 @@ Key points:
   6. Enumerate `<vault>/projects/*/mnemosyne/project-root/` subtrees
      and start PlanActors (sub-F).
   7. Enumerate `<vault>/experts/*.md` and start ExpertActors (sub-N).
-  8. Load and compile `<vault>/routing.ex` (sub-F).
+  8. Load `<vault>/ontology/` (sub-R: vocabulary, relations, rules,
+     routing).
   9. Regenerate `<vault>/plan-catalog.md` (sub-F).
   10. Mark the daemon "ready" via sub-M `:telemetry` event.
   Any failure in 1–3 is a hard error before the supervision tree
@@ -854,19 +874,19 @@ The contracts A locks for the rest of the orchestrator merge:
 |---|---|
 | Vault discovery = flag → env → user config → hard error; resolved **once at daemon boot** | F (daemon boot), all bootstrap subcommands |
 | Vault marker = `<vault>/mnemosyne.toml` with `[vault].schema_version` | F, D, G |
-| Vault layout per A4 (including `daemon.toml`, `routing.ex`, `plan-catalog.md`, `experts/`, `runtime/{daemon.sock,mailboxes,interrupts,events,staging}`) | B (`runtime/staging/`), C (spawn CWD), D (system-wide lock, not in vault), E (`runtime/events/`, `<vault>/knowledge/`), F (`routing.ex`, `plan-catalog.md`, `experts/`, `daemon.sock`, `mailboxes/`), I (`.obsidian/` template), G (per-machine `adopt-project` reruns, rename migration), N (`experts/` declaration format) |
+| Vault layout per A4 (including `daemon.toml`, `ontology/`, `plan-catalog.md`, `experts/`, `runtime/{daemon.sock,mailboxes,interrupts,events,staging,staging/proposed-rules}`) | B (`runtime/staging/`), C (spawn CWD), D (system-wide lock, not in vault), E (`runtime/events/`, `<vault>/knowledge/`), F (`plan-catalog.md`, `experts/`, `daemon.sock`, `mailboxes/`), R (`ontology/`, `runtime/staging/proposed-rules/`), I (`.obsidian/` template), G (per-machine `adopt-project` reruns, rename migration), N (`experts/` declaration format) |
 | `<project>/mnemosyne/project-root/` as F's reserved root-plan directory (replaces the earlier `plans/` container) | F (owner), G (migration), B (staging paths) |
 | Symlink target = `<vault>/projects/<lowercase-name>/ -> <project>/mnemosyne/` | F, G, I |
 | Tier 1 / Tier 2 split = derived from vault + active plan, env-var overridable; walk-up looks for `mnemosyne/project-root/` ancestor | E, B, F |
 | Gitignore policy per A5 (adds `daemon.sock`, `mailboxes/` to gitignored side; singleton lock is system-wide, not in vault) | D, E, F, G |
-| `init` scaffolds empty `knowledge/`, empty `experts/`, minimal `routing.ex` stub, minimal `daemon.toml` stub, empty `plan-catalog.md` with machine-owned header | E, F, N, future knowledge-format brainstorm |
+| `init` scaffolds empty `knowledge/`, empty `experts/`, minimal `ontology/` directory with `.dl` stubs, minimal `daemon.toml` stub, empty `plan-catalog.md` with machine-owned header | E, F, R, N, future knowledge-format brainstorm |
 | `adopt-project` is the per-machine project mounting step; on-live-daemon variant reads system-wide lock file then sends `:rescan` over `runtime/daemon.sock` | F, G |
 | System-wide daemon singleton lock at `<runtime_dir>/mnemosyne/daemon.lock` prevents a second daemon on the machine | D, F |
 
 ## Memory.md updates this amendment produces
 
 The orchestrator memory.md already reflects the A5 scope expansion
-(`routing.ex`, `daemon.toml`, `plan-catalog.md`, `experts/`,
+(`ontology/`, `daemon.toml`, `plan-catalog.md`, `experts/`,
 `daemon.sock`, `mailboxes/`) via the Session-9 F commitment and the
 Session-11/12 sub-C/sub-B rewrites. No further orchestrator memory
 edits are required by this amendment beyond flipping the sub-A
@@ -928,9 +948,9 @@ The sub-A sibling plan's backlog.md needs:
   forward direction, not a v1 feature.
 - **No remote setup at init.** The vault has its own `.git` but no
   remote; the user adds one via plain `git remote add`.
-- **A does not own the contents of `routing.ex`, `plan-catalog.md`,
-  or `experts/*.md`.** A ships scaffolded stubs at init; sub-F and
-  sub-N own the content evolution.
+- **A does not own the contents of `ontology/*.dl`, `plan-catalog.md`,
+  or `experts/*.md`.** A ships scaffolded stubs at init; sub-R, sub-F,
+  and sub-N own the content evolution.
 - **A does not own the daemon lifecycle, supervision, or actor
   wiring.** Sub-F owns the daemon shape; A just guarantees vault
   resolution and the layout the daemon expects to find at boot.
@@ -993,9 +1013,10 @@ Clarifying-question-style decision history for sub-project A. Q1–Q5
 were locked during the original Session-7 brainstorm (2026-04-13).
 Q6 is the BEAM daemon pivot (Session 9, 2026-04-14). Q7 is the
 sub-F architectural commitments that affect the vault layout
-(Session 9). Corrections are inline at the relevant question, not
-in a separate amendment layer, per the "rewrite specs inline" project
-discipline.
+(Session 9). Q8 is the sub-R ontology commitment that replaces
+`tag-vocabulary.md` and `routing.ex` with `ontology/` (2026-04-16).
+Corrections are inline at the relevant question, not in a separate
+amendment layer, per the "rewrite specs inline" project discipline.
 
 ### Q1 — Discovery model: walk-up, env-and-config, or registry?
 
@@ -1038,8 +1059,9 @@ state" surface (runtime, cache, symlinks). Users get a `git
 push`-able vault from day one.
 
 **Session-14 correction**: expanded the tracked side with four new
-surfaces (`daemon.toml`, `routing.ex`, `plan-catalog.md`,
-`experts/*.md`) committed by sub-F's Session-9 brainstorm. Expanded
+surfaces (`daemon.toml`, `ontology/`, `plan-catalog.md`,
+`experts/*.md`) committed by sub-F's Session-9 brainstorm and sub-R's
+Session-16 ontology design. Expanded
 the gitignored side with three new runtime surfaces (`daemon.sock`,
 `mailboxes/`, `interrupts/`). The singleton lock is system-wide (not
 in vault) per sub-D's Session-18 design. The
@@ -1121,8 +1143,10 @@ all tracked in A4:
 **New at vault root (tracked in git):**
 - `daemon.toml` — F's daemon config file. A scaffolds a two-section
   stub at init.
-- `routing.ex` — F's user-editable routing module. A scaffolds a
-  no-route stub at init.
+- `ontology/` — R's Datalog-based ontology directory (vocabulary,
+  relations, rules, routing). A scaffolds minimal `.dl` stubs and an
+  empty `views/` directory at init. (Replaces the former `routing.ex`
+  at vault root.)
 - `plan-catalog.md` — F's auto-regenerated vault catalog. A scaffolds
   a machine-owned header with zero entries at init; the daemon writes
   the full catalog on first boot.
@@ -1161,6 +1185,32 @@ declaration formats, or mailbox wire formats — it just guarantees
 the directory exists at the expected path and is tracked or
 gitignored per A5. F's commitments compose cleanly with A's
 Session-7 decisions; no Q1–Q5 answer had to change.
+
+### Q8 — Sub-R replaces tag-vocabulary.md with ontology/ directory?
+
+**Added 2026-04-16** (absorbing sub-R ontology commitment).
+
+**Decision**: Yes. Sub-R (2026-04-16) delivers a Datalog-based ontology
+that needs a directory, not a single file. `routing.ex` also moves into
+`ontology/routing.dl`. See Sub-R design doc §10.
+
+The former `tag-vocabulary.md` reservation (never materialised in v1)
+is replaced by `<vault>/ontology/` containing `vocabulary.dl`,
+`relations.dl`, `rules.dl`, `routing.dl`, and a `views/` subdirectory
+with auto-generated Obsidian Markdown views. The former
+`<vault>/routing.ex` Elixir module is deleted — its function is
+subsumed by `ontology/routing.dl`. A new runtime directory
+`<vault>/runtime/staging/proposed-rules/` is added for Level 2 routing
+agent proposals.
+
+**Rationale**: the ontology is a multi-file concern (vocabulary,
+relations, derived rules, routing rules, and generated views) that
+cannot be expressed in a single flat file. The Datalog representation
+unifies routing rules with the rest of the ontology under a single
+query language, eliminating the earlier split between an Elixir module
+(`routing.ex`) and a Markdown vocabulary file. A's vault-layout
+contract is updated in A4, A5, A6, and the cross-sub-project contracts
+table; no Q1–Q7 answer had to change.
 
 ## Appendix B — `mix.exs` deps projection
 
@@ -1224,7 +1274,7 @@ cleanly with no contradictions to B / E / M's prior decisions.
 
 **Amended Session 14 (2026-04-15)** to absorb the BEAM daemon pivot
 (Session 9) and sub-F's architectural commitments (Session 9:
-`project-root/`, `routing.ex`, `plan-catalog.md`, `experts/`, Unix
+`project-root/`, `ontology/`, `plan-catalog.md`, `experts/`, Unix
 socket client protocol, path-based qualified IDs) plus the consequent
 scope collapse of sub-D. The amendment is an inline rewrite — §A1–§A10
 are re-cast in place, the reference algorithm is rewritten in Elixir,

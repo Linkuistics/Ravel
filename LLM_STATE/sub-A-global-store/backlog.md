@@ -473,3 +473,23 @@ scope, not sub-A's.
   `docs/research-sources.md` if any); `rg '\.mnemosyne' README.md`
   returns zero matches.
 - **Results:** _pending_
+
+## Sub-R adoption
+
+### Task 16 — Absorb Sub-R: vault layout amendment (`ontology/` replaces `tag-vocabulary.md`) `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** none (design doc amendment — no code dependency)
+- **Description:** Per Sub-R design doc §10.2. Update A's design doc
+  §A4 vault layout:
+  1. Remove `tag-vocabulary.md` reservation from the layout
+  2. Remove `routing.ex` from the layout (now `ontology/routing.dl`)
+  3. Add `ontology/` directory with contents: `vocabulary.dl`,
+     `relations.dl`, `rules.dl`, `routing.dl`, `views/` (auto-generated)
+  4. Add `runtime/staging/proposed-rules/` for Level 2 agent proposals
+  5. Evaluate `mnemosyne.toml` schema version bump
+  6. Update `init` command scaffolding to create `ontology/` directory
+     with shipped `.dl` files from `priv/ontology/`
+  **Note:** The design doc amendment itself is being done by a Sub-R
+  adoption agent. This backlog task covers the implementation-time
+  changes to `init` scaffolding.
+- **Results:** _pending_

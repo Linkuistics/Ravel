@@ -607,3 +607,24 @@ input from the user.
      after the verification window has run for ≥10 consecutive CI
      builds.
 - **Results:** _pending_
+
+## Sub-R adoption
+
+### Task 27 — Absorb Sub-R: add ontology event structs to sealed set `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Task 2 (event types exist), Sub-R engine landed
+- **Description:** Per Sub-R design doc §7.3. Add three new event structs
+  to the `Mnemosyne.Event.*` sealed set:
+  - `%Mnemosyne.Event.Ontology.Loaded{}` — emitted on successful
+    ontology load/reload. Fields: `file_count`, `fact_count`,
+    `derived_fact_count`, `duration_ms`.
+  - `%Mnemosyne.Event.Ontology.ReloadFailed{}` — emitted on parse error
+    or unstratifiable rule set during reload. Fields: `file_path`,
+    `error_reason`, `line_number` (if syntax error).
+  - `%Mnemosyne.Event.Ontology.RoutingRuleProposed{}` — emitted when
+    the Level 2 routing agent proposes a new Datalog rule. Fields:
+    `rule_text`, `reason`, `staging_path`.
+  Wire into `Handler.handle_event/4` with `try/rescue` per M's Risk 6
+  discipline. Add corresponding `:telemetry` event names to the
+  catalogue (§6 metrics).
+- **Results:** _pending_

@@ -559,12 +559,30 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 - **Phase 8 (Tasks 25–28):** Layer 3 `@moduletag :live` tests.
 - **Phase 9 (Task 29):** v1 acceptance.
 
+## Sub-R adoption
+
+### Task 30 — Absorb Sub-R: rewrite `ScopeMatcher.match_candidate/2` internals to use Datalog `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Task 2 (ScopeMatcher exists), Sub-R engine landed
+- **Description:** Per Sub-R design doc §4.1. The function signature and
+  return type are **unchanged** — `match_candidate(candidate_tags,
+  vault_experts) :: {:matched, [expert_id]} | :orphan`. Internals swap
+  from exact-string set intersection to Datalog queries:
+  1. Assert temporary `candidate_tag(Tag)` facts (kebab-to-snake
+     converted)
+  2. Query `relevant_expert(Expert, Term) :- candidate_tag(Term), ...`
+  3. Retract temporaries
+  4. Return matched expert IDs or `:orphan`
+  **Value:** A candidate tagged `ffi` now matches `rust-expert` via
+  `bridges(ffi, rust)`. A candidate tagged `rustlang` matches via
+  synonym resolution. Neither possible with exact-string matching.
+  Pure Elixir — queries `Mnemosyne.Datalog.Server` via its client API.
+- **Results:** _pending_
+
 ## Out of scope for this plan
 
 - Vector-store / semantic retrieval → sub-Q (new brainstorm task on
   orchestrator backlog)
-- Knowledge ontology → sub-R (new brainstorm task on orchestrator
-  backlog)
 - Dynamic expert creation via TUI → sub-H
 - Rust TUI observation of expert dialogues → separate TUI plan
 - Obsidian plugin views → sub-K (v1.5+)

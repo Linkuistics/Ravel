@@ -54,6 +54,16 @@ valid; only the implementation technology changes.
 See `memory.md` § "BEAM / Elixir pivot (Session 9 amendment)" for full
 context.
 
+## Received
+
+### From mnemosyne-orchestrator (2026-04-16) — Critical path audit
+
+Two gaps found during implementation critical path monitor:
+
+1. **Create a formal gate task (Task 0) for the Elixir backlog rewrite.** The requirement to rewrite the Rust-framed task list exists only as prose in the backlog header (§ "BEAM PTY spike resolved"). Sub-F's Task 0 explicitly gates on "Sub-C backlog Tasks 1+ rewritten against the Session-11 design-doc rewrite." Without a numbered, status-tracked task, progress is untrackable. Create a Task 0 analogous to Sub-B's and Sub-E's gate tasks.
+
+2. **Create a task for model-configurability absorption.** The orchestrator memory states: "V1 includes per-actor model selection — the `model:` field in actor declarations and daemon config is honored, and the Claude Code adapter passes `--model` to the CLI." No task in Sub-C's backlog implements this. The Sub-C design doc §4.1.1 or the spawn args builder needs a task that wires `model:` from actor declarations through to `--model` on the `claude` CLI invocation. This is essential for cost control (Opus for plan phases, Haiku for ingestion/extraction).
+
 ## Task Backlog
 
 ### Task 1 — Cargo.toml deps + module skeleton `[setup]`
@@ -534,4 +544,21 @@ context.
   the expected metric updates appear in the registry snapshot. Layer 3
   integration test exists in sub-M Task 15; this task only needs unit
   tests on C's side.
+- **Results:** _pending_
+
+## Sub-R adoption
+
+### Task 26 — Absorb Sub-R: add `ontology.query` to tool profiles `[r-adoption]`
+- **Status:** not_started
+- **Dependencies:** Sub-R engine landed
+- **Description:** Per Sub-R design doc §5.2. Register `ontology.query`
+  as a tool in the Claude Code adapter's tool profile for plan phase
+  sessions and expert consultation sessions. Internal daemon sessions
+  (fact extraction, routing) do NOT get the tool — they are too
+  cheap/fast for tool-call overhead.
+  Tool spec: input is a Datalog query string, output is a JSON list of
+  variable bindings. The adapter routes the tool call to
+  `Mnemosyne.Datalog.Server.query/1`.
+  Tool profile gating per §4.5 of C's design doc — the `tool_profile`
+  mechanism already supports per-session tool sets.
 - **Results:** _pending_
