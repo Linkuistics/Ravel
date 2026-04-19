@@ -4,7 +4,7 @@
 
 **Owning plan:** `LLM_STATE/sub-I-obsidian-coverage/`
 
-**Parent plan:** `LLM_STATE/mnemosyne-orchestrator/`
+**Parent plan:** `LLM_STATE/ravel-orchestrator/`
 
 **Primary dependencies:** sub-A (vault layout, init scaffolding, git-tracking policy), sub-F (plan-catalog.md, plan-state.md frontmatter schema, NDJSON event types), sub-N (expert declaration format, default expert set), sub-E (knowledge entry format, Stage 5 output), sub-B (phase cycle frontmatter fields), sub-H (command palette — TUI-native, not Obsidian-surfaced in v1), sub-R (knowledge ontology — auto-generated Markdown views from Datalog fact base).
 
@@ -12,11 +12,11 @@
 
 ## §1 Scope and motivation
 
-Sub-I documents which Obsidian features cover which Mnemosyne data
+Sub-I documents which Obsidian features cover which Ravel data
 surfaces, and produces the `.obsidian/` template (plus supporting
 Templater templates and starter Dataview query files) that ships with
 v1. The deliverable is a curated vault configuration that makes every
-file Mnemosyne writes browsable, queryable, and auditable by humans in
+file Ravel writes browsable, queryable, and auditable by humans in
 Obsidian.
 
 Obsidian's role in v1 is as a **file-observation-based daemon client** —
@@ -38,7 +38,7 @@ Templater for correct file creation.
 
 ### In scope
 
-- Complete data-surface inventory mapping every Mnemosyne file type to
+- Complete data-surface inventory mapping every Ravel file type to
   Obsidian features
 - Required community plugin set with configuration
 - Templater templates for knowledge entries and expert declarations
@@ -71,7 +71,7 @@ Templater for correct file creation.
 
 | Surface | Format | Obsidian coverage | Notes |
 |---|---|---|---|
-| `mnemosyne.toml` | TOML | File tree browse + plain text editor. No syntax highlighting for `.toml`. | Read-only for most users |
+| `ravel.toml` | TOML | File tree browse + plain text editor. No syntax highlighting for `.toml`. | Read-only for most users |
 | `daemon.toml` | TOML | Same as above. User-edited. | Power-user file |
 | `routing.ex` | Elixir source | Plain text editing. No Elixir syntax highlighting. Users who need code intelligence edit in their IDE. | User-edited; Obsidian is the browser, IDE is the editor |
 | `plan-catalog.md` | Markdown | Full rendering — headings, wikilinks, reading mode. Homepage target. Machine-owned, auto-regenerated. | Primary vault orientation file |
@@ -79,7 +79,7 @@ Templater for correct file creation.
 | `knowledge/` (Tier 2) | Markdown + YAML frontmatter | Full rendering. Dataview-queryable by tags, date, provenance. Backlinks show cross-references. Tags panel for navigation. | Expert-owned writes; human review/edit/reject |
 | `archive/` | Mixed (session artifacts) | File tree browse + git history. Not Dataview-queryable unless entries have markdown with frontmatter. | Audit trail — browse, don't query |
 | `ontology/*.dl` | Datalog source | Plain text editing. No syntax highlighting for `.dl` — same situation as `.toml` and `.ex`. Obsidian is the browser; users who need code intelligence for complex edits use their IDE. | User-edited; Sub-R fact base |
-| `ontology/views/tag-index.md` | Markdown + YAML frontmatter | Full rendering — headings, wikilinks to expert declarations, kebab-case tag display. Frontmatter: `generated: true`, `generator: mnemosyne-ontology`. Dataview-queryable. | Machine-owned, auto-generated from Datalog fact base. Never hand-edited. |
+| `ontology/views/tag-index.md` | Markdown + YAML frontmatter | Full rendering — headings, wikilinks to expert declarations, kebab-case tag display. Frontmatter: `generated: true`, `generator: ravel-ontology`. Dataview-queryable. | Machine-owned, auto-generated from Datalog fact base. Never hand-edited. |
 | `ontology/views/taxonomy.md` | Markdown + YAML frontmatter | Full rendering — hierarchy as indented tree. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
 | `ontology/views/relations.md` | Markdown + YAML frontmatter | Full rendering — typed relations as tables. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
 | `ontology/views/routing-rules.md` | Markdown + YAML frontmatter | Full rendering — current routing rules in human-readable form, plus pending proposals. Same frontmatter convention. | Machine-owned, auto-generated. Never hand-edited. |
@@ -149,7 +149,7 @@ Three plugins. No more.
 
 **Disabled (reduce noise):**
 - Graph view — not useful for this vault's structure
-- Daily notes — not relevant to Mnemosyne's workflow
+- Daily notes — not relevant to Ravel's workflow
 - Slides — not relevant
 - Publish — not relevant
 - Sync — vault is git-backed, not Obsidian Sync
@@ -258,7 +258,7 @@ Design rationale:
 
 ## §5 Starter Dataview query files
 
-Four view files shipped by `mnemosyne init` into `<vault>/views/`.
+Four view files shipped by `ravel init` into `<vault>/views/`.
 Human-owned — users can edit, delete, or add more. Not machine-generated,
 not auto-regenerated.
 
@@ -393,7 +393,7 @@ and spotting gaps.
 ### §6.3 Embedding in daemon release
 
 `.obsidian/`, `templates/`, and `views/` are embedded in the daemon
-release from `priv/obsidian/`. At `mnemosyne init` time, the daemon
+release from `priv/obsidian/`. At `ravel init` time, the daemon
 copies these into the new vault. After init, the files are human-owned
 (users may modify plugin configs, templates, and views).
 
@@ -421,7 +421,7 @@ Complete init-time file set:
 
 ### §6.4 CSS snippets
 
-Zero shipped. Non-markdown files (`mnemosyne.toml`, `daemon.toml`,
+Zero shipped. Non-markdown files (`ravel.toml`, `daemon.toml`,
 `routing.ex`, `ontology/*.dl`) render as plain text in Obsidian's
 editor — no CSS snippet can add syntax highlighting to non-markdown
 files. Users who need code intelligence for `routing.ex` or Datalog
@@ -435,8 +435,8 @@ Obsidian follows symlinks natively on macOS and Linux. The
 `<vault>/projects/` directory contains symlinks into project repos:
 
 ```
-projects/mnemosyne -> /Users/antony/Development/Mnemosyne/mnemosyne/
-projects/apianyware-macos -> /Users/antony/Development/APIAnyware-MacOS/mnemosyne/
+projects/ravel -> /Users/antony/Development/Ravel/ravel/
+projects/apianyware-macos -> /Users/antony/Development/APIAnyware-MacOS/ravel/
 ```
 
 Obsidian treats symlinked directories as normal directories — file tree
@@ -458,7 +458,7 @@ finds content within symlinked knowledge directories.
 
 ## §8 First-open experience
 
-Complete flow when a user runs `mnemosyne init` and opens the vault in
+Complete flow when a user runs `ravel init` and opens the vault in
 Obsidian:
 
 1. **Trust plugins dialog.** Obsidian prompts to trust community plugins.
@@ -529,7 +529,7 @@ confirmations of existing commitments.
 
 - **Auto-generated views use Dataview-friendly frontmatter.** All four
   Markdown views in `ontology/views/` must include YAML frontmatter with
-  `generated: true` and `generator: mnemosyne-ontology`. This allows
+  `generated: true` and `generator: ravel-ontology`. This allows
   Dataview queries to distinguish auto-generated ontology views from
   human-authored content, and signals to users that the files are
   machine-owned.
@@ -569,7 +569,7 @@ Ordered by dependency:
    and `views/`; update git-tracking policy table.
 6. **Sub-E amendment** — confirm `schema-version` presence in
    ingestion-written knowledge entries.
-7. **End-to-end acceptance test** — `mnemosyne init` → open vault in
+7. **End-to-end acceptance test** — `ravel init` → open vault in
    Obsidian → verify first-open experience per §8 flow → verify
    Dataview queries return results after adopting a project with
    plans. Guivision + OCR evidence.
@@ -581,7 +581,7 @@ Ordered by dependency:
 ### Q1. How opinionated should the template be?
 
 **Context:** Obsidian templates range from minimal (just enable plugins)
-to rich (CSS themes, graph config, dozens of plugins). Mnemosyne's
+to rich (CSS themes, graph config, dozens of plugins). Ravel's
 long-term explorer UI is Phoenix LiveView, making Obsidian a pragmatic
 bridge.
 
@@ -617,7 +617,7 @@ and rejected on grounds of insufficient data-surface coverage.
 expert-knowledge relationships if files contain wikilinks.
 
 **Decision:** No. Plan hierarchy is a filesystem tree that Obsidian's
-file explorer already shows. Most cross-references in Mnemosyne are
+file explorer already shows. Most cross-references in Ravel are
 implicit (filesystem paths, qualified IDs, frontmatter tags) rather
 than explicit wikilinks. Graph view without real wikilinks would be
 misleading. User confirmed graph view is not useful in practice.
@@ -646,7 +646,7 @@ render as plain text (no Datalog syntax highlighting in Obsidian).
 four generated views (`tag-index.md`, `taxonomy.md`, `relations.md`,
 `routing-rules.md`). The views use Obsidian features effectively:
 wikilinks to expert declarations for navigation, Dataview-friendly
-YAML frontmatter (`generated: true`, `generator: mnemosyne-ontology`),
+YAML frontmatter (`generated: true`, `generator: ravel-ontology`),
 and kebab-case tag display. They live in `ontology/views/` rather than
 the human-owned `views/` directory to prevent auto-generation from
 overwriting user content. No new plugins required — existing Dataview

@@ -2,18 +2,18 @@
 
 **Status:** design complete
 **Brainstorm date:** 2026-04-16
-**Parent plan:** `LLM_STATE/mnemosyne-orchestrator/`
+**Parent plan:** `LLM_STATE/ravel-orchestrator/`
 **Sibling implementation plan:** `LLM_STATE/sub-G-migration/`
 
 ## §1. Purpose and scope
 
 Design the migration path from the current `LLM_STATE/` + `LLM_CONTEXT/`
-layout to `<project>/mnemosyne/` + the BEAM daemon. Two deliverables:
+layout to `<project>/ravel/` + the BEAM daemon. Two deliverables:
 
 1. **`migrate-project.sh`** — a one-shot shell script that restructures
    a single project's filesystem from `LLM_STATE/` to
-   `mnemosyne/project-root/`, handles per-project specifics, and commits
-   the result. Runs independently of the daemon. Lives in the Mnemosyne
+   `ravel/project-root/`, handles per-project specifics, and commits
+   the result. Runs independently of the daemon. Lives in the Ravel
    repo at `scripts/migrate-project.sh`.
 
 2. **Migration ordering and constraints** — the documented rules for
@@ -22,10 +22,10 @@ layout to `<project>/mnemosyne/` + the BEAM daemon. Two deliverables:
 ### In scope
 
 - Per-project filesystem restructure (`LLM_STATE/` →
-  `mnemosyne/project-root/`)
+  `ravel/project-root/`)
 - `phase.md` → `plan-state.md` rename (content unchanged)
 - `related-plans.md` deletion (vault catalog replaces this concept)
-- Mnemosyne v0.1.0 artifact retirement (Rust CLI, legacy plugin, eval,
+- Ravel v0.1.0 artifact retirement (Rust CLI, legacy plugin, eval,
   defaults, tests)
 - APIAnyware-MacOS knowledge directory relocation and docs move
 - Migration ordering across five projects
@@ -33,13 +33,13 @@ layout to `<project>/mnemosyne/` + the BEAM daemon. Two deliverables:
 
 ### Out of scope
 
-- Vault creation (Sub-A's `mnemosyne init`)
-- Project adoption into the vault (Sub-A's `mnemosyne adopt-project`)
+- Vault creation (Sub-A's `ravel init`)
+- Project adoption into the vault (Sub-A's `ravel adopt-project`)
 - `plan-state.md` schema enforcement beyond the rename (daemon's job at
   first boot)
 - `run-plan.sh` or LLM_CONTEXT changes (none needed)
 - The daemon itself (Sub-F + Sub-B)
-- `~/.mnemosyne/` cleanup (v0.1.0 has no real users; hardcoded path only
+- `~/.ravel/` cleanup (v0.1.0 has no real users; hardcoded path only
   existed in the deleted Rust CLI code)
 - `.gitignore` updates (no generated files introduced; vault `.gitignore`
   is Sub-A's responsibility)
@@ -48,7 +48,7 @@ layout to `<project>/mnemosyne/` + the BEAM daemon. Two deliverables:
 
 Four phases, each triggered by an explicit precondition.
 
-### Phase 0 — Mnemosyne artifact retirement (immediate)
+### Phase 0 — Ravel artifact retirement (immediate)
 
 **Precondition:** none. These are dead artifacts with no dependents.
 
@@ -57,21 +57,21 @@ Four phases, each triggered by an explicit precondition.
   `defaults/`, `eval/`, `tests/`
 - Single git commit
 
-This is independent of the `LLM_STATE/` → `mnemosyne/` rename and can
+This is independent of the `LLM_STATE/` → `ravel/` rename and can
 execute at any time.
 
-### Phase 1 — Mnemosyne migrates (daemon switch-over)
+### Phase 1 — Ravel migrates (daemon switch-over)
 
-**Precondition:** the Mnemosyne daemon's phase runner (Sub-B inside
-Sub-F) can drive plans from `mnemosyne/project-root/`.
+**Precondition:** the Ravel daemon's phase runner (Sub-B inside
+Sub-F) can drive plans from `ravel/project-root/`.
 
 **Actions:**
-- Run `migrate-project.sh` on Mnemosyne
-- The daemon takes over plan driving for Mnemosyne
-- `LLM_CONTEXT/run-plan.sh` is no longer invoked for Mnemosyne plans
+- Run `migrate-project.sh` on Ravel
+- The daemon takes over plan driving for Ravel
+- `LLM_CONTEXT/run-plan.sh` is no longer invoked for Ravel plans
 - LLM_CONTEXT itself is untouched — the four dependents still use it
 
-The rename IS the switch-over event. Mnemosyne stops using
+The rename IS the switch-over event. Ravel stops using
 `run-plan.sh` and starts using the daemon. No intermediate states, no
 symlink bridges, no LLM_CONTEXT changes.
 
@@ -82,7 +82,7 @@ each project is ready. No technical gate beyond Phase 1.
 
 **Actions per project:**
 - Run `migrate-project.sh` on the project
-- Run `mnemosyne adopt-project` to create the vault symlink
+- Run `ravel adopt-project` to create the vault symlink
 - The daemon now drives this project's plans
 - `run-plan.sh` no longer invoked for this project
 
@@ -103,13 +103,13 @@ invokes `run-plan.sh` anymore.
 
 The script performs these in order for every project:
 
-1. **Create `mnemosyne/`** directory at project root
-2. **Create `mnemosyne/knowledge/`** (empty for most projects)
+1. **Create `ravel/`** directory at project root
+2. **Create `ravel/knowledge/`** (empty for most projects)
 3. **Identify the root plan** — the `LLM_STATE/` directory that becomes
    `project-root/`
-4. **Move root plan** → `mnemosyne/project-root/`
+4. **Move root plan** → `ravel/project-root/`
 5. **Move child plans** — all other `LLM_STATE/` plan directories nest
-   under `mnemosyne/project-root/`, preserving their relative structure
+   under `ravel/project-root/`, preserving their relative structure
 6. **Rename `phase.md` → `plan-state.md`** in every plan directory
    (recursive). Content unchanged — still a bare phase string. Schema
    enforcement is the daemon's job at first boot.
@@ -122,12 +122,12 @@ The script performs these in order for every project:
 
 ### §3.2 Per-project specializations
 
-#### Mnemosyne
+#### Ravel
 
-- **Root plan:** `LLM_STATE/mnemosyne-orchestrator/` →
-  `mnemosyne/project-root/`
+- **Root plan:** `LLM_STATE/ravel-orchestrator/` →
+  `ravel/project-root/`
 - **Children:** all 8 `LLM_STATE/sub-*` directories →
-  `mnemosyne/project-root/sub-*/`
+  `ravel/project-root/sub-*/`
   - `sub-A-global-store`, `sub-B-phase-cycle`, `sub-C-adapters`,
     `sub-D-coordination`, `sub-E-ingestion`, `sub-F-hierarchy`,
     `sub-M-observability`, `sub-N-domain-experts`
@@ -141,10 +141,10 @@ The script performs these in order for every project:
 
 #### APIAnyware-MacOS
 
-- **Root plan:** `LLM_STATE/core/` → `mnemosyne/project-root/`
+- **Root plan:** `LLM_STATE/core/` → `ravel/project-root/`
 - **Children:** `LLM_STATE/targets/racket-oo/` →
-  `mnemosyne/project-root/targets/racket-oo/`
-- **Knowledge:** `knowledge/` (top-level) → `mnemosyne/knowledge/`
+  `ravel/project-root/targets/racket-oo/`
+- **Knowledge:** `knowledge/` (top-level) → `ravel/knowledge/`
 - **Docs relocation:**
   - `LLM_STATE/new-language-guide.md` → `docs/`
   - `LLM_STATE/overview.md` → `docs/`
@@ -156,25 +156,25 @@ The script performs these in order for every project:
 #### GUIVisionVMDriver
 
 - **Root plan:** `LLM_STATE/vision-pipeline/` →
-  `mnemosyne/project-root/`
+  `ravel/project-root/`
 - **Children:** `LLM_STATE/ocr-accuracy/` →
-  `mnemosyne/project-root/ocr-accuracy/`
-- **Knowledge:** none (create empty `mnemosyne/knowledge/`)
+  `ravel/project-root/ocr-accuracy/`
+- **Knowledge:** none (create empty `ravel/knowledge/`)
 - **Caveat:** same uncommitted-WIP caveat as APIAnyware-MacOS.
 
 #### Modaliser-Racket
 
-- **Root plan:** `LLM_STATE/modaliser/` → `mnemosyne/project-root/`
+- **Root plan:** `LLM_STATE/modaliser/` → `ravel/project-root/`
 - **Children:** none
-- **Knowledge:** none (create empty `mnemosyne/knowledge/`)
+- **Knowledge:** none (create empty `ravel/knowledge/`)
 - **Extra:** has a non-standard `plan.md` file in the plan directory —
   preserve as-is.
 
 #### RacketPro
 
-- **Root plan:** `LLM_STATE/racketpro/` → `mnemosyne/project-root/`
+- **Root plan:** `LLM_STATE/racketpro/` → `ravel/project-root/`
 - **Children:** none
-- **Knowledge:** none (create empty `mnemosyne/knowledge/`)
+- **Knowledge:** none (create empty `ravel/knowledge/`)
 
 ## §4. Script structure and error handling
 
@@ -185,7 +185,7 @@ The script performs these in order for every project:
 ```
 
 The script auto-detects which project it's operating on by matching the
-basename of `<project-path>` against the known set: `Mnemosyne`,
+basename of `<project-path>` against the known set: `Ravel`,
 `APIAnyware-MacOS`, `GUIVisionVMDriver`, `Modaliser-Racket`,
 `RacketPro`. Unknown project names are a hard error.
 
@@ -195,12 +195,12 @@ Before any filesystem mutation, the script validates:
 
 1. `<project-path>` is a git repo (`.git/` exists)
 2. `<project-path>/LLM_STATE/` exists
-3. `<project-path>/mnemosyne/` does NOT exist (migration hasn't already
+3. `<project-path>/ravel/` does NOT exist (migration hasn't already
    run)
 4. Working tree is clean (`git status --porcelain` is empty) — ensures
    the migration commit is isolated and `git revert` is safe
 5. The expected root plan directory exists (e.g.,
-   `LLM_STATE/mnemosyne-orchestrator/` for Mnemosyne)
+   `LLM_STATE/ravel-orchestrator/` for Ravel)
 
 Any failure prints a diagnostic and exits non-zero. No partial
 mutations.
@@ -209,9 +209,9 @@ mutations.
 
 1. Run precondition checks
 2. Print the plan (dry-run summary of every move/delete)
-3. Create `mnemosyne/` and `mnemosyne/knowledge/`
-4. Move root plan to `mnemosyne/project-root/`
-5. Move child plans under `mnemosyne/project-root/`
+3. Create `ravel/` and `ravel/knowledge/`
+4. Move root plan to `ravel/project-root/`
+5. Move child plans under `ravel/project-root/`
 6. Run per-project specializations (knowledge move, doc relocation,
    non-plan file cleanup)
 7. Rename `phase.md` → `plan-state.md` in all plan directories
@@ -234,12 +234,12 @@ mutations.
 
 Single commit per project using `git add` on specific paths:
 
-- `git add mnemosyne/`
+- `git add ravel/`
 - `git rm -r LLM_STATE/`
 - Per-project removals where applicable (e.g., `git rm -r knowledge/`
-  for APIAnyware-MacOS after the move to `mnemosyne/knowledge/`)
+  for APIAnyware-MacOS after the move to `ravel/knowledge/`)
 
-Commit message: `migrate: LLM_STATE/ → mnemosyne/project-root/`
+Commit message: `migrate: LLM_STATE/ → ravel/project-root/`
 
 No push. The user pushes when ready.
 
@@ -248,9 +248,9 @@ No push. The user pushes when ready.
 Git-native. Each project gets a single migration commit. Reversal is
 `git revert <commit>`. No custom undo logic.
 
-## §5. Mnemosyne artifact retirement (Phase 0)
+## §5. Ravel artifact retirement (Phase 0)
 
-Phase 0 is independent of the `LLM_STATE/` → `mnemosyne/` rename and
+Phase 0 is independent of the `LLM_STATE/` → `ravel/` rename and
 can execute immediately.
 
 ### §5.1 Deleted artifacts
@@ -261,7 +261,7 @@ can execute immediately.
 | `Cargo.toml` | Root Rust workspace manifest | CLI retired |
 | `Cargo.lock` | Root lockfile | Goes with `Cargo.toml` |
 | `adapters/claude-code/` | Legacy Claude Code plugin (7 skills, 4 reference docs, `plugin.json`) | Sub-H designs replacements as TUI actions. Git history preserves content. |
-| `defaults/` | v0.1.0 config format (`config.yml`, `gitignore`) | Replaced by `mnemosyne.toml` + `daemon.toml` (Sub-A) |
+| `defaults/` | v0.1.0 config format (`config.yml`, `gitignore`) | Replaced by `ravel.toml` + `daemon.toml` (Sub-A) |
 | `eval/` | Evaluation framework (Rust harness + YAML corpus + Python quality) | Rust code depends on deleted root crate. Daemon builds its own test corpus. |
 | `tests/` | Rust integration tests + fixtures for v0.1.0 CLI | Tests retired code. Daemon will have ExUnit tests. |
 
@@ -280,7 +280,7 @@ can execute immediately.
 See §3.2 for the full restructure. Key specifics:
 
 - Only project with an existing `knowledge/` directory (moves to
-  `mnemosyne/knowledge/`)
+  `ravel/knowledge/`)
 - Has standalone docs at `LLM_STATE/` root that move to project `docs/`
 - Has `targets/template.md` (a plan template, not a plan) that moves to
   `docs/`
@@ -312,36 +312,36 @@ Clear boundary between the script's responsibility and the daemon's:
    `description:` fields, or `daemon-pid`. The daemon validates and
    enforces schema at first boot.
 
-2. **No vault creation** — Sub-A's `mnemosyne init` creates the vault
-   directory with the A4 layout (`mnemosyne.toml`, `daemon.toml`,
+2. **No vault creation** — Sub-A's `ravel init` creates the vault
+   directory with the A4 layout (`ravel.toml`, `daemon.toml`,
    `routing.ex`, `plan-catalog.md`, `experts/`, `runtime/`,
    `.obsidian/`, symlinks). The script doesn't touch the vault.
 
-3. **No `mnemosyne adopt-project`** — vault symlink creation
-   (`<vault>/projects/<name>` → `<project>/mnemosyne/`) is a daemon
+3. **No `ravel adopt-project`** — vault symlink creation
+   (`<vault>/projects/<name>` → `<project>/ravel/`) is a daemon
    operation, run after the script.
 
 4. **No LLM_CONTEXT changes** — `run-plan.sh`, `phases/`,
    `fixed-memory/`, `create-plan.md` are all untouched. Dependent
    projects keep using them until they individually migrate.
 
-5. **No `~/.mnemosyne/` cleanup** — v0.1.0 has no real users. The
+5. **No `~/.ravel/` cleanup** — v0.1.0 has no real users. The
    hardcoded path was only referenced in the deleted Rust CLI code.
    Nothing to clean up on the filesystem.
 
-6. **No `.gitignore` updates** — the new `mnemosyne/` directory contains
+6. **No `.gitignore` updates** — the new `ravel/` directory contains
    only tracked plan files and an empty `knowledge/` directory. No
    generated files, build artifacts, or secrets are introduced. The
    vault's `.gitignore` (for `runtime/`, `cache/`, `projects/`) is
-   Sub-A's responsibility at `mnemosyne init` time.
+   Sub-A's responsibility at `ravel init` time.
 
 ## §8. Cross-sub-project requirements
 
 ### §8.1 Sub-A (global store)
 
-`mnemosyne adopt-project` must work against the post-migration
-`<project>/mnemosyne/` layout. A's adoption check
-(`<project>/mnemosyne/project-root/plan-state.md` exists) is already
+`ravel adopt-project` must work against the post-migration
+`<project>/ravel/` layout. A's adoption check
+(`<project>/ravel/project-root/plan-state.md` exists) is already
 aligned with G's output. No design change needed.
 
 ### §8.2 Sub-B (phase cycle)
@@ -352,7 +352,7 @@ No design change needed.
 
 ### §8.3 Sub-F (hierarchy)
 
-Plan discovery walks `<project>/mnemosyne/project-root/` and its
+Plan discovery walks `<project>/ravel/project-root/` and its
 descendants looking for `plan-state.md`. G's output conforms to this.
 Vault catalog generation handles the `project-root/` convention and
 nested children at arbitrary depth, as specified in F's design.
@@ -360,13 +360,13 @@ No design change needed.
 
 ### §8.4 Sub-E (ingestion)
 
-Ingestion reads from `<project>/mnemosyne/knowledge/` (Tier 1). G
+Ingestion reads from `<project>/ravel/knowledge/` (Tier 1). G
 ensures this directory exists (even if empty) for every migrated
 project. No design change needed.
 
 ### §8.5 Sub-N (domain experts)
 
-Expert scope globs reference `<project>/mnemosyne/knowledge/` for
+Expert scope globs reference `<project>/ravel/knowledge/` for
 Tier 1. G's layout matches. No design change needed.
 
 ### §8.6 Sub-C (harness adapters)
@@ -382,13 +382,13 @@ migration script.
 **Summary:** G's output conforms to what A, B, F, E, and N already
 expect. No sibling needs a design change — only implementation
 awareness that `plan-state.md` is the file name and
-`mnemosyne/project-root/` is the root.
+`ravel/project-root/` is the root.
 
 ## Appendix A — Decision Trail
 
 ### Q1. When does the rename happen? (Timing model)
 
-**Decision:** per-project staggering (option D). Mnemosyne migrates
+**Decision:** per-project staggering (option D). Ravel migrates
 first at daemon switch-over. Dependents migrate later, one at a time,
 at the user's discretion.
 
@@ -399,7 +399,7 @@ at the user's discretion.
   LLM_CONTEXT changes
 - Symlink bridge (C) — intermediate state complexity for no gain
 
-### Q2. Mnemosyne's own transition window?
+### Q2. Ravel's own transition window?
 
 **Decision:** rename waits for daemon readiness (option A). The rename
 IS the switch-over event. No intermediate states.
@@ -411,7 +411,7 @@ IS the switch-over event. No intermediate states.
 ### Q3. Two tools or one?
 
 **Decision:** two separate tools (option C). Shell script for
-per-project restructure, `mnemosyne adopt-project` for vault
+per-project restructure, `ravel adopt-project` for vault
 integration. Different lifecycles, different error models.
 
 **Rejected:**
@@ -461,7 +461,7 @@ user-owned. No abstraction needed for a one-shot tool.
 **Decision:** move to project `docs/` (option B).
 
 **Rejected:**
-- `mnemosyne/` root (A) — they're project docs, not plan-system docs
+- `ravel/` root (A) — they're project docs, not plan-system docs
 - Leave for manual decision (C) — script can handle it
 
 ### Q9. `eval/` fate?

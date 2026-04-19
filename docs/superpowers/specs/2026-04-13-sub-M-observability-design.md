@@ -4,7 +4,7 @@
 
 ## 1. Purpose
 
-Mnemosyne needs a unified observability framework that serves three masters equally:
+Ravel needs a unified observability framework that serves three masters equally:
 
 1. **Diagnostic-first** — when something goes wrong, give the user (or future maintainer) rich enough context to debug. Sub-project C's accepted Risk 5 ("v1 ships with diagnostic-poor failure modes") is the load-bearing concrete requirement: M must support *"give me the last N events from session X with full context"* as a one-`GenServer.call` operation.
 2. **Live-display-first** — drive the Rust `ratatui` TUI's status bars, phase progress widgets, harness output panes, and metric sparklines in real time via the daemon's Unix-socket NDJSON protocol (sub-F §6/§7). Drive Obsidian dashboards via Dataview queries against persisted data.
@@ -16,11 +16,11 @@ M also owns the migration path away from per-sub-project tactical instrumentatio
 
 ## 2. Principles
 
-1. **Integration over reinvention.** Every component is a standard BEAM library composed in standard ways: `:telemetry` for transport, `:telemetry_metrics` for metric definitions, `:telemetry_metrics_prometheus` (optional v1.5+) for export, `Jason` for JSON, stdlib `GenServer` / `DynamicSupervisor` / `File` for long-lived subscribers. The single pieces of custom code are one `Mnemosyne.Observability.Handler` module (attached via `:telemetry.attach_many/4`) and four small GenServers (ring buffer, JSONL writer, TUI bridge, metrics aggregator). No custom event bus, no custom handler registry, no custom rotation logic.
+1. **Integration over reinvention.** Every component is a standard BEAM library composed in standard ways: `:telemetry` for transport, `:telemetry_metrics` for metric definitions, `:telemetry_metrics_prometheus` (optional v1.5+) for export, `Jason` for JSON, stdlib `GenServer` / `DynamicSupervisor` / `File` for long-lived subscribers. The single pieces of custom code are one `Ravel.Observability.Handler` module (attached via `:telemetry.attach_many/4`) and four small GenServers (ring buffer, JSONL writer, TUI bridge, metrics aggregator). No custom event bus, no custom handler registry, no custom rotation logic.
 2. **Hard errors by default** (project-wide). Handler attach failures, schema mismatches, disk write failures on subscriber initialisation, and `:telemetry_metrics` reporter start failures all fail loud during the 11-step daemon boot sequence (sub-A §A.Reference algorithm) and abort startup. Post-boot, bounded-mailbox overflow on the TUI bridge is the only tolerated non-fatal failure mode, justified by the `events.dropped` counter.
-3. **Type discipline at the Mnemosyne boundary, ecosystem leverage everywhere else.** The sealed `Mnemosyne.Event.*` struct set is the single source of truth for *"what events Mnemosyne knows how to observe."* Downstream consumers pattern-match exhaustively on the struct name and field set. Below the boundary, `:telemetry` handles transport, event-name prefixes, span measurements, and third-party-library integration. Code below the boundary emits `:telemetry.execute/3` with the typed struct in `metadata.event`; handlers above the boundary downcast on `metadata.event.__struct__`.
+3. **Type discipline at the Ravel boundary, ecosystem leverage everywhere else.** The sealed `Ravel.Event.*` struct set is the single source of truth for *"what events Ravel knows how to observe."* Downstream consumers pattern-match exhaustively on the struct name and field set. Below the boundary, `:telemetry` handles transport, event-name prefixes, span measurements, and third-party-library integration. Code below the boundary emits `:telemetry.execute/3` with the typed struct in `metadata.event`; handlers above the boundary downcast on `metadata.event.__struct__`.
 4. **Always-on instrumentation; tactical measurement disclaims framework scope.** Every event emit is unconditional — no debug flag, no env var, no gated build. Cost per emit (one `:telemetry.execute/3` handler lookup, one `GenServer.cast` to the JSONL writer, one `:ets.update_counter/3` on metric tables) is small enough not to merit a flag. (Project-wide principle, established by sub-project C's `%SpawnLatencyReport{}` seed.)
-5. **Vault-scoped persistence.** Operational data (event JSONL, metric snapshots) lives under `<vault>/runtime/` (gitignored, per sub-A §A5). The historical, user-browsable record lives under `<vault>/projects/<project>/mnemosyne/observability/` (git-tracked, Obsidian-friendly markdown with Dataview frontmatter). M's subtree integrates with A's runtime layout without collision.
+5. **Vault-scoped persistence.** Operational data (event JSONL, metric snapshots) lives under `<vault>/runtime/` (gitignored, per sub-A §A5). The historical, user-browsable record lives under `<vault>/projects/<project>/ravel/observability/` (git-tracked, Obsidian-friendly markdown with Dataview frontmatter). M's subtree integrates with A's runtime layout without collision.
 6. **Cross-plan adoption is M's deliverable, not a triage-phase task.** When M's brainstorm lands its sibling implementation plan, it also lands adoption tasks into each existing sibling backlog (sub-B, sub-C, sub-D, sub-E, sub-F, plus once brainstormed sub-H/I).
 
 ## 3. Hex dep stack — all standard BEAM libraries
@@ -30,7 +30,7 @@ M also owns the migration path away from per-sub-project tactical instrumentatio
 | Instrumentation API | `:telemetry` | de facto BEAM standard; zero-cost when no handlers attached; already pulled in by sub-C (`erlexec` chain) and F |
 | Metric definitions | `:telemetry_metrics` | reporter-independent typed counter / last_value / sum / summary / distribution; ships from the `telemetry_metrics` Hex package |
 | Metric reporter (v1) | `Telemetry.Metrics.ConsoleReporter` | stdlib-level console output for dev / dogfood cycles; no external dep |
-| Metric reporter (v1.5+) | `:telemetry_metrics_prometheus` | Prometheus text-format endpoint; chosen over `prom_ex` because `prom_ex` bundles Phoenix/Ecto/Broadway plugins Mnemosyne does not consume |
+| Metric reporter (v1.5+) | `:telemetry_metrics_prometheus` | Prometheus text-format endpoint; chosen over `prom_ex` because `prom_ex` bundles Phoenix/Ecto/Broadway plugins Ravel does not consume |
 | JSON serialisation | `Jason` | already in tree from sub-C and sub-F |
 | Non-blocking file IO | stdlib `File.open(..., [:append, :raw, :binary, :delayed_write])` + a writer `GenServer` per session | no `tracing-appender`-style guard needed; `:delayed_write` batches writes and a supervised GenServer holds the file handle |
 | Long-lived subscribers | `GenServer` + `DynamicSupervisor` + `:ets` | stdlib; ring buffer per session, metric aggregator, TUI bridge each run as their own GenServer |
@@ -38,19 +38,19 @@ M also owns the migration path away from per-sub-project tactical instrumentatio
 
 Choices the spec deliberately does NOT make:
 
-- **No `prom_ex`** in v1 — ships its own Plug endpoint, dashboards, and grafana integration that Mnemosyne will not use. If a user wants Prometheus, the lightweight `:telemetry_metrics_prometheus` reporter is additive and can ship in v1.5 without disturbing v1.
+- **No `prom_ex`** in v1 — ships its own Plug endpoint, dashboards, and grafana integration that Ravel will not use. If a user wants Prometheus, the lightweight `:telemetry_metrics_prometheus` reporter is additive and can ship in v1.5 without disturbing v1.
 - **No OpenTelemetry (`:opentelemetry`) exporter** in v1 — deferred to v2. `:telemetry` events can be bridged to OTel later via a handler module with no upstream changes.
 - **No `observer_cli`** dependency in v1 — documented as a recommended optional layer developers can add via `mix.exs`, not shipped as a framework surface.
 - **No `Phoenix.PubSub`** for the TUI bridge — Phoenix is a large transitive dependency for a single fan-out concern. We use `:pg` (stdlib since OTP 23) instead, which gives process-group fan-out with no extra hex deps.
 
 ## 4. Event model
 
-### 4.1 The sealed `Mnemosyne.Event.*` struct set
+### 4.1 The sealed `Ravel.Event.*` struct set
 
-The sealed set is the single source of truth for *"what Mnemosyne knows how to observe."* Every struct is defined under `lib/mnemosyne/event/` with `@enforce_keys` + `defstruct` and derives `Jason.Encoder`. Downstream consumers pattern-match on `%Struct{...}`.
+The sealed set is the single source of truth for *"what Ravel knows how to observe."* Every struct is defined under `lib/ravel/event/` with `@enforce_keys` + `defstruct` and derives `Jason.Encoder`. Downstream consumers pattern-match on `%Struct{...}`.
 
 ```elixir
-defmodule Mnemosyne.Event.PhaseLifecycle do
+defmodule Ravel.Event.PhaseLifecycle do
   @moduledoc """
   Phase-cycle state transitions emitted by sub-B's PhaseRunner.
   See sub-B design doc §4.4 for emission points.
@@ -76,44 +76,44 @@ end
 The other structs follow the same shape. The full sealed set, categorised by producer:
 
 **From sub-B (phase cycle, §4.4):**
-- `%Mnemosyne.Event.PhaseLifecycle{}` — seven `kind` variants as above.
+- `%Ravel.Event.PhaseLifecycle{}` — seven `kind` variants as above.
 
 **From sub-C (harness adapter, §3.3 + §11.4):**
-- `%Mnemosyne.Event.HarnessOutput{kind, text_summary, byte_len, session_id, qualified_id, at}` — `kind` is `:stdout | :stderr | :tool_use | :tool_result | :internal_message`. Carries a truncated 256-byte text summary plus the full byte length. **Full chunk text lives in the harness session transcript** at `<vault>/runtime/transcripts/<session-id>.jsonl`; the ring buffer keeps tails only. Forwarded by sub-B's `LlmHarnessExecutor` when consuming C's session GenServer.
-- `%Mnemosyne.Event.SessionLifecycle{transition, session_id, qualified_id, at}` — `transition` is `:ready | {:turn_complete, subtype} | {:exited, reason}`. Protocol-level signal; distinct from `PhaseLifecycle` (phase state machine) and from task-level sentinel detection (B's policy layer).
-- `%Mnemosyne.Event.SpawnLatencyReport{session_id, cold_spawn_ms, first_chunk_ms, first_output_ms, adapter_kind, at}` — canonical shape preserved from C's seed. C's three-way parallel emission (§7.2 of C's spec) survives unchanged through the parallel-emit window.
-- `%Mnemosyne.Event.SessionExitStatus{session_id, reason, exit_code, adapter_kind, at}` — `reason` is one of `:clean | :signaled | :timeout | :port_lost | {:error, term}`.
-- `%Mnemosyne.Event.HarnessError{session_id, kind, message, context, at}` — `kind` tags the error category (`:spawn_failure | :stream_parse_error | :tool_call_boundary_error | :unexpected_exit`).
+- `%Ravel.Event.HarnessOutput{kind, text_summary, byte_len, session_id, qualified_id, at}` — `kind` is `:stdout | :stderr | :tool_use | :tool_result | :internal_message`. Carries a truncated 256-byte text summary plus the full byte length. **Full chunk text lives in the harness session transcript** at `<vault>/runtime/transcripts/<session-id>.jsonl`; the ring buffer keeps tails only. Forwarded by sub-B's `LlmHarnessExecutor` when consuming C's session GenServer.
+- `%Ravel.Event.SessionLifecycle{transition, session_id, qualified_id, at}` — `transition` is `:ready | {:turn_complete, subtype} | {:exited, reason}`. Protocol-level signal; distinct from `PhaseLifecycle` (phase state machine) and from task-level sentinel detection (B's policy layer).
+- `%Ravel.Event.SpawnLatencyReport{session_id, cold_spawn_ms, first_chunk_ms, first_output_ms, adapter_kind, at}` — canonical shape preserved from C's seed. C's three-way parallel emission (§7.2 of C's spec) survives unchanged through the parallel-emit window.
+- `%Ravel.Event.SessionExitStatus{session_id, reason, exit_code, adapter_kind, at}` — `reason` is one of `:clean | :signaled | :timeout | :port_lost | {:error, term}`.
+- `%Ravel.Event.HarnessError{session_id, kind, message, context, at}` — `kind` tags the error category (`:spawn_failure | :stream_parse_error | :tool_call_boundary_error | :unexpected_exit`).
 
 **From sub-F (hierarchy + routing, Task 24):**
-- `%Mnemosyne.Event.ActorStateChange{actor_id, kind, from_state, to_state, reason, at}` — `kind` is `:started | :restarted | :terminated | :phase_entered | :phase_exited`. `actor_id` is a qualified plan id or expert id.
-- `%Mnemosyne.Event.MessageRouted{message_id, message_kind, from_actor, to_actor, via, decision, at}` — `message_kind` is `:dispatch | :query`; `via` is `:declarative_rule | :level2_routing_agent | :direct`.
-- `%Mnemosyne.Event.RuleFired{rule_id, clause, facts, outcome, at}` — `outcome` is `{:target_plan, qid} | {:target_expert, id} | :no_route`.
-- `%Mnemosyne.Event.RuleCompileError{file, line, reason, at}` — emitted when `routing.ex` fails hot-reload compilation; must not crash the daemon.
-- `%Mnemosyne.Event.RuleSuggestion{rule_candidate, context, trigger_agent, at}` — learning-loop event emitted by the Level 2 routing agent.
-- `%Mnemosyne.Event.DispatchProcessed{dispatch_id, origin_plan, target_plan, outcome, at}` — emitted after `DispatchProcessor` writes to the target's `Received` section.
-- `%Mnemosyne.Event.QueryAnswered{query_id, origin_plan, target_actor, answer_summary, at}` — emitted after `QueryProcessor` delivers a reply.
-- `%Mnemosyne.Event.Level2Invoked{message_id, target_project, reason, at}` — emitted when declarative rules do not decide and L2 fallback starts.
-- `%Mnemosyne.Event.Level2Rejected{message_id, reason, retarget, at}` — emitted when L2 rejects a dispatch with a retarget proposal.
+- `%Ravel.Event.ActorStateChange{actor_id, kind, from_state, to_state, reason, at}` — `kind` is `:started | :restarted | :terminated | :phase_entered | :phase_exited`. `actor_id` is a qualified plan id or expert id.
+- `%Ravel.Event.MessageRouted{message_id, message_kind, from_actor, to_actor, via, decision, at}` — `message_kind` is `:dispatch | :query`; `via` is `:declarative_rule | :level2_routing_agent | :direct`.
+- `%Ravel.Event.RuleFired{rule_id, clause, facts, outcome, at}` — `outcome` is `{:target_plan, qid} | {:target_expert, id} | :no_route`.
+- `%Ravel.Event.RuleCompileError{file, line, reason, at}` — emitted when `routing.ex` fails hot-reload compilation; must not crash the daemon.
+- `%Ravel.Event.RuleSuggestion{rule_candidate, context, trigger_agent, at}` — learning-loop event emitted by the Level 2 routing agent.
+- `%Ravel.Event.DispatchProcessed{dispatch_id, origin_plan, target_plan, outcome, at}` — emitted after `DispatchProcessor` writes to the target's `Received` section.
+- `%Ravel.Event.QueryAnswered{query_id, origin_plan, target_actor, answer_summary, at}` — emitted after `QueryProcessor` delivers a reply.
+- `%Ravel.Event.Level2Invoked{message_id, target_project, reason, at}` — emitted when declarative rules do not decide and L2 fallback starts.
+- `%Ravel.Event.Level2Rejected{message_id, reason, retarget, at}` — emitted when L2 rejects a dispatch with a retarget proposal.
 
 **From sub-E (ingestion pipeline, §5):**
-- `%Mnemosyne.Event.Ingestion.Applied{candidate_id, store_path, at}`
-- `%Mnemosyne.Event.Ingestion.PromptRequired{candidate_id, reason, at}`
-- `%Mnemosyne.Event.Ingestion.Deferred{candidate_id, reason, at}`
-- `%Mnemosyne.Event.Ingestion.Rejected{candidate_id, reason, at}`
-- `%Mnemosyne.Event.Ingestion.ResearchSession{candidate_id, session_id, at}`
-- `%Mnemosyne.Event.Ingestion.CycleSummary{cycle_id, applied_count, deferred_count, rejected_count, duration_ms, at}`
+- `%Ravel.Event.Ingestion.Applied{candidate_id, store_path, at}`
+- `%Ravel.Event.Ingestion.PromptRequired{candidate_id, reason, at}`
+- `%Ravel.Event.Ingestion.Deferred{candidate_id, reason, at}`
+- `%Ravel.Event.Ingestion.Rejected{candidate_id, reason, at}`
+- `%Ravel.Event.Ingestion.ResearchSession{candidate_id, session_id, at}`
+- `%Ravel.Event.Ingestion.CycleSummary{cycle_id, applied_count, deferred_count, rejected_count, duration_ms, at}`
 
 Post-F, Stage 5 "dispatch to experts" emits a `MessageRouted{message_kind: :query, via: :declarative_rule, to_actor: <expert-id>}` as part of the same flow. E's existing channel plumbing collapses into M's bus during the parallel-emit window (see §9).
 
 **From sub-A (vault bootstrap, §A amendment):**
-- `%Mnemosyne.Event.Vault.BootReady{vault_path, project_count, started_at, ready_at}` — emitted as step 11 of the 11-step daemon boot sequence.
-- `%Mnemosyne.Event.Vault.MarkerError{path, reason}` — emitted before the daemon exits non-zero on vault-identity parse failure.
+- `%Ravel.Event.Vault.BootReady{vault_path, project_count, started_at, ready_at}` — emitted as step 11 of the 11-step daemon boot sequence.
+- `%Ravel.Event.Vault.MarkerError{path, reason}` — emitted before the daemon exits non-zero on vault-identity parse failure.
 
 **Generic escape hatches (M-owned):**
-- `%Mnemosyne.Event.Metric{kind, name, value, tags, session_id, qualified_id, at}` — `kind` is `:counter | :gauge | :distribution | :summary | :last_value`. Bridges `:telemetry_metrics` updates into the same dispatch path so metrics share persistence with structured events.
-- `%Mnemosyne.Event.Diagnostic{level, target, message, fields, at}` — unstructured escape hatch covering third-party library events that do not carry a Mnemosyne struct, and ad-hoc logging from Mnemosyne code that does not warrant a typed variant. Replaces scattered `Logger.info/1` calls.
-- `%Mnemosyne.Event.Error{context, error, at}` — distinct from `Diagnostic{level: :error}`: `Error` events trigger the Risk 5 event-tail dump path.
+- `%Ravel.Event.Metric{kind, name, value, tags, session_id, qualified_id, at}` — `kind` is `:counter | :gauge | :distribution | :summary | :last_value`. Bridges `:telemetry_metrics` updates into the same dispatch path so metrics share persistence with structured events.
+- `%Ravel.Event.Diagnostic{level, target, message, fields, at}` — unstructured escape hatch covering third-party library events that do not carry a Ravel struct, and ad-hoc logging from Ravel code that does not warrant a typed variant. Replaces scattered `Logger.info/1` calls.
+- `%Ravel.Event.Error{context, error, at}` — distinct from `Diagnostic{level: :error}`: `Error` events trigger the Risk 5 event-tail dump path.
 
 The sealed set is **closed for v1**: adding a variant is a code change with a Decision Trail entry in this doc, not a plugin mechanism. Discipline prevents god-object drift (Risk 4): most new observability needs go through `Diagnostic` rather than growing the sealed set.
 
@@ -122,7 +122,7 @@ The sealed set is **closed for v1**: adding a variant is a code change with a De
 Every typed event is emitted by calling `:telemetry.execute/3` with the struct passed in `metadata.event`:
 
 ```elixir
-defmodule Mnemosyne.Observability do
+defmodule Ravel.Observability do
   @spec emit(event :: struct()) :: :ok
   def emit(%_module{} = event) do
     :telemetry.execute(
@@ -133,20 +133,20 @@ defmodule Mnemosyne.Observability do
   end
 
   # Event name prefix is derived from the struct module path.
-  # `%Mnemosyne.Event.PhaseLifecycle{}` -> [:mnemosyne, :phase_lifecycle]
-  # `%Mnemosyne.Event.Ingestion.Applied{}` -> [:mnemosyne, :ingestion, :applied]
+  # `%Ravel.Event.PhaseLifecycle{}` -> [:ravel, :phase_lifecycle]
+  # `%Ravel.Event.Ingestion.Applied{}` -> [:ravel, :ingestion, :applied]
   defp event_name_for(%module{}) do
     module
     |> Module.split()
-    |> Enum.drop(2)            # drop ["Mnemosyne", "Event"]
+    |> Enum.drop(2)            # drop ["Ravel", "Event"]
     |> Enum.map(&Macro.underscore/1)
     |> Enum.map(&String.to_atom/1)
-    |> then(&[:mnemosyne | &1])
+    |> then(&[:ravel | &1])
   end
 
   # Latency-bearing events project their duration fields into
   # `:telemetry` measurements so `:telemetry_metrics` summaries work.
-  defp measurements_for(%Mnemosyne.Event.SpawnLatencyReport{} = e) do
+  defp measurements_for(%Ravel.Event.SpawnLatencyReport{} = e) do
     %{
       cold_spawn_ms: e.cold_spawn_ms,
       first_chunk_ms: e.first_chunk_ms,
@@ -157,10 +157,10 @@ defmodule Mnemosyne.Observability do
 end
 ```
 
-Call sites throughout the daemon become a single `Mnemosyne.Observability.emit/1` call:
+Call sites throughout the daemon become a single `Ravel.Observability.emit/1` call:
 
 ```elixir
-Mnemosyne.Observability.emit(%Mnemosyne.Event.PhaseLifecycle{
+Ravel.Observability.emit(%Ravel.Event.PhaseLifecycle{
   kind: :started,
   phase: :work,
   qualified_id: state.qualified_id,
@@ -169,7 +169,7 @@ Mnemosyne.Observability.emit(%Mnemosyne.Event.PhaseLifecycle{
 })
 ```
 
-Third-party library events (e.g., from `erlexec`, `telemetry_poller`, or user-added libraries) flow through the standard `:telemetry` path with their own event names; they carry no `metadata.event` field. `Mnemosyne.Observability.Handler` (§5) detects the absence and routes them to `%Mnemosyne.Event.Diagnostic{}` automatically, capturing the event name as `target`, the measurements map, and the metadata map verbatim.
+Third-party library events (e.g., from `erlexec`, `telemetry_poller`, or user-added libraries) flow through the standard `:telemetry` path with their own event names; they carry no `metadata.event` field. `Ravel.Observability.Handler` (§5) detects the absence and routes them to `%Ravel.Event.Diagnostic{}` automatically, capturing the event name as `target`, the measurements map, and the metadata map verbatim.
 
 ### 4.3 Why this hybrid (typed structs + `:telemetry` transport)?
 
@@ -182,16 +182,16 @@ The hybrid honours both: M owns type discipline at the *event payload* boundary,
 
 ## 5. Subscriber stack
 
-Attached at daemon boot via a single `:telemetry.attach_many/4` call on `Mnemosyne.Observability.Handler`. The handler module receives every event (filtered by the `[:mnemosyne | _]` prefix) and dispatches to four long-lived subscriber GenServers supervised by `Mnemosyne.Observability.Supervisor` under the daemon's root `Mnemosyne.Supervisor`.
+Attached at daemon boot via a single `:telemetry.attach_many/4` call on `Ravel.Observability.Handler`. The handler module receives every event (filtered by the `[:ravel | _]` prefix) and dispatches to four long-lived subscriber GenServers supervised by `Ravel.Observability.Supervisor` under the daemon's root `Ravel.Supervisor`.
 
 ```
-Mnemosyne.Supervisor
- └─ Mnemosyne.Observability.Supervisor (Supervisor, :rest_for_one)
-     ├─ Mnemosyne.Observability.Metrics          (Supervisor — telemetry_metrics + reporter)
-     ├─ Mnemosyne.Observability.RingBuffer.Sup   (DynamicSupervisor — one GenServer per session)
-     ├─ Mnemosyne.Observability.JsonlWriter.Sup  (DynamicSupervisor — one GenServer per session)
-     ├─ Mnemosyne.Observability.TuiBridge        (GenServer owning a :pg group for fan-out)
-     └─ Mnemosyne.Observability.Handler          (attaches to :telemetry after the above are up)
+Ravel.Supervisor
+ └─ Ravel.Observability.Supervisor (Supervisor, :rest_for_one)
+     ├─ Ravel.Observability.Metrics          (Supervisor — telemetry_metrics + reporter)
+     ├─ Ravel.Observability.RingBuffer.Sup   (DynamicSupervisor — one GenServer per session)
+     ├─ Ravel.Observability.JsonlWriter.Sup  (DynamicSupervisor — one GenServer per session)
+     ├─ Ravel.Observability.TuiBridge        (GenServer owning a :pg group for fan-out)
+     └─ Ravel.Observability.Handler          (attaches to :telemetry after the above are up)
 ```
 
 | Subscriber | Purpose | Storage | Bounded? |
@@ -199,22 +199,22 @@ Mnemosyne.Supervisor
 | `Metrics` | hosts `Telemetry.Metrics.*` definitions; ships with `Telemetry.Metrics.ConsoleReporter` in v1, optional `:telemetry_metrics_prometheus` in v1.5 | in-memory `:ets` tables + session-end JSON snapshot | no (metric cardinality bounded by the catalogue in §6) |
 | `RingBuffer` | per-session `:queue` of last N events (default N=1000); one GenServer per session under a DynamicSupervisor; process dies with the session; provides `dump_session/3` | in-memory | yes |
 | `JsonlWriter` | per-session writer GenServer holding a `File` handle opened with `[:append, :raw, :binary, :delayed_write]`; encodes each event via `Jason.encode_to_iodata!/1` and writes an iodata line terminated by `\n` | file | the mailbox is bounded via `{:max_messages, 4096}` process flag; overflow causes a process exit which supervisor logs and restarts |
-| `TuiBridge` | maintains a `:pg` group `:mnemosyne_tui`; every daemon-client attached over the Unix socket (sub-F §6) joins the group from the client-session process; the handler publishes events to the group via `:pg.get_members/2` + `send/2`; bounded per-client mailbox with drop-oldest + `events.dropped` counter | process-memory (per client) | yes |
+| `TuiBridge` | maintains a `:pg` group `:ravel_tui`; every daemon-client attached over the Unix socket (sub-F §6) joins the group from the client-session process; the handler publishes events to the group via `:pg.get_members/2` + `send/2`; bounded per-client mailbox with drop-oldest + `events.dropped` counter | process-memory (per client) | yes |
 | `Handler` | attaches last; parses `metadata.event` or synthesises `%Diagnostic{}`; dispatches to the three subscribers above in order | stateless (just a handler function) | n/a |
 
 ### 5.1 Startup order
 
-`Mnemosyne.Observability.Supervisor` uses `:rest_for_one` so that if `Metrics` restarts, the rest of the stack restarts too (the ETS tables owned by the old `Metrics` process become stale). Startup order is deliberate: the four GenServers come up first, and `Handler.attach/0` runs last. This means no event is dispatched until all subscribers are ready — events emitted during partial boot are collected by `:telemetry`'s default dispatch (a no-op since no handler is attached yet).
+`Ravel.Observability.Supervisor` uses `:rest_for_one` so that if `Metrics` restarts, the rest of the stack restarts too (the ETS tables owned by the old `Metrics` process become stale). Startup order is deliberate: the four GenServers come up first, and `Handler.attach/0` runs last. This means no event is dispatched until all subscribers are ready — events emitted during partial boot are collected by `:telemetry`'s default dispatch (a no-op since no handler is attached yet).
 
 ### 5.2 Handler dispatch
 
 ```elixir
-defmodule Mnemosyne.Observability.Handler do
-  @handler_id :mnemosyne_observability
+defmodule Ravel.Observability.Handler do
+  @handler_id :ravel_observability
 
   def attach do
     events =
-      [:mnemosyne]
+      [:ravel]
       |> :telemetry.list_handlers()
       |> Enum.map(& &1.event_name)
       # Plus any known third-party prefixes we want to capture:
@@ -229,10 +229,10 @@ defmodule Mnemosyne.Observability.Handler do
     qualified_id = Map.get(metadata, :qualified_id) || extract_qualified_id(event)
 
     # Dispatch order: cheap in-memory first, expensive IO last.
-    Mnemosyne.Observability.RingBuffer.record(session_id, event)
-    Mnemosyne.Observability.Metrics.record(event, measurements)
-    Mnemosyne.Observability.TuiBridge.publish(event, session_id, qualified_id)
-    Mnemosyne.Observability.JsonlWriter.append(session_id, qualified_id, event)
+    Ravel.Observability.RingBuffer.record(session_id, event)
+    Ravel.Observability.Metrics.record(event, measurements)
+    Ravel.Observability.TuiBridge.publish(event, session_id, qualified_id)
+    Ravel.Observability.JsonlWriter.append(session_id, qualified_id, event)
 
     :ok
   rescue
@@ -245,11 +245,11 @@ defmodule Mnemosyne.Observability.Handler do
 end
 ```
 
-The `rescue` clause is load-bearing: `:telemetry` *detaches* a handler that raises inside `handle_event/4` to prevent cascading failures, which would silently blind Mnemosyne to all subsequent events. M's handler is defensively wrapped so a bug in one subscriber cannot take observability down. The raised error is logged through `Logger` directly (not through M — avoiding the obvious re-entrancy) and the handler stays attached.
+The `rescue` clause is load-bearing: `:telemetry` *detaches* a handler that raises inside `handle_event/4` to prevent cascading failures, which would silently blind Ravel to all subsequent events. M's handler is defensively wrapped so a bug in one subscriber cannot take observability down. The raised error is logged through `Logger` directly (not through M — avoiding the obvious re-entrancy) and the handler stays attached.
 
 ### 5.3 Re-entrancy discipline
 
-`:telemetry.execute/3` from inside `Handler.handle_event/4` would re-enter the dispatch, causing a recursion. This is the BEAM equivalent of the Rust Layer ordering bug (Risk 1). The discipline: **no code reachable from `Handler.handle_event/4` may call `Mnemosyne.Observability.emit/1` or `:telemetry.execute/3`.** Tests enforce this by attaching a witness handler that counts recursive dispatches; the re-entrancy integration test (§14) asserts the count stays zero across 1M event emits.
+`:telemetry.execute/3` from inside `Handler.handle_event/4` would re-enter the dispatch, causing a recursion. This is the BEAM equivalent of the Rust Layer ordering bug (Risk 1). The discipline: **no code reachable from `Handler.handle_event/4` may call `Ravel.Observability.emit/1` or `:telemetry.execute/3`.** Tests enforce this by attaching a witness handler that counts recursive dispatches; the re-entrancy integration test (§14) asserts the count stays zero across 1M event emits.
 
 The subscribers themselves (`RingBuffer`, `JsonlWriter`, `TuiBridge`, `Metrics`) communicate with the handler via `GenServer.cast` (fire-and-forget, no handler in their reply path) which is re-entrancy-safe.
 
@@ -259,10 +259,10 @@ Every event carries an optional `session_id` (set when the event is emitted from
 
 ## 6. Metrics catalogue (v1)
 
-Metric definitions live in `Mnemosyne.Observability.Metrics` as `Telemetry.Metrics.*` declarations. `:telemetry_metrics` is reporter-independent: the same declarations drive the v1 `ConsoleReporter` and the v1.5 `:telemetry_metrics_prometheus` reporter without rewriting.
+Metric definitions live in `Ravel.Observability.Metrics` as `Telemetry.Metrics.*` declarations. `:telemetry_metrics` is reporter-independent: the same declarations drive the v1 `ConsoleReporter` and the v1.5 `:telemetry_metrics_prometheus` reporter without rewriting.
 
 ```elixir
-defmodule Mnemosyne.Observability.Metrics do
+defmodule Ravel.Observability.Metrics do
   use Supervisor
   import Telemetry.Metrics
 
@@ -279,100 +279,100 @@ defmodule Mnemosyne.Observability.Metrics do
   def metrics do
     [
       # Phase lifecycle (sub-B)
-      counter("mnemosyne.phase_lifecycle.started.count",
-        event_name: [:mnemosyne, :phase_lifecycle],
+      counter("ravel.phase_lifecycle.started.count",
+        event_name: [:ravel, :phase_lifecycle],
         keep: &(&1.event.kind == :started)),
-      counter("mnemosyne.phase_lifecycle.exited_clean.count",
-        event_name: [:mnemosyne, :phase_lifecycle],
+      counter("ravel.phase_lifecycle.exited_clean.count",
+        event_name: [:ravel, :phase_lifecycle],
         keep: &(&1.event.kind == :exited_clean)),
-      counter("mnemosyne.phase_lifecycle.executor_failed.count",
-        event_name: [:mnemosyne, :phase_lifecycle],
+      counter("ravel.phase_lifecycle.executor_failed.count",
+        event_name: [:ravel, :phase_lifecycle],
         keep: &(&1.event.kind == :executor_failed)),
-      counter("mnemosyne.phase_lifecycle.interrupted.count",
-        event_name: [:mnemosyne, :phase_lifecycle],
+      counter("ravel.phase_lifecycle.interrupted.count",
+        event_name: [:ravel, :phase_lifecycle],
         keep: &(&1.event.kind == :interrupted)),
 
       # Harness (sub-C)
-      counter("mnemosyne.session_lifecycle.ready.count",
-        event_name: [:mnemosyne, :session_lifecycle],
+      counter("ravel.session_lifecycle.ready.count",
+        event_name: [:ravel, :session_lifecycle],
         keep: &(&1.event.transition == :ready)),
-      counter("mnemosyne.session_exit_status.clean.count",
-        event_name: [:mnemosyne, :session_exit_status],
+      counter("ravel.session_exit_status.clean.count",
+        event_name: [:ravel, :session_exit_status],
         keep: &(&1.event.reason == :clean)),
-      counter("mnemosyne.session_exit_status.error.count",
-        event_name: [:mnemosyne, :session_exit_status],
+      counter("ravel.session_exit_status.error.count",
+        event_name: [:ravel, :session_exit_status],
         keep: &(&1.event.reason != :clean)),
-      distribution("mnemosyne.spawn_latency.cold_spawn_ms",
-        event_name: [:mnemosyne, :spawn_latency_report],
+      distribution("ravel.spawn_latency.cold_spawn_ms",
+        event_name: [:ravel, :spawn_latency_report],
         measurement: :cold_spawn_ms,
         reporter_options: [buckets: [100, 250, 500, 1000, 2500, 5000, 10_000]]),
-      distribution("mnemosyne.spawn_latency.first_chunk_ms",
-        event_name: [:mnemosyne, :spawn_latency_report],
+      distribution("ravel.spawn_latency.first_chunk_ms",
+        event_name: [:ravel, :spawn_latency_report],
         measurement: :first_chunk_ms,
         reporter_options: [buckets: [100, 250, 500, 1000, 2500, 5000, 10_000]]),
-      distribution("mnemosyne.spawn_latency.first_output_ms",
-        event_name: [:mnemosyne, :spawn_latency_report],
+      distribution("ravel.spawn_latency.first_output_ms",
+        event_name: [:ravel, :spawn_latency_report],
         measurement: :first_output_ms,
         reporter_options: [buckets: [100, 250, 500, 1000, 2500, 5000, 10_000]]),
-      last_value("mnemosyne.harness.live_sessions",
-        event_name: [:mnemosyne, :session_lifecycle]),
+      last_value("ravel.harness.live_sessions",
+        event_name: [:ravel, :session_lifecycle]),
 
       # Ingestion (sub-E)
-      counter("mnemosyne.ingestion.applied.count",
-        event_name: [:mnemosyne, :ingestion, :applied]),
-      counter("mnemosyne.ingestion.deferred.count",
-        event_name: [:mnemosyne, :ingestion, :deferred]),
-      counter("mnemosyne.ingestion.rejected.count",
-        event_name: [:mnemosyne, :ingestion, :rejected]),
-      distribution("mnemosyne.ingestion.cycle_duration_ms",
-        event_name: [:mnemosyne, :ingestion, :cycle_summary],
+      counter("ravel.ingestion.applied.count",
+        event_name: [:ravel, :ingestion, :applied]),
+      counter("ravel.ingestion.deferred.count",
+        event_name: [:ravel, :ingestion, :deferred]),
+      counter("ravel.ingestion.rejected.count",
+        event_name: [:ravel, :ingestion, :rejected]),
+      distribution("ravel.ingestion.cycle_duration_ms",
+        event_name: [:ravel, :ingestion, :cycle_summary],
         measurement: :duration_ms,
         reporter_options: [buckets: [100, 500, 1000, 5000, 10_000, 30_000]]),
 
       # Routing / dispatch / rules (sub-F)
-      counter("mnemosyne.message_routed.count",
-        event_name: [:mnemosyne, :message_routed]),
-      counter("mnemosyne.rule_fired.count",
-        event_name: [:mnemosyne, :rule_fired]),
-      counter("mnemosyne.level2_invoked.count",
-        event_name: [:mnemosyne, :level2_invoked]),
-      counter("mnemosyne.level2_rejected.count",
-        event_name: [:mnemosyne, :level2_rejected]),
-      counter("mnemosyne.dispatch_processed.count",
-        event_name: [:mnemosyne, :dispatch_processed]),
-      counter("mnemosyne.query_answered.count",
-        event_name: [:mnemosyne, :query_answered]),
-      counter("mnemosyne.rule_compile_error.count",
-        event_name: [:mnemosyne, :rule_compile_error]),
-      counter("mnemosyne.rule_suggestion.count",
-        event_name: [:mnemosyne, :rule_suggestion]),
+      counter("ravel.message_routed.count",
+        event_name: [:ravel, :message_routed]),
+      counter("ravel.rule_fired.count",
+        event_name: [:ravel, :rule_fired]),
+      counter("ravel.level2_invoked.count",
+        event_name: [:ravel, :level2_invoked]),
+      counter("ravel.level2_rejected.count",
+        event_name: [:ravel, :level2_rejected]),
+      counter("ravel.dispatch_processed.count",
+        event_name: [:ravel, :dispatch_processed]),
+      counter("ravel.query_answered.count",
+        event_name: [:ravel, :query_answered]),
+      counter("ravel.rule_compile_error.count",
+        event_name: [:ravel, :rule_compile_error]),
+      counter("ravel.rule_suggestion.count",
+        event_name: [:ravel, :rule_suggestion]),
 
       # Sentinel detection (sub-B policy layer)
-      counter("mnemosyne.sentinel.matched.count",
-        event_name: [:mnemosyne, :diagnostic],
-        keep: &(&1.event.target == "mnemosyne.sentinel")),
+      counter("ravel.sentinel.matched.count",
+        event_name: [:ravel, :diagnostic],
+        keep: &(&1.event.target == "ravel.sentinel")),
 
       # Drop counter (non-fatal overflow on bounded queues)
-      counter("mnemosyne.events.dropped.count",
-        event_name: [:mnemosyne, :diagnostic],
-        keep: &(&1.event.target == "mnemosyne.events.dropped")),
+      counter("ravel.events.dropped.count",
+        event_name: [:ravel, :diagnostic],
+        keep: &(&1.event.target == "ravel.events.dropped")),
 
       # Actor lifecycle (sub-F)
-      counter("mnemosyne.actor_state_change.started.count",
-        event_name: [:mnemosyne, :actor_state_change],
+      counter("ravel.actor_state_change.started.count",
+        event_name: [:ravel, :actor_state_change],
         keep: &(&1.event.kind == :started)),
-      counter("mnemosyne.actor_state_change.restarted.count",
-        event_name: [:mnemosyne, :actor_state_change],
+      counter("ravel.actor_state_change.restarted.count",
+        event_name: [:ravel, :actor_state_change],
         keep: &(&1.event.kind == :restarted)),
-      counter("mnemosyne.actor_state_change.terminated.count",
-        event_name: [:mnemosyne, :actor_state_change],
+      counter("ravel.actor_state_change.terminated.count",
+        event_name: [:ravel, :actor_state_change],
         keep: &(&1.event.kind == :terminated))
     ]
   end
 end
 ```
 
-**Catalogue discipline.** A compile-time `@external_resource` test in `test/observability/catalogue_test.exs` enumerates the metric names returned by `Mnemosyne.Observability.Metrics.metrics/0`, parses the `## 6. Metrics catalogue (v1)` section of this design doc, and asserts one-to-one correspondence. Adding a metric without updating §6 (or vice versa) fails CI. This locks the metric name contract into the spec review loop.
+**Catalogue discipline.** A compile-time `@external_resource` test in `test/observability/catalogue_test.exs` enumerates the metric names returned by `Ravel.Observability.Metrics.metrics/0`, parses the `## 6. Metrics catalogue (v1)` section of this design doc, and asserts one-to-one correspondence. Adding a metric without updating §6 (or vice versa) fails CI. This locks the metric name contract into the spec review loop.
 
 Unlike the Rust `metrics` crate's `const &'static str` approach, `:telemetry_metrics` uses string names by convention — so the compile-time typo protection is weaker. The catalogue test is the substitute protection.
 
@@ -394,7 +394,7 @@ Unlike the Rust `metrics` crate's `const &'static str` approach, `:telemetry_met
         └── <phase>-<timestamp>/
             └── event-tail.json                             # Risk 5 dump (last N events)
 
-<vault>/projects/<project-name>/mnemosyne/observability/    # git-tracked, Obsidian-facing (v1.5)
+<vault>/projects/<project-name>/ravel/observability/    # git-tracked, Obsidian-facing (v1.5)
 └── sessions/
     └── <session-id>.md                                     # Dataview frontmatter + summary
 ```
@@ -408,44 +408,44 @@ One event per line, `Jason.encode_to_iodata!/1` + `"\n"` terminator. Every line 
 ```json
 {
   "ts": "2026-04-15T14:23:45.123Z",
-  "qualified_id": "Mnemosyne/project-root/sub-F-hierarchy",
+  "qualified_id": "Ravel/project-root/sub-F-hierarchy",
   "session_id": "01HXYZ...",
-  "event_name": ["mnemosyne", "phase_lifecycle"],
-  "event": { "__struct__": "Mnemosyne.Event.PhaseLifecycle", ... }
+  "event_name": ["ravel", "phase_lifecycle"],
+  "event": { "__struct__": "Ravel.Event.PhaseLifecycle", ... }
 }
 ```
 
-The `__struct__` field is automatic from `@derive Jason.Encoder` on a struct; downstream Elixir consumers round-trip via `Jason.decode!/1` + a small reconstruction helper that dispatches on the struct name. A forward-compat rule: **consumers must ignore unknown top-level keys and unknown variant fields**, to allow additive evolution of the sealed set without breaking `mnemosyne diagnose` against older logs.
+The `__struct__` field is automatic from `@derive Jason.Encoder` on a struct; downstream Elixir consumers round-trip via `Jason.decode!/1` + a small reconstruction helper that dispatches on the struct name. A forward-compat rule: **consumers must ignore unknown top-level keys and unknown variant fields**, to allow additive evolution of the sealed set without breaking `ravel diagnose` against older logs.
 
 ### 7.2 Metrics snapshot format (`metrics/<qualified-id>/<session-id>.json`)
 
-`Mnemosyne.Observability.Metrics` collects values into ETS tables behind `:telemetry_metrics`. At session end, `Mnemosyne.Observability.Metrics.snapshot/1` folds the tables into a map and writes it via `Jason.encode_to_iodata!/1`:
+`Ravel.Observability.Metrics` collects values into ETS tables behind `:telemetry_metrics`. At session end, `Ravel.Observability.Metrics.snapshot/1` folds the tables into a map and writes it via `Jason.encode_to_iodata!/1`:
 
 ```json
 {
   "session_id": "01HXYZ...",
-  "qualified_id": "Mnemosyne/project-root",
+  "qualified_id": "Ravel/project-root",
   "started_at": "2026-04-15T14:20:00Z",
   "ended_at": "2026-04-15T14:35:12Z",
   "counters": {
-    "mnemosyne.phase_lifecycle.started.count": 1,
-    "mnemosyne.phase_lifecycle.exited_clean.count": 1,
-    "mnemosyne.session_lifecycle.ready.count": 1,
-    "mnemosyne.ingestion.applied.count": 7
+    "ravel.phase_lifecycle.started.count": 1,
+    "ravel.phase_lifecycle.exited_clean.count": 1,
+    "ravel.session_lifecycle.ready.count": 1,
+    "ravel.ingestion.applied.count": 7
   },
   "distributions": {
-    "mnemosyne.spawn_latency.cold_spawn_ms": {
+    "ravel.spawn_latency.cold_spawn_ms": {
       "count": 1, "sum": 2340, "min": 2340, "max": 2340,
       "p50": 2340, "p95": 2340, "p99": 2340
     }
   },
   "gauges": {
-    "mnemosyne.harness.live_sessions": 1
+    "ravel.harness.live_sessions": 1
   }
 }
 ```
 
-Distribution percentiles come from the reporter's bucket histograms (see §6 `reporter_options`). `ConsoleReporter` does not expose percentile computation directly; for the v1 snapshot we read the raw values stored by a thin custom reporter, `Mnemosyne.Observability.Metrics.SnapshotReporter`, which subscribes to the same events `ConsoleReporter` does and maintains bucket histograms in ETS. `SnapshotReporter` is ≈150 lines. When v1.5 ships `:telemetry_metrics_prometheus`, `SnapshotReporter` is retained because Prometheus export is push-model; the snapshot file is still the source of truth for session-ended analyses.
+Distribution percentiles come from the reporter's bucket histograms (see §6 `reporter_options`). `ConsoleReporter` does not expose percentile computation directly; for the v1 snapshot we read the raw values stored by a thin custom reporter, `Ravel.Observability.Metrics.SnapshotReporter`, which subscribes to the same events `ConsoleReporter` does and maintains bucket histograms in ETS. `SnapshotReporter` is ≈150 lines. When v1.5 ships `:telemetry_metrics_prometheus`, `SnapshotReporter` is retained because Prometheus export is push-model; the snapshot file is still the source of truth for session-ended analyses.
 
 ### 7.3 Obsidian session summary format (v1.5)
 
@@ -454,7 +454,7 @@ Markdown with kebab-case YAML frontmatter (per the project's Obsidian-native for
 ```markdown
 ---
 session-id: 01HXYZ...
-qualified-id: Mnemosyne/project-root
+qualified-id: Ravel/project-root
 phase: work
 started-at: 2026-04-15T14:20:00Z
 ended-at: 2026-04-15T14:35:12Z
@@ -464,9 +464,9 @@ harness-first-chunk-latency-ms: 2780
 ingestion-applied-count: 7
 ingestion-deferred-count: 0
 sentinel-matched: true
-tags: [mnemosyne/observability/session, mnemosyne/plan/mnemosyne-orchestrator]
+tags: [ravel/observability/session, ravel/plan/ravel-orchestrator]
 ---
-# Session 01HXYZ... — Work phase, Mnemosyne/project-root
+# Session 01HXYZ... — Work phase, Ravel/project-root
 
 Brief textual summary auto-generated from event tail.
 
@@ -480,7 +480,7 @@ Brief textual summary auto-generated from event tail.
 None.
 ```
 
-Wikilinks point to per-event note stubs; the v1.5 `Mnemosyne.Observability.ObsidianMaterialiser` produces these stubs as part of materialisation. v1 ships without these summaries — the JSONL and metric snapshots cover the data needs for the dogfood acceptance test, and Obsidian materialisation can land additively.
+Wikilinks point to per-event note stubs; the v1.5 `Ravel.Observability.ObsidianMaterialiser` produces these stubs as part of materialisation. v1 ships without these summaries — the JSONL and metric snapshots cover the data needs for the dogfood acceptance test, and Obsidian materialisation can land additively.
 
 ## 8. Risk 5 resolution — diagnostic-poor failure modes
 
@@ -488,8 +488,8 @@ Sub-project C's accepted Risk 5 says: *"v1 ships with diagnostic-poor failure mo
 
 M's resolution:
 
-1. **`Mnemosyne.Observability.RingBuffer.dump_session(session_id, n)`** returns the last `n` events for the given session in chronological order. Implemented as a `GenServer.call` against the per-session ring-buffer GenServer; if the session process has already exited, the call is routed through a small registry fallback to the most recent ring buffer for that session (the process stays alive for a brief grace window after the session ends, sized to the §14 Risk 5 integration test).
-2. **`Mnemosyne.Observability.dump_event_tail(session_id, qualified_id, phase, n)`** writes the ring-buffer result to `<vault>/runtime/interrupted/<qualified-id>/<phase>-<timestamp>/event-tail.json` using a panic-safe `try/rescue` wrapper. Any failure inside the dump path is logged through `Logger` directly and never masks the original error.
+1. **`Ravel.Observability.RingBuffer.dump_session(session_id, n)`** returns the last `n` events for the given session in chronological order. Implemented as a `GenServer.call` against the per-session ring-buffer GenServer; if the session process has already exited, the call is routed through a small registry fallback to the most recent ring buffer for that session (the process stays alive for a brief grace window after the session ends, sized to the §14 Risk 5 integration test).
+2. **`Ravel.Observability.dump_event_tail(session_id, qualified_id, phase, n)`** writes the ring-buffer result to `<vault>/runtime/interrupted/<qualified-id>/<phase>-<timestamp>/event-tail.json` using a panic-safe `try/rescue` wrapper. Any failure inside the dump path is logged through `Logger` directly and never masks the original error.
 3. **Every error path** in B's `PhaseRunner`, C's session GenServer, and E's pipeline calls `dump_event_tail/4` on its way out, alongside B's existing forensics-dir writer. Sub-B's `%PhaseLifecycle{kind: :executor_failed}` and C's `%HarnessError{}` emissions precede the dump so the ring buffer contains them before the dump reads.
 4. **The TUI's error display** surfaces a "view event tail" action that opens the file (client-side; TUI is out of M's scope but consumes the file).
 5. **The default ring size (1000 events)** captures roughly the last 5-15 minutes of activity for typical sessions — sized to fit the C-1 dogfood acceptance test envelope without runaway memory.
@@ -501,7 +501,7 @@ This makes Risk 5's requirement *"give me the last N events from session X with 
 Sub-C's v1 ships a tactical three-way parallel emission for `%SpawnLatencyReport{}` (C's design doc §7.2):
 
 1. Info message delivered to the consumer process (`{:harness_event, _, %SpawnLatencyReport{}}`)
-2. `:telemetry.execute([:mnemosyne, :harness, :claude_code, :spawn_latency], ...)`
+2. `:telemetry.execute([:ravel, :harness, :claude_code, :spawn_latency], ...)`
 3. JSON file at `<staging>/spawn-latency.json`
 
 C explicitly disclaims framework scope for this instrumentation. M's job is to absorb it without breaking the C-1 dogfood acceptance gate.
@@ -514,7 +514,7 @@ C explicitly disclaims framework scope for this instrumentation. M's job is to a
 | **M v2** (after full migration complete) | no | no | yes | yes |
 | **Sub-G migration** (cleanup) | (file-deletion tasks scheduled by G) | — | — | — |
 
-M's handler attaches to `[:mnemosyne, :spawn_latency_report]` and routes the struct through the normal dispatch path (RingBuffer + JsonlWriter + Metrics + TuiBridge). The `:telemetry` event name from C's §7.2 is bridged: `Handler.handle_event/4` also subscribes to `[:mnemosyne, :harness, :claude_code, :spawn_latency]` and rewrites incoming events into `%SpawnLatencyReport{}` structs before dispatch, so both naming conventions land on the same dispatch path.
+M's handler attaches to `[:ravel, :spawn_latency_report]` and routes the struct through the normal dispatch path (RingBuffer + JsonlWriter + Metrics + TuiBridge). The `:telemetry` event name from C's §7.2 is bridged: `Handler.handle_event/4` also subscribes to `[:ravel, :harness, :claude_code, :spawn_latency]` and rewrites incoming events into `%SpawnLatencyReport{}` structs before dispatch, so both naming conventions land on the same dispatch path.
 
 The parallel-emit window is the safety net: M's dispatch is verified against C's staging file ground truth before C's auxiliary emission paths are removed. If M's recorded values diverge from the JSON file, M is wrong and gets fixed before the deletion step.
 
@@ -526,15 +526,15 @@ When M's brainstorm lands its sibling implementation plan, it also lands adoptio
 
 | Sibling | Adoption task |
 |---|---|
-| **sub-B-phase-cycle** | B's §4.4 already commits to emitting the seven `%PhaseLifecycle{}` variants via `Mnemosyne.Observability.emit/1`. B also forwards `%HarnessOutput{}` and `%SessionLifecycle{}` from C. M's adoption task: verify B's implementation wires `emit/1` at the §4.4 call sites and runs a Layer 3 test asserting the seven events arrive at the `RingBuffer` subscriber. |
-| **sub-C-adapters** | C's §7.2 already commits to the three-way parallel emission. M's adoption task: land `Handler.handle_event/4`'s bridge from `[:mnemosyne, :harness, :claude_code, :spawn_latency]` to `%SpawnLatencyReport{}`, run the verification window, schedule the C-v1.1 cleanup task in C's sibling backlog. C also emits `%HarnessOutput{}`, `%SessionLifecycle{}`, `%SessionExitStatus{}`, `%HarnessError{}` per §11.4 — M verifies each reaches the `RingBuffer` subscriber. |
-| **sub-D-concurrency** | D's collapsed scope (daemon singleton lock + advisory file locks + vault git concurrency) is primarily structural, not observational. Adoption task: emit `%Diagnostic{target: "mnemosyne.lock"}` for singleton-lock acquire / release / contend events. |
-| **sub-E-ingestion** | Wrap each existing `IngestionEvent` emit with a parallel `Mnemosyne.Observability.emit/1` of the corresponding `%Ingestion.*{}` struct during the transition window. After verification, collapse E's standalone channel into M's bus and delete E's channel plumbing. (E's F-amendment is pending; this adoption task lands alongside that amendment.) |
+| **sub-B-phase-cycle** | B's §4.4 already commits to emitting the seven `%PhaseLifecycle{}` variants via `Ravel.Observability.emit/1`. B also forwards `%HarnessOutput{}` and `%SessionLifecycle{}` from C. M's adoption task: verify B's implementation wires `emit/1` at the §4.4 call sites and runs a Layer 3 test asserting the seven events arrive at the `RingBuffer` subscriber. |
+| **sub-C-adapters** | C's §7.2 already commits to the three-way parallel emission. M's adoption task: land `Handler.handle_event/4`'s bridge from `[:ravel, :harness, :claude_code, :spawn_latency]` to `%SpawnLatencyReport{}`, run the verification window, schedule the C-v1.1 cleanup task in C's sibling backlog. C also emits `%HarnessOutput{}`, `%SessionLifecycle{}`, `%SessionExitStatus{}`, `%HarnessError{}` per §11.4 — M verifies each reaches the `RingBuffer` subscriber. |
+| **sub-D-concurrency** | D's collapsed scope (daemon singleton lock + advisory file locks + vault git concurrency) is primarily structural, not observational. Adoption task: emit `%Diagnostic{target: "ravel.lock"}` for singleton-lock acquire / release / contend events. |
+| **sub-E-ingestion** | Wrap each existing `IngestionEvent` emit with a parallel `Ravel.Observability.emit/1` of the corresponding `%Ingestion.*{}` struct during the transition window. After verification, collapse E's standalone channel into M's bus and delete E's channel plumbing. (E's F-amendment is pending; this adoption task lands alongside that amendment.) |
 | **sub-F-hierarchy** | F's Task 24 already commits to emitting the nine routing/actor/rule events via `:telemetry.execute/3`. M's adoption task: verify F's handler registrations for the nine structs, add `Telemetry.Metrics.*` entries for the five routing counters (`message_routed`, `rule_fired`, `level2_invoked`, `level2_rejected`, `rule_suggestion`). Sub-F Task 24 is dependent on M's v1 implementation, which is dependent on this amendment — the two are tracked in parallel and land together during the F implementation runway. |
-| **sub-A-global-store** | A's 11-step daemon boot sequence (§A.Reference algorithm) step 11 emits `%Vault.BootReady{}`. A's `Mnemosyne.Vault.MarkerError` routes through M's `:telemetry` boundary before a hard-error exit. M's adoption task: add the two structs to the sealed set (done in §4.1 of this doc) and verify A's boot sequence calls `Mnemosyne.Observability.emit/1` at the right points. |
-| **sub-H-skills** | Emit `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: ...}}` for each attached-client TUI action invocation. |
+| **sub-A-global-store** | A's 11-step daemon boot sequence (§A.Reference algorithm) step 11 emits `%Vault.BootReady{}`. A's `Ravel.Vault.MarkerError` routes through M's `:telemetry` boundary before a hard-error exit. M's adoption task: add the two structs to the sealed set (done in §4.1 of this doc) and verify A's boot sequence calls `Ravel.Observability.emit/1` at the right points. |
+| **sub-H-skills** | Emit `%Diagnostic{target: "ravel.tui_action", fields: %{action: ...}}` for each attached-client TUI action invocation. |
 | **sub-I-obsidian** | Document the observability data surfaces (events, metrics, session summaries, plus `<vault>/plan-catalog.md` as a routing + catalogue surface) as part of the Obsidian coverage doc. Provide example Dataview queries against the v1.5 Obsidian session summary format. |
-| **sub-G-migration** | Delete `<staging>/spawn-latency.json` from the staging schema after the M parallel-emit window closes. Migrate any pre-M Mnemosyne v0.1.0 logs (if any exist in user vaults) — none are expected since v0.1.0 has no structured logging. |
+| **sub-G-migration** | Delete `<staging>/spawn-latency.json` from the staging schema after the M parallel-emit window closes. Migrate any pre-M Ravel v0.1.0 logs (if any exist in user vaults) — none are expected since v0.1.0 has no structured logging. |
 
 Each adoption task is added to the corresponding sibling backlog as a `not_started` task with a dependency on M's v1 implementation. M's brainstorm's session log records that the adoption tasks have been added; the orchestrator's triage phase verifies they're present.
 
@@ -542,13 +542,13 @@ Each adoption task is added to the corresponding sibling backlog as a `not_start
 
 ### 11.1 Rust TUI client (separate binary)
 
-Per sub-F §6/§7, the TUI is a standalone Rust `ratatui` binary connected to the daemon over a Unix socket at `<vault>/runtime/daemon.sock` speaking NDJSON. The client subscribes to an observability event stream by sending a `{"op":"subscribe","channel":"observability","filters":{...}}` request. On the daemon side, the request is handled by a per-client session process that joins the `:mnemosyne_tui` `:pg` group; every event broadcast by `TuiBridge.publish/3` reaches every client-session in the group, which serialises the event to JSON and writes it on the Unix socket.
+Per sub-F §6/§7, the TUI is a standalone Rust `ratatui` binary connected to the daemon over a Unix socket at `<vault>/runtime/daemon.sock` speaking NDJSON. The client subscribes to an observability event stream by sending a `{"op":"subscribe","channel":"observability","filters":{...}}` request. On the daemon side, the request is handled by a per-client session process that joins the `:ravel_tui` `:pg` group; every event broadcast by `TuiBridge.publish/3` reaches every client-session in the group, which serialises the event to JSON and writes it on the Unix socket.
 
 Rendering responsibilities stay in the TUI (M doesn't care about `ratatui` widgets):
 
-- **Status bar**: live gauges — `mnemosyne.harness.live_sessions`, elapsed time of the current phase (computed client-side from the most recent `%PhaseLifecycle{kind: :started}` timestamp), rolling count of recent `%Error{}` events.
+- **Status bar**: live gauges — `ravel.harness.live_sessions`, elapsed time of the current phase (computed client-side from the most recent `%PhaseLifecycle{kind: :started}` timestamp), rolling count of recent `%Error{}` events.
 - **Event tail panel**: last 50 events received on the subscription, formatted compactly.
-- **Error display**: when an `%Error{}` arrives, the TUI offers a "view event tail" action that sends a `{"op":"dump_event_tail","session_id":...}` request to the daemon; the daemon calls `Mnemosyne.Observability.dump_event_tail/4` and returns the JSON payload inline.
+- **Error display**: when an `%Error{}` arrives, the TUI offers a "view event tail" action that sends a `{"op":"dump_event_tail","session_id":...}` request to the daemon; the daemon calls `Ravel.Observability.dump_event_tail/4` and returns the JSON payload inline.
 - **Metric sparklines (v1.5)**: small ASCII sparklines for the most recent N values of key distributions. v1 omits these for simplicity.
 
 M's v1 surface to the TUI is three daemon protocol operations:
@@ -563,13 +563,13 @@ The protocol wire format is sub-F's scope; M provides the GenServer-call surface
 
 ### 11.2 Obsidian (Dataview)
 
-v1 ships JSONL events and metric snapshots. v1.5 ships the `Mnemosyne.Observability.ObsidianMaterialiser` that produces per-session markdown summaries with Dataview-friendly frontmatter (§7.3).
+v1 ships JSONL events and metric snapshots. v1.5 ships the `Ravel.Observability.ObsidianMaterialiser` that produces per-session markdown summaries with Dataview-friendly frontmatter (§7.3).
 
 Example query for finding slow sessions:
 
 ```dataview
 TABLE qualified-id, phase, harness-cold-spawn-latency-ms, exit-status
-FROM "projects/Mnemosyne/mnemosyne/observability/sessions"
+FROM "projects/Ravel/ravel/observability/sessions"
 WHERE harness-cold-spawn-latency-ms > 5000
 SORT started-at DESC
 ```
@@ -582,7 +582,7 @@ TABLE
   sum(ingestion-applied-count) AS applied,
   sum(ingestion-deferred-count) AS deferred,
   sum(ingestion-rejected-count) AS rejected
-FROM "projects/Mnemosyne/mnemosyne/observability/sessions"
+FROM "projects/Ravel/ravel/observability/sessions"
 GROUP BY day
 SORT day DESC
 ```
@@ -595,13 +595,13 @@ Sub-project I's brainstorm absorbs the full query catalogue as part of the Obsid
 
 ## 12. Analysis tooling
 
-### 12.1 `mix mnemosyne.metrics` task (v1)
+### 12.1 `mix ravel.metrics` task (v1)
 
 ```sh
-mix mnemosyne.metrics --qualified-id Mnemosyne/project-root --since 2026-04-01
+mix ravel.metrics --qualified-id Ravel/project-root --since 2026-04-01
 ```
 
-Escript-style entry point at `lib/mix/tasks/mnemosyne.metrics.ex`. Reads JSONL events from `<vault>/runtime/events/<qualified-id>/` and metric snapshots from `<vault>/runtime/metrics/<qualified-id>/` for the given range. Computes per-metric percentiles from the stored bucket histograms. Prints a human-readable report to stdout.
+Escript-style entry point at `lib/mix/tasks/ravel.metrics.ex`. Reads JSONL events from `<vault>/runtime/events/<qualified-id>/` and metric snapshots from `<vault>/runtime/metrics/<qualified-id>/` for the given range. Computes per-metric percentiles from the stored bucket histograms. Prints a human-readable report to stdout.
 
 ≈300 lines, no new deps (reuses `Jason`). Output formats:
 
@@ -609,28 +609,28 @@ Escript-style entry point at `lib/mix/tasks/mnemosyne.metrics.ex`. Reads JSONL e
 - `--json`: machine-readable JSON
 - `--csv` (v1.5+): CSV for piping to external tools
 
-The task lives alongside `mix mnemosyne.dev.record_fixture` (C's dev task) and the future `mix mnemosyne.adopt_project` (A's adopt-project command as a mix task during dev).
+The task lives alongside `mix ravel.dev.record_fixture` (C's dev task) and the future `mix ravel.adopt_project` (A's adopt-project command as a mix task during dev).
 
-### 12.2 `mix mnemosyne.diagnose` task (v1)
+### 12.2 `mix ravel.diagnose` task (v1)
 
 ```sh
-mix mnemosyne.diagnose --session 01HXYZ... [--last 50]
+mix ravel.diagnose --session 01HXYZ... [--last 50]
 ```
 
 Reads `<vault>/runtime/events/<qualified-id>/<session-id>.jsonl` and prints the last N events in chronological order. Mirrors the in-memory `RingBuffer.dump_session/2` API but works against persisted JSONL after the session has ended. Useful when the live `event-tail.json` dump is missing or insufficient.
 
 ### 12.3 Obsidian Dataview queries (v1.5)
 
-Once `Mnemosyne.Observability.ObsidianMaterialiser` ships, ad-hoc analysis happens in Obsidian directly. The mix tasks stay for machine-readable cases and for users not running Obsidian.
+Once `Ravel.Observability.ObsidianMaterialiser` ships, ad-hoc analysis happens in Obsidian directly. The mix tasks stay for machine-readable cases and for users not running Obsidian.
 
 ## 13. Error handling
 
 Per the project's "hard errors by default" principle:
 
-- **Supervisor child start failure** (e.g., `Metrics` cannot open ETS, `JsonlWriter` cannot write to `<vault>/runtime/events/`) → fails at process startup; the daemon's root supervisor escalates; the 11-step boot sequence (sub-A Reference algorithm) exits non-zero with a clear diagnostic. Mnemosyne refuses to run.
-- **`Handler.handle_event/4` rescue** (any raise inside dispatch) → log via `Logger.error/1`, stay attached, do not cascade. This is load-bearing: a raise without the rescue would cause `:telemetry` to detach the handler permanently, silently blinding Mnemosyne to all subsequent events. The rescue is the exception to "hard errors by default" and is justified here because (a) losing observability must be louder than the original error, not quieter; (b) the error is logged, not swallowed; (c) tests cover every subscriber path to keep the rescue rare.
-- **`JsonlWriter` mailbox overflow** → the GenServer's `{:max_messages, 4096}` process flag triggers an abnormal exit; the `DynamicSupervisor` restarts the writer with a fresh file handle; the exit is counted as `mnemosyne.events.dropped.count` with `target: "mnemosyne.jsonl_writer.restart"`. Events in the dead process's mailbox are lost, but the new writer picks up cleanly. Bounded queue is the explicit non-fatal exception.
-- **`TuiBridge` client mailbox full** → `:pg`-side send fails silently per BEAM semantics; M wraps each `send/2` in a try/catch that increments `mnemosyne.events.dropped.count` with `target: "mnemosyne.tui_bridge.drop"`. Justification: blocking the entire daemon on a slow TUI client would be worse than dropping events; the counter makes the loss observable.
+- **Supervisor child start failure** (e.g., `Metrics` cannot open ETS, `JsonlWriter` cannot write to `<vault>/runtime/events/`) → fails at process startup; the daemon's root supervisor escalates; the 11-step boot sequence (sub-A Reference algorithm) exits non-zero with a clear diagnostic. Ravel refuses to run.
+- **`Handler.handle_event/4` rescue** (any raise inside dispatch) → log via `Logger.error/1`, stay attached, do not cascade. This is load-bearing: a raise without the rescue would cause `:telemetry` to detach the handler permanently, silently blinding Ravel to all subsequent events. The rescue is the exception to "hard errors by default" and is justified here because (a) losing observability must be louder than the original error, not quieter; (b) the error is logged, not swallowed; (c) tests cover every subscriber path to keep the rescue rare.
+- **`JsonlWriter` mailbox overflow** → the GenServer's `{:max_messages, 4096}` process flag triggers an abnormal exit; the `DynamicSupervisor` restarts the writer with a fresh file handle; the exit is counted as `ravel.events.dropped.count` with `target: "ravel.jsonl_writer.restart"`. Events in the dead process's mailbox are lost, but the new writer picks up cleanly. Bounded queue is the explicit non-fatal exception.
+- **`TuiBridge` client mailbox full** → `:pg`-side send fails silently per BEAM semantics; M wraps each `send/2` in a try/catch that increments `ravel.events.dropped.count` with `target: "ravel.tui_bridge.drop"`. Justification: blocking the entire daemon on a slow TUI client would be worse than dropping events; the counter makes the loss observable.
 - **`RingBuffer` ring at capacity** → drops oldest. By design — the queue is bounded and circular.
 - **Risk 5 dump path failure** (e.g., disk write fails while writing `event-tail.json`) → wrapped in `try/rescue`, logs the secondary failure via `Logger`, never masks the original error.
 
@@ -645,7 +645,7 @@ Bounded-queue overflow and the handler rescue are the only tolerated failure mod
 - **`JsonlWriter`**: round-trip events through a tmpdir; verify line-per-event format; verify truncation safety (every line independently parseable); `Jason.decode!/1` round-trip.
 - **`Metrics`**: counter increment, `last_value` update, distribution record; snapshot at session end via `SnapshotReporter`; bucket layout correctness against synthetic latency values.
 - **`TuiBridge`**: `:pg` group join / leave semantics; bounded-send behaviour; drop-oldest accounting.
-- **Catalogue test**: enumerate `Mnemosyne.Observability.Metrics.metrics/0`, parse the `## 6.` section of this doc, assert one-to-one correspondence.
+- **Catalogue test**: enumerate `Ravel.Observability.Metrics.metrics/0`, parse the `## 6.` section of this doc, assert one-to-one correspondence.
 - **Third-party event routing**: emit a `:telemetry.execute([:erlexec, :exec, :stop], ...)` event with no `metadata.event`, assert `Handler` synthesises a `%Diagnostic{}` and forwards it.
 
 ### Layer 3 integration tests (`@moduletag :live`)
@@ -666,29 +666,29 @@ Bounded-queue overflow and the handler rescue are the only tolerated failure mod
 ### v1 (this brainstorm's implementation plan)
 
 - Hex dep stack (§3) integrated: `:telemetry`, `:telemetry_metrics`, `Jason`. `Telemetry.Metrics.ConsoleReporter` shipped. `SnapshotReporter` shipped.
-- Sealed `Mnemosyne.Event.*` struct set (§4.1) defined in `lib/mnemosyne/event/*.ex`.
-- `Mnemosyne.Observability.emit/1` + `Handler` (§4.2, §5) shipped and wired into the daemon boot sequence as a child of `Mnemosyne.Observability.Supervisor` under `Mnemosyne.Supervisor`.
+- Sealed `Ravel.Event.*` struct set (§4.1) defined in `lib/ravel/event/*.ex`.
+- `Ravel.Observability.emit/1` + `Handler` (§4.2, §5) shipped and wired into the daemon boot sequence as a child of `Ravel.Observability.Supervisor` under `Ravel.Supervisor`.
 - Subscribers (§5): `RingBuffer.Sup`, `JsonlWriter.Sup`, `TuiBridge`, `Metrics` all supervised and wired.
 - Metric catalogue (§6) defined. Call sites in sub-B (phase lifecycle), sub-C (harness lifecycle + parallel-emit `SpawnLatencyReport`), sub-E (ingestion counters + cycle-duration), sub-F (routing + dispatch + actor lifecycle), sub-A (boot-ready + marker-error) are all wired via M's adoption tasks (§10). Sub-D / sub-H / sub-I call sites are added when those sub-projects' implementation plans land.
 - Storage layout (§7.1, §7.2) implemented; vault runtime subtree integrated with A's layout at `<vault>/runtime/events/` and `<vault>/runtime/metrics/`.
 - Risk 5 dump (§8) wired into B / C / E error paths via their adoption tasks.
 - C's `%SpawnLatencyReport{}` parallel-emit (§9 phase `M v1 lands`) live.
-- `mix mnemosyne.metrics` and `mix mnemosyne.diagnose` tasks shipped (§12.1, §12.2).
+- `mix ravel.metrics` and `mix ravel.diagnose` tasks shipped (§12.1, §12.2).
 - Cross-plan adoption tasks landed in sibling backlogs (§10).
 - Test suite (§14) at green, including re-entrancy integration test.
 
 ### v1.5
 
-- `Mnemosyne.Observability.ObsidianMaterialiser` (§5, §7.3, §11.2).
+- `Ravel.Observability.ObsidianMaterialiser` (§5, §7.3, §11.2).
 - Deletion of C's tactical `<staging>/spawn-latency.json` writer (§9 phase `M v1.1`).
-- Optional `:telemetry_metrics_prometheus` reporter wired into `Mnemosyne.Observability.Metrics`; daemon config `[observability] prometheus_endpoint = "..."` key exposed.
+- Optional `:telemetry_metrics_prometheus` reporter wired into `Ravel.Observability.Metrics`; daemon config `[observability] prometheus_endpoint = "..."` key exposed.
 - Full Dataview query catalogue absorbed into sub-I's brainstorm output.
 - TUI metric sparklines (§11.1).
-- `mix mnemosyne.metrics --csv` output format.
+- `mix ravel.metrics --csv` output format.
 
 ### v2
 
-- External metrics export via OpenTelemetry (`:opentelemetry` + OTLP exporter) as an alternative reporter. Bridges to sub-P (team mode) distributed tracing across multiple Mnemosyne instances.
+- External metrics export via OpenTelemetry (`:opentelemetry` + OTLP exporter) as an alternative reporter. Bridges to sub-P (team mode) distributed tracing across multiple Ravel instances.
 - Anomaly detection on long-term metric trends.
 - `observer_cli` documented as a recommended optional layer.
 
@@ -713,7 +713,7 @@ Emitting `:telemetry.execute/3` (or `Observability.emit/1`) from inside `Handler
 
 ### Risk 2 — Bounded-queue overflows hide real problems
 
-The `mnemosyne.events.dropped.count` counter is the observability surface for queue overflow, but if nobody looks at it, drops go unnoticed. Mitigation: the counter surfaces as a non-zero red badge in the TUI status bar; `mix mnemosyne.diagnose` prints a warning if any drops occurred in the session snapshot.
+The `ravel.events.dropped.count` counter is the observability surface for queue overflow, but if nobody looks at it, drops go unnoticed. Mitigation: the counter surfaces as a non-zero red badge in the TUI status bar; `mix ravel.diagnose` prints a warning if any drops occurred in the session snapshot.
 
 ### Risk 3 — Migration window for C's `%SpawnLatencyReport{}` produces inconsistent data
 
@@ -721,11 +721,11 @@ During the parallel-emit window, both C's tactical writer and M's `:telemetry` p
 
 ### Risk 4 — Sealed event struct set becomes a god module
 
-Every new event variant adds a struct to `lib/mnemosyne/event/*`. As sub-projects land their adoption tasks, the variant list could balloon. Mitigation: the sealed set is closed for v1 with a Decision Trail entry required to add a new variant; most new needs go through `%Diagnostic{}`; the bar for a new struct is "multiple downstream consumers pattern-match on its fields."
+Every new event variant adds a struct to `lib/ravel/event/*`. As sub-projects land their adoption tasks, the variant list could balloon. Mitigation: the sealed set is closed for v1 with a Decision Trail entry required to add a new variant; most new needs go through `%Diagnostic{}`; the bar for a new struct is "multiple downstream consumers pattern-match on its fields."
 
 ### Risk 5 — `:telemetry_metrics` reporter selection costs
 
-`:telemetry_metrics` definitions are cheap; reporter attachment is also cheap. But the `ConsoleReporter` writes through `Logger` on every metric update, which can be noisy in a dogfood cycle. Mitigation: configure `Logger` to filter `Telemetry.Metrics.ConsoleReporter` below `:warn` in dogfood environments; rely on `SnapshotReporter` + `mix mnemosyne.metrics` for introspection instead of tailing the console.
+`:telemetry_metrics` definitions are cheap; reporter attachment is also cheap. But the `ConsoleReporter` writes through `Logger` on every metric update, which can be noisy in a dogfood cycle. Mitigation: configure `Logger` to filter `Telemetry.Metrics.ConsoleReporter` below `:warn` in dogfood environments; rely on `SnapshotReporter` + `mix ravel.metrics` for introspection instead of tailing the console.
 
 ### Risk 6 — `Handler.handle_event/4` rescue swallows real bugs
 
@@ -735,7 +735,7 @@ The defensive `try/rescue` in §5.2 hides bugs from test runs if they happen ins
 
 ### 18.1 Sub-B — concrete, §4.4 already committed
 
-B's §4.4 commits to emitting seven `%PhaseLifecycle{}` variants via `Mnemosyne.Observability.emit/1` at the 13-step `run_phase/4` flow (steps 5, 11, 12, §3.4 step 5, §3.4 step 6, error branches, §3.2 Scenario A). B also forwards `%HarnessOutput{}` and `%SessionLifecycle{}` from C. M's v1 does not impose any new work on B beyond what §4.4 already specifies; the adoption task is a verification step.
+B's §4.4 commits to emitting seven `%PhaseLifecycle{}` variants via `Ravel.Observability.emit/1` at the 13-step `run_phase/4` flow (steps 5, 11, 12, §3.4 step 5, §3.4 step 6, error branches, §3.2 Scenario A). B also forwards `%HarnessOutput{}` and `%SessionLifecycle{}` from C. M's v1 does not impose any new work on B beyond what §4.4 already specifies; the adoption task is a verification step.
 
 ### 18.2 Sub-C — concrete, §11.4 already committed
 
@@ -743,7 +743,7 @@ C's §11.4 commits to emitting `%HarnessOutput{}`, `%SessionLifecycle{}`, `%Spaw
 
 ### 18.3 Sub-E — pending F-amendment
 
-E's pipeline currently emits `IngestionEvent` via its own channel. E's F-amendment (pending as orchestrator Priority 1) will re-cast Stage 5 as dispatch-to-experts via F's router and the six ingestion event variants as `%Mnemosyne.Event.Ingestion.*{}` structs. M's adoption task rides on that amendment: wrap each existing emit with a parallel `Observability.emit/1` during the transition, then collapse E's channel into M's bus after verification.
+E's pipeline currently emits `IngestionEvent` via its own channel. E's F-amendment (pending as orchestrator Priority 1) will re-cast Stage 5 as dispatch-to-experts via F's router and the six ingestion event variants as `%Ravel.Event.Ingestion.*{}` structs. M's adoption task rides on that amendment: wrap each existing emit with a parallel `Observability.emit/1` during the transition, then collapse E's channel into M's bus after verification.
 
 ### 18.4 Sub-F — concrete, Task 24 already scheduled
 
@@ -751,11 +751,11 @@ F's Task 24 commits to emitting nine event structs for actor state / message rou
 
 ### 18.5 Sub-A — concrete, absorbed in A's Session-14 rewrite
 
-A's 11-step daemon boot sequence (A design doc §A.Reference algorithm) step 11 emits `%Vault.BootReady{}`. A's `Mnemosyne.Vault.MarkerError` routes through M's `:telemetry` boundary before a hard-error exit. Both structs are in M's §4.1 sealed set. No further amendment needed on A's side; M's v1 just consumes the two events.
+A's 11-step daemon boot sequence (A design doc §A.Reference algorithm) step 11 emits `%Vault.BootReady{}`. A's `Ravel.Vault.MarkerError` routes through M's `:telemetry` boundary before a hard-error exit. Both structs are in M's §4.1 sealed set. No further amendment needed on A's side; M's v1 just consumes the two events.
 
 ### 18.6 Sub-D — adoption task, scope collapsed by F
 
-D's original per-plan advisory locks were eliminated by F's daemon commitment. D's collapsed scope (daemon singleton lock, advisory file locks for external-tool coordination, vault git concurrency) produces few observability events. Adoption task: emit `%Diagnostic{target: "mnemosyne.lock"}` for singleton-lock events. Additive; not part of D's core design.
+D's original per-plan advisory locks were eliminated by F's daemon commitment. D's collapsed scope (daemon singleton lock, advisory file locks for external-tool coordination, vault git concurrency) produces few observability events. Adoption task: emit `%Diagnostic{target: "ravel.lock"}` for singleton-lock events. Additive; not part of D's core design.
 
 ### 18.7 Sub-H, Sub-I — adoption tasks, brainstormed later
 
@@ -787,12 +787,12 @@ The brainstorm session that produced this spec made five major decisions. Q1–Q
 **Options considered:**
 
 - **A — Pure `tracing`** with stringly-typed field names; every consumer does `match` against field names.
-- **B — Pure typed-bus** with a custom `MnemosyneEvent` enum and no `tracing` underneath.
-- **C — Hybrid** — `MnemosyneEvent` enum at the Mnemosyne boundary, `tracing` everywhere below it.
+- **B — Pure typed-bus** with a custom `RavelEvent` enum and no `tracing` underneath.
+- **C — Hybrid** — `RavelEvent` enum at the Ravel boundary, `tracing` everywhere below it.
 
 **Chosen: Option C.** Pure `tracing` gives up exhaustive matching; pure typed-bus gives up span machinery, third-party integration, and the entire subscriber ecosystem. Hybrid honours both.
 
-**Session-15 correction note.** Decision survives the pivot; the hybrid pattern re-casts onto `:telemetry` + typed Elixir struct set under `Mnemosyne.Event.*`. "`tracing`" in Q2 is now read as "BEAM's `:telemetry`", and "`MnemosyneEvent` enum" is now read as "sealed `Mnemosyne.Event.*` struct set." The rationale translates literally. See Q6 for the full runtime mapping.
+**Session-15 correction note.** Decision survives the pivot; the hybrid pattern re-casts onto `:telemetry` + typed Elixir struct set under `Ravel.Event.*`. "`tracing`" in Q2 is now read as "BEAM's `:telemetry`", and "`RavelEvent` enum" is now read as "sealed `Ravel.Event.*` struct set." The rationale translates literally. See Q6 for the full runtime mapping.
 
 ### Q3 — Use existing tooling and libraries wherever possible
 
@@ -802,7 +802,7 @@ The brainstorm session that produced this spec made five major decisions. Q1–Q
 
 ### Q4 — Always-on instrumentation (project principle)
 
-**Resolved on project-wide principle.** Every event emit is unconditional. The `MNEMOSYNE_LOG` env var only controls formatter visibility, not whether events are emitted.
+**Resolved on project-wide principle.** Every event emit is unconditional. The `RAVEL_LOG` env var only controls formatter visibility, not whether events are emitted.
 
 **Session-15 correction note.** On BEAM, the knob becomes `config :logger, level: :info` (or `:debug`) in `config/dev.exs` / `config/prod.exs`. The principle is unchanged: events are always emitted; the log level only controls formatter verbosity. `ConsoleReporter` for `:telemetry_metrics` is analogously always subscribed; its output is filtered by `Logger` level.
 
@@ -814,7 +814,7 @@ The brainstorm session that produced this spec made five major decisions. Q1–Q
 
 ### Q6 — BEAM pivot (Session 15, 2026-04-15 via sub-F Session 9 commitment)
 
-Sub-F committed Mnemosyne to a persistent BEAM daemon (Session 9, 2026-04-14). M was originally designed against Rust + `tracing` + the `metrics` crate; Session 15 re-casts the implementation on Elixir/OTP + `:telemetry` + `:telemetry_metrics`. The *design intent* survived unchanged: three masters equally weighted, hybrid typed-boundary + ecosystem transport, use existing libraries, always-on instrumentation, M owns adoption. The *runtime substrate* moved from a custom `tracing-subscriber::Layer` stack to `:telemetry.attach_many/4` + four supervised GenServers.
+Sub-F committed Ravel to a persistent BEAM daemon (Session 9, 2026-04-14). M was originally designed against Rust + `tracing` + the `metrics` crate; Session 15 re-casts the implementation on Elixir/OTP + `:telemetry` + `:telemetry_metrics`. The *design intent* survived unchanged: three masters equally weighted, hybrid typed-boundary + ecosystem transport, use existing libraries, always-on instrumentation, M owns adoption. The *runtime substrate* moved from a custom `tracing-subscriber::Layer` stack to `:telemetry.attach_many/4` + four supervised GenServers.
 
 The re-cast was done inline across §1–§18 rather than as a supersede layer, following the sub-C/sub-B/sub-A precedent. Every Rust idiom was translated to its BEAM equivalent:
 
@@ -826,7 +826,7 @@ The re-cast was done inline across §1–§18 rather than as a supersede layer, 
 | `tracing-subscriber::fmt::Layer` | `Telemetry.Metrics.ConsoleReporter` + stdlib `Logger` console backend |
 | `tracing-appender::non_blocking` | `File.open(..., [:append, :raw, :binary, :delayed_write])` inside a supervised `GenServer` |
 | `metrics` crate + `metrics-util` | `:telemetry_metrics` + `SnapshotReporter` (custom ≈150 lines) |
-| Custom `MnemosyneEventLayer` (≈200 lines) | `Mnemosyne.Observability.Handler` attach (<100 lines) |
+| Custom `RavelEventLayer` (≈200 lines) | `Ravel.Observability.Handler` attach (<100 lines) |
 | `tokio::sync::broadcast` or `crossbeam-channel` for in-process fan-out | `:pg` process group for TUI fan-out |
 | `#[tracing::instrument]` | `:telemetry.span/3` wrapper |
 | `metric_names::*` compile-time constants | `Telemetry.Metrics.*` definitions + a catalogue-integrity test against this doc |
@@ -834,9 +834,9 @@ The re-cast was done inline across §1–§18 rather than as a supersede layer, 
 | `JsonlPersistLayer` non-blocking writer | `JsonlWriter` GenServer per session under `DynamicSupervisor` |
 | `TuiBridgeLayer` bounded `mpsc::Sender` | `TuiBridge` GenServer owning a `:pg` group + per-client drop-oldest |
 | `MetricsRecorderLayer` `metrics_util::Registry` | `Metrics` supervisor hosting `ConsoleReporter` + `SnapshotReporter` |
-| `ObsidianMaterialiseLayer` (v1.5) | `Mnemosyne.Observability.ObsidianMaterialiser` GenServer (v1.5) |
-| `mnemosyne metrics` Rust CLI subcommand | `mix mnemosyne.metrics` task |
-| `mnemosyne diagnose` Rust CLI subcommand | `mix mnemosyne.diagnose` task |
+| `ObsidianMaterialiseLayer` (v1.5) | `Ravel.Observability.ObsidianMaterialiser` GenServer (v1.5) |
+| `ravel metrics` Rust CLI subcommand | `mix ravel.metrics` task |
+| `ravel diagnose` Rust CLI subcommand | `mix ravel.diagnose` task |
 | `tracing-subscriber` Layer re-entrancy (Risk 1) | `:telemetry` handler re-entrancy (Risk 1) |
 | `tracing-appender` queue overflow | GenServer mailbox overflow |
 
@@ -857,14 +857,14 @@ The re-cast was done inline across §1–§18 rather than as a supersede layer, 
 - **C — OpenTelemetry (`:opentelemetry` + OTLP exporter)** — most portable but largest dep tree.
 - **D — `ConsoleReporter` only** — no external export; defer Prometheus to v1.5+.
 
-**Chosen: D for v1, B additive in v1.5.** Mnemosyne is not a Phoenix app; `prom_ex`'s plugins are dead weight. OTel is reserved for v2 when sub-P (team mode) brings distributed-tracing use cases. v1 ships `ConsoleReporter` + `SnapshotReporter` as the minimum; v1.5 layers `:telemetry_metrics_prometheus` on top without rewriting any call site.
+**Chosen: D for v1, B additive in v1.5.** Ravel is not a Phoenix app; `prom_ex`'s plugins are dead weight. OTel is reserved for v2 when sub-P (team mode) brings distributed-tracing use cases. v1 ships `ConsoleReporter` + `SnapshotReporter` as the minimum; v1.5 layers `:telemetry_metrics_prometheus` on top without rewriting any call site.
 
 **Rationale strength.** `:telemetry_metrics` is reporter-independent by design: the same `counter(...)` / `distribution(...)` calls feed any reporter attached to the supervisor tree. Switching or adding reporters is purely additive. This is the load-bearing reason for choosing `:telemetry_metrics` over a reporter-bound alternative like `prom_ex`.
 
 ## 20. Origin
 
-Sub-project M was surfaced during sub-project C's brainstorm on 2026-04-13 (Session 6 of the mnemosyne-orchestrator backlog plan), when C explicitly disclaimed framework scope for its tactical `SpawnLatencyReport` and recorded a forward pointer to a proposed Sub-M (§11.5 of `2026-04-13-sub-C-adapters-design.md`). The mnemosyne-orchestrator triage at the end of Session 6 promoted M from the tail of the backlog to second position (after sub-project A) because every other sub-project's structured-logging needs route through M once it lands.
+Sub-project M was surfaced during sub-project C's brainstorm on 2026-04-13 (Session 6 of the ravel-orchestrator backlog plan), when C explicitly disclaimed framework scope for its tactical `SpawnLatencyReport` and recorded a forward pointer to a proposed Sub-M (§11.5 of `2026-04-13-sub-C-adapters-design.md`). The ravel-orchestrator triage at the end of Session 6 promoted M from the tail of the backlog to second position (after sub-project A) because every other sub-project's structured-logging needs route through M once it lands.
 
-The original brainstorm executed in Session 7 of the mnemosyne-orchestrator backlog plan, on 2026-04-13, using the `superpowers:brainstorming` skill. The user's explicit steer mid-brainstorm was *"use existing tooling and libraries wherever possible. This is not an interesting task."* — which collapsed several remaining clarifying questions in favour of the standard-tool answer at every fork.
+The original brainstorm executed in Session 7 of the ravel-orchestrator backlog plan, on 2026-04-13, using the `superpowers:brainstorming` skill. The user's explicit steer mid-brainstorm was *"use existing tooling and libraries wherever possible. This is not an interesting task."* — which collapsed several remaining clarifying questions in favour of the standard-tool answer at every fork.
 
-**Session 15 amendment (2026-04-15).** Sub-F's Session 9 commitment to a persistent BEAM daemon invalidated every Rust-specific surface of the original Session 7 spec. Sub-A's Session 14 amendment added `%Vault.BootReady{}` and `%Vault.MarkerError{}` as new producers. Sub-B's Session 12 amendment formalised the seven `%PhaseLifecycle{}` events at §4.4. Sub-C's Session 11 amendment defined the five `Mnemosyne.Event.*` structs at §3.3 + §11.4 and the three-way parallel-emit discipline at §7.2. Sub-F's sibling plan at Task 24 (Session 13) committed to nine routing/actor/rule event structs. This amendment absorbs all five upstreams in one inline rewrite, following the sub-C/sub-B/sub-A precedent of replacing §1–§N with fresh content and preserving the original Q1–Q5 in the Decision Trail with correction notes. Q6 records the BEAM pivot translation table; Q7 records the reporter selection decision that was previously implicit.
+**Session 15 amendment (2026-04-15).** Sub-F's Session 9 commitment to a persistent BEAM daemon invalidated every Rust-specific surface of the original Session 7 spec. Sub-A's Session 14 amendment added `%Vault.BootReady{}` and `%Vault.MarkerError{}` as new producers. Sub-B's Session 12 amendment formalised the seven `%PhaseLifecycle{}` events at §4.4. Sub-C's Session 11 amendment defined the five `Ravel.Event.*` structs at §3.3 + §11.4 and the three-way parallel-emit discipline at §7.2. Sub-F's sibling plan at Task 24 (Session 13) committed to nine routing/actor/rule event structs. This amendment absorbs all five upstreams in one inline rewrite, following the sub-C/sub-B/sub-A precedent of replacing §1–§N with fresh content and preserving the original Q1–Q5 in the Decision Trail with correction notes. Q6 records the BEAM pivot translation table; Q7 records the reporter selection decision that was previously implicit.

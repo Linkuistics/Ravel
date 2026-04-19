@@ -4,7 +4,7 @@
 
 **Owning plan:** `LLM_STATE/sub-H-skills/`
 
-**Parent plan:** `LLM_STATE/mnemosyne-orchestrator/`
+**Parent plan:** `LLM_STATE/ravel-orchestrator/`
 
 **Primary dependencies:** sub-F (NDJSON protocol, Router.Server, plan hierarchy invariants, vault catalog), sub-C (harness tool injection), sub-N (ExpertActor query/dialogue protocol, Stage 5 absorb contract), sub-E (ingestion pipeline, `submit_candidate/2` entry point), sub-A (adopt-project as library function), sub-M (sealed event set for new events), sub-B (phase execution via PlanActor), sub-G (Phase 1 switch-over is the clean-break moment).
 
@@ -12,11 +12,11 @@
 
 ## §1 Scope and motivation
 
-Sub-H defines the user-facing action surface for the Mnemosyne daemon. Every action a user or LLM can perform — running phases, querying experts, creating plans, submitting knowledge for curation — flows through the client-daemon NDJSON protocol. Sub-H specifies:
+Sub-H defines the user-facing action surface for the Ravel daemon. Every action a user or LLM can perform — running phases, querying experts, creating plans, submitting knowledge for curation — flows through the client-daemon NDJSON protocol. Sub-H specifies:
 
 - The complete command registry derived from the daemon architecture
 - The TUI command palette with modal which-key support and user-configurable keybindings
-- The `mnemosyne cmd` CLI subcommand for external automation
+- The `ravel cmd` CLI subcommand for external automation
 - NDJSON protocol additions (`create_plan`, `adopt_project`)
 - Harness-injected tools for LLM-driven actions
 - Cross-sub-project requirements on siblings
@@ -35,7 +35,7 @@ The command set is derived from what the daemon architecture naturally requires.
 - Command registry with metadata (ID, name, description ≤80 chars, help URL, scope, default keybinding)
 - Command palette: fuzzy-filterable, scope-aware (plan-scoped commands hidden when no plan attached)
 - Keybinding system: single keys, modifiers (`C-`, `S-`, `M-`), chord sequences for modal/which-key, hot-reloaded from config
-- `mnemosyne cmd` CLI wrapper for external automation via the NDJSON socket
+- `ravel cmd` CLI wrapper for external automation via the NDJSON socket
 - Two new NDJSON commands: `create_plan`, `adopt_project`
 - One new harness-injected tool: `create_plan` (expert tools already specified by sub-N)
 - Local documentation server hosted by the daemon
@@ -44,9 +44,9 @@ The command set is derived from what the daemon architecture naturally requires.
 ### Out of scope for v1 (explicit)
 
 - **TUI widget implementation.** Sub-H specifies command behavior and palette interaction design. The actual `ratatui` rendering, widget layout, and input handling belong to TUI implementation tasks under sub-F.
-- **Harness plugin.** No Mnemosyne-provided harness plugin ships. The harness is a pure worker with no user-facing command surface.
+- **Harness plugin.** No Ravel-provided harness plugin ships. The harness is a pure worker with no user-facing command surface.
 - **Interim compatibility.** The 7 legacy Claude Code skills stop existing at G's Phase 1 switch-over. No deprecation warnings, no shim layer, no bridge.
-- **`mnemosyne cmd` implementation.** Sub-H specifies the interface. Implementation is a TUI-side task (Rust, `tokio`, `serde_json`, Unix socket).
+- **`ravel cmd` implementation.** Sub-H specifies the interface. Implementation is a TUI-side task (Rust, `tokio`, `serde_json`, Unix socket).
 
 ---
 
@@ -57,7 +57,7 @@ The command set is derived from what the daemon architecture naturally requires.
 Every daemon action is registered as a command with canonical metadata:
 
 ```elixir
-defmodule Mnemosyne.Command do
+defmodule Ravel.Command do
   @enforce_keys [:id, :name, :description, :help_path, :scope]
   defstruct [
     :id,                  # "expert.query" — canonical string ID
@@ -70,7 +70,7 @@ defmodule Mnemosyne.Command do
 end
 ```
 
-- `id`: dot-namespaced canonical identifier. Used in keybinding config, `mnemosyne cmd`, and event telemetry.
+- `id`: dot-namespaced canonical identifier. Used in keybinding config, `ravel cmd`, and event telemetry.
 - `description`: ≤80 characters, shown inline in the command palette. Hard error at registration if exceeded.
 - `help_path`: relative path served by the daemon's local documentation server. Selecting "Help" on a palette entry opens this URL in the system browser.
 - `scope`: `:plan` commands require an attached plan context. `:vault` commands are available regardless.
@@ -225,7 +225,7 @@ Commands without default bindings (`expert.edit`, `vault.adopt`, `vault.status`)
 
 ## §4 Detailed action specifications
 
-Every action is specified with both its LLM-driven form (how the harness LLM triggers it during a phase session) and its human-driven form (how a human triggers it via TUI or `mnemosyne cmd`), per sub-E's co-equal-actors requirement.
+Every action is specified with both its LLM-driven form (how the harness LLM triggers it during a phase session) and its human-driven form (how a human triggers it via TUI or `ravel cmd`), per sub-E's co-equal-actors requirement.
 
 ### §4.1 Phase execution (`phase.work`, `phase.reflect`, `phase.compact`, `phase.triage`)
 
@@ -242,14 +242,14 @@ No new protocol surface. No new work for sub-H beyond command registry entries.
 
 ### §4.2 Project adoption (`vault.adopt`)
 
-Creates `<project>/mnemosyne/` with `project-root/` and `knowledge/`, symlinks into the vault. Sub-A's existing command exposed over the NDJSON socket.
+Creates `<project>/ravel/` with `project-root/` and `knowledge/`, symlinks into the vault. Sub-A's existing command exposed over the NDJSON socket.
 
 | | LLM-driven | Human-driven |
 |---|---|---|
 | **Trigger** | Rare — adoption is almost always human-initiated. Phase prompts do not instruct adoption. | TUI palette: "Adopt Project" → inline prompt for project path |
 | **NDJSON** | `{"cmd": "adopt_project", "project_path": "/absolute/path", "request_id": "..."}` | Same |
 | **Scope** | Vault-scoped | Vault-scoped |
-| **Validation** | A's existing checks: not already adopted, valid directory, no conflicting `mnemosyne/` layout | Same |
+| **Validation** | A's existing checks: not already adopted, valid directory, no conflicting `ravel/` layout | Same |
 | **Side effects** | Creates symlink at `<vault>/projects/<name>`, regenerates vault catalog | Same |
 
 New NDJSON command (§5.2). Requires sub-A to expose `adopt_project` as a library-callable function.
@@ -281,7 +281,7 @@ Submits a knowledge candidate for expert curation — sub-E's Stage 5 flow trigg
 | **Flow** | Sub-N's `ScopeMatcher` finds matching experts → parallel fan-out of `%ExpertAbsorbCandidate{}` → experts return verdicts → files written to Tier 2 directories | Same, with verdict summary rendered in TUI |
 | **Orphan path** | If no experts match, candidate writes to `<vault>/knowledge/uncategorized/` with `%Ingestion.OrphanCandidate{}` event | Same |
 
-This is the unified action that replaces both `curate-global` and `promote-global`. Whether the source is Tier 1 (`<project>/mnemosyne/knowledge/`), a session artifact, or a manually written file is a property of the `source_path`, not a different action.
+This is the unified action that replaces both `curate-global` and `promote-global`. Whether the source is Tier 1 (`<project>/ravel/knowledge/`), a session artifact, or a manually written file is a property of the `source_path`, not a different action.
 
 ### §4.5 Plan creation (`plan.create`)
 
@@ -338,7 +338,7 @@ Sub-H adds exactly two new commands to F's §7.2 protocol.
 Success response:
 
 ```json
-{"type": "response", "request_id": "r-1", "body": {"result": "ok", "qualified_id": "Mnemosyne/project-root/sub-x-topic"}}
+{"type": "response", "request_id": "r-1", "body": {"result": "ok", "qualified_id": "Ravel/project-root/sub-x-topic"}}
 ```
 
 Error responses:
@@ -370,7 +370,7 @@ Error responses:
 9. Register the new PlanActor with `ActorSupervisor`
 10. Emit `%Plan.Created{}` event (sub-M)
 
-All file writes go through `Mnemosyne.FileIO.write_safe/3` with category `:exclusive` (daemon-authoritative, no conflict check needed for new files).
+All file writes go through `Ravel.FileIO.write_safe/3` with category `:exclusive` (daemon-authoritative, no conflict check needed for new files).
 
 ### §5.2 `adopt_project`
 
@@ -389,10 +389,10 @@ Error responses:
 ```json
 {"type": "error", "code": "already_adopted", "message": "Project is already adopted", "request_id": "r-2"}
 {"type": "error", "code": "invalid_path", "message": "Path does not exist or is not a directory", "request_id": "r-2"}
-{"type": "error", "code": "layout_conflict", "message": "Existing mnemosyne/ directory has incompatible layout", "request_id": "r-2"}
+{"type": "error", "code": "layout_conflict", "message": "Existing ravel/ directory has incompatible layout", "request_id": "r-2"}
 ```
 
-Delegates to sub-A's `Mnemosyne.Vault.adopt_project/2`, then triggers a rescan to pick up the new project's plans.
+Delegates to sub-A's `Ravel.Vault.adopt_project/2`, then triggers a rescan to pick up the new project's plans.
 
 ---
 
@@ -427,25 +427,25 @@ The tool invocation is intercepted by sub-C's adapter, which translates it to a 
 
 ---
 
-## §7 `mnemosyne cmd` — CLI wrapper for external automation
+## §7 `ravel cmd` — CLI wrapper for external automation
 
-A thin Rust binary (or subcommand of the existing `mnemosyne` binary) that connects to the daemon's NDJSON socket, sends one command, prints the response, and exits.
+A thin Rust binary (or subcommand of the existing `ravel` binary) that connects to the daemon's NDJSON socket, sends one command, prints the response, and exits.
 
 ### §7.1 Interface
 
 ```bash
 # Execute a command
-mnemosyne cmd phase.work --actor Mnemosyne/project-root
-mnemosyne cmd expert.query --expert rust-expert --question "Does Pin<&mut T> implement Unpin?"
-mnemosyne cmd plan.create --parent Mnemosyne/project-root --name sub-x-topic --description "..."
-mnemosyne cmd vault.adopt --project-path /path/to/project
-mnemosyne cmd vault.list
-mnemosyne cmd vault.rescan
-mnemosyne cmd daemon.shutdown
+ravel cmd phase.work --actor Ravel/project-root
+ravel cmd expert.query --expert rust-expert --question "Does Pin<&mut T> implement Unpin?"
+ravel cmd plan.create --parent Ravel/project-root --name sub-x-topic --description "..."
+ravel cmd vault.adopt --project-path /path/to/project
+ravel cmd vault.list
+ravel cmd vault.rescan
+ravel cmd daemon.shutdown
 
 # Discovery
-mnemosyne cmd --list          # print all commands with IDs, names, descriptions, keybindings
-mnemosyne cmd --help <id>     # print help for a specific command
+ravel cmd --list          # print all commands with IDs, names, descriptions, keybindings
+ravel cmd --help <id>     # print help for a specific command
 ```
 
 ### §7.2 Behavior
@@ -457,11 +457,11 @@ mnemosyne cmd --help <id>     # print help for a specific command
 5. Print the response body to stdout as JSON
 6. Exit with code 0 (success), 1 (daemon error), 2 (connection failure)
 
-No state, no TUI rendering, no interactive prompts. The `mnemosyne cmd` subcommand is a pure NDJSON client.
+No state, no TUI rendering, no interactive prompts. The `ravel cmd` subcommand is a pure NDJSON client.
 
 ### §7.3 External automation use case
 
-Any process that can invoke `mnemosyne cmd` can drive the daemon: shell scripts, cron jobs, keyboard macro systems (Hammerspoon, skhd, Karabiner), IDE extensions, CI pipelines. The NDJSON socket is equally accessible directly for tools that prefer raw socket communication.
+Any process that can invoke `ravel cmd` can drive the daemon: shell scripts, cron jobs, keyboard macro systems (Hammerspoon, skhd, Karabiner), IDE extensions, CI pipelines. The NDJSON socket is equally accessible directly for tools that prefer raw socket communication.
 
 The `--list` flag queries the daemon's command registry and prints a table for discovery:
 
@@ -504,26 +504,26 @@ No changes required. `run_phase` already exists in F's protocol. B's `PhaseRunne
 
 ### Sub-E (ingestion)
 
-- **Expose `Mnemosyne.Ingestion.submit_candidate/2`** as a library-callable function. Accepts a file path and an options map; runs scope matching → expert fan-out → verdict collection → file writes. The automated pipeline calls this internally at phase boundaries. The daemon's `knowledge.submit` command handler calls it on behalf of TUI/CLI clients.
+- **Expose `Ravel.Ingestion.submit_candidate/2`** as a library-callable function. Accepts a file path and an options map; runs scope matching → expert fan-out → verdict collection → file writes. The automated pipeline calls this internally at phase boundaries. The daemon's `knowledge.submit` command handler calls it on behalf of TUI/CLI clients.
 - The function returns `{:ok, %{verdicts: [...], orphan: bool}}` or `{:error, reason}`.
 
 ### Sub-F (hierarchy)
 
 - **Add `create_plan` command** to the NDJSON command dispatcher in `Router.Server`. Handler: directory creation, file scaffolding, invariant validation (F §1.5), catalog regeneration, actor registration.
-- **Add `adopt_project` command** to the NDJSON command dispatcher. Handler: delegates to sub-A's `Mnemosyne.Vault.adopt_project/2`, then triggers rescan.
-- **Command registry module:** `Mnemosyne.CommandRegistry` — a GenServer or compile-time registry that holds all `%Command{}` definitions. Queried by TUI for palette rendering, by `mnemosyne cmd --list` for discovery, and by the docs server for the index page.
+- **Add `adopt_project` command** to the NDJSON command dispatcher. Handler: delegates to sub-A's `Ravel.Vault.adopt_project/2`, then triggers rescan.
+- **Command registry module:** `Ravel.CommandRegistry` — a GenServer or compile-time registry that holds all `%Command{}` definitions. Queried by TUI for palette rendering, by `ravel cmd --list` for discovery, and by the docs server for the index page.
 
 ### Sub-M (observability)
 
 Two new events added to the sealed set:
 
 ```elixir
-defmodule Mnemosyne.Event.Plan.Created do
+defmodule Ravel.Event.Plan.Created do
   @enforce_keys [:qualified_id, :parent_plan, :name, :description, :created_at]
   defstruct @enforce_keys
 end
 
-defmodule Mnemosyne.Event.Command.Executed do
+defmodule Ravel.Event.Command.Executed do
   @enforce_keys [:command_id, :source, :executed_at]
   defstruct [
     :command_id,     # "expert.query", "phase.work", etc.
@@ -534,7 +534,7 @@ defmodule Mnemosyne.Event.Command.Executed do
 end
 ```
 
-`Command.Executed` provides the instrumentation called for by the sub-H amendment's `%Diagnostic{target: "mnemosyne.tui_action"}` requirement. The `source` field distinguishes TUI palette/keybinding invocations from `mnemosyne cmd` CLI invocations from raw NDJSON socket clients.
+`Command.Executed` provides the instrumentation called for by the sub-H amendment's `%Diagnostic{target: "ravel.tui_action"}` requirement. The `source` field distinguishes TUI palette/keybinding invocations from `ravel cmd` CLI invocations from raw NDJSON socket clients.
 
 ### Sub-N (domain experts)
 
@@ -544,21 +544,21 @@ Expert lifecycle (create/edit/delete) uses the filesystem + `DeclarationLoader` 
 
 ### Sub-A (global store)
 
-- **`adopt_project` as library function.** If A's current implementation is structured as a CLI entry point, it must be refactored to expose `Mnemosyne.Vault.adopt_project/2` as a callable function that the daemon's NDJSON handler can invoke. The function accepts `(vault_state, project_path)` and returns `{:ok, project_name}` or `{:error, reason}`.
+- **`adopt_project` as library function.** If A's current implementation is structured as a CLI entry point, it must be refactored to expose `Ravel.Vault.adopt_project/2` as a callable function that the daemon's NDJSON handler can invoke. The function accepts `(vault_state, project_path)` and returns `{:ok, project_name}` or `{:error, reason}`.
 
 ### Sub-G (migration)
 
-- **Phase 1 switch-over documentation.** G's migration docs must note that Phase 1 is the clean-break moment for the 7 legacy Claude Code skills. No bridge, no shim, no deprecation period. The daemon + TUI + `mnemosyne cmd` are the only interfaces post-switch-over.
+- **Phase 1 switch-over documentation.** G's migration docs must note that Phase 1 is the clean-break moment for the 7 legacy Claude Code skills. No bridge, no shim, no deprecation period. The daemon + TUI + `ravel cmd` are the only interfaces post-switch-over.
 
 ---
 
 ## §10 What sub-H does NOT produce
 
-- **No harness plugin.** No Mnemosyne-provided Claude Code plugin, skill, or harness-side artifact ships. The harness is a pure worker with no user-facing command surface.
+- **No harness plugin.** No Ravel-provided Claude Code plugin, skill, or harness-side artifact ships. The harness is a pure worker with no user-facing command surface.
 - **No TUI widget implementation.** Sub-H specifies the command registry, palette behavior, keybinding system, and which-key support. Actual `ratatui` rendering, widget layout, event loop integration, and input handling are TUI implementation tasks.
 - **No new message types.** All actions use existing F dispatch/query messages or the two new NDJSON commands.
 - **No interim compatibility.** The 7 legacy skills stop existing at G's Phase 1. No deprecation warnings, no shim.
-- **No `mnemosyne cmd` implementation.** Sub-H specifies the interface. Implementation is Rust-side (TUI crate or standalone binary).
+- **No `ravel cmd` implementation.** Sub-H specifies the interface. Implementation is Rust-side (TUI crate or standalone binary).
 
 ---
 
@@ -590,7 +590,7 @@ Expert lifecycle (create/edit/delete) uses the filesystem + `DeclarationLoader` 
 
 ### Q7. External automation mechanism?
 
-**Decision:** The NDJSON socket is the universal automation interface. `mnemosyne cmd` is a thin CLI wrapper (connect, send, print, exit) that makes the socket scriptable from shell, keyboard macro systems, or any tool that can invoke a subprocess. The daemon doesn't care whether commands come from the TUI, Obsidian, `mnemosyne cmd`, or raw `socat`.
+**Decision:** The NDJSON socket is the universal automation interface. `ravel cmd` is a thin CLI wrapper (connect, send, print, exit) that makes the socket scriptable from shell, keyboard macro systems, or any tool that can invoke a subprocess. The daemon doesn't care whether commands come from the TUI, Obsidian, `ravel cmd`, or raw `socat`.
 
 ### Q8. Architecture-first vs. legacy-mapping derivation?
 

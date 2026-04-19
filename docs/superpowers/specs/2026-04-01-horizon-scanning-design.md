@@ -1,4 +1,4 @@
-# Mnemosyne — Horizon-Scanning Mode
+# Ravel — Horizon-Scanning Mode
 
 ## 1. Purpose
 
@@ -14,7 +14,7 @@ doesn't yet know about?
 The feature lives entirely in the Claude Code skill layer. No changes to the Rust core
 library or CLI are required. The skill orchestrates web search, novelty filtering, and
 entry generation using Claude Code's native capabilities, persisting results via the
-existing `mnemosyne promote` command or direct file writes.
+existing `ravel promote` command or direct file writes.
 
 ### Relationship to Existing Work
 
@@ -26,7 +26,7 @@ The knowledge format already supports horizon-scan output: `confidence: prospect
 `source: horizon-scan` are established conventions (see `docs/knowledge-format.md` lines
 198-237). The eval corpus contains 7 prospective entries demonstrating the target format.
 
-The Rust CLI provides `mnemosyne query`, `mnemosyne status`, and `mnemosyne promote` —
+The Rust CLI provides `ravel query`, `ravel status`, and `ravel promote` —
 all the data operations the skill needs. No new CLI subcommands are introduced.
 
 ---
@@ -64,7 +64,7 @@ Open questions runs after horizon scanning, so newly created prospective entries
 surface for discussion.
 
 When the user runs horizon scanning standalone, the skill loads tag frequency and
-co-occurrence data from `mnemosyne status` and `mnemosyne query --format json` to
+co-occurrence data from `ravel status` and `ravel query --format json` to
 inform Stage 1.
 
 ---
@@ -87,7 +87,7 @@ contexts" becomes a suggested scanning area: "async error handling".
 The skill queries the knowledge base for tag frequency:
 
 ```bash
-mnemosyne query --format json
+ravel query --format json
 ```
 
 From the response, it counts tag occurrences across all entries and identifies:
@@ -165,7 +165,7 @@ knowledge base to surface only genuinely novel findings.
 For each scanning area, query the knowledge base for entries with overlapping tags:
 
 ```bash
-mnemosyne query --tags <area_tags> --format json
+ravel query --tags <area_tags> --format json
 ```
 
 This returns structured entry data including titles, tags, body content, confidence
@@ -286,7 +286,7 @@ Tags combine:
 
 ### 7.4 Axis Placement
 
-Inferred from tags using the same logic as `mnemosyne promote`:
+Inferred from tags using the same logic as `ravel promote`:
 - Language tags → `languages/`
 - Tool tags → `tools/`
 - Domain tags → `domains/`
@@ -313,8 +313,8 @@ This connects new developments to existing knowledge and flags curation opportun
 
 ### 7.6 Persistence
 
-The skill writes entries as markdown files directly to `~/.mnemosyne/knowledge/<axis>/`.
-This bypasses `mnemosyne promote` intentionally: promote's interactive flow is designed
+The skill writes entries as markdown files directly to `~/.ravel/knowledge/<axis>/`.
+This bypasses `ravel promote` intentionally: promote's interactive flow is designed
 for single entries with project origins and contradiction detection, neither of which
 applies to batch-generated prospective entries with `origins: []`.
 
@@ -324,8 +324,8 @@ The skill:
 3. Writes the complete markdown file (frontmatter + body)
 4. Reports the path: "Created knowledge/{axis}/{filename}"
 
-If `~/.mnemosyne/knowledge/` does not exist, the skill warns the user and suggests
-running `mnemosyne init` first.
+If `~/.ravel/knowledge/` does not exist, the skill warns the user and suggests
+running `ravel init` first.
 
 ---
 
@@ -337,7 +337,7 @@ The redesigned `explore-knowledge` skill retains its existing section structure:
 
 | Section | Content | Changed? |
 |---------|---------|----------|
-| 1. Prerequisites | Check mnemosyne, load status | No |
+| 1. Prerequisites | Check ravel, load status | No |
 | 2. Mode selection | Present three modes | No |
 | 3. Gap analysis | Identify thin/missing areas | No |
 | 4. Horizon scanning | Full pipeline (this spec) | **Yes — replaces placeholder** |
@@ -415,7 +415,7 @@ end-to-end regression testing is not practical. Instead:
 2. Select all generated entries
 3. Run the eval/quality harness against the live knowledge store:
    ```bash
-   python -m eval.quality --store ~/.mnemosyne/knowledge/ --verbose
+   python -m eval.quality --store ~/.ravel/knowledge/ --verbose
    ```
 4. Review per-entry scores for the new prospective entries
 5. Entries scoring below 3 on any dimension warrant revision of the skill prompt

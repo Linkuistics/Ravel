@@ -3,7 +3,7 @@
 **Status:** Design complete. Implementation plan deferred pending a BEAM spike
 to validate sub-C's PTY approach.
 
-**Brainstormed:** 2026-04-14 (Session 9 of the mnemosyne-orchestrator plan).
+**Brainstormed:** 2026-04-14 (Session 9 of the ravel-orchestrator plan).
 
 **Committed runtime:** Elixir on BEAM. Rust TUI client over a local Unix-socket
 NDJSON protocol.
@@ -16,7 +16,7 @@ process architecture, inter-actor message passing, and declarative routing.
 
 ## Summary
 
-F specifies three intertwined commitments that together define Mnemosyne's
+F specifies three intertwined commitments that together define Ravel's
 v1 architecture:
 
 1. **Plan hierarchy as a filesystem tree** with a reserved `project-root`
@@ -89,16 +89,16 @@ will land on the orchestrator backlog.
 Twelve stable decisions F locks in. Each becomes an entry in the orchestrator
 plan's `memory.md`.
 
-### F-1. Mnemosyne is a persistent actor daemon
+### F-1. Ravel is a persistent actor daemon
 
-The user-facing entry point is `mnemosyne daemon`, a long-running BEAM
+The user-facing entry point is `ravel daemon`, a long-running BEAM
 application (OTP). All plan state, actor mailboxes, supervision, message
 routing, and knowledge curation live in this process. Individual CLI
 invocations of the previous v0.1.0 shape are replaced by a daemon plus
 clients that attach to it.
 
-**Rationale.** The alternative — spawning one Mnemosyne process per plan
-and multiplexing via the user's terminal — forces Mnemosyne to hand-roll
+**Rationale.** The alternative — spawning one Ravel process per plan
+and multiplexing via the user's terminal — forces Ravel to hand-roll
 cross-process coordination, advisory locking, and state-transfer primitives
 that OTP gives for free. Once we committed to the actor model as the unit
 of orchestration, the daemon became inevitable.
@@ -128,15 +128,15 @@ validates them uniformly at the daemon's message router.
 
 ### F-4. Plan hierarchy via `project-root` convention
 
-Every project adopted by Mnemosyne has exactly one root plan at
-`<project>/mnemosyne/project-root/`. The name `project-root` is reserved.
+Every project adopted by Ravel has exactly one root plan at
+`<project>/ravel/project-root/`. The name `project-root` is reserved.
 Plans nest arbitrarily under it. A directory is a plan iff it contains
 `plan-state.md` (B's invariant, F inherits).
 
-**Collapsed `plans/`.** The earlier layout `<project>/mnemosyne/plans/`
+**Collapsed `plans/`.** The earlier layout `<project>/ravel/plans/`
 had exactly one child (always the project-root plan), which was pure
 redundancy. F removes the `plans/` container. The root plan lives
-directly at `<project>/mnemosyne/project-root/`.
+directly at `<project>/ravel/project-root/`.
 
 ### F-5. Path-based qualified plan IDs
 
@@ -148,8 +148,8 @@ qualified_id = strip_prefix(plan_path, vault.projects_dir)
 
 Examples:
 
-- `Mnemosyne/project-root`
-- `Mnemosyne/project-root/sub-F-hierarchy`
+- `Ravel/project-root`
+- `Ravel/project-root/sub-F-hierarchy`
 - `APIAnyware-MacOS/project-root/sub-ffi-callbacks/sub-ffi-callbacks-gc-protect`
 
 The qualified ID is **never stored** in `plan-state.md` frontmatter. Storing
@@ -161,11 +161,11 @@ authoritative; the qualified ID is computed at read time.
 Dispatches name their target with different shapes depending on scope:
 
 - **Same-project dispatch** — origin names the specific plan directly:
-  `target-plan: <qualified-id>`. Mnemosyne writes to that plan's backlog
+  `target-plan: <qualified-id>`. Ravel writes to that plan's backlog
   mechanically, no LLM in the loop. Origin has enough local context to pick
   the right target.
 - **Cross-project dispatch** — origin names only the target *project*:
-  `target-project: <name>`. Mnemosyne spawns a **Level 2 routing agent** —
+  `target-project: <name>`. Ravel spawns a **Level 2 routing agent** —
   a fresh-context session scoped to the target project's vault subtree,
   with read access to plan descriptions and source code. The routing agent
   decides which specific plan should receive the dispatch, or rejects with
@@ -204,7 +204,7 @@ catalog's purpose.
 ### F-9. Declarative routing with LLM-fallback learning loop
 
 Routing is user-visible and user-editable. Users edit Datalog rules in
-`<vault>/ontology/routing.dl`, loaded by `Mnemosyne.Datalog.Server`. Hot
+`<vault>/ontology/routing.dl`, loaded by `Ravel.Datalog.Server`. Hot
 reload via a filesystem watcher (fact-base re-parse + re-evaluate) makes
 edits live without daemon restart. When rules don't fire (or fire
 ambiguously), the Level 2 routing agent is the fallback — and its decisions
@@ -266,10 +266,10 @@ v1.
 
 ```
 <dev-root>/
-├── Mnemosyne-vault/                           # sub-A owns; F references
+├── Ravel-vault/                           # sub-A owns; F references
 │   ├── .git/
 │   ├── .obsidian/                             # shipped template
-│   ├── mnemosyne.toml                         # vault identity marker
+│   ├── ravel.toml                         # vault identity marker
 │   ├── daemon.toml                            # F's daemon config
 │   ├── ontology/                              # sub-R knowledge ontology
 │   │   ├── routing.dl                         # F's declarative routing rules (Datalog)
@@ -285,8 +285,8 @@ v1.
 │   │   ├── research-expert.md
 │   │   └── ...
 │   ├── projects/                              # symlinks to adopted projects
-│   │   ├── Mnemosyne -> /dev/Mnemosyne/mnemosyne/
-│   │   └── APIAnyware-MacOS -> /dev/APIAnyware-MacOS/mnemosyne/
+│   │   ├── Ravel -> /dev/Ravel/ravel/
+│   │   └── APIAnyware-MacOS -> /dev/APIAnyware-MacOS/ravel/
 │   └── runtime/                               # ephemeral, gitignored
 │       ├── daemon.sock                        # F's client socket
 │       ├── mailboxes/<qualified-id>.jsonl     # F's mailbox files
@@ -297,7 +297,7 @@ v1.
 │       └── ingestion-events/*.jsonl           # sub-E events
 └── <project>/
     ├── .git/
-    └── mnemosyne/                             # per-project mnemosyne directory
+    └── ravel/                             # per-project ravel directory
         ├── knowledge/                         # Tier 1 per-project
         └── project-root/                      # F's root plan
             ├── plan-state.md                  # required marker
@@ -323,11 +323,11 @@ adoption by sub-A's `adopt-project` command. The single filesystem check
 "project is adopted" becomes:
 
 ```
-<project>/mnemosyne/project-root/plan-state.md exists
+<project>/ravel/project-root/plan-state.md exists
 ```
 
-**Why not collapse further** (make `<project>/mnemosyne/` itself the root
-plan)? Because `<project>/mnemosyne/knowledge/` would then be under the plan's
+**Why not collapse further** (make `<project>/ravel/` itself the root
+plan)? Because `<project>/ravel/knowledge/` would then be under the plan's
 rendering scope, and B's `StagingDirectory::render` would copy Tier 1
 knowledge into staging. That violates B's descent invariant ("plan membership
 is purely `plan-state.md`"). Keeping the root plan in its own directory
@@ -347,11 +347,11 @@ schema-version: 1
 description: Plan hierarchy, actor model, inter-plan dispatch, declarative routing.
 current-phase: reflect
 started-at: 2026-04-14T11:48:52Z
-harness-session-id: reflect-sub-F-hierarchy-Mnemosyne
+harness-session-id: reflect-sub-F-hierarchy-Ravel
 daemon-pid: 48291
 interrupted: false
 tags:
-  - mnemosyne-plan
+  - ravel-plan
   - phase-reflect
 last-exit:
   phase: work
@@ -362,7 +362,7 @@ last-exit:
 
 # Plan state for [[sub-F-hierarchy]]
 
-Auto-managed by Mnemosyne. Do not edit directly except for crash recovery.
+Auto-managed by Ravel. Do not edit directly except for crash recovery.
 ```
 
 **Removed** from B's earlier schema (F's coordination amendment to B):
@@ -379,7 +379,7 @@ Auto-managed by Mnemosyne. Do not edit directly except for crash recovery.
 
 - `schema-version`, `current-phase`, `started-at`, `harness-session-id`,
   `interrupted`, `tags`, `last-exit`
-- `mnemosyne-pid` renamed to `daemon-pid` to reflect the new runtime
+- `ravel-pid` renamed to `daemon-pid` to reflect the new runtime
 
 ### §1.4 Description discipline
 
@@ -414,10 +414,10 @@ diagnostic naming the offending plan by qualified ID.
 |---|---|
 | 1 | **Marker invariant**: a directory is a plan iff it contains `plan-state.md`. No plan without marker; no marker without plan. |
 | 2 | **Descent invariant**: `StagingDirectory::render` refuses descent into subdirectories containing `plan-state.md`. (Inherited from sub-B.) |
-| 3 | **Root invariant**: every adopted project has exactly one `project-root/` directory as a direct child of `<project>/mnemosyne/`, containing `plan-state.md`. |
+| 3 | **Root invariant**: every adopted project has exactly one `project-root/` directory as a direct child of `<project>/ravel/`, containing `plan-state.md`. |
 | 4 | **Reserved name invariant**: no plan directory at any depth is named `project-root` except the root plan itself. |
 | 5 | **Single-host invariant**: every plan has exactly one host project (the first path segment after `<vault>/projects/`). Multi-project plans are a v2 concern if they ever become real. |
-| 6 | **Knowledge isolation invariant**: `<project>/mnemosyne/knowledge/` is never a plan and never contains `plan-state.md`. |
+| 6 | **Knowledge isolation invariant**: `<project>/ravel/knowledge/` is never a plan and never contains `plan-state.md`. |
 | 7 | **Description invariant**: every plan has a non-empty, non-placeholder `description:` field of ≤120 characters. |
 | 8 | **No-nested-roots invariant**: the string `project-root` does not appear as a plan directory name anywhere in the tree except at the single reserved location. |
 
@@ -460,7 +460,7 @@ Origin's phase writes to `dispatches.yaml`:
 
 ```yaml
 dispatches:
-  - target-plan: Mnemosyne/project-root/sub-A-global-store
+  - target-plan: Ravel/project-root/sub-A-global-store
     reason: Lock directory pinning question belongs to sub-A's scope.
     body: |
       The D concurrency brainstorm needs to know whether the lock
@@ -475,7 +475,7 @@ target plan's `backlog.md`:
 ```markdown
 ## Received
 
-- source: Mnemosyne/project-root/sub-F-hierarchy
+- source: Ravel/project-root/sub-F-hierarchy
   dispatched-at: 2026-04-14T10:04:11Z
   reason: Lock directory pinning question belongs to sub-A's scope.
   body: |
@@ -491,7 +491,7 @@ And mirrors in origin's `backlog.md`:
 ```markdown
 ## Dispatched
 
-- target: Mnemosyne/project-root/sub-A-global-store
+- target: Ravel/project-root/sub-A-global-store
   dispatched-at: 2026-04-14T10:04:11Z
   reason: Lock directory pinning question belongs to sub-A's scope.
   body: (same as above)
@@ -523,12 +523,12 @@ the Level 2 routing prompt, scoped to the target project's vault subtree:
 ```
 You are a dispatch routing agent for the project APIAnyware-MacOS.
 
-A plan in Mnemosyne/project-root/sub-F-hierarchy generated a putative
+A plan in Ravel/project-root/sub-F-hierarchy generated a putative
 cross-project dispatch. Your job: decide whether this concern belongs in
 APIAnyware-MacOS, and if so, which specific plan should receive it.
 
 Putative dispatch:
-  Origin: Mnemosyne/project-root/sub-F-hierarchy
+  Origin: Ravel/project-root/sub-F-hierarchy
   Reason: Description in the vault catalog matches this concern exactly.
   Suggested target plan: APIAnyware-MacOS/project-root/sub-ffi-callbacks
   Task body:
@@ -644,7 +644,7 @@ F's dispatch mechanism deliberately does NOT support:
 
 ### §3.1 Vault walk algorithm
 
-F's walker is invoked once per daemon startup and on every `mnemosyne
+F's walker is invoked once per daemon startup and on every `ravel
 rescan` command. It produces a `VaultDirectory` struct cached in process
 memory for the daemon's lifetime.
 
@@ -655,14 +655,14 @@ WalkAlgorithm:
    Non-symlink entries are a hard error.
 
 2. For each project symlink, resolve and verify the target ends in
-   /mnemosyne/. Broken symlinks and wrong-shape targets are hard errors.
+   /ravel/. Broken symlinks and wrong-shape targets are hard errors.
 
 3. For each resolved project, verify:
-     <project>/mnemosyne/knowledge/        exists, not a plan
-     <project>/mnemosyne/project-root/     exists, is a plan
+     <project>/ravel/knowledge/        exists, not a plan
+     <project>/ravel/project-root/     exists, is a plan
    Hard error on missing or extra top-level entries.
 
-4. Walk <project>/mnemosyne/project-root/ recursively:
+4. Walk <project>/ravel/project-root/ recursively:
      - At each directory, check for plan-state.md.
        Present: add to the plan map, parse frontmatter, validate, then
          RECURSE regardless of marker presence (discovery walks
@@ -706,7 +706,7 @@ per-entry formatting.
 `<vault>/plan-catalog.md` is regenerated on:
 
 1. Daemon startup (part of `verify_vault`).
-2. Every `mnemosyne rescan` command.
+2. Every `ravel rescan` command.
 3. Every plan creation or deletion (the daemon's plan-management code is
    the forcing function).
 4. Every `plan-state.md` write from within the daemon (frontmatter changes
@@ -739,11 +739,11 @@ rename handles that).
 
 ### §4.1 Actor as GenServer behavior
 
-Each actor type is an Elixir module implementing a `Mnemosyne.Actor` behavior
+Each actor type is an Elixir module implementing a `Ravel.Actor` behavior
 on top of `GenServer`. The behavior requires the following callbacks:
 
 ```elixir
-defmodule Mnemosyne.Actor do
+defmodule Ravel.Actor do
   @type message ::
     {:dispatch, DispatchMessage.t()} |
     {:query, QueryMessage.t()}
@@ -763,7 +763,7 @@ defmodule Mnemosyne.Actor do
 end
 ```
 
-The two implementors (`Mnemosyne.PlanActor` and `Mnemosyne.ExpertActor`)
+The two implementors (`Ravel.PlanActor` and `Ravel.ExpertActor`)
 each provide their own `handle_actor_message/2` with appropriate
 pattern-matched clauses. PlanActor's handler integrates sub-B's phase
 cycle; ExpertActor's handler (owned by sub-N) spawns retrieval+reasoning.
@@ -785,7 +785,7 @@ Behavior highlights (full design in F's implementation plan, deferred):
 
 ### §4.3 ExpertActor as type hole
 
-F declares the module exists and conforms to the `Mnemosyne.Actor` behavior.
+F declares the module exists and conforms to the `Ravel.Actor` behavior.
 Concrete implementation (persona handling, retrieval strategy, knowledge
 scope walking) is sub-N's scope.
 
@@ -830,19 +830,19 @@ F uses standard OTP supervision with simple strategies — no custom
 supervisor logic.
 
 ```
-Mnemosyne.Application
-└── Mnemosyne.Supervisor (:one_for_one)
-    ├── Mnemosyne.VaultDirectory.Server    (gen_server, singleton, holds VaultDirectory cache)
-    ├── Mnemosyne.Datalog.Server           (gen_server, singleton, loads ontology/routing.dl, evaluates rules)
-    ├── Mnemosyne.Router.Server            (gen_server, singleton, routes messages via Datalog queries)
-    ├── Mnemosyne.ClientListener           (task, accepts Unix socket connections)
-    ├── Mnemosyne.ClientConnection.Supervisor (dynamic_supervisor)
+Ravel.Application
+└── Ravel.Supervisor (:one_for_one)
+    ├── Ravel.VaultDirectory.Server    (gen_server, singleton, holds VaultDirectory cache)
+    ├── Ravel.Datalog.Server           (gen_server, singleton, loads ontology/routing.dl, evaluates rules)
+    ├── Ravel.Router.Server            (gen_server, singleton, routes messages via Datalog queries)
+    ├── Ravel.ClientListener           (task, accepts Unix socket connections)
+    ├── Ravel.ClientConnection.Supervisor (dynamic_supervisor)
     │   └── (one task per connected client)
-    ├── Mnemosyne.ActorSupervisor          (dynamic_supervisor, restart: :transient)
+    ├── Ravel.ActorSupervisor          (dynamic_supervisor, restart: :transient)
     │   ├── PlanActor(qualified-id-1)      (:transient — 3 crashes in 60s → permanent stop)
     │   ├── PlanActor(qualified-id-2)
     │   └── ExpertActor(expert-id-1)       (stub in F v1)
-    └── Mnemosyne.FactExtractor.Server     (gen_server, singleton, LLM fact-extraction for routing)
+    └── Ravel.FactExtractor.Server     (gen_server, singleton, LLM fact-extraction for routing)
 ```
 
 - **`:one_for_one`** at the top level — if any singleton dies, only it
@@ -855,7 +855,7 @@ Mnemosyne.Application
 
 ### §4.6 Daemon startup and shutdown
 
-**Startup** (`mnemosyne daemon` entry point):
+**Startup** (`ravel daemon` entry point):
 
 1. Parse `<vault>/daemon.toml` (or default locations per sub-A).
 2. Acquire a **vault-wide singleton lock** via a flock on
@@ -950,8 +950,8 @@ Each actor has a mailbox file at `<vault>/runtime/mailboxes/<qualified-id>.jsonl
 Format: one JSON object per line (NDJSON).
 
 ```json
-{"id":"01HZ...","type":"dispatch","from":"Mnemosyne/project-root/sub-F","to":"Mnemosyne/project-root/sub-A","ts":"2026-04-14T10:04:11Z","body":{...}}
-{"id":"01J0...","type":"query","from":"Mnemosyne/project-root/sub-F","to":"expert:rust-expert","ts":"2026-04-14T10:12:45Z","question":"..."}
+{"id":"01HZ...","type":"dispatch","from":"Ravel/project-root/sub-F","to":"Ravel/project-root/sub-A","ts":"2026-04-14T10:04:11Z","body":{...}}
+{"id":"01J0...","type":"query","from":"Ravel/project-root/sub-F","to":"expert:rust-expert","ts":"2026-04-14T10:12:45Z","question":"..."}
 ```
 
 Each mailbox has a **cursor file** at
@@ -979,8 +979,8 @@ cursor to 0. Rewrites use atomic-rename.
 Hot reload in v1 covers two specific things:
 
 1. **`ontology/routing.dl`** — user edits the Datalog routing rules. A
-   filesystem watcher detects the change (or the user runs `mnemosyne
-   rescan`), and `Mnemosyne.Datalog.Server` re-parses the fact base and
+   filesystem watcher detects the change (or the user runs `ravel
+   rescan`), and `Ravel.Datalog.Server` re-parses the fact base and
    re-evaluates. The new rules take effect immediately with no actor
    restart.
 2. **Experts** (sub-N's scope, but F reserves the hook) — adding or
@@ -1081,11 +1081,11 @@ proceed without the answer. No state is lost.
 ### §6.1 Routing rules (Datalog)
 
 `<vault>/ontology/routing.dl` is a user-editable Datalog rule file loaded
-by `Mnemosyne.Datalog.Server`. Rules are pure Datalog with a well-defined
+by `Ravel.Datalog.Server`. Rules are pure Datalog with a well-defined
 shape:
 
 ```prolog
-%% User-editable routing rules. Mnemosyne hot-reloads this file on
+%% User-editable routing rules. Ravel hot-reloads this file on
 %% save (filesystem watcher), so edits take effect without daemon restart.
 %%
 %% Each rule derives a `route/3` fact:
@@ -1124,12 +1124,12 @@ route(query, "obsidian-expert", target_expert) :-
     resolves_to(T, "obsidian").
 
 %% Migration/rename dispatches → sub-G
-route(dispatch, "Mnemosyne/project-root/sub-G-migration", target_plan) :-
+route(dispatch, "Ravel/project-root/sub-G-migration", target_plan) :-
     msg_type(dispatch),
     concerns(T),
     resolves_to(T, "migration").
 
-route(dispatch, "Mnemosyne/project-root/sub-G-migration", target_plan) :-
+route(dispatch, "Ravel/project-root/sub-G-migration", target_plan) :-
     msg_type(dispatch),
     concerns(T),
     resolves_to(T, "rename").
@@ -1152,14 +1152,14 @@ surface strings.
 The daemon watches `<vault>/ontology/routing.dl` for changes via a
 filesystem watcher. On detection:
 
-1. `Mnemosyne.Datalog.Server` re-parses the `.dl` file and re-evaluates
+1. `Ravel.Datalog.Server` re-parses the `.dl` file and re-evaluates
    the fact base.
 2. On success: the new rules are active; subsequent routing decisions
    use them.
 3. On failure (parse error, invalid rule): log the error, keep the
    previous rule set loaded, surface the failure in the TUI.
 
-Users can also trigger a reload manually via `mnemosyne rescan` or a
+Users can also trigger a reload manually via `ravel rescan` or a
 TUI command.
 
 ### §6.3 Fact extraction LLM pass
@@ -1267,8 +1267,8 @@ compatibility). Extension fields use the `x-` prefix.
 **Client → Daemon**:
 
 ```json
-{"cmd": "attach", "actor_id": "Mnemosyne/project-root/sub-F-hierarchy", "request_id": "r-1"}
-{"cmd": "detach", "actor_id": "Mnemosyne/project-root/sub-F-hierarchy", "request_id": "r-2"}
+{"cmd": "attach", "actor_id": "Ravel/project-root/sub-F-hierarchy", "request_id": "r-1"}
+{"cmd": "detach", "actor_id": "Ravel/project-root/sub-F-hierarchy", "request_id": "r-2"}
 {"cmd": "send", "actor_id": "...", "message": {"type": "dispatch", ...}, "request_id": "r-3"}
 {"cmd": "list", "filter": {"actor_type": "plan"}, "request_id": "r-4"}
 {"cmd": "status", "actor_id": "...", "request_id": "r-5"}
@@ -1535,22 +1535,22 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 
 ### §11.1 Elixir scaffolding
 
-1. `Mnemosyne.VaultDirectory` — walk + frontmatter parse + invariant checks.
-2. `Mnemosyne.Actor` behavior definition.
-3. `Mnemosyne.PlanActor` implementation wrapping sub-B's `PhaseRunner`.
-4. `Mnemosyne.ExpertActor` stub returning `:not_yet_implemented`.
-5. `Mnemosyne.ActorSupervisor` with `:transient` restart strategy.
-6. `Mnemosyne.Router.Server` (delegates to `Datalog.Server` for rule
+1. `Ravel.VaultDirectory` — walk + frontmatter parse + invariant checks.
+2. `Ravel.Actor` behavior definition.
+3. `Ravel.PlanActor` implementation wrapping sub-B's `PhaseRunner`.
+4. `Ravel.ExpertActor` stub returning `:not_yet_implemented`.
+5. `Ravel.ActorSupervisor` with `:transient` restart strategy.
+6. `Ravel.Router.Server` (delegates to `Datalog.Server` for rule
    evaluation) + mailbox NDJSON format + cursor.
-7. `Mnemosyne.DispatchProcessor` and `Mnemosyne.QueryProcessor` modules.
-8. `Mnemosyne.CatalogRenderer` for `{{VAULT_CATALOG}}` substitution.
+7. `Ravel.DispatchProcessor` and `Ravel.QueryProcessor` modules.
+8. `Ravel.CatalogRenderer` for `{{VAULT_CATALOG}}` substitution.
 
 ### §11.2 Daemon binary
 
-9. `mnemosyne daemon` mix task / escript: startup sequence (including
+9. `ravel daemon` mix task / escript: startup sequence (including
    `Datalog.Server` init from `ontology/routing.dl`), OTP application,
    signal handlers, shutdown path.
-10. `Mnemosyne.ClientListener` and `Mnemosyne.ClientConnection` for Unix
+10. `Ravel.ClientListener` and `Ravel.ClientConnection` for Unix
     socket + NDJSON protocol.
 11. Daemon-level singleton lock via flock on
     `<vault>/runtime/daemon.lock`.
@@ -1558,9 +1558,9 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 
 ### §11.3 Declarative routing
 
-13. `Mnemosyne.Datalog.Server` integration for `ontology/routing.dl`
+13. `Ravel.Datalog.Server` integration for `ontology/routing.dl`
     loading and evaluation (engine provided by sub-R).
-14. `Mnemosyne.FactExtractor.Server` with cheap-model invocation via
+14. `Ravel.FactExtractor.Server` with cheap-model invocation via
     sub-C's adapter, plus `resolves_to/2` normalization query.
 15. Filesystem watcher on `<vault>/ontology/routing.dl` triggering
     fact-base re-parse and re-evaluate.
@@ -1578,7 +1578,7 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 
 ### §11.5 Integration
 
-21. Hook `Mnemosyne.VaultDirectory.load` into sub-A's `verify_vault`.
+21. Hook `Ravel.VaultDirectory.load` into sub-A's `verify_vault`.
 22. Hook `DispatchProcessor` and `QueryProcessor` into sub-B's phase
     exit (B absorbs this via its amendment task).
 23. Emit `:telemetry` events for actor state changes, message routing,
@@ -1586,7 +1586,7 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
 
 ### §11.6 Rust TUI client (a separate implementation plan, sub-B's scope)
 
-24. `mnemosyne-tui` binary with ratatui rendering, tokio socket client,
+24. `ravel-tui` binary with ratatui rendering, tokio socket client,
     NDJSON protocol.
 25. Attach-detach UI, phase-run commands, live harness streaming.
 26. Rule suggestion review pane.
@@ -1620,7 +1620,7 @@ disrupting any v1 code.
 
 ### §12.2 Team mode via multi-daemon transport (sub-P, v2+)
 
-Multiple Mnemosyne daemons on different machines communicate via BEAM's
+Multiple Ravel daemons on different machines communicate via BEAM's
 built-in distribution (`Node.connect/1`) or a custom TCP transport. Actors
 address each other with qualified IDs, possibly prefixed by peer name.
 Cross-daemon dispatch is a transport change, not an architectural change —
@@ -1633,7 +1633,7 @@ Gleam's static type system would catch invariant violations at compile
 time that Elixir+Dialyzer can only catch at runtime or via tests. New
 sub-projects could be written in Gleam alongside the Elixir daemon core,
 since BEAM interop is clean. A full Gleam rewrite is a v3 consideration
-if Elixir's dynamic typing proves painful for Mnemosyne's invariant-heavy
+if Elixir's dynamic typing proves painful for Ravel's invariant-heavy
 design.
 
 ### §12.4 Joint brainstorm sessions
@@ -1690,7 +1690,7 @@ earlier brainstorm: `rust-expert`, `research-expert`,
 ### Q4 — Rust TUI cross-platform PTY / terminal handling
 
 Rust's ratatui and crossterm are well-tested on macOS and Linux, mostly
-OK on Windows. For Mnemosyne's target users (solo developers on
+OK on Windows. For Ravel's target users (solo developers on
 macOS/Linux), this is fine for v1.
 
 ### Q5 — Knowledge actor granularity
@@ -1711,7 +1711,7 @@ F itself.
 ## Appendix A — Glossary
 
 - **Actor**: a long-lived unit of orchestration with its own state,
-  mailbox, and message handler. Implements `Mnemosyne.Actor` behavior.
+  mailbox, and message handler. Implements `Ravel.Actor` behavior.
 - **PlanActor**: an actor that progresses through phases of work toward
   a goal. Backed by a `<qualified-id>/` directory in a project's vault
   subtree.
@@ -1739,7 +1739,7 @@ F itself.
   protocol to observe or drive actors. Examples: Rust TUI, Obsidian
   plugin (future), web UI (future).
 - **Routing rules**: the user-editable Datalog rules at
-  `<vault>/ontology/routing.dl`, loaded by `Mnemosyne.Datalog.Server`,
+  `<vault>/ontology/routing.dl`, loaded by `Ravel.Datalog.Server`,
   deriving `route/3` facts for dispatch decisions.
 - **Facts**: concern keywords extracted from a message body by the
   fact-extraction LLM pass, asserted as `concerns/1` facts and normalized

@@ -1,7 +1,7 @@
 # Sub-D: Daemon Coordination — Design Spec
 
 > Daemon singleton enforcement, external-tool file coordination, and vault
-> git concurrency constraints for Mnemosyne v1.
+> git concurrency constraints for Ravel v1.
 
 **Status:** design complete
 **Date:** 2026-04-16
@@ -18,7 +18,7 @@ sub-M (diagnostic events)
 
 Three coordination concerns, each at a different scale:
 
-1. **D1 — Daemon singleton lock.** Prevents two `mnemosyne daemon`
+1. **D1 — Daemon singleton lock.** Prevents two `ravel daemon`
    processes from running against the same vault simultaneously.
 2. **D2 — External-tool coordination.** Handles the case where Obsidian,
    a text editor, or another external tool modifies a file the daemon also
@@ -63,19 +63,19 @@ vault. This prevents the lock from being visible in Obsidian's file tree
 and enforces the v1 single-daemon-per-machine constraint.
 
 **Lock file location** (per-user, cleared on reboot):
-- **Linux:** `$XDG_RUNTIME_DIR/mnemosyne/daemon.lock`
-  (typically `/run/user/<uid>/mnemosyne/daemon.lock`)
-- **macOS:** `$TMPDIR/mnemosyne/daemon.lock`
+- **Linux:** `$XDG_RUNTIME_DIR/ravel/daemon.lock`
+  (typically `/run/user/<uid>/ravel/daemon.lock`)
+- **macOS:** `$TMPDIR/ravel/daemon.lock`
   (per-user temp dir, cleared on reboot)
 
 Resolved at daemon startup via:
 
 ```elixir
-defmodule Mnemosyne.Coordination.SingletonLock do
+defmodule Ravel.Coordination.SingletonLock do
   @spec lock_dir() :: Path.t()
   defp lock_dir do
     base = System.get_env("XDG_RUNTIME_DIR") || System.tmp_dir!()
-    Path.join(base, "mnemosyne")
+    Path.join(base, "ravel")
   end
 end
 ```
@@ -145,7 +145,7 @@ preferred for v1 — it requires no compilation and works on macOS and Linux.
 
 ### §2.6 Observability
 
-Emit `%Diagnostic{target: "mnemosyne.lock"}` events per sub-M's adoption
+Emit `%Diagnostic{target: "ravel.lock"}` events per sub-M's adoption
 matrix:
 
 - `lock_acquired` — daemon startup, includes vault path
@@ -165,7 +165,7 @@ strategy:
 |---|---|---|---|
 | **Daemon-exclusive** (`:exclusive`) | `plan-catalog.md`, `runtime/*` (staging, mailboxes, events, interrupts) | No freshness check. Atomic write, overwrite unconditionally. | Machine-generated, overwritten on every regeneration. External edits are meaningless. Documented in file headers. |
 | **Phase-cycle-owned** (`:phase_owned`) | `plan-state.md`, `memory.md`, `backlog.md`, `session-log.md` (during an active phase) | Daemon-authoritative detect-and-warn. | Daemon is mid-phase; re-reading would break session invariants. External edit is overwritten, diagnostic emitted. |
-| **Human-editable** (`:human_editable`) | `routing.ex`, `knowledge/**/*.md`, `experts/*.md`, `daemon.toml`, `mnemosyne.toml` | Human-authoritative detect-and-discard. | Human edit is authoritative. Daemon re-reads, discards its in-flight version, emits diagnostic. |
+| **Human-editable** (`:human_editable`) | `routing.ex`, `knowledge/**/*.md`, `experts/*.md`, `daemon.toml`, `ravel.toml` | Human-authoritative detect-and-discard. | Human edit is authoritative. Daemon re-reads, discards its in-flight version, emits diagnostic. |
 
 Note on `experts/*.md`: sub-N's `DeclarationLoader` already watches this
 directory via `:file_system` and hot-reloads on change. D's content-hash
@@ -179,9 +179,9 @@ Every daemon file read records a **freshness hash** — SHA-256 of the raw
 file bytes — stored in an ETS table keyed by absolute path.
 
 ```elixir
-defmodule Mnemosyne.Coordination.FreshnessTracker do
+defmodule Ravel.Coordination.FreshnessTracker do
   @moduledoc false
-  @table :mnemosyne_freshness
+  @table :ravel_freshness
 
   @spec record(path :: Path.t(), content :: binary()) :: :ok
   @spec check(path :: Path.t()) :: :unchanged | {:changed, current_hash :: binary()}
@@ -201,13 +201,13 @@ owning GenServer for crash-safety (table survives individual actor crashes
 but not daemon crashes — appropriate since daemon restart re-reads
 everything from disk).
 
-### §3.3 Write path: `Mnemosyne.FileIO`
+### §3.3 Write path: `Ravel.FileIO`
 
 All daemon file writes go through a shared module that enforces the
 read-before-write + hash-check + atomic-write discipline:
 
 ```elixir
-defmodule Mnemosyne.FileIO do
+defmodule Ravel.FileIO do
   @spec read_tracked(path :: Path.t()) :: {:ok, binary()} | {:error, File.posix()}
   @spec write_safe(
           path :: Path.t(),
@@ -230,11 +230,11 @@ stays current.
      new content's hash, return `:ok`.
    - `{:changed, _}` → external modification detected:
      - `:phase_owned` → write proceeds anyway (daemon-authoritative). Emit
-       `%Diagnostic{level: :warn, target: "mnemosyne.coordination", message: "external modification to <path> overwritten by phase cycle"}`.
+       `%Diagnostic{level: :warn, target: "ravel.coordination", message: "external modification to <path> overwritten by phase cycle"}`.
        Update stored hash. Return `:ok`.
      - `:human_editable` → write is discarded. Update stored hash to the
        external version's hash. Emit
-       `%Diagnostic{level: :info, target: "mnemosyne.coordination", message: "external modification to <path> detected; daemon write discarded"}`.
+       `%Diagnostic{level: :info, target: "ravel.coordination", message: "external modification to <path> detected; daemon write discarded"}`.
        Return `{:conflict, :external_modification}`.
 3. If file doesn't exist (deleted externally):
    - `:phase_owned` → recreate the file, emit `%Diagnostic{level: :warn}`.
@@ -254,7 +254,7 @@ mount) to ensure `rename(2)` is atomic.
 | **Sub-E** (`SafeFileWriter`) | Delegates to `FileIO.write_safe(path, content, :human_editable)` for Tier 1 orphan knowledge writes. |
 | **Sub-F** (plan-catalog) | Calls `FileIO.write_safe(path, content, :exclusive)` — no freshness check, just atomic rename. |
 | **Sub-N** (expert absorb) | Each `ExpertActor` calls `FileIO.write_safe(path, content, :human_editable)` for Tier 2 knowledge writes. |
-| **Sub-M** (observability) | Subscribes to `%Diagnostic{target: "mnemosyne.coordination"}` events via `:telemetry`. |
+| **Sub-M** (observability) | Subscribes to `%Diagnostic{target: "ravel.coordination"}` events via `:telemetry`. |
 
 ---
 
@@ -277,7 +277,7 @@ Daemon git operations (when triggered by user approval) use a sequential
 executor:
 
 ```elixir
-defmodule Mnemosyne.VaultGit do
+defmodule Ravel.VaultGit do
   @spec commit(
           vault_path :: Path.t(),
           paths :: [Path.t()],
@@ -314,12 +314,12 @@ D locks the following contracts for sibling consumption:
 
 | Contract | Consumers |
 |---|---|
-| System-wide daemon singleton lock at `<runtime_dir>/mnemosyne/daemon.lock` via `flock(2)`, acquired at boot step 3, released on process death. Contains PID + vault path. Not inside the vault — invisible to Obsidian. | F (boot sequence), A (removes `daemon.lock` and `daemon.pid` from vault layout) |
-| `Mnemosyne.FileIO.read_tracked/1` and `write_safe/3` as the mandatory file I/O layer for all daemon reads and writes to plan and knowledge files | B (`copy_back/2`), E (`SafeFileWriter`), F (plan-catalog), N (expert absorb writes) |
-| `Mnemosyne.Coordination.FreshnessTracker` ETS table keyed by absolute path, recording SHA-256 content hashes | FileIO (internal), M (diagnostic events) |
+| System-wide daemon singleton lock at `<runtime_dir>/ravel/daemon.lock` via `flock(2)`, acquired at boot step 3, released on process death. Contains PID + vault path. Not inside the vault — invisible to Obsidian. | F (boot sequence), A (removes `daemon.lock` and `daemon.pid` from vault layout) |
+| `Ravel.FileIO.read_tracked/1` and `write_safe/3` as the mandatory file I/O layer for all daemon reads and writes to plan and knowledge files | B (`copy_back/2`), E (`SafeFileWriter`), F (plan-catalog), N (expert absorb writes) |
+| `Ravel.Coordination.FreshnessTracker` ETS table keyed by absolute path, recording SHA-256 content hashes | FileIO (internal), M (diagnostic events) |
 | Three file categories (`:exclusive`, `:phase_owned`, `:human_editable`) with defined conflict strategies per §3.1 | B, E, F, N |
-| `Mnemosyne.VaultGit.commit/3` as the sole daemon git interface, human-mediated only in v1 | F (routing rule suggestions) |
-| `%Diagnostic{target: "mnemosyne.coordination"}` events for lock acquire/release/contend and external-modification detect | M (telemetry subscription) |
+| `Ravel.VaultGit.commit/3` as the sole daemon git interface, human-mediated only in v1 | F (routing rule suggestions) |
+| `%Diagnostic{target: "ravel.coordination"}` events for lock acquire/release/contend and external-modification detect | M (telemetry subscription) |
 
 ---
 
@@ -327,7 +327,7 @@ D locks the following contracts for sibling consumption:
 
 ### On sub-B (phase cycle)
 
-- `copy_back/2` delegates to `Mnemosyne.FileIO.write_safe/3` with category
+- `copy_back/2` delegates to `Ravel.FileIO.write_safe/3` with category
   `:phase_owned`. For this category, `write_safe` always returns `:ok` —
   the write proceeds even on external modification (daemon-authoritative).
   `copy_back` does not need conflict handling; the diagnostic event emitted
@@ -337,7 +337,7 @@ D locks the following contracts for sibling consumption:
 
 ### On sub-E (knowledge ingestion)
 
-- `SafeFileWriter` delegates to `Mnemosyne.FileIO.write_safe/3` with
+- `SafeFileWriter` delegates to `Ravel.FileIO.write_safe/3` with
   category `:human_editable`. On `{:conflict, :external_modification}`,
   sub-E treats the candidate as "not written" and emits
   `%Ingestion.CandidateSkipped{reason: :external_modification}`.
@@ -352,7 +352,7 @@ D locks the following contracts for sibling consumption:
 
 ### On sub-F (hierarchy, router, daemon)
 
-- Boot sequence step 3 calls `Mnemosyne.Coordination.SingletonLock.acquire/1`.
+- Boot sequence step 3 calls `Ravel.Coordination.SingletonLock.acquire/1`.
 - `plan-catalog.md` writes use `FileIO.write_safe/3` with `:exclusive`.
 - Routing rule suggestion commits use `VaultGit.commit/3`.
 - Bootstrap subcommands read the system-wide lock file (not a vault-local
@@ -368,9 +368,9 @@ D locks the following contracts for sibling consumption:
 
 ### On sub-M (observability)
 
-- Subscribe to `[:mnemosyne, :coordination, :*]` telemetry events.
-- `%Diagnostic{target: "mnemosyne.lock"}` for singleton lock lifecycle.
-- `%Diagnostic{target: "mnemosyne.coordination"}` for freshness-check
+- Subscribe to `[:ravel, :coordination, :*]` telemetry events.
+- `%Diagnostic{target: "ravel.lock"}` for singleton lock lifecycle.
+- `%Diagnostic{target: "ravel.coordination"}` for freshness-check
   conflicts (warn for phase-owned overwrites, info for human-editable
   discards).
 
@@ -431,13 +431,13 @@ services.
 
 D is small. The implementation is:
 
-- `Mnemosyne.Coordination.SingletonLock` — ~40 lines (port open, flock,
+- `Ravel.Coordination.SingletonLock` — ~40 lines (port open, flock,
   PID write, error handling)
-- `Mnemosyne.Coordination.FreshnessTracker` — ~50 lines (ETS table, record,
+- `Ravel.Coordination.FreshnessTracker` — ~50 lines (ETS table, record,
   check, GenServer owner)
-- `Mnemosyne.FileIO` — ~80 lines (read_tracked, write_safe with category
+- `Ravel.FileIO` — ~80 lines (read_tracked, write_safe with category
   dispatch, atomic temp-then-rename)
-- `Mnemosyne.VaultGit` — ~30 lines (commit wrapper, index.lock error
+- `Ravel.VaultGit` — ~30 lines (commit wrapper, index.lock error
   handling)
 - Tests — ~150 lines across the four test modules
 
@@ -459,7 +459,7 @@ process death regardless of exit reason. No stale-lock cleanup needed.
 
 ### Q1a. System-wide lock vs per-vault lock?
 
-System-wide chosen. The lock file lives at `<runtime_dir>/mnemosyne/daemon.lock`
+System-wide chosen. The lock file lives at `<runtime_dir>/ravel/daemon.lock`
 (outside the vault) rather than `<vault>/runtime/daemon.lock`. Two reasons:
 (1) a lock file inside the vault is visible in Obsidian's file tree, which
 is undesirable; (2) v1 enforces single-daemon-per-machine via sub-A's

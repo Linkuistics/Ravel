@@ -13,7 +13,7 @@ Appendix A; corrections are folded into the original question entries.
 
 ## Overview
 
-Sub-project E designs how Mnemosyne — running as a persistent BEAM/OTP
+Sub-project E designs how Ravel — running as a persistent BEAM/OTP
 daemon hosting plan and expert actors — reads each plan's outputs after a
 session completes and turns them into knowledge updates owned by domain
 experts.
@@ -30,7 +30,7 @@ The design is:
   gets dispatched**; the fifth still fires live UI prompts on graduation
   and supersession.
 - **Stage 5 is dispatch-to-experts.** Instead of writing directly into the
-  store, Stage 5 fans out `%Mnemosyne.Message.ExpertAbsorbCandidate{}`
+  store, Stage 5 fans out `%Ravel.Message.ExpertAbsorbCandidate{}`
   messages in parallel to every tag-matching `ExpertActor` (sub-N) via
   sub-F's router. Each expert reviews in fresh context and emits one of
   three verdicts (`:absorb`, `:reject`, `:cross_link_suggested`). Multi-
@@ -48,15 +48,15 @@ The design is:
   pipeline is also reachable via direct user action through an attached
   client, through the same invariants.
 - Emitting **structured ingestion events** as members of sub-M's sealed
-  `Mnemosyne.Event.*` set. Sub-E does not define its own event types —
-  it consumes the six `Mnemosyne.Event.Ingestion.*` variants declared in
-  sub-M §4.1, plus its sub-E-owned `%Mnemosyne.Event.Ingestion.OrphanCandidate{}`
+  `Ravel.Event.*` set. Sub-E does not define its own event types —
+  it consumes the six `Ravel.Event.Ingestion.*` variants declared in
+  sub-M §4.1, plus its sub-E-owned `%Ravel.Event.Ingestion.OrphanCandidate{}`
   for the orphan path. The Ingestion Events Explorer is a view rendered by
   attached clients over sub-M's event log; sub-E does not own a parallel
   channel.
 
 The design assumes the persistent-daemon architecture established in
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`: Mnemosyne runs
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`: Ravel runs
 continuously as a single BEAM application hosting `PlanActor`s and
 `ExpertActor`s, spawns child harness sessions via sub-C's adapter for
 LLM-driven phases, and routes messages between actors through sub-F's
@@ -78,7 +78,7 @@ declarative router.
 
 ### In scope
 
-The mechanism by which Mnemosyne reads a plan's outputs after a cycle and
+The mechanism by which Ravel reads a plan's outputs after a cycle and
 turns them into knowledge updates owned by domain experts: trigger timing,
 file inputs, pipeline stages, decision rules, contradiction handling,
 confidence assignment, axis assignment, tier routing, expert dispatch,
@@ -92,7 +92,7 @@ and the requirements this design generates on sibling sub-projects.
   prompt, a configurable tool profile, and streaming output capture, all in
   Elixir over `erlexec` pipes.
 - **Phase cycle state machine** — sub-project B. E specifies only the
-  hook contract (`Mnemosyne.ReflectExitHook`) and the file-read contract.
+  hook contract (`Ravel.ReflectExitHook`) and the file-read contract.
 - **Vault discovery and Tier 1/Tier 2 root resolution** — sub-project A.
   E assumes both roots are resolvable paths at daemon boot.
 - **Concurrency between daemon and external editors** — sub-project D
@@ -107,14 +107,14 @@ and the requirements this design generates on sibling sub-projects.
   tests with no client attached.
 - **Curate command redesign** — folded into sub-H's TUI-actions scope.
 - **Horizon-scanning-driven ingestion** — separate path, not addressed here.
-- **Migration of existing Mnemosyne v0.1.0 entries** — sub-project G.
+- **Migration of existing Ravel v0.1.0 entries** — sub-project G.
   E designs greenfield. The v0.1.0 sunk cost is small enough that the BEAM
   pivot writes off the previous Rust-CLI ingestion wiring outright.
 
 ### Goals, in priority order
 
 1. **Eliminate the LLM-discipline failure mode for promotion.** No tool
-   calls from child harnesses back to Mnemosyne to "promote" knowledge.
+   calls from child harnesses back to Ravel to "promote" knowledge.
    Parent reads files, parent decides, parent dispatches to experts,
    experts write. The question "did the LLM remember to promote that?"
    must become structurally impossible.
@@ -124,7 +124,7 @@ and the requirements this design generates on sibling sub-projects.
    and the full ingestion decision set at once. This is load-bearing —
    it follows from the project-wide "fresh LLM context is a first-class
    architectural goal" decision.
-3. **Preserve Mnemosyne's knowledge philosophy.** Auto-absorb must not
+3. **Preserve Ravel's knowledge philosophy.** Auto-absorb must not
    silently corrupt the "living beliefs" semantic. Supersession,
    contradiction, and confidence inflation are gated by rules pre-dispatch
    and surfaced for user review on high-stakes events. Experts may also
@@ -151,18 +151,18 @@ and the requirements this design generates on sibling sub-projects.
 ## 2. Pipeline Architecture
 
 Ingestion is a five-stage pipeline that fires exactly once per cycle,
-triggered by sub-B's `Mnemosyne.ReflectExitHook` callback when the reflect
+triggered by sub-B's `Ravel.ReflectExitHook` callback when the reflect
 phase exits cleanly. Stages 1, 2, and 5 are deterministic Elixir; stages 3
 and 4 are fresh-context LLM sessions spawned via sub-C's harness adapter.
 Stage composition is a `GenStage` pipeline rooted at the
-`Mnemosyne.Ingestion.Pipeline` GenServer; back-pressure between stages is
+`Ravel.Ingestion.Pipeline` GenServer; back-pressure between stages is
 explicit, and Stage 3's per-section sessions fan out via a `Task.Supervisor`
 inside the Stage 3 consumer.
 
 ```
 reflect phase exits cleanly (sub-B PhaseRunner inside PlanActor)
     │
-    ▼ Mnemosyne.ReflectExitHook.on_reflect_exit(context)
+    ▼ Ravel.ReflectExitHook.on_reflect_exit(context)
     │ (called non-blockingly via Task.Supervisor.start_child/3
     │  under the PlanActor's task supervisor; ingestion does
     │  NOT block phase advancement to triage)
@@ -197,7 +197,7 @@ reflect phase exits cleanly (sub-B PhaseRunner inside PlanActor)
 │ For each {%Section{}, %StoreSlice{}}:                           │
 │   Spawn a fresh Claude Code session via sub-C with tool profile│
 │   `:ingestion_minimal`. Fan-out is bounded by                   │
-│   `Mnemosyne.Ingestion.Stage3Supervisor` (Task.Supervisor with  │
+│   `Ravel.Ingestion.Stage3Supervisor` (Task.Supervisor with  │
 │   max_children = config :ingestion :stage3_concurrency).        │
 │   Session context contains ONLY:                                │
 │     - the one %Section{}                                        │
@@ -240,24 +240,24 @@ reflect phase exits cleanly (sub-B PhaseRunner inside PlanActor)
 │   1. Apply Rules 1–4 + 6 (§3) to produce a gated op            │
 │   2. If the gated op triggers Rule 5 (graduation or            │
 │      supersession), emit                                        │
-│      %Mnemosyne.Event.Ingestion.PromptRequired{}               │
+│      %Ravel.Event.Ingestion.PromptRequired{}               │
 │      and await the user's resolution (apply/defer/reject) via  │
 │      sub-M's bus + attached-client round trip                  │
 │   3. Wrap the (possibly resolved) op as                        │
-│      %Mnemosyne.Message.ExpertAbsorbCandidate{}                │
+│      %Ravel.Message.ExpertAbsorbCandidate{}                │
 │      with a fresh `ingestion_event_id`                          │
-│   4. Call Mnemosyne.Expert.ScopeMatcher.match_candidate/2:     │
+│   4. Call Ravel.Expert.ScopeMatcher.match_candidate/2:     │
 │      - {:matched, [expert_id]} → fan out the candidate to each │
-│        expert via Mnemosyne.Router.dispatch/2                   │
+│        expert via Ravel.Router.dispatch/2                   │
 │      - :orphan → write directly to                              │
 │        `<vault>/knowledge/uncategorized/<slug>.md` via          │
-│        Mnemosyne.Ingestion.SafeFileWriter and emit             │
-│        %Mnemosyne.Event.Ingestion.OrphanCandidate{}             │
+│        Ravel.Ingestion.SafeFileWriter and emit             │
+│        %Ravel.Event.Ingestion.OrphanCandidate{}             │
 │   5. Run the verdict collector (§4 below) for fan-out cases    │
-│   6. Emit %Mnemosyne.Event.Ingestion.Applied{}                 │
+│   6. Emit %Ravel.Event.Ingestion.Applied{}                 │
 │      / Deferred{} / Rejected{} per op disposition              │
 │   At cycle end:                                                 │
-│   7. Emit %Mnemosyne.Event.Ingestion.CycleSummary{}            │
+│   7. Emit %Ravel.Event.Ingestion.CycleSummary{}            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -311,15 +311,15 @@ droppable as a degradation path.
 
 Plan files are **read-only** to the ingestion pipeline. Invariant 6
 (file-write safety) enforces this at the Elixir level via
-`Mnemosyne.Ingestion.SafeFileWriter`.
+`Ravel.Ingestion.SafeFileWriter`.
 
-### Trigger contract: `Mnemosyne.ReflectExitHook`
+### Trigger contract: `Ravel.ReflectExitHook`
 
 Sub-B §4.2 (rewritten for Elixir in Session 12) defines the
-`Mnemosyne.ReflectExitHook` behaviour. Sub-E implements:
+`Ravel.ReflectExitHook` behaviour. Sub-E implements:
 
 ```elixir
-@behaviour Mnemosyne.ReflectExitHook
+@behaviour Ravel.ReflectExitHook
 
 @impl true
 def on_reflect_exit(%{
@@ -329,7 +329,7 @@ def on_reflect_exit(%{
       session_log_latest_entry: latest_entry,
       ingestion_fired_setter: set_fired
     }) do
-  Mnemosyne.Ingestion.Pipeline.run_cycle(%{
+  Ravel.Ingestion.Pipeline.run_cycle(%{
     qualified_id: qualified_id,
     plan_dir: plan_dir,
     runtime_dir: runtime_dir,
@@ -350,10 +350,10 @@ flag stays `false` and the next clean reflect exit re-attempts ingestion.
 ### Internal struct types
 
 The pipeline's data types are Elixir structs with `@enforce_keys` and
-`@type` typespecs declared in `lib/mnemosyne/ingestion/types.ex`:
+`@type` typespecs declared in `lib/ravel/ingestion/types.ex`:
 
 ```elixir
-%Mnemosyne.Ingestion.Section{
+%Ravel.Ingestion.Section{
   title :: String.t(),
   body_markdown :: String.t(),
   plan_qualified_id :: String.t(),
@@ -361,11 +361,11 @@ The pipeline's data types are Elixir structs with `@enforce_keys` and
   host_project :: String.t()
 }
 
-%Mnemosyne.Ingestion.StoreSlice{
-  entries :: [%Mnemosyne.Knowledge.Entry{}]
+%Ravel.Ingestion.StoreSlice{
+  entries :: [%Ravel.Knowledge.Entry{}]
 }
 
-%Mnemosyne.Ingestion.ProposedOp{
+%Ravel.Ingestion.ProposedOp{
   op_type :: :new | :append_observation | :supersede | :no_op,
   target_path :: nil | String.t(),
   title :: String.t(),
@@ -375,13 +375,13 @@ The pipeline's data types are Elixir structs with `@enforce_keys` and
   rationale :: String.t()
 }
 
-%Mnemosyne.Ingestion.ReconciledOp{
+%Ravel.Ingestion.ReconciledOp{
   proposed :: %ProposedOp{},
   merged_with :: [%ProposedOp{}],
   ordering_after :: [reference()]
 }
 
-%Mnemosyne.Ingestion.GatedOp{
+%Ravel.Ingestion.GatedOp{
   reconciled :: %ReconciledOp{},
   effective_confidence :: :prospective | :medium | :high,
   contradicts :: nil | String.t(),
@@ -392,8 +392,8 @@ The pipeline's data types are Elixir structs with `@enforce_keys` and
 }
 ```
 
-The `%Mnemosyne.Message.ExpertAbsorbCandidate{}` and the
-`%Mnemosyne.Event.Ingestion.*{}` events are owned by sub-N and sub-M
+The `%Ravel.Message.ExpertAbsorbCandidate{}` and the
+`%Ravel.Event.Ingestion.*{}` events are owned by sub-N and sub-M
 respectively; sub-E does not redefine them.
 
 ---
@@ -403,14 +403,14 @@ respectively; sub-E does not redefine them.
 Stage 5's deterministic prelude (steps 1 and 2 in the §2 diagram) enforces
 six rules that make the auto-absorb path safe **before** any candidate is
 dispatched to an expert. These rules live in pure Elixir modules under
-`lib/mnemosyne/ingestion/rules/`, are unit-testable in isolation, and
+`lib/ravel/ingestion/rules/`, are unit-testable in isolation, and
 override any conflicting LLM-proposed op. Experts are not allowed to relax
 the rules — they may only add their own additional rejections downstream.
 
 ### Rule 1 — Confidence mapping
 
 The per-section LLM's only confidence-related output is the `nature` field:
-`:experiential` or `:speculative`. Mnemosyne derives the confidence level
+`:experiential` or `:speculative`. Ravel derives the confidence level
 deterministically according to this matrix:
 
 | Pre-existing entry state | Section's `nature` | Result |
@@ -462,7 +462,7 @@ def derive_axis(tags), do: first_match(tags, axis_tag_rules())
 ```
 
 The LLM never produces an axis field. Its job is to produce good tags;
-Mnemosyne's job is to route them.
+Ravel's job is to route them.
 
 ### Rule 4 — Tier routing
 
@@ -533,20 +533,20 @@ informational record.
 
 ### Rule 6 — File-write safety invariants
 
-`Mnemosyne.Ingestion.SafeFileWriter` will never:
+`Ravel.Ingestion.SafeFileWriter` will never:
 
 - Write a file outside `<vault>/knowledge/uncategorized/` (the only
   sub-E-owned write target post-amendment).
 - Overwrite an existing file. Orphan-path writes are creates only; if a
   slug collides, the writer suffixes a counter and surfaces a
-  `%Mnemosyne.Event.Diagnostic{level: :warn}` event.
+  `%Ravel.Event.Diagnostic{level: :warn}` event.
 - Touch plan files (`<plan_dir>/memory.md`, `session-log.md`, `backlog.md`).
   Plan files are read-only to the ingestion pipeline.
 - Write outside the vault root (`<vault>` is captured at boot time and
   asserted on every write via `Path.safe_relative_to/2`).
 
 Any invariant violation aborts the pipeline cycle with
-`%Mnemosyne.Event.Error{}` and a `%Mnemosyne.Event.Ingestion.CycleSummary{}`
+`%Ravel.Event.Error{}` and a `%Ravel.Event.Ingestion.CycleSummary{}`
 showing the failure. The plan cycle itself (work/reflect/triage) is **not
 blocked** by an ingestion failure — ingestion is best-effort from the
 phase cycle's perspective per the `ReflectExitHook` non-blocking contract.
@@ -562,7 +562,7 @@ Tier 2 directly post-amendment.
 
 ## 4. Event Flow and the Ingestion Events Explorer
 
-Rule 5 introduces two kinds of ingestion output that flow into Mnemosyne's
+Rule 5 introduces two kinds of ingestion output that flow into Ravel's
 attached clients: **live interactive prompts** (blocking Stage 5 dispatch
 for a specific op) and **informational records** (non-blocking, flowing
 into the Ingestion Events Explorer view). §4 specifies how those flow
@@ -572,16 +572,16 @@ to client implementation details.
 ### Event types — consuming sub-M's sealed set
 
 Sub-E does **not** define its own event enum. All ingestion events are
-members of the sealed `Mnemosyne.Event.*` set declared in sub-M §4.1 and
-emitted via `Mnemosyne.Observability.emit/1`. The relevant variants:
+members of the sealed `Ravel.Event.*` set declared in sub-M §4.1 and
+emitted via `Ravel.Observability.emit/1`. The relevant variants:
 
 ```elixir
-%Mnemosyne.Event.Ingestion.Applied{candidate_id, store_path, at}
-%Mnemosyne.Event.Ingestion.PromptRequired{candidate_id, reason, at}
-%Mnemosyne.Event.Ingestion.Deferred{candidate_id, reason, at}
-%Mnemosyne.Event.Ingestion.Rejected{candidate_id, reason, at}
-%Mnemosyne.Event.Ingestion.ResearchSession{candidate_id, session_id, at}
-%Mnemosyne.Event.Ingestion.CycleSummary{cycle_id, applied_count,
+%Ravel.Event.Ingestion.Applied{candidate_id, store_path, at}
+%Ravel.Event.Ingestion.PromptRequired{candidate_id, reason, at}
+%Ravel.Event.Ingestion.Deferred{candidate_id, reason, at}
+%Ravel.Event.Ingestion.Rejected{candidate_id, reason, at}
+%Ravel.Event.Ingestion.ResearchSession{candidate_id, session_id, at}
+%Ravel.Event.Ingestion.CycleSummary{cycle_id, applied_count,
                                          deferred_count, rejected_count,
                                          duration_ms, at}
 ```
@@ -590,7 +590,7 @@ Sub-E owns one additional variant in its namespace, declared in sub-M's
 sealed set as part of the F amendment absorption:
 
 ```elixir
-%Mnemosyne.Event.Ingestion.OrphanCandidate{candidate_id, written_path,
+%Ravel.Event.Ingestion.OrphanCandidate{candidate_id, written_path,
                                            candidate_tags, at}
 ```
 
@@ -598,13 +598,13 @@ Expert verdict events are owned by sub-N and consumed by sub-E's collector
 (see §4 "Verdict collector" below):
 
 ```elixir
-%Mnemosyne.Event.Expert.AbsorbRequested{expert_id, ingestion_event_id, ...}
-%Mnemosyne.Event.Expert.Absorb{expert_id, ingestion_event_id, written_path, at}
-%Mnemosyne.Event.Expert.Reject{expert_id, ingestion_event_id, reason, at}
-%Mnemosyne.Event.Expert.CrossLinkSuggested{from_expert, to_expert, ...}
-%Mnemosyne.Event.Expert.CrossLinkDeadEnd{chain, ingestion_event_id, at}
-%Mnemosyne.Event.Expert.Conflict{ingestion_event_id, absorbing, rejecting, at}
-%Mnemosyne.Event.Expert.IngestionVerdictTimeout{expert_id, ingestion_event_id, at}
+%Ravel.Event.Expert.AbsorbRequested{expert_id, ingestion_event_id, ...}
+%Ravel.Event.Expert.Absorb{expert_id, ingestion_event_id, written_path, at}
+%Ravel.Event.Expert.Reject{expert_id, ingestion_event_id, reason, at}
+%Ravel.Event.Expert.CrossLinkSuggested{from_expert, to_expert, ...}
+%Ravel.Event.Expert.CrossLinkDeadEnd{chain, ingestion_event_id, at}
+%Ravel.Event.Expert.Conflict{ingestion_event_id, absorbing, rejecting, at}
+%Ravel.Event.Expert.IngestionVerdictTimeout{expert_id, ingestion_event_id, at}
 ```
 
 `PromptRequired` is a **request-response pattern over the observability
@@ -663,7 +663,7 @@ Per sub-N §6.3, sub-E's Stage 5 collector is responsible for:
 - **Contentful disagreement detection**: if at least one `:absorb` landed
   AND at least one `:reject` with a non-trivial reason (reason text ≥ 10
   characters, not just "out of scope"), emit
-  `%Mnemosyne.Event.Expert.Conflict{}`. This is a surfaced signal, not an
+  `%Ravel.Event.Expert.Conflict{}`. This is a surfaced signal, not an
   auto-resolution — humans decide what to do with it. Both writes already
   happened; the conflict event is advisory.
 - **Handling second-round cross-links**: when a verdict is
@@ -671,12 +671,12 @@ Per sub-N §6.3, sub-E's Stage 5 collector is responsible for:
   `%ExpertAbsorbCandidate{}` to the named expert. **Non-recursive,
   max depth 2** — if the second-round expert also emits `READY CROSS_LINK`,
   the collector ignores the suggestion, emits
-  `%Mnemosyne.Event.Expert.CrossLinkDeadEnd{}`, and does not spawn a third
+  `%Ravel.Event.Expert.CrossLinkDeadEnd{}`, and does not spawn a third
   round. This prevents infinite cross-link loops.
 - **Orphan handling**: if `ScopeMatcher.match_candidate/2` returned
   `:orphan`, Stage 5 writes the candidate directly to
   `<vault>/knowledge/uncategorized/<proposed-slug>.md` via the SafeFileWriter
-  and emits `%Mnemosyne.Event.Ingestion.OrphanCandidate{}`. **No expert is
+  and emits `%Ravel.Event.Ingestion.OrphanCandidate{}`. **No expert is
   involved in the orphan path.** This is the only post-amendment case where
   sub-E itself writes a knowledge file.
 - **Multi-expert absorption** is accepted: physical duplication across two
@@ -718,7 +718,7 @@ The "no file write" invariant is enforced by sub-C's tool-call boundary at
 runtime via the configurable tool profiles, not by prompt discipline. A
 research session that attempts a write has the tool call rejected at the
 boundary, the session sees an error in its tool result, and the rejection
-is logged as a `%Mnemosyne.Event.HarnessError{kind: :tool_call_boundary_error}`
+is logged as a `%Ravel.Event.HarnessError{kind: :tool_call_boundary_error}`
 event.
 
 - Research sessions are bound to the lifetime of their parent prompt. If
@@ -746,7 +746,7 @@ Persistence layout (owned by sub-M, surfaced here for reference):
 ```
 <vault>/runtime/events/
   YYYY-MM-DD.jsonl             # daily-rotated append-only event log
-                               # contains all %Mnemosyne.Event.*{} variants
+                               # contains all %Ravel.Event.*{} variants
   index.sqlite                 # derivable cross-view index, rebuildable
 ```
 
@@ -778,7 +778,7 @@ prompted), `research_session_ids` (if any were launched), `source`
 
 ### Decoupling from client implementation
 
-Stage 5 knows only about `Mnemosyne.Observability.emit/1` and the
+Stage 5 knows only about `Ravel.Observability.emit/1` and the
 outstanding-prompts map keyed by `candidate_id`. It does not know whether
 the attached client is the Rust TUI, an Obsidian plugin, a web frontend,
 or a test harness. This is critical for two reasons:
@@ -796,7 +796,7 @@ The pipeline exposes direct entry points for the user to drive ingestion
 manually, without a harness child session triggering it:
 
 1. **Human-triggered full ingestion.** "Run ingestion on this plan now" —
-   `Mnemosyne.Ingestion.Pipeline.run_cycle/1` is invocable on demand
+   `Ravel.Ingestion.Pipeline.run_cycle/1` is invocable on demand
    against any plan directory via a sub-K client command. All downstream
    stages run as normal. Useful when the user has edited `memory.md`
    manually and wants it absorbed.
@@ -834,7 +834,7 @@ manually, without a harness child session triggering it:
   rewritten design doc, so sub-E does not need to ship its own stub
   adapter.
 - **Stage 5 expert dispatch** is integration-tested against a stub
-  `ExpertActor` registered in `Mnemosyne.ActorSupervisor` under a test
+  `ExpertActor` registered in `Ravel.ActorSupervisor` under a test
   qualified ID. The stub returns canned verdicts (`:absorb`, `:reject`,
   `:cross_link_suggested`) per test scenario. The full sub-N `ExpertActor`
   is *also* integration-testable against sub-N's own test fixtures, but
@@ -881,7 +881,7 @@ brainstorming. Decision cost is low enough to leave to the code.
    collisions. The collision-suffix path in Rule 6 still applies as a
    defence in depth.
 8. **GenStage vs Broadway for pipeline composition.** Default: GenStage
-   producer-consumer chain rooted at `Mnemosyne.Ingestion.Pipeline`.
+   producer-consumer chain rooted at `Ravel.Ingestion.Pipeline`.
    Switch to Broadway if back-pressure or batching pressure justifies it
    during implementation. The decision is internal to sub-E and does not
    affect any cross-sub-project contract.
@@ -895,7 +895,7 @@ brainstorming. Decision cost is low enough to leave to the code.
    git-backed vault) and sub-P (team mode, v2+).
 4. **Horizon-scanning-driven ingestion** — separate path, not addressed
    here.
-5. **Migration of existing Mnemosyne v0.1.0 entries** — sub-project G.
+5. **Migration of existing Ravel v0.1.0 entries** — sub-project G.
 6. **Vector retrieval for Stage 2 or Stage 3 store slicing** — sub-Q
    (vector-store infrastructure, v1.5+). Sub-E v1 uses tag-overlap
    retrieval only.
@@ -910,8 +910,8 @@ run.
 
 #### Sub-B (phase cycle)
 
-- Implements the `Mnemosyne.ReflectExitHook` behaviour callback by
-  delegating to `Mnemosyne.Ingestion.Pipeline.run_cycle/1`.
+- Implements the `Ravel.ReflectExitHook` behaviour callback by
+  delegating to `Ravel.Ingestion.Pipeline.run_cycle/1`.
 - Sub-B invokes the hook non-blockingly via `Task.Supervisor.start_child/3`
   under the PlanActor's task supervisor, between persisting `plan-state.md`
   and running sub-F's phase-exit hooks. Only on clean reflect exit, only
@@ -946,9 +946,9 @@ run.
 
 #### Sub-A (vault layout)
 
-- Tier 1 (`<project>/mnemosyne/knowledge/`) and Tier 2
+- Tier 1 (`<project>/ravel/knowledge/`) and Tier 2
   (`<vault>/knowledge/`) roots are addressable independently and are
-  resolved at daemon boot via sub-A's `Mnemosyne.Vault` module.
+  resolved at daemon boot via sub-A's `Ravel.Vault` module.
 - The vault init flow must create `<vault>/knowledge/uncategorized/` as
   part of the initial directory structure (orphan-candidate target).
   This is recorded in sub-A's §A6 init flow.
@@ -962,13 +962,13 @@ run.
   `<vault>/knowledge/uncategorized/foo.md` in Obsidian while sub-E is
   writing it) is sub-D's domain. Sub-E's `SafeFileWriter` does an atomic
   temp-then-rename and surfaces collisions as
-  `%Mnemosyne.Event.Diagnostic{level: :warn}`.
+  `%Ravel.Event.Diagnostic{level: :warn}`.
 
 #### Sub-F (hierarchy, router, actor model)
 
-- `Mnemosyne.Router.dispatch/2` accepts
-  `%Mnemosyne.Message.ExpertAbsorbCandidate{}` as a routable message.
-  Sub-F's router emits a `%Mnemosyne.Event.MessageRouted{message_kind:
+- `Ravel.Router.dispatch/2` accepts
+  `%Ravel.Message.ExpertAbsorbCandidate{}` as a routable message.
+  Sub-F's router emits a `%Ravel.Event.MessageRouted{message_kind:
   :dispatch, via: :direct, to_actor: "expert:" <> id}` for each fan-out
   destination.
 - `expert:<id>` is a valid qualified ID (sub-F's qualified-ID scheme).
@@ -977,17 +977,17 @@ run.
 
 #### Sub-N (domain experts)
 
-- `Mnemosyne.Expert.ScopeMatcher.match_candidate/2` is the scope-matching
+- `Ravel.Expert.ScopeMatcher.match_candidate/2` is the scope-matching
   entry point sub-E calls, with the contract from sub-N §6.1:
 
   ```elixir
   @spec match_candidate(
     candidate_tags :: [String.t()],
-    vault_experts :: [Mnemosyne.Expert.Declaration.t()]
+    vault_experts :: [Ravel.Expert.Declaration.t()]
   ) :: {:matched, [String.t()]} | :orphan
   ```
 
-- `%Mnemosyne.Message.ExpertAbsorbCandidate{}` is the dispatch message
+- `%Ravel.Message.ExpertAbsorbCandidate{}` is the dispatch message
   shape. Sub-E populates a fresh `ingestion_event_id` on each candidate.
   Multi-expert absorption produces multiple physical files keyed by the
   matching `ingestion_event_id`.
@@ -1003,9 +1003,9 @@ run.
 
 #### Sub-M (observability framework)
 
-- Sub-E emits all events via `Mnemosyne.Observability.emit/1`. The six
-  `%Mnemosyne.Event.Ingestion.*{}` variants from sub-M §4.1 plus
-  `%Mnemosyne.Event.Ingestion.OrphanCandidate{}` are sub-E's full event
+- Sub-E emits all events via `Ravel.Observability.emit/1`. The six
+  `%Ravel.Event.Ingestion.*{}` variants from sub-M §4.1 plus
+  `%Ravel.Event.Ingestion.OrphanCandidate{}` are sub-E's full event
   vocabulary.
 - Sub-M's bus carries the prompt-resolution back-channel data via
   attached-client commands (sub-K NDJSON protocol); sub-E's pipeline
@@ -1021,7 +1021,7 @@ run.
 
 #### Sub-H (TUI actions / skill fold)
 
-- Every existing Mnemosyne Claude Code skill that becomes a phase/command
+- Every existing Ravel Claude Code skill that becomes a phase/command
   must have a human-driven attached-client equivalent. The seven skills
   (`/begin-work`, `/reflect`, `/setup-knowledge`, `/create-plan`,
   `/curate-global`, `/promote-global`, `/explore-knowledge`) are currently
@@ -1035,7 +1035,7 @@ Two new sub-projects surfaced during the original 2026-04-12 brainstorm
 that have since been added to the orchestrator backlog:
 
 **Sub-project I — Obsidian coverage document.** Re-scoped per sub-F's
-amendment to "document which Obsidian features cover which Mnemosyne data
+amendment to "document which Obsidian features cover which Ravel data
 surfaces" rather than build a unified explorer framework. The Ingestion
 Events Explorer becomes one Obsidian view (Dataview query over sub-M's
 event log, surfaced via sub-K's plugin client), not a sub-E-owned widget.
@@ -1093,7 +1093,7 @@ Five substantive risks under the BEAM/actor architecture.
    in `try/rescue` and logs errors via `Logger` directly, per sub-M's
    project-wide discipline.
 6. **UI surface area expansion from goal #6.** The co-equal-actors
-   principle turns Mnemosyne into a full interactive application with
+   principle turns Ravel into a full interactive application with
    CRUD across multiple data surfaces, pausable LLM sessions, manual
    reflection/triage editors, and review-first ingestion gating. Sub-E
    imposes this cost on sub-K and sub-H but does not bear it directly.
@@ -1123,10 +1123,10 @@ amendment session.
 2. **Fires after reflect only.** One ingestion firing per cycle, triggered
    by reflect-phase exit. Option A of Q2.
    *(Correction note, 2026-04-16: trigger is now sub-B's
-   `Mnemosyne.ReflectExitHook` callback, invoked non-blockingly under a
+   `Ravel.ReflectExitHook` callback, invoked non-blockingly under a
    `Task.Supervisor` in the PlanActor.)*
 3. **Free-form `memory.md`, embedded Claude Code ingestion.** Plan memory
-   format stays unconstrained; Mnemosyne is itself an LLM client via its
+   format stays unconstrained; Ravel is itself an LLM client via its
    own harness adapter, using Claude Max subscription pricing rather than
    per-token metered API access. Option A of Q3.
 4. **Fresh LLM context is a first-class architectural goal** (user
@@ -1142,10 +1142,10 @@ amendment session.
 6. **Contradiction handling: confidence-gated supersession with
    append-coexist fallback.** Option C of Q5.
 7. **Confidence assignment: LLM classifies experiential/speculative;
-   Mnemosyne applies deterministic mapping with monotonic accumulation
+   Ravel applies deterministic mapping with monotonic accumulation
    rules.** Option D of Q6.
 8. **Axis assignment: deterministic `derive_axis(tags)`.** LLM produces
-   tags, Mnemosyne routes. Option (a) of Q7.
+   tags, Ravel routes. Option (a) of Q7.
 9. **Tier routing: Option Y with "Tier 2 wins after graduation"
    sub-rule.** Tier 1 always for new; auto-promotion candidate fires
    interactive prompt on the accumulation rule. Option Y of Q8.
@@ -1155,7 +1155,7 @@ amendment session.
 10. **Continuously-running daemon hosting harness sessions** (refined from
     the original "continuously-running TUI" framing during Q8 review and
     finalised by sub-F's commitment in orchestrator Session 9 to the
-    persistent BEAM daemon). Mnemosyne is a long-running BEAM application
+    persistent BEAM daemon). Ravel is a long-running BEAM application
     hosting plan and expert actors, with attached clients (Rust TUI in
     v1, Obsidian plugin in v1.5+) connecting over a Unix socket. The
     TUI vs Obsidian-vs-web decision is no longer in E's scope — sub-K and
@@ -1170,11 +1170,11 @@ amendment session.
     sessions. User refinement during Section 4 review.
 13. **Explorers are a first-class accountability substrate** (user
     clarification during Section 5 review). The review panel is one
-    explorer in a family; every Mnemosyne data surface gets an explorer;
+    explorer in a family; every Ravel data surface gets an explorer;
     explorers are full CRUD surfaces.
     *(Correction note, 2026-04-16: per the project-wide commitment to
     Obsidian as the v1 explorer, the explorer framework is delegated to
-    Obsidian + sub-K rather than built as a Mnemosyne-owned widget. The
+    Obsidian + sub-K rather than built as a Ravel-owned widget. The
     "full CRUD surface" requirement holds, now satisfied by Obsidian's
     file CRUD plus sub-K's command-palette actions.)*
 14. **Human and LLM are co-equal actors** (user clarification during
@@ -1186,10 +1186,10 @@ amendment session.
     inline in this amendment session. The pipeline becomes a `GenStage`
     composition; types become structs with `@enforce_keys`; the
     `IngestionEvent` enum is retired in favour of sub-M's sealed
-    `Mnemosyne.Event.*` set. Rationale: the BEAM design absorbs every
+    `Ravel.Event.*` set. Rationale: the BEAM design absorbs every
     concurrency primitive sub-E was building by hand (lock discipline,
     parallel session fan-out, supervision, hot reload) and unifies the
-    event surface with the rest of Mnemosyne's typed observability story.
+    event surface with the rest of Ravel's typed observability story.
     Inline rewrite per "amendments rewrite inline, not as supersede
     layers" — §1–§5 re-cast, no amendment block appended.
 16. **Stage 5 becomes dispatch-to-experts** (sub-N Session 16,
@@ -1197,7 +1197,7 @@ amendment session.
     in logic. Stage 5's deterministic prelude (Rules 1–4 + 6 + Rule 5
     prompts) still runs and gates **what gets dispatched**, but the
     write itself is delegated to `ExpertActor`s via fan-out of
-    `%Mnemosyne.Message.ExpertAbsorbCandidate{}` through sub-F's router.
+    `%Ravel.Message.ExpertAbsorbCandidate{}` through sub-F's router.
     Three verdict variants (`:absorb`, `:reject`, `:cross_link_suggested`),
     non-recursive max-depth-2 cross-link follow-up, contentful-disagreement
     `%ExpertConflict{}`, and parallel-fan-out with each absorbing expert

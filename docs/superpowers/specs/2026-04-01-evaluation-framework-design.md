@@ -1,8 +1,8 @@
-# Mnemosyne — Evaluation Framework
+# Ravel — Evaluation Framework
 
 ## 1. Purpose
 
-This spec defines the infrastructure for evaluating whether Mnemosyne works — not just
+This spec defines the infrastructure for evaluating whether Ravel works — not just
 whether the code runs correctly, but whether retrieval is accurate, knowledge quality is
 high, and the system delivers measurable value to AI assistants over time.
 
@@ -25,7 +25,7 @@ files are checked into git and versioned alongside the code.
 
 ### 2.1 Knowledge Entries (`eval/corpus/entries/`)
 
-30-50 synthetic knowledge entries in standard Mnemosyne format (YAML frontmatter +
+30-50 synthetic knowledge entries in standard Ravel format (YAML frontmatter +
 Markdown body).
 
 **Coverage requirements:**
@@ -140,7 +140,7 @@ expected_tags: [rust, web, async]
 
 ## 3. Rust Evaluation Harness (`eval/src/`)
 
-A separate Rust binary crate that depends on the `mnemosyne` library crate. It loads
+A separate Rust binary crate that depends on the `ravel` library crate. It loads
 the corpus, runs the library's search/detection/contradiction functions, and reports
 quantitative metrics.
 
@@ -148,7 +148,7 @@ quantitative metrics.
 
 ```
 eval/
-  Cargo.toml            # [package] name = "mnemosyne-eval"
+  Cargo.toml            # [package] name = "ravel-eval"
   src/
     main.rs             # CLI entry point (clap)
     corpus.rs           # Load and parse corpus files, queries.yaml, contradictions.yaml
@@ -158,11 +158,11 @@ eval/
     report.rs           # Output formatting (human-readable and JSON)
 ```
 
-**Dependency on mnemosyne:** The `Cargo.toml` references the main crate via path:
+**Dependency on ravel:** The `Cargo.toml` references the main crate via path:
 
 ```toml
 [dependencies]
-mnemosyne = { path = ".." }
+ravel = { path = ".." }
 ```
 
 ### 3.2 Retrieval Metrics
@@ -230,7 +230,7 @@ languages and dependencies against the `expected.yaml` manifest.
 ### 3.5 CLI Interface
 
 ```
-mnemosyne-eval [OPTIONS]
+ravel-eval [OPTIONS]
 
 Options:
   --corpus <PATH>     Path to corpus directory (default: eval/corpus)
@@ -318,10 +318,10 @@ class Judge(Protocol):
 The `providers/claude.py` module implements this protocol using the Anthropic SDK.
 New providers (OpenAI, local models) implement the same protocol.
 
-**Provider selection:** Via `--provider` flag or `MNEMOSYNE_EVAL_PROVIDER` environment
+**Provider selection:** Via `--provider` flag or `RAVEL_EVAL_PROVIDER` environment
 variable. Default: `claude`.
 
-**Model selection:** Via `--model` flag or `MNEMOSYNE_EVAL_MODEL` environment variable.
+**Model selection:** Via `--model` flag or `RAVEL_EVAL_MODEL` environment variable.
 Default: `claude-haiku-4-5-20251001` (fast and cheap for rubric scoring).
 
 ### 4.3 Rubric Format
@@ -331,7 +331,7 @@ with anchor descriptions for each score level.
 
 ```yaml
 name: entry_quality
-description: Evaluates the quality of a Mnemosyne knowledge entry
+description: Evaluates the quality of a Ravel knowledge entry
 dimensions:
   specificity:
     description: "How specific and targeted is this entry?"
@@ -402,7 +402,7 @@ The harness can evaluate entries from two sources:
 
 - **Corpus entries** (`--corpus eval/corpus/entries/`): the benchmark — useful for
   validating that the corpus itself is high quality
-- **Live entries** (`--store ~/.mnemosyne/knowledge/`): the real knowledge base —
+- **Live entries** (`--store ~/.ravel/knowledge/`): the real knowledge base —
   useful for auditing the actual knowledge you've accumulated
 
 Default: corpus entries. The `--store` flag switches to live evaluation.
@@ -459,7 +459,7 @@ over a simulated multi-session workflow.
 
 **Shape:** A Python-based simulation (extending the Phase 2 package) that:
 
-1. Initialises a fresh Mnemosyne store in a temporary directory
+1. Initialises a fresh Ravel store in a temporary directory
 2. Simulates 3-5 sessions across 2-3 mock projects
 3. Each session: queries for context, injects synthetic observations via `promote`,
    triggers `curate` where appropriate
@@ -479,7 +479,7 @@ over a simulated multi-session workflow.
 
 ### 5.2 Phase 4: Controlled Impact Experiments
 
-**Goal:** Demonstrate measurably that Mnemosyne improves AI assistant outcomes on
+**Goal:** Demonstrate measurably that Ravel improves AI assistant outcomes on
 coding tasks.
 
 **Shape:** An A/B experimental harness that:
@@ -561,7 +561,7 @@ eval/
 
 ### Rust Harness
 - Rust 1.75+ (same as the main crate)
-- `mnemosyne` library crate (path dependency)
+- `ravel` library crate (path dependency)
 - `clap` for CLI parsing
 - `serde` + `serde_yaml` + `serde_json` for corpus loading and JSON output
 
@@ -580,7 +580,7 @@ eval/
 ## 8. What This Spec Does Not Cover
 
 - Changes to the existing `tests/` integration test suite
-- Changes to the `mnemosyne` CLI or library code (the harness evaluates the current
+- Changes to the `ravel` CLI or library code (the harness evaluates the current
   code; improvements to scoring or thresholds are separate work informed by evaluation
   results)
 - Implementation details of Phases 3-4 (to be specified separately)

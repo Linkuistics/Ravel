@@ -1,6 +1,6 @@
 # Sub-R: Knowledge Ontology — Design Spec
 
-> A declarative reasoning substrate for Mnemosyne: a purpose-built Datalog
+> A declarative reasoning substrate for Ravel: a purpose-built Datalog
 > engine, a typed ontology of concept relations, and a unified fact base
 > that replaces both tag-vocabulary drift management and Elixir-based
 > routing rules.
@@ -25,11 +25,11 @@ Sub-R delivers three capabilities, co-designed:
 1. **R1 — Datalog engine.** A pure-Elixir, domain-agnostic Datalog
    evaluator with literature-informed evaluation strategy, ETS-backed
    fact storage, and guaranteed termination over finite domains. The
-   engine knows nothing about Mnemosyne — it is a general-purpose
+   engine knows nothing about Ravel — it is a general-purpose
    Datalog implementation.
 2. **R2 — Ontology fact schema.** The domain-specific vocabulary of
    predicates (tags, synonyms, hierarchy, typed relations) and derived
-   rules that Mnemosyne uses for concept resolution, scope matching,
+   rules that Ravel uses for concept resolution, scope matching,
    and routing. Stored as `.dl` files in the vault.
 3. **R3 — Consumer integration.** Four existing consumers migrate to
    Datalog queries: sub-N's ScopeMatcher, sub-E's Stage 2
@@ -70,16 +70,16 @@ Additionally:
 
 ### §1.3 Key invariant
 
-**The Datalog engine is domain-agnostic.** `Mnemosyne.Datalog` knows
+**The Datalog engine is domain-agnostic.** `Ravel.Datalog` knows
 nothing about tags, experts, routing, or knowledge tiers. It is a
 general-purpose Datalog evaluator that happens to be used by
-Mnemosyne's ontology. The domain knowledge lives in the `.dl` files and
+Ravel's ontology. The domain knowledge lives in the `.dl` files and
 the consumer modules. This separation is load-bearing: it keeps the
 engine testable in isolation and potentially reusable.
 
 ---
 
-## §2 Datalog engine (`Mnemosyne.Datalog`)
+## §2 Datalog engine (`Ravel.Datalog`)
 
 ### §2.1 Algorithm
 
@@ -88,7 +88,7 @@ universe with stratified negation. The specific evaluation strategy
 (semi-naive, magic sets, demand-driven, incremental maintenance) is
 determined by a literature survey (§8.1) before implementation begins.
 Semi-naive (Ullman 1988) is the baseline reference; the implementation
-may choose a strategy better suited to Mnemosyne's query patterns (small
+may choose a strategy better suited to Ravel's query patterns (small
 fact base, frequent point queries, infrequent bulk re-evaluation).
 
 **Guarantees:**
@@ -103,7 +103,7 @@ fact base, frequent point queries, infrequent bulk re-evaluation).
 ### §2.2 Data model
 
 ```elixir
-defmodule Mnemosyne.Datalog do
+defmodule Ravel.Datalog do
   @type atom_val :: String.t()
 
   @type term_val :: atom_val | variable()
@@ -148,7 +148,7 @@ base facts from other files are not re-parsed.
 ### §2.4 API
 
 ```elixir
-defmodule Mnemosyne.Datalog do
+defmodule Ravel.Datalog do
   @spec new() :: fact_base()
   @spec assert(fact_base(), fact() | rule()) :: fact_base()
   @spec retract(fact_base(), fact()) :: fact_base()
@@ -160,7 +160,7 @@ end
 ```
 
 The API is functional over an opaque `fact_base()` handle. The
-`Mnemosyne.Datalog.Server` GenServer (§2.6) wraps this in a stateful
+`Ravel.Datalog.Server` GenServer (§2.6) wraps this in a stateful
 process for daemon use.
 
 ### §2.5 Parser
@@ -202,13 +202,13 @@ resolves_to(X, Canonical) :- synonym(X, Canonical).
 - Range-restriction violations → hard error
 - Non-lowercase atoms → hard error (tag format enforcement)
 
-### §2.6 `Mnemosyne.Datalog.Server`
+### §2.6 `Ravel.Datalog.Server`
 
 A `GenServer` supervised under the daemon's supervision tree. Owns the
 ETS-backed fact base and serializes mutations.
 
 ```elixir
-defmodule Mnemosyne.Datalog.Server do
+defmodule Ravel.Datalog.Server do
   use GenServer
 
   # Client API
@@ -286,7 +286,7 @@ depend on a small set of well-known predicates (`tag`, `synonym`,
 `parent`); user-defined relations are consumed by user-authored rules
 and routing rules.
 
-### §3.2 Derived predicates (rules — ship with Mnemosyne, user-extensible)
+### §3.2 Derived predicates (rules — ship with Ravel, user-extensible)
 
 ```
 % Transitive ancestry
@@ -339,7 +339,7 @@ predicates. The shipped rules (§3.2) only depend on `tag`, `synonym`,
 
 ### §4.1 ScopeMatcher (Sub-N)
 
-**Current v1:** `Mnemosyne.Expert.ScopeMatcher.match_candidate/2` does
+**Current v1:** `Ravel.Expert.ScopeMatcher.match_candidate/2` does
 exact-string set intersection between candidate tags and expert tags.
 
 **With Sub-R:** The implementation changes from set intersection to a
@@ -403,7 +403,7 @@ before routing sees them.
 `route/2` clauses with BEAM hot code reload.
 
 **With Sub-R:** `ontology/routing.dl` — user-editable Datalog rules
-loaded by `Mnemosyne.Datalog.Server.load_file/2`. Hot reload via
+loaded by `Ravel.Datalog.Server.load_file/2`. Hot reload via
 the same filesystem-watcher-triggered re-parse + re-evaluate cycle as
 all other `.dl` files.
 
@@ -431,7 +431,7 @@ which is cleaner; both are straightforward.
 
 | Changed | Detail |
 |---------|--------|
-| `Mnemosyne.Router.evaluate_rules/2` | Calls Datalog query instead of compiled Elixir module |
+| `Ravel.Router.evaluate_rules/2` | Calls Datalog query instead of compiled Elixir module |
 | Routing file path | `routing.ex` → `ontology/routing.dl` |
 | Hot reload mechanism | BEAM code reload → fact-base reload |
 | Level 2 agent prompt | "Propose a Datalog rule" instead of "propose an Elixir clause" |
@@ -445,13 +445,13 @@ which is cleaner; both are straightforward.
 | Dispatch asymmetry | Same-project direct, cross-project via Level 2 |
 | Audit trail | All routing decisions logged |
 
-**New Sub-F dependency:** `Mnemosyne.Router` depends on
-`Mnemosyne.Datalog.Server` in the supervision tree. Startup-order
+**New Sub-F dependency:** `Ravel.Router` depends on
+`Ravel.Datalog.Server` in the supervision tree. Startup-order
 dependency handled by supervisor child spec ordering.
 
 ### §4.5 Shared fact base lifecycle
 
-The `Mnemosyne.Datalog.Server` GenServer is a singleton in the daemon's
+The `Ravel.Datalog.Server` GenServer is a singleton in the daemon's
 supervision tree. All consumers query the same fact base. Expert
 declaration changes trigger re-assertion of `expert_tag/2` facts and
 re-evaluation. Ontology file changes trigger file-level reload and
@@ -573,7 +573,7 @@ expert associations:
 ```markdown
 ---
 generated: true
-generator: mnemosyne-ontology
+generator: ravel-ontology
 ---
 # Tag Index
 
@@ -656,7 +656,7 @@ pattern-matched `defp route/2` clauses. Sub-R replaces this with
 Datalog-based routing.
 
 **Changed in Sub-F:**
-- `Mnemosyne.Router.evaluate_rules/2` calls Datalog query
+- `Ravel.Router.evaluate_rules/2` calls Datalog query
 - `routing.ex` → `ontology/routing.dl`
 - Hot reload: BEAM code reload → fact-base reload
 - Level 2 agent prompt: propose Datalog rules, not Elixir clauses
@@ -700,7 +700,7 @@ methodology, adoption stubs are pushed to sibling backlogs:
 
 ### §8.1 Datalog evaluation strategy survey
 
-**Goal:** Identify the best evaluation algorithm for Mnemosyne's query
+**Goal:** Identify the best evaluation algorithm for Ravel's query
 patterns — small fact base (<10k facts initially), frequent point
 queries, infrequent bulk re-evaluation, BEAM runtime.
 
@@ -735,7 +735,7 @@ practice.
 - **OWL** (Web Ontology Language) — heavyweight; instructive for
   understanding typed-relation expressiveness.
 - **CYC microtheory architecture** — how CYC partitions knowledge into
-  context-scoped subsets. Relevant to Mnemosyne's tiered scoping.
+  context-scoped subsets. Relevant to Ravel's tiered scoping.
 - **Folksonomy research** (Gruber 2007; Mika 2007) — how tagging
   systems evolve into structured vocabularies.
 - **Luhmann's Zettelkasten** — already cited in `research-sources.md`.
@@ -764,9 +764,9 @@ integration over reinvention."
 
 ## §9 Testing strategy
 
-### §9.1 Engine tests (unit — no Mnemosyne dependencies)
+### §9.1 Engine tests (unit — no Ravel dependencies)
 
-The engine module has zero Mnemosyne-specific knowledge. Tests are pure
+The engine module has zero Ravel-specific knowledge. Tests are pure
 Datalog:
 
 - **Parser tests.** Valid syntax, syntax errors with line numbers, edge
@@ -785,7 +785,7 @@ Datalog:
 These tests run without ETS, without GenServers, without the daemon.
 Pure function in, result out.
 
-### §9.2 Ontology tests (integration — Mnemosyne's fact schema)
+### §9.2 Ontology tests (integration — Ravel's fact schema)
 
 Test the shipped predicates and rules against known scenarios:
 
@@ -833,7 +833,7 @@ One test per consumer:
 ├── ontology/                          # NEW — Sub-R
 │   ├── vocabulary.dl                  # canonical tags, synonyms, hierarchy
 │   ├── relations.dl                   # typed relations between concepts
-│   ├── rules.dl                       # derived predicates (ships with Mnemosyne)
+│   ├── rules.dl                       # derived predicates (ships with Ravel)
 │   ├── routing.dl                     # routing rules (replaces routing.ex)
 │   └── views/                         # auto-generated Obsidian views
 │       ├── tag-index.md
@@ -852,7 +852,7 @@ Sub-A's vault layout has a reserved `tag-vocabulary.md` path (currently
 unused). Sub-R replaces this single-file reservation with the
 `ontology/` directory. Sub-A's design doc §A4 layout section needs an
 inline rewrite: remove `tag-vocabulary.md`, add `ontology/` with its
-contents. `mnemosyne.toml` schema version bump if the layout change is
+contents. `ravel.toml` schema version bump if the layout change is
 considered breaking.
 
 ---
@@ -889,7 +889,7 @@ is open — users define new predicates freely.
 
 Sub-R owns both. The engine and ontology are co-designed — the fact
 schema shapes what queries are expressible, and vice versa. Splitting
-them would force premature interface decisions. Sub-R is "Mnemosyne's
+them would force premature interface decisions. Sub-R is "Ravel's
 declarative reasoning substrate."
 
 ### Q3. What Datalog engine?
