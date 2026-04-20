@@ -1,3 +1,6 @@
 /target
 /eval/target
 .worktrees/
+
+# Runtime state for hierarchical-pivot stack (see docs/superpowers/specs/2026-04-20-hierarchical-pivot-design.md)
+LLM_STATE/*/stack.yaml
