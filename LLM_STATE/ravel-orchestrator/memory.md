@@ -312,3 +312,39 @@ Both repos carry uncommitted WIP on `main`. Any task must `git add` specific pat
 ## Origin
 
 Ravel grew from Ravel-Lite punch-list fixes into a full orchestrator with actor-daemon on BEAM. Bootstrapped on Ravel-Lite machinery per user direction. V1 architecture documented in `docs/architecture.md` and `docs/superpowers/specs/2026-04-14-sub-F-hierarchy-design.md`.
+
+## Gates
+
+Cross-plan dependency tracking. Routing decisions in the work phase
+consult this section. Entries are terse prose; reflect phase updates
+them as children make progress.
+
+### sub-C triage gate
+**sub-C backlog has two dispatched gate tasks** (Elixir backlog rewrite,
+model-configurability) that need formal promotion via a sub-C triage
+cycle. Until that triage runs, Stream 1 of implementation is blocked
+here. Running sub-C for one cycle should promote these tasks and clear
+the gate.
+
+### sub-B and sub-C → sub-F Task 0 readiness
+**sub-F Task 0 is the readiness check for downstream sub-F work.** It
+depends on sub-B's backlog rewrite gate AND sub-C's formal gate task
+both being `completed` / `done`. Both are currently outstanding. sub-F
+cannot meaningfully proceed beyond Task 0 without both.
+
+### sub-D DaemonLock + FileIO → sub-F Tasks 1, 4, 6–12
+**sub-D's `DaemonLock` and `FileIO` deliverables gate sub-F work.** Until
+sub-D lands these primitives, sub-F's Tasks 1, 4, 6–12 remain blocked
+even if their within-plan prerequisites are satisfied. Pivoting to sub-D
+to advance these primitives unblocks a large sub-F branch.
+
+### Independent streams (no cross-plan gates)
+**sub-E Tasks 0+ and sub-N Tasks 1–15 are fully unblocked.** They have
+no cross-plan dependencies and can be pivoted to whenever the user
+wants to make parallel progress without touching the gated chains.
+
+### sub-R literature survey (Tasks 1–3) is fully unblocked
+**sub-R Tasks 1–3** (Datalog foundations, ontology/folksonomy literature,
+LLM ontology interfaces) have no cross-project dependencies. These gate
+sub-R's Datalog engine implementation (Tasks 4+), so kicking them off
+early is valuable even if no immediate downstream consumer is waiting.
