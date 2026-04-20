@@ -56,7 +56,7 @@ context.
 
 ## Received
 
-### From mnemosyne-orchestrator (2026-04-16) — Critical path audit
+### From ravel-orchestrator (2026-04-16) — Critical path audit
 
 Two gaps found during implementation critical path monitor:
 
@@ -350,12 +350,12 @@ Two gaps found during implementation critical path monitor:
   to assert the report fields are populated correctly.
 - **Results:** _pending_
 
-### Task 18 — `mnemosyne dev record-fixture` subcommand `[dev-tools]`
+### Task 18 — `ravel dev record-fixture` subcommand `[dev-tools]`
 - **Status:** not_started
 - **Dependencies:** Task 16 (adapter), Task 5 (fixture format)
 - **Description:** Implement the `dev record-fixture` subcommand per
   §5.6 in `src/commands/dev_record_fixture.rs`. CLI:
-  `mnemosyne dev record-fixture --output <path> [--prompt <prompt>]
+  `ravel dev record-fixture --output <path> [--prompt <prompt>]
   [--profile research-broad|ingestion-minimal] [--max-delay-ms <ms>]
   [--interactive]`. Spawns a real `ClaudeCodeAdapter`, drives it with
   the prompt + profile, captures every `OutputChunk` into a `FixtureRecord::Output`
@@ -396,7 +396,7 @@ Two gaps found during implementation critical path monitor:
 - **Status:** not_started
 - **Dependencies:** Task 16 (adapter), Task 17 (instrumentation), Task 14 (process-group)
 - **Description:** Implement the §8.3 Layer 3 test suite, all gated
-  behind `MNEMOSYNE_TEST_LIVE_HARNESS=1`:
+  behind `RAVEL_TEST_LIVE_HARNESS=1`:
   - Smoke test: spawn + first chunk
   - Tool profile enforcement (`IngestionMinimal` denies tool use)
   - Tool profile enforcement (`ResearchBroad` allows tool use)
@@ -421,7 +421,7 @@ Two gaps found during implementation critical path monitor:
   joint v1 acceptance gate with sub-project B. Per §7.3 of the spec:
   - Swap B's `LlmHarnessExecutor` stub adapter for the real
     `ClaudeCodeAdapter`.
-  - Run the Mnemosyne orchestrator plan's full work → reflect → triage
+  - Run the Ravel orchestrator plan's full work → reflect → triage
     cycle, **N≥10 times**, against the real adapter on the user's
     primary dev machine.
   - Walk every staging directory created during the runs and parse
@@ -430,7 +430,7 @@ Two gaps found during implementation critical path monitor:
     cycles.
   - **Decision**: if p95 < 5 seconds, C-1 PASSES. Warm-pool work is
     deferred to v1.5. Document the decision in
-    `{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md` with the
+    `{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md` with the
     measured p50/p95/p99 numbers and the date.
   - **Decision (alternate)**: if p95 ≥ 5 seconds, C-1 FAILS. Unblock
     Task 23 (warm-pool reset spike) and Task 24 (warm-pool implementation),
@@ -482,7 +482,7 @@ Two gaps found during implementation critical path monitor:
   (`MetricsRecorderLayer`), this plan's Task 18 (where
   `SpawnLatencyReport` is currently emitted)
 - **Description:** Landed by sub-project M's brainstorm
-  (2026-04-13, Session 7 of the mnemosyne-orchestrator plan). M's
+  (2026-04-13, Session 7 of the ravel-orchestrator plan). M's
   design doc at
   `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
   §9 specifies the staged migration of C's `SpawnLatencyReport` onto M's
@@ -491,7 +491,7 @@ Two gaps found during implementation critical path monitor:
   **Phase 1 — parallel emit (this task lands).** Add `tracing::instrument`
   annotations to `actor_loop` and the per-message handlers in C's actor.
   Span name `harness_session`, fields `session_id`, `tool_profile`,
-  `harness_kind`. Span context propagates to all `mnemosyne_event!`
+  `harness_kind`. Span context propagates to all `ravel_event!`
   calls inside the actor.
 
   Add parallel `metrics::histogram!` calls alongside C's existing
@@ -558,7 +558,7 @@ Two gaps found during implementation critical path monitor:
   cheap/fast for tool-call overhead.
   Tool spec: input is a Datalog query string, output is a JSON list of
   variable bindings. The adapter routes the tool call to
-  `Mnemosyne.Datalog.Server.query/1`.
+  `Ravel.Datalog.Server.query/1`.
   Tool profile gating per §4.5 of C's design doc — the `tool_profile`
   mechanism already supports per-session tool sets.
 - **Results:** _pending_

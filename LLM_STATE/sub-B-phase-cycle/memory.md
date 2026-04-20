@@ -1,6 +1,6 @@
 # Memory — Sub-project B: Phase Cycle Reimplementation
 
-This plan implements sub-project B of the Mnemosyne orchestrator merge. The
+This plan implements sub-project B of the Ravel orchestrator merge. The
 design is already fully specified; this plan is the implementation work.
 
 ## Primary reference
@@ -14,8 +14,8 @@ the spec) rather than being invented ad hoc.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will be at
-`{{PROJECT}}/mnemosyne/plans/mnemosyne-orchestrator/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will be at
+`{{PROJECT}}/ravel/plans/ravel-orchestrator/` after sub-project G's
 migration). It coordinates this sub-plan with its siblings (A, C, D, E, F,
 G, H, and the newly-surfaced K and L). The parent plan's `memory.md` holds
 cross-sub-project architectural state. This file holds only sub-project-B-
@@ -91,7 +91,7 @@ the cycle on non-zero exit.
 
 ### `plan-state.md` is the crash-recovery linchpin
 YAML frontmatter carries `ingestion-fired` flag that sub-project E flips at
-the start of Stage 5, giving exactly-once firing across Mnemosyne crashes
+the start of Stage 5, giving exactly-once firing across Ravel crashes
 with file-backed durability and no database. The file replaces the legacy
 `phase.md` single-word format.
 
@@ -101,17 +101,17 @@ Obsidian specifically. Wikilinks instead of filesystem paths,
 Dataview-friendly kebab-case YAML frontmatter, tags as first-class metadata,
 vault structure designed for Obsidian's file tree pane.
 
-### Per-project directory: `<project>/mnemosyne/` (lowercase)
+### Per-project directory: `<project>/ravel/` (lowercase)
 Replaces the legacy `<project>/LLM_STATE/` (plans only) and
 `<project>/knowledge/` (Tier 1 only) split. Contains `plans/` (nested plan
 hierarchy) and `knowledge/` (Tier 1 per-project). The vault at
-`<dev-root>/Mnemosyne-vault/` has one symlink per project under its
+`<dev-root>/Ravel-vault/` has one symlink per project under its
 `projects/` subdirectory.
 
 ### Plan hierarchy via marker-based discovery
 A directory is a plan if and only if it contains `plan-state.md`. Plans can
 nest arbitrarily. `StagingDirectory::render` refuses to descend into
-subdirectories containing `plan-state.md`, keeping "one plan per Mnemosyne
+subdirectories containing `plan-state.md`, keeping "one plan per Ravel
 process" intact. Exact hierarchy semantics are sub-project F's scope.
 
 ### Co-equal actors via the executor trait
@@ -168,7 +168,7 @@ After the spike passes, implementation proceeds in dependency order:
 14. **Crash recovery** and startup sequence wiring.
 15. **Per-plan advisory lock** (stub until sub-project D lands).
 16. **End-to-end dogfood test**: run the orchestrator seed plan on
-    Mnemosyne-hosted phase cycles, retiring LLM_CONTEXT's `run-plan.sh`
+    Ravel-hosted phase cycles, retiring LLM_CONTEXT's `run-plan.sh`
     for that plan. This is the v1 acceptance test.
 
 ### TDD
@@ -197,7 +197,7 @@ sub-project C handles it when real.
   the `ReflectExitHook` interface; E's implementation subscribes and
   fires when B calls it non-blockingly.
 - **Sub-project A (store location)** — B tentatively uses
-  `<dev-root>/Mnemosyne-vault/` as the vault default. A's brainstorm
+  `<dev-root>/Ravel-vault/` as the vault default. A's brainstorm
   finalises the name and any config mechanism. B's abstractions are
   layout-agnostic; the path is a startup config value.
 - **Sub-project F (plan hierarchy)** — B provides the `plan-state.md`
@@ -261,7 +261,7 @@ substance.
 
 - §2.3.2 — `plan-state.md` schema pruned (no `plan-id`, `host-project`,
   `dev-root`); `description:` (≤120 chars, hard-capped) required;
-  `mnemosyne-pid` → `daemon-pid`; `compact-baseline` sticky integer
+  `ravel-pid` → `daemon-pid`; `compact-baseline` sticky integer
   added.
 - §2.3.3 — `PhaseRunner.run_phase/4` 13-step flow with `pre-work.sh`
   invocation (step 2), compact-trigger branching (step 1 exception),
@@ -278,7 +278,7 @@ substance.
   `{{ONTOLOGY_CONTEXT}}` is forward-only; reads `<vault>/ontology/` and
   substitutes a compact tag-hierarchy + synonym-set summary, or `""` if the
   ontology directory is absent (no hard error — optional v1 surface).
-- §2.5 — `Mnemosyne.Prompts` module with `@external_resource` +
+- §2.5 — `Ravel.Prompts` module with `@external_resource` +
   `File.read!/1` compile-time embedding. Vendor list is
   `phases/{work,reflect,compact,triage}.md` +
   `fixed-memory/{coding-style,coding-style-rust,memory-style}.md` +
@@ -287,8 +287,8 @@ substance.
 - §2.7 — Session-log + `latest-session.md` lifecycle (ISO 8601 UTC
   with seconds; write-then-append pattern; LLM phases never read
   the session log).
-- §4.1 — Full sub-C `Mnemosyne.HarnessAdapter` consumption contract.
-- §4.2 — `Mnemosyne.ReflectExitHook` behaviour for sub-E.
+- §4.1 — Full sub-C `Ravel.HarnessAdapter` consumption contract.
+- §4.2 — `Ravel.ReflectExitHook` behaviour for sub-E.
 - §4.3 — `DispatchProcessor` / `QueryProcessor` phase-exit contract
   (F-owned, B invokes on non-compact phases only).
 
@@ -301,14 +301,14 @@ starts against the correct Elixir/BEAM contracts.
 **The six core abstractions survive conceptually but change form**:
 Rust traits → Elixir behaviours; Rust structs → Elixir structs (no
 `@enforce_keys` surprises); `Box<dyn PhaseExecutor>` → `@behaviour
-Mnemosyne.PhaseExecutor`; `PhaseRunner` owning its own event channel
+Ravel.PhaseExecutor`; `PhaseRunner` owning its own event channel
 → `PhaseRunner` as a pure module called from inside `PlanActor` with
 an `emit_fn` closure; `InteractionDriver` + three drivers deleted
 entirely (TUI is sub-F's separate Rust client binary).
 
-## `Mnemosyne.FileIO` is the mandatory I/O layer (sub-D Session 18)
+## `Ravel.FileIO` is the mandatory I/O layer (sub-D Session 18)
 
-All daemon file operations must go through `Mnemosyne.FileIO`. Direct
+All daemon file operations must go through `Ravel.FileIO`. Direct
 `File.write/2` / `File.rename/2` calls are forbidden in B's implementation.
 
 - `FileIO.read_tracked/1` — reads a file and records its SHA-256 hash.
@@ -320,8 +320,8 @@ All daemon file operations must go through `Mnemosyne.FileIO`. Direct
 
 **Impact on `copy_back/2`:** Plan files written by `StagingDirectory.copy_back/2`
 at phase exit are `:phase_owned`. The implementation must call
-`FileIO.write_safe(path, content, :phase_owned)` for each written file and
-`FileIO.read_tracked/1` for content-hash reads. A dedicated backlog task
+`Ravel.FileIO.write_safe(path, content, :phase_owned)` for each written file and
+`Ravel.FileIO.read_tracked/1` for content-hash reads. A dedicated backlog task
 ("Delegate `copy_back` writes to `FileIO.write_safe/3`") tracks this work.
 
 ## Sentinel sliding-buffer matcher: validated by spike

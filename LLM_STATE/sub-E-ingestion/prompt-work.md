@@ -8,19 +8,19 @@ Read:
 
 ## About this plan
 
-This plan implements sub-project E of the Mnemosyne orchestrator merge —
+This plan implements sub-project E of the Ravel orchestrator merge —
 the post-session knowledge ingestion pipeline. The design is fully specified
 in the design doc referenced above; this plan is the implementation work,
 not a design phase. Do not re-litigate design decisions here; surface them
 to the parent plan
-(`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`) if you discover
+(`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`) if you discover
 a spec-level issue during implementation.
 
 ## Constraints
 
-- **Non-disruption**: existing Mnemosyne v0.1.0 must keep running. New code
+- **Non-disruption**: existing Ravel v0.1.0 must keep running. New code
   lives alongside, not in place of, existing code. Integration with existing
-  Mnemosyne primitives is incidental-if-it-fits, not a design constraint.
+  Ravel primitives is incidental-if-it-fits, not a design constraint.
 - **Fresh LLM context is a first-class goal**: the pipeline's stage
   decomposition exists specifically to keep every LLM session minimally
   scoped. Do not collapse stages, do not pass larger contexts than the spec

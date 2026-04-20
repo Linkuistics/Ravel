@@ -11,5 +11,5 @@ skills are gone. There is no forwarding layer.
 **Atomic cut-over is required.** If any partial-state window exists (e.g.,
 `LLM_STATE/` still present while the new structure is partially written), sub-H's
 command palette is entirely inoperative during that window. Task 4 (migrate
-Mnemosyne) must be designed and executed as a single atomic transaction, not a
+Ravel) must be designed and executed as a single atomic transaction, not a
 gradual migration.

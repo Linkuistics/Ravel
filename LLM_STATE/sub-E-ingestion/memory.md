@@ -1,6 +1,6 @@
 # Memory — Sub-project E: Post-Session Knowledge Ingestion
 
-This plan implements sub-project E of the Mnemosyne orchestrator merge. The
+This plan implements sub-project E of the Ravel orchestrator merge. The
 design is already fully specified; this plan is the implementation work.
 
 ## Primary reference
@@ -14,7 +14,7 @@ the spec) rather than being invented ad hoc.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` and coordinates this sub-plan
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` and coordinates this sub-plan
 with its siblings (A, B, C, D, F, G, H, and the proposed I/J). The parent
 plan's `memory.md` holds cross-sub-project architectural state. This file
 holds only sub-project-E-specific state.
@@ -60,7 +60,7 @@ Explorer. Only two event classes interrupt the user with a live prompt.
 
 ## BEAM pivot and F amendment
 
-The orchestrator's Session 9 committed Mnemosyne to a persistent BEAM daemon
+The orchestrator's Session 9 committed Ravel to a persistent BEAM daemon
 (Elixir/OTP). Sub-E was brainstormed assuming Rust. The F amendment re-casts
 sub-E as follows:
 
@@ -72,7 +72,7 @@ sub-E as follows:
   transport: injected tools (`ask_expert`, `dispatch_to_plan`,
   `read_vault_catalog`) exposed via MCP-over-Unix-socket (preferred),
   intercepted by the Session GenServer, routed through
-  `Mnemosyne.Router.handle_tool_call/4`. Experts review in fresh context
+  `Ravel.Router.handle_tool_call/4`. Experts review in fresh context
   and absorb, reject, or cross-link. Multi-expert absorption is allowed.
 - **Six invariants preserved.** Rules 1–4 and 6 still apply before dispatch;
   Rule 5 (interactive UI events) still fires graduation + supersession
@@ -90,7 +90,7 @@ parallel amendment tasks (A, B, D, E, M) currently unblocked.
 
 **Concrete `Ingestion.*` event structs available (Session 15, 2026-04-15).**
 Sub-M's design doc §4.1 was rewritten inline as part of its Elixir pivot. It
-now defines the sealed `Mnemosyne.Event.*` struct set, which includes six
+now defines the sealed `Ravel.Event.*` struct set, which includes six
 concrete `Ingestion.*` variants grouped under sub-E's producer section:
 `Ingestion.Applied`, `Ingestion.PromptRequired`, `Ingestion.Deferred`,
 `Ingestion.Rejected`, `Ingestion.ResearchSession`, `Ingestion.CycleSummary`.
@@ -117,7 +117,7 @@ ship slow. Do not optimise session spawn until measurements justify it.
 
 ## FileIO: mandatory I/O layer (sub-D Session 18)
 
-Sub-D's Session 18 established `Mnemosyne.FileIO` as the mandatory file I/O
+Sub-D's Session 18 established `Ravel.FileIO` as the mandatory file I/O
 layer for all daemon file operations. This is binding on sub-E:
 
 - **All reads** must use `FileIO.read_tracked/1` (records SHA-256 hash).
@@ -145,18 +145,18 @@ layer for all daemon file operations. This is binding on sub-E:
 - **Sub-project C (harness adapter)** — required for Stages 3 and 4, and
   provides the §4.5 tool-call boundary that Stage 5's expert dispatch uses
   as its concrete transport (injected tools via MCP-over-Unix-socket,
-  intercept flow via `Mnemosyne.Router.handle_tool_call/4`). Until C lands,
+  intercept flow via `Ravel.Router.handle_tool_call/4`). Until C lands,
   use a fixture-replay stub adapter that reads recorded session outputs from
   JSON files. The fixture-replay capability is a cross-cutting requirement
   on C that must be honoured in its design. Post-F: C is now Elixir
   (NDJSON-over-stdio via `erlexec`).
 - **Sub-project A (store location)** — required for Stage 5 expert dispatch
   targeting. Until A lands, use a configurable Tier 1 root path defaulting to
-  `{{PROJECT}}/mnemosyne/knowledge/` and a Tier 2 root defaulting to
+  `{{PROJECT}}/ravel/knowledge/` and a Tier 2 root defaulting to
   `<vault>/knowledge/`. Update both when A lands.
 - **Sub-project B (phase cycle)** — provides the reflect-exit hook that
   triggers ingestion. Sub-B's design doc (§4.2, rewritten for Elixir in
-  Session 12) now defines the concrete `Mnemosyne.ReflectExitHook` behaviour
+  Session 12) now defines the concrete `Ravel.ReflectExitHook` behaviour
   that E must implement. The callback `on_reflect_exit(context)` receives a
   context map containing `qualified_id`, `plan_dir`, `vault_runtime_dir`,
   `session_log_latest_entry`, and an `ingestion_fired_setter` closure. B
@@ -210,8 +210,8 @@ layer for all daemon file operations. This is binding on sub-E:
      Trivial rejections (scope-miss, no reason given) do not constitute a
      conflict.
 
-  **`Mnemosyne.Expert.DialogueRegistry` and single-turn call pattern (binding on Stage 5):**
-  Sub-N provides `Mnemosyne.Expert.DialogueRegistry` as the dispatch interface.
+  **`Ravel.Expert.DialogueRegistry` and single-turn call pattern (binding on Stage 5):**
+  Sub-N provides `Ravel.Expert.DialogueRegistry` as the dispatch interface.
   Stage 5 must use **stateless single-turn calls** through this registry — not
   multi-turn dialogue sessions. Each `%ExpertAbsorbCandidate{}` dispatch is a
   self-contained single exchange; the expert responds with exactly one verdict

@@ -2,7 +2,7 @@
 
 Tasks for producing the `.obsidian/` template, Templater templates,
 starter Dataview query files, and verifying Obsidian coverage of
-Mnemosyne data surfaces. Design doc:
+Ravel data surfaces. Design doc:
 `{{PROJECT}}/docs/superpowers/specs/2026-04-16-sub-I-obsidian-coverage-design.md`.
 
 ## Task 1 — Symlink verification spike
@@ -31,7 +31,7 @@ Mnemosyne data surfaces. Design doc:
   - `plugins/templater-obsidian/data.json` — per §6.1
   - `plugins/homepage/data.json` — per §6.1
   
-  These are the embedded resources that `mnemosyne init` copies into new
+  These are the embedded resources that `ravel init` copies into new
   vaults.
 - **Results:** _pending_
 
@@ -94,7 +94,7 @@ Mnemosyne data surfaces. Design doc:
 - **Status:** not_started
 - **Dependencies:** Tasks 1-6 complete
 - **Description:** Full acceptance test via guivision + OCR:
-  1. `mnemosyne init` creates a vault with all template files
+  1. `ravel init` creates a vault with all template files
   2. Open vault in Obsidian — verify trust-plugins dialog
   3. Verify Homepage opens plan-catalog.md
   4. Verify file tree shows expected structure (templates/, views/,

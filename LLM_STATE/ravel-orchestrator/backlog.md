@@ -1,5 +1,5 @@
-# Backlog — Mnemosyne Orchestrator
-Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
+# Backlog — Ravel Orchestrator
+Tasks for merging LLM_CONTEXT functionality into Ravel and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
 ## Priority 1 — Implementation phase coordination
 
@@ -62,7 +62,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
 ### Sub-Q — Vector-store infrastructure (v2)
 - **Status:** not_started (v2)
 - **Dependencies:** sub-N done (satisfied). Sub-Q does not block sub-N v1 — the `ExpertRetrieval` behaviour chokepoint means sub-Q can land as a drop-in `SemanticRetrieval` strategy without touching sub-N.
-- **Description:** **Surfaced during sub-N brainstorm Session 16.** When sub-N locked v1 on keyword+section retrieval, the user signaled that a vector DB as a Mnemosyne-wide capability is appealing and should be treated as cross-cutting infrastructure, not a sub-N-internal strategy. Sub-Q is the brainstorm that investigates how Mnemosyne should provide vector-store infrastructure as a shared daemon service consumable by multiple sub-projects.
+- **Description:** **Surfaced during sub-N brainstorm Session 16.** When sub-N locked v1 on keyword+section retrieval, the user signaled that a vector DB as a Ravel-wide capability is appealing and should be treated as cross-cutting infrastructure, not a sub-N-internal strategy. Sub-Q is the brainstorm that investigates how Ravel should provide vector-store infrastructure as a shared daemon service consumable by multiple sub-projects.
   Potential consumers (cross-cutting):
   - **Sub-N expert retrieval** — semantic similarity on knowledge files within an expert's scope
   - **Sub-F vault-catalog search** — "find me plans or experts related to X" at the router level
@@ -79,6 +79,7 @@ Tasks for merging LLM_CONTEXT functionality into Mnemosyne and building the pers
   - First-time vault setup: embedding N thousand files takes time; what's the UX?
   - Integration boundary: a behaviour module that sub-N (and others) implements against — what does the API look like?
   Output: design doc at `docs/superpowers/specs/YYYY-MM-DD-sub-Q-vector-store-design.md` and sibling plan at `LLM_STATE/sub-Q-vector-store/`. Reserved for v2; do not land in v1.
+
 - **Results:** _pending_
 
 ### Sub-P — Team mode (v2)

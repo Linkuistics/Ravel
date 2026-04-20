@@ -7,13 +7,13 @@ Read these plan-specific references before working a task:
   in the backlog derives from this spec. Consult it before starting
   any task; do not re-litigate design decisions here. If you discover
   a spec-level issue, surface it to the parent plan
-  (`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`).
+  (`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`).
 
 ## About this plan
 
-This plan implements sub-project C of the Mnemosyne orchestrator merge —
+This plan implements sub-project C of the Ravel orchestrator merge —
 the harness adapter layer (`HarnessAdapter` trait, `ClaudeCodeAdapter`,
-`FixtureReplayAdapter`) that lets Mnemosyne spawn, control, observe, and
+`FixtureReplayAdapter`) that lets Ravel spawn, control, observe, and
 terminate LLM coding harnesses as managed child processes.
 
 ### Sub-project C is on the critical path for sub-project B
@@ -59,9 +59,9 @@ Run all three before declaring a task done.
 - **Defence-in-depth tool enforcement.** Spawn-time CLI flags + stream-side
   runtime check inside the actor. Trust the flag, verify the stream.
   See §6 of the spec.
-- **No callback channel from harness to Mnemosyne, but observation IS
+- **No callback channel from harness to Ravel, but observation IS
   permitted.** The "no callback channel" rule means the harness cannot
-  call into Mnemosyne; it does NOT forbid Mnemosyne from observing
+  call into Ravel; it does NOT forbid Ravel from observing
   harness state. `SessionLifecycle` chunks are how protocol-level state
   transitions are surfaced; sentinel detection in B's executor is how
   task-level completion is detected. See §3.3 and §4.3.3.

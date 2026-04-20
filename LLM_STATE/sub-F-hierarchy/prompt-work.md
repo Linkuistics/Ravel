@@ -9,7 +9,7 @@ Read for this plan:
 
 ## About this plan
 
-This plan implements sub-project F of the Mnemosyne orchestrator merge —
+This plan implements sub-project F of the Ravel orchestrator merge —
 the persistent BEAM daemon, two sealed actor types (PlanActor,
 ExpertActor), two message types (Dispatch, Query), the
 `project-root` plan hierarchy convention, path-based qualified plan
@@ -20,7 +20,7 @@ catalog that replaces the old `related-plans.md` file concept.
 The design is fully specified in the design doc referenced above;
 this plan is the implementation work, not a design phase. Do not
 re-litigate design decisions here; surface them to the parent plan
-(`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`) if you
+(`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`) if you
 discover a spec-level issue during implementation.
 
 ## Key constraints
@@ -53,7 +53,7 @@ discover a spec-level issue during implementation.
 - **OTP actor mailboxes serialize writes** — F's daemon commitment
   collapses sub-D's per-plan advisory-lock scope. Do not reintroduce
   per-plan locking.
-- **Obsidian-native formats**: every file Mnemosyne writes uses
+- **Obsidian-native formats**: every file Ravel writes uses
   markdown with YAML frontmatter, kebab-case property names for
   Dataview, wikilinks for cross-references, tags as first-class
   metadata.
@@ -69,7 +69,7 @@ format check before declaring any task done — no task ships with
 failing tests, formatting diffs, or new Dialyzer warnings. Live
 tests that spawn real `claude` sessions are tagged `@moduletag
 :live` and gated behind `mix test --include live`. See
-`{{PROJECT}}/README.md` for Mnemosyne's full build/test surface.
+`{{PROJECT}}/README.md` for Ravel's full build/test surface.
 
 ## Dependencies on sibling sub-projects
 
@@ -77,7 +77,7 @@ Sub-project F depends on A (vault discovery / `verify_vault`), B
 (`PhaseRunner` as `PlanActor` internal state), C (harness adapter
 for fact-extraction and Level 2 agent), E (indirectly — Stage 5
 dispatch-to-experts integration hits F's router), and M
-(`:telemetry` + typed `Mnemosyne.Event.*` struct pattern).
+(`:telemetry` + typed `Ravel.Event.*` struct pattern).
 Integration tasks (22–24) land only after the depended-on siblings
 have real implementations — until then, implement against the
 module-level contracts in the respective sibling design docs and

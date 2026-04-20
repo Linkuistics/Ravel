@@ -40,12 +40,12 @@ input from the user.
   1. **Delete Cargo-flavored setup (current Task 1).** Replace with an
      Elixir `mix.exs` deps task: add `{:telemetry, "~> 1.2"}` (already
      present), `{:telemetry_metrics, "~> 0.6"}`, confirm `{:jason, ...}`
-     already in tree, scaffold `lib/mnemosyne/observability/` modules
+     already in tree, scaffold `lib/ravel/observability/` modules
      (`handler.ex`, `ring_buffer.ex`, `jsonl_writer.ex`, `tui_bridge.ex`,
-     `metrics.ex`, `supervisor.ex`) + `lib/mnemosyne/event/*.ex` for the
+     `metrics.ex`, `supervisor.ex`) + `lib/ravel/event/*.ex` for the
      sealed struct set. `config/config.exs` + `config/dev.exs` +
      `config/prod.exs` `Logger` level entries.
-  2. **Delete `MnemosyneEvent` enum task (current Task 2).** Replace
+  2. **Delete `RavelEvent` enum task (current Task 2).** Replace
      with a task-per-struct-module for the 20+ variants in §4.1:
      `PhaseLifecycle`, `HarnessOutput`, `SessionLifecycle`,
      `SpawnLatencyReport`, `SessionExitStatus`, `HarnessError`,
@@ -59,7 +59,7 @@ input from the user.
      `Jason.encode!/1` + `Jason.decode!/1` round-trip for every
      variant.
   3. **Delete `metric_names::*` constants task (current Task 3).**
-     Replace with a `Mnemosyne.Observability.Metrics.metrics/0`
+     Replace with a `Ravel.Observability.Metrics.metrics/0`
      implementation task that builds the 23-metric catalogue from
      §6 using `Telemetry.Metrics.*` imports (`counter/2`,
      `last_value/2`, `distribution/2`). No constants module needed.
@@ -73,8 +73,8 @@ input from the user.
      (current Task 5).** No BEAM analogue — `:telemetry.execute/3`
      already carries the struct in `metadata.event`; no handoff
      trick needed.
-  6. **Rewrite `MnemosyneEventLayer` task (current Task 6).** Replace
-     with a `Mnemosyne.Observability.Handler` task: implement
+  6. **Rewrite `RavelEventLayer` task (current Task 6).** Replace
+     with a `Ravel.Observability.Handler` task: implement
      `attach/0` via `:telemetry.attach_many/4`, implement
      `handle_event/4` with the load-bearing `try/rescue` logging via
      `Logger` (not M), implement `synthesise_diagnostic/3` for
@@ -82,14 +82,14 @@ input from the user.
      TuiBridge → JsonlWriter`. Unit tests cover every struct in the
      sealed set + third-party event routing + rescue path.
   7. **Rewrite `InMemoryRingLayer` task (current Task 7).** Replace
-     with `Mnemosyne.Observability.RingBuffer` GenServer (one per
+     with `Ravel.Observability.RingBuffer` GenServer (one per
      session) + `RingBuffer.Sup` DynamicSupervisor. Storage is an
      Erlang `:queue` with capped size. Public API:
      `record/2`, `dump_session/2` (sync `GenServer.call`). Tests:
      ring eviction, per-session isolation, process-scoped fallback,
      grace window for post-session dumps.
   8. **Rewrite `JsonlPersistLayer` task (current Task 8).** Replace
-     with `Mnemosyne.Observability.JsonlWriter` GenServer (one per
+     with `Ravel.Observability.JsonlWriter` GenServer (one per
      session) + `JsonlWriter.Sup`. Holds a `File` handle opened
      with `[:append, :raw, :binary, :delayed_write]`. `append/3`
      encodes via `Jason.encode_to_iodata!/1` + `"\n"`. Sets
@@ -98,14 +98,14 @@ input from the user.
      restart on mailbox overflow.
      **Sub-D FileIO constraint (2026-04-16):** `JsonlWriter` must not
      call `File.write/3` or `File.open/2` directly. All file writes
-     must route through `Mnemosyne.FileIO.write_safe/3` with category
+     must route through `Ravel.FileIO.write_safe/3` with category
      `:exclusive` (daemon-authoritative, no freshness check). Resolve
      the append-vs-rewrite tension in the rewritten task: for
      streaming line-append writes, clarify whether `FileIO` wraps the
      append handle or only governs session-start file creation. See
      memory.md "Sub-D coordination design" section.
   9. **Rewrite `MetricsRecorderLayer` task (current Task 9).** Replace
-     with `Mnemosyne.Observability.Metrics` supervisor hosting
+     with `Ravel.Observability.Metrics` supervisor hosting
      `Telemetry.Metrics.ConsoleReporter` + a new
      `SnapshotReporter` (≈150 lines) that maintains bucket histograms
      in ETS. Public API: `snapshot/1` returns the §7.2 snapshot JSON
@@ -113,8 +113,8 @@ input from the user.
      snapshot structure; `keep:` filter correctness for variants
      that branch on struct fields.
   10. **Rewrite `TuiBridgeLayer` task (current Task 10).** Replace
-      with `Mnemosyne.Observability.TuiBridge` GenServer owning a
-      `:pg` process group `:mnemosyne_tui`. `publish/3` uses
+      with `Ravel.Observability.TuiBridge` GenServer owning a
+      `:pg` process group `:ravel_tui`. `publish/3` uses
       `:pg.get_members/2` + wrapped `send/2` with drop-oldest +
       drop counter. Tests: group join/leave, bounded-send
       behaviour, drop counter increment, multi-client fan-out.
@@ -122,24 +122,24 @@ input from the user.
       stdlib `Logger` console backend, which the daemon's boot
       sequence already configures. No M-specific work.
   12. **Rewrite `ObservabilityHarness` composition task (current
-      Task 12).** Replace with `Mnemosyne.Observability.Supervisor`
+      Task 12).** Replace with `Ravel.Observability.Supervisor`
       task — a Supervisor with `:rest_for_one` strategy hosting
       `Metrics`, `RingBuffer.Sup`, `JsonlWriter.Sup`, `TuiBridge`,
       then calling `Handler.attach/0` last. Wired into
-      `Mnemosyne.Supervisor`'s child list at daemon boot.
+      `Ravel.Supervisor`'s child list at daemon boot.
   13. **Rewrite Risk 5 wiring task (current Task 13).** Replace with
-      `Mnemosyne.Observability.dump_event_tail/4` + panic-safe
+      `Ravel.Observability.dump_event_tail/4` + panic-safe
       `try/rescue`. Wiring into B / C / E error paths lives in the
       adoption tasks in those sibling plans (already landed by M's
       brainstorm for B, C, E).
   14. **Rewrite C parallel-emit tasks (current Tasks 14–15).** Task
-      14 becomes "add `[:mnemosyne, :harness, :claude_code,
+      14 becomes "add `[:ravel, :harness, :claude_code,
       :spawn_latency]` bridge in `Handler.handle_event/4` that
       rewrites to `%SpawnLatencyReport{}`." Task 15 is the
       `@moduletag :live` verification test reading both C's
       staging JSON and M's metric snapshot, asserting ±10ms.
   15. **Rewrite CLI subcommand tasks (current Tasks 16–17).** Replace
-      with `mix mnemosyne.metrics` and `mix mnemosyne.diagnose`
+      with `mix ravel.metrics` and `mix ravel.diagnose`
       Mix tasks at `lib/mix/tasks/`. `@shortdoc` + `use Mix.Task`
       + argument parsing via `OptionParser`.
   16. **Keep cross-plan adoption verification (current Task 18).**
@@ -183,11 +183,11 @@ input from the user.
   confirm the skeleton compiles. No tests yet.
 - **Results:** _pending_
 
-### Task 2 — `event.rs`: `MnemosyneEvent` enum + helper types `[types]`
+### Task 2 — `event.rs`: `RavelEvent` enum + helper types `[types]`
 - **Status:** not_started
 - **Dependencies:** Task 1
 - **Description:** Implement §4.1 of the spec verbatim. Define
-  `MnemosyneEvent` enum with all variants
+  `RavelEvent` enum with all variants
   (`PhaseLifecycle`, `HarnessLifecycle`, `HarnessOutput`, `Ingestion`,
   `Metric`, `Diagnostic`, `Error`) and the helper enums
   (`PhaseLifecycleKind`, `HarnessLifecycleKind`, `MetricUpdate`,
@@ -230,13 +230,13 @@ input from the user.
 - **Status:** not_started
 - **Dependencies:** Task 2 (types must exist)
 - **Description:** Resolves §16 Q1 from the spec. Build two minimal
-  prototypes of the typed-payload handoff used by `MnemosyneEventLayer`:
-  1. **Thread-local trick** — store the `MnemosyneEvent` in a
-     thread-local `RefCell<Option<MnemosyneEvent>>` immediately before
+  prototypes of the typed-payload handoff used by `RavelEventLayer`:
+  1. **Thread-local trick** — store the `RavelEvent` in a
+     thread-local `RefCell<Option<RavelEvent>>` immediately before
      the `tracing::event!` call; the custom Layer reads it from
      `on_event` synchronously on the same thread.
   2. **`Visit` API + `serde_json` round-trip** — emit the event via
-     `tracing::event!(... mnemosyne_event = ?event)`, where the field
+     `tracing::event!(... ravel_event = ?event)`, where the field
      value is the `Debug` representation; the custom Layer's `Visit`
      impl extracts the field, deserialises via `serde_json`.
   Run a 100k-event microbenchmark of each, record the per-event cost,
@@ -247,20 +247,20 @@ input from the user.
   consumption is synchronous.
 - **Results:** _pending_
 
-### Task 6 — `event_layer.rs`: `MnemosyneEventLayer` + `mnemosyne_event!` macro `[layer]`
+### Task 6 — `event_layer.rs`: `RavelEventLayer` + `ravel_event!` macro `[layer]`
 - **Status:** not_started
 - **Dependencies:** Task 2, Task 5 (handoff approach decided)
 - **Description:** Implement the custom `tracing-subscriber::Layer` that
-  recognises events with the `mnemosyne_event` field and dispatches the
+  recognises events with the `ravel_event` field and dispatches the
   typed payload to internal subscribers via a single in-process
   broadcast (`crossbeam-channel` or `tokio::sync::broadcast`). Implement
-  the `mnemosyne_event!` macro wrapper that emits via `tracing::event!`
+  the `ravel_event!` macro wrapper that emits via `tracing::event!`
   using the chosen handoff approach from Task 5. The Layer is
   approximately 200 lines per the spec's estimate. Unit tests: emit
-  every `MnemosyneEvent` variant via the macro; assert the Layer
+  every `RavelEvent` variant via the macro; assert the Layer
   parses and dispatches the typed payload identically. Tests also
-  cover events from third-party crates (no `mnemosyne_event` field) —
-  these must be routed to `MnemosyneEvent::Diagnostic` automatically.
+  cover events from third-party crates (no `ravel_event` field) —
+  these must be routed to `RavelEvent::Diagnostic` automatically.
 - **Results:** _pending_
 
 ### Task 7 — `ring_layer.rs`: `InMemoryRingLayer` `[layer]`
@@ -270,8 +270,8 @@ input from the user.
   Default capacity 1000 events per session. Keys ring buffers by
   `session_id` (extracted from the active `tracing::Span` at event
   time); events without a session id go to a "process-scoped" ring
-  shared across the Mnemosyne process. Public API:
-  `dump_session(session_id, n) -> Vec<MnemosyneEvent>` returns the
+  shared across the Ravel process. Public API:
+  `dump_session(session_id, n) -> Vec<RavelEvent>` returns the
   last `n` events in chronological order. Unit tests: ring eviction
   at capacity; per-session isolation; `dump_session` chronological
   order; process-scoped ring fallback.
@@ -287,7 +287,7 @@ input from the user.
   for process-scoped. Uses a per-session `RollingFileAppender` (one
   file per session, no rotation within a session). The non-blocking
   writer's `WorkerGuard` is held by the `ObservabilityHarness` (Task
-  12) for the lifetime of the Mnemosyne process. JSONL format per
+  12) for the lifetime of the Ravel process. JSONL format per
   §7.1: one event per line, terminated by `\n`, every line independently
   parseable. Unit tests: round-trip events through a tmpdir; line-per-
   event format; truncation safety (parse the file after a synthetic
@@ -297,12 +297,12 @@ input from the user.
 ### Task 9 — `metrics_layer.rs`: `MetricsRecorderLayer` `[layer]`
 - **Status:** not_started
 - **Dependencies:** Task 6
-- **Description:** Bridge the `metrics` crate to `MnemosyneEvent::Metric`
+- **Description:** Bridge the `metrics` crate to `RavelEvent::Metric`
   so metrics share the persistence path with everything else. Register
   a custom `metrics::Recorder` (≈50 lines) that captures every
   `counter!` / `gauge!` / `histogram!` call, wraps it in a
-  `MnemosyneEvent::Metric(MetricUpdate { ... })`, and emits via the
-  `mnemosyne_event!` macro. Back the recorder with a
+  `RavelEvent::Metric(MetricUpdate { ... })`, and emits via the
+  `ravel_event!` macro. Back the recorder with a
   `metrics_util::registry::Registry` for percentile snapshots. Public
   API: `snapshot(session_id) -> MetricsSnapshot` returns the
   `MetricsSnapshot` struct shaped per §7.2 of the spec (counters as a
@@ -316,12 +316,12 @@ input from the user.
 ### Task 10 — `tui_bridge.rs`: `TuiBridgeLayer` `[layer]`
 - **Status:** not_started
 - **Dependencies:** Task 6
-- **Description:** Implement the bounded `mpsc::Sender<MnemosyneEvent>`
+- **Description:** Implement the bounded `mpsc::Sender<RavelEvent>`
   Layer for the ratatui TUI. Default channel capacity 256. Drop-oldest
   semantics on overflow: when the channel is full, pop the oldest
   buffered event, send the new one, increment the `events.dropped`
   counter (which itself flows through `MetricsRecorderLayer`). Public
-  API: `subscribe() -> mpsc::Receiver<MnemosyneEvent>` (single
+  API: `subscribe() -> mpsc::Receiver<RavelEvent>` (single
   receiver, owned by the TUI). Unit tests: bounded channel overflow
   drops oldest; counter increment on drop; single-receiver enforcement.
 - **Results:** _pending_
@@ -330,11 +330,11 @@ input from the user.
 - **Status:** not_started
 - **Dependencies:** Task 6
 - **Description:** Wire the standard `tracing-subscriber::fmt::Layer`
-  with `EnvFilter` reading from the `MNEMOSYNE_LOG` env var. Off by
+  with `EnvFilter` reading from the `RAVEL_LOG` env var. Off by
   default (no env var → no stderr output). Useful for development
-  debugging. This Layer does NOT depend on `MnemosyneEventLayer` —
+  debugging. This Layer does NOT depend on `RavelEventLayer` —
   it formats the raw `tracing::Event` directly via fmt's standard
-  formatter. Unit test: set `MNEMOSYNE_LOG=info`, emit a tracing
+  formatter. Unit test: set `RAVEL_LOG=info`, emit a tracing
   event, assert the formatted output appears on stderr.
 - **Results:** _pending_
 
@@ -344,7 +344,7 @@ input from the user.
 - **Description:** Compose the full subscriber stack via
   `tracing_subscriber::Registry::default().with(...).with(...)…`.
   Layer composition order per §5.1 of the spec: EnvFilter →
-  MnemosyneEventLayer → InMemoryRingLayer → MetricsRecorderLayer →
+  RavelEventLayer → InMemoryRingLayer → MetricsRecorderLayer →
   TuiBridgeLayer → JsonlPersistLayer → StderrFmtLayer. Public API:
   `ObservabilityHarness::init(vault_runtime_dir, plan_id) -> (Self, WorkerGuard)`.
   The `WorkerGuard` from `tracing-appender::non_blocking` is held by
@@ -402,11 +402,11 @@ input from the user.
   delete C's tactical writer (M v1.1 cleanup).
 - **Results:** _pending_
 
-### Task 16 — `mnemosyne metrics` CLI subcommand `[cli]`
+### Task 16 — `ravel metrics` CLI subcommand `[cli]`
 - **Status:** not_started
 - **Dependencies:** Task 9 (snapshot format)
 - **Description:** Add a new `metrics` subcommand to the existing
-  `mnemosyne` CLI under `src/commands/metrics.rs`. Reads JSONL events
+  `ravel` CLI under `src/commands/metrics.rs`. Reads JSONL events
   from `<vault>/runtime/events/<plan-id>/` and metric snapshots from
   `<vault>/runtime/metrics/<plan-id>/` for a given `--plan-id` or
   `--since <ISO8601>` range. Computes per-metric percentiles via
@@ -416,11 +416,11 @@ input from the user.
   vault containing a known event stream.
 - **Results:** _pending_
 
-### Task 17 — `mnemosyne diagnose` CLI subcommand `[cli]`
+### Task 17 — `ravel diagnose` CLI subcommand `[cli]`
 - **Status:** not_started
 - **Dependencies:** Task 8 (JSONL format)
 - **Description:** Add a new `diagnose` subcommand to the existing
-  `mnemosyne` CLI under `src/commands/diagnose.rs`. Reads
+  `ravel` CLI under `src/commands/diagnose.rs`. Reads
   `<vault>/runtime/events/<plan-id>/<session-id>.jsonl` for a given
   `--session` and prints the last `--last N` (default 50) events in
   chronological order. Mirrors the in-memory `dump_session` API but
@@ -473,7 +473,7 @@ input from the user.
 - **Description:** Layer 3 integration test that induces a synthetic
   error in a fixture `PhaseRunner`, asserts
   `<vault>/runtime/interrupted/<plan-id>/<phase>-<timestamp>/event-tail.json`
-  exists, asserts it parses as `Vec<MnemosyneEvent>`, asserts it
+  exists, asserts it parses as `Vec<RavelEvent>`, asserts it
   contains the last events leading up to the error in chronological
   order. Verifies that the dump path is panic-safe by injecting a
   synthetic disk-full error during the dump itself and confirming
@@ -483,7 +483,7 @@ input from the user.
 ### Task 21 — JSONL property tests `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 8
-- **Description:** Use `proptest` to generate random `MnemosyneEvent`
+- **Description:** Use `proptest` to generate random `RavelEvent`
   values across all variants, serialise to JSONL, parse back, assert
   round-trip equality. Cover edge cases: empty strings, very long
   `text_summary` fields (tests the truncation invariant), all
@@ -496,7 +496,7 @@ input from the user.
 - **Status:** not_started
 - **Dependencies:** Task 12
 - **Description:** Risk 1 mitigation. Integration test that emits 1M
-  `MnemosyneEvent`s through the full Registry stack across multiple
+  `RavelEvent`s through the full Registry stack across multiple
   threads (4 emitter threads × 250k events each), asserts no panics,
   no stack overflows, and that all events arrive at every expected
   layer. Verifies the well-known "never emit `tracing::event!` from
@@ -506,28 +506,28 @@ input from the user.
   `tracing-appender` writer.
 - **Results:** _pending_
 
-### Task 24 — Absorb `Mnemosyne.Event.Expert.*` structs into sealed set + §6 metrics `[types]`
+### Task 24 — Absorb `Ravel.Event.Expert.*` structs into sealed set + §6 metrics `[types]`
 - **Status:** not_started
 - **Dependencies:** sub-N Task 15 early-deliverable PR (delivers concrete struct definitions); Task 0 (task-list rewrite) must be complete so this task can be written against the Elixir design
-- **Description:** Sub-N (domain experts, brainstormed Session 16, 2026-04-15) is a new typed-event producer that emits six structs in the `Mnemosyne.Event.Expert.*` group. Sub-M's sealed struct set (§4.1) and metric catalogue (§6) must absorb these before sub-N's implementation tasks begin.
+- **Description:** Sub-N (domain experts, brainstormed Session 16, 2026-04-15) is a new typed-event producer that emits six structs in the `Ravel.Event.Expert.*` group. Sub-M's sealed struct set (§4.1) and metric catalogue (§6) must absorb these before sub-N's implementation tasks begin.
 
   **Struct additions to §4.1** — add the following six structs to the sealed set under a new `Expert` producer group. Each carries `@enforce_keys` + `@derive Jason.Encoder`:
-  1. `%Mnemosyne.Event.Expert.ConsultationStarted{}` — query arrives at an ExpertActor
-  2. `%Mnemosyne.Event.Expert.ConsultationCompleted{}` — verdict returned (absorb/reject/cross-link)
-  3. `%Mnemosyne.Event.Expert.ConflictDetected{}` — contentful disagreement between two experts on the same candidate
-  4. `%Mnemosyne.Event.Expert.DialogueStarted{}` — multi-turn dialogue begins
-  5. `%Mnemosyne.Event.Expert.DialogueTurnCompleted{}` — one turn completes
-  6. `%Mnemosyne.Event.Expert.DialogueExpired{}` — idle TTL (30 min default) reached
+  1. `%Ravel.Event.Expert.ConsultationStarted{}` — query arrives at an ExpertActor
+  2. `%Ravel.Event.Expert.ConsultationCompleted{}` — verdict returned (absorb/reject/cross-link)
+  3. `%Ravel.Event.Expert.ConflictDetected{}` — contentful disagreement between two experts on the same candidate
+  4. `%Ravel.Event.Expert.DialogueStarted{}` — multi-turn dialogue begins
+  5. `%Ravel.Event.Expert.DialogueTurnCompleted{}` — one turn completes
+  6. `%Ravel.Event.Expert.DialogueExpired{}` — idle TTL (30 min default) reached
 
   **Metric additions to §6** — add corresponding `Telemetry.Metrics.*` definitions to the catalogue:
-  - `counter("mnemosyne.expert.consultation.started")` — per-domain, per-session
-  - `counter("mnemosyne.expert.consultation.completed")` with `keep:` filter for verdict field (absorb/reject/cross-link)
-  - `distribution("mnemosyne.expert.consultation.latency_ms")` — ConsultationStarted → ConsultationCompleted
-  - `counter("mnemosyne.expert.conflict.detected")` — rate of inter-expert disagreements
-  - `counter("mnemosyne.expert.dialogue.started")`
-  - `counter("mnemosyne.expert.dialogue.turn.completed")`
-  - `distribution("mnemosyne.expert.dialogue.turn_count")` — turns per dialogue (recorded at DialogueExpired or final ConsultationCompleted)
-  - `counter("mnemosyne.expert.dialogue.expired")` — idle TTL expiry rate
+  - `counter("ravel.expert.consultation.started")` — per-domain, per-session
+  - `counter("ravel.expert.consultation.completed")` with `keep:` filter for verdict field (absorb/reject/cross-link)
+  - `distribution("ravel.expert.consultation.latency_ms")` — ConsultationStarted → ConsultationCompleted
+  - `counter("ravel.expert.conflict.detected")` — rate of inter-expert disagreements
+  - `counter("ravel.expert.dialogue.started")`
+  - `counter("ravel.expert.dialogue.turn.completed")`
+  - `distribution("ravel.expert.dialogue.turn_count")` — turns per dialogue (recorded at DialogueExpired or final ConsultationCompleted)
+  - `counter("ravel.expert.dialogue.expired")` — idle TTL expiry rate
 
   **Design doc edits required:**
   1. Add sub-N to the producer table in §4.1 alongside B/C/F/E/A.
@@ -537,20 +537,20 @@ input from the user.
   **Discipline.** Adding these variants to the sealed set requires a Decision Trail entry per §4.1's "sealed for v1" rule. The entry should cite sub-N's §9.5 as the producer-side commitment and note that this is the only expansion of the sealed set between v1 and v1.5.
 - **Results:** _pending_
 
-### Task 26 — Sub-H adoption: add `mnemosyne.tui_action` to sealed struct set and Handler `[coordination]`
+### Task 26 — Sub-H adoption: add `ravel.tui_action` to sealed struct set and Handler `[coordination]`
 - **Status:** not_started
 - **Dependencies:** Task 0 (task-list rewrite); sub-H Session 20 amendment (2026-04-16) has landed and locked the contract
-- **Description:** Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7 legacy Claude Code skills to daemon-native TUI actions and established a concrete observability requirement: **each TUI action invocation must emit `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: ...}}`**. Sub-H emits these diagnostics; sub-M must ensure the framework handles them correctly.
+- **Description:** Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7 legacy Claude Code skills to daemon-native TUI actions and established a concrete observability requirement: **each TUI action invocation must emit `%Diagnostic{target: "ravel.tui_action", fields: %{action: ...}}`**. Sub-H emits these diagnostics; sub-M must ensure the framework handles them correctly.
 
   **Required changes:**
 
-  1. **Sealed struct set (§4.1 of design doc):** Verify that `%Diagnostic{}` in the sealed set carries a `target` field and a `fields` map (it should, as the current `Diagnostic` escape-hatch struct is generic). If `%Diagnostic{}` does not yet carry `fields: map()`, add it. Add a Decision Trail entry noting that `"mnemosyne.tui_action"` is an established target value, introduced by sub-H Session 20, 2026-04-16.
+  1. **Sealed struct set (§4.1 of design doc):** Verify that `%Diagnostic{}` in the sealed set carries a `target` field and a `fields` map (it should, as the current `Diagnostic` escape-hatch struct is generic). If `%Diagnostic{}` does not yet carry `fields: map()`, add it. Add a Decision Trail entry noting that `"ravel.tui_action"` is an established target value, introduced by sub-H Session 20, 2026-04-16.
 
-  2. **Handler attachment (§5 of design doc):** Ensure `Mnemosyne.Observability.Handler.attach/0` includes the telemetry event prefix that sub-H uses when emitting TUI action diagnostics. Verify the prefix against sub-H's implementation when it lands (sub-H emits via `Mnemosyne.Observability.emit/1` which wraps `:telemetry.execute/3`; the derived prefix for `%Diagnostic{target: "mnemosyne.tui_action"}` is likely `[:mnemosyne, :diagnostic]` or `[:mnemosyne, :tui_action]` — confirm against §4.2 of the design doc).
+  2. **Handler attachment (§5 of design doc):** Ensure `Ravel.Observability.Handler.attach/0` includes the telemetry event prefix that sub-H uses when emitting TUI action diagnostics. Verify the prefix against sub-H's implementation when it lands (sub-H emits via `Ravel.Observability.emit/1` which wraps `:telemetry.execute/3`; the derived prefix for `%Diagnostic{target: "ravel.tui_action"}` is likely `[:ravel, :diagnostic]` or `[:ravel, :tui_action]` — confirm against §4.2 of the design doc).
 
-  3. **Metric catalogue (§6 of design doc):** Add a `counter("mnemosyne.tui_action")` with a `keep:` filter on the `action` field, so per-action invocation counts are tracked. This enables TUI action usage analytics in `mix mnemosyne.metrics`.
+  3. **Metric catalogue (§6 of design doc):** Add a `counter("ravel.tui_action")` with a `keep:` filter on the `action` field, so per-action invocation counts are tracked. This enables TUI action usage analytics in `mix ravel.metrics`.
 
-  4. **Unit test:** Add a test that constructs `%Diagnostic{target: "mnemosyne.tui_action", fields: %{action: "some_action"}}`, encodes it via `Jason.encode!/1`, and round-trips it via `Jason.decode!/1`. Also verify it flows through the `Handler` dispatch chain without error.
+  4. **Unit test:** Add a test that constructs `%Diagnostic{target: "ravel.tui_action", fields: %{action: "some_action"}}`, encodes it via `Jason.encode!/1`, and round-trips it via `Jason.decode!/1`. Also verify it flows through the `Handler` dispatch chain without error.
 
   5. **Update adoption table:** Mark `sub-H-skills` as `done` in the cross-plan adoption table in `memory.md`.
 
@@ -559,20 +559,20 @@ input from the user.
 
 ### Task 25 — Sub-D adoption: wire coordination telemetry events into Handler `[coordination]`
 - **Status:** not_started
-- **Dependencies:** Task 0 (task-list rewrite), sub-D implementation (provides `[:mnemosyne, :coordination, :*]` telemetry events)
+- **Dependencies:** Task 0 (task-list rewrite), sub-D implementation (provides `[:ravel, :coordination, :*]` telemetry events)
 - **Description:** Sub-D's brainstorm (2026-04-16) locked the coordination
   telemetry contract. Sub-M's adoption task is:
-  1. Add `[:mnemosyne, :coordination, :lock]` and
-     `[:mnemosyne, :coordination, :freshness]` (or the actual prefixes
+  1. Add `[:ravel, :coordination, :lock]` and
+     `[:ravel, :coordination, :freshness]` (or the actual prefixes
      sub-D uses — verify against sub-D's implementation) to the event
      name list passed to `Handler.attach_many/4` in
-     `Mnemosyne.Observability.Handler.attach/0`.
-  2. Ensure `handle_event/4` handles `%Diagnostic{target: "mnemosyne.lock"}`
-     and `%Diagnostic{target: "mnemosyne.coordination"}` structs — these
+     `Ravel.Observability.Handler.attach/0`.
+  2. Ensure `handle_event/4` handles `%Diagnostic{target: "ravel.lock"}`
+     and `%Diagnostic{target: "ravel.coordination"}` structs — these
      should flow through without special casing since they are standard
      `%Diagnostic{}` structs in the sealed set.
   3. Verify the `JsonlWriter` file write path routes through
-     `Mnemosyne.FileIO.write_safe/3` with `:exclusive` category (no direct
+     `Ravel.FileIO.write_safe/3` with `:exclusive` category (no direct
      `File.write/3` calls). Resolve append-vs-rewrite per the note added to
      Task 0 checklist item 8. Write a test that confirms no `File.open/2` or
      `File.write/3` call sites exist in `jsonl_writer.ex`.
@@ -591,13 +591,13 @@ input from the user.
   4. `cargo +nightly fmt --check` green.
   5. Spec §15 v1 cut checklist confirmed:
      - ✅ Crate stack integrated
-     - ✅ `MnemosyneEvent` enum + helper types
+     - ✅ `RavelEvent` enum + helper types
      - ✅ All seven layers shipped and wired
      - ✅ Metric catalogue defined
      - ✅ Storage layout implemented
      - ✅ Risk 5 dump wired into B / C / E error paths
      - ✅ C parallel-emit live and verified
-     - ✅ `mnemosyne metrics` and `mnemosyne diagnose` subcommands
+     - ✅ `ravel metrics` and `ravel diagnose` subcommands
      - ✅ Cross-plan adoption tasks landed in sibling backlogs
      - ✅ Test suite green
   6. Update parent orchestrator plan's `memory.md` recording M v1
@@ -614,14 +614,14 @@ input from the user.
 - **Status:** not_started
 - **Dependencies:** Task 2 (event types exist), Sub-R engine landed
 - **Description:** Per Sub-R design doc §7.3. Add three new event structs
-  to the `Mnemosyne.Event.*` sealed set:
-  - `%Mnemosyne.Event.Ontology.Loaded{}` — emitted on successful
+  to the `Ravel.Event.*` sealed set:
+  - `%Ravel.Event.Ontology.Loaded{}` — emitted on successful
     ontology load/reload. Fields: `file_count`, `fact_count`,
     `derived_fact_count`, `duration_ms`.
-  - `%Mnemosyne.Event.Ontology.ReloadFailed{}` — emitted on parse error
+  - `%Ravel.Event.Ontology.ReloadFailed{}` — emitted on parse error
     or unstratifiable rule set during reload. Fields: `file_path`,
     `error_reason`, `line_number` (if syntax error).
-  - `%Mnemosyne.Event.Ontology.RoutingRuleProposed{}` — emitted when
+  - `%Ravel.Event.Ontology.RoutingRuleProposed{}` — emitted when
     the Level 2 routing agent proposes a new Datalog rule. Fields:
     `rule_text`, `reason`, `staging_path`.
   Wire into `Handler.handle_event/4` with `try/rescue` per M's Risk 6

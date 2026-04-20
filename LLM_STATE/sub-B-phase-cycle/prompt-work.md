@@ -9,7 +9,7 @@ Read for this plan:
 
 ## About this plan
 
-This plan implements sub-project B of the Mnemosyne orchestrator merge —
+This plan implements sub-project B of the Ravel orchestrator merge —
 the long-running process model, phase cycle state machine, executor
 abstractions, placeholder substitution mechanism, and plan-state file
 format that replace the LLM_CONTEXT `run-plan.sh` driver. The cycle is
@@ -20,7 +20,7 @@ against a `compact-baseline` integer file, per `run-plan.sh`'s semantics.
 The design is fully specified in the design doc referenced above; this
 plan is the implementation work, not a design phase. Do not re-litigate
 design decisions here; surface them to the parent plan
-(`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`) if you discover
+(`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`) if you discover
 a spec-level issue during implementation.
 
 ## Key constraints
@@ -30,7 +30,7 @@ a spec-level issue during implementation.
   (via GUIVisionVMDriver golden images), no other sub-B task starts. If
   the spike fails, open a brainstorm-mode discussion to resolve the
   fallback layout before resuming.
-- **Non-disruption**: existing Mnemosyne v0.1.0 must keep running during
+- **Non-disruption**: existing Ravel v0.1.0 must keep running during
   the build. New code lives alongside, not in place of, existing code.
   The dogfood acceptance test is the final task in this plan's backlog
   and is the moment v1 replaces `run-plan.sh` for the orchestrator
@@ -43,7 +43,7 @@ a spec-level issue during implementation.
   failures, and unexpected conditions all fail hard with clear diagnostics.
   Soft fallbacks require explicit written rationale in the code or the
   design doc. Never silently log-and-continue.
-- **Obsidian-native formats**: every file Mnemosyne writes uses markdown
+- **Obsidian-native formats**: every file Ravel writes uses markdown
   with YAML frontmatter, kebab-case property names for Dataview, wikilinks
   for cross-references, tags as first-class metadata.
 - **TDD**: every type and every invariant in §2.2 and §3 of the spec is
@@ -55,7 +55,7 @@ a spec-level issue during implementation.
 Rust work uses `cargo test`, `cargo clippy`, and `cargo +nightly fmt`.
 Run the full test suite and clippy before declaring any task done —
 no task ships with failing tests or new warnings. See
-`{{PROJECT}}/README.md` for Mnemosyne's full build/test surface.
+`{{PROJECT}}/README.md` for Ravel's full build/test surface.
 
 ## Dependencies on sibling sub-projects
 

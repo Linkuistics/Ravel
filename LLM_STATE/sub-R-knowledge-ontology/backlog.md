@@ -27,7 +27,7 @@ consume them.
 - **Description:** Per spec §8.1. Survey semi-naive evaluation (Ullman
   1988), magic sets (Bancilhon et al. 1986), demand-driven / top-down
   with tabling (XSB), incremental maintenance (DRed, Differential
-  Dataflow), trie-based indexing. Assess each against Mnemosyne's query
+  Dataflow), trie-based indexing. Assess each against Ravel's query
   patterns: small fact base (<10k facts), frequent point queries,
   infrequent bulk re-evaluation, BEAM runtime. Output: a research note
   naming the chosen strategy with rationale, filed at
@@ -57,7 +57,7 @@ consume them.
   adoption recommendation. Gates Task 4.
 - **Results:** _pending_
 
-### Task 4 — `Mnemosyne.Datalog` core evaluator `[impl]`
+### Task 4 — `Ravel.Datalog` core evaluator `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 1, Task 3
 - **Description:** Per spec §2. Implement the Datalog evaluator using
@@ -65,11 +65,11 @@ consume them.
   `new/0`, `assert/2`, `retract/2`, `load_file/2`, `evaluate/1`,
   `query/2`, `query_one/2`. ETS-backed storage per §2.3 with base/derived
   fact partitioning. Stratified negation with stratifiability check at
-  load time. Domain-agnostic — zero Mnemosyne imports. ~300-500 lines
+  load time. Domain-agnostic — zero Ravel imports. ~300-500 lines
   (evaluator only, excluding parser).
 - **Results:** _pending_
 
-### Task 5 — `Mnemosyne.Datalog.Parser` `[impl]`
+### Task 5 — `Ravel.Datalog.Parser` `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 4 (needs data model types)
 - **Description:** Per spec §2.5. Custom parser for Datalog syntax:
@@ -83,7 +83,7 @@ consume them.
 ### Task 6 — Engine unit tests `[test]`
 - **Status:** not_started
 - **Dependencies:** Task 4, Task 5
-- **Description:** Per spec §9.1. Pure Datalog tests with no Mnemosyne
+- **Description:** Per spec §9.1. Pure Datalog tests with no Ravel
   dependencies:
   - Parser: valid syntax, syntax errors with line numbers, edge cases
   - Evaluation: fixed-point, transitive closure, stratified negation,
@@ -109,7 +109,7 @@ consume them.
   that users add predicates freely.
 - **Results:** _pending_
 
-### Task 8 — `Mnemosyne.Datalog.Server` GenServer `[impl]`
+### Task 8 — `Ravel.Datalog.Server` GenServer `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 4, Task 5
 - **Description:** Per spec §2.6. GenServer wrapping the Datalog API.
@@ -160,7 +160,7 @@ consume them.
 - **Status:** not_started
 - **Dependencies:** Task 8, Task 7
 - **Description:** Per spec §4.4 and §7. Author `ontology/routing.dl`
-  with routing rules. Rewrite `Mnemosyne.Router.evaluate_rules/2` to
+  with routing rules. Rewrite `Ravel.Router.evaluate_rules/2` to
   call Datalog query. Update Level 2 routing agent prompt to propose
   Datalog rules. Update rule staging path to
   `<vault>/runtime/staging/proposed-rules/`. Remove `routing.ex`
@@ -220,7 +220,7 @@ consume them.
 - **Dependencies:** none
 - **Description:** Per spec §10.2. Update Sub-A's design doc §A4:
   remove `tag-vocabulary.md` reservation, add `ontology/` directory
-  with contents. Evaluate whether `mnemosyne.toml` schema version needs
+  with contents. Evaluate whether `ravel.toml` schema version needs
   a bump.
 - **Results:** Done (2026-04-16). Sub-A design doc rewritten inline:
   `tag-vocabulary.md` removed, `routing.ex` removed, `ontology/`

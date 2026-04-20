@@ -15,7 +15,7 @@ to the generic reflect discipline:
 
 - **Design-level contradictions with the spec.** Do NOT silently absorb
   them into memory. Flag them to the user and escalate to the parent
-  plan (`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`) so
+  plan (`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`) so
   the spec can be updated deliberately. This is especially important
   for the five B-trait amendments and the sentinel-detection
   requirement — those are cross-sub-project commitments and any drift

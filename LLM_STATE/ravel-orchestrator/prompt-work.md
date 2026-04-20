@@ -1,9 +1,9 @@
-# Work Phase — Mnemosyne Orchestrator (plan-specific)
+# Work Phase — Ravel Orchestrator (plan-specific)
 
 ## About this plan
 
-This plan exists to drive the merge of LLM_CONTEXT functionality into Mnemosyne,
-transforming Mnemosyne into a harness-independent LLM orchestrator. The
+This plan exists to drive the merge of LLM_CONTEXT functionality into Ravel,
+transforming Ravel into a harness-independent LLM orchestrator. The
 architectural state is fully captured in `{{PLAN}}/memory.md` — read it
 carefully before doing any task. The most important constraints to keep
 in mind during work:
@@ -15,12 +15,12 @@ in mind during work:
   cycle (work → reflect → compact → triage), phase-file-factored layout
   under `phases/`, `fixed-memory/memory-style.md`, a `pre-work.sh`
   opt-in executable hook, and `run-plan.sh` as the driver — changes
-  landed upstream that Mnemosyne v1 must eventually absorb.
+  landed upstream that Ravel v1 must eventually absorb.
 - **Bootstrap discipline**: this seed plan and all sub-project plans
   run on the existing LLM_CONTEXT machinery. Do not assume features
-  Mnemosyne does not yet have; do not modify the existing LLM_CONTEXT
+  Ravel does not yet have; do not modify the existing LLM_CONTEXT
   system except as the punch-list stop-gap task explicitly directs.
-- There is also an existing Mnemosyne TODO at `{{PROJECT}}/TODO.md`
+- There is also an existing Ravel TODO at `{{PROJECT}}/TODO.md`
   tracking pre-orchestrator work (horizon scanning, evaluation phase
   3/4, etc.). Treat that as the legacy work pipeline that will
   eventually be subsumed by the orchestrator merge — do not progress

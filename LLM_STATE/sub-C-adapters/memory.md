@@ -1,6 +1,6 @@
 # Memory — Sub-project C: Harness Adapter Layer
 
-This plan implements sub-project C of the Mnemosyne orchestrator merge. The
+This plan implements sub-project C of the Ravel orchestrator merge. The
 design is already fully specified; this plan is the implementation work.
 
 ## Primary reference
@@ -15,8 +15,8 @@ being invented ad hoc.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will be at
-`{{PROJECT}}/mnemosyne/plans/mnemosyne-orchestrator/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will be at
+`{{PROJECT}}/ravel/plans/ravel-orchestrator/` after sub-project G's
 migration). It coordinates this sub-plan with its siblings (A, B, D, E, F,
 G, H, I, K, L, and the newly-surfaced M observability sub-project). The
 parent plan's `memory.md` holds cross-sub-project architectural state.
@@ -46,7 +46,7 @@ design doc for full context before acting on any of them.
 V1 spawns `claude --print --verbose --input-format stream-json --output-format stream-json`
 as a normal child process via `std::process::Command`. **No PTY**, no
 terminal escape parsing, no `portable-pty` dep. User input flows from
-Mnemosyne's TUI through B's executor's input-forwarder thread into the
+Ravel's TUI through B's executor's input-forwarder thread into the
 session's stdin as stream-json user-message envelopes. Output flows from
 the child's stdout through a `BufReader::lines()` JSON parser into typed
 `OutputChunk`s. See §4.1 of the spec.
@@ -97,12 +97,12 @@ sentinel detection. See §4.3.2, §4.3.3, and §11.1 of the spec.
 
 ### "No callback channel" means no *control*, not no *observation*
 
-The architectural rule from `mnemosyne-orchestrator/memory.md` ("no
+The architectural rule from `ravel-orchestrator/memory.md` ("no
 slash commands inside the harness") and B's contract #8 ("no callback
-channel from harness to Mnemosyne") forbid the harness *calling into*
-Mnemosyne. They do NOT forbid Mnemosyne *observing* harness state and
-reacting on its own side. Mnemosyne reads the structured output stream
-and parses it into rich typed events; the harness has no idea Mnemosyne
+channel from harness to Ravel") forbid the harness *calling into*
+Ravel. They do NOT forbid Ravel *observing* harness state and
+reacting on its own side. Ravel reads the structured output stream
+and parses it into rich typed events; the harness has no idea Ravel
 exists. Both `SessionLifecycle` chunks and sentinel detection are
 observation channels, not control channels. See §3.3 of the spec.
 
@@ -202,7 +202,7 @@ the pinned `claude` version, and the verification timestamp.
   independent of C's adapter layer.
 
 - **Sub-project G (migration)** — note that the existing
-  `<project>/adapters/claude-code/` directory in the Mnemosyne repo is
+  `<project>/adapters/claude-code/` directory in the Ravel repo is
   the **legacy v0.1.0 Claude Code plugin** (markdown skills consumed by
   Claude Code itself), not a Rust adapter. C does not touch it; G's
   migration plan owns retiring or renaming it.
@@ -216,7 +216,7 @@ the pinned `claude` version, and the verification timestamp.
 
 ## BEAM / Elixir pivot (Session 9 amendment)
 
-The orchestrator's Session 9 committed Mnemosyne to a persistent BEAM
+The orchestrator's Session 9 committed Ravel to a persistent BEAM
 daemon (Elixir/OTP). Sub-C's entire design was brainstormed assuming Rust
 with actor threading. The orchestrator now tracks a "Sub-C amendment —
 Elixir implementation and multi-adapter reservation" task with the
@@ -271,15 +271,15 @@ content. The original Session 6 decisions survive only in Appendix A
 record the BEAM pivot, the BEAM PTY spike findings, and the tool-call
 boundary contract. The rewrite covers: Elixir-native scope (§1), the
 GenServer + DynamicSupervisor architecture with module layout and
-supervision tree placement (§2), the `@behaviour Mnemosyne.HarnessAdapter`
-surface and the `Mnemosyne.Event.*` sealed typed-struct set (§3), the
+supervision tree placement (§2), the `@behaviour Ravel.HarnessAdapter`
+surface and the `Ravel.Event.*` sealed typed-struct set (§3), the
 full ClaudeCode adapter with the normative `:exec.run/2` spawn path,
 cmux mitigation flags, session GenServer state and message set,
 stream-json parser locked against spike samples, two-phase SIGTERM→SIGKILL
 termination, **tool-call boundary for in-session Queries** (new §4.5:
 injected tool set `ask_expert`/`dispatch_to_plan`/`read_vault_catalog`,
 three candidate injection mechanisms, intercept flow via
-`Mnemosyne.Router.handle_tool_call/4`, why-not-control-channel), and
+`Ravel.Router.handle_tool_call/4`, why-not-control-channel), and
 the `CrashedBeforeReady` heuristic and error-reason table (§4.6). §5
 re-casts FixtureReplay as a GenServer walking JSON-Lines records via
 `Process.send_after/3`. §6-§8 preserve tool-profile enforcement,
@@ -330,7 +330,7 @@ implementation task with an explicit resolution method.
    vs degraded single-use). Resolution: §7.4 three-check spike protocol.
    **Conditional** — only fires if the C-1 gate trips.
 6. **Tool-call boundary mechanism for in-session Queries** (new, from
-   design doc §12.5). How are Mnemosyne-injected tools (`ask_expert`,
+   design doc §12.5). How are Ravel-injected tools (`ask_expert`,
    `dispatch_to_plan`, `read_vault_catalog`) exposed to a running claude
    session? Candidates: (a) MCP server on Unix socket with
    `--mcp-config`; (b) stdin-side tool-definition preamble; (c)

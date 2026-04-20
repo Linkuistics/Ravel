@@ -22,7 +22,7 @@ siblings consume them.
 
 ## Task Backlog
 
-### Task 1 — `Mnemosyne.Coordination.SingletonLock` `[impl]`
+### Task 1 — `Ravel.Coordination.SingletonLock` `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
 - **Description:** Implement the singleton lock module per spec §2.
@@ -33,7 +33,7 @@ siblings consume them.
   the file. On contention, reads incumbent PID + vault path and returns
   `{:error, {:daemon_running, pid, vault_path}}`. On success, returns
   `{:ok, port}` — the caller holds the port for the daemon's lifetime.
-  Emit `%Diagnostic{target: "mnemosyne.lock"}` events per spec §2.6.
+  Emit `%Diagnostic{target: "ravel.lock"}` events per spec §2.6.
   ~40 lines.
 - **Results:** _pending_
 
@@ -47,7 +47,7 @@ siblings consume them.
   Pure Elixir + filesystem fixtures.
 - **Results:** _pending_
 
-### Task 3 — `Mnemosyne.Coordination.FreshnessTracker` `[impl]`
+### Task 3 — `Ravel.Coordination.FreshnessTracker` `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
 - **Description:** Implement the freshness tracker per spec §3.2.
@@ -58,7 +58,7 @@ siblings consume them.
   Started early in the supervision tree (before actors). ~50 lines.
 - **Results:** _pending_
 
-### Task 4 — `Mnemosyne.FileIO` `[impl]`
+### Task 4 — `Ravel.FileIO` `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 3
 - **Description:** Implement the mandatory file I/O layer per spec §3.3.
@@ -85,7 +85,7 @@ siblings consume them.
   Pure Elixir + filesystem fixtures.
 - **Results:** _pending_
 
-### Task 6 — `Mnemosyne.VaultGit` `[impl]`
+### Task 6 — `Ravel.VaultGit` `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
 - **Description:** Implement the vault git interface per spec §4.2.

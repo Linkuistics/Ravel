@@ -34,7 +34,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 - **Description:** Pre-implementation blocker. Validate that Obsidian on
   macOS and Linux correctly renders, indexes, and navigates a vault whose
   `projects/` subdirectory contains symlinks into a sibling project's
-  `mnemosyne/` directory. Use GUIVisionVMDriver's golden images
+  `ravel/` directory. Use GUIVisionVMDriver's golden images
   (`guivision-golden-macos-tahoe` and `guivision-golden-linux-24.04`) per
   the workflow in §5.2 of the spec. Consult
   `{{DEV_ROOT}}/GUIVisionVMDriver/instructions-for-llms-using-this-as-a-tool.md`
@@ -50,7 +50,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   stop and open a brainstorm discussion for the hard-copy + two-way-sync
   fallback layout.
 - **Results:** **PASS on both platforms.** Executed at the orchestrator-plan
-  level in Session 5 (2026-04-13) of `mnemosyne-orchestrator`, driven
+  level in Session 5 (2026-04-13) of `ravel-orchestrator`, driven
   end-to-end via the `guivision` CLI against
   `guivision-golden-macos-tahoe` and `guivision-golden-linux-24.04` with
   Obsidian 1.12.7 + Dataview 0.5.67 pinned identically. The orchestrator
@@ -64,8 +64,8 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   + OCR transcripts. Commit `98ef7db` ("test: add Obsidian symlink
   validation spike fixture and evidence"). Architectural consequence
   (vault-as-view-over-symlinks stands; hard-copy fallback NOT activated)
-  recorded in `{{DEV_ROOT}}/Mnemosyne/LLM_STATE/mnemosyne-orchestrator/memory.md`
-  under the "Dedicated Mnemosyne-vault" decision. **Task 0 is cleared;
+  recorded in `{{DEV_ROOT}}/Ravel/LLM_STATE/ravel-orchestrator/memory.md`
+  under the "Dedicated Ravel-vault" decision. **Task 0 is cleared;
   all downstream B implementation tasks are now unblocked.** Two
   platform-specific operational notes surfaced and should be remembered
   by any future B GUI work on the same images: (1) Electron-in-virtio-gpu-
@@ -91,7 +91,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-C-adapters-design.md`
   §11.1):
 
-  1. **`%Mnemosyne.Event.SessionLifecycle{}` is a consumed typed event.**
+  1. **`%Ravel.Event.SessionLifecycle{}` is a consumed typed event.**
      B's phase-cycle machine pattern-matches on
      `%SessionLifecycle{transition: :ready}`,
      `%SessionLifecycle{transition: {:turn_complete, _}}`, and
@@ -118,7 +118,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   dated note pointing at C's §11.1 as the origin. Remove or supersede
   references to the eliminated Rust-era amendments (1–3). (b) Adjust the
   downstream "Define core abstractions and types" task description so
-  that its type list includes `%Mnemosyne.Event.SessionLifecycle{}` as a
+  that its type list includes `%Ravel.Event.SessionLifecycle{}` as a
   consumed event and the executor-level sentinel-matcher module.
   (c) Add a note to the `PhaseRunner::run_phase` task (and/or the
   `LlmHarnessExecutor` task if separate) that the executor owns the
@@ -136,7 +136,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   or sentinel detection.
 - **Results:** Absorbed inline into the design doc's Session-12 rewrite.
   §4.1 now carries the full sub-C consumption contract (Requirements 1
-  and 2) with the `%Mnemosyne.Event.SessionLifecycle{}` pattern-match
+  and 2) with the `%Ravel.Event.SessionLifecycle{}` pattern-match
   surface and the sliding-buffer sentinel matcher requirement. The
   Rust-era Amendments 1–3 are explicitly retired there; Appendix A Q1
   (post-write clarification) records the control-vs-observation
@@ -246,7 +246,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   (§2.3.2, §2.3.3, §3.3); (b) phase-composition shared-file + additive
   override pattern (§2.3.5, §2.5); (c) `fixed-memory/memory-style.md`
   read by both reflect and compact (§2.5, explicit invariant); (d)
-  `pre-work.sh` hook (§2.3.3 step 2, module `Mnemosyne.PreWorkHook`);
+  `pre-work.sh` hook (§2.3.3 step 2, module `Ravel.PreWorkHook`);
   (e) `{{VAULT_CATALOG}}` placeholder (§2.4 table + §2.3.5); (f)
   `related-plans.md` **deleted entirely** (§6 sub-G requirements call
   this out); (g) ISO 8601 session-log timestamps + latest-session.md
@@ -257,7 +257,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 ### Absorb BEAM pivot into B's design, spec, and backlog `[amendment]`
 - **Status:** done (Session 12, 2026-04-15)
 - **Dependencies:** Task 0
-- **Description:** The orchestrator's Session 9 committed Mnemosyne to a
+- **Description:** The orchestrator's Session 9 committed Ravel to a
   persistent BEAM daemon (Elixir/OTP), replacing the original Rust
   single-process architecture. This is a load-bearing amendment that
   touches every task in this backlog. Concrete work:
@@ -311,7 +311,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   GenServer; phase transitions arrive as `{:run_phase, _}` messages
   (§2.3.3, §3.3, §4.5). `plan-state.md` schema pruned per sub-F
   (§2.3.2): `plan-id`, `host-project`, `dev-root` removed;
-  `description:` (≤120 chars, hard-capped) added; `mnemosyne-pid` →
+  `description:` (≤120 chars, hard-capped) added; `ravel-pid` →
   `daemon-pid`; `compact-baseline` added. `{{RELATED_PLANS}}` →
   `{{VAULT_CATALOG}}` (§2.4); `related-plans.md` deleted outright.
   Separate Rust TUI client binary replaces the in-process ratatui
@@ -387,12 +387,12 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   design doc:
 
   1. Replace Rust type lists with Elixir struct/module lists
-     (`Mnemosyne.PlanState`, `Mnemosyne.PlanContext`,
-     `Mnemosyne.PhaseRunner`, `Mnemosyne.StagingDirectory`,
-     `Mnemosyne.PhaseExecutor` behaviour + three implementors,
-     `Mnemosyne.Substitution`, `Mnemosyne.Prompts`,
-     `Mnemosyne.Sentinel.SlidingBuffer`, `Mnemosyne.PreWorkHook`,
-     `Mnemosyne.CopyBackReport`).
+     (`Ravel.PlanState`, `Ravel.PlanContext`,
+     `Ravel.PhaseRunner`, `Ravel.StagingDirectory`,
+     `Ravel.PhaseExecutor` behaviour + three implementors,
+     `Ravel.Substitution`, `Ravel.Prompts`,
+     `Ravel.Sentinel.SlidingBuffer`, `Ravel.PreWorkHook`,
+     `Ravel.CopyBackReport`).
   2. Replace `include_str!` with `@external_resource` +
      `File.read!/1` at compile time; replace vendor list's
      `backlog-plan.md` and `create-a-multi-session-plan.md` with
@@ -410,7 +410,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
      startup is sub-F's scope; B's entry point is now the PlanActor
      `handle_info/2` dispatch for `{:run_phase, _}`.
   7. Rewrite the `PhaseRunner::run_phase` task as "Implement
-     `Mnemosyne.PhaseRunner.run_phase/4`" with the 13-step flow
+     `Ravel.PhaseRunner.run_phase/4`" with the 13-step flow
      from §2.3.3 including compact-trigger check, `pre-work.sh`
      invocation, session-log append, `DispatchProcessor` and
      `QueryProcessor` phase-exit hooks (non-compact phases only),
@@ -418,22 +418,22 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   8. Rewrite the `LlmHarnessExecutor` task with the
      `attach_consumer/2` + `handle_info/2` consumption loop and the
      sliding-buffer sentinel matcher, against sub-C's
-     `Mnemosyne.HarnessAdapter` behaviour.
-  9. Add new tasks for `Mnemosyne.PreWorkHook` and
-     `Mnemosyne.Sentinel.SlidingBuffer` (both new modules surfaced
+     `Ravel.HarnessAdapter` behaviour.
+  9. Add new tasks for `Ravel.PreWorkHook` and
+     `Ravel.Sentinel.SlidingBuffer` (both new modules surfaced
      by the Session-12 rewrite).
-  10. Update the sub-M adoption task to emit `Mnemosyne.Event.*`
+  10. Update the sub-M adoption task to emit `Ravel.Event.*`
       typed structs via `:telemetry` (not `tracing::instrument` +
-      `MnemosyneEvent` enum).
+      `RavelEvent` enum).
   11. Update the dogfood task to reference the Session-12 design
       doc layout (PlanActor-hosted runner, daemon start via sub-F,
       two-plan cutover).
   12. Update the live smoke test task to tag tests `:live` (ExUnit
       tag) instead of CI-gated Rust test discovery.
   13. Ensure every rewritten task that writes plan files calls
-      `Mnemosyne.FileIO.write_safe/3` with `:phase_owned`, and every
+      `Ravel.FileIO.write_safe/3` with `:phase_owned`, and every
       task that reads plan files for prompt context calls
-      `Mnemosyne.FileIO.read_tracked/1`. `FileIO` is the mandatory
+      `Ravel.FileIO.read_tracked/1`. `FileIO` is the mandatory
       I/O abstraction for both `copy_back/2` writes and
       `StagingDirectory.render/4` reads; direct `File.*` calls are
       forbidden in B's implementation.
@@ -540,7 +540,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   critical invariants: (a) never follow symlinks into project repos
   (hard error), (b) refuse to descend into subdirectories containing
   `plan-state.md` (hard error to even try — this enforces "one plan
-  per Mnemosyne process" against nested hierarchy), (c) write only
+  per Ravel process" against nested hierarchy), (c) write only
   inside the staging root. Unit tests cover: correct forward
   substitution, embedded prompts materialisation, allowlist
   resolution, symlink rejection, child-plan-descent rejection, binary
@@ -564,7 +564,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   enforcement, atomic rename semantics.
 
   **FileIO constraint (from sub-D Session 18):** All writes must
-  delegate to `Mnemosyne.FileIO.write_safe/3` rather than writing
+  delegate to `Ravel.FileIO.write_safe/3` rather than writing
   files directly. Plan files written by `copy_back` are
   `:phase_owned` — the daemon is authoritative during an active phase.
   See the "Delegate `copy_back` writes to `FileIO.write_safe/3`"
@@ -574,10 +574,10 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 ### Delegate `copy_back` writes to `FileIO.write_safe/3` `[staging]` `[file-io]`
 - **Status:** not_started
 - **Dependencies:** Implement `StagingDirectory::copy_back`, sub-D
-  `Mnemosyne.FileIO` module landed
+  `Ravel.FileIO` module landed
 - **Description:** Ensure `StagingDirectory.copy_back/2` delegates all
-  plan-file writes to `Mnemosyne.FileIO.write_safe/3` rather than
-  performing direct filesystem writes. `Mnemosyne.FileIO` is the
+  plan-file writes to `Ravel.FileIO.write_safe/3` rather than
+  performing direct filesystem writes. `Ravel.FileIO` is the
   mandatory I/O layer for all daemon file operations (established by
   sub-D Session 18). The file category for plan files written at
   phase exit is `:phase_owned` — the daemon is authoritative for them
@@ -789,10 +789,10 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 - **Dependencies:** Task 0 (symlinks validation spike must pass first)
 - **Description:** Implement the symlink rescan lifecycle per §2.4 of
   the spec. Walks the dev root looking for project repos (directories
-  containing `.git`), checks for `<project>/mnemosyne/`, creates
+  containing `.git`), checks for `<project>/ravel/`, creates
   relative symlinks under `<vault>/projects/<project-name>`,
   garbage-collects dangling links, detects cycles via `same-file`,
-  handles the `mnemosyne rescan` CLI subcommand as an explicit trigger
+  handles the `ravel rescan` CLI subcommand as an explicit trigger
   plus automatic invocation on startup. Also implement vault bootstrap
   per §2.3: create the vault directory if missing, create
   `knowledge/`, `runtime/`, `projects/` subdirectories, initialise
@@ -829,9 +829,9 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   advisory lock, load `plan-state.md`, run crash recovery, construct
   `PhaseRunner` + event channel + `InteractionDriver`, transition to
   Idle. Every step is a hard-error boundary. Also implement the CLI
-  surface: `mnemosyne`, `mnemosyne <plan-dir>`, `mnemosyne --replay
-  <fixture-dir>`, `mnemosyne --headless --script <path>`, `mnemosyne
-  --ipc`, `mnemosyne rescan`, `--version`, `--help`. Integration tests
+  surface: `ravel`, `ravel <plan-dir>`, `ravel --replay
+  <fixture-dir>`, `ravel --headless --script <path>`, `ravel
+  --ipc`, `ravel rescan`, `--version`, `--help`. Integration tests
   exercise the full startup against tempdir vault fixtures.
 - **Results:** _pending_
 
@@ -844,7 +844,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   `<vault>/runtime/locks/<plan-id>.lock`. Held for the session
   lifetime, released on drop. Acquisition failure is a hard error
   with a diagnostic naming the holding PID (read from the lock file's
-  contents, which Mnemosyne writes on acquire). Sub-project D's real
+  contents, which Ravel writes on acquire). Sub-project D's real
   implementation replaces this stub when it lands; the replacement
   should be a drop-in swap. Unit tests cover: acquire-release cycle,
   contention detection, PID diagnostic.
@@ -894,41 +894,41 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   characterisation data for the cold-spawn latency risk from §5.4.
 - **Results:** _pending_
 
-### Dogfood task: host the orchestrator seed plan on Mnemosyne v1 `[dogfood]`
+### Dogfood task: host the orchestrator seed plan on Ravel v1 `[dogfood]`
 - **Status:** not_started
 - **Dependencies:** End-to-end integration test corpus, Implement
   shutdown sequence, Implement `RatatuiDriver`, Live gated test
   against real Claude Code
 - **Description:** The v1 acceptance test. Migrate the orchestrator
   seed plan and sub-E's sibling plan from `phase.md` +
-  LLM_CONTEXT's `run-plan.sh` to `plan-state.md` + Mnemosyne v1. This
+  LLM_CONTEXT's `run-plan.sh` to `plan-state.md` + Ravel v1. This
   depends on sub-project G's migration logic being available — if G
   is not yet done, perform the migration manually as a one-shot for
   these two plans as part of this task's scope (document the manual
   steps clearly). Run a full work → reflect → (compact) → triage
-  cycle of the orchestrator plan on Mnemosyne v1 end-to-end: Ratatui
+  cycle of the orchestrator plan on Ravel v1 end-to-end: Ratatui
   TUI, real Claude Code harness via the stub adapter, real ingestion
-  pipeline from sub-E, real vault at `<dev-root>/Mnemosyne-vault/`.
+  pipeline from sub-E, real vault at `<dev-root>/Ravel-vault/`.
   Must exercise both the compact-skipped and compact-run branches of
   the wc-word-count trigger. Success criteria: cycle completes
   cleanly, all events emitted correctly, plan state persisted
   consistently, ingestion fired exactly once, no hard errors, the
   user can retire LLM_CONTEXT's `run-plan.sh` for these two plans
-  and proceed on Mnemosyne for all future sessions. This is the
+  and proceed on Ravel for all future sessions. This is the
   moment v1 ships.
 - **Results:** _pending_
 
 ### Implementation notes and handoff documentation `[docs]`
 - **Status:** not_started
 - **Dependencies:** Dogfood task: host the orchestrator seed plan on
-  Mnemosyne v1
+  Ravel v1
 - **Description:** Document any implementation decisions, discovered
   constraints, or design-doc deviations in `{{PLAN}}/memory.md`.
-  Produce a short user-facing note for the main Mnemosyne docs
+  Produce a short user-facing note for the main Ravel docs
   explaining how the phase cycle works, when each phase fires, how
   to use the takeover prompt, and how to inspect plan state through
   Obsidian (Dataview query examples for common views). Update the
-  main Mnemosyne `README.md` with a brief "v0.2.0 orchestrator"
+  main Ravel `README.md` with a brief "v0.2.0 orchestrator"
   section.
 - **Results:** _pending_
 
@@ -938,7 +938,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   task lives in B's backlog because B owns the call sites being
   instrumented
 - **Description:** Landed by sub-project M's brainstorm
-  (2026-04-13, Session 7 of the mnemosyne-orchestrator plan). M's
+  (2026-04-13, Session 7 of the ravel-orchestrator plan). M's
   design doc at
   `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
   §10 specifies M's cross-plan adoption requirements; this task is B's
@@ -948,26 +948,26 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   1. Add `tracing::instrument` annotations on `PhaseRunner::run_phase`
      and on each `PhaseExecutor::execute` implementation. Span name
      `phase`, fields `plan_id`, `phase`. The span context is consumed
-     by M's `MnemosyneEventLayer` to attribute events to the right
+     by M's `RavelEventLayer` to attribute events to the right
      phase scope.
-  2. Emit `MnemosyneEvent::PhaseLifecycle` events at the numbered steps
+  2. Emit `RavelEvent::PhaseLifecycle` events at the numbered steps
      of `PhaseRunner::run_phase`:
      - Step 5: `PhaseLifecycleKind::Started { phase, plan_id, at }`
      - Step 10: `PhaseLifecycleKind::ExitedClean { phase, transitioned_to, at }`
      - Step 11: `PhaseLifecycleKind::ReflectHookFired { plan_id, at }`
      - Interrupted-state path: `PhaseLifecycleKind::Interrupted { phase, forensics_dir, at }`
      - ExecutorFailed path: `PhaseLifecycleKind::ExecutorFailed { phase, error, at }`
-     Use the `mnemosyne_event!` macro (provided by sub-M Task 6) rather
+     Use the `ravel_event!` macro (provided by sub-M Task 6) rather
      than calling `tracing::event!` directly.
   3. Replace any draft `eprintln!`-style debug logging in `PhaseRunner`
-     with `mnemosyne_event!(Level::DEBUG, MnemosyneEvent::Diagnostic { ... })`
+     with `ravel_event!(Level::DEBUG, RavelEvent::Diagnostic { ... })`
      calls. The `EnvFilter` (from M Task 11) controls visibility; the
      events are always emitted.
-  4. Wire `TuiBridgeLayer`'s `mpsc::Receiver<MnemosyneEvent>` into B's
+  4. Wire `TuiBridgeLayer`'s `mpsc::Receiver<RavelEvent>` into B's
      TUI module event loop. The TUI should subscribe via
      `harness.subscribe_tui()` (M Task 12 API) at startup and consume
      events in the existing `tokio::select!` over the TUI input
-     channel + new MnemosyneEvent channel. Status bar gauges and the
+     channel + new RavelEvent channel. Status bar gauges and the
      event log tail panel render from this stream per §11.1 of M's
      design doc.
   5. Wire the Risk 5 dump path: in `PhaseRunner::run_phase`'s error
@@ -978,12 +978,12 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
      Task 13.
 
   TDD: write tests that drive a fixture `PhaseRunner::run_phase` cycle
-  and assert the expected `MnemosyneEvent` sequence appears on the TUI
+  and assert the expected `RavelEvent` sequence appears on the TUI
   bridge channel. Layer 3 integration test exists in sub-M Task 19;
   this task only needs unit tests on B's side.
 
   No changes to B's existing trait surface or to the `PhaseEvent`
-  channel. Both B's `PhaseEvent` channel and M's `MnemosyneEvent` bus
+  channel. Both B's `PhaseEvent` channel and M's `RavelEvent` bus
   coexist during the parallel-emit window. After M v1 ships and the
   verification window passes, a future task collapses B's channel into
   M's bus (deferred — not part of M v1 scope).

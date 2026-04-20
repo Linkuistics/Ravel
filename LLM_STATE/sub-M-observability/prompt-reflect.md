@@ -8,21 +8,21 @@ Plan-specific reflect guidance beyond the shared phase file:
   commitments. If a session surfaces a contradiction with any of these,
   do NOT silently absorb it into memory — flag it and escalate to the
   parent plan
-  (`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`)
+  (`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`)
   so the spec can be updated deliberately. The design is stable;
   contradictions require deliberate resolution, not quiet drift.
 
 - **Discoveries about standard-crate actual behaviour** (e.g.,
   `tracing-appender` non-blocking guard semantics under sustained load,
   `metrics-util::Snapshotter` percentile accuracy, the exact shape of
-  `tracing::Visit` that `MnemosyneEventLayer` implements) should land
+  `tracing::Visit` that `RavelEventLayer` implements) should land
   in a "Verified surface" section of `memory.md` with the pinned crate
   version and the source command / test / benchmark that produced the
   observation.
 
 - **Risk watch list.** Pay particular attention to Risk 1
   (`tracing-subscriber` Layer ordering / re-entrancy bugs) and Risk 4
-  (`MnemosyneEvent` god-object) — both have v1 implications if they
+  (`RavelEvent` god-object) — both have v1 implications if they
   materialise. If a session observes movement on either, update the
   relevant risk entry in `memory.md` with what was observed and what
   mitigation was taken.

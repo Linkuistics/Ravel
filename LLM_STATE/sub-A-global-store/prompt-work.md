@@ -9,21 +9,21 @@
 
 ## About this plan
 
-This plan implements sub-project A of the Mnemosyne orchestrator merge
+This plan implements sub-project A of the Ravel orchestrator merge
 — the vault discovery mechanism, identity marker, vault directory
 layout, `init` / `init --from` / `config use-vault` / `adopt-project`
 CLI commands, Tier 1 / Tier 2 root resolution, and the deletion of
-v0.1.0's hardcoded `~/.mnemosyne/` paths.
+v0.1.0's hardcoded `~/.ravel/` paths.
 
 The design is fully specified in the design doc referenced above; this
 plan is the implementation work, not a design phase. Do not re-litigate
 design decisions here; surface them to the parent plan
-(`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`) if you
+(`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`) if you
 discover a spec-level issue during implementation.
 
 ## Key constraints
 
-- **v0.1.0 has no real users.** Legacy `~/.mnemosyne/` paths are
+- **v0.1.0 has no real users.** Legacy `~/.ravel/` paths are
   deletable, not transitionable. Delete them outright in this plan's
   task 11 — do not leave fallback shims, compatibility layers, or
   deprecation warnings. The `Config::load(dir)` call site in
@@ -41,7 +41,7 @@ discover a spec-level issue during implementation.
 - **TDD**: every type and every invariant in spec §A1–A10 is
   unit-tested first. Tests drive implementation. No code ships
   without its tests.
-- **Obsidian-native formats**: every file Mnemosyne writes uses
+- **Obsidian-native formats**: every file Ravel writes uses
   markdown with YAML frontmatter, kebab-case property names for
   Dataview, wikilinks for cross-references, tags as first-class
   metadata. The `.obsidian/` template authored in task 6 must honour

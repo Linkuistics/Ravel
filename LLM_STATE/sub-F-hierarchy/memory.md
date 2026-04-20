@@ -1,6 +1,6 @@
 # Memory — Sub-project F: Plan Hierarchy, Actor Model, Dispatch, Declarative Routing
 
-This plan implements sub-project F of the Mnemosyne orchestrator merge.
+This plan implements sub-project F of the Ravel orchestrator merge.
 F's brainstorm is complete; this plan is the implementation work, not
 a design phase. The design is fully specified in the spec referenced
 below. If an implementation question arises that the spec does not
@@ -17,8 +17,8 @@ on any implementation task.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will move
-to `{{PROJECT}}/mnemosyne/project-root/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will move
+to `{{PROJECT}}/ravel/project-root/` after sub-project G's
 migration lands). It coordinates this sub-plan with its siblings (A, B,
 C, D, E, G, H, I, M, N). The parent plan's `memory.md` holds
 cross-sub-project architectural state. This file holds only
@@ -29,17 +29,17 @@ sub-project-F-specific implementation state.
 These are the decisions most load-bearing for implementation. Consult
 §1–§10 of the design doc for full context before acting on any of them.
 
-### F-1. Mnemosyne is a persistent actor daemon on BEAM
+### F-1. Ravel is a persistent actor daemon on BEAM
 
-V1 runs as a single long-running Elixir/OTP application. `mnemosyne
-daemon` is the entry point; it hosts all actors, message routing,
+V1 runs as a single long-running Elixir/OTP application. 
+`ravel daemon` is the entry point; it hosts all actors, message routing,
 supervision, harness adapters, fact extraction, and ingestion. OTP
 supervision, message passing, hot code reload, and distribution
 transparency are BEAM primitives — use them, do not hand-roll.
 
 ### F-2. Two sealed actor types: PlanActor and ExpertActor
 
-Both implement a shared `Mnemosyne.Actor` behavior on top of
+Both implement a shared `Ravel.Actor` behavior on top of
 `GenServer`. The set is **sealed** for v1 — adding a third type is a
 code change, not a plugin mechanism. PlanActor progresses through phase
 cycles (wraps sub-B's `PhaseRunner`). ExpertActor is a type-hole stub
@@ -55,7 +55,7 @@ boundary in sub-C's adapter.
 ### F-4. Plan hierarchy via `project-root` convention
 
 Every adopted project has exactly one root plan at
-`<project>/mnemosyne/project-root/`. Name is **reserved**. Nested child
+`<project>/ravel/project-root/`. Name is **reserved**. Nested child
 plans nest arbitrarily beneath it. A directory is a plan iff it
 contains `plan-state.md`. `knowledge/` lives as a sibling of
 `project-root/`, not inside it.
@@ -64,17 +64,17 @@ contains `plan-state.md`. `knowledge/` lives as a sibling of
 
 A plan's qualified ID is a pure function of its filesystem path:
 `strip_prefix(plan_path, "<vault>/projects/")`. Examples:
-`Mnemosyne/project-root`, `Mnemosyne/project-root/sub-F-hierarchy`.
+`Ravel/project-root`, `Ravel/project-root/sub-F-hierarchy`.
 Never stored in `plan-state.md` frontmatter. Filesystem is
 authoritative; qualified IDs computed at read time.
 
 ### F-6. Dispatch target resolution is asymmetric
 
 - **Same-project** → origin names the specific `target-plan:
-  <qualified-id>`. Mnemosyne writes to the target's `Received` section
+  <qualified-id>`. Ravel writes to the target's `Received` section
   mechanically. No LLM in the loop.
 - **Cross-project** → origin names only `target-project: <name>`.
-  Mnemosyne spawns a **Level 2 routing agent** — fresh-context Claude
+  Ravel spawns a **Level 2 routing agent** — fresh-context Claude
   Code session scoped to the target project's vault subtree (plans +
   source code), with authority to pick a specific target plan or
   reject with reasoning.
@@ -115,14 +115,14 @@ proves painful for the invariant-heavy design.
 
 ### F-11. Two official clients over Unix socket NDJSON (updated 2026-04-16)
 
-`mnemosyne-tui` is a standalone Rust binary using `ratatui` + `tokio`
+`ravel-tui` is a standalone Rust binary using `ratatui` + `tokio`
 + `serde_json`. Connects to the daemon over a local Unix socket at
 `<vault>/runtime/daemon.sock` speaking NDJSON. No Rustler / no NIFs —
 the socket is the integration boundary. This plan scaffolds the
 daemon side of that contract; the TUI binary itself belongs to a
 **separate implementation plan to be scaffolded later**.
 
-`mnemosyne cmd` (finalised in sub-H's brainstorm, Session 21,
+`ravel cmd` (finalised in sub-H's brainstorm, Session 21,
 2026-04-16) is a second official client: a headless CLI wrapper that
 speaks the same NDJSON socket protocol. It enables scripted / CI
 access to the daemon without a TUI session. No extra daemon-side
@@ -145,12 +145,12 @@ compatibility (unknown `[harnesses.foo]` → warn and ignore; non-empty
 
 Vault discovery and identity verification. F's `VaultDirectory.load`
 is called from A's `verify_vault` path at daemon startup. A owns the
-vault discovery chain (`--vault` → `MNEMOSYNE_VAULT` → user config →
+vault discovery chain (`--vault` → `RAVEL_VAULT` → user config →
 hard error); F owns what happens next.
 
 ### Consumes from sub-B
 
-`Mnemosyne.PhaseRunner` and its 13-step `run_phase/4` flow. F's
+`Ravel.PhaseRunner` and its 13-step `run_phase/4` flow. F's
 `PlanActor` hosts this runner inside its `GenServer` state and
 invokes it in response to `{:run_phase, _}` messages from attached
 clients. F's `DispatchProcessor` and `QueryProcessor` are called by
@@ -158,23 +158,23 @@ B's `PhaseRunner` as phase-exit hooks on non-compact phases.
 
 ### Consumes from sub-C
 
-`Mnemosyne.HarnessAdapter` behaviour. F's Level 2 routing agent and
+`Ravel.HarnessAdapter` behaviour. F's Level 2 routing agent and
 fact-extraction LLM pass spawn sessions via the same adapter the
 phase runner uses. F's Query messages are delivered mid-session via
-C's tool-call boundary (`Mnemosyne.Router.handle_tool_call/4`).
+C's tool-call boundary (`Ravel.Router.handle_tool_call/4`).
 
 ### Consumes from sub-D
 
-`Mnemosyne.DaemonLock` — the singleton lock module owned by sub-D's
+`Ravel.DaemonLock` — the singleton lock module owned by sub-D's
 coordination implementation plan. F's daemon boot sequence (Task 10)
 calls this module to acquire `flock(2)` on
-`<runtime_dir>/mnemosyne/daemon.lock` (Task 12). Sub-D's lock module
+`<runtime_dir>/ravel/daemon.lock` (Task 12). Sub-D's lock module
 must be landed before Tasks 10 and 12 run; this is tracked as an
 explicit dependency in Task 0's readiness gate.
 
 ### Consumes from sub-D — FileIO mandatory I/O layer
 
-`Mnemosyne.FileIO` is the mandatory layer for all daemon file I/O
+`Ravel.FileIO` is the mandatory layer for all daemon file I/O
 (also from sub-D). Design doc:
 `{{PROJECT}}/docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`.
 
@@ -196,14 +196,14 @@ content-hash freshness checking work for plan files. Tasks 1, 4, 6,
 
 ### Consumes from sub-M
 
-`:telemetry` + typed `Mnemosyne.Event.*` structs for observability.
+`:telemetry` + typed `Ravel.Event.*` structs for observability.
 F emits `%ActorStateChange{}`, `%MessageRouted{}`, `%RuleFired{}`,
 `%RuleSuggestion{}`, and `%DispatchProcessed{}` / `%QueryAnswered{}`
 structs at the boundary. M owns the transport and subscribers.
 
 ### Relationship with sub-H (added 2026-04-16)
 
-Sub-H owns the TUI binary (`mnemosyne-tui`) and the `mnemosyne cmd`
+Sub-H owns the TUI binary (`ravel-tui`) and the `ravel cmd`
 CLI wrapper. Both speak the NDJSON socket protocol that F's Task 11
 defines. Sub-H's Session-21 brainstorm finalised a 17-command daemon
 palette; two of those commands (`create_plan`, `adopt_project`) are
@@ -217,7 +217,7 @@ must be updated to confirm scope and describe the `[docs]` section in
 
 ### Depended on by sub-N (added 2026-04-15; updated 2026-04-16)
 
-F's `Mnemosyne.Actor` behaviour (Task 2) and `ActorSupervisor`
+F's `Ravel.Actor` behaviour (Task 2) and `ActorSupervisor`
 child-spec API (Task 5) are on the **critical path for sub-N Phase 5+**.
 Sub-N's internal Task 0 is an explicit gate: sub-N Tasks 16+
 (ExpertActor implementation) cannot start until F has shipped both
@@ -234,13 +234,13 @@ locked — the following must be treated as fixed contracts when
 implementing F's interfaces:
 
 - **ExpertActor model:** stateless dialogue over ETS-backed
-  `Mnemosyne.Expert.DialogueRegistry`; tag-based exact-string scope
+  `Ravel.Expert.DialogueRegistry`; tag-based exact-string scope
   matching via `ScopeMatcher` behaviour; `KeywordSection` retrieval
   strategy behind `ExpertRetrieval` behaviour; parallel Stage 5
   fan-out with per-expert absorb writes.
-- **`ExpertRetrieval` behaviour:** `@behaviour Mnemosyne.ExpertRetrieval`
+- **`ExpertRetrieval` behaviour:** `@behaviour Ravel.ExpertRetrieval`
   with locked signature `retrieve/3 :: (expert_id, query_text, opts)
-  -> {:ok, [%KnowledgeEntry{}]} | {:error, term()}`. F's `Mnemosyne.Actor`
+  -> {:ok, [%KnowledgeEntry{}]} | {:error, term()}`. F's `Ravel.Actor`
   callback set must not constrain how sub-N implements this.
 - **`ActorSupervisor` API:** sub-N calls `start_actor/2`, `stop_actor/1`,
   `send_message/2` (generic forms) in addition to the per-type
@@ -272,7 +272,7 @@ become real only once those siblings land.
   not wire them.
 - **Sub-P (team mode)** — F reserves the schema hooks; does not wire
   them.
-- **Rust TUI binary (`mnemosyne-tui`) and `mnemosyne cmd` CLI** —
+- **Rust TUI binary (`ravel-tui`) and `ravel cmd` CLI** —
   both belong to sub-H's implementation scope. This plan scaffolds
   only the daemon-side client-listener (Task 11) that both clients
   connect to.
@@ -281,9 +281,9 @@ become real only once those siblings land.
 
 ## Bootstrap discipline
 
-Until sub-G's migration lands and Mnemosyne v1 replaces LLM_CONTEXT,
+Until sub-G's migration lands and Ravel v1 replaces LLM_CONTEXT,
 this plan runs on existing LLM_CONTEXT machinery. Do not assume
-features Mnemosyne does not yet have. The `run-plan.sh` cycle driver,
+features Ravel does not yet have. The `run-plan.sh` cycle driver,
 `phases/work.md`, fixed-memory conventions, and placeholder
 substitutions all come from LLM_CONTEXT for the duration of this
 plan's life.

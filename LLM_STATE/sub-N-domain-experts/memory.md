@@ -1,6 +1,6 @@
 # Memory — Sub-project N: Domain Experts (ExpertActor internals)
 
-This plan implements sub-project N of the Mnemosyne orchestrator merge.
+This plan implements sub-project N of the Ravel orchestrator merge.
 N's brainstorm is complete; this plan is the implementation work, not
 a design phase. The design is fully specified in the spec referenced
 below. If an implementation question arises that the spec does not
@@ -18,8 +18,8 @@ Appendix B is the `mix.exs` projection; Appendix C is the glossary.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will move
-to `{{PROJECT}}/mnemosyne/project-root/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will move
+to `{{PROJECT}}/ravel/project-root/` after sub-project G's
 migration lands). It coordinates this sub-plan with its siblings. The
 parent plan's `memory.md` holds cross-sub-project architectural state.
 This file holds only sub-project-N-specific implementation state.
@@ -31,8 +31,8 @@ These are the decisions most load-bearing for implementation. Consult
 
 ### N-1. ExpertActor fills F's type hole
 
-Sub-N delivers `Mnemosyne.ExpertActor` as a GenServer implementing F's
-`Mnemosyne.Actor` behaviour, replacing F's stub that returns
+Sub-N delivers `Ravel.ExpertActor` as a GenServer implementing F's
+`Ravel.Actor` behaviour, replacing F's stub that returns
 `{:rejected, :not_yet_implemented, "see sub-N-domain-experts"}`. One
 actor per expert declaration file; actor lives in F's existing
 `ActorSupervisor` (`dynamic_supervisor, restart: :transient`). Sub-N
@@ -45,12 +45,12 @@ carries machine-readable fields (description, kind, schema-version,
 tags, scope.tier1/tier2, retrieval.*, model, dialogue.*). Markdown body
 is injected verbatim as the session system prompt, hard-capped at 8 KB.
 Description ≤120 chars. Reserved IDs: `uncategorized`, `vault`, `plan`,
-`daemon`, `router`, `mnemosyne`. See spec §3.
+`daemon`, `router`, `ravel`. See spec §3.
 
 ### N-3. Knowledge scope spans both tiers with explicit per-project opt-in
 
 Q1 of the brainstorm: experts span both Tier 1 (per-project
-`<project>/mnemosyne/knowledge/`) and Tier 2 (global
+`<project>/ravel/knowledge/`) and Tier 2 (global
 `<vault>/knowledge/`) via explicit `scope.tier1` and `scope.tier2`
 fields. A literal `*` in the first segment of a `tier1` glob means "any
 project" — there is no implicit project inclusion. Grep
@@ -68,7 +68,7 @@ candidates flow through experts. See spec §6.2 and Appendix A Q3.
 
 ### N-5. Keyword + section-aware retrieval behind a behaviour chokepoint
 
-Q4 of the brainstorm: `Mnemosyne.ExpertRetrieval` is an `@behaviour`
+Q4 of the brainstorm: `Ravel.ExpertRetrieval` is an `@behaviour`
 with exactly one v1 implementor, `KeywordSectionRetrieval`, using
 ripgrep + section-aware scoring. Weights are **module-level constants**,
 not per-expert config. Future strategies (semantic via vector store —
@@ -86,7 +86,7 @@ three distinct concepts; do not collapse them. See spec §5.4.
 ### N-7. Stateless dialogue turns over ETS-backed registry
 
 Q2 of the brainstorm: dialogue state lives in an ETS-backed singleton
-`Mnemosyne.Expert.DialogueRegistry` under `Mnemosyne.Supervisor`. Every
+`Ravel.Expert.DialogueRegistry` under `Ravel.Supervisor`. Every
 turn spawns a brand-new fresh-context session; the actor does NOT hold
 a long-lived harness across turns. TTL reaper sweeps expired entries.
 Daemon restart wipes the table — consumers get
@@ -155,9 +155,9 @@ event gives humans a path to find over-large files. See spec §7.4.
 Six starter declarations: `rust-expert`, `elixir-expert`,
 `research-expert`, `software-architect`, `obsidian-expert`,
 `ffi-expert`. The `elixir-expert` replaces the orchestrator memory's
-earlier `distributed-systems-expert` for dogfooding reasons — Mnemosyne
+earlier `distributed-systems-expert` for dogfooding reasons — Ravel
 is Elixir-on-BEAM, and elixir-expert gets matched every session.
-`mnemosyne init` copies these into `<vault>/experts/` at init time.
+`ravel init` copies these into `<vault>/experts/` at init time.
 Users can delete, rename, or replace any default after init. See spec
 §3.5.
 
@@ -167,32 +167,32 @@ Sub-N depends on these interfaces from siblings — not yet landed at
 sibling-plan scaffolding time but committed by the relevant sub-project
 specs:
 
-- **F**: `Mnemosyne.Actor` behaviour, `ActorSupervisor` child-spec
+- **F**: `Ravel.Actor` behaviour, `ActorSupervisor` child-spec
   registration, `Router` accepting sub-N's three message structs,
   five-state actor lifecycle, dispatch asymmetry.
-- **C**: `Mnemosyne.HarnessAdapter` behaviour, session GenServer
+- **C**: `Ravel.HarnessAdapter` behaviour, session GenServer
   attach-consumer pattern, `FixtureReplay` adapter for Layer 2 tests,
   tool-call boundary with injected tool set, `--setting-sources
   project,local --no-session-persistence` cmux mitigation.
 - **B**: `Sentinel.SlidingBuffer` module (consumed directly).
-- **M**: `Mnemosyne.Observability.emit/1` + sealed event set (sub-N
-  adds its own `Mnemosyne.Event.Expert.*` group per spec §9.5).
+- **M**: `Ravel.Observability.emit/1` + sealed event set (sub-N
+  adds its own `Ravel.Event.Expert.*` group per spec §9.5).
 - **A**: `<vault>/experts/` as tracked, `<vault>/runtime/snapshots/`
   as gitignored, `<vault>/knowledge/uncategorized/` as an init-time
   created directory.
 
 Sub-N commits deliverables back to:
 
-- **F**: `%Mnemosyne.Message.ExpertQuery{}`,
-  `%Mnemosyne.Message.ExpertDialogueReply{}`,
-  `%Mnemosyne.Message.ExpertAbsorbCandidate{}` structs +
-  `Mnemosyne.ExpertActor` replacing F's stub.
-- **E**: `Mnemosyne.Expert.ScopeMatcher.match_candidate/2` +
+- **F**: `%Ravel.Message.ExpertQuery{}`,
+  `%Ravel.Message.ExpertDialogueReply{}`,
+  `%Ravel.Message.ExpertAbsorbCandidate{}` structs +
+  `Ravel.ExpertActor` replacing F's stub.
+- **E**: `Ravel.Expert.ScopeMatcher.match_candidate/2` +
   verdict surface (`:absorb` / `:reject` / `:cross_link_suggested`)
   + `%ExpertAbsorbCandidate{}` message shape. These can ship as an
   early deliverable PR so sub-E's amendment task can code against
   real interfaces.
-- **M**: the full `Mnemosyne.Event.Expert.*` struct set +
+- **M**: the full `Ravel.Event.Expert.*` struct set +
   corresponding metric definitions contributed to sub-M's §6
   catalogue.
 - **A**: `priv/experts/*.md` for the init flow to copy; an
@@ -224,12 +224,12 @@ This sibling plan runs on LLM_CONTEXT's existing four-phase cycle
 machinery (work → reflect → compact → triage) during the bootstrap
 period. The daemon does not exist yet; the "ExpertActor implementation"
 work runs in fresh LLM_CONTEXT sessions, not inside a running
-Mnemosyne daemon. All tasks are code, tests, and specs that will later
+Ravel daemon. All tasks are code, tests, and specs that will later
 be executed by the daemon once sub-F + sub-G ship.
 
 ### N-14. Mandatory FileIO layer for all expert file operations
 
-`Mnemosyne.FileIO` is the mandatory I/O layer for all daemon file
+`Ravel.FileIO` is the mandatory I/O layer for all daemon file
 operations; raw `File.*` calls inside `ExpertActor` or
 `DeclarationLoader` are forbidden. Two relevant entry points:
 
@@ -257,7 +257,7 @@ starts, block on Task 0 or coordinate via the orchestrator.
 
 Confirmed in sub-H brainstorm (Session 21, 2026-04-16): the daemon NDJSON
 socket protocol has exactly **one** expert-related command: `expert.query`.
-This command maps directly to sub-N's `%Mnemosyne.Message.ExpertQuery{}`
+This command maps directly to sub-N's `%Ravel.Message.ExpertQuery{}`
 dispatch path — the TUI sends `expert.query` → daemon routes to the target
 `ExpertActor` → response flows back over the socket.
 

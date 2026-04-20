@@ -1,6 +1,6 @@
 # Memory — Sub-project D: Daemon Coordination
 
-This plan implements sub-project D of the Mnemosyne orchestrator merge.
+This plan implements sub-project D of the Ravel orchestrator merge.
 D's brainstorm is complete; this plan is the implementation work, not
 a design phase. The design is fully specified in the spec referenced
 below.
@@ -14,8 +14,8 @@ derives from the spec's §1–§7.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will move
-to `{{PROJECT}}/mnemosyne/project-root/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will move
+to `{{PROJECT}}/ravel/project-root/` after sub-project G's
 migration lands). It coordinates this sub-plan with its siblings. The
 parent plan's `memory.md` holds cross-sub-project architectural state.
 This file holds only sub-project-D-specific implementation state.
@@ -23,7 +23,7 @@ This file holds only sub-project-D-specific implementation state.
 ## Key architectural anchors
 
 ### D-1: System-wide singleton lock, not per-vault
-Lock file at `<runtime_dir>/mnemosyne/daemon.lock` via `flock(2)`.
+Lock file at `<runtime_dir>/ravel/daemon.lock` via `flock(2)`.
 Contains PID + vault path. Not inside the vault — invisible to Obsidian.
 Enforces v1 single-daemon-per-machine constraint.
 
@@ -50,4 +50,4 @@ sole writer during phase cycles. Co-equal-actors is a fallback guarantee.
 - Sub-E: `SafeFileWriter` → `FileIO.write_safe(path, content, :human_editable)`
 - Sub-F: boot step 3 → `SingletonLock.acquire/1`; plan-catalog → `FileIO.write_safe(path, content, :exclusive)`; routing rules → `VaultGit.commit/3`
 - Sub-N: expert absorb → `FileIO.write_safe(path, content, :human_editable)`
-- Sub-M: subscribes to `%Diagnostic{target: "mnemosyne.coordination"}` and `%Diagnostic{target: "mnemosyne.lock"}` events
+- Sub-M: subscribes to `%Diagnostic{target: "ravel.coordination"}` and `%Diagnostic{target: "ravel.lock"}` events

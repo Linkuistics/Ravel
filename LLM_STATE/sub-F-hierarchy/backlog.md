@@ -19,10 +19,10 @@ yet; Task 0 is the gate.
 - **Dependencies:** sub-B downstream task-list rewrite (sub-B backlog
   gate task); sub-C downstream task-list rewrite (sub-C backlog gate
   task); sub-A amendment absorbed; sub-M amendment absorbed;
-  `Mnemosyne.DaemonLock` module delivered by sub-D (Tasks 10 and 12
+  `Ravel.DaemonLock` module delivered by sub-D (Tasks 10 and 12
   require this API — daemon boot acquires the singleton lock via it;
   confirm sub-D's lock module is landed before Tasks 10/12 run);
-  `Mnemosyne.FileIO` module delivered by sub-D (all daemon file
+  `Ravel.FileIO` module delivered by sub-D (all daemon file
   writes must use `FileIO.write_safe/3` with the appropriate
   category; all plan-file reads in `PlanActor` and routing must use
   `FileIO.read_tracked/1` so `FreshnessTracker` records SHA-256
@@ -58,7 +58,7 @@ yet; Task 0 is the gate.
 
 ## §11.1 Elixir scaffolding
 
-### Task 1 — `Mnemosyne.VaultDirectory` `[foundation]`
+### Task 1 — `Ravel.VaultDirectory` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 0
 - **Description:** Vault walk + frontmatter parse + invariant checks
@@ -74,7 +74,7 @@ yet; Task 0 is the gate.
   children exist, plan-state frontmatter parse errors (§9.2, §9.3).
 - **Results:** _pending_
 
-### Task 2 — `Mnemosyne.Actor` behaviour `[foundation]`
+### Task 2 — `Ravel.Actor` behaviour `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 0
 - **Description:** Elixir `@behaviour` definition with callbacks
@@ -88,24 +88,24 @@ yet; Task 0 is the gate.
   `ActorSupervisor`) is on the critical path for sub-N. Sub-N's
   internal Task 0 is an explicit gate: sub-N Tasks 16+
   (ExpertActor implementation) cannot start until F has shipped the
-  `Mnemosyne.Actor` behaviour **and** the `ActorSupervisor`
+  `Ravel.Actor` behaviour **and** the `ActorSupervisor`
   child-spec API. Sub-N Tasks 1–15 are independent of F and can run
   immediately; sub-N Phase 5+ is blocked on F delivering these two
   interfaces. Prioritise Tasks 2 and 5 to avoid delaying sub-N.
 - **ExpertRetrieval constraint (2026-04-16):** Sub-N's plan is now
-  complete (29 tasks). The `@behaviour Mnemosyne.ExpertRetrieval`
+  complete (29 tasks). The `@behaviour Ravel.ExpertRetrieval`
   has a locked signature: `retrieve/3 :: (expert_id, query_text,
   opts) -> {:ok, [%KnowledgeEntry{}]} | {:error, term()}`. The
-  `Mnemosyne.Actor` callback set **must not constrain** how sub-N
+  `Ravel.Actor` callback set **must not constrain** how sub-N
   implements this retrieval behaviour — keep retrieval out of the
   shared actor callbacks entirely.
 - **Results:** _pending_
 
-### Task 3 — `Mnemosyne.ExpertActor` stub `[foundation]`
+### Task 3 — `Ravel.ExpertActor` stub `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 2
-- **Description:** Implement `Mnemosyne.ExpertActor` as a GenServer
-  satisfying the `Mnemosyne.Actor` behaviour but returning
+- **Description:** Implement `Ravel.ExpertActor` as a GenServer
+  satisfying the `Ravel.Actor` behaviour but returning
   `{:error, :not_yet_implemented}` for every Query it receives.
   The type hole exists so the supervision tree, router, and
   dispatch processor can wire against ExpertActor targets before
@@ -122,11 +122,11 @@ yet; Task 0 is the gate.
   typed shell.
 - **Results:** _pending_
 
-### Task 4 — `Mnemosyne.PlanActor` wrapping sub-B's `PhaseRunner` `[foundation]`
+### Task 4 — `Ravel.PlanActor` wrapping sub-B's `PhaseRunner` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 2, sub-B's `PhaseRunner` module landed per
   the rewritten sub-B backlog
-- **Description:** GenServer implementing `Mnemosyne.Actor` that
+- **Description:** GenServer implementing `Ravel.Actor` that
   hosts sub-B's `PhaseRunner` in its state. Message protocol per
   §4.5 of sub-B's rewritten spec: accept `{:run_phase, phase}` from
   attached clients, delegate to `PhaseRunner.run_phase/4`, emit
@@ -138,7 +138,7 @@ yet; Task 0 is the gate.
   reproduce.
 - **Results:** _pending_
 
-### Task 5 — `Mnemosyne.ActorSupervisor` `[foundation]`
+### Task 5 — `Ravel.ActorSupervisor` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Tasks 3, 4
 - **Description:** OTP DynamicSupervisor supervising all actor
@@ -162,7 +162,7 @@ yet; Task 0 is the gate.
   this task ships.
 - **Results:** _pending_
 
-### Task 6 — `Mnemosyne.Router.Server` + mailbox NDJSON + cursor `[foundation]`
+### Task 6 — `Ravel.Router.Server` + mailbox NDJSON + cursor `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 5
 - **Description:** Router GenServer that owns message routing per
@@ -174,7 +174,7 @@ yet; Task 0 is the gate.
   per §4.8. Crash recovery replays from the cursor.
 - **Results:** _pending_
 
-### Task 7 — `Mnemosyne.DispatchProcessor` `[foundation]`
+### Task 7 — `Ravel.DispatchProcessor` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Tasks 1, 6
 - **Description:** Phase-exit hook that parses `dispatches.yaml`
@@ -188,7 +188,7 @@ yet; Task 0 is the gate.
   non-compact phase exit.
 - **Results:** _pending_
 
-### Task 8 — `Mnemosyne.QueryProcessor` `[foundation]`
+### Task 8 — `Ravel.QueryProcessor` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Tasks 1, 6
 - **Description:** Phase-exit hook mirroring `DispatchProcessor`
@@ -199,7 +199,7 @@ yet; Task 0 is the gate.
   (§5.3) and are NOT written via this processor.
 - **Results:** _pending_
 
-### Task 9 — `Mnemosyne.CatalogRenderer` `[foundation]`
+### Task 9 — `Ravel.CatalogRenderer` `[foundation]`
 - **Status:** not_started
 - **Dependencies:** Task 1
 - **Description:** Render `<vault>/plan-catalog.md` from a
@@ -212,7 +212,7 @@ yet; Task 0 is the gate.
   marks it "machine-owned" (§9.3). Hard error on description
   violations discovered at render time.
   Write `<vault>/plan-catalog.md` via
-  `Mnemosyne.FileIO.write_safe/3` with category `:exclusive` —
+  `Ravel.FileIO.write_safe/3` with category `:exclusive` —
   the daemon regenerates this file unconditionally; no conflict
   check needed.
 - **Results:** _pending_
@@ -221,18 +221,18 @@ yet; Task 0 is the gate.
 
 ## §11.2 Daemon binary
 
-### Task 10 — `mnemosyne daemon` mix task / escript `[daemon]`
+### Task 10 — `ravel daemon` mix task / escript `[daemon]`
 - **Status:** not_started
 - **Dependencies:** Tasks 5, 6, 13, and sub-A vault discovery
 - **Description:** Entry point per §4.6. Startup sequence:
   1. Parse CLI args (`--vault`, `--log-level`).
-  2. Resolve vault via sub-A (`--vault` → `MNEMOSYNE_VAULT` →
+  2. Resolve vault via sub-A (`--vault` → `RAVEL_VAULT` →
      user config → hard error).
   3. Call `VaultDirectory.load` + hook into sub-A's
      `verify_vault`.
   4. Acquire singleton lock (Task 12).
   5. Start OTP application tree rooted at
-     `Mnemosyne.Application`.
+     `Ravel.Application`.
   6. Start the `ClientListener` (Task 11).
   7. Install signal handlers (SIGTERM → graceful shutdown,
      SIGINT → graceful shutdown, SIGHUP → reload routing.ex).
@@ -240,7 +240,7 @@ yet; Task 0 is the gate.
   supervisor, release lock, exit.
 - **Results:** _pending_
 
-### Task 11 — `Mnemosyne.ClientListener` + `Mnemosyne.ClientConnection` `[daemon]`
+### Task 11 — `Ravel.ClientListener` + `Ravel.ClientConnection` `[daemon]`
 - **Status:** not_started
 - **Dependencies:** Task 6
 - **Description:** Unix socket listener at
@@ -252,16 +252,16 @@ yet; Task 0 is the gate.
   new plan directory under an existing project (initialises
   `plan-state.md` with required frontmatter and description).
   `adopt_project` registers an external directory as a
-  Mnemosyne-managed project under the vault's `projects/` tree
+  Ravel-managed project under the vault's `projects/` tree
   (symlink + `VaultDirectory` reload). These two commands were
   finalised in sub-H's brainstorm (Session 21, 2026-04-16) as
   part of the 17-command daemon palette; they are daemon-side
-  commands handled here, not by the TUI or `mnemosyne cmd`.
+  commands handled here, not by the TUI or `ravel cmd`.
   Forward-compatibility per §7.3 (unknown commands →
   structured error, not crash). Multi-client semantics per §7.4
   (multiple attached clients on one plan share event stream;
   `run-phase` requires exclusive control).
-  **Note (2026-04-16):** `mnemosyne cmd` (a headless CLI wrapper
+  **Note (2026-04-16):** `ravel cmd` (a headless CLI wrapper
   also finalised in sub-H Session 21) speaks the same NDJSON
   socket protocol as the TUI — it is a second official client.
   No extra daemon-side ceremony is required; the existing
@@ -270,10 +270,10 @@ yet; Task 0 is the gate.
 
 ### Task 12 — Daemon singleton lock `[daemon]`
 - **Status:** not_started
-- **Dependencies:** Task 10, `Mnemosyne.DaemonLock` from sub-D
+- **Dependencies:** Task 10, `Ravel.DaemonLock` from sub-D
 - **Description:** Acquire `flock` on
-  `<runtime_dir>/mnemosyne/daemon.lock` at startup via
-  `Mnemosyne.DaemonLock` (the lock module owned by sub-D's
+  `<runtime_dir>/ravel/daemon.lock` at startup via
+  `Ravel.DaemonLock` (the lock module owned by sub-D's
   implementation plan). Second daemon fails with actionable
   diagnostic naming the first daemon's PID (§9.3). Lock released
   on shutdown via the OS (not a `defer` / `on_exit` — flock is
@@ -310,7 +310,7 @@ yet; Task 0 is the gate.
   under a new `[docs]` section; default: e.g. `127.0.0.1:4040`).
   Serve one HTML page per command at `/commands/<name>` (content
   is static, bundled at compile time or read from a priv/ tree).
-  The TUI (sub-H) and `mnemosyne cmd` can open help URLs in the
+  The TUI (sub-H) and `ravel cmd` can open help URLs in the
   user's browser via `xdg-open` / `open`. Hard error at startup
   if the port is already in use (do not fall back silently to a
   random port). The `[docs]` section of `daemon.toml` should be
@@ -321,7 +321,7 @@ yet; Task 0 is the gate.
 
 ## §11.3 Declarative routing
 
-### Task 14 — `Mnemosyne.UserRouting` behaviour + loader `[routing]`
+### Task 14 — `Ravel.UserRouting` behaviour + loader `[routing]`
 - **Status:** not_started
 - **Dependencies:** Task 6
 - **Description:** Define the `@behaviour` every user `routing.ex`
@@ -334,7 +334,7 @@ yet; Task 0 is the gate.
   hot-reload compile failure.
 - **Results:** _pending_
 
-### Task 15 — `Mnemosyne.FactExtractor.Server` `[routing]`
+### Task 15 — `Ravel.FactExtractor.Server` `[routing]`
 - **Status:** not_started
 - **Dependencies:** Task 14, sub-C adapter landed
 - **Description:** GenServer that extracts concern keywords
@@ -428,7 +428,7 @@ yet; Task 0 is the gate.
 - **Dependencies:** Task 1, sub-A amendment absorbed, sub-A
   implementation landed
 - **Description:** Extend sub-A's `verify_vault` to call
-  `Mnemosyne.VaultDirectory.load/1` as its second step (after
+  `Ravel.VaultDirectory.load/1` as its second step (after
   vault identity verification). This surfaces description
   discipline errors (F-8) and plan-state parse errors (§9.2)
   at daemon startup rather than deferring them to first use.
@@ -449,7 +449,7 @@ yet; Task 0 is the gate.
 - **Status:** not_started
 - **Dependencies:** sub-M amendment absorbed, sub-M implementation
   landed
-- **Description:** Emit typed `Mnemosyne.Event.*` structs at the
+- **Description:** Emit typed `Ravel.Event.*` structs at the
   boundary for every architecturally-meaningful state change per
   F §4 and §6. Events: `%ActorStateChange{}`, `%MessageRouted{}`,
   `%RuleFired{}`, `%RuleCompileError{}`, `%RuleSuggestion{}`,
@@ -513,7 +513,7 @@ yet; Task 0 is the gate.
 These items are referenced by F's §11 but belong to a different plan
 and must NOT be implemented here:
 
-- **Rust `mnemosyne-tui` binary (§11.6)** — ratatui rendering, socket
+- **Rust `ravel-tui` binary (§11.6)** — ratatui rendering, socket
   client, attach-detach UI, phase-run commands, live harness
   streaming, rule-suggestion review pane. This is a separate
   implementation plan to be scaffolded once F's daemon-side
@@ -541,7 +541,7 @@ and must NOT be implemented here:
 - **Description:** Per Sub-R design doc §4.4 and §7. This is the
   largest Sub-R adoption task in any sibling:
   1. **`Router.evaluate_rules/2`** — replace call to compiled Elixir
-     module with Datalog query against `Mnemosyne.Datalog.Server`.
+     module with Datalog query against `Ravel.Datalog.Server`.
      Extracted fact keywords are first normalized via `resolves_to/2`.
   2. **`routing.ex` → `ontology/routing.dl`** — file path change.
      `UserRouting` behaviour may be simplified or removed since
@@ -549,7 +549,7 @@ and must NOT be implemented here:
   3. **Task 16 (hot reload watcher)** — change from watching `routing.ex`
      for BEAM code reload to watching `ontology/routing.dl` for
      Datalog fact-base reload. May be absorbed into
-     `Mnemosyne.Datalog.Server`'s own filesystem watcher.
+     `Ravel.Datalog.Server`'s own filesystem watcher.
   4. **Task 17 (rule validation)** — Datalog validation (syntax,
      stratifiability, range restriction) replaces Elixir compile-time
      checks. Actionable error reporting still required.
@@ -572,7 +572,7 @@ and must NOT be implemented here:
   keywords from a message body, add a normalization pass:
   1. For each extracted keyword, query
      `resolves_to(Keyword, Canonical)` against
-     `Mnemosyne.Datalog.Server`
+     `Ravel.Datalog.Server`
   2. Unresolved keywords pass through unchanged
   3. Normalized keywords feed into routing queries
   Catches cases where the LLM extracts `"rust_lang"` or

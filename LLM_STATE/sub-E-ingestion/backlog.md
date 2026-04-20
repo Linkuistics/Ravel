@@ -48,7 +48,7 @@ amendment task below makes this explicit.
   1. **Replace Rust type definitions (current "Define core ingestion types"
      task).** Elixir structs with `@enforce_keys` and typespecs replace
      Rust structs. `Vec<T>` becomes lists. `tokio mpsc` channel becomes
-     sub-M's `Mnemosyne.Event.*` bus (no standalone `IngestionEvent`
+     sub-M's `Ravel.Event.*` bus (no standalone `IngestionEvent`
      channel — the parallel-emit window collapses to zero per sub-M's
      adoption matrix). `trait KnowledgeStore` becomes an Elixir behaviour.
   2. **Re-cast pipeline stage tasks.** Stages 1–4 logic is unchanged but
@@ -67,7 +67,7 @@ amendment task below makes this explicit.
   4. **Re-cast `SafeFileWriter` task.** Now an Elixir module enforcing the
      §3 Rule 6 invariants. Same invariants; Elixir implementation.
   5. **Re-cast event channel task.** Sub-E emits directly to sub-M's sealed
-     `Mnemosyne.Event.*` bus using the six `%Ingestion.*{}` variants
+     `Ravel.Event.*` bus using the six `%Ingestion.*{}` variants
      (`Applied`, `PromptRequired`, `Deferred`, `Rejected`, `ResearchSession`,
      `CycleSummary`) defined in sub-M's §4.1. No standalone E-internal
      channel. Plus the new `%Ingestion.OrphanCandidate{}` struct for the
@@ -75,7 +75,7 @@ amendment task below makes this explicit.
   6. **Re-cast harness adapter task.** `HarnessAdapter` behaviour (Elixir)
      replaces the Rust trait. `FixtureAdapter` replays from NDJSON fixture
      files (aligning with sub-C's NDJSON-over-stdio transport).
-  7. **Wire `Mnemosyne.ReflectExitHook` entry point.** Add a task for
+  7. **Wire `Ravel.ReflectExitHook` entry point.** Add a task for
      implementing the `on_reflect_exit(context)` callback that sub-B's
      §4.2 behaviour requires. This is Stage 5's trigger entry point; it
      calls `ingestion_fired_setter` at Stage 5 start and composes the full
@@ -128,8 +128,8 @@ amendment task below makes this explicit.
      to `<vault>/knowledge/uncategorized/` using the same `SafeFileWriter`
      invariants as Stage 5's normal write path. Emit an
      `Ingestion.Applied` event with `source: :uncategorized`.
-  7. **Use `Mnemosyne.Expert.DialogueRegistry` with stateless single-turn calls.**
-     Sub-N provides `Mnemosyne.Expert.DialogueRegistry` as the dispatch interface.
+  7. **Use `Ravel.Expert.DialogueRegistry` with stateless single-turn calls.**
+     Sub-N provides `Ravel.Expert.DialogueRegistry` as the dispatch interface.
      Stage 5 must invoke it as a stateless single-turn call — one
      `%ExpertAbsorbCandidate{}` in, one verdict struct back, session ends.
      Do not design the fan-out collector around multi-turn dialogue; the registry
@@ -163,7 +163,7 @@ amendment task below makes this explicit.
      tool-call boundary: injected tools (`ask_expert`, `dispatch_to_plan`,
      `read_vault_catalog`) exposed via MCP-over-Unix-socket (preferred),
      intercepted by the Session GenServer, and routed through
-     `Mnemosyne.Router.handle_tool_call/4`. Query messages from E's pipeline
+     `Ravel.Router.handle_tool_call/4`. Query messages from E's pipeline
      flow through this boundary to reach ExpertActors.
   2. **Elixir re-cast:** All pipeline stages implemented in Elixir. GenStage
      or Broadway replaces the tokio-channel pipeline composition. Rust type
@@ -175,7 +175,7 @@ amendment task below makes this explicit.
      typed-event-struct pattern). The parallel-emit pattern with M's
      observability bus is unchanged in intent. **Concrete structs now
      available:** sub-M's design doc §4.1 (rewritten inline in Session 15,
-     2026-04-15) defines the sealed `Mnemosyne.Event.*` struct set. The six
+     2026-04-15) defines the sealed `Ravel.Event.*` struct set. The six
      `Ingestion.*` variants (`Ingestion.Applied`, `Ingestion.PromptRequired`,
      `Ingestion.Deferred`, `Ingestion.Rejected`, `Ingestion.ResearchSession`,
      `Ingestion.CycleSummary`) are concrete and ready for sub-E to consume.
@@ -191,7 +191,7 @@ amendment task below makes this explicit.
      sections unchanged; Stage 5 section rewritten; §2 type definitions
      re-cast to Elixir; §5 risks updated (BEAM-specific risks replace
      Rust-specific ones).
-  6. **Implement `Mnemosyne.ReflectExitHook` callback.** Sub-B's §4.2
+  6. **Implement `Ravel.ReflectExitHook` callback.** Sub-B's §4.2
      (rewritten for Elixir in Session 12) now defines the concrete behaviour
      E must implement. The `on_reflect_exit(context)` callback receives
      `qualified_id`, `plan_dir`, `vault_runtime_dir`,
@@ -209,9 +209,9 @@ amendment task below makes this explicit.
   §-numbering preserved for downstream cross-references. Decision Trail gained
   Q15 (BEAM pivot) and Q16 (Stage 5 expert dispatch) entries plus correction
   notes folded back into Q1, Q2, Q5, Q9, Q10, Q11, Q13. Concrete wirings:
-  `Mnemosyne.ReflectExitHook` callback contract, `GenStage` pipeline composition,
+  `Ravel.ReflectExitHook` callback contract, `GenStage` pipeline composition,
   Elixir struct types, `ScopeMatcher.match_candidate/2` call site,
-  `%Mnemosyne.Message.ExpertAbsorbCandidate{}` dispatch, three verdict variants,
+  `%Ravel.Message.ExpertAbsorbCandidate{}` dispatch, three verdict variants,
   non-recursive max-depth-2 cross-link, `%Expert.Conflict{}`, orphan path → 
   `<vault>/knowledge/uncategorized/` via `SafeFileWriter` emitting sub-E-owned
   `%Ingestion.OrphanCandidate{}`, full consumption of sub-M §4.1's six
@@ -221,7 +221,7 @@ amendment task below makes this explicit.
   backpressure) and 5 (`:telemetry` handler crash) added; Risk 1 updated for
   parallel expert curation. Cross-sub-project requirements section restructured
   per-sibling (B/C/A/D/F/N/M/H). Rust idiom check clean. **Item 6 remaining:**
-  the actual `Mnemosyne.ReflectExitHook` Elixir implementation is code work, not
+  the actual `Ravel.ReflectExitHook` Elixir implementation is code work, not
   spec work — it lands when sub-E implementation begins after sub-B's hook
   module is in place. **Also remaining (separate gate task):** the sub-E
   implementation task list below still carries Rust framing (`Vec<>`, `tokio
@@ -231,10 +231,10 @@ amendment task below makes this explicit.
 
 ### Delegate `SafeFileWriter` to `FileIO.write_safe/3` `[architecture]`
 - **Status:** not_started
-- **Dependencies:** sub-D `Mnemosyne.FileIO` module (ships as part of sub-D
+- **Dependencies:** sub-D `Ravel.FileIO` module (ships as part of sub-D
   coordination; Session 18 confirmed it is the mandatory I/O layer for all
   daemon file operations)
-- **Description:** Sub-D's Session 18 established `Mnemosyne.FileIO` as the
+- **Description:** Sub-D's Session 18 established `Ravel.FileIO` as the
   mandatory file I/O layer for all daemon file operations. Sub-E's
   `SafeFileWriter` must be re-cast as a thin wrapper that delegates all file
   writes to `FileIO.write_safe/3` rather than implementing its own
@@ -337,7 +337,7 @@ amendment task below makes this explicit.
 - **Status:** not_started
 - **Dependencies:** Define core ingestion types
 - **Description:** Implement `derive_axis(tags: &[Tag]) -> Axis` using a
-  table-driven rule set loaded from Mnemosyne's config. Fall back to
+  table-driven rule set loaded from Ravel's config. Fall back to
   `techniques/` if no rule matches. Unit tests for each axis, the fallback,
   and an empty-tags case.
 - **Results:** _pending_
@@ -368,7 +368,7 @@ amendment task below makes this explicit.
 - **Status:** not_started
 - **Dependencies:** Define core ingestion types
 - **Description:** Implement the jsonl append-only event log at
-  `{{mnemosyne_data}}/ingestion-log/YYYY-MM-DD.jsonl`. One function appends
+  `{{ravel_data}}/ingestion-log/YYYY-MM-DD.jsonl`. One function appends
   a serialised `IngestionEvent` to the current day's file, rotating daily.
   Another reads events by date range. Implement the minimum write path
   first; the SQLite derivable index comes later. Unit tests cover serialise/
@@ -455,7 +455,7 @@ amendment task below makes this explicit.
   profile, pass the full research context (parent op, target entry,
   originating section, full plan memory, session-log latest entry, research
   prompt), stream output back to the UI. Persist the research session
-  transcript to `{{mnemosyne_data}}/ingestion-log/research/<session_id>.jsonl`.
+  transcript to `{{ravel_data}}/ingestion-log/research/<session_id>.jsonl`.
   The `[apply/defer/reject]` buttons remain active; research is advisory.
 - **Results:** _pending_
 
@@ -533,17 +533,17 @@ amendment task below makes this explicit.
 - **Dependencies:** Wire the full pipeline end-to-end
 - **Description:** Document any implementation decisions, discovered
   constraints, or design-doc deviations in `{{PLAN}}/memory.md`. Produce a
-  short user-facing note for the main Mnemosyne docs explaining how
+  short user-facing note for the main Ravel docs explaining how
   ingestion works at a conceptual level, when it fires, and how the review
   panel surfaces its activity.
 - **Results:** _pending_
 
-### Adopt sub-M observability framework — parallel-emit `MnemosyneEvent::Ingestion` alongside existing channel `[m-adoption]`
+### Adopt sub-M observability framework — parallel-emit `RavelEvent::Ingestion` alongside existing channel `[m-adoption]`
 - **Status:** not_started
 - **Dependencies:** sub-M Task 12 (`ObservabilityHarness`), Wire the
   full pipeline end-to-end
 - **Description:** Landed by sub-project M's brainstorm
-  (2026-04-13, Session 7 of the mnemosyne-orchestrator plan). M's
+  (2026-04-13, Session 7 of the ravel-orchestrator plan). M's
   design doc at
   `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
   §10 specifies M's cross-plan adoption requirements; this task is E's
@@ -554,13 +554,13 @@ amendment task below makes this explicit.
      point of the ingestion pipeline. Span names `ingestion_stage_1`,
      `ingestion_stage_2`, etc., with fields `cycle_id`, `plan_id`,
      `host_project`. The span context is consumed by M's
-     `MnemosyneEventLayer` to attribute ingestion events to the right
+     `RavelEventLayer` to attribute ingestion events to the right
      cycle scope.
-  2. **Parallel-emit** `MnemosyneEvent::Ingestion(_)` events alongside
+  2. **Parallel-emit** `RavelEvent::Ingestion(_)` events alongside
      the existing `IngestionEvent` channel emit. Every `Applied` /
      `PromptRequired` / `Deferred` / `Rejected` / `ResearchSession` /
      `CycleSummary` event flows BOTH to E's existing channel AND
-     through `mnemosyne_event!`. This is the safety-net pattern from
+     through `ravel_event!`. This is the safety-net pattern from
      sub-M's design — both paths run concurrently until verification
      proves M's path is complete and correct.
   3. Emit metrics from the ingestion pipeline:
@@ -584,13 +584,13 @@ amendment task below makes this explicit.
   5. **Future cleanup (separate task).** After M v1 ships and the
      verification window passes, a future task lands in this backlog
      from sub-M's triage that collapses E's standalone `IngestionEvent`
-     channel into M's `MnemosyneEvent::Ingestion(_)` bus — UI consumers
+     channel into M's `RavelEvent::Ingestion(_)` bus — UI consumers
      subscribe via M's `TuiBridgeLayer` instead of E's channel.
      Deferred — not part of M v1 scope.
 
   TDD: write tests that drive a fixture ingestion cycle and assert
   both the existing `IngestionEvent` channel AND the M
-  `MnemosyneEvent::Ingestion(_)` events fire with matching content.
+  `RavelEvent::Ingestion(_)` events fire with matching content.
 
   No changes to E's existing channel surface or to the `Applied` /
   `PromptRequired` / etc. event types. Both E's channel and M's bus
@@ -611,7 +611,7 @@ amendment task below makes this explicit.
      tags when the candidate term is highly specific
   4. Return the canonical tag set as the candidate's `tags:` frontmatter
   Stays deterministic Elixir — the Datalog query is a function call via
-  `Mnemosyne.Datalog.Server`, not an LLM pass. Fast.
+  `Ravel.Datalog.Server`, not an LLM pass. Fast.
   **Note:** Task numbering starts at 1 because Task 0 is the gate task
   that rewrites the full task list. This adoption stub is appended so
   it survives the rewrite — the rewriter should incorporate it.

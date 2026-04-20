@@ -1,6 +1,6 @@
 # Memory — Sub-project R: Knowledge Ontology
 
-This plan implements sub-project R of the Mnemosyne orchestrator merge.
+This plan implements sub-project R of the Ravel orchestrator merge.
 R's brainstorm is complete; this plan covers both research tasks and
 implementation work. The design is fully specified in the spec referenced
 below.
@@ -14,14 +14,14 @@ derives from the spec's §1–§11.
 ## Parent plan
 
 The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/` (currently — will move
-to `{{PROJECT}}/mnemosyne/project-root/` after sub-project G's
+`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will move
+to `{{PROJECT}}/ravel/project-root/` after sub-project G's
 migration lands). It coordinates this sub-plan with its siblings. The
 parent plan's `memory.md` holds cross-sub-project architectural state.
 
 ## Key architectural decisions
 
-### Sub-R is Mnemosyne's declarative reasoning substrate
+### Sub-R is Ravel's declarative reasoning substrate
 Sub-R owns both the Datalog engine and the ontology. The engine is
 domain-agnostic; the ontology is the domain-specific fact schema.
 This co-design avoids premature interface splits.

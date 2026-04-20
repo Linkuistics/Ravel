@@ -7,8 +7,8 @@ task derives from this spec. Consult it before starting any task.
 
 ## About this plan
 
-This plan implements sub-project M of the Mnemosyne orchestrator merge —
-the observability framework (`tracing` + typed `MnemosyneEvent` enum +
+This plan implements sub-project M of the Ravel orchestrator merge —
+the observability framework (`tracing` + typed `RavelEvent` enum +
 five composed `tracing-subscriber::Layer`s) that gives every other
 sub-project a unified diagnostic / live-display / long-term-analysis
 substrate.
@@ -16,7 +16,7 @@ substrate.
 The design is fully specified in the design doc above; this plan is the
 implementation work, not a design phase. Do not re-litigate design
 decisions here; surface them to the parent plan
-(`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/memory.md`)
+(`{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md`)
 if you discover a spec-level issue during implementation.
 
 ### Sub-project M is cross-cutting
@@ -38,19 +38,19 @@ phase on each cycle).
   `events.dropped` counter. Every other path fails hard.
 - **TDD.** Every Layer has unit tests written first. Layer 3 integration
   tests cover the full Registry composition end-to-end. Property tests
-  cover JSONL round-trip across all `MnemosyneEvent` variants.
+  cover JSONL round-trip across all `RavelEvent` variants.
 - **Five standard crates, no custom replacements.** Use `tracing`,
   `tracing-subscriber`, `tracing-appender`, `metrics`, `metrics-util`
   exactly as documented. The only piece of custom code is one
-  ~200-line `MnemosyneEventLayer`. Do not introduce a custom event bus,
+  ~200-line `RavelEventLayer`. Do not introduce a custom event bus,
   custom subscriber framework, or custom rotation logic.
 - **Always-on instrumentation.** Every event emit is unconditional. No
   debug flags, no env-var gates, no build-time toggles. The
-  `MNEMOSYNE_LOG` env var only controls stderr formatting visibility,
+  `RAVEL_LOG` env var only controls stderr formatting visibility,
   not whether events are emitted.
-- **Type discipline at the Mnemosyne boundary, ecosystem leverage
-  everywhere else.** The `MnemosyneEvent` enum is the single source of
-  truth for "what events Mnemosyne knows how to observe." Downstream
+- **Type discipline at the Ravel boundary, ecosystem leverage
+  everywhere else.** The `RavelEvent` enum is the single source of
+  truth for "what events Ravel knows how to observe." Downstream
   consumers exhaustively pattern-match on it. Below the boundary,
   `tracing`'s field/span machinery handles transport.
 - **Vault-scoped persistence integrates with B's `<vault>/runtime/`

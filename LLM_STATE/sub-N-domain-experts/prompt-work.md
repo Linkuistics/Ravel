@@ -27,7 +27,7 @@ block) per the project's pivot-rewrite discipline captured in
   retrieval, PromptBuilder, Verdict structs, Dialogue structs) can
   start immediately without waiting on sub-F's supervisor integration.
   Tasks that spawn or supervise `ExpertActor` gate on F delivering
-  `Mnemosyne.Actor` behaviour + `ActorSupervisor` child-spec API.
+  `Ravel.Actor` behaviour + `ActorSupervisor` child-spec API.
 - **Two explicit timers** (retrieval 5s structural vs session 5 min
   reasoning budget) must not be collapsed. The daemon config surface
   is `[experts] turn_timeout_seconds`, `[experts] dialogue_ttl_seconds`.
@@ -65,7 +65,7 @@ skip this section entirely.
 
 ## Elixir commands
 
-Standard Mnemosyne Elixir workflow:
+Standard Ravel Elixir workflow:
 
 - `mix test` — full default suite (Layer 1 unit + Layer 2
   FixtureReplay integration). Target <5 s total wall clock for
@@ -76,7 +76,7 @@ Standard Mnemosyne Elixir workflow:
 - `mix format --check-formatted` — enforce project format.
 - `mix dialyzer` — type-flow check; sub-N's modules should pass
   without new warnings.
-- `mix mnemosyne.dev.record_fixture` (sub-C) — for recording
+- `mix ravel.dev.record_fixture` (sub-C) — for recording
   FixtureReplay input streams from real sessions, then replaying
   them in Layer 2 tests.
 
@@ -86,7 +86,7 @@ the daemon socket and vault directory. `setup_all` in
 
 ## Sibling dependencies (what's needed from where)
 
-- **Sub-F** — `Mnemosyne.Actor` behaviour, `ActorSupervisor`
+- **Sub-F** — `Ravel.Actor` behaviour, `ActorSupervisor`
   child-spec registration, `Router` message delivery, five-state
   lifecycle, BEAM PTY spike (done). F Task 0 gate may clear
   independently of sub-N's Task 0 gate; sub-N can start pure-Elixir
@@ -100,8 +100,8 @@ the daemon socket and vault directory. `setup_all` in
   set, cmux mitigation flags. Sub-C's downstream task-list rewrite
   does not block sub-N's Layer 1 unit tests but does block Layer 2
   GenServer integration tests.
-- **Sub-M** — `Mnemosyne.Observability.emit/1`, sealed event set.
-  Sub-N contributes `Mnemosyne.Event.Expert.*` to sub-M's §4.1 set.
+- **Sub-M** — `Ravel.Observability.emit/1`, sealed event set.
+  Sub-N contributes `Ravel.Event.Expert.*` to sub-M's §4.1 set.
 - **Sub-A** — vault layout (`<vault>/experts/`,
   `<vault>/knowledge/`, `<vault>/runtime/snapshots/`). Sub-A's init
   flow must copy `priv/experts/*.md` to `<vault>/experts/` — a small

@@ -2,7 +2,7 @@
 
 Tasks for implementing the daemon's user-facing action surface: command
 registry, TUI command palette, keybinding system, NDJSON protocol
-additions, harness tool injection, `mnemosyne cmd` CLI wrapper, and local
+additions, harness tool injection, `ravel cmd` CLI wrapper, and local
 docs server. Design doc:
 `docs/superpowers/specs/2026-04-16-sub-H-skills-design.md`.
 
@@ -27,14 +27,14 @@ docs server. Design doc:
 
 ## Daemon-side (Elixir)
 
-### Task 1: Implement `Mnemosyne.CommandRegistry`
+### Task 1: Implement `Ravel.CommandRegistry`
 - **Status:** not_started
 - **Dependencies:** Task 0
 - **Description:** Implement the command registry module per §2.1. A
   GenServer or compile-time registry holding all `%Command{}` definitions
   from §2.2. Provides `list_commands/0`, `get_command/1`,
   `commands_for_scope/1`. Used by the TUI for palette rendering, by
-  `mnemosyne cmd --list` for discovery, and by the docs server for the
+  `ravel cmd --list` for discovery, and by the docs server for the
   index page. All 17 v1 commands registered with IDs, names, descriptions
   (≤80 chars), help paths, scopes, and default keybindings.
 - **Results:** _pending_
@@ -48,7 +48,7 @@ docs server. Design doc:
   directory, write `plan-state.md` + empty `backlog.md` / `memory.md` /
   `session-log.md`, regenerate vault catalog, register PlanActor with
   `ActorSupervisor`, emit `%Plan.Created{}` event. All file writes via
-  `Mnemosyne.FileIO.write_safe/3` with `:exclusive` category. Error
+  `Ravel.FileIO.write_safe/3` with `:exclusive` category. Error
   responses for invalid name, reserved name, duplicate, description too
   long, unknown parent.
 - **Results:** _pending_
@@ -58,7 +58,7 @@ docs server. Design doc:
 - **Dependencies:** Task 0, sub-A's `adopt_project` as library function
 - **Description:** Add the `adopt_project` command to F's NDJSON command
   dispatcher per §5.2. Handler: delegates to sub-A's
-  `Mnemosyne.Vault.adopt_project/2`, then triggers rescan. Error
+  `Ravel.Vault.adopt_project/2`, then triggers rescan. Error
   responses for already adopted, invalid path, layout conflict. If sub-A's
   implementation is CLI-only, create an adoption stub task on sub-A's
   backlog for the library-callable refactor.
@@ -68,7 +68,7 @@ docs server. Design doc:
 - **Status:** not_started
 - **Dependencies:** Task 0, sub-E's `submit_candidate/2`
 - **Description:** Wire the `knowledge.submit` command to sub-E's
-  `Mnemosyne.Ingestion.submit_candidate/2`. The `send` command with
+  `Ravel.Ingestion.submit_candidate/2`. The `send` command with
   `target-expert: "auto"` and `kind: "absorb_candidate"` payload triggers
   scope matching → expert fan-out → verdict collection. Returns verdict
   summary. If sub-E's entry point doesn't exist yet, create an adoption
@@ -89,8 +89,8 @@ docs server. Design doc:
 ### Task 6: Define sub-M event structs
 - **Status:** not_started
 - **Dependencies:** Task 0
-- **Description:** Add `%Mnemosyne.Event.Plan.Created{}` and
-  `%Mnemosyne.Event.Command.Executed{}` to sub-M's sealed event set per
+- **Description:** Add `%Ravel.Event.Plan.Created{}` and
+  `%Ravel.Event.Command.Executed{}` to sub-M's sealed event set per
   §9. `Plan.Created` fields: `qualified_id`, `parent_plan`, `name`,
   `description`, `created_at`. `Command.Executed` fields: `command_id`,
   `actor_id` (optional), `source` (`:tui | :cli | :external`),
@@ -149,7 +149,7 @@ docs server. Design doc:
   nesting depth.
 - **Results:** _pending_
 
-### Task 12: Implement `mnemosyne cmd` CLI subcommand
+### Task 12: Implement `ravel cmd` CLI subcommand
 - **Status:** not_started
 - **Dependencies:** Task 1 (command registry for `--list`)
 - **Description:** Thin Rust binary or subcommand per §7. Connect to
@@ -200,5 +200,5 @@ docs server. Design doc:
   `<vault>/runtime/staging/proposed-rules/`. Accept/reject actions for
   proposals. No new daemon commands needed — ontology files are edited
   via `$EDITOR` like expert declarations. The review view is a
-  read-only display of `Mnemosyne.Datalog.Server` state.
+  read-only display of `Ravel.Datalog.Server` state.
 - **Results:** _pending_

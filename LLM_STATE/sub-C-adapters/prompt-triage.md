@@ -21,4 +21,4 @@ rules when reviewing the backlog:
   than duplicating here. In particular: any new amendment to B's trait
   or executor surface that emerges from implementation goes into B's
   plan, not this one. If they affect the **parent orchestrator plan**
-  (`{{PROJECT}}/LLM_STATE/mnemosyne-orchestrator/`), add them there.
+  (`{{PROJECT}}/LLM_STATE/ravel-orchestrator/`), add them there.

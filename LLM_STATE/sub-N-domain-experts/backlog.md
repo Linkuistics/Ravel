@@ -14,7 +14,7 @@ blocking all implementation, sub-N splits gracefully. **Tasks 1–15 can
 start immediately** because they are pure Elixir modules, fixture
 authoring, event-struct definitions, and early-deliverable message
 shapes — none of which depend on F's supervisor integration. **Tasks
-16+ gate on sub-F delivering the `Mnemosyne.Actor` behaviour +
+16+ gate on sub-F delivering the `Ravel.Actor` behaviour +
 `ActorSupervisor` child-spec API** (which does not require all of
 sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
@@ -22,18 +22,18 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
 ### Task 0 — Actor-integration readiness gate `[gate]`
 - **Status:** not_started
-- **Dependencies:** sub-F delivers `Mnemosyne.Actor` behaviour,
+- **Dependencies:** sub-F delivers `Ravel.Actor` behaviour,
   `ActorSupervisor` child-spec registration API, and `Router` accepting
   custom message structs in a merged PR (sub-F Tasks 1–3 per sub-F's
   §11.1 scaffolding tasks).
 - **Description:** Meta-task guarding the start of actor-integration
   work. Before any Task 16+ runs, verify:
-  1. `Mnemosyne.Actor` behaviour module exists in the codebase with
+  1. `Ravel.Actor` behaviour module exists in the codebase with
      the callbacks sub-N needs: `init/1`, `handle_actor_message/2`,
      `snapshot/1`.
-  2. `Mnemosyne.ActorSupervisor` is up and registerable via the
+  2. `Ravel.ActorSupervisor` is up and registerable via the
      child-spec API F commits to in §4.5 of its design doc.
-  3. `Mnemosyne.Router` accepts the three sub-N message structs
+  3. `Ravel.Router` accepts the three sub-N message structs
      (`ExpertQuery`, `ExpertDialogueReply`, `ExpertAbsorbCandidate`).
      This gate can be cleared by sub-N itself during Task 14 if
      F's router is already extensible by the time sub-N reaches
@@ -49,10 +49,10 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
 ## Phase 1 — Pure Elixir modules (no F dependency)
 
-### Task 1 — `Mnemosyne.Expert.Declaration` parser and validator `[impl]`
+### Task 1 — `Ravel.Expert.Declaration` parser and validator `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
-- **Description:** Implement `Mnemosyne.Expert.Declaration` as a pure
+- **Description:** Implement `Ravel.Expert.Declaration` as a pure
   module with `parse/1` (takes a file path, returns
   `{:ok, %Declaration{}}` or `{:error, {:declaration_error, reason}}`)
   and `validate/1` (takes a parsed struct, returns `:ok` or
@@ -67,12 +67,12 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   default true), `dialogue.max_clarification_rounds` (int default 3,
   hard cap 3). Body must be ≤8 KB (hard error on overflow).
   Reserved IDs per spec §3.4 rejected: `uncategorized`, `vault`,
-  `plan`, `daemon`, `router`, `mnemosyne`. Every hard-error case
+  `plan`, `daemon`, `router`, `ravel`. Every hard-error case
   has a dedicated Layer 1 unit test. Uses `YamlElixir` for
   frontmatter (already a dep).
 - **Results:** _pending_
 
-### Task 2 — `Mnemosyne.Expert.ScopeMatcher` `[impl]`
+### Task 2 — `Ravel.Expert.ScopeMatcher` `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 1 (Declaration struct type)
 - **Description:** Implement the public scope-matching API that sub-E
@@ -87,22 +87,22 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   exactly to the experts whose tags intersect. See spec §6.1.
 - **Results:** _pending_
 
-### Task 3 — `Mnemosyne.ExpertRetrieval` behaviour definition `[impl]`
+### Task 3 — `Ravel.ExpertRetrieval` behaviour definition `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
-- **Description:** Define the `@behaviour Mnemosyne.ExpertRetrieval`
+- **Description:** Define the `@behaviour Ravel.ExpertRetrieval`
   with callbacks `retrieve(query_text, scope, config)` returning
   `{:ok, [retrieved]} | {:error, term()}` and `name/0` returning an
   atom. The `retrieved` type is `%{path: String.t(), score: float(),
   snippet: String.t(), full_bytes: non_neg_integer()}`. See spec §4.1.
 - **Results:** _pending_
 
-### Task 4 — `Mnemosyne.ExpertRetrieval.KeywordSection` implementation `[impl]`
+### Task 4 — `Ravel.ExpertRetrieval.KeywordSection` implementation `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 3
 - **Description:** Implement the v1 retrieval strategy per spec §4.2:
   glob expansion over tier2 (relative to `<vault>/`) and tier1
-  (relative to `<vault>/projects/*/mnemosyne/` with literal `*`
+  (relative to `<vault>/projects/*/ravel/` with literal `*`
   meaning "any project"), term extraction with stopword filtering
   (~50-word English list baked in, tokens <3 chars dropped, ≥1 term
   post-filter required), parallel `rg --count-matches` via
@@ -119,11 +119,11 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   consecutive runs).
 - **Results:** _pending_
 
-### Task 5 — `Mnemosyne.Expert.Verdict` typed structs `[impl]`
+### Task 5 — `Ravel.Expert.Verdict` typed structs `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
 - **Description:** Define the typed structs for Stage 5 verdicts per
-  spec §6.2: `%Mnemosyne.Expert.Verdict.Absorb{expert_id,
+  spec §6.2: `%Ravel.Expert.Verdict.Absorb{expert_id,
   ingestion_event_id, written_path}`, `%Verdict.Reject{expert_id,
   ingestion_event_id, reason}`, `%Verdict.CrossLink{from_expert,
   to_expert, ingestion_event_id}`, `%Verdict.MalformedResponse{
@@ -132,11 +132,11 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   enforce and JSON round-trips are lossless.
 - **Results:** _pending_
 
-### Task 6 — `Mnemosyne.Expert.Dialogue` struct + helpers `[impl]`
+### Task 6 — `Ravel.Expert.Dialogue` struct + helpers `[impl]`
 - **Status:** not_started
 - **Dependencies:** none
 - **Description:** Define the in-memory dialogue struct per spec §2.5:
-  `%Mnemosyne.Expert.Dialogue{dialogue_id, expert_id, started_at,
+  `%Ravel.Expert.Dialogue{dialogue_id, expert_id, started_at,
   last_activity_at, turns}` where `turns :: [%Turn{role:
   :consumer | :expert, kind: :question | :clarifying_question |
   :answer, text: String.t(), retrieved_at: [path]}]`. Plus pure
@@ -147,7 +147,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   pure in-memory. Layer 1 unit tests.
 - **Results:** _pending_
 
-### Task 7 — `Mnemosyne.Expert.PromptBuilder` `[impl]`
+### Task 7 — `Ravel.Expert.PromptBuilder` `[impl]`
 - **Status:** not_started
 - **Dependencies:** Tasks 1, 6
 - **Description:** Build the session prompt per spec §5.5 and §6.2.
@@ -216,11 +216,11 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   Task 1's validation tests.
 - **Results:** _pending_
 
-### Task 11 — `Mnemosyne.Event.Expert.*` sealed struct set `[impl]`
+### Task 11 — `Ravel.Event.Expert.*` sealed struct set `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 5 (shared struct conventions)
 - **Description:** Define all 30 event structs per spec §9.5 under
-  `lib/mnemosyne/event/expert/`. Each struct has `@enforce_keys`,
+  `lib/ravel/event/expert/`. Each struct has `@enforce_keys`,
   `@derive Jason.Encoder`, and a consistent `:at` timestamp field.
   Groups: query/dialogue events (10), ingestion events (10),
   declaration-loader events (8), operational events (2). Layer 1
@@ -238,12 +238,12 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   time, not at compile time — the structs can land in sub-N's module
   tree and sub-F imports them when its router is ready)
 - **Description:** Define the three message structs per spec §5.2:
-  `%Mnemosyne.Message.ExpertQuery{target_expert_id,
+  `%Ravel.Message.ExpertQuery{target_expert_id,
   origin_qualified_id, origin_session_id, question, dialogue_id,
-  started_at}`, `%Mnemosyne.Message.ExpertDialogueReply{
+  started_at}`, `%Ravel.Message.ExpertDialogueReply{
   target_expert_id, origin_qualified_id, origin_session_id,
   dialogue_id, reply, started_at}`,
-  `%Mnemosyne.Message.ExpertAbsorbCandidate{target_expert_id,
+  `%Ravel.Message.ExpertAbsorbCandidate{target_expert_id,
   candidate, candidate_tags, source_stage, ingestion_event_id,
   started_at}`. Each has `@enforce_keys` and
   `@derive Jason.Encoder`. Layer 1 unit tests. These structs are
@@ -255,7 +255,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
 ## Phase 4 — Singleton GenServers (pure Elixir infrastructure)
 
-### Task 13 — `Mnemosyne.Expert.DialogueRegistry` GenServer `[impl]`
+### Task 13 — `Ravel.Expert.DialogueRegistry` GenServer `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 6 (Dialogue struct)
 - **Description:** Implement the singleton GenServer per spec §2.2
@@ -273,7 +273,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   Layer 2 unit tests.
 - **Results:** _pending_
 
-### Task 14 — `Mnemosyne.Expert.DeclarationLoader` GenServer `[impl]`
+### Task 14 — `Ravel.Expert.DeclarationLoader` GenServer `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 1, Task 11, Task 0 not required (walks
   filesystem at boot, file watcher optional at startup)
@@ -300,19 +300,19 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 - **Dependencies:** Tasks 1, 2, 5, 11, 12
 - **Description:** Ship a focused PR containing just the interfaces
   sub-E's amendment task needs to code against:
-  `Mnemosyne.Expert.Declaration`, `Mnemosyne.Expert.ScopeMatcher`,
-  `Mnemosyne.Expert.Verdict` structs, `Mnemosyne.Event.Expert.*`
-  event structs, and `Mnemosyne.Message.ExpertAbsorbCandidate`. This
+  `Ravel.Expert.Declaration`, `Ravel.Expert.ScopeMatcher`,
+  `Ravel.Expert.Verdict` structs, `Ravel.Event.Expert.*`
+  event structs, and `Ravel.Message.ExpertAbsorbCandidate`. This
   lets sub-E's amendment task run in parallel with sub-N's remaining
   tasks (16+). The PR does NOT include `ExpertActor` itself — that's
   Task 16. Document the public API surface sub-E can rely on.
 - **Note:** Sub-E's design doc was rewritten inline in Session 17
   (2026-04-16). That rewrite consumed and locked in the following
   contract shapes — Task 15's output **must match them exactly**:
-  `%Mnemosyne.Message.ExpertAbsorbCandidate{}` struct fields,
-  `Mnemosyne.Expert.ScopeMatcher.match_candidate/2` signature,
+  `%Ravel.Message.ExpertAbsorbCandidate{}` struct fields,
+  `Ravel.Expert.ScopeMatcher.match_candidate/2` signature,
   the three verdict variants `:absorb` / `:reject` /
-  `:cross_link_suggested`, and `%Mnemosyne.Event.Expert.Conflict{}`.
+  `:cross_link_suggested`, and `%Ravel.Event.Expert.Conflict{}`.
   Do not alter these shapes without coordinating with sub-E.
 - **Results:** _pending_
 
@@ -320,15 +320,15 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
 ## Phase 5 — ExpertActor itself (gates on Task 0)
 
-### Task 16 — `Mnemosyne.ExpertActor` skeleton `[impl]`
+### Task 16 — `Ravel.ExpertActor` skeleton `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 0 (gate), Tasks 1, 13, 14
 - **Description:** Implement the GenServer implementing F's
-  `Mnemosyne.Actor` behaviour per spec §2.1 and §7.1. `init/1` loads
+  `Ravel.Actor` behaviour per spec §2.1 and §7.1. `init/1` loads
   declaration from `DeclarationLoader`, fails `Faulted` on missing.
   `handle_actor_message/2` dispatches on message type (three kinds
   from Task 12). `snapshot/1` returns
-  `%Mnemosyne.Expert.Snapshot{declaration_id, messages_processed,
+  `%Ravel.Expert.Snapshot{declaration_id, messages_processed,
   last_activity_at}`. Idle timeout handling per spec §7.1: 5 min
   default transitions to `Dormant` via self-message, except when a
   dialogue is open (registry check) in which case the timer resets.
@@ -345,7 +345,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 - **Description:** Implement `handle_actor_message/2` for
   `%ExpertQuery{}` per spec §5.3 step 1. Flow: create dialogue in
   registry → run retrieval → build prompt → spawn session via
-  `Mnemosyne.HarnessAdapter.spawn/1` → attach as consumer → drive
+  `Ravel.HarnessAdapter.spawn/1` → attach as consumer → drive
   sliding-buffer sentinel matcher on assistant-text stream with
   5-min wall-clock bound → parse disposition → append turn → emit
   events (`%QueryStarted{}`, `%DialogueTurn{}`, `%QueryAnswered{}`)
@@ -445,7 +445,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
 
 ## Phase 7 — Init flow integration (sub-A consumer)
 
-### Task 23 — Extend `mnemosyne init` to copy `priv/experts/*.md` `[impl]`
+### Task 23 — Extend `ravel init` to copy `priv/experts/*.md` `[impl]`
 - **Status:** not_started
 - **Dependencies:** Task 8 (default declarations exist in
   `priv/experts/`), sub-A's init command landed
@@ -460,7 +460,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   land at `<vault>/experts/`.
 - **Results:** _pending_
 
-### Task 24 — Extend `mnemosyne init` to create `<vault>/knowledge/uncategorized/` `[impl]`
+### Task 24 — Extend `ravel init` to create `<vault>/knowledge/uncategorized/` `[impl]`
 - **Status:** not_started
 - **Dependencies:** sub-A's init command landed
 - **Description:** Tiny amendment to sub-A's init: create the
@@ -576,7 +576,7 @@ sub-F's 28 tasks to be done — F can ship those early as its first PR).
   **Value:** A candidate tagged `ffi` now matches `rust-expert` via
   `bridges(ffi, rust)`. A candidate tagged `rustlang` matches via
   synonym resolution. Neither possible with exact-string matching.
-  Pure Elixir — queries `Mnemosyne.Datalog.Server` via its client API.
+  Pure Elixir — queries `Ravel.Datalog.Server` via its client API.
 - **Results:** _pending_
 
 ## Out of scope for this plan
