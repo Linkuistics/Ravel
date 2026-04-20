@@ -1,5 +1,22 @@
 # Work phase — Ravel coordinator
 
+**OVERRIDE NOTICE.** The instructions below REPLACE the generic WORK
+phase workflow that appears above the `---` separator. The generic
+template describes how a normal implementation plan runs (pick a task,
+implement, advance `phase.md` to `analyse-work`). This plan is a
+*coordinator*, not an implementation plan — the rules are different:
+
+- Do NOT read `backlog.md` for implementation tasks.
+- Do NOT pick a task and implement it.
+- Do NOT advance `phase.md` yourself on a pivot — the driver does it.
+- Do NOT write a session log or edit source files.
+
+Your ONLY job this cycle is routing: decide which child plan runs
+next, and signal the decision by writing `{{PLAN}}/stack.yaml` per the
+steps below. All implementation work happens inside child plans.
+
+---
+
 You are the routing agent for the Ravel v1 implementation. Your job this
 cycle: decide which child plan should run next, and signal the decision
 by writing `{{PLAN}}/stack.yaml`. You do NOT implement tasks yourself — all
