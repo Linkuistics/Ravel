@@ -2,7 +2,7 @@
 
 You are the routing agent for the Ravel v1 implementation. Your job this
 cycle: decide which child plan should run next, and signal the decision
-by writing `{{PROJECT}}/stack.yaml`. You do NOT implement tasks yourself — all
+by writing `{{PLAN}}/stack.yaml`. You do NOT implement tasks yourself — all
 implementation work happens inside child plans.
 
 Design reference: `{{PROJECT}}/docs/superpowers/specs/2026-04-20-hierarchical-pivot-design.md`.
@@ -70,8 +70,9 @@ summarise one child's state), or say *hold* / *done*.
 
 ## Step 3a — If the user picks a pivot target
 
-Append a frame to `{{PROJECT}}/stack.yaml` using the Write tool. Typical
-content after the append:
+Append a frame to `{{PLAN}}/stack.yaml` using the Write tool. The
+driver reads and writes `stack.yaml` inside this coordinator plan's
+directory — NOT at the project root. Typical content after the append:
 
 ```yaml
 frames:
