@@ -7,7 +7,7 @@ Consult the spec before starting any task.
 
 **Design doc rewritten inline for Elixir/BEAM.** In Session 12
 (2026-04-15) of the parent orchestrator plan, the three pending amendment
-tasks (Sub-C contracts, LLM_CONTEXT 2026-04 overhaul, BEAM pivot) were
+tasks (Sub-C contracts, Ravel-Lite 2026-04 overhaul, BEAM pivot) were
 absorbed inline across §1–§6 of the design doc, following the sub-C
 precedent (no supersede layer). The design is now Elixir-native with a
 four-phase cycle (`work → reflect → compact → triage` with conditional
@@ -15,11 +15,22 @@ compact), `PhaseRunner` hosted inside a sub-F `PlanActor` GenServer,
 `plan-state.md` schema pruned per sub-F, `{{VAULT_CATALOG}}` placeholder
 replacing `{{RELATED_PLANS}}`, `pre-work.sh` hook, and F's
 `DispatchProcessor` / `QueryProcessor` as phase-exit hooks on non-compact
-phases. **The implementation task list below (everything from "Define
-core abstractions and types" onwards) is still written against the
-pre-pivot Rust framing and must be rewritten against the new design
-doc before any implementation starts.** That rewrite is the next
-gate task.
+phases. **The implementation task list below has been rewritten against
+Session-12's Elixir-native contracts** (this rewrite landed as the "Rewrite
+downstream implementation tasks" gate task, now complete).
+
+**Key scope handoffs to sub-F** (Session 12 decisions):
+
+- **No B-owned TUI.** The ratatui / Headless / IPC driver tasks are
+  deleted. Sub-F owns the separate Rust TUI client binary; B emits typed
+  events through sub-M's `:telemetry` boundary and receives action
+  messages via the PlanActor's mailbox.
+- **No B-owned daemon startup / shutdown.** Daemon lifecycle is sub-F's
+  scope. B's entry point is `PlanActor.handle_info/2` dispatch for
+  `{:run_phase, _}` messages. The legacy "full startup sequence" and
+  "shutdown sequence" tasks are deleted.
+- **No per-plan advisory lock.** Sub-F's daemon-singleton lock (sub-D's
+  scope collapsed per §6) replaces the per-plan `fs2`/`:flock` stub.
 
 **Task 0 (the Obsidian + symlinks validation spike) PASSED on both
 macOS and Linux** in Session 5 (2026-04-13). Evidence at
@@ -112,28 +123,6 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
      `spikes/beam_pty/`): sliding-buffer with window bounded to
      `sentinel_size - 1` bytes works across single-chunk, split, drip,
      false-prefix, and false-overlap cases. See memory.md for details.
-
-  **Work to perform.** (a) Update `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md`
-  §2.2 and §4.1 to record the two surviving requirements inline, with a
-  dated note pointing at C's §11.1 as the origin. Remove or supersede
-  references to the eliminated Rust-era amendments (1–3). (b) Adjust the
-  downstream "Define core abstractions and types" task description so
-  that its type list includes `%Ravel.Event.SessionLifecycle{}` as a
-  consumed event and the executor-level sentinel-matcher module.
-  (c) Add a note to the `PhaseRunner::run_phase` task (and/or the
-  `LlmHarnessExecutor` task if separate) that the executor owns the
-  sentinel matcher and emits `{:phase_completion_detected, sentinel}`.
-  (d) Ensure all references to B's session consumption use the BEAM-native
-  `attach_consumer/2` + `handle_info/2` pattern, not the eliminated
-  Rust trait-object shapes.
-
-  **No runtime code** — this task is spec + backlog editing only. It
-  exists as a gate so the downstream implementation tasks are written
-  against the correct contract. Acceptance: the spec and backlog are
-  internally consistent with C's §11.1 contracts and with orchestrator
-  `memory.md`, verified by a manual re-read of §2.2, §4.1, and every
-  task description that touches session consumption, `SessionLifecycle`,
-  or sentinel detection.
 - **Results:** Absorbed inline into the design doc's Session-12 rewrite.
   §4.1 now carries the full sub-C consumption contract (Requirements 1
   and 2) with the `%Ravel.Event.SessionLifecycle{}` pattern-match
@@ -144,104 +133,24 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   `attach_consumer/2` + `handle_info/2` consumption loop. Session-12
   rewrite spans the whole doc; no supersede layer.
 
-### Absorb LLM_CONTEXT 2026-04 overhaul into B's design + types `[amendment]`
+### Absorb Ravel-Lite 2026-04 overhaul into B's design + types `[amendment]`
 - **Status:** done (Session 12, 2026-04-15)
 - **Dependencies:** Task 0
-- **Description:** LLM_CONTEXT's upstream shape shifted after B's
-  brainstorm: it now ships a four-phase cycle (work → reflect →
-  compact → triage, compact conditional on a wc-word-count trigger),
-  phase-file-factored composition (shared `phases/<phase>.md` +
-  optional per-plan `prompt-<phase>.md` override), a
-  `fixed-memory/memory-style.md` file read by both reflect and
-  compact, an opt-in `pre-work.sh` executable hook invoked before
-  every work phase, a `{{RELATED_PLANS}}` synthesised placeholder,
-  a `related-plans.md` schema using Parents/Children only (siblings
-  auto-discovered), and ISO 8601 UTC timestamps for session-log
-  entries. All seven changes post-date B's 2026-04-12 brainstorm and
-  must be absorbed into the design doc and backlog *before* the
-  "Define core abstractions and types" task is started so that types,
-  `PhaseRunner` logic, and the prompts-vendor module land in their
-  amended shape from the outset.
-
-  **Work to perform.**
-
-  (a) Update `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md`
-  to reflect the four-phase cycle. §2.2 and §3 (the state machine and
-  phase transitions) must include `compact` as a phase, document the
-  conditional trigger (`wc -w memory.md <= compact-baseline + HEADROOM`
-  with HEADROOM a runtime constant initially 1500 words), and specify
-  that reflect ALWAYS writes `compact` as its nominal next phase —
-  the runner-level logic decides whether to invoke compact or skip
-  to triage. Compact is "strictly lossless rewrite of memory.md";
-  reflect is the only lossy-pruning phase.
-
-  (b) Amend the `plan-state.md` YAML frontmatter phase enum in §2.2.2
-  to include `compact`, making the full set `work | reflect | compact
-  | triage`. Add a `compact_baseline: u64` field (or equivalent) to
-  plan state, matching `run-plan.sh`'s per-plan `compact-baseline`
-  file semantics.
-
-  (c) Specify the phase composition mechanism in §2.2.3 and §3: a
-  phase prompt is produced by taking the embedded shared phase file
-  (from `prompts::PHASE_<PHASE>`), appending the plan's optional
-  `prompt-<phase>.md` override if present, then substituting
-  placeholders. `StagingDirectory::render` materialises the result
-  into the staging directory. Forbid any plan from *replacing* the
-  shared phase content; overrides are additive only.
-
-  (d) Add an "optional `pre-work.sh` hook" section to the spec. The
-  contract: executable at `<plan>/pre-work.sh`, absent or
-  non-executable files are silently skipped, runs from the project
-  root, only before work phase (never reflect/compact/triage), runs
-  after the defensive `rm -f latest-session.md` cleanup, non-zero
-  exit aborts the whole cycle. Specify the `PhaseRunner` integration
-  point where this hook is invoked.
-
-  (e) Add `{{RELATED_PLANS}}` to the substitution placeholder list in
-  the spec. Value is a synthesised block built by walking the project
-  (for siblings) and the Parents/Children declared in
-  `related-plans.md` (for peer projects). `run-plan.sh`'s synthesis
-  algorithm is the reference: walk `$PROJECT/LLM_STATE/` for sibling
-  plans (dirs containing `plan-state.md`), then for each Parent /
-  Child entry walk that peer project's `LLM_STATE/` for its plans.
-  `{{RELATED_PLANS}}` is a forward-only placeholder — it is not
-  reverse-substituted on copy-back.
-
-  (f) Amend the `related-plans.md` spec section: Parents + Children
-  only; no Siblings section. Siblings are auto-discovered by walking
-  the project's plan tree.
-
-  (g) Specify ISO 8601 UTC-with-seconds timestamps for session-log
-  entries (`date -u '+%Y-%m-%dT%H:%M:%SZ'`) in the session-log format
-  section. Latest-session.md is written by the work phase (not
-  pre-created) and deleted by the runner before each work phase
-  starts; the runner appends it to session-log.md post-hoc after the
-  work phase exits successfully. No LLM phase ever reads
-  session-log.md.
-
-  (h) Update the embedded prompts task (below) with the new vendor
-  list: `phases/{work,reflect,compact,triage}.md`,
-  `fixed-memory/{coding-style,coding-style-rust,memory-style}.md`,
-  `create-plan.md`. Remove any reference to `backlog-plan.md` or
-  `create-a-multi-session-plan.md` — those are deleted/renamed
-  upstream.
-
-  (i) Update every other task in this backlog that references a
-  three-phase cycle, `run-backlog-plan.sh`, `BACKLOG_PLAN_SPEC`, or
-  the old vendor list, so descriptions are internally consistent with
-  the amendments.
-
-  **No runtime code** — this task is spec + backlog editing only. It
-  exists as a gate so the downstream implementation tasks are written
-  against the correct contract. Acceptance: the spec and backlog are
-  internally consistent with LLM_CONTEXT's current upstream shape,
-  verified by a manual re-read of §2.2, §3, and every task
-  description that touches phases, prompts, placeholders,
-  related-plans, or the runner state machine. Session-log entries in
-  the orchestrator plan already use the new ISO 8601 format, which is
-  a ground truth to verify against.
+- **Description:** Ravel-Lite's upstream shape shifted after B's
+  brainstorm: four-phase cycle (work → reflect → compact → triage,
+  compact conditional on a wc-word-count trigger), phase-file-factored
+  composition (shared `phases/<phase>.md` + optional per-plan
+  `prompt-<phase>.md` override), a `fixed-memory/memory-style.md` file
+  read by both reflect and compact, an opt-in `pre-work.sh` executable
+  hook invoked before every work phase, a new synthesised placeholder
+  for related plans (later renamed `{{VAULT_CATALOG}}` by the BEAM
+  pivot), a `related-plans.md` schema using Parents/Children only
+  (siblings auto-discovered), and ISO 8601 UTC timestamps for
+  session-log entries. All seven changes post-date B's 2026-04-12
+  brainstorm and had to be absorbed into the design doc and backlog
+  before downstream implementation work could start.
 - **Results:** Absorbed inline into the design doc's Session-12 rewrite.
-  All seven LLM_CONTEXT 2026-04 overhaul items are now load-bearing in
+  All seven Ravel-Lite 2026-04 overhaul items are now load-bearing in
   the design: (a) four-phase cycle in `PhaseRunner` and `PlanState`
   (§2.3.2, §2.3.3, §3.3); (b) phase-composition shared-file + additive
   override pattern (§2.3.5, §2.5); (c) `fixed-memory/memory-style.md`
@@ -260,44 +169,18 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 - **Description:** The orchestrator's Session 9 committed Ravel to a
   persistent BEAM daemon (Elixir/OTP), replacing the original Rust
   single-process architecture. This is a load-bearing amendment that
-  touches every task in this backlog. Concrete work:
-
-  (a) Rewrite `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md`
-  to replace Rust-specific constructs with Elixir/OTP equivalents:
-  traits → behaviours, structs → typed structs/maps, `Arc<dyn ...>` →
-  GenServer references, `tokio` tasks → OTP processes, `include_str!` →
-  embedded resources or `priv/` files, `serde_yaml` → a YAML library
-  (e.g. `yaml_elixir`), `ratatui` → daemon client TUI, `fs2` file locks
-  → `:flock` or equivalent.
-
-  (b) Rewrite PhaseRunner as a `PlanActor` GenServer: phase transitions
-  arrive as `{:run_phase, _}` messages instead of direct function calls.
-  The 13-step `run_phase` flow becomes a GenServer `handle_call` or
-  `handle_cast` handler.
-
-  (c) Apply `plan-state.md` schema pruning: remove `plan-id`,
-  `host-project`, `dev-root` fields; add `description:` field.
-
-  (d) Rename `{{RELATED_PLANS}}` placeholder to `{{VAULT_CATALOG}}`
-  throughout the spec, backlog, and memory. Delete references to
-  `related-plans.md` — vault catalog replaces it.
-
-  (e) Rewrite the TUI task: it is now a daemon client, not the process
-  main loop. `RatatuiDriver` is replaced by a client that connects to
-  the daemon.
-
-  (f) Add DispatchProcessor and QueryProcessor as phase-exit hooks in
-  the spec.
-
-  (g) Update every task in this backlog that references Rust crates,
-  Rust traits, Rust-specific patterns, or the old single-process
-  architecture.
-
-  **No runtime code** — this task is spec + backlog + memory editing
-  only. It exists as a gate so downstream implementation tasks are
-  written against the correct Elixir/OTP contract. Acceptance: the spec
-  and backlog contain zero stale Rust references and are internally
-  consistent with the BEAM daemon architecture.
+  touches every task in this backlog. The spec was rewritten inline
+  to: (a) replace Rust constructs with Elixir/OTP equivalents
+  (behaviours, GenServers, `@external_resource`, `yaml_elixir`,
+  `:telemetry`, daemon-singleton flock); (b) recast `PhaseRunner` as a
+  pure module hosted inside sub-F's `PlanActor` GenServer, invoked on
+  `{:run_phase, _}` messages; (c) prune `plan-state.md` per sub-F
+  (`plan-id`, `host-project`, `dev-root` removed; `description:`
+  added); (d) rename `{{RELATED_PLANS}}` → `{{VAULT_CATALOG}}` and
+  delete `related-plans.md`; (e) hand the TUI off to sub-F as a
+  separate Rust client binary (no B-owned drivers); (f) add
+  `DispatchProcessor` and `QueryProcessor` as phase-exit hooks on
+  non-compact phases.
 - **Results:** Design doc fully rewritten inline for Elixir/BEAM in
   Session 12 (2026-04-15), mirroring the sub-C precedent (no
   supersede layer). The Rust runtime substrate (traits, `Arc<dyn>`,
@@ -320,14 +203,13 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   (§2.3.3 step 13, §3.5, §4.3). Appendix A Q20 carries the full
   Rust→BEAM translation table and weaves in the BEAM PTY spike
   findings (pipes-only erlexec, sliding-buffer sentinel matcher
-  validation, two-completion-signals orthogonality). **The
-  implementation task list below still carries pre-pivot Rust task
-  descriptions**; the follow-up gate task ("Rewrite downstream
-  implementation tasks") is the next thing to land.
+  validation, two-completion-signals orthogonality). Downstream
+  implementation tasks below have been rewritten against the new
+  contract (see "Rewrite downstream implementation tasks" gate task).
 
-### Adopt sub-R `{{ONTOLOGY_CONTEXT}}` passive placeholder in `StagingDirectory.render` `[substitution]` `[amendment]`
+### Adopt sub-R `{{ONTOLOGY_CONTEXT}}` passive placeholder in `StagingDirectory.render/4` `[substitution]` `[amendment]`
 - **Status:** not_started
-- **Dependencies:** none (feeds into "Implement placeholder substitution algorithm" and "Implement `StagingDirectory::render`" before those tasks start)
+- **Dependencies:** none (feeds into "Implement placeholder substitution algorithm" and "Implement `StagingDirectory.render/4`" before those tasks start)
 - **Description:** Sub-R (knowledge ontology) brainstorm (2026-04-16) introduced
   `{{ONTOLOGY_CONTEXT}}` as a new passive placeholder injected into LLM sessions at
   staging-render time. Sub-B owns all placeholder substitution logic and
@@ -364,7 +246,7 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   with no ontology directory (must produce empty string, no error); and that
   `{{ONTOLOGY_CONTEXT}}` is excluded from reverse substitution.
 
-  (d) Update the "Implement `StagingDirectory::render`" task (once rewritten) to
+  (d) Update the "Implement `StagingDirectory.render/4`" task (once rewritten) to
   reference the six-placeholder list and include an ontology-load step before
   substitution.
 
@@ -374,546 +256,597 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 - **Results:** _pending_
 
 ### Rewrite downstream implementation tasks against Session-12 design doc `[amendment]`
-- **Status:** not_started
-- **Dependencies:** (the three amendment tasks above, all now done)
+- **Status:** done (this rewrite landed inline below)
+- **Dependencies:** (the three amendment tasks above, all done)
 - **Description:** The three amendment tasks landed a fresh
   Elixir/BEAM + four-phase cycle + sub-F-integrated design doc,
   but every implementation task from "Define core abstractions and
-  types" onwards still describes Rust types, `include_str!`,
+  types" onwards still described Rust types, `include_str!`,
   `serde_yaml`, `gray_matter`, `ratatui`, `fs2`, `tokio`, `Box<dyn>`,
   `InteractionDriver`, the `--ipc` client mode, the per-plan
-  advisory lock stub, and the previous three-phase cycle. Rewrite
-  every downstream task in this backlog so it matches the Session-12
-  design doc:
-
-  1. Replace Rust type lists with Elixir struct/module lists
-     (`Ravel.PlanState`, `Ravel.PlanContext`,
-     `Ravel.PhaseRunner`, `Ravel.StagingDirectory`,
-     `Ravel.PhaseExecutor` behaviour + three implementors,
-     `Ravel.Substitution`, `Ravel.Prompts`,
-     `Ravel.Sentinel.SlidingBuffer`, `Ravel.PreWorkHook`,
-     `Ravel.CopyBackReport`).
-  2. Replace `include_str!` with `@external_resource` +
-     `File.read!/1` at compile time; replace vendor list's
-     `backlog-plan.md` and `create-a-multi-session-plan.md` with
-     `phases/{work,reflect,compact,triage}.md` +
-     `fixed-memory/{coding-style,coding-style-rust,memory-style}.md` +
-     `create-plan.md`.
-  3. Replace `serde_yaml` + `gray_matter` with `yaml_elixir` + a
-     direct `---`-boundary split.
-  4. Delete all tasks that implement the `InteractionDriver` trait,
-     `HeadlessDriver`, `IpcDriver`, `RatatuiDriver` — the TUI is
-     now sub-F's separate Rust client binary, not a B artefact.
-  5. Delete the per-plan advisory lock stub task — sub-F's
-     daemon-singleton lock (sub-D collapsed scope) replaces it.
-  6. Delete the "Wire the full startup sequence" task — daemon
-     startup is sub-F's scope; B's entry point is now the PlanActor
-     `handle_info/2` dispatch for `{:run_phase, _}`.
-  7. Rewrite the `PhaseRunner::run_phase` task as "Implement
-     `Ravel.PhaseRunner.run_phase/4`" with the 13-step flow
-     from §2.3.3 including compact-trigger check, `pre-work.sh`
-     invocation, session-log append, `DispatchProcessor` and
-     `QueryProcessor` phase-exit hooks (non-compact phases only),
-     and `ReflectExitHook` non-blocking invocation.
-  8. Rewrite the `LlmHarnessExecutor` task with the
-     `attach_consumer/2` + `handle_info/2` consumption loop and the
-     sliding-buffer sentinel matcher, against sub-C's
-     `Ravel.HarnessAdapter` behaviour.
-  9. Add new tasks for `Ravel.PreWorkHook` and
-     `Ravel.Sentinel.SlidingBuffer` (both new modules surfaced
-     by the Session-12 rewrite).
-  10. Update the sub-M adoption task to emit `Ravel.Event.*`
-      typed structs via `:telemetry` (not `tracing::instrument` +
-      `RavelEvent` enum).
-  11. Update the dogfood task to reference the Session-12 design
-      doc layout (PlanActor-hosted runner, daemon start via sub-F,
-      two-plan cutover).
-  12. Update the live smoke test task to tag tests `:live` (ExUnit
-      tag) instead of CI-gated Rust test discovery.
-  13. Ensure every rewritten task that writes plan files calls
-      `Ravel.FileIO.write_safe/3` with `:phase_owned`, and every
-      task that reads plan files for prompt context calls
-      `Ravel.FileIO.read_tracked/1`. `FileIO` is the mandatory
-      I/O abstraction for both `copy_back/2` writes and
-      `StagingDirectory.render/4` reads; direct `File.*` calls are
-      forbidden in B's implementation.
-
-  This is **backlog editing only** — no runtime code. The
-  acceptance criterion: every downstream task description is
-  internally consistent with the Session-12 design doc and with
-  the `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-C-adapters-design.md`
-  rewrite. No stale Rust crate names, trait shapes, or three-phase
-  references remain in task descriptions.
-- **Results:** _pending_
+  advisory lock stub, and the previous three-phase cycle. This
+  rewrite replaces every downstream task with Session-12-aligned
+  Elixir-native descriptions and deletes the tasks that moved to
+  sub-F (TUI drivers, daemon startup / shutdown) or dissolved into
+  sub-F's daemon-singleton lock (per-plan advisory lock stub).
+- **Results:** Completed as part of this backlog rewrite. The task
+  list below is internally consistent with the Session-12 design
+  doc and with C's §11.1 contracts. No stale Rust crate names,
+  trait shapes, three-phase references, `InteractionDriver`
+  surfaces, or per-plan lock references remain. Tasks deleted in
+  this rewrite: `HeadlessDriver`, `IpcDriver`, `RatatuiDriver`
+  (TUI moved to sub-F's Rust client binary, §1.2); "Implement the
+  full startup sequence" (daemon startup is sub-F's scope);
+  "Implement shutdown sequence" (daemon shutdown is sub-F's scope);
+  "Implement per-plan advisory lock stub" (replaced by sub-F's
+  daemon-singleton lock, sub-D scope collapsed per §6).
 
 ### Define core abstractions and types `[types]`
 - **Status:** not_started
-- **Dependencies:** Task 0, Absorb Sub-C trait amendments into B's design + types, Absorb LLM_CONTEXT 2026-04 overhaul into B's design + types, Absorb BEAM pivot into B's design, spec, and backlog
-- **Description:** Define the Rust types from §2.2 of the spec:
-  `PlanContext`, `PlanState`, `LastExit`, `Phase`, `ResolvedPaths`,
-  `PhaseRunner`, `PhaseOutcome`, `PhaseEvent`, `PhaseError`,
-  `PhaseExecutor` (trait), `ExecutorKind`, `PhaseContext`,
-  `ExecutorError`, `StagingDirectory`, `CopyBackReport`, `StagingError`,
-  `InteractionDriver` (trait), `InteractionKind`, `DriverError`,
-  `TuiAction`, `ExecutorMode`, `HarnessAdapter` (trait from §4.1),
-  `HarnessSession` (trait), `HarnessKind`, `ToolProfile`, `OutputChunk`,
-  `OutputChunkKind`, `SessionExitStatus`, `AdapterError`,
-  `ReflectExitHook` (trait from §4.2), `ReflectExitContext`,
-  `IngestionEventPayload`. No logic; just shapes. This establishes the
-  contract every downstream task is written against. Unit tests cover
-  serialisation round-trips for any type that crosses the
-  `InteractionDriver` boundary.
+- **Dependencies:** Task 0, Absorb Sub-C trait amendments into B's design + types, Absorb Ravel-Lite 2026-04 overhaul into B's design + types, Absorb BEAM pivot into B's design, spec, and backlog, Rewrite downstream implementation tasks against Session-12 design doc
+- **Description:** Define the Elixir modules and typed structs from §2.3
+  of the spec:
+
+  **Structs (via `defstruct` + `@type t :: %__MODULE__{}`):**
+  `Ravel.PlanContext`, `Ravel.PlanState`, `Ravel.LastExit`,
+  `Ravel.Phase` (atom enum wrapper: `:work | :reflect | :compact | :triage`),
+  `Ravel.ResolvedPaths`, `Ravel.PhaseOutcome`, `Ravel.StagingDirectory`,
+  `Ravel.CopyBackReport`, `Ravel.PhaseContext`.
+
+  **Behaviours (`@behaviour` modules):**
+  `Ravel.PhaseExecutor` (§2.3.4) with three implementors —
+  `Ravel.LlmHarnessExecutor`, `Ravel.ManualEditorExecutor`,
+  `Ravel.FixtureReplayExecutor`;
+  `Ravel.HarnessAdapter` (§4.1, consumed from sub-C);
+  `Ravel.ReflectExitHook` (§4.2, exposed to sub-E).
+
+  **Consumed event structs** (emitted by sub-C, pattern-matched by B):
+  `%Ravel.Event.SessionLifecycle{}` (transitions `:ready |
+  {:turn_complete, _} | {:exited, _}`), `%Ravel.Event.HarnessOutput{}`
+  (`kind: :stdout | :stderr`).
+
+  **Emitted event structs** (B → sub-M via `:telemetry`):
+  `%Ravel.Event.PhaseLifecycle{}` (kinds `:started | :exited_clean |
+  :interrupted | :executor_failed | :takeover_offered | :prior_interrupt_surfaced`).
+
+  **Error shapes** via tagged tuples, not exception modules:
+  `{:error, {:executor, reason}}`, `{:error, {:staging, reason}}`,
+  `{:interrupted, forensics_dir}`.
+
+  No logic; just shapes. This establishes the contract every downstream
+  task is written against. Unit tests cover struct construction,
+  pattern-match coverage on the phase enum, and round-trip serialisation
+  for any struct that crosses the PlanActor mailbox boundary.
 - **Results:** _pending_
 
 ### Implement `plan-state.md` parse/serialise `[plan-state]`
 - **Status:** not_started
 - **Dependencies:** Define core abstractions and types
-- **Description:** Implement `PlanState::load(plan_dir)` and
-  `PlanState::persist(&self, plan_dir)` using `serde_yaml` and
-  `gray_matter`. Reads/writes `plan-state.md` (markdown with YAML
-  frontmatter per §2.2.2 of the spec). `persist` uses
-  write-to-temp-then-rename for atomicity. Unit tests cover: round-trip
-  of every field, `schema-version: 99` rejection (hard error),
-  malformed frontmatter rejection, `ingestion-fired` flag semantics,
-  atomic-write survival of concurrent readers, Dataview-friendly
-  kebab-case naming of all fields. No filesystem mocks — use tempdir
-  fixtures.
+- **Description:** Implement `Ravel.PlanState.load/1` and
+  `Ravel.PlanState.persist/2` using `yaml_elixir` and a direct
+  `---`-boundary split (no `gray_matter` equivalent needed — the
+  frontmatter/body split is a two-line scan). Reads/writes
+  `plan-state.md` (markdown with YAML frontmatter per §2.3.2 of the
+  spec). `persist/2` delegates to `Ravel.FileIO.write_safe/3` with
+  `:phase_owned` (never direct `File.write/2` — see the FileIO
+  constraint). Unit tests cover: round-trip of every pruned-schema
+  field (`description`, `current-phase`, `compact-baseline`,
+  `daemon-pid`, `last-exit.*`, `ingestion-fired`, `schema-version`);
+  `schema-version: 99` rejection (hard error); malformed frontmatter
+  rejection; `description` > 120 char rejection (hard cap);
+  `ingestion-fired` flag semantics; atomic-write survival of
+  concurrent readers; Dataview-friendly kebab-case naming of all
+  fields. Rejected fields that must NOT appear in the struct or the
+  file: `plan-id`, `host-project`, `dev-root` (pruned by sub-F per
+  §2.3.2). No filesystem mocks — use `tmp_dir` fixtures.
 - **Results:** _pending_
 
 ### Implement embedded prompts module `[prompts]`
 - **Status:** not_started
 - **Dependencies:** Define core abstractions and types
-- **Description:** Create `src/prompts.rs` with `include_str!` macros
-  loading the vendored upstream files from `{{PROJECT}}/prompts/`.
-  Expose as `&'static str` constants: `PHASE_WORK`, `PHASE_REFLECT`,
-  `PHASE_COMPACT`, `PHASE_TRIAGE` (the four shared phase prompts),
-  `CODING_STYLE`, `CODING_STYLE_RUST`, `MEMORY_STYLE` (the three
-  fixed-memory files — `MEMORY_STYLE` is read by both reflect and
-  compact and is the lossless-rewrite contract's stability anchor),
-  and `CREATE_PLAN` (the plan-creation spec). Implement
-  `materialise_into(prompts_dir: &Path) -> Result<()>` that writes
-  every file into a target directory preserving upstream's
-  `phases/` and `fixed-memory/` subdirectory layout. Copy the actual
-  content from `{{DEV_ROOT}}/LLM_CONTEXT/phases/{work,reflect,compact,triage}.md`,
-  `{{DEV_ROOT}}/LLM_CONTEXT/fixed-memory/{coding-style,coding-style-rust,memory-style}.md`,
-  and `{{DEV_ROOT}}/LLM_CONTEXT/create-plan.md` into
+- **Description:** Create `Ravel.Prompts` (in `lib/ravel/prompts.ex`)
+  using `@external_resource` + `File.read!/1` at compile time to embed
+  vendored upstream files from `{{PROJECT}}/prompts/` into the module's
+  beam file as module attributes. Expose via `phase/1` and
+  `materialise_into/1` per the example in spec §2.5:
+
+  - Module attributes: `@phase_work`, `@phase_reflect`, `@phase_compact`,
+    `@phase_triage` (four shared phase prompts); `@coding_style`,
+    `@coding_style_rust`, `@memory_style` (three fixed-memory files —
+    `@memory_style` is read by both reflect and compact and is the
+    lossless-rewrite contract's stability anchor); `@create_plan` (the
+    plan-creation spec).
+  - `phase(:work | :reflect | :compact | :triage) :: binary()`.
+  - `materialise_into(prompts_dir :: String.t()) :: :ok` writes every
+    embedded binary into a target directory preserving upstream's
+    `phases/` and `fixed-memory/` subdirectory layout.
+
+  Copy the actual content from
+  `{{DEV_ROOT}}/Ravel-Lite/defaults/phases/{work,reflect,compact,triage}.md`,
+  `{{DEV_ROOT}}/Ravel-Lite/defaults/fixed-memory/{coding-style,coding-style-rust,memory-style}.md`,
+  and `{{DEV_ROOT}}/Ravel-Lite/defaults/create-plan.md` into
   `{{PROJECT}}/prompts/` as part of this task. The pre-overhaul
   filenames `backlog-plan.md` and `create-a-multi-session-plan.md`
-  are deleted/renamed upstream and must NOT appear in `prompts.rs`
-  or in the vendored tree. Unit tests verify: materialise produces
-  the expected files at the expected paths, binary-level byte-equal
-  content with the vendored sources, subdirectory layout preserved.
+  are deleted/renamed upstream and must NOT appear in the module's
+  `@external_resource` list or in the vendored tree. Unit tests verify:
+  `materialise_into/1` produces the expected files at the expected
+  paths, byte-equal content with the vendored sources, subdirectory
+  layout preserved, `mix compile` recompiles the module when any
+  vendored file changes (via the `@external_resource` tracking).
 - **Results:** _pending_
 
 ### Implement placeholder substitution algorithm `[substitution]`
 - **Status:** not_started
 - **Dependencies:** Define core abstractions and types
 - **Description:** Implement forward and reverse substitution as pure
-  functions against five placeholders (`{{DEV_ROOT}}`, `{{PROJECT}}`,
-  `{{PLAN}}`, `{{PROMPTS}}`, `{{RELATED_PLANS}}`). Forward: walk a
-  file's text and replace each placeholder with its resolved value —
-  absolute paths for `{{DEV_ROOT}}` / `{{PROJECT}}` / `{{PLAN}}` /
-  `{{PROMPTS}}`, a synthesised multi-line block of sibling / parent /
-  child plan paths for `{{RELATED_PLANS}}`. Reverse: walk a file's
-  text and replace each absolute path with its placeholder, using
-  longest-match-first ordering (PLAN before PROJECT before DEV_ROOT)
-  to avoid prefix collisions. `{{RELATED_PLANS}}` is forward-only —
-  reverse substitution does not need to reconstruct it. Use `regex`
-  with a static precompiled pattern. Unit tests cover: all five
+  functions in `Ravel.Substitution` against the five placeholders from
+  spec §2.4: `{{DEV_ROOT}}`, `{{PROJECT}}`, `{{PLAN}}`, `{{PROMPTS}}`,
+  `{{VAULT_CATALOG}}`. Forward: walk a file's text and replace each
+  placeholder with its resolved value — absolute paths for
+  `{{DEV_ROOT}}` / `{{PROJECT}}` / `{{PLAN}}` / `{{PROMPTS}}`, and the
+  **full content of `<vault>/plan-catalog.md`** (read via F's
+  `CatalogRenderer` at render time) for `{{VAULT_CATALOG}}`. Reverse:
+  walk a file's text and replace each absolute path with its
+  placeholder, using longest-match-first ordering (PLAN before PROJECT
+  before DEV_ROOT) to avoid prefix collisions. `{{PROMPTS}}` and
+  `{{VAULT_CATALOG}}` are **forward-only** — their resolved values are
+  per-render and never appear in canonical plan files, so reverse
+  substitution does not touch them. Use Elixir's `Regex` with a
+  module-attribute precompiled pattern. Unit tests cover: all five
   placeholders substituted correctly, longest-match-first ordering
-  against prefix collision inputs, round-trip (forward then reverse)
-  returns the original for non-`{{RELATED_PLANS}}` placeholders, edge
-  cases (empty file, file with no placeholders, file with multiple
-  occurrences of the same placeholder).
+  against prefix-collision inputs, round-trip (forward then reverse)
+  returns the original for `{{DEV_ROOT}}` / `{{PROJECT}}` / `{{PLAN}}`,
+  edge cases (empty file, file with no placeholders, file with
+  multiple occurrences of the same placeholder), `{{VAULT_CATALOG}}`
+  excluded from reverse substitution. (When sub-R's
+  `{{ONTOLOGY_CONTEXT}}` amendment task lands, the algorithm and tests
+  extend to six placeholders with `{{ONTOLOGY_CONTEXT}}` also
+  forward-only.)
 - **Results:** _pending_
 
-### Implement `StagingDirectory::render` `[staging]`
+### Implement `StagingDirectory.render/4` `[staging]`
 - **Status:** not_started
 - **Dependencies:** Implement embedded prompts module, Implement
   placeholder substitution algorithm
-- **Description:** Implement the staging render per §2.2.5 of the spec.
+- **Description:** Implement the staging render per §2.3.5 of the spec.
   Walks the plan directory, copies every `.md` file to the staging
-  root with forward substitution applied, materialises embedded prompt
-  content into `<staging>/prompts/`, stages the phase prompt file with
-  substitution applied, stages the narrow project allowlist resolved
-  from the phase prompt's `{{PROJECT}}/...` tokens. Enforces the
-  critical invariants: (a) never follow symlinks into project repos
-  (hard error), (b) refuse to descend into subdirectories containing
-  `plan-state.md` (hard error to even try — this enforces "one plan
-  per Ravel process" against nested hierarchy), (c) write only
-  inside the staging root. Unit tests cover: correct forward
-  substitution, embedded prompts materialisation, allowlist
-  resolution, symlink rejection, child-plan-descent rejection, binary
-  file passthrough (don't substitute non-text files).
+  root with forward substitution applied (via
+  `Ravel.FileIO.read_tracked/1` for reads and
+  `Ravel.FileIO.write_safe/3` for writes), materialises embedded prompt
+  content into `<staging>/prompts/` via
+  `Ravel.Prompts.materialise_into/1`, composes the phase prompt
+  (shared `phases/<phase>.md` + optional per-plan
+  `<plan>/prompt-<phase>.md` override, additive only — never
+  replacement), substitutes all five placeholders in the composed
+  prompt, and stages the narrow project allowlist resolved from the
+  phase prompt's `{{PROJECT}}/...` tokens. Enforces the critical
+  invariants: (a) never follow symlinks into project repos (hard
+  error), (b) refuse to descend into subdirectories containing
+  `plan-state.md` (hard error — enforces "one plan per PlanActor"
+  against nested hierarchy; F owns nested-plan semantics), (c) write
+  only inside the staging root. Unit tests cover: correct forward
+  substitution on all five placeholders, embedded prompts
+  materialisation, allowlist resolution, symlink rejection,
+  child-plan-descent rejection, binary file passthrough (don't
+  substitute non-text files), phase composition with and without the
+  optional override file.
 - **Results:** _pending_
 
-### Implement `StagingDirectory::copy_back` `[staging]`
+### Implement `StagingDirectory.copy_back/2` `[staging]`
 - **Status:** not_started
-- **Dependencies:** Implement `StagingDirectory::render`
-- **Description:** Implement copy-back per §2.2.5 and §4.5 of the
+- **Dependencies:** Implement `StagingDirectory.render/4`
+- **Description:** Implement copy-back per §2.3.5 and §4.5 of the
   spec. Walks the staging root after executor exit, compares each file
-  against the canonical plan directory via content hash, applies
-  reverse substitution on `.md` files only, writes through changed
-  files atomically. Produces a `CopyBackReport` with files_updated,
-  files_unchanged, files_added, files_rejected. Rejection happens when
-  a staged file's relative path is outside the plan directory or the
+  against the canonical plan directory via content hash (using
+  `Ravel.FileIO.read_tracked/1`), applies reverse substitution on
+  `.md` files only, writes through changed files via
+  `Ravel.FileIO.write_safe/3` with category `:phase_owned`. Produces a
+  `%Ravel.CopyBackReport{}` with `files_updated`, `files_unchanged`,
+  `files_added`, `files_rejected`. Rejection happens when a staged
+  file's relative path is outside the plan directory or the
   explicitly-staged project subtree — this is a hard error that aborts
   the phase outcome and preserves the staging dir for forensics. Unit
-  tests cover: clean write-through, unchanged-file detection, new-file
-  propagation, reverse substitution correctness, rejection rule
-  enforcement, atomic rename semantics.
+  tests cover: clean write-through, unchanged-file detection,
+  new-file propagation, reverse substitution correctness, rejection
+  rule enforcement, atomic rename semantics (inherited from
+  `FileIO.write_safe/3`).
 
-  **FileIO constraint (from sub-D Session 18):** All writes must
-  delegate to `Ravel.FileIO.write_safe/3` rather than writing
-  files directly. Plan files written by `copy_back` are
+  **FileIO constraint (from sub-D Session 18):** Direct `File.write/2`
+  / `File.rename/2` calls are **forbidden** — all writes delegate to
+  `Ravel.FileIO.write_safe/3`. Plan files written by `copy_back/2` are
   `:phase_owned` — the daemon is authoritative during an active phase.
-  See the "Delegate `copy_back` writes to `FileIO.write_safe/3`"
-  task below.
+  Conflicts surface as warnings (not hard errors), daemon copy wins.
 - **Results:** _pending_
 
-### Delegate `copy_back` writes to `FileIO.write_safe/3` `[staging]` `[file-io]`
+### Implement `StagingDirectory.preserve_on_interrupt/2` and `cleanup/1` `[staging]`
 - **Status:** not_started
-- **Dependencies:** Implement `StagingDirectory::copy_back`, sub-D
-  `Ravel.FileIO` module landed
-- **Description:** Ensure `StagingDirectory.copy_back/2` delegates all
-  plan-file writes to `Ravel.FileIO.write_safe/3` rather than
-  performing direct filesystem writes. `Ravel.FileIO` is the
-  mandatory I/O layer for all daemon file operations (established by
-  sub-D Session 18). The file category for plan files written at
-  phase exit is `:phase_owned` — the daemon is authoritative for them
-  during an active phase, meaning conflicts surface as warnings (not
-  hard errors) and the daemon copy wins.
-
-  **Contract summary (from sub-D design):**
-  - `FileIO.read_tracked/1` — reads a file and records its SHA-256
-    hash for subsequent conflict detection.
-  - `FileIO.write_safe/3` — atomic temp-then-rename write with a
-    file category argument: `:exclusive` (no conflict check,
-    overwrite), `:phase_owned` (daemon-authoritative, warn on
-    conflict), `:human_editable` (human-authoritative, discard on
-    conflict).
-  - Plan files written by `copy_back` are `:phase_owned`.
-
-  **Work to perform:** Replace any direct `File.write/2` or
-  `File.rename/2` calls inside `copy_back` with
-  `FileIO.write_safe(path, content, :phase_owned)`. Reads inside
-  `copy_back` (for content-hash comparison against the canonical plan
-  directory) should use `FileIO.read_tracked/1`. Adjust unit tests to
-  assert that `FileIO.write_safe/3` is called with `:phase_owned`
-  for each written file.
+- **Dependencies:** Implement `StagingDirectory.render/4`
+- **Description:** `preserve_on_interrupt/2` moves the staging directory
+  to `<vault>/runtime/interrupted/<qualified-id>/<phase>-<timestamp>/`
+  for forensics (qualified-id format per sub-F §4.4). `cleanup/1`
+  deletes the staging directory on clean phase exit. Both operations
+  are atomic (`File.rename/2` for the move, `File.rm_rf/1` for the
+  cleanup — note these are OS-level directory operations, not tracked
+  plan files, so the `FileIO.write_safe/3` constraint does not apply
+  here). Unit tests cover both paths and the idempotency of cleanup.
 - **Results:** _pending_
 
-### Implement `StagingDirectory::preserve_on_interrupt` and `cleanup` `[staging]`
+### Implement `Ravel.PreWorkHook` `[runner]`
 - **Status:** not_started
-- **Dependencies:** Implement `StagingDirectory::render`
-- **Description:** `preserve_on_interrupt` moves the staging directory
-  to `<vault>/runtime/interrupted/<plan-id>/<phase>-<timestamp>/` for
-  forensics. `cleanup` deletes the staging directory on clean phase
-  exit. Both operations are atomic (rename-based move for preserve,
-  recursive delete for cleanup). Unit tests cover both paths and the
-  idempotency of cleanup.
+- **Dependencies:** Define core abstractions and types
+- **Description:** New module surfaced by the Session-12 rewrite
+  (spec §2.3.3 step 2). `Ravel.PreWorkHook.run/2` probes
+  `<plan>/pre-work.sh` for executability (via `File.stat/1` mode
+  bits); if absent or non-executable, returns `:ok` silently. If
+  executable, first deletes any stale `<plan>/latest-session.md`
+  (defensive cleanup), then invokes the hook synchronously from the
+  **project root** (not the plan dir, not the staging dir) via
+  `System.cmd/3` with `stderr_to_stdout: true`. Non-zero exit or any
+  I/O failure returns `{:error, reason}`, which `PhaseRunner.run_phase/4`
+  propagates as a hard error that aborts the cycle before staging is
+  rendered. This matches Ravel-Lite's upstream `run-plan.sh` contract.
+  Only fires for `:work` phase (never reflect, compact, or triage).
+  Unit tests cover: absent hook (silent skip), non-executable hook
+  (silent skip), clean exit (continues), non-zero exit (hard error),
+  I/O failure (hard error), cwd is project root not plan dir,
+  `latest-session.md` cleanup precedes hook invocation.
+- **Results:** _pending_
+
+### Implement `Ravel.Sentinel.SlidingBuffer` `[executor]`
+- **Status:** not_started
+- **Dependencies:** Define core abstractions and types
+- **Description:** New module surfaced by the Session-12 rewrite
+  (spec §2.3.4, §4.1). Implements the sliding-buffer sentinel matcher
+  that `LlmHarnessExecutor` uses to detect task-level phase completion
+  in the stdout stream from sub-C's harness session. API:
+
+  - `new(sentinel :: binary()) :: t()` — initialise state with the
+    per-phase sentinel string (defined in the phase prompt file).
+  - `push(state :: t(), chunk :: binary()) :: {:match | :no_match, new_state}` —
+    feed a chunk; returns `:match` when the sentinel has been observed
+    (possibly spanning chunk boundaries).
+
+  Window is bounded to `sentinel_size - 1` bytes — enough to catch
+  sentinels that span chunk boundaries without unbounded memory
+  growth. **Validated by the BEAM PTY spike** (Session 10,
+  2026-04-15; `spikes/beam_pty/`): correct across single-chunk
+  delivery, two-chunk split, grapheme-by-grapheme drip, false-prefix
+  (chunk matches a prefix of the sentinel but not the full sentinel),
+  and false-overlap (suffix of one chunk + prefix of next reconstructs
+  the sentinel). Unit tests replicate the spike's five cases plus:
+  zero-length chunk (no-op), sentinel exactly at chunk boundary,
+  multiple chunks after match (subsequent pushes remain `:match`,
+  idempotent), unicode sentinels (byte-level matching, not grapheme —
+  document this choice).
 - **Results:** _pending_
 
 ### Implement `FixtureReplayExecutor` and `FixtureReplayAdapter` `[executor]`
 - **Status:** not_started
 - **Dependencies:** Define core abstractions and types
-- **Description:** Implement the simplest executor first: reads a
-  captured output stream from a JSON fixture file, pushes chunks to
-  `output_tx` with simulated pacing, returns. No process spawn, no
-  `$EDITOR`, no harness adapter. Also implement `FixtureReplayAdapter`
-  — a `HarnessAdapter` implementation that reads a captured Claude Code
-  session transcript from JSON and emits `OutputChunk`s through the
-  `HarnessSession` trait. Both are used by downstream integration
-  tests to drive `PhaseRunner` end-to-end without a live harness.
-  Unit tests verify: fixture parsing, chunk pacing, clean exit
-  semantics, the `interrupt()` no-op semantics for replay.
+- **Description:** Implement the simplest executor first:
+  `Ravel.FixtureReplayExecutor` reads a captured output stream from a
+  JSON fixture file, invokes `emit_fn` with chunk events at simulated
+  pacing, then returns `:ok`. No process spawn, no `EDITOR`, no
+  harness adapter. Also implement `Ravel.FixtureReplayAdapter` — an
+  implementation of the `Ravel.HarnessAdapter` behaviour that reads a
+  captured Claude Code session transcript from JSON and emits
+  `%Ravel.Event.HarnessOutput{}` chunks through the consumption
+  protocol (`attach_consumer/2` delivers the chunks to the caller's
+  mailbox via `handle_info/2`). Both are used by downstream integration
+  tests to drive `PhaseRunner.run_phase/4` end-to-end without a live
+  harness. Unit tests verify: fixture parsing, chunk pacing, clean
+  exit semantics, the `interrupt/1` no-op semantics for replay,
+  consumer-protocol compliance (sub-C's §11.1 contract).
 - **Results:** _pending_
 
-### Implement `PhaseRunner::run_phase` `[runner]`
+### Implement `Ravel.PhaseRunner.run_phase/4` `[runner]`
 - **Status:** not_started
 - **Dependencies:** Implement `plan-state.md` parse/serialise, Implement
-  `StagingDirectory::render`, Implement `StagingDirectory::copy_back`,
-  Implement `FixtureReplayExecutor` and `FixtureReplayAdapter`
-- **Description:** Wire the 13-step `run_phase` flow from §2.2.3 of the
-  spec: validate transition, check lock, render staging, update state,
-  emit `PhaseStarted`, invoke executor, copy_back on clean exit,
-  compute next phase, update `last_exit`, persist, emit `PhaseExited`,
-  fire `ReflectExitHook` if phase was reflect, cleanup staging.
-  Integration tests use `FixtureReplayExecutor` and a fixture plan
-  directory. Test coverage: full happy path (work → reflect → compact
-  → triage → work round-trip AND work → reflect → triage → work
-  round-trip when the compact trigger skips compact), illegal
-  transition rejection, copy-back rejection aborts cleanly, hook
-  fires exactly once on reflect exit, hook does NOT fire on work /
-  compact / triage exit, state persistence at every transition
-  boundary, event emission order, compact-trigger wc-word-count
-  logic skips compact under the headroom and runs it above.
+  `StagingDirectory.render/4`, Implement `StagingDirectory.copy_back/2`,
+  Implement `FixtureReplayExecutor` and `FixtureReplayAdapter`,
+  Implement `Ravel.PreWorkHook`
+- **Description:** Wire the 13-step `run_phase/4` flow from §2.3.3 of
+  the spec as a **pure module** (no process state; invoked from inside
+  sub-F's `PlanActor` GenServer `handle_info/2` clause for
+  `{:run_phase, _}`). Signature:
+
+  ```elixir
+  @spec run_phase(
+          ctx :: Ravel.PlanContext.t(),
+          phase :: Ravel.Phase.t(),
+          executor :: module(),
+          parent :: pid()
+        ) :: Ravel.PhaseRunner.outcome()
+  ```
+
+  The 13 steps:
+
+  1. **Validate transition** legal from `ctx.state.current_phase`.
+     Compact-trigger exception: if entering compact and
+     `wc -w memory.md <= compact-baseline + HEADROOM` (HEADROOM =
+     1500 words, module constant), skip directly to triage (the
+     triage transition is still legality-checked).
+  2. **Run `pre-work.sh` hook** (only for `:work` — see dedicated task).
+  3. **Render staging** via `StagingDirectory.render/4`.
+  4. **Update `ctx.state`** (current_phase, started_at, daemon_pid),
+     persist atomically.
+  5. **Emit `%PhaseLifecycle{kind: :started, ...}`** via sub-M's
+     `:telemetry` boundary (forwarded to attached consumers by the
+     PlanActor).
+  6. **Invoke `executor.execute/3`** with `(ctx, staging, emit_fn)`.
+     Blocks until executor returns `:ok | {:interrupted, _} | {:error, _}`.
+  7. **On clean exit**: run `StagingDirectory.copy_back/2`. Reject
+     out-of-bounds writes as hard errors.
+  8. **Compute next phase**: work → reflect, reflect → compact,
+     compact → triage (write new `compact-baseline` from
+     `wc -w memory.md`), triage → work. Compact-skipped branch goes
+     directly to triage.
+  9. **Post-work session-log append**: if completed phase was `:work`,
+     append `<plan>/latest-session.md` content to `<plan>/session-log.md`
+     via `FileIO.write_safe/3` (temp-then-rename is the category's
+     default atomic semantic), then delete `latest-session.md`. Soft
+     warning if `latest-session.md` missing (the work phase wrote
+     nothing).
+  10. **Update `last_exit`** (phase, exited_at, clean_exit: true,
+      ingestion_fired: false), set current_phase to computed next,
+      persist atomically.
+  11. **Emit `%PhaseLifecycle{kind: :exited_clean, ...}`**.
+  12. **If completed phase was `:reflect`**, call
+      `reflect_exit_hook.on_reflect_exit/1` non-blockingly (PlanActor
+      dispatches to a supervised task; runner returns immediately).
+  13. **Run `DispatchProcessor.process/2` and `QueryProcessor.process/2`
+      for non-compact phases** (`:work`, `:reflect`, `:triage`).
+      Synchronous from runner's perspective, F's internal timeouts
+      apply. Compact is skipped (lossless-rewrite contract has no
+      dispatches or queries to emit).
+  14. **Cleanup staging** on clean consumption.
+  15. **Return** `{:ok, {:transitioned, next_phase}}`.
+
+  Every step is a hard-error boundary; any unhandled failure raises
+  into the PlanActor, which catches via supervisor and reports
+  through sub-M. Integration tests use `FixtureReplayExecutor` and a
+  fixture plan directory. Test coverage: full happy path
+  (`work → reflect → compact → triage → work` round-trip AND
+  `work → reflect → triage → work` round-trip when the compact
+  trigger skips compact), illegal transition rejection, copy-back
+  rejection aborts cleanly, reflect-exit hook fires exactly once on
+  reflect exit and does NOT fire on work / compact / triage exit,
+  state persistence at every transition boundary, event emission
+  order, compact-trigger wc-word-count logic skips compact under
+  the headroom and runs it above, `DispatchProcessor` /
+  `QueryProcessor` fire on work/reflect/triage and skip on compact,
+  `pre-work.sh` failure aborts the cycle cleanly.
 - **Results:** _pending_
 
-### Implement `PhaseRunner::interrupt` and the Interrupted flow `[runner]`
+### Implement `Ravel.PhaseRunner.interrupt/1` and the Interrupted flow `[runner]`
 - **Status:** not_started
-- **Dependencies:** Implement `PhaseRunner::run_phase`, Implement
-  `StagingDirectory::preserve_on_interrupt` and `cleanup`
-- **Description:** Implement the interrupt flow from §3.6 of the spec:
-  signal executor interrupt, capture partial output, preserve staging
-  dir under `<vault>/runtime/interrupted/`, update `plan-state.md`
-  with `interrupted: true`, emit `PhaseInterrupted`, do not transition
-  `current-phase`. Also implement the pending-interrupt flag: an
-  interrupt during CopyingBack is recorded in a pending flag,
-  copy-back completes, then the runner honours the flag. Unit tests
-  cover: interrupt during ExecutorRunning (immediate), interrupt during
-  CopyingBack (deferred until copy-back completes), idempotency of
-  double-interrupt, correct forensic log path, `interrupted` flag
-  persistence.
+- **Dependencies:** Implement `Ravel.PhaseRunner.run_phase/4`, Implement
+  `StagingDirectory.preserve_on_interrupt/2` and `cleanup/1`
+- **Description:** Implement the interrupt flow from §3.4 of the spec.
+  When the PlanActor receives `{:interrupt_phase, _}` while in
+  `PhaseRunning`, it invokes the runner's interrupt path, which:
+  signals `executor.interrupt/1` (which forwards to the harness
+  adapter's `kill/2` for `LlmHarnessExecutor` — graceful → grace
+  period → force kill via sub-C's two-phase termination; no-op for
+  `ManualEditorExecutor`); captures partial output into
+  `<vault>/runtime/interrupted/<qualified-id>/<phase>-<ts>/partial-output.log`
+  as JSON-Lines; preserves staging under
+  `<vault>/runtime/interrupted/<qualified-id>/<phase>-<ts>/staging/`;
+  updates `plan-state.md` with `interrupted: true`,
+  `last-exit.phase: <current>`, `last-exit.clean-exit: false`, and
+  does **not** transition `current-phase`; emits
+  `%PhaseLifecycle{kind: :interrupted, ...}` and
+  `%PhaseLifecycle{kind: :takeover_offered, options: [:manual, :retry_llm, :dismiss]}`.
+
+  Also implement the **pending-interrupt flag**: an interrupt during
+  `CopyingBack` is recorded in a map field in the runner's local
+  state, `copy_back/2` runs to completion, then the runner checks the
+  flag and transitions to Interrupted state post-copy. This is a
+  deliberate asymmetry — aborting mid-copy risks an inconsistent
+  plan directory, which violates the "hard errors by default, state
+  always consistent on disk" principle (§3.3).
+
+  Unit tests cover: interrupt during ExecutorRunning (immediate),
+  interrupt during CopyingBack (deferred until copy-back completes),
+  idempotency of double-interrupt, correct forensic log path,
+  `interrupted` flag persistence, obsidian-wikilink syntax in the
+  emitted forensics_dir string (`[[...]]`) so the takeover
+  notification is immediately actionable when the user opens the
+  vault.
 - **Results:** _pending_
 
 ### Implement `ManualEditorExecutor` `[executor]`
 - **Status:** not_started
-- **Dependencies:** Implement `PhaseRunner::run_phase`
-- **Description:** Implement the human-driven executor per §2.2.4 of
+- **Dependencies:** Implement `Ravel.PhaseRunner.run_phase/4`
+- **Description:** Implement the human-driven executor per §2.3.4 of
   the spec. Writes `<staging>/phase-prompt.readonly.md` with the
   substituted phase prompt text. Determines target file(s) for the
   phase (`work` → backlog.md + latest-session.md; `reflect` →
   memory.md (reads latest-session.md as input); `compact` → memory.md
   (lossless rewrite); `triage` → backlog.md). Spawns `$EDITOR`
-  (resolved from the `EDITOR` environment variable; fall back to
-  hard error if unset) blocked on the target files. Waits for editor
-  exit. Returns `Ok(())` on clean exit, `ExecutorError::EditorFailed`
-  on non-zero. `interrupt()` is a no-op. Integration tests use a
+  (resolved from `System.get_env("EDITOR")`; hard error if unset)
+  via `System.cmd/3` blocked on the target files. Waits for editor
+  exit. Returns `:ok` on clean exit, `{:error, {:executor, :editor_failed}}`
+  on non-zero. `interrupt/1` is a no-op. Integration tests use a
   scripted editor stub (e.g., a shell script that edits a file then
-  exits) to exercise the full flow through `PhaseRunner`, including
-  the compact phase path.
+  exits) to exercise the full flow through `PhaseRunner.run_phase/4`,
+  including the compact phase path.
 - **Results:** _pending_
 
-### Implement `LlmHarnessExecutor` with Claude Code stub adapter `[executor]`
+### Implement `LlmHarnessExecutor` against sub-C's `Ravel.HarnessAdapter` `[executor]`
 - **Status:** not_started
-- **Dependencies:** Implement `PhaseRunner::run_phase`, Define core
-  abstractions and types
-- **Description:** Implement the LLM executor per §2.2.4 of the spec.
-  Holds a `Box<dyn HarnessAdapter>`, reads the phase prompt from
-  `<staging>/phase-prompt.md`, invokes `adapter.spawn()` with the
-  appropriate tool profile, streams `OutputChunk`s to `output_tx`,
-  waits for child exit. `interrupt()` calls `adapter.terminate()`.
-  Also implement a minimal `ClaudeCodeAdapter` stub that spawns
-  `claude` as a subprocess, passes the prompt via `-n` and stdin,
-  captures stdout as `OutputChunk` events. This is a temporary stub
-  until sub-project C's real adapter lands. Integration tests use
-  `FixtureReplayAdapter` (from the earlier task), not the real stub,
-  so tests stay deterministic. Document the ClaudeCodeAdapter stub's
-  limitations clearly — it does not enforce tool profiles, does not
-  support warm-pool reuse, and lacks the full error handling the
-  real sub-project C adapter will provide.
+- **Dependencies:** Implement `Ravel.PhaseRunner.run_phase/4`, Implement
+  `Ravel.Sentinel.SlidingBuffer`, Define core abstractions and types
+- **Description:** Implement the LLM executor per §2.3.4 and §4.1 of the
+  spec. Consumes a sub-C harness session via the `attach_consumer/2`
+  + `handle_info/2` pattern; pattern-matches on
+  `%Ravel.Event.SessionLifecycle{}` for protocol-level signals
+  (`:ready | {:turn_complete, _} | {:exited, _}`) and on
+  `%Ravel.Event.HarnessOutput{kind: :stdout}` for content, feeding
+  each chunk into `Ravel.Sentinel.SlidingBuffer` to detect task-level
+  completion. When the sentinel matcher fires, the executor emits
+  an internal `{:phase_completion_detected, sentinel}` message that
+  the state machine consumes as the trigger to wind down the session
+  and return `:ok`.
+
+  Reads the composed phase prompt from `<staging>/phase-prompt.md`
+  (already substituted by `StagingDirectory.render/4`), invokes
+  `adapter.spawn/2` with the phase-appropriate tool profile,
+  `attach_consumer/2` to start receiving events, forwards streamed
+  chunks via `emit_fn` for sub-M telemetry and PlanActor consumer
+  forwarding. `interrupt/1` calls `adapter.kill/2` (two-phase
+  termination from sub-C: graceful → grace period → force).
+
+  Sub-C's real adapter lands separately; until then, use
+  `FixtureReplayAdapter` (already landed above) for deterministic
+  integration tests. Document the consumption contract explicitly —
+  `%SessionLifecycle{}` signals are protocol-level and distinct from
+  sentinel-based task-level completion; the executor must honour both
+  orthogonally (session may complete a turn without sentinel firing,
+  and sentinel may fire before the adapter reports session exit).
 - **Results:** _pending_
 
-### Implement `ReflectExitHook` wiring for sub-project E `[integration]`
+### Implement `Ravel.ReflectExitHook` wiring for sub-project E `[integration]`
 - **Status:** not_started
-- **Dependencies:** Implement `PhaseRunner::run_phase`
-- **Description:** Expose the `ReflectExitHook` trait from §4.2 of the
-  spec and wire its invocation into step 11 of `run_phase`. The hook
-  is called non-blockingly on a dedicated tokio task; errors from the
-  hook are not observed by B. Until sub-project E's real
-  implementation lands, ship a `NullReflectExitHook` stub that logs
-  the call and returns. When E lands, swap in E's concrete
-  implementation. Unit tests verify: hook fires exactly once per
-  clean reflect exit, hook receives the correct `ReflectExitContext`,
-  hook does not fire when `last-exit.ingestion-fired` was already
-  true, hook is non-blocking (the runner returns before the hook
-  completes).
+- **Dependencies:** Implement `Ravel.PhaseRunner.run_phase/4`
+- **Description:** Define the `Ravel.ReflectExitHook` behaviour from
+  §4.2 of the spec and wire its invocation into step 12 of
+  `run_phase/4`. The hook is called **non-blockingly** — the PlanActor
+  dispatches it to a supervised task (`Task.Supervisor.start_child/2`)
+  so the runner can return control immediately; errors from the hook
+  are not observed by B. Until sub-project E's real implementation
+  lands, ship a `Ravel.NullReflectExitHook` stub that logs the call
+  via `:telemetry` and returns `:ok`. When E lands, the production
+  configuration swaps in E's concrete implementation module. Unit
+  tests verify: hook fires exactly once per clean reflect exit, hook
+  receives the correct `%Ravel.ReflectExitContext{}`, hook does not
+  fire when `last-exit.ingestion-fired` was already true, hook is
+  non-blocking (runner returns before the hook completes).
 - **Results:** _pending_
 
-### Implement event channel and `PhaseEvent` forwarding `[events]`
+### Implement typed-event emission via `:telemetry` `[events]`
 - **Status:** not_started
 - **Dependencies:** Define core abstractions and types
-- **Description:** Implement the shared event channel (tokio mpsc) that
-  carries `PhaseEvent` variants from `PhaseRunner` to the
-  `InteractionDriver`. Also wire forwarding of sub-E's
-  `IngestionEventPayload` into the same channel as the
-  `PhaseEvent::IngestionEvent` variant. Unit tests cover: event
-  ordering preserved, backpressure semantics (what happens when the
-  driver is slow), clean channel shutdown on `Quit`.
-- **Results:** _pending_
+- **Description:** Implement the `:telemetry` emission points in
+  `PhaseRunner` and each `PhaseExecutor` implementor per §4.4 of the
+  spec. All events are typed `%Ravel.Event.*{}` structs; the
+  `:telemetry` payload carries the struct verbatim plus `plan_id`
+  and phase metadata. The PlanActor attaches handlers that forward
+  events to attached consumers through its mailbox (consumer
+  forwarding is F's scope; B only emits).
 
-### Implement `HeadlessDriver` `[driver]`
-- **Status:** not_started
-- **Dependencies:** Implement `PhaseRunner::run_phase`, Implement event
-  channel and `PhaseEvent` forwarding
-- **Description:** Implement the test-driven interaction driver per
-  §2.2.6 of the spec. Reads `TuiAction`s from a fixture script (or
-  stdin, for interactive test debugging) and writes `PhaseEvent`s to
-  stdout as JSON lines. Owns the `PhaseRunner` for the session and
-  invokes `runner.run_phase` in response to `AdvancePhase` actions.
-  This is the primary end-to-end test driver — every integration
-  test uses it. Unit tests cover: fixture script parsing, action
-  dispatch, event serialisation, clean shutdown on `Quit`,
-  error propagation.
-- **Results:** _pending_
-
-### Implement `IpcDriver` — compile-time boundary hardening `[driver]`
-- **Status:** not_started
-- **Dependencies:** Implement `HeadlessDriver`
-- **Description:** Implement the JSON IPC driver per §2.2.6 and §4.3
-  of the spec. Reads user actions from stdin as JSON lines, writes
-  events to stdout as JSON lines, every message carries
-  `protocol-version: 1`. This is v1's compile-time enforcement
-  mechanism for the serialisable `InteractionDriver` boundary: if
-  any new method added to `InteractionDriver` can't be implemented
-  by `IpcDriver`, it fails to compile. Ship concrete JSON message
-  shapes as they are introduced and commit example sequences to
-  `tests/fixtures/ipc-protocol/`. Unit tests cover: protocol-version
-  tagging, unknown-version rejection, message shape round-trips.
-  `IpcDriver` has no client in v1 — its purpose is boundary
-  discipline, not user-facing UX.
-- **Results:** _pending_
-
-### Implement `RatatuiDriver` — the v1 primary UI `[driver]`
-- **Status:** not_started
-- **Dependencies:** Implement `HeadlessDriver`, Implement event
-  channel and `PhaseEvent` forwarding
-- **Description:** Implement the ratatui TUI per §2.2.6 and §3.4 of
-  the spec. Three panes: backlog summary (top-left, from backlog.md),
-  executor output (right, streaming harness/editor output),
-  notification feed (bottom-left, phase and ingestion events). Status
-  bar at the bottom showing plan id, phase, mode, pid. Main event
-  loop: render current state, await either a TUI input event or an
-  inbound `PhaseEvent` (via tokio `select!`), dispatch to
-  `PhaseRunner::run_phase` on `AdvancePhase`, to `runner.interrupt()`
-  on Ctrl-C, etc. Keybindings per §3.4 (arrow keys primary, Vim
-  alternates, configurable later). Takeover prompt rendered as a
-  non-modal notification with `[y / n / retry-llm]` option display.
-  Unit tests use ratatui's snapshot testing for pane layout; full
-  interaction flows are tested via `HeadlessDriver`.
+  The `emit_fn` closure passed to each executor is how executors
+  push streamed chunks and intermediate events — the closure wraps
+  `:telemetry.execute/3` with the span/plan-id context baked in.
+  Unit tests cover: event ordering preserved, backpressure semantics
+  (the closure is synchronous, so a slow consumer cannot drop events
+  silently), struct shape stability across emission points.
 - **Results:** _pending_
 
 ### Implement symlink rescan and vault bootstrap `[vault]`
 - **Status:** not_started
 - **Dependencies:** Task 0 (symlinks validation spike must pass first)
-- **Description:** Implement the symlink rescan lifecycle per §2.4 of
+- **Description:** Implement the symlink rescan lifecycle per §2.6 of
   the spec. Walks the dev root looking for project repos (directories
   containing `.git`), checks for `<project>/ravel/`, creates
   relative symlinks under `<vault>/projects/<project-name>`,
-  garbage-collects dangling links, detects cycles via `same-file`,
-  handles the `ravel rescan` CLI subcommand as an explicit trigger
-  plus automatic invocation on startup. Also implement vault bootstrap
-  per §2.3: create the vault directory if missing, create
-  `knowledge/`, `runtime/`, `projects/` subdirectories, initialise
-  `.git` and `.gitignore`, write a minimal `.obsidian/` stub and a
-  vault `README.md`. Unit tests use tempdir-based fake dev roots with
-  fixture project layouts.
+  garbage-collects dangling links, detects cycles via `File.lstat/1`
+  inode comparison, handles the `ravel rescan` CLI subcommand as an
+  explicit trigger plus automatic invocation on daemon start (the
+  daemon-start invocation lives in sub-F's startup sequence; B
+  provides the rescan function). Also implement vault bootstrap per
+  §2.6: create the vault directory if missing, create `knowledge/`,
+  `runtime/`, `projects/` subdirectories, initialise `.git` and
+  `.gitignore`, write a minimal `.obsidian/` stub and a vault
+  `README.md`. Unit tests use `tmp_dir`-based fake dev roots with
+  fixture project layouts. No B-owned daemon startup — the bootstrap
+  function is called by sub-F's startup sequence.
 - **Results:** _pending_
 
 ### Implement crash recovery `[lifecycle]`
 - **Status:** not_started
 - **Dependencies:** Implement `plan-state.md` parse/serialise, Implement
-  `ReflectExitHook` wiring for sub-project E
+  `Ravel.ReflectExitHook` wiring for sub-project E
 - **Description:** Implement the three crash recovery scenarios from
-  §3.3 of the spec. Scenario A (interrupted): surface the prior
-  interrupt to the TUI notification feed on first render, offer
-  "retry this phase" as a TUI action. Scenario B
-  (ingestion-didn't-fire): fire the ingestion pipeline on the prior
-  reflect's outputs as the first post-Idle action, with the hook
-  flipping the flag at Stage 5 start. Scenario C (clean state): no-op.
-  All three run at the Starting → Idle transition. Idempotency: running
-  recovery twice on the same state produces the same result. Unit
-  tests cover all three scenarios, crash-during-recovery survival, and
-  the "last reflect was already fired" no-op path.
-- **Results:** _pending_
-
-### Implement the full startup sequence `[lifecycle]`
-- **Status:** not_started
-- **Dependencies:** Implement symlink rescan and vault bootstrap,
-  Implement crash recovery, Implement `PhaseRunner::run_phase`,
-  Implement `RatatuiDriver`
-- **Description:** Wire the 10-step startup sequence from §3.2 of the
-  spec: parse CLI, locate plan, locate host project, locate dev root,
-  locate or bootstrap vault, run symlink rescan, acquire per-plan
-  advisory lock, load `plan-state.md`, run crash recovery, construct
-  `PhaseRunner` + event channel + `InteractionDriver`, transition to
-  Idle. Every step is a hard-error boundary. Also implement the CLI
-  surface: `ravel`, `ravel <plan-dir>`, `ravel --replay
-  <fixture-dir>`, `ravel --headless --script <path>`, `ravel
-  --ipc`, `ravel rescan`, `--version`, `--help`. Integration tests
-  exercise the full startup against tempdir vault fixtures.
-- **Results:** _pending_
-
-### Implement per-plan advisory lock stub `[concurrency]`
-- **Status:** not_started
-- **Dependencies:** Implement symlink rescan and vault bootstrap
-- **Description:** Implement a stub for sub-project D's advisory lock
-  primitive: `PlanLockGuard::acquire(path)` using `fs2::FileExt`'s
-  `lock_exclusive` (or equivalent) against
-  `<vault>/runtime/locks/<plan-id>.lock`. Held for the session
-  lifetime, released on drop. Acquisition failure is a hard error
-  with a diagnostic naming the holding PID (read from the lock file's
-  contents, which Ravel writes on acquire). Sub-project D's real
-  implementation replaces this stub when it lands; the replacement
-  should be a drop-in swap. Unit tests cover: acquire-release cycle,
-  contention detection, PID diagnostic.
-- **Results:** _pending_
-
-### Implement shutdown sequence `[lifecycle]`
-- **Status:** not_started
-- **Dependencies:** Implement the full startup sequence, Implement
-  `PhaseRunner::interrupt` and the Interrupted flow
-- **Description:** Wire the 7-step shutdown sequence from §3.7 of the
-  spec: stop accepting input, force-interrupt executor if running,
-  persist final `plan-state.md`, release lock, cleanup or preserve
-  staging, restore terminal, exit with appropriate status code. Both
-  clean quit and hard-error shutdown flow through this sequence.
-  Integration tests cover: clean quit from Idle, hard-error from
-  PhaseRunning, forced interrupt during CopyingBack.
+  §3.2 of the spec as a pure function called by sub-F's PlanActor
+  immediately after it spawns and loads `plan-state.md`. **Scenario A
+  (interrupted):** emit
+  `%PhaseLifecycle{kind: :prior_interrupt_surfaced, forensics_dir, ...}`
+  on first attached-consumer attach; the user decides retry / dismiss
+  via `{:retry_phase}` / `{:dismiss_interrupt}` messages (F-level
+  messages; B provides the handler function). **Scenario B
+  (ingestion-didn't-fire):** fire the ingestion pipeline on the prior
+  reflect's outputs as the first post-Active action, with the hook
+  flipping `ingestion-fired` at Stage 5 start (E's responsibility).
+  **Scenario C (clean state):** no-op. All three run at the PlanActor
+  `Dormant → Active` transition. Idempotency: running recovery twice
+  on the same state produces the same result. Unit tests cover all
+  three scenarios, crash-during-recovery survival, and the "last
+  reflect was already fired" no-op path.
 - **Results:** _pending_
 
 ### End-to-end integration test corpus `[testing]`
 - **Status:** not_started
-- **Dependencies:** Implement `HeadlessDriver`, Implement the full
-  startup sequence, Implement `PhaseRunner::run_phase`
+- **Dependencies:** Implement `Ravel.PhaseRunner.run_phase/4`, Implement
+  `FixtureReplayExecutor` and `FixtureReplayAdapter`, Implement crash
+  recovery
 - **Description:** Build a corpus of fixture plans under
-  `tests/fixtures/plans/` and corresponding scripted action sequences
-  under `tests/fixtures/scripts/`. Each integration test runs a
-  fixture plan through the full pipeline with `HeadlessDriver` +
+  `test/fixtures/plans/` and corresponding scripted PlanActor message
+  sequences under `test/fixtures/scripts/`. Each integration test
+  drives a fixture plan through the full pipeline by sending
+  `{:run_phase, _}` messages to a test PlanActor (stubbed from F's
+  real implementation or minimal harness) using
   `FixtureReplayExecutor` and asserts the final plan state plus the
-  emitted event stream match expectations in
-  `tests/fixtures/expected/`. Coverage target: full work → reflect
-  → triage → work cycle, interrupt-and-retry, interrupt-and-takeover,
+  emitted `:telemetry` event stream match expectations in
+  `test/fixtures/expected/`. Coverage target: full
+  `work → reflect → compact → triage → work` cycle (compact-run
+  branch), `work → reflect → triage → work` cycle (compact-skipped
+  branch), interrupt-and-retry, interrupt-and-takeover,
   crash-recovery-scenario-A, crash-recovery-scenario-B, copy-back
   rejection abort, nested plan (parent + child) with descent rule
-  enforcement.
+  enforcement, `pre-work.sh` failure aborts cleanly. Tests are
+  tagged `:integration` for ExUnit.
 - **Results:** _pending_
 
 ### Live gated test against real Claude Code `[testing]`
 - **Status:** not_started
-- **Dependencies:** Implement `LlmHarnessExecutor` with Claude Code
-  stub adapter, End-to-end integration test corpus
-- **Description:** Create a manual/CI-gated test that runs the full
-  cycle against a real Claude Code instance with a fixture plan,
-  asserting only structural invariants: phases complete, no hard
-  errors, lock acquired/released, staging cleaned up, `plan-state.md`
-  consistent, ingestion event log written (if E's real implementation
-  is also landed by then). Not run on every commit. Runs on a
-  clean-room dev-root layout torn down after the test. Produces
-  characterisation data for the cold-spawn latency risk from §5.4.
+- **Dependencies:** Implement `LlmHarnessExecutor` against sub-C's
+  `Ravel.HarnessAdapter`, End-to-end integration test corpus
+- **Description:** Create an ExUnit-tagged (`@tag :live`) test that
+  runs the full cycle against a real Claude Code instance with a
+  fixture plan, asserting only structural invariants: phases
+  complete, no hard errors, daemon-singleton lock acquired/released
+  (sub-F's scope), staging cleaned up, `plan-state.md` consistent,
+  ingestion event log written (if E's real implementation is also
+  landed by then). The `:live` tag excludes the test from the default
+  run; `mix test --include live` runs it. Not run on every commit.
+  Runs on a clean-room dev-root layout torn down after the test.
+  Produces characterisation data for the cold-spawn latency risk from
+  §5.4.
 - **Results:** _pending_
 
 ### Dogfood task: host the orchestrator seed plan on Ravel v1 `[dogfood]`
 - **Status:** not_started
-- **Dependencies:** End-to-end integration test corpus, Implement
-  shutdown sequence, Implement `RatatuiDriver`, Live gated test
-  against real Claude Code
+- **Dependencies:** End-to-end integration test corpus, Live gated
+  test against real Claude Code, sub-F daemon + TUI client landed,
+  sub-F PlanActor implementation landed
 - **Description:** The v1 acceptance test. Migrate the orchestrator
   seed plan and sub-E's sibling plan from `phase.md` +
-  LLM_CONTEXT's `run-plan.sh` to `plan-state.md` + Ravel v1. This
-  depends on sub-project G's migration logic being available — if G
-  is not yet done, perform the migration manually as a one-shot for
-  these two plans as part of this task's scope (document the manual
-  steps clearly). Run a full work → reflect → (compact) → triage
-  cycle of the orchestrator plan on Ravel v1 end-to-end: Ratatui
-  TUI, real Claude Code harness via the stub adapter, real ingestion
-  pipeline from sub-E, real vault at `<dev-root>/Ravel-vault/`.
-  Must exercise both the compact-skipped and compact-run branches of
-  the wc-word-count trigger. Success criteria: cycle completes
-  cleanly, all events emitted correctly, plan state persisted
+  Ravel-Lite's `run-plan.sh` to `plan-state.md` + Ravel v1 (the
+  BEAM daemon + sub-F TUI client). This depends on sub-project G's
+  migration logic being available — if G is not yet done, perform
+  the migration manually as a one-shot for these two plans as part
+  of this task's scope (document the manual steps clearly). Run a
+  full `work → reflect → (compact) → triage` cycle of the
+  orchestrator plan on Ravel v1 end-to-end: sub-F's Rust TUI
+  client attached to the daemon, real Claude Code harness via
+  sub-C's `Ravel.HarnessAdapter`, real ingestion pipeline from
+  sub-E, real vault at `<dev-root>/Ravel-vault/`. Must exercise
+  both the compact-skipped and compact-run branches of the
+  wc-word-count trigger. Success criteria: cycle completes cleanly,
+  all typed events emitted correctly, plan state persisted
   consistently, ingestion fired exactly once, no hard errors, the
-  user can retire LLM_CONTEXT's `run-plan.sh` for these two plans
+  user can retire Ravel-Lite's `run-plan.sh` for these two plans
   and proceed on Ravel for all future sessions. This is the
   moment v1 ships.
 - **Results:** _pending_
@@ -932,9 +865,9 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   section.
 - **Results:** _pending_
 
-### Adopt sub-M observability framework — phase lifecycle instrumentation + TUI bridge consumer `[m-adoption]`
+### Adopt sub-M observability framework — phase lifecycle instrumentation `[m-adoption]`
 - **Status:** not_started
-- **Dependencies:** sub-M Task 12 (`ObservabilityHarness`) landed; this
+- **Dependencies:** sub-M's `:telemetry` boundary defined; this
   task lives in B's backlog because B owns the call sites being
   instrumented
 - **Description:** Landed by sub-project M's brainstorm
@@ -944,47 +877,48 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
   §10 specifies M's cross-plan adoption requirements; this task is B's
   share.
 
-  Concretely:
-  1. Add `tracing::instrument` annotations on `PhaseRunner::run_phase`
-     and on each `PhaseExecutor::execute` implementation. Span name
-     `phase`, fields `plan_id`, `phase`. The span context is consumed
-     by M's `RavelEventLayer` to attribute events to the right
-     phase scope.
-  2. Emit `RavelEvent::PhaseLifecycle` events at the numbered steps
-     of `PhaseRunner::run_phase`:
-     - Step 5: `PhaseLifecycleKind::Started { phase, plan_id, at }`
-     - Step 10: `PhaseLifecycleKind::ExitedClean { phase, transitioned_to, at }`
-     - Step 11: `PhaseLifecycleKind::ReflectHookFired { plan_id, at }`
-     - Interrupted-state path: `PhaseLifecycleKind::Interrupted { phase, forensics_dir, at }`
-     - ExecutorFailed path: `PhaseLifecycleKind::ExecutorFailed { phase, error, at }`
-     Use the `ravel_event!` macro (provided by sub-M Task 6) rather
-     than calling `tracing::event!` directly.
-  3. Replace any draft `eprintln!`-style debug logging in `PhaseRunner`
-     with `ravel_event!(Level::DEBUG, RavelEvent::Diagnostic { ... })`
-     calls. The `EnvFilter` (from M Task 11) controls visibility; the
-     events are always emitted.
-  4. Wire `TuiBridgeLayer`'s `mpsc::Receiver<RavelEvent>` into B's
-     TUI module event loop. The TUI should subscribe via
-     `harness.subscribe_tui()` (M Task 12 API) at startup and consume
-     events in the existing `tokio::select!` over the TUI input
-     channel + new RavelEvent channel. Status bar gauges and the
-     event log tail panel render from this stream per §11.1 of M's
-     design doc.
-  5. Wire the Risk 5 dump path: in `PhaseRunner::run_phase`'s error
-     branches (steps 1-13 hard-error boundaries, executor failure
-     branch, interrupt branch), call
-     `observability::dump_event_tail(harness, session_id, plan_id, phase, 1000)`
-     before returning the error. The dump path is defined by sub-M
-     Task 13.
+  The Session-12 BEAM pivot collapses sub-M's `tracing`-based Rust
+  design into Elixir's native `:telemetry`. Concretely:
 
-  TDD: write tests that drive a fixture `PhaseRunner::run_phase` cycle
-  and assert the expected `RavelEvent` sequence appears on the TUI
-  bridge channel. Layer 3 integration test exists in sub-M Task 19;
-  this task only needs unit tests on B's side.
+  1. Emit `%Ravel.Event.PhaseLifecycle{}` typed struct events at the
+     numbered steps of `PhaseRunner.run_phase/4` via
+     `:telemetry.execute/3`:
+     - Step 5: `kind: :started, phase, plan_id, executor_kind, at`
+     - Step 11: `kind: :exited_clean, phase, transitioned_to, at`
+     - Step 12: `kind: :reflect_hook_fired, plan_id, at`
+     - Interrupted path: `kind: :interrupted, phase, forensics_dir, at`
+     - ExecutorFailed path: `kind: :executor_failed, phase, error, at`
+     - Interrupted path: `kind: :takeover_offered, phase, forensics_dir, options, at`
+     - Crash-recovery: `kind: :prior_interrupt_surfaced, phase, forensics_dir, at`
+  2. The `emit_fn` closure (passed to executors in step 6 of
+     `run_phase/4`) wraps `:telemetry.execute/3` with plan-id and
+     phase context baked in, so executor-level streamed events
+     carry the right attribution without each executor calling
+     telemetry directly.
+  3. The PlanActor attaches handlers (F's scope) that forward
+     `:telemetry` events to attached consumers via its mailbox.
+     **Do not emit directly to a TUI channel from B** — the TUI is
+     sub-F's Rust client binary, consumed through the PlanActor's
+     attached-consumer protocol.
+  4. Replace any draft `Logger.debug/1` calls in `PhaseRunner` with
+     `:telemetry` events of kind `%Ravel.Event.Diagnostic{}`. The
+     telemetry subscriber filters visibility per sub-M's log-level
+     config; events are always emitted.
+  5. In `run_phase/4`'s error branches (all 13 steps' hard-error
+     boundaries, executor failure branch, interrupt branch), emit a
+     dump event carrying the last N internal state snapshots before
+     returning the error outcome. The dump event shape is defined by
+     sub-M; B calls a sub-M helper rather than formatting the dump
+     itself.
 
-  No changes to B's existing trait surface or to the `PhaseEvent`
-  channel. Both B's `PhaseEvent` channel and M's `RavelEvent` bus
-  coexist during the parallel-emit window. After M v1 ships and the
-  verification window passes, a future task collapses B's channel into
-  M's bus (deferred — not part of M v1 scope).
+  TDD: write ExUnit tests that drive a fixture
+  `PhaseRunner.run_phase/4` cycle with a `:telemetry` test handler
+  attached and assert the expected event sequence and payload
+  shapes. Layer 3 integration test lives in sub-M; this task only
+  needs unit tests on B's side.
+
+  No changes to B's type surface beyond the `%Ravel.Event.*{}`
+  structs. The Rust-era parallel-channel coexistence (B's
+  `PhaseEvent` channel + M's `RavelEvent` bus) is collapsed by
+  the BEAM pivot — `:telemetry` is the single emission surface.
 - **Results:** _pending_

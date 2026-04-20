@@ -187,18 +187,9 @@ docs server. Design doc:
   - Sub-G: note clean break at Phase 1 in migration docs (§9 sub-G)
 - **Results:** _pending_
 
-## Sub-R adoption
+<!-- Task 15 (Sub-R routing-rule review TUI view) removed 2026-04-20:
+     scope creep for v1. Sub-R is not listed in spec §9 cross-sub-project
+     requirements and sub-H §10 scopes sub-H to command registry, palette,
+     keybindings, NDJSON additions, and `ravel cmd` only. Revisit if/when
+     sub-R adoption is formally amended into v1 scope. -->
 
-### Task 15 — Absorb Sub-R: routing rule review in TUI `[r-adoption]`
-- **Status:** not_started
-- **Dependencies:** Task 9 (command palette), Sub-R engine landed
-- **Description:** Per Sub-R design doc §7.3. With routing rules moving
-  from `routing.ex` (Elixir) to `ontology/routing.dl` (Datalog), the
-  TUI's routing-rule review surface may benefit from a dedicated view
-  in the output pane that shows: (a) current active routing rules from
-  `routing.dl`, (b) pending rule proposals from
-  `<vault>/runtime/staging/proposed-rules/`. Accept/reject actions for
-  proposals. No new daemon commands needed — ontology files are edited
-  via `$EDITOR` like expert declarations. The review view is a
-  read-only display of `Ravel.Datalog.Server` state.
-- **Results:** _pending_

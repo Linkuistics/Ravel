@@ -296,7 +296,7 @@ amendment task below makes this explicit.
   `session_date` from session-log, carries `plan_path` and `host_project` as
   provenance. Pure Rust, no LLM, no filesystem writes. Unit tests against
   fixture plan files (capture small real-world samples from the existing
-  LLM_CONTEXT plans as fixtures).
+  Ravel-Lite plans as fixtures).
 - **Results:** _pending_
 
 ### Implement Stage 2 — deterministic retrieval `[pipeline]`
@@ -510,7 +510,7 @@ amendment task below makes this explicit.
 - **Status:** not_started
 - **Dependencies:** Wire the full pipeline end-to-end
 - **Description:** Capture a small corpus of realistic plan-memory files
-  (adapted from the existing LLM_CONTEXT plans with names anonymised if
+  (adapted from the existing Ravel-Lite plans with names anonymised if
   needed) and corresponding recorded adapter fixture responses. Build a
   test harness that runs the full pipeline against each fixture plan and
   asserts the final store state plus event records match expectations.

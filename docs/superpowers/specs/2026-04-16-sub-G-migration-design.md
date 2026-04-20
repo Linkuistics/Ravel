@@ -7,7 +7,7 @@
 
 ## §1. Purpose and scope
 
-Design the migration path from the current `LLM_STATE/` + `LLM_CONTEXT/`
+Design the migration path from the current `LLM_STATE/` + `Ravel-Lite/`
 layout to `<project>/ravel/` + the BEAM daemon. Two deliverables:
 
 1. **`migrate-project.sh`** — a one-shot shell script that restructures
@@ -37,7 +37,7 @@ layout to `<project>/ravel/` + the BEAM daemon. Two deliverables:
 - Project adoption into the vault (Sub-A's `ravel adopt-project`)
 - `plan-state.md` schema enforcement beyond the rename (daemon's job at
   first boot)
-- `run-plan.sh` or LLM_CONTEXT changes (none needed)
+- `run-plan.sh` or Ravel-Lite changes (none needed)
 - The daemon itself (Sub-F + Sub-B)
 - `~/.ravel/` cleanup (v0.1.0 has no real users; hardcoded path only
   existed in the deleted Rust CLI code)
@@ -68,12 +68,12 @@ Sub-F) can drive plans from `ravel/project-root/`.
 **Actions:**
 - Run `migrate-project.sh` on Ravel
 - The daemon takes over plan driving for Ravel
-- `LLM_CONTEXT/run-plan.sh` is no longer invoked for Ravel plans
-- LLM_CONTEXT itself is untouched — the four dependents still use it
+- `Ravel-Lite/run-plan.sh` is no longer invoked for Ravel plans
+- Ravel-Lite itself is untouched — the four dependents still use it
 
 The rename IS the switch-over event. Ravel stops using
 `run-plan.sh` and starts using the daemon. No intermediate states, no
-symlink bridges, no LLM_CONTEXT changes.
+symlink bridges, no Ravel-Lite changes.
 
 ### Phase 2 — Dependent projects migrate (one at a time)
 
@@ -88,13 +88,13 @@ each project is ready. No technical gate beyond Phase 1.
 
 Order among the four dependents is unconstrained.
 
-### Phase 3 — LLM_CONTEXT retirement
+### Phase 3 — Ravel-Lite retirement
 
 **Precondition:** all five projects are daemon-driven. No project
 invokes `run-plan.sh` anymore.
 
 **Actions:**
-- LLM_CONTEXT directory can be archived or deleted
+- Ravel-Lite directory can be archived or deleted
 - This is a human decision, not a script operation
 
 ## §3. Per-project restructure operations
@@ -126,11 +126,12 @@ The script performs these in order for every project:
 
 - **Root plan:** `LLM_STATE/ravel-orchestrator/` →
   `ravel/project-root/`
-- **Children:** all 8 `LLM_STATE/sub-*` directories →
-  `ravel/project-root/sub-*/`
-  - `sub-A-global-store`, `sub-B-phase-cycle`, `sub-C-adapters`,
-    `sub-D-coordination`, `sub-E-ingestion`, `sub-F-hierarchy`,
-    `sub-M-observability`, `sub-N-domain-experts`
+- **Children:** every `LLM_STATE/sub-*/` directory (without exception)
+  → `ravel/project-root/sub-*/`, preserving the `sub-*` name. The
+  live `LLM_STATE/` tree is the source of truth — the script
+  enumerates `LLM_STATE/sub-*/` at runtime rather than against a
+  hardcoded list, so new sibling sub-projects added before migration
+  are picked up automatically.
 - **Artifact retirement** (Phase 0, executed separately):
   - Delete `src/`, `Cargo.toml`, `Cargo.lock` (Rust v0.1.0 CLI)
   - Delete `adapters/claude-code/` (legacy Claude Code plugin)
@@ -321,7 +322,7 @@ Clear boundary between the script's responsibility and the daemon's:
    (`<vault>/projects/<name>` → `<project>/ravel/`) is a daemon
    operation, run after the script.
 
-4. **No LLM_CONTEXT changes** — `run-plan.sh`, `phases/`,
+4. **No Ravel-Lite changes** — `run-plan.sh`, `phases/`,
    `fixed-memory/`, `create-plan.md` are all untouched. Dependent
    projects keep using them until they individually migrate.
 
@@ -395,8 +396,8 @@ at the user's discretion.
 **Rejected:**
 - Late migration (A) — blocks rename until daemon ships, but there's no
   benefit to waiting for all projects at once
-- Early migration with LLM_CONTEXT compatibility (B) — unnecessary
-  LLM_CONTEXT changes
+- Early migration with Ravel-Lite compatibility (B) — unnecessary
+  Ravel-Lite changes
 - Symlink bridge (C) — intermediate state complexity for no gain
 
 ### Q2. Ravel's own transition window?
@@ -406,7 +407,7 @@ IS the switch-over event. No intermediate states.
 
 **Rejected:**
 - Symlink bridge (B) — adds complexity
-- `run-plan.sh` update (C) — changes LLM_CONTEXT unnecessarily
+- `run-plan.sh` update (C) — changes Ravel-Lite unnecessarily
 
 ### Q3. Two tools or one?
 

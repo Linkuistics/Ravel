@@ -47,6 +47,13 @@ yet; Task 0 is the gate.
   4. ~~Sub-M's amendment task in the orchestrator backlog has been
      absorbed into `specs/2026-04-13-sub-M-observability-design.md`.~~
      **CLEARED** — completed in orchestrator Session 15 (2026-04-15).
+  5. ~~Sub-R's amendment (Datalog as routing substrate) has been
+     absorbed into F's design doc §6.1–§6.6 and Appendix C Q7;
+     `<vault>/routing.ex` → `<vault>/ontology/routing.dl` loaded by
+     `Ravel.Datalog.Server`.~~ **CLEARED** (2026-04-16) — spec
+     amendment landed; Tasks 14–21 rewritten against Datalog and the
+     obsolete Sub-R-adoption Tasks 29–30 merged into the routing
+     cluster (2026-04-20).
   Also re-read F's §11 against the latest versions of those three
   design docs to confirm every consumed interface still matches.
   Any mismatch discovered here rewrites F's design doc inline
@@ -167,8 +174,9 @@ yet; Task 0 is the gate.
 - **Dependencies:** Task 5
 - **Description:** Router GenServer that owns message routing per
   §4.7. Accepts inbound messages (from clients, from phase-exit
-  processors, from Level 2 agent responses), consults the routing
-  module (Task 14), dispatches to target actors via the supervisor.
+  processors, from Level 2 agent responses), delegates routing
+  decisions to `Ravel.Datalog.Server` (Task 14) via a `route/3`
+  Datalog query, and dispatches to target actors via the supervisor.
   Persists mailbox state to `<vault>/runtime/mailboxes/<qid>.jsonl`
   (NDJSON append) with a cursor file tracking last-processed index
   per §4.8. Crash recovery replays from the cursor.
@@ -235,7 +243,8 @@ yet; Task 0 is the gate.
      `Ravel.Application`.
   6. Start the `ClientListener` (Task 11).
   7. Install signal handlers (SIGTERM → graceful shutdown,
-     SIGINT → graceful shutdown, SIGHUP → reload routing.ex).
+     SIGINT → graceful shutdown, SIGHUP → re-parse
+     `<vault>/ontology/routing.dl` via `Datalog.Server`).
   Shutdown path: stop listener, drain in-flight phase runs, stop
   supervisor, release lock, exit.
 - **Results:** _pending_
@@ -321,52 +330,77 @@ yet; Task 0 is the gate.
 
 ## §11.3 Declarative routing
 
-### Task 14 — `Ravel.UserRouting` behaviour + loader `[routing]`
+### Task 14 — `Ravel.Datalog.Server` integration for `ontology/routing.dl` `[routing]`
 - **Status:** not_started
-- **Dependencies:** Task 6
-- **Description:** Define the `@behaviour` every user `routing.ex`
-  module must implement per §6.1: a `route/2` function with
-  clauses pattern-matched on `(:dispatch | :query, facts)` →
-  `{:target_plan, qid} | {:target_expert, id} | {:target_project,
-  name} | :no_route`. Load user-supplied `<vault>/routing.ex` at
-  startup via `Code.compile_file/1`. Hard error on compile
-  failure at startup (§9.3); previous version stays loaded on
-  hot-reload compile failure.
+- **Dependencies:** Task 6, Sub-R engine landed (`Ravel.Datalog.Server`)
+- **Description:** Wire sub-R's `Ravel.Datalog.Server` (singleton
+  gen_server delivered by the knowledge-ontology sub-project) into F's
+  supervision tree per spec §4.5 and §6.1. On startup, `Datalog.Server`
+  parses `<vault>/ontology/routing.dl` and builds the initial fact
+  base. Rules derive `route/3` facts of shape
+  `route(MsgType, Target, TargetKind)` where `MsgType ∈ {dispatch,
+  query}` and `TargetKind ∈ {target_plan, target_project,
+  target_expert}`. `Router.Server` (Task 6) queries `Datalog.Server`
+  for routing decisions — no compiled Elixir module, no `@behaviour`
+  shim. Parse error on startup is a hard failure per §9.3 naming the
+  offending `.dl` line number; the daemon refuses to start. The file
+  is pure Datalog with no host-language dependencies (§6.1). Sub-R's
+  design doc §4.4 and §7 are the authoritative reference for the
+  engine API.
 - **Results:** _pending_
 
-### Task 15 — `Ravel.FactExtractor.Server` `[routing]`
+### Task 15 — `Ravel.FactExtractor.Server` + `resolves_to/2` normalization `[routing]`
 - **Status:** not_started
 - **Dependencies:** Task 14, sub-C adapter landed
-- **Description:** GenServer that extracts concern keywords
-  (facts) from each outbound message body via a cheap LLM pass
-  per §6.3. Uses sub-C's `HarnessAdapter` with a tightly
-  constrained prompt and tool profile. Default model: Haiku.
-  Reserved for sub-O to swap in local models. Facts feed the
-  router's `route/2` call.
+- **Description:** GenServer that extracts concern keywords (facts)
+  from each outbound message body via a cheap LLM pass per §6.3.
+  Uses sub-C's `HarnessAdapter` with a tightly constrained prompt
+  and tool profile. Default model: `claude-haiku-4-5` via the Claude
+  Code adapter; overridable in `daemon.toml` under `[fact_extraction]`
+  (`harness`, `model`, `max_topics`, `timeout_ms`). Reserved for sub-O
+  to swap in local models. Extracted keywords are asserted as
+  `concerns/1` facts into the Datalog fact base, then each keyword is
+  normalized via a `resolves_to/2` query against sub-R's ontology so
+  synonyms and aliases map to canonical concepts before rule
+  evaluation (§6.3; e.g. `"rust_lang"` or
+  `"foreign_function_interface"` resolve to canonical forms). Unresolved
+  keywords pass through unchanged. The normalized `concerns/1` facts
+  plus `msg_type/1` drive Datalog `route/3` derivation.
 - **Results:** _pending_
 
-### Task 16 — Hot code reload watcher for `routing.ex` `[routing]`
+### Task 16 — Filesystem watcher for `ontology/routing.dl` hot reload `[routing]`
 - **Status:** not_started
 - **Dependencies:** Task 14
-- **Description:** Watch `<vault>/routing.ex` for mtime changes
-  (via `FileSystem` or periodic poll — whichever is simpler for
-  v1) and recompile via `Code.compile_file/1` per §6.2. On
-  compile success, hot-swap the loaded module (BEAM primitive).
-  On compile failure, log a warning and leave the previous
-  module loaded; surface the failure to attached TUI clients as
-  a `%RuleCompileError{}` event.
+- **Description:** Watch `<vault>/ontology/routing.dl` for mtime
+  changes (via `FileSystem` or periodic poll — whichever is simpler
+  for v1) and trigger `Ravel.Datalog.Server` to re-parse the `.dl`
+  fact base and re-evaluate per §6.2. On success the new rules are
+  active; subsequent routing decisions use them. On parse/validation
+  failure, log a warning and leave the previous rule set loaded;
+  surface the failure to attached TUI clients as a
+  `%RuleReloadError{}` event (§9.3). Users can also trigger a reload
+  manually via `ravel rescan` or a TUI command. The watcher may be
+  absorbed into `Ravel.Datalog.Server`'s own filesystem-watcher
+  implementation if sub-R provides one — defer that integration
+  decision to implementation time.
 - **Results:** _pending_
 
-### Task 17 — Rule validation + actionable error reporting `[routing]`
+### Task 17 — Datalog rule validation + actionable error reporting `[routing]`
 - **Status:** not_started
 - **Dependencies:** Task 14
-- **Description:** Dialyzer-compatible typecheck that each
-  `route/2` clause's return shape matches the allowed variant
-  set. If a clause returns something unexpected at runtime,
-  log the violating clause + input + actual return, treat as
-  `:no_route`, and fall back to Level 2 per §6.4. Error
-  reporting must name the line in `routing.ex` (preserve
-  source locations via `Code.compile_file/1` options).
+- **Description:** Validate rules in `ontology/routing.dl` at load
+  time: syntax, stratifiability, range restriction, and that each
+  derived `route/3` fact has the expected arity and variant shape
+  (`MsgType ∈ {dispatch, query}`, `TargetKind ∈ {target_plan,
+  target_project, target_expert}`). If a rule derives something
+  outside the allowed variant set at evaluation time, log the
+  offending rule + input facts + actual derivation, treat as
+  `:no_route`, and fall back to Level 2 per §6.4. Error reporting
+  must name the line in `ontology/routing.dl` (preserve source
+  locations via the engine's parser diagnostics). Sub-R's engine is
+  expected to expose parse/validation errors with line numbers; this
+  task plumbs those diagnostics through to the startup hard-error
+  path (§9.3) and to the TUI event stream on hot-reload failures.
 - **Results:** _pending_
 
 ---
@@ -384,7 +418,9 @@ yet; Task 0 is the gate.
   sub-C's adapter. Input: the message being routed, the
   target project name, and the vault catalog excerpt for that
   project. Output: a YAML block with `target-plan:` or
-  `routing-response:` fields.
+  `routing-response:` fields, optionally including a
+  `suggested-rule:` block containing a proposed Datalog rule
+  (see Task 20).
 - **Results:** _pending_
 
 ### Task 19 — Rejection + retarget feedback to origin `[level2]`
@@ -398,25 +434,29 @@ yet; Task 0 is the gate.
   5 minutes per §9.1.
 - **Results:** _pending_
 
-### Task 20 — Rule suggestion extraction `[level2]`
+### Task 20 — Datalog rule suggestion extraction `[level2]`
 - **Status:** not_started
 - **Dependencies:** Task 18
 - **Description:** Parse optional `suggested-rule:` block from
-  Level 2 output per §6.5. Normalize to an Elixir-AST-friendly
-  shape and stage at `<vault>/runtime/rule-suggestions/<id>.ex`
-  for user review. Do not auto-apply — accepting the suggestion
-  is a user action via the TUI per the learning-loop design.
+  Level 2 output per §6.5. The suggestion is a Datalog rule
+  fragment (a `route/3` clause body referencing `msg_type/1`,
+  `concerns/1`, and `resolves_to/2`). Stage each suggestion as a
+  `.dl` fragment at `<vault>/runtime/staging/proposed-rules/<id>.dl`
+  for user review. Do not auto-apply — accepting the suggestion is
+  a user action via the TUI per the learning-loop design.
 - **Results:** _pending_
 
-### Task 21 — TUI event emission for pending rule suggestions `[level2]`
+### Task 21 — TUI event emission + acceptance flow for pending rule suggestions `[level2]`
 - **Status:** not_started
 - **Dependencies:** Tasks 11, 20
-- **Description:** Emit `%RuleSuggestion{}` events over the
-  client event stream whenever a new suggestion is staged.
-  Accepted via the `review-rule-suggestion` NDJSON command from
-  an attached client (Task 11's command set). On acceptance,
-  append the suggestion to `<vault>/routing.ex`, trigger hot
-  reload (Task 16), and delete the staged file.
+- **Description:** Emit `%RuleSuggestion{}` events over the client
+  event stream whenever a new `.dl` suggestion is staged. Accepted
+  via the `review-rule-suggestion` NDJSON command from an attached
+  client (Task 11's command set). On acceptance, append the
+  suggestion to `<vault>/ontology/routing.dl` (committed to vault git
+  per §6.5), let the filesystem watcher (Task 16) pick up the change
+  to re-parse and hot-reload the fact base, and delete the staged
+  file.
 - **Results:** _pending_
 
 ---
@@ -452,9 +492,11 @@ yet; Task 0 is the gate.
 - **Description:** Emit typed `Ravel.Event.*` structs at the
   boundary for every architecturally-meaningful state change per
   F §4 and §6. Events: `%ActorStateChange{}`, `%MessageRouted{}`,
-  `%RuleFired{}`, `%RuleCompileError{}`, `%RuleSuggestion{}`,
+  `%RuleFired{}`, `%RuleReloadError{}`, `%RuleSuggestion{}`,
   `%DispatchProcessed{}`, `%QueryAnswered{}`, `%Level2Invoked{}`,
-  `%Level2Rejected{}`. Each event also flows through
+  `%Level2Rejected{}`. `%RuleReloadError{}` covers both Datalog parse
+  errors on hot reload and rule-validation failures (Tasks 16, 17).
+  Each event also flows through
   `:telemetry.execute/3` for subscribers. M owns the handler and
   transport; F owns the event boundary.
 - **Results:** _pending_
@@ -532,50 +574,28 @@ and must NOT be implemented here:
 - **Sub-P team mode** — F reserves the schema hooks in Task 13
   only. Cross-daemon transport is v2+ work.
 
-## Sub-R adoption
+## Sub-R adoption — MERGED (2026-04-20)
 
-### Task 29 — Absorb Sub-R: routing migration from `routing.ex` to Datalog `[r-adoption]`
-- **Status:** not_started
-- **Dependencies:** Task 14 (`UserRouting` behaviour), Task 15
-  (`FactExtractor`), Task 16 (hot reload watcher), Sub-R engine landed
-- **Description:** Per Sub-R design doc §4.4 and §7. This is the
-  largest Sub-R adoption task in any sibling:
-  1. **`Router.evaluate_rules/2`** — replace call to compiled Elixir
-     module with Datalog query against `Ravel.Datalog.Server`.
-     Extracted fact keywords are first normalized via `resolves_to/2`.
-  2. **`routing.ex` → `ontology/routing.dl`** — file path change.
-     `UserRouting` behaviour may be simplified or removed since
-     Datalog rules don't need a compiled Elixir module.
-  3. **Task 16 (hot reload watcher)** — change from watching `routing.ex`
-     for BEAM code reload to watching `ontology/routing.dl` for
-     Datalog fact-base reload. May be absorbed into
-     `Ravel.Datalog.Server`'s own filesystem watcher.
-  4. **Task 17 (rule validation)** — Datalog validation (syntax,
-     stratifiability, range restriction) replaces Elixir compile-time
-     checks. Actionable error reporting still required.
-  5. **Task 18 (Level 2 prompt)** — update to request Datalog rules
-     instead of Elixir clauses.
-  6. **Task 20 (rule suggestion)** — proposed rules staged as `.dl`
-     fragments in `<vault>/runtime/staging/proposed-rules/`.
-  7. **Task 21 (TUI events)** — emit `%RoutingRuleProposed{}` (sub-M).
-  8. **Supervision dependency** — `Router.Server` depends on
-     `Datalog.Server` in the supervision tree.
-  Note: this task may partially overlap with or supersede Tasks 14-17
-  and 20-21. During implementation, determine which existing tasks
-  are absorbed vs need rework.
-- **Results:** _pending_
+The earlier Tasks 29 (routing migration from `routing.ex` to Datalog)
+and 30 (fact-extraction normalization via Datalog) have been **folded
+into the routing-task cluster**. Datalog via sub-R's
+`Ravel.Datalog.Server` is the v1 routing substrate from the start —
+not a migration destination. The spec was amended 2026-04-16 (Appendix
+C Q7): `<vault>/ontology/routing.dl` loaded by `Ravel.Datalog.Server`
+replaces the superseded `<vault>/routing.ex` + pattern-matched Elixir
+design. Erlog / embedded Prolog is no longer reserved.
 
-### Task 30 — Absorb Sub-R: fact extraction normalization via Datalog `[r-adoption]`
-- **Status:** not_started
-- **Dependencies:** Task 15 (`FactExtractor`), Sub-R engine landed
-- **Description:** Per Sub-R design doc §4.3. After the LLM extracts
-  keywords from a message body, add a normalization pass:
-  1. For each extracted keyword, query
-     `resolves_to(Keyword, Canonical)` against
-     `Ravel.Datalog.Server`
-  2. Unresolved keywords pass through unchanged
-  3. Normalized keywords feed into routing queries
-  Catches cases where the LLM extracts `"rust_lang"` or
-  `"foreign_function_interface"` — both resolve to canonical forms
-  before routing sees them.
-- **Results:** _pending_
+Task mapping (old → new location):
+- Task 29.1 (`Router.evaluate_rules/2` via Datalog) → Task 14
+- Task 29.2 (`routing.ex` → `ontology/routing.dl`) → Task 14
+- Task 29.3 (watcher for `.dl` fact-base reload) → Task 16
+- Task 29.4 (Datalog validation + errors) → Task 17
+- Task 29.5 (Level 2 prompts propose Datalog rules) → Task 18
+- Task 29.6 (rule suggestions staged as `.dl` fragments) → Task 20
+- Task 29.7 (TUI events + acceptance appends to `routing.dl`) → Task 21
+- Task 29.8 (`Router.Server` depends on `Datalog.Server`) → Task 14
+  (supervision tree wiring) + Task 6 dependency on Task 14
+- Task 30 (fact normalization via `resolves_to/2`) → Task 15
+
+No separate Sub-R adoption task remains in this backlog. All Datalog
+work is native to Tasks 14–21.

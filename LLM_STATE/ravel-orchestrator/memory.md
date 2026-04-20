@@ -93,7 +93,7 @@ Four-phase cycle (work → reflect → compact → triage) runs **inside a PlanA
 ### TUI is a standalone Rust binary client
 `ravel-tui` uses `ratatui` + `tokio` + `serde_json`. Connects to the daemon over a local Unix socket at `<vault>/runtime/daemon.sock` speaking NDJSON. No Rustler / no NIFs — the socket is the integration boundary. Clean separation: daemon owns state and reasoning, TUI owns rendering and input. Multi-client is free: same protocol accepts Rust TUI, future Obsidian plugin, web UI, headless scripts.
 
-### Daemon has zero runtime dependency on `LLM_CONTEXT/`
+### Daemon has zero runtime dependency on `Ravel-Lite/`
 Vendored phase files (`phases/work.md`, `phases/reflect.md`, `phases/compact.md`, `phases/triage.md`), fixed-memory files (`fixed-memory/memory-style.md` plus language guides), and `create-plan.md` live at `{{PROJECT}}/prompts/` and ship as Elixir embedded resources. Surfaced through `{{PROMPTS}}` placeholder substituted by `StagingDirectory::render`. Customisation is v2; v1 enforces "use what ships."
 
 ### `memory-style.md` is the single source for memory entry rules
@@ -111,8 +111,8 @@ The daemon spawns internal reasoning sessions (fact extraction, Level 2 routing,
 ### TheExperimentalist is retired
 Conceptual scope met by the backlog/reflect/triage cycle plus plan hierarchy. Git branching models parallel state, but exploratory development needs temporal structure with reflection points, which the phase cycle provides.
 
-### Ravel replaces LLM_CONTEXT as the user-facing tool
-Plans, phases, knowledge, and curation are Ravel's scope. `LLM_CONTEXT/` retires once fully replaced. Until then, LLM_CONTEXT and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) continue unchanged.
+### Ravel replaces Ravel-Lite as the user-facing tool
+Plans, phases, knowledge, and curation are Ravel's scope. `Ravel-Lite/` retires once fully replaced. Until then, Ravel-Lite and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) continue unchanged.
 
 ### Ravel owns Tier 1 and Tier 2 knowledge
 Per-project knowledge in Tier 1 (`<project>/ravel/knowledge/`). Cross-project knowledge in Tier 2 (`<vault>/knowledge/`). Plan memory (`<plan>/memory.md`) is provisional scratch for in-flight reflections, not durable knowledge. Knowledge is **consultative** — accessed through ExpertActor queries, not loaded into plan sessions directly.
@@ -190,8 +190,8 @@ Everything non-transient is a file. The daemon is an orchestrator, not a state s
 ### memory.md and backlog.md drift is load-bearing
 Both files are consumed by LLM phases every cycle; stale content propagates misinformation into fresh context. `session-log.md` is immune (no LLM phase reads it). Fix drift immediately, especially after upstream changes affecting multiple plans.
 
-### LLM_CONTEXT stopgap: PROJECT placeholder and work-prompt substitution
-`{{PROJECT}}` placeholders + work prompt substitution instructions landed in APIAnyware-MacOS and TestAnyware. Not the larger LLM_CONTEXT restructure — deferred/subsumed by the orchestrator.
+### Ravel-Lite stopgap: PROJECT placeholder and work-prompt substitution
+`{{PROJECT}}` placeholders + work prompt substitution instructions landed in APIAnyware-MacOS and TestAnyware. Not the larger Ravel-Lite restructure — deferred/subsumed by the orchestrator.
 
 ### Sub-C uses pipes-only erlexec, not PTY
 Stream-json is stdio NDJSON, not a terminal interaction. PTY is only needed for interactive TUI (slash commands, arrow keys, ANSI redraws), which "No slash commands in the harness" rules out. Pipes-only erlexec opts (`[:monitor, :stdin, {:stdout, self()}, {:stderr, self()}, :kill_group, {:kill_timeout, 1}]`) drive the claude CLI cleanly. `:stdin` bare atom is required — erlexec defaults stdin to `:null`.
@@ -245,7 +245,7 @@ Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorm
 | D  | Daemon coordination (scope collapsed by F) | Small | **done** | Design doc `specs/2026-04-16-sub-D-coordination-design.md`. System-wide singleton lock at `<runtime_dir>/ravel/daemon.lock` via `flock(2)` (not in vault — invisible to Obsidian). Content-hash freshness checking + `Ravel.FileIO` as mandatory I/O layer with three file categories (`:exclusive`, `:phase_owned`, `:human_editable`). Vault git concurrency deferred (no autonomous commits in v1). `daemon.pid` eliminated (lock file carries PID + vault path). Sub-A design doc updated inline. Sibling plan at `LLM_STATE/sub-D-coordination/` with 7 tasks. |
 | E  | Post-session knowledge ingestion | Medium | **done** (F amendment absorbed) | Design doc `specs/2026-04-12-sub-E-ingestion-design.md`. §1–§5 + Decision Trail rewritten inline: BEAM/Elixir, Stage 5 dispatch-to-experts; sub-E emits directly to sub-M's bus from Stage 5 (no standalone `IngestionEvent` channel). Downstream task list still carries pre-pivot Rust framing; Task 0 gate required before implementation. |
 | F  | Plan hierarchy + actor model + dispatch + declarative routing | **Large** | **done** (sibling plan scaffolded) | Design doc `specs/2026-04-14-sub-F-hierarchy-design.md`. Committed: persistent BEAM daemon, two sealed actor types, two message types, `project-root` convention, path-based qualified IDs, dispatch asymmetry, vault catalog, Datalog-ish declarative routing with Level 2 fallback, Elixir runtime, Rust TUI client. Sibling plan at `LLM_STATE/sub-F-hierarchy/` with 28 implementation tasks + Task 0 readiness gate; implementation blocked on sub-B + sub-C task-list rewrites and sub-A + sub-M amendment absorption. |
-| G  | Migration: LLM_CONTEXT + v0.1.0 transition | Medium | **done** | Design doc `specs/2026-04-16-sub-G-migration-design.md`. Four-phase ordering: Phase 0 (artifact retirement, executed immediately — `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/` deleted), Phase 1 (Ravel rename at daemon switch-over), Phase 2 (dependent projects stagger), Phase 3 (LLM_CONTEXT retirement). Two tools: `scripts/migrate-project.sh` for filesystem restructure, `ravel adopt-project` for vault integration — cleanly separable with different lifecycles and error models. Per-project staggering, git-native reversibility, plan-state.md phase-only at migration. Phase 1 rename is the daemon switch-over event: no intermediate partial-migration states exist. `migrate-project.sh` must execute as a single atomic transaction (no partial-state window): sub-H's 17-command palette has no shim and is inoperative until Phase 1 completes. G imposes no design changes on any sibling sub-project — post-migration layout conforms to what A, B, E, F, N already expect. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks. |
+| G  | Migration: Ravel-Lite + v0.1.0 transition | Medium | **done** | Design doc `specs/2026-04-16-sub-G-migration-design.md`. Four-phase ordering: Phase 0 (artifact retirement, executed immediately — `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/` deleted), Phase 1 (Ravel rename at daemon switch-over), Phase 2 (dependent projects stagger), Phase 3 (Ravel-Lite retirement). Two tools: `scripts/migrate-project.sh` for filesystem restructure, `ravel adopt-project` for vault integration — cleanly separable with different lifecycles and error models. Per-project staggering, git-native reversibility, plan-state.md phase-only at migration. Phase 1 rename is the daemon switch-over event: no intermediate partial-migration states exist. `migrate-project.sh` must execute as a single atomic transaction (no partial-state window): sub-H's 17-command palette has no shim and is inoperative until Phase 1 completes. G imposes no design changes on any sibling sub-project — post-migration layout conforms to what A, B, E, F, N already expect. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks. |
 | H  | Fold 7 Claude Code skills | Small-med | **done** | Design doc `specs/2026-04-16-sub-H-skills-design.md`. Architecture-first derivation: 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappear (`promote-global`, `explore-knowledge`, curate/promote distinction). Uniform protocol (reuse `send`; only `create_plan` + `adopt_project` new). Command palette with configurable keybindings + which-key. `ravel cmd` CLI for external automation. Expert CRUD via filesystem + `$EDITOR`. Clean break at G's Phase 1. Local docs server. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks. |
 | I  | Obsidian coverage | Small-med | **done** | Design doc `specs/2026-04-16-sub-I-obsidian-coverage-design.md`. Complete data-surface inventory (15+ surfaces mapped to Obsidian features), three required plugins (Dataview, Templater, Homepage), two Templater templates, four starter Dataview views, zero CSS snippets. Obsidian is a pragmatic bridge to Phoenix LiveView. No graph view. Sibling plan at `LLM_STATE/sub-I-obsidian-coverage/` with 7 tasks. |
 | J  | Human-mode phase affordances | N/A | **obsolete** | Folded into B as `ManualEditorExecutor`. |
@@ -290,8 +290,8 @@ Solo-developer by design at v1 (A's single-vault discovery, F's single-daemon ar
 ### Seven Claude Code skills map to 17 daemon commands
 Architecture-first derivation produced 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappeared: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` as distinct concept (expert query IS knowledge exploration), curate/promote distinction (unified). Command palette with user-configurable keybindings + which-key. `ravel cmd` CLI for external automation. Clean break at G's Phase 1.
 
-### What in `LLM_CONTEXT/` survives the merge
-G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Ravel's embedded prompts, a separate docs repo, or stay until LLM_CONTEXT retires.
+### What in `Ravel-Lite/` survives the merge
+G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Ravel's embedded prompts, a separate docs repo, or stay until Ravel-Lite retires.
 
 ### Obsidian covers all 15+ Ravel data surfaces
 Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Templater, Homepage). Four starter Dataview views in `views/` directory. Obsidian's native file tree, search, tags panel, and backlinks cover the core surfaces. Non-markdown files (`.toml`, `.ex`) are plain-text-only in Obsidian — users edit in IDE. V1 event coverage is indirect (file changes only); live event streaming is a v2 candidate (sub-K eliminated). Obsidian is a pragmatic bridge to Phoenix LiveView, not the destination.
@@ -299,16 +299,16 @@ Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Temp
 ## Constraints / non-goals
 
 ### Non-disruption is mandatory
-`LLM_CONTEXT/` and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) keep working unchanged. Ravel is built alongside. Migration only when demonstrably equivalent or better.
+`Ravel-Lite/` and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) keep working unchanged. Ravel is built alongside. Migration only when demonstrably equivalent or better.
 
 ### Bootstrap discipline
-This plan runs on existing LLM_CONTEXT machinery. No assumed features beyond what LLM_CONTEXT supports.
+This plan runs on existing Ravel-Lite machinery. No assumed features beyond what Ravel-Lite supports.
 
-**Dogfooded improvements may land back into LLM_CONTEXT** when: (1) additive documentation only; (2) four dependents absorb with zero migration; (3) flows into v1 when B's embedded prompts vendor the canonical files.
+**Dogfooded improvements may land back into Ravel-Lite** when: (1) additive documentation only; (2) four dependents absorb with zero migration; (3) flows into v1 when B's embedded prompts vendor the canonical files.
 
 ### Never bulk-stage in APIAnyware-MacOS or TestAnyware
 Both repos carry uncommitted WIP on `main`. Any task must `git add` specific paths — never `git add -A`, `git add .`, or `git commit -a`.
 
 ## Origin
 
-Ravel grew from LLM_CONTEXT punch-list fixes into a full orchestrator with actor-daemon on BEAM. Bootstrapped on LLM_CONTEXT machinery per user direction. V1 architecture documented in `docs/architecture.md` and `docs/superpowers/specs/2026-04-14-sub-F-hierarchy-design.md`.
+Ravel grew from Ravel-Lite punch-list fixes into a full orchestrator with actor-daemon on BEAM. Bootstrapped on Ravel-Lite machinery per user direction. V1 architecture documented in `docs/architecture.md` and `docs/superpowers/specs/2026-04-14-sub-F-hierarchy-design.md`.

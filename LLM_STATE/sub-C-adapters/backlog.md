@@ -58,11 +58,10 @@ context.
 
 ### From ravel-orchestrator (2026-04-16) — Critical path audit
 
-Two gaps found during implementation critical path monitor:
+One gap remaining from the 2026-04-16 critical path audit. (The
+model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
 
 1. **Create a formal gate task (Task 0) for the Elixir backlog rewrite.** The requirement to rewrite the Rust-framed task list exists only as prose in the backlog header (§ "BEAM PTY spike resolved"). Sub-F's Task 0 explicitly gates on "Sub-C backlog Tasks 1+ rewritten against the Session-11 design-doc rewrite." Without a numbered, status-tracked task, progress is untrackable. Create a Task 0 analogous to Sub-B's and Sub-E's gate tasks.
-
-2. **Create a task for model-configurability absorption.** The orchestrator memory states: "V1 includes per-actor model selection — the `model:` field in actor declarations and daemon config is honored, and the Claude Code adapter passes `--model` to the CLI." No task in Sub-C's backlog implements this. The Sub-C design doc §4.1.1 or the spawn args builder needs a task that wires `model:` from actor declarations through to `--model` on the `claude` CLI invocation. This is essential for cost control (Opus for plan phases, Haiku for ingestion/extraction).
 
 ## Task Backlog
 
@@ -561,4 +560,114 @@ Two gaps found during implementation critical path monitor:
   `Ravel.Datalog.Server.query/1`.
   Tool profile gating per §4.5 of C's design doc — the `tool_profile`
   mechanism already supports per-session tool sets.
+- **Results:** _pending_
+
+## Model configurability (absorbed from Sub-O v1 scope)
+
+### Task 27 — Per-actor model selection: `model:` → `--model <model-id>` `[model-config]`
+- **Status:** not_started
+- **Dependencies:** Task 0 (pre-pivot Elixir backlog rewrite gate —
+  to be created per the remaining Received dispatch), Task 4
+  (`tool_profile_to_args` / spawn argv builder lands first), Task 7
+  (`FixtureReplayAdapter` — fixture-replay parity test surface exists)
+- **Description:** Absorbs the v1 slice of sub-O (mixture of models)
+  into sub-C's single-adapter surface. Plan actors and expert actors
+  carry a `model:` field in their actor declaration (sub-F §F-12
+  reserved the schema hook; orchestrator memory commits v1 to honouring
+  it). This task wires that field end-to-end through the Claude Code
+  adapter so cost-sensitive callers can pin Opus for plan phases and
+  Haiku for ingestion / extraction / fact-distillation.
+
+  **Concretely:**
+  1. Extend `Ravel.HarnessAdapter.spawn_opts()` (spec §3.1) with an
+     `optional(:model) => String.t() | nil` field. Absent / `nil` = pass
+     no `--model` flag and let Claude Code pick its own default. Document
+     the field in the behaviour's `@moduledoc` as a pass-through
+     model-id string — the adapter does not validate the value against
+     a whitelist (forward compatibility with new Claude Code releases).
+  2. Update `Ravel.HarnessAdapter.ClaudeCode.Spawn.build_argv/1` (the
+     argv builder that lives in `spawn.ex`, spec §4.1.1) to append
+     `["--model", model_id]` to the argv when `spawn_opts.model` is
+     a non-empty string. Append it **after** the mandatory flags
+     (`--print --verbose --input-format --output-format --session-id
+     --setting-sources --no-session-persistence`) and **before** the
+     profile-derived flags from §6, so the final argv shape stays
+     stable and grep-friendly.
+  3. Store the resolved model-id (or `nil`) on the session GenServer's
+     state struct (spec §4.2.1) as `:model` for inclusion in
+     `%Ravel.Event.SpawnLatencyReport{}` metadata — downstream cost
+     analysis (and the eventual sub-O cost telemetry) needs to know
+     which model each recorded session actually ran on. Add `:model`
+     to the report's `@enforce_keys` only if the adapter guarantees
+     it; otherwise add as an optional field with `nil` default.
+  4. `FixtureReplayAdapter.spawn/1` accepts and records the `:model`
+     field but otherwise ignores it (the fixture is the source of
+     truth for session output). Include the recorded value in any
+     session-id-correlated test assertions so fixture-replay stays a
+     faithful mirror of the live adapter's public surface.
+  5. Sub-F's actor-declaration parser (its own task, not sub-C's)
+     surfaces the `model:` field in the `spawn_opts` map passed to
+     `Ravel.HarnessAdapter.ClaudeCode.spawn/1`. Sub-C does not parse
+     actor-declaration files; it only honours whatever `spawn_opts`
+     provides.
+
+- **Acceptance criteria:**
+  - `spawn_opts` type accepts `optional(:model) => String.t() | nil`;
+    typespec dialyzes cleanly.
+  - Unit test in `spawn_test.exs` (or equivalent): `build_argv/1` with
+    `spawn_opts.model = "claude-opus-4-5"` produces an argv whose
+    ordering is `["claude", "--print", "--verbose",
+    "--input-format", "stream-json", "--output-format", "stream-json",
+    "--session-id", "<id>", "--setting-sources", "project,local",
+    "--no-session-persistence", "--model", "claude-opus-4-5",
+    ...profile-flags...]` — exact positional match.
+  - Unit test: `build_argv/1` with `spawn_opts.model = nil` (and with
+    the key absent entirely) produces an argv that does **not** contain
+    `"--model"` anywhere.
+  - Unit test: `build_argv/1` with `spawn_opts.model = ""` is treated
+    as absent (no `--model` flag emitted). Justification: an empty
+    string model-id is almost certainly a config bug; silently passing
+    `--model ""` to `claude` would produce an opaque error. Emit a
+    `Logger.warning/1` in this branch.
+  - Fixture-replay adapter test: spawn a `FixtureReplayAdapter` with
+    `:model = "claude-haiku-4-5"` against a clean linear fixture and
+    assert that (a) the session drains cleanly, (b) the recorded
+    `%SpawnLatencyReport{}` (if emitted by the fixture) carries the
+    model-id through to consumers, (c) no `--model` CLI flag is
+    synthesised (fixture-replay does not spawn a real process).
+  - Fixture-replay adapter test: spawn with `:model` absent, assert
+    session drains cleanly and reported `model` field is `nil`.
+  - Layer 3 live test (gated behind `RAVEL_TEST_LIVE_HARNESS=1`, per
+    Task 21 pattern): spawn a real `ClaudeCodeAdapter` with
+    `:model = "claude-haiku-4-5"`, capture the first `system/init`
+    event, and assert the `model` field in the event's JSON matches
+    the requested model-id. This is the end-to-end proof that the
+    flag actually reaches `claude` and is honoured.
+  - Layer 3 live test: spawn with `:model = "bogus-model-that-does-not-exist"`
+    and assert the session either fails `CrashedBeforeReady` or surfaces
+    a `%HarnessError{}` with the underlying claude error reason within
+    5 s. The adapter does **not** pre-validate model-ids (forward
+    compat); claude's own error path is the validator of record.
+  - Spec cross-reference: add a forward-reference from §3.1 of the
+    spec to this task's `spawn_opts` extension, so future readers
+    trace the field's provenance.
+
+- **Out of scope:**
+  - Per-adapter model routing (sub-O v2 owns multi-adapter dispatch).
+  - Cost telemetry / token accounting (sub-O v2).
+  - Default-model policy enforcement (sub-F / orchestrator config concern;
+    sub-C only honours whatever `spawn_opts` provides).
+  - Model-id validation against a known list (explicit non-goal — pass-through).
+
+- **Rationale:** Per orchestrator memory, v1 ships per-actor model
+  selection within the single Claude Code adapter. This is essential
+  for cost control (Opus for plan phases where reasoning quality
+  dominates, Haiku for ingestion / fact-extraction / routing where
+  latency and cost dominate). Without this task the `model:` field
+  exists in actor declarations (reserved by sub-F) but nothing
+  downstream honours it, which would make the reserved-field
+  commitment a lie. Absorbing the v1 slice into sub-C keeps sub-O's
+  brainstorm scope clean (multi-adapter, local models, cost telemetry)
+  without blocking it on v1.
+
 - **Results:** _pending_

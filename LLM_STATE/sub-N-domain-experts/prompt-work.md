@@ -53,7 +53,7 @@ block) per the project's pivot-rewrite discipline captured in
 ## Coding style
 
 At the moment you are about to write or modify code, and not before,
-check `{{DEV_ROOT}}/LLM_CONTEXT/fixed-memory/`:
+check `{{DEV_ROOT}}/Ravel-Lite/defaults/fixed-memory/`:
 
 - Always read `coding-style.md` (universal rules).
 - Also read `coding-style-elixir.md` if you are about to touch Elixir

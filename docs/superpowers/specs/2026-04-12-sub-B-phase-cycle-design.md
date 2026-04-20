@@ -3,7 +3,7 @@
 > Brainstormed 2026-04-12 via the `superpowers:brainstorming` skill. Design
 > rewritten inline in Session 12 (2026-04-15) of the `ravel-orchestrator`
 > plan to absorb three upstream shifts:
-> (a) LLM_CONTEXT's 2026-04 four-phase overhaul,
+> (a) Ravel-Lite's 2026-04 four-phase overhaul,
 > (b) sub-F's persistent BEAM daemon + actor commitment (Session 9),
 > (c) the BEAM PTY spike findings (Session 10) that validate pipes-only
 > `erlexec` and the sliding-buffer sentinel matcher.
@@ -17,7 +17,7 @@
 Sub-project B designs the **four-phase cycle state machine**, **executor
 behaviour**, **staging directory mechanism**, **placeholder substitution**,
 and **`plan-state.md` file format** that together replace
-`LLM_CONTEXT/run-plan.sh` with Elixir code owned by the Ravel daemon.
+`Ravel-Lite/run-plan.sh` with Elixir code owned by the Ravel daemon.
 
 B's code runs **inside a `PlanActor` GenServer** (sub-project F). The
 daemon's OTP supervision tree spawns one PlanActor per opened plan; B's
@@ -86,7 +86,7 @@ The design is:
   `session-log.md` after a clean work exit; the defensive
   `rm -f latest-session.md` at work-entry ensures no stale content
   poisons the next cycle. No LLM phase ever reads `session-log.md`.
-- **Embedded prompts** vendored from LLM_CONTEXT's current upstream
+- **Embedded prompts** vendored from Ravel-Lite's current upstream
   shape at `Ravel/prompts/`: `phases/{work,reflect,compact,triage}.md`
   plus `fixed-memory/{coding-style,coding-style-rust,memory-style}.md`
   plus `create-plan.md`. Compiled into the daemon's beam files at
@@ -172,7 +172,7 @@ pattern (pending F amendment).
 - **ISO 8601 UTC-with-seconds session-log timestamps** and the
   latest-session.md write-then-append pattern.
 - The **embedded prompts module**: compile-time embedding of the
-  LLM_CONTEXT vendor list, `materialise_into/1` helper,
+  Ravel-Lite vendor list, `materialise_into/1` helper,
   `phases/` + `fixed-memory/` subdirectory preservation.
 - The **vault runtime directory** entries B owns: staging dirs,
   interrupted forensics, per-plan state files. (The socket,
@@ -271,7 +271,7 @@ pattern (pending F amendment).
 6. **Dogfood-ready v1.** V1 must be good enough to host the
    orchestrator seed plan and sub-project E's sibling plan — retiring
    `run-plan.sh` for these two plans is what validates that the
-   daemon works. Migration of the four legacy LLM_CONTEXT projects
+   daemon works. Migration of the four legacy Ravel-Lite projects
    (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro)
    is sub-project G's concern, not B's.
 
@@ -284,8 +284,8 @@ pattern (pending F amendment).
    file formats B produces are stable public interfaces, not
    incidental internal representations.
 
-8. **Self-contained from `LLM_CONTEXT/`.** The running Ravel
-   daemon has zero runtime dependency on a sibling `LLM_CONTEXT/`
+8. **Self-contained from `Ravel-Lite/`.** The running Ravel
+   daemon has zero runtime dependency on a sibling `Ravel-Lite/`
    directory existing. The vendored copies of the upstream phase
    files, fixed-memory files, and `create-plan.md` live inside the
    Ravel source tree at `Ravel/prompts/`, are embedded into
@@ -616,7 +616,7 @@ pass. It performs, in strict order:
    first delete any stale `latest-session.md` (defensive cleanup),
    then invoke the hook synchronously from the project root. Non-zero
    exit or any I/O failure is a hard error; the phase aborts before
-   staging is rendered. This matches LLM_CONTEXT's upstream contract.
+   staging is rendered. This matches Ravel-Lite's upstream contract.
 3. **Render the staging directory** via
    `StagingDirectory.render(ctx.vault_runtime_dir, ctx.resolved,
    ctx.plan_dir, phase)`. The render call materialises embedded
@@ -922,13 +922,13 @@ can audit if anything looks wrong.
 
 ### 2.5 Embedded prompts
 
-The daemon has zero runtime dependency on a sibling `LLM_CONTEXT/`
+The daemon has zero runtime dependency on a sibling `Ravel-Lite/`
 directory. The vendored prompt-reference content lives at
 `Ravel/prompts/` and is compiled into the daemon's beam files
 at compile time.
 
 Vendored files (this is the **forward-compatibility chokepoint** for
-LLM_CONTEXT evolution — every upstream change that adds a shared file
+Ravel-Lite evolution — every upstream change that adds a shared file
 must either land here or be explicitly scoped out):
 
 ```
@@ -1007,7 +1007,7 @@ materialised files via `{{PROMPTS}}/phases/reflect.md`,
 **`memory-style.md` is read by both reflect and compact.** Reflect is
 lossy-pruning; compact is strictly lossless rewriting. Both read the
 same `memory-style.md` so the rules stay consistent across phases.
-This is a core LLM_CONTEXT design invariant and must be preserved in
+This is a core Ravel-Lite design invariant and must be preserved in
 B's phase prompt authoring.
 
 **Customisation is v2.** V1 enforces "use what ships with the daemon
@@ -1615,7 +1615,7 @@ heuristic may skip compact when it should run, or invoke compact
 when skipping would have sufficed. Cost of a false skip: memory.md
 drifts; cost of a false invoke: a wasted phase invocation.
 
-**Mitigation:** mirror LLM_CONTEXT's upstream algorithm exactly
+**Mitigation:** mirror Ravel-Lite's upstream algorithm exactly
 (`wc -w` is the canonical measure; HEADROOM is the same constant
 at 1500 words); port `run-plan.sh`'s logic line-by-line in the
 first Layer-1 test. Revisit the heuristic if dogfood cycles reveal
@@ -1946,20 +1946,20 @@ F's F-4 decision). Add `description:` (required, ≤120 characters,
 non-placeholder, hard-capped). Rename `ravel-pid` →
 `daemon-pid` to reflect the BEAM daemon runtime.
 
-**Session 12 (LLM_CONTEXT overhaul) addition:** the `current_phase`
+**Session 12 (Ravel-Lite overhaul) addition:** the `current_phase`
 enum grows from three phases to four (`work | reflect | compact |
 triage`). A sticky `compact-baseline: integer` field is added to
 track the `wc -w memory.md` checkpoint from the most recent
 successful compact.
 
-### Q3 — Where vendored LLM_CONTEXT files live
+### Q3 — Where vendored Ravel-Lite files live
 
 Selected: **`Ravel/prompts/`** (not `Ravel/docs/`), embedded
 into the binary, materialised into staging dirs via a new
 `{{PROMPTS}}` placeholder. Corrected from the initial "docs" framing
 after user pointed out the files are prompts, not documentation.
 
-**Session 12 (LLM_CONTEXT overhaul) vendor list refresh:** the
+**Session 12 (Ravel-Lite overhaul) vendor list refresh:** the
 vendor list becomes `phases/{work,reflect,compact,triage}.md` +
 `fixed-memory/{coding-style,coding-style-rust,memory-style}.md` +
 `create-plan.md`. The pre-overhaul filenames `backlog-plan.md` and
@@ -2122,9 +2122,9 @@ invariant (`project-root` cannot appear elsewhere in the tree) and
 the knowledge-isolation invariant (`<project>/ravel/knowledge/`
 is never a plan).
 
-### Q18 — LLM_CONTEXT 2026-04 overhaul absorption (Session 12)
+### Q18 — Ravel-Lite 2026-04 overhaul absorption (Session 12)
 
-LLM_CONTEXT's upstream shape shifted after B's 2026-04-12 brainstorm.
+Ravel-Lite's upstream shape shifted after B's 2026-04-12 brainstorm.
 Seven concrete changes landed upstream and had to be absorbed into
 B's design:
 
@@ -2278,7 +2278,7 @@ dependency. The TUI is sub-F's Rust client binary with its own
 | **Compact-trigger** | The condition `wc -w memory.md > compact-baseline + HEADROOM` that decides whether to invoke the compact executor or skip directly to triage. HEADROOM is a global constant (v1: 1500 words). |
 | **Copy-back** | `StagingDirectory.copy_back/2` — propagates executor-driven edits from the staging directory back to the canonical plan directory, with reverse substitution on `.md` files. |
 | **Descent invariant** | `StagingDirectory.render/4` refuses to descend into subdirectories containing `plan-state.md`. Keeps "one plan per PlanActor" intact against nested filesystem hierarchy. |
-| **Embedded prompts** | The vendored LLM_CONTEXT content at `Ravel/prompts/` compiled into the daemon beam files via `@external_resource` + `File.read!/1`. Materialised into staging directories via `Ravel.Prompts.materialise_into/1`. |
+| **Embedded prompts** | The vendored Ravel-Lite content at `Ravel/prompts/` compiled into the daemon beam files via `@external_resource` + `File.read!/1`. Materialised into staging directories via `Ravel.Prompts.materialise_into/1`. |
 | **Executor kind** | `:llm | :human | :fixture_replay` — the `kind()` callback return from a `PhaseExecutor`. The only permissible difference between executor modes at the event level. |
 | **Forensics dir** | `<vault>/runtime/interrupted/<qualified-id>/<phase>-<timestamp>/` — preserved staging directory + partial output log for interrupted or failed phases. |
 | **`ingestion-fired` flag** | Boolean in `plan-state.md` `last-exit.ingestion-fired` that sub-E's Stage 5 flips at the start of Stage 5, enabling exactly-once ingestion firing across daemon crashes. |

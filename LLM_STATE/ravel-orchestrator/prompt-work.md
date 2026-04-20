@@ -2,23 +2,23 @@
 
 ## About this plan
 
-This plan exists to drive the merge of LLM_CONTEXT functionality into Ravel,
+This plan exists to drive the merge of Ravel-Lite functionality into Ravel,
 transforming Ravel into a harness-independent LLM orchestrator. The
 architectural state is fully captured in `{{PLAN}}/memory.md` — read it
 carefully before doing any task. The most important constraints to keep
 in mind during work:
 
-- **Non-disruption**: the existing `{{DEV_ROOT}}/LLM_CONTEXT/` machinery
+- **Non-disruption**: the existing `{{DEV_ROOT}}/Ravel-Lite/` machinery
   and the four projects depending on it (APIAnyware-MacOS,
   TestAnyware, Modaliser-Racket, RacketPro) must keep working
-  unchanged throughout this build. LLM_CONTEXT now ships a four-phase
+  unchanged throughout this build. Ravel-Lite now ships a four-phase
   cycle (work → reflect → compact → triage), phase-file-factored layout
   under `phases/`, `fixed-memory/memory-style.md`, a `pre-work.sh`
   opt-in executable hook, and `run-plan.sh` as the driver — changes
   landed upstream that Ravel v1 must eventually absorb.
 - **Bootstrap discipline**: this seed plan and all sub-project plans
-  run on the existing LLM_CONTEXT machinery. Do not assume features
-  Ravel does not yet have; do not modify the existing LLM_CONTEXT
+  run on the existing Ravel-Lite machinery. Do not assume features
+  Ravel does not yet have; do not modify the existing Ravel-Lite
   system except as the punch-list stop-gap task explicitly directs.
 - There is also an existing Ravel TODO at `{{PROJECT}}/TODO.md`
   tracking pre-orchestrator work (horizon scanning, evaluation phase
@@ -39,7 +39,7 @@ Produce a design doc at
 `{{PROJECT}}/docs/superpowers/specs/YYYY-MM-DD-<sub-project-name>-design.md`
 following the brainstorming skill's spec format. Then create a sibling
 plan at `{{PROJECT}}/LLM_STATE/<sub-project-name>/` with the standard
-plan files per `{{DEV_ROOT}}/LLM_CONTEXT/create-plan.md` — at minimum
+plan files per `{{DEV_ROOT}}/Ravel-Lite/defaults/create-plan.md` — at minimum
 `backlog.md`, `memory.md`, `session-log.md` (header only), and
 `phase.md` (containing `work`). Add `related-plans.md` and
 `prompt-work.md` only if needed; `prompt-reflect.md`,

@@ -1,5 +1,5 @@
 # Backlog — Ravel Orchestrator
-Tasks for merging LLM_CONTEXT functionality into Ravel and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
+Tasks for merging Ravel-Lite functionality into Ravel and building the persistent actor-daemon architecture committed in Session 9 (2026-04-14).
 
 ## Priority 1 — Implementation phase coordination
 

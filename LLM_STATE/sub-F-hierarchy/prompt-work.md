@@ -13,9 +13,10 @@ This plan implements sub-project F of the Ravel orchestrator merge —
 the persistent BEAM daemon, two sealed actor types (PlanActor,
 ExpertActor), two message types (Dispatch, Query), the
 `project-root` plan hierarchy convention, path-based qualified plan
-IDs, declarative routing with pattern-matched Elixir + Level 2
-LLM fallback, the client-daemon NDJSON protocol, and the vault
-catalog that replaces the old `related-plans.md` file concept.
+IDs, declarative routing via Datalog (sub-R's `Ravel.Datalog.Server`
+evaluating `<vault>/ontology/routing.dl`) with Level 2 LLM fallback,
+the client-daemon NDJSON protocol, and the vault catalog that
+replaces the old `related-plans.md` file concept.
 
 The design is fully specified in the design doc referenced above;
 this plan is the implementation work, not a design phase. Do not

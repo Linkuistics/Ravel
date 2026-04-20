@@ -97,13 +97,23 @@ Permanent scope declaration, not current-state description.
 
 ### F-9. Declarative routing with LLM-fallback learning loop
 
-Routing rules live in `<vault>/routing.ex` — user-editable Elixir
-module with pattern-matched `defp route/2` clauses. BEAM's native hot
-code reload makes edits take effect without daemon restart. Facts
-(concern keywords) extracted by a cheap LLM pass (Haiku via sub-C).
-When rules don't decide, Level 2 routing agent runs as fallback and
-may propose a new rule the user accepts into `routing.ex` — closing a
-learning loop.
+Routing rules live in `<vault>/ontology/routing.dl` — a user-editable
+Datalog rule file loaded by `Ravel.Datalog.Server` (singleton gen_server
+delivered by sub-R). Rules derive a `route/3` fact
+`route(MsgType, Target, TargetKind)`. Hot reload via a filesystem watcher
+re-parses the `.dl` fact base and re-evaluates; edits take effect without
+daemon restart. Facts (concern keywords) are extracted by a cheap LLM
+pass (Haiku via sub-C) and asserted as `concerns/1` facts, then
+normalized via `resolves_to/2` queries against sub-R's ontology before
+rule evaluation. When Datalog evaluation derives no `route/3` fact (or
+ambiguously derives multiple), the Level 2 routing agent runs as
+fallback and may propose a new Datalog rule the user accepts into
+`ontology/routing.dl` — closing a learning loop. Datalog unifies
+ontology resolution and routing in a single declarative substrate;
+`routing.dl` replaces the earlier pattern-matched Elixir `routing.ex`
+and the Erlog reservation (Appendix C Q7). Parse errors on startup are
+a hard failure; parse errors during hot reload keep the previous rule
+set loaded and surface the failure in the TUI (spec §9.3).
 
 ### F-10. Runtime: Elixir on BEAM
 
@@ -281,11 +291,11 @@ become real only once those siblings land.
 
 ## Bootstrap discipline
 
-Until sub-G's migration lands and Ravel v1 replaces LLM_CONTEXT,
-this plan runs on existing LLM_CONTEXT machinery. Do not assume
+Until sub-G's migration lands and Ravel v1 replaces Ravel-Lite,
+this plan runs on existing Ravel-Lite machinery. Do not assume
 features Ravel does not yet have. The `run-plan.sh` cycle driver,
 `phases/work.md`, fixed-memory conventions, and placeholder
-substitutions all come from LLM_CONTEXT for the duration of this
+substitutions all come from Ravel-Lite for the duration of this
 plan's life.
 
 ## Hard errors by default

@@ -126,7 +126,7 @@ Non-negotiable inputs from sub-projects B, C, E, F, M:
   time read pattern. The same self-containment discipline applies to
   A's `.obsidian/` template files — they are embedded into the daemon
   release at compile time from `priv/obsidian/`, and materialised on
-  init. **No runtime dependency on `LLM_CONTEXT/`**.
+  init. **No runtime dependency on `Ravel-Lite/`**.
 - **Pipes-only `erlexec` adapter** (C, Session 11): internal reasoning
   sessions spawned by the daemon (fact extraction, Level 2 routing,
   ingestion) use C's `Ravel.HarnessAdapter.ClaudeCode` GenServer.

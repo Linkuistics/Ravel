@@ -127,16 +127,20 @@ for the topmost `ravel/project-root/` ancestor, not
 `ravel/plans/`. F's invariants #3 and #4 guarantee termination
 and non-false-match.
 
-**Implementation language:** all new code is Elixir/OTP. Backlog
-tasks remain as intent specifications — `include_str!` becomes
-`@external_resource` + `File.read!/1`; `serde` becomes the `Toml`
-hex package; `dirs::config_dir()` becomes
-`:filename.basedir(:user_config, "ravel")`; `PathBuf` becomes
-`Path.t()`; `anyhow::Result` becomes `{:ok, _} | {:error, _}` or
-`raise` for hard errors. Tasks 11 and 12 reduce to "verify the
-Elixir daemon does not carry over the old hardcoded paths" rather
-than Rust refactoring work. The full Rust CLI is retired by sub-G's
-migration scope.
+**Implementation language:** all new code is Elixir/OTP. The backlog
+was rewritten in-place to Elixir idioms in a follow-up sweep
+(Task 0, completed): `include_str!` → `@external_resource` +
+`File.read!/1`; `serde` → `Toml` hex package; `dirs::config_dir()`
+→ `:filename.basedir(:user_config, "ravel")`; `PathBuf` →
+`String.t()` / `Path` module functions; `anyhow::Result` →
+`{:ok, _} | {:error, _}` or `raise` for hard errors;
+`chrono::DateTime<Utc>` → `DateTime.utc_now() |> DateTime.to_iso8601()`;
+`scopeguard` → `on_exit/1` in ExUnit; `cargo test` / `cargo clippy`
+→ `mix test` / `mix dialyzer`; Rust module layout `src/foo.rs` →
+Elixir module layout `lib/ravel/foo.ex`. Tasks 11 and 12 reduce to
+"verify the Elixir daemon does not carry over the old hardcoded
+paths / YAML config" rather than Rust refactoring work. The full
+Rust CLI is retired by sub-G's migration scope.
 
 ## Open questions
 

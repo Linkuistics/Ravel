@@ -261,6 +261,21 @@ reflect phase exits cleanly (sub-B PhaseRunner inside PlanActor)
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Stage 5 dispatch uses `Ravel.Expert.DialogueRegistry` (single-turn only)
+
+Stage 5's fan-out to `ExpertActor`s goes through
+`Ravel.Expert.DialogueRegistry`, the dispatch interface provided by sub-N.
+Each `%Ravel.Message.ExpertAbsorbCandidate{}` dispatch is a **stateless
+single-turn call**: one message in, one verdict struct out, session ends.
+The registry does not support multi-turn dialogue sessions, so Stage 5's
+fan-out collector must not be designed around conversational
+back-and-forth with experts. Every exchange is self-contained; verdicts
+are accumulated by the collector across parallel single-turn calls, not
+by iterating within a single expert session. This is a binding constraint
+on the collector implementation — a follow-up second-round cross-link
+dispatch (Rule 5 cross-link handling) is a *fresh single-turn call* to
+the suggested expert, not a continuation of the first expert's session.
+
 ### LLM budget per cycle
 
 For a typical reflect cycle producing ~3 sections, the per-cycle LLM session
@@ -557,6 +572,27 @@ first entry of its declared `scope.tier2` glob (sub-N §6.2) and does an
 atomic temp-then-rename inside that directory. Sub-E's `SafeFileWriter`
 does not need to validate Tier 2 paths because sub-E never writes to
 Tier 2 directly post-amendment.
+
+**Mandatory delegation to `Ravel.FileIO` (sub-D Session 18).** All file
+I/O performed by the ingestion pipeline delegates to `Ravel.FileIO`, the
+project-wide mandatory file I/O layer established by sub-D. Reads use
+`FileIO.read_tracked/1` (which records the SHA-256 hash of every read).
+Writes use `FileIO.write_safe/3` with an explicit file-category argument:
+`:human_editable` for knowledge files being absorbed from ingestion
+(human-authoritative; the daemon's copy is discarded on conflict), and
+`:exclusive` for ingestion staging files such as provenance and cycle
+state (daemon-owned; no conflict check). `SafeFileWriter` must delegate
+its atomic-write and conflict-detection responsibilities to
+`FileIO.write_safe/3` — it does not implement its own temp-then-rename
+or conflict logic. The semantic safety checks enumerated above (no writes
+outside `knowledge/`, no plan-file writes, vault-root containment) remain
+inside `SafeFileWriter` as guard logic evaluated before the FileIO call.
+When `FileIO.write_safe/3` returns `{:conflict, :external_modification}`
+for a `:human_editable` write, sub-E treats the candidate as "not written"
+and emits `%Ravel.Event.Ingestion.CandidateSkipped{reason:
+:external_modification}`; this is non-fatal and the cycle continues with
+remaining candidates. See sub-D §6 for the full `FileIO` contract and
+conflict-response semantics.
 
 ---
 
@@ -1000,6 +1036,20 @@ run.
   message struct + verdict + event structs, which is the full surface
   sub-E codes against. Sub-N's later implementation tasks proceed in
   parallel.
+- **Two distinct Stage 5 timeouts — do not collapse.** Stage 5's collector
+  honours two separately-scoped timeouts with different breach semantics:
+  - **Retrieval-pipeline timeout (5 seconds).** A structural sanity check
+    bounding `ScopeMatcher.match_candidate/2` and the initial
+    message-send phase of fan-out. A breach is treated as an
+    infrastructure failure: **hard abort** the cycle.
+  - **Per-turn session timeout (5 minutes default, configurable).** Bounds
+    LLM reasoning time inside each `ExpertActor` single-turn session.
+    Configurable in `daemon.toml` under `[experts] turn_timeout_seconds`.
+    A breach is **treated as `READY REJECT`** for that expert (not an
+    infrastructure failure); the ingestion cycle continues, the collector
+    aggregates the remaining verdicts, and the timed-out expert's
+    contribution is recorded as
+    `%Ravel.Event.Expert.IngestionVerdictTimeout{}`.
 
 #### Sub-M (observability framework)
 

@@ -220,10 +220,10 @@ Sub-N commits deliverables back to:
 
 ## Bootstrap discipline
 
-This sibling plan runs on LLM_CONTEXT's existing four-phase cycle
+This sibling plan runs on Ravel-Lite's existing four-phase cycle
 machinery (work → reflect → compact → triage) during the bootstrap
 period. The daemon does not exist yet; the "ExpertActor implementation"
-work runs in fresh LLM_CONTEXT sessions, not inside a running
+work runs in fresh Ravel-Lite sessions, not inside a running
 Ravel daemon. All tasks are code, tests, and specs that will later
 be executed by the daemon once sub-F + sub-G ship.
 

@@ -317,28 +317,23 @@ tasks below.
   that shaped the rewrite (raising-handler-detach, no-compile-time
   constants, `:pg` vs mpsc, F's growth of §6, A's two new structs).
 
-### Downstream Rust task-list is stale — gate task pending
+### Downstream task-list rewrite complete (2026-04-20)
 
-Tasks 1–23 below were brainstormed against the Rust runtime and still
-reference `tracing`, `tracing-subscriber`, `metrics` / `metrics-util`,
-`cargo`, `RavelEvent` enum, thread-local tricks, `tokio::sync::mpsc`,
-etc. **Do not execute any of them as written.** The next work phase
-(backlog Task 0 gate) must rewrite the downstream task list against
-the Session-15 spec rewrite, following the same discipline sub-B and
-sub-C applied in their sibling plans: delete tasks that have no BEAM
-analogue (e.g. Task 5's thread-local vs Visit-API microbenchmark),
-rewrite Rust module-layout tasks as Elixir module-layout tasks, add
-new tasks for `SnapshotReporter`, the `:pg`-based `TuiBridge`, the
-`try/rescue` handler wrapper, the catalogue-integrity test, and the
-nine new §6 metric definitions from sub-F's routing surface.
+Backlog Task 0 (gate) was executed on 2026-04-20. Tasks 1–23 were
+rewritten against the Session-15 Elixir/OTP design doc. Task 5
+(thread-local vs Visit-API microbenchmark) and Task 11
+(`StderrFmtLayer`) were deleted as having no BEAM analogue; Tasks
+24 (sub-N absorption), 25 (sub-D adoption), 26 (sub-H adoption),
+and 27 (sub-R adoption) were preserved as already Elixir-native.
+See backlog Task 0 Results for the full translation summary.
 
-**Critical-path update (2026-04-15):** This amendment clears the sole
+**Critical-path update (2026-04-15):** This amendment cleared the sole
 remaining orchestrator-level gate condition (3) for sub-F's Task 0.
 The remaining F Task 0 blockers are both sibling-level task-list
-rewrites (sub-B and sub-C), not amendments. Combined with this plan's
-own downstream task-list rewrite (still pending), sub-M's internal
-implementation runway is behind sub-B / sub-C / sub-F in the critical
-path ordering.
+rewrites (sub-B and sub-C), not amendments. Sub-M's own downstream
+task-list rewrite completed 2026-04-20; sub-M's internal implementation
+runway is now unblocked from the gate side (dependency ordering behind
+sub-B / sub-C / sub-F remains in effect for individual tasks).
 
 ### C's rewritten design doc as the concrete Elixir exemplar
 

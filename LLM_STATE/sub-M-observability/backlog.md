@@ -3,512 +3,706 @@
 Implementation backlog for sub-project M. All tasks derive from the
 design doc at
 `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
-(committed at `53f7d4e`). Consult the spec before starting any task.
+(Session-15 inline rewrite, 2026-04-15). Consult the spec before
+starting any task.
 
 Tasks are listed in approximately recommended order, following the
-implementation strategy in `{{PLAN}}/memory.md`: setup → metric catalogue
-→ custom Layer → standard layers → composition → Risk 5 wiring →
-C parallel-emit → CLI subcommands → adoption verification → integration
-tests → re-entrancy test. The work phase picks the best next task with
-input from the user.
+implementation strategy in `{{PLAN}}/memory.md`: mix deps + module
+skeleton → sealed struct set → metric catalogue → Handler → subscribers
+→ Supervisor composition → Risk 5 wiring → C parallel-emit → Mix tasks
+→ adoption verification → integration tests → re-entrancy test. The
+work phase picks the best next task with input from the user.
 
 ## Task Backlog
 
-> **Top-notice (2026-04-15, Session 15 inline rewrite).** The design
-> doc has been rewritten inline across §1–§20 for Elixir/OTP following
-> the sub-C/sub-B/sub-A precedent. Q1–Q5 are preserved verbatim in the
-> Decision Trail with correction notes; new Q6 (BEAM pivot translation
-> table) and Q7 (reporter selection: `ConsoleReporter` + `SnapshotReporter`
-> for v1, `:telemetry_metrics_prometheus` additive in v1.5, OpenTelemetry
-> reserved for v2) record the amendment substance. Start from the
-> rewritten §1–§20 as the authoritative design; use sub-M memory.md's
-> design-doc anchors section as a skimmable index. **Tasks 1–23 below
-> still reference the Rust runtime and must not be executed as written
-> — see Task 0 (rewritten) below.**
+> **Top-notice (2026-04-20, Task 0 gate executed).** Tasks 1–23 below
+> have been rewritten against the Session-15 Elixir/OTP design doc. The
+> original Rust-flavored task list has been replaced in full. Original
+> task numbers are preserved as "intent slots" where a direct analogue
+> exists; slots with no BEAM analogue (e.g. the thread-local vs Visit-API
+> microbenchmark) have been removed with a note in Task 0's results.
 
 ### Task 0 — Rewrite downstream task list against Session-15 design doc `[gate]`
-- **Status:** not_started
-- **Dependencies:** Session-15 inline rewrite (**done, 2026-04-15**);
+- **Status:** completed (2026-04-20)
+- **Dependencies:** Session-15 inline rewrite (done, 2026-04-15);
   follows the sub-B and sub-C sibling-plan gate task pattern
 - **Description:** The Session-15 amendment rewrote the design doc
   inline, clearing the orchestrator-level amendment task. The
-  downstream task list (Tasks 1–23 below) is still framed against the
-  pre-pivot Rust runtime and blocks the sub-M v1 implementation
-  runway. Rewrite Tasks 1–23 to target the Session-15 design doc:
+  downstream task list (previously Tasks 1–23) was still framed against
+  the pre-pivot Rust runtime and blocked the sub-M v1 implementation
+  runway. This gate task rewrites Tasks 1–23 to target the Session-15
+  design doc per the checklist in memory.md.
+- **Results:**
+  - **Tasks rewritten:** 1 (mix.exs deps + module skeleton), 2
+    (sealed struct set — split across the 20+ variants in §4.1), 3
+    (`Ravel.Observability.Metrics.metrics/0` catalogue definition), 4
+    (ExUnit catalogue-integrity test against §6 of the design doc),
+    6 (`Ravel.Observability.Handler` with `try/rescue` wrapper), 7
+    (`RingBuffer` GenServer + DynamicSupervisor), 8 (`JsonlWriter`
+    GenServer + `FileIO.write_safe/3` routing), 9 (`Metrics` supervisor
+    + `ConsoleReporter` + custom `SnapshotReporter` ~150 lines), 10
+    (`TuiBridge` GenServer via `:pg` process group), 12
+    (`Ravel.Observability.Supervisor` composition with `:rest_for_one`),
+    13 (`dump_event_tail/4` Risk 5 forensics wiring), 14–15 (C
+    parallel-emit bridge + verification test), 16–17 (`mix
+    ravel.metrics` + `mix ravel.diagnose` Mix tasks), 18 (cross-plan
+    adoption verification), 19–22 (ExUnit integration tests +
+    re-entrancy test), 23 (v1 ship gate).
+  - **Tasks deleted:** 5 (thread-local vs Visit-API microbenchmark —
+    no BEAM analogue; `:telemetry.execute/3` already carries the struct
+    in `metadata.event`), 11 (`StderrFmtLayer` — replaced by stdlib
+    `Logger` console backend, configured by daemon boot sequence, no
+    M-specific work).
+  - **Tasks preserved (already Elixir-native):** 24 (sub-N
+    `Ravel.Event.Expert.*` six-struct absorption), 25 (sub-D
+    coordination adoption), 26 (sub-H `ravel.tui_action` adoption), 27
+    (sub-R ontology events).
+  - **Rust → Elixir translations applied:** `tracing` / `metrics`
+    crate → `:telemetry` / `Telemetry.Metrics.*`; `Cargo.toml` →
+    `mix.exs`; `RavelEvent` enum → sealed `Ravel.Event.*` struct set;
+    `RavelEventLayer` → `Ravel.Observability.Handler`; `tokio::sync::mpsc`
+    / `crossbeam-channel` → `:pg` process group; `tracing-appender`
+    → `File.open([:append, :raw, :binary, :delayed_write])` +
+    GenServer; `metrics-util::Snapshotter` → custom `SnapshotReporter`;
+    CLI subcommands → Mix tasks.
+  - **New surfaces added:** `SnapshotReporter` (~150 lines, §7.2),
+    `:pg`-based TuiBridge (§11.1), `try/rescue` handler wrapper (§5.2,
+    load-bearing for re-entrancy), catalogue-integrity ExUnit test
+    (substitute for Rust compile-time constants), `FileIO.write_safe/3`
+    routing in `JsonlWriter` (sub-D amendment), nine new §6 metric
+    definitions from sub-F's routing surface (absorbed into Task 3
+    catalogue).
 
-  **Checklist for the rewrite.**
-  1. **Delete Cargo-flavored setup (current Task 1).** Replace with an
-     Elixir `mix.exs` deps task: add `{:telemetry, "~> 1.2"}` (already
-     present), `{:telemetry_metrics, "~> 0.6"}`, confirm `{:jason, ...}`
-     already in tree, scaffold `lib/ravel/observability/` modules
-     (`handler.ex`, `ring_buffer.ex`, `jsonl_writer.ex`, `tui_bridge.ex`,
-     `metrics.ex`, `supervisor.ex`) + `lib/ravel/event/*.ex` for the
-     sealed struct set. `config/config.exs` + `config/dev.exs` +
-     `config/prod.exs` `Logger` level entries.
-  2. **Delete `RavelEvent` enum task (current Task 2).** Replace
-     with a task-per-struct-module for the 20+ variants in §4.1:
-     `PhaseLifecycle`, `HarnessOutput`, `SessionLifecycle`,
-     `SpawnLatencyReport`, `SessionExitStatus`, `HarnessError`,
-     `ActorStateChange`, `MessageRouted`, `RuleFired`, `RuleCompileError`,
-     `RuleSuggestion`, `DispatchProcessed`, `QueryAnswered`,
-     `Level2Invoked`, `Level2Rejected`, `Ingestion.Applied` /
-     `PromptRequired` / `Deferred` / `Rejected` / `ResearchSession` /
-     `CycleSummary`, `Vault.BootReady`, `Vault.MarkerError`, `Metric`,
-     `Diagnostic`, `Error`. Each struct carries `@enforce_keys` +
-     `@derive Jason.Encoder`. Table-driven unit tests cover
-     `Jason.encode!/1` + `Jason.decode!/1` round-trip for every
-     variant.
-  3. **Delete `metric_names::*` constants task (current Task 3).**
-     Replace with a `Ravel.Observability.Metrics.metrics/0`
-     implementation task that builds the 23-metric catalogue from
-     §6 using `Telemetry.Metrics.*` imports (`counter/2`,
-     `last_value/2`, `distribution/2`). No constants module needed.
-  4. **Delete the Rust catalogue CI test task (current Task 4).**
-     Replace with an ExUnit test that enumerates the list returned
-     by `Metrics.metrics/0`, parses the `## 6. Metrics catalogue`
-     section of the rewritten design doc, and asserts one-to-one
-     correspondence. Uses `@external_resource` to tie the test's
-     cache to the design-doc file so edits to either fail CI.
-  5. **Delete the thread-local vs Visit-API microbenchmark task
-     (current Task 5).** No BEAM analogue — `:telemetry.execute/3`
-     already carries the struct in `metadata.event`; no handoff
-     trick needed.
-  6. **Rewrite `RavelEventLayer` task (current Task 6).** Replace
-     with a `Ravel.Observability.Handler` task: implement
-     `attach/0` via `:telemetry.attach_many/4`, implement
-     `handle_event/4` with the load-bearing `try/rescue` logging via
-     `Logger` (not M), implement `synthesise_diagnostic/3` for
-     third-party events, dispatch in order `RingBuffer → Metrics →
-     TuiBridge → JsonlWriter`. Unit tests cover every struct in the
-     sealed set + third-party event routing + rescue path.
-  7. **Rewrite `InMemoryRingLayer` task (current Task 7).** Replace
-     with `Ravel.Observability.RingBuffer` GenServer (one per
-     session) + `RingBuffer.Sup` DynamicSupervisor. Storage is an
-     Erlang `:queue` with capped size. Public API:
-     `record/2`, `dump_session/2` (sync `GenServer.call`). Tests:
-     ring eviction, per-session isolation, process-scoped fallback,
-     grace window for post-session dumps.
-  8. **Rewrite `JsonlPersistLayer` task (current Task 8).** Replace
-     with `Ravel.Observability.JsonlWriter` GenServer (one per
-     session) + `JsonlWriter.Sup`. Holds a `File` handle opened
-     with `[:append, :raw, :binary, :delayed_write]`. `append/3`
-     encodes via `Jason.encode_to_iodata!/1` + `"\n"`. Sets
-     `{:max_messages, 4096}` process flag for bounded mailbox. Tests:
-     round-trip, line-per-event, truncation safety, supervisor
-     restart on mailbox overflow.
-     **Sub-D FileIO constraint (2026-04-16):** `JsonlWriter` must not
-     call `File.write/3` or `File.open/2` directly. All file writes
-     must route through `Ravel.FileIO.write_safe/3` with category
-     `:exclusive` (daemon-authoritative, no freshness check). Resolve
-     the append-vs-rewrite tension in the rewritten task: for
-     streaming line-append writes, clarify whether `FileIO` wraps the
-     append handle or only governs session-start file creation. See
-     memory.md "Sub-D coordination design" section.
-  9. **Rewrite `MetricsRecorderLayer` task (current Task 9).** Replace
-     with `Ravel.Observability.Metrics` supervisor hosting
-     `Telemetry.Metrics.ConsoleReporter` + a new
-     `SnapshotReporter` (≈150 lines) that maintains bucket histograms
-     in ETS. Public API: `snapshot/1` returns the §7.2 snapshot JSON
-     shape. Tests: counter / distribution / last_value correctness;
-     snapshot structure; `keep:` filter correctness for variants
-     that branch on struct fields.
-  10. **Rewrite `TuiBridgeLayer` task (current Task 10).** Replace
-      with `Ravel.Observability.TuiBridge` GenServer owning a
-      `:pg` process group `:ravel_tui`. `publish/3` uses
-      `:pg.get_members/2` + wrapped `send/2` with drop-oldest +
-      drop counter. Tests: group join/leave, bounded-send
-      behaviour, drop counter increment, multi-client fan-out.
-  11. **Delete `StderrFmtLayer` task (current Task 11).** Replaced by
-      stdlib `Logger` console backend, which the daemon's boot
-      sequence already configures. No M-specific work.
-  12. **Rewrite `ObservabilityHarness` composition task (current
-      Task 12).** Replace with `Ravel.Observability.Supervisor`
-      task — a Supervisor with `:rest_for_one` strategy hosting
-      `Metrics`, `RingBuffer.Sup`, `JsonlWriter.Sup`, `TuiBridge`,
-      then calling `Handler.attach/0` last. Wired into
-      `Ravel.Supervisor`'s child list at daemon boot.
-  13. **Rewrite Risk 5 wiring task (current Task 13).** Replace with
-      `Ravel.Observability.dump_event_tail/4` + panic-safe
-      `try/rescue`. Wiring into B / C / E error paths lives in the
-      adoption tasks in those sibling plans (already landed by M's
-      brainstorm for B, C, E).
-  14. **Rewrite C parallel-emit tasks (current Tasks 14–15).** Task
-      14 becomes "add `[:ravel, :harness, :claude_code,
-      :spawn_latency]` bridge in `Handler.handle_event/4` that
-      rewrites to `%SpawnLatencyReport{}`." Task 15 is the
-      `@moduletag :live` verification test reading both C's
-      staging JSON and M's metric snapshot, asserting ±10ms.
-  15. **Rewrite CLI subcommand tasks (current Tasks 16–17).** Replace
-      with `mix ravel.metrics` and `mix ravel.diagnose`
-      Mix tasks at `lib/mix/tasks/`. `@shortdoc` + `use Mix.Task`
-      + argument parsing via `OptionParser`.
-  16. **Keep cross-plan adoption verification (current Task 18).**
-      Re-check sibling backlogs for adoption stub presence. Note
-      that B / C / F / A already have concrete commitments in
-      their own design docs, so verification is largely a
-      rubber-stamp unless drift is detected.
-  17. **Rewrite integration tests (current Tasks 19–22).** ExUnit
-      with `@moduletag :live` for Layer 3 tests. Re-entrancy test
-      at 1M events with a witness handler counting recursive
-      dispatches; asserts zero recursions, no handler detach events,
-      no `JsonlWriter` restarts.
-  18. **Rewrite v1 acceptance task (current Task 23).** `mix test`
-      / `mix format --check-formatted` / `mix dialyzer` (if enabled)
-      at green; §15 v1 cut checklist; sibling adoption stubs present;
-      parent memory.md updated recording M v1 ship.
-
-  **Discipline.** Follow sub-B's sibling-plan gate-task precedent:
-  keep the original task numbering as "intent specifications" even
-  when task content is rewritten; record the Rust → BEAM translation
-  on each task so future readers can see the delta. Do not execute
-  any task until this rewrite is complete.
-- **Results:** _pending_
-
-### Task 1 — Cargo.toml deps + module skeleton `[setup]`
+### Task 1 — mix.exs deps + Elixir module skeleton `[setup]`
 - **Status:** not_started
 - **Dependencies:** none
-- **Description:** Add the five new M-side deps to `Cargo.toml`:
-  `tracing`, `tracing-subscriber` (with the `env-filter`, `fmt`, and
-  `registry` features), `tracing-appender`, `metrics`, `metrics-util`.
-  Pin to current minor versions and record the pinned versions in
-  `{{PLAN}}/memory.md`. Confirm `serde`, `serde_json`, `chrono`,
-  `thiserror` are already present (they should be from sub-B / sub-C
-  earlier work). Create the empty module skeleton under
-  `src/observability/`:
-  `mod.rs`, `event.rs`, `metric_names.rs`, `event_layer.rs`,
-  `ring_layer.rs`, `jsonl_layer.rs`, `metrics_layer.rs`,
-  `tui_bridge.rs`, `harness.rs`. Each file contains only a module-level
-  doc comment and `pub use`s as needed for later tasks. Wire
-  `pub mod observability;` into `src/lib.rs`. Run `cargo build` to
-  confirm the skeleton compiles. No tests yet.
+- **Description:** Add the M-side Hex deps to `mix.exs` (`deps/0`
+  function): `{:telemetry, "~> 1.2"}` (likely already present via
+  sub-C / sub-F transitive deps — confirm), `{:telemetry_metrics, "~>
+  0.6"}`. Confirm `{:jason, "~> 1.4"}` is already in the tree.
+  Record pinned versions in `{{PLAN}}/memory.md` under "Verified
+  surface" once `mix deps.get` resolves.
+
+  Scaffold the empty Elixir module skeleton:
+  - `lib/ravel/observability.ex` — public `emit/1` entry point + helper
+    `event_name_for/1`, `measurements_for/1` (§4.2 of spec).
+  - `lib/ravel/observability/handler.ex` — `Handler` module with
+    `attach/0` + `handle_event/4` stubs.
+  - `lib/ravel/observability/ring_buffer.ex` — `RingBuffer` GenServer
+    stub.
+  - `lib/ravel/observability/ring_buffer/sup.ex` — `RingBuffer.Sup`
+    DynamicSupervisor stub.
+  - `lib/ravel/observability/jsonl_writer.ex` — `JsonlWriter`
+    GenServer stub.
+  - `lib/ravel/observability/jsonl_writer/sup.ex` — `JsonlWriter.Sup`
+    DynamicSupervisor stub.
+  - `lib/ravel/observability/tui_bridge.ex` — `TuiBridge` GenServer
+    stub.
+  - `lib/ravel/observability/metrics.ex` — `Metrics` Supervisor stub
+    with empty `metrics/0`.
+  - `lib/ravel/observability/metrics/snapshot_reporter.ex` —
+    `SnapshotReporter` GenServer stub.
+  - `lib/ravel/observability/supervisor.ex` —
+    `Ravel.Observability.Supervisor` with `:rest_for_one` strategy.
+  - `lib/ravel/event/` — directory for the sealed struct set (Task 2).
+
+  Each file contains only `@moduledoc` comments + module declaration
+  + `@behaviour` + minimal `start_link/1` / `init/1` placeholders so
+  the skeleton compiles. Wire `Ravel.Observability.Supervisor` into
+  `Ravel.Supervisor`'s child list at daemon boot (commented out until
+  Task 12 lands). Logger config entries in `config/config.exs`,
+  `config/dev.exs` (`level: :debug`), `config/prod.exs` (`level:
+  :info`). Run `mix compile` to confirm the skeleton compiles. No
+  tests yet.
 - **Results:** _pending_
 
-### Task 2 — `event.rs`: `RavelEvent` enum + helper types `[types]`
+### Task 2 — `lib/ravel/event/*.ex`: sealed `Ravel.Event.*` struct set `[types]`
 - **Status:** not_started
 - **Dependencies:** Task 1
-- **Description:** Implement §4.1 of the spec verbatim. Define
-  `RavelEvent` enum with all variants
-  (`PhaseLifecycle`, `HarnessLifecycle`, `HarnessOutput`, `Ingestion`,
-  `Metric`, `Diagnostic`, `Error`) and the helper enums
-  (`PhaseLifecycleKind`, `HarnessLifecycleKind`, `MetricUpdate`,
-  `ErrorContext`, `TypedError`). Derive `Debug`, `Clone`,
-  `serde::Serialize`, `serde::Deserialize` on every type.
-  `HarnessOutput` carries `text_summary` (truncated to 256 bytes) and
-  `byte_len`, NOT the full chunk text. Unit tests cover serde JSON
-  round-trips for every variant. No subscriber wiring yet — pure type
-  surface.
+- **Description:** Implement §4.1 of the spec. One module per struct
+  variant, grouped by producer. Each carries `@enforce_keys` +
+  `defstruct` + `@derive Jason.Encoder`. Full list:
+
+  **From sub-B:**
+  - `lib/ravel/event/phase_lifecycle.ex` — `%PhaseLifecycle{}` with
+    seven `kind` variants per §4.1.
+
+  **From sub-C:**
+  - `lib/ravel/event/harness_output.ex` — `%HarnessOutput{}` carrying
+    `text_summary` (truncated 256 bytes) + `byte_len`.
+  - `lib/ravel/event/session_lifecycle.ex` — `%SessionLifecycle{}`.
+  - `lib/ravel/event/spawn_latency_report.ex` —
+    `%SpawnLatencyReport{}`.
+  - `lib/ravel/event/session_exit_status.ex` —
+    `%SessionExitStatus{}`.
+  - `lib/ravel/event/harness_error.ex` — `%HarnessError{}`.
+
+  **From sub-F:**
+  - `lib/ravel/event/actor_state_change.ex` — `%ActorStateChange{}`.
+  - `lib/ravel/event/message_routed.ex` — `%MessageRouted{}`.
+  - `lib/ravel/event/rule_fired.ex` — `%RuleFired{}`.
+  - `lib/ravel/event/rule_compile_error.ex` —
+    `%RuleCompileError{}`.
+  - `lib/ravel/event/rule_suggestion.ex` — `%RuleSuggestion{}`.
+  - `lib/ravel/event/dispatch_processed.ex` —
+    `%DispatchProcessed{}`.
+  - `lib/ravel/event/query_answered.ex` — `%QueryAnswered{}`.
+  - `lib/ravel/event/level2_invoked.ex` — `%Level2Invoked{}`.
+  - `lib/ravel/event/level2_rejected.ex` — `%Level2Rejected{}`.
+
+  **From sub-E:**
+  - `lib/ravel/event/ingestion/applied.ex`
+  - `lib/ravel/event/ingestion/prompt_required.ex`
+  - `lib/ravel/event/ingestion/deferred.ex`
+  - `lib/ravel/event/ingestion/rejected.ex`
+  - `lib/ravel/event/ingestion/research_session.ex`
+  - `lib/ravel/event/ingestion/cycle_summary.ex`
+
+  **From sub-A:**
+  - `lib/ravel/event/vault/boot_ready.ex`
+  - `lib/ravel/event/vault/marker_error.ex`
+
+  **M-owned escape hatches:**
+  - `lib/ravel/event/metric.ex` — `%Metric{}` with `kind: :counter |
+    :gauge | :distribution | :summary | :last_value`.
+  - `lib/ravel/event/diagnostic.ex` — `%Diagnostic{}` with `level`,
+    `target`, `message`, `fields: map()`, `at` (the `fields` map is
+    load-bearing for sub-H's `ravel.tui_action` contract — §4.1 of
+    spec).
+  - `lib/ravel/event/error.ex` — `%Error{}` (distinct from
+    `%Diagnostic{level: :error}`; triggers Risk 5 dump).
+
+  Table-driven ExUnit tests cover `Jason.encode!/1` +
+  `Jason.decode!/1` round-trip for every variant. Test file:
+  `test/ravel/event/sealed_set_test.exs`. Reconstruction helper
+  (`Ravel.Event.reconstruct/1`) that dispatches on the `__struct__`
+  key of decoded maps and rebuilds the struct — used by `mix
+  ravel.diagnose` and the Risk 5 dump reader.
+
+  Note: the `Ravel.Event.Expert.*` six-struct group (sub-N) is
+  landed as Task 24, not here — gated on sub-N Task 15 early-deliverable
+  PR so the struct fields match sub-N's own definitions.
 - **Results:** _pending_
 
-### Task 3 — `metric_names.rs`: catalogue constants `[types]`
+### Task 3 — `Ravel.Observability.Metrics.metrics/0`: v1 catalogue `[types]`
 - **Status:** not_started
 - **Dependencies:** Task 1
-- **Description:** Implement §6 of the spec verbatim. Define
-  `pub const &'static str` constants for every counter, histogram, and
-  gauge listed in the spec's metric catalogue table. Group by category
-  (counters / histograms / gauges) with section comments. No call sites
-  yet — just the constant declarations.
+- **Description:** Implement §6 of the spec. Build the metric
+  catalogue inside `Ravel.Observability.Metrics.metrics/0` using
+  `Telemetry.Metrics.*` imports (`counter/2`, `last_value/2`,
+  `distribution/2`). 23 definitions across six groups:
+
+  - **Phase lifecycle (sub-B):** 4 counters keyed by `&(&1.event.kind
+    == :started | :exited_clean | :executor_failed | :interrupted)`.
+  - **Harness (sub-C):** 3 counters (`session_lifecycle.ready.count`,
+    `session_exit_status.clean.count`,
+    `session_exit_status.error.count`), 3 distributions
+    (`spawn_latency.cold_spawn_ms`, `spawn_latency.first_chunk_ms`,
+    `spawn_latency.first_output_ms` with buckets `[100, 250, 500,
+    1000, 2500, 5000, 10_000]`), 1 `last_value`
+    (`harness.live_sessions`).
+  - **Ingestion (sub-E):** 3 counters + 1 distribution
+    (`cycle_duration_ms` with buckets `[100, 500, 1000, 5000,
+    10_000, 30_000]`).
+  - **Routing (sub-F):** 8 counters — `message_routed.count`,
+    `rule_fired.count`, `level2_invoked.count`,
+    `level2_rejected.count`, `dispatch_processed.count`,
+    `query_answered.count`, `rule_compile_error.count`,
+    `rule_suggestion.count`.
+  - **Diagnostic-targets:** `sentinel.matched.count` (`keep:` filter
+    on `target == "ravel.sentinel"`), `events.dropped.count`
+    (`target == "ravel.events.dropped"`).
+  - **Actor lifecycle (sub-F):** 3 counters keyed by `kind` field.
+
+  No constants module — `:telemetry_metrics` uses string names by
+  convention. The catalogue-integrity test (Task 4) is the substitute
+  for Rust compile-time protection.
 - **Results:** _pending_
 
-### Task 4 — Metric catalogue CI parity test `[verification]`
+### Task 4 — ExUnit catalogue-integrity test `[verification]`
 - **Status:** not_started
 - **Dependencies:** Task 3
-- **Description:** Add a CI runtime test in
-  `tests/observability_metric_catalogue_test.rs` that:
-  1. Enumerates all `metric_names::*` constants via a
-     `build.rs`-generated fixture (or a manual list maintained alongside
-     the constants — pick whichever is simpler at implementation time).
-  2. Parses the `## 6. Metrics catalogue` section of
-     `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`.
-  3. Asserts one-to-one match between code constants and documented
-     names.
-  Failure mode: a developer adding a metric constant without updating
-  §6 (or vice versa) fails CI. This locks in metric name discipline
-  before any call site exists.
+- **Description:** ExUnit test at
+  `test/observability/catalogue_test.exs` that:
+  1. Enumerates metric names returned by
+     `Ravel.Observability.Metrics.metrics/0` via each definition's
+     `name` field.
+  2. Uses `@external_resource
+     "docs/superpowers/specs/2026-04-13-sub-M-observability-design.md"`
+     to tie the test's compile cache to the design-doc file.
+  3. Parses the `## 6. Metrics catalogue (v1)` section of the spec,
+     extracting the metric names from the embedded Elixir code block.
+  4. Asserts one-to-one correspondence between code catalogue and
+     documented names.
+
+  Failure mode: a developer adding a metric in code without updating
+  §6 (or vice versa) fails CI. Substitute for the Rust
+  `const &'static str` compile-time protection which `:telemetry_metrics`
+  cannot provide natively.
 - **Results:** _pending_
 
-### Task 5 — Day-1 microbenchmark: typed-payload handoff `[verification]`
+### Task 5 — _(deleted — no BEAM analogue)_
+- **Status:** n/a
+- **Description:** The Rust thread-local vs Visit-API microbenchmark
+  task has no BEAM analogue. `:telemetry.execute/3` already carries
+  the struct verbatim in `metadata.event`; no handoff trick is
+  needed. Task number retained as a deletion marker so future
+  readers can see the delta.
+
+### Task 6 — `Ravel.Observability.Handler` + `try/rescue` wrapper `[handler]`
 - **Status:** not_started
-- **Dependencies:** Task 2 (types must exist)
-- **Description:** Resolves §16 Q1 from the spec. Build two minimal
-  prototypes of the typed-payload handoff used by `RavelEventLayer`:
-  1. **Thread-local trick** — store the `RavelEvent` in a
-     thread-local `RefCell<Option<RavelEvent>>` immediately before
-     the `tracing::event!` call; the custom Layer reads it from
-     `on_event` synchronously on the same thread.
-  2. **`Visit` API + `serde_json` round-trip** — emit the event via
-     `tracing::event!(... ravel_event = ?event)`, where the field
-     value is the `Debug` representation; the custom Layer's `Visit`
-     impl extracts the field, deserialises via `serde_json`.
-  Run a 100k-event microbenchmark of each, record the per-event cost,
-  and pick the winner. Document the choice and the benchmark numbers
-  in `{{PLAN}}/memory.md` under "Verified surface." If the gap is
-  small (< 2x), prefer (2) for simplicity; if (1) is meaningfully
-  faster, use (1) and write a unit test that asserts thread-local
-  consumption is synchronous.
+- **Dependencies:** Task 2
+- **Description:** Implement §5.2 of the spec. The handler module
+  attaches via `:telemetry.attach_many/4` from `attach/0` (called by
+  the Supervisor after the subscribers are up — see Task 12).
+  `handle_event/4` receives every `[:ravel | _]`-prefixed event plus
+  known third-party prefixes (`[:erlexec]`, `[:telemetry_poller]`).
+
+  Behaviour:
+  1. Extract `metadata.event` or call `synthesise_diagnostic/3` for
+     third-party events (no `metadata.event` → wrap as
+     `%Diagnostic{target: Enum.join(name, "."), fields: metadata,
+     ...}`).
+  2. Extract `session_id` + `qualified_id` from `metadata` or from
+     the event struct.
+  3. Dispatch in order: `RingBuffer.record/2` → `Metrics.record/2` →
+     `TuiBridge.publish/3` → `JsonlWriter.append/3` (cheap first,
+     expensive IO last).
+  4. **Load-bearing `try/rescue`:** catch any raise inside the four
+     dispatch calls, log via `Logger.error/1` (stdlib `Logger`, NOT
+     through `Ravel.Observability.emit/1` — re-entrancy), return
+     `:ok`. This prevents `:telemetry` from detaching the handler
+     permanently, which would silently blind the daemon.
+  5. **Re-entrancy discipline (§5.3):** subscribers must only use
+     `GenServer.cast/2`; no code reachable from the handler may call
+     `Ravel.Observability.emit/1` or `:telemetry.execute/3`.
+
+  Unit tests cover every struct in the sealed set round-trip, third-
+  party event synthesis, `rescue` path (inject a raise inside a
+  subscriber stub; assert handler stays attached + `Logger.error/1`
+  fires + dispatch returns `:ok`).
+
+  Size estimate: <100 lines (Q6 translation note from spec).
 - **Results:** _pending_
 
-### Task 6 — `event_layer.rs`: `RavelEventLayer` + `ravel_event!` macro `[layer]`
-- **Status:** not_started
-- **Dependencies:** Task 2, Task 5 (handoff approach decided)
-- **Description:** Implement the custom `tracing-subscriber::Layer` that
-  recognises events with the `ravel_event` field and dispatches the
-  typed payload to internal subscribers via a single in-process
-  broadcast (`crossbeam-channel` or `tokio::sync::broadcast`). Implement
-  the `ravel_event!` macro wrapper that emits via `tracing::event!`
-  using the chosen handoff approach from Task 5. The Layer is
-  approximately 200 lines per the spec's estimate. Unit tests: emit
-  every `RavelEvent` variant via the macro; assert the Layer
-  parses and dispatches the typed payload identically. Tests also
-  cover events from third-party crates (no `ravel_event` field) —
-  these must be routed to `RavelEvent::Diagnostic` automatically.
-- **Results:** _pending_
-
-### Task 7 — `ring_layer.rs`: `InMemoryRingLayer` `[layer]`
-- **Status:** not_started
-- **Dependencies:** Task 6
-- **Description:** Implement the per-session bounded ring buffer Layer.
-  Default capacity 1000 events per session. Keys ring buffers by
-  `session_id` (extracted from the active `tracing::Span` at event
-  time); events without a session id go to a "process-scoped" ring
-  shared across the Ravel process. Public API:
-  `dump_session(session_id, n) -> Vec<RavelEvent>` returns the
-  last `n` events in chronological order. Unit tests: ring eviction
-  at capacity; per-session isolation; `dump_session` chronological
-  order; process-scoped ring fallback.
-- **Results:** _pending_
-
-### Task 8 — `jsonl_layer.rs`: `JsonlPersistLayer` `[layer]`
+### Task 7 — `Ravel.Observability.RingBuffer` GenServer + DynamicSupervisor `[subscriber]`
 - **Status:** not_started
 - **Dependencies:** Task 6
-- **Description:** Implement the JSONL persistence Layer using
-  `tracing-appender::non_blocking`. Output paths follow §7 of the spec:
-  `<vault>/runtime/events/<plan-id>/<session-id>.jsonl` for
-  session-scoped events, `<vault>/runtime/events/<plan-id>/process.jsonl`
-  for process-scoped. Uses a per-session `RollingFileAppender` (one
-  file per session, no rotation within a session). The non-blocking
-  writer's `WorkerGuard` is held by the `ObservabilityHarness` (Task
-  12) for the lifetime of the Ravel process. JSONL format per
-  §7.1: one event per line, terminated by `\n`, every line independently
-  parseable. Unit tests: round-trip events through a tmpdir; line-per-
-  event format; truncation safety (parse the file after a synthetic
-  truncation mid-line, assert earlier lines parse).
+- **Description:** Per-session bounded ring GenServer under
+  `RingBuffer.Sup` DynamicSupervisor. Default capacity 1000 events
+  (configurable via `config :ravel, :ring_buffer_capacity`). Storage
+  is Erlang `:queue` with capped size; when the queue hits capacity,
+  oldest events evict on `record/2`.
+
+  Public API:
+  - `record(session_id | :process, event)` — async `GenServer.cast`;
+    if the per-session GenServer doesn't exist, started under
+    `RingBuffer.Sup` via `DynamicSupervisor.start_child/2`.
+  - `dump_session(session_id, n)` — sync `GenServer.call` returning
+    `[event]` in chronological order.
+  - Process-scoped fallback: events without a `session_id` go to a
+    singleton "process" ring shared across the daemon.
+
+  Grace window: when a session ends, the per-session RingBuffer
+  stays alive for a configurable grace period (default 30s) before
+  termination so `dump_session` calls after session-end still
+  succeed. Implemented via `Process.send_after/3` + a
+  `:grace_expired` handle_info.
+
+  Unit tests: ring eviction at capacity, per-session isolation,
+  `dump_session` chronological order, process-scoped fallback,
+  grace window (dump succeeds 25s after session end; fails 35s
+  after), supervisor restart behaviour.
 - **Results:** _pending_
 
-### Task 9 — `metrics_layer.rs`: `MetricsRecorderLayer` `[layer]`
+### Task 8 — `Ravel.Observability.JsonlWriter` GenServer + FileIO routing `[subscriber]`
+- **Status:** not_started
+- **Dependencies:** Task 6, sub-D `Ravel.FileIO` module (dependency
+  callout — see memory.md "Sub-D coordination design")
+- **Description:** Per-session JSONL writer GenServer under
+  `JsonlWriter.Sup` DynamicSupervisor. Output paths follow §7:
+  `<vault>/runtime/events/<qualified-id>/<session-id>.jsonl` for
+  session-scoped, `.../process.jsonl` for process-scoped.
+
+  Internally, the GenServer holds a `File` handle opened with
+  `[:append, :raw, :binary, :delayed_write]`. `append/3` encodes via
+  `Jason.encode_to_iodata!/1` + `"\n"` and writes through the open
+  handle.
+
+  **Sub-D FileIO constraint:** `JsonlWriter` must NOT call
+  `File.write/3` or `File.open/2` directly. All file interactions
+  route through `Ravel.FileIO` per sub-D §3.1 (`:exclusive`
+  category; daemon-authoritative runtime files; no freshness check).
+
+  **Append-vs-rewrite resolution:** `FileIO.write_safe/3` performs
+  an atomic temp-then-rename, which is correct for rewrites but
+  not for streaming appends. Resolution: `JsonlWriter` uses two
+  entry points:
+  1. Session-start file creation routes through
+     `FileIO.create_append_handle(path, :exclusive)` — new sub-D
+     helper that coordinates path registration + initial empty-
+     file creation without the rewrite semantics.
+  2. Subsequent `append/3` writes go directly through the open
+     file handle (`:raw, :delayed_write`) — no conflict detection
+     needed because `:exclusive` runtime files are
+     daemon-authoritative.
+  3. Session-end finalisation optionally rewrites the file through
+     `FileIO.write_safe/3` if post-processing is needed (none in
+     v1).
+
+  If `FileIO.create_append_handle/2` is not yet defined by sub-D,
+  coordinate with sub-D's backlog to add it; note the decision in
+  both plans' memory.md files.
+
+  Set `{:max_messages, 4096}` process flag for bounded mailbox;
+  overflow causes abnormal exit → DynamicSupervisor restart with a
+  fresh handle → `events.dropped.count` bumped with `target:
+  "ravel.jsonl_writer.restart"`.
+
+  Unit tests: round-trip through tmpdir, line-per-event format,
+  `Jason.decode!/1` round-trip, truncation safety, supervisor
+  restart on mailbox overflow, no direct `File.write/3` call sites
+  (a Credo rule or a test that greps `lib/ravel/observability/
+  jsonl_writer.ex` for `File.` calls).
+- **Results:** _pending_
+
+### Task 9 — `Ravel.Observability.Metrics` supervisor + `SnapshotReporter` `[subscriber]`
+- **Status:** not_started
+- **Dependencies:** Task 3, Task 6
+- **Description:** `Metrics` is a Supervisor (not GenServer) hosting
+  two children:
+  1. `Telemetry.Metrics.ConsoleReporter` configured with the
+     catalogue from Task 3. Filtered via `Logger` level in
+     `config/dev.exs` / `config/prod.exs`.
+  2. `Ravel.Observability.Metrics.SnapshotReporter` — **new custom
+     reporter, ~150 lines.** Subscribes to the same events
+     `ConsoleReporter` does via `:telemetry.attach_many/4` in its
+     `init/1`. Maintains per-metric state in `:ets` tables:
+     - Counters: `:ets.update_counter/3`.
+     - Distributions: bucket histograms per the `reporter_options:
+       [buckets: ...]` in the metric definitions; maintains `count`,
+       `sum`, `min`, `max`, and per-bucket counts.
+     - `last_value`: overwrite.
+
+  Public API:
+  - `Metrics.snapshot(session_id)` — folds ETS state into a map
+    shaped per §7.2 of the spec (counters, distributions with p50/
+    p95/p99 computed from bucket histograms, gauges). Called at
+    session end by the phase cycle or by `mix ravel.metrics`.
+  - `Metrics.record(event, measurements)` — thin wrapper that
+    dispatches to the ETS-backed aggregator (called from
+    `Handler.handle_event/4`).
+
+  Unit tests: counter increment correctness, distribution recording
+  and percentile correctness against synthetic latency fixtures,
+  `last_value` overwrite, snapshot format matches §7.2, `keep:`
+  filter correctness for variants that branch on struct fields (e.g.
+  `phase_lifecycle.started.count` only fires when `kind == :started`).
+- **Results:** _pending_
+
+### Task 10 — `Ravel.Observability.TuiBridge` via `:pg` process group `[subscriber]`
 - **Status:** not_started
 - **Dependencies:** Task 6
-- **Description:** Bridge the `metrics` crate to `RavelEvent::Metric`
-  so metrics share the persistence path with everything else. Register
-  a custom `metrics::Recorder` (≈50 lines) that captures every
-  `counter!` / `gauge!` / `histogram!` call, wraps it in a
-  `RavelEvent::Metric(MetricUpdate { ... })`, and emits via the
-  `ravel_event!` macro. Back the recorder with a
-  `metrics_util::registry::Registry` for percentile snapshots. Public
-  API: `snapshot(session_id) -> MetricsSnapshot` returns the
-  `MetricsSnapshot` struct shaped per §7.2 of the spec (counters as a
-  map, histograms with count/sum/min/max/p50/p95/p99 percentiles
-  computed via `metrics-util::Snapshotter`, gauges as a map). Unit
-  tests: counter increment, gauge set, histogram record; snapshot at
-  session end; percentile correctness against `metrics-util` fixtures;
-  `events.dropped` counter is itself emittable via this layer.
+- **Description:** GenServer owning a `:pg` process group `:ravel_tui`
+  (OTP stdlib; no Phoenix.PubSub dep). Each daemon-client connected
+  over the sub-F §6/§7 Unix socket has a per-client session process
+  which joins the group from its own `init/1` via `:pg.join(:ravel_tui,
+  self())`. Leaving happens automatically on process termination
+  (BEAM monitors).
+
+  Public API:
+  - `publish(event, session_id, qualified_id)` — called from
+    `Handler.handle_event/4`. Internally: `:pg.get_members(:pg,
+    :ravel_tui)` to find client pids, then `send/2` each with
+    `{:ravel_event, event, %{session_id: session_id, qualified_id:
+    qualified_id}}`. Per-client backpressure: wrap each `send/2`
+    in a `try/catch` over the client's process_info mailbox size;
+    if above `tui_client_mailbox_max` (default 256 messages), skip
+    the send and bump `events.dropped.count` with `target:
+    "ravel.tui_bridge.drop"`.
+  - `subscribe()` and `unsubscribe()` are NOT M's responsibility —
+    joining/leaving is done by the client-session process which
+    lives in sub-F's daemon protocol layer.
+
+  Unit tests: group join/leave via stub client processes, bounded-
+  send behaviour (slow consumer's mailbox fills → drops increment),
+  drop counter correctness, multi-client fan-out (3+ clients each
+  receive the event).
 - **Results:** _pending_
 
-### Task 10 — `tui_bridge.rs`: `TuiBridgeLayer` `[layer]`
+### Task 11 — _(deleted — stdlib Logger covers this)_
+- **Status:** n/a
+- **Description:** The Rust `StderrFmtLayer` is replaced on BEAM by
+  stdlib `Logger` with the default console backend. Daemon boot
+  configures `Logger` level via `config/dev.exs` (`:debug`) and
+  `config/prod.exs` (`:info`). No M-specific module needed. Task
+  number retained as a deletion marker.
+
+### Task 12 — `Ravel.Observability.Supervisor` composition `[composition]`
 - **Status:** not_started
-- **Dependencies:** Task 6
-- **Description:** Implement the bounded `mpsc::Sender<RavelEvent>`
-  Layer for the ratatui TUI. Default channel capacity 256. Drop-oldest
-  semantics on overflow: when the channel is full, pop the oldest
-  buffered event, send the new one, increment the `events.dropped`
-  counter (which itself flows through `MetricsRecorderLayer`). Public
-  API: `subscribe() -> mpsc::Receiver<RavelEvent>` (single
-  receiver, owned by the TUI). Unit tests: bounded channel overflow
-  drops oldest; counter increment on drop; single-receiver enforcement.
+- **Dependencies:** Tasks 6–10
+- **Description:** Top-level Supervisor for the observability stack.
+  Strategy: `:rest_for_one` per §5.1 (if `Metrics` restarts, the rest
+  of the stack restarts too because its ETS tables become stale).
+
+  Child order:
+  1. `Metrics` (Supervisor hosting `ConsoleReporter` +
+     `SnapshotReporter`).
+  2. `RingBuffer.Sup` (DynamicSupervisor).
+  3. `JsonlWriter.Sup` (DynamicSupervisor).
+  4. `TuiBridge` (GenServer).
+  5. `Handler.attach/0` runs **last**, after all four subscribers
+     are up. No events are dispatched until the handler attaches
+     (pre-attach events go to `:telemetry`'s default no-op handler).
+
+  Public API: `start_link/1` wired into `Ravel.Supervisor`'s child
+  list at daemon boot per sub-A's 11-step boot sequence (step 5 or
+  similar — coordinate with sub-A's boot order).
+
+  Unit tests: full Supervisor tree composition compiles and runs;
+  `:rest_for_one` behaviour (kill `Metrics`; assert all children
+  restart); `Handler` attachment order verification (emit a
+  `:telemetry.execute/3` between supervisor boot phases; assert no
+  events arrive before `Handler.attach/0`).
 - **Results:** _pending_
 
-### Task 11 — `StderrFmtLayer` wiring with `EnvFilter` `[layer]`
-- **Status:** not_started
-- **Dependencies:** Task 6
-- **Description:** Wire the standard `tracing-subscriber::fmt::Layer`
-  with `EnvFilter` reading from the `RAVEL_LOG` env var. Off by
-  default (no env var → no stderr output). Useful for development
-  debugging. This Layer does NOT depend on `RavelEventLayer` —
-  it formats the raw `tracing::Event` directly via fmt's standard
-  formatter. Unit test: set `RAVEL_LOG=info`, emit a tracing
-  event, assert the formatted output appears on stderr.
-- **Results:** _pending_
-
-### Task 12 — `harness.rs`: `ObservabilityHarness` startup function `[composition]`
-- **Status:** not_started
-- **Dependencies:** Tasks 6-11
-- **Description:** Compose the full subscriber stack via
-  `tracing_subscriber::Registry::default().with(...).with(...)…`.
-  Layer composition order per §5.1 of the spec: EnvFilter →
-  RavelEventLayer → InMemoryRingLayer → MetricsRecorderLayer →
-  TuiBridgeLayer → JsonlPersistLayer → StderrFmtLayer. Public API:
-  `ObservabilityHarness::init(vault_runtime_dir, plan_id) -> (Self, WorkerGuard)`.
-  The `WorkerGuard` from `tracing-appender::non_blocking` is held by
-  `Self` for the process lifetime. `Self` exposes accessor methods
-  for the public APIs of each layer that downstream code needs:
-  `dump_session(session_id, n)`, `subscribe_tui()`, `metrics_snapshot(session_id)`.
-  Unit tests: full Registry composition compiles and runs; `init` is
-  idempotent (calling twice within the same process panics with a
-  clear diagnostic — this matches `tracing-subscriber`'s
-  `set_global_default` semantics).
-- **Results:** _pending_
-
-### Task 13 — Risk 5 dump path wiring `[diagnostics]`
+### Task 13 — `Ravel.Observability.dump_event_tail/4` + Risk 5 wiring `[diagnostics]`
 - **Status:** not_started
 - **Dependencies:** Task 12
-- **Description:** Implement the Risk 5 forensics dump per §8 of the
-  spec. Add a public function
-  `observability::dump_event_tail(harness: &ObservabilityHarness, session_id, plan_id, phase, n) -> Result<PathBuf, IoError>`
-  that calls `harness.dump_session(session_id, n)` and writes the
-  result to
-  `<vault>/runtime/interrupted/<plan-id>/<phase>-<timestamp>/event-tail.json`
-  using a panic-safe wrapper (any failure inside the dump path logs
-  to stderr but never masks the original error). Wire calls into
-  the error paths of B's `PhaseRunner`, C's actor, and E's pipeline
-  via the adoption tasks landed in those sibling backlogs. Unit
-  test: synthetic error in a fixture context, assert the
-  `event-tail.json` file exists with the right schema.
+- **Description:** Implement §8 of the spec. Public function:
+
+  ```elixir
+  @spec dump_event_tail(session_id, qualified_id, phase, n) ::
+          {:ok, Path.t()} | {:error, term()}
+  def dump_event_tail(session_id, qualified_id, phase, n \\ 100) do
+    try do
+      events = Ravel.Observability.RingBuffer.dump_session(session_id, n)
+      path = forensics_path(qualified_id, phase)
+      File.mkdir_p!(Path.dirname(path))
+      Ravel.FileIO.write_safe(path, Jason.encode_to_iodata!(events),
+                               :exclusive)
+      {:ok, path}
+    rescue
+      err ->
+        Logger.error("dump_event_tail failed: #{inspect(err)}")
+        {:error, err}
+    end
+  end
+  ```
+
+  Path: `<vault>/runtime/interrupted/<qualified-id>/<phase>-<timestamp>/
+  event-tail.json`. **Panic-safe `try/rescue`** — any failure inside
+  the dump path logs via `Logger.error/1` but never masks the
+  original error that triggered the dump.
+
+  Wiring into error paths is done by the adoption tasks in B / C / E
+  (already landed in those sibling backlogs by M's brainstorm). This
+  task's scope is the function itself + unit test + integration-test
+  coverage via Task 20.
+
+  Unit tests: synthetic session context, assert file exists at the
+  expected path with the right JSON schema; inject a synthetic
+  disk-full error during the dump itself, assert the original error
+  path is still surfaced (not masked).
 - **Results:** _pending_
 
-### Task 14 — C `SpawnLatencyReport` parallel-emit (M side) `[migration]`
+### Task 14 — C `%SpawnLatencyReport{}` parallel-emit bridge (M side) `[migration]`
 - **Status:** not_started
-- **Dependencies:** Task 12
-- **Description:** Define the metric histograms M will record
-  (`HARNESS_COLD_SPAWN_LATENCY_MS`, `HARNESS_FIRST_CHUNK_LATENCY_MS`,
-  `HARNESS_FIRST_OUTPUT_LATENCY_MS`) and document where in C's actor
-  the parallel `metric!` calls go. The actual call sites are added
-  by sub-C-adapters' adoption task (already landed in C's backlog by
-  M's brainstorm). M side of the work: ensure the histograms are
-  registered with `MetricsRecorderLayer` and that the `metric_names`
-  constants exist (they should, from Task 3). Unit test: emit a
-  histogram value, snapshot, assert percentiles include the value.
+- **Dependencies:** Task 6, Task 9
+- **Description:** Per §9 of the spec. Add a bridge in
+  `Handler.handle_event/4` that listens on the C §7.2 telemetry name
+  `[:ravel, :harness, :claude_code, :spawn_latency]` (C's auxiliary
+  emission path) and rewrites the incoming event into a
+  `%SpawnLatencyReport{}` struct before dispatch. This means both
+  naming conventions (C's auxiliary + M's typed) land on the same
+  dispatch path.
+
+  Confirm the three distribution definitions
+  (`spawn_latency.cold_spawn_ms`, `spawn_latency.first_chunk_ms`,
+  `spawn_latency.first_output_ms`) are registered via Task 3
+  catalogue and that `SnapshotReporter` computes percentiles from
+  them correctly.
+
+  Unit test: emit a synthetic `%SpawnLatencyReport{}`, assert values
+  flow through RingBuffer + Metrics + JsonlWriter; also emit a raw
+  `:telemetry.execute([:ravel, :harness, :claude_code, :spawn_latency],
+  ...)` with no `metadata.event`, assert `Handler` rewrites it and
+  dispatches identically.
 - **Results:** _pending_
 
-### Task 15 — C parallel-emit verification integration test `[verification]`
+### Task 15 — C parallel-emit `@moduletag :live` verification test `[verification]`
 - **Status:** not_started
 - **Dependencies:** Task 14, sub-C-adapters' adoption task complete
-- **Description:** Layer 3 integration test that runs a real C session
-  (or a fixture-replay session that exercises the parallel-emit code
-  path), reads both `<staging>/spawn-latency.json` and
-  `<vault>/runtime/metrics/<plan-id>/<session-id>.json`, asserts the
-  three latency values match within ±10ms (clock skew allowance).
-  Test runs on every CI build during the parallel-emit window
-  (between M v1 ship and M v1.1 cleanup). Once verification passes
-  for ≥10 consecutive CI builds, the next triage adds a task to
-  delete C's tactical writer (M v1.1 cleanup).
+- **Description:** ExUnit Layer 3 integration test with
+  `@moduletag :live`. Runs a real C session (or fixture-replay)
+  that exercises the parallel-emit code path, reads both:
+  1. `<staging>/spawn-latency.json` (C's auxiliary writer).
+  2. `<vault>/runtime/metrics/<qualified-id>/<session-id>.json`
+     (M's `SnapshotReporter` snapshot).
+
+  Asserts the three latency values match within ±10ms (clock-skew
+  allowance per §9). Runs on every CI build during the parallel-
+  emit window (between M v1 ship and M v1.1 cleanup). Once
+  verification passes for ≥10 consecutive CI builds, the next
+  triage adds the C-v1.1 cleanup task to C's sibling backlog.
 - **Results:** _pending_
 
-### Task 16 — `ravel metrics` CLI subcommand `[cli]`
+### Task 16 — `mix ravel.metrics` Mix task `[cli]`
 - **Status:** not_started
 - **Dependencies:** Task 9 (snapshot format)
-- **Description:** Add a new `metrics` subcommand to the existing
-  `ravel` CLI under `src/commands/metrics.rs`. Reads JSONL events
-  from `<vault>/runtime/events/<plan-id>/` and metric snapshots from
-  `<vault>/runtime/metrics/<plan-id>/` for a given `--plan-id` or
-  `--since <ISO8601>` range. Computes per-metric percentiles via
-  `metrics-util::Snapshotter::histograms()`. Output formats: default
-  pretty-printed table, `--json` for machine-readable. CSV format
-  deferred to v1.5+. ≈300 lines. Integration test against a fixture
-  vault containing a known event stream.
+- **Description:** Escript-style Mix task at
+  `lib/mix/tasks/ravel.metrics.ex` using `use Mix.Task` +
+  `@shortdoc`. Parses arguments via `OptionParser`
+  (`--qualified-id`, `--since <ISO8601>`, `--session`, `--json`).
+
+  Reads JSONL events from `<vault>/runtime/events/<qualified-id>/`
+  and metric snapshots from `<vault>/runtime/metrics/<qualified-id>/`
+  for the given range. Computes per-metric percentiles from stored
+  bucket histograms. Output formats:
+  - Default: pretty-printed table to stdout via `IO.ANSI`.
+  - `--json`: machine-readable JSON.
+  - `--csv` (v1.5+): CSV output; not in v1.
+
+  ~300 lines, no new deps (reuses `Jason`). Integration test against
+  a fixture vault containing a known event stream.
 - **Results:** _pending_
 
-### Task 17 — `ravel diagnose` CLI subcommand `[cli]`
+### Task 17 — `mix ravel.diagnose` Mix task `[cli]`
 - **Status:** not_started
-- **Dependencies:** Task 8 (JSONL format)
-- **Description:** Add a new `diagnose` subcommand to the existing
-  `ravel` CLI under `src/commands/diagnose.rs`. Reads
-  `<vault>/runtime/events/<plan-id>/<session-id>.jsonl` for a given
-  `--session` and prints the last `--last N` (default 50) events in
-  chronological order. Mirrors the in-memory `dump_session` API but
-  works against persisted JSONL after the session has ended. Useful
-  when the live `event-tail.json` dump is missing or insufficient.
-  Integration test against a fixture session JSONL.
+- **Dependencies:** Task 8 (JSONL format), Task 2 (`Ravel.Event.
+  reconstruct/1`)
+- **Description:** Escript-style Mix task at
+  `lib/mix/tasks/ravel.diagnose.ex`. Arguments: `--session
+  <session-id>`, `--last <n>` (default 50).
+
+  Reads `<vault>/runtime/events/<qualified-id>/<session-id>.jsonl`
+  and prints the last N events in chronological order. Uses
+  `Ravel.Event.reconstruct/1` to rebuild event structs from the
+  decoded JSON. Mirrors the in-memory `RingBuffer.dump_session/2`
+  API but works against persisted JSONL after the session has
+  ended. Useful when the live `event-tail.json` dump is missing or
+  insufficient.
+
+  Warn if any drops occurred in the session snapshot (per Risk 2
+  mitigation in §17). Integration test against a fixture session
+  JSONL.
 - **Results:** _pending_
 
 ### Task 18 — Cross-plan adoption verification `[coordination]`
 - **Status:** not_started
-- **Dependencies:** none (independent verification step)
+- **Dependencies:** none (independent verification)
 - **Description:** **NOTE — most of this work is pre-completed by M's
-  brainstorm.** The sub-B-phase-cycle, sub-C-adapters, and
-  sub-E-ingestion sibling backlogs each had an adoption task added by
-  the brainstorm session that produced this plan. This task is the
-  verification step: re-read each sibling backlog and confirm the
-  adoption stub is present, correctly worded, and references this
-  plan's design doc. If any stub is missing or out of date, fix it
-  and record the fix in this plan's session log. Also re-check
-  `{{PLAN}}/memory.md`'s "Cross-plan adoption coordination" section
-  to confirm the queued adoptions for sub-D / sub-F / sub-H / sub-I /
-  sub-G are still queued (none of those sub-projects' brainstorms
-  should have shipped an adoption task in advance — that would be a
-  drift signal).
+  brainstorm.** Re-read each sibling backlog and confirm the adoption
+  stub is present, correctly worded, and references the Session-15
+  spec:
+
+  - `sub-B-phase-cycle`: adoption stub present.
+  - `sub-C-adapters`: adoption stub present.
+  - `sub-E-ingestion`: adoption stub present.
+  - `sub-N-domain-experts`: verify Task 15 early-deliverable PR
+    covers the six `Expert.*` struct definitions.
+  - `sub-D-coordination`: now also gated on Task 25 (this plan).
+  - `sub-H-skills`: gated on Task 26 (this plan).
+  - `sub-F-hierarchy`: Task 24 is the adoption task; M's §6 catalogue
+    from Task 3 already absorbs the nine new counters.
+  - `sub-A-global-store`: two vault structs already in §4.1 sealed
+    set via Task 2.
+
+  Also re-check `{{PLAN}}/memory.md` "Cross-plan adoption coordination"
+  section to confirm queued adoptions for sub-I / sub-G are still
+  queued. Drift fixes recorded in the session log.
 - **Results:** _pending_
 
-### Task 19 — Layer 3 integration test: fixture-replay end-to-end `[testing]`
+### Task 19 — Fixture-replay end-to-end integration test `[testing]`
 - **Status:** not_started
-- **Dependencies:** Task 12, Task 13
-- **Description:** Spawn a fixture-replay `PhaseExecutor` (from sub-B),
-  drive a full work → reflect → triage cycle, verify:
-  1. The JSONL stream at `<vault>/runtime/events/<plan-id>/<session-id>.jsonl`
-     contains the expected event sequence.
-  2. The metric snapshot at
-     `<vault>/runtime/metrics/<plan-id>/<session-id>.json` has the
-     expected counter values (`phase.started == 3`,
-     `phase.exited.clean == 3`, `harness.spawned == 3`).
-  3. The TuiBridgeLayer's mpsc receiver delivered the expected
-     event count to a mock TUI consumer.
-  4. The InMemoryRingLayer can dump the last 50 events for the cycle's
-     final session.
-  Uses sub-B's `FixtureReplayExecutor` from B's implementation phase;
-  blocks on B's executor being landed (or stub equivalents being
-  available).
+- **Dependencies:** Task 12, Task 13, sub-B `FixtureReplayExecutor`
+  landed
+- **Description:** ExUnit Layer 3 integration test with
+  `@moduletag :live`. Spawns sub-B's `FixtureReplayExecutor`, drives
+  a full work → reflect → triage cycle, verifies:
+
+  1. JSONL stream at `<vault>/runtime/events/<qualified-id>/
+     <session-id>.jsonl` contains the expected event sequence
+     (per-phase `%PhaseLifecycle{kind: :started/:exited_clean}`,
+     per-session `%HarnessOutput{}` chunks, etc.).
+  2. Metric snapshot at `<vault>/runtime/metrics/<qualified-id>/
+     <session-id>.json` has the expected counter values
+     (`phase_lifecycle.started.count == 3`,
+     `phase_lifecycle.exited_clean.count == 3`,
+     `session_lifecycle.ready.count == 3`).
+  3. `TuiBridge`'s `:pg` group delivers the expected events to a
+     mock client-session process that joined the group.
+  4. `RingBuffer.dump_session/2` returns the last 50 events for
+     the cycle's final session in chronological order.
+
+  Uses sub-B's `FixtureReplayExecutor` from B's implementation
+  phase; blocks on B's executor being landed (or stub equivalents
+  being available).
 - **Results:** _pending_
 
-### Task 20 — Risk 5 dump end-to-end test `[testing]`
+### Task 20 — Risk 5 dump end-to-end integration test `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 13
-- **Description:** Layer 3 integration test that induces a synthetic
-  error in a fixture `PhaseRunner`, asserts
-  `<vault>/runtime/interrupted/<plan-id>/<phase>-<timestamp>/event-tail.json`
-  exists, asserts it parses as `Vec<RavelEvent>`, asserts it
-  contains the last events leading up to the error in chronological
-  order. Verifies that the dump path is panic-safe by injecting a
-  synthetic disk-full error during the dump itself and confirming
-  the original error is still surfaced (not masked).
+- **Description:** ExUnit Layer 3 integration test with
+  `@moduletag :live`. Induces a synthetic error in a fixture
+  `PhaseRunner`, asserts:
+
+  1. `<vault>/runtime/interrupted/<qualified-id>/<phase>-<ts>/
+     event-tail.json` exists.
+  2. File parses as a list of event structs via
+     `Ravel.Event.reconstruct/1`.
+  3. Contains the last events leading up to the error in
+     chronological order.
+
+  Verifies dump path is panic-safe by injecting a synthetic disk-
+  full error during the dump itself and confirming the original
+  error is still surfaced (not masked).
 - **Results:** _pending_
 
-### Task 21 — JSONL property tests `[testing]`
+### Task 21 — JSONL property tests (StreamData) `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 8
-- **Description:** Use `proptest` to generate random `RavelEvent`
-  values across all variants, serialise to JSONL, parse back, assert
-  round-trip equality. Cover edge cases: empty strings, very long
-  `text_summary` fields (tests the truncation invariant), all
-  `OutputChunkKind` variants, all `Phase` variants. The property
-  strategy lives in `src/observability/event.rs` behind a
-  `#[cfg(test)]` block.
+- **Description:** Use `{:stream_data, "~> 0.5", only: [:test]}`
+  (add to mix.exs if not already present) to generate random
+  structs across all variants in the sealed set. For each generated
+  struct: encode via `Jason.encode!/1`, write to tmpdir, read back,
+  decode via `Jason.decode!/1`, reconstruct via
+  `Ravel.Event.reconstruct/1`, assert round-trip equality.
+
+  Cover edge cases: empty strings, very long `text_summary` fields
+  (tests the 256-byte truncation invariant in `%HarnessOutput{}`),
+  all `kind` variants, all `transition` variants, all `phase`
+  variants. Generators live in `test/support/event_generators.ex`.
 - **Results:** _pending_
 
 ### Task 22 — Re-entrancy stress test `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 12
-- **Description:** Risk 1 mitigation. Integration test that emits 1M
-  `RavelEvent`s through the full Registry stack across multiple
-  threads (4 emitter threads × 250k events each), asserts no panics,
-  no stack overflows, and that all events arrive at every expected
-  layer. Verifies the well-known "never emit `tracing::event!` from
-  inside a Layer's `on_event`" rule is held; test will fail loudly
-  if any future custom layer violates it. Also serves as a smoke
-  test for sustained-load correctness of the non-blocking
-  `tracing-appender` writer.
+- **Description:** Risk 1 mitigation. ExUnit integration test with
+  `@moduletag :live` that emits 1M `:telemetry` events through the
+  full Handler → subscriber stack across 4 concurrent producer
+  processes (250k events each). Attaches a **witness handler** that
+  counts recursive dispatches via a process-dictionary sentinel.
+
+  Asserts:
+  - Zero recursive dispatches (enforces §5.3 re-entrancy
+    discipline).
+  - No `Handler` detach events (`:telemetry` did not detach the
+    handler).
+  - No `JsonlWriter` restart events (mailbox stayed bounded).
+  - All events arrived at every subscriber (RingBuffer count,
+    Metrics `snapshot/1` counters, JsonlWriter line count, TuiBridge
+    delivery count all equal 1M within drop tolerance).
+  - Zero `Logger.error/1` calls from the `Handler` rescue path
+    (CI fails loud if the rescue fires during tests per Risk 6).
+
+  Also serves as a smoke test for sustained-load correctness of the
+  `[:raw, :delayed_write]` JSONL writer.
 - **Results:** _pending_
 
 ### Task 24 — Absorb `Ravel.Event.Expert.*` structs into sealed set + §6 metrics `[types]`
 - **Status:** not_started
-- **Dependencies:** sub-N Task 15 early-deliverable PR (delivers concrete struct definitions); Task 0 (task-list rewrite) must be complete so this task can be written against the Elixir design
+- **Dependencies:** sub-N Task 15 early-deliverable PR (delivers concrete struct definitions); Task 0 complete
 - **Description:** Sub-N (domain experts, brainstormed Session 16, 2026-04-15) is a new typed-event producer that emits six structs in the `Ravel.Event.Expert.*` group. Sub-M's sealed struct set (§4.1) and metric catalogue (§6) must absorb these before sub-N's implementation tasks begin.
 
   **Struct additions to §4.1** — add the following six structs to the sealed set under a new `Expert` producer group. Each carries `@enforce_keys` + `@derive Jason.Encoder`:
@@ -532,40 +726,20 @@ input from the user.
   **Design doc edits required:**
   1. Add sub-N to the producer table in §4.1 alongside B/C/F/E/A.
   2. Add the eight metric definitions above to §6 with a Decision Trail entry recording the source (sub-N brainstorm, Session 16).
-  3. Update the catalogue-integrity test (backlog Task 4 rewrite under Task 0) to count the new definitions.
+  3. Update the catalogue-integrity test (Task 4) to count the new definitions.
 
   **Discipline.** Adding these variants to the sealed set requires a Decision Trail entry per §4.1's "sealed for v1" rule. The entry should cite sub-N's §9.5 as the producer-side commitment and note that this is the only expansion of the sealed set between v1 and v1.5.
 - **Results:** _pending_
 
-### Task 26 — Sub-H adoption: add `ravel.tui_action` to sealed struct set and Handler `[coordination]`
-- **Status:** not_started
-- **Dependencies:** Task 0 (task-list rewrite); sub-H Session 20 amendment (2026-04-16) has landed and locked the contract
-- **Description:** Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7 legacy Claude Code skills to daemon-native TUI actions and established a concrete observability requirement: **each TUI action invocation must emit `%Diagnostic{target: "ravel.tui_action", fields: %{action: ...}}`**. Sub-H emits these diagnostics; sub-M must ensure the framework handles them correctly.
-
-  **Required changes:**
-
-  1. **Sealed struct set (§4.1 of design doc):** Verify that `%Diagnostic{}` in the sealed set carries a `target` field and a `fields` map (it should, as the current `Diagnostic` escape-hatch struct is generic). If `%Diagnostic{}` does not yet carry `fields: map()`, add it. Add a Decision Trail entry noting that `"ravel.tui_action"` is an established target value, introduced by sub-H Session 20, 2026-04-16.
-
-  2. **Handler attachment (§5 of design doc):** Ensure `Ravel.Observability.Handler.attach/0` includes the telemetry event prefix that sub-H uses when emitting TUI action diagnostics. Verify the prefix against sub-H's implementation when it lands (sub-H emits via `Ravel.Observability.emit/1` which wraps `:telemetry.execute/3`; the derived prefix for `%Diagnostic{target: "ravel.tui_action"}` is likely `[:ravel, :diagnostic]` or `[:ravel, :tui_action]` — confirm against §4.2 of the design doc).
-
-  3. **Metric catalogue (§6 of design doc):** Add a `counter("ravel.tui_action")` with a `keep:` filter on the `action` field, so per-action invocation counts are tracked. This enables TUI action usage analytics in `mix ravel.metrics`.
-
-  4. **Unit test:** Add a test that constructs `%Diagnostic{target: "ravel.tui_action", fields: %{action: "some_action"}}`, encodes it via `Jason.encode!/1`, and round-trips it via `Jason.decode!/1`. Also verify it flows through the `Handler` dispatch chain without error.
-
-  5. **Update adoption table:** Mark `sub-H-skills` as `done` in the cross-plan adoption table in `memory.md`.
-
-  **Note:** This task is independent of the full Task 0 rewrite for its scope definition, but must be executed after Task 0 so it can be written against the Elixir-native task list.
-- **Results:** _pending_
-
 ### Task 25 — Sub-D adoption: wire coordination telemetry events into Handler `[coordination]`
 - **Status:** not_started
-- **Dependencies:** Task 0 (task-list rewrite), sub-D implementation (provides `[:ravel, :coordination, :*]` telemetry events)
+- **Dependencies:** Task 0 (complete), Task 6 (Handler), sub-D implementation (provides `[:ravel, :coordination, :*]` telemetry events)
 - **Description:** Sub-D's brainstorm (2026-04-16) locked the coordination
   telemetry contract. Sub-M's adoption task is:
   1. Add `[:ravel, :coordination, :lock]` and
      `[:ravel, :coordination, :freshness]` (or the actual prefixes
      sub-D uses — verify against sub-D's implementation) to the event
-     name list passed to `Handler.attach_many/4` in
+     name list passed to `:telemetry.attach_many/4` in
      `Ravel.Observability.Handler.attach/0`.
   2. Ensure `handle_event/4` handles `%Diagnostic{target: "ravel.lock"}`
      and `%Diagnostic{target: "ravel.coordination"}` structs — these
@@ -573,39 +747,63 @@ input from the user.
      `%Diagnostic{}` structs in the sealed set.
   3. Verify the `JsonlWriter` file write path routes through
      `Ravel.FileIO.write_safe/3` with `:exclusive` category (no direct
-     `File.write/3` calls). Resolve append-vs-rewrite per the note added to
-     Task 0 checklist item 8. Write a test that confirms no `File.open/2` or
+     `File.write/3` calls). Resolve append-vs-rewrite per Task 8's
+     resolution. Write a test that confirms no `File.open/2` or
      `File.write/3` call sites exist in `jsonl_writer.ex`.
   4. Update the cross-plan adoption table in memory.md to mark sub-D as
      `done`.
   See memory.md "Sub-D coordination design" section for full context.
 - **Results:** _pending_
 
+### Task 26 — Sub-H adoption: add `ravel.tui_action` to sealed struct set and Handler `[coordination]`
+- **Status:** not_started
+- **Dependencies:** Task 0 (complete), Task 2 (sealed set), Task 6 (Handler); sub-H Session 20 amendment (2026-04-16) has landed and locked the contract
+- **Description:** Sub-H's Session 20 amendment (2026-04-16) locked the final mapping of all 7 legacy Claude Code skills to daemon-native TUI actions and established a concrete observability requirement: **each TUI action invocation must emit `%Diagnostic{target: "ravel.tui_action", fields: %{action: ...}}`**. Sub-H emits these diagnostics; sub-M must ensure the framework handles them correctly.
+
+  **Required changes:**
+
+  1. **Sealed struct set (§4.1 of design doc):** Verify that `%Diagnostic{}` in the sealed set carries a `target` field and a `fields` map (it does — added in Task 2). Add a Decision Trail entry noting that `"ravel.tui_action"` is an established target value, introduced by sub-H Session 20, 2026-04-16.
+
+  2. **Handler attachment (§5 of design doc):** Ensure `Ravel.Observability.Handler.attach/0` includes the telemetry event prefix that sub-H uses when emitting TUI action diagnostics. Per §4.2, `%Diagnostic{target: "ravel.tui_action"}` derives a prefix of `[:ravel, :diagnostic]` (the struct module determines the prefix, not the target field). Confirm against sub-H's implementation when it lands.
+
+  3. **Metric catalogue (§6 of design doc):** Add a `counter("ravel.tui_action")` with a `keep:` filter on the `target` field (`keep: &(&1.event.target == "ravel.tui_action")`), so per-action invocation counts are tracked. This enables TUI action usage analytics in `mix ravel.metrics`. Optionally split by the `action` sub-field via `tags` for per-action counters.
+
+  4. **Unit test:** Add a test that constructs `%Diagnostic{target: "ravel.tui_action", fields: %{action: "some_action"}}`, encodes it via `Jason.encode!/1`, and round-trips it via `Jason.decode!/1`. Also verify it flows through the `Handler` dispatch chain without error.
+
+  5. **Update adoption table:** Mark `sub-H-skills` as `done` in the cross-plan adoption table in `memory.md`.
+
 ### Task 23 — v1 ship gate `[release]`
 - **Status:** not_started
-- **Dependencies:** Tasks 1-22
+- **Dependencies:** Tasks 1–22 (plus Tasks 24–26 as cross-plan prerequisites mature)
 - **Description:** Final v1 acceptance:
-  1. All tasks 1-22 are `done`.
-  2. `cargo test` green at the workspace level.
-  3. `cargo clippy --all-targets` green (no new warnings).
-  4. `cargo +nightly fmt --check` green.
-  5. Spec §15 v1 cut checklist confirmed:
-     - ✅ Crate stack integrated
-     - ✅ `RavelEvent` enum + helper types
-     - ✅ All seven layers shipped and wired
-     - ✅ Metric catalogue defined
-     - ✅ Storage layout implemented
-     - ✅ Risk 5 dump wired into B / C / E error paths
-     - ✅ C parallel-emit live and verified
-     - ✅ `ravel metrics` and `ravel diagnose` subcommands
-     - ✅ Cross-plan adoption tasks landed in sibling backlogs
-     - ✅ Test suite green
-  6. Update parent orchestrator plan's `memory.md` recording M v1
+  1. All tasks 1–22 are `done` (Tasks 5 and 11 skipped as deleted).
+  2. `mix test` green at the workspace level.
+  3. `mix format --check-formatted` green.
+  4. `mix credo --strict` green (no new warnings).
+  5. `mix dialyzer` green (if enabled at the umbrella level).
+  6. Spec §15 v1 cut checklist confirmed:
+     - Hex dep stack integrated (`:telemetry`, `:telemetry_metrics`,
+       `Jason`).
+     - Sealed `Ravel.Event.*` struct set defined under
+       `lib/ravel/event/*.ex`.
+     - `Ravel.Observability.emit/1` + `Handler` shipped and wired
+       into `Ravel.Supervisor` child list.
+     - All four subscribers (`RingBuffer.Sup`, `JsonlWriter.Sup`,
+       `TuiBridge`, `Metrics`) supervised.
+     - Metric catalogue defined and catalogue-integrity test green.
+     - Storage layout implemented.
+     - Risk 5 dump wired into B / C / E error paths (via sibling
+       adoption tasks).
+     - C parallel-emit live and verified within ±10ms.
+     - `mix ravel.metrics` and `mix ravel.diagnose` tasks shipped.
+     - Cross-plan adoption stubs verified.
+     - Test suite green including re-entrancy test.
+  7. Update parent orchestrator plan's `memory.md` recording M v1
      ship.
-  7. The next triage cycle of sub-M (now post-v1) creates the v1.1
-     cleanup task: delete C's tactical `SpawnLatencyReport` writer
-     after the verification window has run for ≥10 consecutive CI
-     builds.
+  8. The next triage cycle of sub-M (now post-v1) creates the v1.1
+     cleanup task: delete C's tactical `%SpawnLatencyReport{}`
+     writer after the verification window has run for ≥10
+     consecutive CI builds.
 - **Results:** _pending_
 
 ## Sub-R adoption

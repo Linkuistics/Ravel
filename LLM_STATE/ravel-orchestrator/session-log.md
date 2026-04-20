@@ -1,6 +1,6 @@
 # Session Log
 
-### Session 1 (2026-04-12) — LLM_CONTEXT punch-list stop-gap
+### Session 1 (2026-04-12) — Ravel-Lite punch-list stop-gap
 - Attempted: the stop-gap task in its entirety — APIAnyware-MacOS README
   rewrites (issues 1 and 2), APIAnyware-MacOS work-prompt updates, and
   GUIVisionVMDriver README consolidation (issue 3).
@@ -105,7 +105,7 @@
 ### Session 3 (2026-04-12) — Sub-project B brainstorm: phase cycle in Rust
 - Attempted: the full brainstorm for sub-project B (reimplement the work
   → reflect → triage cycle in Rust inside Mnemosyne), producing the
-  design doc and the sibling LLM_CONTEXT plan per the work prompt's
+  design doc and the sibling Ravel-Lite plan per the work prompt's
   conventions for brainstorm tasks.
 - Worked: the brainstorm drove through five clarifying questions
   (placeholder substitution strategy, phase state richness, human/LLM
@@ -313,40 +313,40 @@
     F's plan hierarchy brainstorm). Calibration for future reflect
     phases: prune facts, keep rationales.
 - Follow-on (same session, post-`reflect` write): the hidden-blocker
-  learning was landed back into `{{DEV_ROOT}}/LLM_CONTEXT/backlog-plan.md`
+  learning was landed back into `{{DEV_ROOT}}/Ravel-Lite/defaults/create-plan.md`
   as a durable process improvement — one new Tips bullet ("Promote
   cross-cutting blockers to top-level tasks immediately") and one new
   TRIAGE phase step (active scan of task descriptions for embedded
   blockers that should be promoted). Committed as
   `a25af17 Promote cross-cutting blockers to top-level tasks` in the
-  LLM_CONTEXT repo and pushed to main. This is the first dogfooding
-  → LLM_CONTEXT feedback loop closure since the seed plan started;
+  Ravel-Lite repo and pushed to main. This is the first dogfooding
+  → Ravel-Lite feedback loop closure since the seed plan started;
   prior work-phase friction (substitution gap, Edit-after-native-Read)
   was captured as Mnemosyne-side v2 requirements, not landed back
-  into LLM_CONTEXT. Bootstrap discipline was honoured because the
-  edit is additive documentation that does not change LLM_CONTEXT's
+  into Ravel-Lite. Bootstrap discipline was honoured because the
+  edit is additive documentation that does not change Ravel-Lite's
   runtime behaviour, so the four dependent projects
   (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro)
   absorb the improvement without any migration cost. The update also
   flows naturally into Mnemosyne v1 when sub-project B's
   `include_str!`-embedded prompts vendor the canonical
   `backlog-plan.md`, so there is no duplication penalty across the
-  LLM_CONTEXT → Mnemosyne transition. Key learnings from the
+  Ravel-Lite → Mnemosyne transition. Key learnings from the
   follow-on:
   - **Dogfooding-validated process improvements are the right
-    category to land back into LLM_CONTEXT even under bootstrap
+    category to land back into Ravel-Lite even under bootstrap
     discipline.** The discipline forbids assuming v2 features; it
     does not forbid landing v1 improvements evidenced by v1's own
     execution. The test is whether the four dependent projects can
     absorb the change with zero migration work — additive
     documentation qualifies, runtime or schema changes would not.
-  - **The LLM_CONTEXT → Mnemosyne embedded-prompts pipeline makes
+  - **The Ravel-Lite → Mnemosyne embedded-prompts pipeline makes
     this update free.** The lesson will flow into Mnemosyne's
     binary automatically when B's implementation runs, so there is
     no "update both places" cost. This pattern — land the lesson in
-    LLM_CONTEXT, let Mnemosyne absorb it at vendoring time — is
+    Ravel-Lite, let Mnemosyne absorb it at vendoring time — is
     the right default for any future process improvements until
-    Mnemosyne fully subsumes LLM_CONTEXT.
+    Mnemosyne fully subsumes Ravel-Lite.
   - **Extending a work phase past the `reflect` write for a small
     meta-process edit is defensible when the alternative is
     forgetting the lesson.** A strict reading of "one task per work
@@ -676,7 +676,7 @@
   signalled "use existing tooling and libraries wherever possible — this
   is not an interesting task", got approval, wrote the spec doc, did
   spec self-review (fixed three small inconsistencies), got user
-  approval on the written spec, then created the sibling LLM_CONTEXT
+  approval on the written spec, then created the sibling Ravel-Lite
   plan with all seven plan files plus the 23-task implementation
   backlog. Finally landed M's adoption tasks directly into the three
   existing sibling backlogs (sub-B, sub-C, sub-E) per §10 of the design
@@ -926,9 +926,9 @@
     unnecessary design work. In this session it landed at Q4
     and compressed the remaining forks significantly.
 
-### Session 8 (2026-04-14T08:52:02Z) — LLM_CONTEXT 2026-04 overhaul reconciliation
+### Session 8 (2026-04-14T08:52:02Z) — Ravel-Lite 2026-04 overhaul reconciliation
 
-- **Attempted:** Analyse LLM_CONTEXT's post-overhaul shape (commits
+- **Attempted:** Analyse Ravel-Lite's post-overhaul shape (commits
   `9513ca3` "Rewrite create-plan.md for phase-file-factored layout",
   `9eb6602` "Add phases/ directory", `d6f215b` "Move coding-style files
   under fixed-memory/ and add memory-style.md", `096d8dc` "Rewrite
@@ -955,12 +955,12 @@
   - Fixed the `{{DEV_ROOT}}/GUIVisionVMDriver` reference in
     `sub-B-phase-cycle/related-plans.md` to use the placeholder.
   - Deleted `mnemosyne-orchestrator/related-plans.md` — the four
-    LLM_CONTEXT projects listed there were a non-disruption
+    Ravel-Lite projects listed there were a non-disruption
     constraint, not a cross-plan propagation relationship. That
     constraint is already captured in `prompt-work.md` and
     `memory.md`, so the related-plans file was overstating its role.
   - Rewrote three orchestrator memory.md entries with drift:
-    "Self-containment from LLM_CONTEXT/ via embedded prompts" (new
+    "Self-containment from Ravel-Lite/ via embedded prompts" (new
     vendor list: `phases/{work,reflect,compact,triage}.md`,
     `fixed-memory/{coding-style,coding-style-rust,memory-style}.md`,
     `create-plan.md`), "Phase cycle reimplemented in Rust" (widened
@@ -978,7 +978,7 @@
     `related-plans.md` schema change, and the phase enum widening to
     include `compact`.
   - Landed a new `[amendment]` task in sub-B's backlog:
-    "Absorb LLM_CONTEXT 2026-04 overhaul into B's design + types".
+    "Absorb Ravel-Lite 2026-04 overhaul into B's design + types".
     It gates "Define core abstractions and types" (parallels the
     existing Sub-C trait amendments task) and enumerates eight
     concrete spec edits: four-phase cycle, phase enum widening,
@@ -1020,7 +1020,7 @@
     reconciliation. F should explicitly confirm it inherits the
     `related-plans.md` sibling auto-discovery semantics (i.e., F's
     plan-hierarchy discovery algorithm is the sibling-discovery
-    algorithm LLM_CONTEXT uses today, generalised to nested plans).
+    algorithm Ravel-Lite uses today, generalised to nested plans).
   - Sub-B's new `[amendment]` task is work that must land before
     B's core-types implementation starts. Whoever picks B up next
     does the amendment task first.
@@ -1032,14 +1032,14 @@
 
 - **Key learnings / discoveries:**
   - **The embedded-prompts vendor list is the forward-compatibility
-    chokepoint for LLM_CONTEXT evolution.** Every future LLM_CONTEXT
+    chokepoint for Ravel-Lite evolution.** Every future Ravel-Lite
     change that adds or renames a shared file forces a corresponding
     update in sub-B's `prompts.rs` constants. This argues for either
-    (a) a build-time glob-and-embed macro that reads LLM_CONTEXT's
+    (a) a build-time glob-and-embed macro that reads Ravel-Lite's
     tree directly, or (b) a dedicated "vendor-list reconciliation"
     task in B's backlog that re-derives the embedded file set from
     upstream at implementation time. Option (a) would also catch
-    LLM_CONTEXT changes during B's own development, which is the
+    Ravel-Lite changes during B's own development, which is the
     most common failure mode. Both defer to B's implementation
     phase; captured in B's new memory entry "Vendored upstream
     files (embedded prompts)" but not yet a separate task.
@@ -1214,7 +1214,7 @@
 
 ### Session 12 (2026-04-15T00:39:09Z) — sub-B amendment: inline rewrite for Elixir/BEAM
 
-- **Attempted:** P1.2 — rewrite sub-B's design doc inline to absorb the three pending amendments (sub-C consumption contracts, LLM_CONTEXT 2026-04 four-phase overhaul, sub-F BEAM daemon + actor pivot). Follow the sub-C precedent from Session 11: no supersede layer, rewrite §1–§6 wholesale, preserve history in Appendix A's Decision Trail.
+- **Attempted:** P1.2 — rewrite sub-B's design doc inline to absorb the three pending amendments (sub-C consumption contracts, Ravel-Lite 2026-04 four-phase overhaul, sub-F BEAM daemon + actor pivot). Follow the sub-C precedent from Session 11: no supersede layer, rewrite §1–§6 wholesale, preserve history in Appendix A's Decision Trail.
 
 - **What worked:**
   - Fresh rewrite of `docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md` (2296 lines). Every Rust idiom from the 2026-04-12 brainstorm is replaced with its Elixir/OTP equivalent: `Box<dyn PhaseExecutor>` → `@behaviour`, `include_str!` → `@external_resource` + `File.read!/1`, `serde_yaml` + `gray_matter` → `yaml_elixir`, `tokio::mpsc` → PlanActor mailbox + `emit_fn` closure, `ratatui` process main loop → separate Rust TUI client binary (sub-F), `fs2::FileExt::lock_exclusive` → sub-D daemon singleton flock, `nix::killpg` → sub-C's `:kill_group` via erlexec.
@@ -1224,7 +1224,7 @@
   - F's `DispatchProcessor` / `QueryProcessor` added as phase-exit hooks on work/reflect/triage (not compact — compact is strictly lossless memory rewriting). Sub-E's `ReflectExitHook` behaviour preserved but invoked non-blockingly via `Task.Supervisor` inside the PlanActor.
   - Sub-C consumption contract fully woven into §4.1: the `%Mnemosyne.Event.SessionLifecycle{}` pattern-match surface (`:ready`, `{:turn_complete, _}`, `{:exited, _}`), the sliding-buffer sentinel matcher on `%HarnessOutput{kind: :stdout}` (validated by the BEAM PTY spike), and the control-vs-observation clarification. Rust Amendments 1–3 explicitly retired.
   - `pre-work.sh` hook absorbed into §2.3.3 step 2 as a new `Mnemosyne.PreWorkHook` module; runs only before work, after the defensive `latest-session.md` cleanup, from the project root, non-zero exit aborts the cycle.
-  - Appendix A structure mirrors sub-C's: Q1–Q17 original decisions with Session-12 correction notes inline, Q18 (LLM_CONTEXT overhaul — seven items), Q19 (sub-F actor commitment — four items), Q20 (BEAM pivot + PTY spike — Rust→BEAM translation table + three spike findings). Post-write clarifications block preserves control-vs-observation and task-vs-protocol-level completion distinctions.
+  - Appendix A structure mirrors sub-C's: Q1–Q17 original decisions with Session-12 correction notes inline, Q18 (Ravel-Lite overhaul — seven items), Q19 (sub-F actor commitment — four items), Q20 (BEAM pivot + PTY spike — Rust→BEAM translation table + three spike findings). Post-write clarifications block preserves control-vs-observation and task-vs-protocol-level completion distinctions.
   - Sibling plan updated: sub-B's `backlog.md` top-notice rewritten, three amendment tasks marked done with detailed Results pointing at the rewritten sections, and a new gate task ("Rewrite downstream implementation tasks against Session-12 design doc") added with a twelve-item checklist for the next amendment work phase. Sub-B's `memory.md` BEAM-pivot + Session-11 sections consolidated into a single Session-12 anchor block with direct design-doc section pointers.
 
 - **What didn't work / what I deliberately deferred:**
@@ -1238,8 +1238,8 @@
 
 - **Key learnings / discoveries:**
   - **The inline-rewrite pattern scales.** Sub-C proved it at 1186 lines; sub-B extends it to 2296 lines with three simultaneous upstream shifts to absorb. The discipline: preserve Appendix A Q1–Qn, add Qn+1…Qm for each new shift, re-cast §1–§main inline with zero stale references to the replaced framing, and verify with a grep pass across the anti-patterns (`include_str`, `Box<dyn`, `serde_yaml`, `tokio`, `ratatui` outside Appendix A, etc.).
-  - **Three amendments can stack.** The original plan had P1.2 as a single "Sub-B amendment" ticket, but the amendment actually absorbed three distinct upstream shifts: LLM_CONTEXT 2026-04 overhaul (seven items), sub-F actor commitment (four items), BEAM pivot (whole runtime substrate). Each got its own Appendix A entry (Q18, Q19, Q20) rather than being folded together — this keeps the decision trail auditable and matches how sub-C handled its own multi-shift amendment (Q6-Q8 there).
-  - **Four-phase cycle as state-machine extension is small.** The original three-phase enum grows by one variant; the runner's compact-trigger check sits at step 1 as an exception; `compact-baseline` is a sticky integer field. No other parts of the design had to move. This validates LLM_CONTEXT's upstream choice to make compact a first-class phase rather than a mid-reflect detour.
+  - **Three amendments can stack.** The original plan had P1.2 as a single "Sub-B amendment" ticket, but the amendment actually absorbed three distinct upstream shifts: Ravel-Lite 2026-04 overhaul (seven items), sub-F actor commitment (four items), BEAM pivot (whole runtime substrate). Each got its own Appendix A entry (Q18, Q19, Q20) rather than being folded together — this keeps the decision trail auditable and matches how sub-C handled its own multi-shift amendment (Q6-Q8 there).
+  - **Four-phase cycle as state-machine extension is small.** The original three-phase enum grows by one variant; the runner's compact-trigger check sits at step 1 as an exception; `compact-baseline` is a sticky integer field. No other parts of the design had to move. This validates Ravel-Lite's upstream choice to make compact a first-class phase rather than a mid-reflect detour.
   - **Description discipline is load-bearing.** The ≤120-char hard cap on `description:` is a load-time invariant in `PlanState.load/1` (`{:error, :description_too_long, seen, cap}`). Without the cap, the vault catalog's rhythm falls apart — 20 plans × 120 chars ≈ 2.5KB is negligible for phase-prompt context budget; 20 plans × 400 chars starts to bite. The cap is not decorative.
   - **B owns the sentinel matcher; C owns the event transport.** This split emerged cleanly in sub-C §11.1 and carries through B §4.1 Requirement 2 + the new `Mnemosyne.Sentinel.SlidingBuffer` module. Sentinels are coupled to phase prompts (which B owns), the mechanism is harness-agnostic, and the sliding-buffer algorithm is validated by the BEAM PTY spike across five edge cases. Keeps the B/C interface narrow.
   - **No B-owned TUI is a simplification, not a loss.** The original sub-B design had `ratatui` / `HeadlessDriver` / `IpcDriver` as B deliverables; the BEAM pivot moves the TUI to sub-F as a separate Rust client binary connecting over the NDJSON socket. B's responsibility ends at the PlanActor message contract (five messages). Everything downstream of that is sub-F's scope. The `InteractionDriver` trait abstraction is deleted entirely — the IPC boundary it was trying to harden is now the socket protocol, which is sub-F's territory.
@@ -1373,7 +1373,7 @@
 - **What this suggests next:**
   - G brainstorm is now unblocked and ready to execute (Priority 2 task, dependencies satisfied).
   - H and I amendments remain as the other two pending scope-framing tasks. Both are similar consolidation exercises and can proceed in any order.
-  - The G brainstorm itself is the most architecturally consequential remaining brainstorm — it affects every project currently on LLM_CONTEXT and defines the concrete transition path from the bootstrap machinery to the BEAM daemon.
+  - The G brainstorm itself is the most architecturally consequential remaining brainstorm — it affects every project currently on Ravel-Lite and defines the concrete transition path from the bootstrap machinery to the BEAM daemon.
 - **Key learnings:**
   - Amendment tasks for pending brainstorms are scope-consolidation exercises, not design-doc rewrites. Their value is preventing the brainstorm from wasting fresh context on cross-referencing archaeology.
   - G's migration scope is uniquely fragmented across 5+ source documents — without this consolidation, the brainstorm would need to rediscover constraints that are scattered across F §1, A's contract table, C §11.6, D's FileIO, and Session 8's reconciliation notes.
@@ -1381,7 +1381,7 @@
 
 ### Session 18 (2026-04-16T04:41:21Z) — Sub-G migration brainstorm + Phase 0 artifact retirement
 
-- **What was attempted:** Brainstorm for Sub-G (migration: LLM_STATE/ + v0.1.0 transition). Design the migration path from LLM_STATE/ + LLM_CONTEXT/ to `<project>/mnemosyne/` + the BEAM daemon. Also executed Phase 0 — immediate artifact retirement.
+- **What was attempted:** Brainstorm for Sub-G (migration: LLM_STATE/ + v0.1.0 transition). Design the migration path from LLM_STATE/ + Ravel-Lite/ to `<project>/mnemosyne/` + the BEAM daemon. Also executed Phase 0 — immediate artifact retirement.
 
 - **What worked:**
   - Full brainstorm completed with 12 design decisions captured in decision trail

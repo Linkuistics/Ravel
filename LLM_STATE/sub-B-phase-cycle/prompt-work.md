@@ -12,8 +12,8 @@ Read for this plan:
 This plan implements sub-project B of the Ravel orchestrator merge —
 the long-running process model, phase cycle state machine, executor
 abstractions, placeholder substitution mechanism, and plan-state file
-format that replace the LLM_CONTEXT `run-plan.sh` driver. The cycle is
-**four phases** (work → reflect → compact → triage) mirroring LLM_CONTEXT's
+format that replace the Ravel-Lite `run-plan.sh` driver. The cycle is
+**four phases** (work → reflect → compact → triage) mirroring Ravel-Lite's
 current upstream shape; compact is conditional on a wc-word-count trigger
 against a `compact-baseline` integer file, per `run-plan.sh`'s semantics.
 
