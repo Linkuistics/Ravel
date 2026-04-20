@@ -10,7 +10,8 @@ Design reference: `{{PROJECT}}/docs/superpowers/specs/2026-04-20-hierarchical-pi
 ## Your children
 
 You know these plans as pivot candidates. Each one lives at
-`{{PROJECT}}/LLM_STATE/<name>/`:
+`LLM_STATE/<name>/` (relative to the project root — the same path form
+you will write into `stack.yaml` frame entries):
 
 - sub-A-global-store
 - sub-B-phase-cycle
@@ -49,11 +50,11 @@ Read tool with appropriate offsets/limits.
 Present a compact grid:
 
 ```
-   child                       ready   last touched   notes
-   ──────────────────────────  ─────   ─────────────  ─────────────────────
-   sub-A-global-store          3       today          —
-   sub-F-hierarchy             0       3h ago         gated by sub-D/T2
-   sub-N-domain-experts        5       1d ago         —
+   child                       ready   notes
+   ──────────────────────────  ─────   ─────────────────────
+   sub-A-global-store          3       —
+   sub-F-hierarchy             0       gated by sub-D/T2
+   sub-N-domain-experts        5       —
    ...
 ```
 
