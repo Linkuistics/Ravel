@@ -15,7 +15,7 @@ Ravel data surfaces. Design doc:
   from symlinked plans, search finds content within symlinked knowledge
   directories. Evidence artifacts at
   `{{PROJECT}}/tests/fixtures/obsidian-symlink-spike/results/macos/`.
-  Follow the guivision + OCR evidence pattern established in memory.
+  Follow the testanyware + OCR evidence pattern established in memory.
 - **Results:** _pending_
 
 ## Task 2 — Author `.obsidian/` configuration files
@@ -93,7 +93,7 @@ Ravel data surfaces. Design doc:
 
 - **Status:** not_started
 - **Dependencies:** Tasks 1-6 complete
-- **Description:** Full acceptance test via guivision + OCR:
+- **Description:** Full acceptance test via testanyware + OCR:
   1. `ravel init` creates a vault with all template files
   2. Open vault in Obsidian — verify trust-plugins dialog
   3. Verify Homepage opens plan-catalog.md

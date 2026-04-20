@@ -449,7 +449,7 @@ track changes under `projects/`. Correct — project files are under
 sovereign git in their own repos.
 
 **Verification requirement:** Sub-I's implementation should include a
-guivision + OCR spike confirming symlink traversal on macOS. Checks:
+testanyware + OCR spike confirming symlink traversal on macOS. Checks:
 file tree shows symlinked project directories, Dataview queries in
 `views/plan-inventory.md` return results from symlinked plans, search
 finds content within symlinked knowledge directories.
@@ -556,7 +556,7 @@ confirmations of existing commitments.
 
 Ordered by dependency:
 
-1. **Symlink verification spike** — guivision + OCR evidence that
+1. **Symlink verification spike** — testanyware + OCR evidence that
    Obsidian follows symlinks on macOS: file tree, Dataview queries,
    search across symlink boundary.
 2. **Author `.obsidian/` configuration files** — `app.json`,

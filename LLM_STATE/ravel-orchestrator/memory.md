@@ -81,8 +81,8 @@ All daemon file reads go through `FileIO.read_tracked/1` (records SHA-256 hash).
 ### No autonomous daemon git commits in v1
 All daemon-triggered git operations are human-mediated. `Ravel.VaultGit.commit/3` is the sole git interface. Vault git concurrency is a non-issue by design constraint. Sub-P (v2+) revisits with coordination-aware executor.
 
-### UI/integration spikes use guivision + OCR evidence
-Canonical pattern: run the assumption inside a GUIVisionVMDriver golden image, drive GUI exclusively through `guivision` CLI, capture evidence as `guivision screenshot` + `guivision find-text` artifacts at `{{PROJECT}}/tests/fixtures/<spike-name>/results/<platform>/`. OCR evidence sufficient for binary pass/fail. Future spikes for I, K, L, and B's v1 acceptance test follow this pattern. SSH/rsync/VNC direct paths are out.
+### UI/integration spikes use testanyware + OCR evidence
+Canonical pattern: run the assumption inside a TestAnyware golden image, drive GUI exclusively through `testanyware` CLI, capture evidence as `testanyware screenshot` + `testanyware find-text` artifacts at `{{PROJECT}}/tests/fixtures/<spike-name>/results/<platform>/`. OCR evidence sufficient for binary pass/fail. Future spikes for I, K, L, and B's v1 acceptance test follow this pattern. SSH/rsync/VNC direct paths are out.
 
 ### Per-project `ravel/` is the canonical project layout
 Each project has `<project>/ravel/` containing `project-root/` (nested plan tree) and `knowledge/` (Tier 1). Lowercase `ravel/` disambiguates from the `Ravel/` repo and `Ravel-vault/`. A directory is a plan iff it contains `plan-state.md`. `StagingDirectory::render` refuses descent into subdirectories containing `plan-state.md`, enforcing one-plan-per-staging. G renames: `LLM_STATE/` → `ravel/project-root/`, `knowledge/` → `ravel/knowledge/`.
@@ -112,7 +112,7 @@ The daemon spawns internal reasoning sessions (fact extraction, Level 2 routing,
 Conceptual scope met by the backlog/reflect/triage cycle plus plan hierarchy. Git branching models parallel state, but exploratory development needs temporal structure with reflection points, which the phase cycle provides.
 
 ### Ravel replaces LLM_CONTEXT as the user-facing tool
-Plans, phases, knowledge, and curation are Ravel's scope. `LLM_CONTEXT/` retires once fully replaced. Until then, LLM_CONTEXT and its four dependents (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro) continue unchanged.
+Plans, phases, knowledge, and curation are Ravel's scope. `LLM_CONTEXT/` retires once fully replaced. Until then, LLM_CONTEXT and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) continue unchanged.
 
 ### Ravel owns Tier 1 and Tier 2 knowledge
 Per-project knowledge in Tier 1 (`<project>/ravel/knowledge/`). Cross-project knowledge in Tier 2 (`<vault>/knowledge/`). Plan memory (`<plan>/memory.md`) is provisional scratch for in-flight reflections, not durable knowledge. Knowledge is **consultative** — accessed through ExpertActor queries, not loaded into plan sessions directly.
@@ -191,7 +191,7 @@ Everything non-transient is a file. The daemon is an orchestrator, not a state s
 Both files are consumed by LLM phases every cycle; stale content propagates misinformation into fresh context. `session-log.md` is immune (no LLM phase reads it). Fix drift immediately, especially after upstream changes affecting multiple plans.
 
 ### LLM_CONTEXT stopgap: PROJECT placeholder and work-prompt substitution
-`{{PROJECT}}` placeholders + work prompt substitution instructions landed in APIAnyware-MacOS and GUIVisionVMDriver. Not the larger LLM_CONTEXT restructure — deferred/subsumed by the orchestrator.
+`{{PROJECT}}` placeholders + work prompt substitution instructions landed in APIAnyware-MacOS and TestAnyware. Not the larger LLM_CONTEXT restructure — deferred/subsumed by the orchestrator.
 
 ### Sub-C uses pipes-only erlexec, not PTY
 Stream-json is stdio NDJSON, not a terminal interaction. PTY is only needed for interactive TUI (slash commands, arrow keys, ANSI redraws), which "No slash commands in the harness" rules out. Pipes-only erlexec opts (`[:monitor, :stdin, {:stdout, self()}, {:stderr, self()}, :kill_group, {:kill_timeout, 1}]`) drive the claude CLI cleanly. `:stdin` bare atom is required — erlexec defaults stdin to `:null`.
@@ -299,14 +299,14 @@ Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Temp
 ## Constraints / non-goals
 
 ### Non-disruption is mandatory
-`LLM_CONTEXT/` and its four dependents (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro) keep working unchanged. Ravel is built alongside. Migration only when demonstrably equivalent or better.
+`LLM_CONTEXT/` and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) keep working unchanged. Ravel is built alongside. Migration only when demonstrably equivalent or better.
 
 ### Bootstrap discipline
 This plan runs on existing LLM_CONTEXT machinery. No assumed features beyond what LLM_CONTEXT supports.
 
 **Dogfooded improvements may land back into LLM_CONTEXT** when: (1) additive documentation only; (2) four dependents absorb with zero migration; (3) flows into v1 when B's embedded prompts vendor the canonical files.
 
-### Never bulk-stage in APIAnyware-MacOS or GUIVisionVMDriver
+### Never bulk-stage in APIAnyware-MacOS or TestAnyware
 Both repos carry uncommitted WIP on `main`. Any task must `git add` specific paths — never `git add -A`, `git add .`, or `git commit -a`.
 
 ## Origin

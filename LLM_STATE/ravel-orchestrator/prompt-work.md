@@ -10,7 +10,7 @@ in mind during work:
 
 - **Non-disruption**: the existing `{{DEV_ROOT}}/LLM_CONTEXT/` machinery
   and the four projects depending on it (APIAnyware-MacOS,
-  GUIVisionVMDriver, Modaliser-Racket, RacketPro) must keep working
+  TestAnyware, Modaliser-Racket, RacketPro) must keep working
   unchanged throughout this build. LLM_CONTEXT now ships a four-phase
   cycle (work → reflect → compact → triage), phase-file-factored layout
   under `phases/`, `fixed-memory/memory-style.md`, a `pre-work.sh`

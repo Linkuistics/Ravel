@@ -153,7 +153,7 @@ The script performs these in order for every project:
 - **Caveat:** repo carries uncommitted WIP on `main`. Script must
   `git add` specific paths only — never `git add -A` or `git add .`.
 
-#### GUIVisionVMDriver
+#### TestAnyware (formerly GUIVisionVMDriver)
 
 - **Root plan:** `LLM_STATE/vision-pipeline/` →
   `ravel/project-root/`
@@ -186,7 +186,7 @@ The script performs these in order for every project:
 
 The script auto-detects which project it's operating on by matching the
 basename of `<project-path>` against the known set: `Ravel`,
-`APIAnyware-MacOS`, `GUIVisionVMDriver`, `Modaliser-Racket`,
+`APIAnyware-MacOS`, `TestAnyware`, `Modaliser-Racket`,
 `RacketPro`. Unknown project names are a hard error.
 
 ### §4.2 Precondition checks (fail-fast)
@@ -287,7 +287,7 @@ See §3.2 for the full restructure. Key specifics:
 - **Uncommitted WIP on `main`** — the script must `git add` specific
   paths only. Never `git add -A`, `git add .`, or `git commit -a`.
 
-### §6.2 GUIVisionVMDriver
+### §6.2 TestAnyware (formerly GUIVisionVMDriver)
 
 - `vision-pipeline/` is the root plan; `ocr-accuracy/` nests under it
 - **Uncommitted WIP on `main`** — same staging caveat as
@@ -485,7 +485,7 @@ will have ExUnit tests.
 **Decision:** immediate (Phase 0). Dead artifacts with no dependents
 can be deleted without waiting for the `LLM_STATE/` rename.
 
-### Q12. GUIVisionVMDriver root plan?
+### Q12. TestAnyware root plan?
 
 **Decision:** `vision-pipeline/` is the root plan. `ocr-accuracy/`
 nests under it as a child.

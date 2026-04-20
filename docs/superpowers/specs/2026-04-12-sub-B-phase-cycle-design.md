@@ -272,7 +272,7 @@ pattern (pending F amendment).
    orchestrator seed plan and sub-project E's sibling plan — retiring
    `run-plan.sh` for these two plans is what validates that the
    daemon works. Migration of the four legacy LLM_CONTEXT projects
-   (APIAnyware-MacOS, GUIVisionVMDriver, Modaliser-Racket, RacketPro)
+   (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro)
    is sub-project G's concern, not B's.
 
 7. **Obsidian-native file formats by committed design.** Every file
@@ -2095,7 +2095,7 @@ which is F's deliverable and not B's.
 
 Concrete first task. **PASSED 6/6 on macOS and Linux** in Session 5
 (2026-04-13). Hard-copy-fallback layout not needed. Canonical
-guivision + OCR evidence pattern established. See §5.2.
+testanyware + OCR evidence pattern established. See §5.2.
 
 ### Q16 — Fold `<project>/knowledge/` under `<project>/ravel/`
 

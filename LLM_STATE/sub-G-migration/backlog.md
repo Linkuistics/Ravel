@@ -32,10 +32,10 @@ and retiring Ravel v0.1.0 artifacts. Design doc:
 - **Dependencies:** Task 2
 - **Description:** Add the per-project dispatch table and specialization
   functions from §3.2: Ravel (8 sub-* children), APIAnyware-MacOS
-  (knowledge move, docs relocation, targets nesting), GUIVisionVMDriver
+  (knowledge move, docs relocation, targets nesting), TestAnyware
   (ocr-accuracy nests under vision-pipeline), Modaliser-Racket (preserve
   plan.md), RacketPro (pure standard). Respect the uncommitted-WIP
-  caveat for APIAnyware-MacOS and GUIVisionVMDriver (specific git adds
+  caveat for APIAnyware-MacOS and TestAnyware (specific git adds
   only).
 - **Results:** _pending_
 
@@ -71,10 +71,10 @@ and retiring Ravel v0.1.0 artifacts. Design doc:
   Respect the uncommitted-WIP caveat.
 - **Results:** _pending_
 
-### Task 6: Run migration on GUIVisionVMDriver
+### Task 6: Run migration on TestAnyware
 - **Status:** not_started
 - **Dependencies:** Task 4
-- **Description:** Execute `migrate-project.sh` on GUIVisionVMDriver.
+- **Description:** Execute `migrate-project.sh` on TestAnyware.
   Verify: `ravel/project-root/` (from vision-pipeline) with
   `ocr-accuracy/` child, `ravel/knowledge/` empty, no `LLM_STATE/`.
   Then run `ravel adopt-project`. Respect the uncommitted-WIP

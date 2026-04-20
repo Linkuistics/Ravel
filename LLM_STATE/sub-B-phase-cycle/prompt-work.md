@@ -27,7 +27,7 @@ a spec-level issue during implementation.
 
 - **The Obsidian + symlinks validation spike is the first task** and is a
   hard pre-implementation blocker. Until it passes on both macOS and Linux
-  (via GUIVisionVMDriver golden images), no other sub-B task starts. If
+  (via TestAnyware golden images), no other sub-B task starts. If
   the spike fails, open a brainstorm-mode discussion to resolve the
   fallback layout before resuming.
 - **Non-disruption**: existing Ravel v0.1.0 must keep running during
@@ -66,10 +66,10 @@ Until those land, use the stubs documented in `{{PLAN}}/memory.md` under
 implement against the stubs, then swap to real implementations when the
 siblings land.
 
-## GUIVisionVMDriver for the symlinks validation spike
+## TestAnyware for the symlinks validation spike
 
-The first task uses GUIVisionVMDriver (at `{{DEV_ROOT}}/GUIVisionVMDriver/`)
+The first task uses TestAnyware (at `{{DEV_ROOT}}/TestAnyware/`)
 to run the Obsidian + symlinks validation on both macOS and Linux VMs.
-Consult `{{DEV_ROOT}}/GUIVisionVMDriver/instructions-for-llms-using-this-as-a-tool.md`
+Consult `{{DEV_ROOT}}/TestAnyware/LLM_INSTRUCTIONS.md`
 for the commands. Capture evidence (screenshots, accessibility snapshots)
 and commit them to `tests/fixtures/obsidian-validation/`.

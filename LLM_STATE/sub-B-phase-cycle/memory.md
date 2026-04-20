@@ -136,7 +136,7 @@ can coexist.
 
 ### Phase ordering
 **First task is the Obsidian + symlinks validation spike.** Cross-platform
-(macOS + Linux via GUIVisionVMDriver golden images). This is a hard
+(macOS + Linux via TestAnyware golden images). This is a hard
 pre-implementation blocker — if the spike fails, the vault layout requires
 re-design before any further code is written. See §5.2 of the spec.
 

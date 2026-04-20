@@ -330,7 +330,7 @@ identity marker.
 ├── cache/                            # gitignored, derived data (indexes, parsed entries)
 └── projects/                         # gitignored, machine-local symlink targets
     ├── apianyware-macos -> /Users/antony/Development/APIAnyware-MacOS/ravel/
-    ├── guivisionvmdriver -> /Users/antony/Development/GUIVisionVMDriver/ravel/
+    ├── testanyware -> /Users/antony/Development/TestAnyware/ravel/
     └── ravel -> /Users/antony/Development/Ravel/ravel/
 ```
 

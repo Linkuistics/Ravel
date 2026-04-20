@@ -34,25 +34,25 @@ macOS and Linux** in Session 5 (2026-04-13). Evidence at
 - **Description:** Pre-implementation blocker. Validate that Obsidian on
   macOS and Linux correctly renders, indexes, and navigates a vault whose
   `projects/` subdirectory contains symlinks into a sibling project's
-  `ravel/` directory. Use GUIVisionVMDriver's golden images
-  (`guivision-golden-macos-tahoe` and `guivision-golden-linux-24.04`) per
+  `ravel/` directory. Use TestAnyware's golden images
+  (`testanyware-golden-macos-tahoe` and `testanyware-golden-linux-24.04`) per
   the workflow in §5.2 of the spec. Consult
-  `{{DEV_ROOT}}/GUIVisionVMDriver/instructions-for-llms-using-this-as-a-tool.md`
+  `{{DEV_ROOT}}/TestAnyware/LLM_INSTRUCTIONS.md`
   for VM commands. Validation checks (same list for both platforms):
   (1) file tree rendering, (2) file opening, (3) graph view follows
   symlinks, (4) wikilink resolution across symlinks, (5) Dataview queries
   resolve symlinked frontmatter, (6) file-watcher picks up external edits
   via the symlinked path, (7) backlinks across symlink boundaries.
-  Capture evidence via `guivision agent snapshot --mode interact` and
-  `guivision screenshot` for every check. Commit captured outputs to
+  Capture evidence via `testanyware agent snapshot --mode interact` and
+  `testanyware screenshot` for every check. Commit captured outputs to
   `tests/fixtures/obsidian-validation/`. Acceptance: all seven checks
   pass on both platforms. If any check fails on Linux (a v1 target),
   stop and open a brainstorm discussion for the hard-copy + two-way-sync
   fallback layout.
 - **Results:** **PASS on both platforms.** Executed at the orchestrator-plan
   level in Session 5 (2026-04-13) of `ravel-orchestrator`, driven
-  end-to-end via the `guivision` CLI against
-  `guivision-golden-macos-tahoe` and `guivision-golden-linux-24.04` with
+  end-to-end via the `testanyware` CLI against
+  `testanyware-golden-macos-tahoe` and `testanyware-golden-linux-24.04` with
   Obsidian 1.12.7 + Dataview 0.5.67 pinned identically. The orchestrator
   spike's six-check enumeration (Dataview / graph view / backlinks / file
   tree+open / file watcher / safety checks) covers this task's seven
