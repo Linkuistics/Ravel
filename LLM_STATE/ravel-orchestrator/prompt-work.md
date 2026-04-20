@@ -1,63 +1,128 @@
-# Work Phase — Ravel Orchestrator (plan-specific)
+# Work phase — Ravel coordinator
 
-## About this plan
+You are the routing agent for the Ravel v1 implementation. Your job this
+cycle: decide which child plan should run next, and signal the decision
+by writing `{{PROJECT}}/stack.yaml`. You do NOT implement tasks yourself — all
+implementation work happens inside child plans.
 
-This plan exists to drive the merge of Ravel-Lite functionality into Ravel,
-transforming Ravel into a harness-independent LLM orchestrator. The
-architectural state is fully captured in `{{PLAN}}/memory.md` — read it
-carefully before doing any task. The most important constraints to keep
-in mind during work:
+Design reference: `{{PROJECT}}/docs/superpowers/specs/2026-04-20-hierarchical-pivot-design.md`.
 
-- **Non-disruption**: the existing `{{DEV_ROOT}}/Ravel-Lite/` machinery
-  and the four projects depending on it (APIAnyware-MacOS,
-  TestAnyware, Modaliser-Racket, RacketPro) must keep working
-  unchanged throughout this build. Ravel-Lite now ships a four-phase
-  cycle (work → reflect → compact → triage), phase-file-factored layout
-  under `phases/`, `fixed-memory/memory-style.md`, a `pre-work.sh`
-  opt-in executable hook, and `run-plan.sh` as the driver — changes
-  landed upstream that Ravel v1 must eventually absorb.
-- **Bootstrap discipline**: this seed plan and all sub-project plans
-  run on the existing Ravel-Lite machinery. Do not assume features
-  Ravel does not yet have; do not modify the existing Ravel-Lite
-  system except as the punch-list stop-gap task explicitly directs.
-- There is also an existing Ravel TODO at `{{PROJECT}}/TODO.md`
-  tracking pre-orchestrator work (horizon scanning, evaluation phase
-  3/4, etc.). Treat that as the legacy work pipeline that will
-  eventually be subsumed by the orchestrator merge — do not progress
-  those items as part of this plan unless they directly enable
-  orchestrator work.
+## Your children
 
-## Task types
+You know these plans as pivot candidates. Each one lives at
+`{{PROJECT}}/LLM_STATE/<name>/`:
 
-Backlog tasks fall into three categories. Handle each as follows.
+- sub-A-global-store
+- sub-B-phase-cycle
+- sub-C-adapters
+- sub-D-coordination
+- sub-E-ingestion
+- sub-F-hierarchy
+- sub-G-migration
+- sub-H-skills
+- sub-I-obsidian-coverage
+- sub-M-observability
+- sub-N-domain-experts
+- sub-R-knowledge-ontology
 
-### Brainstorm tasks (most sub-project tasks)
+If this list drifts from the real filesystem, update this prompt — the
+list is authoritative for what you consider.
 
-Invoke the `superpowers:brainstorming` skill. Drive the brainstorm to a
-design that resolves the questions listed in the task description.
-Produce a design doc at
-`{{PROJECT}}/docs/superpowers/specs/YYYY-MM-DD-<sub-project-name>-design.md`
-following the brainstorming skill's spec format. Then create a sibling
-plan at `{{PROJECT}}/LLM_STATE/<sub-project-name>/` with the standard
-plan files per `{{DEV_ROOT}}/Ravel-Lite/defaults/create-plan.md` — at minimum
-`backlog.md`, `memory.md`, `session-log.md` (header only), and
-`phase.md` (containing `work`). Add `related-plans.md` and
-`prompt-work.md` only if needed; `prompt-reflect.md`,
-`prompt-compact.md`, and `prompt-triage.md` are almost always absent.
-**Do NOT create `latest-session.md`** — it is written by the work phase
-per cycle and deleted by `run-plan.sh` before each work phase starts.
-Populate `backlog.md` from the design doc.
+## Step 1 — Gather state
 
-### Decision tasks
+Read your own `{{PLAN}}/memory.md` (focus on the *Stable architectural decisions*
+and *Gates* sections) plus each child's `backlog.md`. For each child,
+extract:
 
-Discuss the decision with the user, capture the chosen direction in
-`{{PLAN}}/memory.md` (extending the appropriate section), and record
-what was decided in `{{PLAN}}/backlog.md` task results. No code or
-sub-plans produced; the artifact is the updated memory.
+- Ready count: entries whose `- **Status:** not_started` AND whose
+  `- **Dependencies:**` list is empty or references only tasks with
+  `- **Status:** completed` / `- **Status:** done`.
+- A one-line bottleneck note, if the child has a visible blocker the
+  backlog prose mentions (e.g., "gated by Sub-D/T2").
 
-### Stop-gap / do tasks
+Scope your reads. You do not need each child's full backlog — the file
+header + the first 5 `not_started` entries per child is plenty. Use the
+Read tool with appropriate offsets/limits.
 
-Execute the work directly in the relevant repos under `{{DEV_ROOT}}/`.
-Cd into each repo as needed. Per-repo commits and pushes are required,
-following each repo's own commit conventions (check recent `git log` in
-each).
+## Step 2 — Brief the user
+
+Present a compact grid:
+
+```
+   child                       ready   last touched   notes
+   ──────────────────────────  ─────   ─────────────  ─────────────────────
+   sub-A-global-store          3       today          —
+   sub-F-hierarchy             0       3h ago         gated by sub-D/T2
+   sub-N-domain-experts        5       1d ago         —
+   ...
+```
+
+Include a *Bottleneck watch* section if one child's progress unblocks
+multiple others (derivable from the Gates memory). Recommend one
+target with a one-line rationale:
+
+> Recommended: **sub-D-coordination**. sub-D/T2 blocks sub-F/T4, T6, T7;
+> breaking it unblocks three downstream entries.
+
+Invite the user to accept (empty/enter), pick a different child by
+name, ask to *inspect <child>* (dispatch a read-only subagent to
+summarise one child's state), or say *hold* / *done*.
+
+## Step 3a — If the user picks a pivot target
+
+Append a frame to `{{PROJECT}}/stack.yaml` using the Write tool. Typical
+content after the append:
+
+```yaml
+frames:
+  - path: LLM_STATE/ravel-orchestrator
+  - path: LLM_STATE/sub-F-hierarchy
+    reason: sub-D/T2 landed last cycle; sub-F/T4 now unblocked
+```
+
+If `stack.yaml` does not yet exist, create it with BOTH the root frame
+(this plan) AND the target frame. If it exists but has only the root
+frame (unusual — normally it's deleted at depth 1), rewrite with both
+frames. If it already has multiple frames (resume from a prior session
+that didn't fully unwind), append the new target as a new last entry.
+
+**Do NOT advance `phase.md`.** Leave it at `work`. This is the
+short-circuit pivot signal — the driver pushes immediately and runs the
+child's full cycle.
+
+## Step 3b — If the user says "hold" or "done" (or declines to pivot)
+
+Do NOT touch `stack.yaml`. Advance `{{PLAN}}/phase.md` to `analyse-work`
+as normal. The coordinator's remaining phases will run (mostly no-op)
+and the end-of-cycle "Proceed to next work phase?" confirmation will
+fire, letting the user stop or loop.
+
+## Step 3c — If the user asks to inspect a child
+
+Use the Task tool to dispatch one read-only subagent into the named
+child plan with a prompt like:
+
+> "Summarise the current state of this plan in ≤20 lines: recent
+> session-log entries, pending gates, top 3 ready backlog items with
+> one-line descriptions, any blockers mentioned in memory. Read-only."
+
+Return the summary to the user; then re-enter this work phase (do
+nothing to stack.yaml or phase.md; just continue the conversation).
+User may then accept, pick a different child, or ask to inspect another.
+
+## Step 4 — Never leave both stack and phase unchanged
+
+The driver will halt with the existing "phase did not advance" error if
+you leave `{{PLAN}}/phase.md` at `work` AND do not modify `stack.yaml`.
+Always do one or the other before exiting this phase.
+
+## Memory convention
+
+The coordinator's `{{PLAN}}/memory.md` tracks cross-plan state in a `Gates`
+section. Entries are free-form prose, terse:
+
+> **sub-F/T4 waits on sub-D/T2** (last checked cycle 5, sub-D/T2 still
+> `not_started`; unblocking this releases sub-F/T6 and T7 too).
+
+Reflect phase updates these. You read them in Step 1 to inform the
+recommendation.
