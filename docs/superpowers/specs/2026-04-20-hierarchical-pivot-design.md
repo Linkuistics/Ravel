@@ -19,10 +19,10 @@ orchestrator's `subagent-dispatch.yaml` mechanism propagates
 coordination notes but cannot drive a target plan's phase cycle;
 cross-plan readiness is human-maintained.
 
-A prior spec (`2026-04-20-superplan-design.md`) proposed flattening
-all sub-plan backlogs into a single "superplan" driven by parallel
-subagent dispatch. That spec has been abandoned — see "Alternatives
-considered" at the end of this document.
+A prior brainstorm explored flattening all sub-plan backlogs into a
+single "superplan" driven by parallel subagent dispatch. That direction
+was abandoned before implementation — see "Alternatives considered" at
+the end of this document.
 
 ## Goal
 
@@ -322,13 +322,14 @@ requires inspecting the actual state.
 
 ## Alternatives considered
 
-### Flat-backlog superplan
+### Flat-backlog superplan (abandoned)
 
-Documented in `docs/superpowers/specs/2026-04-20-superplan-design.md`
-(abandoned). That approach collapsed all 12 sub-plan backlogs into a
-single `LLM_STATE/superplan/` plan via a Python extraction pipeline,
-with custom phase prompts for parallel subagent dispatch and per-task
-commit splitting.
+An earlier brainstorm proposed collapsing all 12 sub-plan backlogs
+into a single `LLM_STATE/superplan/` plan via a Python extraction
+pipeline, with custom phase prompts for parallel subagent dispatch
+and per-task commit splitting. The spec and preliminary implementation
+plan were drafted and reverted out of git before implementation
+began.
 
 Reasons for rejection:
 - Required a ~600-line Python tooling layer under
