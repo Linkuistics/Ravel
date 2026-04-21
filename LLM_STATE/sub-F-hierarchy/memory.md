@@ -173,6 +173,11 @@ fact-extraction LLM pass spawn sessions via the same adapter the
 phase runner uses. F's Query messages are delivered mid-session via
 C's tool-call boundary (`Ravel.Router.handle_tool_call/4`).
 
+**`handle_tool_call/4` signature is locked** (per sub-C §4.5.3/§11.3):
+accepts `reply_ref` in opts; dispatches async `{:router_reply,
+tool_use_id, result}` back to the calling process. This contract must
+not be changed unilaterally by F.
+
 ### Consumes from sub-D
 
 `Ravel.Coordination.SingletonLock` — the singleton lock module owned
@@ -220,6 +225,11 @@ content-hash freshness checking work for plan files. Tasks 1, 4, 6,
 F emits `%ActorStateChange{}`, `%MessageRouted{}`, `%RuleFired{}`,
 `%RuleSuggestion{}`, and `%DispatchProcessed{}` / `%QueryAnswered{}`
 structs at the boundary. M owns the transport and subscribers.
+
+**Pending cross-plan drift (Appendix C Q10):** F's spec names the
+routing-reload error event `%RuleReloadError{}`; sub-M has
+`%RuleCompileError{}`. Awaiting orchestrator dispatch to resolve
+canonical name before either side implements it.
 
 ### Relationship with sub-H (added 2026-04-16)
 
