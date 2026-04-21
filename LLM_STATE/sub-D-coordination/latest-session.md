@@ -1,11 +1,14 @@
-### Session 2 (2026-04-21T04:12:45Z) — implement Ravel.FileIO (Task 4)
+### Session 3 (2026-04-21T05:04:59Z) — implement SingletonLock, VaultGit, and all remaining tests
 
-- **Attempted:** Implement `Ravel.FileIO` per spec §3.3: `read_tracked/1` and `write_safe/3` with category-based freshness dispatch, atomic writes, and diagnostic emission.
-- **What worked:** `lib/ravel/file_io.ex` landed at ~165 lines. All 9 spec branches smoke-tested end-to-end against a real tmpdir. All four diagnostic paths fired at correct levels (`:warn`/`:info`). `mix format --check-formatted` clean; `mix compile` clean; 5 existing FreshnessTracker tests still pass (no regressions). Task 4 status flipped to `done` by the work phase.
-- **Key design decisions made:**
-  - `atomic_write!/2` places the temp file in `Path.dirname(path)` (not `System.tmp_dir!/0`) to guarantee `rename(2)` atomicity across mounts.
-  - Diagnostic emission via `Logger` with structured metadata rather than `:telemetry.execute/3` — `:telemetry` dep not yet in `mix.exs` and sub-M (the consumer) is unbuilt; swapping in when sub-M lands is a ~5-line change.
-  - `rebaseline_hash/1` private helper satisfies the spec §3.3 step 2c "update stored hash" requirement on `:human_editable` discard without growing `FreshnessTracker`'s API surface.
-  - `{:error, reason}` other than `:enoent` from `FreshnessTracker.check/1` raises `File.Error` immediately (hard-error-by-default philosophy).
-  - Backlog preamble updated to remove the stale "FreshnessTracker must land before FileIO" note; Task 3's results block pruned (already landed; context preserved in git history).
-- **What this suggests next:** Task 5 (FreshnessTracker + FileIO integration tests) is now fully unblocked. The smoke-test script can be lifted nearly verbatim into `test/ravel/file_io_test.exs` and expanded to cover the atomic-write kill-mid-write scenario from spec §7.3. Tasks 1/2 (SingletonLock) and 6/7 (VaultGit) remain independent and can run in any order.
+- **Attempted:** Tasks 1, 2, 5, 6, 7 — implementing `SingletonLock`, `VaultGit`, and their test suites, plus `FileIO` tests (Task 5).
+- **What worked:**
+  - `SingletonLock` implemented at `lib/ravel/coordination/singleton_lock.ex` (~130 lines). Key deviations from spec: `flock(1)` is not on macOS's default PATH (util-linux; `brew install flock` required), so module hard-errors with `{:error, {:flock_missing, _}}` when absent. Uses `cat` child instead of `sleep infinity` (GNU-ism not available on macOS BSD `sleep`); lock releases cleanly when BEAM closes the port's stdin pipe on daemon exit. Uses `:spawn_executable` to avoid shell orphan issues. Optional `:lock_dir` opt added for test isolation.
+  - `SingletonLock` tests at `test/ravel/coordination/singleton_lock_test.exs` (11 tests, all passing). Covers: success, contention, graceful shutdown, crash recovery via SIGKILL + `pkill -9 -P`, flock-missing, lock_path purity. Helper `wait_for_lock_release/1` polls at 25ms intervals because `Port.close` is async.
+  - `VaultGit` implemented at `lib/ravel/vault_git.ex` (~55 lines). `commit/3` uses `with` chain over two `run_git/2` calls; classifies `index.lock` substring in stderr as `{:error, :index_lock_held}`; no retry per spec §4.2.
+  - `VaultGit` tests at `test/ravel/vault_git_test.exs` (4 tests, all passing). Each test creates a fresh temp repo with `git init --initial-branch=main` + `commit.gpgsign=false` to avoid CI hang.
+  - `FileIO` tests at `test/ravel/file_io_test.exs` (16 tests, all passing). Covers all 9 spec branches plus rebaseline-after-conflict, atomic-write fault-injection via `File.chmod!(dir, 0o555)`, and 50-iteration write-loop consistency. Type-check warning on `hd/1` fixed by destructuring the comprehension result.
+  - README updated with "External tools" table documenting `flock(1)` and `git` dependencies.
+  - Full suite: 36 tests, 0 failures (`mix format --check-formatted` also clean).
+- **What didn't work:** Nothing — all tasks completed cleanly. The smoke-test script referenced in Task 4's results was never checked in; FileIO tests were written fresh from the spec.
+- **What to try next:** Sub-D is feature-complete for v1. Next natural steps are sibling-plan adoption: sub-B (`copy_back/2`), sub-E (`SafeFileWriter`), sub-F (boot sequence, plan-catalog), sub-N (expert absorb writes) — all integrate with `FileIO.write_safe/3`. Those adoption tasks live in their respective sibling backlogs.
+- **Key learnings:** macOS portability is a recurring friction point for Linux-centric tools (`flock`, `sleep infinity`); prefer POSIX primitives or BEAM-native mechanisms. Timing-based lock detection (200ms probe timeout) is inherent to `flock(1)`'s fail-fast behaviour. Using `cat` as the lock-holding child process is the idiomatic portable solution for stdin-pipe-based lock lifetime management in Erlang ports.
