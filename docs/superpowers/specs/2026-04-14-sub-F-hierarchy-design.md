@@ -858,10 +858,16 @@ Ravel.Application
 **Startup** (`ravel daemon` entry point):
 
 1. Parse `<vault>/daemon.toml` (or default locations per sub-A).
-2. Acquire a **vault-wide singleton lock** via a flock on
-   `<vault>/runtime/daemon.lock`. Refuse to start if another daemon holds
-   the lock. (This replaces sub-D's per-plan locks with a single
-   daemon-level guard — see §8.)
+2. Acquire a **system-wide singleton lock** via
+   `Ravel.Coordination.SingletonLock.acquire/1` (sub-D's coordination
+   module). The lock file lives outside any vault at
+   `<runtime_dir>/ravel/daemon.lock` — Linux `$XDG_RUNTIME_DIR/ravel/`,
+   macOS `$TMPDIR/ravel/` — so Obsidian never sees it. Refuse to start if
+   another daemon holds the lock; the contention diagnostic reports the
+   incumbent daemon's PID and served vault path, which sub-D writes into
+   the lock file at acquisition. (This replaces sub-D's per-plan locks
+   with a single daemon-level guard — see §8. See Appendix C Q8 for why
+   the lock is system-wide, not vault-internal.)
 3. `VaultDirectory.Server` starts, runs `verify_vault`, walks the vault,
    caches the result.
 4. `Datalog.Server` starts, parses `<vault>/ontology/routing.dl`, builds
@@ -888,7 +894,10 @@ Ravel.Application
    calls `snapshot/1`, persists to `<vault>/runtime/snapshots/<qualified-id>.bin`
    via atomic write.
 5. Mailbox files are flushed and fsynced.
-6. Vault-wide singleton lock is released.
+6. System-wide singleton lock is released (port close → `flock` exit →
+   kernel releases the lock; no explicit `SingletonLock.release/1` call
+   required because BEAM closing the port's pipes on daemon exit
+   triggers the same path even on SIGKILL or OOM).
 7. Daemon exits.
 
 **SIGKILL or crash**: unrecoverable state in flight. On next startup, the
@@ -1057,12 +1066,22 @@ The in-session Query path is the common case:
    `ask_plan` for peer-plan queries).
 2. LLM invokes the tool during reasoning.
 3. C's adapter intercepts the tool call, wraps it as a Query message,
-   sends to F's router.
+   and calls `Ravel.Router.handle_tool_call(name, input, session_id,
+   opts)`, where `opts` carries `reply_ref: <tool_use_id>`. The router
+   resolves the target (expert or plan) and runs the query in a
+   separate supervised task.
 4. F routes to the target actor. Target spawns fresh session, reasons,
    answers.
-5. F delivers the answer back to C's adapter as the tool-call result.
+5. F delivers the answer back to the calling session GenServer as a
+   `{:router_reply, <tool_use_id>, result}` info message, where
+   `result` is a JSON-encodable term. C's session maps this into a
+   `tool_result` envelope on the harness's stdin.
 6. C's adapter yields the result to the originating LLM session inline.
 7. LLM continues its reasoning with the answer available.
+
+This signature is the authoritative commitment between F and sub-C
+(sub-C design doc §4.5.3, §11.3). F owns the function; sub-C is the
+sole caller. See Appendix C Q9.
 
 No file is written for in-session Queries. The answer flows through the
 tool-call boundary and is only durable if the originating session
@@ -1552,8 +1571,10 @@ dependency wiring is the `writing-plans` skill's job at that later phase.
    signal handlers, shutdown path.
 10. `Ravel.ClientListener` and `Ravel.ClientConnection` for Unix
     socket + NDJSON protocol.
-11. Daemon-level singleton lock via flock on
-    `<vault>/runtime/daemon.lock`.
+11. Daemon-level singleton lock via sub-D's
+    `Ravel.Coordination.SingletonLock` on the system-wide
+    `<runtime_dir>/ravel/daemon.lock` (outside any vault — see §4.6
+    startup step 2 and Appendix C Q8).
 12. `daemon.toml` parser with reserved sections for sub-O and sub-P.
 
 ### §11.3 Declarative routing
@@ -1778,6 +1799,9 @@ re-brainstorm.
 | # | Question | Answer |
 |---|---|---|
 | Q7 | Sub-R replaces routing.ex with Datalog? | Yes. Sub-R (knowledge ontology, 2026-04-16) delivers a purpose-built Datalog engine that unifies ontology resolution and routing. `routing.ex` → `ontology/routing.dl`. Datalog is fundamentally better than imperative Elixir for user-facing rules. Erlog is no longer reserved. See Sub-R design doc §4.4, §7. |
+| Q8 | Where does the daemon singleton lock live, and which module acquires it? | **Rewritten 2026-04-21 at F's Task 0 gate to match sub-D's landed implementation.** The lock file is system-wide — `<runtime_dir>/ravel/daemon.lock` (Linux `$XDG_RUNTIME_DIR/ravel/`, macOS `$TMPDIR/ravel/`) — **outside any vault**, so Obsidian never sees it and two vaults on one machine still conflict as expected. Acquisition is `Ravel.Coordination.SingletonLock.acquire/1` (sub-D coordination module); release is implicit via BEAM closing the port on daemon exit, which propagates through `flock(1)` and the kernel releases the lock even on SIGKILL/OOM. Earlier drafts of §4.6 specified `<vault>/runtime/daemon.lock` and named the module `Ravel.DaemonLock`; both were corrected inline to match sub-D §2 and sub-A §A6 ("the singleton lock is system-wide, not in the vault"). |
+| Q9 | What is the exact signature of the tool-call-boundary entry point F owns? | **Locked 2026-04-21 at F's Task 0 gate against sub-C §11.3.** F's Router exposes `Ravel.Router.handle_tool_call(name, input, session_id, opts)` where `name` is the injected-tool name (e.g. `"ask_expert"`, `"dispatch_to_plan"`, `"read_vault_catalog"`), `input` is the decoded JSON argument map, `session_id` is the harness session identifier, and `opts` carries `reply_ref: <tool_use_id>` so the router can correlate its asynchronous reply. The router replies with `{:router_reply, <tool_use_id>, result}` sent as an info message to the calling session GenServer's pid, where `result` is a JSON-encodable term. Earlier drafts described this path in prose only; the signature is now authoritative in §5.3. Sub-C is the sole caller. |
+| Q10 | What event name does F emit for `ontology/routing.dl` reload/validation failures, given sub-M and sub-R event overlaps? | **Flagged 2026-04-21 at F's Task 0 gate; resolution deferred to an orchestrator dispatch.** F emits `%Ravel.Event.RuleReloadError{}` (Tasks 16, 17, 24 in F's backlog) — semantically correct for Datalog hot reload (parse or validation failure). Sub-M's event registry still lists the pre-Datalog `%Ravel.Event.RuleCompileError{}` referring to a `routing.ex` compile step that no longer exists; this is stale in sub-M's design doc and needs amendment. Sub-R separately emits `%OntologyReloadFailed{}` for any `ontology/*.dl` reload failure (including `routing.dl`), so there is also a legitimate design question of whether F should consume sub-R's event instead of emitting its own. Cross-plan resolution is the orchestrator's job, not F's — F keeps `%RuleReloadError{}` as the committed name for now. |
 
 ---
 
