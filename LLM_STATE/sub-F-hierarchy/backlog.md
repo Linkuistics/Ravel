@@ -11,16 +11,18 @@ erlexec, sub-C's design doc was rewritten inline for Elixir/BEAM in
 Session 11, and sub-B's was rewritten in Session 12 — together these
 unblock F's implementation runway. **Task 0 gate cleared 2026-04-21**
 — all preconditions satisfied, drifts rewritten inline, Tasks 1+ are
-unblocked. Recommended order: **Tasks 2 and 5 first** (critical path
-for sub-N Phase 5+), or **Task 1** as an equally-safe alternative that
-unblocks Tasks 6–9.
+unblocked. **Tasks 1 and 2 landed 2026-04-21** (VaultDirectory +
+Actor behaviour). Recommended next: **Tasks 3 + 5** (ExpertActor
+stub → ActorSupervisor) to close sub-N's Phase 5+ gate, or **Task 9**
+(CatalogRenderer, consumes VaultDirectory, zero sibling deps). Task 4
+waits on sub-B's rewritten `PhaseRunner`.
 
 ## Task Backlog
 
 ## §11.1 Elixir scaffolding
 
 ### Task 1 — `Ravel.VaultDirectory` `[foundation]`
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** Task 0
 - **Description:** Vault walk + frontmatter parse + invariant checks
   per §3.1 of the spec. Walks `<vault>/projects/<project>/` subtrees,
@@ -33,10 +35,46 @@ unblocks Tasks 6–9.
   placeholder description (`TODO`, `FIXME`, `...`, `tbd`), broken
   `<vault>/projects/<name>` symlinks, `project-root` deleted while
   children exist, plan-state frontmatter parse errors (§9.2, §9.3).
-- **Results:** _pending_
+- **Results (2026-04-21):**
+  - Shipped `Ravel.VaultDirectory` with `load/1` (soft) + `load!/1`
+    (raising) returning `%Ravel.VaultDirectory{vault_path, plans,
+    experts, errors}`. Plan/Expert entries live in sibling modules
+    `Ravel.VaultDirectory.{Plan,Expert}`; diagnostics flow through
+    `Ravel.VaultDirectory.Error` with a structured `reason` atom plus
+    at least one locator (`path`, `qualified_id`, or `expert_id`).
+  - Path-based qualified IDs computed at walk time, never stored
+    (F-5 preserved). Parent assignment uses nearest-ancestor-with-
+    marker semantics so organisational directories are transparent to
+    the parent relation — a plan at `Ravel/project-root/notes/archive/
+    leaf` gets `Ravel/project-root` as parent when no intermediate
+    `plan-state.md` exists.
+  - Added `yaml_elixir` ~> 2.12 dependency (and `mix.lock`). Reads
+    route through `Ravel.FileIO.read_tracked/1` per sub-D discipline,
+    so tests `start_supervised!(FreshnessTracker)` in setup.
+  - Invariant coverage (per §1.5): marker, root, reserved name,
+    single host (implicit via first-segment projection), knowledge
+    isolation, description discipline. Orphaned-children is reported
+    with the specific child qualified ID in the diagnostic; missing-
+    root-without-children degrades to the simpler `:missing_project_root`.
+  - Created `test/support/vault_fixtures.ex` with `new_vault/1`,
+    `add_project_with_root/3`, `add_plan/3`, `add_expert/3`, and
+    `write_raw_plan_state/3` helpers that materialise a symlinked
+    vault on disk; flipped `elixirc_paths` for the `:test` env so the
+    support module compiles.
+  - 31 new ExUnit tests cover happy-path walks, multi-project,
+    nested children, expert enumeration, and every §9.2/§9.3 hard-
+    error path including YAML parse errors, malformed frontmatter,
+    oversize/placeholder descriptions (table-driven for TODO/FIXME/
+    .../tbd/TBD/Tbd/todo case variants), nested `project-root`,
+    and knowledge-subtree isolation. Full suite: 74/74 green,
+    `mix format --check-formatted` clean, no new warnings.
+  - **Suggests next:** Task 2 (Actor behaviour, done in this session),
+    then Task 9 (CatalogRenderer) since it consumes `VaultDirectory`
+    and has no sibling-sub-project dependencies; or Task 22 (hook
+    into sub-A's `verify_vault`) once sub-A's implementation lands.
 
 ### Task 2 — `Ravel.Actor` behaviour `[foundation]`
-- **Status:** not_started
+- **Status:** done
 - **Dependencies:** Task 0
 - **Description:** Elixir `@behaviour` definition with callbacks
   shared by PlanActor and ExpertActor per §4.1. Callbacks cover
@@ -60,7 +98,35 @@ unblocks Tasks 6–9.
   `Ravel.Actor` callback set **must not constrain** how sub-N
   implements this retrieval behaviour — keep retrieval out of the
   shared actor callbacks entirely.
-- **Results:** _pending_
+- **Results (2026-04-21):**
+  - Shipped `Ravel.Actor` as a pure `@behaviour` module at
+    `lib/ravel/actor.ex`. Five callbacks exactly, per spec §4.1:
+    `actor_id/1`, `actor_type/1`, `handle_actor_message/2`,
+    `snapshot/1`, `restore/1`.
+  - Concrete message/response shapes (`dispatch_message`,
+    `query_message`, `query_answer`, `rejection_reason`,
+    `actor_snapshot`) are declared as wide placeholder types the
+    future `Ravel.Message.*` structs will refine. Chose wide types
+    over module-stub placeholders so callers compile against the
+    behaviour before those structs exist, without creating phantom
+    modules that look real in grep.
+  - Explicit ExpertRetrieval boundary enforced by negative test:
+    `callback set does not constrain sub-N's ExpertRetrieval
+    (retrieve/3) or persona` asserts `refute :retrieve in
+    callback_names` plus similar for `:persona`, `:knowledge_scope`,
+    `:absorb_candidate`. Sub-N's retrieval strategies stay
+    plug-gable.
+  - 7 new ExUnit tests, including a minimal in-module `TestActor`
+    that implements the behaviour end-to-end (Dispatch → `:ack`,
+    Query → `{:answer, _}`, snapshot/restore round-trip).
+  - Unblocks sub-N Phase 5+ on the behaviour side. Still blocked on
+    `ActorSupervisor` (F Task 5) for the child-spec API
+    (`start_actor/2`, `stop_actor/1`, `send_message/2`,
+    `start_plan_actor/1`, `start_expert_actor/1`).
+  - **Suggests next:** Task 3 (ExpertActor stub) + Task 4 (PlanActor
+    wrapping sub-B's `PhaseRunner`) → Task 5 (ActorSupervisor) to
+    close the sub-N gate. Task 3 has no sibling deps; Task 4 waits
+    on sub-B's rewritten `PhaseRunner` module landing.
 
 ### Task 3 — `Ravel.ExpertActor` stub `[foundation]`
 - **Status:** not_started
