@@ -3,546 +3,1018 @@
 Implementation backlog for sub-project C. All tasks derive from the design
 doc at
 `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-C-adapters-design.md`
-(original Session 6 brainstorm 2026-04-13; **rewritten inline for the
-BEAM/Elixir pivot + BEAM PTY spike findings 2026-04-15**). Consult the
-spec before starting any task — the full doc is now Elixir-native; Session 6
-material survives only as historical decisions in Appendix A.
+(original Session 6 brainstorm 2026-04-13; inline rewrite for the
+BEAM/Elixir pivot + BEAM PTY spike findings 2026-04-15). The spec is
+Elixir-native end to end; Session 6 material survives only as historical
+decisions in Appendix A.
 
 Tasks are listed in approximately recommended order, following the
-implementation strategy in `{{PLAN}}/memory.md`: setup → day-1 verification
-→ FixtureReplay → ClaudeCode wire layer → GenServer wiring → lifecycle →
-instrumentation → tests → dogfood acceptance gate → conditional warm-pool.
-The work phase picks the best next task with input from the user.
+implementation strategy in `{{PLAN}}/memory.md`: setup → day-1
+verification → tool-call-boundary spike → `FixtureReplay` → ClaudeCode
+wire layer → Session GenServer → lifecycle → tool-call boundary
+implementation → instrumentation → tests → dogfood acceptance gate →
+conditional warm-pool. The work phase picks the best next task with
+input from the user.
 
-## ✅ BEAM PTY spike resolved + design doc rewritten — backlog rewrite required
-
-The BEAM PTY spike (Session 10, 2026-04-15) validated that pipes-only
-`erlexec` drives Claude Code's stream-json protocol cleanly. The design
-doc was rewritten inline at Session 11 (2026-04-15) to reflect the BEAM
-pivot and the spike findings — §1–§11 now specify Elixir/OTP, Appendix A
-records both original Session 6 decisions and the new Q6–Q8 entries
-(BEAM pivot, BEAM PTY spike, tool-call boundary), and Appendix B
-replaces the Cargo.toml diff with a mix.exs projection. **The spike is
-no longer blocking, the design doc is now Elixir-native end to end, and
-this Rust-specific task list below must be rewritten to match the new
-spec.** Key findings from the spike, preserved here for backlog-rewrite
-context:
-
-1. **PTY premise was wrong** — `claude -p --input-format stream-json
-   --output-format stream-json` is pure NDJSON over stdio; no
-   pseudo-terminal needed.
-2. **erlexec pipes-only works** — use `[:monitor, :stdin, {:stdout,
-   self()}, {:stderr, self()}, :kill_group]`; the `:pty + :stdin`
-   combination does NOT wire the caller's pipe to the child's real stdin.
-3. Sentinel sliding-buffer detection validated.
-4. Process-group termination validated.
-5. cmux SessionStart hooks inject ~10KB of spurious JSON — silenced with
-   `--setting-sources project,local --no-session-persistence`.
-6. erlexec is a C++ port program (not a NIF), so no BEAM scheduler risks.
-7. `{"type":"result"}` is protocol-level "turn over", orthogonal to
-   task-level sentinel.
-8. The Rust PTY-wrapper fallback is unnecessary.
-
-Spike code at `spikes/beam_pty/`.
-
-**All tasks below are still written against the Rust implementation
-assumption** (Cargo.toml, `src/harness/`, crossbeam-channel, nix,
-`std::process::Command`). They must be rewritten for Elixir/OTP before
-implementation begins. The task *sequence* and *design intent* remain
-valid; only the implementation technology changes.
-
-See `memory.md` § "BEAM / Elixir pivot (Session 9 amendment)" for full
-context.
+> **Top-notice (2026-04-21).** Design doc was rewritten inline
+> Session 11 (2026-04-15) for Elixir/OTP; the downstream task list was
+> rewritten inline on 2026-04-21 (Task 0 below — the orchestrator's
+> remaining critical-path dispatch from 2026-04-16). Tasks 1-25 now
+> target Elixir idioms: `@behaviour Ravel.HarnessAdapter`, one
+> `GenServer` per session, `erlexec` + `:exec.run/2`, `Jason`-based
+> NDJSON, `:telemetry.execute/3`, `Mix.Task` for dev tooling, ExUnit
+> for tests. Tasks 28-29 cover the §4.5 tool-call boundary (new
+> material absorbed from sub-F's amendment, not present in the Rust
+> backlog). Tasks 26, 27 pre-dated the rewrite and were already
+> Elixir-native. **The `spikes/beam_pty/` corpus is the implementation
+> reference** — capture files live there, the parser field names are
+> locked against them, and the cmux mitigation flags came from it.
 
 ## Received
 
 ### From ravel-orchestrator (2026-04-16) — Critical path audit
 
-One gap remaining from the 2026-04-16 critical path audit. (The
-model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
+All dispatches absorbed.
 
-1. **Create a formal gate task (Task 0) for the Elixir backlog rewrite.** The requirement to rewrite the Rust-framed task list exists only as prose in the backlog header (§ "BEAM PTY spike resolved"). Sub-F's Task 0 explicitly gates on "Sub-C backlog Tasks 1+ rewritten against the Session-11 design-doc rewrite." Without a numbered, status-tracked task, progress is untrackable. Create a Task 0 analogous to Sub-B's and Sub-E's gate tasks.
+1. **Model-configurability dispatch** → promoted to Task 27 on 2026-04-20.
+2. **Elixir backlog rewrite gate** → landed as Task 0 below on 2026-04-21;
+   Tasks 1-25 rewritten inline during the same work phase. See Task 0's
+   `Results:` block for per-task notes on what changed.
 
 ## Task Backlog
 
-### Task 1 — Cargo.toml deps + module skeleton `[setup]`
+### Task 0 — Rewrite Rust-framed task list against Session-11 design doc `[gate]`
+- **Status:** done (2026-04-21)
+- **Dependencies:** none (gating everything below)
+- **Description:** Sub-C's design was rewritten inline Session 11
+  (2026-04-15) for Elixir/BEAM but Tasks 1-25 still described
+  `Cargo.toml`, `src/harness/`, `crossbeam-channel`, `nix`,
+  `std::process::Command`, `#[derive(Deserialize)]`, Rust traits with
+  `Send + Sync` bounds, `Arc<dyn HarnessSession>`, etc. That drift
+  blocked sub-C implementation (every task had to be mentally
+  translated before being picked up) and blocked sub-F's Task 0, which
+  explicitly gates on "sub-C backlog Tasks 1+ rewritten against the
+  Session-11 design-doc rewrite". This task rewrites the backlog
+  in-place against the Elixir-native spec, task-by-task, preserving
+  numbering so external cross-references (e.g., orchestrator memory's
+  "Task 27" reference) stay valid.
+
+  **Checklist for the rewrite (all rows done):**
+
+  1. **Replace Rust build-surface references** (`Cargo.toml` → `mix.exs`;
+     `cargo build` → `mix compile`; `cargo test` → `mix test`;
+     `cargo clippy`/`cargo +nightly fmt` → `mix format` + `mix credo`
+     where applicable).
+  2. **Replace dep names.** The three Rust deps (`which`, `nix`,
+     `crossbeam-channel`) are replaced by one Hex dep: `{:erlexec, "~> 2.2"}`.
+     `serde_json`/`serde` becomes `Jason`. `chrono` becomes `DateTime`.
+     `thiserror` has no direct equivalent (Elixir uses tagged tuples /
+     exceptions). `tracing::instrument`/`metrics::*` becomes
+     `:telemetry.span/3` / `:telemetry.execute/3`.
+  3. **Replace module layout.** `src/harness/` → `lib/ravel/harness_adapter/`
+     per spec §2.2. Per-file mapping: `trait_def.rs` → `harness_adapter.ex`
+     + `event.ex`; `claude_code/{mod,session,actor,stream_json,spawn,input}.rs`
+     → `claude_code/{adapter,session,stream_json,spawn,input,tool_call_boundary}.ex`;
+     `fixture_replay/{mod,session,actor,format}.rs` →
+     `fixture_replay/{adapter,session,format}.ex`. The adapter-vs-actor
+     split collapses to one Session GenServer per session; the actor
+     loop is the GenServer's `handle_info/2` / `handle_call/3` /
+     `handle_cast/2` dispatch.
+  4. **Replace trait surface with behaviour + GenServer contract.**
+     `trait HarnessAdapter` → `@behaviour Ravel.HarnessAdapter` with a
+     single callback `spawn/1` (plus `kind/0`); `trait HarnessSession`
+     collapses into the documented message set of the Session GenServer
+     (§3.2). The Rust trait-object plumbing (`&mut self` → `&self`,
+     `Box<dyn>` → `Arc<dyn>`, `Send + Sync`) has no BEAM analogue and is
+     removed. Per spec §11.1, three of the five original sub-B trait
+     amendments are eliminated; two substantive cross-project
+     requirements survive (consumed `%SessionLifecycle{}` event + B's
+     sentinel matcher).
+  5. **Replace output types with typed events.** `OutputChunk` →
+     `%Ravel.Event.HarnessOutput{}`; `OutputChunkKind::SessionLifecycle`
+     → separate `%Ravel.Event.SessionLifecycle{}` struct;
+     `SessionExitStatus` → `%Ravel.Event.SessionExitStatus{}`;
+     `AdapterError` → tagged-tuple reasons inside
+     `SessionExitStatus.reason`; `SpawnLatencyReport` →
+     `%Ravel.Event.SpawnLatencyReport{}`. Delivery is
+     `{:harness_event, session_id, event}` info messages to attached
+     consumer pids, not trait method returns.
+  6. **Replace threading primitives.** Three Rust threads per session
+     (actor + stdout-reader + stderr-reader) collapse into one
+     GenServer per session; erlexec's `{:stdout, ospid, line}` /
+     `{:stderr, ospid, line}` / `{:DOWN, _, :process, _, reason}`
+     messages arrive directly in the GenServer mailbox.
+     `crossbeam-channel::select!` is replaced by `handle_info/2`
+     pattern matching. The `Mutex<Option<JoinHandle>>` for
+     `wait()` becomes `GenServer.call(pid, {:await_exit, timeout})`
+     with a reply-on-DOWN pattern.
+  7. **Replace process-group primitives.** `process_group(0)` at spawn
+     time → `:kill_group` option in erlexec's `exec_opts` list;
+     `nix::sys::signal::killpg` → `:exec.kill(ospid, signal)`; the
+     explicit 500 ms SIGTERM→SIGKILL escalation becomes a
+     `Process.send_after(self(), :escalate_kill, 500)` timer handled in
+     `handle_info/2`.
+  8. **Replace test surface.** `cargo test --lib` → `mix test`;
+     `RAVEL_TEST_LIVE_HARNESS=1` → `@moduletag :live` with
+     `mix test --only live`; integration tests live under
+     `test/ravel/harness_adapter/`. `tests/fixtures/harness/...` →
+     `test/fixtures/harness_adapter/...`; `tests/fixtures/sub-C-warm-pool-spike/`
+     → `test/fixtures/sub_c_warm_pool_spike/`.
+  9. **Replace dev tooling surface.** `ravel dev record-fixture`
+     subcommand → `mix ravel.dev.record_fixture` Mix task under
+     `lib/mix/tasks/`. CLI flag shape is unchanged.
+  10. **Absorb Session-11 additions not present in the Rust backlog.**
+      §4.5 tool-call boundary is new: adds Task 28 (day-1 injection
+      mechanism spike — §10 Q6) and Task 29 (intercept wiring —
+      `tool_call_boundary.ex` + `{:router_reply, _, _}` handler). Pin
+      check `claude --version` at adapter init (spec §9 Risk 1) is now
+      part of Task 17 (adapter module).
+  11. **Preserve numbering.** Tasks 1-25 remain Tasks 1-25 with their
+      original titles shifted to Elixir idiom. Tasks 26 and 27 were
+      already Elixir-native (post-rewrite). Tasks 28 and 29 are new.
+
+- **Results:** Rewrite completed 2026-04-21. Every task below was
+  re-read against the Session-11 design doc and rewritten where Rust
+  idiom remained. Preserved task sequence and numbering (1-27) per the
+  external-cross-reference constraint; added Tasks 28-29 for the
+  tool-call boundary (new material from sub-F's amendment). Spec
+  section anchors (§N.N) are the same in the rewritten spec, so
+  existing "§X of the spec" references remain accurate. No downstream
+  plans block on further cleanup; sub-F's Task 0 gate is satisfied by
+  this completion. One known follow-up not covered here:
+  `{{PLAN}}/prompt-work.md` also carries Rust framing (`cargo test`,
+  `crossbeam-channel`, `process_group(0)`, "trait surface", etc.); it
+  was left untouched to keep this gate task scoped to the backlog, and
+  matches the precedent from sub-B where the same prompt file was not
+  rewritten alongside the backlog. Surface as an analyse-work finding
+  if that gap should close in the same cleanup pass.
+
+### Task 1 — `mix.exs` deps + module skeleton `[setup]`
 - **Status:** not_started
-- **Dependencies:** none
-- **Description:** Add the three new C-side deps to `Cargo.toml`:
-  `which = "7"`, `nix = { version = "0.29", default-features = false, features = ["signal"] }`,
-  `crossbeam-channel = "0.5"`. Confirm `serde_json`, `serde`, `chrono`,
-  `thiserror` are present (they may be added by sub-B's earlier work).
-  Create the empty module skeleton under `src/harness/`:
-  `mod.rs`, `trait_def.rs`, `claude_code/{mod,session,actor,stream_json,spawn,input}.rs`,
-  `fixture_replay/{mod,session,actor,format}.rs`. Each file should
-  contain only a module-level doc comment and `pub use`s as needed for
-  later tasks. Wire `pub mod harness;` into `src/lib.rs`. Run `cargo build`
-  to confirm the skeleton compiles. No tests yet.
+- **Dependencies:** Task 0
+- **Description:** Add `{:erlexec, "~> 2.2"}` to `mix.exs` deps and add
+  `:exec` to `extra_applications` so the erlexec OTP app starts with
+  the daemon. Confirm `:jason` and `:telemetry` are already present
+  (they will be; they are daemon-wide deps). Create the empty Elixir
+  module skeleton under `lib/ravel/harness_adapter/` per spec §2.2:
+
+  ```
+  lib/ravel/harness_adapter/
+  ├── harness_adapter.ex
+  ├── event.ex
+  ├── supervisor.ex
+  ├── claude_code/
+  │   ├── adapter.ex
+  │   ├── session.ex
+  │   ├── stream_json.ex
+  │   ├── spawn.ex
+  │   ├── input.ex
+  │   └── tool_call_boundary.ex
+  └── fixture_replay/
+      ├── adapter.ex
+      ├── session.ex
+      └── format.ex
+  ```
+
+  Each file contains only a `defmodule` with a `@moduledoc` stub
+  (filled in by later tasks). Add `Ravel.HarnessAdapter.Supervisor`
+  (a `DynamicSupervisor` skeleton) to the top-level `Ravel.Supervisor`
+  children list per spec §2.3. Run `mix compile` to confirm the
+  skeleton compiles warning-free. No tests yet.
 - **Results:** _pending_
 
-### Task 2 — `trait_def.rs`: §3.1 trait surface (types only) `[types]`
+### Task 2 — `harness_adapter.ex` + `event.ex`: §3.1 behaviour + §3.3 typed events `[types]`
 - **Status:** not_started
 - **Dependencies:** Task 1
-- **Description:** Implement the §3.1 trait surface verbatim per the spec.
-  Types: `HarnessAdapter` trait, `HarnessSession` trait (with `&self`
-  signatures, `Send + Sync` bound, including the `send_user_message`
-  method — the four trait amendments are baked in from day one),
-  `HarnessKind`, `ToolProfile`, `OutputChunk`, `OutputChunkKind` (with
-  `SessionLifecycle` variant), `SessionExitStatus`, `AdapterError`. No
-  logic; just shapes with `#[derive(...)]` for `Debug`, `Clone`, `Copy`,
-  `PartialEq`, `Eq` where appropriate. Pure compile-time correctness.
-  Unit tests cover serde round-trips for any type that crosses the
-  fixture-format boundary later (specifically `OutputChunkKind` and
-  `SessionExitStatus`).
+- **Description:** Implement the §3.1 behaviour surface and the §3.3
+  typed event set verbatim per the spec.
+
+  In `harness_adapter.ex`:
+  - `@behaviour Ravel.HarnessAdapter` with callbacks `kind() ::
+    harness_kind()` and `spawn(spawn_opts()) :: {:ok, pid()} |
+    {:error, term()}`.
+  - `@type tool_profile :: :ingestion_minimal | :research_broad`.
+  - `@type harness_kind :: :claude_code | :fixture_replay`.
+  - `@type spawn_opts :: %{required(:prompt) => String.t(),
+    required(:working_dir) => Path.t(), required(:tool_profile) =>
+    tool_profile(), required(:session_id) => String.t(),
+    optional(:staging_dir) => Path.t(), optional(:router) => pid() |
+    atom(), optional(:model) => String.t() | nil}` — the `:model` key
+    is reserved here but honoured by Task 27.
+  - `@moduledoc` documents the Session GenServer client-API surface
+    (§3.2 message set: `send_user_message/2`, `terminate/1`,
+    `await_exit/2`, `session_id/1`, `attach_consumer/2`,
+    `detach_consumer/2`).
+
+  In `event.ex` (one module per struct, per spec §3.3):
+  - `%Ravel.Event.HarnessOutput{}` with `@enforce_keys [:session_id,
+    :kind, :text, :at]` plus optional `:meta`. `kind: :stdout |
+    :stderr | :tool_use | :internal_message`.
+  - `%Ravel.Event.SessionLifecycle{}` with `@enforce_keys
+    [:session_id, :transition, :at]`, transition `:ready |
+    {:turn_complete, String.t()} | {:exited, term()}`.
+  - `%Ravel.Event.SpawnLatencyReport{}` with `@enforce_keys
+    [:session_id, :harness_kind, :tool_profile, :spawned_at,
+    :first_chunk_at, :init_event_at]`.
+  - `%Ravel.Event.SessionExitStatus{}` with `@enforce_keys
+    [:session_id, :reason]`; reason `{:clean_exit, integer()} |
+    {:terminated, integer() | nil} | :crashed_before_ready |
+    {:tool_profile_violation, map()} | {:protocol_error, term()} |
+    {:spawn_failed, term()} | {:io_error, term()} |
+    {:exec_port_lost, term()}`.
+  - `%Ravel.Event.HarnessError{}` with `@enforce_keys [:session_id,
+    :error, :at]` plus optional `:dump_ref`.
+
+  Each struct gets `@type t :: %__MODULE__{...}` (dialyzable). Unit
+  tests cover: `@enforce_keys` rejection of missing fields; Jason
+  encode/decode round-trip for every struct that crosses the
+  fixture-format boundary (`HarnessOutput`, `SessionExitStatus`); atom
+  preservation across decode via either `Jason.decode!(_, keys:
+  :atoms!)` or manual re-atomisation in the format layer (pick one
+  discipline and document it in `format.ex` moduledoc when Task 5
+  lands).
 - **Results:** _pending_
 
 ### Task 3 — Day-1 verification of Claude Code CLI surface `[verification]`
 - **Status:** not_started
-- **Dependencies:** Task 1 (deps), Task 2 (types — for the chunk format
-  reference)
-- **Description:** Resolve §10 verification IOUs Q1-Q4 against the pinned
-  `claude` version. Concretely:
-  - Q1 (empty-tool-list spelling): run
-    `claude --print --output-format stream-json --allowed-tools "" -p "use the Read tool to read /etc/hostname"`
-    and verify denial in the captured output. Try the `--disallowed-tools "*"`
-    fallback if `""` is interpreted as default. Lock the chosen flag
-    spelling into `tool_profile_to_args`.
-  - Q2 (`--permission-mode` choice): run a `--print` session that touches
-    a tmpdir file under each candidate mode (`acceptEdits`,
-    `bypassPermissions`, `dangerouslySkipPermissions`) and document the
-    observed behaviour. Pick the least-surprising mode for v1.
-  - Q3 (`--print "<prompt>"` + `--input-format stream-json`): run both
-    "prompt as arg" and "prompt as first stdin envelope" shapes; pick
-    whichever the pinned binary accepts.
-  - Q4 (stream-json field names): capture full JSON output from a multi-
-    turn session (text response + tool use + tool result + result event)
-    via `claude --output-format stream-json --verbose --print "<prompt>"
-    > capture.jsonl`. Commit the captured JSON to
-    `tests/fixtures/harness/captured-stream-json/` as canonical samples.
-    Update `stream_json.rs`'s draft serde structs to match observed
-    field names exactly.
-  Pin the verified `claude` version in
-  `{{PROJECT}}/README.md` (or a new `tests/HARNESS_VERSION.md`) and add
-  a `claude --version` check helper that warns if the running binary
-  differs from the pinned version. Update `{{PLAN}}/memory.md`'s
-  "Verified Claude Code CLI surface" section with all observed facts.
+- **Dependencies:** Task 1 (deps), Task 2 (struct types for parser reference)
+- **Description:** Resolve spec §10 Q1 and Q2 against the pinned
+  `claude` version. Q3 and Q4 are **already resolved by the BEAM PTY
+  spike** (Session 10) and this task only needs to lock their
+  resolutions into code (see below).
+
+  - **Q1 (empty-tool-list spelling).** Run `claude --print --verbose
+    --input-format stream-json --output-format stream-json
+    --setting-sources project,local --no-session-persistence
+    --disallowed-tools "*" --permission-mode default` and prompt it to
+    use the `Read` tool; verify Claude declines. If `--disallowed-tools
+    "*"` does not work on the pinned version, fall back to
+    `--allowed-tools ""`. Lock the chosen flag into
+    `ClaudeCode.Spawn.tool_profile_to_args/1` (Task 4).
+  - **Q2 (`--permission-mode` for headless).** Run `--print` sessions
+    under each candidate (`acceptEdits`, `bypassPermissions`,
+    `dangerouslySkipPermissions`) that attempt to touch a tmpdir file.
+    Document observed behaviour and pick the least-surprising mode for
+    v1. Lock the choice into the tool-profile helper.
+  - **Q3/Q4 (stream-json input/output shape).** Copy the canonical
+    samples from `spikes/beam_pty/results/full-run.log` into
+    `test/fixtures/harness_adapter/captured_stream_json/` (one sample
+    per `type/subtype` pair). These are the regression baseline for
+    Task 9's parser. No further verification needed — the spike locked
+    the envelope shape.
+  - Pin the verified `claude` version in `{{PROJECT}}/README.md` (or a
+    new `test/HARNESS_VERSION.md`) and implement a `claude --version`
+    pin check invoked at `Ravel.HarnessAdapter.ClaudeCode` adapter
+    init (called by Task 17's supervision wiring); mismatches log a
+    hard `Logger.warning/1`. Record the observed flag spellings and
+    permission-mode decision in `{{PLAN}}/memory.md` under "Verified
+    Claude Code CLI surface".
 - **Results:** _pending_
 
-### Task 4 — `tool_profile_to_args` helper `[tool-profile]`
+### Task 4 — `ClaudeCode.Spawn.tool_profile_to_args/1` helper `[tool-profile]`
 - **Status:** not_started
-- **Dependencies:** Task 3 (needs verified flag spellings)
-- **Description:** Implement the `ToolProfile → Vec<String>` mapping in
-  `src/harness/claude_code/spawn.rs` per §6.1 of the spec. Two profiles:
-  `IngestionMinimal` and `ResearchBroad`, mapping to the verified flag
-  spellings from Task 3. Unit tests assert exact arg vector contents for
-  each profile.
+- **Dependencies:** Task 3 (verified flag spellings)
+- **Description:** Implement `tool_profile_to_args/1` in
+  `lib/ravel/harness_adapter/claude_code/spawn.ex` per spec §6.1:
+
+  ```elixir
+  def tool_profile_to_args(:ingestion_minimal),
+    do: ["--disallowed-tools", "*", "--permission-mode", "default"]
+
+  def tool_profile_to_args(:research_broad),
+    do: ["--permission-mode", "acceptEdits"]
+  ```
+
+  (Exact flag spellings substituted from Task 3's resolutions.)
+
+  Unit tests in `test/ravel/harness_adapter/claude_code/spawn_test.exs`
+  assert exact argv list contents for each profile (positional match,
+  not set-match).
 - **Results:** _pending_
 
-### Task 5 — `FixtureRecord` types + `format.rs` + serde round-trip tests `[fixture-replay]`
+### Task 5 — `FixtureRecord` types + `format.ex` + round-trip tests `[fixture-replay]`
 - **Status:** not_started
-- **Dependencies:** Task 2 (uses `OutputChunkKind` + `SessionExitStatus`)
-- **Description:** Implement `FixtureRecord` enum, `OutputChunkOnDisk`,
-  `SessionExitStatusOnDisk` per §5.2 of the spec, with `Serialize` /
-  `Deserialize` derives and `From` / `Into` conversions to/from the
-  runtime types in `trait_def.rs`. Unit tests:
-  - JSON Lines round-trip for every `FixtureRecord` variant.
-  - `OutputChunkOnDisk ↔ OutputChunk` round-trip identity.
-  - `SessionExitStatusOnDisk ↔ SessionExitStatus` round-trip identity.
-  These are the lockstep tests that catch drift between the runtime and
-  disk type pairs.
+- **Dependencies:** Task 2 (uses `%HarnessOutput{}` and
+  `%SessionExitStatus{}`)
+- **Description:** Implement the JSON-Lines fixture schema per spec
+  §5.2 in `lib/ravel/harness_adapter/fixture_replay/format.ex`.
+
+  Define tagged structs for the four record variants:
+  - `%FixtureRecord.Output{chunk: %HarnessOutput{}}` → `{"t": "output",
+    "chunk": {...}}`
+  - `%FixtureRecord.Delay{ms: non_neg_integer()}` → `{"t": "delay",
+    "ms": 250}`
+  - `%FixtureRecord.ExpectUserInput{}` → `{"t": "expect_user_input"}`
+  - `%FixtureRecord.Exit{status: %SessionExitStatus{}}` → `{"t":
+    "exit", "status": {...}}`
+
+  Implement `encode/1`, `decode/1`, `encode_jsonl/1` (list → newline-
+  delimited binary), `decode_jsonl/1` (binary → list), plus a
+  `from_disk/1` / `to_disk/1` pair per runtime `%Event.*{}` struct
+  that crosses the on-disk boundary (`HarnessOutput` and
+  `SessionExitStatus`). The `from_disk/1` / `to_disk/1` pair is the
+  lockstep seam that catches drift between runtime and on-disk
+  representations.
+
+  Unit tests:
+  - JSON-Lines round-trip for every `FixtureRecord` variant.
+  - `%HarnessOutput{}` runtime ↔ disk round-trip identity.
+  - `%SessionExitStatus{}` runtime ↔ disk round-trip identity
+    (including every `reason:` tuple variant).
+  - Atom preservation across decode (enforce the chosen discipline
+    from Task 2's decision).
 - **Results:** _pending_
 
-### Task 6 — `FixtureReplaySession` actor + replay actor loop `[fixture-replay]`
+### Task 6 — `FixtureReplay.Session` GenServer + replay loop `[fixture-replay]`
 - **Status:** not_started
 - **Dependencies:** Task 5
-- **Description:** Implement `FixtureReplaySession` per §5.4 and the
-  replay actor loop per §5.5. Mirrors the `ClaudeCodeSession` actor
-  architecture exactly: `cmd_tx` + `chunk_rx` + `terminated` + `actor_handle`,
-  with a `FixtureCmd` inbox enum and a single actor thread that walks
-  the fixture record list. Honours `Delay` (interruptible by `Terminate`),
-  `ExpectUserInput` (blocks on inbox), `Output` (forwards), `Exit`
-  (terminal). Uses `crossbeam_channel::select!` for the interruptible
-  delay. No process spawn; no real harness.
+- **Description:** Implement `Ravel.HarnessAdapter.FixtureReplay.Session`
+  per spec §5.4. A `GenServer` that walks the fixture record list,
+  mirroring `ClaudeCode.Session`'s GenServer shape exactly (same
+  client-API message set, same consumer-delivery semantics, same
+  `{:harness_event, session_id, event}` info-message shape).
+
+  - State struct: `:session_id, :records, :consumers, :awaiting_user_input?,
+    :final_status, :terminating`.
+  - `init/1` sends `:step` to self and seeds state.
+  - `handle_info(:step, state)` walks the head of `state.records`:
+    - `%Output{chunk: _}` → broadcast to consumers, self-send `:step`.
+    - `%Delay{ms: _}` → `Process.send_after(self(), :step, ms)`.
+      Interruptible by `:terminate` cast.
+    - `%ExpectUserInput{}` → block (no self-step; advance waits on
+      `send_user_message/2`).
+    - `%Exit{status: _}` → broadcast `%SessionLifecycle{transition:
+      {:exited, reason}}` + `%SessionExitStatus{}` to consumers,
+      `{:stop, :normal, state}`.
+    - `[]` (records exhausted with no explicit Exit) → broadcast a
+      synthesised clean-exit, stop.
+  - `handle_call({:send_user_message, _}, _, state)` when
+    `state.awaiting_user_input?` advances past the
+    `%ExpectUserInput{}` record and resumes stepping.
+  - Shared client-API handlers: `{:attach_consumer, pid}` (with
+    `Process.monitor/1` auto-detach on consumer crash),
+    `{:detach_consumer, pid}`, `:session_id`, `{:await_exit, timeout}`.
+  - `handle_cast(:terminate, state)` — stop with a synthesised
+    `{:terminated, nil}` exit status; idempotent.
+
+  No erlexec, no subprocess, no process group. Unit tests drive the
+  GenServer with a handcrafted record list and assert consumer
+  receives events in order.
 - **Results:** _pending_
 
-### Task 7 — `FixtureReplayAdapter` `[fixture-replay]`
+### Task 7 — `FixtureReplay.Adapter` module `[fixture-replay]`
 - **Status:** not_started
 - **Dependencies:** Task 6
-- **Description:** Implement `FixtureReplayAdapter` per §5 — a struct
-  that takes a fixture file path on construction and returns
-  `FixtureReplaySession` handles from `spawn()`. The `prompt` and
-  `tool_profile` arguments to `spawn()` are recorded for verification
-  but otherwise ignored (the fixture is the source of truth for what
-  the session emits). `kind()` returns `HarnessKind::FixtureReplay`.
-  Unit test: spawn → drain `next_chunk` → assert all fixture chunks
-  arrive in order.
+- **Description:** Implement `Ravel.HarnessAdapter.FixtureReplay`
+  per spec §5. The module implements `@behaviour Ravel.HarnessAdapter`:
+
+  - `kind/0` returns `:fixture_replay`.
+  - `spawn/1` loads the fixture file from a path stored on the module
+    (the file path is passed via `Application.get_env/3` or through
+    the `spawn_opts` as an implementation-specific `:fixture_path`
+    key; document the choice in the module doc) and calls
+    `DynamicSupervisor.start_child(Ravel.HarnessAdapter.Supervisor,
+    {FixtureReplay.Session, %{session_id: sid, records: records,
+    tool_profile: profile, model: model}})`.
+  - The `:prompt` and `:tool_profile` spawn opts are recorded in the
+    session struct for verification but otherwise ignored (the fixture
+    is the source of truth for what the session emits).
+
+  Unit test: `spawn/1` → attach consumer → drain events → assert all
+  fixture chunks arrive in order.
 - **Results:** _pending_
 
-### Task 8 — Layer 2 fixture files + integration tests `[testing]`
+### Task 8 — Layer 2 fixture files + ExUnit integration tests `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 7
-- **Description:** Create the §8.2 fixture files under
-  `tests/fixtures/harness/`:
+- **Description:** Create the spec §5.3 fixture files under
+  `test/fixtures/harness_adapter/`:
   - `replay_clean_linear.jsonl` — output → output → exit
   - `replay_multi_turn.jsonl` — output → expect_user_input → output → exit
-  - `replay_terminated.jsonl` — output → delay → (terminate during delay) → exit
-  - `replay_tool_violation.jsonl` — assistant `tool_use` block under `IngestionMinimal`
-  - `replay_crashed_before_ready.jsonl` — exit with no chunks within 100ms
-  Plus integration tests in `tests/`:
-  - Clean linear drain
-  - Multi-turn with user interjection (driver thread sends `send_user_message`)
-  - Mid-stream termination → next `next_chunk()` returns `Ok(None)`
-  - Tool profile violation surfaces `UnsupportedToolProfile`
-  - `CrashedBeforeReady` returned by `wait()`
-  - Programmatic concurrent stress: two threads hammering `send_user_message`
-    and `next_chunk` against a long-running fixture; assert no deadlocks,
-    no panics, all chunks delivered in order.
-  These tests exercise the actor architecture end-to-end without a real
-  `claude` process. They will also drive sub-B's executor tests once B's
-  implementation phase begins.
+  - `replay_terminated.jsonl` — output → delay → (terminated during delay) → exit
+  - `replay_tool_violation.jsonl` — assistant `tool_use` chunk under `:ingestion_minimal`
+  - `replay_crashed_before_ready.jsonl` — exit with no chunks (shape-only fixture)
+
+  ExUnit integration tests in
+  `test/ravel/harness_adapter/fixture_replay_session_test.exs` per
+  spec §8.2 matrix:
+  - Clean linear drain with `attach_consumer/2`.
+  - Multi-turn with user interjection: driver process calls
+    `send_user_message/2` during an `expect_user_input` record; assert
+    replay continues and post-interjection events arrive.
+  - Mid-stream termination: driver casts `:terminate` mid-delay;
+    consumer receives a `{:terminated, _}` exit event; `await_exit/2`
+    returns the terminated status.
+  - Tool-profile violation fixture surfaces
+    `%SessionExitStatus{reason: {:tool_profile_violation, _}}` (the
+    defence-in-depth layer from Task 13's GenServer fires on the
+    `tool_use` event).
+  - `:crashed_before_ready` fixture shape round-trips cleanly
+    (live-heuristic coverage is a Task 16 concern).
+  - Multi-consumer attach: two consumer pids attach to one session,
+    both receive the same events in order, one detaches mid-stream,
+    only the remaining consumer receives subsequent events.
+
+  These tests exercise the full GenServer + typed-event delivery
+  surface deterministically, without a real `claude` process. They
+  are also the surface that sub-B's executor tests and sub-E's
+  pipeline tests exercise once those plans land.
 - **Results:** _pending_
 
-### Task 9 — `stream_json.rs` event types + parser + `OutputChunk` mapping `[claude-code]`
+### Task 9 — `stream_json.ex` parser + event mapping `[claude-code]`
 - **Status:** not_started
-- **Dependencies:** Task 3 (canonical JSON samples), Task 2 (`OutputChunk`
-  type)
-- **Description:** Implement `stream_json.rs` per §4.3.1 and §4.3.2.
-  Define the `StreamJsonEvent`, `AssistantMessage`, `UserMessage`,
-  `ContentBlock` serde structs against the canonical JSON samples
-  captured in Task 3. Implement `event_to_chunks(event) -> Vec<OutputChunk>`
-  per the §4.3.2 mapping table:
-  - `system` (init) → `SessionLifecycle` with text `"ready"`
-  - `system` (other subtype) → `InternalMessage` with JSON-serialised event
-  - `assistant` `Text` block → `Stdout` chunk
-  - `assistant` `ToolUse` block → `ToolUse` chunk with formatted name+input
-  - `assistant` `ToolResult` block → `InternalMessage` chunk
-  - `user` (echo) → `InternalMessage` chunk
-  - `result` (turn boundary) → `SessionLifecycle` with text
-    `"turn_complete:<subtype>"` AND record into `state.last_result`
-  Unit tests use the canonical JSON samples from `tests/fixtures/harness/captured-stream-json/`
-  and assert the expected chunk sequences.
+- **Dependencies:** Task 3 (canonical JSON samples), Task 2 (event
+  structs)
+- **Description:** Implement `Ravel.HarnessAdapter.ClaudeCode.StreamJson`
+  per spec §4.3.1 and §4.3.2.
+
+  - `parse_line(binary)` calls `Jason.decode!/1` and pattern-matches
+    on the `"type"` / `"subtype"` fields, returning `{:ok, [event]}` |
+    `{:error, reason}`. Decode failures are hard errors
+    (`{:protocol_error, _}` per spec goal 2).
+  - Dispatch table per spec §4.3.1:
+    - `"system"` with `subtype: "init"` → `%SessionLifecycle{transition:
+      :ready}`; also records that the init event was observed so the
+      caller can snapshot `init_event_at` (the Session GenServer does
+      this in `handle_info/2`).
+    - `"system"` (other subtype) → `%HarnessOutput{kind:
+      :internal_message, meta: %{raw: decoded}}`.
+    - `"rate_limit_event"` → `%HarnessOutput{kind: :internal_message,
+      meta: %{event: :rate_limit, raw: decoded}}`.
+    - `"assistant"` → walk `message.content`; per block:
+      - `"thinking"` → `%HarnessOutput{kind: :internal_message, meta:
+        %{block: :thinking}}`.
+      - `"text"` → `%HarnessOutput{kind: :stdout}` (feeds B's sentinel
+        matcher).
+      - `"tool_use"` → `%HarnessOutput{kind: :tool_use, text: name,
+        meta: %{tool_use_id: id, input: input}}` (Session GenServer
+        runs defence-in-depth + tool-call-boundary intercept on this
+        event before forwarding).
+      - `"tool_result"` → `%HarnessOutput{kind: :internal_message,
+        meta: %{block: :tool_result, tool_use_id: id}}`.
+    - `"user"` (echo) → `%HarnessOutput{kind: :internal_message, meta:
+      %{block: :user_echo}}`.
+    - `"result"` → `%SessionLifecycle{transition: {:turn_complete,
+      subtype}}`.
+    - Unknown `"type"` → `%HarnessOutput{kind: :internal_message,
+      meta: %{unknown_type: type, raw: decoded}}` (forward-compat for
+      additive schema changes per spec §9 Risk 1).
+
+  Unit tests drive `parse_line/1` with each canonical JSON sample from
+  `test/fixtures/harness_adapter/captured_stream_json/` and assert the
+  expected event list. Edge cases covered here (rather than in Task 19):
+  empty content blocks, mixed text/tool_use blocks, missing optional
+  fields, multi-block assistant messages with shared timestamps.
 - **Results:** _pending_
 
-### Task 10 — `spawn.rs` (binary discovery + Command builder + process_group) `[claude-code]`
+### Task 10 — `spawn.ex` argv builder + `:exec.which/1` + erlexec opts `[claude-code]`
 - **Status:** not_started
-- **Dependencies:** Task 4 (`tool_profile_to_args`)
-- **Description:** Implement `src/harness/claude_code/spawn.rs` per §4.1.1
-  and §4.4.1 of the spec. Functions:
-  - `find_claude_binary() -> Result<PathBuf, AdapterError>` using
-    `which::which("claude")` → `AdapterError::HarnessNotFound` on miss.
-  - `build_command(claude_path, prompt, working_dir, tool_profile, session_name) -> Command`
-    that constructs the spawn args per §4.1.1 (with `--print --verbose
-    --input-format stream-json --output-format stream-json --session-id
-    <name>` plus the `tool_profile_to_args` flags), sets `current_dir`,
-    pipes stdin/stdout/stderr, and calls `process_group(0)`.
-  - `extract_pgid(child: &Child) -> nix::unistd::Pid` that converts
-    `child.id()` to `Pid` for later `killpg` calls.
-  Unit tests verify the constructed `Command`'s args exactly via
-  `Command::get_args()`.
+- **Dependencies:** Task 4 (`tool_profile_to_args/1`)
+- **Description:** Implement the rest of
+  `lib/ravel/harness_adapter/claude_code/spawn.ex` per spec §4.1.1
+  and §4.1.2:
+
+  - `build_argv/1` takes `%{session_id: _, tool_profile: _, model:
+    model_or_nil}` and returns the argv list. Fixed order (spec §4.1.1
+    + Task 27 acceptance criteria):
+    ```
+    ["claude", "--print", "--verbose",
+     "--input-format", "stream-json", "--output-format", "stream-json",
+     "--session-id", sid,
+     "--setting-sources", "project,local",
+     "--no-session-persistence"]
+     ++ model_args(model)                       # Task 27: [] | ["--model", model_id]
+     ++ tool_profile_to_args(profile)           # Task 4
+    ```
+    The cmux mitigation flags (`--setting-sources`,
+    `--no-session-persistence`) are mandatory on every daemon-spawned
+    session — the spike proved they silence ~10 KB of spurious JSON.
+  - `find_claude_binary/0` calls `:exec.which(~c"claude")` →
+    `{:ok, path}` | `{:error, :claude_not_found}`.
+  - `erlexec_opts/1` takes the working directory and returns the
+    erlexec option list: `[:monitor, :stdin, {:stdout, self()},
+    {:stderr, self()}, :kill_group, {:kill_timeout, 1}, {:cd,
+    to_charlist(cwd)}]`. The shape is load-bearing and validated by
+    the BEAM PTY spike; deviations break the input path.
+
+  Unit tests assert: exact argv ordering for each
+  `(tool_profile, model)` combination; `find_claude_binary/0` returns
+  a charlist path; `erlexec_opts/1` returns the exact option list with
+  `self()` substituted at call time.
 - **Results:** _pending_
 
-### Task 11 — `input.rs` (user-message envelope serialisation) `[claude-code]`
+### Task 11 — `input.ex` user-message + tool_result envelope encoders `[claude-code]`
 - **Status:** not_started
-- **Dependencies:** Task 1 (skeleton)
-- **Description:** Implement `src/harness/claude_code/input.rs` per
-  §4.1.2. A `serialise_user_message(text: &str) -> Result<String, serde_json::Error>`
-  function that produces the stream-json user-message envelope as a
-  newline-terminated JSON Lines string, ready to write to stdin. Unit
-  tests assert the exact JSON shape against captured fixtures (a real
-  user-message envelope from a captured session in Task 3).
+- **Dependencies:** Task 1
+- **Description:** Implement `Ravel.HarnessAdapter.ClaudeCode.Input`
+  per spec §4.1.3 and §4.5.3.
+
+  - `encode_user_message(text) :: binary()` produces the NDJSON
+    envelope `{"type":"user","message":{"role":"user","content":
+    [{"type":"text","text":text}]}}\n` via `Jason.encode!/1`.
+  - `encode_tool_result(tool_use_id, content, is_error?) :: binary()`
+    produces the NDJSON envelope carrying a `user/tool_result` block
+    that Claude Code consumes to continue after an injected-tool call.
+
+  Unit tests assert exact JSON shape against captured user-message
+  envelopes recorded from the spike (the spike's `full-run.log`
+  includes echoed envelopes that are the canonical reference).
 - **Results:** _pending_
 
-### Task 12 — `actor.rs` (the actor loop, ActorState, ActorCmd, ActorInbox) `[claude-code]`
+### Task 12 — `ClaudeCode.Session` GenServer (state + `handle_info/2` core) `[claude-code]`
 - **Status:** not_started
 - **Dependencies:** Task 9 (stream_json), Task 10 (spawn), Task 11 (input)
-- **Description:** Implement `src/harness/claude_code/actor.rs` per §4.2.4.
-  Define `ActorCmd`, `ActorInbox`, `ChunkOrEnd`, `ActorState`, and the
-  `actor_loop` function. The actor loop dispatches:
-  - `ActorInbox::Cmd(SendUserMessage)` → call `state.write_user_message`
-  - `ActorInbox::Cmd(Terminate)` → call `state.terminate` (process-group
-    kill — see Task 14)
-  - `ActorInbox::Cmd(Wait(reply))` → call `state.wait_for_exit`, send
-    reply, break
-  - `ActorInbox::StdoutEvent(event)` → defence-in-depth tool check,
-    `event_to_chunks`, forward to `chunk_tx`
-  - `ActorInbox::StdoutEof` → emit `SessionLifecycle` `"exited:<status>"`
-    chunk, then `ChunkOrEnd::End(Ok)`
-  - `ActorInbox::StderrLine(line)` → record + forward as `Stderr` chunk
-  - `ActorInbox::StreamParseError(err)` → emit `End(Err(...))`, terminate
-  Unit tests use a fake stdout-event injector to drive the actor through
-  every state transition without a real child process.
+- **Description:** Implement the core of
+  `lib/ravel/harness_adapter/claude_code/session.ex` per spec §4.2.1
+  and §4.2.2.
+
+  - State struct per §4.2.1: `:session_id, :ospid, :tool_profile,
+    :staging_dir, :spawned_at, :first_chunk_at, :init_event_at,
+    :consumers, :sentinel_buffer_hook, :router, :injected_tools,
+    :first_chunk_received, :terminating, :model, :await_exit_waiters`.
+  - `init/1` records `:spawned_at`, calls `:exec.run(argv, opts)` via
+    Task 10 helpers, stores the returned `ospid`, schedules the
+    `:crashed_before_ready_check` timer (`Process.send_after(self(),
+    :crashed_before_ready_check, 2_000)` — Task 16), returns `{:ok,
+    state}`. Spawn failures translate to
+    `{:stop, {:spawn_failed, reason}}`.
+  - `handle_info({:stdout, ospid, line}, state)` per §4.2.2: set
+    `:first_chunk_at` on first call; parse via
+    `StreamJson.parse_line/1`; for each event, run defence-in-depth
+    (Task 4's profile logic — §6.2 check), then tool-call-boundary
+    intercept (Task 29), then broadcast to consumers via
+    `{:harness_event, sid, event}` info messages. Record
+    `:init_event_at` when a `%SessionLifecycle{transition: :ready}`
+    event fires; trigger the `SpawnLatencyReport` emission once all
+    three timestamps are populated (Task 19).
+  - `handle_info({:stderr, ospid, line}, state)` — forward as
+    `%HarnessOutput{kind: :stderr}`; append to the error-tail ring
+    buffer (spec §11.4 — budget in Risk 5).
+  - `handle_info({:DOWN, _, :process, _, reason}, state)` — emit
+    `%SessionLifecycle{transition: {:exited, reason}}`, synthesise a
+    `%SessionExitStatus{}` (cross-checking with the
+    crashed-before-ready heuristic — Task 16), notify any
+    registered `await_exit` waiters, `{:stop, :normal, state}`.
+  - `handle_info({:router_reply, tool_use_id, result}, state)` —
+    Task 29's tool-call-boundary reply handler (stubbed in Task 12;
+    completed in Task 29).
+
+  Unit tests drive `handle_info/2` directly with synthetic messages
+  (no real subprocess), exercising every handler branch. The TestHelper
+  injects fake `:exec.run/2` returns via a behaviour-level mock if
+  needed (or by parameterising the spawn call; pick whichever is less
+  invasive).
 - **Results:** _pending_
 
-### Task 13 — `session.rs` (`ClaudeCodeSession` handle + impl `HarnessSession`) `[claude-code]`
+### Task 13 — `ClaudeCode.Session` GenServer: `handle_call/3` client API `[claude-code]`
 - **Status:** not_started
-- **Dependencies:** Task 12 (actor)
-- **Description:** Implement `src/harness/claude_code/session.rs` per
-  §4.2.5. Define `ClaudeCodeSession` with its `crossbeam_channel`
-  endpoints + `terminated` AtomicBool + `actor_handle` Mutex. Implement
-  the `HarnessSession` trait methods:
-  - `next_chunk` → `chunk_rx.recv()` mapped to `Ok(Some)` / `Ok(None)` / `Err`
-  - `send_user_message` → check `terminated`, send `ActorCmd::SendUserMessage`
-  - `terminate` → `swap` on `terminated` for idempotency, send `ActorCmd::Terminate`
-  - `wait` → ad-hoc oneshot via `crossbeam_channel::bounded(1)`, send
-    `ActorCmd::Wait(reply_tx)`, recv reply, join actor thread
-  - `session_id` → return stored string
-  Construction (`ClaudeCodeSession::new`) takes the actor handle, the
-  channels, and the session ID; intended to be called only by the
-  adapter's `spawn()`.
+- **Dependencies:** Task 12
+- **Description:** Complete the Session GenServer's synchronous client
+  API per spec §4.2.2 and §3.2.
+
+  Implement `handle_call/3` clauses:
+  - `{:send_user_message, text}` — guard against `state.terminating`,
+    call `Input.encode_user_message/1`, `:exec.send(ospid, binary)`,
+    reply `:ok` or `{:error, :io_error | :session_terminated}`.
+  - `{:attach_consumer, pid}` — add to `state.consumers` (a
+    `MapSet.t(pid())`), `Process.monitor/1` the pid so auto-detach on
+    consumer crash; reply `:ok`.
+  - `{:detach_consumer, pid}` — remove from `state.consumers`,
+    de-monitor; reply `:ok`.
+  - `:session_id` — reply `{:ok, state.session_id}`.
+  - `{:await_exit, timeout}` — register the caller in
+    `state.await_exit_waiters`; **do not reply synchronously** — the
+    `{:DOWN, ...}` handler (Task 12) sends the reply via
+    `GenServer.reply/2` when the session exits.
+
+  Also implement a thin client module `Ravel.HarnessSession` that
+  wraps `GenServer.call/3` / `cast/2` calls against a session pid, per
+  spec §3.2. This is what B's executor / TUI / E's pipeline import
+  and use; they do not call `GenServer.call/3` directly.
+
+  Unit tests against `FixtureReplay.Session` (shared contract) and
+  against `ClaudeCode.Session` with mocked `:exec.send/2` calls.
 - **Results:** _pending_
 
-### Task 14 — Process-group termination (killpg + 500ms kill-timer) `[lifecycle]`
+### Task 14 — Process-group termination: `:kill_group` + two-phase escalation `[lifecycle]`
 - **Status:** not_started
-- **Dependencies:** Task 12 (actor calls into this), Task 10 (pgid stored)
-- **Description:** Implement the `state.terminate()` method on `ActorState`
-  per §4.4.2. Phase 1: `killpg(pgid, SIGTERM)`. Drop stdin to signal EOF.
-  Phase 2: spawn a fire-and-forget thread that sleeps 500ms then checks
-  the `child_alive_flag` `Arc<AtomicBool>`; if still alive, `killpg(pgid,
-  SIGKILL)`. The `child_alive_flag` is set to `false` by the stdout-reader
-  thread when it observes EOF. Idempotent via the actor's local `terminated`
-  bool. Tests:
-  - Unit test: terminate sets the local flag and issues the SIGTERM call
-    (mocked via a syscall-injecting test fixture, or via a dedicated
-    signal-receiver child process).
-  - Integration test (in Layer 3 task 21): `pgrep -f claude` post-terminate
-    shows zero residual processes.
+- **Dependencies:** Task 12 (`handle_info/2` core), Task 10 (erlexec
+  opts supply `:kill_group`)
+- **Description:** Implement the `:terminate` cast + escalation timer
+  per spec §4.4.2 in `session.ex`:
+
+  ```elixir
+  def handle_cast(:terminate, %{terminating: true} = state),
+    do: {:noreply, state}
+
+  def handle_cast(:terminate, state) do
+    :ok = :exec.kill(state.ospid, 15)   # SIGTERM to the group
+    Process.send_after(self(), :escalate_kill, 500)
+    {:noreply, %{state | terminating: true}}
+  end
+
+  def handle_info(:escalate_kill, state) do
+    case :exec.status(state.ospid) do
+      {:status, _} -> :ok = :exec.kill(state.ospid, 9)   # SIGKILL
+      _ -> :ok
+    end
+    {:noreply, state}
+  end
+  ```
+
+  The `:kill_group` option in erlexec's spawn opts (Task 10) makes
+  these signals target the whole process group, killing Claude Code's
+  tool subprocesses and MCP server children alongside the main
+  process. Idempotency: the `state.terminating` guard makes a second
+  `:terminate` cast a no-op; the 500 ms grace matches
+  `systemd-stop`'s default.
+
+  Unit test: a `:terminate` cast sets `state.terminating: true` and
+  issues the SIGTERM (mocked `:exec.kill/2` assertion). The real
+  `pgrep` cleanup test lives in Layer 3 (Task 23).
 - **Results:** _pending_
 
-### Task 15 — `CrashedBeforeReady` detection in `wait_for_exit` `[lifecycle]`
+### Task 15 — `CrashedBeforeReady` heuristic `[lifecycle]`
 - **Status:** not_started
-- **Dependencies:** Task 13 (session)
-- **Description:** Implement the `CrashedBeforeReady` heuristic per
-  §4.5.1: if the child exited within 2 seconds of spawn AND emitted
-  zero output chunks AND exited unsuccessfully, return
-  `SessionExitStatus::CrashedBeforeReady`. Otherwise classify via
-  exit status / signal. Unit test uses `FixtureReplayAdapter` (which
-  honours the same heuristic) with `replay_crashed_before_ready.jsonl`.
+- **Dependencies:** Task 12 (handle_info core), Task 13 (await_exit)
+- **Description:** Implement the crashed-before-ready classification
+  per spec §4.6.1:
+
+  - `init/1` schedules `Process.send_after(self(),
+    :crashed_before_ready_check, 2_000)`.
+  - `handle_info(:crashed_before_ready_check, state)` records a flag
+    that the 2-second threshold has elapsed. No state change to exit
+    classification here — the classification happens in the `{:DOWN,
+    ...}` handler (whichever arrives second).
+  - `handle_info({:DOWN, ...}, state)` consults both the threshold
+    flag and `state.first_chunk_received`: if DOWN arrives before the
+    2 s threshold AND `first_chunk_received == false` AND reason is
+    non-zero, classify as `%SessionExitStatus{reason:
+    :crashed_before_ready}`. Otherwise classify per the reason tuple
+    (`{:clean_exit, _}` | `{:terminated, _}`).
+
+  Catches: missing API key, invalid model name, malformed config, OOM
+  at startup, missing dependencies. The 2-second threshold is a module
+  attribute `@crashed_before_ready_ms 2_000` for future tuning.
+
+  Unit test drives the handler with both interleavings (DOWN first,
+  timer first) and asserts the correct classification.
+  `FixtureReplay.Session` does NOT emulate the live heuristic — its
+  `replay_crashed_before_ready.jsonl` fixture tests the shape of the
+  emitted event only (per Task 8's scenario matrix).
 - **Results:** _pending_
 
-### Task 16 — `claude_code/mod.rs` (`ClaudeCodeAdapter` + impl `HarnessAdapter`) `[claude-code]`
+### Task 16 — `claude_code/adapter.ex` + `DynamicSupervisor` wiring `[claude-code]`
 - **Status:** not_started
-- **Dependencies:** Task 13 (session), Task 14 (terminate), Task 15 (crashed-before-ready)
-- **Description:** Implement `ClaudeCodeAdapter` struct (holds the binary
-  path + any startup-time config) and `impl HarnessAdapter`. The `spawn`
-  method orchestrates the full setup: build `Command` (Task 10) → spawn
-  child → extract stdin/stdout/stderr → spawn stdout-reader thread
-  (which parses stream-json events and pushes to actor inbox) → spawn
-  stderr-reader thread → spawn actor thread → return `Box<ClaudeCodeSession>`.
-  The adapter's constructor (`ClaudeCodeAdapter::new()`) calls
-  `find_claude_binary` and the `claude --version` pin check.
-  Unit tests are integration-flavoured and live in Layer 3 (Task 21).
+- **Dependencies:** Task 13 (Session handle_call), Task 14 (terminate),
+  Task 15 (crashed-before-ready)
+- **Description:** Implement `Ravel.HarnessAdapter.ClaudeCode` per
+  spec §4 and §2.3:
+
+  - `@behaviour Ravel.HarnessAdapter`.
+  - `kind/0 :: :claude_code`.
+  - `spawn/1` calls `DynamicSupervisor.start_child(Ravel.HarnessAdapter.Supervisor,
+    {Ravel.HarnessAdapter.ClaudeCode.Session, spawn_opts})`; returns
+    `{:ok, pid}` | `{:error, reason}`. The Session GenServer's
+    `init/1` does the actual `:exec.run/2` call, so adapter-level code
+    stays thin.
+  - Expose an adapter-level `start_link/1` lifecycle (for `Ravel.Application`
+    to fold in the pin check): at application boot,
+    `ClaudeCode.Adapter.check_claude_version/0` runs `:exec.run/2`
+    with `claude --version`, parses the output, and
+    `Logger.warning/1`s on mismatch against the pinned version (spec
+    §9 Risk 1).
+
+  Wire `Ravel.HarnessAdapter.Supervisor` (a `DynamicSupervisor`) into
+  the top-level `Ravel.Supervisor` children list per §2.3. Session
+  GenServers are started with `restart: :temporary` — a crashed
+  session is not auto-restarted; the owning `PlanActor` decides
+  whether to re-spawn via `Process.monitor/1` observation.
+
+  Unit tests for the adapter surface are integration-flavoured and
+  live in Layer 3 (Task 23).
 - **Results:** _pending_
 
-### Task 17 — `SpawnLatencyReport` + always-on emission `[instrumentation]`
+### Task 17 — `%SpawnLatencyReport{}` emission (tactical three-path) `[instrumentation]`
 - **Status:** not_started
 - **Dependencies:** Task 16 (adapter)
-- **Description:** Implement `SpawnLatencyReport` per §7.2: a struct
-  capturing `spawned_at`, `first_chunk_at`, `init_event_at`, plus the
-  three derived metrics. The actor records timestamps at the appropriate
-  points (when `Command::spawn` returns, when the first JSON event
-  arrives, when the `system/init` event is observed) and emits the
-  report as an `InternalMessage` chunk immediately after the first real
-  chunk. The actor also writes the report to
-  `<staging>/spawn-latency.json` — the `<staging>` path is passed in at
-  spawn time as part of the working directory, so the actor knows where
-  to write. Unit tests use `FixtureReplayAdapter` with timed fixtures
-  to assert the report fields are populated correctly.
+- **Description:** Implement the always-on latency instrumentation
+  per spec §7.2. Record timestamps in the Session GenServer state
+  (`:spawned_at` set in `init/1`; `:first_chunk_at` set on first
+  `{:stdout, _, _}`; `:init_event_at` set on the `system/init` event
+  detected by the parser). When all three are populated, emit the
+  report via three parallel paths (this is the "tactical seed"
+  described in §11.4 — sub-M's Task 25 later replaces the auxiliary
+  paths):
+
+  1. **Consumer event**: broadcast `%HarnessOutput{kind:
+     :internal_message, meta: %{report: :spawn_latency, data:
+     %SpawnLatencyReport{}}}` via the standard `{:harness_event, sid,
+     event}` delivery. Emitted immediately after the first real
+     `%HarnessOutput{kind: :stdout}` event.
+  2. **Telemetry execute**: `:telemetry.execute([:ravel, :harness,
+     :claude_code, :spawn_latency], %{cold_spawn_ms: _,
+     first_chunk_ms: _, first_output_ms: _}, %{session_id: _,
+     tool_profile: _, model: _})`.
+  3. **Staging file**: `File.write!(Path.join(state.staging_dir,
+     "spawn-latency.json"), Jason.encode!(report, pretty: true))`.
+
+  Unit tests drive a `FixtureReplay.Session` with a time-controlled
+  fixture (fixtures can carry synthetic timestamps via the on-disk
+  `%HarnessOutput{at: _}` field) and assert that: (a) the consumer
+  receives the internal_message report; (b) a telemetry handler
+  attached via `:telemetry.attach/4` receives the event; (c) the
+  staging file is written with the expected contents.
+
+  (Sub-M's Task 25 later deletes paths 1 and 3 after the verification
+  window closes. The `%SpawnLatencyReport{}` struct and path 2 survive
+  as the canonical shape.)
 - **Results:** _pending_
 
-### Task 18 — `ravel dev record-fixture` subcommand `[dev-tools]`
+### Task 18 — `mix ravel.dev.record_fixture` Mix task `[dev-tools]`
 - **Status:** not_started
 - **Dependencies:** Task 16 (adapter), Task 5 (fixture format)
-- **Description:** Implement the `dev record-fixture` subcommand per
-  §5.6 in `src/commands/dev_record_fixture.rs`. CLI:
-  `ravel dev record-fixture --output <path> [--prompt <prompt>]
-  [--profile research-broad|ingestion-minimal] [--max-delay-ms <ms>]
-  [--interactive]`. Spawns a real `ClaudeCodeAdapter`, drives it with
-  the prompt + profile, captures every `OutputChunk` into a `FixtureRecord::Output`
-  and every wall-clock gap into a `FixtureRecord::Delay { ms }` (capped
-  at `--max-delay-ms`, default 500). On `--interactive`, surfaces output
-  to the user's terminal and accepts user input on stdin, recording
-  both directions. Adds the `dev` subcommand namespace to `src/commands/mod.rs`
-  with a "dev-only — not for end users" tag. Smoke test: record a
-  trivial session and verify the produced JSON Lines parses back
-  cleanly via `FixtureRecord::Deserialize`.
+- **Description:** Implement the dev-only fixture-recording Mix task
+  per spec §5.5 at `lib/mix/tasks/ravel.dev.record_fixture.ex`:
+
+  ```
+  mix ravel.dev.record_fixture --output <path>
+                                [--prompt <prompt>]
+                                [--profile research_broad|ingestion_minimal]
+                                [--max-delay-ms <ms>]
+                                [--interactive]
+  ```
+
+  Implementation: spawn `Ravel.HarnessAdapter.ClaudeCode` against the
+  user's `claude` binary, attach the Mix task process as the session
+  consumer, capture every `%HarnessOutput{}` event into a
+  `%FixtureRecord.Output{}` record, measure wall-clock gaps between
+  events into `%FixtureRecord.Delay{ms: gap_ms}` records (capped at
+  `--max-delay-ms`, default 500), terminate with the captured
+  `%SessionExitStatus{}` as a `%FixtureRecord.Exit{}`. Writes JSON
+  Lines to `--output`.
+
+  `--interactive` mode: mirrors live output to the user's terminal,
+  reads stdin lines via `IO.gets/1`, forwards them via
+  `Ravel.HarnessSession.send_user_message/2`, records each as a
+  `%FixtureRecord.ExpectUserInput{}` record (the user text is not
+  stored; only the shape). Recording terminates when the live session
+  exits or the user types `:done`.
+
+  Mix task `@moduledoc` is tagged "dev-only — not for end users" and
+  the `ravel.dev.*` namespace is documented in the daemon's
+  `DEVELOPMENT.md` (or equivalent) as the home for future dev tools
+  (e.g., `mix ravel.dev.replay_fixture`).
+
+  Smoke test: record a trivial session, read back the output file via
+  `FixtureReplay.Format.decode_jsonl/1`, assert the sequence parses
+  cleanly and roundtrips through `encode_jsonl/1`.
 - **Results:** _pending_
 
-### Task 19 — Layer 1 unit tests (parser + serde round-trips) `[testing]`
+### Task 19 — Layer 1 unit tests catch-all `[testing]`
 - **Status:** not_started
-- **Dependencies:** Task 9 (stream_json), Task 5 (fixture format) — but
-  this task tracks any unit tests not already written in earlier tasks
-- **Description:** Catch-all for Layer 1 unit tests not yet covered by
-  per-feature tasks. Particularly: edge cases in `stream_json::event_to_chunks`
-  (empty content blocks, mixed text/tool_use blocks, missing optional
-  fields, multi-block assistant messages with all-shared timestamps).
-  Run with `cargo test --lib`.
+- **Dependencies:** Task 9 (parser), Task 5 (format), plus any later
+  tasks that leave uncovered edges
+- **Description:** Catch-all for spec §8.1 unit coverage not already
+  written by per-feature tasks. Particularly:
+  - `StreamJson.parse_line/1` edge cases not covered by Task 9:
+    malformed JSON (hard error via `Jason.decode!/1`), truncated
+    events, unknown content block types, extremely large single
+    events, multi-megabyte content fields.
+  - `FixtureRecord` schema drift cases: an on-disk JSON object with an
+    unknown `"t"` variant, missing required fields, extra fields
+    (forward-compat), atoms vs strings for `kind:` / `reason:`.
+  - Struct `@enforce_keys` invariant tests for every
+    `%Ravel.Event.*{}` struct (smoke-check that `@enforce_keys`
+    produces a compile error if fields are missing — not a runtime
+    test).
+
+  Run with `mix test`. No live tag.
 - **Results:** _pending_
 
-### Task 20 — Layer 2 concurrent stress test (deadlock canary) `[testing]`
+### Task 20 — Layer 2 multi-consumer + concurrent stress test `[testing]`
 - **Status:** not_started
-- **Dependencies:** Task 13 (session), Task 7 (fixture adapter)
-- **Description:** A programmatic test that spawns two threads against
-  a single `Arc<dyn HarnessSession>` (one calling `send_user_message`
-  in a loop, one calling `next_chunk` in a loop) over a long-running
-  fixture (e.g., 10,000 chunks with `expect_user_input` interjected
-  every 100 chunks). Asserts: no deadlocks (test completes within a
-  generous timeout), no panics, all chunks delivered in order, all
-  user-message commands processed. This is the regression test for the
-  actor architecture's threading correctness.
+- **Dependencies:** Task 13 (Session client API), Task 7
+  (`FixtureReplay.Adapter`)
+- **Description:** Per spec §8.2 last two rows. Two programmatic tests
+  in `test/ravel/harness_adapter/`:
+
+  - **Multi-consumer attach** (no fixture file needed; uses a
+    programmatic record list): two consumer pids attach to one
+    `FixtureReplay.Session`; assert both receive the same events in
+    order; one detaches mid-stream; assert only the remaining
+    consumer receives subsequent events; the detached consumer is
+    auto-re-attached and the test asserts it resumes from the current
+    position (no replay).
+  - **Concurrent stress / deadlock canary**: programmatic fixture of
+    10 000 events with `expect_user_input` records interjected every
+    100 events; two driver `Task`s hammer the session concurrently —
+    one calls `send_user_message/2` in a loop, the other drains
+    consumer events. Assert: no deadlocks (the test completes within
+    a generous `assert_receive`/`Task.await` timeout), no process
+    crashes, all events delivered in order, all user-message calls
+    processed.
+
+  This is the regression test for the GenServer's message-ordering
+  correctness — BEAM mailboxes are FIFO but a subtle
+  `handle_info/handle_call` ordering bug could still deliver events
+  out of order to consumers. Tests must fail loudly on any such bug.
 - **Results:** _pending_
 
-### Task 21 — Layer 3 integration tests against real `claude` binary `[testing]`
+### Task 21 — Layer 3 ExUnit integration tests against real `claude` `[testing]`
 - **Status:** not_started
-- **Dependencies:** Task 16 (adapter), Task 17 (instrumentation), Task 14 (process-group)
-- **Description:** Implement the §8.3 Layer 3 test suite, all gated
-  behind `RAVEL_TEST_LIVE_HARNESS=1`:
-  - Smoke test: spawn + first chunk
-  - Tool profile enforcement (`IngestionMinimal` denies tool use)
-  - Tool profile enforcement (`ResearchBroad` allows tool use)
-  - Multi-turn live (`send_user_message` after first turn → second turn
-    references first-turn content)
-  - Cold-spawn latency baseline: 10 spawn cycles, parse the captured
-    `SpawnLatencyReport`s, assert p95 < 10s (test gate, looser than
-    the C-1 acceptance gate)
-  - Process group cleanup: spawn → terminate → assert `pgrep -f
-    "claude.*<session-id>"` returns nothing within 1 second
-  - `CrashedBeforeReady`: set bogus API key in env, spawn, assert
-    `wait()` returns `CrashedBeforeReady` within 5s
-  These tests are not run in normal CI; run locally during development
-  and as part of the dogfood acceptance test (Task 22).
+- **Dependencies:** Task 16 (adapter), Task 17 (latency
+  instrumentation), Task 14 (termination), Task 29 (tool-call
+  boundary — needed for the boundary smoke test only)
+- **Description:** Implement spec §8.3 Layer 3 tests under
+  `test/ravel/harness_adapter/live/`, all tagged `@moduletag :live`.
+  Run with `mix test --only live`; NOT run in normal CI.
+
+  - **Smoke test** — spawn + first chunk: a `"say hi"` session emits
+    at least one `%HarnessOutput{kind: :stdout}` event.
+  - **Tool profile enforcement (`:ingestion_minimal`)** — a prompt
+    asking for `Read` tool use returns either zero `:tool_use` events
+    or terminates with
+    `%SessionExitStatus{reason: {:tool_profile_violation, _}}`.
+  - **Tool profile enforcement (`:research_broad`)** — a prompt
+    asking for file reading produces one or more `:tool_use` events.
+  - **Multi-turn live** — spawn → first turn → `send_user_message/2`
+    → second turn → assert second turn references first-turn content.
+  - **Cold-spawn latency baseline** — 10 spawn cycles, record the
+    emitted `%SpawnLatencyReport{}`, assert p95 < 10 s (the *test*
+    gate; the C-1 *acceptance* gate is 5 s, checked separately by
+    Task 22).
+  - **Process group cleanup** — spawn, immediately `terminate/1`,
+    assert `System.cmd("pgrep", ["-f", "claude.*" <> sid])` returns
+    `{_, 1}` (no matches) within 1 second.
+  - **CrashedBeforeReady** — set a bogus API key in env, spawn,
+    assert the consumer receives
+    `%SessionExitStatus{reason: :crashed_before_ready}` within 5 s.
+  - **cmux noise mitigation** — spawn with and without
+    `--setting-sources project,local`; assert the with-flag run emits
+    a clean NDJSON stream (first event is `system/init`) while the
+    without-flag run contains ~10 KB of SessionStart hook JSON before
+    the first assistant event. (This test may be gated by whether the
+    running user has cmux hooks configured; skip with a clear
+    `@tag :requires_cmux_hooks` if not.)
+  - **Tool-call boundary smoke test** — inject the `read_vault_catalog`
+    tool via a stub router, prompt "list the plans in my vault",
+    assert the session intercepts the `tool_use`, calls the stub
+    router, `:exec.send/2`s the `tool_result` envelope back, and
+    Claude Code consumes the result and continues its turn.
+
+  Layer 3 is the canary that catches Claude Code version drift —
+  schema changes and flag renames fail here first.
 - **Results:** _pending_
 
 ### Task 22 — C-1 dogfood acceptance gate (the swap-in moment for B's stub) `[acceptance]`
 - **Status:** not_started
-- **Dependencies:** Task 21 (Layer 3 passes), and B's executor must be
-  far enough along to accept the swap (coordinated with sub-B's plan)
+- **Dependencies:** Task 21 (Layer 3 green), and B's executor far
+  enough along to accept the swap (coordinated with sub-B's plan)
 - **Description:** The v1 acceptance gate for sub-project C and the
-  joint v1 acceptance gate with sub-project B. Per §7.3 of the spec:
+  joint v1 acceptance gate with sub-project B. Per spec §7.3:
+
   - Swap B's `LlmHarnessExecutor` stub adapter for the real
-    `ClaudeCodeAdapter`.
-  - Run the Ravel orchestrator plan's full work → reflect → triage
-    cycle, **N≥10 times**, against the real adapter on the user's
-    primary dev machine.
-  - Walk every staging directory created during the runs and parse
+    `Ravel.HarnessAdapter.ClaudeCode`.
+  - Run the Ravel orchestrator plan's full four-phase cycle (work →
+    reflect → compact → triage), **N≥10 times**, against the real
+    adapter on the user's primary dev machine.
+  - Walk every staging directory created during those cycles and parse
     every `<staging>/spawn-latency.json` file.
-  - Compute the cold-spawn latency p95 across all sessions in all
+  - Compute cold-spawn latency p50/p95/p99 across all sessions in all
     cycles.
-  - **Decision**: if p95 < 5 seconds, C-1 PASSES. Warm-pool work is
-    deferred to v1.5. Document the decision in
-    `{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md` with the
-    measured p50/p95/p99 numbers and the date.
-  - **Decision (alternate)**: if p95 ≥ 5 seconds, C-1 FAILS. Unblock
-    Task 23 (warm-pool reset spike) and Task 24 (warm-pool implementation),
-    add them to this plan as v1 work. Document the failure with
-    measurements in the orchestrator parent's memory.md and proceed to
-    Task 23.
-  This task is the swap-in moment: the real `ClaudeCodeAdapter` becomes
-  B's adapter of record. Until this passes, B keeps using fixture replay
-  for end-to-end testing.
+  - **Decision**: if p95 < 5 s, C-1 PASSES. Warm-pool work is deferred
+    to v1.5. Document the decision in
+    `{{PROJECT}}/LLM_STATE/ravel-orchestrator/memory.md` with
+    measured p50/p95/p99 and the date.
+  - **Decision (alternate)**: if p95 ≥ 5 s, C-1 FAILS. Unblock Task 25
+    (warm-pool reset spike) and Task 26 (warm-pool implementation),
+    fold them into v1. Document the failure with measurements in the
+    orchestrator parent's memory and proceed to Task 25.
+
+  This task is the swap-in moment: the real
+  `Ravel.HarnessAdapter.ClaudeCode` becomes B's adapter of record.
+  Until this passes, B keeps using `FixtureReplay` for end-to-end
+  testing.
 - **Results:** _pending_
 
 ### Task 23 — (CONDITIONAL) Warm-pool reset mechanism spike `[spike]`
 - **Status:** not_started
 - **Dependencies:** Task 22 = FAIL
-- **Description:** Conditional on Task 22 tripping the C-1 gate. Execute
-  the §7.4 three-check spike protocol against the pinned `claude` version:
-  - Check 1 — Structured stream-json reset envelope. Inspect `claude --help`
-    and recorded session output for any control envelope. If found,
-    write a 30-line test that verifies fresh-context after reset.
-  - Check 2 — `/clear` injected as user-message text. If Check 1 finds
-    nothing, send `/clear` as the text content of a user-message envelope
-    and verify fresh-context after reset.
-  - Check 3 — Pre-spawned single-use degradation. If neither Check 1
-    nor Check 2 works, fall back to the single-use pool model.
+- **Description:** Conditional on Task 22 tripping the C-1 gate.
+  Execute the spec §7.4 three-check protocol against the pinned
+  `claude` version under an ExUnit harness running in a tmpdir (no
+  Ravel code changes required):
+
+  - **Check 1 — Structured stream-json reset envelope.** Inspect
+    `claude --help` and recorded session output for a control envelope
+    (`{"type":"control","action":"reset"}` or similar). If found,
+    write a ~30-line ExUnit test that spawns `claude`, sends a user
+    message, sends the reset envelope, sends a second user message,
+    and verifies the second message is processed in fresh context.
+  - **Check 2 — `/clear` injected as user-message text.** If Check 1
+    turns up nothing, send `/clear` as the text content of a
+    user-message envelope and verify the same fresh-context property.
+  - **Check 3 — Pre-spawned single-use degradation.** If neither
+    Check 1 nor Check 2 works, fall back to the single-use pool model.
+
   Output: a markdown report at
-  `tests/fixtures/sub-C-warm-pool-spike/results/spike-report.md`
-  documenting which check passed and the chosen reset mechanism.
-  ½ day estimated; runs against the real `claude` binary in a tmpdir.
+  `test/fixtures/sub_c_warm_pool_spike/results/spike-report.md`
+  documenting which check passed, the exact reset mechanism used,
+  recorded session output verifying fresh-context behaviour, and a
+  recommendation for Task 26. ~½ day estimated.
 - **Results:** _pending_
 
 ### Task 24 — (CONDITIONAL) v1 warm-pool implementation `[claude-code]`
 - **Status:** not_started
 - **Dependencies:** Task 23
-- **Description:** Conditional on Task 22 tripping and Task 23 returning
-  a usable reset mechanism. Implement `WarmPoolClaudeCodeAdapter` per
-  the §7.5 sketch using the spike-validated reset path (Check 1 / Check 2 /
-  Check 3 fallback). Per-profile pools (`ResearchBroad` depth 1-2,
-  `IngestionMinimal` depth 3-4, configurable). Background spawner
-  thread maintains target depth. `spawn()` pulls from pool → resets via
-  validated mechanism → sends prompt as user-message envelope; falls
-  back to fresh `Command::spawn` if pool empty. Re-run Task 22's dogfood
-  cycles to verify p95 now passes. Update memory.md with the new
-  measurements.
+- **Description:** Conditional on Task 22 tripping and Task 23
+  returning a usable reset mechanism. Implement
+  `Ravel.HarnessAdapter.ClaudeCode.WarmPool` (a GenServer) per spec
+  §7.5 sketch using the spike-validated reset path.
+
+  - Per-profile pools: `:ingestion_minimal` depth 3-4;
+    `:research_broad` depth 1-2; both configurable via daemon config
+    under `[harnesses.claude_code.warm_pool]`.
+  - Background spawner process maintains target depth by starting
+    fresh `ClaudeCode.Session` GenServers and parking them in a
+    ready-queue.
+  - `WarmPool.spawn/1` pulls from the queue of the matching profile,
+    sends the spike-validated reset envelope (or `/clear`) via
+    `:exec.send/2`, sends the actual prompt as the next user-message
+    envelope, returns the GenServer pid. Falls back to
+    `ClaudeCode.spawn/1` if the pool is empty.
+
+  Re-run Task 22's dogfood cycles to verify p95 now passes. Update
+  `{{PLAN}}/memory.md` with the new measurements.
 - **Results:** _pending_
 
-### Task 25 — Adopt sub-M observability framework — actor instrumentation + parallel-emit migration of `SpawnLatencyReport` `[m-adoption]`
+### Task 25 — Adopt sub-M observability framework (parallel-emit of `SpawnLatencyReport`) `[m-adoption]`
 - **Status:** not_started
-- **Dependencies:** sub-M Task 12 (`ObservabilityHarness`), sub-M Task 9
-  (`MetricsRecorderLayer`), this plan's Task 18 (where
-  `SpawnLatencyReport` is currently emitted)
-- **Description:** Landed by sub-project M's brainstorm
-  (2026-04-13, Session 7 of the ravel-orchestrator plan). M's
-  design doc at
+- **Dependencies:** sub-M Task 12 (`ObservabilityHarness`), sub-M
+  Task 9 (`MetricsRecorderLayer` / telemetry handler attachment), this
+  plan's Task 17 (where `%SpawnLatencyReport{}` is currently emitted).
+- **Description:** Landed by sub-project M's brainstorm (2026-04-13,
+  Session 7 of the ravel-orchestrator plan). M's design doc at
   `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
-  §9 specifies the staged migration of C's `SpawnLatencyReport` onto M's
-  metrics framework via a parallel-emit window. This task is C's share.
+  §9 specifies the staged migration of C's `%SpawnLatencyReport{}`
+  onto M's `:telemetry`-based metrics framework via a parallel-emit
+  window. This task is C's share.
 
-  **Phase 1 — parallel emit (this task lands).** Add `tracing::instrument`
-  annotations to `actor_loop` and the per-message handlers in C's actor.
-  Span name `harness_session`, fields `session_id`, `tool_profile`,
-  `harness_kind`. Span context propagates to all `ravel_event!`
-  calls inside the actor.
+  **Phase 1 — parallel emit (this task lands).** Add `:telemetry.span/3`
+  wrappers around the Session GenServer's hot-path handlers
+  (`handle_info({:stdout, _, _}, _)`, `handle_call({:send_user_message,
+  _}, _, _)`, `handle_cast(:terminate, _)`). Span name `:harness_session`,
+  measurement-map keys `:session_id, :tool_profile, :harness_kind`.
 
-  Add parallel `metrics::histogram!` calls alongside C's existing
-  `SpawnLatencyReport` writer at the three latency-measurement points:
+  Add parallel `:telemetry.execute/3` counter/gauge calls alongside
+  C's existing three-path `%SpawnLatencyReport{}` emission (Task 17):
 
-  ```rust
-  use crate::observability::metric_names::{
-      HARNESS_COLD_SPAWN_LATENCY_MS,
-      HARNESS_FIRST_CHUNK_LATENCY_MS,
-      HARNESS_FIRST_OUTPUT_LATENCY_MS,
-  };
+  - `:telemetry.execute([:ravel, :harness, :spawned], %{count: 1},
+    %{session_id: _, tool_profile: _, harness_kind: _})` at successful
+    spawn.
+  - `:telemetry.execute([:ravel, :harness, :exited_clean], %{count:
+    1}, _)` at clean exit.
+  - `:telemetry.execute([:ravel, :harness, :exited_error], %{count:
+    1}, %{reason: _})` at error exit.
+  - `:telemetry.execute([:ravel, :harness, :live_sessions], %{count:
+    _current_}, _)` on spawn / terminate.
 
-  // alongside the existing report.write_to(<staging>/spawn-latency.json)
-  metrics::histogram!(HARNESS_COLD_SPAWN_LATENCY_MS).record(cold_spawn_ms);
-  metrics::histogram!(HARNESS_FIRST_CHUNK_LATENCY_MS).record(first_chunk_ms);
-  metrics::histogram!(HARNESS_FIRST_OUTPUT_LATENCY_MS).record(first_output_ms);
-  ```
+  The three histogram events already emitted by Task 17 (cold_spawn,
+  first_chunk, first_output) continue to fire — this task adds the
+  counter/gauge companions.
 
-  Also emit:
-  - `metrics::counter!(HARNESS_SPAWNED).increment(1)` at successful spawn
-  - `metrics::counter!(HARNESS_EXITED_CLEAN).increment(1)` at clean exit
-  - `metrics::counter!(HARNESS_EXITED_ERROR).increment(1)` at error exit
-  - `metrics::gauge!(HARNESS_LIVE_SESSIONS).set(...)` on spawn / terminate
+  Wire the sub-M dump-on-error path: every branch in
+  `ClaudeCode.Session` that emits a non-clean `%SessionExitStatus{}`
+  or `%HarnessError{}` calls
+  `Ravel.Observability.dump_event_tail(session_id, 1000)` before the
+  GenServer stops. The dump path is defined by sub-M's Task 13.
 
-  Wire the Risk 5 dump path: in C's actor error-handling branches
-  (every place an `AdapterError` propagates out), call
-  `observability::dump_event_tail(harness, session_id, plan_id, "harness", 1000)`
-  before returning the error. The dump path is defined by sub-M Task 13.
-
-  **DO NOT delete C's existing `SpawnLatencyReport` writer** in this
+  **DO NOT delete Task 17's existing three-path emission** in this
   task. Both paths run in parallel during the verification window.
-  The verification test (sub-M Task 15) confirms the metric values
-  match the JSON file within ±10ms. Only after ≥10 consecutive CI
-  builds pass the verification does the v1.1 cleanup task delete C's
-  tactical writer (created automatically by sub-M's first triage
-  after the verification window closes).
+  Sub-M Task 15's verification test confirms the metric values match
+  the staging JSON within ±10 ms. Only after ≥10 consecutive CI
+  builds pass the verification does the v1.1 cleanup task delete
+  Task 17's consumer-event + staging-file paths (created
+  automatically by sub-M's first triage after the verification window
+  closes).
 
-  **Phase 2 — cleanup (separate future task).** After the verification
-  window closes, a new task lands in this backlog from sub-M's triage
-  that:
-  1. Deletes C's `SpawnLatencyReport` struct definition.
-  2. Deletes the `<staging>/spawn-latency.json` writer call site.
-  3. Deletes the `InternalMessage` chunk delivery path for the
-     latency report.
-  4. Updates C's spec doc evolution log noting the migration is complete.
-  Sub-G's migration plan owns the staging schema cleanup
-  (`<staging>/spawn-latency.json` removed from the documented schema).
+  **Phase 2 — cleanup (separate future task).** After the
+  verification window closes, a new task lands in this backlog from
+  sub-M's triage that:
+  1. Deletes the `%HarnessOutput{kind: :internal_message, meta:
+     %{report: :spawn_latency}}` delivery path.
+  2. Deletes the `<staging>/spawn-latency.json` writer.
+  3. Updates spec §7.2 to reflect the telemetry-only emission
+     surface.
 
-  TDD: write tests that drive a fixture `actor_loop` cycle and assert
-  the expected metric updates appear in the registry snapshot. Layer 3
-  integration test exists in sub-M Task 15; this task only needs unit
-  tests on C's side.
+  Sub-G's migration plan owns the staging schema cleanup (removing
+  `<staging>/spawn-latency.json` from the documented schema).
+
+  TDD: write tests that drive a `FixtureReplay.Session` cycle and
+  assert the expected telemetry events fire (attach a test handler
+  via `:telemetry.attach/4`). Layer 3 integration test exists in
+  sub-M Task 15; this task only needs unit tests on C's side.
 - **Results:** _pending_
 
 ## Sub-R adoption
@@ -555,52 +1027,53 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
   sessions and expert consultation sessions. Internal daemon sessions
   (fact extraction, routing) do NOT get the tool — they are too
   cheap/fast for tool-call overhead.
+
   Tool spec: input is a Datalog query string, output is a JSON list of
   variable bindings. The adapter routes the tool call to
-  `Ravel.Datalog.Server.query/1`.
-  Tool profile gating per §4.5 of C's design doc — the `tool_profile`
-  mechanism already supports per-session tool sets.
+  `Ravel.Datalog.Server.query/1` via the tool-call boundary (Task 29).
+  Tool profile gating per spec §4.5 — the `tool_profile` mechanism
+  already supports per-session tool sets.
 - **Results:** _pending_
 
 ## Model configurability (absorbed from Sub-O v1 scope)
 
 ### Task 27 — Per-actor model selection: `model:` → `--model <model-id>` `[model-config]`
 - **Status:** not_started
-- **Dependencies:** Task 0 (pre-pivot Elixir backlog rewrite gate —
-  to be created per the remaining Received dispatch), Task 4
-  (`tool_profile_to_args` / spawn argv builder lands first), Task 7
-  (`FixtureReplayAdapter` — fixture-replay parity test surface exists)
+- **Dependencies:** Task 0 (Elixir backlog rewrite — **done 2026-04-21**),
+  Task 4 (`tool_profile_to_args/1` / spawn argv builder lands first),
+  Task 7 (`FixtureReplay.Adapter` — fixture-replay parity test surface
+  exists)
 - **Description:** Absorbs the v1 slice of sub-O (mixture of models)
   into sub-C's single-adapter surface. Plan actors and expert actors
   carry a `model:` field in their actor declaration (sub-F §F-12
-  reserved the schema hook; orchestrator memory commits v1 to honouring
-  it). This task wires that field end-to-end through the Claude Code
-  adapter so cost-sensitive callers can pin Opus for plan phases and
-  Haiku for ingestion / extraction / fact-distillation.
+  reserved the schema hook; orchestrator memory commits v1 to
+  honouring it). This task wires that field end-to-end through the
+  Claude Code adapter so cost-sensitive callers can pin Opus for plan
+  phases and Haiku for ingestion / extraction / fact-distillation.
 
   **Concretely:**
   1. Extend `Ravel.HarnessAdapter.spawn_opts()` (spec §3.1) with an
-     `optional(:model) => String.t() | nil` field. Absent / `nil` = pass
-     no `--model` flag and let Claude Code pick its own default. Document
-     the field in the behaviour's `@moduledoc` as a pass-through
+     `optional(:model) => String.t() | nil` field. Absent / `nil` =
+     pass no `--model` flag and let Claude Code pick its own default.
+     Document the field in the behaviour's `@moduledoc` as a pass-through
      model-id string — the adapter does not validate the value against
      a whitelist (forward compatibility with new Claude Code releases).
   2. Update `Ravel.HarnessAdapter.ClaudeCode.Spawn.build_argv/1` (the
-     argv builder that lives in `spawn.ex`, spec §4.1.1) to append
-     `["--model", model_id]` to the argv when `spawn_opts.model` is
-     a non-empty string. Append it **after** the mandatory flags
+     argv builder in `spawn.ex`, spec §4.1.1) to append
+     `["--model", model_id]` to the argv when `spawn_opts.model` is a
+     non-empty string. Append **after** the mandatory flags
      (`--print --verbose --input-format --output-format --session-id
      --setting-sources --no-session-persistence`) and **before** the
      profile-derived flags from §6, so the final argv shape stays
      stable and grep-friendly.
-  3. Store the resolved model-id (or `nil`) on the session GenServer's
+  3. Store the resolved model-id (or `nil`) on the session GenServer
      state struct (spec §4.2.1) as `:model` for inclusion in
      `%Ravel.Event.SpawnLatencyReport{}` metadata — downstream cost
      analysis (and the eventual sub-O cost telemetry) needs to know
      which model each recorded session actually ran on. Add `:model`
      to the report's `@enforce_keys` only if the adapter guarantees
      it; otherwise add as an optional field with `nil` default.
-  4. `FixtureReplayAdapter.spawn/1` accepts and records the `:model`
+  4. `FixtureReplay.Adapter.spawn/1` accepts and records the `:model`
      field but otherwise ignores it (the fixture is the source of
      truth for session output). Include the recorded value in any
      session-id-correlated test assertions so fixture-replay stays a
@@ -614,7 +1087,7 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
 - **Acceptance criteria:**
   - `spawn_opts` type accepts `optional(:model) => String.t() | nil`;
     typespec dialyzes cleanly.
-  - Unit test in `spawn_test.exs` (or equivalent): `build_argv/1` with
+  - Unit test in `spawn_test.exs`: `build_argv/1` with
     `spawn_opts.model = "claude-opus-4-5"` produces an argv whose
     ordering is `["claude", "--print", "--verbose",
     "--input-format", "stream-json", "--output-format", "stream-json",
@@ -622,14 +1095,14 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
     "--no-session-persistence", "--model", "claude-opus-4-5",
     ...profile-flags...]` — exact positional match.
   - Unit test: `build_argv/1` with `spawn_opts.model = nil` (and with
-    the key absent entirely) produces an argv that does **not** contain
-    `"--model"` anywhere.
+    the key absent entirely) produces an argv that does **not**
+    contain `"--model"` anywhere.
   - Unit test: `build_argv/1` with `spawn_opts.model = ""` is treated
     as absent (no `--model` flag emitted). Justification: an empty
-    string model-id is almost certainly a config bug; silently passing
-    `--model ""` to `claude` would produce an opaque error. Emit a
-    `Logger.warning/1` in this branch.
-  - Fixture-replay adapter test: spawn a `FixtureReplayAdapter` with
+    string model-id is almost certainly a config bug; silently
+    passing `--model ""` to `claude` would produce an opaque error.
+    Emit a `Logger.warning/1` in this branch.
+  - Fixture-replay adapter test: spawn a `FixtureReplay.Adapter` with
     `:model = "claude-haiku-4-5"` against a clean linear fixture and
     assert that (a) the session drains cleanly, (b) the recorded
     `%SpawnLatencyReport{}` (if emitted by the fixture) carries the
@@ -637,17 +1110,18 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
     synthesised (fixture-replay does not spawn a real process).
   - Fixture-replay adapter test: spawn with `:model` absent, assert
     session drains cleanly and reported `model` field is `nil`.
-  - Layer 3 live test (gated behind `RAVEL_TEST_LIVE_HARNESS=1`, per
-    Task 21 pattern): spawn a real `ClaudeCodeAdapter` with
-    `:model = "claude-haiku-4-5"`, capture the first `system/init`
-    event, and assert the `model` field in the event's JSON matches
-    the requested model-id. This is the end-to-end proof that the
-    flag actually reaches `claude` and is honoured.
+  - Layer 3 live test (`@moduletag :live`, per Task 21 pattern):
+    spawn a real `ClaudeCode` adapter with `:model = "claude-haiku-4-5"`,
+    capture the first `system/init` event, and assert the `model`
+    field in the event's JSON matches the requested model-id. This is
+    the end-to-end proof that the flag actually reaches `claude` and
+    is honoured.
   - Layer 3 live test: spawn with `:model = "bogus-model-that-does-not-exist"`
-    and assert the session either fails `CrashedBeforeReady` or surfaces
-    a `%HarnessError{}` with the underlying claude error reason within
-    5 s. The adapter does **not** pre-validate model-ids (forward
-    compat); claude's own error path is the validator of record.
+    and assert the session either fails `:crashed_before_ready` or
+    surfaces `%HarnessError{}` / `%SessionExitStatus{reason: {:spawn_failed,
+    _}}` with the underlying claude error reason within 5 s. The
+    adapter does **not** pre-validate model-ids (forward compat);
+    claude's own error path is the validator of record.
   - Spec cross-reference: add a forward-reference from §3.1 of the
     spec to this task's `spawn_opts` extension, so future readers
     trace the field's provenance.
@@ -655,9 +1129,10 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
 - **Out of scope:**
   - Per-adapter model routing (sub-O v2 owns multi-adapter dispatch).
   - Cost telemetry / token accounting (sub-O v2).
-  - Default-model policy enforcement (sub-F / orchestrator config concern;
-    sub-C only honours whatever `spawn_opts` provides).
-  - Model-id validation against a known list (explicit non-goal — pass-through).
+  - Default-model policy enforcement (sub-F / orchestrator config
+    concern; sub-C only honours whatever `spawn_opts` provides).
+  - Model-id validation against a known list (explicit non-goal —
+    pass-through).
 
 - **Rationale:** Per orchestrator memory, v1 ships per-actor model
   selection within the single Claude Code adapter. This is essential
@@ -670,4 +1145,94 @@ model-configurability dispatch was promoted to Task 27 on 2026-04-20.)
   brainstorm scope clean (multi-adapter, local models, cost telemetry)
   without blocking it on v1.
 
+- **Results:** _pending_
+
+## Tool-call boundary (from sub-F amendment — new work absorbed into sub-C)
+
+### Task 28 — Tool-call boundary injection mechanism spike (§10 Q6) `[spike]`
+- **Status:** not_started
+- **Dependencies:** Task 3 (pinned `claude` version established)
+- **Description:** Spec §10 Q6 is a day-1 open question: how are
+  Ravel-injected tools (`ask_expert`, `dispatch_to_plan`,
+  `read_vault_catalog`) exposed to a running `claude` session?
+  Three candidates per spec §4.5.2:
+
+  - **(a) MCP server on a Unix socket**, pointed at by `--mcp-config`.
+    Preferred. Claude Code already speaks MCP; an MCP server running
+    inside the daemon over a Unix socket under `<vault>/runtime/`
+    exposes the Ravel tools as ordinary MCP tools; the adapter
+    intercepts the `tool_use` events via stream-json parsing.
+  - **(b) Tool-definition preamble on stdin**, inlined into the first
+    user-message envelope. Depends on Claude Code accepting inline
+    tool definitions via stream-json; not yet verified.
+  - **(c) Plugin shim via `--allowed-tools` whitelist**. Uses Claude
+    Code's plugin layer; most fragile, may shift version-to-version.
+
+  Run a focused ExUnit spike against the pinned `claude` version:
+  - Stand up a minimal MCP server in Elixir (or reuse an existing one
+    from the daemon's dep graph if one lands first) that exposes a
+    single `read_vault_catalog` tool returning a hardcoded JSON
+    string.
+  - Spawn `claude` with `--mcp-config` pointing at the socket.
+  - Prompt: "use the read_vault_catalog tool to list my plans".
+  - Verify the `tool_use` event arrives in the stream-json output
+    with `name: "read_vault_catalog"` and the server receives the
+    call.
+  - If (a) fails, attempt (b); if (b) fails, attempt (c).
+
+  Output: a markdown report at
+  `test/fixtures/sub_c_tool_call_boundary_spike/results/spike-report.md`
+  documenting which mechanism passed, the exact wiring used, and any
+  version-sensitivity caveats. Updates spec §4.5.2 and §10 Q6 in a
+  follow-up commit — a spec-doc-level update, not a code change.
+
+  Must land before Task 29. ~½ day estimated.
+- **Results:** _pending_
+
+### Task 29 — `tool_call_boundary.ex` intercept + `{:router_reply, _, _}` wiring `[claude-code]`
+- **Status:** not_started
+- **Dependencies:** Task 28 (injection mechanism resolved), Task 12
+  (Session `handle_info/2` core), Task 11 (`Input.encode_tool_result/3`)
+- **Description:** Implement the tool-call boundary per spec §4.5.3
+  in `lib/ravel/harness_adapter/claude_code/tool_call_boundary.ex` +
+  wiring in `claude_code/session.ex`.
+
+  - `state.injected_tools :: MapSet.t(String.t())` is populated at
+    `init/1` time from the `spawn_opts.router` + the adapter's fixed
+    v1 tool set (`"ask_expert"`, `"dispatch_to_plan"`,
+    `"read_vault_catalog"`). Injected tools are **always allowed**
+    regardless of `tool_profile`, per §6.1.
+  - When `StreamJson.parse_line/1` yields a `%HarnessOutput{kind:
+    :tool_use, text: name, meta: %{tool_use_id: id, input: input}}`
+    event and `MapSet.member?(state.injected_tools, name)`:
+    1. **Do not** forward the event to consumers.
+    2. Async-call
+       `Ravel.Router.handle_tool_call(name, input, state.session_id,
+       reply_ref: id)` in a supervised task. The router resolves the
+       target (expert / plan) and runs the query/dispatch without
+       blocking the Session GenServer.
+    3. The router replies with `{:router_reply, id, result}` info
+       message (guaranteed by sub-F's contract — §11.3).
+  - `handle_info({:router_reply, tool_use_id, result}, state)` in
+    `session.ex`:
+    1. Encode the result via `Input.encode_tool_result(tool_use_id,
+       result, is_error?: false)` (or `true` if the router returned
+       an error tuple).
+    2. `:exec.send(state.ospid, envelope)` to push it to the child.
+    3. Claude Code consumes the `tool_result` and continues its turn.
+  - Error paths: router timeout / crash → the supervised task's
+    `{:DOWN, _, _, _, _}` observation translates to an error
+    `tool_result` envelope sent to the child; the session continues
+    (the harness can retry or recover in its own logic).
+
+  Unit tests drive the Session GenServer's `handle_info/2` with
+  synthetic `:stdout` lines containing injected-tool `tool_use` blocks
+  + synthetic `{:router_reply, _, _}` messages; assert the intercept
+  suppresses the consumer event, assert the router is called with the
+  expected args (via a stub router pid), assert the `tool_result`
+  envelope is encoded and sent.
+
+  Integration test (Task 21 gate covers this): the Layer 3 tool-call
+  boundary smoke test exercises the full intercept → router stub →
+  `tool_result` → harness-continues loop.
 - **Results:** _pending_
