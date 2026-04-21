@@ -9,133 +9,13 @@ Consult the spec (§1–§10) before starting any task.
 orchestrator plan. The BEAM PTY spike (Session 10) validated pipes-only
 erlexec, sub-C's design doc was rewritten inline for Elixir/BEAM in
 Session 11, and sub-B's was rewritten in Session 12 — together these
-unblock F's implementation runway. No implementation work has started
-yet; Task 0 is the gate.
+unblock F's implementation runway. **Task 0 gate cleared 2026-04-21**
+— all preconditions satisfied, drifts rewritten inline, Tasks 1+ are
+unblocked. Recommended order: **Tasks 2 and 5 first** (critical path
+for sub-N Phase 5+), or **Task 1** as an equally-safe alternative that
+unblocks Tasks 6–9.
 
 ## Task Backlog
-
-### Task 0 — Implementation readiness gate `[gate]`
-- **Status:** done (2026-04-21)
-- **Dependencies:** sub-B downstream task-list rewrite (sub-B backlog
-  gate task); sub-C downstream task-list rewrite (sub-C backlog gate
-  task); sub-A amendment absorbed; sub-M amendment absorbed;
-  `Ravel.Coordination.SingletonLock` module delivered by sub-D
-  (Tasks 10 and 12 require this API — daemon boot acquires the
-  singleton lock via it; confirm sub-D's lock module is landed before
-  Tasks 10/12 run); `Ravel.FileIO` module delivered by sub-D (all
-  daemon file writes must use `FileIO.write_safe/3` with the
-  appropriate category; all plan-file reads in `PlanActor` and
-  routing must use `FileIO.read_tracked/1` so `FreshnessTracker`
-  records SHA-256 hashes — this is what makes content-hash freshness
-  checking work for plan files; confirm `FileIO` is landed before
-  Tasks 1, 4, 6, 7, 8, 9 run — see sub-D design doc at
-  `docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`)
-- **Description:** Meta-task guarding the start of real implementation
-  work. Before any Task 1+ runs, verify:
-  1. `{{PROJECT}}/LLM_STATE/sub-B-phase-cycle/backlog.md` Tasks 1+
-     have been rewritten against the Session-12 design-doc rewrite
-     (the 13-step `PhaseRunner.run_phase/4` flow, the
-     `PhaseExecutor @behaviour`, sliding-buffer sentinel matcher,
-     etc.).
-  2. `{{PROJECT}}/LLM_STATE/sub-C-adapters/backlog.md` Tasks 1+ have
-     been rewritten against the Session-11 design-doc rewrite
-     (pipes-only erlexec, session GenServer, tool-call boundary in
-     §4.5).
-  3. ~~Sub-A's amendment task in the orchestrator backlog has been
-     absorbed into `specs/2026-04-13-sub-A-global-store-design.md`.~~
-     **CLEARED** — completed in orchestrator Session 14 (2026-04-15).
-  4. ~~Sub-M's amendment task in the orchestrator backlog has been
-     absorbed into `specs/2026-04-13-sub-M-observability-design.md`.~~
-     **CLEARED** — completed in orchestrator Session 15 (2026-04-15).
-  5. ~~Sub-R's amendment (Datalog as routing substrate) has been
-     absorbed into F's design doc §6.1–§6.6 and Appendix C Q7;
-     `<vault>/routing.ex` → `<vault>/ontology/routing.dl` loaded by
-     `Ravel.Datalog.Server`.~~ **CLEARED** (2026-04-16) — spec
-     amendment landed; Tasks 14–21 rewritten against Datalog and the
-     obsolete Sub-R-adoption Tasks 29–30 merged into the routing
-     cluster (2026-04-20).
-  Also re-read F's §11 against the latest versions of those three
-  design docs to confirm every consumed interface still matches.
-  Any mismatch discovered here rewrites F's design doc inline
-  (per the "amendment tasks rewrite specs inline" discipline) before
-  implementation starts.
-- **Results:**
-  Gate closed 2026-04-21. Work performed:
-
-  **Verified (no action needed):**
-  - Sub-B backlog rewrite (the Session-12 Elixir-native rewrite gate)
-    is marked done; Tasks 1+ target the 13-step
-    `PhaseRunner.run_phase/4` flow, `PhaseExecutor @behaviour`, etc.
-  - Sub-C backlog rewrite is marked complete (top-notice
-    2026-04-21); Tasks 1–30 target Elixir idioms, `erlexec`
-    pipes-only, and the §4.5 tool-call boundary.
-  - Sub-A `verify_vault/1` hook point unchanged; F Task 22 still
-    valid.
-  - Sub-B `PhaseRunner.run_phase/4` step 13 calls
-    `Ravel.DispatchProcessor.process(ctx.plan_dir, emit_fn)` and
-    `Ravel.QueryProcessor.process(ctx.plan_dir, emit_fn)` on
-    `:work`, `:reflect`, `:triage` (not `:compact`) — matches F §5.2.
-  - Sub-R `Ravel.Datalog.Server` API (`query/1`, `query_one/1`,
-    `reload_file/1`, `assert_facts/1`, `retract_facts/1`) matches F
-    Task 14 consumption.
-  - `Ravel.FileIO` already landed at
-    `lib/ravel/file_io.ex` with `read_tracked/1` and
-    `write_safe/3` categories `:exclusive`, `:phase_owned`,
-    `:human_editable` — F Tasks 1, 4, 6, 7, 8, 9 can proceed.
-  - `Ravel.Coordination.SingletonLock` already landed at
-    `lib/ravel/coordination/singleton_lock.ex` — F Tasks 10, 12 can
-    proceed.
-
-  **Drifts rewritten inline (F design doc):**
-  1. **Sub-D lock module name + location.** F §4.6 step 2 (startup)
-     previously said `<vault>/runtime/daemon.lock` and named the
-     module `Ravel.DaemonLock`; sub-D ships
-     `Ravel.Coordination.SingletonLock` acquiring a system-wide lock
-     at `<runtime_dir>/ravel/daemon.lock` (Linux
-     `$XDG_RUNTIME_DIR/ravel/`, macOS `$TMPDIR/ravel/`) — outside any
-     vault. Sub-A §A6 independently confirms this. Rewrote F §4.6
-     step 2, §4.6 shutdown step 6, §11.2 task 11. Added decision-
-     trail entry Appendix C Q8. Also updated F backlog Task 12 and
-     F memory.md to match.
-  2. **Sub-C tool-call-boundary signature.** Sub-C §4.5.3 and §11.3
-     commit F to owning `Ravel.Router.handle_tool_call(name, input,
-     session_id, opts)` with `opts` carrying
-     `reply_ref: <tool_use_id>` and an async reply
-     `{:router_reply, <tool_use_id>, result}` info message; F §5.3
-     previously described this in prose only. Rewrote §5.3 inline to
-     lock the signature. Added decision-trail entry Appendix C Q9.
-     Also updated F backlog Task 6 (Router.Server) to list this as
-     part of the router's public API.
-
-  **Drifts flagged for orchestrator-level dispatch (NOT F-local):**
-  3. **Sub-M event-registry drift.** Sub-M's event list still names
-     `%Ravel.Event.RuleCompileError{}` referring to the deleted
-     `routing.ex` compile step; F uses `%RuleReloadError{}`
-     (semantically correct for Datalog); sub-R separately emits
-     `%OntologyReloadFailed{}` for any `ontology/*.dl` reload. F
-     keeps `%RuleReloadError{}` in Task 24 and leaves the cross-plan
-     amendment to triage. Recorded as Appendix C Q10 and noted in
-     Task 24.
-
-  **Stale references cleaned up in sub-F LLM_STATE:**
-  - F memory.md "Consumes from sub-D" section now names
-    `Ravel.Coordination.SingletonLock` with the system-wide path and
-    the SIGKILL/OOM-safe release semantics.
-  - F backlog Task 0 (this task) dependencies line updated to use
-    the correct module name.
-
-  **Gate status**: all three numbered spec-level preconditions
-  satisfied, both sub-D infrastructure dependencies satisfied, all
-  discovered drifts either rewritten inline or flagged for
-  orchestrator dispatch. Tasks 1+ are unblocked. Recommended next
-  foundation work: Tasks 2 and 5 (Ravel.Actor behaviour +
-  ActorSupervisor) — these are on sub-N's critical path so picking
-  them early unblocks a sibling plan in addition to progressing F.
-  Task 1 (VaultDirectory) is an equally-safe alternative that
-  unblocks Tasks 6, 7, 8, 9 and has no external critical-path
-  dependency.
-
----
 
 ## §11.1 Elixir scaffolding
 
