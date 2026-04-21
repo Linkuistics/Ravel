@@ -175,12 +175,22 @@ C's tool-call boundary (`Ravel.Router.handle_tool_call/4`).
 
 ### Consumes from sub-D
 
-`Ravel.DaemonLock` — the singleton lock module owned by sub-D's
-coordination implementation plan. F's daemon boot sequence (Task 10)
-calls this module to acquire `flock(2)` on
-`<runtime_dir>/ravel/daemon.lock` (Task 12). Sub-D's lock module
-must be landed before Tasks 10 and 12 run; this is tracked as an
-explicit dependency in Task 0's readiness gate.
+`Ravel.Coordination.SingletonLock` — the singleton lock module owned
+by sub-D's coordination implementation plan (landed 2026-04-21 at
+`lib/ravel/coordination/singleton_lock.ex`). F's daemon boot sequence
+(Task 10) calls `SingletonLock.acquire/1` to acquire a `flock(2)` on
+the system-wide `<runtime_dir>/ravel/daemon.lock` — **outside any
+vault** (Linux `$XDG_RUNTIME_DIR/ravel/`, macOS `$TMPDIR/ravel/`), so
+Obsidian never sees it and two vaults on one machine still conflict.
+Release is implicit via BEAM port close on daemon exit (the lock
+survives SIGKILL/OOM correctly because flock release is tied to file-
+handle close, not explicit API calls). See F design doc §4.6 and
+Appendix C Q8. Task 0's gate (cleared 2026-04-21) verified the module
+is landed before Tasks 10/12 run.
+
+Earlier drafts of F referred to this module as `Ravel.DaemonLock` and
+placed the lock at `<vault>/runtime/daemon.lock`; both were corrected
+inline at the Task 0 gate to match sub-D's landed names and paths.
 
 ### Consumes from sub-D — FileIO mandatory I/O layer
 

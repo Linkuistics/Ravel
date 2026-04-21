@@ -15,20 +15,20 @@ yet; Task 0 is the gate.
 ## Task Backlog
 
 ### Task 0 — Implementation readiness gate `[gate]`
-- **Status:** not_started
+- **Status:** done (2026-04-21)
 - **Dependencies:** sub-B downstream task-list rewrite (sub-B backlog
   gate task); sub-C downstream task-list rewrite (sub-C backlog gate
   task); sub-A amendment absorbed; sub-M amendment absorbed;
-  `Ravel.DaemonLock` module delivered by sub-D (Tasks 10 and 12
-  require this API — daemon boot acquires the singleton lock via it;
-  confirm sub-D's lock module is landed before Tasks 10/12 run);
-  `Ravel.FileIO` module delivered by sub-D (all daemon file
-  writes must use `FileIO.write_safe/3` with the appropriate
-  category; all plan-file reads in `PlanActor` and routing must use
-  `FileIO.read_tracked/1` so `FreshnessTracker` records SHA-256
-  hashes — this is what makes content-hash freshness checking work
-  for plan files; confirm `FileIO` is landed before Tasks 1, 4, 6,
-  7, 8, 9 run — see sub-D design doc at
+  `Ravel.Coordination.SingletonLock` module delivered by sub-D
+  (Tasks 10 and 12 require this API — daemon boot acquires the
+  singleton lock via it; confirm sub-D's lock module is landed before
+  Tasks 10/12 run); `Ravel.FileIO` module delivered by sub-D (all
+  daemon file writes must use `FileIO.write_safe/3` with the
+  appropriate category; all plan-file reads in `PlanActor` and
+  routing must use `FileIO.read_tracked/1` so `FreshnessTracker`
+  records SHA-256 hashes — this is what makes content-hash freshness
+  checking work for plan files; confirm `FileIO` is landed before
+  Tasks 1, 4, 6, 7, 8, 9 run — see sub-D design doc at
   `docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`)
 - **Description:** Meta-task guarding the start of real implementation
   work. Before any Task 1+ runs, verify:
@@ -59,7 +59,81 @@ yet; Task 0 is the gate.
   Any mismatch discovered here rewrites F's design doc inline
   (per the "amendment tasks rewrite specs inline" discipline) before
   implementation starts.
-- **Results:** _pending_
+- **Results:**
+  Gate closed 2026-04-21. Work performed:
+
+  **Verified (no action needed):**
+  - Sub-B backlog rewrite (the Session-12 Elixir-native rewrite gate)
+    is marked done; Tasks 1+ target the 13-step
+    `PhaseRunner.run_phase/4` flow, `PhaseExecutor @behaviour`, etc.
+  - Sub-C backlog rewrite is marked complete (top-notice
+    2026-04-21); Tasks 1–30 target Elixir idioms, `erlexec`
+    pipes-only, and the §4.5 tool-call boundary.
+  - Sub-A `verify_vault/1` hook point unchanged; F Task 22 still
+    valid.
+  - Sub-B `PhaseRunner.run_phase/4` step 13 calls
+    `Ravel.DispatchProcessor.process(ctx.plan_dir, emit_fn)` and
+    `Ravel.QueryProcessor.process(ctx.plan_dir, emit_fn)` on
+    `:work`, `:reflect`, `:triage` (not `:compact`) — matches F §5.2.
+  - Sub-R `Ravel.Datalog.Server` API (`query/1`, `query_one/1`,
+    `reload_file/1`, `assert_facts/1`, `retract_facts/1`) matches F
+    Task 14 consumption.
+  - `Ravel.FileIO` already landed at
+    `lib/ravel/file_io.ex` with `read_tracked/1` and
+    `write_safe/3` categories `:exclusive`, `:phase_owned`,
+    `:human_editable` — F Tasks 1, 4, 6, 7, 8, 9 can proceed.
+  - `Ravel.Coordination.SingletonLock` already landed at
+    `lib/ravel/coordination/singleton_lock.ex` — F Tasks 10, 12 can
+    proceed.
+
+  **Drifts rewritten inline (F design doc):**
+  1. **Sub-D lock module name + location.** F §4.6 step 2 (startup)
+     previously said `<vault>/runtime/daemon.lock` and named the
+     module `Ravel.DaemonLock`; sub-D ships
+     `Ravel.Coordination.SingletonLock` acquiring a system-wide lock
+     at `<runtime_dir>/ravel/daemon.lock` (Linux
+     `$XDG_RUNTIME_DIR/ravel/`, macOS `$TMPDIR/ravel/`) — outside any
+     vault. Sub-A §A6 independently confirms this. Rewrote F §4.6
+     step 2, §4.6 shutdown step 6, §11.2 task 11. Added decision-
+     trail entry Appendix C Q8. Also updated F backlog Task 12 and
+     F memory.md to match.
+  2. **Sub-C tool-call-boundary signature.** Sub-C §4.5.3 and §11.3
+     commit F to owning `Ravel.Router.handle_tool_call(name, input,
+     session_id, opts)` with `opts` carrying
+     `reply_ref: <tool_use_id>` and an async reply
+     `{:router_reply, <tool_use_id>, result}` info message; F §5.3
+     previously described this in prose only. Rewrote §5.3 inline to
+     lock the signature. Added decision-trail entry Appendix C Q9.
+     Also updated F backlog Task 6 (Router.Server) to list this as
+     part of the router's public API.
+
+  **Drifts flagged for orchestrator-level dispatch (NOT F-local):**
+  3. **Sub-M event-registry drift.** Sub-M's event list still names
+     `%Ravel.Event.RuleCompileError{}` referring to the deleted
+     `routing.ex` compile step; F uses `%RuleReloadError{}`
+     (semantically correct for Datalog); sub-R separately emits
+     `%OntologyReloadFailed{}` for any `ontology/*.dl` reload. F
+     keeps `%RuleReloadError{}` in Task 24 and leaves the cross-plan
+     amendment to triage. Recorded as Appendix C Q10 and noted in
+     Task 24.
+
+  **Stale references cleaned up in sub-F LLM_STATE:**
+  - F memory.md "Consumes from sub-D" section now names
+    `Ravel.Coordination.SingletonLock` with the system-wide path and
+    the SIGKILL/OOM-safe release semantics.
+  - F backlog Task 0 (this task) dependencies line updated to use
+    the correct module name.
+
+  **Gate status**: all three numbered spec-level preconditions
+  satisfied, both sub-D infrastructure dependencies satisfied, all
+  discovered drifts either rewritten inline or flagged for
+  orchestrator dispatch. Tasks 1+ are unblocked. Recommended next
+  foundation work: Tasks 2 and 5 (Ravel.Actor behaviour +
+  ActorSupervisor) — these are on sub-N's critical path so picking
+  them early unblocks a sibling plan in addition to progressing F.
+  Task 1 (VaultDirectory) is an equally-safe alternative that
+  unblocks Tasks 6, 7, 8, 9 and has no external critical-path
+  dependency.
 
 ---
 
@@ -180,6 +254,15 @@ yet; Task 0 is the gate.
   Persists mailbox state to `<vault>/runtime/mailboxes/<qid>.jsonl`
   (NDJSON append) with a cursor file tracking last-processed index
   per §4.8. Crash recovery replays from the cursor.
+  **Also exposes `Ravel.Router.handle_tool_call(name, input,
+  session_id, opts)`** (spec §5.3, Appendix C Q9) — the tool-call-
+  boundary entry point that sub-C's session GenServer calls when a
+  harness's LLM invokes an injected Ravel tool. `opts` carries
+  `reply_ref: <tool_use_id>`; the router runs the query in a
+  supervised task and replies asynchronously via
+  `{:router_reply, <tool_use_id>, result}` info message to the
+  calling session pid. Full reply shape and responsibilities are
+  locked by sub-C §4.5.3 / §11.3.
 - **Results:** _pending_
 
 ### Task 7 — `Ravel.DispatchProcessor` `[foundation]`
@@ -279,15 +362,21 @@ yet; Task 0 is the gate.
 
 ### Task 12 — Daemon singleton lock `[daemon]`
 - **Status:** not_started
-- **Dependencies:** Task 10, `Ravel.DaemonLock` from sub-D
-- **Description:** Acquire `flock` on
-  `<runtime_dir>/ravel/daemon.lock` at startup via
-  `Ravel.DaemonLock` (the lock module owned by sub-D's
-  implementation plan). Second daemon fails with actionable
-  diagnostic naming the first daemon's PID (§9.3). Lock released
-  on shutdown via the OS (not a `defer` / `on_exit` — flock is
-  released when the file handle closes, which happens on process
-  exit regardless of path).
+- **Dependencies:** Task 10, `Ravel.Coordination.SingletonLock` from
+  sub-D (landed 2026-04-21 at
+  `lib/ravel/coordination/singleton_lock.ex`)
+- **Description:** Acquire `flock(2)` on the system-wide
+  `<runtime_dir>/ravel/daemon.lock` (Linux
+  `$XDG_RUNTIME_DIR/ravel/daemon.lock`, macOS
+  `$TMPDIR/ravel/daemon.lock` — outside any vault) at startup via
+  `Ravel.Coordination.SingletonLock.acquire/1`. Second daemon fails
+  with an actionable diagnostic naming the incumbent daemon's PID and
+  served vault path (sub-D writes both into the lock file at
+  acquisition) per §9.3. Lock released on shutdown via the OS (BEAM
+  closing the port's pipes on daemon exit → `flock(1)` exits →
+  kernel releases the lock; this works on SIGKILL/OOM too because
+  flock release is tied to file-handle close, not an explicit call).
+  See F design doc §4.6 and Appendix C Q8.
 - **Results:** _pending_
 
 ### Task 13 — `daemon.toml` parser `[daemon]`
@@ -499,6 +588,17 @@ yet; Task 0 is the gate.
   Each event also flows through
   `:telemetry.execute/3` for subscribers. M owns the handler and
   transport; F owns the event boundary.
+- **Naming drift with sub-M (flagged 2026-04-21 at F's Task 0 gate;
+  Appendix C Q10):** sub-M's event registry still lists
+  `%Ravel.Event.RuleCompileError{}` (referring to the deleted
+  `routing.ex` compile step); `%RuleReloadError{}` is the
+  semantically-correct Datalog-era name F commits to. Sub-R
+  separately emits `%OntologyReloadFailed{}` for any `ontology/*.dl`
+  reload, so there is a legitimate open question of whether F should
+  consume sub-R's event instead. Resolution is a cross-plan dispatch
+  (sub-M amendment) owned by the orchestrator, not by F's Task 24
+  implementation — this task keeps `%RuleReloadError{}` as specified
+  until the dispatch lands.
 - **Results:** _pending_
 
 ---
