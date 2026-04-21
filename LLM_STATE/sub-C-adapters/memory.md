@@ -1,187 +1,153 @@
 # Memory — Sub-project C: Harness Adapter Layer
 
-This plan implements sub-project C of the Ravel orchestrator merge. The
-design is already fully specified; this plan is the implementation work.
+The design is fully specified; this plan is implementation only.
 
 ## Primary reference
 
 **`{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-C-adapters-design.md`**
-(committed at `71fd307`, amended at `b1a8cea`) is the authoritative design
-document. Every task in this plan's backlog derives from that spec. If any
-implementation question arises that the spec does not answer, the answer
-goes into this memory file (and possibly back into the spec) rather than
-being invented ad hoc.
+(commits `71fd307`, `b1a8cea`) is the authoritative design document. All
+backlog tasks derive from it. Unresolved implementation questions go here
+(and back into the spec), not resolved ad hoc.
 
 ## Parent plan
 
-The orchestrator-level plan lives at
-`{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will be at
-`{{PROJECT}}/ravel/plans/ravel-orchestrator/` after sub-project G's
-migration). It coordinates this sub-plan with its siblings (A, B, D, E, F,
-G, H, I, K, L, and the newly-surfaced M observability sub-project). The
-parent plan's `memory.md` holds cross-sub-project architectural state.
-This file holds only sub-project-C-specific implementation state.
+The orchestrator-level plan lives at `{{PROJECT}}/LLM_STATE/ravel-orchestrator/`
+(will move to `{{PROJECT}}/ravel/plans/ravel-orchestrator/` after sub-G
+migration). It coordinates sub-C with siblings A, B, D, E, F, G, H, I, K,
+L, and M (observability). Cross-sub-project architectural state lives there;
+this file holds sub-C-specific state only.
 
-## Sub-C unblocks sub-B's v1 dogfood acceptance test
+## Sub-C is critical path for sub-B v1
 
-C's primary critical-path role: B's `LlmHarnessExecutor` currently holds
-a stub adapter; the C-1 dogfood acceptance test (the final task in this
-plan's backlog) is the moment B's stub gets swapped for the real
-`ClaudeCodeAdapter`. Until that swap lands, B can run end-to-end against
-`FixtureReplayAdapter` only. The sequence is therefore:
+B's `LlmHarnessExecutor` holds a stub adapter; the C-1 dogfood acceptance
+test swaps it for the real `ClaudeCodeAdapter`. Until then, B runs
+end-to-end against `FixtureReplayAdapter` only. Sequence:
 
-1. C ships the trait declaration (early task in this backlog).
-2. C ships `FixtureReplayAdapter` (mid backlog) — B can already use this.
-3. C ships `ClaudeCodeAdapter` (mid-late backlog).
-4. C runs the dogfood acceptance test (final backlog task) — this is the
-   v1 acceptance for both C and (jointly) B.
+1. C ships the trait declaration.
+2. C ships `FixtureReplayAdapter` — B can use this immediately.
+3. C ships `ClaudeCodeAdapter`.
+4. C runs the dogfood acceptance test — v1 acceptance for both C and B.
 
-## Key architectural anchors (quick reference; spec is canonical)
+## Key architectural anchors
 
-These are the decisions most load-bearing for implementation. Consult the
-design doc for full context before acting on any of them.
+### Stream-json over stdio; no PTY
 
-### Bidirectional stream-json process model (Q1 — settled)
+`claude --print --verbose --input-format stream-json --output-format
+stream-json` runs as a child process via `std::process::Command`. No PTY,
+no terminal escape parsing, no `portable-pty` dep. User input flows through
+B's input-forwarder thread as stream-json envelopes into the session's
+stdin. Output flows from stdout through `BufReader::lines()` into typed
+`OutputChunk`s. See spec §4.1.
 
-V1 spawns `claude --print --verbose --input-format stream-json --output-format stream-json`
-as a normal child process via `std::process::Command`. **No PTY**, no
-terminal escape parsing, no `portable-pty` dep. User input flows from
-Ravel's TUI through B's executor's input-forwarder thread into the
-session's stdin as stream-json user-message envelopes. Output flows from
-the child's stdout through a `BufReader::lines()` JSON parser into typed
-`OutputChunk`s. See §4.1 of the spec.
-
-### Module layout: `src/harness/` under the existing single binary crate (Q2 — settled)
+### Harness modules under `src/harness/`, single binary crate
 
 Not a workspace crate. Module structure under `src/harness/` matches the
-existing flat-module convention (`src/commands/`, `src/knowledge/`, etc.).
-See §2.2 of the spec for the full layout.
+existing flat-module convention. See spec §2.2 for full layout.
 
-### Actor-style `ClaudeCodeSession` with single-owner-per-state discipline
+### Three threads per session; actor owns all mutable state
 
-Three threads per live session: actor thread (owns child + stdin + pgid),
-stdout-reader thread (parses stream-json), stderr-reader thread (collects
-stderr lines). All mutable session state lives inside the actor thread.
-The session handle exposed to B's executor holds only `crossbeam_channel`
-endpoints + an atomic flag + one `Mutex<Option<JoinHandle>>`. The trait
-methods are `&self` (not `&mut self`) so the session can be
-`Arc`-shared between B's output-drainer and input-forwarder threads.
-See §4.2 of the spec.
+Actor thread (owns child + stdin + pgid), stdout-reader thread (parses
+stream-json), stderr-reader thread (collects lines). The session handle
+exposed to B's executor holds only `crossbeam_channel` endpoints + an
+atomic flag + one `Mutex<Option<JoinHandle>>`. Trait methods are `&self`
+(not `&mut self`) so the session can be `Arc`-shared between B's
+output-drainer and input-forwarder threads. See spec §4.2.
 
-### Process-group termination from v1 (not deferred)
+### Process-group termination in v1, not deferred
 
-`std::os::unix::process::CommandExt::process_group(0)` at spawn time
-makes the child its own pgrp leader. `nix::sys::signal::killpg` at
-terminate time targets the whole group. Two-phase escalation: SIGTERM
-first, then SIGKILL after a 500ms grace if the child has not exited.
-The `child_alive_flag` `Arc<AtomicBool>` is reset by the stdout-reader
-thread on EOF, so cleanly-exiting processes skip the SIGKILL. See §4.4
-of the spec. Not a v1.5 deferral — explicit user direction during the
-brainstorm.
+`CommandExt::process_group(0)` at spawn makes the child its own pgrp
+leader. `nix::sys::signal::killpg` targets the whole group at termination.
+Two-phase: SIGTERM first, SIGKILL after 500ms if the child has not exited.
+`child_alive_flag` `Arc<AtomicBool>` is reset by the stdout-reader on EOF,
+skipping SIGKILL for clean exits. See spec §4.4.
 
-### crossbeam-channel for the actor inbox and session channels
+### Actor uses `crossbeam-channel`; session struct needs no `Mutex`
 
 `crossbeam_channel::Sender<T>` and `Receiver<T>` are `Sync`, eliminating
-`Mutex` wrappers from the session struct. `select!` is available for
-future actor extensions. See §2.3 of the spec for the dep justification.
+`Mutex` wrappers from the session struct. `select!` is available for future
+actor extensions. See spec §2.3.
 
-### `SessionLifecycle` chunks for protocol-level harness state observation
+### `SessionLifecycle` chunks surface protocol-level state transitions
 
-A new `OutputChunkKind::SessionLifecycle` variant (fourth amendment to
-B's draft trait) surfaces protocol-level harness state transitions —
-`"ready"` (system/init), `"turn_complete:<subtype>"` (result event),
-`"exited:<status>"` (stdout EOF) — as structured chunks in the existing
-output stream. **Distinct from task-level "the LLM has finished the
-work" signals**, which are owned by B's executor via prompt-driven
-sentinel detection. See §4.3.2, §4.3.3, and §11.1 of the spec.
+`OutputChunkKind::SessionLifecycle` (fourth amendment to B's draft trait)
+carries `"ready"` (system/init), `"turn_complete:<subtype>"` (result
+event), `"exited:<status>"` (stdout EOF). Distinct from task-level
+completion signals, which B's executor owns via prompt-driven sentinel
+detection. See spec §4.3.2, §4.3.3, §11.1.
 
-### "No callback channel" means no *control*, not no *observation*
+### No callback channel forbids control, not observation
 
-The architectural rule from `ravel-orchestrator/memory.md` ("no
-slash commands inside the harness") and B's contract #8 ("no callback
-channel from harness to Ravel") forbid the harness *calling into*
-Ravel. They do NOT forbid Ravel *observing* harness state and
-reacting on its own side. Ravel reads the structured output stream
-and parses it into rich typed events; the harness has no idea Ravel
-exists. Both `SessionLifecycle` chunks and sentinel detection are
-observation channels, not control channels. See §3.3 of the spec.
+"No callback channel" (B contract #8) and "no slash commands in harness"
+(`ravel-orchestrator/memory.md`) forbid the harness calling into Ravel;
+they do not forbid Ravel observing harness output. `SessionLifecycle`
+chunks and sentinel detection are observation channels, not control
+channels. The harness has no knowledge of Ravel. See spec §3.3.
 
-### Tool profile enforcement: spawn-time flags + stream-side defence-in-depth
+### Tool profiles enforced at spawn with stream-side defence-in-depth
 
 `IngestionMinimal` → `--allowed-tools "" --permission-mode default`.
-`ResearchBroad` → no `--allowed-tools` flag, `--permission-mode acceptEdits`.
-The actor's event handler also runs a defence-in-depth check on every
-`tool_use` block — if an `IngestionMinimal` session somehow sees a
-`ToolUse` chunk, it terminates with `UnsupportedToolProfile`. See §6 of
-the spec.
+`ResearchBroad` → no `--allowed-tools` flag, `--permission-mode
+acceptEdits`. The actor also checks every `tool_use` block; an
+`IngestionMinimal` session that sees a `ToolUse` chunk terminates with
+`UnsupportedToolProfile`. See spec §6.
 
-### Cold-spawn only in v1; warm-pool work gated by C-1 acceptance criterion
+### V1 is cold-spawn only; warm-pool gated by C-1 acceptance
 
-V1 of `ClaudeCodeAdapter` ships with no warm-pool — every spawn is a
-fresh `Command::spawn`. The C-1 acceptance gate (§7.3 of the spec) is
-**p95 < 5 seconds across N≥10 dogfood cycles**. If the gate trips,
-the §7.4 warm-pool reset spike unblocks and warm-pool implementation
-moves into v1; if it doesn't, warm-pool is deferred to v1.5 with the
-§7.5 sketch as the implementation starting point.
+V1 `ClaudeCodeAdapter` cold-spawns every session. C-1 acceptance gate:
+**p95 < 5 seconds across N≥10 dogfood cycles** (spec §7.3). Gate trip →
+§7.4 warm-pool spike fires, warm-pool moves into v1. Gate pass → warm-pool
+deferred to v1.5 per §7.5.
 
-### Always-on latency instrumentation
+### Latency instrumentation is always-on
 
-`SpawnLatencyReport` is emitted as an `InternalMessage` chunk after
-the first real chunk and also written to
-`<staging>/spawn-latency.json`. Always-on, no debug flag. The dogfood
-acceptance test parses these files to compute the C-1 gate decision.
-This instrumentation is a **tactical seed**, not the start of a metrics
-framework — proposed Sub-M (Observability) owns the broader story.
+`SpawnLatencyReport` emitted as `InternalMessage` after the first real
+chunk; also written to `<staging>/spawn-latency.json`. No debug flag
+required. Dogfood acceptance test parses these for the C-1 gate decision.
+Tactical seed only — Sub-M (Observability) owns the broader metrics story.
 
 ## Implementation strategy
 
 ### Phase ordering
 
-1. **Setup** (Cargo.toml deps, module skeleton, `trait_def.rs` types only).
-2. **Day-1 verification** of Claude Code's CLI surface (the §10 IOUs).
-   Capture canonical stream-json samples to fixtures; lock parser field
-   names and flag spellings against the pinned `claude` version.
-3. **`FixtureReplayAdapter` first** (no claude dep needed; lets B start
-   running its executor against a working adapter immediately).
-4. **`ClaudeCodeAdapter` wire layer** (spawn, stream-json parser,
-   user-message input).
-5. **Actor architecture** (the actor loop, threading, defence-in-depth,
-   `SessionLifecycle` emission).
-6. **Lifecycle and termination** (process-group teardown, `CrashedBeforeReady`
-   detection).
+1. **Setup** — Cargo.toml deps, module skeleton, `trait_def.rs` types only.
+2. **Day-1 CLI verification** — capture canonical stream-json samples;
+   lock parser field names and flag spellings against the pinned `claude`
+   version. Resolves §10 IOUs.
+3. **`FixtureReplayAdapter`** — no claude dep needed; lets B run its
+   executor against a working adapter immediately.
+4. **`ClaudeCodeAdapter` wire layer** — spawn, stream-json parser,
+   user-message input.
+5. **Actor architecture** — actor loop, threading, defence-in-depth,
+   `SessionLifecycle` emission.
+6. **Lifecycle and termination** — process-group teardown,
+   `CrashedBeforeReady` detection.
 7. **Latency instrumentation** + dev recording subcommand.
-8. **Test layers 1-3** (parser units → fixture integration → gated live).
-9. **Dogfood acceptance gate** (the swap-in moment for B's stub).
-10. **Conditional warm-pool work** if and only if the gate trips.
+8. **Test layers 1–3** — parser units → fixture integration → gated live.
+9. **Dogfood acceptance gate** — the swap-in moment for B's stub.
+10. **Conditional warm-pool** — only if the C-1 gate trips.
 
 ### TDD
 
-Every type and rule in §3.1, §4.2-§4.5, §5, §6 of the spec has a
-dedicated unit or integration test written first. The three test layers
-(§8 of the spec) are the cheapest insurance against silent regressions.
-Threading bugs in particular only surface under the actor-architecture
-parity that `FixtureReplayAdapter` and `ClaudeCodeAdapter` share — that
-parity is *the* reason `FixtureReplayAdapter` mirrors the live actor
-architecture.
+Unit and integration tests written first for every type and rule in spec
+§3.1, §4.2–§4.5, §5, §6. `FixtureReplayAdapter` mirrors the live actor
+architecture so threading bugs surface in replay; that parity is the point.
 
 ### No premature optimisation
 
-Cold-spawn pooling is gated by the C-1 acceptance test. Do not pre-emptively
-add pool machinery. The latency instrumentation is the measurement
-mechanism that makes the gate concrete.
+Cold-spawn pooling is gated by the C-1 acceptance test. Do not add pool
+machinery before that gate.
 
 ## Verified Claude Code CLI surface
 
-Source: BEAM PTY spike (`spikes/beam_pty/`). `claude` version and
-formal fixture copy happen in Task 3; the entries below are pre-verified
-by the spike and will be locked at that point.
+Verified by BEAM PTY spike (`spikes/beam_pty/`). Formal fixture copy and
+version lock happen in Task 3.
 
-- **Initial prompt must be an NDJSON user envelope on stdin.** `--print`
-  with `--input-format stream-json` does NOT accept a CLI-arg prompt;
-  the CLI-arg form errors with "Input must be provided either through
-  stdin or as a prompt argument when using --print". Every prompt,
-  including the initial one, ships via `:exec.send/2`.
-- **stream-json field names confirmed.** `type`, `subtype`, `content`,
+- **Initial prompt ships via stdin, not CLI arg.** `--print
+  --input-format stream-json` does not accept a CLI-arg prompt; it errors
+  with "Input must be provided either through stdin or as a prompt argument
+  when using --print". Every prompt, including the first, ships via
+  `:exec.send/2`.
+- **Stream-json field names confirmed.** `type`, `subtype`, `content`,
   `tool_use`, `is_error`. Event types seen: `system/init`,
   `rate_limit_event`, `assistant/thinking`, `assistant/text`,
   `result/success`. Canonical samples at
@@ -189,138 +155,117 @@ by the spike and will be locked at that point.
 
 ## Dependencies on sibling sub-projects
 
-- **Sub-project B (phase cycle)** — *consumes* C's trait and adapter
-  implementations. Five amendments to B's draft surface are recorded as
-  cross-sub-project requirements in §11.1 of the spec:
-  - **Trait amendment 1**: `HarnessSession::send_user_message(&self, text)` — new method.
-  - **Trait amendment 2**: `HarnessSession` methods change from `&mut self` to `&self` with `Send + Sync` bound.
-  - **Trait amendment 3**: `LlmHarnessExecutor` storage changes from `Box<dyn HarnessSession>` to `Arc<dyn HarnessSession>`; gains `user_input_sender()` method; spawns two threads (output-drainer + input-forwarder).
-  - **Trait amendment 4**: `OutputChunkKind` gains a `SessionLifecycle` variant.
-  - **Executor requirement (5)**: `LlmHarnessExecutor` runs `Stdout` chunks through a configurable completion-sentinel matcher (sliding-buffer based) for task-level completion detection; sentinels live in phase prompt files.
+- **Sub-B (phase cycle)** — consumes C's trait and adapter implementations.
+  Five amendments to B's draft surface (spec §11.1):
+  - **Amendment 1**: `HarnessSession::send_user_message(&self, text)` — new method.
+  - **Amendment 2**: `HarnessSession` methods from `&mut self` to `&self`; gains `Send + Sync` bound.
+  - **Amendment 3**: `LlmHarnessExecutor` storage from `Box<dyn HarnessSession>` to `Arc<dyn HarnessSession>`; gains `user_input_sender()`; spawns output-drainer + input-forwarder threads.
+  - **Amendment 4**: `OutputChunkKind` gains `SessionLifecycle` variant.
+  - **Requirement 5**: `LlmHarnessExecutor` runs `Stdout` chunks through a sliding-buffer completion-sentinel matcher; sentinels live in phase prompt files.
 
-  These amendments are absorbed by B's implementation phase, not by a
-  B re-brainstorm. C ships the trait declaration; B's executor consumes
-  the trait via `use crate::harness::*`.
+  Amendments absorbed by B's implementation phase, not a B re-brainstorm.
+  C ships the trait declaration; B's executor consumes it via
+  `use crate::harness::*`.
 
-- **Sub-project E (ingestion)** — uses `ToolProfile::IngestionMinimal`
-  for Stage 3/4 reasoning sessions. Already specified in E's design.
-  No new requirements on C from E.
+- **Sub-E (ingestion)** — uses `ToolProfile::IngestionMinimal` for Stage
+  3/4 reasoning sessions. No new requirements on C from E.
 
-- **Sub-project D (concurrency)** — no new requirements. C does not
-  touch the locking model. D's per-plan and store-level locks are
-  independent of C's adapter layer.
+- **Sub-D (concurrency)** — no requirements. C does not touch the locking
+  model.
 
-- **Sub-project G (migration)** — note that the existing
-  `<project>/adapters/claude-code/` directory in the Ravel repo is
-  the **legacy v0.1.0 Claude Code plugin** (markdown skills consumed by
-  Claude Code itself), not a Rust adapter. C does not touch it; G's
-  migration plan owns retiring or renaming it.
+- **Sub-G (migration)** — `<project>/adapters/claude-code/` is the legacy
+  v0.1.0 Claude Code plugin (markdown skills), not a Rust adapter. C does
+  not touch it; G owns retiring or renaming it.
 
-- **Sub-project M (observability)** — proposed new sub-project surfaced
-  during this brainstorm. C's `SpawnLatencyReport` is a tactical seed,
-  not the start of a metrics framework. When M lands, the latency
-  report should migrate onto whatever structured event bus M designs.
-  C deliberately does **not** commit to a structured logging crate
-  (`tracing`, `slog`, `log`, etc.) so M has full freedom.
+- **Sub-M (observability)** — C's `SpawnLatencyReport` is a tactical seed.
+  When M lands, it should migrate onto M's structured event bus. C
+  deliberately avoids committing to a logging crate (`tracing`, `slog`,
+  `log`) to preserve M's freedom.
 
 ## BEAM / Elixir pivot
 
 - **Implementation language**: Elixir, not Rust.
 - **Process spawning**: `erlexec` replaces `std::process::Command`.
-- **Supervision**: OTP GenServer supervision replaces the hand-rolled
-  actor-style threading (crossbeam-channel inbox, three threads per
-  session, etc.).
-- **Trait surface**: `HarnessSpawner` becomes an Elixir behaviour, not a
-  Rust trait.
-- **Tool-call boundary**: in-session Queries use a tool-call boundary
-  (new architectural element).
-- **Multi-adapter support**: reserved for sub-O; sub-C ships
-  single-adapter only.
+- **Supervision**: OTP GenServer supervision replaces the hand-rolled actor
+  threading (crossbeam-channel inbox, three threads per session, etc.).
+- **Trait surface**: `HarnessSpawner` is an Elixir behaviour, not a Rust trait.
+- **Tool-call boundary**: in-session Queries use a tool-call boundary (new
+  architectural element).
+- **Multi-adapter support**: reserved for sub-O; sub-C ships single-adapter
+  only.
 
-**BEAM PTY spike: pipes-only erlexec works.** Key findings:
+**BEAM PTY spike findings (`spikes/beam_pty/`):**
 
-1. **PTY premise was wrong** — `claude -p --input-format stream-json
-   --output-format stream-json` is pure NDJSON over stdio; no
-   pseudo-terminal needed.
-2. **erlexec pipes-only works** — use `[:monitor, :stdin, {:stdout,
-   self()}, {:stderr, self()}, :kill_group]`; the `:pty + :stdin`
-   combination does NOT wire the caller's pipe to the child's real stdin.
+1. `claude -p --input-format stream-json --output-format stream-json` is
+   pure NDJSON over stdio; no PTY needed.
+2. Use `erlexec` with `[:monitor, :stdin, {:stdout, self()}, {:stderr,
+   self()}, :kill_group]`. The `:pty + :stdin` combination does NOT wire
+   the caller's pipe to the child's real stdin.
 3. Sentinel sliding-buffer detection validated.
 4. Process-group termination validated.
 5. cmux SessionStart hooks inject ~10KB of spurious JSON — silenced with
    `--setting-sources project,local --no-session-persistence`.
-6. erlexec is a C++ port program (not a NIF), so no BEAM scheduler risks.
+6. `erlexec` is a C++ port program, not a NIF; no BEAM scheduler risks.
 7. `{"type":"result"}` is protocol-level "turn over", orthogonal to
    task-level sentinel.
 8. The Rust PTY-wrapper fallback is unnecessary.
 
-Spike code at `spikes/beam_pty/`.
+**Backlog rewrite complete (29 tasks).** All tasks written in Elixir idiom.
+Tasks 28–29 cover spec §4.5 tool-call boundary, absorbed from sub-F
+amendment. `prompt-work.md` carries Rust framing — intentional scope
+boundary per sub-B precedent. Task sequence (types → fixture replay → live
+adapter → tests → dogfood gate) and design intent (tool profiles,
+process-group termination, cold-spawn latency gate, fixture replay parity)
+are unchanged.
 
-**Backlog rewrite complete (29 tasks).** All tasks (1–29) are written in
-Elixir idiom. Tasks 28–29 cover §4.5 tool-call boundary, absorbed from
-sub-F amendment. `prompt-work.md` still carries Rust framing — intentional
-scope boundary per sub-B precedent, not a regression. The task *sequence*
-(types → fixture replay → live adapter → tests → dogfood gate) and the
-*design intent* (tool profiles, process-group termination, cold-spawn
-latency gate, fixture replay parity) are unchanged.
-
-**Spec rewritten inline for Elixir/OTP across §1–§11.** See spec for
-full content; Appendix A (Q1–Q8) records the original Rust decisions,
-spike findings, and the tool-call boundary contract.
+**Spec rewritten for Elixir/OTP across §1–§11.** Appendix A (Q1–Q8)
+records original Rust decisions, spike findings, and tool-call boundary
+contract.
 
 ## Implementation state
 
-**Backlog complete; implementation not yet started.** Task 1 is the
-current unblocked entry point.
+**Backlog complete; implementation not yet started.** Task 1 is the current
+entry point.
 
-**`mix.exs` scaffold already exists from sub-D.** Commits 46e5b0d,
-4c9c753, 47c6498 landed `mix.exs`, `.formatter.exs`, `.tool-versions`,
-`lib/ravel/coordination/`, `lib/ravel/file_io.ex`, `lib/ravel/vault_git.ex`.
-Task 1 adds `{:erlexec, "~> 2.2"}` to that existing file and creates the
-`lib/ravel/harness_adapter/` skeleton on top of the existing scaffold.
+**`mix.exs` scaffold exists from sub-D.** Commits 46e5b0d, 4c9c753,
+47c6498 landed `mix.exs`, `.formatter.exs`, `.tool-versions`,
+`lib/ravel/coordination/`, `lib/ravel/file_io.ex`,
+`lib/ravel/vault_git.ex`. Task 1 adds `{:erlexec, "~> 2.2"}` and creates
+`lib/ravel/harness_adapter/` on top of this scaffold.
 
-**`prompt-work.md` carries Rust framing.** Intentional; not a Task 0
-regression. Matches sub-B precedent.
+**`prompt-work.md` carries Rust framing.** Intentional; matches sub-B
+precedent.
 
-## Open questions (implementation-level)
+## Open questions
 
-1. **Exact spelling of empty-tool-list value for `--allowed-tools`.**
-   Candidates: `""`, `none`, omitting the flag and using
-   `--disallowed-tools "*"`. Resolution: behavioural test against the
-   pinned `claude` version. Resolves Task 3.
-2. **Right `--permission-mode` for fully-headless operation.** Candidates:
+1. **Empty-tool-list value for `--allowed-tools`.** Candidates: `""`,
+   `none`, omitting the flag with `--disallowed-tools "*"`. Resolves at
+   Task 3 via behavioural test.
+2. **`--permission-mode` for fully-headless operation.** Candidates:
    `acceptEdits`, `bypassPermissions`, `dangerouslySkipPermissions`.
-   Security implications differ. Resolution: behavioural test against
-   each candidate touching a tmpdir file. Resolves Task 3.
-3. **Warm-pool reset mechanism** (structured envelope vs `/clear` text
-   vs degraded single-use). Resolution: §7.4 three-check spike protocol.
-   **Conditional** — only fires if the C-1 gate trips.
-4. **Tool-call boundary mechanism for in-session Queries** (spec §12.5). How are Ravel-injected tools (`ask_expert`,
-   `dispatch_to_plan`, `read_vault_catalog`) exposed to a running claude
-   session? Candidates: (a) MCP server on Unix socket with
-   `--mcp-config`; (b) stdin-side tool-definition preamble; (c)
-   plugin-shipped tool shims. Resolution: focused spike at the start of
-   C's implementation phase before GenServer wiring is finalised.
-5. **`exec-port` supervision.** `erlexec` runs `exec-port` as a
-   separate OS process. What happens if `exec-port` crashes while live
-   sessions exist? Resolution: document expected behaviour — sessions
-   are not persistent by design, so a restart drops them and plans
-   restart their current phase on daemon restart. Capture the call
-   chain in C's implementation phase memory.
+   Security implications differ. Resolves at Task 3 via tmpdir test.
+3. **Warm-pool reset mechanism** — structured envelope vs `/clear` text vs
+   degraded single-use. Conditional: only fires if the C-1 gate trips.
+   Resolution: §7.4 three-check spike.
+4. **Tool-call boundary for in-session Queries** (spec §12.5). How are
+   Ravel-injected tools (`ask_expert`, `dispatch_to_plan`,
+   `read_vault_catalog`) exposed to a running claude session? Candidates:
+   (a) MCP server on Unix socket with `--mcp-config`; (b) stdin-side
+   tool-definition preamble; (c) plugin-shipped tool shims. Resolution:
+   focused spike before GenServer wiring is finalised.
+5. **`exec-port` supervision.** If `exec-port` crashes while live sessions
+   exist, sessions drop and plans restart their current phase on daemon
+   restart. Capture the full call chain during implementation.
 
 ## Risk watch list
 
-1. **Claude Code stream-json schema drift across versions** *(MEDIUM × MEDIUM)*.
-   Mitigated by version pinning + unknown-field pass-through in the parser + Layer 3
-   integration tests. Watch: the `claude --version` check at startup is
-   the canary.
-2. **Cold-spawn latency exceeds the 5s p95 gate** *(MEDIUM × MEDIUM)*.
-   Mitigated by §7.4 spike + §7.5 sketch. Watch: the dogfood acceptance
-   test is the explicit measurement gate.
-3. **erlexec `:kill_group` / `:exec.kill/2` behaviour on macOS vs Linux** *(LOW × LOW)*.
+1. **Stream-json schema drift across `claude` versions** *(MEDIUM × MEDIUM)*.
+   Mitigated by version pinning, unknown-field pass-through in the parser,
+   Layer 3 integration tests. Canary: `claude --version` check at startup.
+2. **Cold-spawn p95 > 5 s** *(MEDIUM × MEDIUM)*. Mitigated by §7.4 spike
+   + §7.5 sketch. Measured explicitly by the dogfood acceptance test.
+3. **`erlexec` `:kill_group` behaviour on macOS vs Linux** *(LOW × LOW)*.
    Mitigated by Layer 3 process-group cleanup tests on both platforms.
-   Watch: any `pgrep` after-state failure on either platform.
-4. **v1 ships with diagnostic-poor failure modes** *(LOW × MEDIUM,
-   accepted)*. Not mitigated in v1; the proposed Sub-M (Observability)
-   is the future home for structured logging. Recorded as accepted v1
-   limitation, not a bug.
+4. **Diagnostic-poor failure modes in v1** *(LOW × MEDIUM, accepted)*.
+   Sub-M (Observability) is the future home for structured logging.
+   Accepted v1 limitation.
