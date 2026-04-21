@@ -223,12 +223,12 @@ Task 13a is implemented.
 
 ### Sub-N depends on F Tasks 2 and 5
 
-F's `Ravel.Actor` behaviour (Task 2) and `ActorSupervisor` child-spec
-API (Task 5) are on the critical path for sub-N Phase 5+. Sub-N Tasks
-16+ cannot start until both are shipped. Sub-N Tasks 1–15 can run
-immediately. Spec:
+F's `Ravel.Actor` behaviour (Task 2, shipped) and `ActorSupervisor`
+child-spec API (Task 5, pending) are on the critical path for sub-N
+Phase 5+. Sub-N Tasks 16+ cannot start until Task 5 ships. Sub-N
+Tasks 1–15 can run immediately. Spec:
 `{{PROJECT}}/docs/superpowers/specs/2026-04-15-sub-N-domain-experts-design.md`.
-Prioritise Tasks 2 and 5.
+Prioritise Task 5.
 
 Sub-N's 29-task plan is complete; ExpertActor internals are locked — treat
 the following as fixed contracts when implementing F's interfaces:
@@ -250,6 +250,21 @@ the following as fixed contracts when implementing F's interfaces:
   `%Expert.DialogueStarted{}`, `%Expert.TurnCompleted{}`,
   `%Expert.ConflictDetected{}`. F's actor behaviour must not conflict
   with these shapes.
+
+### `Ravel.Actor` callback set is locked
+
+Five callbacks: `actor_id/1`, `actor_type/1`, `handle_actor_message/2`,
+`snapshot/1`, `restore/1`. `retrieve/3`, `persona`, `knowledge_scope`,
+and `absorb_candidate` are explicitly absent — their exclusion is
+enforced by a negative test and preserves the `ExpertRetrieval` boundary
+(see sub-N section).
+
+### Actor message types use wide placeholder types
+
+`Ravel.Actor` declares message and response type specs as wide term
+types rather than `Ravel.Message.*` struct references. Callers compile
+before those structs exist; no phantom modules are created. Narrow the
+types once `Ravel.Message.*` structs land.
 
 ### F's gate on sub-B and sub-C
 
