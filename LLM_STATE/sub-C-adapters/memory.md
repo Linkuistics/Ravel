@@ -172,11 +172,20 @@ mechanism that makes the gate concrete.
 
 ## Verified Claude Code CLI surface
 
-This section accumulates verified facts about the `claude` binary as
-day-1 verification tasks resolve. Each entry records the source command,
-the pinned `claude` version, and the verification timestamp.
+Source: BEAM PTY spike (`spikes/beam_pty/`). `claude` version and
+formal fixture copy happen in Task 3; the entries below are pre-verified
+by the spike and will be locked at that point.
 
-*(Empty until Task 3 lands.)*
+- **Initial prompt must be an NDJSON user envelope on stdin.** `--print`
+  with `--input-format stream-json` does NOT accept a CLI-arg prompt;
+  the CLI-arg form errors with "Input must be provided either through
+  stdin or as a prompt argument when using --print". Every prompt,
+  including the initial one, ships via `:exec.send/2`.
+- **stream-json field names confirmed.** `type`, `subtype`, `content`,
+  `tool_use`, `is_error`. Event types seen: `system/init`,
+  `rate_limit_event`, `assistant/thinking`, `assistant/text`,
+  `result/success`. Canonical samples at
+  `spikes/beam_pty/results/full-run.log`.
 
 ## Dependencies on sibling sub-projects
 
@@ -214,13 +223,7 @@ the pinned `claude` version, and the verification timestamp.
   C deliberately does **not** commit to a structured logging crate
   (`tracing`, `slog`, `log`, etc.) so M has full freedom.
 
-## BEAM / Elixir pivot (Session 9 amendment)
-
-The orchestrator's Session 9 committed Ravel to a persistent BEAM
-daemon (Elixir/OTP). Sub-C's entire design was brainstormed assuming Rust
-with actor threading. The orchestrator now tracks a "Sub-C amendment —
-Elixir implementation and multi-adapter reservation" task with the
-following consequences:
+## BEAM / Elixir pivot
 
 - **Implementation language**: Elixir, not Rust.
 - **Process spawning**: `erlexec` replaces `std::process::Command`.
@@ -234,9 +237,7 @@ following consequences:
 - **Multi-adapter support**: reserved for sub-O; sub-C ships
   single-adapter only.
 
-**BEAM PTY spike resolved (Session 10, 2026-04-15).** The spike validated
-that pipes-only `erlexec` works perfectly for driving Claude Code's
-stream-json protocol. Key findings:
+**BEAM PTY spike: pipes-only erlexec works.** Key findings:
 
 1. **PTY premise was wrong** — `claude -p --input-format stream-json
    --output-format stream-json` is pure NDJSON over stdio; no
@@ -255,54 +256,33 @@ stream-json protocol. Key findings:
 
 Spike code at `spikes/beam_pty/`.
 
-**Impact on existing backlog**: every task in `backlog.md` is written
-against the Rust implementation assumption (Cargo.toml, `src/harness/`,
-crossbeam, nix, etc.). The backlog must be rewritten for Elixir/OTP
-before implementation begins. The task *sequence* (types → fixture replay
-→ live adapter → tests → dogfood gate) and the *design intent* (tool
-profiles, process-group termination, cold-spawn latency gate, fixture
-replay parity) remain valid; only the implementation technology changes.
+**Backlog rewrite complete (29 tasks).** All tasks (1–29) are written in
+Elixir idiom. Tasks 28–29 cover §4.5 tool-call boundary, absorbed from
+sub-F amendment. `prompt-work.md` still carries Rust framing — intentional
+scope boundary per sub-B precedent, not a regression. The task *sequence*
+(types → fixture replay → live adapter → tests → dogfood gate) and the
+*design intent* (tool profiles, process-group termination, cold-spawn
+latency gate, fixture replay parity) are unchanged.
 
-**Design doc rewritten for the pivot (Session 11, 2026-04-15).** Rather
-than layering a supersede-amendment on top of the Rust brainstorm, the
-spec was **rewritten inline across §1–§11** with fresh Elixir/OTP
-content. The original Session 6 decisions survive only in Appendix A
-(as Q1–Q5, with spike corrections), and new Appendix A entries Q6–Q8
-record the BEAM pivot, the BEAM PTY spike findings, and the tool-call
-boundary contract. The rewrite covers: Elixir-native scope (§1), the
-GenServer + DynamicSupervisor architecture with module layout and
-supervision tree placement (§2), the `@behaviour Ravel.HarnessAdapter`
-surface and the `Ravel.Event.*` sealed typed-struct set (§3), the
-full ClaudeCode adapter with the normative `:exec.run/2` spawn path,
-cmux mitigation flags, session GenServer state and message set,
-stream-json parser locked against spike samples, two-phase SIGTERM→SIGKILL
-termination, **tool-call boundary for in-session Queries** (new §4.5:
-injected tool set `ask_expert`/`dispatch_to_plan`/`read_vault_catalog`,
-three candidate injection mechanisms, intercept flow via
-`Ravel.Router.handle_tool_call/4`, why-not-control-channel), and
-the `CrashedBeforeReady` heuristic and error-reason table (§4.6). §5
-re-casts FixtureReplay as a GenServer walking JSON-Lines records via
-`Process.send_after/3`. §6-§8 preserve tool-profile enforcement,
-cold-spawn / C-1 gate, and a three-layer ExUnit testing strategy. §9
-Risks adds exec-port loss and tool-call-boundary injection brittleness;
-§10 marks Q3/Q4 **resolved by the spike**, keeps Q1/Q2/Q5, and adds Q6
-(tool-call boundary mechanism — day-1 spike) and Q7 (exec-port
-supervision — resolved as design decision). §11 drops Rust-specific
-amendments 1-3 back to B (no BEAM analogue) and keeps the consumed
-`%SessionLifecycle{}` event plus the sentinel-matcher executor
-requirement. Appendix B replaces the Cargo.toml diff with an `mix.exs`
-projection — one new Hex dep (`erlexec`). **The rewritten spec is the
-starting point for the rewritten task list in `backlog.md`.**
+**Spec rewritten inline for Elixir/OTP across §1–§11.** See spec for
+full content; Appendix A (Q1–Q8) records the original Rust decisions,
+spike findings, and the tool-call boundary contract.
 
-**Pattern note**: the user explicitly prefers pivot-induced inline
-rewrites over supersede-layer amendments. Recorded as durable feedback
-memory. Applies to all remaining amendment tasks in the orchestrator
-backlog (sub-A, sub-B, sub-D, sub-E, sub-M, sub-G, sub-H, sub-I).
+## Implementation state
+
+**Backlog complete; implementation not yet started.** Task 1 is the
+current unblocked entry point.
+
+**`mix.exs` scaffold already exists from sub-D.** Commits 46e5b0d,
+4c9c753, 47c6498 landed `mix.exs`, `.formatter.exs`, `.tool-versions`,
+`lib/ravel/coordination/`, `lib/ravel/file_io.ex`, `lib/ravel/vault_git.ex`.
+Task 1 adds `{:erlexec, "~> 2.2"}` to that existing file and creates the
+`lib/ravel/harness_adapter/` skeleton on top of the existing scaffold.
+
+**`prompt-work.md` carries Rust framing.** Intentional; not a Task 0
+regression. Matches sub-B precedent.
 
 ## Open questions (implementation-level)
-
-These are the §10 verification IOUs from the spec. Each is a day-1
-implementation task with an explicit resolution method.
 
 1. **Exact spelling of empty-tool-list value for `--allowed-tools`.**
    Candidates: `""`, `none`, omitting the flag and using
@@ -312,31 +292,16 @@ implementation task with an explicit resolution method.
    `acceptEdits`, `bypassPermissions`, `dangerouslySkipPermissions`.
    Security implications differ. Resolution: behavioural test against
    each candidate touching a tmpdir file. Resolves Task 3.
-3. **Whether `--print "<prompt>"` accepts a prompt arg alongside
-   `--input-format stream-json`.** **RESOLVED by the BEAM PTY spike
-   (Session 10).** With `--input-format stream-json`, the initial prompt
-   must be delivered as the first stdin envelope via `:exec.send/2`. The
-   CLI-arg form errors with `Input must be provided either through stdin
-   or as a prompt argument when using --print`. Lock: every prompt —
-   including the initial one — ships as an NDJSON user envelope on stdin.
-4. **Exact stream-json field names** (`type`, `subtype`, `content`,
-   `tool_use`, `is_error`). **RESOLVED by the BEAM PTY spike (Session 10).**
-   Canonical samples captured in `spikes/beam_pty/results/full-run.log`
-   covering `system/init`, `rate_limit_event`, `assistant/thinking`,
-   `assistant/text`, and `result/success`. Copy into
-   `test/fixtures/harness/captured-stream-json/` during implementation
-   Task 3 and lock the Elixir parser module against them.
-5. **Warm-pool reset mechanism** (structured envelope vs `/clear` text
+3. **Warm-pool reset mechanism** (structured envelope vs `/clear` text
    vs degraded single-use). Resolution: §7.4 three-check spike protocol.
    **Conditional** — only fires if the C-1 gate trips.
-6. **Tool-call boundary mechanism for in-session Queries** (new, from
-   design doc §12.5). How are Ravel-injected tools (`ask_expert`,
+4. **Tool-call boundary mechanism for in-session Queries** (spec §12.5). How are Ravel-injected tools (`ask_expert`,
    `dispatch_to_plan`, `read_vault_catalog`) exposed to a running claude
    session? Candidates: (a) MCP server on Unix socket with
    `--mcp-config`; (b) stdin-side tool-definition preamble; (c)
    plugin-shipped tool shims. Resolution: focused spike at the start of
    C's implementation phase before GenServer wiring is finalised.
-7. **`exec-port` supervision** (new). `erlexec` runs `exec-port` as a
+5. **`exec-port` supervision.** `erlexec` runs `exec-port` as a
    separate OS process. What happens if `exec-port` crashes while live
    sessions exist? Resolution: document expected behaviour — sessions
    are not persistent by design, so a restart drops them and plans
@@ -345,23 +310,17 @@ implementation task with an explicit resolution method.
 
 ## Risk watch list
 
-Ranked by impact × likelihood from §9 of the spec. Each has a mitigation
-path; flag here if implementation reveals the risk materialising.
-
 1. **Claude Code stream-json schema drift across versions** *(MEDIUM × MEDIUM)*.
-   Mitigated by version pinning + `serde(flatten)` rest-fields + Layer 3
+   Mitigated by version pinning + unknown-field pass-through in the parser + Layer 3
    integration tests. Watch: the `claude --version` check at startup is
    the canary.
 2. **Cold-spawn latency exceeds the 5s p95 gate** *(MEDIUM × MEDIUM)*.
    Mitigated by §7.4 spike + §7.5 sketch. Watch: the dogfood acceptance
    test is the explicit measurement gate.
-3. **`nix` dep behaving differently on macOS vs Linux** *(LOW × LOW)*.
+3. **erlexec `:kill_group` / `:exec.kill/2` behaviour on macOS vs Linux** *(LOW × LOW)*.
    Mitigated by Layer 3 process-group cleanup tests on both platforms.
    Watch: any `pgrep` after-state failure on either platform.
-4. **`--input-format stream-json` does not accept the initial prompt as
-   a CLI arg** *(LOW × LOW)*. Mitigated by day-1 verification picking
-   the working path.
-5. **v1 ships with diagnostic-poor failure modes** *(LOW × MEDIUM,
+4. **v1 ships with diagnostic-poor failure modes** *(LOW × MEDIUM,
    accepted)*. Not mitigated in v1; the proposed Sub-M (Observability)
    is the future home for structured logging. Recorded as accepted v1
    limitation, not a bug.
