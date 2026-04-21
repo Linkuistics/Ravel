@@ -18,17 +18,20 @@ input from the user.
 
 > **Top-notice (2026-04-21).** Design doc was rewritten inline
 > Session 11 (2026-04-15) for Elixir/OTP; the downstream task list was
-> rewritten inline on 2026-04-21 (Task 0 below — the orchestrator's
-> remaining critical-path dispatch from 2026-04-16). Tasks 1-25 now
+> rewritten inline on 2026-04-21 (Task 0 — the orchestrator's
+> critical-path dispatch from 2026-04-16; now complete). Tasks 1-29
 > target Elixir idioms: `@behaviour Ravel.HarnessAdapter`, one
 > `GenServer` per session, `erlexec` + `:exec.run/2`, `Jason`-based
 > NDJSON, `:telemetry.execute/3`, `Mix.Task` for dev tooling, ExUnit
 > for tests. Tasks 28-29 cover the §4.5 tool-call boundary (new
 > material absorbed from sub-F's amendment, not present in the Rust
-> backlog). Tasks 26, 27 pre-dated the rewrite and were already
-> Elixir-native. **The `spikes/beam_pty/` corpus is the implementation
-> reference** — capture files live there, the parser field names are
-> locked against them, and the cmux mitigation flags came from it.
+> backlog). Task 30 covers the Layer 3 tool-call boundary smoke test
+> (split from Task 21 to unblock the core Layer 3 test suite from the
+> Task 29 dependency). Tasks 26, 27 pre-dated the rewrite and were
+> already Elixir-native. **The `spikes/beam_pty/` corpus is the
+> implementation reference** — capture files live there, the parser
+> field names are locked against them, and the cmux mitigation flags
+> came from it. Implementation begins at Task 1.
 
 ## Received
 
@@ -37,117 +40,10 @@ input from the user.
 All dispatches absorbed.
 
 1. **Model-configurability dispatch** → promoted to Task 27 on 2026-04-20.
-2. **Elixir backlog rewrite gate** → landed as Task 0 below on 2026-04-21;
-   Tasks 1-25 rewritten inline during the same work phase. See Task 0's
-   `Results:` block for per-task notes on what changed.
+2. **Elixir backlog rewrite gate** → landed as Task 0 on 2026-04-21 (now
+   complete); Tasks 1-25 rewritten inline during the same work phase.
 
 ## Task Backlog
-
-### Task 0 — Rewrite Rust-framed task list against Session-11 design doc `[gate]`
-- **Status:** done (2026-04-21)
-- **Dependencies:** none (gating everything below)
-- **Description:** Sub-C's design was rewritten inline Session 11
-  (2026-04-15) for Elixir/BEAM but Tasks 1-25 still described
-  `Cargo.toml`, `src/harness/`, `crossbeam-channel`, `nix`,
-  `std::process::Command`, `#[derive(Deserialize)]`, Rust traits with
-  `Send + Sync` bounds, `Arc<dyn HarnessSession>`, etc. That drift
-  blocked sub-C implementation (every task had to be mentally
-  translated before being picked up) and blocked sub-F's Task 0, which
-  explicitly gates on "sub-C backlog Tasks 1+ rewritten against the
-  Session-11 design-doc rewrite". This task rewrites the backlog
-  in-place against the Elixir-native spec, task-by-task, preserving
-  numbering so external cross-references (e.g., orchestrator memory's
-  "Task 27" reference) stay valid.
-
-  **Checklist for the rewrite (all rows done):**
-
-  1. **Replace Rust build-surface references** (`Cargo.toml` → `mix.exs`;
-     `cargo build` → `mix compile`; `cargo test` → `mix test`;
-     `cargo clippy`/`cargo +nightly fmt` → `mix format` + `mix credo`
-     where applicable).
-  2. **Replace dep names.** The three Rust deps (`which`, `nix`,
-     `crossbeam-channel`) are replaced by one Hex dep: `{:erlexec, "~> 2.2"}`.
-     `serde_json`/`serde` becomes `Jason`. `chrono` becomes `DateTime`.
-     `thiserror` has no direct equivalent (Elixir uses tagged tuples /
-     exceptions). `tracing::instrument`/`metrics::*` becomes
-     `:telemetry.span/3` / `:telemetry.execute/3`.
-  3. **Replace module layout.** `src/harness/` → `lib/ravel/harness_adapter/`
-     per spec §2.2. Per-file mapping: `trait_def.rs` → `harness_adapter.ex`
-     + `event.ex`; `claude_code/{mod,session,actor,stream_json,spawn,input}.rs`
-     → `claude_code/{adapter,session,stream_json,spawn,input,tool_call_boundary}.ex`;
-     `fixture_replay/{mod,session,actor,format}.rs` →
-     `fixture_replay/{adapter,session,format}.ex`. The adapter-vs-actor
-     split collapses to one Session GenServer per session; the actor
-     loop is the GenServer's `handle_info/2` / `handle_call/3` /
-     `handle_cast/2` dispatch.
-  4. **Replace trait surface with behaviour + GenServer contract.**
-     `trait HarnessAdapter` → `@behaviour Ravel.HarnessAdapter` with a
-     single callback `spawn/1` (plus `kind/0`); `trait HarnessSession`
-     collapses into the documented message set of the Session GenServer
-     (§3.2). The Rust trait-object plumbing (`&mut self` → `&self`,
-     `Box<dyn>` → `Arc<dyn>`, `Send + Sync`) has no BEAM analogue and is
-     removed. Per spec §11.1, three of the five original sub-B trait
-     amendments are eliminated; two substantive cross-project
-     requirements survive (consumed `%SessionLifecycle{}` event + B's
-     sentinel matcher).
-  5. **Replace output types with typed events.** `OutputChunk` →
-     `%Ravel.Event.HarnessOutput{}`; `OutputChunkKind::SessionLifecycle`
-     → separate `%Ravel.Event.SessionLifecycle{}` struct;
-     `SessionExitStatus` → `%Ravel.Event.SessionExitStatus{}`;
-     `AdapterError` → tagged-tuple reasons inside
-     `SessionExitStatus.reason`; `SpawnLatencyReport` →
-     `%Ravel.Event.SpawnLatencyReport{}`. Delivery is
-     `{:harness_event, session_id, event}` info messages to attached
-     consumer pids, not trait method returns.
-  6. **Replace threading primitives.** Three Rust threads per session
-     (actor + stdout-reader + stderr-reader) collapse into one
-     GenServer per session; erlexec's `{:stdout, ospid, line}` /
-     `{:stderr, ospid, line}` / `{:DOWN, _, :process, _, reason}`
-     messages arrive directly in the GenServer mailbox.
-     `crossbeam-channel::select!` is replaced by `handle_info/2`
-     pattern matching. The `Mutex<Option<JoinHandle>>` for
-     `wait()` becomes `GenServer.call(pid, {:await_exit, timeout})`
-     with a reply-on-DOWN pattern.
-  7. **Replace process-group primitives.** `process_group(0)` at spawn
-     time → `:kill_group` option in erlexec's `exec_opts` list;
-     `nix::sys::signal::killpg` → `:exec.kill(ospid, signal)`; the
-     explicit 500 ms SIGTERM→SIGKILL escalation becomes a
-     `Process.send_after(self(), :escalate_kill, 500)` timer handled in
-     `handle_info/2`.
-  8. **Replace test surface.** `cargo test --lib` → `mix test`;
-     `RAVEL_TEST_LIVE_HARNESS=1` → `@moduletag :live` with
-     `mix test --only live`; integration tests live under
-     `test/ravel/harness_adapter/`. `tests/fixtures/harness/...` →
-     `test/fixtures/harness_adapter/...`; `tests/fixtures/sub-C-warm-pool-spike/`
-     → `test/fixtures/sub_c_warm_pool_spike/`.
-  9. **Replace dev tooling surface.** `ravel dev record-fixture`
-     subcommand → `mix ravel.dev.record_fixture` Mix task under
-     `lib/mix/tasks/`. CLI flag shape is unchanged.
-  10. **Absorb Session-11 additions not present in the Rust backlog.**
-      §4.5 tool-call boundary is new: adds Task 28 (day-1 injection
-      mechanism spike — §10 Q6) and Task 29 (intercept wiring —
-      `tool_call_boundary.ex` + `{:router_reply, _, _}` handler). Pin
-      check `claude --version` at adapter init (spec §9 Risk 1) is now
-      part of Task 17 (adapter module).
-  11. **Preserve numbering.** Tasks 1-25 remain Tasks 1-25 with their
-      original titles shifted to Elixir idiom. Tasks 26 and 27 were
-      already Elixir-native (post-rewrite). Tasks 28 and 29 are new.
-
-- **Results:** Rewrite completed 2026-04-21. Every task below was
-  re-read against the Session-11 design doc and rewritten where Rust
-  idiom remained. Preserved task sequence and numbering (1-27) per the
-  external-cross-reference constraint; added Tasks 28-29 for the
-  tool-call boundary (new material from sub-F's amendment). Spec
-  section anchors (§N.N) are the same in the rewritten spec, so
-  existing "§X of the spec" references remain accurate. No downstream
-  plans block on further cleanup; sub-F's Task 0 gate is satisfied by
-  this completion. One known follow-up not covered here:
-  `{{PLAN}}/prompt-work.md` also carries Rust framing (`cargo test`,
-  `crossbeam-channel`, `process_group(0)`, "trait surface", etc.); it
-  was left untouched to keep this gate task scoped to the backlog, and
-  matches the precedent from sub-B where the same prompt file was not
-  rewritten alongside the backlog. Surface as an analyse-work finding
-  if that gap should close in the same cleanup pass.
 
 ### Task 1 — `mix.exs` deps + module skeleton `[setup]`
 - **Status:** not_started
@@ -407,7 +303,7 @@ All dispatches absorbed.
     returns the terminated status.
   - Tool-profile violation fixture surfaces
     `%SessionExitStatus{reason: {:tool_profile_violation, _}}` (the
-    defence-in-depth layer from Task 13's GenServer fires on the
+    defence-in-depth layer from Task 12's `handle_info/2` fires on the
     `tool_use` event).
   - `:crashed_before_ready` fixture shape round-trips cleanly
     (live-heuristic coverage is a Task 16 concern).
@@ -821,11 +717,10 @@ All dispatches absorbed.
   out of order to consumers. Tests must fail loudly on any such bug.
 - **Results:** _pending_
 
-### Task 21 — Layer 3 ExUnit integration tests against real `claude` `[testing]`
+### Task 21 — Layer 3 ExUnit integration tests against real `claude` (core scenarios) `[testing]`
 - **Status:** not_started
 - **Dependencies:** Task 16 (adapter), Task 17 (latency
-  instrumentation), Task 14 (termination), Task 29 (tool-call
-  boundary — needed for the boundary smoke test only)
+  instrumentation), Task 14 (termination)
 - **Description:** Implement spec §8.3 Layer 3 tests under
   `test/ravel/harness_adapter/live/`, all tagged `@moduletag :live`.
   Run with `mix test --only live`; NOT run in normal CI.
@@ -857,20 +752,18 @@ All dispatches absorbed.
     the first assistant event. (This test may be gated by whether the
     running user has cmux hooks configured; skip with a clear
     `@tag :requires_cmux_hooks` if not.)
-  - **Tool-call boundary smoke test** — inject the `read_vault_catalog`
-    tool via a stub router, prompt "list the plans in my vault",
-    assert the session intercepts the `tool_use`, calls the stub
-    router, `:exec.send/2`s the `tool_result` envelope back, and
-    Claude Code consumes the result and continues its turn.
 
   Layer 3 is the canary that catches Claude Code version drift —
-  schema changes and flag renames fail here first.
+  schema changes and flag renames fail here first. The tool-call
+  boundary smoke test is in Task 30 (split out to unblock this suite
+  from the Task 29 dependency).
 - **Results:** _pending_
 
 ### Task 22 — C-1 dogfood acceptance gate (the swap-in moment for B's stub) `[acceptance]`
 - **Status:** not_started
-- **Dependencies:** Task 21 (Layer 3 green), and B's executor far
-  enough along to accept the swap (coordinated with sub-B's plan)
+- **Dependencies:** Task 21 (Layer 3 core green), Task 30 (tool-call
+  boundary smoke test green), and B's executor far enough along to
+  accept the swap (coordinated with sub-B's plan)
 - **Description:** The v1 acceptance gate for sub-project C and the
   joint v1 acceptance gate with sub-project B. Per spec §7.3:
 
@@ -1232,7 +1125,32 @@ All dispatches absorbed.
   expected args (via a stub router pid), assert the `tool_result`
   envelope is encoded and sent.
 
-  Integration test (Task 21 gate covers this): the Layer 3 tool-call
-  boundary smoke test exercises the full intercept → router stub →
-  `tool_result` → harness-continues loop.
+  Integration test (Task 30): the Layer 3 tool-call boundary smoke
+  test exercises the full intercept → router stub → `tool_result` →
+  harness-continues loop.
+- **Results:** _pending_
+
+### Task 30 — Layer 3 tool-call boundary smoke test `[testing]`
+- **Status:** not_started
+- **Dependencies:** Task 28 (injection mechanism resolved), Task 29
+  (boundary intercept wiring), Task 21 (core Layer 3 tests green)
+- **Description:** The tool-call boundary live test extracted from
+  Task 21 to unblock the core Layer 3 test suite from the Task 29
+  dependency. A single `@moduletag :live` scenario in
+  `test/ravel/harness_adapter/live/tool_call_boundary_test.exs`:
+
+  - **Tool-call boundary smoke test** — stand up a stub router pid
+    that acts as `state.router`; inject the `read_vault_catalog` tool
+    via the Session GenServer's `injected_tools` set; prompt "list the
+    plans in my vault"; assert the session intercepts the `tool_use`
+    event (does **not** forward it to consumers), calls the stub router
+    with `{:tool_call, "read_vault_catalog", input, reply_ref: id}`,
+    the stub sends `{:router_reply, id, result}` back, the session
+    encodes a `tool_result` envelope and `:exec.send/2`s it to the
+    child, and Claude Code consumes the result and continues its turn
+    (a subsequent `:stdout` chunk arrives).
+
+  Tagged `@moduletag :live`; run with `mix test --only live`. This
+  test is a hard dependency of the C-1 dogfood gate (Task 22) because
+  real orchestrator cycles use injected tools.
 - **Results:** _pending_
