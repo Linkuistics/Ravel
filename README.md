@@ -271,6 +271,13 @@ Multiple Ravel daemons on different machines communicate via BEAM's native distr
 | **Harness adapter** | Elixir | `erlexec` for PTY (sub-C, pending BEAM spike) |
 | **Integration boundary** | — | Unix socket + NDJSON (protocol frozen early) |
 
+### External tools
+
+| Tool | Purpose | Install |
+|---|---|---|
+| `flock(1)` (util-linux) | System-wide daemon singleton lock via kernel-enforced `flock(2)`. Auto-released on process death — required for crash recovery. See sub-D spec §2. | Linux: preinstalled. macOS: `brew install flock`. |
+| `git` | Vault commits for user-approved routing-rule suggestions (sub-D spec §4.2) and general vault history. | Preinstalled on macOS/Linux. |
+
 ### Why Elixir on BEAM?
 
 The architecture is literally OTP. Actor model, supervision, message passing, hot code reload, distribution transparency — every single one is a BEAM primitive we would otherwise hand-roll. When a design process independently arrives at OTP's design decisions, that's the universe telling you which runtime to use.
