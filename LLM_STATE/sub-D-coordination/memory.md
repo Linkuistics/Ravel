@@ -44,6 +44,28 @@ non-issue by design constraint.
 External-tool conflicts are rare. The typical workflow has the daemon as
 sole writer during phase cycles. Co-equal-actors is a fallback guarantee.
 
+## Implementation state
+
+### Mix project scaffolded at repo root; Elixir 1.19.5-otp-28 / Erlang 28.0
+`.tool-versions` pins these versions. Mix project root is the repo root.
+`mix format --check-formatted` and `mix test` both pass.
+
+### FreshnessTracker: GenServer owns ETS table `:ravel_freshness`
+Table flags: `:named_table, :public, read_concurrency: true`.
+Source: `lib/ravel/coordination/freshness_tracker.ex`.
+
+### ETS crash drops all hashes; degradation is safe
+On GenServer crash the table is destroyed and all hashes are lost.
+Next `check/1` call returns `:untracked`. Callers treat `:untracked` as
+"assume changed" — no stale-positive freshness verdicts after crash.
+
+### `check/1` returns four variants, not two
+`:untracked | :unchanged | {:changed, hash} | {:error, File.posix()}`.
+Spec §3.2 had two variants. `:untracked` distinguishes "never tracked"
+without a separate ETS preflight. `{:error, File.posix()}` is consumed
+by `FileIO.write_safe/3` per spec §3.3 step 6. The wider type is
+tacitly required by the rest of the spec.
+
 ## Sibling integration points
 
 - Sub-B: `copy_back/2` → `FileIO.write_safe(path, content, :phase_owned)`
