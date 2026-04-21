@@ -46,9 +46,12 @@ sole writer during phase cycles. Co-equal-actors is a fallback guarantee.
 
 ## Implementation state
 
+### Sub-D feature-complete for v1
+All modules implemented: `FreshnessTracker`, `FileIO`, `SingletonLock`, `VaultGit`.
+Full suite: 36 tests, 0 failures. `mix format --check-formatted` clean.
+
 ### Mix project scaffolded at repo root; Elixir 1.19.5-otp-28 / Erlang 28.0
 `.tool-versions` pins these versions. Mix project root is the repo root.
-`mix format --check-formatted` and `mix test` both pass.
 
 ### FreshnessTracker: GenServer owns ETS table `:ravel_freshness`
 Table flags: `:named_table, :public, read_concurrency: true`.
@@ -66,10 +69,11 @@ without a separate ETS preflight. `{:error, File.posix()}` is consumed
 by `FileIO.write_safe/3` per spec §3.3 step 6. The wider type is
 tacitly required by the rest of the spec.
 
-### FileIO implemented; all 9 spec branches pass
-`lib/ravel/file_io.ex` (~165 lines). `read_tracked/1` and `write_safe/3`
-cover the full category-based dispatch from spec §3.3. Smoke-tested
-end-to-end against a real tmpdir; no regressions in FreshnessTracker tests.
+### FileIO implemented; all 9 spec branches covered
+`lib/ravel/file_io.ex`. `read_tracked/1` and `write_safe/3` cover the
+full category-based dispatch from spec §3.3. 16-test suite includes
+rebaseline-after-conflict, atomic-write fault-injection via
+`File.chmod!(dir, 0o555)`, and 50-iteration write-loop consistency.
 
 ### `atomic_write!/2` places temp file in same directory as target
 Temp file goes in `Path.dirname(path)`, not `System.tmp_dir!/0`.
@@ -89,6 +93,35 @@ adding a public API to `FreshnessTracker`.
 ### Unexpected `check/1` errors raise `File.Error` immediately
 `{:error, reason}` where `reason != :enoent` raises rather than returning
 an error tuple. Hard-error-by-default; only `:enoent` is soft-handled.
+
+### SingletonLock implemented
+`lib/ravel/coordination/singleton_lock.ex`. Uses `:spawn_executable` to
+avoid shell orphan issues. `:lock_dir` opt available for test isolation.
+Hard-errors with `{:error, {:flock_missing, _}}` when `flock(1)` absent.
+11 tests, all passing.
+
+### `flock(1)` absent from macOS default PATH
+`flock(1)` is util-linux, not installed on macOS by default.
+`brew install flock` required. `SingletonLock` hard-errors on absence
+rather than silently misbehaving.
+
+### `cat` child holds the port-based lock; `sleep infinity` is GNU-ism
+`sleep infinity` is unavailable on macOS BSD `sleep`. `cat` is the
+portable substitute: lock lifetime is bound to its stdin pipe; BEAM
+closes the pipe on port close or daemon exit, releasing the lock cleanly.
+
+### `Port.close` is async; tests poll for release
+`Port.close` returns before the OS process exits. Test helpers poll at
+25ms intervals via `wait_for_lock_release/1`.
+
+### VaultGit implemented
+`lib/ravel/vault_git.ex`. `commit/3` uses a `with` chain over two
+`run_git/2` calls. `index.lock` substring in stderr classifies as
+`{:error, :index_lock_held}`. No retry per spec §4.2. 4 tests, all passing.
+
+### Git test repos need `--initial-branch=main` and `commit.gpgsign=false`
+`git init --initial-branch=main` prevents ambiguous default branch.
+`commit.gpgsign=false` prevents CI hang on missing GPG key.
 
 ## Sibling integration points
 
