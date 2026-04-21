@@ -66,6 +66,30 @@ without a separate ETS preflight. `{:error, File.posix()}` is consumed
 by `FileIO.write_safe/3` per spec §3.3 step 6. The wider type is
 tacitly required by the rest of the spec.
 
+### FileIO implemented; all 9 spec branches pass
+`lib/ravel/file_io.ex` (~165 lines). `read_tracked/1` and `write_safe/3`
+cover the full category-based dispatch from spec §3.3. Smoke-tested
+end-to-end against a real tmpdir; no regressions in FreshnessTracker tests.
+
+### `atomic_write!/2` places temp file in same directory as target
+Temp file goes in `Path.dirname(path)`, not `System.tmp_dir!/0`.
+Guarantees `rename(2)` atomicity — cross-mount rename is non-atomic
+on most filesystems.
+
+### FileIO diagnostics use Logger, not `:telemetry`
+`:telemetry` dep absent from `mix.exs`; sub-M (the consumer) is unbuilt.
+All four diagnostic paths (`:warn`/`:info`) emit via `Logger` with
+structured metadata. Swapping to `:telemetry.execute/3` when sub-M
+lands is a ~5-line change.
+
+### `rebaseline_hash/1` private helper handles `:human_editable` discard
+Satisfies spec §3.3 step 2c ("update stored hash on discard") without
+adding a public API to `FreshnessTracker`.
+
+### Unexpected `check/1` errors raise `File.Error` immediately
+`{:error, reason}` where `reason != :enoent` raises rather than returning
+an error tuple. Hard-error-by-default; only `:enoent` is soft-handled.
+
 ## Sibling integration points
 
 - Sub-B: `copy_back/2` → `FileIO.write_safe(path, content, :phase_owned)`
