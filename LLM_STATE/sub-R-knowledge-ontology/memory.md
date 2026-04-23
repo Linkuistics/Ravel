@@ -19,30 +19,33 @@ to `{{PROJECT}}/ravel/project-root/` after sub-project G's
 migration lands). It coordinates this sub-plan with its siblings. The
 parent plan's `memory.md` holds cross-sub-project architectural state.
 
-## Key architectural decisions
+## Sub-R is Ravel's declarative reasoning substrate
 
-### Sub-R is Ravel's declarative reasoning substrate
 Sub-R owns both the Datalog engine and the ontology. The engine is
 domain-agnostic; the ontology is the domain-specific fact schema.
 This co-design avoids premature interface splits.
 
-### Purpose-built Datalog in Elixir, not Erlog
+## Purpose-built Datalog in Elixir, not Erlog
+
 Clean Datalog from scratch is simpler and safer than restricting Prolog.
 Bottom-up evaluation guarantees termination by construction. Evaluation
 strategy informed by literature survey (§8.1), not locked a priori.
 
-### Datalog replaces routing.ex in v1
+## Datalog replaces routing.ex in v1
+
 One reasoning substrate, not two. `routing.ex` (Elixir pattern matching)
 → `ontology/routing.dl` (Datalog rules). Sub-F amendment required.
 Datalog is fundamentally better than imperative Elixir for user-facing
 rules.
 
-### .dl source of truth, auto-generated Obsidian views
+## .dl source of truth, auto-generated Obsidian views
+
 Users edit Datalog files directly. The daemon regenerates Markdown views
 for Obsidian browsing on every change. Phoenix LiveView replaces the
 views post-v1.
 
-### Research before implementation
+## Research before implementation
+
 Three literature surveys gate implementation: (1) Datalog evaluation
 strategies, (2) ontology design literature (SKOS, OWL, CYC,
 folksonomies), (3) existing BEAM Datalog libraries. Per user direction:

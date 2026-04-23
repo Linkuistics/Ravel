@@ -45,7 +45,7 @@ M's brainstorm output therefore has two halves:
 These are the decisions most load-bearing for implementation. Consult the
 design doc for full context before acting on any of them.
 
-### Hybrid `tracing` + typed events (Q2 — settled)
+## Hybrid `tracing` + typed events (Q2 — settled)
 
 `tracing` for transport / spans / async / third-party crate integration;
 one canonical `RavelEvent` enum for type discipline at the Ravel
@@ -53,20 +53,20 @@ boundary. The custom code is bounded to one `tracing-subscriber::Layer`
 (`RavelEventLayer`, ≈200 lines). All other layers are stock
 `tracing-subscriber` layers or thin (~30-50 line) wrappers.
 
-### Five standard crates, no custom replacements
+## Five standard crates, no custom replacements
 
 `tracing` + `tracing-subscriber` + `tracing-appender` + `metrics` +
 `metrics-util`. All top-100 by downloads on crates.io. No bespoke event
 bus, subscriber framework, or rotation logic.
 
-### Always-on instrumentation, no debug flags
+## Always-on instrumentation, no debug flags
 
 Every event emit is unconditional. The `RAVEL_LOG` env var only
 controls stderr formatting visibility, not whether events are emitted.
 This is the project-wide always-on principle inherited from sub-project
 C's `SpawnLatencyReport`.
 
-### Vault-scoped persistence
+## Vault-scoped persistence
 
 Operational data lives under `<vault>/runtime/events/` and
 `<vault>/runtime/metrics/` (gitignored, transient). The historical,
@@ -76,7 +76,7 @@ The vault runtime layout integrates with B's existing `<vault>/runtime/`
 subtree (B owns staging, interrupts, ingestion events, locks; M owns
 events, metrics, observability summaries).
 
-### Risk 5 resolution via `InMemoryRingLayer::dump_session`
+## Risk 5 resolution via `InMemoryRingLayer::dump_session`
 
 C's accepted Risk 5 ("v1 ships with diagnostic-poor failure modes") is
 resolved by a one-method-call diagnostic primitive. Every error path in
@@ -86,7 +86,7 @@ to `<vault>/runtime/interrupted/<plan-id>/<phase>-<timestamp>/event-tail.json`.
 The TUI's error display surfaces a "view event tail" action that opens
 the file.
 
-### Staged migration of C's `SpawnLatencyReport` (parallel-emit window)
+## Staged migration of C's `SpawnLatencyReport` (parallel-emit window)
 
 | Phase | C's tactical writer | M's `metric!` calls |
 |---|---|---|
@@ -147,7 +147,7 @@ order:
 Sub-D's design doc (`docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`)
 locks two contracts that sub-M must honour:
 
-### `JsonlWriter` must use `FileIO.write_safe/3` with `:exclusive` category
+## `JsonlWriter` must use `FileIO.write_safe/3` with `:exclusive` category
 
 `Ravel.FileIO` is the **mandatory I/O layer for all daemon file writes**.
 Sub-M's `JsonlWriter` subscriber writes the event log to JSONL files under
@@ -172,7 +172,7 @@ not writes; `JsonlWriter` is write-only, so the main constraint is routing
 file creation and path management through `FileIO` for consistency and
 auditability — not for conflict detection.
 
-### Sub-M subscribes to coordination diagnostic events
+## Sub-M subscribes to coordination diagnostic events
 
 Sub-D §6 requires sub-M to subscribe to coordination events via its
 standard `Ravel.Observability.Handler` telemetry attachment:
@@ -202,7 +202,7 @@ following observability contract that sub-M must honour:
 
 This is a cross-sub-project commitment: sub-H emits; sub-M must handle.
 
-### What sub-M must do (backlog Task 26)
+## What sub-M must do (backlog Task 26)
 
 1. **Sealed struct set (§4.1):** Confirm `%Diagnostic{}` carries `target: String.t()` and `fields: map()`. If not present, add `fields`. Record `"ravel.tui_action"` as an established target value in the Decision Trail.
 
@@ -251,7 +251,7 @@ Q7 records the reporter selection (`Telemetry.Metrics.ConsoleReporter`
 + `SnapshotReporter` for v1, `:telemetry_metrics_prometheus` additive
 in v1.5, OpenTelemetry reserved for v2).
 
-### Design-doc anchors for implementation
+## Design-doc anchors for implementation
 
 Consult the rewritten spec before touching the Rust-flavored backlog
 tasks below.
@@ -317,7 +317,7 @@ tasks below.
   that shaped the rewrite (raising-handler-detach, no-compile-time
   constants, `:pg` vs mpsc, F's growth of §6, A's two new structs).
 
-### Downstream task-list rewrite complete (2026-04-20)
+## Downstream task-list rewrite complete (2026-04-20)
 
 Backlog Task 0 (gate) was executed on 2026-04-20. Tasks 1–23 were
 rewritten against the Session-15 Elixir/OTP design doc. Task 5
@@ -335,7 +335,7 @@ task-list rewrite completed 2026-04-20; sub-M's internal implementation
 runway is now unblocked from the gate side (dependency ordering behind
 sub-B / sub-C / sub-F remains in effect for individual tasks).
 
-### C's rewritten design doc as the concrete Elixir exemplar
+## C's rewritten design doc as the concrete Elixir exemplar
 
 Sub-C's rewritten spec remains the load-bearing producer-side reference
 for the amendment implementation. Use C's §3.3 / §7.2 / §11.4 as the
@@ -346,7 +346,7 @@ Task 24 is the canonical routing/actor producer contract. Sub-A's
 §A.Reference algorithm step 11 is the canonical Vault.BootReady
 producer.
 
-### C's rewritten design doc as the concrete Elixir exemplar
+## C's rewritten design doc as the concrete Elixir exemplar
 
 Sub-C's design doc (`docs/superpowers/specs/2026-04-13-sub-C-adapters-design.md`)
 was fully rewritten in Session 11 for Elixir/BEAM and now provides the
@@ -366,7 +366,7 @@ other sub-projects will follow:
   boundary (spawn, first chunk, init event, turn boundary, tool-use,
   tool-result, terminate, exit) and feeds M's event-tail ring buffer.
 
-### B's rewritten design doc as the concrete phase-lifecycle producer contract
+## B's rewritten design doc as the concrete phase-lifecycle producer contract
 
 Sub-B's design doc (`docs/superpowers/specs/2026-04-12-sub-B-phase-cycle-design.md`)
 was fully rewritten in Session 12 for Elixir/BEAM. §4.4 now defines seven
@@ -391,25 +391,25 @@ input for defining the sealed event struct set in Elixir.
 These do not block implementation but should be resolved during v1 build.
 Mirrors §16 of the spec.
 
-### Q1 — `RavelEvent` typed-payload handoff approach
+## Q1 — `RavelEvent` typed-payload handoff approach
 Thread-local trick vs `Visit` API + `serde_json` round-trip. Microbenchmark
 both approaches on day 1 of implementation. Choice does not affect the
 design.
 
-### Q2 — `InMemoryRingLayer` default capacity
+## Q2 — `InMemoryRingLayer` default capacity
 Spec defaults to 1000 events per session. Whether this is too many or too
 few for the C-1 dogfood envelope can only be measured during the first
 dogfood run. Tune after first cycle.
 
-### Q3 — Whether `ObsidianMaterialiseLayer` lands in v1 instead of v1.5
+## Q3 — Whether `ObsidianMaterialiseLayer` lands in v1 instead of v1.5
 Deferred until v1 ships and dogfood feedback arrives. The decision
 depends on user demand, not implementation cost (the layer is
 straightforward).
 
-### Q4 — `tokio-console` as a recommended layer in v1 docs
+## Q4 — `tokio-console` as a recommended layer in v1 docs
 Try it during v1 development; decide based on developer ergonomics.
 
-### Q5 — Histogram bucket layout
+## Q5 — Histogram bucket layout
 `metrics-util` default vs custom for latency-friendly resolution. Inspect
 default percentile accuracy on synthetic latency data on day 2.
 
@@ -417,26 +417,26 @@ default percentile accuracy on synthetic latency data on day 2.
 
 Mirrors §17 of the spec.
 
-### Risk 1 — `tracing-subscriber` Layer ordering / re-entrancy bugs
+## Risk 1 — `tracing-subscriber` Layer ordering / re-entrancy bugs
 *MEDIUM impact, LOW likelihood.* Mitigation: code review checklist + a
 1M-event re-entrancy integration test (Task 22).
 
-### Risk 2 — Bounded-queue overflows hide real problems
+## Risk 2 — Bounded-queue overflows hide real problems
 *LOW impact, MEDIUM likelihood.* Mitigation: `events.dropped` counter is
 surfaced as a non-zero red badge in the TUI status bar; `ravel diagnose`
 prints a warning if any drops occurred in the session snapshot.
 
-### Risk 3 — C parallel-emit window produces inconsistent data
+## Risk 3 — C parallel-emit window produces inconsistent data
 *LOW impact, LOW likelihood.* Mitigation: verification test (Task 15)
 catches discrepancies before production; ±10ms clock-skew tolerance.
 
-### Risk 4 — `RavelEvent` enum becomes a god object
+## Risk 4 — `RavelEvent` enum becomes a god object
 *MEDIUM impact, MEDIUM likelihood.* Mitigation: most new events go
 through `RavelEvent::Diagnostic` (typed escape hatch); adding a new
 top-level variant requires brief justification in the spec evolution log;
 the bar is "the new variant must have multiple downstream consumers."
 
-### Risk 5 — `metrics` crate facade adds layering overhead
+## Risk 5 — `metrics` crate facade adds layering overhead
 *LOW impact, LOW likelihood.* Mitigation: Ravel's metric volume is
 low; vtable cost is in the nanoseconds. If a high-frequency metric
 appears, emit it directly via `tracing::event!`.

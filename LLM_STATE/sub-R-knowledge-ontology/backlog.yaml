@@ -1,0 +1,290 @@
+tasks:
+- id: literature-survey-datalog-evaluation-strategies
+  title: 'Literature survey: Datalog evaluation strategies'
+  category: research
+  status: not_started
+  dependencies: []
+  description: |
+    Per spec §8.1. Survey semi-naive evaluation (Ullman 1988), magic sets
+    (Bancilhon et al. 1986), demand-driven / top-down with tabling (XSB),
+    incremental maintenance (DRed, Differential Dataflow), trie-based
+    indexing. Assess each against Ravel's query patterns: small fact base
+    (<10k facts), frequent point queries, infrequent bulk re-evaluation,
+    BEAM runtime. Output: a research note naming the chosen strategy with
+    rationale, filed at
+    `{{PROJECT}}/docs/research/datalog-evaluation-strategies.md`. This
+    gates the `Ravel.Datalog` core evaluator task.
+- id: literature-survey-ontology-design
+  title: 'Literature survey: ontology design'
+  category: research
+  status: not_started
+  dependencies: []
+  description: |
+    Per spec §8.2. Survey SKOS (W3C 2009), OWL, CYC microtheory
+    architecture, folksonomy research (Gruber 2007; Mika 2007), Luhmann
+    Zettelkasten indexing. Ground Sub-R's fact schema in established KR
+    practice. Output: additions to
+    `{{PROJECT}}/docs/research-sources.md` and any schema adjustments.
+    May refine the predicate vocabulary in the spec (§3).
+- id: audit-datalog-on-beam
+  title: 'Audit: Datalog on BEAM'
+  category: research
+  status: not_started
+  dependencies: []
+  description: |
+    Per spec §8.3. Audit Erlog (maintenance status, capabilities, Datalog
+    restriction feasibility), Hex.pm for any Elixir/Erlang Datalog
+    packages, ETS performance for our access patterns. Confirm "build
+    custom" is justified per "prefer integration over reinvention."
+    Output: a "why build custom" justification or adoption recommendation.
+    Gates the `Ravel.Datalog` core evaluator task.
+- id: ravel-datalog-core-evaluator
+  title: Ravel.Datalog core evaluator
+  category: impl
+  status: not_started
+  dependencies:
+  - literature-survey-datalog-evaluation-strategies
+  - audit-datalog-on-beam
+  description: |
+    Per spec §2. Implement the Datalog evaluator using the strategy chosen
+    by the evaluation-strategies literature survey. Data model per §2.2.
+    API per §2.4: `new/0`, `assert/2`, `retract/2`, `load_file/2`,
+    `evaluate/1`, `query/2`, `query_one/2`. ETS-backed storage per §2.3
+    with base/derived fact partitioning. Stratified negation with
+    stratifiability check at load time. Domain-agnostic — zero Ravel
+    imports. ~300-500 lines (evaluator only, excluding parser).
+- id: ravel-datalog-parser
+  title: Ravel.Datalog.Parser
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-core-evaluator
+  description: |
+    Per spec §2.5. Custom parser for Datalog syntax: facts
+    (`.`-terminated), rules (`:-`), capitalized variables, lowercase
+    underscore-separated atoms, anonymous variable `_`, `%` comments,
+    `not` negation in rule bodies. Validation: syntax errors with file
+    path + line number, range-restriction enforcement, tag format
+    enforcement. ~150-200 lines.
+
+    **Dependency context:** needs data model types from the core evaluator.
+- id: engine-unit-tests
+  title: Engine unit tests
+  category: test
+  status: not_started
+  dependencies:
+  - ravel-datalog-core-evaluator
+  - ravel-datalog-parser
+  description: |
+    Per spec §9.1. Pure Datalog tests with no Ravel dependencies:
+
+    - Parser: valid syntax, syntax errors with line numbers, edge cases
+    - Evaluation: fixed-point, transitive closure, stratified negation,
+      recursive rules, multiple rules for same predicate
+    - Termination: property-based with StreamData (random fact bases +
+      rules → always terminates)
+    - Query: variable binding, multi-variable, no-result, ground queries
+    - Stratification: valid accepted, unstratifiable rejected
+- id: ontology-fact-schema-vocabulary-relations-rules
+  title: 'Ontology fact schema: vocabulary + relations + rules'
+  category: impl
+  status: not_started
+  dependencies:
+  - literature-survey-ontology-design
+  - ravel-datalog-core-evaluator
+  - ravel-datalog-parser
+  description: |
+    Per spec §3. Author the shipped `.dl` files:
+
+    - `vocabulary.dl` — core `tag/1`, `synonym/2`, `parent/2` facts for
+      the six default experts' domains
+    - `relations.dl` — typed relations (`bridges/2`, `uses/2`,
+      `requires/2`, `related/2`) between concepts
+    - `rules.dl` — derived predicates: `ancestor/2`, `resolves_to/2`,
+      `relevant_expert/2`
+
+    Naming convention: snake_case atoms. Open relation set — document
+    that users add predicates freely.
+
+    **Dependency context:** ontology literature may refine predicates.
+- id: ravel-datalog-server-genserver
+  title: Ravel.Datalog.Server GenServer
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-core-evaluator
+  - ravel-datalog-parser
+  description: |
+    Per spec §2.6. GenServer wrapping the Datalog API. Client API:
+    `query/1`, `query_one/1`, `reload_file/1`, `assert_facts/1`,
+    `retract_facts/1`. Startup: load `ontology/*.dl`, parse expert
+    declarations → assert `expert_tag/2`, evaluate, emit
+    `%OntologyLoaded{}`. Hot reload: re-parse changed file, retract old
+    facts, assert new, re-evaluate, regenerate views, emit event.
+    Filesystem watcher integration for `.dl` and expert declaration files.
+- id: ontology-integration-tests
+  title: Ontology integration tests
+  category: test
+  status: not_started
+  dependencies:
+  - ontology-fact-schema-vocabulary-relations-rules
+  - ravel-datalog-server-genserver
+  description: |
+    Per spec §9.2. Test shipped predicates against known scenarios:
+    synonym resolution (`rustlang` → `rust`), hierarchy traversal,
+    typed-relation matching (`bridges(ffi, rust)` → `rust_expert`
+    relevant for `ffi`), expert matching with six default declarations,
+    orphan detection.
+- id: scopematcher-integration-sub-n-consumer
+  title: ScopeMatcher integration (Sub-N consumer)
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  - ontology-fact-schema-vocabulary-relations-rules
+  description: |
+    Per spec §4.1. Rewrite `ScopeMatcher.match_candidate/2` internals:
+    assert temporary `candidate_tag/1` facts, query `relevant_expert/2`,
+    retract temporaries. Interface unchanged. Kebab-to-snake conversion
+    on input.
+- id: stage-2-classification-integration-sub-e-consumer
+  title: Stage 2 classification integration (Sub-E consumer)
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  - ontology-fact-schema-vocabulary-relations-rules
+  description: |
+    Per spec §4.2. Replace flat tag-set intersection with
+    `resolves_to/2` queries for synonym normalization and optional
+    `ancestor/2` queries for broader tags. Stays deterministic Elixir.
+- id: fact-extraction-normalization-sub-f-consumer
+  title: Fact extraction normalization (Sub-F consumer)
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  - ontology-fact-schema-vocabulary-relations-rules
+  description: |
+    Per spec §4.3. After LLM extracts keywords, normalize each via
+    `resolves_to/2` query. Unresolved keywords pass through. Feeds into
+    routing queries.
+- id: routing-migration-routing-ex-routing-dl-sub-f-amendment
+  title: 'Routing migration: routing.ex → routing.dl (Sub-F amendment)'
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  - ontology-fact-schema-vocabulary-relations-rules
+  description: |
+    Per spec §4.4 and §7. Author `ontology/routing.dl` with routing
+    rules. Rewrite `Ravel.Router.evaluate_rules/2` to call Datalog query.
+    Update Level 2 routing agent prompt to propose Datalog rules. Update
+    rule staging path to `<vault>/runtime/staging/proposed-rules/`.
+    Remove `routing.ex` references from Sub-F codebase.
+- id: consumer-integration-tests
+  title: Consumer integration tests
+  category: test
+  status: not_started
+  dependencies:
+  - scopematcher-integration-sub-n-consumer
+  - stage-2-classification-integration-sub-e-consumer
+  - fact-extraction-normalization-sub-f-consumer
+  - routing-migration-routing-ex-routing-dl-sub-f-amendment
+  description: |
+    Per spec §9.3. One test per consumer:
+
+    - ScopeMatcher: `rustlang` → matches `rust_expert`; `ffi` → matches
+      both `rust_expert` and `ffi_expert`
+    - Stage 2: "Rust FFI callbacks" → canonical tags `[rust, ffi]`
+    - Routing: facts `["rust", "ffi"]` → routes to `rust_expert`
+    - Ontology reload: change `.dl` file, verify consumers see updates
+- id: ontology-context-placeholder-passive-llm-exposure
+  title: '{{ONTOLOGY_CONTEXT}} placeholder (passive LLM exposure)'
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  description: |
+    Per spec §5.1. Implement placeholder substitution in
+    `StagingDirectory::render`. Scope rules: expert sessions get their
+    tag neighborhood, plan sessions get recent fact-extraction keyword
+    neighborhood, routing sessions get full routing rules + relevant
+    tags. Injection format: readable Datalog syntax.
+- id: ontology-query-tool-active-llm-exposure
+  title: ontology.query tool (active LLM exposure)
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  description: |
+    Per spec §5.2. Register `ontology.query` as a tool in Sub-C's adapter
+    for plan/expert sessions. Input: Datalog query string. Output: list
+    of bindings as JSON. Gated by tool profile — internal daemon sessions
+    excluded.
+- id: obsidian-view-generation
+  title: Obsidian view generation
+  category: impl
+  status: not_started
+  dependencies:
+  - ravel-datalog-server-genserver
+  - ontology-fact-schema-vocabulary-relations-rules
+  description: |
+    Per spec §6. Auto-generate four Markdown views from the fact base:
+    `tag-index.md`, `taxonomy.md`, `relations.md`, `routing-rules.md`.
+    Snake-to-kebab conversion for display. Wikilinks to expert
+    declarations. Regenerated on every ontology change. Written to
+    `<vault>/ontology/views/`.
+- id: sub-m-event-structs
+  title: Sub-M event structs
+  category: impl
+  status: not_started
+  dependencies: []
+  description: |
+    Per spec §7.3. Define three new event structs: `%OntologyLoaded{}`,
+    `%OntologyReloadFailed{}`, `%RoutingRuleProposed{}`. Add to Sub-M's
+    sealed event set.
+- id: sub-a-vault-layout-amendment
+  title: Sub-A vault layout amendment
+  category: amendment
+  status: done
+  dependencies: []
+  description: |
+    Per spec §10.2. Update Sub-A's design doc §A4: remove
+    `tag-vocabulary.md` reservation, add `ontology/` directory with
+    contents. Evaluate whether `ravel.toml` schema version needs a bump.
+  results: |
+    Done (2026-04-16). Sub-A design doc rewritten inline:
+    `tag-vocabulary.md` removed, `routing.ex` removed, `ontology/`
+    directory added with full contents, init scaffolding updated, Decision
+    Trail Q8 added. Backlog stub (Task 16) pushed to Sub-A for
+    implementation-time `init` scaffolding changes.
+- id: sub-f-design-doc-amendment
+  title: Sub-F design doc amendment
+  category: amendment
+  status: done
+  dependencies: []
+  description: |
+    Per spec §7.1. Inline rewrite of Sub-F's routing sections:
+    `routing.ex` → `ontology/routing.dl`, Elixir pattern matching →
+    Datalog queries, BEAM hot reload → fact-base reload, Level 2 agent
+    prompt update.
+  results: |
+    Done (2026-04-16). Sub-F design doc rewritten inline: all routing
+    sections updated from Elixir pattern matching to Datalog, vault layout
+    updated, examples converted, Erlog reservation removed, Decision Trail
+    entry added. Backlog stubs (Tasks 29-30) pushed to Sub-F for routing
+    migration + fact extraction normalization.
+- id: sub-i-obsidian-coverage-amendment
+  title: Sub-I Obsidian coverage amendment
+  category: amendment
+  status: done
+  dependencies: []
+  description: |
+    Per spec §7.3. Add `ontology/views/` to Sub-I's data-surface
+    inventory. Document the four auto-generated views.
+  results: |
+    Done (2026-04-16). Sub-I design doc rewritten inline: six new rows in
+    data-surface table (ontology/*.dl + four views), first-open experience
+    updated, cross-sub-project requirements section added, Decision Trail
+    Q6 added. Backlog stub (Task 8) pushed to Sub-I.

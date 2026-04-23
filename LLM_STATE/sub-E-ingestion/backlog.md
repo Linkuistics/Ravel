@@ -19,600 +19,850 @@ objects) should be re-interpreted as Elixir equivalents (structs/typespecs,
 lists, GenStage/Broadway stages, behaviours) during implementation. The
 amendment task below makes this explicit.
 
-## Task Backlog
+**Top-notice (2026-04-16, Session 17 inline rewrite).** The design doc has
+been rewritten inline across §1–§5 + Decision Trail for Elixir/OTP and
+Stage 5 dispatch-to-experts, following the sub-A/sub-B/sub-C/sub-M
+precedent. The authoritative spec is now
+`docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md` (fully
+re-cast). **Implementation tasks below still carry pre-pivot Rust framing
+and must not be executed as written — see Task 0 (rewrite gate) below.**
 
-> **Top-notice (2026-04-16, Session 17 inline rewrite).** The design doc has
-> been rewritten inline across §1–§5 + Decision Trail for Elixir/OTP and
-> Stage 5 dispatch-to-experts, following the sub-A/sub-B/sub-C/sub-M
-> precedent. The authoritative spec is now
-> `docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md` (fully
-> re-cast). **Implementation tasks below still carry pre-pivot Rust framing
-> and must not be executed as written — see Task 0 (rewrite gate) below.**
+## Tasks
 
-### Task 0 — Rewrite implementation task list against Session-17 design doc `[gate]`
-- **Status:** not_started
-- **Dependencies:** Session-17 inline rewrite (**done, 2026-04-16**);
-  follows the sub-B, sub-C, and sub-M sibling-plan gate task pattern
-- **Description:** The Session-17 amendment rewrote the design doc inline,
-  clearing the orchestrator-level amendment task. The downstream task list
-  (all tasks below) still carries pre-pivot Rust framing (`Vec<Section>`,
-  `tokio mpsc`, trait objects, `IngestionEvent` channel, `SafeFileWriter`
-  as a Rust struct, Rust `KnowledgeStore` trait, etc.) and blocks the sub-E
-  v1 implementation runway. Rewrite all implementation tasks to target the
-  Session-17 design doc at
-  `docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
-  (now fully re-cast for Elixir/BEAM + Stage 5 expert dispatch) before
-  picking up any implementation task.
+### Task 0 — Rewrite implementation task list against Session-17 design doc
 
-  **Checklist for the rewrite.**
-  1. **Replace Rust type definitions (current "Define core ingestion types"
-     task).** Elixir structs with `@enforce_keys` and typespecs replace
-     Rust structs. `Vec<T>` becomes lists. `tokio mpsc` channel becomes
-     sub-M's `Ravel.Event.*` bus (no standalone `IngestionEvent`
-     channel — the parallel-emit window collapses to zero per sub-M's
-     adoption matrix). `trait KnowledgeStore` becomes an Elixir behaviour.
-  2. **Re-cast pipeline stage tasks.** Stages 1–4 logic is unchanged but
-     the implementation language is Elixir. `GenStage` or `Broadway`
-     replaces tokio channel wiring. Rust iterator idioms become Elixir
-     `Enum`/`Stream` pipelines. References to Rust crate setup are
-     replaced with `mix.exs` dependency management.
-  3. **Re-cast Stage 5 task.** Stage 5 no longer performs direct store
-     writes. It dispatches candidate entries as `%ExpertAbsorbCandidate{}`
-     messages to tag-matched ExpertActors via `ScopeMatcher.match_candidate/2`
-     (sub-N Task 15 interface). Rules 1–4 and 6 gate what gets dispatched;
-     experts handle the actual write. Orphan candidates (zero tag-matching
-     experts) write to `<vault>/knowledge/uncategorized/` via
-     `SafeFileWriter` (now an Elixir module). Verdict handling: `READY
-     ABSORB`, `READY REJECT`, `READY CROSS_LINK <expert-id>` (max depth 2).
-  4. **Re-cast `SafeFileWriter` task.** Now an Elixir module enforcing the
-     §3 Rule 6 invariants. Same invariants; Elixir implementation.
-  5. **Re-cast event channel task.** Sub-E emits directly to sub-M's sealed
-     `Ravel.Event.*` bus using the six `%Ingestion.*{}` variants
-     (`Applied`, `PromptRequired`, `Deferred`, `Rejected`, `ResearchSession`,
-     `CycleSummary`) defined in sub-M's §4.1. No standalone E-internal
-     channel. Plus the new `%Ingestion.OrphanCandidate{}` struct for the
-     uncategorized write path.
-  6. **Re-cast harness adapter task.** `HarnessAdapter` behaviour (Elixir)
-     replaces the Rust trait. `FixtureAdapter` replays from NDJSON fixture
-     files (aligning with sub-C's NDJSON-over-stdio transport).
-  7. **Wire `Ravel.ReflectExitHook` entry point.** Add a task for
-     implementing the `on_reflect_exit(context)` callback that sub-B's
-     §4.2 behaviour requires. This is Stage 5's trigger entry point; it
-     calls `ingestion_fired_setter` at Stage 5 start and composes the full
-     `run_ingestion_cycle/1` pipeline under `Task.Supervisor`.
-  8. **Update dependency listings.** Every task's Dependencies field should
-     reference Elixir module names and sub-N Task 15 interface contracts,
-     not Rust crate paths or trait objects.
-  9. **Retire the sub-M adoption task as written.** The `[m-adoption]`
-     task below mirrors the pre-pivot parallel-emit pattern. With the
-     inline rewrite, sub-E emits directly to sub-M's bus from Stage 5 — no
-     parallel-emit window. Replace it with a verification/smoke-test task
-     confirming the six `%Ingestion.*{}` variants round-trip correctly
-     through sub-M's `RingBuffer` and `JsonlWriter`.
-- **Results:** _pending_
+**Category:** `gate`
+**Status:** `not_started`
+**Dependencies:** none
 
-### Adopt sub-N Task 15 interface contracts — Stage 5 fan-out types `[amendment]`
-- **Status:** not_started
-- **Dependencies:** none (sub-N Task 15 ships as an early-deliverable PR independently of sub-N Tasks 16+; sub-E can code against these types immediately)
-- **Description:** Sub-N's Session 16 brainstorm (2026-04-15) produced concrete
-  interface contracts that define Stage 5's expert fan-out shape. This task
-  imports / references those contracts and wires them into the F amendment
-  implementation. Concrete items:
-  1. Declare a module alias / dependency on `ScopeMatcher` behaviour (tag-based
-     exact-string set intersection on frontmatter `tags:` fields). Stage 5 uses
-     `ScopeMatcher.match(candidate_tags, expert_tag_set)` to select which
-     ExpertActors receive a given candidate.
-  2. **Parallel fan-out.** Dispatch `%ExpertAbsorbCandidate{}` messages to
-     every tag-matching expert **simultaneously** (not sequentially). Use
-     `Task.async_stream/3` or equivalent OTP parallel-dispatch primitive;
-     the collector waits on all in-flight verdicts before proceeding.
-  3. Use `%ExpertAbsorbCandidate{}` as the message struct Stage 5 sends to each
-     matched ExpertActor. Ensure the struct carries the `ingestion-event-id`
-     provenance field (required for physical-duplication tracing when multiple
-     experts absorb the same candidate).
-  4. Handle all three verdict structs from ExpertActors in the Stage 5
-     collector loop:
-     - `READY ABSORB` — record absorbed; expert writes to its domain subtree.
-     - `READY REJECT` — record rejected; move on.
-     - `READY CROSS_LINK <expert-id>` — re-dispatch to the suggested expert
-       (max depth 2; no recursive cross-linking). Second-round dispatch is
-       non-blocking and uses the same `%ExpertAbsorbCandidate{}` struct.
-  5. Handle `%ExpertConflict{}` and other `%Expert.*` event structs: surface
-     them via the sub-M observability bus for human review; do not block
-     the ingestion cycle. **Conflict definition:** `%ExpertConflict{}` is
-     raised when one expert returns `READY ABSORB` and a different expert
-     returns `READY REJECT` with a non-trivial reason for the same candidate.
-     Trivial rejections (scope-miss, no reason) do not constitute a conflict.
-  6. Implement the **orphan-candidate path**: when `ScopeMatcher` returns an
-     empty set (zero tag-matching experts), sub-E writes the candidate directly
-     to `<vault>/knowledge/uncategorized/` using the same `SafeFileWriter`
-     invariants as Stage 5's normal write path. Emit an
-     `Ingestion.Applied` event with `source: :uncategorized`.
-  7. **Use `Ravel.Expert.DialogueRegistry` with stateless single-turn calls.**
-     Sub-N provides `Ravel.Expert.DialogueRegistry` as the dispatch interface.
-     Stage 5 must invoke it as a stateless single-turn call — one
-     `%ExpertAbsorbCandidate{}` in, one verdict struct back, session ends.
-     Do not design the fan-out collector around multi-turn dialogue; the registry
-     does not support conversational back-and-forth.
-  9. **Implement two distinct timeouts** — do not collapse them:
-     - **Retrieval pipeline timeout (5 seconds):** bounds `ScopeMatcher`
-       match and initial message-send phase. Breach = infrastructure failure;
-       abort the cycle.
-     - **Per-turn session timeout (5 minutes default):** bounds LLM reasoning
-       per ExpertActor session. Configurable in `daemon.toml` under
-       `[experts] turn_timeout_seconds`. Breach = treat as `READY REJECT`
-       for that expert; cycle continues with remaining verdicts.
-  10. Write unit tests for: parallel matched dispatch (all experts receive msg),
-     orphan path, cross-link re-dispatch (depth 1 and depth 2), multi-expert
-     absorption (provenance field present on each write), conflict event
-     surfacing (absorb + non-trivial reject → conflict; scope-miss → no
-     conflict), per-turn timeout → reject (cycle continues), retrieval
-     pipeline timeout → abort.
-- **Results:** _pending_
+**Description:**
 
-### F amendment — expert-dispatched knowledge curation `[amendment]`
-- **Status:** in_progress (spec-level rewrite done; implementation items remain)
-- **Dependencies:** none (unblocked, can run in parallel with A/B/D/M amendments)
-- **Description:** Apply the orchestrator Session 9 BEAM pivot and F's
-  design-doc amendments to sub-E's implementation plan. Concrete changes:
-  1. **Stage 5 re-design:** Replace direct store writes with dispatch-to-experts
-     via Query messages (F's message type). Candidate entries from Stage 4
-     reconciliation are sent as Queries to ExpertActors (sub-N). Experts
-     review in fresh context and absorb, reject, or cross-link. Multi-expert
-     absorption is allowed. The concrete transport mechanism is sub-C's §4.5
-     tool-call boundary: injected tools (`ask_expert`, `dispatch_to_plan`,
-     `read_vault_catalog`) exposed via MCP-over-Unix-socket (preferred),
-     intercepted by the Session GenServer, and routed through
-     `Ravel.Router.handle_tool_call/4`. Query messages from E's pipeline
-     flow through this boundary to reach ExpertActors.
-  2. **Elixir re-cast:** All pipeline stages implemented in Elixir. GenStage
-     or Broadway replaces the tokio-channel pipeline composition. Rust type
-     definitions become Elixir structs with typespecs. Traits become
-     behaviours. `SafeFileWriter` becomes an Elixir module with the same
-     invariant enforcement.
-  3. **Event channel re-cast:** `tokio mpsc` channel becomes either a GenStage
-     producer-consumer or Phoenix.PubSub (aligning with M's `:telemetry` +
-     typed-event-struct pattern). The parallel-emit pattern with M's
-     observability bus is unchanged in intent. **Concrete structs now
-     available:** sub-M's design doc §4.1 (rewritten inline in Session 15,
-     2026-04-15) defines the sealed `Ravel.Event.*` struct set. The six
-     `Ingestion.*` variants (`Ingestion.Applied`, `Ingestion.PromptRequired`,
-     `Ingestion.Deferred`, `Ingestion.Rejected`, `Ingestion.ResearchSession`,
-     `Ingestion.CycleSummary`) are concrete and ready for sub-E to consume.
-     The F amendment must wire sub-E's event emission against these sealed
-     structs rather than defining its own ad-hoc event shapes.
-  4. **Query message contract:** Define the Query message schema that Stage 5
-     sends to experts — must include: candidate entry, proposed op, originating
-     section provenance, confidence, axis, tier routing decision. Sub-N
-     consumes this contract.
-  5. **Update the design spec** at
-     `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
-     to reflect Stage 5 and implementation language changes. Stages 1–4
-     sections unchanged; Stage 5 section rewritten; §2 type definitions
-     re-cast to Elixir; §5 risks updated (BEAM-specific risks replace
-     Rust-specific ones).
-  6. **Implement `Ravel.ReflectExitHook` callback.** Sub-B's §4.2
-     (rewritten for Elixir in Session 12) now defines the concrete behaviour
-     E must implement. The `on_reflect_exit(context)` callback receives
-     `qualified_id`, `plan_dir`, `vault_runtime_dir`,
-     `session_log_latest_entry`, and an `ingestion_fired_setter` closure.
-     E's implementation should call `ingestion_fired_setter` at Stage 5
-     start. B invokes the hook non-blockingly via `Task.Supervisor`; E
-     must handle being run under a task supervisor (no blocking the
-     PlanActor). Wire this as the entry point that composes the full
-     pipeline (`run_ingestion_cycle`).
-  This is the prerequisite amendment task — all other backlog tasks should be
-  read through the lens of this amendment once it lands.
-- **Results:** **Items 1–5 done 2026-04-16 (orchestrator Session 17).** Spec
-  inline-rewritten at `docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
-  per the "amendments rewrite inline, not as supersede layers" discipline.
-  §-numbering preserved for downstream cross-references. Decision Trail gained
-  Q15 (BEAM pivot) and Q16 (Stage 5 expert dispatch) entries plus correction
-  notes folded back into Q1, Q2, Q5, Q9, Q10, Q11, Q13. Concrete wirings:
-  `Ravel.ReflectExitHook` callback contract, `GenStage` pipeline composition,
-  Elixir struct types, `ScopeMatcher.match_candidate/2` call site,
-  `%Ravel.Message.ExpertAbsorbCandidate{}` dispatch, three verdict variants,
-  non-recursive max-depth-2 cross-link, `%Expert.Conflict{}`, orphan path → 
-  `<vault>/knowledge/uncategorized/` via `SafeFileWriter` emitting sub-E-owned
-  `%Ingestion.OrphanCandidate{}`, full consumption of sub-M §4.1's six
-  `%Ingestion.*{}` variants (no parallel sub-E channel — the parallel-emit
-  window collapses to zero per sub-M's adoption matrix), prompt resolution as
-  request-response over sub-M bus + sub-K NDJSON command. Risks 4 (OTP mailbox
-  backpressure) and 5 (`:telemetry` handler crash) added; Risk 1 updated for
-  parallel expert curation. Cross-sub-project requirements section restructured
-  per-sibling (B/C/A/D/F/N/M/H). Rust idiom check clean. **Item 6 remaining:**
-  the actual `Ravel.ReflectExitHook` Elixir implementation is code work, not
-  spec work — it lands when sub-E implementation begins after sub-B's hook
-  module is in place. **Also remaining (separate gate task):** the sub-E
-  implementation task list below still carries Rust framing (`Vec<>`, `tokio
-  mpsc`, trait objects); needs its own rewrite mirroring the sub-B/sub-C/sub-M
-  task-list-rewrite gate-task pattern before any implementation task can be
-  picked up.
+**Dependency context:** Session-17 inline rewrite (**done, 2026-04-16**);
+follows the sub-B, sub-C, and sub-M sibling-plan gate task pattern.
 
-### Delegate `SafeFileWriter` to `FileIO.write_safe/3` `[architecture]`
-- **Status:** not_started
-- **Dependencies:** sub-D `Ravel.FileIO` module (ships as part of sub-D
-  coordination; Session 18 confirmed it is the mandatory I/O layer for all
-  daemon file operations)
-- **Description:** Sub-D's Session 18 established `Ravel.FileIO` as the
-  mandatory file I/O layer for all daemon file operations. Sub-E's
-  `SafeFileWriter` must be re-cast as a thin wrapper that delegates all file
-  writes to `FileIO.write_safe/3` rather than implementing its own
-  atomic-write and conflict-detection logic. Concrete items:
-  1. **Remove `SafeFileWriter`'s own write-safe logic.** Any
-     temp-then-rename, hash-check, or lock implementation inside
-     `SafeFileWriter` must be deleted; `FileIO.write_safe/3` provides this
-     for all callers.
-  2. **Wire file categories correctly.**
-     - Knowledge files being absorbed from ingestion are **`:human_editable`**
-       — human-authoritative; daemon's copy is discarded on conflict.
-     - Ingestion staging files (provenance files, cycle state) are
-       **`:exclusive`** — daemon owns them entirely, no conflict check
-       needed.
-     - There is no `:phase_owned` use case in sub-E currently; document if
-       one surfaces during implementation.
-  3. **`FileIO.read_tracked/1` for all reads.** Any file read that
-     `SafeFileWriter` or Stage 5 performs must use `FileIO.read_tracked/1`
-     (records SHA-256 hash) rather than plain `File.read/1`.
-  4. **Note for "Implement Rule 6" task.** Rule 6's invariants (no writes
-     outside `knowledge/`, no plan-file writes, etc.) remain enforced at the
-     `SafeFileWriter` layer as guard logic before calling
-     `FileIO.write_safe/3`. The physical write path delegates to FileIO;
-     the semantic safety checks remain in `SafeFileWriter`.
-  5. **Conflict response.** When `FileIO.write_safe/3` returns
-     `{:conflict, :external_modification}` for a knowledge file write, treat
-     the candidate as "not written" and emit
-     `%Ingestion.CandidateSkipped{reason: :external_modification}`. This is
-     non-fatal — the conflict is logged and the ingestion cycle continues
-     with remaining candidates (per sub-D §6 "On sub-E").
-  6. **Unit tests.** Verify that: (a) absorbed knowledge files call
-     `FileIO.write_safe/3` with `:human_editable`; (b) staging files call it
-     with `:exclusive`; (c) all reads go through `FileIO.read_tracked/1`;
-     (d) `SafeFileWriter` contains no direct `File.write/File.rename`
-     calls (enforce via Credo custom check or module boundary rule);
-     (e) a `{:conflict, :external_modification}` response emits
-     `%Ingestion.CandidateSkipped{}` and the cycle continues.
-- **Results:** _pending_
+The Session-17 amendment rewrote the design doc inline, clearing the
+orchestrator-level amendment task. The downstream task list (all tasks
+below) still carries pre-pivot Rust framing (`Vec<Section>`, `tokio mpsc`,
+trait objects, `IngestionEvent` channel, `SafeFileWriter` as a Rust struct,
+Rust `KnowledgeStore` trait, etc.) and blocks the sub-E v1 implementation
+runway. Rewrite all implementation tasks to target the Session-17 design
+doc at `docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
+(now fully re-cast for Elixir/BEAM + Stage 5 expert dispatch) before
+picking up any implementation task.
 
-### Define core ingestion types `[types]`
-- **Status:** not_started
-- **Dependencies:** none
-- **Description:** Define the Rust types that flow through the pipeline:
-  `Section`, `StoreSlice`, `ProposedOp`, `ReconciledOp`, `OpType`, `Nature`,
-  `Confidence` (if not already in the crate), `EventSource`, `EventClass`,
-  `PromptResolution`, `IngestionEvent`, `IngestionFailure`, `CycleId`,
-  `PlanId`, `ProjectId`, `PromptId`, `DiffPreview`, `FallbackOp`. Follow the
-  shape defined in §2 and §4 of the spec. These types are the contract the
-  rest of sub-project E's code is written against — get them right first so
-  downstream tasks have a stable target.
-- **Results:** _pending_
+**Checklist for the rewrite.**
 
-### Implement Stage 1 — section parser `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Deterministic parser that reads a plan's `memory.md` and
-  the latest entry from `session-log.md` and returns `Vec<Section>`. Parses
-  H2/H3 section headings as titles, captures section bodies verbatim, extracts
-  `session_date` from session-log, carries `plan_path` and `host_project` as
-  provenance. Pure Rust, no LLM, no filesystem writes. Unit tests against
-  fixture plan files (capture small real-world samples from the existing
-  Ravel-Lite plans as fixtures).
-- **Results:** _pending_
+1. **Replace Rust type definitions (current "Define core ingestion types"
+   task).** Elixir structs with `@enforce_keys` and typespecs replace
+   Rust structs. `Vec<T>` becomes lists. `tokio mpsc` channel becomes
+   sub-M's `Ravel.Event.*` bus (no standalone `IngestionEvent`
+   channel — the parallel-emit window collapses to zero per sub-M's
+   adoption matrix). `trait KnowledgeStore` becomes an Elixir behaviour.
+2. **Re-cast pipeline stage tasks.** Stages 1–4 logic is unchanged but
+   the implementation language is Elixir. `GenStage` or `Broadway`
+   replaces tokio channel wiring. Rust iterator idioms become Elixir
+   `Enum`/`Stream` pipelines. References to Rust crate setup are
+   replaced with `mix.exs` dependency management.
+3. **Re-cast Stage 5 task.** Stage 5 no longer performs direct store
+   writes. It dispatches candidate entries as `%ExpertAbsorbCandidate{}`
+   messages to tag-matched ExpertActors via `ScopeMatcher.match_candidate/2`
+   (sub-N Task 15 interface). Rules 1–4 and 6 gate what gets dispatched;
+   experts handle the actual write. Orphan candidates (zero tag-matching
+   experts) write to `<vault>/knowledge/uncategorized/` via
+   `SafeFileWriter` (now an Elixir module). Verdict handling: `READY
+   ABSORB`, `READY REJECT`, `READY CROSS_LINK <expert-id>` (max depth 2).
+4. **Re-cast `SafeFileWriter` task.** Now an Elixir module enforcing the
+   §3 Rule 6 invariants. Same invariants; Elixir implementation.
+5. **Re-cast event channel task.** Sub-E emits directly to sub-M's sealed
+   `Ravel.Event.*` bus using the six `%Ingestion.*{}` variants
+   (`Applied`, `PromptRequired`, `Deferred`, `Rejected`, `ResearchSession`,
+   `CycleSummary`) defined in sub-M's §4.1. No standalone E-internal
+   channel. Plus the new `%Ingestion.OrphanCandidate{}` struct for the
+   uncategorized write path.
+6. **Re-cast harness adapter task.** `HarnessAdapter` behaviour (Elixir)
+   replaces the Rust trait. `FixtureAdapter` replays from NDJSON fixture
+   files (aligning with sub-C's NDJSON-over-stdio transport).
+7. **Wire `Ravel.ReflectExitHook` entry point.** Add a task for
+   implementing the `on_reflect_exit(context)` callback that sub-B's
+   §4.2 behaviour requires. This is Stage 5's trigger entry point; it
+   calls `ingestion_fired_setter` at Stage 5 start and composes the full
+   `run_ingestion_cycle/1` pipeline under `Task.Supervisor`.
+8. **Update dependency listings.** Every task's Dependencies field should
+   reference Elixir module names and sub-N Task 15 interface contracts,
+   not Rust crate paths or trait objects.
+9. **Retire the sub-M adoption task as written.** The `[m-adoption]`
+   task below mirrors the pre-pivot parallel-emit pattern. With the
+   inline rewrite, sub-E emits directly to sub-M's bus from Stage 5 — no
+   parallel-emit window. Replace it with a verification/smoke-test task
+   confirming the six `%Ingestion.*{}` variants round-trip correctly
+   through sub-M's `RingBuffer` and `JsonlWriter`.
 
-### Implement Stage 2 — deterministic retrieval `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types, Implement Stage 1
-- **Description:** For each `Section`, extract candidate tags using the
-  safe-default heuristic (stop-word-filtered lowercase nouns from the title
-  intersected with the existing tag vocabulary), query the knowledge store,
-  and produce a `StoreSlice` containing the 0–5 entries whose tags overlap.
-  Store access is via a trait `KnowledgeStore` that can be implemented over
-  a real filesystem store or a fixture in-memory store. Unit tests cover:
-  empty store, no matches, 1 match, 5 matches, tag-only matches with no
-  content match, and the stop-word filter.
-- **Results:** _pending_
+**Results:** _pending_
 
-### Implement Rule 1 — confidence mapping `[invariants]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Implement the confidence-derivation matrix from §3 Rule 1
-  as a pure function: `(existing_entry_state, nature, origins) -> Confidence`.
-  Dedicated unit test for every row of the matrix, plus the two monotonic
-  invariants (never-falls-via-ingestion, never-climbs-to-high-in-one-cycle).
-- **Results:** _pending_
+---
 
-### Implement Rule 2 — contradiction gating `[invariants]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types, Implement Rule 1
-- **Description:** Implement the contradiction-gating rule from §3 Rule 2
-  as a pure function: `(ProposedOp, Entry) -> GatedOp`, where the result is
-  either the original `supersede` op (if the confidence and origins rule
-  passes) or a downgraded `append_observation` op with a `contradicts`
-  marker. Unit tests cover: equal-confidence passes, lower-confidence fails,
-  insufficient-origins fails, sufficient-origins passes, same-project-gap
-  edge case.
-- **Results:** _pending_
+### Adopt sub-N Task 15 interface contracts — Stage 5 fan-out types
 
-### Implement Rule 3 — axis derivation `[invariants]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Implement `derive_axis(tags: &[Tag]) -> Axis` using a
-  table-driven rule set loaded from Ravel's config. Fall back to
-  `techniques/` if no rule matches. Unit tests for each axis, the fallback,
-  and an empty-tags case.
-- **Results:** _pending_
+**Category:** `amendment`
+**Status:** `not_started`
+**Dependencies:** none
 
-### Implement Rule 4 — tier routing `[invariants]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types, Implement Rule 1
-- **Description:** Implement the tier-routing rules from §3 Rule 4 as a
-  pure function: `(ReconciledOp, StoreState) -> TierWriteTarget`, where the
-  result names which tier(s) to write to. Handles new entries (always
-  Tier 1), appended observations on single-tier entries, appended
-  observations on dual-tier entries (Tier 2 wins), and the graduation
-  trigger case. Unit tests for each branch. Graduation detection (not the
-  prompt firing — just the detection) is part of this rule.
-- **Results:** _pending_
+**Description:**
 
-### Implement Rule 6 — file-write safety `[invariants]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Implement a `SafeFileWriter` wrapper that enforces the
-  §3 Rule 6 invariants at runtime: writes only inside `<tier1_root>/knowledge/`
-  or `<tier2_root>/knowledge/`, no overwrites, no plan-file writes, required
-  lock held. Every invariant violation returns an error and aborts the
-  cycle. Unit tests attempt each violation class and assert rejection.
-- **Results:** _pending_
+**Dependency context:** sub-N Task 15 ships as an early-deliverable PR
+independently of sub-N Tasks 16+; sub-E can code against these types
+immediately.
 
-### Implement the ingestion-event log `[persistence]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Implement the jsonl append-only event log at
-  `{{ravel_data}}/ingestion-log/YYYY-MM-DD.jsonl`. One function appends
-  a serialised `IngestionEvent` to the current day's file, rotating daily.
-  Another reads events by date range. Implement the minimum write path
-  first; the SQLite derivable index comes later. Unit tests cover serialise/
-  deserialise round-trip, daily rotation, and read-back.
-- **Results:** _pending_
+Sub-N's Session 16 brainstorm (2026-04-15) produced concrete
+interface contracts that define Stage 5's expert fan-out shape. This task
+imports / references those contracts and wires them into the F amendment
+implementation. Concrete items:
 
-### Implement Stage 5 — validate and apply `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Implement Rule 1, Implement Rule 2, Implement Rule 3,
-  Implement Rule 4, Implement Rule 6, Implement the ingestion-event log
-- **Description:** Wire the six invariants together into Stage 5. Takes a
-  `Vec<ReconciledOp>`, runs each through Rules 1–4, applies Rule 6's safety
-  checks, emits `IngestionEvent` records, and performs the actual writes to
-  Tier 1 / Tier 2. Uses a `PromptGate` trait for Rule 5 events so the UI
-  event channel can be stubbed for testing. Integration tests drive Stage 5
-  with fixture ReconciledOps against a tempdir store.
-- **Results:** _pending_
+1. Declare a module alias / dependency on `ScopeMatcher` behaviour (tag-based
+   exact-string set intersection on frontmatter `tags:` fields). Stage 5 uses
+   `ScopeMatcher.match(candidate_tags, expert_tag_set)` to select which
+   ExpertActors receive a given candidate.
+2. **Parallel fan-out.** Dispatch `%ExpertAbsorbCandidate{}` messages to
+   every tag-matching expert **simultaneously** (not sequentially). Use
+   `Task.async_stream/3` or equivalent OTP parallel-dispatch primitive;
+   the collector waits on all in-flight verdicts before proceeding.
+3. Use `%ExpertAbsorbCandidate{}` as the message struct Stage 5 sends to each
+   matched ExpertActor. Ensure the struct carries the `ingestion-event-id`
+   provenance field (required for physical-duplication tracing when multiple
+   experts absorb the same candidate).
+4. Handle all three verdict structs from ExpertActors in the Stage 5
+   collector loop:
+   - `READY ABSORB` — record absorbed; expert writes to its domain subtree.
+   - `READY REJECT` — record rejected; move on.
+   - `READY CROSS_LINK <expert-id>` — re-dispatch to the suggested expert
+     (max depth 2; no recursive cross-linking). Second-round dispatch is
+     non-blocking and uses the same `%ExpertAbsorbCandidate{}` struct.
+5. Handle `%ExpertConflict{}` and other `%Expert.*` event structs: surface
+   them via the sub-M observability bus for human review; do not block
+   the ingestion cycle. **Conflict definition:** `%ExpertConflict{}` is
+   raised when one expert returns `READY ABSORB` and a different expert
+   returns `READY REJECT` with a non-trivial reason for the same candidate.
+   Trivial rejections (scope-miss, no reason) do not constitute a conflict.
+6. Implement the **orphan-candidate path**: when `ScopeMatcher` returns an
+   empty set (zero tag-matching experts), sub-E writes the candidate directly
+   to `<vault>/knowledge/uncategorized/` using the same `SafeFileWriter`
+   invariants as Stage 5's normal write path. Emit an
+   `Ingestion.Applied` event with `source: :uncategorized`.
+7. **Use `Ravel.Expert.DialogueRegistry` with stateless single-turn calls.**
+   Sub-N provides `Ravel.Expert.DialogueRegistry` as the dispatch interface.
+   Stage 5 must invoke it as a stateless single-turn call — one
+   `%ExpertAbsorbCandidate{}` in, one verdict struct back, session ends.
+   Do not design the fan-out collector around multi-turn dialogue; the registry
+   does not support conversational back-and-forth.
+9. **Implement two distinct timeouts** — do not collapse them:
+   - **Retrieval pipeline timeout (5 seconds):** bounds `ScopeMatcher`
+     match and initial message-send phase. Breach = infrastructure failure;
+     abort the cycle.
+   - **Per-turn session timeout (5 minutes default):** bounds LLM reasoning
+     per ExpertActor session. Configurable in `daemon.toml` under
+     `[experts] turn_timeout_seconds`. Breach = treat as `READY REJECT`
+     for that expert; cycle continues with remaining verdicts.
+10. Write unit tests for: parallel matched dispatch (all experts receive msg),
+    orphan path, cross-link re-dispatch (depth 1 and depth 2), multi-expert
+    absorption (provenance field present on each write), conflict event
+    surfacing (absorb + non-trivial reject → conflict; scope-miss → no
+    conflict), per-turn timeout → reject (cycle continues), retrieval
+    pipeline timeout → abort.
 
-### Implement the event channel and UI stub `[ui]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Implement the `IngestionEvent` channel (a tokio mpsc) and
-  a simple stdout/stdin UI stub that prints events and reads
-  `[a/d/r/research]` responses from the terminal. This is the "sub-project E
-  can ship ahead of UI chrome" decoupling from §4 of the spec. The stub is
-  sufficient for all end-to-end integration tests; a real TUI/GUI replaces
-  it later (not in sub-project E's scope).
-- **Results:** _pending_
+**Results:** _pending_
 
-### Define the harness adapter trait and stub `[adapter]`
-- **Status:** not_started
-- **Dependencies:** Define core ingestion types
-- **Description:** Define the minimum `HarnessAdapter` trait sub-project E
-  needs: `spawn_session(tool_profile, prompt, context) -> SessionHandle`,
-  with methods for capturing output and signalling completion. Tool profiles
-  are `IngestionMinimal | ResearchBroad`. Implement a `FixtureAdapter` that
-  replays responses from JSON fixture files. This is a temporary
-  placeholder; the real implementation is sub-project C's responsibility.
-  Record the required interface as a hard dependency in sub-project C's
-  backlog (cross-plan task).
-- **Results:** _pending_
+---
 
-### Implement Stage 3 — per-section LLM ops `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Implement Stage 2, Define the harness adapter trait and
-  stub
-- **Description:** For each `(Section, StoreSlice)` pair, spawn a fresh
-  session via the adapter, pass the narrowly-scoped context, and parse the
-  returned `ProposedOp`. Draft the per-section prompt text and iterate it
-  against fixture inputs. Integration tests use the FixtureAdapter to
-  replay recorded responses deterministically. Live tests are gated and
-  run manually.
-- **Results:** _pending_
+### F amendment — expert-dispatched knowledge curation
 
-### Implement Stage 4 — reconciliation `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Implement Stage 3
-- **Description:** Spawn one fresh session with the minimal reconciliation
-  context (op metadata only, no bodies, no store content), parse the
-  reconciled op list. Draft the reconciliation prompt text. Integration
-  tests via FixtureAdapter. Tests cover: no-change case (common), cross-
-  section merge, duplicate collapse, ordering constraint.
-- **Results:** _pending_
+**Category:** `amendment`
+**Status:** `in_progress`
+**Dependencies:** none
 
-### Wire the full pipeline end-to-end `[pipeline]`
-- **Status:** not_started
-- **Dependencies:** Implement Stage 1, Implement Stage 2, Implement Stage 3,
-  Implement Stage 4, Implement Stage 5, Implement the event channel and UI
-  stub
-- **Description:** Compose stages 1–5 into a single `run_ingestion_cycle()`
-  entry point. Accepts a plan path, a knowledge store handle, an adapter, an
-  event channel, and a cycle ID. Returns a `CycleSummary`. End-to-end
-  integration test runs a fixture plan through the full pipeline with a
-  fixture adapter and asserts the final store state plus the emitted
-  events match expectations.
-- **Results:** _pending_
+**Description:**
 
-### Implement research session launch affordance `[ui]`
-- **Status:** not_started
-- **Dependencies:** Implement the event channel and UI stub, Define the
-  harness adapter trait and stub
-- **Description:** When the UI receives a `PromptRequired` event and the user
-  chooses `research`, spawn a fresh session with the `ResearchBroad` tool
-  profile, pass the full research context (parent op, target entry,
-  originating section, full plan memory, session-log latest entry, research
-  prompt), stream output back to the UI. Persist the research session
-  transcript to `{{ravel_data}}/ingestion-log/research/<session_id>.jsonl`.
-  The `[apply/defer/reject]` buttons remain active; research is advisory.
-- **Results:** _pending_
+**Status note:** spec-level rewrite done; implementation items remain.
 
-### Implement human-triggered ingestion entry point `[human-mode]`
-- **Status:** not_started
-- **Dependencies:** Wire the full pipeline end-to-end
-- **Description:** Expose a `run_ingestion_on_plan(plan_path)` function that
-  the user can invoke directly without waiting for a reflect-phase hook.
-  Useful when the user has edited `memory.md` by hand. Wire it into the
-  stub UI as a command. Integration tests cover: ingesting on a freshly
-  edited plan, re-running on a previously-ingested plan, running on a
-  section-filtered subset.
-- **Results:** _pending_
+**Dependency context:** unblocked, can run in parallel with A/B/D/M amendments.
 
-### Implement review-first mode `[human-mode]`
-- **Status:** not_started
-- **Dependencies:** Wire the full pipeline end-to-end
-- **Description:** Add `ingestion.mode = silent | review_first` config flag.
-  In `review_first`, Stage 5 halts after Stage 4 reconciliation and emits a
-  special `ReviewRequired` event containing all proposed ops. The UI lets
-  the user approve, edit, or reject each op individually before Stage 5
-  applies anything. Same pipeline, same invariants. Integration tests cover:
-  review-first approval path, per-op rejection, per-op edit, full-cycle
-  rejection.
-- **Results:** _pending_
+Apply the orchestrator Session 9 BEAM pivot and F's design-doc amendments
+to sub-E's implementation plan. Concrete changes:
 
-### Expose Stage 5 primitives as direct CRUD `[human-mode]`
-- **Status:** not_started
-- **Dependencies:** Implement Stage 5
-- **Description:** Expose `create_entry`, `append_observation`,
-  `supersede_within_entry`, `graduate_to_tier_2` as public functions that
-  bypass the LLM pipeline but still flow through Rule 1–6 invariants and
-  emit `IngestionEvent` records with `source: Human { user_action }`. The
-  explorer's CRUD UI will call these when it lands. Unit tests cover:
-  human write through each primitive, invariant enforcement on bad inputs,
-  event emission with correct source field.
-- **Results:** _pending_
+1. **Stage 5 re-design:** Replace direct store writes with dispatch-to-experts
+   via Query messages (F's message type). Candidate entries from Stage 4
+   reconciliation are sent as Queries to ExpertActors (sub-N). Experts
+   review in fresh context and absorb, reject, or cross-link. Multi-expert
+   absorption is allowed. The concrete transport mechanism is sub-C's §4.5
+   tool-call boundary: injected tools (`ask_expert`, `dispatch_to_plan`,
+   `read_vault_catalog`) exposed via MCP-over-Unix-socket (preferred),
+   intercepted by the Session GenServer, and routed through
+   `Ravel.Router.handle_tool_call/4`. Query messages from E's pipeline
+   flow through this boundary to reach ExpertActors.
+2. **Elixir re-cast:** All pipeline stages implemented in Elixir. GenStage
+   or Broadway replaces the tokio-channel pipeline composition. Rust type
+   definitions become Elixir structs with typespecs. Traits become
+   behaviours. `SafeFileWriter` becomes an Elixir module with the same
+   invariant enforcement.
+3. **Event channel re-cast:** `tokio mpsc` channel becomes either a GenStage
+   producer-consumer or Phoenix.PubSub (aligning with M's `:telemetry` +
+   typed-event-struct pattern). The parallel-emit pattern with M's
+   observability bus is unchanged in intent. **Concrete structs now
+   available:** sub-M's design doc §4.1 (rewritten inline in Session 15,
+   2026-04-15) defines the sealed `Ravel.Event.*` struct set. The six
+   `Ingestion.*` variants (`Ingestion.Applied`, `Ingestion.PromptRequired`,
+   `Ingestion.Deferred`, `Ingestion.Rejected`, `Ingestion.ResearchSession`,
+   `Ingestion.CycleSummary`) are concrete and ready for sub-E to consume.
+   The F amendment must wire sub-E's event emission against these sealed
+   structs rather than defining its own ad-hoc event shapes.
+4. **Query message contract:** Define the Query message schema that Stage 5
+   sends to experts — must include: candidate entry, proposed op, originating
+   section provenance, confidence, axis, tier routing decision. Sub-N
+   consumes this contract.
+5. **Update the design spec** at
+   `{{PROJECT}}/docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
+   to reflect Stage 5 and implementation language changes. Stages 1–4
+   sections unchanged; Stage 5 section rewritten; §2 type definitions
+   re-cast to Elixir; §5 risks updated (BEAM-specific risks replace
+   Rust-specific ones).
+6. **Implement `Ravel.ReflectExitHook` callback.** Sub-B's §4.2
+   (rewritten for Elixir in Session 12) now defines the concrete behaviour
+   E must implement. The `on_reflect_exit(context)` callback receives
+   `qualified_id`, `plan_dir`, `vault_runtime_dir`,
+   `session_log_latest_entry`, and an `ingestion_fired_setter` closure.
+   E's implementation should call `ingestion_fired_setter` at Stage 5
+   start. B invokes the hook non-blockingly via `Task.Supervisor`; E
+   must handle being run under a task supervisor (no blocking the
+   PlanActor). Wire this as the entry point that composes the full
+   pipeline (`run_ingestion_cycle`).
 
-### SQLite derivable index over the event log `[persistence]`
-- **Status:** not_started
-- **Dependencies:** Implement the ingestion-event log
-- **Description:** Build the SQLite index described in §4 of the spec as a
-  derivable cache of the jsonl event log. Supports filter-by-cycle,
-  filter-by-plan, filter-by-host-project, filter-by-op-type,
-  filter-by-event-class, filter-by-source, date-range queries, and full-text
-  search over rationales. Includes a rebuild-from-jsonl command for recovery.
-  Integration tests cover: initial build, incremental append, rebuild from
-  scratch, all filter types.
-- **Results:** _pending_
+This is the prerequisite amendment task — all other backlog tasks should be
+read through the lens of this amendment once it lands.
 
-### End-to-end integration test corpus `[testing]`
-- **Status:** not_started
-- **Dependencies:** Wire the full pipeline end-to-end
-- **Description:** Capture a small corpus of realistic plan-memory files
-  (adapted from the existing Ravel-Lite plans with names anonymised if
-  needed) and corresponding recorded adapter fixture responses. Build a
-  test harness that runs the full pipeline against each fixture plan and
-  asserts the final store state plus event records match expectations.
-  This is the primary regression safety net for the sub-project.
-- **Results:** _pending_
+**Results:**
 
-### Live gated test against real Claude Code `[testing]`
-- **Status:** not_started
-- **Dependencies:** Wire the full pipeline end-to-end, Define the harness
-  adapter trait and stub (upgraded to a real adapter via sub-project C)
-- **Description:** Create a manual/CI-gated test that runs the full pipeline
-  against a real Claude Code instance with real fixture plan inputs,
-  asserting only structural invariants (shape of ops, no safety violations,
-  cycle completes). Not run on every commit. Produces characterisation
-  data for the latency/variance risks flagged in §5 of the spec.
-- **Results:** _pending_
+**Items 1–5 done 2026-04-16 (orchestrator Session 17).** Spec
+inline-rewritten at `docs/superpowers/specs/2026-04-12-sub-E-ingestion-design.md`
+per the "amendments rewrite inline, not as supersede layers" discipline.
+§-numbering preserved for downstream cross-references. Decision Trail gained
+Q15 (BEAM pivot) and Q16 (Stage 5 expert dispatch) entries plus correction
+notes folded back into Q1, Q2, Q5, Q9, Q10, Q11, Q13. Concrete wirings:
+`Ravel.ReflectExitHook` callback contract, `GenStage` pipeline composition,
+Elixir struct types, `ScopeMatcher.match_candidate/2` call site,
+`%Ravel.Message.ExpertAbsorbCandidate{}` dispatch, three verdict variants,
+non-recursive max-depth-2 cross-link, `%Expert.Conflict{}`, orphan path →
+`<vault>/knowledge/uncategorized/` via `SafeFileWriter` emitting sub-E-owned
+`%Ingestion.OrphanCandidate{}`, full consumption of sub-M §4.1's six
+`%Ingestion.*{}` variants (no parallel sub-E channel — the parallel-emit
+window collapses to zero per sub-M's adoption matrix), prompt resolution as
+request-response over sub-M bus + sub-K NDJSON command. Risks 4 (OTP mailbox
+backpressure) and 5 (`:telemetry` handler crash) added; Risk 1 updated for
+parallel expert curation. Cross-sub-project requirements section restructured
+per-sibling (B/C/A/D/F/N/M/H). Rust idiom check clean. **Item 6 remaining:**
+the actual `Ravel.ReflectExitHook` Elixir implementation is code work, not
+spec work — it lands when sub-E implementation begins after sub-B's hook
+module is in place. **Also remaining (separate gate task):** the sub-E
+implementation task list below still carries Rust framing (`Vec<>`, `tokio
+mpsc`, trait objects); needs its own rewrite mirroring the sub-B/sub-C/sub-M
+task-list-rewrite gate-task pattern before any implementation task can be
+picked up.
 
-### Implementation notes and handoff documentation `[docs]`
-- **Status:** not_started
-- **Dependencies:** Wire the full pipeline end-to-end
-- **Description:** Document any implementation decisions, discovered
-  constraints, or design-doc deviations in `{{PLAN}}/memory.md`. Produce a
-  short user-facing note for the main Ravel docs explaining how
-  ingestion works at a conceptual level, when it fires, and how the review
-  panel surfaces its activity.
-- **Results:** _pending_
+---
 
-### Adopt sub-M observability framework — parallel-emit `RavelEvent::Ingestion` alongside existing channel `[m-adoption]`
-- **Status:** not_started
-- **Dependencies:** sub-M Task 12 (`ObservabilityHarness`), Wire the
-  full pipeline end-to-end
-- **Description:** Landed by sub-project M's brainstorm
-  (2026-04-13, Session 7 of the ravel-orchestrator plan). M's
-  design doc at
-  `{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
-  §10 specifies M's cross-plan adoption requirements; this task is E's
-  share.
+### Delegate `SafeFileWriter` to `FileIO.write_safe/3`
 
-  Concretely:
-  1. Add `tracing::instrument` annotations on each Stage 1-5 entry
-     point of the ingestion pipeline. Span names `ingestion_stage_1`,
-     `ingestion_stage_2`, etc., with fields `cycle_id`, `plan_id`,
-     `host_project`. The span context is consumed by M's
-     `RavelEventLayer` to attribute ingestion events to the right
-     cycle scope.
-  2. **Parallel-emit** `RavelEvent::Ingestion(_)` events alongside
-     the existing `IngestionEvent` channel emit. Every `Applied` /
-     `PromptRequired` / `Deferred` / `Rejected` / `ResearchSession` /
-     `CycleSummary` event flows BOTH to E's existing channel AND
-     through `ravel_event!`. This is the safety-net pattern from
-     sub-M's design — both paths run concurrently until verification
-     proves M's path is complete and correct.
-  3. Emit metrics from the ingestion pipeline:
-     - `metrics::counter!(INGESTION_APPLIED).increment(1)` per
-       `Applied` event
-     - `metrics::counter!(INGESTION_DEFERRED).increment(1)` per
-       `Deferred` event
-     - `metrics::counter!(INGESTION_REJECTED).increment(1)` per
-       `Rejected` event
-     - `metrics::histogram!(INGESTION_CYCLE_DURATION_MS).record(...)`
-       at `CycleSummary` emission, measured from cycle start
-     - `metrics::gauge!(INGESTION_IN_FLIGHT_OPS).set(...)` updated as
-       ops enter and leave the Stage 5 sequential queue
-  4. Wire the Risk 5 dump path: in E's pipeline error-handling branches,
-     call `observability::dump_event_tail(harness, session_id, plan_id, "ingestion", 1000)`
-     before returning the error. The dump path is defined by sub-M
-     Task 13. Note that ingestion errors do NOT block the phase cycle
-     (per E's design rule — best-effort from the cycle's perspective);
-     they fail loudly into the explorer instead. The dump captures
-     the rich context for the explorer-side error surface.
-  5. **Future cleanup (separate task).** After M v1 ships and the
-     verification window passes, a future task lands in this backlog
-     from sub-M's triage that collapses E's standalone `IngestionEvent`
-     channel into M's `RavelEvent::Ingestion(_)` bus — UI consumers
-     subscribe via M's `TuiBridgeLayer` instead of E's channel.
-     Deferred — not part of M v1 scope.
+**Category:** `architecture`
+**Status:** `not_started`
+**Dependencies:** none
 
-  TDD: write tests that drive a fixture ingestion cycle and assert
-  both the existing `IngestionEvent` channel AND the M
-  `RavelEvent::Ingestion(_)` events fire with matching content.
+**Description:**
 
-  No changes to E's existing channel surface or to the `Applied` /
-  `PromptRequired` / etc. event types. Both E's channel and M's bus
-  coexist during the parallel-emit window.
-- **Results:** _pending_
+**Dependency context:** sub-D `Ravel.FileIO` module (ships as part of sub-D
+coordination; Session 18 confirmed it is the mandatory I/O layer for all
+daemon file operations).
 
-## Sub-R adoption
+Sub-D's Session 18 established `Ravel.FileIO` as the
+mandatory file I/O layer for all daemon file operations. Sub-E's
+`SafeFileWriter` must be re-cast as a thin wrapper that delegates all file
+writes to `FileIO.write_safe/3` rather than implementing its own
+atomic-write and conflict-detection logic. Concrete items:
 
-### Task 1 — Absorb Sub-R: Stage 2 classification via Datalog queries `[r-adoption]`
-- **Status:** not_started
-- **Dependencies:** Task 0 (gate), Sub-R engine landed
-- **Description:** Per Sub-R design doc §4.2. Replace flat tag-set
-  intersection in Stage 2 with Datalog queries:
-  1. Extract candidate terms from section title (unchanged heuristic)
-  2. For each term, query `resolves_to(Term, Canonical)` to normalize
-     synonyms
-  3. Optionally query `ancestor(Canonical, Broader)` to include broader
-     tags when the candidate term is highly specific
-  4. Return the canonical tag set as the candidate's `tags:` frontmatter
-  Stays deterministic Elixir — the Datalog query is a function call via
-  `Ravel.Datalog.Server`, not an LLM pass. Fast.
-  **Note:** Task numbering starts at 1 because Task 0 is the gate task
-  that rewrites the full task list. This adoption stub is appended so
-  it survives the rewrite — the rewriter should incorporate it.
-- **Results:** _pending_
+1. **Remove `SafeFileWriter`'s own write-safe logic.** Any
+   temp-then-rename, hash-check, or lock implementation inside
+   `SafeFileWriter` must be deleted; `FileIO.write_safe/3` provides this
+   for all callers.
+2. **Wire file categories correctly.**
+   - Knowledge files being absorbed from ingestion are **`:human_editable`**
+     — human-authoritative; daemon's copy is discarded on conflict.
+   - Ingestion staging files (provenance files, cycle state) are
+     **`:exclusive`** — daemon owns them entirely, no conflict check
+     needed.
+   - There is no `:phase_owned` use case in sub-E currently; document if
+     one surfaces during implementation.
+3. **`FileIO.read_tracked/1` for all reads.** Any file read that
+   `SafeFileWriter` or Stage 5 performs must use `FileIO.read_tracked/1`
+   (records SHA-256 hash) rather than plain `File.read/1`.
+4. **Note for "Implement Rule 6" task.** Rule 6's invariants (no writes
+   outside `knowledge/`, no plan-file writes, etc.) remain enforced at the
+   `SafeFileWriter` layer as guard logic before calling
+   `FileIO.write_safe/3`. The physical write path delegates to FileIO;
+   the semantic safety checks remain in `SafeFileWriter`.
+5. **Conflict response.** When `FileIO.write_safe/3` returns
+   `{:conflict, :external_modification}` for a knowledge file write, treat
+   the candidate as "not written" and emit
+   `%Ingestion.CandidateSkipped{reason: :external_modification}`. This is
+   non-fatal — the conflict is logged and the ingestion cycle continues
+   with remaining candidates (per sub-D §6 "On sub-E").
+6. **Unit tests.** Verify that: (a) absorbed knowledge files call
+   `FileIO.write_safe/3` with `:human_editable`; (b) staging files call it
+   with `:exclusive`; (c) all reads go through `FileIO.read_tracked/1`;
+   (d) `SafeFileWriter` contains no direct `File.write/File.rename`
+   calls (enforce via Credo custom check or module boundary rule);
+   (e) a `{:conflict, :external_modification}` response emits
+   `%Ingestion.CandidateSkipped{}` and the cycle continues.
+
+**Results:** _pending_
+
+---
+
+### Define core ingestion types
+
+**Category:** `types`
+**Status:** `not_started`
+**Dependencies:** none
+
+**Description:**
+
+Define the Rust types that flow through the pipeline:
+`Section`, `StoreSlice`, `ProposedOp`, `ReconciledOp`, `OpType`, `Nature`,
+`Confidence` (if not already in the crate), `EventSource`, `EventClass`,
+`PromptResolution`, `IngestionEvent`, `IngestionFailure`, `CycleId`,
+`PlanId`, `ProjectId`, `PromptId`, `DiffPreview`, `FallbackOp`. Follow the
+shape defined in §2 and §4 of the spec. These types are the contract the
+rest of sub-project E's code is written against — get them right first so
+downstream tasks have a stable target.
+
+**Results:** _pending_
+
+---
+
+### Implement Stage 1 — section parser
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Deterministic parser that reads a plan's `memory.md` and
+the latest entry from `session-log.md` and returns `Vec<Section>`. Parses
+H2/H3 section headings as titles, captures section bodies verbatim, extracts
+`session_date` from session-log, carries `plan_path` and `host_project` as
+provenance. Pure Rust, no LLM, no filesystem writes. Unit tests against
+fixture plan files (capture small real-world samples from the existing
+Ravel-Lite plans as fixtures).
+
+**Results:** _pending_
+
+---
+
+### Implement Stage 2 — deterministic retrieval
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types, Implement Stage 1
+
+**Description:**
+
+For each `Section`, extract candidate tags using the
+safe-default heuristic (stop-word-filtered lowercase nouns from the title
+intersected with the existing tag vocabulary), query the knowledge store,
+and produce a `StoreSlice` containing the 0–5 entries whose tags overlap.
+Store access is via a trait `KnowledgeStore` that can be implemented over
+a real filesystem store or a fixture in-memory store. Unit tests cover:
+empty store, no matches, 1 match, 5 matches, tag-only matches with no
+content match, and the stop-word filter.
+
+**Results:** _pending_
+
+---
+
+### Implement Rule 1 — confidence mapping
+
+**Category:** `invariants`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Implement the confidence-derivation matrix from §3 Rule 1
+as a pure function: `(existing_entry_state, nature, origins) -> Confidence`.
+Dedicated unit test for every row of the matrix, plus the two monotonic
+invariants (never-falls-via-ingestion, never-climbs-to-high-in-one-cycle).
+
+**Results:** _pending_
+
+---
+
+### Implement Rule 2 — contradiction gating
+
+**Category:** `invariants`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types, Implement Rule 1
+
+**Description:**
+
+Implement the contradiction-gating rule from §3 Rule 2
+as a pure function: `(ProposedOp, Entry) -> GatedOp`, where the result is
+either the original `supersede` op (if the confidence and origins rule
+passes) or a downgraded `append_observation` op with a `contradicts`
+marker. Unit tests cover: equal-confidence passes, lower-confidence fails,
+insufficient-origins fails, sufficient-origins passes, same-project-gap
+edge case.
+
+**Results:** _pending_
+
+---
+
+### Implement Rule 3 — axis derivation
+
+**Category:** `invariants`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Implement `derive_axis(tags: &[Tag]) -> Axis` using a
+table-driven rule set loaded from Ravel's config. Fall back to
+`techniques/` if no rule matches. Unit tests for each axis, the fallback,
+and an empty-tags case.
+
+**Results:** _pending_
+
+---
+
+### Implement Rule 4 — tier routing
+
+**Category:** `invariants`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types, Implement Rule 1
+
+**Description:**
+
+Implement the tier-routing rules from §3 Rule 4 as a
+pure function: `(ReconciledOp, StoreState) -> TierWriteTarget`, where the
+result names which tier(s) to write to. Handles new entries (always
+Tier 1), appended observations on single-tier entries, appended
+observations on dual-tier entries (Tier 2 wins), and the graduation
+trigger case. Unit tests for each branch. Graduation detection (not the
+prompt firing — just the detection) is part of this rule.
+
+**Results:** _pending_
+
+---
+
+### Implement Rule 6 — file-write safety
+
+**Category:** `invariants`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Implement a `SafeFileWriter` wrapper that enforces the
+§3 Rule 6 invariants at runtime: writes only inside `<tier1_root>/knowledge/`
+or `<tier2_root>/knowledge/`, no overwrites, no plan-file writes, required
+lock held. Every invariant violation returns an error and aborts the
+cycle. Unit tests attempt each violation class and assert rejection.
+
+**Results:** _pending_
+
+---
+
+### Implement the ingestion-event log
+
+**Category:** `persistence`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Implement the jsonl append-only event log at
+`{{ravel_data}}/ingestion-log/YYYY-MM-DD.jsonl`. One function appends
+a serialised `IngestionEvent` to the current day's file, rotating daily.
+Another reads events by date range. Implement the minimum write path
+first; the SQLite derivable index comes later. Unit tests cover serialise/
+deserialise round-trip, daily rotation, and read-back.
+
+**Results:** _pending_
+
+---
+
+### Implement Stage 5 — validate and apply
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Implement Rule 1, Implement Rule 2, Implement Rule 3, Implement Rule 4, Implement Rule 6, Implement the ingestion-event log
+
+**Description:**
+
+Wire the six invariants together into Stage 5. Takes a
+`Vec<ReconciledOp>`, runs each through Rules 1–4, applies Rule 6's safety
+checks, emits `IngestionEvent` records, and performs the actual writes to
+Tier 1 / Tier 2. Uses a `PromptGate` trait for Rule 5 events so the UI
+event channel can be stubbed for testing. Integration tests drive Stage 5
+with fixture ReconciledOps against a tempdir store.
+
+**Results:** _pending_
+
+---
+
+### Implement the event channel and UI stub
+
+**Category:** `ui`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Implement the `IngestionEvent` channel (a tokio mpsc) and
+a simple stdout/stdin UI stub that prints events and reads
+`[a/d/r/research]` responses from the terminal. This is the "sub-project E
+can ship ahead of UI chrome" decoupling from §4 of the spec. The stub is
+sufficient for all end-to-end integration tests; a real TUI/GUI replaces
+it later (not in sub-project E's scope).
+
+**Results:** _pending_
+
+---
+
+### Define the harness adapter trait and stub
+
+**Category:** `adapter`
+**Status:** `not_started`
+**Dependencies:** Define core ingestion types
+
+**Description:**
+
+Define the minimum `HarnessAdapter` trait sub-project E
+needs: `spawn_session(tool_profile, prompt, context) -> SessionHandle`,
+with methods for capturing output and signalling completion. Tool profiles
+are `IngestionMinimal | ResearchBroad`. Implement a `FixtureAdapter` that
+replays responses from JSON fixture files. This is a temporary
+placeholder; the real implementation is sub-project C's responsibility.
+Record the required interface as a hard dependency in sub-project C's
+backlog (cross-plan task).
+
+**Results:** _pending_
+
+---
+
+### Implement Stage 3 — per-section LLM ops
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Implement Stage 2, Define the harness adapter trait and stub
+
+**Description:**
+
+For each `(Section, StoreSlice)` pair, spawn a fresh
+session via the adapter, pass the narrowly-scoped context, and parse the
+returned `ProposedOp`. Draft the per-section prompt text and iterate it
+against fixture inputs. Integration tests use the FixtureAdapter to
+replay recorded responses deterministically. Live tests are gated and
+run manually.
+
+**Results:** _pending_
+
+---
+
+### Implement Stage 4 — reconciliation
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Implement Stage 3
+
+**Description:**
+
+Spawn one fresh session with the minimal reconciliation
+context (op metadata only, no bodies, no store content), parse the
+reconciled op list. Draft the reconciliation prompt text. Integration
+tests via FixtureAdapter. Tests cover: no-change case (common), cross-
+section merge, duplicate collapse, ordering constraint.
+
+**Results:** _pending_
+
+---
+
+### Wire the full pipeline end-to-end
+
+**Category:** `pipeline`
+**Status:** `not_started`
+**Dependencies:** Implement Stage 1, Implement Stage 2, Implement Stage 3, Implement Stage 4, Implement Stage 5, Implement the event channel and UI stub
+
+**Description:**
+
+Compose stages 1–5 into a single `run_ingestion_cycle()`
+entry point. Accepts a plan path, a knowledge store handle, an adapter, an
+event channel, and a cycle ID. Returns a `CycleSummary`. End-to-end
+integration test runs a fixture plan through the full pipeline with a
+fixture adapter and asserts the final store state plus the emitted
+events match expectations.
+
+**Results:** _pending_
+
+---
+
+### Implement research session launch affordance
+
+**Category:** `ui`
+**Status:** `not_started`
+**Dependencies:** Implement the event channel and UI stub, Define the harness adapter trait and stub
+
+**Description:**
+
+When the UI receives a `PromptRequired` event and the user
+chooses `research`, spawn a fresh session with the `ResearchBroad` tool
+profile, pass the full research context (parent op, target entry,
+originating section, full plan memory, session-log latest entry, research
+prompt), stream output back to the UI. Persist the research session
+transcript to `{{ravel_data}}/ingestion-log/research/<session_id>.jsonl`.
+The `[apply/defer/reject]` buttons remain active; research is advisory.
+
+**Results:** _pending_
+
+---
+
+### Implement human-triggered ingestion entry point
+
+**Category:** `human-mode`
+**Status:** `not_started`
+**Dependencies:** Wire the full pipeline end-to-end
+
+**Description:**
+
+Expose a `run_ingestion_on_plan(plan_path)` function that
+the user can invoke directly without waiting for a reflect-phase hook.
+Useful when the user has edited `memory.md` by hand. Wire it into the
+stub UI as a command. Integration tests cover: ingesting on a freshly
+edited plan, re-running on a previously-ingested plan, running on a
+section-filtered subset.
+
+**Results:** _pending_
+
+---
+
+### Implement review-first mode
+
+**Category:** `human-mode`
+**Status:** `not_started`
+**Dependencies:** Wire the full pipeline end-to-end
+
+**Description:**
+
+Add `ingestion.mode = silent | review_first` config flag.
+In `review_first`, Stage 5 halts after Stage 4 reconciliation and emits a
+special `ReviewRequired` event containing all proposed ops. The UI lets
+the user approve, edit, or reject each op individually before Stage 5
+applies anything. Same pipeline, same invariants. Integration tests cover:
+review-first approval path, per-op rejection, per-op edit, full-cycle
+rejection.
+
+**Results:** _pending_
+
+---
+
+### Expose Stage 5 primitives as direct CRUD
+
+**Category:** `human-mode`
+**Status:** `not_started`
+**Dependencies:** Implement Stage 5
+
+**Description:**
+
+Expose `create_entry`, `append_observation`,
+`supersede_within_entry`, `graduate_to_tier_2` as public functions that
+bypass the LLM pipeline but still flow through Rule 1–6 invariants and
+emit `IngestionEvent` records with `source: Human { user_action }`. The
+explorer's CRUD UI will call these when it lands. Unit tests cover:
+human write through each primitive, invariant enforcement on bad inputs,
+event emission with correct source field.
+
+**Results:** _pending_
+
+---
+
+### SQLite derivable index over the event log
+
+**Category:** `persistence`
+**Status:** `not_started`
+**Dependencies:** Implement the ingestion-event log
+
+**Description:**
+
+Build the SQLite index described in §4 of the spec as a
+derivable cache of the jsonl event log. Supports filter-by-cycle,
+filter-by-plan, filter-by-host-project, filter-by-op-type,
+filter-by-event-class, filter-by-source, date-range queries, and full-text
+search over rationales. Includes a rebuild-from-jsonl command for recovery.
+Integration tests cover: initial build, incremental append, rebuild from
+scratch, all filter types.
+
+**Results:** _pending_
+
+---
+
+### End-to-end integration test corpus
+
+**Category:** `testing`
+**Status:** `not_started`
+**Dependencies:** Wire the full pipeline end-to-end
+
+**Description:**
+
+Capture a small corpus of realistic plan-memory files
+(adapted from the existing Ravel-Lite plans with names anonymised if
+needed) and corresponding recorded adapter fixture responses. Build a
+test harness that runs the full pipeline against each fixture plan and
+asserts the final store state plus event records match expectations.
+This is the primary regression safety net for the sub-project.
+
+**Results:** _pending_
+
+---
+
+### Live gated test against real Claude Code
+
+**Category:** `testing`
+**Status:** `not_started`
+**Dependencies:** Wire the full pipeline end-to-end, Define the harness adapter trait and stub
+
+**Description:**
+
+**Dependency context:** "Define the harness adapter trait and stub" must be
+upgraded to a real adapter via sub-project C.
+
+Create a manual/CI-gated test that runs the full pipeline
+against a real Claude Code instance with real fixture plan inputs,
+asserting only structural invariants (shape of ops, no safety violations,
+cycle completes). Not run on every commit. Produces characterisation
+data for the latency/variance risks flagged in §5 of the spec.
+
+**Results:** _pending_
+
+---
+
+### Implementation notes and handoff documentation
+
+**Category:** `docs`
+**Status:** `not_started`
+**Dependencies:** Wire the full pipeline end-to-end
+
+**Description:**
+
+Document any implementation decisions, discovered
+constraints, or design-doc deviations in `{{PLAN}}/memory.md`. Produce a
+short user-facing note for the main Ravel docs explaining how
+ingestion works at a conceptual level, when it fires, and how the review
+panel surfaces its activity.
+
+**Results:** _pending_
+
+---
+
+### Adopt sub-M observability framework — parallel-emit RavelEvent Ingestion alongside existing channel
+
+**Category:** `m-adoption`
+**Status:** `not_started`
+**Dependencies:** sub-M Task 12 ObservabilityHarness, Wire the full pipeline end-to-end
+
+**Description:**
+
+Landed by sub-project M's brainstorm
+(2026-04-13, Session 7 of the ravel-orchestrator plan). M's
+design doc at
+`{{PROJECT}}/docs/superpowers/specs/2026-04-13-sub-M-observability-design.md`
+§10 specifies M's cross-plan adoption requirements; this task is E's
+share.
+
+Concretely:
+
+1. Add `tracing::instrument` annotations on each Stage 1-5 entry
+   point of the ingestion pipeline. Span names `ingestion_stage_1`,
+   `ingestion_stage_2`, etc., with fields `cycle_id`, `plan_id`,
+   `host_project`. The span context is consumed by M's
+   `RavelEventLayer` to attribute ingestion events to the right
+   cycle scope.
+2. **Parallel-emit** `RavelEvent::Ingestion(_)` events alongside
+   the existing `IngestionEvent` channel emit. Every `Applied` /
+   `PromptRequired` / `Deferred` / `Rejected` / `ResearchSession` /
+   `CycleSummary` event flows BOTH to E's existing channel AND
+   through `ravel_event!`. This is the safety-net pattern from
+   sub-M's design — both paths run concurrently until verification
+   proves M's path is complete and correct.
+3. Emit metrics from the ingestion pipeline:
+   - `metrics::counter!(INGESTION_APPLIED).increment(1)` per
+     `Applied` event
+   - `metrics::counter!(INGESTION_DEFERRED).increment(1)` per
+     `Deferred` event
+   - `metrics::counter!(INGESTION_REJECTED).increment(1)` per
+     `Rejected` event
+   - `metrics::histogram!(INGESTION_CYCLE_DURATION_MS).record(...)`
+     at `CycleSummary` emission, measured from cycle start
+   - `metrics::gauge!(INGESTION_IN_FLIGHT_OPS).set(...)` updated as
+     ops enter and leave the Stage 5 sequential queue
+4. Wire the Risk 5 dump path: in E's pipeline error-handling branches,
+   call `observability::dump_event_tail(harness, session_id, plan_id, "ingestion", 1000)`
+   before returning the error. The dump path is defined by sub-M
+   Task 13. Note that ingestion errors do NOT block the phase cycle
+   (per E's design rule — best-effort from the cycle's perspective);
+   they fail loudly into the explorer instead. The dump captures
+   the rich context for the explorer-side error surface.
+5. **Future cleanup (separate task).** After M v1 ships and the
+   verification window passes, a future task lands in this backlog
+   from sub-M's triage that collapses E's standalone `IngestionEvent`
+   channel into M's `RavelEvent::Ingestion(_)` bus — UI consumers
+   subscribe via M's `TuiBridgeLayer` instead of E's channel.
+   Deferred — not part of M v1 scope.
+
+TDD: write tests that drive a fixture ingestion cycle and assert
+both the existing `IngestionEvent` channel AND the M
+`RavelEvent::Ingestion(_)` events fire with matching content.
+
+No changes to E's existing channel surface or to the `Applied` /
+`PromptRequired` / etc. event types. Both E's channel and M's bus
+coexist during the parallel-emit window.
+
+**Results:** _pending_
+
+---
+
+### Task 1 — Absorb Sub-R: Stage 2 classification via Datalog queries
+
+**Category:** `r-adoption`
+**Status:** `not_started`
+**Dependencies:** Task 0, Sub-R engine landed
+
+**Description:**
+
+**Dependency context:** Task 0 (gate); Sub-R engine must be landed.
+
+Per Sub-R design doc §4.2. Replace flat tag-set
+intersection in Stage 2 with Datalog queries:
+
+1. Extract candidate terms from section title (unchanged heuristic)
+2. For each term, query `resolves_to(Term, Canonical)` to normalize
+   synonyms
+3. Optionally query `ancestor(Canonical, Broader)` to include broader
+   tags when the candidate term is highly specific
+4. Return the canonical tag set as the candidate's `tags:` frontmatter
+
+Stays deterministic Elixir — the Datalog query is a function call via
+`Ravel.Datalog.Server`, not an LLM pass. Fast.
+
+**Note:** Task numbering starts at 1 because Task 0 is the gate task
+that rewrites the full task list. This adoption stub is appended so
+it survives the rewrite — the rewriter should incorporate it.
+
+**Results:** _pending_
+
+---

@@ -1,0 +1,348 @@
+entries:
+- id: stable-architectural-decisions
+  title: Stable architectural decisions
+  body: |
+    ### Fresh LLM context is a first-class design goal
+    Every LLM-using component uses many short, fresh sessions rather than one long accumulating session. Context rot (drift, noise, stale assumptions) is a primary failure mode; phase cycle session boundaries are a feature, not a cost. Context depth scales with decision specificity — Level 1 reasons broadly about its own plan, Level 2 reasons narrowly about one target project's code, Level 3 (if needed) reasons about one specific plan. B's phase boundaries, C's harness lifecycle, E's ingestion triggers, F's Level 2 routing agents, and N's expert consultations default to discrete fresh-context invocations with explicit state handoff through files.
+
+    ### Ravel is a persistent actor daemon on BEAM
+    V1 runs as a single long-running Elixir/OTP application. `ravel daemon` is the entry point; it hosts all actors, message routing, supervision, harness adapters, fact extraction, and ingestion. OTP supervision, message passing, hot code reload, and distribution transparency are BEAM primitives that would otherwise require hand-rolling. Gleam is reserved as a future migration target if Elixir's dynamic typing proves painful for the invariant-heavy design.
+
+    ### Two sealed actor types: PlanActor and ExpertActor
+    Both implement a shared `Ravel.Actor` behavior on top of `GenServer`. The set is **sealed** for v1 — adding a third type is a code change, not a plugin mechanism. PlanActor progresses through phase cycles with backlog + memory + session log. ExpertActor is consultative, query-native, persona-flavored, with a curated knowledge scope. F owns the `Actor` trait and both type-holes; sub-N owns ExpertActor internals.
+
+    ### Two message types: Dispatch and Query
+    **Dispatch** — fire-and-forget task delivery. Lands in target's `backlog.md` `## Received` section. Target's next phase cycle processes. Durable form: `<origin>/dispatches.yaml`.
+    **Query** — request-response reasoning. Target spawns fresh-context session, answers, response routes back through the harness tool-call boundary into the originating session inline. Durable form for deferred queries: `<origin>/queries.yaml`. In-session queries don't write files.
+    Both share target resolution, declarative routing, Level 2 fallback, audit trail conventions.
+
+    ### `project-root` is the reserved plan directory name
+    Every adopted project has exactly one root plan at `<project>/ravel/project-root/`. Name is **reserved**. `knowledge/` is a sibling of `project-root/`, not inside it, preserving B's "plan membership is purely `plan-state.md`" invariant. Adoption check = `<project>/ravel/project-root/plan-state.md` exists. Nested child plans nest arbitrarily under project-root.
+
+    ### Filesystem-derivable data is never cached in metadata
+    If a value can be computed from the filesystem path or directory structure, it must not be stored in frontmatter or config. Filesystem is authoritative; metadata projections drift. Applies to qualified IDs, host-project names, dev-root paths, and any future candidate.
+
+    ### Path-based qualified plan IDs, never stored
+    A plan's qualified ID is a pure function of its filesystem path: `strip_prefix(plan_path, "<vault>/projects/")`. Examples: `Ravel/project-root`, `Ravel/project-root/sub-F-hierarchy`. Never stored in `plan-state.md` frontmatter — storing creates a duplicate source of truth. Qualified IDs computed at read time. F's coordination amendment removes `plan-id`, `host-project`, `dev-root` from plan-state.md schema.
+
+    ### Dispatch target resolution asymmetry
+    Same-project and cross-project dispatches use different mechanisms:
+    - **Same-project** → origin names the specific `target-plan: <qualified-id>`. Ravel writes to the target's `Received` section mechanically. No LLM in the loop.
+    - **Cross-project** → origin names only `target-project: <name>`. Ravel spawns a **Level 2 routing agent** — fresh-context Claude Code session scoped to the target project's vault subtree (plans + source code), with authority to pick a specific target plan or reject with reasoning. Optional `suggested-target-plan:` hint the agent may override.
+
+    Origin lacks enough context to reason about foreign plans; the Level 2 agent does.
+
+    ### Vault catalog substitutes `{{VAULT_CATALOG}}` placeholder
+    `{{RELATED_PLANS}}` placeholder renamed to `{{VAULT_CATALOG}}`. Substituted content is the full vault catalog at `<vault>/plan-catalog.md` — every plan and expert, grouped by project, with 120-char descriptions and dispatch rules. `related-plans.md` is deleted. Auto-regenerated on plan mutation and every phase-prompt render. Committed to vault git as a human-visible Obsidian dashboard.
+
+    ### Description discipline: 120-character hard cap
+    Every plan and expert has a `description:` frontmatter field, ≤120 characters, enforced at load time (hard error on overflow). Keyword-dense, noun-phrase-led, no self-reference, no placeholders. Permanent scope declaration, not current-state description. Cap is load-bearing: forces LLM-skimmable catalog rhythm and prevents verbose drift. Written at plan creation (brainstorm exit criterion), updated during reflect only if scope has genuinely drifted.
+
+    ### Declarative routing via Datalog with LLM-fallback learning loop
+    Routing rules live in `<vault>/ontology/routing.dl` — user-editable Datalog rules loaded by `Ravel.Datalog.Server`. Hot reload via filesystem-watcher-triggered re-parse + re-evaluate. Facts (concern keywords) are extracted from each message body by a small cheap LLM pass (Claude Haiku via sub-C adapter; sub-O ideal consumer for local models), then normalized against the ontology via `resolves_to/2` queries. When rules don't decide, a Level 2 routing agent runs as fallback and may propose a new Datalog rule the user accepts into `routing.dl` — novel cases train the deterministic path. `routing.dl` replaces `routing.ex` (Elixir pattern matching) — one Datalog substrate for both ontology resolution and routing. Datalog is fundamentally better than imperative Elixir for user-facing and LLM-facing rules.
+
+    ### Datalog is Ravel's declarative reasoning substrate
+    Sub-R delivers a purpose-built, domain-agnostic Datalog engine in Elixir (`Ravel.Datalog`) with a typed ontology fact schema. The engine uses bottom-up evaluation with guaranteed termination over finite domains (evaluation strategy informed by literature survey). The ontology provides canonical tags, synonyms, hierarchy, and typed relations (open predicate set). Four consumers: ScopeMatcher (sub-N), Stage 2 classification (sub-E), fact extraction normalization (sub-F), and routing (sub-F). LLM exposure: passive `{{ONTOLOGY_CONTEXT}}` placeholder injection + active `ontology.query` tool. Source of truth is `.dl` files in `<vault>/ontology/`; auto-generated Markdown views for Obsidian browsing.
+
+    ### Prefer integration over reinvention
+    When scope overlaps with existing mature tools — Karpathy's LLM Wiki, knowledge-graph tools, TUI frameworks, session/workflow/state-machine libraries, knowledge-storage formats, PTY wrappers, **OTP itself** — the default is adopt or integrate. Rationale: reduces build surface, eases adoption via familiar mental models, avoids NIH tax. Every sub-project brainstorm must surface "what existing tool covers this ground, and why not use it?" Silent reinvention is not allowed.
+
+    For cross-cutting infrastructure sub-projects (M is the exemplar; D, F, H, I face the same shape), after the architectural fork question lands, treat every remaining decision as "pick the standard tool" and bound custom code tightly.
+
+    ### Hard errors by default
+    Soft fallbacks require explicit written rationale. Unexpected conditions, invariant violations, I/O failures, and ambiguous state fail hard with clear diagnostics. Documented exceptions must name the rationale in the design doc. Project-wide.
+
+    ### Always-on instrumentation; tactical seeds disclaim framework scope
+    Instrumentation is emitted unconditionally — no debug flag, no env var, no gated build. Tactical instrumentation must disclaim being a framework: purpose-built measurement is a tactical seed, not a metrics framework, and must not accrete framework-shaped scope creep. The observability framework lives in M.
+
+    ### Seed migration to M uses parallel-emit then mechanical verification
+    Staged migration of tactical seeds into M's framework: (1) seed-owning sub-project's v1 ships its tactical writer unchanged; (2) M's v1 lands instrumentation at the same measurement points in parallel; (3) mechanical verification confirms M's data matches the seed within explicit tolerance, then the seed's writer is deleted. Never atomic cutover.
+
+    ### No slash commands in the harness
+    The harness runs as a pure worker with no user-facing command surface. Every user action flows through the client-daemon protocol. Three observation surfaces: chunk-level (assistant text, tool use, tool result), protocol-level (session lifecycle via stream-json), task-level (prompt-instructed sentinel strings detected by B's executor in assistant-text stream).
+
+    ### Task-level completion via sentinel strings
+    Protocol-level "turn over" is `{"type":"result"}` in stream-json — the model stopped emitting tokens. Task-level "done with the work" requires the LLM's self-assessment — conflating the two causes premature phase transitions. Mechanism: each phase prompt ends with "when finished say READY FOR THE NEXT PHASE"; B's executor runs a sliding-buffer matcher over assistant-text. Sub-C detects both: `{"type":"result"}` for protocol-level, sentinel for task-level. Sentinel detection lives in B because sentinels are coupled to phase prompts.
+
+    ### Obsidian is the committed maintenance/explorer UI
+    Every file format, directory layout, and cross-reference decision targets Obsidian: Dataview-friendly kebab-case YAML frontmatter, wikilinks for cross-references, tags as first-class metadata, directory structure for Obsidian's file tree, a Ravel-provided `.obsidian/` template. V1 ships a maximally Obsidian-native baseline; K (Obsidian plugin client) enhances post-v1. I's scope: document which Obsidian features cover which data surfaces.
+
+    ### Dedicated Ravel vault with symlinked per-project directories
+    `<dev-root>/Ravel-vault/` (Ravel-owned, its own `.git`, committed Obsidian vault) sits alongside project repos. Hosts Tier 2 global knowledge, expert declarations, routing rules, daemon config, and runtime state (staging, interrupts, ingestion events, mailboxes, daemon socket). Accesses per-project content via symlink: `<vault>/projects/<project-name>` → `<project>/ravel/`. Plans stay in project repos (sovereign git); the vault is a view-over-symlinks. Symlink approach validated on macOS and Linux — no hard-copy fallback needed.
+
+    ### System-wide daemon singleton lock, not per-vault
+    Lock file at `<runtime_dir>/ravel/daemon.lock` (`$XDG_RUNTIME_DIR` on Linux, `$TMPDIR` on macOS) via `flock(2)`. Contains PID + vault path. Not inside the vault — invisible to Obsidian. Enforces v1 single-daemon-per-machine constraint. `daemon.pid` eliminated (lock file carries PID + vault path). Bootstrap subcommands read the lock file to determine whether a daemon is serving their target vault. Kernel-enforced crash safety — no stale-lock cleanup needed.
+
+    ### Content-hash freshness checking via `Ravel.FileIO`
+    All daemon file reads go through `FileIO.read_tracked/1` (records SHA-256 hash). All writes go through `FileIO.write_safe/3` with a file category: `:exclusive` (no check, overwrite — plan-catalog, runtime), `:phase_owned` (daemon-authoritative, warn on conflict — plan files during active phase), `:human_editable` (human-authoritative, discard on conflict — knowledge, routing.ex, expert declarations). Atomic temp-then-rename for all writes. Sub-B's `copy_back/2`, sub-E's `SafeFileWriter`, sub-F's plan-catalog, and sub-N's expert absorb all delegate to this module. `FreshnessTracker` GenServer owns an ETS table keyed by absolute path.
+
+    ### No autonomous daemon git commits in v1
+    All daemon-triggered git operations are human-mediated. `Ravel.VaultGit.commit/3` is the sole git interface. Vault git concurrency is a non-issue by design constraint. Sub-P (v2+) revisits with coordination-aware executor.
+
+    ### UI/integration spikes use testanyware + OCR evidence
+    Canonical pattern: run the assumption inside a TestAnyware golden image, drive GUI exclusively through `testanyware` CLI, capture evidence as `testanyware screenshot` + `testanyware find-text` artifacts at `{{PROJECT}}/tests/fixtures/<spike-name>/results/<platform>/`. OCR evidence sufficient for binary pass/fail. Future spikes for I, K, L, and B's v1 acceptance test follow this pattern. SSH/rsync/VNC direct paths are out.
+
+    ### Per-project `ravel/` is the canonical project layout
+    Each project has `<project>/ravel/` containing `project-root/` (nested plan tree) and `knowledge/` (Tier 1). Lowercase `ravel/` disambiguates from the `Ravel/` repo and `Ravel-vault/`. A directory is a plan iff it contains `plan-state.md`. `StagingDirectory::render` refuses descent into subdirectories containing `plan-state.md`, enforcing one-plan-per-staging. G renames: `LLM_STATE/` → `ravel/project-root/`, `knowledge/` → `ravel/knowledge/`.
+
+    ### Phase cycle runs inside PlanActor
+    Four-phase cycle (work → reflect → compact → triage) runs **inside a PlanActor GenServer**, not as a standalone process main loop. B's `PhaseRunner` is the state machine embedded in the actor. Phase transitions driven by `{:run_phase, _}` messages from attached clients. B's `StagingDirectory`, placeholder substitution, `plan-state.md` management, and phase-boundary hooks all preserved. Compact is strictly lossless; reflect is the only lossy-pruning phase. F's `DispatchProcessor` and `QueryProcessor` run at phase exit via B's phase-boundary hooks.
+
+    ### TUI is a standalone Rust binary client
+    `ravel-tui` uses `ratatui` + `tokio` + `serde_json`. Connects to the daemon over a local Unix socket at `<vault>/runtime/daemon.sock` speaking NDJSON. No Rustler / no NIFs — the socket is the integration boundary. Clean separation: daemon owns state and reasoning, TUI owns rendering and input. Multi-client is free: same protocol accepts Rust TUI, future Obsidian plugin, web UI, headless scripts.
+
+    ### Daemon has zero runtime dependency on `Ravel-Lite/`
+    Vendored phase files (`phases/work.md`, `phases/reflect.md`, `phases/compact.md`, `phases/triage.md`), fixed-memory files (`fixed-memory/memory-style.md` plus language guides), and `create-plan.md` live at `{{PROJECT}}/prompts/` and ship as Elixir embedded resources. Surfaced through `{{PROMPTS}}` placeholder substituted by `StagingDirectory::render`. Customisation is v2; v1 enforces "use what ships."
+
+    ### `memory-style.md` is the single source for memory entry rules
+    Both reflect (lossy/pruning) and compact (lossless rewrite) read `fixed-memory/memory-style.md`. The rules (assertion register, one fact per entry, cross-reference over re-explanation, short headings, drop session numbers/dates) are upstream of every plan's memory curation and must not drift between reflect and compact.
+
+    ### Human and LLM are co-equal actors
+    Both reflect, triage, and curate. The orchestrator supports human-driven flows as first-class. Enforcement: B's `PhaseExecutor` trait with `LlmHarnessExecutor` and `ManualEditorExecutor`, both against the same state machine. Sub-J folded into B via this trait chokepoint. Every F mechanism (dispatches, queries, routing rule edits) must work with either a human or an LLM as the driver.
+
+    ### Explorers are the accountability substrate for auto-absorb
+    Post-session auto-ingestion is safe only because explorers give humans full-CRUD over everything absorbed. Without explorers, auto-ingestion is unsafe. Scope: knowledge (Tier 1/2), plan state, session artifacts, ingestion provenance. Obsidian is the v1 explorer.
+
+    ### Daemon spawns internal sessions via C's harness adapter
+    The daemon spawns internal reasoning sessions (fact extraction, Level 2 routing, ingestion analysis, reflection distillation) plus child harness sessions for plans. Internal sessions use C's adapter, making C a real first-class abstraction. Requirement on C: configurable tool profiles at spawn time so internal sessions can be sandboxed. Ingestion Stage 5 becomes dispatch-to-experts (F/sub-N integration).
+
+    ### TheExperimentalist is retired
+    Conceptual scope met by the backlog/reflect/triage cycle plus plan hierarchy. Git branching models parallel state, but exploratory development needs temporal structure with reflection points, which the phase cycle provides.
+
+    ### Ravel replaces Ravel-Lite as the user-facing tool
+    Plans, phases, knowledge, and curation are Ravel's scope. `Ravel-Lite/` retires once fully replaced. Until then, Ravel-Lite and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) continue unchanged.
+
+    ### Ravel owns Tier 1 and Tier 2 knowledge
+    Per-project knowledge in Tier 1 (`<project>/ravel/knowledge/`). Cross-project knowledge in Tier 2 (`<vault>/knowledge/`). Plan memory (`<plan>/memory.md`) is provisional scratch for in-flight reflections, not durable knowledge. Knowledge is **consultative** — accessed through ExpertActor queries, not loaded into plan sessions directly.
+
+    ### Vault is git-tracked at a user-specified path
+    First-class git-tracked dev asset visible alongside project repos. User-specified path (default `~/Ravel-vault/`), discovered via explicit precedence chain. No implicit dev-root.
+
+    ### Vault root must be a real directory
+    `<vault>/projects/<name>/` entries are symlinks created relative to the vault root. If the root itself were a symlink, relative symlink targets would resolve incorrectly. Boot-time `File.lstat!/1` check rejects symlinked vault roots.
+
+    ### Vault discovery uses an explicit precedence chain
+    Every daemon startup resolves the vault: `--vault <path>` → `RAVEL_VAULT` → user config at `dirs::config_dir().join("ravel/config.toml")` → hard error. No walk-up, no implicit dev-root, no vault registry. Single-vault-per-machine. Detail in A's design doc §A1.
+
+    ### Vault identity via `ravel.toml` schema-versioned marker
+    A directory is a vault iff `ravel.toml` at root contains a parseable `[vault]` table with `schema_version`. Missing file, parse error, or unsupported version are hard errors. The same file hosts optional vault-level overrides (language profiles, context mappings). Verified every invocation via `verify_vault`. **`daemon.toml` is a separate file** for runtime configuration knobs (socket paths, timeouts, harness settings). The two-file split is load-bearing: swapping daemon versions or reconfiguring harnesses must not touch vault identity.
+
+    ### v0.1.0 has no real users — legacy paths deleted
+    Less than a day of Rust implementation. No `migrate` subcommand. Hardcoded `~/.ravel/` in old Rust CLI deleted. Legacy YAML config format deleted. Previous Rust CLI scope subsumed by the daemon + TUI split. Rust CLI implementation discarded: CLI subcommand wiring, knowledge store read/write glue, and `eval/` (depends on root crate, not standalone). Markdown+YAML knowledge format stays. Every design-level decision from A/B/C/E/M stays. Phase 0 artifact retirement complete: `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/claude-code/`, `defaults/`, `eval/`, `tests/` all deleted.
+
+    ### Knowledge ingestion via post-session inspection
+    Ravel reads plan outputs (`memory.md`, `session-log.md`) after sessions end or at phase boundaries. The LLM never invokes CLI to "promote." E's pipeline stages: extract → classify → contradict → score → **dispatch to experts** (Stage 5). Experts review candidate entries in fresh context and absorb, reject, or cross-link them.
+
+    ### Harness adapter layer abstracts multiple harnesses
+    Each adapter handles spawn, prompt-passing, output capture, and lifecycle. **V1 ships Claude Code adapter only** in Elixir (pipes via `erlexec`). Codex and Pi follow post-v1. **V1 includes per-actor model selection** — the `model:` field in actor declarations and daemon config is honored, and the Claude Code adapter passes `--model` to the CLI. This is essential for cost control: plan phases use Opus, fact extraction/ingestion/expert absorb use Haiku. Sub-O (v2) adds multi-adapter support, local-model adapters, and cost telemetry. Protocol: bidirectional stream-json over stdio pipes. Process-group termination is a v1 requirement.
+
+    ### Typed event structs + `:telemetry` is the instrumentation pattern
+    Typed `Ravel.Event.*` structs at the boundary (exhaustive-match safety for CLI display, Obsidian ingestion, TUI event rendering, E's pipeline); `:telemetry` for transport, spans, third-party integration below the boundary. Custom code bounded to minimal event definitions + a small `:telemetry` handler module.
+
+    ### `:telemetry` handlers must wrap all logic in try/rescue
+    `:telemetry` silently detaches handlers that raise — every `Handler.handle_event/4` body must be wrapped in `try/rescue` and log errors via `Logger` directly (not through M). Without this, any subscriber bug permanently blinds the daemon.
+
+    ### `:telemetry_metrics` reporter definitions are pluggable
+    `:telemetry_metrics` is reporter-independent by design: the same `counter(...)` / `distribution(...)` definitions feed any reporter attached to the supervisor tree. Switching or adding reporters is purely additive.
+
+    ### `:pg` handles intra-daemon multi-client fan-out
+    `:pg` (OTP stdlib since OTP 23) provides process-group membership for TUI session fan-out without a `Phoenix.PubSub` dependency. Per-client backpressure: the daemon's per-client session process wraps `send/2` in a `try/catch` that increments a drop counter on full mailbox.
+
+    ### Behaviour chokepoints enable staged extension
+    Every sub-project that may need a second implementation strategy must identify its chokepoint behaviour before committing to v1. Two instances: `Ravel.ExpertRetrieval` (lets sub-Q drop in a vector strategy without touching sub-N internals) and `Ravel.HarnessAdapter` (lets sub-O add adapters without touching sub-C internals). Brainstorm exit criterion: "what's the chokepoint here?" answered explicitly.
+
+    ### Gate conditions require discrete backlog tasks, not prose
+    A sub-project's phase cycle cannot act on gate conditions embedded only in prose. Gate conditions controlling implementation start must be named, discrete backlog tasks — one per condition. Prose-only gates are invisible to LLM phases reading the backlog; audit dispatch is required to create missing tasks retroactively.
+
+    ### Cross-cutting brainstorms own adoption stubs
+    When a design imposes adoption work on siblings, the brainstorm must produce concrete stubs in every affected sibling backlog before stopping. Triage is too late — the brainstorm's fresh context is lost. F is the largest instance: the brainstorm commits to pushing amendment tasks for A, B, C, D, E, G, H, I, M plus new brainstorm tasks for N, O, P to the orchestrator backlog via F's own dispatch mechanism.
+
+    **Symmetric obligation:** Sub-projects brainstormed after a cross-cutting framework must pull queued stubs into their own backlogs during brainstorm, not wait for triage.
+
+    **Corollary:** When multiple upstreams are rewritten before a cross-cutting amendment, the amendment becomes a collation task, not a design task. The sealed struct/event set writes itself from already-landed producer contracts. Each pre-rewritten upstream reduces the design load of every downstream cross-cutting amendment.
+
+    ### Cross-plan coordination via subagents and vault catalog
+    A plan's LLM phases must not read another plan's files. Cross-plan awareness arrives via `{{VAULT_CATALOG}}` (descriptions only, never content) and dispatched subagents. Level 2 routing agent is the primary mechanism for cross-project reasoning.
+
+    ### Brainstorming follows three linked disciplines
+    Three linked disciplines that compound: (1) **code-shaped contracts at brainstorm exit** — struct names, function specs, verdict atoms that let downstream amendment authors work mechanically rather than reason about intent; (2) **cross-sub-project requirements per-sibling** — one named section per affected sibling so each can find its own commitments without reading the whole spec; (3) **adoption stubs pushed to sibling backlogs before exiting** — brainstorm fresh context is the right moment to identify what each sibling must absorb; triage is too late.
+
+    **Amendment tasks for pending brainstorms are scope-consolidation exercises.** Not design-doc rewrites — they collate constraints scattered across multiple source documents into the brainstorm task description so the brainstorm begins with a complete picture.
+
+    **Lock one fork per clarifying question.** Structure brainstorms as a linear sequence where each question locks a design fork and the answer feeds the next. By design-section presentation, content is determined; presentation becomes verification.
+
+    **Test scope assumptions early.** When generating migration/compatibility questions, check whether those scopes are real first.
+
+    **Re-read memory entries before revising.** Entries are dense and easy to misread under reasoning pressure. First action on a "let me revise that" impulse: re-read the entry to confirm current framing.
+
+    **Surface research threads for fresh slots, not inline absorption.** When clarifying questions spawn cross-cutting research with substantial prior literature (ontologies, vector stores), create a new sub-project stub and proceed. Inline absorption bloats v1 scope and loses the research context.
+
+    **Design from system needs, not legacy artifact mapping.** Derive the new command/API surface from what the new architecture requires. Legacy concepts that don't map naturally should vanish rather than be force-mapped.
+
+    ### Amendment tasks rewrite specs inline, not as supersede layers
+    When a pivot invalidates large portions of a design doc, rewrite with fresh content. Do not append a "§X is authoritative where earlier sections conflict" amendment block — stale content drifts from reality. History belongs in the Decision Trail appendix, with corrections inline at the original question entry. Cross-sub-project requirements re-evaluate on pivot (drop dead requirements, restate survivors in new terms) rather than translate mechanically. Multiple amendments stack in a single rewrite pass — each gets its own Decision Trail entry (Qn+1, Qn+2, …). Implementation-time readiness gates mandate inline rewrites of consumed specs when upstream interfaces drift. Downstream specs cite upstream by section number; section-number stability across rewrites is load-bearing for accumulated cross-references. **Code-shaped contracts from upstream make amendments mechanical**: struct names, function specs, and verdict atoms let the amendment author work at the contract layer without judgment work. **Cross-sub-project requirements section per-sibling** (one section per affected sibling, not a flat bullet list) lets each sibling find its own commitments in one place. **Parallel-emit safety net is unnecessary when the rewrite is fully contract-driven**.
+
+    ### Files as the durable substrate
+    Everything non-transient is a file. The daemon is an orchestrator, not a state store. Daemon restart rebuilds all actor state from files. Team mode (sub-P, v2+) becomes "multiple daemons over the same filesystem, syncing through git." Files-as-substrate composes: every "where does this live?" question resolves to a file, and every "what happens on crash?" question resolves to replay from files.
+
+    ### memory.md and backlog.md drift is load-bearing
+    Both files are consumed by LLM phases every cycle; stale content propagates misinformation into fresh context. `session-log.md` is immune (no LLM phase reads it). Fix drift immediately, especially after upstream changes affecting multiple plans.
+
+    ### Ravel-Lite stopgap: PROJECT placeholder and work-prompt substitution
+    `{{PROJECT}}` placeholders + work prompt substitution instructions landed in APIAnyware-MacOS and TestAnyware. Not the larger Ravel-Lite restructure — deferred/subsumed by the orchestrator.
+
+    ### Sub-C uses pipes-only erlexec, not PTY
+    Stream-json is stdio NDJSON, not a terminal interaction. PTY is only needed for interactive TUI (slash commands, arrow keys, ANSI redraws), which "No slash commands in the harness" rules out. Pipes-only erlexec opts (`[:monitor, :stdin, {:stdout, self()}, {:stderr, self()}, :kill_group, {:kill_timeout, 1}]`) drive the claude CLI cleanly. `:stdin` bare atom is required — erlexec defaults stdin to `:null`.
+
+    ### erlexec is a C++ port program, not a NIF
+    `exec-port` runs as a separate OS process handling PTY allocation, signals, and process groups outside BEAM schedulers. No NIF scheduler risks. `exec-port` runs outside BEAM schedulers and can safely use `ptrace`, `setreuid`, and process groups.
+
+    ### cmux hooks require `--setting-sources` for clean stream-json
+    User-global cmux SessionStart hooks inject spurious JSON into stream-json output. `--setting-sources project,local` suppresses them. Required for all ravel daemon-spawned claude sessions. `--no-session-persistence` prevents cmux session-id injection.
+
+    ### ExpertActor spans both tiers via explicit opt-in
+    Experts can read both Tier 2 (`<vault>/knowledge/`) and Tier 1 (`<project>/ravel/knowledge/`) via `scope.tier2` and `scope.tier1` globs in the declaration. Literal `*` in the first segment of a `tier1` glob means "any project" — no implicit cross-project inclusion. Grep `<vault>/experts/*.md` for `tier1:` to audit cross-project scope. An expert that omits `scope.tier1` is Tier-2-only. Per-project opt-in is the cross-project-leakage control mechanism.
+
+    ### Experts own Tier 2; Tier 1 is plan-owned
+    Experts have exclusive write authority over dedicated Tier 2 directories (resolved from the first entry of `scope.tier2`). Tier 1 is plan-owned read-only from the expert's perspective. Stage 5 candidates that belong in Tier 1 are plan-owned writes (sub-E handles directly); Tier 2 candidates flow through experts. Three-way Stage 5 decision: Tier 1 = plan-owned, Tier 2 = expert-owned, orphan = `knowledge/uncategorized/`.
+
+    ### Expert CRUD is filesystem-only; `expert.query` is sole command
+    Expert declarations are created, edited, and deleted via filesystem + `$EDITOR` + `DeclarationLoader` hot-reload. No socket command structs exist for expert CRUD. `expert.query` is the only NDJSON command in the expert namespace. Sub-N requires no new socket command structs beyond what sub-H's 17-command palette already defines.
+
+    ### Expert dialogues are stateless ETS-backed turns
+    Expert dialogues use stateless turns over a singleton `Ravel.Expert.DialogueRegistry` backed by ETS. Every turn spawns a brand-new fresh-context session; the actor does NOT hold a long-lived harness across turns. Dialogue TTL is idle-based (default 30 min, resets on activity). Daemon restart wipes the table — consumers get `:dialogue_not_found_or_expired` and fall back to a fresh `ask_expert`. Audit trail lives in sub-M's event log. Dialogue state is transient; belongs in ETS memory, not on disk.
+
+    ### Stage 5 scope matching is tag-based exact-string
+    Stage 5 scope matching is pure set-intersection on frontmatter `tags:` fields. Exact-string matching only in v1 — `rust` ≠ `rustlang`, no stemming, no case-insensitivity. Orphan candidates (zero matching experts) bypass expert fan-out and write directly to `<vault>/knowledge/uncategorized/`. Sub-R will replace this with a richer resolver behind the same `ScopeMatcher` interface.
+
+    ### Stage 5 dispatches in parallel; experts write own files
+    Stage 5 calls `Ravel.Expert.DialogueRegistry` via stateless single-turn calls — one `%ExpertAbsorbCandidate{}` in, one verdict struct back, no multi-turn dialogue — dispatching in parallel to every tag-matching expert. Each expert that returns `READY ABSORB` writes the candidate file into its own Tier 2 directory. Physical duplication across directories is accepted — two experts absorbing the same candidate produce two files with matching `ingestion-event-id` in their provenance frontmatter. Wikilinks between them are NOT auto-inserted in v1. `READY CROSS_LINK <expert-id>` is interpreted as a rejection-with-suggestion; the sub-E collector second-round dispatches non-recursively (max depth 2). Contentful disagreement (absorb + non-trivial reject) surfaces `%ExpertConflict{}` events for human review; scope-miss alone does not constitute a conflict.
+
+    ### Three distinct sub-N timeouts: retrieval, session, dialogue
+    Retrieval pipeline timeout (5 seconds) is a **structural sanity check** on the ripgrep pipeline, not a reasoning budget. Per-turn session timeout (5 minutes default, configurable in `daemon.toml` under `[experts] turn_timeout_seconds`) bounds actual LLM reasoning time. Dialogue TTL (30 minutes default) is an **idle** timer that resets on every successful turn — a dialogue whose turns each take 4 minutes of reasoning can run for hours. Three distinct concepts; do not collapse them. Pattern generalizes: deterministic work gets tight structural caps; LLM work gets generous reasoning budgets; dialogue/session idle timers are independent.
+
+    ### Retrieval uses keyword+section scoring behind a chokepoint
+    V1 ships exactly one retrieval strategy, `Ravel.ExpertRetrieval.KeywordSection`, behind an `@behaviour Ravel.ExpertRetrieval` chokepoint. Uses ripgrep over scope globs + section-aware scoring with module-level constant weights (1.0 × frontmatter tags, 0.6 × headings, 0.4 × first paragraph, 0.2 × body, 0.1 × recency with 30-day half-life). Tuning weights requires a code change, not per-user config — prevents per-vault drift on load-bearing scoring parameters. Future strategies (semantic via vector store — sub-Q) drop in behind the chokepoint.
+
+    ### Vector store is shared daemon infrastructure
+    A vector database has consumers beyond expert retrieval — sub-F's vault-catalog search, sub-E's Stage 3 contradiction detection, plan actors searching Tier 1/2 knowledge, and sub-O's local-model infrastructure. Sub-Q is a dedicated brainstorm on vector-store infrastructure as a shared daemon service. The `ExpertRetrieval` behaviour chokepoint is sub-N's hook for consuming sub-Q's output. Reserved for v2; does not block v1.
+
+    ### Tag ontology is sub-R's dedicated v1 research scope
+    Tag vocabulary drift (`rust` vs `rustlang` vs `Rust`) is inevitable as the expert set grows; the correct answer is an ontology — but that's real research (formal ontologies vs folksonomies, synonym handling, hierarchy, polysemy). Sub-R is the dedicated research brainstorm, elevated to v1 because drift compounds from day one once experts accumulate knowledge. Cross-cutting consumers: sub-N `ScopeMatcher`, sub-E Stage 2 classification, sub-F fact extraction, sub-H TUI presentation. Sub-A's vault layout reserves `ontology/` (replaces former `tag-vocabulary.md` reservation). Sub-R's richer resolver drops in behind sub-N's `ScopeMatcher` interface — sub-N can ship exact-string matching first, then sub-R upgrades it.
+- id: sub-projects
+  title: Sub-projects
+  body: |
+    Eighteen sub-projects (fifteen active, two eliminated, one obsolete). Brainstorms complete: A, B, C, D, E, F, G, H, I, M, N, R (twelve of fifteen active; all twelve v1 sub-projects complete). Each produces a design doc at `{{PROJECT}}/docs/superpowers/specs/` and a sibling plan at `{{PROJECT}}/LLM_STATE/`. Two version tiers: **v1** (A, B, C, D, E, F, G, H, I, M, N, R) and **v2** (O, Q, P).
+
+
+    | ID | Sub-project | Complexity | Status | Notes |
+    |----|-------------|-----------|--------|-------|
+    | A  | Global knowledge store at user-specified path | Small-med | **done** (F+D amendments absorbed) | Design doc `specs/2026-04-13-sub-A-global-store-design.md`. Explicit vault discovery, `ravel.toml` marker, `init`/`init --from`/`config use-vault`/`adopt-project` commands. F amendment absorbed via inline rewrite: §A1–§A10 re-cast for the Elixir daemon, §A4 layout picks up sub-F surfaces (`daemon.toml`, `routing.ex`, `plan-catalog.md`, `experts/`, `runtime/{daemon.sock,mailboxes/}`), `project-root/` rename absorbed in §A10 walk-up. D amendment absorbed: `daemon.lock` and `daemon.pid` removed from vault layout (singleton lock is system-wide), boot sequence collapsed from 11 to 10 steps. Q1–Q5 preserved verbatim with correction notes; Q6 (BEAM pivot) and Q7 (sub-F commitments) added in Appendix A. |
+    | B  | Phase cycle | Medium | **done** | Design doc `specs/2026-04-12-sub-B-phase-cycle-design.md`. Produced: hard errors, no slash commands, Obsidian explorer, vault+symlinks, per-project `ravel/`, embedded prompts. F amendment absorbed via inline rewrite: PhaseRunner inside PlanActor, `plan-state.md` schema pruned, `{{VAULT_CATALOG}}` replaces `{{RELATED_PLANS}}`, four-phase cycle first-class. Downstream implementation task list still carries pre-pivot Rust framing (gate task added for next work phase). |
+    | C  | Harness adapter layer | Med-large | **done** (F amendment absorbed) | Design doc `specs/2026-04-13-sub-C-adapters-design.md`. V1 Claude Code only. F amendment absorbed: spec rewritten inline for Elixir/erlexec (§1-§11 fresh, no supersede layer). Tool-call boundary for in-session Queries (§4.5) now concrete. Sub-C sibling plan backlog still has pre-pivot Rust task list (discrete sub-C work). |
+    | D  | Daemon coordination (scope collapsed by F) | Small | **done** | Design doc `specs/2026-04-16-sub-D-coordination-design.md`. System-wide singleton lock at `<runtime_dir>/ravel/daemon.lock` via `flock(2)` (not in vault — invisible to Obsidian). Content-hash freshness checking + `Ravel.FileIO` as mandatory I/O layer with three file categories (`:exclusive`, `:phase_owned`, `:human_editable`). Vault git concurrency deferred (no autonomous commits in v1). `daemon.pid` eliminated (lock file carries PID + vault path). Sub-A design doc updated inline. Sibling plan at `LLM_STATE/sub-D-coordination/` with 7 tasks. |
+    | E  | Post-session knowledge ingestion | Medium | **done** (F amendment absorbed) | Design doc `specs/2026-04-12-sub-E-ingestion-design.md`. §1–§5 + Decision Trail rewritten inline: BEAM/Elixir, Stage 5 dispatch-to-experts; sub-E emits directly to sub-M's bus from Stage 5 (no standalone `IngestionEvent` channel). Downstream task list still carries pre-pivot Rust framing; Task 0 gate required before implementation. |
+    | F  | Plan hierarchy + actor model + dispatch + declarative routing | **Large** | **done** (sibling plan scaffolded) | Design doc `specs/2026-04-14-sub-F-hierarchy-design.md`. Committed: persistent BEAM daemon, two sealed actor types, two message types, `project-root` convention, path-based qualified IDs, dispatch asymmetry, vault catalog, Datalog-ish declarative routing with Level 2 fallback, Elixir runtime, Rust TUI client. Sibling plan at `LLM_STATE/sub-F-hierarchy/` with 28 implementation tasks + Task 0 readiness gate; implementation blocked on sub-B + sub-C task-list rewrites and sub-A + sub-M amendment absorption. |
+    | G  | Migration: Ravel-Lite + v0.1.0 transition | Medium | **done** | Design doc `specs/2026-04-16-sub-G-migration-design.md`. Four-phase ordering: Phase 0 (artifact retirement, executed immediately — `src/`, `Cargo.toml`, `Cargo.lock`, `adapters/`, `defaults/`, `eval/`, `tests/` deleted), Phase 1 (Ravel rename at daemon switch-over), Phase 2 (dependent projects stagger), Phase 3 (Ravel-Lite retirement). Two tools: `scripts/migrate-project.sh` for filesystem restructure, `ravel adopt-project` for vault integration — cleanly separable with different lifecycles and error models. Per-project staggering, git-native reversibility, plan-state.md phase-only at migration. Phase 1 rename is the daemon switch-over event: no intermediate partial-migration states exist. `migrate-project.sh` must execute as a single atomic transaction (no partial-state window): sub-H's 17-command palette has no shim and is inoperative until Phase 1 completes. G imposes no design changes on any sibling sub-project — post-migration layout conforms to what A, B, E, F, N already expect. Sibling plan at `LLM_STATE/sub-G-migration/` with 8 tasks. |
+    | H  | Fold 7 Claude Code skills | Small-med | **done** | Design doc `specs/2026-04-16-sub-H-skills-design.md`. Architecture-first derivation: 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappear (`promote-global`, `explore-knowledge`, curate/promote distinction). Uniform protocol (reuse `send`; only `create_plan` + `adopt_project` new). Command palette with configurable keybindings + which-key. `ravel cmd` CLI for external automation. Expert CRUD via filesystem + `$EDITOR`. Clean break at G's Phase 1. Local docs server. Sibling plan at `LLM_STATE/sub-H-skills/` with 14 tasks. |
+    | I  | Obsidian coverage | Small-med | **done** | Design doc `specs/2026-04-16-sub-I-obsidian-coverage-design.md`. Complete data-surface inventory (15+ surfaces mapped to Obsidian features), three required plugins (Dataview, Templater, Homepage), two Templater templates, four starter Dataview views, zero CSS snippets. Obsidian is a pragmatic bridge to Phoenix LiveView. No graph view. Sibling plan at `LLM_STATE/sub-I-obsidian-coverage/` with 7 tasks. |
+    | J  | Human-mode phase affordances | N/A | **obsolete** | Folded into B as `ManualEditorExecutor`. |
+    | K  | Obsidian plugin client | Medium | **eliminated** | Eliminated at v1 scope cut. Client of F's Unix socket protocol; if revisited post-v1, becomes a v2 candidate. |
+    | L  | Obsidian terminal plugin spike | Small | **eliminated** | Eliminated at v1 scope cut. Was prerequisite for K only. |
+    | M  | Observability framework | Med-large | **done** (F amendment absorbed) | Design doc `specs/2026-04-13-sub-M-observability-design.md`. F amendment absorbed via inline rewrite: §1–§20 re-cast onto `:telemetry` + sealed `Ravel.Event.*` struct set + four GenServer subscribers (`RingBuffer`, `JsonlWriter`, `TuiBridge`, `Metrics`) + `Ravel.Observability.Handler` attached via `:telemetry.attach_many/4`. Sealed set: 26+ Elixir structs grouped by producer (B/C/E/F/N/A + M escape hatches); v1 set complete pending scope cut. §6 metric catalogue: 23 definitions via `Telemetry.Metrics.*`. Q1–Q5 preserved verbatim with correction notes; Q6 (BEAM pivot) and Q7 (reporter selection — `ConsoleReporter` + `SnapshotReporter` v1, `:telemetry_metrics_prometheus` v1.5, OpenTelemetry v2) added. Key failure mode: `:telemetry` detaches raising handlers; §5.2 mandates `try/rescue` logging via `Logger` (Risk 6). Downstream Rust task-list carries pre-pivot framing; Task 0 gate mirrors sub-B/sub-C discipline. |
+    | **N** | **Domain experts** | **Medium** | **done** | Design doc `specs/2026-04-15-sub-N-domain-experts-design.md` (1104 lines). ExpertActor implementation behind F's type hole, stateless dialogue over ETS, tag-based exact-string scope matching, keyword+section retrieval, hybrid knowledge ownership (experts own Tier 2, Tier 1 plan-read-only), parallel-fan-out Stage 5 with each expert writing its own absorb. Default expert set swap: `distributed-systems-expert` dropped, `elixir-expert` added for dogfooding. Sibling plan at `LLM_STATE/sub-N-domain-experts/` with 29 tasks across 9 phases; Tasks 1–15 can start immediately (pure Elixir + fixtures + early deliverable for sub-E amendment), Task 0 gates Task 16+ on sub-F delivering `Ravel.Actor` behaviour + `ActorSupervisor` child-spec API. |
+    | **O** | **Mixture of models** | **Medium** | not started (v2) | Multi-adapter harness layer, local-model adapters, cost telemetry. Per-actor model selection absorbed by Sub-C for v1; Sub-O adds multi-adapter + local models. F reserves `[harnesses.*]` config and `model:` actor field. |
+    | **P** | **Team mode** | **Large** | not started (v2) | Multi-daemon transport via BEAM distribution or custom TCP, peer discovery, cross-daemon auth, shared-vault conflict resolution. F reserves `[peers]` config and `<peer>@<qualified-id>` syntax. |
+    | **Q** | **Vector-store infrastructure** | **Medium** (research) | not started (v2) | Vector DB as Ravel-wide capability, not a sub-N-internal retrieval strategy. Consumers: sub-N expert retrieval, sub-F vault-catalog search, sub-E Stage 3 contradiction detection, plan actors, sub-O local-model infrastructure. `Ravel.ExpertRetrieval` behaviour chokepoint is the integration hook. |
+    | **R** | **Knowledge ontology** | **Medium** (research + impl) | **done** (design complete) | Design doc `specs/2026-04-16-sub-R-knowledge-ontology-design.md`. Ravel's declarative reasoning substrate: purpose-built Datalog engine (Elixir, domain-agnostic) + typed ontology (tags, synonyms, hierarchy, typed relations — open predicate set) + consumer integration (ScopeMatcher, Stage 2, fact extraction, routing). Replaces `routing.ex` with `ontology/routing.dl` (Sub-F amendment). LLM exposure: passive `{{ONTOLOGY_CONTEXT}}` + active `ontology.query` tool. Three literature surveys gate implementation. Sibling plan at `LLM_STATE/sub-R-knowledge-ontology/` with 21 tasks. Nine sibling amendments required. |
+
+    ### Recommended sub-project ordering (post scope cut)
+
+    V1 scope cut locked. **All twelve v1 brainstorms complete:** A, B, C, D, E, F, G, H, I, M, N, R. Amendments absorbed: A, B, C, E, G, H, I, M. Two version tiers: v1 and v2. K and L eliminated.
+
+    Critical next steps: **(1)** Sub-E task-list rewrite gate task — sub-E's sibling-plan task list carries pre-pivot Rust framing and must be rewritten before implementation. **(2)** Sub-B and sub-C downstream task-list rewrites against their rewritten design docs (gate tasks in place; two remaining gate conditions for sub-F's Task 0). **(3)** Sub-C must also absorb model-configurability requirement (per-actor `model:` field → `--model` flag on CLI spawn). **(4)** Sub-F Task 0 readiness check once (2) completes — then Task 1+ implementation can begin. Sub-M's task-list rewrite is internal and not on F's critical path. **(5)** Sub-R's three research tasks (Tasks 1-3) can start immediately and in parallel — they have no dependencies on other sub-projects. Sub-O, sub-Q, sub-P reserved for v2.
+
+    ### V1 implementation status: all brainstorms done, zero tasks started
+    All twelve v1 brainstorms complete (A, B, C, D, E, F, G, H, I, M, N, R); zero implementation tasks started across any sub-project. Three independent work streams are unblocked:
+    - **Stream 1 (critical path):** Sub-B gate task → Sub-C gate task → Sub-F Task 0 readiness → Sub-F's 30+ implementation tasks. Sub-B and Sub-C rewrites can proceed in parallel. Sub-D's `DaemonLock` and `FileIO` also gate Sub-F Tasks 1/4/6–12.
+    - **Stream 2 (independent):** Sub-E Task 0 gate → Sub-E's 28 implementation tasks. No dependency on Stream 1.
+    - **Stream 3 (independent research):** Sub-R Tasks 1–3 (literature surveys) → Sub-R engine implementation. No cross-project dependencies.
+    Sub-N Tasks 1–15 can also start immediately (pure Elixir + fixtures), gated on Sub-F only at Task 16+. Sub-R adoption stubs present in all 8 target siblings.
+
+    **Sub-C dispatch status:** Both dispatches (formal gate task + model-configurability task) confirmed present in Sub-C's `## Received` section. Neither has been promoted to a numbered backlog task yet — Sub-C has not run a triage cycle since the dispatches landed. **Stream 1 is blocked on Sub-C's next triage cycle, not on missing dispatches.** Next action: invoke a Sub-C work cycle (`run-plan.sh sub-C-adapters`), then re-verify and trigger Sub-F Task 0 readiness check.
+
+    ### Dispatch gate verification is a two-stage operation
+    Dispatches land in a sibling's `## Received` section and sit there until that sibling's *own* triage phase promotes them. The orchestrator has no remote-trigger mechanism. Stage 1: verify the dispatch landed in `## Received`. Stage 2 (separate cycle): verify the sibling's triage promoted it to a numbered backlog task. Tasks downstream of "gate task exists as discrete backlog item" must budget for this two-stage shape. Practical workflow: after dispatching to a sibling, schedule a sibling work cycle before the next orchestrator verification of that gate.
+- id: open-questions
+  title: Open questions
+  body: |
+    ### ~~Pattern-matched Elixir routing vs Erlog~~ — RESOLVED
+    Resolved by Sub-R: neither Elixir pattern matching nor Erlog. V1 ships a purpose-built Datalog engine (`Ravel.Datalog`) that serves both ontology resolution and routing. `routing.ex` is replaced by `ontology/routing.dl`. Datalog is better than both Elixir and Prolog for user-facing rules: guaranteed termination, declarative, inspectable, LLM-readable.
+
+    ### Default expert set is six starter declarations
+    Six starter expert declarations: `rust-expert`, `elixir-expert`, `research-expert`, `software-architect`, `obsidian-expert`, `ffi-expert`. `distributed-systems-expert` dropped (scope absorbed by `software-architect`); `elixir-expert` added for dogfooding. Authoring in sub-N's Task 8 against design doc §3.5/§3.1 template.
+
+    ### Team-mode design
+    Solo-developer by design at v1 (A's single-vault discovery, F's single-daemon architecture, E's sequential ingestion). Multi-developer shared vault needs network transport (sub-P's scope), conflict resolution, curation workflow changes, possibly per-user identity. F reserves the schema hooks (`[peers]`, `<peer>@<id>`) but doesn't wire them. Sub-P brainstorm at v2 milestone.
+
+    ### Seven Claude Code skills map to 17 daemon commands
+    Architecture-first derivation produced 17 commands from daemon needs, not legacy mapping. Three legacy concepts disappeared: `promote-global` (Tier 2 is expert-owned), `explore-knowledge` as distinct concept (expert query IS knowledge exploration), curate/promote distinction (unified). Command palette with user-configurable keybindings + which-key. `ravel cmd` CLI for external automation. Clean break at G's Phase 1.
+
+    ### What in `Ravel-Lite/` survives the merge
+    G's decision. `coding-style.md` and `coding-style-rust.md` are referenced by APIAnyware-MacOS work prompts. Could move into Ravel's embedded prompts, a separate docs repo, or stay until Ravel-Lite retires.
+
+    ### Obsidian covers all 15+ Ravel data surfaces
+    Complete mapping in Sub-I design doc §2. Three required plugins (Dataview, Templater, Homepage). Four starter Dataview views in `views/` directory. Obsidian's native file tree, search, tags panel, and backlinks cover the core surfaces. Non-markdown files (`.toml`, `.ex`) are plain-text-only in Obsidian — users edit in IDE. V1 event coverage is indirect (file changes only); live event streaming is a v2 candidate (sub-K eliminated). Obsidian is a pragmatic bridge to Phoenix LiveView, not the destination.
+- id: constraints-non-goals
+  title: Constraints / non-goals
+  body: |
+    ### Non-disruption is mandatory
+    `Ravel-Lite/` and its four dependents (APIAnyware-MacOS, TestAnyware, Modaliser-Racket, RacketPro) keep working unchanged. Ravel is built alongside. Migration only when demonstrably equivalent or better.
+
+    ### Bootstrap discipline
+    This plan runs on existing Ravel-Lite machinery. No assumed features beyond what Ravel-Lite supports.
+
+    **Dogfooded improvements may land back into Ravel-Lite** when: (1) additive documentation only; (2) four dependents absorb with zero migration; (3) flows into v1 when B's embedded prompts vendor the canonical files.
+
+    ### Never bulk-stage in APIAnyware-MacOS or TestAnyware
+    Both repos carry uncommitted WIP on `main`. Any task must `git add` specific paths — never `git add -A`, `git add .`, or `git commit -a`.
+- id: origin
+  title: Origin
+  body: |
+    Ravel grew from Ravel-Lite punch-list fixes into a full orchestrator with actor-daemon on BEAM. Bootstrapped on Ravel-Lite machinery per user direction. V1 architecture documented in `docs/architecture.md` and `docs/superpowers/specs/2026-04-14-sub-F-hierarchy-design.md`.
+- id: gates
+  title: Gates
+  body: |
+    Cross-plan dependency tracking. Routing decisions in the work phase
+    consult this section. Entries are terse prose; reflect phase updates
+    them as children make progress.
+
+    ### sub-C triage gate
+    **sub-C backlog has two dispatched gate tasks** (Elixir backlog rewrite,
+    model-configurability) that need formal promotion via a sub-C triage
+    cycle. Until that triage runs, Stream 1 of implementation is blocked
+    here. Running sub-C for one cycle should promote these tasks and clear
+    the gate.
+
+    ### sub-B and sub-C → sub-F Task 0 readiness
+    **sub-F Task 0 is the readiness check for downstream sub-F work.** It
+    depends on sub-B's backlog rewrite gate AND sub-C's formal gate task
+    both being `completed` / `done`. Both are currently outstanding. sub-F
+    cannot meaningfully proceed beyond Task 0 without both.
+
+    ### sub-D DaemonLock + FileIO → sub-F Tasks 1, 4, 6–12
+    **sub-D's `DaemonLock` and `FileIO` deliverables gate sub-F work.** Until
+    sub-D lands these primitives, sub-F's Tasks 1, 4, 6–12 remain blocked
+    even if their within-plan prerequisites are satisfied. Pivoting to sub-D
+    to advance these primitives unblocks a large sub-F branch.
+
+    ### Independent streams (no cross-plan gates)
+    **sub-E Tasks 0+ and sub-N Tasks 1–15 are fully unblocked.** They have
+    no cross-plan dependencies and can be pivoted to whenever the user
+    wants to make parallel progress without touching the gated chains.
+
+    ### sub-R literature survey (Tasks 1–3) is fully unblocked
+    **sub-R Tasks 1–3** (Datalog foundations, ontology/folksonomy literature,
+    LLM ontology interfaces) have no cross-project dependencies. These gate
+    sub-R's Datalog engine implementation (Tasks 4+), so kicking them off
+    early is valuable even if no immediate downstream consumer is waiting.

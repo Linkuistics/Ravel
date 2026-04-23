@@ -1,0 +1,127 @@
+entries:
+- id: primary-reference
+  title: Primary reference
+  body: |
+    **`{{PROJECT}}/docs/superpowers/specs/2026-04-16-sub-D-coordination-design.md`**
+    is the authoritative design document. Every task in this plan's backlog
+    derives from the spec's §1–§7.
+- id: parent-plan
+  title: Parent plan
+  body: |
+    The orchestrator-level plan lives at
+    `{{PROJECT}}/LLM_STATE/ravel-orchestrator/` (currently — will move
+    to `{{PROJECT}}/ravel/project-root/` after sub-project G's
+    migration lands). It coordinates this sub-plan with its siblings. The
+    parent plan's `memory.md` holds cross-sub-project architectural state.
+    This file holds only sub-project-D-specific implementation state.
+- id: key-architectural-anchors
+  title: Key architectural anchors
+  body: |
+    ### D-1: System-wide singleton lock, not per-vault
+    Lock file at `<runtime_dir>/ravel/daemon.lock` via `flock(2)`.
+    Contains PID + vault path. Not inside the vault — invisible to Obsidian.
+    Enforces v1 single-daemon-per-machine constraint.
+
+    ### D-2: Content-hash freshness, not mtime
+    SHA-256 of raw file bytes via `:crypto.hash/2`. Always read-before-write.
+    Detects actual content changes, not metadata changes.
+
+    ### D-3: Three file categories with distinct strategies
+    `:exclusive` (no check, overwrite), `:phase_owned` (daemon-authoritative,
+    warn on conflict), `:human_editable` (human-authoritative, discard on
+    conflict). Categories assigned by the caller via `FileIO.write_safe/3`.
+
+    ### D-4: No autonomous daemon git commits in v1
+    All git operations are human-mediated. Vault git concurrency is a
+    non-issue by design constraint.
+
+    ### D-5: Edge-case safety nets, not high-frequency coordination
+    External-tool conflicts are rare. The typical workflow has the daemon as
+    sole writer during phase cycles. Co-equal-actors is a fallback guarantee.
+- id: implementation-state
+  title: Implementation state
+  body: |
+    ### Sub-D feature-complete for v1
+    All modules implemented: `FreshnessTracker`, `FileIO`, `SingletonLock`, `VaultGit`.
+    Full suite: 36 tests, 0 failures. `mix format --check-formatted` clean.
+
+    ### Mix project scaffolded at repo root; Elixir 1.19.5-otp-28 / Erlang 28.0
+    `.tool-versions` pins these versions. Mix project root is the repo root.
+
+    ### FreshnessTracker: GenServer owns ETS table `:ravel_freshness`
+    Table flags: `:named_table, :public, read_concurrency: true`.
+    Source: `lib/ravel/coordination/freshness_tracker.ex`.
+
+    ### ETS crash drops all hashes; degradation is safe
+    On GenServer crash the table is destroyed and all hashes are lost.
+    Next `check/1` call returns `:untracked`. Callers treat `:untracked` as
+    "assume changed" — no stale-positive freshness verdicts after crash.
+
+    ### `check/1` returns four variants, not two
+    `:untracked | :unchanged | {:changed, hash} | {:error, File.posix()}`.
+    Spec §3.2 had two variants. `:untracked` distinguishes "never tracked"
+    without a separate ETS preflight. `{:error, File.posix()}` is consumed
+    by `FileIO.write_safe/3` per spec §3.3 step 6. The wider type is
+    tacitly required by the rest of the spec.
+
+    ### FileIO implemented; all 9 spec branches covered
+    `lib/ravel/file_io.ex`. `read_tracked/1` and `write_safe/3` cover the
+    full category-based dispatch from spec §3.3. 16-test suite includes
+    rebaseline-after-conflict, atomic-write fault-injection via
+    `File.chmod!(dir, 0o555)`, and 50-iteration write-loop consistency.
+
+    ### `atomic_write!/2` places temp file in same directory as target
+    Temp file goes in `Path.dirname(path)`, not `System.tmp_dir!/0`.
+    Guarantees `rename(2)` atomicity — cross-mount rename is non-atomic
+    on most filesystems.
+
+    ### FileIO diagnostics use Logger, not `:telemetry`
+    `:telemetry` dep absent from `mix.exs`; sub-M (the consumer) is unbuilt.
+    All four diagnostic paths (`:warn`/`:info`) emit via `Logger` with
+    structured metadata. Swapping to `:telemetry.execute/3` when sub-M
+    lands is a ~5-line change.
+
+    ### `rebaseline_hash/1` private helper handles `:human_editable` discard
+    Satisfies spec §3.3 step 2c ("update stored hash on discard") without
+    adding a public API to `FreshnessTracker`.
+
+    ### Unexpected `check/1` errors raise `File.Error` immediately
+    `{:error, reason}` where `reason != :enoent` raises rather than returning
+    an error tuple. Hard-error-by-default; only `:enoent` is soft-handled.
+
+    ### SingletonLock implemented
+    `lib/ravel/coordination/singleton_lock.ex`. Uses `:spawn_executable` to
+    avoid shell orphan issues. `:lock_dir` opt available for test isolation.
+    Hard-errors with `{:error, {:flock_missing, _}}` when `flock(1)` absent.
+    11 tests, all passing.
+
+    ### `flock(1)` absent from macOS default PATH
+    `flock(1)` is util-linux, not installed on macOS by default.
+    `brew install flock` required. `SingletonLock` hard-errors on absence
+    rather than silently misbehaving.
+
+    ### `cat` child holds the port-based lock; `sleep infinity` is GNU-ism
+    `sleep infinity` is unavailable on macOS BSD `sleep`. `cat` is the
+    portable substitute: lock lifetime is bound to its stdin pipe; BEAM
+    closes the pipe on port close or daemon exit, releasing the lock cleanly.
+
+    ### `Port.close` is async; tests poll for release
+    `Port.close` returns before the OS process exits. Test helpers poll at
+    25ms intervals via `wait_for_lock_release/1`.
+
+    ### VaultGit implemented
+    `lib/ravel/vault_git.ex`. `commit/3` uses a `with` chain over two
+    `run_git/2` calls. `index.lock` substring in stderr classifies as
+    `{:error, :index_lock_held}`. No retry per spec §4.2. 4 tests, all passing.
+
+    ### Git test repos need `--initial-branch=main` and `commit.gpgsign=false`
+    `git init --initial-branch=main` prevents ambiguous default branch.
+    `commit.gpgsign=false` prevents CI hang on missing GPG key.
+- id: sibling-integration-points
+  title: Sibling integration points
+  body: |
+    - Sub-B: `copy_back/2` → `FileIO.write_safe(path, content, :phase_owned)`
+    - Sub-E: `SafeFileWriter` → `FileIO.write_safe(path, content, :human_editable)`
+    - Sub-F: boot step 3 → `SingletonLock.acquire/1`; plan-catalog → `FileIO.write_safe(path, content, :exclusive)`; routing rules → `VaultGit.commit/3`
+    - Sub-N: expert absorb → `FileIO.write_safe(path, content, :human_editable)`
+    - Sub-M: subscribes to `%Diagnostic{target: "ravel.coordination"}` and `%Diagnostic{target: "ravel.lock"}` events

@@ -1,0 +1,14 @@
+id: 2026-04-21-vaultdirectory-actor-behaviour-tasks-1-2
+timestamp: 2026-04-21T10:14:00Z
+phase: work
+body: |
+  **VaultDirectory + Actor behaviour (Tasks 1 & 2)**
+
+  - **Attempted:** Implement Task 1 (`Ravel.VaultDirectory`) and Task 2 (`Ravel.Actor` behaviour) as the foundation for sub-project F.
+  - **Task 1 — what worked:** Shipped `Ravel.VaultDirectory` with `load/1` / `load!/1`. Vault walk descends `<vault>/projects/<name>/` subtrees, finds all `plan-state.md` markers, parses YAML frontmatter via `yaml_elixir`, computes path-based qualified IDs at walk time (never stored), and validates description discipline (F-8: 120-char cap, no placeholder strings). Sibling modules `Ravel.VaultDirectory.{Plan,Expert,Error}` carry structured entries and diagnostics. Parent assignment uses nearest-ancestor-with-marker semantics so intermediate organisational dirs are transparent. Created `test/support/vault_fixtures.ex` with helpers that materialise a symlinked vault on disk; added `elixirc_paths` config for `:test` env. 31 ExUnit tests, all green. `mix format --check-formatted` clean.
+  - **Task 2 — what worked:** Shipped `Ravel.Actor` as a pure `@behaviour` at `lib/ravel/actor.ex`. Five callbacks: `actor_id/1`, `actor_type/1`, `handle_actor_message/2`, `snapshot/1`, `restore/1`. Message/response shapes declared as wide placeholder types so callers compile before `Ravel.Message.*` structs exist, without creating phantom modules. Negative test explicitly asserts `retrieve/3`, `persona`, `knowledge_scope`, and `absorb_candidate` are absent from the callback set, enforcing the ExpertRetrieval boundary. 7 ExUnit tests including a `TestActor` round-trip. Unblocks sub-N Phase 5+ on the behaviour side.
+  - **Nothing didn't work** — both tasks landed cleanly with full test coverage (74/74 green).
+  - **Suggests next:** Task 3 (`Ravel.ExpertActor` stub, no sibling deps) + Task 5 (`Ravel.ActorSupervisor`) to close sub-N's Phase 5+ gate; or Task 9 (`CatalogRenderer`, consumes `VaultDirectory` only, zero sibling-sub-project deps). Task 4 (`Ravel.PlanActor`) waits on sub-B's rewritten `PhaseRunner`.
+  - **Key discovery:** `yaml_elixir ~> 2.12` added as first external dependency; `mix.lock` committed. `lib/ravel/vault_directory/` directory contains three sub-modules (`error.ex`, `expert.ex`, `plan.ex`).
+
+  **Uncommitted paths:** None — all source changes staged and committed.

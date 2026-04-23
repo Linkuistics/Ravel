@@ -1,0 +1,231 @@
+tasks:
+- id: task-0-readiness-gate
+  title: Task 0 — Readiness gate
+  category: planning
+  status: not_started
+  dependencies: []
+  description: |
+    Before starting implementation, verify that consumed upstream interfaces
+    match the design doc's assumptions. Check:
+
+    - Sub-F's `Router.Server` NDJSON dispatcher — does the command dispatch
+      mechanism support adding new commands via a module-based registry?
+    - Sub-C's tool injection mechanism (§4.5) — is the tool definition
+      format concrete enough to add `create_plan`?
+    - Sub-N's `ask_expert` / `reply_to_expert` tool definitions — do they
+      match the shapes assumed in §4.3?
+    - Sub-E's ingestion pipeline — does a `submit_candidate/2` entry point
+      exist or need to be created?
+    - Sub-A's `adopt_project` — is it callable as a library function or
+      only as a CLI entry point?
+
+    If any interface has drifted since the design doc, update §5/§6/§9 of
+    the design doc inline (rewrite, not supersede layer) before proceeding.
+- id: task-1-implement-ravel-commandregistry
+  title: 'Task 1: Implement `Ravel.CommandRegistry`'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-0-readiness-gate
+  description: |
+    Implement the command registry module per §2.1. A GenServer or
+    compile-time registry holding all `%Command{}` definitions from §2.2.
+    Provides `list_commands/0`, `get_command/1`, `commands_for_scope/1`.
+    Used by the TUI for palette rendering, by `ravel cmd --list` for
+    discovery, and by the docs server for the index page. All 17 v1
+    commands registered with IDs, names, descriptions (≤80 chars), help
+    paths, scopes, and default keybindings.
+- id: task-2-implement-create-plan-ndjson-command-handler
+  title: 'Task 2: Implement `create_plan` NDJSON command handler'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-0-readiness-gate
+  description: |
+    Add the `create_plan` command to F's NDJSON command dispatcher per §5.1.
+    Handler: validate name (kebab-case, not reserved, not duplicate),
+    validate description (non-empty, ≤120 chars), create directory, write
+    `plan-state.md` + empty `backlog.md` / `memory.md` / `session-log.md`,
+    regenerate vault catalog, register PlanActor with `ActorSupervisor`,
+    emit `%Plan.Created{}` event. All file writes via
+    `Ravel.FileIO.write_safe/3` with `:exclusive` category. Error responses
+    for invalid name, reserved name, duplicate, description too long,
+    unknown parent.
+
+    **Dependency context:** also depends on sub-F's `Router.Server`
+    dispatcher (external sub-project).
+- id: task-3-implement-adopt-project-ndjson-command-handler
+  title: 'Task 3: Implement `adopt_project` NDJSON command handler'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-0-readiness-gate
+  description: |
+    Add the `adopt_project` command to F's NDJSON command dispatcher per
+    §5.2. Handler: delegates to sub-A's `Ravel.Vault.adopt_project/2`, then
+    triggers rescan. Error responses for already adopted, invalid path,
+    layout conflict. If sub-A's implementation is CLI-only, create an
+    adoption stub task on sub-A's backlog for the library-callable refactor.
+
+    **Dependency context:** also depends on sub-A's `adopt_project` being
+    exposed as a library function (external sub-project).
+- id: task-4-implement-knowledge-submit-command-handler
+  title: 'Task 4: Implement `knowledge.submit` command handler'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-0-readiness-gate
+  description: |
+    Wire the `knowledge.submit` command to sub-E's
+    `Ravel.Ingestion.submit_candidate/2`. The `send` command with
+    `target-expert: "auto"` and `kind: "absorb_candidate"` payload triggers
+    scope matching → expert fan-out → verdict collection. Returns verdict
+    summary. If sub-E's entry point doesn't exist yet, create an adoption
+    stub task on sub-E's backlog.
+
+    **Dependency context:** also depends on sub-E's `submit_candidate/2`
+    entry point (external sub-project).
+- id: task-5-add-create-plan-harness-tool-definition
+  title: 'Task 5: Add `create_plan` harness tool definition'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-2-implement-create-plan-ndjson-command-handler
+  description: |
+    Define the `create_plan` tool for sub-C's harness tool injection per
+    §6.1. Tool available in `work` and `triage` phases; excluded from
+    `reflect` and `compact`. Sub-C intercepts the invocation and translates
+    to a `create_plan` NDJSON command with `parent_plan` inferred from the
+    session's owning PlanActor. Create adoption stub on sub-C's backlog if
+    needed.
+
+    **Dependency context:** also depends on sub-C's tool injection
+    mechanism (external sub-project).
+- id: task-6-define-sub-m-event-structs
+  title: 'Task 6: Define sub-M event structs'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-0-readiness-gate
+  description: |
+    Add `%Ravel.Event.Plan.Created{}` and `%Ravel.Event.Command.Executed{}`
+    to sub-M's sealed event set per §9. `Plan.Created` fields:
+    `qualified_id`, `parent_plan`, `name`, `description`, `created_at`.
+    `Command.Executed` fields: `command_id`, `actor_id` (optional), `source`
+    (`:tui | :cli | :external`), `executed_at`. Create adoption stub on
+    sub-M's backlog.
+- id: task-7-implement-local-docs-server
+  title: 'Task 7: Implement local docs server'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-1-implement-ravel-commandregistry
+  description: |
+    Minimal HTTP server per §8. Add `bandit` dependency. Serve static files
+    from `priv/docs/`. Port configured in `daemon.toml` under `[docs] port`;
+    auto-assigned port written to `<vault>/runtime/docs-port`. Supervisor
+    child under the daemon's main supervision tree. Index page
+    auto-generated from `CommandRegistry`.
+- id: task-8-write-command-documentation-pages
+  title: 'Task 8: Write command documentation pages'
+  category: daemon
+  status: not_started
+  dependencies:
+  - task-1-implement-ravel-commandregistry
+  - task-7-implement-local-docs-server
+  description: |
+    Write one HTML or Markdown page per command in `priv/docs/commands/`.
+    Each page covers: purpose, NDJSON format, examples, related commands.
+    Plus an index page listing all commands. These are the targets of the
+    `help_path` field in each `%Command{}`.
+- id: task-9-implement-command-palette-widget
+  title: 'Task 9: Implement command palette widget'
+  category: tui
+  status: not_started
+  dependencies:
+  - task-1-implement-ravel-commandregistry
+  description: |
+    `ratatui` fuzzy-filterable overlay per §3.1. Queries the daemon's
+    `CommandRegistry` via a `list_commands` request on attach. Shows
+    command name, description, and current keybinding for each entry. Fuzzy
+    matching on name and ID. Plan-scoped commands greyed out when no plan
+    attached. `Esc` dismisses. Selecting a command dispatches to the
+    appropriate NDJSON command with any required inline prompts (e.g.,
+    `plan.create` prompts for name and description).
+
+    **Dependency context:** Task 1 provides the command metadata served via
+    NDJSON.
+- id: task-10-implement-keybinding-system
+  title: 'Task 10: Implement keybinding system'
+  category: tui
+  status: not_started
+  dependencies:
+  - task-9-implement-command-palette-widget
+  description: |
+    Parse `<vault>/tui-keybindings.toml` per §3.2. Support single keys,
+    modifier combinations (`C-`, `S-`, `M-`), and chord sequences
+    (space-separated). Validate: no conflicts, `palette.open` always bound.
+    Hot-reload on file change via `notify` crate. Map
+    `crossterm::event::KeyEvent` + `KeyModifiers` to the parsed bindings.
+- id: task-11-implement-which-key-modal-overlay
+  title: 'Task 11: Implement which-key modal overlay'
+  category: tui
+  status: not_started
+  dependencies:
+  - task-10-implement-keybinding-system
+  description: |
+    When a chord prefix key is pressed, show which-key popup per §3.3.
+    Display all continuations with command names. Timeout (configurable,
+    default 1s) cancels the prefix. Support arbitrary nesting depth.
+- id: task-12-implement-ravel-cmd-cli-subcommand
+  title: 'Task 12: Implement `ravel cmd` CLI subcommand'
+  category: tui
+  status: not_started
+  dependencies:
+  - task-1-implement-ravel-commandregistry
+  description: |
+    Thin Rust binary or subcommand per §7. Connect to `daemon.sock`, send
+    one NDJSON line, print response JSON to stdout, exit. `--list` queries
+    command registry and prints table. `--help <id>` prints help for one
+    command. Exit codes: 0 success, 1 daemon error, 2 connection failure.
+    No state, no TUI rendering, no interactive prompts.
+
+    **Dependency context:** Task 1 is needed for the `--list` command
+    registry lookup.
+- id: task-13-implement-expert-lifecycle-tui-commands
+  title: 'Task 13: Implement expert lifecycle TUI commands'
+  category: tui
+  status: not_started
+  dependencies:
+  - task-9-implement-command-palette-widget
+  description: |
+    Wire `expert.create` and `expert.edit` palette entries. `expert.create`:
+    prompt for expert ID, write template file to `<vault>/experts/<id>.md`
+    using sub-N's default template, open in `$EDITOR`. `expert.edit`:
+    fuzzy-select from existing expert files, open in `$EDITOR`. No daemon
+    command — `DeclarationLoader` hot-reload handles registration.
+- id: task-14-push-adoption-stubs-to-sibling-backlogs
+  title: 'Task 14: Push adoption stubs to sibling backlogs'
+  category: integration
+  status: not_started
+  dependencies:
+  - task-1-implement-ravel-commandregistry
+  - task-2-implement-create-plan-ndjson-command-handler
+  - task-3-implement-adopt-project-ndjson-command-handler
+  - task-4-implement-knowledge-submit-command-handler
+  - task-5-add-create-plan-harness-tool-definition
+  - task-6-define-sub-m-event-structs
+  description: |
+    After Task 0 identifies interface gaps, push concrete adoption stubs to
+    sibling backlogs per the brainstorming methodology. Known candidates:
+
+    - Sub-C: add `create_plan` to tool injection set (§9 sub-C)
+    - Sub-E: expose `submit_candidate/2` entry point (§9 sub-E)
+    - Sub-A: refactor `adopt_project` to library-callable (§9 sub-A)
+    - Sub-M: add `Plan.Created` and `Command.Executed` to sealed event
+      set (§9 sub-M)
+    - Sub-G: note clean break at Phase 1 in migration docs (§9 sub-G)
+
+    **Dependency context:** Tasks 1–6 identify which stubs are needed
+    (listed explicitly above); also depends on Task 0's readiness-gate
+    outputs.
