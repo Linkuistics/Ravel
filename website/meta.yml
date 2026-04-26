@@ -14,6 +14,9 @@ tags: [ai-tools, ai-knowledge]
 nav:
   - title: Overview
     page: index
+  - section: Tutorials
+    pages:
+      - tutorials/00-user-guide
   - section: Reference
     pages:
       - docs/architecture
@@ -23,3 +26,4 @@ nav:
       - docs/knowledge-format
       - docs/plugin-development
       - docs/reference
+      - docs/research-sources
