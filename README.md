@@ -261,22 +261,22 @@ Multiple Ravel daemons on different machines communicate via BEAM's native distr
 
 ## Runtime
 
-| Component | Language | Framework |
-|---|---|---|
-| **Daemon** | Elixir | OTP / GenServer / Supervisor / `:telemetry` |
-| **TUI client** | Rust | `ratatui` + `tokio` + `serde_json` |
-| **Knowledge format** | — | Markdown + YAML frontmatter (Obsidian-native) |
-| **Vault** | — | Git-backed Obsidian vault |
-| **Rule engine** | Elixir | purpose-built Datalog (sub-R) + hot fact-base reload |
-| **Harness adapter** | Elixir | `erlexec` for PTY (sub-C, pending BEAM spike) |
-| **Integration boundary** | — | Unix socket + NDJSON (protocol frozen early) |
+| Component                | Language | Framework                                            |
+| ------------------------ | -------- | ---------------------------------------------------- |
+| **Daemon**               | Elixir   | OTP / GenServer / Supervisor / `:telemetry`          |
+| **TUI client**           | Rust     | `ratatui` + `tokio` + `serde_json`                   |
+| **Knowledge format**     | —        | Markdown + YAML frontmatter (Obsidian-native)        |
+| **Vault**                | —        | Git-backed Obsidian vault                            |
+| **Rule engine**          | Elixir   | purpose-built Datalog (sub-R) + hot fact-base reload |
+| **Harness adapter**      | Elixir   | `erlexec` for PTY (sub-C, pending BEAM spike)        |
+| **Integration boundary** | —        | Unix socket + NDJSON (protocol frozen early)         |
 
 ### External tools
 
-| Tool | Purpose | Install |
-|---|---|---|
+| Tool                    | Purpose                                                                                                                                            | Install                                           |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `flock(1)` (util-linux) | System-wide daemon singleton lock via kernel-enforced `flock(2)`. Auto-released on process death — required for crash recovery. See sub-D spec §2. | Linux: preinstalled. macOS: `brew install flock`. |
-| `git` | Vault commits for user-approved routing-rule suggestions (sub-D spec §4.2) and general vault history. | Preinstalled on macOS/Linux. |
+| `git`                   | Vault commits for user-approved routing-rule suggestions (sub-D spec §4.2) and general vault history.                                              | Preinstalled on macOS/Linux.                      |
 
 ### Why Elixir on BEAM?
 
@@ -320,23 +320,23 @@ Every workflow must work with a human driver or an LLM driver. Phase cycles supp
 
 Sub-project design docs are in [`docs/superpowers/specs/`](docs/superpowers/specs/):
 
-| Sub-project | Status | Design doc |
-|---|---|---|
-| A (global store) | design complete | `2026-04-13-sub-A-global-store-design.md` |
-| B (phase cycle) | design complete (pending F amendment) | `2026-04-12-sub-B-phase-cycle-design.md` |
-| C (harness adapters) | design complete (pending F amendment + BEAM spike) | `2026-04-13-sub-C-adapters-design.md` |
-| D (concurrency) | design complete | `2026-04-16-sub-D-coordination-design.md` |
-| E (knowledge ingestion) | design complete (pending F amendment) | `2026-04-12-sub-E-ingestion-design.md` |
-| F (hierarchy, actor model, routing) | design complete | `2026-04-14-sub-F-hierarchy-design.md` |
-| G (migration) | design complete | `2026-04-16-sub-G-migration-design.md` |
-| H (skill fold) | design complete | `2026-04-16-sub-H-skills-design.md` |
-| M (observability) | design complete (pending F amendment) | `2026-04-13-sub-M-observability-design.md` |
-| N (domain experts) | design complete | `2026-04-15-sub-N-domain-experts-design.md` |
-| I (Obsidian coverage) | design complete | `2026-04-16-sub-I-obsidian-coverage-design.md` |
-| R (knowledge ontology) | design complete | `2026-04-16-sub-R-knowledge-ontology-design.md` |
-| O (mixture of models) | reserved for v2 | — |
-| Q (vector-store infrastructure) | reserved for v2 | — |
-| P (team mode) | reserved for v2 | — |
+| Sub-project                         | Status                                             | Design doc                                      |
+| ----------------------------------- | -------------------------------------------------- | ----------------------------------------------- |
+| A (global store)                    | design complete                                    | `2026-04-13-sub-A-global-store-design.md`       |
+| B (phase cycle)                     | design complete (pending F amendment)              | `2026-04-12-sub-B-phase-cycle-design.md`        |
+| C (harness adapters)                | design complete (pending F amendment + BEAM spike) | `2026-04-13-sub-C-adapters-design.md`           |
+| D (concurrency)                     | design complete                                    | `2026-04-16-sub-D-coordination-design.md`       |
+| E (knowledge ingestion)             | design complete (pending F amendment)              | `2026-04-12-sub-E-ingestion-design.md`          |
+| F (hierarchy, actor model, routing) | design complete                                    | `2026-04-14-sub-F-hierarchy-design.md`          |
+| G (migration)                       | design complete                                    | `2026-04-16-sub-G-migration-design.md`          |
+| H (skill fold)                      | design complete                                    | `2026-04-16-sub-H-skills-design.md`             |
+| M (observability)                   | design complete (pending F amendment)              | `2026-04-13-sub-M-observability-design.md`      |
+| N (domain experts)                  | design complete                                    | `2026-04-15-sub-N-domain-experts-design.md`     |
+| I (Obsidian coverage)               | design complete                                    | `2026-04-16-sub-I-obsidian-coverage-design.md`  |
+| R (knowledge ontology)              | design complete                                    | `2026-04-16-sub-R-knowledge-ontology-design.md` |
+| O (mixture of models)               | reserved for v2                                    | —                                               |
+| Q (vector-store infrastructure)     | reserved for v2                                    | —                                               |
+| P (team mode)                       | reserved for v2                                    | —                                               |
 
 The comprehensive architectural overview is in [`docs/architecture.md`](docs/architecture.md). Research sources grounding the design are in [`docs/research-sources.md`](docs/research-sources.md).
 
