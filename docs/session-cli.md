@@ -32,6 +32,8 @@ importer or history migration. Existing dispatch history remains with its origin
 tool. The generic policy/SDK handles routing and applicable caller context without
 database access. The owner configuration format and selection choices remain;
 obsolete storage settings are removed during configuration copying.
+See the [owner configuration guide](owner-configuration.md) for that boundary
+and the selected configuration handoff.
 
 Development checks use the existing real-worker/fake-agent and local process
 seams. Test result round trips, nested/stale context, cancellation, reaping,

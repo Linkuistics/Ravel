@@ -83,3 +83,5 @@ edit its routes; it launches only the wrapper you supply. See the
 [executable specification](docs/specs/session-execution.md),
 [authority boundary](docs/authority.md), [runtime evidence](docs/runtime-evidence.md)
 and [runtime notices](crates/ravel/notices/NOTICES.md).
+The [owner configuration guide](docs/owner-configuration.md) describes copying,
+typechecking and fake-agent validation of an existing policy without history access.

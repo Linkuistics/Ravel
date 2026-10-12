@@ -18,6 +18,7 @@ ignored target/k23-all-tokens.tsv and target/k23-caller-lines.txt.
 | installed-smoke.sh | Explicit check that the isolated execution PATH contains no host runtime or source-project executables |
 | docs/local-runner.md and docs/runtime-evidence.md | Exact source-project revision/URLs and historical experiment attribution; no executable dependency |
 | docs/authority.md and this inventory | Explain the guard/provenance exceptions and this bounded sweep |
+| docs/owner-configuration.md | Machine-local configuration handoff and caller-owned routing choices; no embedded policy or runtime registry |
 
 There is no embedded caller adapter, provider-specific policy, task-kind registry,
 review-creator lookup, task-tree walk, teardown interpretation or persistent history
