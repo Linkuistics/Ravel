@@ -225,9 +225,9 @@ digest_of() {
 # map applies, its own `name` resolves ahead of `node_modules`, and an
 # `imports` alias to a registered specifier is a `node_modules` lookup that
 # never reaches the embedded module (`load_package_imports`). The spec states
-# each under *Policy authority and runtime discovery*. See "Package entry
-# resolution", "The worker's directory" and "Package.json autoloading" in
-# docs/design/harness-selection-and-execution/runtime-evidence.md.
+# each under *Policy authority and runtime discovery*. See "Controls and firing
+# configurations" and "Source findings retained with the implementation" in
+# docs/runtime-evidence.md.
 readonly SHIPPED_SWITCHES=(
   --no-compile-autoload-dotenv
   --no-compile-autoload-bunfig
@@ -272,6 +272,7 @@ compile_worker() {
     cross=()
     if [[ -n "$target" ]]; then
       runtime="$(pinned_runtime "$target" "$scratch")"
+      # Pinned source: https://github.com/oven-sh/bun/blob/bun-v1.4.2/src/standalone_graph/StandaloneModuleGraph.rs (target_executable).
       cross=(--target="$target" --compile-executable-path="$runtime")
     fi
     bun build --compile ${cross[@]+"${cross[@]}"} "$@" \
@@ -351,8 +352,7 @@ EOF
 # WHY PROBE BUILDS, AND WHY NONE CAN SHIP. Each hostile class a command-seam
 # test proves inert has a firing configuration, which must be seen to fire so
 # that a clean result cannot come from a fixture that never could have
-# (docs/specs/harness-selection-and-execution.md, the firing-configuration
-# table under *Agreed test seams and acceptance*). Some of them need the same
+# (docs/runtime-evidence.md, Controls and firing configurations). Some of them need the same
 # worker source with one control removed:
 #
 #   autoload      dotenv and bunfig autoloading on, as in Bun's defaults
@@ -392,6 +392,23 @@ probes() {
   echo "ravel: probe builds of worker $version ($id) in $out_dir; test instruments, never shipped"
 }
 
+# Install one matching release pair and all executable-owned runtime assets.
+install_pair() {
+  local prefix="${1:?install needs a PREFIX}"
+  require_bun
+  require_type_checker
+  mkdir -p "$prefix"
+  prefix="$(cd "$prefix" && pwd -P)"
+  cargo build --release --locked --manifest-path "$CRATE_DIR/Cargo.toml" -p ravel
+  build "$prefix/libexec/ravel"
+  mkdir -p "$prefix/bin"
+  install -m 0755 "$(metadata_field target)/release/ravel" "$prefix/bin/ravel"
+  # Verify from the installation alone, scrubbing every live authority.
+  env -i PATH=/usr/bin:/bin /bin/bash "$CRATE_DIR/scripts/installed-smoke.sh" \
+    "$prefix" "$(metadata_field version)"
+  echo "ravel: installed $("$prefix/bin/ravel" --version) under $prefix"
+}
+
 main() {
   local command="${1:-}"
   shift || true
@@ -402,7 +419,8 @@ main() {
     build) build "$@" ;;
     typecheck) typecheck "$@" ;;
     probes) probes "$@" ;;
-    *) die "usage: dispatch.sh build-id | build [--target T] [OUT_DIR] | typecheck [OUT_DIR] | probes [OUT_DIR]" ;;
+    install) install_pair "$@" ;;
+    *) die "usage: dispatch.sh build-id | build [--target T] [OUT_DIR] | typecheck [OUT_DIR] | probes [OUT_DIR] | install PREFIX" ;;
   esac
 }
 

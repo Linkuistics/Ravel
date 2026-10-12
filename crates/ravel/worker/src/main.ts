@@ -17,8 +17,8 @@ const packageVersion =
 // The control a probe build removes, or "" in the shipped build; both define
 // it, so each build folds it to a constant. Probe builds are test instruments
 // that never ship: `scripts/dispatch.sh probes` makes them, and each reports
-// an identity no front accepts (`docs/specs/harness-selection-and-execution.md`,
-// the firing-configuration table under *Agreed test seams and acceptance*).
+// an identity no front accepts (`docs/runtime-evidence.md`,
+// Controls and firing configurations).
 declare const RAVEL_PROBE: string;
 const probe = typeof RAVEL_PROBE === "string" ? RAVEL_PROBE : "";
 
@@ -94,8 +94,8 @@ process.once("beforeExit", () => {
 // top-level await nothing is left to settle, and never emits `beforeExit`;
 // the same await inside a function called without one lets the loop drain.
 // Probed with the pinned Bun, run and compiled, as recorded under
-// "Implementation observations" in
-// docs/design/harness-selection-and-execution/runtime-evidence.md.
+// "Source findings retained with the implementation" in
+// docs/runtime-evidence.md.
 void converse().then(() => process.exit(0));
 
 async function converse(): Promise<void> {

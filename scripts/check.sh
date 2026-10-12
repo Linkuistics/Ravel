@@ -24,6 +24,8 @@ run_check() {
 run_check formatting cargo fmt --all --check
 run_check scripts shellcheck scripts/*.sh crates/ravel/scripts/*.sh
 run_check worker-build bash scripts/worker-check.sh build
+run_check worker-probes bash scripts/worker-check.sh probes
+run_check runtime-integrity bash scripts/runtime-integrity.test.sh
 run_check worker-types bash scripts/worker-check.sh typecheck
 run_check lint cargo clippy --locked --workspace --all-targets
 printf 'check: complete log: %s\n' "$log"

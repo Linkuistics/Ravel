@@ -1,6 +1,6 @@
 //! The signal state this process inherited, recorded before the Rust runtime
 //! changes it, and handed to the harness
-//! (`docs/specs/harness-selection-and-execution.md`, *Execution and authority*).
+//! (`docs/specs/session-execution.md`, *Execution and authority*).
 //!
 //! The harness is to receive the signal mask, and every disposition that
 //! survives exec, exactly as this process inherited them. Two facts of Rust's

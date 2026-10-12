@@ -2,8 +2,8 @@
 
 Ravel is a policy router and session process manager. The development front,
 compiled policy worker and local runner now build together at version 0.0.0.
-Fresh-prefix installation and complete distribution evidence are the next
-increment; this tree does not yet provide an installation task.
+The installed pair includes its own runtime, generic SDK, examples and notices.
+It runs independently from a fresh prefix, directly or through a symlink.
 
 The agreed public boundary is a process manager and router with two verbs:
 `start-session` and `end-session RESULT`. The caller supplies the prompt and
@@ -28,7 +28,12 @@ task build
 task test
 task test:session
 task test:cli
+task probes
+task test:hostile
+task runtime:integrity
 task check
+task smoke
+task install PREFIX=/your/prefix
 ```
 
 `task check` checks formatting, denies Clippy warnings across all targets and
@@ -59,17 +64,22 @@ Release preparation and publication follow the runnable front/worker increment.
 
 Licensed under [Apache-2.0](LICENSE).
 
-## Use the development pair
+## Use the pair
 
 ```sh
-target/debug/ravel start-session --kind feature --config ./policy.ts --prompt-file ./prompt.txt
+ravel start-session --kind feature --config ./policy.ts --prompt-file ./prompt.txt
 # From inside its managed process:
 ravel end-session done
 ```
 
-Put the built front on the managed process's PATH, or use its absolute path in
+Put PREFIX/bin (or target/debug in a checkout) on the managed process's PATH, or use its absolute path in
 ending instructions. The caller supplies those instructions in the prompt.
 Only the exact result bytes go to stdout, without an added newline. Session
 output and policy diagnostics go to stderr. See [the CLI contract](docs/session-cli.md).
 The generic SDK, static routing example and editable choice sample are under
-`crates/ravel/worker`; declarations are generated beside the compiled worker.
+`crates/ravel/worker`; declarations are generated beside the compiled worker and installed under
+PREFIX/libexec/ravel. Copy examples/sample.ts into your owner configuration and
+edit its routes; it launches only the wrapper you supply. See the
+[executable specification](docs/specs/session-execution.md),
+[authority boundary](docs/authority.md), [runtime evidence](docs/runtime-evidence.md)
+and [runtime notices](crates/ravel/notices/NOTICES.md).

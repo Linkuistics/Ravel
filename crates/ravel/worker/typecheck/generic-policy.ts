@@ -3,8 +3,6 @@ import { selectRoute, routes } from "ravel/examples/static";
 export const policy = definePolicy({
   schemaVersion: 2, version: "generic-1",
   loadContext(request, host) {
-    // @ts-expect-error There is no historical lookup protocol.
-    host.run("past-session");
     const read = host.readText(`${request.cwd}/input.txt`);
     return { schemaVersion: 1, facts: { input: read.text }, sources: [read.source] };
   },

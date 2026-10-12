@@ -216,7 +216,7 @@ mod tests {
             "LDFLAGS",
             "RAVELER",
             "bun_options",
-            "GROVE_SIGNAL_FILE",
+            "CUSTOM_SIGNAL_FILE",
         ] {
             assert_eq!(excluded(name), None, "{name} is excluded");
         }

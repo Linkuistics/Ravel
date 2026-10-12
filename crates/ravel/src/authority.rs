@@ -132,8 +132,7 @@ fn import_specifier(path: &Path) -> Result<&str, &'static str> {
     Ok(path)
 }
 
-/// The personal default's path under `home`, which `init` writes and
-/// [`resolve`] reads.
+/// The personal default's path under `home`, read by [`resolve`].
 pub fn personal_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
     let remedy = "set HOME to your absolute home directory, or name an entry with --config PATH";
     let home = home.filter(|home| !home.is_empty()).ok_or_else(|| {

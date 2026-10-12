@@ -1,5 +1,5 @@
 //! Validate a policy snapshot, then judge what its `select` returned
-//! (`docs/specs/harness-selection-and-execution.md`, *Policy and the selected
+//! (`docs/specs/session-execution.md`, *Policy and the selected
 //! command*).
 //!
 //! The worker hands over the entry's `policy` export as JSON, with any value

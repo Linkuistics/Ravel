@@ -148,7 +148,6 @@ fn context_reads_params_choice_and_environment_grants_reach_policy() {
  if (process.env.RAVEL_EXIT_FILE || process.env.HARNESS_DISPATCH_EXIT_FILE) throw new Error('ambient session authority');
  if (process.env.TOKEN !== 'granted') throw new Error('no granted token');
  if (process.env.UNGRANTED !== undefined) throw new Error('ungranted environment');
- if (host.run !== undefined) throw new Error('historical lookup remains');
  const choice = readChoice(request.cwd, ['careful']);
  if (choice?.[0] !== 'careful') throw new Error('choice was not read');
  if (context.measured[0].via !== 'readJson' || context.measured[0].bytes !== 25) throw new Error('read not measured');

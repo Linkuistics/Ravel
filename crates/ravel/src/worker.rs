@@ -30,7 +30,7 @@ pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const BUILD_ID: &str = env!("RAVEL_WORKER_BUILD_ID");
 
 /// The installed layout, relative to the directory holding the real front
-/// executable. `release-layout-k17` must ship archives in the same shape.
+/// executable. Installation and archives must keep the same relative layout.
 const WORKER_FROM_BIN: &str = "../libexec/ravel/ravel-policy";
 
 /// The descriptor the worker's channel occupies, fixed on both sides.

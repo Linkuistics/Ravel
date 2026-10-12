@@ -1,5 +1,5 @@
 //! The caller's data inputs, read and checked once, before any policy runs
-//! (`docs/specs/harness-selection-and-execution.md`, *Command interface*).
+//! (`docs/specs/session-execution.md`, *Command interface*).
 //!
 //! The kind, the task file, the task identity and the parameters are caller
 //! data: the task file supplies neither kind nor identity, nothing is recovered

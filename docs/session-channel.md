@@ -54,4 +54,6 @@ using the existing runner helper, while Cargo's guard also clears those controls
 Ignored fixture roles are invoked by acceptance tests, not omitted checks.
 
 `task check` retains complete lint/test diagnostics and runs the full Rust suite.
-No Bun/Node runtime, policy, model account or installed launcher is needed here.
+The private transport/runner tests need no policy worker. The complete package
+suite includes command tests and requires the built worker; no host Bun/Node,
+model account or installed launcher is used by those runtime tests.

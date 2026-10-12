@@ -52,3 +52,34 @@ tasks:
     silent: true
     cmds:
       - bash scripts/check.sh
+
+  probes:
+    desc: Build test-only hostile-runtime probes (never installed)
+    silent: true
+    cmds:
+      - bash scripts/worker-check.sh probes
+
+  test:hostile:
+    desc: Run hostile-runtime controls through the actual front and worker
+    cmds:
+      - cargo nextest run --locked -p ravel --test hostile {{.CLI_ARGS}}
+
+  install:
+    desc: Install and verify the matched pair and SDK under PREFIX (default ~/.local)
+    silent: true
+    vars:
+      PREFIX: '{{.PREFIX | default (printf "%s/.local" .HOME)}}'
+    cmds:
+      - bash scripts/worker-check.sh install "{{.PREFIX}}"
+
+  smoke:
+    desc: Build, install and smoke-test a fresh temporary prefix, direct and symlinked
+    silent: true
+    cmds:
+      - bash scripts/installed-check.sh
+
+  runtime:integrity:
+    desc: Verify pinned-runtime cache recovery and corrupt-download refusal offline
+    silent: true
+    cmds:
+      - bash scripts/runtime-integrity.test.sh

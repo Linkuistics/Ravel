@@ -1,5 +1,5 @@
 //! The resource bounds a selection runs within
-//! (`docs/specs/harness-selection-and-execution.md`, *Bounded context*).
+//! (`docs/specs/session-execution.md`, *Bounded context*).
 //!
 //! Two bounds are adjustable within a hard range: the whole-selection time and
 //! the context budget. The owner sets each in the owner settings (`settings`),

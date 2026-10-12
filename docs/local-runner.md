@@ -2,9 +2,8 @@
 
 `crates/keyed-launch` is Ravel's private local runner. It has no dependency on
 another project's Rust library, installation, task tree or policy worker. It is
-not published as a separate Rust package. Ravel will compose it with its own
-command front and policy evaluator; those components are not present in this
-increment. The private [session transport](session-channel.md) already composes
+not published as a separate Rust package. Ravel composes it with its own
+command front and compiled policy evaluator. The private [session transport](session-channel.md) already composes
 this runner with a result-carrying completion file without changing its API.
 
 ## Boundary
@@ -62,6 +61,7 @@ guards and their regression case; they do not redesign the runner.
 
 The source project's launch behavior is documented by its
 [job decision](https://github.com/Linkuistics/grove/blob/639b9d63570ed87f81f3ced3d2851b7961006bf3/docs/adr/the-launched-child-is-a-job.md).
-Generic executable-owned decisions, the specification and runtime evidence will
-accompany Ravel's front/worker increment. Historical references here establish
+The active [job decision](adr/the-launched-child-is-a-job.md),
+[executable specification](specs/session-execution.md) and
+[runtime evidence](runtime-evidence.md) accompany this implementation. Historical references here establish
 provenance; they introduce no executable dependency.
