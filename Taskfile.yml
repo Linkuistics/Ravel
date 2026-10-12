@@ -9,13 +9,12 @@ tasks:
       - cargo build --locked --workspace
 
   test:
-    desc: Run the complete local runner suite
+    desc: Run the local runner suite with nextest
     cmds:
-      - cargo test --locked --workspace
+      - cargo nextest run --locked --workspace
 
   check:
     desc: Check formatting, lint all targets and test the local runner
+    silent: true
     cmds:
-      - cargo fmt --all --check
-      - cargo clippy --locked --workspace --all-targets
-      - task: test
+      - bash scripts/check.sh

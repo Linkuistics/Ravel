@@ -1,10 +1,1 @@
 /target/
-# Retired project's ignored build products may still be present locally.
-/_build/
-/deps/
-/cover/
-/doc/
-/.elixir_ls/
-/spikes/beam_pty/_build/
-/spikes/beam_pty/deps/
-erl_crash.dump

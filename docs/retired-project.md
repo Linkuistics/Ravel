@@ -48,7 +48,14 @@ identities use Ravel's actual version, independently of the source launcher's
 
 ## Transition boundary
 
-This preservation increment changes only this documentation after sealing the
-owner's README edit. The active old source tree remains in place at this
-boundary. Subsequent increments deliver the independent runnable pair and then
-copy personal configuration and snapshot history into its separate store.
+The old tracked implementation, tests, website, design documents and agent-state
+files were removed from the active tree in the subsequent runner increment,
+`ee5e64b1f0e2993fdc81ad38cf3753173f87bd55`. The replacement starts from a
+standalone Rust runner; the preserved bookmark above holds the complete former
+project. No old actor-daemon code is part of the replacement implementation.
+
+Ignored local build/dependency artifacts, editor state and remaining old
+directories were also moved out of this checkout, to
+`/Users/antony/Development/Ravel-retired-local-artifacts-2026-10-12`.
+That machine-local archive supplements the durable retired revision; retrieving
+the retired project requires only the named bookmark, not this archive.
