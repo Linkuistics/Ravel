@@ -1,11 +1,9 @@
 # Ravel
 
-Ravel is being extracted into an independent harness launcher. This development
-increment contains its **local job runner**, `keyed-launch`, and private session
-result transport at version 0.0.0. They build and test on their own.
-The command front, compiled policy worker
-and installation tasks are the next increment; this tree does not yet install a
-`ravel` command.
+Ravel is a policy router and session process manager. The development front,
+compiled policy worker and local runner now build together at version 0.0.0.
+Fresh-prefix installation and complete distribution evidence are the next
+increment; this tree does not yet provide an installation task.
 
 The agreed public boundary is a process manager and router with two verbs:
 `start-session` and `end-session RESULT`. The caller supplies the prompt and
@@ -20,14 +18,16 @@ record store. See [the runner boundary and source provenance](docs/local-runner.
 
 ## Develop
 
-Use Rust 1.85 or later, [Task](https://taskfile.dev/), ShellCheck and
+Use Rust 1.85 or later, curl, tar, [Task](https://taskfile.dev/), ShellCheck and
 [cargo-nextest](https://nexte.st/docs/installation/pre-built-binaries/).
 Run from this checkout:
 
 ```sh
+task setup # fetch the verified Bun 1.4.2 development toolchain and pinned types
 task build
 task test
 task test:session
+task test:cli
 task check
 ```
 
@@ -37,13 +37,14 @@ script lint, Clippy and nextest diagnostics are saved under `target/check.*`, wi
 pass/fail summaries and failure details when needed. Checks use the committed
 Cargo lockfile. On
 macOS, confinement tests exercise `/usr/bin/sandbox-exec`; on Linux they require
-the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. No Bun,
-Node, model account or other project checkout is needed for these runtime checks.
+the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. The policy worker builds with the checkout-local Bun 1.4.2 from `task setup`.
+The built front/worker uses no host Bun/Node at run time. No model account or
+other project checkout is needed for these checks.
 
 The private [session channel](docs/session-channel.md) composes the runner's
 completion signal with atomic opaque-result publication. Real subprocess fixtures
 verify nested inherited context, cancellation, reaping and empty/multiline
-values. It does not yet provide the policy-routed public CLI.
+values. The command front composes it with the compiled policy evaluator.
 
 ## Earlier project
 
@@ -57,3 +58,18 @@ The extracted tool starts at 0.0.0; its first minor release will be 0.1.0.
 Release preparation and publication follow the runnable front/worker increment.
 
 Licensed under [Apache-2.0](LICENSE).
+
+## Use the development pair
+
+```sh
+target/debug/ravel start-session --kind feature --config ./policy.ts --prompt-file ./prompt.txt
+# From inside its managed process:
+ravel end-session done
+```
+
+Put the built front on the managed process's PATH, or use its absolute path in
+ending instructions. The caller supplies those instructions in the prompt.
+Only the exact result bytes go to stdout, without an added newline. Session
+output and policy diagnostics go to stderr. See [the CLI contract](docs/session-cli.md).
+The generic SDK, static routing example and editable choice sample are under
+`crates/ravel/worker`; declarations are generated beside the compiled worker.

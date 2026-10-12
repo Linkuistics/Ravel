@@ -22,7 +22,9 @@ run_check() {
 }
 
 run_check formatting cargo fmt --all --check
-run_check scripts shellcheck scripts/check.sh
+run_check scripts shellcheck scripts/*.sh crates/ravel/scripts/*.sh
+run_check worker-build bash scripts/worker-check.sh build
+run_check worker-types bash scripts/worker-check.sh typecheck
 run_check lint cargo clippy --locked --workspace --all-targets
 printf 'check: complete log: %s\n' "$log"
 # Keep nextest's own reporting visible; do not wrap its UI in log scraping.

@@ -1,4 +1,4 @@
-//! Ravel's private session runtime. The command front is a later increment.
+//! The opaque-result transport used by Ravel's policy-routed command front.
 
 mod completion;
 

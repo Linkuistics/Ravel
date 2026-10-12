@@ -3,9 +3,38 @@ version: '3'
 set: [errexit, nounset, pipefail]
 
 tasks:
-  build:
-    desc: Build the local runner and private session runtime
+  setup:
+    desc: Fetch and verify the pinned checkout-local Bun, then install worker dependencies
     cmds:
+      - bash crates/ravel/scripts/dispatch.sh setup
+      - task: deps
+
+  deps:
+    desc: Install the worker's pinned development dependencies (requires Bun 1.4.2)
+    cmds:
+      - bash crates/ravel/scripts/dispatch.sh deps
+
+  worker:
+    desc: Compile the matching policy worker and generic SDK declarations
+    silent: true
+    cmds:
+      - bash scripts/worker-check.sh build
+
+  typecheck:
+    desc: Typecheck the worker, SDK, sample and declaration-consumer fixtures
+    silent: true
+    cmds:
+      - bash scripts/worker-check.sh typecheck
+
+  test:cli:
+    desc: Run command-boundary tests (optional nextest arguments)
+    cmds:
+      - cargo nextest run --locked -p ravel --test cli {{.CLI_ARGS}}
+
+  build:
+    desc: Build the matching front, compiled worker and local runner
+    cmds:
+      - task: worker
       - cargo build --locked --workspace
 
   test:

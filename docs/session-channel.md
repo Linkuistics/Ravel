@@ -1,7 +1,7 @@
 # The ephemeral session result
 
 The private `ravel` Rust package contains the session-result transport that the
-command front will use. This increment provides no public executable. The
+policy-routed command front uses. The
 [session CLI contract](session-cli.md) remains the full product boundary.
 
 `SessionChannel::allocate(parent)` creates a fresh private temporary directory
@@ -18,7 +18,7 @@ child's environment. No worker/policy request needs to learn this authority.
 `end_session(result)` reads that inherited context and publishes one opaque
 UTF-8 value. There is no session identifier or target argument in this interface.
 `publish_result(path, result)` is its private Rust mechanism for an explicit
-channel path; the future CLI must not expose that path as an argument.
+channel path; the CLI exposes no path or target argument.
 
 Publication writes a temporary regular file in the same private directory,
 then adds the completion name with a no-clobber hard link. Appearance therefore
@@ -34,8 +34,8 @@ consumer calls `result_after(&ended)`. A present process group or cancellation
 refuses. An ending without an observed signal returns `None`; a signalled empty
 value returns `Some(String::new())`. The consumer must supply the ending of
 this channel's own launch; the Rust type does not establish that relationship.
-CLI exit status and separation of session output from result stdout belong to
-the command front increment.
+The command front owns CLI exit status and separates managed output on stderr
+from exact result bytes on stdout.
 
 Reads use a held directory descriptor, refuse final-entry symlinks, reject
 nonregular files and never block on FIFOs. Renaming or replacing the directory
