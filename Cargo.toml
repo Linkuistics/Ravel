@@ -1,6 +1,6 @@
 # Ravel owns this runner copy; there are no cross-project path dependencies.
 [workspace]
-members = ["crates/keyed-launch"]
+members = ["crates/keyed-launch", "crates/ravel"]
 resolver = "2"
 
 [workspace.package]

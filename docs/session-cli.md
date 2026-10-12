@@ -1,7 +1,8 @@
 # The session CLI
 
 Ravel's agreed extraction boundary is a **process manager and router**. This
-checkout currently contains the local runner; the front and compiled policy
+checkout currently contains the local runner and private result transport
+([the session channel](session-channel.md)); the front and compiled policy
 worker are the next implementation increment.
 
 The public CLI has two verbs:

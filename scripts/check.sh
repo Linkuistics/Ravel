@@ -27,4 +27,4 @@ run_check lint cargo clippy --locked --workspace --all-targets
 printf 'check: complete log: %s\n' "$log"
 # Keep nextest's own reporting visible; do not wrap its UI in log scraping.
 # https://nexte.st/docs/running/
-cargo nextest run --locked --workspace
+cargo nextest run --locked --workspace 2>&1 | tee -a "$log"

@@ -1,0 +1,17 @@
+[package]
+name = "ravel"
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Private session runtime for the Ravel process manager"
+
+[dependencies]
+keyed-launch = { path = "../keyed-launch" }
+libc = "0.2"
+tempfile = "3.10"
+
+[lints]
+workspace = true

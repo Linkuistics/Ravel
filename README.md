@@ -1,8 +1,9 @@
 # Ravel
 
 Ravel is being extracted into an independent harness launcher. This development
-increment contains its **local job runner**, `keyed-launch`, at version 0.0.0.
-The runner builds and tests on its own. The command front, compiled policy worker
+increment contains its **local job runner**, `keyed-launch`, and private session
+result transport at version 0.0.0. They build and test on their own.
+The command front, compiled policy worker
 and installation tasks are the next increment; this tree does not yet install a
 `ravel` command.
 
@@ -26,17 +27,23 @@ Run from this checkout:
 ```sh
 task build
 task test
+task test:session
 task check
 ```
 
 `task check` checks formatting, denies Clippy warnings across all targets and
-runs the complete runner suite with nextest's reporting visible. Formatting,
-script lint and Clippy diagnostics are saved under `target/check.*`, with short
+runs the complete Rust suite with nextest's reporting visible. Formatting,
+script lint, Clippy and nextest diagnostics are saved under `target/check.*`, with short
 pass/fail summaries and failure details when needed. Checks use the committed
 Cargo lockfile. On
 macOS, confinement tests exercise `/usr/bin/sandbox-exec`; on Linux they require
 the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. No Bun,
-Node, model account or other project checkout is needed for these runner checks.
+Node, model account or other project checkout is needed for these runtime checks.
+
+The private [session channel](docs/session-channel.md) composes the runner's
+completion signal with atomic opaque-result publication. Real subprocess fixtures
+verify nested inherited context, cancellation, reaping and empty/multiline
+values. It does not yet provide the policy-routed public CLI.
 
 ## Earlier project
 

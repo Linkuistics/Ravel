@@ -4,17 +4,22 @@ set: [errexit, nounset, pipefail]
 
 tasks:
   build:
-    desc: Build Ravel's local runner
+    desc: Build the local runner and private session runtime
     cmds:
       - cargo build --locked --workspace
 
   test:
-    desc: Run the local runner suite with nextest
+    desc: Run the runner and session-runtime suites with nextest
     cmds:
       - cargo nextest run --locked --workspace
 
+  test:session:
+    desc: Run focused session-runtime checks (optional nextest arguments)
+    cmds:
+      - cargo nextest run --locked -p ravel {{.CLI_ARGS}}
+
   check:
-    desc: Check formatting, lint all targets and test the local runner
+    desc: Check formatting, lint all targets and test the Rust workspace
     silent: true
     cmds:
       - bash scripts/check.sh

@@ -4,7 +4,8 @@
 another project's Rust library, installation, task tree or policy worker. It is
 not published as a separate Rust package. Ravel will compose it with its own
 command front and policy evaluator; those components are not present in this
-increment.
+increment. The private [session transport](session-channel.md) already composes
+this runner with a result-carrying completion file without changing its API.
 
 ## Boundary
 
