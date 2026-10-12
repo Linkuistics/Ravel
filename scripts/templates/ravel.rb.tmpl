@@ -1,0 +1,70 @@
+require "shellwords"
+
+class Ravel < Formula
+  desc "Policy router and session process manager"
+  homepage "https://github.com/Linkuistics/Ravel"
+  version "@VERSION@"
+  license "Apache-2.0"
+
+  on_macos do
+    on_arm do
+      url "https://github.com/Linkuistics/Ravel/releases/download/v@VERSION@/ravel-v@VERSION@-aarch64-apple-darwin.tar.xz"
+      sha256 "@SHA_AARCH64_APPLE_DARWIN@"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/Linkuistics/Ravel/releases/download/v@VERSION@/ravel-v@VERSION@-aarch64-unknown-linux-gnu.tar.xz"
+      sha256 "@SHA_AARCH64_UNKNOWN_LINUX_GNU@"
+    end
+    on_intel do
+      url "https://github.com/Linkuistics/Ravel/releases/download/v@VERSION@/ravel-v@VERSION@-x86_64-unknown-linux-gnu.tar.xz"
+      sha256 "@SHA_X86_64_UNKNOWN_LINUX_GNU@"
+    end
+  end
+
+  def install
+    # Homebrew prefix/test helpers: https://docs.brew.sh/Formula-Cookbook
+    # Resolve the matching private worker from the front's real path, including
+    # Homebrew's bin symlink. The pair needs no host Bun, Node or Grove.
+    bin.install "bin/ravel"
+    libexec.install "libexec/ravel"
+  end
+
+  test do
+    assert_equal "ravel @VERSION@\n", shell_output([(bin/"ravel").to_s, "--version"].shelljoin)
+    (testpath/"home").mkpath
+    (testpath/"tmp").mkpath
+    ln_s bin/"ravel", testpath/"ravel"
+    (testpath/"fake-agent").write <<~SH
+      #!/bin/sh
+      printf 'fixture stdout\n'
+      exec "$1" end-session -- "$2"
+    SH
+    (testpath/"fake-agent").chmod 0755
+    (testpath/"policy.ts").write <<~TS
+      import { definePolicy } from "ravel/sdk";
+      import { selectRoute } from "ravel/examples/static";
+      const routes = { check: request => ({
+        program: #{(testpath/"fake-agent").to_s.inspect},
+        args: [#{(testpath/"ravel").to_s.inspect}, request.prompt],
+        provider: "fixture", model: "none", effort: "none"
+      }) };
+      export const policy = definePolicy({
+        schemaVersion: 2, version: "brew-test",
+        select: request => selectRoute(routes, request)
+      });
+    TS
+    # Scrub live authority and configuration. The child ends this fixture's
+    # session and its output must not contaminate the opaque result stream.
+    ["exact result", "", "first\nsecond\n", "--help"].each do |result|
+      command = ["/usr/bin/env", "-i", "PATH=/usr/bin:/bin",
+                 "HOME=#{testpath}/home", "TMPDIR=#{testpath}/tmp",
+                 (testpath/"ravel").to_s, "start-session", "--kind", "check",
+                 "--config", (testpath/"policy.ts").to_s, "--prompt", result]
+      assert_equal result, shell_output(command.shelljoin)
+    end
+    assert_equal [], Dir.children(testpath/"tmp")
+  end
+end

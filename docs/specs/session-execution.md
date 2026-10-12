@@ -27,8 +27,29 @@ example source/declarations, an editable sample and runtime notices. The sample
 is copied by the owner into their configuration; there is no init command.
 `task install PREFIX=/path` builds a release pair, installs those assets and
 verifies it from the installation alone. `task smoke` does that in a disposable
-fresh prefix through a direct front and relative symlink. Release/archive
-construction and publication are separate later work.
+fresh prefix through a direct front and relative symlink.
+
+## Archives and platform floors
+
+`task release:archives` builds unreleased archives for aarch64-apple-darwin,
+aarch64-unknown-linux-gnu and x86_64-unknown-linux-gnu. Each is the independent
+installation prefix above plus README/LICENSE; an exact manifest refuses
+omissions, extras, probes and caller-owned assets. The build retains the pinned
+Bun/runtime digest path and uses Zig's glibc 2.17 target for the Linux front.
+
+`task release:smoke` rebuilds and checks the archives on their target userlands,
+without a host TypeScript runtime or caller binary. The macOS target runs
+natively. Linux targets run in pinned glibc 2.17 userlands, with floor/above-floor
+symbol probes and QEMU models for Nehalem and Cortex-A53. Above-floor CPU
+instructions must fail with SIGILL at the floor and run under `-cpu max`.
+The same direct/symlink installed seam runs on every target. Containers/QEMU
+do not measure a kernel floor. [Delivery instructions](../RELEASING.md) own
+the complete prerequisites, manifest/formula controls and evidence rules.
+
+The formula installs the same bin/libexec layout and uses no Grove dependency.
+Its temporary-prefix preparation test routes a fake agent through the actual
+SDK/static example and verifies opaque-result bytes through a symlink. These
+tasks cut/tag/publish/install no release; publication is a separate boundary.
 
 ## Policy authority and runtime discovery
 

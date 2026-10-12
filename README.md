@@ -62,6 +62,11 @@ retired history.
 The extracted tool starts at 0.0.0; its first minor release will be 0.1.0.
 Release preparation and publication follow the runnable front/worker increment.
 
+Unreleased three-target archives and installed glibc/CPU-floor checks are
+available through `task release:smoke`, with exact-manifest controls at
+`task release:test` and temporary-prefix formula checks at
+`task release:formula`. See [delivery prerequisites and layout](docs/RELEASING.md).
+
 Licensed under [Apache-2.0](LICENSE).
 
 ## Use the pair

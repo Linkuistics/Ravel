@@ -83,3 +83,29 @@ tasks:
     silent: true
     cmds:
       - bash scripts/runtime-integrity.test.sh
+
+  release:archives:
+    desc: Build exact unreleased target archives (optional TARGETS), with no version cut
+    cmds:
+      - scripts/release-build.sh --unreleased {{.TARGETS}}
+
+  release:smoke:
+    desc: Rebuild and smoke unreleased archives on every selected target at its floors
+    cmds:
+      - task: release:archives
+        vars:
+          TARGETS: '{{.TARGETS}}'
+      - scripts/release-smoke.sh {{.TARGETS}}
+
+  release:test:
+    desc: Exercise exact archive manifest, omission/extra/type/mode controls
+    silent: true
+    cmds:
+      - bash scripts/release-check.sh archives
+
+  release:formula:
+    desc: Render and test an unpublished formula from the three unreleased archives
+    silent: true
+    cmds:
+      - task: probes
+      - bash scripts/release-check.sh formula
