@@ -1,0 +1,13 @@
+# Tests run under a live supervised session during extraction. Empty values
+# disable authority rather than redirecting it to a path with ambient meaning.
+# Direct test helpers additionally scrub these controls at their spawn boundary.
+[env]
+GROVE_LAUNCH_DIR = { value = "", force = true }
+GROVE_SIGNAL_FILE = { value = "", force = true }
+GROVE_RUN_SIGNAL_FILE = { value = "", force = true }
+HARNESS_DISPATCH_EXIT_FILE = { value = "", force = true }
+HARNESS_DISPATCH_RUN_ID = { value = "", force = true }
+HARNESS_DISPATCH_STATE_DIR = { value = "", force = true }
+RAVEL_EXIT_FILE = { value = "", force = true }
+RAVEL_RUN_ID = { value = "", force = true }
+RAVEL_STATE_DIR = { value = "", force = true }

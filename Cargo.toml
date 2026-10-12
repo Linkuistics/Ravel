@@ -1,0 +1,18 @@
+# Ravel owns this runner copy; there are no cross-project path dependencies.
+[workspace]
+members = ["crates/keyed-launch"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/Linkuistics/Ravel"
+# Retain the source project's supported Rust floor during extraction.
+rust-version = "1.85"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+
+[workspace.lints.rust]
+unfulfilled_lint_expectations = "deny"

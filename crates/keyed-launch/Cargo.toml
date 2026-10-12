@@ -1,0 +1,29 @@
+[package]
+name = "keyed-launch"
+publish = false
+version.workspace = true
+edition.workspace = true
+description = "A program and its arguments, spawned as a job and supervised until it ends"
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+# **One dependency: the syscalls this crate cannot reach from `std`.** `libc`
+# is the escalation: `std::process::Child::kill` sends SIGKILL and nothing
+# else, so a graduated SIGTERM-then-SIGKILL — and catching the launcher's own
+# SIGTERM/SIGHUP to forward it — needs `kill(2)` and `signal(2)` directly. The
+# error is the crate's own opaque `LaunchError` implementing
+# `std::error::Error`, so a consumer using `anyhow`, `thiserror` or nothing at
+# all takes on none of these — no error-handling dependency is imposed on its caller.
+[dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = "3.10"
+
+[lints]
+workspace = true
+
+# A private local runner, never a separately published Rust library.
+[package.metadata.release]
+release = false

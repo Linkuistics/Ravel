@@ -1,0 +1,21 @@
+version: '3'
+
+set: [errexit, nounset, pipefail]
+
+tasks:
+  build:
+    desc: Build Ravel's local runner
+    cmds:
+      - cargo build --locked --workspace
+
+  test:
+    desc: Run the complete local runner suite
+    cmds:
+      - cargo test --locked --workspace
+
+  check:
+    desc: Check formatting, lint all targets and test the local runner
+    cmds:
+      - cargo fmt --all --check
+      - cargo clippy --locked --workspace --all-targets
+      - task: test
