@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.1.0
+
 - Introduce the independent Ravel session process manager with `start-session`
   and `end-session RESULT`, preserving opaque results and owner policy routing.
 - Ship a matching front and private worker, generic SDK/examples and runtime
