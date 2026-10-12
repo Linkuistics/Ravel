@@ -100,8 +100,8 @@ The rendered `target/archives/ravel.rb` is **unpublished preparation output**;
 its 0.0.0 archive URLs are not downloadable releases. Do not copy this file into
 a tap or publish these archives. Formula publication uses a version cut and
 fresh tagged-source archives; `ravel-lite.rb` is a different command and must
-remain intact. Release cut/preflight/publication/recovery recipes are a separate
-delivery increment; these preparation tasks perform none of those operations.
+remain intact. The lifecycle tasks below own cuts and publication; these archive/formula
+preparation tasks perform none of those operations.
 
 ## Evidence
 
@@ -112,3 +112,150 @@ record per execution. A handoff must name the exact source revision, archives
 and SHA-256 digests, individual target routes and firing controls, complete
 logs and any unmet prerequisites. Archives are local artifacts, not durable
 published URLs; rebuild and rerun after source or runtime changes.
+
+## Version cuts and publication
+
+The independent root tasks `release:patch`, `release:minor` and `release:major`
+run the actual sequential release pipeline. The first cut is **0.0.0 → 0.1.0**
+with `task release:minor`; preparation permits an absent `v0.0.0` only when
+neither local nor remote version tags exist. Recheck tags immediately before
+starting. The historical daemon tag is not a version baseline.
+
+Additional prerequisites are jj, jq, Git, authenticated `gh` with release access
+to `Linkuistics/Ravel`, cargo-release **1.1.2**, a clean synchronized clone of
+`linkuistics/taps`, and Homebrew. Set `RAVEL_TAP_DIR` if that clone is not
+`~/Development/homebrew-taps`. Put Homebrew Bash before `/bin` on PATH: release
+builds require Bash 4 or later, and the doctor checks this before a cut. Run
+`task setup` for the verified checkout-local Bun; a host Bun is unnecessary.
+
+Run from Ravel's **default colocated jj workspace**, with intended changes
+already described and on local `main`. Unrelated working changes remain in
+jj: preparation prints their stable change ID before creating a clean child of
+main. Restore them later with `jj edit <saved-change-id>`; never abandon them.
+A failure after preparation also leaves the saved change intact. Preparation
+fetches origin, rejects divergent/conflicted/undescribed main, version work
+outside main, unintegrated version tags and unfinished prior publication.
+
+```sh
+task release:doctor
+scripts/release-publish.sh --check-tap
+git ls-remote --tags origin
+task release:lifecycle:test
+task release:minor
+```
+
+The task acquires `.jj/release-lock`, then runs doctor, tap preflight,
+preparation, a second tap check, full check, cargo-release dry preview and the
+local executed cut. Cargo-release is the documented Git mutation exception;
+it creates the version commit/tag and never pushes or publishes crates.io.
+Only `ravel` owns changelog replacement; the private runner is release-disabled.
+The anchored replacement requires exactly one `## Unreleased` heading, closes
+it under `## v<VERSION>` and seeds a fresh empty standing heading. Config and
+replacement controls are tested with the actual 1.1.2 tool in isolated repos.
+
+The task imports the release commit onto main, builds all three clean-tagged
+archives into freshly cleared `target/dist`, and renders/tests their formula
+through the real Homebrew API in private prefixes. It then smokes **every target
+at its floors before** pushing main, pushing the tag, creating GitHub's release
+or writing the tap. Publication rechecks tap cleanliness/synchronization, exact
+three archives and the formula's version/digests; it rejects extra archives.
+The formula changes only `Formula/ravel.rb`; `ravel-lite.rb` stays intact.
+
+After publication the task installs/upgrades and tests `ravel`, checks the
+Homebrew-prefix binary's exact version and checks the GitHub assets. Ravel's
+formula test exercises its real matching worker and opaque-result round trips.
+This installs only Ravel; it does not replace Grove or legacy harness-dispatch.
+Preparation leaves those existing tools and their live session authority alone.
+
+## Notes
+
+Maintain meaningful prose under `## Unreleased`. Preparation preserves it
+byte-for-byte. If the body is empty, it fills it from nonempty commit first
+lines since the current version tag, then commits the notes to main through
+jj. The initial absent-tag interval is repository history through main; review
+that fallback because descriptions can contain internal maintenance detail.
+There is no Grove, Ravel-session, model or credential-grant launch involved.
+
+`task release:notes` fills only empty notes. For reviewed replacement prose:
+
+```sh
+scripts/release-notes.sh --to main --from-file /absolute/path/reviewed-body.md
+```
+
+The file must contain a nonempty section body with no level-two heading.
+Versioned sections are preserved. Missing/whitespace-only/invalid input,
+missing or duplicate Unreleased headings, an ambiguous endpoint and a
+changelog differing from the fixed endpoint refuse without modifying it.
+Commit reviewed notes through jj before cutting. A missing CHANGELOG.md is an
+error rather than an implicit historical rewrite.
+
+## Recover a partial release without another bump
+
+**Never rerun `release:patch`, `release:minor` or `release:major` after any cut
+step partly succeeds.** Inspect `jj st`, `jj log`, `git status --short`, local
+and remote version tags, GitHub's draft/assets and tap state. Version changes
+outside main, a local-only/unintegrated tag, missing/draft/incomplete GitHub
+assets or an unpublished tap version refuse a new release. An acquired lock
+blocks another task; on normal success/failure Task removes it. After a killed
+Task, confirm no release process remains before `rmdir .jj/release-lock`.
+
+1. **Preparation failed before version writes:** fix the named prerequisites,
+   notes or main/tap synchronization. Confirm version/manifests/tags are still
+   uncut before restarting the task. The saved working change remains in jj.
+2. **Cargo-release partly wrote manifests/changelog or committed without a tag:**
+   retain every write and inspect the dry preview/log. Finish the current version,
+   never invoke the bump again. Use `cargo release replace --execute --no-confirm`
+   only if the current version's changelog heading is absent and the standing
+   Unreleased body still contains its notes. Do not run replacement twice.
+   If the version write is incomplete, reconcile all workspace manifests and
+   Cargo.lock to the already selected version, then check them. Commit the
+   coherent release through jj with `jj describe -m 'chore: release v<VERSION>'`,
+   `jj bookmark set main -r @`, `jj new main`; create only the missing local
+   release tag with `git tag -a v<VERSION> -m 'Release v<VERSION>'` at its commit.
+   Tag operations are the standing Git exception. Inspect an existing tag;
+   never overwrite it to conceal a mismatch.
+3. **Local cut/tag exists but build, formula or smoke failed:** return to a clean
+   child of the exact release commit (`jj new <release-commit>`), move main there
+   if the cut failed before that step (`jj bookmark set main -r <release-commit>`),
+   fix environment prerequisites, then run:
+
+   ```sh
+   scripts/release-build.sh
+   scripts/release-smoke.sh --archives target/dist
+   ```
+
+   The build validates tag/version/cleanliness before clearing dist. It rebuilds
+   all archives, probes and formula; smoke executes every target, with no skips.
+   A source fix needs its own described commit and an explicitly resolved release
+   identity; do not silently move an already public tag. Nothing is pushed until
+   all installed smoke routes pass.
+4. **Build/smoke passed but a main/tag push failed:** retry only the missing
+   `jj git push -b main` or `git push origin v<VERSION>`. Check the remote peeled
+   tag matches the release commit before continuing; do not force a public tag.
+5. **GitHub creation or uploads partly succeeded:** inspect
+   `gh release view v<VERSION> --repo Linkuistics/Ravel --json isDraft,assets`.
+   If absent, run `scripts/release-publish.sh` after the validated smoke. If it
+   exists, upload only missing current archives with `gh release upload
+   v<VERSION> <missing-archive> --repo Linkuistics/Ravel`; inspect existing files
+   instead of overwriting them. Publish an intended draft with `gh release edit
+   v<VERSION> --repo Linkuistics/Ravel --draft=false` only after all three assets
+   are complete. Then run `scripts/release-publish.sh --tap-only`. This recovery
+   mode downloads all three assets and compares each byte to local validated
+   archives before editing the tap. It creates no second GitHub release.
+6. **Tap copying/commit/push partly succeeded:** inspect and retain the local tap
+   work. If no tap write occurred, the tested `--tap-only` mode resumes it. If
+   copying occurred, finish only that formula: in a jj tap describe the intended
+   change, move main onto it, create its empty successor and `jj git push -b main`.
+   If commit already succeeded, retry only its push. Git-only taps use the
+   equivalent Git commit/push. Check remote `Formula/ravel.rb` and retain every
+   unrelated formula; do not rerun the all-in-one publisher against a dirty tap.
+7. **Publication passed but installation/verification failed:** retry only
+   `brew update`, `brew install linkuistics/taps/ravel` (or `brew upgrade ravel`),
+   `brew test ravel`, and `"$(brew --prefix)/bin/ravel" --version`. Inspect matching
+   worker layout and GitHub's exact three assets. Do not cut another version to
+   repair a missing local installation.
+
+Recovery admission, refusal/order and tap-only download comparison run against
+isolated local repositories/services in `task release:lifecycle:test`; no real
+cut, tag, GitHub/tap publication or permanent installation is part of preparation
+validation. Actual public recovery depends on the state that k11 observes.

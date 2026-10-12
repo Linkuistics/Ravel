@@ -109,3 +109,89 @@ tasks:
     cmds:
       - task: probes
       - bash scripts/release-check.sh formula
+
+  release:patch:
+    desc: Publish and install the next patch release
+    cmds:
+      - task: release
+        vars: {LEVEL: patch}
+
+  release:minor:
+    desc: Publish and install the next minor release
+    cmds:
+      - task: release
+        vars: {LEVEL: minor}
+
+  release:major:
+    desc: Publish and install the next major release
+    cmds:
+      - task: release
+        vars: {LEVEL: major}
+
+  release:doctor:
+    desc: Check all release prerequisites without cutting or publishing
+    cmds:
+      - scripts/release-doctor.sh
+
+  release:notes:
+    desc: Fill empty Unreleased notes from commit descriptions or explicit reviewed Markdown
+    cmds:
+      - bash scripts/release-notes.sh {{.CLI_ARGS}}
+
+  release:lifecycle:test:
+    desc: Test independent release refusal, order, notes and dry cuts in isolated fixtures
+    silent: true
+    cmds:
+      - bash scripts/release-check.sh lifecycle
+
+  release:
+    internal: true
+    requires:
+      vars:
+        - name: LEVEL
+          enum: [patch, minor, major]
+    preconditions:
+      - sh: test -d .jj && test -d .git && test "$(pwd -P)" = "$(jj workspace root --name default)"
+        msg: Run releases from Ravel's default colocated jj workspace.
+    # Commands are sequential. Never move these to deps, which run in parallel.
+    cmds:
+      - |
+        mkdir .jj/release-lock || {
+          echo 'Another release holds .jj/release-lock. If it was interrupted, confirm it has stopped before removing the lock.' >&2
+          exit 1
+        }
+      - defer: rmdir .jj/release-lock
+      - scripts/release-doctor.sh
+      - scripts/release-publish.sh --check-tap
+      - bash scripts/release-prepare.sh
+      - scripts/release-publish.sh --check-tap
+      - task: check
+      - cargo release {{.LEVEL}}
+      - cargo release {{.LEVEL}} --execute --no-confirm
+      - jj bookmark set main -r "$(git rev-parse HEAD)"
+      - scripts/release-build.sh
+      # Nothing is published before this passes: each archive in target/dist
+      # matches the manifest and runs its installed layout on its target at
+      # the floors. A failure leaves the cut local; docs/RELEASING.md,
+      # "If the installed smoke test fails", gives the recovery.
+      - scripts/release-smoke.sh --archives target/dist
+      - jj git push -b main
+      - git push origin "$(git describe --tags --exact-match HEAD)"
+      - scripts/release-publish.sh
+      - brew update
+      - |
+        if brew list --versions ravel >/dev/null 2>&1; then
+          brew upgrade ravel
+        else
+          brew install linkuistics/taps/ravel
+        fi
+      - brew test ravel
+      - |
+        tag="$(git describe --tags --exact-match HEAD)"
+        version="${tag#v}"
+        # The Homebrew prefix's commands, not whichever copy PATH finds first:
+        # `task install` puts one in ~/.local/bin by default.
+        brew_bin="$(brew --prefix)/bin"
+        test "$("$brew_bin/ravel" --version)" = "ravel $version"
+        gh release view "$tag" --repo Linkuistics/Ravel --json url,assets
+        test "$(gh release view "$tag" --repo Linkuistics/Ravel --json assets --jq '.assets | length')" = 3

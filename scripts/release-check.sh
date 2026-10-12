@@ -7,9 +7,10 @@ cd "$root"
 mkdir -p target
 case "${1:-}" in
   archives) command=(bash scripts/release-archives.test.sh) ;;
+  lifecycle) command=(bash scripts/release-lifecycle.test.sh) ;;
   formula) command=(bash scripts/release-formula.sh target/archives) ;;
   *)
-    echo 'usage: release-check.sh archives | formula' >&2
+    echo 'usage: release-check.sh archives | formula | lifecycle' >&2
     exit 2
     ;;
 esac

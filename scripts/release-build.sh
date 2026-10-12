@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Build exact three-target independent archives, without a cut/tag/publication.
-# Usage: scripts/release-build.sh --unreleased [TARGET...]
+# Build exact independent archives from a clean release tag or working copy.
+# Usage: scripts/release-build.sh [--unreleased [TARGET...]]
 # A target override still clears target/archives, so stale archives cannot pass.
 # The working-copy workspace version determines the archive/front/worker version.
 # The pinned Bun runtime and declarations come from crates/ravel/scripts/dispatch.sh;
@@ -100,20 +100,31 @@ main() {
   # whatever CARGO_TARGET_DIR or a `build.target-dir` setting would say.
   export CARGO_TARGET_DIR="$REPO_ROOT/target"
 
-  local out_dir="$ARCHIVES_DIR" version targets=() target known
-  [[ "${1:-}" == "--unreleased" ]] || die "usage: release-build.sh --unreleased [TARGET...]"
-  shift
-  targets=("$@")
-  ((${#targets[@]} > 0)) || targets=("${TARGETS[@]}")
-  for target in "${targets[@]}"; do
-    for known in "${TARGETS[@]}"; do
-      [[ "$target" == "$known" ]] && continue 2
+  local release=1 out_dir="$REPO_ROOT/target/dist" version targets=() target known tag
+  if [[ "${1:-}" == --unreleased ]]; then
+    release=0
+    out_dir="$ARCHIVES_DIR"
+    shift
+    targets=("$@")
+    ((${#targets[@]} > 0)) || targets=("${TARGETS[@]}")
+    for target in "${targets[@]}"; do
+      for known in "${TARGETS[@]}"; do [[ "$target" == "$known" ]] && continue 2; done
+      die "unknown target '$target'"
     done
-    die "unknown target '$target'; the release targets are $(IFS=' ' && echo "${TARGETS[*]}")"
-  done
-  version="$(workspace_version)"
+    version="$(workspace_version)"
+    echo "release-build: unreleased archives of the working copy at v$version"
+  else
+    (($# == 0)) || die 'usage: release-build.sh [--unreleased [TARGET...]]'
+    [[ -z "$(git status --porcelain)" ]] || die 'working tree is dirty; return to the exact release revision'
+    tag="$(git describe --tags --exact-match HEAD)" || die 'HEAD is not tagged; resume the cut before building'
+    version="${tag#v}"
+    [[ "$tag" == "v$version" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ && "$version" != 0.0.0 ]] || die "not a release tag: $tag"
+    [[ "$(workspace_version)" == "$version" ]] || die 'tag and workspace version differ'
+    "$REPO_ROOT/scripts/release-doctor.sh"
+    targets=("${TARGETS[@]}")
+    echo "release-build: building ravel v$version"
+  fi
   rm -rf "$out_dir"
-  echo "release-build: unreleased archives of the working copy at v${version}"
 
   # The worker build emits its SDK declarations with the pinned type checker.
   task --dir "$REPO_ROOT" deps
@@ -133,6 +144,11 @@ main() {
   done
 
   rm -rf "$out_dir/staging"
+
+  if ((release)); then
+    task --dir "$REPO_ROOT" probes
+    bash "$REPO_ROOT/scripts/release-formula.sh" "$out_dir"
+  fi
 
   echo
   echo "release-build: artifacts in $out_dir"

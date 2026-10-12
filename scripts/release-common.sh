@@ -214,3 +214,35 @@ target_std_installed() {
   libdir="$("$rustc" --print target-libdir --target "$target" 2>/dev/null)" || return 1
   [[ -n "$libdir" && -d "$libdir" ]]
 }
+
+# Render exactly the current three archives. Callers supply a temporary output
+# and expose it only after validation; publication compares this to its formula.
+render_archive_formula() {
+  local dir="$1" version="$2" template="$3" output="$4" target archive sha placeholder
+  cp "$template" "$output" || return 1
+  sed -i.bak "s|@VERSION@|$version|g" "$output" || return 1
+  for target in "${TARGETS[@]}"; do
+    archive="$dir/ravel-v$version-$target.tar.xz"
+    [[ -f "$archive" ]] || {
+      echo "missing $archive" >&2
+      return 1
+    }
+    assert_archive "$archive" "ravel-v$version-$target" || return 1
+    sha="$(shasum -a 256 "$archive" | cut -d' ' -f1)" || return 1
+    placeholder="$(printf '%s' "$target" | tr '[:lower:]-' '[:upper:]_')"
+    sed -i.bak "s|@SHA_${placeholder}@|$sha|g" "$output" || return 1
+  done
+  if grep -n '@[A-Z_0-9]*@' "$output" >&2; then
+    echo 'unresolved formula template placeholders' >&2
+    return 1
+  fi
+  rm -f "$output.bak"
+}
+
+# GitHub's successful view is also true for drafts and partially uploaded assets.
+published_release_complete() {
+  local version="$1" publication expected
+  expected="$(printf 'ravel-v%s-%s.tar.xz\n' "$version" aarch64-apple-darwin "$version" aarch64-unknown-linux-gnu "$version" x86_64-unknown-linux-gnu | jq -Rsc 'split("\n")[:-1] | sort')" || return 1
+  publication="$(gh release view "v$version" --repo Linkuistics/Ravel --json isDraft,assets)" || return 1
+  jq -e --argjson expected "$expected" '.isDraft == false and ([.assets[].name] | sort) == $expected and all(.assets[]; .size > 0)' <<<"$publication" >/dev/null
+}

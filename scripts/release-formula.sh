@@ -20,19 +20,7 @@ version="${id##*[#@]}"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 formula="$scratch/ravel.rb"
-cp "$root/scripts/templates/ravel.rb.tmpl" "$formula"
-sed -i.bak "s|@VERSION@|$version|g" "$formula"
-for target in "${TARGETS[@]}"; do
-  archive="$dir/ravel-v$version-$target.tar.xz"
-  [[ -f "$archive" ]] || die "missing $archive; run task release:archives"
-  assert_archive "$archive" "ravel-v$version-$target" || die "$archive fails the manifest"
-  sha="$(shasum -a 256 "$archive" | cut -d' ' -f1)"
-  placeholder="$(printf '%s' "$target" | tr '[:lower:]-' '[:upper:]_')"
-  sed -i.bak "s|@SHA_${placeholder}@|$sha|g" "$formula"
-done
-if grep -n '@[A-Z_0-9]*@' "$formula"; then
-  die 'unresolved formula template placeholders'
-fi
+render_archive_formula "$dir" "$version" "$root/scripts/templates/ravel.rb.tmpl" "$formula" || die 'archive/formula validation failed'
 [[ "$(uname -sm)" == 'Darwin arm64' ]] || die 'formula validation requires the macOS arm64 archive host'
 archive="$dir/ravel-v$version-aarch64-apple-darwin.tar.xz"
 extract_exactly "$archive" "$scratch"
