@@ -167,6 +167,26 @@ K12 records actual charges and grows only the next precise supported continuatio
 before the book, normally C3 planning from the unreserved D≤10. C4/native-entry
 work and the unchanged root/G2–G5/R-W debt remain; no parent completion is earned.
 
+K12 now corrects and checks C2 on the incumbent: confirmed worker reap and
+checked post-evaluation private-directory removal gate evaluation success before
+resolution/Selected/managed start. Original conversation metadata, bounded policy
+output and all operational reports survive cancellation/overflow. The linked
+C2 receipts in `docs/completion-failure-design-evidence.md` distinguish physical
+wait/removal from substituted reports. All 35 C2 parameters/instruments, 12 CLI
+cases, protected C1 controls and all 177 workspace cases pass. One reviewer found
+three actionable gaps, each fixed with executable controls; no second review or
+architectural selection was needed. C3 partial preparation/identity cleanup,
+C4 checked recovery/failed exec and native entry remain required.
+
+K12 conservatively charges P≤40/E≤5/RC≤5 minutes including tests/evidence,
+one reviewer and coordination/retirement/commit, D=X=0. Correctness cumulative
+charged bounds are D≤60/RC≤25/P≤70/E≤10/X=0; remaining D≤30 (20 reserved
+for phase closure), RC≤5/P≤170/E≤110/X=0. Its unused allocation is not spend.
+`partial-acquisition-cleanup-k13`, before the book agreement, is the next precise
+planning continuation, with D≤10/RC=P=E=X=0. It prices a complete C3 repair
+from remaining P/E before growth and preserves the 20-minute closure reserve.
+No fresh funding, parent completion, target or gain is inferred.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

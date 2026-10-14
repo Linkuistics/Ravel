@@ -61,6 +61,11 @@ tasks:
     cmds:
       - cargo nextest run --locked -p ravel {{.CLI_ARGS}}
 
+  test:list:
+    desc: List nextest cases before selecting a run (optional package/filter arguments)
+    cmds:
+      - cargo nextest list --locked --workspace {{.CLI_ARGS}}
+
   test:runner:
     desc: Run focused local-runner checks (optional nextest arguments)
     cmds:

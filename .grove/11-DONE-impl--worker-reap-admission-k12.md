@@ -176,3 +176,106 @@ variant/catalogue/routing read, target/package/extraction, migration or
 simplification gain is authorized. Root independent-capability delivery,
 unchanged owner config/complete sessions, human book structure and practical
 post-proof reader checkpoint remain required.
+
+## Decisions (running log)
+
+- Execute the fixed k11/k12 plan and k8 contract in the mandated isolated jj
+  workspace. No requirements, design campaign or generic planning restart is
+  needed. Tier 2 discovery/coverage at generation `2026-10-14T06:14:28Z`
+  refreshed evaluator/choice/front and relied-on documentation; no recorded
+  source gaps. Cargo.lock is read directly because its graph freshness is
+  untracked. Relevant evaluator both-direction depth-one trace completed (1
+  inbound, 25 outbound); unrelated same-name heuristic edges were rejected by
+  exact source. Choice resolves only after successful evaluation.
+- The private control transforms a local teardown report after actual child
+  wait, bounded capture and explicit directory close. It runs only in unit-test
+  builds and is thread-local; ignored subprocess fixture roles supply actual
+  choice/front composition, signal isolation and locate() layout. No product
+  CLI/env switch or owner-policy failure convention is added. Physical wait and
+  directory-removal receipts precede injected errors and remain separate.
+- Keep the current refusal JSON schema and policy-only diagnostics. Operational
+  context goes into existing refusal message/remedy; superseding cancellation
+  retains the earlier refusal's complete existing text report. Confirmed nonzero
+  exit satisfies admission. Partial preparation/identity cleanup remains C3.
+  tempfile 3.27.0 close() source was read: it consumes and forgets its guard even
+  on removal error, preventing silent destructor retry.
+- Initial red was a fixture error (unknown diagnosticsBytes settings key), not
+  conformance evidence. The corrected red reached actual wait/removal receipts
+  and failed resolution/gate and lost-report assertions. Green then passed;
+  gate and operational-report mutants failed their distinct expected assertions.
+  Cancellation assertions exclude the input-receipt portion of stderr, preventing
+  injected report logs from masquerading as product output. Named individual
+  parameter tests now make every fixed case visible in nextest listing.
+- The one fresh reviewer found three actionable gaps: timeout wording claimed
+  stopping without confirmation; fixture output/wait had no effective deadline;
+  overflow could discard original EOF/deadline information before cancellation.
+  All were reproduced/inspected and classified valid/actionable. Convert every
+  conversation failure before applying overflow precedence and retain it as
+  context; use neutral teardown-attempt wording; fixture processes use file-backed
+  capture, bounded polling and emergency group kill before direct fixture reap.
+  New mixed EOF/deadline + overflow + cancellation controls and a physical
+  fixture timeout/reap control cover the fixes. No second reviewer is commissioned;
+  these fixes are conclusively covered by the executable seams, not a new design.
+- The initial public CLI run exposed a stimulus collision: its existing
+  unwritable-stdout/confined-cleanup fixture chmodded the shared TMPDIR, also
+  making the now-required worker removal fail earlier. Preserve every original
+  assertion; narrow that fixture to its owned confined directory and create a
+  blocker there. A separate real-permission CLI case retains the former shared-
+  TMPDIR stimulus and requires worker_failed before admission plus outer cleanup
+  diagnostics. Both controls restore fixture permissions independently. This
+  changes the failure stimulus to keep testing its intended boundary, never the
+  protected expected code/output/diagnostic assertions.
+- Running the 35 individual C2 parameters alongside the separate CLI suite
+  overloaded fixture startup: several intended-success/overflow/refusal cases
+  reached the real one-second pre-readiness timeout instead. That run is not
+  credited green. Preserve the one-second expected bound and all assertions;
+  nextest's scoped threads-required override reserves the active run's slots
+  for each worker-admission case (verified in installed 0.9.148 help and official
+  docs). Subsequent measured suites run sequentially. No retries or timeout
+  widening normalize this scheduling failure. The first workspace check found
+  one mechanical Clippy single-character push_str lint; change it to push.
+- Closure conservatively charges P≤40/E≤5/RC≤5 minutes, D=X=0, including
+  repair/test/evidence authoring, execution, the one fresh reviewer and tree/
+  retirement/commit. Correctness cumulative bounds are D≤60/RC≤25/P≤70/E≤10/X=0;
+  remaining D≤30 (20 reserved)/RC≤5/P≤170/E≤110/X=0. Grow only C3 planning
+  `partial-acquisition-cleanup-k13` before the book, allocated D≤10 and
+  RC=P=E=X=0. C3/C4/native and root/G2–G5/R-W obligations remain unchanged.
+  No glossary meaning or ADR choice changed; the existing worker-ordering ADR
+  now points to checked C2 evidence. The reversible local repair earns no new ADR.
+
+## Verification and stopping state
+
+All 35 explicitly listed C2 cases pass after the final gate and diagnostic-loss
+mutants were restored. Item-by-item selected names match the workspace run;
+complete input manifests are identical between those two final measurements.
+Every measured run retained immutable before/after subjects and per-case receipts
+in `docs/worker-reap-admission-checks.txt`; repetition encoding round-tripped to
+raw log digests. Uncredited fixture/scheduling/lint failures are retained too.
+Twelve real-policy CLI cases, 11 C1 wait-event cases and four C1 front cases pass.
+`task check` passes formatting, scripts, worker build/probes, runtime integrity,
+types, lint and all 177 selected workspace tests, including process/PTY cases;
+16 fixture roles are ignored as direct selections. No redundant full run was
+added. The later focused rerun follows intentional mutants, using identical
+restored project inputs. No product or test expectation edits followed it.
+
+Current specification/component/ADR/evidence prose carries C2 while retaining
+C3/C4/native limits and fixed-reference history. Local file/anchor validation
+passed 104 links; missing-file and missing-anchor controls failed as intended.
+HTML dynamic fragment IDs were checked against source and diagram manifests;
+no rendering/layout check is claimed. The new ledger was read and losslessly
+validated directly; graph coverage remains best effort, not completeness proof.
+
+The useful stopping state is a working admission/diagnostic repair with measured
+controls and the next funded planning mandate. No live review names this producer,
+so no Creator receipt is due. K13 and the book remain live; the root's Done when
+is incomplete. No parent close or finish teardown is earned.
+
+Final coverage at generation `2026-10-14T06:48:05Z`, recorded 06:49:42 UTC,
+checked 55 source/document/task/configuration paths with matching metadata and
+no recorded issue. The two plain-text receipts are not graph-tracked and were
+read/validated directly. The documentation measurement held 146 project/wrapper
+subjects identical before/after; its controls/validator and receipts are appended
+after measurement. Evidence publication and final tree notes are outside the
+behavioral measurements. Book bytes match the parent through renumbering.
+Changed product/test/configuration inputs still match the passing workspace
+measurement. Root and k13 carry the same conservative budget account.

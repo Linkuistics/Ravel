@@ -16,7 +16,7 @@ use std::time::{Duration, Instant};
 
 use serde_json::{json, Value};
 
-use crate::cancellation::{self, Signal};
+use crate::cancellation;
 use crate::context::Measured;
 use crate::frame::{read_frame, write_frame, FrameError};
 use crate::limits::{Bound, Limits, SELECTION_MAX_MS};
@@ -143,6 +143,7 @@ pub struct Evaluation<T> {
     /// What the judge made of the worker's reports.
     pub decided: T,
     pub diagnostics: Diagnostics,
+    pub operational: Vec<String>,
     /// From starting the worker to the judge's decision.
     pub elapsed: Duration,
 }
@@ -455,76 +456,143 @@ pub fn evaluate<T>(
         limits,
         caller,
     };
-    // A signal received while the worker was asked, or before its answer was
-    // judged, cancels whatever the conversation came to.
-    let result = cancelled(converse(channel, asked, started, judge));
-    // The closed channel is the worker's signal that nothing more is asked.
+    // Retain the conversation even when cancellation supersedes it: its
+    // original cause and metadata still belong in the failure report.
+    let result = converse(channel, asked, started, judge);
     drop(front_end);
-    let status = match &result {
-        // TERM first, so that a policy awaiting work can clean up.
-        Err(Conversation::Cancelled(_)) => stop(&mut child, Some(libc::SIGTERM)),
-        // Output past its bound ends evaluation at once.
-        _ if capture.overflowed() => {
-            let _ = child.kill();
-            child.wait()
-        }
-        // Its work is done, or the judge refused what it reported: either way
-        // it exits by itself, flushing what the policy printed, unless the
-        // policy keeps it.
+    let stopped = match &result {
+        _ if cancellation::received().is_some() => stop(&mut child, Some(libc::SIGTERM)),
+        _ if capture.overflowed() => kill_and_wait(&mut child),
         Ok(_) | Err(Conversation::Refused(_)) => stop(&mut child, None),
-        // TERM first, so that a policy awaiting work can clean up.
         Err(Conversation::Expired { .. }) => stop(&mut child, Some(libc::SIGTERM)),
-        Err(Conversation::Broken(_) | Conversation::Ended(_)) => {
-            let _ = child.kill();
-            child.wait()
-        }
+        Err(Conversation::Broken(_) | Conversation::Ended(_)) => kill_and_wait(&mut child),
     };
     let (diagnostics, overflowed) = capture.collect(Instant::now() + DRAIN_GRACE);
-    drop(private_dir);
-    // The channel is closed and the worker reaped: a signal received while
-    // that happened cancels too.
-    let result = cancelled(result);
-
-    // The bound holds for as long as the worker lives, so output past it
-    // refuses whatever else happened, a completed selection included, unless
-    // a signal cancelled it.
-    if overflowed && !matches!(result, Err(Conversation::Cancelled(_))) {
-        return Err(Failure::with_diagnostics(
-            output_limit(entry, limits),
-            diagnostics,
-        ));
+    let directory = private_dir.path().to_owned();
+    // close consumes the guard even on error, preventing an unreported Drop retry:
+    // https://docs.rs/tempfile/3.27.0/tempfile/struct.TempDir.html#method.close
+    let removed = private_dir.close();
+    #[allow(unused_mut)]
+    let mut teardown = Teardown {
+        pid: child.id(),
+        status: stopped.status,
+        reports: stopped.reports,
+        directory,
+        removed,
+    };
+    #[cfg(test)]
+    admission_tests::reported_teardown(&mut teardown, &mut child);
+    let admitted = teardown.status.is_ok() && teardown.removed.is_ok();
+    let operational = teardown.describe(worker);
+    let primary = overflowed.then(|| output_limit(entry, limits));
+    let (success, original) = match result {
+        Ok(success) => (Some(success), None),
+        Err(Conversation::Refused(refusal) | Conversation::Broken(refusal)) => {
+            (None, Some(refusal))
+        }
+        Err(Conversation::Expired { handed_over }) => {
+            (None, Some(expired(worker, entry, bound, handed_over)))
+        }
+        Err(Conversation::Ended(error)) => {
+            let status = teardown.status.as_ref().map_or_else(
+                |error| format!("unconfirmed reap (wait: {error})"),
+                |status| format!("confirmed reap: {status}"),
+            );
+            (
+                None,
+                Some(failed(format!(
+                    "the policy worker ended without a result ({error}; {status}); \
+                 a policy that calls process.exit ends it the same way"
+                ))),
+            )
+        }
+    };
+    let refusal = match (primary, original) {
+        (Some(primary), Some(original)) => Some(primary.report(
+            &format!(
+                "original conversation failure:\n{}",
+                Failure::from(original).to_text()
+            ),
+            "retain both conversation reports when retrying",
+        )),
+        (primary, original) => primary.or(original),
     }
-    match result {
-        Ok((worker, decided, elapsed)) => Ok(Evaluation {
+    .or_else(|| {
+        (!admitted).then(|| {
+            failed("policy conversation completed, but required worker teardown failed".into())
+        })
+    });
+    if let Some(refusal) = refusal {
+        let refusal = if operational.is_empty() {
+            refusal
+        } else {
+            refusal.report(&operational.join("\n"), TEARDOWN_REMEDY)
+        };
+        let failure = Failure::with_diagnostics(refusal, diagnostics);
+        return Err(match cancellation::received() {
+            Some(signal) => failure.cancelled_by(signal, entry),
+            None => failure,
+        });
+    }
+    if let Some(signal) = cancellation::received() {
+        let refusal = cancellation::refusal(signal, entry);
+        let refusal = if operational.is_empty() {
+            refusal
+        } else {
+            refusal.report(&operational.join("\n"), TEARDOWN_REMEDY)
+        };
+        return Err(Failure::with_diagnostics(refusal, diagnostics));
+    }
+    // Every conversation failure was converted above; only a judged success
+    // with confirmed reap and successful required removal reaches this branch.
+    match success {
+        Some((worker, decided, elapsed)) => Ok(Evaluation {
             worker,
             decided,
             diagnostics,
+            operational,
             elapsed,
         }),
-        Err(Conversation::Refused(refusal) | Conversation::Broken(refusal)) => {
-            Err(Failure::with_diagnostics(refusal, diagnostics))
-        }
-        Err(Conversation::Expired { handed_over }) => Err(Failure::with_diagnostics(
-            expired(worker, entry, bound, handed_over),
+        None => Err(Failure::with_diagnostics(
+            failed("worker supplied no judgment".into()),
             diagnostics,
         )),
-        Err(Conversation::Cancelled(signal)) => Err(Failure::with_diagnostics(
-            cancellation::refusal(signal, entry),
-            diagnostics,
-        )),
-        Err(Conversation::Ended(error)) => {
-            let status = match status {
-                Ok(status) => status.to_string(),
-                Err(error) => format!("unknown status ({error})"),
-            };
-            Err(Failure::with_diagnostics(
-                failed(format!(
-                    "the policy worker ended without a result ({error}; it exited with {status}); \
-                     a policy that calls process.exit ends it the same way"
-                )),
-                diagnostics,
-            ))
+    }
+}
+
+// Local operation reports stay separate from the bounded policy byte streams.
+struct Teardown {
+    pid: u32,
+    status: io::Result<ExitStatus>,
+    reports: Vec<String>,
+    directory: PathBuf,
+    removed: io::Result<()>,
+}
+
+const TEARDOWN_REMEDY: &str = "inspect the named worker/OS operation before retrying; do not signal a PID that may have been reused; if private-directory removal failed, verify the owned path and remove it manually before retrying";
+
+impl Teardown {
+    fn describe(&self, worker: &Path) -> Vec<String> {
+        let identity = format!("policy worker {} (pid {})", worker.display(), self.pid);
+        let status = match &self.status {
+            Ok(status) => format!("confirmed reap: {status}"),
+            Err(error) => format!("wait: {error}; worker reap unconfirmed"),
+        };
+        let mut reports = self
+            .reports
+            .iter()
+            .map(|report| format!("{identity}: {report}; {status}"))
+            .collect::<Vec<_>>();
+        if self.status.is_err() {
+            reports.push(format!("{identity}: {status}"));
         }
+        if let Err(error) = &self.removed {
+            reports.push(format!(
+                "{identity}: remove private directory {}: {error}",
+                self.directory.display()
+            ));
+        }
+        reports
     }
 }
 
@@ -537,16 +605,6 @@ enum Conversation {
     Ended(FrameError),
     /// The deadline passed first, after the entry was handed over or before.
     Expired { handed_over: bool },
-    /// A handled signal was received.
-    Cancelled(Signal),
-}
-
-/// `result`, unless a handled signal has been received, which cancels it.
-fn cancelled<T>(result: Result<T, Conversation>) -> Result<T, Conversation> {
-    match cancellation::received() {
-        Some(signal) => Err(Conversation::Cancelled(signal)),
-        None => result,
-    }
 }
 
 impl Conversation {
@@ -802,8 +860,8 @@ fn produced(frame: &Value) -> Option<Produced> {
     })
 }
 
-/// Output past the diagnostics bound: the worker was stopped, whatever it was
-/// doing, and what it printed up to the bound is kept.
+/// Output past the diagnostics bound requests worker teardown; captured bytes
+/// stay bounded even when teardown cannot be confirmed.
 fn output_limit(entry: &str, limits: &Limits) -> Refusal {
     let bound = limits.diagnostics.value;
     Refusal::new(
@@ -812,7 +870,7 @@ fn output_limit(entry: &str, limits: &Limits) -> Refusal {
         EXIT_REFUSED,
         format!(
             "the policy {entry} printed more than {bound} bytes on stdout and stderr together, \
-             so its worker was stopped and nothing was launched; its first {bound} bytes are \
+             so worker teardown was attempted and nothing was launched; its first {bound} bytes are \
              kept, and the rest was read and discarded"
         ),
         "print less while selecting: keep diagnostics to short notes, and write anything longer \
@@ -837,7 +895,7 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refus
             EXIT_TIMEOUT,
             format!(
                 "the policy entry {entry} did not return a result within the selection bound \
-                 of {limit}, so its worker was stopped and nothing was launched"
+                 of {limit}, so worker teardown was attempted and nothing was launched"
             ),
             format!(
                 "make the policy return sooner: a loop, or an await on work that never \
@@ -852,7 +910,7 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refus
             EXIT_TIMEOUT,
             format!(
                 "the policy worker {} was not ready for the policy within the selection bound \
-                 of {limit}, so it was stopped and nothing was launched",
+                 of {limit}, so worker teardown was attempted and nothing was launched",
                 worker.display()
             ),
             format!("{REBUILD}; on a heavily loaded machine, {raise}"),
@@ -870,27 +928,64 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refus
 /// given, and is then killed. Only the worker is signalled: it shares the
 /// caller's process group, so a group signal would reach this process and its
 /// caller too.
-fn stop(child: &mut Child, signal: Option<libc::c_int>) -> io::Result<ExitStatus> {
-    if let (Some(signal), Ok(pid)) = (signal, libc::pid_t::try_from(child.id())) {
-        // SAFETY: kill only sends a signal. The worker is an unreaped child of
-        // this process, so its PID cannot yet name any other process.
-        unsafe { libc::kill(pid, signal) };
+struct Stopped {
+    status: io::Result<ExitStatus>,
+    reports: Vec<String>,
+}
+
+fn kill_and_wait(child: &mut Child) -> Stopped {
+    let mut reports = Vec::new();
+    if let Err(error) = child.kill() {
+        reports.push(format!("kill: {error}"));
+    }
+    Stopped {
+        status: child.wait(),
+        reports,
+    }
+}
+
+fn stop(child: &mut Child, signal: Option<libc::c_int>) -> Stopped {
+    let mut reports = Vec::new();
+    if let Some(signal) = signal {
+        match libc::pid_t::try_from(child.id()) {
+            Ok(pid) => {
+                // SAFETY: this is the unreaped child; no confirmed wait has
+                // released its PID. Never signal after try_wait confirms reap.
+                if unsafe { libc::kill(pid, signal) } == -1 {
+                    reports.push(format!(
+                        "stop (signal {signal}): {}",
+                        io::Error::last_os_error()
+                    ));
+                }
+            }
+            Err(error) => reports.push(format!("stop: cannot represent worker PID: {error}")),
+        }
     }
     let grace = Instant::now() + CLEANUP_GRACE;
     let mut poll = Duration::from_millis(1);
     while Instant::now() < grace {
-        // `try_wait` reaps only an exited worker, so the PID stays this
-        // worker's until the kill below. If it cannot tell, the kill decides.
         match child.try_wait() {
-            Ok(Some(status)) => return Ok(status),
+            Ok(Some(status)) => {
+                return Stopped {
+                    status: Ok(status),
+                    reports,
+                }
+            }
             Ok(None) => {}
-            Err(_) => break,
+            Err(error) => {
+                reports.push(format!("try_wait: {error}"));
+                break;
+            }
         }
         thread::sleep(poll);
         poll = (poll * 2).min(Duration::from_millis(16));
     }
-    let _ = child.kill();
-    child.wait()
+    let stopped = kill_and_wait(child);
+    reports.extend(stopped.reports);
+    Stopped {
+        status: stopped.status,
+        reports,
+    }
 }
 
 /// The protocol channel with the deadline applied: each read or write waits
@@ -1143,6 +1238,10 @@ impl Capture {
         (captured, self.overflowed())
     }
 }
+
+#[cfg(test)]
+#[path = "worker_admission_tests.rs"]
+mod admission_tests;
 
 #[cfg(test)]
 mod tests {

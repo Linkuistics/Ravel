@@ -473,11 +473,13 @@ fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_fa
         .selecting("exit 91", "unused")
         .replace(
             "import { definePolicy }",
-            "import { chmodSync } from 'node:fs';\nimport { definePolicy }",
+            "import { chmodSync, readdirSync, writeFileSync } from 'node:fs';\nimport { definePolicy }",
         )
         .replace(
             "select(request) {",
-            "select(request) { chmodSync(process.env.TMPDIR, 0o500);",
+            // Fail the confined cleanup alone. Making their shared TMPDIR
+            // unwritable now correctly refuses earlier at worker admission.
+            "select(request) { for (const name of readdirSync(process.env.TMPDIR)) { if (name.startsWith('ravel-confined-')) { const path = process.env.TMPDIR + '/' + name; writeFileSync(path + '/cleanup-blocker', 'fixture'); chmodSync(path, 0o500); } }",
         );
     fs::write(&policy, code).unwrap();
     let mut command = fixture.command();
@@ -497,6 +499,16 @@ fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_fa
     ));
     let output = command.output().unwrap();
     fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o700)).unwrap();
+    for entry in fs::read_dir(fixture.root.join("tmp")).unwrap() {
+        let entry = entry.unwrap();
+        if entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with("ravel-confined-")
+        {
+            fs::set_permissions(entry.path(), fs::Permissions::from_mode(0o700)).unwrap();
+        }
+    }
     assert_eq!(output.status.code(), Some(5));
     let diagnostics = String::from_utf8(output.stderr).unwrap();
     assert!(diagnostics.contains("output_unavailable"), "{diagnostics}");
@@ -505,4 +517,56 @@ fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_fa
         "{diagnostics}"
     );
     assert!(output.stdout.is_empty());
+}
+
+#[test]
+fn worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup() {
+    use std::os::unix::fs::PermissionsExt as _;
+    let fixture = Fixture::new();
+    let owner = fixture.root.join("owner");
+    fs::create_dir(&owner).unwrap();
+    let policy = owner.join("policy.ts");
+    let code = fixture
+        .selecting("exit 91", "unused")
+        .replace(
+            "import { definePolicy }",
+            "import { chmodSync } from 'node:fs';\nimport { definePolicy }",
+        )
+        .replace(
+            "select(request) {",
+            "select(request) { chmodSync(process.env.TMPDIR, 0o500);",
+        );
+    fs::write(&policy, code).unwrap();
+    let output = fixture
+        .command()
+        .args([
+            "start-session",
+            "--kind",
+            "check",
+            "--prompt",
+            "caller",
+            "--confine",
+            "--config",
+        ])
+        .arg(policy)
+        .output()
+        .unwrap();
+    // Uninjected fixture ownership removes physical debris after checking the
+    // failed product cleanup; it does not replace that reported outcome.
+    fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(output.status.code(), Some(5));
+    assert!(output.stdout.is_empty());
+    let text = String::from_utf8(output.stderr).unwrap();
+    for report in [
+        "worker_failed",
+        "pid",
+        "remove private directory",
+        "ravel-worker.",
+        "Permission denied",
+        "cannot remove confined run directory",
+        "retrying",
+    ] {
+        assert!(text.contains(report), "missing {report}: {text}");
+    }
+    assert!(!text.contains("starting provider"));
 }

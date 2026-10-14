@@ -31,6 +31,7 @@ pub struct Choice {
     /// the caller's document, measured.
     pub context: Option<Delivered>,
     pub diagnostics: Diagnostics,
+    pub operational: Vec<String>,
 }
 
 /// Resolve owner authority and inputs without evaluating any policy code.
@@ -82,7 +83,10 @@ pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
                 source,
             }),
             Some(signal) => Err(Failure::with_diagnostics(
-                cancellation::refusal(signal, &source),
+                cancellation::refusal(signal, &source).report(
+                    &choice.operational.join("\n"),
+                    "inspect any reported worker operation before retrying",
+                ),
                 choice.diagnostics,
             )),
         },
@@ -108,10 +112,7 @@ pub struct Selected {
 pub fn overruled(failure: Failure, source: &str) -> Failure {
     match cancellation::received() {
         None => failure,
-        Some(signal) => Failure {
-            refusal: cancellation::refusal(signal, source),
-            ..failure
-        },
+        Some(signal) => failure.cancelled_by(signal, source),
     }
 }
 
@@ -131,7 +132,17 @@ fn evaluate_and_resolve(
         |outcome, loaded| judge(outcome, loaded, &inputs, &source),
     )?;
     let diagnostics = evaluation.diagnostics;
-    let refuse = |refusal: Refusal| Failure::with_diagnostics(refusal, diagnostics.clone());
+    let refuse = |refusal: Refusal| {
+        let refusal = if evaluation.operational.is_empty() {
+            refusal
+        } else {
+            refusal.report(
+                &evaluation.operational.join("\n"),
+                "inspect reported worker operations before retrying",
+            )
+        };
+        Failure::with_diagnostics(refusal, diagnostics.clone())
+    };
 
     let Judged {
         policy,
@@ -155,6 +166,7 @@ fn evaluate_and_resolve(
         executable,
         context,
         diagnostics,
+        operational: evaluation.operational,
     })
 }
 

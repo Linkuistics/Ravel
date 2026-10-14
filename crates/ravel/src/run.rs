@@ -71,6 +71,9 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     let mut output = None;
     let mut ended = None;
     let mut runner_signal = None;
+    for report in &choice.operational {
+        eprintln!("ravel: {report}");
+    }
     // Every path through this closure joins explicit cleanup below, including
     // allocation/reservation failures and cancellation before runner startup.
     let result = (|| -> Result<String, Failure> {

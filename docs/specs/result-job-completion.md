@@ -49,10 +49,10 @@ The [current-source acquisition inventory](../result-job-source-evidence.md#acqu
 identifies the limits of that transfer at the fixed source reference. C1's
 error-carried cancellation and no-ending front transfer are now corrected and
 [checked](../completion-failure-design-evidence.md#c1-checked-observations).
-A successful
-policy conversation does not check the worker teardown wait result before
-returning selection. Partial directory acquisition returns no explicit removal
-result. An interactive pre-exec terminal handoff followed by exec failure can
+Worker admission is now gated on confirmed reap and checked post-evaluation
+private-directory removal, with [C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
+covering failed reported waits/removal and original diagnostic preservation.
+Partial directory acquisition still returns no explicit removal result. An interactive pre-exec terminal handoff followed by exec failure can
 bypass terminal reclaim. These source-admitted cases prevent asserting complete
 settlement on every failure path. They do not relax the session specification's
 worker ordering, cancellation, cleanup or terminal promises, and have not been
@@ -88,8 +88,8 @@ name the smallest missing premises and checks still owed.
 The following is the repair contract for the incumbent launcher, derived from
 the unchanged session promises and the agreed one-session consumer. It is a
 contract for corrections, **not a claim of complete executable conformance**.
-C1 has checked evidence; the remaining acquisition/entry limits above still
-apply. The
+C1 and C2 have scoped checked evidence; the remaining partial-acquisition and
+entry limits above still apply. The
 [repair evidence and check plan](../completion-failure-design-evidence.md)
 separate that source, proposed enabling points and checks not yet run.
 

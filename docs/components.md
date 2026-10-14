@@ -122,8 +122,10 @@ The following textual relations are the checkable meaning of its arrows.
 These relations describe the inspected nominal composition; only the named
 scenario outcomes were observed at runtime. The
 [acquisition evidence](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
-qualifies failure-path discharge: worker reap is attempted but not checked
-before successful selection. Runner errors now retain consumed cancellation;
+records failure-path limits at its fixed source reference. Worker admission
+now requires confirmed reap and checked post-evaluation directory removal;
+[C2 checks](completion-failure-design-evidence.md#c2-checked-observations) cover
+its failure and diagnostic composition. Runner errors retain consumed cancellation;
 the [C1 checks](completion-failure-design-evidence.md#c1-checked-observations)
 cover its no-ending transfer without establishing all failure-path guarantees.
 
@@ -190,18 +192,19 @@ reports the original operational error and all supplied cleanup diagnostics.
 The [C1 evidence](completion-failure-design-evidence.md#c1-checked-observations)
 records injected failure controls and the checked regressions.
 The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
-also distinguishes destructor-only partial-directory cleanup, unchecked worker
-reap, and an interactive failed-exec path that bypasses terminal reclaim. These
-are source-admitted limits under O2/O7/O8/O9, not authorised changes to them or
-measured runtime failures. Ordinary selected-scope cleanup still runs on
+also records the original unchecked-worker-wait path, destructor-only partial-
+directory cleanup and failed-exec terminal-reclaim gap. C2 now corrects admission
+with scoped checks; partial acquisition and failed-exec recovery remain source-
+admitted limits under O2/O7/O8/O9. The historical inventory is not an observation
+that those OS failures occurred at runtime. Ordinary selected-scope cleanup still runs on
 output/channel/launch failure without an ending.
 
 The [failure repair contract](specs/result-job-completion.md#required-failure-settlement)
 now assigns each correction to its existing resource owner and retains original
 failure/cancellation precedence plus secondary diagnostics. The
 [discriminating checks](completion-failure-design-evidence.md#discriminating-checks)
-remain plans for C2/C3/C4 and native entry. C1's checked transfer changes its
-current-source limit; it selects no component arrangement.
+remain plans for C3/C4 and native entry, alongside C1/C2's checked corrections.
+These local repairs select no component arrangement.
 
 These participants have different local knowledge. The publisher knows only
 the inherited destination and whether publication succeeded. The runner knows

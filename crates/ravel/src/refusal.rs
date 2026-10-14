@@ -145,6 +145,15 @@ impl Refusal {
         self.0.signal = Some(signal);
         self
     }
+
+    /// Operational context uses existing fields, never the policy byte streams.
+    pub fn report(mut self, message: &str, remedy: &str) -> Self {
+        self.0.message.push('\n');
+        self.0.message.push_str(message);
+        self.0.remedy.push_str("; ");
+        self.0.remedy.push_str(remedy);
+        self
+    }
 }
 
 /// What the policy printed while the worker evaluated it. Captured from the
@@ -196,6 +205,26 @@ impl From<Refusal> for Failure {
 }
 
 impl Failure {
+    /// Preserve an earlier cancellation, or retain the superseded refusal's
+    /// full metadata and advice without labelling it as captured policy output.
+    pub fn cancelled_by(self, signal: Signal, source: &str) -> Self {
+        if self.refusal.signal.is_some() {
+            return self;
+        }
+        let Failure {
+            refusal,
+            diagnostics,
+        } = self;
+        let original = Failure::from(refusal).to_text();
+        Failure {
+            refusal: crate::cancellation::refusal(signal, source).report(
+                &format!("original failure:\n{original}"),
+                "retain the original failure details when retrying",
+            ),
+            diagnostics,
+        }
+    }
+
     pub fn with_diagnostics(refusal: Refusal, diagnostics: Diagnostics) -> Self {
         Failure {
             refusal,

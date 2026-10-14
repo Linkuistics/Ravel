@@ -4,8 +4,9 @@ The [completion specification](specs/result-job-completion.md#required-failure-s
 states the required corrections and one-session native launcher entry contract.
 This document holds source locations, proposed private enabling points and
 discriminating checks. C1 is now implemented with the
-[checked observations below](#c1-checked-observations); C2/C3/C4 and native entry
-remain required work. A design or rendered diagram establishes no runtime
+[C1 observations below](#c1-checked-observations). C2 admission and diagnostic
+preservation now have [checked observations](#c2-checked-observations);
+C3/C4 and native entry remain required work. A design or rendered diagram establishes no runtime
 conformance. The earlier
 [A0–A15 inventory and C1–C4](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 remain observations at fixed reference
@@ -16,7 +17,7 @@ remain observations at fixed reference
 | Gap / obligation | Current source evidence | Local repair and hidden decision |
 |---|---|---|
 | C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1217) samples at every final wait attempt and carries its first signal through `Failed.error`. [`supervise_reported`](../crates/keyed-launch/src/run.rs#L1177) composes that error with recovery reports. [`run`](../crates/ravel/src/run.rs#L32) reads the error observation before conversion even without an ending. | `LaunchError::consumed_signal()` retains numeric cancellation separately from message/errno. Front joins front, outcome, late and reports superseded errors. No global requeue, fabricated `Ended`, or failed-wait group assertion. Checked C1 evidence is below; actual checked reclaim remains C4. |
-| C2 / O2, O3, O9 | [`evaluate`](../crates/ravel/src/worker.rs#L316) stores the result of [`stop`](../crates/ravel/src/worker.rs#L873), then admits the successful conversation without checking it. [`evaluate_and_resolve`](../crates/ravel/src/choice.rs#L118) resolves only after evaluation returns. | Evaluator gates successful evaluation on confirmed teardown. Keep conversation judgment, bounded output, timeout and cancellation precedence; retain wait/removal errors as secondary operational diagnostics when a conversation already failed. |
+| C2 / O2, O3, O9 | [`evaluate`](../crates/ravel/src/worker.rs#L317) retains conversation and teardown reports, then checks confirmed wait and required removal before success. [`evaluate_and_resolve`](../crates/ravel/src/choice.rs#L118) resolves only after evaluation returns. | Evaluator gates successful evaluation on confirmed teardown. Keep conversation judgment, bounded output, timeout and cancellation precedence; retain wait/removal errors as secondary operational diagnostics when a conversation already failed. |
 | C3 / O9 | [`Confined::prepare`](../crates/ravel/src/confinement.rs#L28), [`SessionChannel::allocate`](../crates/ravel/src/completion.rs#L33) and worker preparation acquire a directory before later fallible work. Destruction alone reports no removal outcome. | Each allocator settles its local partial resource, returning original failure plus checked cleanup reports. Use the existing identity-protection rule of [`SessionChannel::cleanup`](../crates/ravel/src/completion.rs#L77); retain captured policy output separately. No new public filesystem abstraction. |
 | C4 / O8, O9 | [`hold_before_spawn`](../crates/keyed-launch/src/run.rs#L606) saves a lease; [`run_with_output`](../crates/keyed-launch/src/run.rs#L793) can hand foreground to the child before failed exec returns through `?`. [`reclaim`](../crates/keyed-launch/src/run.rs#L650) occurs only inside supervision and returns no checked outcome. | Runner keeps that lease through the spawn result and makes recovery reportable. Identify this attempt's group before handoff; preserve spawn errno while appending recovery failures. Keep existing delegated-foreground policy for successful launches. |
 | Native entry / O2, O7, O8 | [`record`](../crates/ravel/src/signal_state.rs#L66) runs before Rust startup; [`EntrySignals`](../crates/keyed-launch/src/run.rs#L429) supplies child state. Host handlers and ignored-SIGCHLD repair persist. | CLI lifetime owns host signal authority until exit. Capture before runtime changes; establish waitability before the worker as well as before the managed child; keep required mask/terminal cleanup and late joining. No arbitrary continuing-host restoration. |
@@ -110,9 +111,9 @@ its known faults. The required expected differences are: signal propagation
 with C1's no-ending error; refusal before resolution/launch in C2; original
 partial-acquisition error plus checked cleanup diagnostics in C3; and terminal
 recovery/reporting on C4. Normal cases retain their protected expectations.
-The current selection-cancellation wording claims worker reap even when wait
-is unconfirmed; change that wording only on the unconfirmed branch and retain
-the original cancellation classification/signal.
+The reference's selection-cancellation wording claimed worker reap even when
+wait was unconfirmed. C2 uses teardown-attempt wording for cancellation, timeout
+and overflow, retaining the existing cancellation classification/signal.
 
 The inventory also exposes unchecked handler/mask/terminal calls. In particular,
 runner SIGCHLD repair currently occurs **after** policy evaluation; it cannot
@@ -125,8 +126,8 @@ explicit rather than normalised away in a comparison.
 
 ## Discriminating checks
 
-These originated as construction/execution plans. C1's instruments and observed
-outcomes are now recorded below; the other rows remain plans. Expected outcomes
+These originated as construction/execution plans. C1/C2 instruments and observed
+outcomes are recorded below; C3/C4 and native-entry rows remain plans. Expected outcomes
 derive from O1–O10 and the agreements, held outside
 the repair under judgment at the fixed reference. First demonstrate each fault
 control fires against the unchanged behavior or a deliberate broken control;
@@ -159,8 +160,7 @@ No formal model was built. Error-carried observations can be represented by
 types, but source paths and the planned wait/PTY/failure controls answer whether
 the real operations and diagnostics meet the contract. A diagram is not a
 checked state machine and a model of those reports would not confirm an OS reap,
-entry mask or terminal recovery. Runtime checks outside the C1 observations
-below remain owed.
+entry mask or terminal recovery. Runtime checks outside the C1/C2 observations below remain owed.
 
 ## C1 checked observations
 
@@ -236,13 +236,79 @@ in the workspace run protect physical descendant cleanup, group-before-reap,
 terminal recovery and signal propagation; private error controls do not prove
 those syscalls failed in the real process.
 
-C2 worker admission, C3 partial cleanup, C4 checked terminal recovery/failed exec,
-and native entry transitions remain mandatory. Started remains spawn-reported
+The C2 observations below close the worker-admission slice. C3 partial cleanup,
+C4 checked terminal recovery/failed exec and native entry remain mandatory. Started remains spawn-reported
 success, not exec confirmation. C4's exclusive-lease/identity assumptions and
 the distinction from a returning host remain conditional. These local checks
 establish neither all OS failure behavior, cross-target qualification, final-write
 atomicity, independent adoption nor a component target. A failed final write may
 still have emitted its accepted existing prefix.
+
+## C2 checked observations
+
+The evaluator now closes its protocol endpoint, attempts worker stop/kill/wait,
+drains bounded policy diagnostics and explicitly closes its private directory
+before deciding admission. A judged success reaches resolution only after
+confirmed wait and successful required removal. Nonzero exit still confirms
+reap. Failed conversation classifications remain primary except cancellation;
+output overflow retains its existing precedence and keeps the original EOF,
+timeout or refusal as context. Cancellation retains first-signal precedence and
+superseded metadata/remedies. Operational reports name the worker/PID, operation,
+error and cleanup path; policy stdout/stderr remain separate bounded byte streams.
+Recovered operation reports travel through choice to the front's existing stderr
+reporting boundary without a new JSON schema field.
+
+The private test-only report transform runs after actual teardown/removal and
+before that production decision. Ignored subprocess roles exercise real
+`choose_prepared` and `run`, including `Selected` absence, missing-program 5
+rather than resolution's 127, absent start sentinel and empty product stdout.
+Input-receipt logs are explicitly excluded from cancellation-output assertions.
+A fake protocol worker provides readiness/protocol/EOF/nonzero controls; ordinary
+choices and complete sessions use the real compiled TypeScript worker. Physical
+wait status, PID, elapsed bound and directory removal precede each injected
+report. Fixture capture uses files and bounded polling; its timeout control
+confirms emergency kill and real reap. No public fault switch or owner-policy
+failure convention implements the report transform.
+
+The [measured receipts](worker-reap-admission-checks.txt) retain named per-case
+outcomes, before/after SHA-256 input manifests, commands and status. Long runs of
+identical `x` policy bytes use a reversible repetition notation, verified back
+to each raw log's digest. Every measured input manifest matched before/after.
+These manifests freeze tracked project sources/fixtures/configuration, Cargo.lock,
+Taskfile, scripts and task/spec expectations, plus the measurement wrapper.
+Generated binaries/caches, installed dependencies/tools and external runtime
+state are not frozen. The host is macOS arm64 with Bun 1.4.2 and nextest 0.9.148;
+this is not cross-target or native-entry qualification.
+
+| Instrument | Observation |
+|---|---|
+| `task test:list` with C2 filter | All 35 named parameter/instrument cases are listed. Two ignored subprocess roles are invoked by the controls. The mandated `test:session --list` form was rejected by nextest; the new reusable listing task uses `nextest list`. |
+| Additive-seam red, corrected fixture | Intended resolution/gate and lost-report assertions fail. An earlier unknown-settings fixture failure is recorded but earns no conformance evidence. |
+| Final gate-removal mutant | Missing-program resolution returns `program_not_found` instead of `worker_failed`. |
+| Final diagnostic-loss mutant | Original primary classification remains, but worker identity/secondary reports and cancellation output assertions fail. |
+| Reviewer-derived EOF/deadline + overflow + cancellation controls | Red loses original conversation information and claims stopping; corrected cases retain all metadata and use truthful attempt wording. |
+| Restored focused C2 | All 35 cases pass: nine success-gate combinations, refusal/deadline/protocol/EOF/overflow combinations, recovered poll, actual nonzero exit, INT/TERM/HUP/late/real-teardown cancellation, mixed conversation/overflow/cancellation, exact empty/Unicode/multiline sessions, and fixture deadline/reap. |
+| `task test:cli` | All 12 cases pass. Existing 11 assertions remain protected; the combined stdout/confined-cleanup stimulus now targets only the confined directory. A separate real-permission case verifies checked worker-removal refusal plus outer cleanup reports. |
+| Focused C1 runner/front | All 11 wait-event and four front controls pass, preserving first signal, original/secondary reports and no-ending settlement. |
+| `task check` | Formatting, scripts, worker build/probes, runtime integrity, types and lint pass; all 177 selected workspace tests pass, including real process/PTY cases. Sixteen ignored fixture roles remain outside direct selection. This supplies `task test`; no identical full rerun is needed. |
+
+One fresh reviewer returned three actionable findings: false timeout stop wording,
+blocking fixture capture/wait without an effective deadline, and original EOF/
+deadline loss under overflow. Each is corrected with a discriminating executable
+control; no second reviewer or architectural redesign was commissioned. An
+oversubscribed parallel C2/CLI run produced real pre-readiness timeouts and is
+not credited green. A scoped nextest scheduling reservation now prevents C2
+fixtures from competing within a run, without retries or deadline widening;
+subsequent measurements run sequentially. A mechanical Clippy warning was fixed
+before the successful workspace run. Sources restored after the final mutants
+match that workspace's measured product hashes; the focused rerun independently
+confirms every C2 item.
+
+C3 partial preparation/identity cleanup, C4 checked failed-exec/terminal recovery
+and native waitability/signal transitions remain owed. Inherited auto-reap,
+detached policy children, library panic and uncatchable death are not discharged
+by substituted reports. No complete failure-path conformance, extraction,
+independent adoption, migration or simplification gain follows.
 
 ## Evidence limits and remaining work
 

@@ -9,9 +9,11 @@ owns the protocol and [runtime evidence](../runtime-evidence.md) owns the observ
 
 That worker-before-job ordering remains required. The
 [acquisition evidence](../result-job-source-evidence.md#c2-worker-wait-error-does-not-gate-selection-success)
-shows a source path where successful conversation does not check the worker's
-teardown wait result. The decision is retained; this missing confirmation is
-failure-path conformance debt, not permission to overlap worker and job.
+records the original unchecked-wait path at its fixed reference. The evaluator
+now gates successful admission on confirmed worker reap and checked private-
+directory removal; [C2 evidence](../completion-failure-design-evidence.md#c2-checked-observations)
+records the private reported-failure controls and real-policy regressions.
+Partial acquisition and native waitability remain separate conformance work.
 
 Bun supplies TypeScript, imports and ordinary filesystem/network computation
 without Ravel maintaining a language runtime. Compilation removes a separately
