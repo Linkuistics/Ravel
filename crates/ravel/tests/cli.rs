@@ -73,7 +73,10 @@ fn two_verbs_help_version_and_no_compatibility_commands() {
         );
     }
     let version = fixture.command().arg("--version").output().unwrap();
-    assert_eq!(version.stdout, b"ravel 0.0.0\n");
+    assert_eq!(
+        version.stdout,
+        format!("ravel {}\n", env!("CARGO_PKG_VERSION")).into_bytes()
+    );
 }
 
 #[test]
