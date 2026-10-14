@@ -7,12 +7,15 @@ config:
     wrap: true
 ---
 sequenceDiagram
-  actor Caller as Native consumer / CLI
-  participant Owner as Completion owner (current front or proposed operation)
+  actor Caller as Caller
+  participant Owner as Current native front
   participant Pub as Managed program / publisher
   participant Runner as Job runner
   participant Transport as Result transport
-  Caller->>Owner: Exact argv/cwd and admitted execution choices
+  Caller->>Owner: Session request
+  Owner->>Owner: Retain selection guard and workspace
+  Note over Owner: Worker reap is a prerequisite, see acquisition limits
+  Owner->>Owner: Reserve stdout, child output uses stderr
   Owner->>Transport: Allocate fresh private channel
   Owner->>Runner: Launch own job with that channel
   Pub->>Transport: Write complete result, first no-clobber link wins
@@ -22,8 +25,8 @@ sequenceDiagram
   Runner-->>Owner: Own ending, status, appearance, group result
   Owner->>Transport: Validate anchored exact result using own ending
   Owner->>Owner: Attempt mask / channel / private / output cleanup
-  Note over Owner: Current front owns this order. Proposed transfer is G1, unresolved.
-  Owner->>Owner: Join front, runner, late cancellation, report all cleanup/group diagnostics
+  Note over Owner: Drop output and selection guard before joining latches
+  Owner->>Owner: Join cancellation, report cleanup/group diagnostics
   alt Cancel
     Owner-->>Caller: Cancellation, no result
   else Result error
@@ -33,6 +36,6 @@ sequenceDiagram
   else Live group
     Owner-->>Caller: Group failure, no result
   else Success
-    Owner-->>Caller: Exact result, including an explicitly empty value
-    Note over Caller: CLI writes only here, final write can still fail
+    Owner->>Owner: Write exact bytes and flush stdout, write can fail
+    Owner-->>Caller: Successful status only after write, empty result remains distinct
   end

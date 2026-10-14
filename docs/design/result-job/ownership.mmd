@@ -12,13 +12,15 @@ flowchart TB
     client["Consumer<br/>argv / cwd / admitted grants<br/>result meaning / final CLI write"]
     owner["Completion operation<br/>owns channel + own launch + cleanup + signals"]
     inside["Retained responsibilities inside operation<br/>transport and runner guarantees still required"]
-    gap["G1 / G3 unresolved<br/>partial acquisition and resource/signal ownership<br/>native entry / lifetime contract"]
+    gap["Known G1 / entry limits<br/>error can lose cancellation or reap evidence<br/>partial cleanup / failed-exec recovery / host restoration"]
     client -->|"one blocking operation; settled outcome · O4–O9"| owner
     owner -->|"internal association, observe, read, cleanup, settle"| inside
-    gap -.->|"required enabling contract; no guarantee yet"| owner
+    gap -.->|"complete settlement unsupported; no target selected"| owner
   end
   start -->|"current contract"| front
   start -->|"candidate contract"| client
+  %% Invisible layout constraint keeps the two views vertically readable.
+  runner ~~~ client
   classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
   classDef open fill:#fff2d6,color:#3e2c08,stroke:#ae791a,stroke-dasharray:5 4
   class start start

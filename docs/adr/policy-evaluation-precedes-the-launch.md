@@ -2,10 +2,16 @@
 
 Ravel uses a native Rust front and a matching installed Bun-compiled worker.
 The front retains caller environment, terminal and supervision authority, gives
-the worker a bounded request without completion authority, reaps it and only
-then starts the selected process. Owner policy never executes inside the process
+the worker a bounded request without completion authority, and requires its reap
+before the selected process starts. Owner policy never executes inside the process
 that supervises the session. The [specification](../specs/session-execution.md)
 owns the protocol and [runtime evidence](../runtime-evidence.md) owns the observations.
+
+That worker-before-job ordering remains required. The
+[acquisition evidence](../result-job-source-evidence.md#c2-worker-wait-error-does-not-gate-selection-success)
+shows a source path where successful conversation does not check the worker's
+teardown wait result. The decision is retained; this missing confirmation is
+failure-path conformance debt, not permission to overlap worker and job.
 
 Bun supplies TypeScript, imports and ordinary filesystem/network computation
 without Ravel maintaining a language runtime. Compilation removes a separately

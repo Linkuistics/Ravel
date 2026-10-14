@@ -55,6 +55,25 @@ spent frame without reopening full contracts or resetting comparison counts.
 Later comparative selection needs prospective funding with that history and
 G1–G5, not a fresh claim of completion.
 
+K6 derived the current acquisition inventory before extending the views. A
+successful `Selected` retains the live guard/source/prepared workspace and
+enables limited internal channel/job association. Complete settlement on every
+failure path is unsupported: source admits lost runner cancellation after a
+wait/reap error, unchecked worker reap before successful selection, unreported
+partial-directory cleanup and pre-exec handoff/failed-exec without reclaim.
+Direct native entry supplies child state but retains host handlers/SIGCHLD
+repair; the CLI's executable lifetime is distinct from a returning host.
+`docs/result-job-source-evidence.md` supplies exact evidence, scope limits and
+cheapest discriminating observations; the current completion spec, component
+guide, runner guide and views carry the qualified contract. These are source
+observations, with one fresh exception-path read, not observed runtime failures,
+an extraction, selected target or recurring improvement. No promise is waived.
+A human scope/funding continuation, `completion-failure-scope-k7`, precedes the
+book agreement to establish the failure-contract work and native lifetime needed
+for subsequent design.
+It must carry k4's frame/history and G2–G5/R-W debt rather than reopen comparison
+or implementation under this observation's source-only authority.
+
 `book-structure-k5` is the human structure agreement for the requested book for a
 developer new to this context. If k4 leaves consequential design uncertainty,
 place its precise continuation before that agreement. A supported target can

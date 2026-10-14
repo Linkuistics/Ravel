@@ -3,9 +3,14 @@
 The local runner puts its direct child in a new process group in the caller's
 session, and supervises the whole group. It gives the child the controlling
 terminal only when the caller owns that terminal's foreground; after termination
-it restores foreground ownership and saved modes. Entry signal masks/dispositions
+it owes recovery of foreground ownership and saved modes. Entry signal masks/dispositions
 are restored for the child, including ignores inherited by a transparent wrapper.
 Ravel uses this runner for the selected process, separately from policy evaluation.
+
+The [acquisition evidence](../result-job-source-evidence.md#c4-interactive-pre-exec-handoff-followed-by-exec-failure)
+identifies a conditional failed-exec path after foreground handoff that bypasses
+reclaim. The job and terminal obligations remain required; that path has not
+been runtime-tested in the source observation and is not a new accepted residue.
 
 A new session (setsid) was rejected for interactive children: it loses the caller's
 controlling terminal and cannot receive a foreground handoff. A process group is

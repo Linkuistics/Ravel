@@ -1,22 +1,27 @@
 {
   "title": "Who owns result-job completion?",
-  "intro": "Current source-supported obligations and an unselected regrouping proposal. Boxes denote in-process responsibilities, not packages or deployment containers. Graph views start at the dark Start here node; sequences start at their first message. Proposals and missing transfer knowledge are labelled explicitly. The completion spec carries the durable current contract; the Grove task carries comparison records and gaps.",
+  "intro": "Current nominal completion, acquisition failure limits and direct native entry, alongside the still-unselected regrouping. Boxes denote in-process responsibilities, not packages or deployment containers. Graph views start at the dark Start here node; sequences start at their first message. The textual source inventory defines stopping states A0–A15. Source-admitted counterexamples have not been runtime-tested; association is separate from complete settlement.",
   "groups": [
     {"id": "ownership", "title": "Completion ownership", "description": "Can a consumer receive a settled result without reconstructing the protocol?"},
-    {"id": "failure", "title": "Completion and failure", "description": "What must be joined before a result can escape?"}
+    {"id": "failure", "title": "Completion and failure", "description": "What must be joined before a result can escape, and what can an error discard?"},
+    {"id": "entry", "title": "Native entry and lifetime", "description": "Which signal and terminal decisions belong to a direct caller?"}
   ],
   "discussion": {
-    "title": "Signal and resource transfer decides the proposed boundary",
-    "status": "Closed undetermined; baseline retained, target and migration unselected",
-    "summary": "The funded baseline and regrouped I/C/W family was read, but the required comparison remains incomplete. A fresh source reviewer challenged partial-acquisition ownership and the direct native entry/lifetime contract. Result/job association alone does not settle these questions. A narrow current-source continuation precedes the book agreement; no product code or equivalence campaign was run.",
-    "diagramIds": ["ownership", "settlement"],
+    "title": "Association can transfer; complete settlement is unsupported",
+    "status": "Source observation complete; no target or migration selected",
+    "summary": "The inventory exposes consumed cancellation lost on a no-ending error, unchecked worker reap, destructor-only partial cleanup and failed-exec terminal recovery. Direct native calls retain host signal changes. One fresh source reviewer corroborated the first two and native restoration limits. A scope/funding agreement must precede repair or a reopened comparison; the book agreement stays later. No product code or behavioural campaign was run.",
+    "diagramIds": ["ownership", "settlement", "acquisition", "native-entry"],
     "updatedDiagrams": [
-      {"id": "ownership", "summary": "Marked partial-acquisition ownership and native entry/lifetime semantics as separate unresolved G1/G3 obligations."},
-      {"id": "settlement", "summary": "Corrected Mermaid participant syntax and wrapped labels; retained cleanup/signal joining, failure precedence and the separate final CLI write."}
+      {"id": "ownership", "summary": "Named concrete failure/native limits and stacked current and proposed views to fit the desktop document."},
+      {"id": "settlement", "summary": "Restricted the sequence to the current nominal front and showed output reservation and its final write boundary."},
+      {"id": "acquisition", "summary": "Added acquisition states and distinguished own Ended from supervision error with missing cancellation/reap facts."},
+      {"id": "native-entry", "summary": "Added child signal-state input, persistent host changes and the separate CLI guard lifetime."}
     ]
   },
   "diagrams": [
-    {"id": "ownership", "group": "ownership", "title": "Consumer pairing versus a completion owner", "source": "ownership.mmd", "caption": "B0 is source-supported at 0bdcb1f9ae24db5e9dd499308dd791744e908eb0; R-I/C/W are declared proposals. Solid arrows are calls/outcomes; dotted arrows are file appearance or a stated unmet transfer requirement. O4–O9 remain required inside any regroup. Configuration/worker/build O1–O3/O10 remain in the task's complete obligation map. Package/publication choices and external adoption are unresolved; human usefulness is unassessed."},
-    {"id": "settlement", "group": "failure", "title": "Publication, ending and cleanup join before return", "source": "settlement.mmd", "caption": "Representative current ordering projected onto one completion owner, with the proposed ownership transfer explicitly unresolved. Covers S1/S2/S5 and O4–O9; source run/settle establishes order and precedence. The managed program executes within the runner's job; start events and some appearance polls are omitted. Selection/worker ordering is a precondition, not a new managed-process overlap. This sequence neither enumerates all signal interleavings nor establishes candidate implementation preservation."}
+    {"id": "ownership", "group": "ownership", "title": "Consumer pairing versus a completion owner", "source": "ownership.mmd", "caption": "B0 nominal composition is source-supported at 0bdcb1f9ae24db5e9dd499308dd791744e908eb0, with acquisition counterexamples in the source inventory. R-I/C/W remain unselected proposals. Solid arrows are calls/outcomes; dotted arrows are file appearance or unmet transfer knowledge. O1–O10 remain required. No package, public reuse or recurring gain is selected."},
+    {"id": "settlement", "group": "failure", "title": "Publication, ending and cleanup join before return", "source": "settlement.mmd", "caption": "Nominal current front path when the runner returns its own Ended. Selection is shown without protocol internals; worker wait-error admission is a separate limit. Start events and appearance polls are omitted. Cleanup diagnostics and cancellation precedence apply to supplied observations. No-ending failures are covered by the acquisition view; this is not all-interleaving or runtime preservation evidence."},
+    {"id": "acquisition", "group": "failure", "title": "Acquisition and no-ending failure limits", "source": "acquisition.mmd", "caption": "A0–A15 refer to the textual source inventory in docs/result-job-source-evidence.md. This compact view aggregates stopping branches: early preparation refuses directly; selection failure explicitly removes the prepared workspace; partial allocator cleanup remains local. Solid arrows show control/outcomes, not ownership proof. Amber nodes mark source limits; no repair or alternative is selected."},
+    {"id": "native-entry", "group": "entry", "title": "Child entry state does not restore the host", "source": "native-entry.mmd", "caption": "Current runner changes and caller obligations, not a new native API. Solid arrows are call/lifetime order; the dotted edge compares CLI enabling points with native obligations. A process-lifetime supervisor can explicitly accept persistent dispositions; a returning host needs restoration. Neither arrangement is selected. Terminal recovery and syscall success still need the named runtime checks."}
   ]
 }

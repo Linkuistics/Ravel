@@ -1,0 +1,25 @@
+flowchart TB
+  start["Start here: front acquisition"]
+  prepare["A0–A2: request / workspace<br/>early refusal or local Drop"]
+  select["A3–A6: evaluate worker<br/>wait result unchecked on success"]
+  selected["Selected retains<br/>guard + source + workspace"]
+  acquire["A7–A10: output / channel<br/>errors join outer cleanup<br/>partial cleanup result missing"]
+  launch["A11: runner entry / spawn<br/>failed exec can skip reclaim"]
+  ending["A13: own Ended<br/>reap + group query + interruption"]
+  error["A12: error, no Ended<br/>consumed signal can be lost<br/>reap / group unknown"]
+  settle["A14–A15: cleanup and settle<br/>join available facts<br/>success reaches CLI write"]
+  start -->|"1. prepare"| prepare
+  prepare -->|"2. successful preparation"| select
+  select -->|"3. selection succeeds"| selected
+  selected -->|"4. acquire selected resources"| acquire
+  acquire -->|"5. transition permits launch"| launch
+  launch -->|"6a. successful supervision"| ending
+  launch -->|"6b. supervision fails"| error
+  acquire -->|"failure, no ending"| settle
+  launch -->|"entry / spawn failure"| settle
+  ending -->|"7a. read matching result"| settle
+  error -->|"7b. failure only; missing facts cannot be inferred"| settle
+  classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
+  classDef limit fill:#fff2d6,color:#3e2c08,stroke:#ae791a,stroke-dasharray:5 4
+  class start start
+  class select,error,launch limit

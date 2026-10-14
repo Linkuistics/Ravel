@@ -34,6 +34,36 @@ The implementation and detailed contracts live in
 [`src/lib.rs`](../crates/keyed-launch/src/lib.rs) and
 [`src/run.rs`](../crates/keyed-launch/src/run.rs).
 
+## Native entry and return
+
+The runner changes process-wide signal dispositions. It preserves ignores for
+its cancellation signals, replaces other TERM/HUP handlers, and also catches
+INT when no terminal exists or `Launch.transparent` is supplied. Those handlers
+persist after runner-core success or failure. An ignored SIGCHLD is repaired
+for watching the child and is not restored on return. Child `EntrySignals`
+are caller-supplied values applied before exec; they neither capture entry
+state nor restore the native host. Executable-entry transparency requires
+capture before runtime changes, while call-entry semantics need a separately
+declared capture instant.
+
+A native consumer must own the signal/terminal lifetime, choose transparency
+and terminal-INT policy, handle late cancellation between launches and establish
+any required host restoration. A process-lifetime supervisor can accept
+persistent changes explicitly; a returning host cannot infer restoration or
+concurrent safety from a synchronous call. Observers must return promptly and
+must not panic. Actual foreground ownership gates interactive terminal lending;
+confined launches instead use a new detached session.
+
+Successful `Ended` and failed supervision carry different knowledge. An error
+can lack confirmed reap/group absence and can lose an already-consumed
+interruption; a failed exec after pre-exec handoff can bypass terminal reclaim.
+Failure never licenses result success. The
+[source inventory](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
+states these conditional paths and checks still owed, and the
+[completion spec](specs/result-job-completion.md#acquisition-and-entry-limits)
+separates them from the CLI composition. They were not runtime-tested in that
+source observation and do not waive the existing job/session promises.
+
 ## Tests and authority
 
 The transferred suite exercises completion-channel isolation, stale channels,

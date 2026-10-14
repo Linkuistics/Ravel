@@ -4,7 +4,7 @@ set: [errexit, nounset, pipefail]
 
 tasks:
   docs:result-job:
-    desc: Serve the editable result-job boundary comparison on localhost (Mermaid needs network access)
+    desc: Serve editable result-job completion and native-entry views on localhost (Mermaid needs network access)
     vars:
       PORT: '{{.PORT | default "8774"}}'
     cmds:

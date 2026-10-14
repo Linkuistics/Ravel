@@ -119,7 +119,11 @@ promises is authorised by the component analysis.
 The [package/process overview](design/components/index.html#diagram-composition)
 separates in-process calls from IPC, configuration and filesystem observations.
 The following textual relations are the checkable meaning of its arrows.
-All are source-verified; only the named scenario outcomes were observed at runtime.
+These relations describe the inspected nominal composition; only the named
+scenario outcomes were observed at runtime. The
+[acquisition evidence](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
+qualifies failure-path discharge: worker reap is attempted but not checked
+before successful selection, and runner error returns can discard cancellation.
 
 | Relation | Kind and direction | Information/guarantee carried | Obligations |
 |---|---|---|---|
@@ -177,6 +181,16 @@ composition layer; it does not exercise every late-signal window of the CLI.
 `run` additionally joins front, runner and late runner latches, then passes the
 selected signal to `settle`.
 
+That join can use only available observations. If runner supervision consumes a
+signal and then fails before returning an ending, the error carries no consumed
+signal. The front can consequently report supervision failure without required
+signal propagation. The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
+also distinguishes destructor-only partial-directory cleanup, unchecked worker
+reap, and an interactive failed-exec path that bypasses terminal reclaim. These
+are source-admitted limits under O2/O7/O8/O9, not authorised changes to them or
+measured runtime failures. Ordinary selected-scope cleanup still runs on
+output/channel/launch failure without an ending.
+
 These participants have different local knowledge. The publisher knows only
 the inherited destination and whether publication succeeded. The runner knows
 channel appearance, child/group state and its signal latch, not result contents.
@@ -214,6 +228,12 @@ Uncatchable front death, same-user tampering and descendants leaving their group
 remain the accepted limits in the specification and ADRs. This manual local
 obligation replay checks the represented order and information; it is not a
 proof of all admissible interleavings.
+
+The [native-entry contract](specs/result-job-completion.md#acquisition-and-entry-limits)
+is separate: child entry-signal values do not restore a returning host's
+dispositions. Runner termination handlers and SIGCHLD repair persist; the CLI's
+selection guard restores its saved INT/TERM/HUP only. No native restoration or
+concurrent-embedding guarantee is inferred from the package boundary.
 
 ## An independent-change scenario
 
