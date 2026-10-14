@@ -83,3 +83,64 @@ separately and compare regrouping as well as splitting. Leave code unchanged
 in this increment. Keep the later human documentation-structure agreement and
 practical reader checkpoint in the continuation; upstream unfinished evaluation
 is a limit to report, not a reason to wait or a result to infer.
+
+## Decisions (running log)
+
+Investigation is bounded to 90 minutes of active investigation and three scoped
+traces: a successful CLI/real-policy/fake-program result round trip; cancellation
+of that composition with group cleanup; and an independent change to session
+completion semantics, following the result-channel and runner obligations.
+Ancillary source checks establish the scoped obligation map, not additional
+operation traces. This leaf selects no target architecture and changes no code.
+The clean starting reference is parent commit
+`0bdcb1f9` (`upstream-guidance-k2`); exact source evidence will use its full identity.
+
+The current explanation separates logical responsibilities from packaging:
+TypeScript executes unchanged owner policies; the native front retains authority
+and judges protocol data; `keyed-launch` supplies job mechanics within that same
+front process. No target-language or package decision follows from this finding.
+Durable explanation belongs in `docs/components.md`, linked from the existing
+guides; no new agreement-point spec or ADR is warranted by this observation.
+
+`task setup` and `task build` succeeded. The focused `task test:session` filter
+ran three cases: exact routed results, cancellation in selection/managed execution,
+and cancellation after publication. All passed (74 cases outside the filter).
+The source/manifests/scripts/configuration and front/worker subject manifest had
+identical before/after SHA-256 identity
+`c5be21debad205bd914bfaf71de19a086f79a542c757827620732df25f8d8d8d`.
+These observations support those cases on this host; they are not a full legacy,
+terminal, hostile-runtime or cross-platform verification.
+
+The human requests a book (user guide) about Ravel and its components, for a
+software developer with no background in this context. The root documentation
+goal now names that deliverable and audience. Domain teaching precedes internals;
+Rust/TypeScript familiarity and the actual viewing medium remain questions for
+the dedicated human book-structure agreement, not assumptions of this leaf.
+
+One fresh-context completion-contract reviewer found three source-backed
+documentation/scenario inaccuracies: definitive appearance observation order,
+mixing lower-layer fixture completion with CLI signal propagation, and omitted
+combined-error precedence. Each is valid and actionable, not a product defect.
+Corrections use the exact unchanged source and existing acceptance/unit seams;
+they change no target design. No second reviewer is materialised.
+
+The two existing settling unit cases for combined cancellation/result/cleanup
+failure and cancellation/group diagnostics passed after selecting the executable
+target correctly. The first library-only filter selected no cases and supplies
+no evidence. Production source and expectations remain unchanged.
+
+The first comparison is the result-bearing job's consumer protocol, because it
+crosses the required full-session path and constrains reuse of a capability
+inside `ravel`. Its explicit continuation is `result-job-boundary-k4`; the
+human book/structure agreement is `book-structure-k5`. Neither selects a package,
+runtime replacement or implementation/editorial tree. The root remains live.
+
+The obligation/source mapping and corrected diagram order were replayed against
+the named unchanged functions. Browser checks confirmed all three rendered views,
+a fresh composition deep link, and desktop/narrow-width navigation; narrow
+diagrams use readable horizontal panning. Dark appearance remains uninspected.
+The scoped mechanical check resolved 92 local links in nine documents and
+validated diagram manifest sources/IDs. These checks support source fidelity
+and delivery, not human comprehension. No new spec/ADR or tree review is needed
+for this current-contract explanation and bounded question; candidate judgment
+and the human book/reader agreements remain live continuations.

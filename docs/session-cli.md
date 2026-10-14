@@ -2,10 +2,14 @@
 
 Ravel's agreed extraction boundary is a **process manager and router**. This
 checkout builds the command front, compiled policy worker, local runner and
-[ephemeral result transport](session-channel.md) at 0.0.0. `task install` builds
+[ephemeral result transport](session-channel.md) together. `task install` builds
 and verifies an independent installed pair; `task smoke` uses a fresh prefix.
 The [executable specification](specs/session-execution.md) describes its policy,
 runtime, process and authority contracts.
+
+The [component guide](components.md) connects those promises to their owners,
+distinguishes packages from running processes, and follows result/cancellation
+through the actual composition.
 
 The public CLI has two verbs:
 

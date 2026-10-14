@@ -1,7 +1,7 @@
 # Ravel
 
-Ravel is a policy router and session process manager. The development front,
-compiled policy worker and local runner now build together at version 0.0.0.
+Ravel is a policy router and session process manager. The native front,
+compiled policy worker and local runner build together as one versioned tool.
 The installed pair includes its own runtime, generic SDK, examples and notices.
 It runs independently from a fresh prefix, directly or through a symlink.
 
@@ -10,6 +10,12 @@ The agreed public boundary is a process manager and router with two verbs:
 ending instructions; Ravel manages the process and returns the opaque supplied
 result. See [the session CLI contract](docs/session-cli.md). Persistence and
 historical migration are outside this scope.
+
+The [component contracts](docs/components.md) explain the logical responsibilities,
+why executable owner policy uses TypeScript, what each Rust package owns, and
+how a successful or cancelled session crosses those boundaries. Editable
+[package/process and lifecycle views](docs/design/components/README.md) accompany
+that explanation; run `task docs:components` to view them in a browser.
 
 The runner starts a caller-supplied program as a supervised job. It owns process
 groups, completion channels, cancellation, reaping, terminal recovery and optional
@@ -59,8 +65,7 @@ in this repository under `retired/actor-daemon-2026-10-12`.
 part of this tree. Its daemon sources, design documents and agent-state files are
 retired history.
 
-The extracted tool starts at 0.0.0; its first minor release will be 0.1.0.
-Release preparation and publication follow the runnable front/worker increment.
+Release preparation and publication use the matched front/worker layout.
 
 Unreleased three-target archives and installed glibc/CPU-floor checks are
 available through `task release:smoke`, with exact-manifest controls at

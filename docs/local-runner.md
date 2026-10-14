@@ -5,6 +5,8 @@ another project's Rust library, installation, task tree or policy worker. It is
 not published as a separate Rust package. Ravel composes it with its own
 command front and compiled policy evaluator. The private [session transport](session-channel.md) already composes
 this runner with a result-carrying completion file without changing its API.
+The [component guide](components.md#why-there-are-two-rust-packages) explains
+what the split hides and which composition obligations remain with Ravel.
 
 ## Boundary
 

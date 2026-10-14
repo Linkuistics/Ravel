@@ -9,6 +9,10 @@ read is 65,536 bytes, with 256 sources, a 1,048,576 byte protocol message and
 grants. See the [session CLI](session-cli.md) and
 [executable specification](specs/session-execution.md).
 
+For the reason configuration is executable TypeScript and how its worker is
+separated from session authority, see the
+[component guide](components.md#why-typescript-exists).
+
 The policy imports `ravel/sdk`. Its version string is the owner's label, not
 the executable version. `readChoice` uses `.ravel-choice` only when the policy
 calls it; Ravel does not choose a route from that file on its own. Caller kinds,

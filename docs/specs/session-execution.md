@@ -1,9 +1,13 @@
 # Session execution
 
-Ravel 0.0.0 is an independent policy router and process supervisor. Its public
+Ravel is an independent policy router and process supervisor. Its public
 boundary is [start-session and end-session](../session-cli.md). Caller prompts,
 result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable, not the retired daemon.
+
+The [component contracts](../components.md) explain the current responsibility,
+package and process map, with scoped source evidence and session traces. This
+specification remains the behavioural authority for that explanation.
 
 ## Installed boundary
 

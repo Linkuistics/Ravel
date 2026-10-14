@@ -1,0 +1,44 @@
+---
+config:
+  sequence:
+    actorMargin: 20
+    width: 100
+    diagramMarginX: 20
+    wrap: true
+---
+sequenceDiagram
+    actor Caller
+    participant Front as Native front
+    participant Worker as Policy worker
+    participant Runner as Job runner
+    participant Job as Managed job
+    participant Publisher as Publisher
+    participant File as Result file
+    Note over Front,Runner: Rust code in one process<br/>ravel and keyed-launch
+    Caller->>Front: Request and unchanged prompt (O1, O3)
+    Front->>Front: Admit settings, inputs and policy entry
+    Front->>Worker: Private spawn, admitted hello<br/>then request (O2)
+    Worker->>Worker: Import policy, report policy data
+    Worker-->>Front: Policy frame
+    Front->>Worker: Context/selection requests after judgment
+    Worker->>Worker: Optional loadContext, then select
+    Worker-->>Front: Context and selected-command data (O3)
+    Front->>Front: Judge, close socket<br/>wait, resolve executable
+    Note over Front,Job: R4 — managed spawn follows worker wait
+    Front->>Front: Reserve result output (O9)
+    Front->>File: Allocate private channel (O4, O5)
+    Front->>Front: Assemble channel, argv and signals
+    Front->>Runner: Run the paired launch (R5)
+    Runner->>Job: Spawn group<br/>job/terminal contract (O8)
+    Job->>Front: Ordinary output goes to stderr (O9)
+    Job->>Publisher: end-session RESULT
+    Publisher->>File: Complete temporary file<br/>no-clobber link (O5)
+    Publisher-->>Job: Publication succeeded
+    Job-->>Runner: Fixture exits 7
+    Runner->>Runner: Group cleanup before reap<br/>restore terminal<br/>confirm group (O6, O8)
+    Runner->>File: Record final appearance<br/>not contents
+    Runner-->>Front: Reaped ending, signalled, Group::Gone
+    Front->>File: Anchored exact read<br/>explicit close
+    Front->>Front: Restore output<br/>settle cleanup/signals (O7, O9)
+    Front-->>Caller: Exact opaque bytes, success (O6, O9)
+    Note over Runner,Job: Fixture does not force escalation<br/>running appearance polls are omitted

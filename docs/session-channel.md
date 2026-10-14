@@ -3,6 +3,8 @@
 The private `ravel` Rust package contains the session-result transport that the
 policy-routed command front uses. The
 [session CLI contract](session-cli.md) remains the full product boundary.
+The [component guide](components.md#composition-and-coordination) maps the
+transport's guarantees to runner and front obligations, including cancellation.
 
 `SessionChannel::allocate(parent)` creates a fresh private temporary directory
 beneath an existing caller-selected parent, then allocates a `keyed-launch`

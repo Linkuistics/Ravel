@@ -24,9 +24,10 @@ configuration and project.
 - Existing owner configuration continues to work unchanged, including
   TypeScript policies, SDK usage, settings, discovery and behaviour. CLI and
   session semantics remain compatible.
-- Documentation supports operating Ravel, authoring configuration, understanding
-  the architecture, following the code and using extracted components. Project
-  development and delivery instructions describe the resulting project.
+- A book (user guide) teaches Ravel and its components to a software developer
+  with no background in this context. It supports operating Ravel, authoring
+  configuration, understanding the architecture, following the code, using
+  extracted components and developing/delivering the resulting project.
 - The agreed acceptance checks establish compatibility, component contracts,
   complete-session behaviour and practical usability of the documentation.
 
@@ -34,10 +35,18 @@ configuration and project.
 
 `plan-k1` established the requirements, compatibility constraints and agreed
 acceptance seams. `upstream-guidance-k2` consumes pinned current upstream
-guidance with its limits. `component-contracts` is the next useful design
-increment: establish the current behavioural obligations and responsibility
-contracts, identify an evidenced entanglement, and frame the first bounded
-comparison. This intake selects no target architecture.
+guidance with its limits. `component-contracts-k3` establishes current behavioural
+obligations and responsibility contracts in `docs/components.md`, with scoped
+source/operation evidence and editable views. `result-job-boundary-k4` compares
+the consumer's joint result/ending/cleanup protocol against materially different
+arrangements, including the unchanged baseline and regrouping. It preselects no
+architecture. Its scenarios, preservation frame, improvement rows and numeric
+bounds live in that task.
+
+`book-structure-k5` is the human structure agreement for the requested book for a
+developer new to this context. If k4 leaves consequential design uncertainty,
+place its precise continuation before that agreement. A supported target can
+inform chapter planning; drafting/examples must use stable interfaces.
 
 The dependency order after that is a supported target and migration design,
 then independently useful working changes chosen from that design. Each
@@ -112,6 +121,14 @@ purpose and role of the TypeScript component explained. Documentation should
 expose the subject model and reasons for boundaries before asking readers to understand
 language-specific internals. Precise reader profiles and structure are part of
 the later documentation agreement.
+
+On 2026-10-14, during `component-contracts-k3`, the human specifies the
+documentation deliverable as a book (user guide) for a software developer with
+no background in this context. Teach the problem, vocabulary, actors and session
+lifecycle before configuration and implementation internals. Do not infer Rust,
+TypeScript or diagram proficiency from general development experience. The
+dedicated book-structure agreement settles those assumptions, chapter order,
+learning/direct entry routes, media and viewing environment before drafting.
 
 On 2026-10-14 the human changed the upstream prerequisite: extract usable
 guidance from the workstreams' current state instead of waiting for completion.

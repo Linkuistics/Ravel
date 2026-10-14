@@ -1,0 +1,36 @@
+{
+  "title": "Ravel's current component contracts",
+  "intro": "Source-grounded current composition, with scoped runtime observations; no target architecture is selected. Graph views start at the dark node labelled Start here. Sequences start at their first message. The linked component guide carries the obligation table and evidence; diagrams do not prove all interleavings.",
+  "groups": [
+    { "id": "composition", "title": "Packages and processes", "description": "Which responsibilities run together, and which relations cross a process or filesystem boundary?" },
+    { "id": "lifecycle", "title": "Session lifecycle", "description": "Who knows enough to return a result, and why does cancellation suppress it?" }
+  ],
+  "discussion": {
+    "title": "Who joins result publication with its own job ending and cleanup?",
+    "status": "Current contracts; comparison question proposed",
+    "summary": "The native front pairs the channel with the runner's ending, rejects cancellation and settles explicit cleanup before returning bytes. Compare that consumer obligation against different ownership/interface arrangements while retaining the current composition as baseline. Repository docs/components.md carries the textual contracts and source evidence.",
+    "diagramIds": ["composition", "success", "cancellation"],
+    "updatedDiagrams": [
+      { "id": "composition", "summary": "Added the current package/process map and distinct CLI, configuration, IPC, call and filesystem relations." },
+      { "id": "success", "summary": "Added the exact-result path and corrected the definitive appearance check to follow cleanup/reap." },
+      { "id": "cancellation", "summary": "Added CLI cancellation phases and separated the lower-layer fixture's successful test exit from CLI signal propagation." }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "composition", "group": "composition", "title": "Current packages, processes and result authority",
+      "source": "composition.mmd",
+      "caption": "Current composition at source commit 0bdcb1f9ae24db5e9dd499308dd791744e908eb0. Boxes distinguish files, processes and Rust library responsibilities; arrows are the textual R1–R8 relations in docs/components.md. Solid arrows are labelled interactions; dotted arrows are file observations. R4, R7 and build relation R8 are expanded in the guide/sequences rather than inferred from layout. Proposed ownership changes are not drawn. Human usefulness is unassessed."
+    },
+    {
+      "id": "success", "group": "lifecycle", "title": "A result returns only after the supervised ending and cleanup",
+      "source": "success.mmd",
+      "caption": "Current successful CLI/real-policy/fake-program trace; O1–O9 refer to the guide's obligation map. The exact-result test checks byte preservation, unchanged prompt, output separation and temporary cleanup. It does not force escalation. Optional appearance polls during execution are omitted; the definitive returned signalled field is computed after reap, terminal recovery and group confirmation. PTY recovery is not a runtime observation of this fixture. Build/install O10 stays in the guide. This is a representative ordering, not all possible executions."
+    },
+    {
+      "id": "cancellation", "group": "lifecycle", "title": "Cancellation suppresses even an already-published result",
+      "source": "cancellation.mmd",
+      "caption": "Current cancellation paths at the same source anchor. The CLI fixture checks TERM during selection and during managed execution. A separate transport/runner fixture checks publication before TERM; it does not cover every CLI late-signal window. All three named tests passed on the investigation host. Signal interleavings, confinement and PTY cases outside those fixtures remain checked by their existing seams, not by this drawing."
+    }
+  ]
+}
