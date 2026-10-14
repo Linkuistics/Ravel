@@ -147,6 +147,26 @@ and prices its subsequent complete repair from the remaining P/E before growth.
 C3 partial acquisition, C4 failed-exec/checked recovery and native entry remain
 mandatory. There is no reopened comparison, target, extraction or root completion.
 
+K11 completes the C2 planning as one evaluator-to-choice/front admission slice,
+`worker-reap-admission-k12`, before the book agreement. Actual worker stop/wait
+precedes the private reported-wait substitution; confirmed wait (including
+nonzero exit) and checked post-evaluation private-directory removal gate success.
+The fixed cases protect original refusal/deadline/protocol/output and cancellation
+precedence, operational reports, separately bounded policy output, and no
+resolution/Selected/managed start on failed admission. Narrow late-cancellation
+preservation in choice is included because its current override drops the
+original refusal. Partial preparation cleanup stays C3; no fault seam or runtime
+behavior was constructed/executed by this planning.
+K11 conservatively charges D≤10, RC=0, P=E=X=0 including closure/commit;
+correctness cumulative bounds are D≤60/RC≤20/P≤30/E≤5/X=0. Remaining
+D≤30 (20 reserved for phase closure), RC≤10/P≤210/E≤115/X=0.
+K12 prospectively allocates P≤50/E≤25/RC≤5, D=X=0 for the complete repair,
+controls, measured red/green and protected/workspace checks, evidence and closure.
+Full use would leave D≤30/RC≤5/P≤160/E≤90/X=0; allocations are not spend.
+K12 records actual charges and grows only the next precise supported continuation
+before the book, normally C3 planning from the unreserved D≤10. C4/native-entry
+work and the unchanged root/G2–G5/R-W debt remain; no parent completion is earned.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

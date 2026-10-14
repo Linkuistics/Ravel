@@ -90,3 +90,61 @@ entry, G4 unread alternatives, G5 unexecuted runtime domains and R-W compatible
 runtime/new-lifecycle debt. Root capability delivery, unchanged owner config and
 complete sessions, human book structure and the practical post-proof reader
 checkpoint remain required.
+
+## Decisions (running log)
+
+- The complete useful increment is evaluator teardown through choice/front
+  admission, with its private controls and evidence in one implementation leaf.
+  No helper-only or module-by-module stopping state is useful. Keep existing
+  stop/kill/wait and bounded capture order; require confirmed wait and checked
+  post-evaluation private-directory removal before success. Partial preparation
+  cleanup remains C3; native waitability and actual terminal recovery remain owed.
+- Tier 2 graph/source refresh at coverage generation `2026-10-14T06:08:15Z`
+  confirms `evaluate` ignores wait on success, `evaluate_and_resolve` resolves
+  only after evaluation, and `run` settles selection failure before launch.
+  Exact source also shows `choice::overruled` replaces the original refusal on
+  late cancellation. Therefore the C2 slice includes narrow preservation there,
+  not only the evaluator gate: original classification/source/bound/remedy and
+  all operational reports must survive late cancellation without contaminating
+  captured policy stdout/stderr. No general reporting/OS-wait redesign is needed.
+- K12 is prospectively allocated P≤50/E≤25/RC≤5 minutes, D=X=0, including
+  repair/control construction, fixed red/green checks, regressions, evidence,
+  coordination and retirement/commit. This reserves, rather than spends, P/E.
+  No new reviewer is commissioned for this planning leaf; RC=0 here. The current
+  D≤10 charge includes source/planning, tree verification and closure/commit.
+- Closure retains the incumbent contract and existing ADR choices; the local
+  reversible repair mandate does not earn a new ADR. No consequential new
+  architectural question or fresh review was needed. The root and k12 carry
+  conservative charged D≤60/RC≤20/P≤30/E≤5/X=0 and remaining D≤30 (20
+  reserved)/RC≤10/P≤210/E≤115/X=0. K12's prospective P≤50/E≤25/RC≤5 is not
+  spend; all remaining C3/C4/native and root/G2–G5/R-W obligations stay live.
+
+## Verification and stopping state
+
+`resolve` and `brief-chain` confirm k12 before the book and the unchanged root
+brief chain. The book's SHA-256 matches its parent-commit body through renumbering:
+`1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a`.
+`task --list-all` parsed the existing task entry points; no behavioral selector
+was run. The fresh bounded `jj diff --summary crates Taskfile.yml` is empty;
+the same diff instrument over `.grove` shows the intended task additions,
+log/root changes and book rename. Full task-tree diff was read. Direct validation
+passed task headers/sections/whitespace, book bytes/order, unchanged product/
+Taskfile and shared budget account. Unsupported `jj diff --check` was replaced
+with direct whitespace validation, not credited as a passing check.
+
+Source discovery used Tier 2 in the nearest graph project with exact snippets,
+completed evaluate both-direction pagination and direct choice/front/report/
+capture source reads. Coverage checked every relied-on source/task/spec/ADR/
+Taskfile/glossary path at generation `2026-10-14T06:08:15Z` with matching metadata
+and no recorded gaps. The changed/new task artifacts and renamed book also had
+matching metadata/no recorded gaps at generation `2026-10-14T06:10:38Z`, recorded
+06:13:08 UTC. This is a best-effort signal, not completeness proof. These source
+observations do not establish runtime failures or successful behavior.
+
+The useful stopping state is one precisely funded implementation/check mandate
+with fixed expectations and private-control/consumer boundaries. This session
+constructed no executable instrument, changed no product code and ran no
+behavioral checks (P=E=X=0). No live review declares k11 as its producer, so
+no provider receipt is written. K12 and the book remain live; root acceptance
+is incomplete, so no parent close or finish teardown is earned. D≤10/RC=0
+includes planning, verification, retirement and commit.
