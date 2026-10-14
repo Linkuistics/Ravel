@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Declare the two-verb public CLI stable: `ravel start-session` and
+  `ravel end-session RESULT`, with opaque caller-owned results, owner policy
+  routing and confinement behaving exactly as released in 0.1.0.
+- Commit to semantic versioning for that CLI: compatible changes arrive in minor
+  and patch releases; incompatible changes require a new major version.
+- Ship the same matching front and private worker, generic SDK/examples and
+  runtime notices as 0.1.0, with no source or behavior change.
+
 ## v0.1.0
 
 - Introduce the independent Ravel session process manager with `start-session`
