@@ -3,15 +3,16 @@ use std::fmt;
 /// Everything that can go wrong allocating a channel, spawning a child, or
 /// supervising one.
 ///
-/// **Opaque**: the message is the interface, and the type implements
-/// `std::error::Error` without imposing an error-handling dependency on its
-/// consumers.
+/// **Opaque**: the message describes the failure; errno and consumed
+/// cancellation are available through typed accessors. The type implements
+/// `std::error::Error` without imposing an error-handling dependency.
 ///
 /// Its obligation is to name what is wrong, name where, and name what would
 /// fix it.
 pub struct LaunchError {
     message: String,
     errno: Option<i32>,
+    consumed_signal: Option<i32>,
 }
 
 impl LaunchError {
@@ -19,6 +20,7 @@ impl LaunchError {
         Self {
             message: message.into(),
             errno: None,
+            consumed_signal: None,
         }
     }
 
@@ -36,6 +38,24 @@ impl LaunchError {
     #[must_use]
     pub fn raw_os_error(&self) -> Option<i32> {
         self.errno
+    }
+
+    /// The first cancellation consumed during supervision, even if waiting
+    /// subsequently failed. This does not establish reap or an ending.
+    #[must_use]
+    pub fn consumed_signal(&self) -> Option<i32> {
+        self.consumed_signal
+    }
+
+    pub(crate) fn with_consumed_signal(mut self, signal: Option<i32>) -> Self {
+        self.consumed_signal = self.consumed_signal.or(signal);
+        self
+    }
+
+    pub(crate) fn with_diagnostic(mut self, diagnostic: impl fmt::Display) -> Self {
+        use fmt::Write as _;
+        let _ = write!(self.message, "; {diagnostic}");
+        self
     }
 }
 

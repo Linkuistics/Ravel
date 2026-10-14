@@ -4,7 +4,11 @@ The current front has enough local information to associate a successfully
 allocated channel with its own selected launch and to attempt the explicit
 selected-scope cleanups. That is narrower than a completion owner that can
 settle **every** acquisition and failure path. Source-admitted paths lose a
-cancellation observation or do not establish a required prerequisite. A direct
+cancellation observation or do not establish a required prerequisite at the
+fixed reference inspected here. The later
+[C1 repair and checked observations](completion-failure-design-evidence.md#c1-checked-observations)
+retain cancellation across runner errors and no-ending front settlement; the
+inventory and counterexamples below remain reference evidence. A direct
 native runner call also retains changes to its host's signal dispositions.
 
 This record supports the [completion contract](specs/result-job-completion.md),

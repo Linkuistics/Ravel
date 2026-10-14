@@ -55,8 +55,13 @@ must not panic. Actual foreground ownership gates interactive terminal lending;
 confined launches instead use a new detached session.
 
 Successful `Ended` and failed supervision carry different knowledge. An error
-can lack confirmed reap/group absence and can lose an already-consumed
-interruption; a failed exec after pre-exec handoff can bypass terminal reclaim.
+can lack confirmed reap/group absence. `LaunchError::consumed_signal()` retains
+the first cancellation consumed during supervision, including observation or
+reap failure. It returns `None` for unrelated errors; `raw_os_error()` remains
+the primary spawn errno. Message/Debug retain original and secondary diagnostic
+text. The final wait attempt drains the signal latch before observation/recovery;
+a signal arriving after that sample remains the caller's late observation.
+A failed exec after pre-exec handoff can still bypass terminal reclaim.
 Failure never licenses result success. The
 [source inventory](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
 states these conditional paths and checks still owed, and the
@@ -71,7 +76,10 @@ recovery after failed exec, and explicit failure diagnostics. Its
 [entry contract](specs/result-job-completion.md#one-session-native-launcher-entry)
 requires capture before runtime changes and waitability before every child,
 including the policy worker. Those are design requirements with checks still
-owed; this source has not yet been repaired. A persistent runner has its own
+owed except for the checked C1 transfer described in the
+[repair evidence](completion-failure-design-evidence.md#c1-checked-observations).
+Its private recovery-report seam checks composition; production reclaim remains
+unchecked and actual recovery failure is still C4. A persistent runner has its own
 continuing-host contract, and no host-restoration or concurrency guarantee
 is established here.
 

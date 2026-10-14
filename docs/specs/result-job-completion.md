@@ -29,7 +29,8 @@ successfully published result; absence remains distinct from an empty value.
 For the CLI, successful settlement precedes the exact result write. Output
 reservation/restoration and confined-directory cleanup are part of that
 settlement. The front joins its selection/transition cancellation latch,
-the runner's interrupted ending and the runner's late latch, in that order.
+the runner outcome's consumed signal (ending or error) and the runner's late
+latch, in that order.
 The final write can still fail and can have written a prefix before failing. The
 [supervision decision](../adr/ravel-supervises-the-session.md) and
 [job decision](../adr/the-launched-child-is-a-job.md) explain the retained
@@ -45,15 +46,19 @@ even when no ending exists. These are existing ownership enabling points,
 not an implemented complete-operation interface.
 
 The [current-source acquisition inventory](../result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
-identifies the limits of that transfer. A cancellation consumed by the runner
-can be lost when supervision subsequently fails without an ending. A successful
+identifies the limits of that transfer at the fixed source reference. C1's
+error-carried cancellation and no-ending front transfer are now corrected and
+[checked](../completion-failure-design-evidence.md#c1-checked-observations).
+A successful
 policy conversation does not check the worker teardown wait result before
 returning selection. Partial directory acquisition returns no explicit removal
 result. An interactive pre-exec terminal handoff followed by exec failure can
 bypass terminal reclaim. These source-admitted cases prevent asserting complete
 settlement on every failure path. They do not relax the session specification's
 worker ordering, cancellation, cleanup or terminal promises, and have not been
-observed at runtime in this investigation.
+observed at runtime in that source-only investigation. C1's private injected
+reports and regression observations are recorded separately from those remaining
+source limits.
 
 Direct native entry is separate from the CLI's selected-scope transfer.
 Transparent entry state is supplied by the caller and applied to the child;
@@ -82,8 +87,9 @@ name the smallest missing premises and checks still owed.
 
 The following is the repair contract for the incumbent launcher, derived from
 the unchanged session promises and the agreed one-session consumer. It is a
-design for corrections, **not a claim that the current executable conforms**.
-The acquisition limits above still describe the inspected source. The
+contract for corrections, **not a claim of complete executable conformance**.
+C1 has checked evidence; the remaining acquisition/entry limits above still
+apply. The
 [repair evidence and check plan](../completion-failure-design-evidence.md)
 separate that source, proposed enabling points and checks not yet run.
 
@@ -292,7 +298,9 @@ first-writer publication, nesting, combined-failure precedence/diagnostics, late
 cancellation, descendant/group cleanup, reap, terminal recovery and final-write
 behavior. Private fault controls cannot become public CLI switches or an
 unbounded syscall abstraction. No behavioral instrument was built or executed
-for this design.
+for the original design. C1 now has the separate checked observations linked
+above; its recovery-report control does not establish actual checked terminal
+recovery.
 
 ## Boundary criterion
 

@@ -61,6 +61,11 @@ tasks:
     cmds:
       - cargo nextest run --locked -p ravel {{.CLI_ARGS}}
 
+  test:runner:
+    desc: Run focused local-runner checks (optional nextest arguments)
+    cmds:
+      - cargo nextest run --locked -p keyed-launch {{.CLI_ARGS}}
+
   check:
     desc: Check formatting, lint all targets and test the Rust workspace
     silent: true

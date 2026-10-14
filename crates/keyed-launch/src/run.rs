@@ -1158,13 +1158,30 @@ struct Failed {
 /// the launch reports about the child. Step 5 can only add whether anything
 /// survived it.
 fn supervise(
+    child: impl Process,
+    channel: Option<&Channel>,
+    escalation: Escalation,
+    mode: Mode,
+    observer: &mut dyn FnMut(LaunchEvent),
+    lend: impl FnMut(),
+    reclaim: impl FnOnce(Option<ExitStatus>),
+) -> Result<Ended, LaunchError> {
+    supervise_reported(child, channel, escalation, mode, observer, lend, |status| {
+        reclaim(status);
+        Ok(())
+    })
+}
+
+// Composition boundary only: the existing lease still performs unchecked
+// recovery. This accepts its report without claiming checked terminal syscalls.
+fn supervise_reported(
     mut child: impl Process,
     channel: Option<&Channel>,
     escalation: Escalation,
     mode: Mode,
     observer: &mut dyn FnMut(LaunchEvent),
     mut lend: impl FnMut(),
-    reclaim: impl FnOnce(Option<ExitStatus>),
+    reclaim: impl FnOnce(Option<ExitStatus>) -> Result<(), LaunchError>,
 ) -> Result<Ended, LaunchError> {
     match watch(&mut child, channel, escalation, mode, observer, &mut lend) {
         Ok(Watched {
@@ -1173,7 +1190,7 @@ fn supervise(
             escalated,
             elapsed,
         }) => {
-            reclaim(Some(status));
+            reclaim(Some(status)).map_err(|error| error.with_consumed_signal(interrupted))?;
             let group = child.confirm_gone();
             Ok(Ended {
                 end: match (interrupted, escalated) {
@@ -1188,8 +1205,11 @@ fn supervise(
             })
         }
         Err(Failed { error, status }) => {
-            reclaim(status);
-            Err(error)
+            let recovery = reclaim(status);
+            Err(match recovery {
+                Ok(()) => error,
+                Err(recovery) => error.with_diagnostic(recovery),
+            })
         }
     }
 }
@@ -1237,19 +1257,24 @@ fn watch(
                 // left to reap it. Ending it is the last thing this launch can
                 // still do correctly, so it does that before reporting.
                 child.signal(libc::SIGKILL);
-                let status = child.reap().ok();
+                let reaped = child.reap();
+                let at_reap = take_interrupt();
+                let interrupted = interrupted.or(at_reap);
+                let (status, report) = match reaped {
+                    Ok(status) => (Some(status), "reaped".to_owned()),
+                    Err(error) => (
+                        None,
+                        format!("could not be reaped — check for an orphaned process: {error}"),
+                    ),
+                };
                 if status.is_some() {
                     observer(LaunchEvent::Reaped);
                 }
                 return Err(Failed {
                     error: LaunchError::new(format!(
                         "cannot wait on the launched child: {error}; it has been sent SIGKILL and {}",
-                        if status.is_some() {
-                            "reaped"
-                        } else {
-                            "could not be reaped — check for an orphaned process"
-                        }
-                    )),
+                        report
+                    )).with_consumed_signal(interrupted),
                     status,
                 });
             }
@@ -1288,15 +1313,17 @@ fn watch(
     // the normal completion path, not a failure: the caller judges the work;
     // the runner reports channel appearance and process status separately.
     child.kill_group();
-    let status = child.reap().map_err(|error| Failed {
-        error: LaunchError::new(format!("cannot reap the exited child: {error}")),
-        status: None,
-    })?;
+    let reaped = child.reap();
     // Freeze the launch at the reap, before an observer, terminal recovery or
     // group confirmation can delay it. Later signals belong to the caller.
     let at_reap = take_interrupt();
     let elapsed = started.elapsed();
     let interrupted = interrupted.or(at_reap);
+    let status = reaped.map_err(|error| Failed {
+        error: LaunchError::new(format!("cannot reap the exited child: {error}"))
+            .with_consumed_signal(interrupted),
+        status: None,
+    })?;
     observer(LaunchEvent::Reaped);
     Ok(Watched {
         status,

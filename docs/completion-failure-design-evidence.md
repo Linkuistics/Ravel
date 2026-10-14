@@ -3,8 +3,10 @@
 The [completion specification](specs/result-job-completion.md#required-failure-settlement)
 states the required corrections and one-session native launcher entry contract.
 This document holds source locations, proposed private enabling points and
-discriminating checks. Product source is unchanged; a design and rendered
-diagram establish no runtime conformance. The earlier
+discriminating checks. C1 is now implemented with the
+[checked observations below](#c1-checked-observations); C2/C3/C4 and native entry
+remain required work. A design or rendered diagram establishes no runtime
+conformance. The earlier
 [A0–A15 inventory and C1–C4](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 remain observations at fixed reference
 `0bdcb1f9ae24db5e9dd499308dd791744e908eb0`.
@@ -13,7 +15,7 @@ remain observations at fixed reference
 
 | Gap / obligation | Current source evidence | Local repair and hidden decision |
 |---|---|---|
-| C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1197) consumes cancellation; both error exits lack it in [`Failed`](../crates/keyed-launch/src/run.rs#L1142). [`supervise`](../crates/keyed-launch/src/run.rs#L1160) returns only its error. [`run`](../crates/ravel/src/run.rs#L32) has no ending on that branch. | Runner retains its consumed signal in its existing opaque error, alongside the original message/errno. Front reads that observation before converting the error and uses it in the existing join. No global requeue or fabricated `Ended`. |
+| C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1217) samples at every final wait attempt and carries its first signal through `Failed.error`. [`supervise_reported`](../crates/keyed-launch/src/run.rs#L1177) composes that error with recovery reports. [`run`](../crates/ravel/src/run.rs#L32) reads the error observation before conversion even without an ending. | `LaunchError::consumed_signal()` retains numeric cancellation separately from message/errno. Front joins front, outcome, late and reports superseded errors. No global requeue, fabricated `Ended`, or failed-wait group assertion. Checked C1 evidence is below; actual checked reclaim remains C4. |
 | C2 / O2, O3, O9 | [`evaluate`](../crates/ravel/src/worker.rs#L316) stores the result of [`stop`](../crates/ravel/src/worker.rs#L873), then admits the successful conversation without checking it. [`evaluate_and_resolve`](../crates/ravel/src/choice.rs#L118) resolves only after evaluation returns. | Evaluator gates successful evaluation on confirmed teardown. Keep conversation judgment, bounded output, timeout and cancellation precedence; retain wait/removal errors as secondary operational diagnostics when a conversation already failed. |
 | C3 / O9 | [`Confined::prepare`](../crates/ravel/src/confinement.rs#L28), [`SessionChannel::allocate`](../crates/ravel/src/completion.rs#L33) and worker preparation acquire a directory before later fallible work. Destruction alone reports no removal outcome. | Each allocator settles its local partial resource, returning original failure plus checked cleanup reports. Use the existing identity-protection rule of [`SessionChannel::cleanup`](../crates/ravel/src/completion.rs#L77); retain captured policy output separately. No new public filesystem abstraction. |
 | C4 / O8, O9 | [`hold_before_spawn`](../crates/keyed-launch/src/run.rs#L606) saves a lease; [`run_with_output`](../crates/keyed-launch/src/run.rs#L793) can hand foreground to the child before failed exec returns through `?`. [`reclaim`](../crates/keyed-launch/src/run.rs#L650) occurs only inside supervision and returns no checked outcome. | Runner keeps that lease through the spawn result and makes recovery reportable. Identify this attempt's group before handoff; preserve spawn errno while appending recovery failures. Keep existing delegated-foreground policy for successful launches. |
@@ -33,7 +35,7 @@ Mermaid and changed/unindexed documents are read directly at closure.
 ## Choosing local corrections
 
 Three arrangements were considered for the error information, without reopening
-the component comparison. Retaining today's error/latch behavior fails C1/C2's
+the component comparison. Retaining the reference's error/latch behavior fails C1/C2's
 existing promises. Relatching a consumed runner signal avoids an error accessor
 but merges a completed operation's information with late arrival/global state;
 the caller can still lose which launch consumed it. A new complete-operation
@@ -123,8 +125,9 @@ explicit rather than normalised away in a comparison.
 
 ## Discriminating checks
 
-These are construction/execution plans, not instruments delivered by this
-design. Expected outcomes derive from O1–O10 and the agreements, held outside
+These originated as construction/execution plans. C1's instruments and observed
+outcomes are now recorded below; the other rows remain plans. Expected outcomes
+derive from O1–O10 and the agreements, held outside
 the repair under judgment at the fixed reference. First demonstrate each fault
 control fires against the unchanged behavior or a deliberate broken control;
 then exercise the repaired path. A test that simply uses its new helper to
@@ -156,7 +159,90 @@ No formal model was built. Error-carried observations can be represented by
 types, but source paths and the planned wait/PTY/failure controls answer whether
 the real operations and diagnostics meet the contract. A diagram is not a
 checked state machine and a model of those reports would not confirm an OS reap,
-entry mask or terminal recovery. Runtime checks remain owed.
+entry mask or terminal recovery. Runtime checks outside the C1 observations
+below remain owed.
+
+## C1 checked observations
+
+The incumbent now preserves runner-consumed cancellation across observation/reap
+errors and transfers it to front settlement without an ending. `LaunchError`
+stores the first numeric signal separately from its message and primary errno.
+Both final wait routes drain the latch before observers or recovery, preserving
+the earlier consumed signal. Emergency-wait error text remains beside the
+observation error. `supervise_reported` composes recovery reports with either
+watch outcome; production forwards its existing unit reclaim as successful.
+It does **not** detect real recovery syscall failures or implement C4.
+
+The front's production conversion passes message, errno and consumed-signal
+accessor values through `supervision_failure`, retaining the observation before
+converting the error. Both outcomes feed the same front/outcome/late join. The
+private front controls exercise that conversion and join before no-ending
+`settle`, using fixed numeric observations; the cross-crate accessor connection
+is source-checked, while injected `Process` controls check the error payload.
+They do not inject an actual OS wait failure through the public CLI. Cancellation
+reports the original failure and all available outer-cleanup reports through
+the existing stderr boundary, including JSON invocations. Captured policy output
+keeps its separate labels. Only successful settlement can reach the result write.
+
+The [measured receipts](cancellation-failure-transfer-checks.txt) retain every
+selected case status, successful parameter receipt, failed assertion and input
+digest. On `aarch64-apple-darwin`, Rust 1.99.0 and nextest 0.9.148, each full
+control run held all 138 tracked project source/input files fixed before/after.
+These are project input manifests, not a freeze of generated binaries, runtime
+caches or external dependency/tool installations. The initial narrow-manifest
+exploratory controls were superseded by those full runs. Evidence/tree prose was
+written after measurement; no behavior was edited while a run read its subjects.
+
+| Command / controlled break | Observed status and discrimination |
+|---|---|
+| `task test:runner CLI_ARGS="-E 'test(wait_events)' --no-fail-fast"`, erase signal attachment while retaining the accessor | Task 201 / nextest 100. Each observation/confirmed-reap, observation/failed-reap, final-reap, recovery-report and error-annotation test fails missing HUP; existing nominal controls still pass. |
+| `task test:runner CLI_ARGS="-E 'test(cancellation_survives_observation_failure) \| test(cancellation_survives_final_reap_failure)' --no-fail-fast"`, omit both final latch reads | Task 201 / nextest 100. All three routes fail with TERM still pending before observer or recovery. |
+| `task test:runner CLI_ARGS="-E 'test(cancellation_survives_observation_failure_with_failed_reap)'"`, discard emergency-wait text | Task 201 / nextest 100. The distinct emergency-wait diagnostic assertion fails. |
+| `task test:session CLI_ARGS="-E 'test(runner_error_conversion_joins)'"`, discard consumed signal in conversion | Task 201 / nextest 100. Retained HUP observation is absent. |
+| `task test:session CLI_ARGS="-E 'test(run::tests)' --no-fail-fast"`, discard superseded primary report | Task 201 / nextest 100. Original stdout failure and supervision diagnostics are missing; classification/success and group controls pass. |
+| Restore each correction; `task test:runner CLI_ARGS="-E 'test(wait_events)' --success-output immediate"` | Exit 0. All 11 cases pass, including every parameter case below and existing group/reap/recovery/duration/late-signal controls. |
+| `task test:session CLI_ARGS="-E 'test(run::tests)' --success-output immediate"` | Exit 0. All four cases pass, including precedence, diagnostics, 127/126/5, success and surviving-group controls. |
+| `task test:cli` | Exit 0. All 11 real-policy/fake-job cases pass, including configuration/settings/context, exact values, nesting/first-writer, cancellation/descendants and unwritable stdout/cleanup. |
+| `task check` | Exit 0. Formatting, shell checks, worker build/probes, runtime integrity, worker types and workspace lint pass; all 141 selected workspace tests pass. Fourteen ignored fixture roles remain outside direct selection. Its full-workspace nextest already supplies `task test`; no redundant full run was added. |
+
+The wait controls check each of three routes: failed observation with successful
+emergency reap, failed observation with failed emergency reap, and observed exit
+with failed final reap. **Every route** separately checks HUP/no second signal,
+HUP/TERM at reap, no earlier signal/TERM at reap, and neither signal. Returned
+signals are respectively HUP, HUP, TERM and absent. All preserve their original
+operation text, plus distinct emergency-wait text when present; recovery receives
+confirmed status only after successful reap. `Reaped` occurs only there. The
+trace asserts forward/poll/KILL/wait/recovery for uncertain observation and
+forward/poll/group-kill/wait/recovery after known exit, with `Reaped` inserted
+only for confirmed wait and no group-confirmation claim on error. Latches are
+serialized and drained before recovery; FakeProcess owns no real child.
+
+Recovery-report controls separately cover successful watch and each failed-watch
+route, both with and without HUP. The original wait error and reported recovery
+error remain together; HUP remains the outcome signal. TERM inserted only during
+recovery stays late in every case. No `Ended` or group confirmation is invented.
+Error annotations separately retain first HUP, primary ENOENT and secondary text;
+unrelated EACCES errors carry no cancellation.
+
+Front no-ending controls check INT/HUP/TERM → INT, absent/HUP/TERM → HUP,
+absent/absent/TERM → TERM, and all absent → original supervision failure 5.
+Cancellation preserves original observation, emergency-wait and recovery text,
+plus each mask/channel/private-directory/output cleanup report. The same refusal
+serializes its signal for JSON; reports use the shared stderr boundary. Missing
+executable, other failed start and post-start error controls retain 127, 126 and
+5 with exec stage and original code/message. Ordinary successful settlement
+preserves empty, Unicode and multiline bytes. Existing real-process/PTY cases
+in the workspace run protect physical descendant cleanup, group-before-reap,
+terminal recovery and signal propagation; private error controls do not prove
+those syscalls failed in the real process.
+
+C2 worker admission, C3 partial cleanup, C4 checked terminal recovery/failed exec,
+and native entry transitions remain mandatory. Started remains spawn-reported
+success, not exec confirmation. C4's exclusive-lease/identity assumptions and
+the distinction from a returning host remain conditional. These local checks
+establish neither all OS failure behavior, cross-target qualification, final-write
+atomicity, independent adoption nor a component target. A failed final write may
+still have emitted its accepted existing prefix.
 
 ## Evidence limits and remaining work
 

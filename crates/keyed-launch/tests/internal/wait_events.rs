@@ -367,3 +367,170 @@ fn the_reap_sample_drains_a_second_cancellation() {
     );
     assert_eq!(late, None);
 }
+
+// Dropping the failure observation, skipping its final sample, or emitting a
+// Reaped/group fact without a wait receipt violates these fixed expectations.
+#[test]
+fn cancellation_survives_observation_failure_with_confirmed_reap() {
+    check_wait_failure(true, false);
+}
+
+#[test]
+fn cancellation_survives_observation_failure_with_failed_reap() {
+    check_wait_failure(true, true);
+}
+
+#[test]
+fn cancellation_survives_final_reap_failure() {
+    check_wait_failure(false, true);
+}
+
+fn check_wait_failure(poll_failed: bool, reap_failed: bool) {
+    let _serial = serial();
+    for (early, at_reap, expected) in [
+        (Some(libc::SIGHUP), None, Some(libc::SIGHUP)),
+        (Some(libc::SIGHUP), Some(libc::SIGTERM), Some(libc::SIGHUP)),
+        (None, Some(libc::SIGTERM), Some(libc::SIGTERM)),
+        (None, None, None),
+    ] {
+        let trace = Trace::default();
+        let status = ExitStatus::from_raw(0);
+        let child = FakeProcess {
+            polls: vec![if poll_failed {
+                Err(std::io::Error::other("original observation failure"))
+            } else {
+                Ok(true)
+            }]
+            .into(),
+            reaps: vec![if reap_failed {
+                Err(std::io::Error::other("distinct emergency wait failure"))
+            } else {
+                Ok(status)
+            }]
+            .into(),
+            group: Group::Gone,
+            trace: trace.clone(),
+            signal_at_reap: at_reap,
+        };
+        INTERRUPTED_BY.store(early.unwrap_or(0), Ordering::Relaxed);
+        let recovered = RefCell::new(None);
+        let error = supervise(
+            child,
+            None,
+            NO_WAIT,
+            Mode::Interactive,
+            &mut |_| {
+                assert_eq!(take_interrupt(), None, "sample before observer");
+                trace.borrow_mut().push("reaped");
+            },
+            || {},
+            |receipt| {
+                assert_eq!(take_interrupt(), None, "sample before recovery");
+                trace.borrow_mut().push("recover");
+                *recovered.borrow_mut() = Some(receipt);
+            },
+        )
+        .unwrap_err();
+        let late = take_interrupt(); // Keep the latch clean even on assertion failure.
+        assert_eq!(
+            error.consumed_signal(),
+            expected,
+            "poll={poll_failed}, reap={reap_failed}"
+        );
+        assert_eq!(late, None);
+        let message = error.to_string();
+        if poll_failed {
+            assert!(message.contains("original observation failure"));
+        }
+        if reap_failed {
+            assert!(message.contains("distinct emergency wait failure"));
+        }
+        assert_eq!(
+            recovered.into_inner(),
+            Some((!reap_failed).then_some(status))
+        );
+        let mut want = Vec::new();
+        if early.is_some() {
+            want.push("forward");
+        }
+        want.extend([
+            "poll",
+            if poll_failed { "kill" } else { "kill-group" },
+            "wait",
+        ]);
+        if !reap_failed {
+            want.push("reaped");
+        }
+        want.push("recover");
+        assert_eq!(*trace.borrow(), want);
+        assert_eq!(error.raw_os_error(), None);
+        eprintln!("checked poll_failed={poll_failed} reap_failed={reap_failed} early={early:?} at_reap={at_reap:?} retained={expected:?}; diagnostics, receipt, ordering and drained latch asserted");
+    }
+}
+
+#[test]
+fn cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate() {
+    let _serial = serial();
+    for (failed_watch, failed_reap) in [(false, false), (true, false), (true, true), (false, true)]
+    {
+        for early in [None, Some(libc::SIGHUP)] {
+            let trace = Trace::default();
+            let child = FakeProcess {
+                polls: vec![if failed_watch { failed() } else { Ok(true) }].into(),
+                reaps: vec![if failed_reap {
+                    failed()
+                } else {
+                    Ok(ExitStatus::from_raw(0))
+                }]
+                .into(),
+                group: Group::Gone,
+                trace: trace.clone(),
+                signal_at_reap: None,
+            };
+            INTERRUPTED_BY.store(early.unwrap_or(0), Ordering::Relaxed);
+            let error = supervise_reported(
+                child,
+                None,
+                NO_WAIT,
+                Mode::Interactive,
+                &mut |_| trace.borrow_mut().push("reaped"),
+                || {},
+                |status| {
+                    assert_eq!(status.is_some(), !failed_reap);
+                    trace.borrow_mut().push("recover");
+                    INTERRUPTED_BY.store(libc::SIGTERM, Ordering::Relaxed);
+                    Err(LaunchError::new("reported terminal recovery failure"))
+                },
+            )
+            .unwrap_err();
+            let late = take_interrupt();
+            assert_eq!(error.consumed_signal(), early);
+            assert_eq!(late, Some(libc::SIGTERM));
+            assert!(error
+                .to_string()
+                .contains("reported terminal recovery failure"));
+            if failed_watch {
+                assert!(error.to_string().contains("injected wait failure"));
+            }
+            assert!(!trace.borrow().contains(&"confirm"));
+            assert_eq!(trace.borrow().last(), Some(&"recover"));
+            assert_eq!(trace.borrow().contains(&"reaped"), !failed_reap);
+            eprintln!("checked reported recovery error: observation_failed={failed_watch} reap_failed={failed_reap} early={early:?}; retained observation and late TERM asserted");
+        }
+    }
+}
+
+#[test]
+fn error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics() {
+    let error = LaunchError::new("original spawn failure")
+        .with_errno(Some(libc::ENOENT))
+        .with_consumed_signal(Some(libc::SIGHUP))
+        .with_diagnostic("secondary recovery failure")
+        .with_consumed_signal(Some(libc::SIGTERM));
+    assert_eq!(error.consumed_signal(), Some(libc::SIGHUP));
+    assert_eq!(error.raw_os_error(), Some(libc::ENOENT));
+    assert!(error.to_string().contains("original spawn failure"));
+    assert!(format!("{error:?}").contains("secondary recovery failure"));
+    let unrelated = LaunchError::new("ordinary failure").with_errno(Some(libc::EACCES));
+    assert_eq!(unrelated.consumed_signal(), None);
+}

@@ -12,7 +12,7 @@ flowchart TB
     client["Consumer<br/>argv / cwd / admitted grants<br/>result meaning / final CLI write"]
     owner["Completion operation<br/>owns channel + own launch + cleanup + signals"]
     inside["Retained responsibilities inside operation<br/>transport and runner guarantees still required"]
-    gap["Known G1 / entry limits<br/>error can lose cancellation or reap evidence<br/>partial cleanup / failed-exec recovery / host restoration"]
+    gap["Known G1 / entry limits<br/>error need not confirm reap / group absence<br/>partial cleanup / failed-exec recovery / host restoration"]
     client -->|"one blocking operation; settled outcome · O4–O9"| owner
     owner -->|"internal association, observe, read, cleanup, settle"| inside
     gap -.->|"complete settlement unsupported; no target selected"| owner

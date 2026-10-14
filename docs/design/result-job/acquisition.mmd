@@ -6,7 +6,7 @@ flowchart TB
   acquire["A7–A10: output / channel<br/>errors join outer cleanup<br/>partial cleanup result missing"]
   launch["A11: runner entry / spawn<br/>failed exec can skip reclaim"]
   ending["A13: own Ended<br/>reap + group query + interruption"]
-  error["A12: error, no Ended<br/>consumed signal can be lost<br/>reap / group unknown"]
+  error["A12: error, no Ended<br/>consumed signal retained (C1)<br/>reap / group can be unknown"]
   settle["A14–A15: cleanup and settle<br/>join available facts<br/>success reaches CLI write"]
   start -->|"1. prepare"| prepare
   prepare -->|"2. successful preparation"| select

@@ -129,6 +129,24 @@ precise failure-work continuation before the book agreement, normally C2
 planning. Worker admission, partial cleanup, checked terminal/failed-exec
 recovery and native-entry checks are still required. K4/K6 history and the
 G2–G5/R-W debt above remain unchanged; no target, extraction or gain follows.
+K10 corrects and checks C1 on the incumbent: consumed runner cancellation crosses
+observation/reap errors and reaches no-ending front settlement, with original
+and secondary diagnostics. `docs/completion-failure-design-evidence.md` and its
+linked measured receipts separate private reported failures from real-process
+regressions. All fixed private cases and CLI/workspace checks passed; actual
+checked terminal recovery remains C4. K10 conservatively charges P≤30/E≤5/RC≤5
+minutes including source/tests/evidence, one reviewer, tree/retirement/commit;
+no new D/X spend. Correctness cumulative charged bounds are now
+D≤50/RC≤20/P≤30/E≤5/X=0, leaving D≤40 (20 reserved for phase closure), RC≤10,
+P≤210/E≤115/X=0. The unused portion of k10's allocation is not fictional spend.
+
+`worker-reap-admission-k11` is the next precise planning continuation before the
+book: gate selection success on confirmed policy-worker reap and retain original
+failure plus teardown/cleanup/policy diagnostics. It has D≤10/RC≤5, P=E=X=0,
+and prices its subsequent complete repair from the remaining P/E before growth.
+C3 partial acquisition, C4 failed-exec/checked recovery and native entry remain
+mandatory. There is no reopened comparison, target, extraction or root completion.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

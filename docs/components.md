@@ -123,7 +123,9 @@ These relations describe the inspected nominal composition; only the named
 scenario outcomes were observed at runtime. The
 [acquisition evidence](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
 qualifies failure-path discharge: worker reap is attempted but not checked
-before successful selection, and runner error returns can discard cancellation.
+before successful selection. Runner errors now retain consumed cancellation;
+the [C1 checks](completion-failure-design-evidence.md#c1-checked-observations)
+cover its no-ending transfer without establishing all failure-path guarantees.
 
 | Relation | Kind and direction | Information/guarantee carried | Obligations |
 |---|---|---|---|
@@ -181,10 +183,13 @@ composition layer; it does not exercise every late-signal window of the CLI.
 `run` additionally joins front, runner and late runner latches, then passes the
 selected signal to `settle`.
 
-That join can use only available observations. If runner supervision consumes a
-signal and then fails before returning an ending, the error carries no consumed
-signal. The front can consequently report supervision failure without required
-signal propagation. The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
+That join includes `LaunchError::consumed_signal()` when supervision fails
+without an ending. The first runner-consumed signal survives observation/reap
+failure, and the front reads it before converting the error. Cancellation also
+reports the original operational error and all supplied cleanup diagnostics.
+The [C1 evidence](completion-failure-design-evidence.md#c1-checked-observations)
+records injected failure controls and the checked regressions.
+The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 also distinguishes destructor-only partial-directory cleanup, unchecked worker
 reap, and an interactive failed-exec path that bypasses terminal reclaim. These
 are source-admitted limits under O2/O7/O8/O9, not authorised changes to them or
@@ -195,8 +200,8 @@ The [failure repair contract](specs/result-job-completion.md#required-failure-se
 now assigns each correction to its existing resource owner and retains original
 failure/cancellation precedence plus secondary diagnostics. The
 [discriminating checks](completion-failure-design-evidence.md#discriminating-checks)
-remain construction/execution plans; they have not changed these current-source
-limits or selected a component arrangement.
+remain plans for C2/C3/C4 and native entry. C1's checked transfer changes its
+current-source limit; it selects no component arrangement.
 
 These participants have different local knowledge. The publisher knows only
 the inherited destination and whether publication succeeded. The runner knows
@@ -208,8 +213,10 @@ joins those observations. A readable file alone is insufficient evidence.
 
 ### Error and signal precedence
 
-`run` takes the front's latched signal first, then the runner's interrupted
-ending, then a late runner signal. `settle` reports every supplied cleanup error
+`run` takes the front's latched signal first, then the runner outcome's consumed
+signal (interrupted ending or error), then a late runner signal. When cancellation
+supersedes a failure, `settle` first reports that original failure, keeping policy
+output separately labelled. It reports every supplied cleanup error
 and any surviving-group diagnostic before selecting the primary outcome.
 Cancellation wins over result and cleanup failures. Without cancellation, an
 existing result failure stays primary; with an otherwise successful result, the

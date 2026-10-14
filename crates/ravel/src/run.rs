@@ -70,6 +70,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     let mut channel = None;
     let mut output = None;
     let mut ended = None;
+    let mut runner_signal = None;
     // Every path through this closure joins explicit cleanup below, including
     // allocation/reservation failures and cancellation before runner startup.
     let result = (|| -> Result<String, Failure> {
@@ -168,21 +169,19 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             None => keyed_launch::run_observed(launch, &mut observe),
         };
         let supervision = supervised.map_err(|error| {
-            let exit = if started {
-                EXIT_WORKER
-            } else if error.raw_os_error() == Some(libc::ENOENT) {
-                127
-            } else {
-                126
-            };
-            Refusal::new(
-                "supervision_failed",
-                Stage::Exec,
-                exit,
+            let (failure, observed) = supervision_failure(
                 error.to_string(),
-                "check the selected program and its execution environment",
-            )
+                error.raw_os_error(),
+                error.consumed_signal(),
+                started,
+            );
+            runner_signal = observed;
+            failure
         })?;
+        runner_signal = match supervision.end {
+            End::Interrupted { signal } => crate::cancellation::Signal::of(signal),
+            _ => None,
+        };
         let ending = ended.insert(supervision);
         let result = allocated
             .result_after(ending)
@@ -223,14 +222,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     });
     drop(output);
     drop(handlers);
-    let runner_signal = ended.as_ref().and_then(|ended| match ended.end {
-        End::Interrupted { signal } => crate::cancellation::Signal::of(signal),
-        _ => None,
-    });
     let late_signal = keyed_launch::take_interrupt().and_then(crate::cancellation::Signal::of);
-    let signal = crate::cancellation::received()
-        .or(runner_signal)
-        .or(late_signal);
+    let signal = join_cancellation(crate::cancellation::received(), runner_signal, late_signal);
     let result = settle(
         result,
         ended.as_ref(),
@@ -246,6 +239,41 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     Ok(())
 }
 
+// Keep runner outcome data before converting its opaque error. The numeric
+// fields are the runner's accessors; tests exercise this same conversion.
+fn supervision_failure(
+    message: String,
+    errno: Option<i32>,
+    consumed_signal: Option<i32>,
+    started: bool,
+) -> (Refusal, Option<crate::cancellation::Signal>) {
+    let exit = if started {
+        EXIT_WORKER
+    } else if errno == Some(libc::ENOENT) {
+        127
+    } else {
+        126
+    };
+    (
+        Refusal::new(
+            "supervision_failed",
+            Stage::Exec,
+            exit,
+            message,
+            "check the selected program and its execution environment",
+        ),
+        consumed_signal.and_then(crate::cancellation::Signal::of),
+    )
+}
+
+fn join_cancellation(
+    front: Option<crate::cancellation::Signal>,
+    outcome: Option<crate::cancellation::Signal>,
+    late: Option<crate::cancellation::Signal>,
+) -> Option<crate::cancellation::Signal> {
+    front.or(outcome).or(late)
+}
+
 /// Report all cleanup/group failures before selecting cancellation or an error.
 fn settle(
     result: Result<String, Failure>,
@@ -255,6 +283,11 @@ fn settle(
     source: &str,
     diagnostics: &mut dyn io::Write,
 ) -> Result<String, Failure> {
+    if signal.is_some() {
+        if let Err(error) = &result {
+            let _ = diagnostics.write_all(error.to_text().as_bytes());
+        }
+    }
     for error in cleanups.iter().filter_map(|cleanup| cleanup.as_ref().err()) {
         let _ = writeln!(diagnostics, "ravel: {}", error.message);
     }
@@ -365,7 +398,13 @@ mod tests {
         let signal = Signal::of(libc::SIGTERM).unwrap();
         let mut diagnostics = Vec::new();
         let result = settle(
-            Err(failed("output_unavailable", "stdout is closed").into()),
+            Err(Failure::with_diagnostics(
+                failed("output_unavailable", "stdout is closed"),
+                crate::refusal::Diagnostics {
+                    stdout: b"owner note".to_vec(),
+                    stderr: b"owner warning".to_vec(),
+                },
+            )),
             None,
             vec![
                 Err(failed("cleanup", "channel cannot be removed")),
@@ -380,6 +419,9 @@ mod tests {
         let diagnostics = String::from_utf8(diagnostics).unwrap();
         assert!(diagnostics.contains("channel cannot be removed"));
         assert!(diagnostics.contains("sandbox cannot be removed"));
+        assert!(diagnostics.contains("stdout is closed"));
+        assert!(diagnostics.contains("policy stdout: owner note"));
+        assert!(diagnostics.contains("policy stderr: owner warning"));
     }
 
     #[test]
@@ -405,5 +447,133 @@ mod tests {
         .unwrap_err();
         assert_eq!(result.refusal.signal.unwrap().name(), "SIGTERM");
         assert!(String::from_utf8(diagnostics).unwrap().contains("12345"));
+    }
+
+    // Erasing the consumed signal during conversion, changing join order, or
+    // dropping the primary error when cancellation wins must fail these cases.
+    #[test]
+    fn runner_error_conversion_joins_cancellation_before_no_ending_settlement() {
+        for (front, runner, late, want) in [
+            (
+                Some(libc::SIGINT),
+                Some(libc::SIGHUP),
+                Some(libc::SIGTERM),
+                Some(libc::SIGINT),
+            ),
+            (
+                None,
+                Some(libc::SIGHUP),
+                Some(libc::SIGTERM),
+                Some(libc::SIGHUP),
+            ),
+            (None, None, Some(libc::SIGTERM), Some(libc::SIGTERM)),
+            (None, None, None, None),
+        ] {
+            let (failure, observed) = supervision_failure(
+                "original observation failure; distinct emergency wait failure; reported recovery failure".into(),
+                None, runner, true,
+            );
+            assert_eq!(observed, runner.and_then(Signal::of));
+            let joined = join_cancellation(
+                front.and_then(Signal::of),
+                observed,
+                late.and_then(Signal::of),
+            );
+            let mut diagnostics = Vec::new();
+            let result = settle(
+                Err(failure.into()),
+                None,
+                vec![
+                    Err(failed("cleanup", "mask restore failure")),
+                    Err(failed("cleanup", "channel close failure")),
+                    Err(failed("cleanup", "private directory removal failure")),
+                    Err(failed("cleanup", "output restore failure")),
+                ],
+                joined,
+                "policy.ts",
+                &mut diagnostics,
+            )
+            .unwrap_err();
+            assert_eq!(result.refusal.signal, want.and_then(Signal::of));
+            assert_eq!(result.refusal.stage, Stage::Exec);
+            let text = String::from_utf8(diagnostics).unwrap();
+            for report in [
+                "mask restore failure",
+                "channel close failure",
+                "private directory removal failure",
+                "output restore failure",
+            ] {
+                assert!(text.contains(report));
+            }
+            if want.is_some() {
+                for report in [
+                    "original observation failure",
+                    "distinct emergency wait failure",
+                    "reported recovery failure",
+                ] {
+                    assert!(text.contains(report));
+                }
+                assert_eq!(result.refusal.code, "session_cancelled");
+                assert_eq!(
+                    result.to_json()["error"]["signal"],
+                    want.and_then(Signal::of).unwrap().name()
+                );
+            } else {
+                assert_eq!(result.refusal.code, "supervision_failed");
+                assert_eq!(result.refusal.exit, 5);
+                assert!(result
+                    .refusal
+                    .message
+                    .contains("original observation failure"));
+            }
+            eprintln!("checked front={front:?} runner={runner:?} late={late:?} selected={want:?}; no ending/result, original diagnostics and four cleanup reports asserted");
+        }
+    }
+
+    #[test]
+    fn runner_error_conversion_preserves_start_classifications_and_success_settlement() {
+        for (started, errno, exit) in [
+            (false, Some(libc::ENOENT), 127),
+            (false, Some(libc::EACCES), 126),
+            (true, None, 5),
+        ] {
+            let (failure, signal) =
+                supervision_failure("original failure".into(), errno, None, started);
+            assert_eq!(signal, None);
+            let failure = settle(
+                Err(failure.into()),
+                None,
+                vec![],
+                signal,
+                "policy.ts",
+                &mut Vec::new(),
+            )
+            .unwrap_err();
+            assert_eq!(failure.refusal.exit, exit);
+            assert_eq!(failure.refusal.code, "supervision_failed");
+            assert_eq!(failure.refusal.stage, Stage::Exec);
+            assert_eq!(failure.refusal.message, "original failure");
+        }
+        let ended = keyed_launch::Ended {
+            end: End::Exited,
+            status: std::process::ExitStatus::from_raw(0),
+            elapsed: Duration::ZERO,
+            signalled: true,
+            group: Group::Gone,
+        };
+        for value in ["", "snowman ☃", "first\nsecond\n"] {
+            assert_eq!(
+                settle(
+                    Ok(value.into()),
+                    Some(&ended),
+                    vec![Ok(())],
+                    None,
+                    "policy.ts",
+                    &mut Vec::new()
+                )
+                .unwrap(),
+                value
+            );
+        }
     }
 }

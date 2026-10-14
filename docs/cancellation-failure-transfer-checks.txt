@@ -1,0 +1,529 @@
+C1 cancellation failure transfer — measured receipts (2026-10-14)
+Platform: aarch64-apple-darwin; rustc 1.99.0 (Homebrew); nextest 0.9.148.
+Fixed preservation reference: 0bdcb1f9ae24db5e9dd499308dd791744e908eb0.
+Each record below retains task command/status, every selected test status,
+assertion failures and successful parameter-case receipts. Red controls deliberately
+remove one transfer/sample/diagnostic operation; no CLI fault flag is exposed.
+FakeProcess has no OS child. Existing process/PTY fixtures own physical cleanup.
+Manifests cover all 138 tracked project source/input files at each measured run.
+Build/cache outputs and external tool/dependency installations are not frozen by
+these source manifests; locks/configs and project fixtures are included.
+Documentation and the error-type doc comment changed between regression and
+final controls; no product logic changed. The subsequent evidence/tree edits
+are outside those measurements. Initial narrow-manifest exploratory controls
+remain only in target/c1-evidence and are superseded by the full controls here.
+
+RUN transfer-full-red
+Task exit: 201; before/after manifest identical
+Manifest SHA-256: 20c4f957e0152e9eac5f3660980e52df7001ed21f691960251e29b726aa2dd70
+task: [test:runner] cargo nextest run --locked -p keyed-launch -E 'test(wait_events)' --no-fail-fast
+ Nextest run ID 0b43760a-8f89-42b0-a57d-c962d1946036 with nextest profile: default
+        FAIL [   0.007s] ( 1/11) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+    thread 'run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics' (31147297) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:530:5:
+    assertion `left == right` failed
+      left: None
+     right: Some(1)
+        FAIL [   0.007s] ( 2/11) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+    checked reported recovery error: observation_failed=false reap_failed=false early=None; retained observation and late TERM asserted
+    thread 'run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate' (31147295) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:507:13:
+    assertion `left == right` failed
+      left: None
+     right: Some(1)
+        FAIL [   0.008s] ( 3/11) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+    thread 'run::wait_events::cancellation_survives_final_reap_failure' (31147300) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:435:9:
+    assertion `left == right` failed: poll=false, reap=true
+      left: None
+     right: Some(1)
+        PASS [   0.008s] ( 4/11) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.008s] ( 5/11) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        FAIL [   0.009s] ( 6/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+    thread 'run::wait_events::cancellation_survives_observation_failure_with_failed_reap' (31147304) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:435:9:
+    assertion `left == right` failed: poll=true, reap=true
+      left: None
+     right: Some(1)
+        PASS [   0.009s] ( 7/11) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        FAIL [   0.009s] ( 8/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+    thread 'run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap' (31147306) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:435:9:
+    assertion `left == right` failed: poll=true, reap=false
+      left: None
+     right: Some(1)
+        PASS [   0.045s] ( 9/11) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.317s] (10/11) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   2.053s] (11/11) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+     Summary [   2.053s] 11 tests run: 6 passed, 5 failed, 65 skipped
+        FAIL [   0.007s] ( 1/11) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        FAIL [   0.007s] ( 2/11) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        FAIL [   0.008s] ( 3/11) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        FAIL [   0.009s] ( 6/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        FAIL [   0.009s] ( 8/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+error: test run failed
+task: Failed to run task "test:runner": exit status 100
+
+RUN sample-full-red
+Task exit: 201; before/after manifest identical
+Manifest SHA-256: 3ce042e99ae708e0419e5f55440af60e9ec4d427f65fac887ce0cb5023093f3f
+task: [test:runner] cargo nextest run --locked -p keyed-launch -E 'test(cancellation_survives_observation_failure) | test(cancellation_survives_final_reap_failure)' --no-fail-fast
+ Nextest run ID 500602aa-306e-4565-af91-59a812da1c11 with nextest profile: default
+        FAIL [   0.008s] (1/3) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+    checked poll_failed=false reap_failed=true early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    thread 'run::wait_events::cancellation_survives_final_reap_failure' (31149955) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:428:17:
+    assertion `left == right` failed: sample before recovery
+      left: Some(15)
+     right: None
+        FAIL [   0.009s] (2/3) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+    checked poll_failed=true reap_failed=true early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    thread 'run::wait_events::cancellation_survives_observation_failure_with_failed_reap' (31149956) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:428:17:
+    assertion `left == right` failed: sample before recovery
+      left: Some(15)
+     right: None
+        FAIL [   0.009s] (3/3) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+    checked poll_failed=true reap_failed=false early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    thread 'run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap' (31149957) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:423:17:
+    assertion `left == right` failed: sample before observer
+      left: Some(15)
+     right: None
+     Summary [   0.010s] 3 tests run: 0 passed, 3 failed, 73 skipped
+        FAIL [   0.008s] (1/3) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        FAIL [   0.009s] (2/3) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        FAIL [   0.009s] (3/3) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+error: test run failed
+task: Failed to run task "test:runner": exit status 100
+
+RUN diagnostic-full-red
+Task exit: 201; before/after manifest identical
+Manifest SHA-256: 5051fd5e6c6e132d84ca51f7384b703800197f5c2237b96c508eae35a834c58a
+task: [test:runner] cargo nextest run --locked -p keyed-launch -E 'test(cancellation_survives_observation_failure_with_failed_reap)'
+ Nextest run ID ccc8466d-9c30-4b25-ae7d-686ce41dbf55 with nextest profile: default
+        FAIL [   0.007s] (1/1) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+    thread 'run::wait_events::cancellation_survives_observation_failure_with_failed_reap' (31151756) panicked at crates/keyed-launch/src/../tests/internal/wait_events.rs:446:13:
+    assertion failed: message.contains("distinct emergency wait failure")
+     Summary [   0.007s] 1 test run: 0 passed, 1 failed, 75 skipped
+        FAIL [   0.007s] (1/1) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+error: test run failed
+task: Failed to run task "test:runner": exit status 100
+
+RUN front-transfer-full-red
+Task exit: 201; before/after manifest identical
+Manifest SHA-256: 52df0b118322e9c57a310015ef03d6d48af27c816fc1484d4a0c3adb8b29bf5b
+task: [test:session] cargo nextest run --locked -p ravel -E 'test(runner_error_conversion_joins)'
+ Nextest run ID b86b71ba-0197-4197-94f0-9c787def757a with nextest profile: default
+        FAIL [   0.006s] (1/1) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+    thread 'run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement' (31153631) panicked at crates/ravel/src/run.rs:476:13:
+    assertion `left == right` failed
+      left: None
+     right: Some(Signal { number: 1, name: "SIGHUP" })
+     Summary [   0.007s] 1 test run: 0 passed, 1 failed, 78 skipped
+        FAIL [   0.006s] (1/1) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+error: test run failed
+task: Failed to run task "test:session": exit status 100
+
+RUN front-report-full-red
+Task exit: 201; before/after manifest identical
+Manifest SHA-256: c7c8cb234ef0f1dbf368c77819373bcd44a9aed6612ce58c8ca9a24e92854e0a
+task: [test:session] cargo nextest run --locked -p ravel -E 'test(run::tests)' --no-fail-fast
+ Nextest run ID d989040e-45df-408c-9cd9-bc260796249d with nextest profile: default
+        PASS [   0.007s] (1/4) ravel::bin/ravel run::tests::runner_error_conversion_preserves_start_classifications_and_success_settlement
+        PASS [   0.007s] (2/4) ravel::bin/ravel run::tests::cancellation_reports_a_surviving_group_and_suppresses_the_result
+        FAIL [   0.007s] (3/4) ravel::bin/ravel run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error
+    thread 'run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error' (31154433) panicked at crates/ravel/src/run.rs:422:9:
+    assertion failed: diagnostics.contains("stdout is closed")
+        FAIL [   0.007s] (4/4) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+    thread 'run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement' (31154432) panicked at crates/ravel/src/run.rs:514:21:
+    assertion failed: text.contains(report)
+     Summary [   0.008s] 4 tests run: 2 passed, 2 failed, 75 skipped
+        FAIL [   0.007s] (3/4) ravel::bin/ravel run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error
+        FAIL [   0.007s] (4/4) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+error: test run failed
+task: Failed to run task "test:session": exit status 100
+
+RUN runner-full-green
+Task exit: 0; before/after manifest identical
+Manifest SHA-256: 741850eccc39be89f6c47b7d9a879ab0414038841b736aee72172152840d8d39
+task: [test:runner] cargo nextest run --locked -p keyed-launch -E 'test(wait_events)' --success-output immediate
+ Nextest run ID 45281824-2efd-4c25-ba2b-3a61dd1ca43a with nextest profile: default
+        PASS [   0.008s] ( 1/11) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.009s] ( 2/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+    checked poll_failed=true reap_failed=false early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=false early=Some(1) at_reap=Some(15) retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=false early=None at_reap=Some(15) retained=Some(15); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=false early=None at_reap=None retained=None; diagnostics, receipt, ordering and drained latch asserted
+        PASS [   0.009s] ( 3/11) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.009s] ( 4/11) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+    checked poll_failed=false reap_failed=true early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=false reap_failed=true early=Some(1) at_reap=Some(15) retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=false reap_failed=true early=None at_reap=Some(15) retained=Some(15); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=false reap_failed=true early=None at_reap=None retained=None; diagnostics, receipt, ordering and drained latch asserted
+        PASS [   0.009s] ( 5/11) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+    checked poll_failed=true reap_failed=true early=Some(1) at_reap=None retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=true early=Some(1) at_reap=Some(15) retained=Some(1); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=true early=None at_reap=Some(15) retained=Some(15); diagnostics, receipt, ordering and drained latch asserted
+    checked poll_failed=true reap_failed=true early=None at_reap=None retained=None; diagnostics, receipt, ordering and drained latch asserted
+        PASS [   0.009s] ( 6/11) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+    checked reported recovery error: observation_failed=false reap_failed=false early=None; retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=false reap_failed=false early=Some(1); retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=true reap_failed=false early=None; retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=true reap_failed=false early=Some(1); retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=true reap_failed=true early=None; retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=true reap_failed=true early=Some(1); retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=false reap_failed=true early=None; retained observation and late TERM asserted
+    checked reported recovery error: observation_failed=false reap_failed=true early=Some(1); retained observation and late TERM asserted
+        PASS [   0.011s] ( 7/11) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.012s] ( 8/11) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.045s] ( 9/11) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.315s] (10/11) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   2.053s] (11/11) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+     Summary [   2.053s] 11 tests run: 11 passed, 65 skipped
+
+RUN front-full-green
+Task exit: 0; before/after manifest identical
+Manifest SHA-256: 741850eccc39be89f6c47b7d9a879ab0414038841b736aee72172152840d8d39
+task: [test:session] cargo nextest run --locked -p ravel -E 'test(run::tests)' --success-output immediate
+ Nextest run ID 804f019b-ba2a-4268-81f7-e5692c960523 with nextest profile: default
+        PASS [   0.007s] (1/4) ravel::bin/ravel run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error
+        PASS [   0.007s] (2/4) ravel::bin/ravel run::tests::runner_error_conversion_preserves_start_classifications_and_success_settlement
+        PASS [   0.007s] (3/4) ravel::bin/ravel run::tests::cancellation_reports_a_surviving_group_and_suppresses_the_result
+        PASS [   0.007s] (4/4) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+    checked front=Some(2) runner=Some(1) late=Some(15) selected=Some(2); no ending/result, original diagnostics and four cleanup reports asserted
+    checked front=None runner=Some(1) late=Some(15) selected=Some(1); no ending/result, original diagnostics and four cleanup reports asserted
+    checked front=None runner=None late=Some(15) selected=Some(15); no ending/result, original diagnostics and four cleanup reports asserted
+    checked front=None runner=None late=None selected=None; no ending/result, original diagnostics and four cleanup reports asserted
+     Summary [   0.007s] 4 tests run: 4 passed, 75 skipped
+
+RUN cli
+Task exit: 0; before/after manifest identical
+Manifest SHA-256: 0647cb2ae2488cedebee89c5f2c26a0d6e09af04840c65cfff152c4f6a657f6d
+task: [test:cli] cargo nextest run --locked -p ravel --test cli 
+ Nextest run ID 7b96891e-485a-480c-993c-890c97e27e8b with nextest profile: default
+        PASS [   0.317s] ( 1/11) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.325s] ( 2/11) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   0.391s] ( 3/11) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure
+        PASS [   0.402s] ( 4/11) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   0.926s] ( 5/11) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   0.933s] ( 6/11) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        PASS [   0.949s] ( 7/11) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   1.424s] ( 8/11) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.491s] ( 9/11) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   1.647s] (10/11) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   3.112s] (11/11) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+     Summary [   3.112s] 11 tests run: 11 passed, 0 skipped
+
+RUN check
+Task exit: 0; before/after manifest identical
+Manifest SHA-256: 0647cb2ae2488cedebee89c5f2c26a0d6e09af04840c65cfff152c4f6a657f6d
+check: formatting passed
+check: scripts passed
+check: worker-build passed
+check: worker-probes passed
+check: runtime-integrity passed
+check: worker-types passed
+check: lint passed
+check: complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/check.4wgEU2
+ Nextest run ID cd8ea8d9-c77c-4de6-8e32-90db3f672df3 with nextest profile: default
+        PASS [   0.009s] (  1/141) keyed-launch channel::tests::discarding_removes_the_file_and_succeeds_when_there_was_none
+        PASS [   0.010s] (  2/141) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+        PASS [   0.011s] (  3/141) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.012s] (  4/141) keyed-launch channel::tests::allocation_names_a_missing_directory_and_says_what_to_do
+        PASS [   0.012s] (  5/141) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.012s] (  6/141) keyed-launch channel::tests::successive_allocations_in_one_directory_never_collide
+        PASS [   0.013s] (  7/141) keyed-launch channel::tests::appearance_does_not_follow_links_or_read_large_files_or_fifos
+        PASS [   0.013s] (  8/141) keyed-launch channel::tests::abandoned_cleanup_removes_channels_and_leaves_every_other_entry_alone
+        PASS [   0.013s] (  9/141) keyed-launch channel::tests::completion_stays_in_its_original_directory
+        PASS [   0.013s] ( 10/141) keyed-launch channel::tests::abandoned_cleanup_names_the_directory_when_it_cannot_be_listed
+        PASS [   0.013s] ( 11/141) keyed-launch channel::tests::an_allocated_channel_names_a_path_that_does_not_yet_exist
+        PASS [   0.014s] ( 12/141) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        PASS [   0.014s] ( 13/141) keyed-launch channel::tests::signalling_creates_an_empty_file
+        PASS [   0.014s] ( 14/141) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        PASS [   0.014s] ( 15/141) keyed-launch channel::tests::anything_at_the_channel_name_has_appeared_and_nothing_else_has
+        PASS [   0.009s] ( 16/141) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        PASS [   0.010s] ( 17/141) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.011s] ( 18/141) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.012s] ( 19/141) keyed-launch::confinement a_confined_program_that_is_not_an_absolute_path_refuses
+        PASS [   0.015s] ( 20/141) keyed-launch::authority direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs
+        PASS [   0.047s] ( 21/141) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.317s] ( 22/141) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   0.539s] ( 23/141) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation
+        PASS [   0.541s] ( 24/141) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes
+        PASS [   0.548s] ( 25/141) keyed-launch::job a_launcher_with_hup_ignored_at_entry_installs_no_hup_handler
+        PASS [   0.535s] ( 26/141) keyed-launch::launch a_caller_built_argv_is_spawned_whole_and_directly
+        PASS [   0.550s] ( 27/141) keyed-launch::job a_launcher_with_sigchld_ignored_still_supervises_its_child_to_an_end
+        PASS [   0.555s] ( 28/141) keyed-launch::job a_child_that_exits_normally_leaves_the_foreground_with_another_group
+        PASS [   0.546s] ( 29/141) keyed-launch::job after_a_death_by_signal_the_launcher_takes_the_terminal_from_another_group
+        PASS [   0.009s] ( 30/141) keyed-launch::launch a_program_that_does_not_exist_names_itself_and_says_what_to_check
+        PASS [   0.562s] ( 31/141) keyed-launch::job a_launcher_started_in_the_background_takes_no_foreground
+        PASS [   0.537s] ( 32/141) keyed-launch::launch a_channel_appearance_does_not_emit_reaped_before_the_child_exits
+        PASS [   0.532s] ( 33/141) keyed-launch::launch a_child_signals_through_the_published_path
+        PASS [   1.061s] ( 34/141) keyed-launch::job a_transparent_launcher_with_a_terminal_is_cancelled_by_int
+        PASS [   0.533s] ( 35/141) keyed-launch::launch a_child_that_never_signals_ends_unsignalled
+        PASS [   1.077s] ( 36/141) keyed-launch::job a_transparent_launcher_hands_its_child_the_entry_state_it_was_given
+        PASS [   1.074s] ( 37/141) keyed-launch::job int_cancels_a_launch_with_no_terminal
+        PASS [   0.537s] ( 38/141) keyed-launch::launch a_grant_replaces_a_scrubbed_value_and_cannot_replace_the_channel
+        PASS [   0.535s] ( 39/141) keyed-launch::launch a_scrubbed_variable_is_removed_from_an_inherited_environment
+        PASS [   0.543s] ( 40/141) keyed-launch::launch an_ignored_sigint_in_the_launcher_does_not_reach_the_child
+        PASS [   1.604s] ( 41/141) keyed-launch::interrupt an_interrupt_is_reported_against_the_launch_it_arrives_in_and_no_other
+        PASS [   0.535s] ( 42/141) keyed-launch::launch granting_the_channel_survives_a_scrub_list_that_names_it
+        PASS [   0.537s] ( 43/141) keyed-launch::launch observed_immediate_exit_and_failed_spawn_have_exact_events
+        PASS [   0.537s] ( 44/141) keyed-launch::launch the_channel_path_is_published_under_the_callers_chosen_variable_name
+        PASS [   0.538s] ( 45/141) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs
+        PASS [   0.013s] ( 46/141) keyed-launch::noninteractive a_plainly_launched_child_consumes_callers_stdin_and_shares_its_session_and_descriptors
+        PASS [   1.064s] ( 47/141) keyed-launch::launch an_empty_channel_signals
+        PASS [   0.537s] ( 48/141) keyed-launch::launch the_child_starts_in_the_given_directory
+        PASS [   2.054s] ( 49/141) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+        PASS [   0.009s] ( 50/141) keyed-launch::reraise a_reraised_signal_reaches_the_parent_as_a_wait_status
+        PASS [   0.007s] ( 51/141) ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.008s] ( 52/141) ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.012s] ( 53/141) ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   1.542s] ( 54/141) keyed-launch::launch a_child_that_signals_and_exits_inside_the_grace_is_never_touched
+        PASS [   0.007s] ( 55/141) ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.007s] ( 56/141) ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.009s] ( 57/141) ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.007s] ( 58/141) ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.007s] ( 59/141) ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.009s] ( 60/141) ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   1.064s] ( 61/141) keyed-launch::launch successive_launches_get_independent_channels
+        PASS [   0.561s] ( 62/141) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation
+        PASS [   0.054s] ( 63/141) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.698s] ( 64/141) keyed-launch::noninteractive leader_exit_stops_a_group_helper_before_runner_returns
+        PASS [   0.538s] ( 65/141) keyed-launch::noninteractive standalone_child_has_a_new_session_and_cannot_consume_callers_stdin
+        PASS [   2.584s] ( 66/141) keyed-launch::job a_raw_mode_child_killed_by_the_escalation_leaves_the_terminal_restored
+        PASS [   2.043s] ( 67/141) keyed-launch::launch a_signalled_child_that_keeps_waiting_is_terminated_after_the_grace
+        PASS [   2.041s] ( 68/141) keyed-launch::launch a_stopped_child_is_neither_reaped_nor_killed
+        PASS [   1.542s] ( 69/141) keyed-launch::launch an_unsignalled_child_runs_to_its_own_exit_untouched
+        PASS [   0.022s] ( 70/141) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   1.047s] ( 71/141) keyed-launch::noninteractive sigterm_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.053s] ( 72/141) keyed-launch::noninteractive sigint_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   0.337s] ( 73/141) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure
+        PASS [   0.357s] ( 74/141) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   2.565s] ( 75/141) keyed-launch::launch a_child_that_ignores_sigterm_is_killed_after_the_kill_grace
+        PASS [   1.557s] ( 76/141) keyed-launch::noninteractive a_stubborn_noninteractive_child_is_killed_after_the_kill_grace
+        PASS [   1.326s] ( 77/141) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   1.377s] ( 78/141) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        PASS [   1.167s] ( 79/141) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   3.109s] ( 80/141) keyed-launch::launch a_term_ignoring_descendant_is_gone_before_the_launch_returns
+        PASS [   2.078s] ( 81/141) keyed-launch::launch the_escalation_reaps_the_childs_descendants
+        PASS [   1.124s] ( 82/141) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.757s] ( 83/141) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.940s] ( 84/141) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   0.590s] ( 85/141) ravel::hostile diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses
+        PASS [   1.388s] ( 86/141) ravel::hostile a_package_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   1.133s] ( 87/141) ravel::hostile an_imports_alias_to_a_registered_specifier_is_a_package_lookup_and_never_the_embedded_module
+        PASS [   0.015s] ( 88/141) ravel::session_process end_session_refuses_missing_empty_and_stale_inherited_context
+        PASS [   1.139s] ( 89/141) ravel::hostile bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   2.016s] ( 90/141) ravel::hostile a_cwd_dotenv_and_bunfig_preload_stay_inert_and_fire_under_the_autoload_probe
+        PASS [   1.955s] ( 91/141) ravel::hostile a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autoload_probe
+        PASS [   0.007s] ( 92/141) ravel::bin/ravel authority::tests::only_a_path_the_worker_imports_exactly_is_a_specifier
+        PASS [   0.006s] ( 93/141) ravel::bin/ravel cancellation::tests::a_handled_signal_pending_behind_the_block_cancels
+        PASS [   0.597s] ( 94/141) ravel::hostile tsconfig_paths_beside_an_admitted_entry_stay_inert_and_fire_under_the_tsconfig_probe
+        PASS [   0.006s] ( 95/141) ravel::bin/ravel choice::tests::the_request_carries_the_prompt_and_every_parameter_beside_the_caller_data
+        PASS [   0.006s] ( 96/141) ravel::bin/ravel context::tests::a_later_version_is_unsupported_and_an_executable_field_says_why
+        PASS [   0.007s] ( 97/141) ravel::bin/ravel context::tests::a_marker_is_named_for_what_it_marks_only_in_a_loaders_result
+        PASS [   0.006s] ( 98/141) ravel::bin/ravel context::tests::delivery_attaches_the_measured_sources_and_measures_the_sorted_encoding
+        PASS [   0.006s] ( 99/141) ravel::bin/ravel context::tests::each_malformed_shape_is_refused_at_its_location
+        PASS [   0.006s] (100/141) ravel::bin/ravel context::tests::every_field_of_a_version_1_context_is_accepted_and_nothing_is_required_but_the_version
+        PASS [   0.006s] (101/141) ravel::bin/ravel environment::tests::a_flag_adds_to_the_names_the_owner_settings_grant
+        PASS [   0.007s] (102/141) ravel::bin/ravel context::tests::more_source_records_than_the_bound_refuse_by_name
+        PASS [   0.006s] (103/141) ravel::bin/ravel environment::tests::a_grant_is_one_name_and_duplicates_are_one_grant
+        PASS [   0.007s] (104/141) ravel::bin/ravel environment::tests::exclusion_is_by_class_and_leaves_its_near_misses_grantable
+        PASS [   0.006s] (105/141) ravel::bin/ravel frame::tests::a_frame_round_trips_with_a_big_endian_length
+        PASS [   0.007s] (106/141) ravel::bin/ravel frame::tests::a_truncated_frame_reads_as_closed_and_an_oversized_one_is_refused
+        PASS [   0.006s] (107/141) ravel::bin/ravel limits::tests::a_bound_outside_its_range_or_not_plain_digits_is_malformed
+        PASS [   0.007s] (108/141) ravel::bin/ravel limits::tests::a_context_budget_below_the_read_default_caps_each_read
+        PASS [   0.006s] (109/141) ravel::bin/ravel limits::tests::a_flag_replaces_a_setting_which_replaces_the_default
+        PASS [   0.006s] (110/141) ravel::bin/ravel limits::tests::the_defaults_and_their_origins
+        PASS [   0.006s] (111/141) ravel::bin/ravel limits::tests::the_selection_bound_is_one_second_to_ten_minutes
+        PASS [   0.006s] (112/141) ravel::bin/ravel policy::tests::a_policy_is_a_version_a_select_and_an_optional_loader
+        PASS [   0.006s] (113/141) ravel::bin/ravel policy::tests::a_policys_refusal_keeps_its_code_beside_the_stable_one
+        PASS [   0.006s] (114/141) ravel::bin/ravel policy::tests::a_result_over_the_message_bound_refuses_by_name
+        PASS [   0.006s] (115/141) ravel::bin/ravel policy::tests::a_selected_result_is_the_command_as_returned
+        PASS [   0.006s] (116/141) ravel::bin/ravel policy::tests::a_version_1_policy_refuses_with_the_rewrite_remedy_and_another_as_unsupported
+        PASS [   0.006s] (117/141) ravel::bin/ravel policy::tests::each_other_failure_of_select_has_its_own_code
+        PASS [   0.007s] (118/141) ravel::bin/ravel policy::tests::every_invalid_policy_names_where_it_is_wrong
+        PASS [   0.006s] (119/141) ravel::bin/ravel run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error
+        PASS [   0.007s] (120/141) ravel::bin/ravel policy::tests::every_malformed_result_names_where_it_is_wrong
+        PASS [   0.007s] (121/141) ravel::bin/ravel run::tests::cancellation_reports_a_surviving_group_and_suppresses_the_result
+        PASS [   0.006s] (122/141) ravel::bin/ravel run::tests::runner_error_conversion_preserves_start_classifications_and_success_settlement
+        PASS [   0.006s] (123/141) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+        PASS [   0.007s] (124/141) ravel::bin/ravel settings::tests::a_missing_file_or_a_home_that_cannot_place_one_sets_nothing
+        PASS [   0.008s] (125/141) ravel::bin/ravel settings::tests::a_settings_path_that_is_not_a_regular_file_refuses
+        PASS [   0.008s] (126/141) ravel::bin/ravel settings::tests::every_key_is_optional_and_each_is_read
+        PASS [   0.007s] (127/141) ravel::bin/ravel worker::tests::a_frame_written_before_the_worker_exited_is_still_read
+        PASS [   0.018s] (128/141) ravel::bin/ravel settings::tests::a_value_is_held_to_its_flags_rule_and_the_file_to_its_shape
+        PASS [   0.539s] (129/141) ravel::session_process a_child_that_exits_without_signalling_has_no_opaque_result
+        PASS [   1.172s] (130/141) ravel::hostile node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   1.994s] (131/141) ravel::hostile a_package_json_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   1.736s] (132/141) ravel::hostile classes_with_no_known_firing_configuration_are_reported_not_counted
+        PASS [   1.044s] (133/141) ravel::session_process cancellation_reaps_the_child_and_discards_an_already_published_result
+        PASS [   3.211s] (134/141) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+        PASS [   1.701s] (135/141) ravel::hostile the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly
+        PASS [   2.605s] (136/141) ravel::hostile a_probe_build_is_never_accepted_as_an_installations_worker
+        PASS [   3.227s] (137/141) ravel::hostile a_cwd_package_json_stays_inert_and_fires_for_an_entry_admitted_there
+        PASS [   2.687s] (138/141) ravel::hostile every_documented_specifier_resolves_to_its_embedded_module_beside_a_package_shadow
+        PASS [   3.056s] (139/141) ravel::session_process nested_session_signals_only_its_own_inherited_context
+        PASS [   7.187s] (140/141) ravel::hostile a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+        PASS [   6.156s] (141/141) ravel::session_process opaque_results_return_after_the_signalling_process_is_reaped
+     Summary [  10.797s] 141 tests run: 141 passed, 14 skipped
+
+FINAL FOCUSED SOURCE/INPUT MANIFEST (before = after)
+These describe inputs at execution time, before this evidence was written.
+bdf56cbcc0040fbbc22848d9b874a8d2b1f7c35cef28af36cff8efcc515154ce  .cargo/config.toml
+9760ae32ab5e4e54d4f61854f870711805abc8bfbb2d32dbd3ebdb8fc133ff36  .gitignore
+b3eff17740957ad0b7df0ca324cf8b78b4e3d18de2d5dae983add8b3b08758da  .grove/01-DONE-requirements--plan-k1.md
+f0328add8c8967277a2fdc099708412fcc0360e9168ea5b95bca6f96d96a6021  .grove/02-DONE-planning--upstream-guidance-k2.md
+da0cb23f8bf2d34161696c958b7a137eaa61c5248659eda779cfceab43f67ada  .grove/03-DONE-design--component-contracts-k3.md
+67a2875dbbf143a863af913fa34be2ad959fa7153f855f5406b932a65112067e  .grove/04-DONE-design--result-job-boundary-k4.md
+1ed7b2025e8e68a0d53b8086c5d2dd40543ac4306f12936e9a8c56a30f330b79  .grove/05-DONE-design--result-job-transfer-k6.md
+a31e5a7446093ae498567cce3dcb9fd6768a129e3e1ca3244b67e96d4dc02415  .grove/06-DONE-requirements--completion-failure-scope-k7.md
+602d357bfdb44d89abd119630e65a62b4005441e719083d9aff112cf5f095f78  .grove/07-DONE-design--completion-failure-contract-k8.md
+70e3eb0572550b176fc00b8ec710b1e0bf83aba8d0deba73fe65fcb4b44f4643  .grove/08-DONE-planning--cancellation-failure-transfer-k9.md
+2d5cf4c30ab28a9afaf979aa243684d9b73bb23b88ec948930458d5bc5d2c6da  .grove/09-impl--cancellation-failure-transfer-k10.md
+1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a  .grove/10-requirements--book-structure-k5.md
+b86d3ce699dc754e9cac54b5248fa1580a0473cd5fb40c15953bcc267b1270c8  .grove/_BRIEF.md
+b2ba5f670f9c51a3a8e0308ec1723c4ce54fef0c68610af64dcd39d8bd8117ac  CHANGELOG.md
+5123e05ec12dd2a77ab99ba7f0ce1528d4d46252d268c6c0fcc4196daec8a1e5  CONTEXT.md
+c3666e73f879512197afe2ae7366dbf8b5b636ab0d1839a24672a7ed350a449b  Cargo.lock
+ea316a634b8e1c39316e995d600bb742c431621f69717557ca3d5e534151ff7a  Cargo.toml
+7c06160a3b1b74e536e6e886896f5f802430667c3a9982a77d77c34a58f10b42  LICENSE
+f990ea1f12313b097a102298edfd54c15807c761012dee5b8be216a15530d48e  README.md
+60f39b66ac376b153dc4fb73a90b016931e6412656c9a6e45f14cbb59995d319  Taskfile.yml
+45dad1eebd99d467f7a56d46c6a1e825f0b0be53d8c04f8d2b7511cbb0c2606d  crates/keyed-launch/Cargo.toml
+beb5b7011229a4c46f590c65040d3071e8d43300aeb3605b0b785d19893977a4  crates/keyed-launch/src/argv.rs
+2a40d8e01d0e9b39ccca9ae91a5ee12c6d7fd76f4abd1e5e033b306f328bfcf9  crates/keyed-launch/src/channel.rs
+c402d63a91da4efc782fce749f610f3e6fa102d2803a36259fe4c6ac7f6d7bb4  crates/keyed-launch/src/confinement.rs
+0e1325adb6bb0092fb6262d56a3c7861cfbb931746cac8fd037fe8a7eaec3e79  crates/keyed-launch/src/error.rs
+6043efeb3a150c4a31c0e14f33e72a7326787e01b7705fb6ffeb134ad4fb029b  crates/keyed-launch/src/lib.rs
+1a8f061d950e804fba6f4a6c884994f7bbdb8c32a03dda3ae7b09ab4eff20138  crates/keyed-launch/src/run.rs
+ed49add3d8a898dc4723d50ab475432527bbb259aa0071e2d9dc846752f3dbd6  crates/keyed-launch/tests/authority.rs
+8cd8bc0504b79b9d3c316c9cda9d946e762597f053a5d7d9268d0b37809f1c09  crates/keyed-launch/tests/confinement.rs
+cdc6f8a343c65dda3f39d5ed8afdf62a3d79e4f03df3c4f9d47679b064e1335e  crates/keyed-launch/tests/internal/wait_events.rs
+19e68baf4eb5edae415ca4dbbcfa556cc78603a957db300199af0f4d090b475f  crates/keyed-launch/tests/interrupt.rs
+cfedce1b22363f9c23b55f244015df4a159f59554d59360f6f6b87ace8c67958  crates/keyed-launch/tests/job.rs
+3d3d436588373a6622240a3e471e8eac141e5d7e2df63562c12c55c95b68cdaf  crates/keyed-launch/tests/launch.rs
+3b9e455b9f8f2b390285cfc3fe509b2e90801d08ade985a620a24c707760583a  crates/keyed-launch/tests/noninteractive.rs
+cf4970d71c6bb80c877e49a8c392bbb1654cbc9a45994a820e4113171a9fc845  crates/keyed-launch/tests/reraise.rs
+b6a23503593308671d21c44bb7764fcf5c6f2dc62382cce5c6fa7777dd8fe73d  crates/keyed-launch/tests/support/mod.rs
+7147d4191b8675fd240861b38004a33c728218c7aee5bb6f51df80c35dde5fc9  crates/ravel/Cargo.toml
+9b946e85ae91e4f4f29131956f31890bad0d5c071ec2d79296cf3f8c72d866ae  crates/ravel/build.rs
+e64d2a238a5e3c2ee7b6173a045ea051cef38619af6d0926d513dda83fa6179a  crates/ravel/notices/NOTICES.md
+b9caf52728691b4057e371232c221a132883198be2f3d2ddf92c90404c984b1a  crates/ravel/notices/bun-LICENSE.md
+2a4c331e12622f39c5b66d3e8784bbee4cad716e59edf8de93b4f9ebc7a88599  crates/ravel/scripts/dispatch.sh
+9a1175472d73dcd4a36eaa3479692dccbd0af2a294544e4100771004c9b97cbf  crates/ravel/scripts/installed-smoke.sh
+0343bbced701390b5315c9cc3ee0f75e541f39ee194b759bc4beca6680688894  crates/ravel/src/authority.rs
+bb3426b397d3a6414e149a928e7cb2425d6660cce04ce036c899eec7140c7dca  crates/ravel/src/cancellation.rs
+2a1831a5ae6a9c1069b1f9d66d69b9df4c6c63948aa680b2a1bb28d473f1a5b5  crates/ravel/src/choice.rs
+78ddbd53334d51cb20f37b2cf9b9da32fb8029fa66e2afd715ed7982ade0099e  crates/ravel/src/cli.rs
+c4f4d8c86e88ee562bc35ac6b333fbf2c59a075bd313b8502902c4f091cb2bec  crates/ravel/src/completion.rs
+2e819aa51b863709f3e6698e9a4c2620eeb3d28eb42b95e249fca8a384a933a5  crates/ravel/src/completion_tests.rs
+a67e4e6013846d997419c6e93694700c9fffeef36db22be4328c38fa347fe17b  crates/ravel/src/confinement.rs
+99aa13c3d899591f25f622301ff051c96feed168494ba213736ce216301a9643  crates/ravel/src/context.rs
+d955e14e2e2300409013048b83afaa546ea8118a760f9dadb6cff40f5fe1db93  crates/ravel/src/environment.rs
+9653fda2fedd05579f1d4de6fd4112e0d925e78b57473a94a2a66977b2880cca  crates/ravel/src/frame.rs
+0ea07a5c197cf570b9b028f1f97212633dccf23aeff0f731fde76c08b0b48e49  crates/ravel/src/inputs.rs
+7412855ac608beb27b6b59e45e2e1ff0401c9becc18a630f2096cde68c33689a  crates/ravel/src/lib.rs
+88357ba6d03a36d598602e87930450f2877be8fcabc929efa2f0757500049d23  crates/ravel/src/limits.rs
+474ede935465056a0864790985dff3a3a01b531be62064f06643a1c1de2e8c34  crates/ravel/src/main.rs
+e157ba695a4418b509ed6f7fba182c62327712c6663ffcf848b4e1f6597d9ce8  crates/ravel/src/policy.rs
+1010602547d4ba17bc0809df3c97f7584065d65763aeeb58a3e74fbec297d334  crates/ravel/src/program.rs
+0b0797164328be88cfa52037ac25677e873df8d1c8aada1a474d0001462048e6  crates/ravel/src/refusal.rs
+10dea7ef5eb840c94fb873a3dad7fa1db6f2a22cbde96a7831d4c9b07bd00df7  crates/ravel/src/run.rs
+402318869421fcad38e3f1b86188c7cb730780a045b127ceb1e252ff729734b7  crates/ravel/src/settings.rs
+515956358dda8366fa73f1064b98922700393c2c66d7b482cb61f752a31e35d1  crates/ravel/src/signal_state.rs
+cf55322ea74fa8b499b9b4075faaddb989e947226ae6ff682d4e5046fc17fe68  crates/ravel/src/worker.rs
+a438d3557b0a547b9938d888dfdce25078bbb65c0b8033f0bc95ff620bc22d06  crates/ravel/tests/cli.rs
+20dd6b840183ee6554b0713b5149cb7e33d6873a7be5ac1df988165725dcd1de  crates/ravel/tests/hostile.rs
+32c69b0e32aada70128175257139ecff64b3770d2c0cfec2b976921e57bc5c05  crates/ravel/tests/session_process.rs
+00ae9774ea01ac9e8f61d6fd02997237f45cf939f0d36afb10d10d6d3342cbc6  crates/ravel/tests/support/direct.rs
+6bed964af840b83e6a7017c852ec4c7cbb1a80b9176e80df8ea818858cf8d367  crates/ravel/tests/support/mod.rs
+5bebb360ff77e6816658beaba1a4ac04e46a960ff704fc22b9bfd8c7acb04c29  crates/ravel/worker/bun.lock
+12b9f57f6ce679461d4049997c4e254361215ab876eae0bda6c6238de09d0ce7  crates/ravel/worker/examples/static.ts
+a5d2953f5c04d57c5c2e1442bed2abde7cecb1ee9c83e7bcb8cdf944eeeba77d  crates/ravel/worker/package.json
+45acb35114686dd8e5ed26f1c5c6fa974369728724b945901725d1ca1daecab2  crates/ravel/worker/sample/policy.ts
+011efb7e01115cb740a6a7c275d0112c2b909b77aae8f363d52dbacd800724bf  crates/ravel/worker/sdk/index.ts
+34648f8f4992e9822b2bd3f602f44d65fef6d25ccb3cc8115ac6e42bb938500c  crates/ravel/worker/src/channel.ts
+ddb7a8154fe8474d6318434259a308af6e5009e1b27b412848ca350a02ae25eb  crates/ravel/worker/src/host.ts
+55edb5f41dc73832f807ef27805952a56642c27c5ebb61cb4a82a45267b5027d  crates/ravel/worker/src/main.ts
+60b59f85366658c730daa4eb03d0282d04eea7e9651c43322c33be774beafed1  crates/ravel/worker/tsconfig.declarations.json
+fc4e72f63731d6945345eee84586b13cdaff4510246ba4ecd910f2425d6aa5ed  crates/ravel/worker/tsconfig.json
+e02934226cc1c412eedbef6ee9cb82ae36fc0359e8d61514244672443984a058  crates/ravel/worker/typecheck/generic-policy.ts
+6a490bfe5aff1595a10db1305e99d3b34abd2b4efa814c0658eaf73fee77b5d2  docs/RELEASING.md
+996e7d918c01ccaa4c905f3c5463a1d19aedb69da65f2ac325e6ce5469682ad8  docs/adr/policy-evaluation-precedes-the-launch.md
+e3999ace5619fad61bfca59a4564e996ebf2410ab9504398a14dc59ecd6a3b95  docs/adr/ravel-supervises-the-session.md
+37edd2b4d3418dbd8223bde273cf7f5d9faded70301611ba9b2885a01e2a3f3a  docs/adr/the-launched-child-is-a-job.md
+aecd06444fe54d1b9db3535b9564adb2782f6d48c171c725fd668e2630fcf6c3  docs/archive-evidence.md
+4bbb8b3787b82a125bd1722b433290df29e15a70df81182829b5c085ffd7da31  docs/authority.md
+e78907b24591fd86f56fe4ae8924299caabba90442c0e6ab7f53242983f27db7  docs/caller-references.md
+23816c98f263ce53347b3d68410e411a2829a78dbfee6b5101f8f327f01b6c88  docs/completion-failure-design-evidence.md
+3a95ab3ae35bfe26d1b294c8db0b3b938b613961d08f3e52590b6c4576473666  docs/components.md
+3d87e6beabbbac68cf17241009088244c571ba7eec9c27ede44f8a58d80b370e  docs/design/components/README.md
+b505431238dcc3f75a61d8b2082247be08062f5536f2f7c05baed98f9a932d60  docs/design/components/cancellation.mmd
+eeeee4e93684d41f2e4a105017da1a49d50ec9b50f7ae2e8554e65fefb879263  docs/design/components/composition.mmd
+02e06cacaa832a7a645b15049669f07eb97b1db2005ff19e08a10d04566351a4  docs/design/components/diagrams.json
+3dbb48bc6d55c5f892c4be46db0d6ea217ab15a05ccc92d0cac696bf187520ab  docs/design/components/index.html
+e685b61d463a79715bb1c5e285e7a79c50c081694f1975c22ce9e09d41b0ba58  docs/design/components/success.mmd
+b5891d623e10099ffdc4ca10466befeee6657a0fbf12ac2ccbb91f031ca261e0  docs/design/result-job/README.md
+155b20502ec9b60d04364707229e3ce7d8b6b20801063a2e981e44e1bcfbb12b  docs/design/result-job/acquisition.mmd
+accfad3f5f77a327bb8dae28b2d40b0ba3506f4c5dceab95b6eaa0b1cc8725ef  docs/design/result-job/diagrams.json
+9eebc936c0c3b0b790dcec64c8d579ae4f58f2fd25b21fc224b8b4a329145c36  docs/design/result-job/failed-exec.mmd
+d95fd35654622756c2632a73f66d00d72039043aa5c8a2a8f642231b75b4bd74  docs/design/result-job/index.html
+6906db7e0240711af5f2d07d24fa0c9fcd7b26a1c319a2b070295362e6fc0687  docs/design/result-job/native-entry.mmd
+a6bc0c7492c700427718c5119cc316750c50a0c748636bd449f63c8a22c09ede  docs/design/result-job/ownership.mmd
+12788a845f2b59106c33cff94389ce005ddbb33b7d5ac3386f7487abb92176d7  docs/design/result-job/repair-outcomes.mmd
+41c6f36457b92ebd556067b4a25a75b950734a8797c09c134a6112efc87d6440  docs/design/result-job/settlement.mmd
+8f332e5d7fb050363d8746b3eef872642ec2092acd638f278da0dbdd49318911  docs/local-runner.md
+1bc0295ba91662a7fd7f3c63d7ab15da12c8474d070ea4bb54a6a88c550c2785  docs/owner-configuration.md
+9c0be25c60779a97e1930b9f047cb7a5d9d07d3e626167fe6fc282ce26097224  docs/publication-evidence.md
+da1a662991ac4f91eb4e83f6caa02b2e0cca8a0ed5bcaa5c5670681d032234fa  docs/release-lifecycle-evidence.md
+88ad2ab33914c9a1e69a1cd20d36ebfc820e5d429ef327bc7f1c29563577ed95  docs/result-job-source-evidence.md
+a014f7f6ce0a32c4128f9e10d68ea8115880f2076cc83f551cb31510e96bfc63  docs/retired-project.md
+f93e8d47f4a4fa46878103e53b617436c1710b33b5b9bc5600343bfa3392a20b  docs/runtime-evidence.md
+f46fcbb440dac285f882913ef930eb79ce29a1cf367041e6f57b88cecc5fa91a  docs/session-channel.md
+19ef8c1cb4cbfccbd83836c1a550f2cbd9fd6b1daf09526e3019b1baccb6e5d2  docs/session-cli.md
+3d59c3b89caf54a62ee8ac9276ac6486968a9905db0c268aa5796221119bf006  docs/specs/result-job-completion.md
+78d0f1b107fd7312b9448c1a582f0c69cc0175b6401e580c20d57249c729eccd  docs/specs/session-execution.md
+a34a46c006c0fd64bf6dad85e3ea95a6acd09fd2b311d0b318bd7bbb78a15a5f  release.toml
+6a08ae576043fb58b14de2d002a32b22c668cf49f0db4cec2200096a56d3f962  scripts/check.sh
+8fcf34814c4ebd5ec44dc8831eaa3b993fb8aece5fba4221c6896f58213890fa  scripts/installed-check.sh
+bf00b97607854149029f60ae87a9f0bd766e15e836f654b4cead5398926b4dcd  scripts/release-archives.test.sh
+3915f799f51ddfc1a5ee1cf1a1e13ef7b6776feee5b8f0ee46f0cf74305db365  scripts/release-build.sh
+5d96c309b09bd8868c024226e63a4a5fac1e70e5600adfaaebd57def9373e079  scripts/release-build.test.sh
+572b21c3b51fc58e791c8bb7c1f32826384c2e0b47035b5d705c089938f7b61c  scripts/release-check.sh
+e7a283bb07c2afae6cbefd530054f2877e94c5bb346379bd9eaffb5f2f775b6d  scripts/release-common.sh
+b54f094bd81cbf5d2785f774f599f5136f5e029ede0ebfa410e0e9978dafab10  scripts/release-doctor.sh
+adbdd09aeedc6d2584af4702b2ae4a8b2dbd9a9bfaa1fbec8c10eebb696bb9d5  scripts/release-doctor.test.sh
+eec0f771fa8ee742f0c36dea01ffd6c826ba56f9c68768a76da9416cd94c801d  scripts/release-formula.sh
+bf800e295b02bd287d5b68c81f41fbe056aaf87976528ad6a07ca262915ea008  scripts/release-formula.test.rb
+5fc30d79e1150061b03fea94266baa00a32c7b75a32b5f8ce0e0b4223bc64df7  scripts/release-lifecycle.test.sh
+4ac452d1192fec0f777e3833f869b26e25b9c7cf12d23584bcf9fb12adcac443  scripts/release-notes.sh
+599fc922c8f1c40a91c5c3c37becb335f78433e3b992ad518faac96c0e0499bd  scripts/release-prepare.sh
+08eeefac0c5013ed554bbd81b823cdf665b0eb6c1b6f17245d76d8d86cabb5ca  scripts/release-prepare.test.sh
+46bb72570456687b1dcdf7db6f42a401c81b91110e89a2bdca0b8b8cd147344c  scripts/release-publish.sh
+2488307ca54711dea3623a6eb03baa9fc62c257f4c6fe1ccabd1ea3512d4a395  scripts/release-smoke-qemu.sh
+4b126d7c31c66f3feb1c02e782f9076617c0e3f79c5e68571048acbc5932f53a  scripts/release-smoke-target.sh
+110ab2ac163d860bcd3022d5ef48264a8468752274d336a902fb8728da78548e  scripts/release-smoke.sh
+6767ec879210b21ad321369caf09a8862e4e41ef312c5e3037f65a22f62851aa  scripts/release.test.sh
+145a73a027d80bb9a3e64fe995eb9026adc77d4a304060f71c58e11c0b1d17e9  scripts/runtime-integrity.test.sh
+d37fbaf1e2a98a45b0a4a319eb9109925f6df07a231d8aa8afe387b54a530aa8  scripts/templates/ravel.rb.tmpl
+c158341dc896d0c64b95d1ae5ed52a2270f6b9fed1d833b072fcfd3fca85bf7c  scripts/worker-check.sh
+
+REGRESSION SOURCE/INPUT DELTAS from final focused manifest
+CLI and workspace check share a manifest; only differences are listed.
+18b31c867bd67f9ee8942d2d055ebbff903c08bb8bb16ef39d662fe2ddac6231  .grove/09-impl--cancellation-failure-transfer-k10.md
+85f9499b8633a877cc8be64d206349b9e4bb6ef35fde1164a2acd72b3673e231  crates/keyed-launch/src/error.rs
+a8658839c2e310123cfccfecc6e9be598725529d02bf13a1c05660c7ece71479  docs/completion-failure-design-evidence.md
+e38341cb35948fe72efdc856579ac9b4f937e5050124d167709ba43f881c468f  docs/components.md
+e092a14e89df483c7f3690c2bc9bc70640f33b563227a8aea4edaf71026ee42e  docs/design/result-job/acquisition.mmd
+73d8c4f812114002169d239382fb57e4b7a93573b44af564b908d9cde4a29abf  docs/design/result-job/diagrams.json
+6f4ae323883ed36539ce33355fe45b1ed53bf0aab870191c85d8318a932bb5dd  docs/design/result-job/ownership.mmd
+9c4d78dd185724eaf53db381f3dbbc404ebad99a978c92becd26e8101fb856fe  docs/local-runner.md
+8c01331c35e1d2ec7358c9e0a6489ba32cbbe8b2e1c44aba7b8efd121c66c8a4  docs/result-job-source-evidence.md
+dde7a1dcceadc18389eb3da1a81f88479f70bbd54abf00c76a72136771e16d48  docs/specs/result-job-completion.md
+
+RED CONTROL SOURCE DELTAS from final focused manifest
+transfer-full-red
+b72dbe99c4933daed3d1d8f28dd8bc3ea8b0702074a35b305a7ebb8f0d90cb55  crates/keyed-launch/src/error.rs
+sample-full-red
+53542d7e5bff37a6b867020dd27e2f26970abdadcf6e2c8baac719519298e7e1  crates/keyed-launch/src/run.rs
+diagnostic-full-red
+23b307cb88e5e9634440ef52c89a21b0dcd547408afb921446fdad311e7560ac  crates/keyed-launch/src/run.rs
+front-transfer-full-red
+3d50078762a12592a7e1ecd1e79983241d5b37002a36c52a9cf7143ee9ccf059  crates/ravel/src/run.rs
+front-report-full-red
+ed8ca19474aec7745f59c48a736bde817223367c74df2a21559f58caaca38296  crates/ravel/src/run.rs

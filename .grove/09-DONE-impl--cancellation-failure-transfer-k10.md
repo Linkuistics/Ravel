@@ -169,3 +169,75 @@ new-lifecycle debt. No simplification gain, supported target/migration or actual
 independent-capability use follows. Root capability delivery, unchanged config
 and complete sessions, human book structure, and practical post-proof reader
 checkpoint remain required.
+
+## Decisions (running log)
+
+- Follow k8/k9's approved design and existing implementation plan directly; no
+  new design agreement or architecture choice is needed. Use Rust style and
+  test-first controls. Tier 2 graph discovery refreshed coverage generation
+  `2026-10-14T05:46:38Z`; exact runner watch and both-direction supervise/settle
+  traces completed without pagination. Relied-on paths had matching metadata
+  and no recorded gap, a best-effort signal rather than completeness proof.
+- Preserve the existing opaque error/errno API, adding `consumed_signal()` as
+  numeric typed outcome data consistent with `End::Interrupted`. First signal
+  wins; drain the final wait sample on every route. Add distinct emergency-wait
+  text. The existing unit reclaim remains unchecked; narrow reported-recovery
+  composition tests must not claim actual checked terminal recovery (C4).
+- Fixed acceptance matrix above is the oracle. Start with the additive accessor
+  and failing runner controls; then implement transfer. Add/exercise the minimal
+  runner Taskfile selection. Front conversion/join and no-ending settlement
+  follow in the same complete increment, with no public fault switch.
+- Runner red control failed on missing HUP with the additive API present.
+  After repair, deliberate mutants separately erased transfer, omitted final
+  samples, and discarded emergency-wait text. They failed the intended signal,
+  before-observer/recovery drain, and distinct-diagnostic assertions. Sources
+  were restored after each measured run; every before/after manifest matched.
+- Front conversion/join controls initially failed missing HUP and discarded
+  primary diagnostics. Production now captures either outcome before conversion,
+  joins front/outcome/late in that order, and reports superseded failure through
+  existing stderr reporting, including labelled policy diagnostics. The private
+  helper consumes the same message/errno/signal accessor values as production;
+  it is not a parallel unused settlement path.
+- Final focused runs passed each logged parameter case, all 11 wait-event tests
+  and all four front tests. `task test:cli` passed all 11 real-policy/fake-job
+  cases. `task check` passed its formatting/scripts/build/probes/runtime/types/
+  lint checks and all 141 selected workspace tests (14 fixture roles skipped).
+  The fixed-reference expectations were retained. Full tracked input manifests
+  matched before/after. Generated build/cache outputs and external installed
+  dependencies/tools were not frozen by those project input manifests.
+- The single read-only fresh reviewer was given only the diff and C1 contract,
+  with graph/coverage context and the unchecked C4 boundary, and returned no
+  findings. No second review or competing tree review was commissioned. Keep
+  C2/C3/C4, native entry, G2–G5/R-W and independent-capability delivery owed.
+- Superseding full-input red controls repeated all five intentional breaks with
+  138 immutable tracked source/input subjects per run, then restored and reran
+  runner/front green with parameter receipts. The durable measured ledger is
+  `docs/cancellation-failure-transfer-checks.txt`, linked from existing evidence.
+  Runtime caches/generated outputs/external installations are not frozen by
+  these source manifests; the record names those limits. No product logic
+  changed after the workspace measurement; the final controls include the
+  revised error-type documentation comment.
+- Final documentation verification passed 143 local links/anchors and six
+  manifest diagram sources with 62 immutable subjects. Missing-file and
+  missing-anchor controls failed as intended. Dynamic HTML fragment IDs were
+  checked against the viewer's inline generator and manifests after the first
+  static-only validator rejected a generated fragment. Mermaid label edits
+  were read directly; rendered layout/dark/narrow qualification was not rerun.
+  Coverage at generation `2026-10-14T06:04:58Z` reported matching metadata and
+  no recorded Rust gaps; acquisition/ownership Mermaid ranges 1–26/1–28 were
+  read in full. The new text ledger is not graph-tracked and was generated/read
+  directly. `.cargo` is intentionally excluded and its controls were read.
+- `worker-reap-admission-k11` is a complete planning mandate inserted before
+  `book-structure-k5`, with D≤10/RC≤5, P=E=X=0. Resolve/brief-chain confirm it;
+  the book body's SHA-256 is unchanged through its rename. C2 admission needs
+  actual worker teardown before private report substitution and no subsequent
+  resolution/selection/managed spawn after unconfirmed reported reap.
+- Closure conservatively charges this leaf P≤30/E≤5/RC≤5 minutes, including
+  source/tests/evidence, one reviewer, tree/retirement/commit, D=X=0. Correctness
+  cumulative charged bounds are D≤50/RC≤20/P≤30/E≤5/X=0; remaining D≤40
+  (20 reserved for phase closure), RC≤10/P≤210/E≤115/X=0. These are conservative
+  upper bounds, not active timesheets. No allowance reset or full-earmark spend
+  is inferred. Root and next mandate carry the same account and remaining debt.
+  No glossary meaning or ADR choice changed; the reversible local repair does
+  not meet the hard-to-reverse/surprising/real-trade-off AND test. C2 and the book
+  remain live, so no parent close or finish teardown is earned.
