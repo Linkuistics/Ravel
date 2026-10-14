@@ -187,6 +187,30 @@ planning continuation, with D≤10/RC=P=E=X=0. It prices a complete C3 repair
 from remaining P/E before growth and preserves the 20-minute closure reserve.
 No fresh funding, parent completion, target or gain is inferred.
 
+K13 completes C3 planning as one complete allocator-to-consumer increment,
+`partial-acquisition-cleanup-k14`, before the book. Local ownership and recorded
+identity span partial preparation, successful transfer and explicit cleanup in
+confined, session and worker directories. Private controls cover original
+acquisition plus cleanup reports, actual moved/replaced/symlinked directories,
+unknown identity, destructor disarming and actual choice/front composition.
+Worker failures prevent evaluation/resolution/Selected; channel allocation
+occurs after Selected and prevents managed start/result instead. Source snapshot
+identity checks establish no atomic concurrent-mutation guarantee. No control
+or behavioral execution occurred during planning; C3 remains required work.
+
+K13 conservatively charges D≤10/RC=P=E=X=0 including verification/retirement/
+commit. Cumulative correctness charged bounds are D≤70/RC≤25/P≤70/E≤10/X=0;
+remaining D≤20 (all reserved for phase closure)/RC≤5/P≤170/E≤110/X=0.
+K14 prospectively allocates P≤60/E≤30/RC≤5, D=X=0 for the complete repair,
+private controls, immutable measured receipts, protected/workspace checks and
+closure. Full use would leave D≤20/RC=0/P≤110/E≤80/X=0; allocations are not
+spend. K14 records actual charges and prices only the next precise supported
+C4/native continuation from the existing k8 design and remaining P/E. No
+unreserved planning D remains; any further discovery/design/review requiring
+funding earns a precise human scope/funding continuation before the book,
+without silently consuming the closure reserve. No parent completion or new
+target/comparison/extraction/migration/gain is earned.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

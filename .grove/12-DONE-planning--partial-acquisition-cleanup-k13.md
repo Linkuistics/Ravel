@@ -96,3 +96,67 @@ G5 unexecuted runtime and R-W compatible runtime/lifecycle debt. No target,
 package, migration, independent adoption or simplification gain follows from C2.
 Root independent-capability delivery, unchanged owner configuration/complete
 sessions, human book structure and post-proof practical reader checkpoint remain.
+
+## Decisions (running log)
+
+- Keep one complete C3 allocator-to-consumer increment. The private directory
+  owner, preparation error composition, successful transfer, later explicit
+  removal and admission/settlement controls must land together. A guard-only
+  expansion does not deliver checked failure behavior. No package or generic
+  filesystem interface is selected; use the existing session identity rule as
+  the local behavioral reference, not as proof of atomic pathname deletion.
+- Exact source establishes post-creation fallible work in confined validation
+  and tmp creation, session held-directory open and Channel allocation, and
+  worker protocol-pair/duplicate/descriptor discovery/spawn. Allocator-local
+  controls go at those operations and identity capture/check/removal, before
+  resource transfer. Worker identity must be held before spawn; its owner stays
+  alive through confirmed teardown and explicit cleanup. Confined ownership
+  transfers before selection; session allocation occurs after Selected, so a
+  session allocation error forbids managed start/result but cannot assert that
+  selection never occurred. Worker preparation errors forbid evaluation success,
+  resolution and Selected. Keep those phase distinctions in the fixed matrix.
+- Price the complete C3 repair, private controls, immutable measured receipts
+  and regressions at P≤60/E≤30/RC≤5 minutes, D=X=0, zero production disruption.
+  The remaining RC may fund at most one narrow new-artifact reviewer; no reviewer
+  is used by planning. Record conservative planning charge D≤10, RC=P=E=X=0
+  including tree verification/retirement/commit. Cumulative charged correctness
+  bounds become D≤70/RC≤25/P≤70/E≤10/X=0; remaining D≤20 (all reserved for
+  phase closure)/RC≤5/P≤170/E≤110/X=0. Full future allocation would leave
+  D≤20/RC=0/P≤110/E≤80/X=0; allocations are not spend. No unreserved planning
+  D remains. C4/native-entry continuation must be precisely priced from existing
+  supported design and remaining P/E, or seek renewed human funding before
+  further discovery/design; do not consume the closure reserve implicitly.
+
+## Verification and stopping state
+
+Tier 2 discovery confirmed the nearest graph project
+`Users-antony-Development-Ravel.simplify-and-componentize`, then checked exact
+allocator/evaluator symbols and completed depth-one both-direction traces.
+Material snippets and direct allocator/choice/front source establish the
+post-creation failure points and transfer order. The graph's missing Confined
+front edge and unrelated heuristic callees were resolved against source;
+no exhaustive caller or OS-failure inventory is claimed. Source coverage at
+generation `2026-10-14T06:54:50Z` had matching metadata/no recorded issue;
+new tree coverage at generation `2026-10-14T07:34:16Z`, recorded 07:36:18 UTC,
+also matched. Coverage is best effort, not completeness proof. No cited source
+had a reported missed range. C2's private report substitution and existing
+session replacement fixture were read as enabling evidence, not executed.
+
+`grove-llm resolve` and `brief-chain` return k14 and the root brief; insertion
+keeps k14 before the book. `task --list-all` parses the existing reusable tasks,
+including nextest's correct test:list entry point. Fresh jj source/docs/Taskfile/
+glossary diff is empty; the same diff surface over .grove is dirty with exactly
+this planning log, the new mandate, book rename and root handoff. `jj file show`
+of the parent's book compared byte-for-byte equal to the renamed book. The new
+mandate was read in full and checked against this leaf's completion conditions:
+ownership/identity/errors, fixed private controls and consumer phase distinctions,
+red/mutants/green/receipts, preserved C1/C2 and priced continuation all appear.
+
+No product edit, fault-control construction, behavioral execution, fresh
+reviewer, comparative/catalogue/routing read, package selection or migration
+occurred. Planning P=E=RC=X=0. The existing spec already states C3's binding
+contract; no glossary meaning or existing ADR choice changed. This reversible
+work order does not meet the ADR test. The useful stopping state is one
+executable-ready, prospectively priced C3 mandate; C3/C4/native behavior and
+root/G2–G5/R-W obligations remain unclosed. K14 and the book are live, so no
+parent close or finish teardown is earned.
