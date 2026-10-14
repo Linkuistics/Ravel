@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.0.0
+
 - Declare the two-verb public CLI stable: `ravel start-session` and
   `ravel end-session RESULT`, with opaque caller-owned results, owner policy
   routing and confinement behaving exactly as released in 0.1.0.
