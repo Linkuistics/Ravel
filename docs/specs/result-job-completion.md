@@ -65,9 +65,15 @@ Executable-entry transparency needs capture before runtime changes; a native
 call-entry contract is a different choice. No concurrent embedding guarantee
 follows from a synchronous call.
 
-A process-lifetime supervisor can explicitly accept those persistent changes;
-a host that resumes arbitrary work needs an established restoration contract.
-Neither native arrangement nor any public package is selected here. The
+The agreed first independent native consumer is a launcher CLI: one invocation
+supervises one managed launch, settles its result or failure after required
+cleanup, and exits. Its contract requires authority over signal and terminal
+state through that settlement. A persistent runner is a separate component with
+its own continuing-host contract. Restoring a host that resumes arbitrary work
+is not the initial launcher consumer requirement; entry transparency, cancellation,
+cleanup and terminal recovery remain required. No concurrent embedding support
+is inferred from this lifetime choice, and no combined interface or public
+package is selected here. The
 [native-entry evidence](../result-job-source-evidence.md#selected-scope-transfer-versus-native-entry)
 and [failure counterexamples](../result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
 name the smallest missing premises and checks still owed.

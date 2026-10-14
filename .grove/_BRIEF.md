@@ -74,6 +74,29 @@ for subsequent design.
 It must carry k4's frame/history and G2–G5/R-W debt rather than reopen comparison
 or implementation under this observation's source-only authority.
 
+K7's human agreement establishes the first native consumer as a one-session
+launcher CLI that settles its launch and exits; the persistent runner is a
+separate component with its own continuing-host contract. Address all four
+known acquisition/failure gaps before selecting new component boundaries,
+using the agreed CLI/real-policy/fake-job, transport/real-process and runner/PTY
+boundaries plus justified private worker-wait and partial-acquisition failure
+controls. This is correctness work on the incumbent, not a supported target,
+comparison restart, extraction or observed independent-use result.
+
+The prospective correctness phase starts with `completion-failure-contract-k8`,
+inserted before the book agreement. Its aggregate effort caps are D≤90 minutes
+(including 20 minutes for closure), RC≤30 minutes,
+P≤240 minutes, E≤120 minutes and X=0, with zero production disruption. The next
+leaf is design-only, P=E=X=0. It may price and grow the next precise repair/check
+work from the remaining caps once its design supports the increments. Record
+charged work and pass remaining limits forward; reaching a bound with unfinished
+work calls for a precise remainder and renewed human funding, never a reset.
+K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
+debt remain. The k7 agreement contains the detailed scope, enabling points and
+test expectations. Correctness repairs precede any later comparative target
+and migration selection; the root's remaining delivery and documentation goals
+still require their own supported work.
+
 `book-structure-k5` is the human structure agreement for the requested book for a
 developer new to this context. If k4 leaves consequential design uncertainty,
 place its precise continuation before that agreement. A supported target can

@@ -9,6 +9,13 @@ authority and the meaning a caller gives a result.
 **Caller**: The person or program invoking Ravel and interpreting its returned
 opaque result. Its task conventions and continuation decisions are caller-owned.
 
+**Launcher CLI**: A one-session, process-lifetime consumer that supervises a
+**Managed process**, settles its **Opaque result** or failure, then exits.
+
+**Persistent runner**: A separate component whose host lifetime continues after
+a managed launch settles. Its continuing-host contract is distinct from the
+**Launcher CLI**'s one-session lifetime.
+
 **Owner policy**: The executable TypeScript configuration authorised to select
 a command or refuse the caller's request. Its author controls routing choices.
 
