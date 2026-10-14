@@ -201,3 +201,107 @@ alternatives, G5 runtime and R-W lifecycle/compatibility debt. No comparison,
 catalogue/routing read, target/package/extraction/migration or gain is inferred.
 Root independent-capability delivery, unchanged owner configuration/complete
 sessions, human book structure and practical post-proof reader checkpoint remain.
+
+## Decisions (running log)
+
+- Bootstrap resolved the mandated leaf and root-only brief chain. Tier 2 graph
+  discovery/traces/snippets and coverage refreshed at 2026-10-14T07:37:35Z; the
+  six material Rust paths have matching metadata and no recorded gaps. Direct
+  front source supplies the omitted Confined::prepare caller; unrelated heuristic
+  edges are not evidence. Cargo.lock pins tempfile 3.27.0.
+- The fixed cases precede repair and use ignored process-isolated roles. Product
+  completion source is compiled privately into the binary test target so the
+  actual front can receive allocator-local controls without a public fault API.
+  C2 report instrumentation now acts only when its own report is armed; C3 must
+  observe physical residual identity/removal independently of C2 substitutions.
+- Follow the existing k8/k13 design and k14 plan inline. The small local directory
+  owner will disarm TempDir immediately, record device/inode before process access,
+  and disarm its own best-effort Drop before checked cleanup. Snapshot comparison
+  supplies the agreed replacement protection, with no concurrent mutation claim.
+
+- The corrected additive-seam red has intended diagnostic-loss, unsafe identity
+  and failed admission assertions. The first run failed only fixture parsing
+  (`--cwd` is not a public flag), so is retained but credited no red evidence.
+  Initial green exposed erroneous fixture expectations for EIO's preserved kind,
+  session_cancelled after selection, and nested debris removed by checked outer
+  cleanup. Fix those against the existing public contract: session fixtures use
+  an independent exit-dir, and compare original EIO kind/source/errno. No product
+  expectation was weakened. Add real runtime validation and descriptor closure.
+
+- The one fresh reviewer returned three actionable findings, verified against
+  source: actual Channel allocation discarded its typed OS cause; worker controls
+  omitted acquired outer confined ownership; conversation/cancellation + physical
+  C3 cleanup + C2 wait-report combinations were missing. Add executable controls
+  for each. Real missing-directory channel red reports Other instead of NotFound;
+  retain Channel's original io::Error in LaunchError's source chain and select
+  that kind at the SessionChannel conversion. Preserve LaunchError::raw_os_error's
+  existing spawn-only semantics. This is local diagnostic retention, not a new
+  public fault API, ownership premise or generic filesystem design. These fixes
+  are conclusively checked through the funded seams; no second review is needed.
+- Private receipt logging is separated from captured product stderr before
+  assertions. Front settle already emits the superseded allocation error there;
+  testing returned cancellation text alone missed that existing report boundary.
+
+- Reviewer coverage gaps are filled by real front worker cases retaining acquired
+  confined ownership, and fixed refusal/deadline/protocol/overflow × physical
+  removal/identity-failure × reported wait/secondary poll/cancellation cases.
+  INT/TERM/HUP preserve the first signal; the existing choice override is also
+  exercised with residual C3 cleanup. Actual wait succeeds before substitution,
+  including confirmed nonzero exit. Product stderr and physical/injected receipts
+  are distinct. A moved-path retry control restores the owned inode to its original
+  name after explicit failed cleanup, making an erroneously armed Drop destructive.
+
+- All 97 C3 cases and the four distinct final mutants discriminate as required.
+  Protected CLI 12/C2 35/C1 front 4/runner 11 and task check's 283 workspace cases
+  pass. Focused outcomes match the workspace item by item. Before documentation
+  closure, refine receipt labels to distinguish entering owner cleanup, actual
+  identity/removal/wait operations and substitutions where no syscall was tried.
+  Re-measure the changed private instrumentation, retaining the earlier runs.
+
+- The refined physical/report receipt run again passes all 97 C3 cases, and the
+  final task check passes all 283 selected workspace cases plus formatting,
+  scripts, worker build/probes, runtime integrity, types and lint. Protected
+  CLI/C1/C2 remain item-by-item confirmed. Product and private instrument edits
+  preceded each measurement, and every before/after subject digest agrees.
+- Conservatively charge P≤35/E≤10/RC≤5 minutes including remaining evidence,
+  tree/retirement/commit, D=X=0. Cumulative correctness D≤70/RC≤30/P≤105/E≤20/X=0;
+  remaining D≤20 (all closure reserve)/RC=0/P≤135/E≤100/X=0. Unused allocation
+  is not spend. C4's existing design is prospectively priceable at P≤65/E≤35,
+  but further review/coordination RC is exhausted. Grow terminal-entry-funding-k15
+  before the book to obtain explicit RC renewal and any necessary native-entry
+  discovery/design funding. No cap resets, parent completion or target follows.
+
+## Verification and stopping state
+
+The final C3 receipt run has 97 passing selected cases; the final workspace run
+has 283 passing cases with 17 ignored fixture roles outside direct selection.
+CLI 12, C2 35, C1 front 4 and runner wait-events 11 pass and match the final
+workspace item by item. The four distinct mutants fail diagnostic-loss, identity,
+destructor-retry and admission assertions; the final gate mutant distinguishes
+worker failure 5 from missing-program resolution 127. All source was restored
+before green. The receipt collector verifies final Rust/nextest hashes against
+both final run manifests, round-trips every encoded log and the gzip payload,
+and retains immutable per-run input digests/status/outcomes. Gzip keeps these
+receipts below jj's normal new-file snapshot limit without changing repo settings.
+The artifact is docs/partial-acquisition-cleanup-checks.txt.gz.
+
+All 146 local paths/fragments in six touched documents validate with a stable
+input manifest; the private measurement shell wrappers pass ShellCheck. The
+continuation resolves with the root brief, and the book retains its body through
+its rename. No current architectural choice changed, so no new ADR is needed;
+the existing worker-order ADR now points to scoped C3 evidence.
+
+Final Tier 2 coverage generation 2026-10-14T08:12:06Z has matching metadata and
+no recorded gaps for the thirteen material Rust paths and touched prose/config.
+The private-owner trace also omits session/worker cleanup edges; direct source
+confirms their preparation and later explicit calls. This is best-effort graph
+evidence, not an exhaustive call inventory. The compressed receipt is not graph
+tracked; direct decompression, digest validation and item-by-item comparison
+supply its evidence. No OS wait/removal fault is inferred from a substituted
+report, and no atomic concurrent pathname protection is inferred from snapshots.
+
+This completes the local incumbent C3 slice. C4/native entry, independent
+capability delivery, later supported target/migration and the human book/reader
+work remain. terminal-entry-funding-k15 and book-structure-k5 are live, so no
+parent closes. Retire this leaf and seal its one focused jj change with its
+artifact/evidence, funding continuation and promoted account.

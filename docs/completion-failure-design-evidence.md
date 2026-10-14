@@ -6,7 +6,8 @@ This document holds source locations, proposed private enabling points and
 discriminating checks. C1 is now implemented with the
 [C1 observations below](#c1-checked-observations). C2 admission and diagnostic
 preservation now have [checked observations](#c2-checked-observations);
-C3/C4 and native entry remain required work. A design or rendered diagram establishes no runtime
+C3 now has [checked allocator/consumer observations](#c3-checked-observations).
+C4 and native entry remain required work. A design or rendered diagram establishes no runtime
 conformance. The earlier
 [A0–A15 inventory and C1–C4](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 remain observations at fixed reference
@@ -18,7 +19,7 @@ remain observations at fixed reference
 |---|---|---|
 | C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1217) samples at every final wait attempt and carries its first signal through `Failed.error`. [`supervise_reported`](../crates/keyed-launch/src/run.rs#L1177) composes that error with recovery reports. [`run`](../crates/ravel/src/run.rs#L32) reads the error observation before conversion even without an ending. | `LaunchError::consumed_signal()` retains numeric cancellation separately from message/errno. Front joins front, outcome, late and reports superseded errors. No global requeue, fabricated `Ended`, or failed-wait group assertion. Checked C1 evidence is below; actual checked reclaim remains C4. |
 | C2 / O2, O3, O9 | [`evaluate`](../crates/ravel/src/worker.rs#L317) retains conversation and teardown reports, then checks confirmed wait and required removal before success. [`evaluate_and_resolve`](../crates/ravel/src/choice.rs#L118) resolves only after evaluation returns. | Evaluator gates successful evaluation on confirmed teardown. Keep conversation judgment, bounded output, timeout and cancellation precedence; retain wait/removal errors as secondary operational diagnostics when a conversation already failed. |
-| C3 / O9 | [`Confined::prepare`](../crates/ravel/src/confinement.rs#L28), [`SessionChannel::allocate`](../crates/ravel/src/completion.rs#L33) and worker preparation acquire a directory before later fallible work. Destruction alone reports no removal outcome. | Each allocator settles its local partial resource, returning original failure plus checked cleanup reports. Use the existing identity-protection rule of [`SessionChannel::cleanup`](../crates/ravel/src/completion.rs#L77); retain captured policy output separately. No new public filesystem abstraction. |
+| C3 / O9 | [`Confined::prepare`](../crates/ravel/src/confinement.rs), [`SessionChannel::allocate`](../crates/ravel/src/completion.rs) and worker preparation retain a private [`PrivateDirectory`](../crates/ravel/src/private_directory.rs) from creation through transfer/cleanup. | Disarm pathname-only TempDir cleanup before identity capture, preserve original cause plus every checked cleanup report, and compare recorded device/inode/type before removal. Unknown identity refuses deletion; explicit attempts disarm Drop. Anchored reads remain separate. C3 evidence below limits the snapshot guarantee. |
 | C4 / O8, O9 | [`hold_before_spawn`](../crates/keyed-launch/src/run.rs#L606) saves a lease; [`run_with_output`](../crates/keyed-launch/src/run.rs#L793) can hand foreground to the child before failed exec returns through `?`. [`reclaim`](../crates/keyed-launch/src/run.rs#L650) occurs only inside supervision and returns no checked outcome. | Runner keeps that lease through the spawn result and makes recovery reportable. Identify this attempt's group before handoff; preserve spawn errno while appending recovery failures. Keep existing delegated-foreground policy for successful launches. |
 | Native entry / O2, O7, O8 | [`record`](../crates/ravel/src/signal_state.rs#L66) runs before Rust startup; [`EntrySignals`](../crates/keyed-launch/src/run.rs#L429) supplies child state. Host handlers and ignored-SIGCHLD repair persist. | CLI lifetime owns host signal authority until exit. Capture before runtime changes; establish waitability before the worker as well as before the managed child; keep required mask/terminal cleanup and late joining. No arbitrary continuing-host restoration. |
 
@@ -127,7 +128,8 @@ explicit rather than normalised away in a comparison.
 ## Discriminating checks
 
 These originated as construction/execution plans. C1/C2 instruments and observed
-outcomes are recorded below; C3/C4 and native-entry rows remain plans. Expected outcomes
+outcomes are recorded below; C3 instruments now have observations too. C4 and
+native-entry rows remain plans. Expected outcomes
 derive from O1–O10 and the agreements, held outside
 the repair under judgment at the fixed reference. First demonstrate each fault
 control fires against the unchanged behavior or a deliberate broken control;
@@ -236,7 +238,7 @@ in the workspace run protect physical descendant cleanup, group-before-reap,
 terminal recovery and signal propagation; private error controls do not prove
 those syscalls failed in the real process.
 
-The C2 observations below close the worker-admission slice. C3 partial cleanup,
+The C2 and C3 observations below cover worker admission and allocator ownership.
 C4 checked terminal recovery/failed exec and native entry remain mandatory. Started remains spawn-reported
 success, not exec confirmation. C4's exclusive-lease/identity assumptions and
 the distinction from a returning host remain conditional. These local checks
@@ -304,11 +306,78 @@ before the successful workspace run. Sources restored after the final mutants
 match that workspace's measured product hashes; the focused rerun independently
 confirms every C2 item.
 
-C3 partial preparation/identity cleanup, C4 checked failed-exec/terminal recovery
-and native waitability/signal transitions remain owed. Inherited auto-reap,
+At the C2 boundary, C3 partial preparation/identity cleanup remained owed;
+the [later C3 observations](#c3-checked-observations) address that slice. C4
+checked failed-exec/terminal recovery and native waitability/signal transitions
+remain owed. Inherited auto-reap,
 detached policy children, library panic and uncatchable death are not discharged
 by substituted reports. No complete failure-path conformance, extraction,
 independent adoption, migration or simplification gain follows.
+
+## C3 checked observations
+
+Each of the three allocators now owns its directory immediately after creation,
+disarms `TempDir` pathname cleanup, and records device/inode/type before worker
+or managed-process access. A local preparation error explicitly settles that
+owner before returning; only success transfers it. Confined and session owners
+retain the same identity for later explicit cleanup and best-effort Drop. Worker
+ownership lasts through real teardown, bounded capture and required removal.
+Reap plus required removal still gates successful evaluation before resolution.
+A failed wait remains unconfirmed even if a directory-removal attempt succeeds.
+
+Cleanup disarms its destructor before any identity/removal check. Missing/moved,
+replaced, symlinked and unknown identities refuse deletion, preserving unrelated
+contents and supplying the exact owned path, operation, uncertainty and advice
+to inspect that path and locate the moved directory. The code neither knows nor
+invents its new location. Original acquisition classification, source, remedy
+and detail remain primary without cancellation. The session I/O wrapper retains
+the original kind and typed source; errno is accessible on the original I/O
+source, while `raw_os_error()` on a contextual `io::Error` wrapper is `None`.
+Real appearance-channel errors now retain that I/O source in `LaunchError`;
+its existing spawn-only `raw_os_error()` accessor is unchanged.
+
+[Measured receipts](partial-acquisition-cleanup-checks.txt.gz) are a gzip-compressed
+UTF-8 ledger retaining commands,
+status, named outcomes and before/after SHA-256 subjects. `green-physical-final` additionally
+retains every case's physical acquisitions/identity/cleanup attempts and separately
+substituted reports, outside captured product stderr. All measured manifests
+match before/after. Tracked project inputs, Cargo.lock and the measurement wrapper
+are frozen; generated binaries/fixtures/caches, installed tools/dependencies and
+host state are not. The receipts name collection snapshots of the generated
+orchestration scripts separately from measured subjects. Long `x` runs have a
+reversible encoding, expanded and digest-checked before storage. macOS arm64,
+Bun 1.4.2 and nextest 0.9.148 are the executed domain, not cross-target qualification.
+
+| Instrument | Observation |
+|---|---|
+| Fixed nextest listing and restored focused run | All 97 selected C3 cases pass; one ignored process-isolated role is invoked by the controls. Creation failures acquire no fictional path. Identity-capture failures leave deletion explicitly unconfirmed. Post-creation failures execute actual acquisition before substitution. |
+| Allocator preparation and transferred ownership | Confined canonical/runtime/protected/tmp controls, real runtime validation, separate session reader/channel controls, and worker pair/duplicate/descriptors/missing or nonexecutable spawn controls preserve original error and all local reports. Every acquired descriptor closes. No worker failure reaches Selected/start; channel failure follows selection but prevents managed start/result. |
+| Real identity fixtures | Every allocator preserves prior moves, directory replacements and symlink targets, before transfer and at later cleanup. Failed removal leaves real observable debris until fixture cleanup. Restoring a moved owned inode to its original name after explicit failed cleanup does not rearm Drop. |
+| Actual channel error | Moving the directory before the underlying Channel allocator produces a real ENOENT; the original NotFound kind, typed source and errno survive checked cleanup context. This is distinct from post-success EIO substitution. |
+| Failure composition | Refusal/deadline/protocol/overflow combine physical C3 residual ownership with reported C2 wait/poll failure. First INT/TERM/HUP and late choice override retain primary metadata, bounded policy output, local/outer cleanup and wait reports. Actual wait precedes substitutions; nonzero exit confirms reap but failed removal still gates admission. |
+| Four distinct mutants | Diagnostic loss fails cleanup advice/report assertions; bypassed identity fails replaced/symlinked ownership or admission; unconditional destructor removal erases real debris and the restored moved-path sentinel; omitted removal gate admits Selected or permits missing-program resolution 127 instead of worker failure 5. All mutations are restored. |
+| No-fault complete sessions | Selected/start and exact empty/Unicode/multiline result bytes survive cleanup; a confined complete session passes too. Existing anchored reads, first-writer publication and nesting remain covered. |
+| Protected checks | CLI 12, C2 35, C1 front 4 and runner wait-events 11 all pass, sequentially. The scheduling reservation includes C3, with no deadline widening or retry-to-success. |
+| Workspace | `task check` passes formatting, scripts, worker build/probes, runtime integrity, typechecking, lint and all 283 selected tests; 17 ignored fixture roles remain outside direct selection. Each focused named outcome is independently matched to the workspace outcome, rather than comparing totals. |
+
+The one reviewer found real channel error conversion loss, missing outer-confined
+worker controls and missing conversation/C2/C3 combinations. Each was verified
+and corrected with executable discriminators; no second reviewer or redesign was
+commissioned. Earlier CLI-argument, error-kind/cancellation-code and sentinel
+placement fixture mistakes, plus one compile-only failure, are retained but earn
+no conformance credit. A missing-program gate mutant initially exposed a weak
+fixture assertion; strengthening it against the fixed worker-5 contract makes
+both missing and valid program controls fail the final mutant.
+
+Snapshot comparison/removal is not atomic under concurrent pathname mutation.
+Private removal/wait substitutions do not establish actual OS syscall failure;
+physical residual fixtures and the real ENOENT observation establish only their
+named operations. Fixture-parent removal after assertions never changes the
+reported production outcome. Panic, uncatchable death, detached policy children,
+native auto-reap and unchecked signal/mask/terminal premises remain outside these
+checks. C4 and native entry remain required. No extraction, supported component
+target, independent adoption, migration, comparison restart or simplification
+gain follows from C3 success.
 
 ## Evidence limits and remaining work
 

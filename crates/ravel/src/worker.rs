@@ -344,98 +344,164 @@ pub fn evaluate<T>(
     // mode is stated because `tempfile` otherwise makes a directory
     // `0o777 & !umask`, which a permissive umask leaves open to other users:
     // https://docs.rs/tempfile/3.27.0/tempfile/struct.Builder.html#method.permissions
+    #[cfg(test)]
+    let parent = crate::directory_control::parent("worker", std::env::temp_dir());
     let private_dir = tempfile::Builder::new()
         .prefix("ravel-worker.")
         .permissions(fs::Permissions::from_mode(0o700))
-        .tempdir()
+        .tempdir_in({
+            #[cfg(test)]
+            {
+                parent
+            }
+            #[cfg(not(test))]
+            {
+                std::env::temp_dir()
+            }
+        })
         .map_err(|error| {
             failed(format!(
                 "cannot create the worker's private directory: {error}"
             ))
         })?;
-    let (front_end, pair_end) = UnixStream::pair()
-        .map_err(|error| failed(format!("cannot create the protocol channel: {error}")))?;
-    let worker_end = above_stdio(&pair_end)
-        .map_err(|error| failed(format!("cannot prepare the protocol channel: {error}")))?;
-    // Only the duplicate crosses into the worker. Any other copy of its end
-    // held here would keep the channel open after the worker dies, and the
-    // read below would wait for an EOF that never comes.
-    drop(pair_end);
-
-    let mut command = Command::new(worker);
-    command
-        .current_dir(private_dir.path())
-        .env_clear()
-        .envs(environment)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
-    let channel = worker_end.as_raw_fd();
-    let inherited = held_descriptors().map_err(|error| {
-        Refusal::new(
-            "worker_failed",
-            Stage::Worker,
-            EXIT_WORKER,
-            format!(
-                "cannot list this process's open descriptors in {DESCRIPTORS}, so the policy \
-                 worker could inherit one it must not: {error}"
-            ),
-            format!("run ravel where {DESCRIPTORS} lists the process's descriptors"),
+    let mut private_dir = crate::private_directory::PrivateDirectory::new(private_dir, "worker");
+    let prepared = (|| -> Result<_, Refusal> {
+        private_dir
+            .record_identity()
+            .map_err(|error| failed(format!("cannot record worker directory identity: {error}")))?;
+        let (front_end, pair_end) = UnixStream::pair()
+            .map_err(|error| failed(format!("cannot create the protocol channel: {error}")))?;
+        #[cfg(test)]
+        let (front_end, pair_end) = crate::directory_control::operation(
+            "worker",
+            "pair",
+            private_dir.path(),
+            Ok((front_end, pair_end)),
         )
-        .source(DESCRIPTORS)
-    })?;
-    // SAFETY: the closure runs between fork and exec, so it calls only
-    // async-signal-safe functions (`dup2`, `fcntl`) on descriptors computed
-    // before the fork, and touches no Rust runtime state or allocator.
-    unsafe {
-        command.pre_exec(move || {
-            // `dup2` onto itself would leave close-on-exec set, and
-            // `above_stdio` guarantees the source is at least 3.
-            if channel == CHANNEL_FD {
-                let flags = libc::fcntl(channel, libc::F_GETFD);
-                if flags == -1
-                    || libc::fcntl(channel, libc::F_SETFD, flags & !libc::FD_CLOEXEC) == -1
-                {
-                    return Err(std::io::Error::last_os_error());
-                }
-            } else if libc::dup2(channel, CHANNEL_FD) == -1 {
-                return Err(std::io::Error::last_os_error());
-            }
-            // Everything above the channel closes at exec, so the worker holds
-            // descriptors 0-3 and nothing a caller happened to leave open.
-            for &fd in inherited.iter().filter(|&&fd| fd > CHANNEL_FD) {
-                if libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) == -1
-                    && std::io::Error::last_os_error().raw_os_error() != Some(libc::EBADF)
-                {
-                    return Err(std::io::Error::last_os_error());
-                }
-            }
-            Ok(())
-        });
-    }
+        .map_err(|e| failed(format!("cannot create the protocol channel: {e}")))?;
+        let worker_end = above_stdio(&pair_end)
+            .map_err(|error| failed(format!("cannot prepare the protocol channel: {error}")))?;
+        #[cfg(test)]
+        let worker_end = crate::directory_control::operation(
+            "worker",
+            "duplicate",
+            private_dir.path(),
+            Ok(worker_end),
+        )
+        .map_err(|e| failed(format!("cannot prepare the protocol channel: {e}")))?;
+        // Only the duplicate crosses into the worker. Any other copy of its end
+        // held here would keep the channel open after the worker dies, and the
+        // read below would wait for an EOF that never comes.
+        drop(pair_end);
 
-    let started = Instant::now();
-    let deadline = started + bound.duration();
-    let mut child = command.spawn().map_err(|error| {
-        if error.kind() == ErrorKind::NotFound {
+        let mut command = Command::new(worker);
+        command
+            .current_dir(private_dir.path())
+            .env_clear()
+            .envs(environment)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        let channel = worker_end.as_raw_fd();
+        let inherited = held_descriptors().map_err(|error| {
             Refusal::new(
-                "worker_missing",
+                "worker_failed",
                 Stage::Worker,
                 EXIT_WORKER,
                 format!(
+                    "cannot list this process's open descriptors in {DESCRIPTORS}, so the policy \
+                 worker could inherit one it must not: {error}"
+                ),
+                format!("run ravel where {DESCRIPTORS} lists the process's descriptors"),
+            )
+            .source(DESCRIPTORS)
+        })?;
+        #[cfg(test)]
+        let inherited = crate::directory_control::operation(
+            "worker",
+            "descriptors",
+            private_dir.path(),
+            Ok(inherited),
+        )
+        .map_err(|e| {
+            Refusal::new(
+                "worker_failed",
+                Stage::Worker,
+                EXIT_WORKER,
+                format!("cannot list descriptors: {e}"),
+                format!("run ravel where {DESCRIPTORS} lists the process descriptors"),
+            )
+            .source(DESCRIPTORS)
+        })?;
+        #[cfg(test)]
+        crate::directory_control::before_spawn(worker);
+        // SAFETY: the closure runs between fork and exec, so it calls only
+        // async-signal-safe functions (`dup2`, `fcntl`) on descriptors computed
+        // before the fork, and touches no Rust runtime state or allocator.
+        unsafe {
+            command.pre_exec(move || {
+                // `dup2` onto itself would leave close-on-exec set, and
+                // `above_stdio` guarantees the source is at least 3.
+                if channel == CHANNEL_FD {
+                    let flags = libc::fcntl(channel, libc::F_GETFD);
+                    if flags == -1
+                        || libc::fcntl(channel, libc::F_SETFD, flags & !libc::FD_CLOEXEC) == -1
+                    {
+                        return Err(std::io::Error::last_os_error());
+                    }
+                } else if libc::dup2(channel, CHANNEL_FD) == -1 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                // Everything above the channel closes at exec, so the worker holds
+                // descriptors 0-3 and nothing a caller happened to leave open.
+                for &fd in inherited.iter().filter(|&&fd| fd > CHANNEL_FD) {
+                    if libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) == -1
+                        && std::io::Error::last_os_error().raw_os_error() != Some(libc::EBADF)
+                    {
+                        return Err(std::io::Error::last_os_error());
+                    }
+                }
+                Ok(())
+            });
+        }
+
+        let started = Instant::now();
+        let deadline = started + bound.duration();
+        let child = command.spawn().map_err(|error| {
+            if error.kind() == ErrorKind::NotFound {
+                Refusal::new(
+                    "worker_missing",
+                    Stage::Worker,
+                    EXIT_WORKER,
+                    format!(
+                        "the policy worker {} cannot be started: {error}",
+                        worker.display()
+                    ),
+                    REBUILD,
+                )
+                .source(worker.to_string_lossy())
+            } else {
+                failed(format!(
                     "the policy worker {} cannot be started: {error}",
                     worker.display()
-                ),
-                REBUILD,
-            )
-            .source(worker.to_string_lossy())
-        } else {
-            failed(format!(
-                "the policy worker {} cannot be started: {error}",
-                worker.display()
-            ))
+                ))
+            }
+        })?;
+        Ok((front_end, worker_end, child, started, deadline))
+    })();
+    let (front_end, worker_end, mut child, started, deadline) = match prepared {
+        Ok(prepared) => prepared,
+        Err(original) => {
+            let cleanup = private_dir.cleanup();
+            return Err(match cleanup {
+                Ok(()) => original,
+                Err(error) => {
+                    original.report(&error.to_string(), crate::private_directory::CLEANUP_ADVICE)
+                }
+            }
+            .into());
         }
-    })?;
+    };
     // The front keeps only its own end, so the worker's exit reads as EOF.
     drop(worker_end);
     let capture = Capture::start(
@@ -469,9 +535,7 @@ pub fn evaluate<T>(
     };
     let (diagnostics, overflowed) = capture.collect(Instant::now() + DRAIN_GRACE);
     let directory = private_dir.path().to_owned();
-    // close consumes the guard even on error, preventing an unreported Drop retry:
-    // https://docs.rs/tempfile/3.27.0/tempfile/struct.TempDir.html#method.close
-    let removed = private_dir.close();
+    let removed = private_dir.cleanup();
     #[allow(unused_mut)]
     let mut teardown = Teardown {
         pid: child.id(),
@@ -481,7 +545,14 @@ pub fn evaluate<T>(
         removed,
     };
     #[cfg(test)]
+    crate::directory_control::receipt(format!(
+        "actual worker wait pid={} result={:?} operations={:?}",
+        teardown.pid, teardown.status, teardown.reports
+    ));
+    #[cfg(test)]
     admission_tests::reported_teardown(&mut teardown, &mut child);
+    #[cfg(test)]
+    crate::directory_control::worker_reports(&mut teardown.status, &mut teardown.reports);
     let admitted = teardown.status.is_ok() && teardown.removed.is_ok();
     let operational = teardown.describe(worker);
     let primary = overflowed.then(|| output_limit(entry, limits));

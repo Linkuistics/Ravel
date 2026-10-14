@@ -9,7 +9,7 @@ use crate::choice::Prepared;
 use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
 
 pub struct Confined {
-    private: tempfile::TempDir,
+    private: crate::private_directory::PrivateDirectory,
     pub writable: Vec<PathBuf>,
     pub runtime_read: Vec<PathBuf>,
     executable: PathBuf,
@@ -39,68 +39,113 @@ impl Confined {
             return Err(unusable(&cwd, "the cwd must not be /"));
         }
         keyed_launch::confinement_available().map_err(|error| unusable(&cwd, error))?;
+        #[cfg(test)]
+        let parent = crate::directory_control::parent("confined", std::env::temp_dir());
         let private = tempfile::Builder::new()
             .prefix("ravel-confined-")
             .permissions(std::fs::Permissions::from_mode(0o700))
-            .tempdir()
+            .tempdir_in({
+                #[cfg(test)]
+                {
+                    parent
+                }
+                #[cfg(not(test))]
+                {
+                    std::env::temp_dir()
+                }
+            })
             .map_err(|error| unusable(&std::env::temp_dir(), error))?;
-        let root = private
-            .path()
-            .canonicalize()
-            .map_err(|error| unusable(private.path(), error))?;
-        let mut writable = vec![cwd, root.clone()];
-        if let Some(exit_dir) = exit_dir {
-            writable.push(exit_dir.to_owned());
-        }
-        let mut reads = Vec::new();
-        for path in runtime_read {
-            let resolved = path.canonicalize().map_err(|error| unusable(path, error))?;
-            if !resolved.is_file() {
-                return Err(unusable(path, "a runtime read must name a regular file"));
+        let mut private = crate::private_directory::PrivateDirectory::new(private, "confined");
+        let prepared = (|| -> Result<_, Refusal> {
+            private
+                .record_identity()
+                .map_err(|error| unusable(private.path(), error))?;
+            let root = private
+                .path()
+                .canonicalize()
+                .map_err(|error| unusable(private.path(), error))?;
+            #[cfg(test)]
+            let root = crate::directory_control::operation(
+                "confined",
+                "canonical",
+                private.path(),
+                Ok(root),
+            )
+            .map_err(|e| unusable(private.path(), e))?;
+            #[cfg(test)]
+            crate::directory_control::operation("confined", "runtime", private.path(), Ok(()))
+                .map_err(|e| unusable(private.path(), e))?;
+            let mut writable = vec![cwd, root.clone()];
+            if let Some(exit_dir) = exit_dir {
+                writable.push(exit_dir.to_owned());
             }
-            if resolved.to_str().is_none() {
-                return Err(unusable(
-                    path,
-                    "a runtime path must be UTF-8 to be named exactly",
-                ));
+            let mut reads = Vec::new();
+            for path in runtime_read {
+                let resolved = path.canonicalize().map_err(|error| unusable(path, error))?;
+                if !resolved.is_file() {
+                    return Err(unusable(path, "a runtime read must name a regular file"));
+                }
+                if resolved.to_str().is_none() {
+                    return Err(unusable(
+                        path,
+                        "a runtime path must be UTF-8 to be named exactly",
+                    ));
+                }
+                reads.push(resolved);
             }
-            reads.push(resolved);
-        }
-        let mut protected = vec![prospective(
-            Path::new(&selection.entry.path)
-                .parent()
-                .expect("absolute policy has a parent"),
-        )?];
-        if let Some(settings) = &selection.settings_path {
-            protected.push(prospective(settings)?);
-        }
-        let system_reads = keyed_launch::confinement_system_reads()
-            .iter()
-            .map(|path| prospective(Path::new(path)))
-            .collect::<Result<Vec<_>, _>>()?;
-        for grant in writable.iter().chain(&reads).chain(&system_reads) {
-            for protected in &protected {
-                if grant.starts_with(protected) || protected.starts_with(grant) {
-                    return Err(Refusal::new(
+            let mut protected = vec![prospective(
+                Path::new(&selection.entry.path)
+                    .parent()
+                    .expect("absolute policy has a parent"),
+            )?];
+            if let Some(settings) = &selection.settings_path {
+                protected.push(prospective(settings)?);
+            }
+            #[cfg(test)]
+            crate::directory_control::operation("confined", "protected", private.path(), Ok(()))
+                .map_err(|e| unusable(private.path(), e))?;
+            let system_reads = keyed_launch::confinement_system_reads()
+                .iter()
+                .map(|path| prospective(Path::new(path)))
+                .collect::<Result<Vec<_>, _>>()?;
+            for grant in writable.iter().chain(&reads).chain(&system_reads) {
+                for protected in &protected {
+                    if grant.starts_with(protected) || protected.starts_with(grant) {
+                        return Err(Refusal::new(
                         "confinement_overlap", Stage::Cli, EXIT_MALFORMED,
                         format!("confinement grant {} overlaps protected path {}; nothing was selected", grant.display(), protected.display()),
                         "use a working directory and grants separate from the policy directory, owner settings, owner settings",
                     ).input("--confine"));
+                    }
                 }
             }
+            let executable = std::env::current_exe()
+                .and_then(std::fs::canonicalize)
+                .map_err(|error| unusable(Path::new("ravel"), error))?;
+            let temporary = root.join("tmp");
+            std::fs::create_dir(&temporary).map_err(|error| unusable(&temporary, error))?;
+            #[cfg(test)]
+            crate::directory_control::operation("confined", "temporary", private.path(), Ok(()))
+                .map_err(|e| unusable(private.path(), e))?;
+            Ok((writable, reads, executable, temporary))
+        })();
+        match prepared {
+            Ok((writable, runtime_read, executable, temporary)) => Ok(Self {
+                private,
+                writable,
+                runtime_read,
+                executable,
+                temporary,
+            }),
+            Err(original) => {
+                let cleanup = private.cleanup();
+                Err(match cleanup {
+                    Ok(()) => original,
+                    Err(error) => original
+                        .report(&error.to_string(), crate::private_directory::CLEANUP_ADVICE),
+                })
+            }
         }
-        let executable = std::env::current_exe()
-            .and_then(std::fs::canonicalize)
-            .map_err(|error| unusable(Path::new("ravel"), error))?;
-        let temporary = root.join("tmp");
-        std::fs::create_dir(&temporary).map_err(|error| unusable(&temporary, error))?;
-        Ok(Self {
-            private,
-            writable,
-            runtime_read: reads,
-            executable,
-            temporary,
-        })
     }
 
     pub fn exit_dir(&self) -> &Path {
@@ -128,9 +173,9 @@ impl Confined {
         environment
     }
 
-    pub fn remove(self) -> Result<(), String> {
+    pub fn remove(mut self) -> Result<(), String> {
         self.private
-            .close()
+            .cleanup()
             .map_err(|error| format!("cannot remove confined run directory: {error}"))
     }
 }

@@ -43,7 +43,13 @@ Reads use a held directory descriptor, refuse final-entry symlinks, reject
 nonregular files and never block on FIFOs. Renaming or replacing the directory
 pathname cannot redirect those reads. `close()` removes ordinary session files
 and reports cleanup errors; Drop is best effort. Cleanup checks the directory's
-identity before removal. If it was already renamed or replaced, cleanup refuses
+recorded identity before removal. Allocation failures also explicitly settle
+the directory, retaining original I/O cause plus cleanup context. An explicit
+attempt disarms Drop even on error; unknown identity never authorizes deletion.
+The [C3 checks](completion-failure-design-evidence.md#c3-checked-observations)
+cover this through the actual front. Comparison and removal are snapshots, not
+an atomic defense against concurrent pathname mutation. If it was already
+renamed or replaced, cleanup refuses
 to delete the replacement and the moved directory needs manual cleanup. These
 are process-context isolation guarantees, not authentication against code running
 as the same OS user. A process killed without destructors can also leave temporary

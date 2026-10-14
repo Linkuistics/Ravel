@@ -211,6 +211,30 @@ funding earns a precise human scope/funding continuation before the book,
 without silently consuming the closure reserve. No parent completion or new
 target/comparison/extraction/migration/gain is earned.
 
+K14 now corrects and checks C3 on the incumbent. All three allocators retain
+recorded identity through partial preparation, successful transfer and explicit
+cleanup; unknown/replaced/moved ownership is reported without unsafe deletion
+or destructor retry. Original classifications and typed channel I/O causes
+survive cleanup context. Physical residual fixtures, real ENOENT, actual
+choice/front admission and separately reported wait/removal controls are
+recorded in the C3 evidence. All 97 C3 cases, protected CLI/C1/C2 checks and
+283 workspace cases pass. One reviewer found three actionable gaps, each
+verified and corrected through executable controls; no second review occurred.
+Snapshot comparison supplies no atomic concurrent pathname-mutation guarantee.
+
+K14 conservatively charges P≤35/E≤10/RC≤5 minutes including instruments,
+repairs/evidence, measurements/regressions, the one reviewer, coordination,
+retirement/commit; D=X=0. Correctness cumulative charged bounds are
+D≤70/RC≤30/P≤105/E≤20/X=0. Remaining D≤20 (all reserved for phase closure),
+RC=0/P≤135/E≤100/X=0. The unused k14 allocation is not spend.
+`terminal-entry-funding-k15`, before the book, is the precise human funding
+continuation: C4's existing k8 design can be priced at P≤65/E≤35/D=X=0, but
+its needed review/coordination RC≤5 requires explicit renewal. No new cap,
+allocation or authorization is inferred. Native-entry work still needs its
+supported exact slice; any further discovery/design/review funding must be
+agreed without spending the closure reserve. C4/native entry, root delivery
+and documentation remain live, so no parent completion is earned.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

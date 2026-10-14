@@ -52,13 +52,14 @@ error-carried cancellation and no-ending front transfer are now corrected and
 Worker admission is now gated on confirmed reap and checked post-evaluation
 private-directory removal, with [C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
 covering failed reported waits/removal and original diagnostic preservation.
-Partial directory acquisition still returns no explicit removal result. An interactive pre-exec terminal handoff followed by exec failure can
-bypass terminal reclaim. These source-admitted cases prevent asserting complete
+Private-directory allocators now retain recorded identity through partial
+preparation, successful transfer and explicit checked cleanup; [C3 observations](../completion-failure-design-evidence.md#c3-checked-observations)
+cover original/cleanup reports, replacement protection and admission. An interactive
+pre-exec terminal handoff followed by exec failure can still bypass terminal reclaim. These source-admitted cases prevent asserting complete
 settlement on every failure path. They do not relax the session specification's
 worker ordering, cancellation, cleanup or terminal promises, and have not been
-observed at runtime in that source-only investigation. C1's private injected
-reports and regression observations are recorded separately from those remaining
-source limits.
+observed at runtime in that source-only investigation. C1–C3's private injected reports and regression observations are recorded
+separately from those remaining source limits.
 
 Direct native entry is separate from the CLI's selected-scope transfer.
 Transparent entry state is supplied by the caller and applied to the child;
@@ -88,8 +89,8 @@ name the smallest missing premises and checks still owed.
 The following is the repair contract for the incumbent launcher, derived from
 the unchanged session promises and the agreed one-session consumer. It is a
 contract for corrections, **not a claim of complete executable conformance**.
-C1 and C2 have scoped checked evidence; the remaining partial-acquisition and
-entry limits above still apply. The
+C1–C3 have scoped checked evidence; failed-exec recovery and native-entry
+limits above still apply. The
 [repair evidence and check plan](../completion-failure-design-evidence.md)
 separate that source, proposed enabling points and checks not yet run.
 
@@ -155,7 +156,11 @@ the allocator must report that it cannot safely confirm deletion. It must not
 remove a possibly different directory merely to hide the original failure.
 After an explicit cleanup attempt, destructor removal is disarmed so it cannot
 silently retry, delete a replacement or erase the reported stopping state.
-Descriptors still close through their existing ownership.
+Descriptors still close through their existing ownership. The incumbent compares
+identity and then removes by pathname; this is not atomic against concurrent
+pathname mutation. The [checked C3 controls](../completion-failure-design-evidence.md#c3-checked-observations)
+cover moves and substitutions completed before the cleanup observation, not that
+concurrent interval.
 
 ### Terminal recovery after failed exec
 

@@ -59,6 +59,7 @@ impl Channel {
                  pass one that exists",
                 dir.display()
             ))
+            .with_io_source(error)
         })?;
         if !metadata.is_dir() {
             return Err(LaunchError::new(format!(
@@ -77,6 +78,7 @@ impl Channel {
                             "cannot hold completion directory {}: {error}",
                             dir.display()
                         ))
+                        .with_io_source(error)
                     })?;
                     return Ok(Self { path, directory });
                 }
@@ -85,7 +87,8 @@ impl Channel {
                         "cannot establish whether the drawn completion-channel path {} is free: \
                          {error}; make the directory readable and retry",
                         path.display()
-                    )))
+                    ))
+                    .with_io_source(error))
                 }
                 Ok(_) => continue,
             }
@@ -246,6 +249,7 @@ fn remove_if_present(path: &Path) -> Result<(), LaunchError> {
 fn draw_nonce() -> Result<[u8; NONCE_BYTES], LaunchError> {
     let mut source = File::open("/dev/urandom").map_err(|error| {
         LaunchError::new(format!("cannot open the OS randomness source: {error}"))
+            .with_io_source(error)
     })?;
     let mut nonce = [0_u8; NONCE_BYTES];
     source.read_exact(&mut nonce).map_err(|error| {
@@ -253,6 +257,7 @@ fn draw_nonce() -> Result<[u8; NONCE_BYTES], LaunchError> {
             "cannot read {} bytes of OS randomness for a completion-channel name: {error}",
             NONCE_BYTES
         ))
+        .with_io_source(error)
     })?;
     Ok(nonce)
 }

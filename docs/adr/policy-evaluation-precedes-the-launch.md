@@ -13,7 +13,9 @@ records the original unchecked-wait path at its fixed reference. The evaluator
 now gates successful admission on confirmed worker reap and checked private-
 directory removal; [C2 evidence](../completion-failure-design-evidence.md#c2-checked-observations)
 records the private reported-failure controls and real-policy regressions.
-Partial acquisition and native waitability remain separate conformance work.
+[C3 evidence](../completion-failure-design-evidence.md#c3-checked-observations)
+now records checked partial acquisition and identity cleanup; native waitability
+remains separate conformance work.
 
 Bun supplies TypeScript, imports and ordinary filesystem/network computation
 without Ravel maintaining a language runtime. Compilation removes a separately

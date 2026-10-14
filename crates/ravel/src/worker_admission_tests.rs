@@ -11,6 +11,9 @@ thread_local! {
 }
 
 pub(super) fn reported_teardown(report: &mut Teardown, child: &mut Child) {
+    if REPORT.with(|control| control.borrow().is_none()) {
+        return;
+    }
     if report.status.is_err() {
         // Emergency fixture cleanup is never substituted for the real receipt.
         if matches!(child.try_wait(), Ok(None)) {

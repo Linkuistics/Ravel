@@ -1,8 +1,8 @@
 # Copying isolated worker/front fixtures and starting Bun must not compete with
 # the suite while a protected one-second selection deadline is being measured.
-# No retry or deadline widening: reserve this run's slots for each C2 case.
+# No retry or deadline widening: reserve this run's slots for each C2/C3 case.
 # Verified with nextest 0.9.148's `help repo-config` and:
 # https://nexte.st/docs/configuration/reference/#profilename-threads-required
 [[profile.default.overrides]]
-filter = "test(worker_reap_admission)"
+filter = "test(worker_reap_admission) | test(partial_acquisition_cleanup)"
 threads-required = "num-test-threads"

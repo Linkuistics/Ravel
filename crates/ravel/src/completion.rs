@@ -5,11 +5,11 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read as _, Write as _};
 use std::os::fd::{AsRawFd as _, FromRawFd as _};
 use std::os::unix::ffi::OsStrExt as _;
-use std::os::unix::fs::{MetadataExt as _, OpenOptionsExt as _};
+use std::os::unix::fs::OpenOptionsExt as _;
 use std::path::Path;
 
 use keyed_launch::{Channel, End, Ended, Group};
-use tempfile::{NamedTempFile, TempDir};
+use tempfile::NamedTempFile;
 
 /// Inherited authority for exactly the enclosing session; nested launches replace it.
 pub const EXIT_FILE_VARIABLE: &str = "RAVEL_EXIT_FILE";
@@ -23,7 +23,7 @@ pub const MAX_RESULT_BYTES: usize = 1024 * 1024;
 pub struct SessionChannel {
     directory: File,
     channel: Channel,
-    temporary: Option<TempDir>,
+    temporary: crate::private_directory::PrivateDirectory,
 }
 
 impl SessionChannel {
@@ -32,16 +32,56 @@ impl SessionChannel {
     /// policy-controlled destination. The path is absolute even for a relative parent.
     pub fn allocate(parent: &Path) -> io::Result<Self> {
         let parent = fs::canonicalize(parent)?;
+        #[cfg(test)]
+        let parent = crate::directory_control::parent("session", parent);
         let temporary = tempfile::Builder::new()
             .prefix("ravel-session-")
             .tempdir_in(parent)?;
-        let directory = open_directory(temporary.path())?;
-        let channel = Channel::allocate(temporary.path()).map_err(io::Error::other)?;
-        Ok(Self {
-            directory,
-            channel,
-            temporary: Some(temporary),
-        })
+        let mut temporary = crate::private_directory::PrivateDirectory::new(temporary, "session");
+        let prepared = (|| {
+            temporary.record_identity()?;
+            let directory = open_directory(temporary.path())?;
+            #[cfg(test)]
+            let directory = crate::directory_control::operation(
+                "session",
+                "reader",
+                temporary.path(),
+                Ok(directory),
+            )?;
+            #[cfg(test)]
+            crate::directory_control::before_channel(temporary.path());
+            let channel = Channel::allocate(temporary.path()).map_err(|error| {
+                let kind = std::error::Error::source(&error)
+                    .and_then(|source| source.downcast_ref::<io::Error>())
+                    .map_or(io::ErrorKind::Other, io::Error::kind);
+                io::Error::new(kind, error)
+            })?;
+            #[cfg(test)]
+            let channel = crate::directory_control::operation(
+                "session",
+                "channel",
+                temporary.path(),
+                Ok(channel),
+            )?;
+            Ok((directory, channel))
+        })();
+        match prepared {
+            Ok((directory, channel)) => Ok(Self {
+                directory,
+                channel,
+                temporary,
+            }),
+            Err(original) => {
+                let cleanup = temporary.cleanup();
+                Err(match cleanup {
+                    Ok(()) => original,
+                    Err(error) => crate::private_directory::context(
+                        original,
+                        format!("session allocation failed; cleanup: {error}"),
+                    ),
+                })
+            }
+        }
     }
 
     /// Pass this channel with [`EXIT_FILE_VARIABLE`] in `keyed_launch::Launch`.
@@ -75,22 +115,7 @@ impl SessionChannel {
     }
 
     fn cleanup(&mut self) -> io::Result<()> {
-        let Some(temporary) = self.temporary.take() else {
-            return Ok(());
-        };
-        // Disarm pathname-based cleanup before checking identity, including on
-        // error paths. A moved owned directory must not authorize removal of
-        // a different directory now occupying that name.
-        let path = temporary.keep();
-        let held = self.directory.metadata()?;
-        let current = fs::symlink_metadata(&path)?;
-        if !current.is_dir() || current.dev() != held.dev() || current.ino() != held.ino() {
-            return Err(io::Error::other(format!(
-                "session directory {} was renamed or replaced; cleanup refused, inspect the moved directory",
-                path.display()
-            )));
-        }
-        fs::remove_dir_all(path)
+        self.temporary.cleanup()
     }
 
     fn read_result(&self) -> io::Result<Option<String>> {

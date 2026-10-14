@@ -194,8 +194,9 @@ records injected failure controls and the checked regressions.
 The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 also records the original unchecked-worker-wait path, destructor-only partial-
 directory cleanup and failed-exec terminal-reclaim gap. C2 now corrects admission
-with scoped checks; partial acquisition and failed-exec recovery remain source-
-admitted limits under O2/O7/O8/O9. The historical inventory is not an observation
+with scoped checks; C3 now checks partial acquisition and retained identity
+through cleanup. Failed-exec recovery and native entry remain source-admitted
+limits under O2/O7/O8/O9. The historical inventory is not an observation
 that those OS failures occurred at runtime. Ordinary selected-scope cleanup still runs on
 output/channel/launch failure without an ending.
 
@@ -203,7 +204,7 @@ The [failure repair contract](specs/result-job-completion.md#required-failure-se
 now assigns each correction to its existing resource owner and retains original
 failure/cancellation precedence plus secondary diagnostics. The
 [discriminating checks](completion-failure-design-evidence.md#discriminating-checks)
-remain plans for C3/C4 and native entry, alongside C1/C2's checked corrections.
+record C1–C3 corrections; C4 and native entry remain plans.
 These local repairs select no component arrangement.
 
 These participants have different local knowledge. The publisher knows only

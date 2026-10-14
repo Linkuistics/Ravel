@@ -13,6 +13,7 @@ pub struct LaunchError {
     message: String,
     errno: Option<i32>,
     consumed_signal: Option<i32>,
+    source: Option<std::io::Error>,
 }
 
 impl LaunchError {
@@ -21,7 +22,13 @@ impl LaunchError {
             message: message.into(),
             errno: None,
             consumed_signal: None,
+            source: None,
         }
+    }
+
+    pub(crate) fn with_io_source(mut self, source: std::io::Error) -> Self {
+        self.source = Some(source);
+        self
     }
 
     pub(crate) fn with_errno(mut self, errno: Option<i32>) -> Self {
@@ -73,4 +80,10 @@ impl fmt::Debug for LaunchError {
     }
 }
 
-impl std::error::Error for LaunchError {}
+impl std::error::Error for LaunchError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.source
+            .as_ref()
+            .map(|source| source as &dyn std::error::Error)
+    }
+}

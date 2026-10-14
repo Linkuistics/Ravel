@@ -42,7 +42,7 @@ fn main() -> ExitCode {
         Err(error) => return parse_failure(&error, &arguments, scanned),
     };
     match &cli.command {
-        Command::EndSession { result } => match ravel::end_session(result) {
+        Command::EndSession { result } => match end_session(result) {
             Ok(()) => ExitCode::SUCCESS,
             Err(error) => {
                 eprintln!("ravel: end-session: {error}");
@@ -182,3 +182,19 @@ fn report_failure(failure: &Failure, json: bool) -> ExitCode {
     }
     ExitCode::from(failure.refusal.exit)
 }
+
+#[cfg(test)]
+mod partial_acquisition_tests;
+
+#[cfg(test)]
+mod completion;
+
+#[cfg(test)]
+mod directory_control;
+
+mod private_directory;
+
+#[cfg(test)]
+use completion::end_session;
+#[cfg(not(test))]
+use ravel::end_session;

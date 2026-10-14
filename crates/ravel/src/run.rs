@@ -5,7 +5,10 @@ use std::os::fd::{AsRawFd as _, FromRawFd as _, OwnedFd};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+#[cfg(test)]
+use crate::completion::{SessionChannel, EXIT_FILE_VARIABLE};
 use keyed_launch::{Argv, End, Escalation, Group, Launch, LaunchEvent};
+#[cfg(not(test))]
 use ravel::{SessionChannel, EXIT_FILE_VARIABLE};
 use serde_json::json;
 
