@@ -113,6 +113,22 @@ Grow only the next precise useful slice; no full speculative repair tree,
 package, target or migration is selected. Record charged work and pass remaining
 limits forward; reaching a bound with unfinished work calls for a precise
 remainder and renewed human funding, never a reset.
+
+K9 completed that planning without product edits or behavioral execution. Its
+single useful increment is `cancellation-failure-transfer-k10`: runner error
+observations and the front's no-ending conversion/settlement land together,
+preserving first-signal precedence and original/secondary diagnostics. Fixed
+private wait-error and front-transfer cases precede its implementation; actual
+checked terminal recovery remains C4 even where C1 checks recovery-error
+composition with a private reported-outcome control. K9 charged conservative
+D≤10/RC≤5 including closure/commit, P=E=X=0. Correctness total charged bounds
+are now D≤50/RC≤15/P=E=X=0, leaving D≤40 (20 reserved for phase closure),
+RC≤15/P≤240/E≤120/X=0. K10 alone may consume its earmarked P≤45/E≤25; full
+use leaves P≤195/E≤95. Its closure must record charges and place the next
+precise failure-work continuation before the book agreement, normally C2
+planning. Worker admission, partial cleanup, checked terminal/failed-exec
+recovery and native-entry checks are still required. K4/K6 history and the
+G2–G5/R-W debt above remain unchanged; no target, extraction or gain follows.
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target

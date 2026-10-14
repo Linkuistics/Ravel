@@ -102,3 +102,47 @@ host's arbitrary restoration and concurrent embedding. C4's proposed
 checked-holder mechanism requires explicit exclusive-lease/identity premises;
 CLI lifetime alone cannot establish them. Started is spawn-reported success,
 not confirmed exec. Those distinctions and checks survive this C1 slice.
+
+## Decisions (running log)
+
+- Keep C1 as one implementation leaf before the book agreement: error-carried
+  cancellation, runner failure transfer and front settlement are one working
+  increment. Landing an unused error accessor separately would not correct the
+  consumer. No node, package, comparison or C2/C3/C4 implementation is needed.
+- Tier 2 refresh found generation `2026-10-14T05:42:04Z`. The exact-name search
+  returned all 15 matches without another page. Both-direction depth-one traces
+  of runner `supervise` and front `settle`, including tests, were untruncated;
+  their exact snippets and runner `watch` were read. Coverage of the four source
+  paths, contract/evidence, Taskfile and bootstrap documents reported matching
+  metadata and no recorded issue, a best-effort signal only. Direct reads of
+  the error type, front conversion/settlement and private fixture confirm the
+  planned enabling points. No behavioral instrument was built or run.
+- Runner error exits must sample at their final wait attempt before observers
+  or recovery, retaining the first consumed signal and draining the later
+  sample. The emergency-reap error text must survive alongside the observation
+  error; today's `.ok()` loses it. Front must capture the outcome's signal
+  before converting its error and report that original operational diagnostic
+  when cancellation supersedes it. No `Ended` or group fact is manufactured.
+- Recovery-error composition is part of C1's information contract, while actual
+  checked terminal recovery remains C4. A narrow private outcome/report control
+  at existing supervision recovery may exercise successful watch followed by
+  a reported recovery error; production's unchecked reclaim remains explicitly
+  unproved. No new public switch or full syscall abstraction is funded.
+- Price the complete repair at P≤45/E≤25 minutes, allocated prospectively only.
+  Preserve the external case expectations in its mandate before growth. On
+  completion, cut the next precise failure-work continuation before the book;
+  C1 cannot discharge the other gaps or phase closure. At a bound preserve the
+  exact remainder and obtain renewed human funding without resetting totals.
+- The bounded planning critique confirmed that error storage and front transfer
+  must land together, and that a reported recovery-error control cannot prove
+  checked terminal recovery. It also reconciled the Taskfile: `test` has no
+  selection parameter, so k10 adds/exercises a focused runner task; `check`
+  already runs the locked full-workspace nextest command. Required checks are
+  completion criteria, not optional successes inferred at the budget bound.
+- Closure conservatively charges this leaf D≤10/RC≤5 minutes including tree
+  verification/retirement/commit, P=E=X=0; no fresh reviewer was materialised.
+  Correctness total charged bounds are D≤50/RC≤15/P=E=X=0. Remaining ceilings
+  are D≤40 (20 reserved for phase closure), RC≤15/P≤240/E≤120/X=0. The P≤45/E≤25
+  reservation is handed to k10 without spending it here. Its complete mandate
+  was written before insertion and the root carries the unresolved repairs and
+  next-continuation obligation. No ADR or glossary meaning changed.
