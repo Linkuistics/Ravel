@@ -1,0 +1,38 @@
+---
+config:
+  sequence:
+    actorMargin: 20
+    width: 110
+    diagramMarginX: 20
+    wrap: true
+---
+sequenceDiagram
+  actor Caller as Native consumer / CLI
+  participant Owner as Completion owner (current front or proposed operation)
+  participant Pub as Managed program / publisher
+  participant Runner as Job runner
+  participant Transport as Result transport
+  Caller->>Owner: Exact argv/cwd and admitted execution choices
+  Owner->>Transport: Allocate fresh private channel
+  Owner->>Runner: Launch own job with that channel
+  Pub->>Transport: Write complete result, first no-clobber link wins
+  Note over Pub,Runner: Publication requests ending, it is not successful completion
+  Runner->>Runner: Observe appearance or natural exit, end group before reap
+  Runner->>Runner: Reap, recover terminal, confirm group
+  Runner-->>Owner: Own ending, status, appearance, group result
+  Owner->>Transport: Validate anchored exact result using own ending
+  Owner->>Owner: Attempt mask / channel / private / output cleanup
+  Note over Owner: Current front owns this order. Proposed transfer is G1, unresolved.
+  Owner->>Owner: Join front, runner, late cancellation, report all cleanup/group diagnostics
+  alt Cancel
+    Owner-->>Caller: Cancellation, no result
+  else Result error
+    Owner-->>Caller: Original result failure, with cleanup/group diagnostics
+  else Cleanup error
+    Owner-->>Caller: First cleanup failure, with all cleanup/group diagnostics
+  else Live group
+    Owner-->>Caller: Group failure, no result
+  else Success
+    Owner-->>Caller: Exact result, including an explicitly empty value
+    Note over Caller: CLI writes only here, final write can still fail
+  end

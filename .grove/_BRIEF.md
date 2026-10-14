@@ -43,6 +43,18 @@ arrangements, including the unchanged baseline and regrouping. It preselects no
 architecture. Its scenarios, preservation frame, improvement rows and numeric
 bounds live in that task.
 
+K4 closed that campaign with the existing implementation retained, an
+undetermined goal and an unmet/incomplete comparison; no target, migration or
+simplification gain is selected. The funded baseline/regrouped I/C/W family was
+read, but full signal/resource ownership and native entry semantics, six-month
+support cost and working migration remain unresolved. Its current invariant is
+recorded in `docs/specs/result-job-completion.md`; candidate views are explicitly
+unselected. `result-job-transfer-k6`, before the book agreement, is a separately
+bounded current-source ownership/entry observation. It carries k4's review and
+spent frame without reopening full contracts or resetting comparison counts.
+Later comparative selection needs prospective funding with that history and
+G1–G5, not a fresh claim of completion.
+
 `book-structure-k5` is the human structure agreement for the requested book for a
 developer new to this context. If k4 leaves consequential design uncertainty,
 place its precise continuation before that agreement. A supported target can

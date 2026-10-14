@@ -1,0 +1,25 @@
+flowchart TB
+  start["Start here: native consumer needs a settled result"]
+  subgraph baseline["B0 — current in-process responsibilities"]
+    front["Consumer / native front<br/>owns channel ↔ launch pairing<br/>signal joining and resource settlement"]
+    channel["Result transport<br/>atomic publication / anchored read / close"]
+    runner["Job runner<br/>appearance / group cleanup / reap / terminal"]
+    front -->|"allocate, read with matching Ended, close · O5/O6/O9"| channel
+    front -->|"Launch with own channel; receive Ended · O4/O6/O8"| runner
+    channel -.->|"complete-file appearance only · O5/O6"| runner
+  end
+  subgraph proposed["R-I / R-C / R-W — proposed regroup, unselected"]
+    client["Consumer<br/>argv / cwd / admitted grants<br/>result meaning / final CLI write"]
+    owner["Completion operation<br/>owns channel + own launch + cleanup + signals"]
+    inside["Retained responsibilities inside operation<br/>transport and runner guarantees still required"]
+    gap["G1 / G3 unresolved<br/>partial acquisition and resource/signal ownership<br/>native entry / lifetime contract"]
+    client -->|"one blocking operation; settled outcome · O4–O9"| owner
+    owner -->|"internal association, observe, read, cleanup, settle"| inside
+    gap -.->|"required enabling contract; no guarantee yet"| owner
+  end
+  start -->|"current contract"| front
+  start -->|"candidate contract"| client
+  classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
+  classDef open fill:#fff2d6,color:#3e2c08,stroke:#ae791a,stroke-dasharray:5 4
+  class start start
+  class gap open

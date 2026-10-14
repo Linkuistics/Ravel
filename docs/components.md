@@ -10,7 +10,10 @@ worker, managed process and session-result context.
 
 This is an explanation of the current implementation, grounded in the
 [evidence below](#source-and-observation-evidence). It chooses no replacement
-architecture. The [session specification](specs/session-execution.md) owns
+architecture. The [completion invariant](specs/result-job-completion.md)
+explains the matching-job and settlement obligations behind the boundary
+comparison; its regrouping proposal remains unselected.
+The [session specification](specs/session-execution.md) owns
 behavioural promises; the [CLI](session-cli.md), [configuration](owner-configuration.md),
 [runner](local-runner.md) and [result-channel](session-channel.md) guides own
 their detailed interfaces. The tables here connect those contracts to owners.

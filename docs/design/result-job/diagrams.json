@@ -1,0 +1,22 @@
+{
+  "title": "Who owns result-job completion?",
+  "intro": "Current source-supported obligations and an unselected regrouping proposal. Boxes denote in-process responsibilities, not packages or deployment containers. Graph views start at the dark Start here node; sequences start at their first message. Proposals and missing transfer knowledge are labelled explicitly. The completion spec carries the durable current contract; the Grove task carries comparison records and gaps.",
+  "groups": [
+    {"id": "ownership", "title": "Completion ownership", "description": "Can a consumer receive a settled result without reconstructing the protocol?"},
+    {"id": "failure", "title": "Completion and failure", "description": "What must be joined before a result can escape?"}
+  ],
+  "discussion": {
+    "title": "Signal and resource transfer decides the proposed boundary",
+    "status": "Closed undetermined; baseline retained, target and migration unselected",
+    "summary": "The funded baseline and regrouped I/C/W family was read, but the required comparison remains incomplete. A fresh source reviewer challenged partial-acquisition ownership and the direct native entry/lifetime contract. Result/job association alone does not settle these questions. A narrow current-source continuation precedes the book agreement; no product code or equivalence campaign was run.",
+    "diagramIds": ["ownership", "settlement"],
+    "updatedDiagrams": [
+      {"id": "ownership", "summary": "Marked partial-acquisition ownership and native entry/lifetime semantics as separate unresolved G1/G3 obligations."},
+      {"id": "settlement", "summary": "Corrected Mermaid participant syntax and wrapped labels; retained cleanup/signal joining, failure precedence and the separate final CLI write."}
+    ]
+  },
+  "diagrams": [
+    {"id": "ownership", "group": "ownership", "title": "Consumer pairing versus a completion owner", "source": "ownership.mmd", "caption": "B0 is source-supported at 0bdcb1f9ae24db5e9dd499308dd791744e908eb0; R-I/C/W are declared proposals. Solid arrows are calls/outcomes; dotted arrows are file appearance or a stated unmet transfer requirement. O4–O9 remain required inside any regroup. Configuration/worker/build O1–O3/O10 remain in the task's complete obligation map. Package/publication choices and external adoption are unresolved; human usefulness is unassessed."},
+    {"id": "settlement", "group": "failure", "title": "Publication, ending and cleanup join before return", "source": "settlement.mmd", "caption": "Representative current ordering projected onto one completion owner, with the proposed ownership transfer explicitly unresolved. Covers S1/S2/S5 and O4–O9; source run/settle establishes order and precedence. The managed program executes within the runner's job; start events and some appearance polls are omitted. Selection/worker ordering is a precondition, not a new managed-process overlap. This sequence neither enumerates all signal interleavings nor establishes candidate implementation preservation."}
+  ]
+}

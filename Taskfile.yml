@@ -3,6 +3,13 @@ version: '3'
 set: [errexit, nounset, pipefail]
 
 tasks:
+  docs:result-job:
+    desc: Serve the editable result-job boundary comparison on localhost (Mermaid needs network access)
+    vars:
+      PORT: '{{.PORT | default "8774"}}'
+    cmds:
+      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/result-job
+
   docs:components:
     desc: Serve the editable current-component views on localhost (Mermaid needs network access)
     vars:
