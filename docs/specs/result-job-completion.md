@@ -78,6 +78,222 @@ package is selected here. The
 and [failure counterexamples](../result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
 name the smallest missing premises and checks still owed.
 
+## Required failure settlement
+
+The following is the repair contract for the incumbent launcher, derived from
+the unchanged session promises and the agreed one-session consumer. It is a
+design for corrections, **not a claim that the current executable conforms**.
+The acquisition limits above still describe the inspected source. The
+[repair evidence and check plan](../completion-failure-design-evidence.md)
+separate that source, proposed enabling points and checks not yet run.
+
+### Cancellation across supervision failure
+
+The runner SHALL retain a cancellation it consumed while it owned supervision
+in either its successful ending or its failure outcome. An observation failure,
+an emergency-reap failure, or a reap failure after observing exit cannot erase
+that signal. A failure outcome remains a failure; it supplies no invented ending,
+confirmed reap or group absence. Successful reap notification stays conditional
+on a real confirmed reap. Group signalling stays before reap while the direct
+child reserves the group identity; an uncertain or already-reaped identity is
+never a licence to signal a possibly reused group.
+
+The consumer joins its front cancellation, the runner outcome's consumed
+cancellation, and the late runner latch in that order. The runner outcome may
+be an error with no ending. A later signal cannot replace an earlier consumed
+runner cancellation. Requeueing that earlier signal into the global latch is
+not the transfer contract: it could overwrite a late signal or couple outcomes
+to a future launch. Cancellation suppresses every candidate result, then the
+launcher reports failures and propagates the selected signal after required
+cleanup attempts. Supervision/reap and recovery failures remain diagnostics
+even when cancellation is the primary outcome.
+
+### Worker teardown before admission
+
+The evaluator SHALL require confirmed worker reap before returning a successful
+evaluation. A successful policy conversation plus a teardown wait error is
+worker failure, with exit 5, and cannot reach command resolution, successful
+selection or a managed launch. Any confirmed exit status meets the reap
+prerequisite; it need not be status zero. A timeout, policy refusal, protocol
+failure or output-bound breach keeps its existing classification when cleanup
+also fails, except that cancellation still wins. Every teardown failure is
+reported alongside that primary outcome and the separately captured policy
+diagnostics. A message cannot say “reaped” without that confirmation.
+
+The evaluator closes its protocol end, attempts the existing bounded stop/kill
+and wait, drains bounded diagnostics, and explicitly cleans its private
+directory. No managed launch follows an unconfirmed reap or a failed required
+directory cleanup. An unconfirmed reap is uncertainty, not evidence that the
+worker remains alive or that it is gone. Failure reports the worker identity,
+failed operation and recovery advice without pretending that an unsuccessful
+wait can establish a successful cleanup. Detached policy children remain outside
+the existing worker guarantee.
+
+### Cleanup after partial acquisition
+
+Each allocator SHALL own a newly created directory until it successfully
+transfers that resource. Once acquisition has produced a directory, a later
+returned error triggers explicit checked cleanup within that owner. This covers
+the confined workspace, result-channel directory and worker private directory,
+including failures before a usable wrapper or held reader can be returned.
+The outcome retains the original error and every cleanup error, including the
+directory path and whether removal failed or identity could not be established.
+An allocator failure remains primary in the absence of cancellation. Cleanup
+failure on otherwise successful worker preparation/evaluation prevents admission.
+
+Ownership evidence must precede access granted to another process. Cleanup
+checks the recorded owned identity against the current pathname. A replaced
+directory is preserved; an owned directory moved elsewhere requires an explicit
+diagnostic and possible manual removal. If identity recording itself fails,
+the allocator must report that it cannot safely confirm deletion. It must not
+remove a possibly different directory merely to hide the original failure.
+After an explicit cleanup attempt, destructor removal is disarmed so it cannot
+silently retry, delete a replacement or erase the reported stopping state.
+Descriptors still close through their existing ownership.
+
+### Terminal recovery after failed exec
+
+The runner SHALL retain a terminal lease through a failed spawn as well as
+through supervision. It saves foreground authority and terminal modes before
+allowing an interactive handoff. It records the attempted child's group before
+that child can take foreground; child-side memory alone does not convey that
+fact to the parent. Failure to prepare or convey that record refuses before
+handoff. Child-side handoff is checked and precedes exec. These operations must
+respect the restricted pre-exec environment.
+
+After failed exec, the runner attempts checked recovery before returning its
+spawn error. The admitted launcher owns the failed-spawn lease exclusively:
+no competing process or thread may change foreground between the recovery's
+ownership observation and handback. The recorded group number also requires
+that no unrelated group acquires that identity during this interval. Without
+those premises, a query followed by handback is only a checked-holder policy,
+not an unconditional guarantee against taking another group's foreground.
+The CLI lifetime does not itself establish either premise.
+
+Under that authority, if the launcher still owns foreground, it verifies/restores its
+saved modes. If foreground is the group recorded for this attempt, it takes
+foreground back and restores those modes. An unrelated holder is preserved and
+reported; the record does not authorise arbitrary terminal theft or signalling
+a group after its identity can be reused. Foreground-query, handback, mode and
+temporary SIGTTOU-disposition restoration failures are all reported. Missing
+ownership information is reported as unconfirmed recovery, not success.
+
+The original spawn cause and its errno remain primary without cancellation:
+the CLI's existing missing-program 127 and other failed-start 126 classification
+remain intact. Recovery failure is secondary, and cancellation can still override
+the primary outcome after all reports are retained. Successful spawning retains
+the existing supervision, delegated-foreground recovery rules and real-reap
+event order. A terminal recovery error on an otherwise successful supervision
+also prevents result success; any consumed cancellation must survive that error.
+The existing start notification means **spawn-reported success**, not confirmed
+exec. A child can die before exec while the library reports successful spawn.
+That path still requires actual reap, group cleanup and terminal recovery;
+an attempted-group record establishes neither exec nor a successful ending.
+
+### Outcome and diagnostic order
+
+| Situation | Primary outcome | Other information that must survive |
+|---|---|---|
+| Any applicable cancellation, with or without an ending | Selected INT/TERM/HUP, propagated after cleanup attempts; no result | Original operational failure, every cleanup/recovery error, known group survivor or unconfirmed lifecycle fact |
+| No cancellation; acquisition, conversation, result, spawn or supervision already failed | Original failure and its existing code/stage/status | Every later cleanup/recovery failure; captured policy diagnostics remain policy output |
+| No cancellation; otherwise successful operation with cleanup/recovery failure | First required cleanup/recovery failure | All other cleanup/recovery failures; no candidate result escapes |
+| No earlier failure; a matching ending reports a surviving group | Group failure | Survivor identity; no result |
+| Matching reap/group/terminal/resource settlement succeeds, no cancellation | Exact published UTF-8 result | Empty publication differs from absence; child's later exit status is not decisive |
+
+The managed front retains mask restoration, channel close, confined-directory
+removal and output restoration order. Runner-owned reap/terminal failures and
+allocator-local cleanup reports are retained before those outer cleanups; a
+pre-existing operational failure does not become a later cleanup error. Reporting
+attempts continue after a failure, but a failed OS operation cannot be presented
+as a fulfilled guarantee. If stderr itself is unwritable, emission can fail;
+that does not permit result success or justify silently discarding the report
+before attempting emission.
+
+Only successful settlement reaches the final exact stdout write/flush. A failure
+of that write remains an error and may have written a prefix. The final
+cancellation join is the settlement decision point: cancellation already
+observed or pending for delivery through the existing transition joins then.
+A newly arriving signal after that decision follows the restored disposition
+and may terminate the CLI during writing. There is no atomic guarantee spanning
+signal delivery and arbitrary output writes, and no rollback of a written prefix.
+
+## One-session native launcher entry
+
+The first native consumer SHALL own one process lifetime: capture, prepare,
+launch, supervise, settle, report and exit. It has exclusive authority over
+the relevant process-wide signal dispositions and controlling-terminal lease
+for that lifetime. Concurrent embedding and repeated independent launches in a
+host that resumes arbitrary work are outside this contract. A persistent runner
+requires a separate continuing-host contract; no such component is delivered
+by these corrections.
+For failed-spawn terminal recovery, exclusive authority specifically excludes
+competing foreground transfers and unrelated reuse of the recorded group
+identity through handback. If a consumer cannot supply those premises, the
+proposed handback mechanism is not established for that consumer. Source or
+PTY checks cannot convert that environment assumption into a universal guarantee.
+
+Executable-entry signal transparency requires the ignored dispositions and
+calling thread's blocked mask to be captured before relevant runtime changes,
+including Rust's SIGPIPE startup change. The native runner accepts these values;
+it does not capture them. Failure to establish entry state refuses transparency.
+The child receives the captured exec-surviving ignore/default state and mask,
+not copies of arbitrary host handlers. Host cancellation ignores stay ignored;
+signals blocked at executable entry are not reclassified as cancellation merely
+because they are pending. They remain blocked in the child. Nonignored signals
+delivered to the launcher follow its cancellation policy.
+
+The launcher must establish its child-watching state before **any** child it
+needs to reap, including a policy worker. Inherited ignored SIGCHLD or
+SA_NOCLDWAIT cannot silently remove the reap prerequisite. Any repair is host
+state owned for the launcher lifetime; the managed child's supplied entry values
+remain separate. Handler and mask transitions must be checked or retain their
+failure reports. The existing source's unchecked transitions are still premises
+to verify; the four counterexamples are not a proof that every OS failure is
+covered.
+
+Auxiliary threads must remain ineligible to consume the launcher's handled
+signals during the handoff; masking only the calling thread is insufficient if
+another thread is eligible. Keep handlers present while restoring the launcher's
+entry mask and joining pending/front/runner/late observations on both success
+and failure. Restore required terminal state and temporary handoff masks or
+dispositions within the launch. Process-lifetime acceptance of runner handlers
+and SIGCHLD repair does not waive those cleanups; it only removes an arbitrary
+continuing host's restoration obligation.
+
+Terminal INT follows actual foreground ownership. Before handoff it may reach
+the launcher; after handoff it reaches the child's group. A transparent launcher
+also treats a nonignored INT delivered directly to itself as cancellation even
+when a terminal exists. A child killed by terminal INT is not automatically a
+launcher cancellation observation: retain the published-result versus later-child-
+status rule. Ignored/blocked entry state still governs the child's response.
+
+At the exit boundary, cancellation is reported and re-raised as the selected
+signal, using the existing numeric fallback only if signal death cannot occur.
+Other failures keep their CLI statuses. Success writes only the exact result
+bytes after settlement and exits. No call-entry capture, complete restoration of
+a returning host, independent adopting project, package selection or observed
+independent-use result is inferred from this lifetime agreement.
+
+## Test seams for the repair contract
+
+Retain the agreed public CLI with real TypeScript policy and fake managed jobs,
+transport/real-process boundary and runner/PTY boundary. Existing private process
+waiting is the enabling point for cancellation followed by observation or reap
+failure. The justified new private controls are evaluator teardown-report
+substitution before success admission, allocator-local post-creation failure and
+cleanup-report controls, and a restricted terminal-recovery outcome control where
+a real PTY alone cannot force recovery failure. Actual fixture processes are
+still waited for; a reported failure is not permission to leak the fixture.
+
+The [discriminating matrix](../completion-failure-design-evidence.md#discriminating-checks)
+names the before/after expectations and controls. Keep protected fixed-reference
+expectations outside the repair: configuration, CLI classification, exact results,
+first-writer publication, nesting, combined-failure precedence/diagnostics, late
+cancellation, descendant/group cleanup, reap, terminal recovery and final-write
+behavior. Private fault controls cannot become public CLI switches or an
+unbounded syscall abstraction. No behavioral instrument was built or executed
+for this design.
+
 ## Boundary criterion
 
 A proposed higher-level interface earns the matching-job guarantee only if

@@ -1,0 +1,30 @@
+sequenceDiagram
+  participant Runner as Parent runner
+  participant Spawn as Rust spawn
+  participant Child as Pre-exec child
+  participant TTY as Terminal
+  Runner->>TTY: Save modes while launcher owns foreground
+  Runner->>Runner: Prepare private CLOEXEC group-record pipe
+  Runner->>Spawn: Spawn interactive job
+  Spawn->>Child: Fork and create child process group
+  Child-->>Runner: Record attempted group before handoff
+  Child->>TTY: Checked foreground handoff
+  alt Handoff then exec fails
+    Child-->>Spawn: Exec errno via spawn error channel
+    Spawn->>Spawn: Wait for failed child (pinned Rust source)
+    Spawn-->>Runner: Spawn error, no Started event
+    Runner->>TTY: Query actual foreground
+    alt Exclusive lease and own or attempted group is foreground
+      Runner->>TTY: Checked handback if needed, restore saved modes
+    else Unrelated holder or query failure
+      Runner->>Runner: Preserve holder, report recovery uncertainty
+    end
+    Runner-->>Runner: Keep spawn errno and every recovery failure
+  else Failure before handoff
+    Spawn-->>Runner: Spawn error, no successful handoff
+    Runner->>TTY: Verify own foreground, restore saved modes
+  else Spawn reports success, exec not confirmed
+    Spawn-->>Runner: Child handle and Started event
+    Runner->>Runner: Existing supervision, reap and recovery ordering
+  end
+  Note over Runner,TTY: Handback assumes no competing foreground transfer or group-identity reuse

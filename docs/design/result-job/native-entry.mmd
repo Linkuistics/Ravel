@@ -1,16 +1,18 @@
 flowchart TB
-  start["Start here: direct native caller"]
-  entry["Caller chooses capture instant<br/>EntrySignals applies in child"]
-  runner["Runner changes host handlers<br/>and ignored SIGCHLD<br/>foreground gates terminal lending"]
-  returned["Success or core error returns<br/>host signal changes persist"]
-  host["Host owes lifetime / restoration<br/>exclusive signal ownership<br/>no concurrency guarantee"]
-  cli["CLI has pre-runtime capture<br/>guard restores INT/TERM/HUP<br/>front process ends"]
-  start -->|"1. caller input and obligations"| entry
-  entry -->|"2. launch"| runner
-  runner -->|"3. returned outcome"| returned
-  returned -->|"4. host resumes"| host
-  cli -.->|"existing enabling points do not establish generic host restoration"| host
+  start["Start here: one-session CLI"]
+  entry["Capture ignores and mask<br/>before runtime"]
+  authority["Own signals and terminal<br/>Enable child watching"]
+  child["Apply child entry state<br/>INT follows foreground"]
+  settle["Supervise, clean up, settle"]
+  exit["Signal or exact bytes<br/>Exit this process"]
+  host["Persistent runner<br/>Separate host contract"]
+  start -->|"1. executable entry"| entry
+  entry -->|"2. before worker and job"| authority
+  authority -->|"3. launch after admitted selection"| child
+  child -->|"4. cleanup on every returned path"| settle
+  settle -->|"5. final CLI boundary"| exit
+  exit -.->|"no arbitrary host-resumption promise"| host
   classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
   classDef limit fill:#fff2d6,color:#3e2c08,stroke:#ae791a,stroke-dasharray:5 4
   class start start
-  class returned,host limit
+  class host limit

@@ -64,6 +64,17 @@ states these conditional paths and checks still owed, and the
 separates them from the CLI composition. They were not runtime-tested in that
 source observation and do not waive the existing job/session promises.
 
+The agreed first native consumer is a one-session launcher CLI that settles
+its launch and exits. The [repair contract](specs/result-job-completion.md#required-failure-settlement)
+requires consumed cancellation to survive the runner's error, checked terminal
+recovery after failed exec, and explicit failure diagnostics. Its
+[entry contract](specs/result-job-completion.md#one-session-native-launcher-entry)
+requires capture before runtime changes and waitability before every child,
+including the policy worker. Those are design requirements with checks still
+owed; this source has not yet been repaired. A persistent runner has its own
+continuing-host contract, and no host-restoration or concurrency guarantee
+is established here.
+
 ## Tests and authority
 
 The transferred suite exercises completion-channel isolation, stale channels,

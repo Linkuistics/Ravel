@@ -186,6 +186,12 @@ start a detached session. Panic-free prompt observers remain a caller obligation
 
 ## Evidence limits and continuation
 
+The later [failure repair design](specs/result-job-completion.md#required-failure-settlement)
+and [discriminating check plan](completion-failure-design-evidence.md#discriminating-checks)
+address these source-admitted gaps under the agreed one-session launcher
+lifetime. They establish requirements and proposed local enabling points,
+without repairing or runtime-testing the source observed here.
+
 The useful stopping state is a documented incumbent with explicit entry and
 failure limits. Internal channel/job association is structurally possible;
 complete signal/resource settlement is unsupported without the premises above.

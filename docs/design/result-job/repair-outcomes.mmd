@@ -1,0 +1,28 @@
+flowchart TB
+  start["Start here: settle the launch"]
+  reports["Keep errors and consumed signal"]
+  join["Join front, runner outcome, late"]
+  cancelled{"Cancellation?"}
+  signal["Report failures<br/>Propagate signal, no result"]
+  original{"Original operation failed?"}
+  failure["Original failure stays primary<br/>Report secondary failures"]
+  cleanup{"Required cleanup failed?"}
+  cleanupFailure["First cleanup failure wins<br/>Report others, no result"]
+  owned{"Own ending confirms reap<br/>and group gone?"}
+  uncertain["Unconfirmed or surviving group<br/>No result"]
+  result["Write exact UTF-8 bytes<br/>Write can still fail"]
+  start -->|"1. collect facts"| reports
+  reports -->|"2. ending may be absent"| join
+  join -->|"3. choose outcome"| cancelled
+  cancelled -->|"yes"| signal
+  cancelled -->|"no"| original
+  original -->|"yes"| failure
+  original -->|"no"| cleanup
+  cleanup -->|"yes"| cleanupFailure
+  cleanup -->|"no"| owned
+  owned -->|"no"| uncertain
+  owned -->|"yes, valid publication"| result
+  classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
+  classDef failure fill:#fff2d6,color:#3e2c08,stroke:#ae791a
+  class start start
+  class failure,cleanupFailure,uncertain failure

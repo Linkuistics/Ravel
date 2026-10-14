@@ -191,6 +191,13 @@ are source-admitted limits under O2/O7/O8/O9, not authorised changes to them or
 measured runtime failures. Ordinary selected-scope cleanup still runs on
 output/channel/launch failure without an ending.
 
+The [failure repair contract](specs/result-job-completion.md#required-failure-settlement)
+now assigns each correction to its existing resource owner and retains original
+failure/cancellation precedence plus secondary diagnostics. The
+[discriminating checks](completion-failure-design-evidence.md#discriminating-checks)
+remain construction/execution plans; they have not changed these current-source
+limits or selected a component arrangement.
+
 These participants have different local knowledge. The publisher knows only
 the inherited destination and whether publication succeeded. The runner knows
 channel appearance, child/group state and its signal latch, not result contents.

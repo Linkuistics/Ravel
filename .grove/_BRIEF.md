@@ -83,14 +83,36 @@ boundaries plus justified private worker-wait and partial-acquisition failure
 controls. This is correctness work on the incumbent, not a supported target,
 comparison restart, extraction or observed independent-use result.
 
-The prospective correctness phase starts with `completion-failure-contract-k8`,
-inserted before the book agreement. Its aggregate effort caps are D≤90 minutes
-(including 20 minutes for closure), RC≤30 minutes,
-P≤240 minutes, E≤120 minutes and X=0, with zero production disruption. The next
-leaf is design-only, P=E=X=0. It may price and grow the next precise repair/check
-work from the remaining caps once its design supports the increments. Record
-charged work and pass remaining limits forward; reaching a bound with unfinished
-work calls for a precise remainder and renewed human funding, never a reset.
+The correctness phase starts with `completion-failure-contract-k8`, before the
+book agreement. Its aggregate effort caps are D≤90 minutes (including 20 minutes
+for closure), RC≤30, P≤240, E≤120 and X=0, with zero production disruption.
+K8 establishes the incumbent's required local repair contract and discriminating
+check plans in the current completion specification and
+`docs/completion-failure-design-evidence.md`. The proposed corrections retain
+consumed cancellation in the existing error outcome, gate worker admission on
+confirmed reap, assign partial cleanup to allocators, and retain a checked
+terminal lease through failed spawn. Product source is unchanged and behavior
+is unobserved.
+The terminal mechanism is conditional on no competing foreground transfer or
+unrelated reuse of the recorded group identity through handback; CLI lifetime
+alone establishes neither. Started is spawn-reported success, not confirmed exec.
+Entry waitability is required before the worker as well as the managed child;
+unchecked signal/mask and terminal operations are still conformance premises.
+
+K8 conservatively charges D≤40 and RC≤10 minutes including closure/commit,
+P=E=X=0. Remaining correctness ceilings are D≤50 (20 still reserved for phase
+closure), RC≤20, P≤240, E≤120, X=0. The next leaf,
+`cancellation-failure-transfer-k9`, is planning-only, allocated D≤10/RC≤5,
+P=E=X=0, before `book-structure-k5`. It plans a complete C1 runner-to-front
+error-cancellation slice; P≤45/E≤25 are earmarked prospectively for its subsequent
+implementation/check mandate, not charged or spent by planning. Consuming that
+earmark in full leaves P≤195/E≤95 for later repairs. Worker reap admission,
+partial cleanup, failed-exec/terminal recovery and native entry checks remain
+required before selecting component boundaries or reaching the book agreement.
+Grow only the next precise useful slice; no full speculative repair tree,
+package, target or migration is selected. Record charged work and pass remaining
+limits forward; reaching a bound with unfinished work calls for a precise
+remainder and renewed human funding, never a reset.
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target
@@ -120,6 +142,10 @@ and human structure decisions made before drafting.
 
 - Existing behavioural contract: `docs/specs/session-execution.md` and
   `docs/session-cli.md`.
+- Required failure/native-entry correction contract:
+  `docs/specs/result-job-completion.md`; exact source and discriminating plans:
+  `docs/completion-failure-design-evidence.md`. Required behavior and unexecuted
+  design remain distinct from the current acquisition evidence.
 - Existing architectural decisions: `docs/adr/policy-evaluation-precedes-the-launch.md`,
   `docs/adr/the-launched-child-is-a-job.md` and
   `docs/adr/ravel-supervises-the-session.md`. These explain current obligations;
