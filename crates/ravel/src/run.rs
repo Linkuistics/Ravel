@@ -105,10 +105,21 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             );
         }
 
-        if let Some(signal) = handlers
+        #[cfg(test)]
+        crate::native_entry_tests::barrier("selection-to-runner");
+        let admission = handlers
             .try_block_and_check()
-            .map_err(|error| failed("signal_state_unavailable", error))?
+            .map_err(|error| failed("signal_state_unavailable", error))?;
+        // Private break: admit the runner without joining cancellation here.
+        #[cfg(test)]
+        let admission = if crate::native_entry_tests::broken_join()
+            == crate::native_entry_tests::Join::Selection
         {
+            None
+        } else {
+            admission
+        };
+        if let Some(signal) = admission {
             return Err(crate::cancellation::refusal(signal, &source).into());
         }
         let argv = Argv::new(
@@ -166,9 +177,20 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         let mut observe = |event| {
             #[cfg(test)]
             crate::native_entry_tests::managed_event(event);
+            #[cfg(test)]
+            if event == LaunchEvent::Reaped {
+                crate::native_entry_tests::barrier("after-reap-before-front");
+            }
             if event == LaunchEvent::Started {
                 started = true;
             }
+        };
+        // The parent-mask transition after spawn; the fixture barrier sits
+        // before it so a signal is placed while the mask is still blocked.
+        let mut start_check = || {
+            #[cfg(test)]
+            crate::native_entry_tests::barrier("started-before-mask-restore");
+            signal_state::restore_mask()
         };
         let supervised = match &confined {
             Some(confined) => keyed_launch::run_confined_observed_with_start_check(
@@ -178,13 +200,11 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     runtime_read: &confined.reads(),
                 },
                 &mut observe,
-                &mut signal_state::restore_mask,
+                &mut start_check,
             ),
-            None => keyed_launch::run_observed_with_start_check(
-                launch,
-                &mut observe,
-                &mut signal_state::restore_mask,
-            ),
+            None => {
+                keyed_launch::run_observed_with_start_check(launch, &mut observe, &mut start_check)
+            }
         };
         let supervision = supervised.map_err(|error| {
             let (failure, observed) = supervision_failure(
@@ -252,6 +272,11 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .map_err(|error| failed("output_unavailable", error))
     });
     drop(output);
+    #[cfg(test)]
+    {
+        crate::native_entry_tests::barrier("selection-failure-before-finalise");
+        crate::native_entry_tests::barrier("no-ending-error-before-finalise");
+    }
     let (signal, signal_reports) = handlers.finalise(runner_signal);
     let mut cleanups = vec![mask, channel_cleanup, private_cleanup, restore];
     cleanups.extend(

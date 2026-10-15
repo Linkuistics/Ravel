@@ -292,7 +292,23 @@ pub fn reraise(signal: i32) -> ! {
 /// that is async-signal-safe. Signalling and reaping the child happen one poll
 /// tick later, on [`run`]'s ordinary stack.
 extern "C" fn on_terminate(signal: libc::c_int) {
+    #[cfg(test)]
+    if first_latch_broken("latch") {
+        // Private break: a store replaces the first latched signal.
+        INTERRUPTED_BY.store(signal, Ordering::Relaxed);
+        native_tests::handler_ran();
+        return;
+    }
     let _ = INTERRUPTED_BY.compare_exchange(0, signal, Ordering::Relaxed, Ordering::Relaxed);
+    // After the latch: a controller that sees this count has seen the latch.
+    #[cfg(test)]
+    native_tests::handler_ran();
+}
+
+/// Whether the private E07 first-latch break named `which` is selected.
+#[cfg(test)]
+pub(crate) fn first_latch_broken(which: &str) -> bool {
+    native_tests::first_latch_broken(which)
 }
 
 /// Catch the signals that cancel this launch, so a launcher can forward
@@ -1917,12 +1933,20 @@ fn watch(
         }
         lend();
 
+        #[cfg(test)]
+        native_tests::runner_active();
         // Check cancellation before accepting even an already-exited child.
         // In nested launches the outer supervisor may have only a short grace
         // left, which is why a confined child is killed at once.
-        if interrupted.is_none() {
+        #[cfg(test)]
+        let retake = native_tests::first_latch_broken("guard");
+        #[cfg(not(test))]
+        let retake = false;
+        if interrupted.is_none() || retake {
             if let Some(signal) = take_interrupt() {
                 interrupted = Some(signal);
+                #[cfg(test)]
+                native_tests::first_consumed(signal);
                 if mode == Mode::Confined {
                     child.signal(libc::SIGKILL);
                     let by = Instant::now() + ERROR_SETTLEMENT;
@@ -2019,6 +2043,13 @@ fn watch(
     // group confirmation can delay it. Later signals belong to the caller.
     let at_reap = take_interrupt();
     let elapsed = started.elapsed();
+    #[cfg(test)]
+    let interrupted = if first_latch_broken("at-reap") {
+        at_reap.or(interrupted)
+    } else {
+        interrupted.or(at_reap)
+    };
+    #[cfg(not(test))]
     let interrupted = interrupted.or(at_reap);
     let status = reaped
         .as_ref()

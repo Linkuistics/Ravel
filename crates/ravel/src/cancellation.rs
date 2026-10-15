@@ -41,7 +41,29 @@ impl Signal {
     }
 }
 pub fn received() -> Option<Signal> {
+    #[cfg(test)]
+    if crate::native_entry_tests::broken_join() == crate::native_entry_tests::Join::Front {
+        // Private break: the front latch is never joined.
+        return None;
+    }
     Signal::of(RECEIVED.load(Ordering::SeqCst))
+}
+
+/// Which owner's handler is installed for `number`, by comparing the installed
+/// action's address with the front's own handler. Read-only; test builds only.
+#[cfg(test)]
+pub(crate) fn handler_owner(number: libc::c_int) -> &'static str {
+    let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+    if unsafe { libc::sigaction(number, ptr::null(), &mut action) } == -1 {
+        return "unknown";
+    }
+    let front = on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
+    match action.sa_sigaction {
+        libc::SIG_DFL => "default",
+        libc::SIG_IGN => "ignore",
+        address if address == front => "front",
+        _ => "other",
+    }
 }
 extern "C" fn on_signal(signal: libc::c_int) {
     let _ = RECEIVED.compare_exchange(0, signal, Ordering::SeqCst, Ordering::SeqCst);
@@ -172,6 +194,14 @@ impl Handlers {
     }
 
     pub fn finalise(&mut self, outcome: Option<Signal>) -> (Option<Signal>, Vec<io::Error>) {
+        #[cfg(test)]
+        let outcome = if crate::native_entry_tests::broken_join()
+            == crate::native_entry_tests::Join::Outcome
+        {
+            None
+        } else {
+            outcome
+        };
         let front = received();
         let mut reports = Vec::new();
         if let Err(error) = self.restore_entry_mask() {
@@ -204,6 +234,13 @@ impl Handlers {
         // before the block lets a signal land between the read and the block,
         // consumed and so absent from the pending set.
         let late = keyed_launch::take_interrupt().and_then(Signal::of);
+        #[cfg(test)]
+        let late =
+            if crate::native_entry_tests::broken_join() == crate::native_entry_tests::Join::Late {
+                None
+            } else {
+                late
+            };
         let signal = front.or(outcome).or(late).or(received()).or(pending);
         let mut released = self.blocked;
         if self.blocked {

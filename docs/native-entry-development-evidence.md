@@ -158,6 +158,79 @@ passed 317 run/27 skipped, `test:native-entry` passed its 20 front, 3 runner and
 2 Started checks, and `test:terminal-recovery` passed. The two controls are new
 identities; no existing identity or expectation changed.
 
+## Barrier controller, E06 and E07 (k34)
+
+`native-entry-barrier-controller-k34` replaced the polling fixture loop with one
+owner-local controller, `crates/keyed-launch/src/native_barrier.rs`, compiled
+only into unit-test builds and included by `#[path]` into the ravel test binary.
+The fixture side acts only when the controller names a private directory, so no
+installed switch exists. One exchange is `READY` → controller action → `P`/`ACK`
+(facts read fresh) → `R`/`RELEASED`, over two FIFOs the controller opens before
+the fixture exists. Waits use absolute deadlines that EINTR never restarts:
+work stops at 25 seconds of the 30-second case, a probe or release is bounded by
+5 seconds, and the controller owns the reserved final 5 seconds. The ready record
+is bounded by the work deadline rather than 5 seconds because it covers the
+fixture's own preceding work. No sleep orders anything; the controller's
+millisecond slices only decide how often a deadline is examined.
+
+| Control (frozen 30/5/5) | Observed on this host |
+|---|---|
+| Watchdog expiry | Fixture silent and not exiting: no ready record, expiry at 25 s, group then child stopped by the owner and reaped, settlement not clean, total ≤ 30 s |
+| Blocked acknowledgement and failed release | Probe and release each failed at 5 s (10 s total); fixture stopped and reaped; two faults recorded; settlement not clean |
+| Escaped holder | Controller-owned holder in its own group killed and reaped on both an aborted and a naturally ended case; reap confirmed by the owner's own wait |
+| Reaped identity | After a confirmed reap a signal request is refused and a second settlement neither signals nor invents a status |
+
+**E06** runs the private real-main fixture, with a barrier at each named boundary
+and the actual signal delivered by the controller between acknowledged
+exchanges. The boundaries are the point before the runner's cancellation join;
+the start check before the parent mask is restored; the observer's `Reaped`
+event (the confirmed reap, before the front regains control); the point before
+common finalisation after a policy refusal; and the same point after a failed
+spawn that has no `Ended`. The fixture reports, read-only and fresh at each
+probe, the owner of each handled signal's disposition (front, other, default,
+ignore), the calling thread's mask, the process pending set, the front latch,
+and whether the managed child started, was reaped and ended.
+
+On the repaired product all 15 rows (five boundaries × INT/TERM/HUP) died by the
+selected signal, wrote zero result bytes and reported the cancellation in the
+single JSON notice, with the boundary facts below. Each row was then rerun with
+only the corresponding join removed by a fixed private enum:
+
+| Boundary | Observed facts on the repaired run | Join removed | Named failure |
+|---|---|---|---|
+| selection-to-runner | front owns the signal, consumed into the front latch; no child | admission check | child started although cancelled; final join still reports the signal |
+| Started, before mask restore | mask blocked, signal pending, runner's handler; `End::Interrupted` and group gone | runner outcome | cancellation lost, result written |
+| after confirmed reap | child reaped, runner's handler consumed it, front latch empty; `End::Exited` | late runner latch | cancellation lost |
+| policy refusal before finalise | front owns and consumed it; no child; original refusal in diagnostics beside cancellation | front latch | cancellation lost |
+| spawn failure, no ending | runner's handlers outlive the failed spawn and consumed it; original ENOENT in diagnostics | late runner latch | cancellation lost |
+
+The main thread is the only thread eligible at these boundaries; E08 owns the
+reader-mask receipts. The 15 + 15 runs took 32 seconds in one case and passed on five further
+repeats of the unchanged subject; that is flake detection, not an immutable
+receipt.
+
+**E07** runs at the runner level because its seams are the runner's: the
+keyed-launch test binary re-executes itself as a role process and the controller
+acknowledges, by the handler's own run counter incremented *after* the latch
+write, that each delivery has been latched. A first signal is latched and
+acknowledged; a second is delivered and the latch must still hold the first; the
+runner then consumes the first and acknowledges that consumption; the second is
+delivered again and must neither replace the first nor reach the launch's result.
+The runner-error variants arm the existing private wait-error seam only after
+that acknowledgement, so the error path settles with the first consumption
+already taken. Four breaks each let the later signal win and fail a named result:
+latch store overwrite (both variants), consumption guard and reap join (active),
+and error composition (error). The development run named the later signal in
+every broken result and kept the first acknowledgement intact for every break
+except the latch itself.
+
+An instrument defect was found and corrected during this work: the handler
+counter first moved before the latch write, so a probe could read an empty latch
+after the counter advanced. The ordering was fixed and the runs repeated.
+
+These are development controls on aarch64-apple-darwin, not immutable matrix
+receipts, and qualify neither Linux nor Rust 1.85.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -167,8 +240,9 @@ parameter products, mutation modes, four paired failures, two queued-TERM
 variants and S counts 8/7/8/7/2 unchanged.
 
 1. Finish E04's managed mutant; E05's four direct/terminal INT handoff cases;
-   E06's 15 acknowledged boundary joins; E07's four acknowledged first-consumption
-   cases; and E08's four complete/escaped-reader cases. Receipts must distinguish
+   and E08's four complete/escaped-reader cases (k35). E06's 15 acknowledged
+   boundary joins and E07's four first-consumption cases now have development
+   controls, below; they are not immutable receipts. Receipts must distinguish
    front/runner/child ownership, pending versus consumed state and real reader
    eligibility. No sleeps can establish ordering.
 2. Construct F02's six watching faults, F04's 14 selection/runner handler faults,
@@ -181,11 +255,11 @@ variants and S counts 8/7/8/7/2 unchanged.
    seven-row recovery set and both S05 first-HUP-then-TERM rows. Do not substitute
    report rewriting for an irreversible physical operation.
 4. Qualify every native controller: 30 seconds total, acknowledgements within
-   five seconds, last five seconds reserved for cleanup. Observe watchdog,
-   blocked-acknowledgement/failed-release and escaped-holder cleanup controls.
-   Preserve and boundedly settle every owned child, holder, pipe and PTY on
-   failure as well as success. Current helper cleanup is development code;
-   older C4 fixture mechanics are not automatically a qualified native controller.
+   five seconds, last five seconds reserved for cleanup. The shared barrier
+   controller below has its three failing controls; the older C4/terminal and
+   worker fixture helpers are not yet routed through it. Preserve and boundedly
+   settle every owned child, holder, pipe and PTY on failure as well as success.
+   Older C4 fixture mechanics are not automatically a qualified native controller.
 5. Finish all instruments before measurement. Freeze source, binaries, helpers,
    manifests, reference expectations, exclusions and measured platform domain;
    digest every read subject before/after. Produce one immutable receipt per

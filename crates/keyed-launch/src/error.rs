@@ -55,6 +55,12 @@ impl LaunchError {
     }
 
     pub(crate) fn with_consumed_signal(mut self, signal: Option<i32>) -> Self {
+        // Private break: a later consumption replaces the first.
+        #[cfg(test)]
+        if crate::run::first_latch_broken("error") {
+            self.consumed_signal = signal.or(self.consumed_signal);
+            return self;
+        }
         self.consumed_signal = self.consumed_signal.or(signal);
         self
     }

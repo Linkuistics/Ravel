@@ -6,11 +6,13 @@ use std::os::fd::AsRawFd as _;
 use std::os::unix::process::{CommandExt as _, ExitStatusExt as _};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
 
 use clap::Parser as _;
 use keyed_launch::{Ended, EntrySignals, LaunchEvent};
+
+use crate::native_barrier::{Controller, Limits, Settlement};
 use serde_json::{json, Value};
+use std::time::{Duration, Instant};
 
 const ROLE: &str = "native_entry_tests::native_entry_role";
 const RESULT: &str = "native 🪶\nresult";
@@ -21,6 +23,16 @@ enum Broken {
     Reinstatement,
     BlockedPending,
     WorkerWatching,
+    Join(Join),
+}
+/// The cancellation joins E06 removes one at a time. Fixed enumeration only.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Join {
+    None,
+    Selection,
+    Front,
+    Outcome,
+    Late,
 }
 thread_local! {
     static CASE: RefCell<Option<Value>> = const { RefCell::new(None) };
@@ -44,6 +56,12 @@ fn root() -> PathBuf {
 fn receipt(name: &str, value: Value) {
     if active() {
         fs::write(root().join(name), value.to_string()).unwrap();
+    }
+}
+pub(crate) fn broken_join() -> Join {
+    match BROKEN.get() {
+        Broken::Join(join) => join,
+        _ => Join::None,
     }
 }
 pub(crate) fn broken_blocked_pending() -> bool {
@@ -102,7 +120,7 @@ pub(crate) fn managed_event(event: LaunchEvent) {
 pub(crate) fn managed_ending(ending: &Ended) {
     receipt(
         "managed-ending.json",
-        json!({"rawStatus":ending.status.into_raw(),"group":format!("{:?}",ending.group),"elapsedNanos":ending.elapsed.as_nanos().to_string(),"operationReports":ending.operation_reports}),
+        json!({"rawStatus":ending.status.into_raw(),"end":format!("{:?}",ending.end),"group":format!("{:?}",ending.group),"elapsedNanos":ending.elapsed.as_nanos().to_string(),"operationReports":ending.operation_reports}),
     );
 }
 pub(crate) fn worker_wait(pid: u32, status: &io::Result<std::process::ExitStatus>) {
@@ -117,6 +135,58 @@ pub(crate) fn worker_wait(pid: u32, status: &io::Result<std::process::ExitStatus
             }
         },
     );
+}
+
+fn blocked_bits() -> u64 {
+    let mut current = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+    unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, std::ptr::null(), &mut current) };
+    set_bits(&current)
+}
+fn pending_bits() -> u64 {
+    let mut pending = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+    unsafe { libc::sigpending(&mut pending) };
+    set_bits(&pending)
+}
+fn set_bits(set: &libc::sigset_t) -> u64 {
+    (1..=31)
+        .filter(|&signal| unsafe { libc::sigismember(set, signal) } == 1)
+        .fold(0, |bits, signal| bits | bit(signal))
+}
+/// Current owner/mask/pending/consumed facts. Read-only; nothing here changes
+/// signal state, so a probe never becomes the thing it observes.
+fn facts(boundary: &str) -> String {
+    let at = root();
+    let owner = |signal| crate::cancellation::handler_owner(signal);
+    json!({"boundary":boundary,"pid":unsafe{libc::getpid()},"tid":unsafe{libc::pthread_self() as usize as u64},
+        "blocked":blocked_bits(),"pending":pending_bits(),
+        "frontLatch":crate::cancellation::received().map(|s| s.name()),
+        "owners":{"INT":owner(libc::SIGINT),"TERM":owner(libc::SIGTERM),"HUP":owner(libc::SIGHUP)},
+        "managedStarted":at.join("managed-started.json").is_file(),
+        "managedReaped":at.join("managed-reaped.json").is_file(),
+        "workerWaited":at.join("worker-wait.json").is_file(),
+        "managedEnded":at.join("managed-ending.json").is_file()})
+    .to_string()
+}
+/// A named boundary acts only when the running case selects it. A barrier that
+/// cannot complete is recorded and fails the case; it never silently passes.
+pub(crate) fn barrier(boundary: &str) {
+    if !active() {
+        return;
+    }
+    let selected = CASE.with(|c| {
+        c.borrow().as_ref().unwrap()["boundary"]
+            .as_str()
+            .is_some_and(|name| name == boundary)
+    });
+    if !selected {
+        return;
+    }
+    if let Err(error) = crate::native_barrier::exchange(boundary, &mut || facts(boundary)) {
+        receipt(
+            "barrier-failure.json",
+            json!({"boundary":boundary,"error":error}),
+        );
+    }
 }
 
 #[test]
@@ -146,6 +216,10 @@ pub(crate) fn run_role() {
         "reinstatement" => Broken::Reinstatement,
         "blocked-pending" => Broken::BlockedPending,
         "worker-watching" => Broken::WorkerWatching,
+        "join-selection" => Broken::Join(Join::Selection),
+        "join-front" => Broken::Join(Join::Front),
+        "join-outcome" => Broken::Join(Join::Outcome),
+        "join-late" => Broken::Join(Join::Late),
         other => panic!("unknown fixed broken control {other}"),
     });
     receipt("launcher-entry.json", crate::signal_state::native_receipt());
@@ -167,8 +241,24 @@ pub(crate) fn run_role() {
         );
     }
     let program = std::env::current_exe().unwrap();
-    let selected = json!({"status":"selected","provider":"fixture","model":"native","effort":"fixture","reason":"native entry",
+    let mut selected = json!({"status":"selected","provider":"fixture","model":"native","effort":"fixture","reason":"native entry",
         "program":program,"args":["--exact",ROLE,"--ignored","--nocapture"]});
+    match case["boundary"].as_str() {
+        Some("selection-failure-before-finalise") => {
+            selected = json!({"status":"refused","code":"owner_declined","message":"native entry refusal","remedy":"none"});
+        }
+        Some("no-ending-error-before-finalise") => {
+            // Resolves at selection, then fails at exec: a missing interpreter
+            // is ENOENT from the spawn, not a selection failure.
+            let script = directory.join("missing-interpreter");
+            fs::write(&script, "#!/nonexistent/k28-interpreter\n").unwrap();
+            fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+                .unwrap();
+            selected["program"] = json!(script);
+            selected["args"] = json!([]);
+        }
+        _ => {}
+    }
     let policy = directory.join("policy.ts");
     fs::write(&policy, format!("export const policy={{schemaVersion:2,version:'native-entry',select(){{return {selected};}}}};" )).unwrap();
     // Only the fake managed process receives this marker. Worker environment
@@ -270,10 +360,9 @@ fn read_json(path: PathBuf) -> Option<Value> {
         .map(|bytes| serde_json::from_slice(&bytes).unwrap())
 }
 
-fn case(case: Value, broken: &str) -> bool {
-    let at = Instant::now();
-    let outer = at + Duration::from_secs(30);
-    let case_by = at + Duration::from_secs(25);
+/// Spawn one private real-main fixture under a controller that owns it. The
+/// fixture is its own process-group leader; the controller owns settlement.
+fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf) {
     let directory = tempfile::tempdir().unwrap();
     for path in ["bin", "libexec/ravel", "home", "tmp"] {
         fs::create_dir_all(directory.path().join(path)).unwrap();
@@ -303,6 +392,10 @@ fn case(case: Value, broken: &str) -> bool {
     let blocked = case["blocked"].as_bool().unwrap_or(false);
     let pending = case["pending"].as_bool().unwrap_or(false);
     let chld = case["chld"].as_i64().unwrap_or(0) as i32;
+    // The barrier channels live beside, not inside, the fixture's own tree.
+    let channels = directory.path().join("barrier");
+    fs::create_dir(&channels).unwrap();
+    let mut controller = Controller::new(&channels, Limits::FROZEN).unwrap();
     let mut command = Command::new(fixture);
     command
         .args(["--exact", ROLE, "--ignored", "--nocapture"])
@@ -319,34 +412,28 @@ fn case(case: Value, broken: &str) -> bool {
         .stdout(File::create(&stdout).unwrap())
         .stderr(File::create(&stderr).unwrap())
         .stdin(Stdio::null());
+    controller.configure(&mut command);
     // No allocation, JSON access or formatting in the child.
     unsafe {
         command.pre_exec(move || raw_entry(signal, ignored, blocked, pending, chld));
     }
-    let mut child = command.spawn().unwrap();
-    let mut aborted = None;
-    let mut killed = false;
-    let status = loop {
-        if let Some(status) = child.try_wait().unwrap() {
-            break status;
-        }
-        let now = Instant::now();
-        if aborted.is_none() && now >= case_by {
-            assert_eq!(unsafe { libc::kill(child.id() as i32, libc::SIGTERM) }, 0);
-            aborted = Some(now);
-        }
-        if !killed && aborted.is_some_and(|at| now.duration_since(at) >= Duration::from_secs(1)) {
-            child.kill().unwrap();
-            killed = true;
-        }
-        assert!(
-            now < outer,
-            "native fixture cleanup unconfirmed after outer deadline"
-        );
-        std::thread::sleep(
-            Duration::from_millis(1).min(outer.saturating_duration_since(Instant::now())),
-        );
-    };
+    controller.adopt(command.spawn().unwrap());
+    (directory, controller, stderr)
+}
+
+fn case(case: Value, broken: &str) -> bool {
+    let (directory, mut controller, stderr) = launch(&case, broken);
+    let settlement = controller.finish();
+    let at = settlement.elapsed;
+    let signal = case["signal"].as_i64().unwrap_or(i64::from(libc::SIGTERM)) as i32;
+    let ignored = case["ignored"].as_bool().unwrap_or(false);
+    let blocked = case["blocked"].as_bool().unwrap_or(false);
+    let pending = case["pending"].as_bool().unwrap_or(false);
+    assert!(
+        settlement.clean(),
+        "native fixture settlement unconfirmed: {settlement:?}"
+    );
+    let status = settlement.status.expect("clean settlement has a status");
     let launcher = read_json(directory.path().join("launcher-entry.json")).unwrap();
     let managed = read_json(directory.path().join("child-entry.json"));
     let worker = read_json(directory.path().join("worker-wait.json"));
@@ -354,11 +441,7 @@ fn case(case: Value, broken: &str) -> bool {
     let outcome = read_json(directory.path().join("outcome.json"));
     let result = fs::read(directory.path().join("result-output")).unwrap();
     let log = fs::read_to_string(stderr).unwrap();
-    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at.elapsed());
-    assert!(
-        aborted.is_none(),
-        "native case deadline expired; fixture tree settlement is unconfirmed"
-    );
+    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at);
     assert_eq!(launcher["recorded"], true);
     assert_eq!(
         launcher["capturingThread"], launcher["currentThread"],
@@ -472,4 +555,350 @@ fn native_f01_initializer_result_failures_admit_no_children() {
         assert!(case(row.clone(), "none"));
         assert!(!case(row, "capture"));
     }
+}
+
+// ---- E06: acknowledged boundary joins -------------------------------------
+
+/// One E06 row's observed facts. Physical observations only: what the fixture
+/// reported at each acknowledgement and what the controller saw end.
+#[derive(Debug)]
+struct Boundary {
+    ready: Option<Value>,
+    ack: Option<Value>,
+    delivered: Result<(), String>,
+    settlement: Settlement,
+    died_by: Option<i32>,
+    result_empty: bool,
+    managed_started: bool,
+    managed_end: Option<String>,
+    managed_group: Option<String>,
+    worker_confirmed: bool,
+    outcome: Option<Value>,
+    barrier_failure: Option<Value>,
+    diagnostics: String,
+}
+
+fn boundary_row(boundary: &str, signal: i32, broken: &str) -> Boundary {
+    let row = json!({"family":"E06","boundary":boundary,"signal":signal});
+    let (directory, mut controller, stderr) = launch(&row, broken);
+    let ready = controller.ready();
+    let mut ack = None;
+    let mut delivered = ready.clone().map(|_| ());
+    if ready.is_ok() {
+        // The controller acts only between acknowledged exchanges: the ready
+        // record, the signal, an acknowledgement that reads the facts fresh,
+        // and then an acknowledged release.
+        delivered = controller
+            .signal(signal)
+            .and_then(|()| controller.probe().map(|facts| ack = Some(facts)))
+            .and_then(|()| controller.release());
+    }
+    let settlement = if delivered.is_ok() {
+        controller.finish()
+    } else {
+        controller.abort()
+    };
+    let parse = |text: String| -> Value {
+        serde_json::from_str(text.split_once(' ').map_or(&text, |(_, facts)| facts)).unwrap()
+    };
+    let at = directory.path();
+    let result = fs::read(at.join("result-output")).unwrap_or_default();
+    let ending = read_json(at.join("managed-ending.json"));
+    let log = fs::read_to_string(stderr).unwrap_or_default();
+    let observed = Boundary {
+        ready: ready.ok().map(parse),
+        ack: ack.map(parse),
+        delivered,
+        died_by: settlement.status.and_then(|s| s.signal()),
+        result_empty: result.is_empty(),
+        managed_started: at.join("managed-started.json").is_file(),
+        managed_end: ending
+            .as_ref()
+            .and_then(|v| v["end"].as_str().map(str::to_owned)),
+        managed_group: ending
+            .as_ref()
+            .and_then(|v| v["group"].as_str().map(str::to_owned)),
+        worker_confirmed: read_json(at.join("worker-wait.json"))
+            .is_some_and(|v| v["actualConfirmedReap"] == true),
+        outcome: read_json(at.join("outcome.json")),
+        barrier_failure: read_json(at.join("barrier-failure.json")),
+        diagnostics: log.clone(),
+        settlement,
+    };
+    eprintln!(
+        "native E06 boundary={boundary} signal={signal} broken={broken}\n  {observed:?}\n{log}"
+    );
+    observed
+}
+
+fn signal_name(signal: i32) -> &'static str {
+    match signal {
+        libc::SIGINT => "SIGINT",
+        libc::SIGTERM => "SIGTERM",
+        _ => "SIGHUP",
+    }
+}
+
+/// Whether the row met the contract, as its own per-axis answers. Each axis is a
+/// physical or reported fact, so a broken control names the axis that failed.
+#[derive(Debug, PartialEq, Eq)]
+struct Axes {
+    controller: bool,
+    cancelled: bool,
+    zero_result: bool,
+    boundary: bool,
+}
+impl Axes {
+    fn conforms(&self) -> bool {
+        self.controller && self.cancelled && self.zero_result && self.boundary
+    }
+}
+
+fn judge(boundary: &str, signal: i32, seen: &Boundary) -> Axes {
+    let bit = bit(signal);
+    let name = signal_name(signal);
+    let ready = seen.ready.as_ref();
+    let ack = seen.ack.as_ref();
+    let flag = |facts: Option<&Value>, key: &str| facts.is_some_and(|v| v[key] == true);
+    let owner = |facts: Option<&Value>, which: &str| {
+        facts.and_then(|v| v["owners"][which].as_str().map(str::to_owned))
+    };
+    let sig = match signal {
+        libc::SIGINT => "INT",
+        libc::SIGTERM => "TERM",
+        _ => "HUP",
+    };
+    let boundary_facts = match boundary {
+        // The front's own handler owns the signal and consumes it.
+        "selection-to-runner" => {
+            owner(ready, sig).as_deref() == Some("front")
+                && ack.is_some_and(|v| v["frontLatch"] == name)
+                && !flag(ack, "managedStarted")
+                && !seen.managed_started
+        }
+        // The original refusal survives beside the cancellation that wins.
+        "selection-failure-before-finalise" => {
+            owner(ready, sig).as_deref() == Some("front")
+                && ack.is_some_and(|v| v["frontLatch"] == name)
+                && !seen.managed_started
+                && seen.diagnostics.contains("policy code: owner_declined")
+        }
+        // Handled signals are still blocked, so the signal can only be pending;
+        // the runner's handler then consumes it when the mask is restored.
+        "started-before-mask-restore" => {
+            ready.is_some_and(|v| v["blocked"].as_u64().unwrap() & bit != 0)
+                && ack.is_some_and(|v| {
+                    v["pending"].as_u64().unwrap() & bit != 0 && v["frontLatch"].is_null()
+                })
+                && flag(ack, "managedStarted")
+                && seen.managed_end.as_deref()
+                    == Some(format!("Interrupted {{ signal: {signal} }}").as_str())
+                && seen.managed_group.as_deref() == Some("Gone")
+        }
+        // The child is reaped and the runner's handler, not the front's, owns it.
+        "after-reap-before-front" => {
+            flag(ready, "managedReaped")
+                && owner(ready, sig).as_deref() == Some("other")
+                && ack.is_some_and(|v| v["frontLatch"].is_null())
+                && seen.managed_group.as_deref() == Some("Gone")
+        }
+        // No ending exists; the worker was torn down by the front's own wait.
+        // The runner's handlers outlive the failed spawn and own the signal;
+        // the original spawn failure survives beside the cancellation.
+        "no-ending-error-before-finalise" => {
+            owner(ready, sig).as_deref() == Some("other")
+                && ack.is_some_and(|v| v["frontLatch"].is_null())
+                && seen.managed_end.is_none()
+                && !seen.managed_started
+                && seen.worker_confirmed
+                && seen.diagnostics.contains("supervision_failed")
+                && seen.diagnostics.contains("No such file or directory")
+        }
+        other => panic!("boundary {other} is not defined"),
+    };
+    Axes {
+        controller: seen.settlement.clean()
+            && seen.delivered.is_ok()
+            && seen.barrier_failure.is_none(),
+        cancelled: seen.died_by == Some(signal)
+            && seen
+                .outcome
+                .as_ref()
+                .is_some_and(|v| v["error"]["signal"] == name),
+        zero_result: seen.result_empty,
+        boundary: boundary_facts,
+    }
+}
+
+const BOUNDARIES: [(&str, &str); 5] = [
+    ("selection-to-runner", "join-selection"),
+    ("started-before-mask-restore", "join-outcome"),
+    ("after-reap-before-front", "join-late"),
+    ("selection-failure-before-finalise", "join-front"),
+    ("no-ending-error-before-finalise", "join-late"),
+];
+
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing() {
+    for (boundary, mutant) in BOUNDARIES {
+        for signal in [libc::SIGINT, libc::SIGTERM, libc::SIGHUP] {
+            let seen = boundary_row(boundary, signal, "none");
+            let axes = judge(boundary, signal, &seen);
+            assert!(axes.conforms(), "{boundary} signal {signal}: {axes:?}");
+
+            // Removing only the corresponding join must fail a named axis.
+            let broken = boundary_row(boundary, signal, mutant);
+            let axes = judge(boundary, signal, &broken);
+            assert!(axes.controller, "{boundary} {signal}: controller {axes:?}");
+            if boundary == "selection-to-runner" {
+                // The final join still reports the signal, but the runner was
+                // admitted after cancellation: only admission can tell.
+                assert!(
+                    axes.cancelled && !axes.boundary,
+                    "{boundary} {signal}: {axes:?}"
+                );
+                assert!(broken.managed_started);
+            } else {
+                assert!(!axes.cancelled, "{boundary} {signal}: {axes:?}");
+            }
+        }
+    }
+}
+
+// ---- controller qualification ---------------------------------------------
+//
+// These run the controller against stub fixtures that misbehave on purpose.
+// A passing campaign receipt is only trusted because each of these is seen to
+// fail the way the controller is meant to detect and settle.
+
+fn stub(script: &str, limits: Limits) -> (tempfile::TempDir, Controller) {
+    let directory = tempfile::tempdir().unwrap();
+    let mut controller = Controller::new(directory.path(), limits).unwrap();
+    let mut command = Command::new("/bin/sh");
+    command
+        .args(["-c", script])
+        .env_clear()
+        .env("PATH", "/usr/bin:/bin")
+        .process_group(0)
+        .stdin(Stdio::null());
+    controller.configure(&mut command);
+    controller.adopt(command.spawn().unwrap());
+    (directory, controller)
+}
+
+fn gone(pid: u32) -> bool {
+    // The identity is reaped by its owner before this asks; ESRCH confirms.
+    let result = unsafe { libc::kill(pid as i32, 0) };
+    result == -1 && io::Error::last_os_error().raw_os_error() == Some(libc::ESRCH)
+}
+
+#[test]
+#[ignore = "private controller qualification; run task test:native-entry"]
+fn native_controller_watchdog_expiry_is_a_failed_receipt_that_stops_the_fixture() {
+    // A fixture that never reaches its barrier and never exits.
+    let (_directory, mut controller) = stub("exec sleep 600", Limits::FROZEN);
+    let pid = controller.pid().unwrap();
+    let ready = controller.ready();
+    assert!(ready.is_err(), "a silent fixture produced a ready record");
+    let settlement = controller.finish();
+    eprintln!("controller watchdog: {settlement:?} ready={ready:?}");
+    assert!(settlement.watchdog_expired);
+    assert!(settlement.stopped_by_controller);
+    assert!(!settlement.clean(), "an expired watchdog read as a pass");
+    assert_eq!(
+        settlement.status.and_then(|s| s.signal()),
+        Some(libc::SIGKILL)
+    );
+    assert!(settlement.unresolved.is_empty());
+    assert!(gone(pid));
+    // Frozen envelope: work stops at 25 seconds, all of it inside 30.
+    assert!(
+        settlement.elapsed >= Duration::from_secs(25),
+        "{settlement:?}"
+    );
+    assert!(settlement.elapsed <= Limits::FROZEN.outer, "{settlement:?}");
+}
+
+#[test]
+#[ignore = "private controller qualification; run task test:native-entry"]
+fn native_controller_blocked_acknowledgement_and_failed_release_are_failed_receipts() {
+    // The fixture announces itself and then never reads another command.
+    let (_directory, mut controller) = stub(
+        r#"printf 'READY stub {}\n' > "$K28_BARRIER_DIR/ready.fifo"; exec sleep 600"#,
+        Limits::FROZEN,
+    );
+    let pid = controller.pid().unwrap();
+    assert!(controller.ready().is_ok());
+    let at = Instant::now();
+    assert!(
+        controller.probe().is_err(),
+        "a blocked fixture acknowledged"
+    );
+    let probed = at.elapsed();
+    let at = Instant::now();
+    assert!(
+        controller.release().is_err(),
+        "an unread release was confirmed"
+    );
+    let released = at.elapsed();
+    let settlement = controller.abort();
+    eprintln!("controller blocked-ack: probe={probed:?} release={released:?} {settlement:?}");
+    // Each acknowledgement is bounded by its own five seconds.
+    for took in [probed, released] {
+        assert!(took >= Limits::FROZEN.ack && took < Limits::FROZEN.ack + Duration::from_secs(1));
+    }
+    assert!(settlement.faults.len() >= 2, "{settlement:?}");
+    assert!(!settlement.clean());
+    assert_eq!(
+        settlement.status.and_then(|s| s.signal()),
+        Some(libc::SIGKILL)
+    );
+    assert!(gone(pid));
+}
+
+#[test]
+#[ignore = "private controller qualification; run task test:native-entry"]
+fn native_controller_escaped_holder_is_stopped_and_reaped_by_its_owner() {
+    // The holder is deliberately escaped: its own session, not the fixture's.
+    for natural in [false, true] {
+        let (directory, mut controller) = stub(
+            if natural { "exit 0" } else { "exec sleep 600" },
+            Limits::FROZEN,
+        );
+        let holder = Command::new("/bin/sleep")
+            .arg("600")
+            .process_group(0)
+            .stdin(Stdio::null())
+            .spawn()
+            .unwrap();
+        let holder_pid = holder.id();
+        controller.adopt_holder(holder);
+        let settlement = if natural {
+            controller.finish()
+        } else {
+            controller.abort()
+        };
+        drop(directory);
+        eprintln!("controller holder natural={natural}: {settlement:?}");
+        assert_eq!(settlement.holders, vec![(holder_pid, true)]);
+        assert!(settlement.stopped_by_controller);
+        assert!(settlement.unresolved.is_empty());
+        assert!(gone(holder_pid));
+        assert_eq!(settlement.clean(), natural);
+    }
+}
+
+#[test]
+#[ignore = "private controller qualification; run task test:native-entry"]
+fn native_controller_never_signals_a_reaped_fixture() {
+    let (_directory, mut controller) = stub("exit 0", Limits::FROZEN);
+    let settlement = controller.finish();
+    assert!(settlement.clean(), "{settlement:?}");
+    let refused = controller.signal(libc::SIGTERM).unwrap_err();
+    assert!(refused.contains("already ended"), "{refused}");
+    // A second settlement neither signals nor invents a new status.
+    let again = controller.finish();
+    assert_eq!(again.status, settlement.status);
+    assert!(!again.stopped_by_controller);
 }

@@ -1,4 +1,4 @@
-# native-entry-qualification-k31
+# native-entry-qualification-k31 — brief
 
 ## Goal
 
@@ -65,3 +65,29 @@ K33 integrated k32 and charged RC≤1/P≤10/E≤5, D=X=0. Cumulative bounds are
 D≤115/RC≤73/P≤235/E≤65/X=0; this leaf's remaining balance is D≤20 exclusively
 phase closure, RC≤1/P≤90/E≤65/X=0. Finalisation now consumes the runner latch
 after confirming the block; the E06/E07 joins and the full matrix stay owed here.
+
+## Decomposition (k34)
+
+This brief now belongs to a node: k31 proved larger than one session. Its
+complete Done when above is unchanged and is met only by the children together,
+plus the support continuation cut at the end. Children, in order: k34 barrier
+controller with E06/E07 (done), k35 handoff/reader controls (E04 managed, E05,
+E08), k39 funding question, k36 fault families, k37 settlement controls, k38
+campaign/receipts and the support continuation.
+
+## Decisions (running log)
+
+- K34 delivered the one qualified barrier controller (30/5/5, with its watchdog,
+  blocked-acknowledgement/failed-release and escaped-holder controls observed to
+  fail as designed), E06's 15 boundary joins and E07's four first-consumption
+  rows, each with its named break failing. These are development controls on
+  aarch64-apple-darwin, not the immutable campaign; no product defect was found
+  and no family is accepted. Charge P≤30/E≤15/RC≤1, D=X=0. Cumulative bounds are
+  D≤115/RC≤74/P≤265/E≤80/X=0 under caps D≤135/RC≤74/P≤325/E≤130/X=0; remaining
+  D≤20 exclusively phase closure, RC=0/P≤60/E≤50/X=0 for the rest of k31. The
+  full k28 campaign, supported-target qualification and all parent/root
+  obligations stay live; no node closes. K31's remaining children are k35
+  handoff/reader controls, k36 fault families, k37 settlement controls and k38
+  campaign/receipts, with a funding question k39 inserted ahead of k36 because
+  the projected price exceeds the remaining balance (a projection, not an
+  allocation).

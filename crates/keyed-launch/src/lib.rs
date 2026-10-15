@@ -38,6 +38,8 @@ mod argv;
 mod channel;
 mod confinement;
 mod error;
+#[cfg(test)]
+mod native_barrier;
 mod run;
 
 pub use argv::Argv;

@@ -10,6 +10,9 @@ mod frame;
 mod inputs;
 mod limits;
 #[cfg(test)]
+#[path = "../../keyed-launch/src/native_barrier.rs"]
+mod native_barrier;
+#[cfg(test)]
 mod native_entry_tests;
 mod policy;
 mod program;
