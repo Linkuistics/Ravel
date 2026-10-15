@@ -527,3 +527,28 @@ need a complete priced slice and renewed planning/review authority. Its proposed
 D≤10/RC≤5 renewal is not authorization; it does not consume the closure reserve
 or reset any cap. Root delivery, comparison history and G2–G5/R-W debt remain;
 no parent completion, extraction, target/migration or simplification gain follows.
+
+K17's human answered “approved” to the native-entry renewal: raise the phase
+D cap from 90 to 100 minutes, adding D≤10 for bounded next planning while
+preserving the original D≤20 phase-closure reserve, and raise RC from 35 to 40,
+adding RC≤5 shared between agreement closure and next planning/review/coordination.
+P≤240/E≤120/X=0 and zero production disruption remain unchanged. K17 charges
+conservative RC≤3 including recording/tree/verification/retirement/commit,
+D=P=E=X=0. Cumulative correctness charged bounds are now
+D≤70/RC≤38/P≤140/E≤30/X=0; remaining D≤30 (D≤10 available for this planning
+slice and D≤20 reserved for phase closure), RC≤2/P≤100/E≤90/X=0.
+
+`native-entry-correctness-k18`, before the book, is that single planning
+continuation. Its D≤10 includes closure; P=E=X=0 in planning. The remaining
+RC≤2 is shared across planning/review/coordination and closure, never reset per
+leaf. It must price a complete independently useful entry/runner/front repair,
+real-process/PTY discriminators and protected C1–C4/CLI/runner/workspace checks
+from actual remaining balances before commissioning implementation. Preserve
+capture before runtime changes, worker and managed-child waitability,
+ignored/blocked signals, checked handler/mask transitions, auxiliary-thread
+eligibility and late joining. Material new mechanism or work outside the
+allowance needs a precise human funding/scope continuation before the book;
+the closure reserve cannot fund it. Allocations are not spend. The one-session
+CLI consumer, C4 authority premises, k4/k6 comparison history, G2–G5/R-W debt
+and all root delivery/documentation obligations remain unchanged; no parent
+completion or comparative gain follows from this agreement.

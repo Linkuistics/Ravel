@@ -76,3 +76,61 @@ target/migration, extraction, independent adoption, simplification gain or root
 completion follows from these incumbent correctness repairs. Root delivery,
 unchanged configuration and complete sessions, later target/migration decisions,
 the human book structure and practical post-proof reader checkpoint remain live.
+
+## Decisions (running log)
+
+- The human answered “approved” to the proposed renewal: add D≤10 minutes
+  for bounded native-entry planning, raising the phase D cap from 90 to 100,
+  and add RC≤5 minutes shared between this agreement's closure and subsequent
+  planning/review/coordination, raising the phase RC cap from 35 to 40.
+  P≤240/E≤120/X=0 remain unchanged. The existing D≤20 phase-closure reserve
+  stays intact. There was one open funding decision, now settled; no full
+  grilling or renewed requirements interview is needed.
+- Commission only the next native-entry planning continuation before
+  `book-structure-k5`. It must price a complete entry/runner/front repair and
+  discriminating checks from actual remaining balances before growing an
+  implementation leaf. The already-agreed CLI/real-policy/fake-job,
+  transport/real-process and runner/PTY boundaries remain the acceptance seams;
+  any newly necessary private control must be justified at its owner and priced.
+  Required entry capture, worker and managed-child waitability, ignored/blocked
+  signals, checked transitions, auxiliary-thread eligibility and late joining
+  are retained. This agreement constructs no fault controls, edits no product
+  source and runs no behavioral checks.
+- Charge conservative RC≤3 minutes for recording, tree update, verification,
+  retirement and commit including closure; D=P=E=X=0 here. Correctness cumulative
+  charged bounds become D≤70/RC≤38/P≤140/E≤30/X=0. Under the renewed caps,
+  remaining are D≤30 (D≤10 available for this planning slice and D≤20 still
+  reserved for phase closure), RC≤2/P≤100/E≤90/X=0. The remaining RC≤2 is a
+  single shared balance for next planning/review/coordination and closure, not
+  a fresh allowance per leaf. Allocations are not spend; the next leaf must
+  record its charges and price any producer/review from the actual remainder.
+
+## Agreed next mandate
+
+`native-entry-correctness-k18` is the only new continuation, a planning leaf
+before `book-structure-k5`. Its D≤10 includes current-source verification,
+pricing and closure. It must preserve the entry contract and already-agreed
+seams, name the complete useful repair and fixed discriminators, and price
+implementation/check/review from actual remaining P/E/RC before growing it.
+Any material new mechanism or work that cannot fit earns a precise human
+scope/funding continuation before the book. No product or packaging selection,
+new behavioral observation or parent completion is inferred from this renewal.
+
+## Verification and stopping state
+
+Resolve identifies k18 as the new planning leaf; its brief-chain contains the
+unchanged root ancestry and it precedes the book. The book's body is unchanged
+by its move: SHA-256 is
+`1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a`
+both in the parent revision and the current file. Full jj diff review covers
+the approval log, next mandate, root promotion and book rename; the touched
+text has no trailing whitespace. Product source and runtime checks are outside
+this agreement; prior C1–C4 observations retain their existing evidence limits.
+
+Tier 2 coverage generation `2026-10-15T02:46:17Z` reports matching metadata and
+no recorded gaps for the four task/brief paths and prior k15 agreement. Changed
+text is also read directly; coverage is best-effort, not completeness proof.
+The approval, root brief and k18 carry the same caps, charges, shared balances
+and closure reserve. No architectural decision or review leaf is introduced.
+K18 and the book remain live, so no parent closes. Retire k17 and seal its
+focused jj change; native-entry correctness and root delivery remain owed.
