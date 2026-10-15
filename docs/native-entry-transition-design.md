@@ -173,7 +173,73 @@ control, with actual operations and substituted reports in separate fields.
 Compare reruns row by row. Changing an instrument invalidates the affected run.
 No product or behavioral control is built or executed by this design session.
 
-## Complete repair price and handoff
+## Implementation prerequisite: bounded error settlement
+
+Implementation source verification at reference
+`f3756b2de573133d9f70046928c61efdc075c5ce` found that the existing error
+settlement cannot supply the bounded operation assumed by T3/T5 and the price
+below. No production change or native fault case was executed by this read.
+The required behavior and frozen additive Started interface remain unchanged.
+
+| Existing path | Source observation | Consequence for the complete repair |
+|---|---|---|
+| Runner emergency wait | [watch](../crates/keyed-launch/src/run.rs#L1556) calls `signal(SIGKILL)` then blocking `reap`; [Child::reap](../crates/keyed-launch/src/run.rs#L1387) delegates to `Child::wait`. | Failure to deliver the signal, or delayed exit despite it, can prevent reaching terminal recovery. This is not a bounded cleanup primitive. |
+| Runner post-kill polling | [Watch::Killed](../crates/keyed-launch/src/run.rs#L1599) has a polling interval, but no exit deadline. | A short polling interval is not a bound on cleanup. The one-second group-confirmation deadline applies only after reap. |
+| Runner stop reports | [Process](../crates/keyed-launch/src/run.rs#L1347) returns no result from signalling or group killing; [kill](../crates/keyed-launch/src/run.rs#L1658) discards both syscall results. | Reusing this route loses required secondary reports; its emergency message claims SIGKILL was sent without confirmation. Checked stop outcomes are needed. |
+| Worker cleanup | [stop](../crates/ravel/src/worker.rs#L1018) bounds its pre-kill grace, then [kill_and_wait](../crates/ravel/src/worker.rs#L1007) records a kill error and calls blocking `Child::wait` anyway. | A reader-creation failure cannot rely on this as a bounded worker wait. Existing collection deadlines do not bound the preceding wait. |
+| Unknown-status terminal recovery | [Lease::reclaim](../crates/keyed-launch/src/run.rs#L863), with `status=None` and `failed_spawn=false`, takes foreground only from its direct child's group. A different holder can produce no report while modes remain unrestored. | Do not silently turn this into confirmed recovery. State the policy for unknown status and report unconfirmed recovery without granting new foreground authority. |
+
+Rust documents that [Child::wait blocks until exit](https://doc.rust-lang.org/std/process/struct.Child.html#method.wait).
+The source observations above establish possible unbounded paths and discarded
+reports; they are not runtime demonstrations of a denied kill or kernel-stuck
+child. Nor do they invalidate the narrower prior C1–C4 receipts. Those receipts
+separate actual waits from substituted failure reports and do not establish a
+deadline for every physical wait.
+
+One fresh read-only reviewer inspected the frozen Started contract against the
+runner and its existing wait-event tests. All findings were reconciled against
+the exact source:
+
+| Finding | Classification and disposition |
+|---|---|
+| Blocking emergency wait and deadline-free killed state cannot supply bounded cleanup. | **Valid and actionable.** An explicit error-settlement deadline and uncertainty outcome must be specified and priced before reuse. No deadline was selected here. |
+| Stop and group-kill failures are discarded. | **Valid and actionable.** Preserve individual operation reports alongside the initiating check error and first consumed cancellation. Existing LaunchError aggregation is sufficient for carrying text; it does not make the stop operations checked. |
+| Emergency settlement omits the normal second group-kill attempt and post-reap group confirmation. | **Contract stated unclearly in the review prompt.** The existing emergency branch does attempt one group signal, so it is not evidence of no group-stop attempt. It supplies neither the ordinary repeated-kill sequence nor a group-absence receipt. Decide the required pre-reap stop protocol; error return may explicitly retain uncertainty and need not invent Group::Gone. Existing protected wait-event traces must remain reconciled individually. |
+| Unknown-status reclaim can leave a foreign foreground holder and saved modes without reporting uncertainty. | **Valid and actionable for reporting.** Arbitrary takeover is not authorised. Preserve the existing C4 authority and no-reuse premises, and distinguish recovery attempted from recovery confirmed. |
+
+The reviewer also identified reusable mechanisms: establish child/group/lease
+ownership before Started; attach the callback's io::Error as source without
+setting spawn errno; retain consumed cancellation through the existing typed
+accessor; append recovery diagnostics; emit Reaped only for actual successful
+wait. Entering ordinary watching after a failed check would call `lend` again,
+contrary to the frozen error-path requirement.
+
+The missing decisions are the bound and nonblocking observation strategy after
+failed Started or worker-reader admission, treatment of stop/observation/wait
+failures and EINTR/ECHILD without authorising signalling an uncertain or reaped
+identity, the pre-reap group-stop sequence, and unknown-status terminal recovery
+reporting. Their discriminators must distinguish physical operations from
+substituted reports and fit the existing 30/5/5-second controller limits. The
+frozen matrix has no newly authorised cleanup-failure expansion. Specify and
+price any necessary amendment explicitly rather than silently adding cases.
+
+Tier 2 graph lookup and exact source reads support this bounded claim. Coverage
+generation `2026-10-15T03:17:48Z` matched metadata with no recorded gaps for the
+material Rust paths and wait-event tests; this remains best effort. The worker
+kill_and_wait trace resolved callees to unrelated similarly named functions, so
+its implementation and actual Child calls were checked directly, not inferred
+from those callee edges. The excluded `.cargo/config.toml` was read directly.
+No exhaustive graph claim is made.
+
+The complete repair remains live as one future producer. The material discovery
+triggers the mandate's scope/funding continuation; it does not permit borrowing
+the D≤20 phase-closure reserve or declaring the native repair complete.
+
+## Initial repair estimate and handoff
+
+**This estimate is suspended pending the bounded-settlement prerequisite above.**
+It records the original design price, not a current complete supported price.
+Implementation has not commissioned a narrower replacement repair.
 
 One focused fresh-context reviewer read the ownership/transition protocol and
 relevant cases against the required signal/failure contract. It returned

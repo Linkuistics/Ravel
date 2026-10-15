@@ -656,3 +656,31 @@ reserve borrowing. K22 closure records actual spend and the next precise
 continuation before the book. Minimum-Rust/Linux, G2–G5/R-W, k4/k6 history and
 all root delivery/documentation obligations remain live; no phase/root close,
 comparative gain or independent adoption is established.
+
+K22's implementation source verification found a material prerequisite missing
+from its reuse estimate: runner emergency wait and worker post-kill wait block,
+runner killed-state polling has no deadline, stop reports are discarded, and
+unknown-status terminal recovery can return without reporting unconfirmed
+foreground/modes. One narrow reviewer supported these findings; its group-stop
+finding was clarified to distinguish attempts from confirmed absence. The
+transition design now records exact source evidence and all classifications.
+No product/control was changed and no native behavior was measured. Prior C1–C4
+receipts retain their scoped meaning; the complete native repair is unimplemented.
+
+K22 decomposes only to preserve that independently useful prerequisite record
+as native-entry-settlement-prerequisite-k23 and the precise human continuation
+native-entry-settlement-scope-k24. It keeps the complete frozen repair as one
+future producer, not module slices. K23 charges conservative P≤15/RC≤4,
+D=E=X=0, including source verification, evidence, its one reviewer and closure.
+Cumulative correctness bounds are D≤100/RC≤49/P≤155/E≤30/X=0; remaining
+D≤20 exclusively phase-closure reserve, shared RC≤1/P≤85/E≤90/X=0.
+
+K24 proposes additional D≤10/shared RC≤5 for bounded protocol revision and a
+complete new price, raising only the D cap to 130 and RC cap to 55 if approved.
+P≤240/E≤120/X=0 and zero production disruption remain. This is a proposal,
+not approval or spend; no new producer or finite-control amendment is authorised.
+Record the agreement's actual charges before commissioning design, then require
+a complete supported repair price from actual balances or an exact funding
+remainder. The D≤20 reserve is untouched. K22, k24 and the book remain live;
+all prior support/comparison/root obligations remain. No parent/phase/root close,
+target, extraction, comparative gain or independent adoption is earned.

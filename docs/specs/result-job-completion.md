@@ -324,6 +324,10 @@ numeric fallback and retains the transition diagnostics. This is a required
 correction contract, not observed conformance. The
 [transition design and finite discriminator plan](../native-entry-transition-design.md)
 give its source, support limits, alternatives and complete repair estimate.
+The design's [implementation prerequisite](../native-entry-transition-design.md#implementation-prerequisite-bounded-error-settlement)
+records why the original estimate is suspended: existing blocking cleanup paths
+cannot supply the required bounded failure settlement. The requirement remains;
+no native-entry implementation or conformance result is established by that read.
 
 ## Test seams for the repair contract
 

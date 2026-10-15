@@ -1,4 +1,4 @@
-# native-entry-repair-k22
+# native-entry-repair-k22 — brief
 
 ## Goal
 
@@ -172,3 +172,30 @@ seven attempts, R=1/8,F=4/4,N=3/6,D≤45/RC≤15 remain; k6 D≤45/RC≤10 remai
 G2 six-month cost, G3 delivery/use beyond entry, G4 unread alternatives, G5 target
 execution and R-W runtime/lifecycle debt persist. No comparative gain, extraction,
 independent adoption, parent/root completion or book acceptance follows.
+
+## Decisions (running log)
+
+- Source verification found that the design's proposed reuse of existing bounded
+  error settlement is unsupported. Runner emergency recovery performs unchecked
+  signalling followed by blocking Child::wait; the killed polling state has no
+  deadline. Worker kill_and_wait likewise performs blocking wait after its grace.
+  This is source evidence, not an observed hung process or a failed native case.
+- The one permitted narrow reviewer inspected the existing runner against the
+  frozen Started contract. Its boundedness, lost stop reports and uncertain
+  terminal-recovery findings are actionable prerequisites. The emergency-group
+  finding needs a precise distinction between attempted group termination and
+  confirmed group absence; do not infer that the contract requires confirmation
+  on every error. Full findings and classifications belong in the transition
+  design's implementation-prerequisite section.
+- Treat this as the mandate's material-protocol-discovery stopping condition.
+  Preserve the complete repair as one future producer; do not split it by module,
+  waive boundedness, enlarge the frozen controls or spend reserved D. Decompose
+  only to deliver the independently useful source prerequisite and a precise
+  human scope/funding continuation. No product repair or native measurement has
+  begun, and the node cannot close.
+- Charge P≤15/RC≤4, D=E=X=0 for the prerequisite session k23, including this
+  node's initial source verification and one reviewer. Cumulative correctness
+  bounds are D≤100/RC≤49/P≤155/E≤30/X=0; remaining D≤20 exclusively phase
+  closure reserve, shared RC≤1/P≤85/E≤90/X=0. K24 carries the exact proposed
+  renewal. No complete replacement producer is commissioned before revised
+  protocol/pricing; this node's original estimate is suspended, not renewed.
