@@ -1,0 +1,29 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID 7abbe1f8-37b9-4f46-b486-9ddb8a0ab3b7 with nextest profile: campaign-runner
+    Starting 22 tests across 1 binary (35 tests skipped)
+        PASS [   0.010s] ( 1/22) keyed-launch run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict
+        PASS [   0.011s] ( 2/22) keyed-launch run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory
+        PASS [   0.053s] ( 3/22) keyed-launch run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn
+        PASS [   0.078s] ( 4/22) keyed-launch run::terminal_tests::native_s04_foreground_query_eio
+        PASS [   0.084s] ( 5/22) keyed-launch run::terminal_tests::native_s04_foreground_own
+        PASS [   0.091s] ( 6/22) keyed-launch run::terminal_tests::native_s04_foreground_child
+        PASS [   0.093s] ( 7/22) keyed-launch run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report
+        PASS [   0.082s] ( 8/22) keyed-launch run::terminal_tests::native_s04_handback_eio
+        PASS [   0.071s] ( 9/22) keyed-launch run::terminal_tests::native_s04_modes_eio
+        PASS [   0.119s] (10/22) keyed-launch run::terminal_tests::native_s04_foreground_unrelated
+        PASS [   0.044s] (11/22) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+        PASS [   0.070s] (12/22) keyed-launch run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report
+        PASS [   0.077s] (13/22) keyed-launch run::terminal_tests::native_s04_sigttou_restore_eio
+        PASS [   0.459s] (14/22) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   1.064s] (15/22) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+        PASS [   1.582s] (16/22) keyed-launch run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child
+        PASS [   2.692s] (17/22) keyed-launch run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   2.701s] (18/22) keyed-launch run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff
+        PASS [   3.288s] (19/22) keyed-launch run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal
+        PASS [   4.028s] (20/22) keyed-launch run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report
+        PASS [   5.968s] (21/22) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+        PASS [  17.223s] (22/22) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [  17.225s] 22 tests run: 22 passed, 35 skipped

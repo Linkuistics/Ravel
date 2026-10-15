@@ -1,0 +1,1 @@
+{"schema":1,"id":"E04__boundary=managed__state=private-default-SA_NOCLDWAIT","subject":"repaired:front","conforms":true,"test":"native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability","pid":56902,"note":""}

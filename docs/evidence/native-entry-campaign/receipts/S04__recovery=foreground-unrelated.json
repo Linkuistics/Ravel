@@ -1,0 +1,49 @@
+{
+  "id": "S04__recovery=foreground-unrelated",
+  "family": "S04",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::terminal_tests::native_baseline_s04_foreground_unrelated",
+    "note": "violated: unconfirmed-foreground-reported, unconfirmed-modes-reported  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace  FAILED",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:takeover",
+      "conforms": false
+    },
+    {
+      "subject": "broken:uncertainty",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:takeover",
+      "conforms": false,
+      "test": "run::terminal_tests::native_s04_foreground_unrelated",
+      "note": "named claim Some(\"foreign-foreground-preserved\"); ExitStatus(unix_wait_status(25856)):   running 1 test  test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=Some(\"takeover\"): events=[Started, Reaped] foreground=61109 own=61109 child_group=61111 holder=Some(61110) modes_restored=true second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61111 signal 9: Operation not permitted (os error 1); and reaped    thread 'run::terminal_tests::terminal_recovery_role' (2661995) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:  S04 claim violated: foreign-foreground-preserved, unconfirmed-foreground-reported, unconfirmed-modes-reported, saved-modes-not-applied-to-a-foreign-holder  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace  FAILED    failures:    failures:      run::terminal_tests::terminal_recovery_role    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s    "
+    },
+    {
+      "subject": "broken:uncertainty",
+      "conforms": false,
+      "test": "run::terminal_tests::native_s04_foreground_unrelated",
+      "note": "named claim Some(\"unconfirmed-foreground-reported\"); ExitStatus(unix_wait_status(25856)):   running 1 test  test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=Some(\"uncertainty\"): events=[Started, Reaped] foreground=61130 own=61128 child_group=61131 holder=Some(61130) modes_restored=false second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61131 signal 9: Operation not permitted (os error 1); and reaped    thread 'run::terminal_tests::terminal_recovery_role' (2662048) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:  S04 claim violated: unconfirmed-foreground-reported, unconfirmed-modes-reported  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace  FAILED    failures:    failures:      run::terminal_tests::terminal_recovery_role    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s    "
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::terminal_tests::native_s04_foreground_unrelated",
+      "note": "ExitStatus(unix_wait_status(0)):   running 1 test  test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=None: events=[Started, Reaped] foreground=61082 own=61078 child_group=61085 holder=Some(61082) modes_restored=false second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61085 signal 9: Operation not permitted (os error 1); and reaped; terminal held by unrelated foreground group 61082; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored  ok    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s    "
+    }
+  ],
+  "problems": []
+}

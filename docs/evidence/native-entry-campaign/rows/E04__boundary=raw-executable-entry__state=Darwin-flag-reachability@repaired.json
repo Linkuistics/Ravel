@@ -1,0 +1,1 @@
+{"schema":1,"id":"E04__boundary=raw-executable-entry__state=Darwin-flag-reachability","subject":"repaired","conforms":true,"test":"native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability","pid":56902,"note":"raw SIGCHLD flags 0; SA_NOCLDWAIT reached the executable entry: false"}

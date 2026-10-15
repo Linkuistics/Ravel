@@ -1,0 +1,1 @@
+{"schema":1,"id":"S03__operation=try-wait-EIO__mode=report__primary=second-reader-EAGAIN","subject":"broken:dropped","conforms":false,"test":"worker::native_tests::native_s03_poll_eio","pid":57539,"note":"named claim wait-report-retained; Ok(())"}

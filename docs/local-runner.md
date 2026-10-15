@@ -18,7 +18,7 @@ completion channel and escalation durations.
 | Interface | Responsibility |
 |---|---|
 | `Channel` / `signal` | Allocate a fresh path and signal it by creating a file; allocation itself writes no completion file. |
-| `run` | Launch a foreground job and return its reaped status, ending, completion-channel observation and process-group result. |
+| `run` | Launch a foreground job and return its reaped status, ending, completion-channel observation, process-group result and any retained stop reports. |
 | `run_observed` | Also notify the parent synchronously at successful spawn and confirmed reap. |
 | `run_noninteractive` | Isolate stdin, descriptors and the controlling terminal; send output to the caller's regular file. |
 | `run_confined_observed` | Limit filesystem access to writable roots, system runtime reads and explicitly granted read-only files. |
@@ -27,7 +27,10 @@ completion channel and escalation durations.
 Completion-channel appearance begins grace → SIGTERM → kill-grace → SIGKILL.
 The runner reaps the child and restores the terminal. An ending includes whether
 the process group was confirmed gone; callers must check that result before
-acting on completion. Selection, task interpretation, record storage and the
+acting on completion. It also carries `Ended::operation_reports`: the individual
+nonfatal stop reports (for example a stop `EPERM`) retained after the child was
+actually reaped, terminal recovery succeeded and the group was confirmed absent.
+An `EPERM` report never establishes absence itself. Selection, task interpretation, record storage and the
 decision to launch more work belong above this boundary.
 
 The implementation and detailed contracts live in
@@ -54,8 +57,11 @@ concurrent safety from a synchronous call. Observers must return promptly and
 must not panic. Actual foreground ownership gates interactive terminal lending;
 confined launches instead use a new detached session.
 
-Successful `Ended` and failed supervision carry different knowledge. An error
-can lack confirmed reap/group absence. `LaunchError::consumed_signal()` retains
+Successful `Ended` and failed supervision carry different knowledge. A
+successful `Ended` may still list `operation_reports` that the consumer must
+surface; the front writes them as `operationReports` in its single JSON notice,
+or as `ravel:` lines on stderr without `--json`. An error can lack confirmed
+reap/group absence. `LaunchError::consumed_signal()` retains
 the first cancellation consumed during supervision, including observation or
 reap failure. It returns `None` for unrelated errors; `raw_os_error()` remains
 the primary spawn errno. Message/Debug retain original and secondary diagnostic

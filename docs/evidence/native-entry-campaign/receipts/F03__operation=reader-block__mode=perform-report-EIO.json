@@ -1,0 +1,39 @@
+{
+  "id": "F03__operation=reader-block__mode=perform-report-EIO",
+  "family": "F03",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "worker::native_tests::native_baseline_f03_reader_shield_creation_and_restore_faults",
+    "note": "unmet [\"reader-admission-failure-reported\", \"worker-identity-reported\", \"mask-failure-retained\", \"no-managed-start\"]; held [\"no-result-written\"]; exit exit status: 0; managed_started=true; orphaned_worker_survived=false; elapsed 1.343467583s; native baseline F03 block: performed=true actual=0 reported=EIO | native baseline F03 outcome: ok=false started=true creator_before_handled=Some(0) creator_after_handled=Some(0) readers_handled=[7, 7] | native baseline F03 failure: ravel: refused (session_result_missing, stage exec): the managed process ended without a result (exit status: 0)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignored",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignored",
+      "conforms": false,
+      "test": "worker::native_tests::native_f03_block_performed",
+      "note": "named claim no-managed-start; Ok(())"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "worker::native_tests::native_f03_block_performed",
+      "note": "block-performed"
+    }
+  ],
+  "problems": []
+}

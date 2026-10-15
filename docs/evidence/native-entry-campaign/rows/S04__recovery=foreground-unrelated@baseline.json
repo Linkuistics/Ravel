@@ -1,0 +1,1 @@
+{"schema":1,"id":"S04__recovery=foreground-unrelated","subject":"baseline","conforms":false,"test":"run::terminal_tests::native_baseline_s04_foreground_unrelated","pid":62075,"note":"violated: unconfirmed-foreground-reported, unconfirmed-modes-reported  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace  FAILED"}

@@ -1,0 +1,562 @@
+[
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_controller_never_signals_a_reaped_fixture",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_controller_escaped_holder_is_stopped_and_reaped_by_its_owner",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f06_action_failure_with_queued_term_joins_at_finalisation",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f01_initializer_result_failures_admit_no_children",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_block_omitted",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_block_performed",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_first_create",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_restore_omitted",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_restore_performed",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_poll_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_poll_echild",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_f03_second_create",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_kill_performed",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_stop_omitted",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_stop_performed",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_controller_blocked_acknowledgement_and_failed_release_are_failed_receipts",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_poll_eintr",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_kill_omitted",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_s03_running",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_controller_watchdog_expiry_is_a_failed_receipt_that_stops_the_fixture",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_fault_role",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_role_e07",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_observation_echild",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_role_e05",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_observation_eio_once",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_observation_eintr_until_deadline",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_foreground_child",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_foreground_own",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_foreground_query_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_foreground_unrelated",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_control_s04_a_discarded_report_is_detected",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_handback_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_modes_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s04_sigttou_restore_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_baseline_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_f02_managed_watching_query",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_wait_echild",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_paired_child_action_and_recovery_report",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_wait_eio_once",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_s02_wait_eintr_until_deadline",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_control_f06_a_checked_child_operation_fails_the_spawn",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_control_e05_an_invented_cancellation_is_detected",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_control_e07_a_first_wins_latch_is_seen_to_hold",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_control_f02_the_incumbent_repairs_only_an_ignored_disposition",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_tests::native_baseline_e05_direct_and_terminal_int_before_and_after_handoff",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_f06_child_restoration_faults",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::baseline_faults_tests::native_baseline_f04_runner_handler_faults",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "cancellation::baseline_propagation_tests::native_baseline_control_f07_reraise_performs_no_default_action_step",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "cancellation::baseline_propagation_tests::native_baseline_propagation_role",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "cancellation::baseline_propagation_tests::native_baseline_control_f07_the_unfaulted_fixture_dies_by_the_signal",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "cancellation::baseline_propagation_tests::native_baseline_f07_exit_propagation_transitions_and_real_signal_death",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_f04_selection_handler_faults",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_control_unshielded_readers_are_detected",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_control_s03_an_unreaped_role_reserves_its_group",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_control_s03_settlement_is_bounded",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_control_a_wrong_entry_state_is_detected",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e03_both_real_waits_survive_ignored_sigchld_entry",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_paired_f03_second_create_keeps_the_worker_wait_report",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_paired_started_restore_and_recovery_report",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_f01_initializer_result_failures",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_queued_term_rows",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e08_reader_shield_and_collection_bound",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_f04_int_final_restore_failure",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_control_s03_an_armed_secondary_is_reached_without_the_primary",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_s03_second_reader_creation_failure_with_a_secondary_fault",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e02_entry_blocked_pending_is_not_cancellation",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_f05_final_mask_restore_and_started_restore",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "worker::native_tests::native_baseline_f03_reader_shield_creation_and_restore_faults",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_control_rejected_premises_name_operations_the_incumbent_never_performs",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation",
+    "status": "passed"
+  },
+  {
+    "binary": "ravel::bin/ravel",
+    "test": "native_entry_tests::baseline::native_baseline_e01_entry_state_reaches_the_managed_child",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_foreground_query_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_foreground_own",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_foreground_child",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_handback_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_modes_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_foreground_unrelated",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::terminal_tests::native_s04_sigttou_restore_eio",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch",
+    "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch::start_check",
+    "test": "failed_spawn_never_calls_either_start_callback",
+    "status": "passed"
+  },
+  {
+    "binary": "keyed-launch::start_check",
+    "test": "failed_start_check_retains_io_source_and_confirms_real_reap",
+    "status": "passed"
+  }
+]

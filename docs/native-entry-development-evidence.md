@@ -988,6 +988,106 @@ re-derived most rows from source and took the rest (E01–E05, E06's other twelv
 E08's two selection-success rows) from this note; k48 did not re-derive those
 either, and reran them only as part of the development run above.
 
+## Frozen campaign and R01 (k43)
+
+`native-entry-campaign-run-k43` took the immutable measurement. It changed no
+instrument, plan, manifest, script or production code after k48; the only edits
+before the freeze were the four documents named below, made first because the
+completion spec and the transition design are digested subjects. Everything it
+measured was on **aarch64-apple-darwin, macOS 27.0.1 (26A434), rustc 1.99.0,
+cargo-nextest 0.9.148, libc crate 0.2.186**. Nothing here qualifies GNU/Linux or
+Rust 1.85.
+
+**Subjects.** The driver (`task test:native-campaign`) built the private fixtures
+and the frozen incumbent, digested 327 subjects (source tree, manifest, plan,
+the two documents, the built fixture and worker, every workspace test binary and
+the incumbent tree and binaries) before and after, and found every digest
+unchanged. A second digest taken after the R01 tasks (below) is also identical,
+so the six Taskfile tasks did not move a subject either. The incumbent is git
+revision `0515419edd29` (tree and revision are in `domain.json`). The campaign
+ran on parent revision `804699c370ab` with the four document edits as working-copy
+changes, pinned by the work-item commit rather than a second commit.
+
+**Measurement.** Front 35 tests, runner 22, Started API 2 (the repaired and
+broken subjects), and 53 for the incumbent baseline: 112 executed, 112 passed,
+none from outside the plan, no record from a test that did not run. The 153
+manifest rows reconciled **153 of 153** item by item against 450 write-once
+records (327 repaired/broken and 123 baseline). Each row has one receipt
+(`receipts/`, mode 0444), with its expected subjects, observed verdicts and
+baseline class. Every one of the 143 rows with a failing broken subject has that
+subject observed to fail, and the ten rows without one carry the recorded reason
+in the plan.
+
+| Baseline class (incumbent `0515419edd29`) | Rows |
+|---|---|
+| Fails | 67 |
+| Already correct | 56 |
+| Rejected premise (the incumbent never performs the operation, or its fixture premise is absent) | 30 |
+
+The repaired product conformed on all 153. No product defect was found in this
+measurement and production code is unchanged. The 56 already-correct rows pass
+before the repair; their repaired and broken-subject records stay explicit and
+none is counted as repair evidence. The failures are the incumbent's response to
+substituted reports (not physical EIO), as k44 to k48 recorded.
+
+**R01.** The 310 protected identities and their ignored flags (20 ignored
+fixtures) were listed first from the frozen manifest and listing
+(`frozen-listing.json`: 310 of 310 preserved, 74 new identities counted apart).
+Then `test:cli`, `test:session`, `test:runner`, `test:terminal-recovery`, `test`
+and `check` each ran once, sequentially, and exited 0:
+
+| Task | Tests | Protected identities in scope, run and passed |
+|---|---|---|
+| `test:cli` | 13 passed, 1 skipped | 13 of 13 non-ignored (14 in scope) |
+| `test:session` | 241 passed, 29 skipped | 219 of 219 (227 in scope) |
+| `test:runner` | 97 passed, 17 skipped | 71 of 71 (83 in scope) |
+| `test:terminal-recovery` | 6 + 1 passed | the two private PTY selections only; no identity join |
+| `test` | 338 passed, 46 skipped | 290 of 290 (310 in scope, 20 ignored fixtures) |
+| `check` | formatting, shellcheck, worker build/probes/integrity/types, clippy, terminal recovery, then 338 passed, 46 skipped | 290 of 290 |
+
+338 run plus 46 skipped is 384, which is the 310 protected identities and the 74
+new ones. The join (`r01-join.sh`, kept beside the logs) matches each non-ignored
+protected identity to its own `PASS` line in the task's log, so a count alone
+never stands in for an identity. It was seen to reject its wrong inputs: a log
+with one identity's `PASS` line removed (12 of 13), a log with an appended
+`FAIL` line, an empty log, and a scope that matches nothing. The join is a
+post-run reading of the logs; it is not part of the driver and was written after
+the driver was frozen, so it is evidence of this run and not an instrument edit.
+
+**Documentation.** The sweep for `Ended::operation_reports` (JSON
+`operationReports`) and the retained-`EPERM` rule enumerated every document naming
+`Ended`, `operationReports` or `EPERM` outside the grove and the archived
+evidence. The completion spec and the transition design already stated both
+amendments. Four documents were silent and were reconciled before the freeze:
+[local runner](local-runner.md), [session CLI](session-cli.md), the component
+guide's job row and consumer list, and the settlement sequence diagram. The
+remaining documents that name `Ended` either predate the amendment as source
+inventory of the fixed reference (source evidence) or do not list `Ended`'s
+fields. Controls: the same pattern found the amendment in the spec, the design
+and `crates/ravel/src/run.rs`, and found none of it in the four documents at
+their parent revision, so a clean read there would have been a read of a broken
+instrument. The spec's closing status paragraph still describes "a subset of
+development controls"; it is a digested subject and was left unedited so the
+recorded digests describe the tree that was measured. The support continuation
+reconciles it when it freezes again.
+
+**One handling note.** `junit/front.xml` was 1.2 MiB and the version control
+refuses to snapshot a new file above 1 MiB, so it is stored as `front.xml.gz`
+(byte-identical when decompressed; the original's SHA-256 is
+`8a067bc2...8101`, with the other three in `campaign-junit-original.sha256`).
+`tests.json` and `reconciliation.json` were derived from the original before it
+was compressed.
+
+**What this establishes, and what it does not.** On this host and compiler the
+repaired product holds every claim of all 153 rows, the 143 failing broken
+subjects each fail the claim they name, the incumbent baseline is classified for
+all 153, and R01's 310 identities and ignored flags are preserved through the six
+Taskfile tasks. It does **not** qualify GNU/Linux (aarch64 or x86_64) or the
+minimum Rust 1.85, a returning host, an independent adopter, the comparative
+questions (K4, k6, G2 to G5, R-W) or the book. A local pass is not supported-target
+qualification, and the 30 rejected premises are properties of the incumbent
+rather than of the repaired product.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -1026,14 +1126,17 @@ variants and S counts 8/7/8/7/2 unchanged.
    affected rows after edits and reconcile identities individually. The row
    recorders, plan, digest driver and its failing controls now exist (k40,
    above); the incumbent subject and its baseline now exist for all 153 rows
-   (k44, k45 and k46, above), with the frozen campaign run remaining.
+   (k44, k45 and k46, above), and the frozen campaign has since run (k43,
+   above) on the host only.
 6. Complete R01 through the existing Taskfile tasks and preserve every previous
    expectation. Publish qualified evidence only when earned. Reconcile the
    approved operation-report API amendment throughout docs. Price and cut the
    separate Rust 1.85/Linux support remainder inside k22 before the book.
 
-No frozen native measurement campaign currently exists; the incumbent baseline
-classifies all 153 rows in development runs only. No matrix family is accepted from the development summaries above.
+The frozen native campaign now exists for aarch64-apple-darwin and Rust 1.99
+([above](#frozen-campaign-and-r01-k43)); the development summaries earlier in
+this note remain development evidence. The support continuation owns the same
+matrix on GNU/Linux and Rust 1.85.
 The source development increment is sealed under k30. K28 remains an open node;
 `native-entry-qualification-k31` carries the complete remaining acceptance work
 after funding and the tree-owned review. Decomposition does not reset the one

@@ -1,0 +1,1 @@
+{"schema":1,"id":"S02__operation=observation-EIO-once","subject":"broken:report","conforms":false,"test":"run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership","pid":61044,"note":"named claim observation-error-reported; violated [\"observation-error-reported\"]"}

@@ -1,0 +1,39 @@
+{
+  "id": "E06__boundary=refusal-before-finalise__signal=INT",
+  "family": "E06",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation",
+    "note": "Axes { controller: false, cancelled: false, zero_result: true, boundary: false }; the fixture was ended by signal 2 at the boundary before it acknowledged; stderr: ",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:join-front",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:join-front",
+      "conforms": false,
+      "test": "native_entry_tests::native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing",
+      "note": "Axes { controller: true, cancelled: false, zero_result: true, boundary: false }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing",
+      "note": "Axes { controller: true, cancelled: true, zero_result: true, boundary: true }"
+    }
+  ],
+  "problems": []
+}

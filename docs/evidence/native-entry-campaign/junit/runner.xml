@@ -1,0 +1,2060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="nextest-run" tests="22" skipped="0" failures="0" errors="0" uuid="7abbe1f8-37b9-4f46-b486-9ddb8a0ab3b7" timestamp="2026-10-16T00:05:57.002+11:00" time="17.225">
+    <testsuite name="keyed-launch" tests="22" skipped="0" errors="0" failures="0">
+        <testcase name="run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.010">
+            <system-out>
+running 1 test
+test run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+</system-out>
+            <system-err></system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.011">
+            <system-out>
+running 1 test
+test run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+</system-out>
+            <system-err></system-err>
+        </testcase>
+        <testcase name="run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.053">
+            <system-out>
+running 1 test
+test run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.04s
+
+</system-out>
+            <system-err>native runner fault case=started site=0 mode=0 broken=none: Row { line: &quot;events=[Started, Reaped] error=\&quot;Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61070 signal 9: Operation not permitted (os error 1); and reaped\&quot; errno=None consumed=None records=[] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=1 latch_before=0 latch_after=15&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 33.711875ms }
+native runner fault case=child site=6 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=1 latch_before=0 latch_after=15&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 7.860542ms }
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_foreground_query_eio" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.078">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_foreground_query_eio ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.07s
+
+</system-out>
+            <system-err>C4 case=native-s04-foreground-query-EIO broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-query-EIO broken=None: events=[Started, Reaped] foreground=61075 own=61071 child_group=61075 holder=None modes_restored=false second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61075 signal 9: Operation not permitted (os error 1); and reaped; terminal foreground query failed: C4 substituted terminal foreground query report after physical operation
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+C4 case=native-s04-foreground-query-EIO broken=Some(&quot;report&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-query-EIO broken=Some(&quot;report&quot;): events=[Started, Reaped] foreground=61091 own=61091 child_group=61095 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61095 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2661966) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: query-report-retained, no-handback-after-failed-query
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_foreground_own" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.084">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_foreground_own ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.08s
+
+</system-out>
+            <system-err>C4 case=native-s04-foreground-own broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-own broken=None: events=[Started, Reaped] foreground=61054 own=61054 child_group=61066 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61066 signal 9: Operation not permitted (os error 1); and reaped
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-foreground-own broken=Some(&quot;restore&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-own broken=Some(&quot;restore&quot;): events=[Started, Reaped] foreground=61092 own=61092 child_group=61096 holder=None modes_restored=false second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61096 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2661969) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: saved-modes-restored
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_foreground_child" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.091">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_foreground_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.08s
+
+</system-out>
+            <system-err>C4 case=native-s04-foreground-child broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-child broken=None: events=[Started, Reaped] foreground=61061 own=61061 child_group=61072 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 3 target -61072 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61072 signal 9: Operation not permitted (os error 1); and reaped
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-foreground-child broken=Some(&quot;handback&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-child broken=Some(&quot;handback&quot;): events=[Started, Reaped] foreground=61098 own=61097 child_group=61098 holder=None modes_restored=false second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61098 signal 9: Operation not permitted (os error 1); and reaped; terminal held by unrelated foreground group 61098; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2661974) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: recorded-child-group-handed-back, saved-modes-restored, no-invented-recovery-diagnostic
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.093">
+            <system-out>
+running 1 test
+test run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.09s
+
+</system-out>
+            <system-err>native runner fault case=started site=0 mode=0 broken=none: Row { line: &quot;events=[Started, Reaped] error=\&quot;Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61068 signal 9: Operation not permitted (os error 1); and reaped; terminal handback failed: C4 substituted terminal handback report after physical operation\&quot; errno=None consumed=None records=[] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 34.788166ms }
+native runner fault case=child site=6 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable; terminal handback failed: C4 substituted terminal handback report after physical operation\&quot; errno=Some(5) consumed=None records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 7.861416ms }
+native runner fault case=started site=0 mode=0 broken=none: Row { line: &quot;events=[Started, Reaped] error=\&quot;Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61105 signal 9: Operation not permitted (os error 1); and reaped\&quot; errno=None consumed=None records=[] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 34.491958ms }
+native runner fault case=child site=6 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 4.498209ms }
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_handback_eio" classname="keyed-launch" timestamp="2026-10-16T00:05:57.013+11:00" time="0.082">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_handback_eio ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.08s
+
+</system-out>
+            <system-err>C4 case=native-s04-handback-EIO broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=handback-EIO broken=None: events=[Started, Reaped] foreground=61079 own=61079 child_group=61084 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61084 signal 9: Operation not permitted (os error 1); and reaped; terminal handback failed: C4 substituted terminal handback report after physical operation
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-handback-EIO broken=Some(&quot;report&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=handback-EIO broken=Some(&quot;report&quot;): events=[Started, Reaped] foreground=61101 own=61101 child_group=61107 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61107 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2661987) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: handback-report-retained
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_modes_eio" classname="keyed-launch" timestamp="2026-10-16T00:05:57.055+11:00" time="0.071">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_modes_eio ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.06s
+
+</system-out>
+            <system-err>C4 case=native-s04-modes-EIO broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=modes-EIO broken=None: events=[Started, Reaped] foreground=61112 own=61112 child_group=61113 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61113 signal 9: Operation not permitted (os error 1); and reaped; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-modes-EIO broken=Some(&quot;report&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=modes-EIO broken=Some(&quot;report&quot;): events=[Started, Reaped] foreground=61124 own=61124 child_group=61127 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61127 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2662039) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: modes-report-retained
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_foreground_unrelated" classname="keyed-launch" timestamp="2026-10-16T00:05:57.012+11:00" time="0.119">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_foreground_unrelated ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.11s
+
+</system-out>
+            <system-err>C4 case=native-s04-foreground-unrelated broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=None: events=[Started, Reaped] foreground=61082 own=61078 child_group=61085 holder=Some(61082) modes_restored=false second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61085 signal 9: Operation not permitted (os error 1); and reaped; terminal held by unrelated foreground group 61082; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-foreground-unrelated broken=Some(&quot;takeover&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=Some(&quot;takeover&quot;): events=[Started, Reaped] foreground=61109 own=61109 child_group=61111 holder=Some(61110) modes_restored=true second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61111 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2661995) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: foreign-foreground-preserved, unconfirmed-foreground-reported, unconfirmed-modes-reported, saved-modes-not-applied-to-a-foreign-holder
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+C4 case=native-s04-foreground-unrelated broken=Some(&quot;uncertainty&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=Some(&quot;uncertainty&quot;): events=[Started, Reaped] foreground=61130 own=61128 child_group=61131 holder=Some(61130) modes_restored=false second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61131 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2662048) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: unconfirmed-foreground-reported, unconfirmed-modes-reported
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty" classname="keyed-launch" timestamp="2026-10-16T00:05:57.094+11:00" time="0.044">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.04s
+
+</system-out>
+            <system-err>C4 case=native-unknown-foreign broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=foreground-unrelated broken=None: events=[Started, Reaped] foreground=61132 own=61129 child_group=61133 holder=Some(61132) modes_restored=false second_latch=-1 pending=None consumed=None cleanup=Some(Ok(ExitStatus(unix_wait_status(9)))) error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61133 signal 9: Operation not permitted (os error 1); and reaped; terminal held by unrelated foreground group 61132; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report" classname="keyed-launch" timestamp="2026-10-16T00:05:57.086+11:00" time="0.070">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.06s
+
+</system-out>
+            <system-err>C4 case=native-s05-modes broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=s05-modes broken=None: events=[Started, Reaped] foreground=61121 own=61121 child_group=61126 holder=None modes_restored=true second_latch=0 pending=Some(15) consumed=Some(1) cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61126 signal 9: Operation not permitted (os error 1); and reaped; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+C4 case=native-s05-modes broken=Some(&quot;report&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=s05-modes broken=Some(&quot;report&quot;): events=[Started, Reaped] foreground=61137 own=61137 child_group=61138 holder=None modes_restored=true second_latch=0 pending=Some(15) consumed=Some(1) cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61138 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2662067) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: modes-report-retained
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::terminal_tests::native_s04_sigttou_restore_eio" classname="keyed-launch" timestamp="2026-10-16T00:05:57.081+11:00" time="0.077">
+            <system-out>
+running 1 test
+test run::terminal_tests::native_s04_sigttou_restore_eio ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.07s
+
+</system-out>
+            <system-err>C4 case=native-s04-SIGTTOU-restore-EIO broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=SIGTTOU-restore-EIO broken=None: events=[Started, Reaped] foreground=61118 own=61118 child_group=61119 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61119 signal 9: Operation not permitted (os error 1); and reaped; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+C4 case=native-s04-SIGTTOU-restore-EIO broken=Some(&quot;report&quot;): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... native S04 row=SIGTTOU-restore-EIO broken=Some(&quot;report&quot;): events=[Started, Reaped] foreground=61134 own=61134 child_group=61136 holder=None modes_restored=true second_latch=-1 pending=None consumed=None cleanup=None error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61136 signal 9: Operation not permitted (os error 1); and reaped
+
+thread &apos;run::terminal_tests::terminal_recovery_role&apos; (2662060) panicked at crates/keyed-launch/src/run/terminal_tests.rs:1356:5:
+S04 claim violated: sigttou-report-retained
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="0.459">
+            <system-out>
+running 1 test
+test run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.45s
+
+</system-out>
+            <system-err>native settlement fault=Stop { attempt: 1, performed: false } broken=Repaired elapsed=30.062625ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 1 target -61050 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61050 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61050 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61050 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61050 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61050 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61050 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61050 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 1, performed: false } broken=Report elapsed=29.289333ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61087 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61087 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61087 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61087 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61087 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61087 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61087 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 1, performed: true } broken=Repaired elapsed=23.810625ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 1 target -61115 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61115 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61115 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61115 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61115 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61115 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61115 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61115 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 1, performed: true } broken=Report elapsed=22.494917ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61125 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61125 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61125 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61125 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61125 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61125 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61125 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 2, performed: false } broken=Repaired elapsed=27.613708ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 2 target 61135 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61135 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61135 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61135 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61135 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61135 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61135 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61135 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 2, performed: false } broken=Report elapsed=26.171584ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61139 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61139 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61139 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61139 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61139 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61139 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61139 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 2, performed: true } broken=Repaired elapsed=29.698792ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 2 target 61140 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61140 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61140 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61140 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61140 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61140 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61140 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61140 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 2, performed: true } broken=Report elapsed=26.723917ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61141 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61141 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61141 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61141 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61141 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61141 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61141 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 3, performed: false } broken=Repaired elapsed=28.846167ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 3 target -61142 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61142 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61142 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61142 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61142 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61142 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61142 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61142 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 3, performed: false } broken=Report elapsed=30.020917ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61143 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61143 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61143 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61143 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61143 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61143 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61143 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 3, performed: true } broken=Repaired elapsed=29.413792ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 3 target -61144 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61144 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61144 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61144 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61144 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61144 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61144 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61144 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 3, performed: true } broken=Report elapsed=25.001792ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61145 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61145 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61145 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61145 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61145 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61145 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61145 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 4, performed: false } broken=Repaired elapsed=29.405416ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61146 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61146 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61146 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61146 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61146 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61146 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61146 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 4, performed: false } broken=Report elapsed=28.316166ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61147 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61147 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61147 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61147 signal=9 performed=false raw=0 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61147 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61147 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 4, performed: true } broken=Repaired elapsed=28.808167ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61148 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61148 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61148 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61148 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61148 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61148 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61148 status=9&quot;,
+]
+native settlement fault=Stop { attempt: 4, performed: true } broken=Report elapsed=28.620875ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61149 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61149 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61149 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61149 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61149 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61149 status=9&quot;,
+]
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="1.064">
+            <system-out>
+running 1 test
+test run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 1.06s
+
+</system-out>
+            <system-err>native E04 managed broken=none: E04 { line: &quot;private_flags=32 runner_saw_flags=32 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 539.857792ms }
+native E04 managed broken=ignore-only: E04 { line: &quot;private_flags=32 runner_saw_flags=32 events=[Started] error=cannot wait on the launched child: No child processes (os error 10); SIGKILL attempted; could not be reaped — check for an orphaned process: No child processes (os error 10); child/group ownership unresolved; no confirmed reap after_flags=32&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 513.339667ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="1.582">
+            <system-out>
+running 1 test
+test run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 1.57s
+
+</system-out>
+            <system-err>native runner fault case=watching site=1 mode=1 broken=none: Row { line: &quot;events=[] error=\&quot;cannot query child watching: Input/output error (os error 5)\&quot; errno=None consumed=None records=[1, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.27ms }
+native runner fault case=watching site=1 mode=1 broken=ignore: Row { line: &quot;events=[Started] error=\&quot;cannot wait on the launched child: No child processes (os error 10); SIGKILL attempted; could not be reaped — check for an orphaned process: No child processes (os error 10); child/group ownership unresolved; no confirmed reap\&quot; errno=None consumed=None records=[1, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 515.139916ms }
+native runner fault case=watching site=2 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot repair child watching: Input/output error (os error 5)\&quot; errno=None consumed=None records=[2, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.31925ms }
+native runner fault case=watching site=2 mode=2 broken=ignore: Row { line: &quot;events=[Started] error=\&quot;cannot wait on the launched child: No child processes (os error 10); SIGKILL attempted; could not be reaped — check for an orphaned process: No child processes (os error 10); child/group ownership unresolved; no confirmed reap\&quot; errno=None consumed=None records=[2, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 513.973375ms }
+native runner fault case=watching site=2 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot repair child watching: Input/output error (os error 5)\&quot; errno=None consumed=None records=[2, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.332334ms }
+native runner fault case=watching site=2 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[2, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 526.6785ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="2.692">
+            <system-out>
+running 1 test
+test run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 2.68s
+
+</system-out>
+            <system-err>native runner fault case=handlers site=3 mode=1 broken=none: Row { line: &quot;events=[] error=\&quot;cannot install runner handler for signal 15: Input/output error (os error 5)\&quot; errno=None consumed=None records=[3, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=default term=default hup=default foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 5.762584ms }
+native runner fault case=handlers site=3 mode=1 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[3, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 535.260125ms }
+native runner fault case=handlers site=4 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot install runner handler for signal 2: Input/output error (os error 5)\&quot; errno=None consumed=None records=[4, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=default term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.222584ms }
+native runner fault case=handlers site=4 mode=2 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[4, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=default term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 532.059291ms }
+native runner fault case=handlers site=4 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot install runner handler for signal 2: Input/output error (os error 5)\&quot; errno=None consumed=None records=[4, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.226208ms }
+native runner fault case=handlers site=4 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[4, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 526.69975ms }
+native runner fault case=handlers site=5 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot install runner handler for signal 15: Input/output error (os error 5)\&quot; errno=None consumed=None records=[5, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=default term=default hup=default foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.260125ms }
+native runner fault case=handlers site=5 mode=2 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[5, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=default hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 532.169916ms }
+native runner fault case=handlers site=5 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot install runner handler for signal 15: Input/output error (os error 5)\&quot; errno=None consumed=None records=[5, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=default term=runner hup=default foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 3.221334ms }
+native runner fault case=handlers site=5 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[5, 1] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 530.146916ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="2.701">
+            <system-out>
+running 1 test
+test run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 2.69s
+
+</system-out>
+            <system-err>native E05 direct/before broken=none: E05 { ready: Some(&quot;before-handoff stage=before-handoff pid=61060 sid=61060 pgrp=61060 fg=61060 child=0 published=0 latch=0 runs=0&quot;), ack: Some(&quot;before-handoff stage=before-handoff pid=61060 sid=61060 pgrp=61060 fg=61060 child=0 published=0 latch=2 runs=1&quot;), outcome: &quot;events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=false group=Gone foreground_restored=true&quot;, clean: true, faults: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 529.347333ms }
+native E05 direct/after broken=none: E05 { ready: Some(&quot;after-handoff stage=after-handoff pid=61153 sid=61153 pgrp=61153 fg=61154 child=61154 published=1 latch=0 runs=0&quot;), ack: Some(&quot;after-handoff stage=after-handoff pid=61153 sid=61153 pgrp=61153 fg=61154 child=61154 published=1 latch=2 runs=1&quot;), outcome: &quot;events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=true group=Gone foreground_restored=true&quot;, clean: true, faults: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 542.899709ms }
+native E05 pty/before broken=none: E05 { ready: Some(&quot;before-handoff stage=before-handoff pid=61183 sid=61183 pgrp=61183 fg=61183 child=0 published=0 latch=0 runs=0&quot;), ack: Some(&quot;before-handoff stage=before-handoff pid=61183 sid=61183 pgrp=61183 fg=61183 child=0 published=0 latch=2 runs=1&quot;), outcome: &quot;events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=false group=Gone foreground_restored=true&quot;, clean: true, faults: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 540.641541ms }
+native E05 pty/after broken=none: E05 { ready: Some(&quot;after-handoff stage=after-handoff pid=61234 sid=61234 pgrp=61234 fg=61235 child=61235 published=1 latch=0 runs=0&quot;), ack: Some(&quot;after-handoff stage=after-handoff pid=61234 sid=61234 pgrp=61234 fg=61235 child=61235 published=1 latch=0 runs=0&quot;), outcome: &quot;events=[Started, Reaped] end=Exited status_signal=Some(2) signalled=true group=Gone foreground_restored=true&quot;, clean: true, faults: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 530.695667ms }
+native E05 pty/after broken=invent: E05 { ready: Some(&quot;after-handoff stage=after-handoff pid=61281 sid=61281 pgrp=61281 fg=61285 child=61285 published=1 latch=0 runs=0&quot;), ack: Some(&quot;after-handoff stage=after-handoff pid=61281 sid=61281 pgrp=61281 fg=61285 child=61285 published=1 latch=0 runs=0&quot;), outcome: &quot;events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=true group=Gone foreground_restored=true&quot;, clean: true, faults: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 540.665083ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="3.288">
+            <system-out>
+running 1 test
+test run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 3.28s
+
+</system-out>
+            <system-err>native runner fault case=child site=6 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 7.520166ms }
+native runner fault case=child site=6 mode=2 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 544.018083ms }
+native runner fault case=child site=6 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[6, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 6.736083ms }
+native runner fault case=child site=6 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[6, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 541.443666ms }
+native runner fault case=child site=7 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[7, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 4.480833ms }
+native runner fault case=child site=7 mode=2 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[7, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 538.089916ms }
+native runner fault case=child site=7 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[7, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 6.676125ms }
+native runner fault case=child site=7 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[7, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 534.9135ms }
+native runner fault case=child site=8 mode=2 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[8, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 6.723083ms }
+native runner fault case=child site=8 mode=2 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[8, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 533.995875ms }
+native runner fault case=child site=8 mode=3 broken=none: Row { line: &quot;events=[] error=\&quot;cannot spawn \\\&quot;/bin/sh\\\&quot;: Input/output error (os error 5); check that the program exists and is executable\&quot; errno=Some(5) consumed=None records=[8, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 7.642375ms }
+native runner fault case=child site=8 mode=3 broken=ignore: Row { line: &quot;events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[8, 5] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0&quot;, clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 535.38325ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="4.028">
+            <system-out>
+running 1 test
+test run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 4.02s
+
+</system-out>
+            <system-err>native S05 runner broken=none: S05 { latch_at_consumption: Some(0), latch_after_second: Some(15), outcome: &quot;error consumed=Some(1) events=[Started] message=Started parent transition failed: Input/output error (os error 5); stop attempt 3 target -61069 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61069 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 2.007571292s }
+native S05 runner broken=error: S05 { latch_at_consumption: Some(0), latch_after_second: Some(15), outcome: &quot;error consumed=Some(15) events=[Started] message=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61254 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 2.00929525s }
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="5.968">
+            <system-out>
+running 1 test
+test run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 5.96s
+
+</system-out>
+            <system-err>native E07 first=15 second=1 error=false broken=none: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: &quot;ended interrupted=15&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 649.924208ms }
+native E07 first=15 second=1 error=false broken=latch: E07 { first_ack_latch: Some(15), second_ack_latch: Some(1), consumed_ack_latch: Some(1), outcome: &quot;ended interrupted=1&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 653.776333ms }
+native E07 first=15 second=1 error=false broken=guard: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: &quot;ended interrupted=1&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 657.096375ms }
+native E07 first=15 second=1 error=false broken=at-reap: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: &quot;ended interrupted=1&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 644.01775ms }
+native E07 first=15 second=1 error=true broken=none: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: &quot;error consumed=Some(15) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 125.326542ms }
+native E07 first=15 second=1 error=true broken=latch: E07 { first_ack_latch: Some(15), second_ack_latch: Some(1), consumed_ack_latch: Some(1), outcome: &quot;error consumed=Some(1) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 125.313125ms }
+native E07 first=15 second=1 error=true broken=error: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: &quot;error consumed=Some(1) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; stop attempt 3 target -61345 signal 9: Operation not permitted (os error 1); and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 123.727667ms }
+native E07 first=1 second=2 error=false broken=none: E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: &quot;ended interrupted=1&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 645.824625ms }
+native E07 first=1 second=2 error=false broken=latch: E07 { first_ack_latch: Some(1), second_ack_latch: Some(2), consumed_ack_latch: Some(2), outcome: &quot;ended interrupted=2&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 646.92725ms }
+native E07 first=1 second=2 error=false broken=guard: E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: &quot;ended interrupted=2&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 643.550541ms }
+native E07 first=1 second=2 error=false broken=at-reap: E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: &quot;ended interrupted=2&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 652.770375ms }
+native E07 first=1 second=2 error=true broken=none: E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: &quot;error consumed=Some(1) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; stop attempt 3 target -61507 signal 9: Operation not permitted (os error 1); and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 123.488917ms }
+native E07 first=1 second=2 error=true broken=latch: E07 { first_ack_latch: Some(1), second_ack_latch: Some(2), consumed_ack_latch: Some(2), outcome: &quot;error consumed=Some(2) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; stop attempt 3 target -61516 signal 9: Operation not permitted (os error 1); and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 127.101958ms }
+native E07 first=1 second=2 error=true broken=error: E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: &quot;error consumed=Some(2) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; stop attempt 3 target -61518 signal 9: Operation not permitted (os error 1); and reaped&quot;, clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 129.33975ms }
+</system-err>
+        </testcase>
+        <testcase name="run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership" classname="keyed-launch" timestamp="2026-10-16T00:05:57.002+11:00" time="17.223">
+            <system-out>
+running 1 test
+test run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 17.21s
+
+</system-out>
+            <system-err>native settlement fault=ObserveEio broken=Repaired elapsed=30.049458ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); settlement observation: Input/output error (os error 5); stop attempt 4 target -61055 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61055 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61055 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61055 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61055 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61055 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61055 status=9&quot;,
+]
+native settlement fault=ObserveEio broken=Report elapsed=25.2885ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61088 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61088 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61088 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61088 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61088 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61088 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61088 status=9&quot;,
+]
+native settlement fault=ObserveEintr broken=Repaired elapsed=2.001092417s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); settlement observation EINTR retries 154; stop attempt 4 target -61114 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61114 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61114 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61114 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61114 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61114 code=2 errno=None&quot;,
+]
+native settlement fault=ObserveEintr broken=Deadline elapsed=3.000758291s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); settlement observation EINTR retries 231; stop attempt 4 target -61257 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61257 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61257 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61257 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61257 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61257 code=2 errno=None&quot;,
+]
+native settlement fault=ObserveLost broken=Repaired elapsed=27.46225ms product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); settlement observation: No child processes (os error 10); stop attempt 4 target -61494 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: No child processes (os error 10); child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61494 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61494 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61494 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61494 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61494 code=2 errno=None&quot;,
+]
+native settlement fault=ObserveLost broken=Identity elapsed=23.744333ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=2 error=Started parent transition failed: Input/output error (os error 5); settlement observation: No child processes (os error 10); stop attempt 4 target -61495 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61495 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61495 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61495 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61495 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61495 code=2 errno=None&quot;,
+    &quot;waitpid performed=true raw=61495 status=9&quot;,
+]
+native settlement fault=WaitEio broken=Repaired elapsed=37.140791ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61496 signal 9: Operation not permitted (os error 1); wait reported an error; actual reap confirmed: wait recovered after errno 5; retries 1; actual reap confirmed; and reaped
+physical=[
+    &quot;stop attempt=1 target=-61496 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61496 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61496 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61496 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61496 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=5&quot;,
+    &quot;waitpid performed=true raw=61496 status=9&quot;,
+]
+native settlement fault=WaitEio broken=Report elapsed=20.774292ms product_released=true actual_reap=Some(ExitStatus(unix_wait_status(9))) events=[Started, Reaped] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 3 target -61504 signal 9: Operation not permitted (os error 1); stop attempt 4 target -61504 signal 9: Operation not permitted (os error 1); and reaped
+physical=[
+    &quot;stop attempt=1 target=-61504 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61504 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61504 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;stop attempt=4 target=-61504 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61504 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=5&quot;,
+    &quot;waitpid performed=true raw=61504 status=9&quot;,
+]
+native settlement fault=WaitEintr broken=Repaired elapsed=2.000929208s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61505 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno Some(4), retries 153; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61505 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61505 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61505 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61505 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61505 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+]
+native settlement fault=WaitEintr broken=Deadline elapsed=3.001451208s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61595 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno Some(4), retries 224; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61595 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61595 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61595 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61595 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61595 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=4&quot;,
+]
+native settlement fault=WaitLost broken=Repaired elapsed=29.677167ms product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61644 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: wait lost ownership: No child processes (os error 10); first wait errno Some(10), retries 1; reap unconfirmed; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61644 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61644 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61644 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61644 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61644 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+]
+native settlement fault=WaitLost broken=Identity elapsed=2.001953792s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=2 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61645 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno Some(10), retries 153; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61645 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61645 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61645 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61645 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61645 code=2 errno=None&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+    &quot;waitpid physical_reap_omitted=true reported_errno=10&quot;,
+]
+native settlement fault=Running broken=Repaired elapsed=2.001266416s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61761 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61761 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61761 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61761 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61761 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61761 code=2 errno=None&quot;,
+]
+native settlement fault=Running broken=Deadline elapsed=3.002909667s product_released=true actual_reap=None events=[Started] fixture_cleanup=Ok(()) released_attempts=0 error=Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -61842 signal 9: Operation not permitted (os error 1); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap
+physical=[
+    &quot;stop attempt=1 target=-61842 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=2 target=61842 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=3 target=-61842 signal=9 performed=true raw=0 errno=None&quot;,
+    &quot;stop attempt=4 target=-61842 signal=9 performed=true raw=-1 errno=Some(Some(1))&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+    &quot;WNOWAIT performed=true raw=0 pid=61842 code=2 errno=None&quot;,
+]
+</system-err>
+        </testcase>
+    </testsuite>
+</testsuites>

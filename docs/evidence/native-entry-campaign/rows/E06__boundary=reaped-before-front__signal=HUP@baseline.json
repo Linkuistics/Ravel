@@ -1,0 +1,1 @@
+{"schema":1,"id":"E06__boundary=reaped-before-front__signal=HUP","subject":"baseline","conforms":true,"test":"native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation","pid":62141,"note":"Axes { controller: true, cancelled: true, zero_result: true, boundary: true }"}

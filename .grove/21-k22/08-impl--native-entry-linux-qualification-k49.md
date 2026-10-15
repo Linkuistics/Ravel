@@ -1,0 +1,95 @@
+# native-entry-linux-qualification-k49
+
+## Goal
+
+Qualify the repaired native-entry-to-settlement launcher on the declared GNU
+Linux targets and at the declared minimum Rust 1.85, with the same frozen
+153-row matrix, the same incumbent baseline and the same 310 protected
+identities that k43 measured on aarch64-apple-darwin. k43 qualified one host
+and one compiler; this leaf is the support remainder it was required to cut.
+
+## Context
+
+Read the k43 section of `docs/native-entry-development-evidence.md` ("Frozen
+campaign and R01"), the k38 and k31 briefs, the Linux signal-domain paragraph
+and the Linux v6.18 exec source note in `docs/native-entry-transition-design.md`,
+`docs/RELEASING.md` (what the Linux Docker/QEMU smoke infrastructure already
+establishes and what it explicitly does not), and `scripts/native-campaign.sh`
+and `scripts/native-incumbent.sh` as k43 froze them. Use the driver as built; an
+instrument edit that Linux genuinely needs (a Darwin-only assumption, a libc
+constant, a PTY primitive) is the work of this leaf and invalidates the rows it
+touches, so rerun them and never reason about them.
+
+What is known to differ and must be checked against the target headers and the
+running kernel, not remembered: the handled-signal domain (1 to 64 excluding
+glibc-reserved 32 and 33 on GNU Linux), `exec` clearing action flags so the
+private SA_NOCLDWAIT case is a post-entry fixture rather than an inherited flag,
+`EPERM` for a group of unreaped zombies, `waitid` with WNOWAIT, controlling-
+terminal and foreground-group behaviour of a PTY, and what the guest kernel
+reports for pending and blocked sets. Record the measured kernel, glibc and
+toolchain for each target the way `domain.json` does.
+
+The existing Docker/QEMU archive smoke runs release archives, not this matrix,
+and `docs/RELEASING.md` states that kernel floors are not measured by containers
+or user-mode emulation. Reuse its pinned userlands and registration where they
+fit; they do not by themselves qualify anything here.
+
+## Done when
+
+- Rust 1.85 itself builds and lints the workspace (`cargo +1.85 build`, test
+  binaries and `clippy --all-targets`), checked against the toolchain the
+  manifest declares (`rust-version = "1.85"`), with the compile errors or
+  warnings it reveals listed. Any API newer than 1.85 that the repaired code or
+  its instruments use is a finding to repair, with the source cited.
+- The frozen matrix runs on aarch64-unknown-linux-gnu under a real Linux kernel
+  (the arm64 Docker VM the release smoke already requires, kernel 6.7 or later)
+  as repaired, broken and incumbent subjects, with digests before and after,
+  one writer per receipt, and every row reconciled item by item. Rows whose
+  Darwin premise does not exist on Linux (for example the raw executable-entry
+  SA_NOCLDWAIT observation) are classified with a reason and a control, never
+  dropped, and the 153-row identity set and the S01 to S05 counts 8/7/8/7/2 stay.
+- The same matrix runs for x86_64-unknown-linux-gnu. Under user-mode emulation
+  it is recorded as **emulated**: it can show that the code and instruments
+  build and behave under that emulator, and it cannot establish the native
+  kernel's signal, process-group or PTY semantics. Cut the native x86_64
+  remainder as its own precise `requirements` leaf, naming the human choice
+  (provide an x86_64 Linux host the campaign can use, or accept emulation as the
+  stated limit) with a recommendation and the evidence for it. Do not narrow the
+  matrix or call emulation qualification.
+- R01's 310 identities and ignored flags are preserved on each Linux target
+  through test:cli, test:session, test:runner, test:terminal-recovery, test and
+  check, joined identity by identity as k43 did, with the join seen to fail on
+  its wrong inputs. Failures and any new identities are reported separately.
+- The completion spec's closing status paragraph and the evidence note are
+  reconciled with what is now measured (k43 left the spec unedited because it is
+  a digested subject), the support limits are stated per target, and the
+  Darwin receipts stay immutable and untouched.
+- Actual charges and balances are recorded in the brief chain.
+
+## Notes
+
+Pricing (a projection, not an allocation): P<=45/E<=60/RC<=4, D=X=0. The basis
+is k44 to k46 (about P 22 each to host and classify a baseline family) for the
+Linux port of the seams and instruments, k43's measured campaign and six
+Taskfile runs for the execution (roughly nine minutes of wall time per target
+plus container build and reruns), and k40's controller deadlines (30 s case, 5 s
+acknowledgement) which a slower emulated target may force to be re-priced rather
+than widened silently. Funding: k41's standing human direction ("I'm not
+actually concerned about the budget - just do what is required.") removes
+budget caps as a gate for required work, so no funding-question leaf is cut;
+cumulative bounds after k43 are D<=115/RC<=102/P<=510/E<=187/X=0 against the
+historical caps D<=135/RC<=88/P<=467/E<=177/X=0, kept as bookkeeping with the
+D<=20 phase-closure reserve and zero production disruption intact.
+
+Production behaviour must not change for any non-test build. If a Linux finding
+needs a production repair, it earns its own correction run, with the failing
+broken subject first, rather than a quiet edit inside qualification.
+
+Still live and outside this leaf: returning-host contract, independent adoption,
+K4 (reference 0bdcb1f9ae24, one iteration of seven attempts, R=1/8, F=4/4, N=3/6,
+D<=45/RC<=15) and k6 (D<=45/RC<=10) history, G2 six-month cost, G3 delivery and
+use beyond entry, G4 unread alternatives, G5 target execution, R-W runtime and
+lifecycle debt, and every root obligation. A pass here closes none of them and
+does not advance the book.
+
+## Decisions (running log)

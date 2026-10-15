@@ -1,0 +1,1 @@
+{"schema":1,"id":"E07__signals=TERM-then-HUP__boundary=runner-active","subject":"repaired","conforms":true,"test":"run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery","pid":61043,"note":"E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: \"ended interrupted=15\", clean: true, reported: [] }"}

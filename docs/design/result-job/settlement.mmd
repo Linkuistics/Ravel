@@ -22,11 +22,11 @@ sequenceDiagram
   Note over Pub,Runner: Publication requests ending, it is not successful completion
   Runner->>Runner: Observe appearance or natural exit, end group before reap
   Runner->>Runner: Reap, recover terminal, confirm group
-  Runner-->>Owner: Own ending, status, appearance, group result
+  Runner-->>Owner: Own ending, status, appearance, group result, stop reports
   Owner->>Transport: Validate anchored exact result using own ending
   Owner->>Owner: Attempt mask / channel / private / output cleanup
   Note over Owner: Drop output and selection guard before joining latches
-  Owner->>Owner: Join cancellation, report cleanup/group diagnostics
+  Owner->>Owner: Join cancellation, report cleanup/group diagnostics and stop reports
   alt Cancel
     Owner-->>Caller: Cancellation, no result
   else Result error

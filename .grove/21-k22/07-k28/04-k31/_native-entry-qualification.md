@@ -221,3 +221,29 @@ bounds are D<=115/RC<=96/P<=463/E<=162/X=0. The historical RC<=88 cap is exceede
 by eight; the standing k41 direction removes budget gates and requires no funding
 leaf. K43, supported-target qualification and every parent/root obligation remain
 live; no node closes.
+
+K43 (the last child of k38, inside k31) took the frozen campaign on
+aarch64-apple-darwin, rustc 1.99.0. It digested 327 subjects (source, manifest,
+plan, the two documents, the built fixture and worker, every test binary and the
+incumbent tree) before and after, unchanged, ran 112 tests (59 repaired and
+broken, 53 incumbent), none failing, and reconciled **153 of 153 rows** against
+450 write-once records (327 repaired/broken, 123 baseline), each with an
+immutable receipt. The incumbent baseline stands at 67 fails, 56 already correct
+and 30 rejected premises. R01's 310 identities and 20 ignored flags were listed
+first, then preserved through test:cli, test:session, test:runner,
+test:terminal-recovery, test and check, each exiting 0 (338 run, 46 skipped =
+310 + 74 new) and joined identity by identity with the join seen to fail on its
+wrong inputs; a digest after the six tasks equals the campaign's. The docs were
+reconciled for Ended::operation_reports and retained EPERM before the freeze
+(four silent documents edited, the spec and design already carried both), swept
+with positive and cross-tree controls. No product defect; production code,
+instruments and plan unchanged. Local success qualifies one host and one
+compiler only. The support continuation is cut as native-entry-linux-
+qualification-k49 inside k22, before the book, priced P<=45/E<=60/RC<=4 and
+funded by k41's standing direction; the native x86_64 remainder is to be cut by
+it as a human scope question. Charge P<=12/E<=15/RC<=3, D=X=0. Cumulative
+D<=115/RC<=102/P<=510/E<=187/X=0 against the historical caps
+D<=135/RC<=88/P<=467/E<=177/X=0, which no longer gate required work (k41);
+remaining D<=20 exclusively phase closure.
+
+K38 closes with k43 and every k31 child is terminal; the local campaign Done when is met and the support continuation is cut. K31 closes.

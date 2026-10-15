@@ -1,0 +1,1 @@
+{"schema":1,"id":"F07__operation=TERM-default__mode=perform-report-EIO","subject":"baseline","conforms":false,"test":"cancellation::baseline_propagation_tests::native_baseline_f07_exit_propagation_transitions_and_real_signal_death","pid":62101,"note":"signal death 15; reported a failed transition: false; result bytes 0"}

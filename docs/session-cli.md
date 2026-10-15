@@ -64,7 +64,11 @@ TERM or HUP returns that signal and no result. Cleanup/supervision failures
 are reported on stderr and never yield a successful result. CLI errors exit 2,
 policy refusals 3, worker failures 5, selection timeouts 124 and program failures
 126/127. `--json` formats routing notices and refusals on stderr; stdout remains
-the opaque result stream. Managed-process stderr remains its own stream.
+the opaque result stream. The routing notice is written once, after supervision,
+and carries `operationReports`: benign stop reports (such as a stop `EPERM`)
+retained after confirmed reap, terminal recovery and group absence. The array is
+empty when there are none and absent when supervision produced no ending;
+without `--json` each report is a `ravel:` line on stderr. Managed-process stderr remains its own stream.
 
 The worker is paired by package version and source digest before any policy
 is sent. Its generic embedded imports are `ravel/sdk` and

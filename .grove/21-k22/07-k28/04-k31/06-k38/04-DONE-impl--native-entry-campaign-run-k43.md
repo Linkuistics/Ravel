@@ -50,3 +50,25 @@ narrowing the matrix. The support continuation's funding question charges its ow
 RC inside the renewal it asks for.
 
 ## Decisions (running log)
+
+- Docs were reconciled **before** the freeze, because the completion spec and the
+  transition design are digested campaign subjects: an edit after the freeze
+  would have invalidated every row. The spec and the design already carried both
+  amendments; the sweep (every file naming `Ended`, `operationReports` or `EPERM`
+  outside the grove and the archived evidence) found the local-runner document,
+  the CLI document, the component guide's job row and consumer list, and the
+  settlement sequence diagram silent, and edited those four. No instrument,
+  plan, manifest or script was touched. The campaign runs with these four docs
+  as working-copy edits on parent revision 804699c, pinned by digest rather than
+  by commit, so the task keeps one commit.
+- Campaign and R01 are done and reconciled (counts, digests and the join are in
+  `docs/native-entry-development-evidence.md`, "Frozen campaign and R01", and
+  under `docs/evidence/native-entry-campaign` and `...-r01`). Evidence is earned
+  for the host and compiler it names, and only for those. `junit/front.xml`
+  (1.2 MiB) is stored gzip-compressed because the version control refuses to
+  snapshot a new file above 1 MiB; its original SHA-256 is recorded. The completion
+  spec's status paragraph was left unedited because it is a digested subject;
+  k49 reconciles it. The support continuation is cut as k49 (impl) inside k22,
+  priced P<=45/E<=60/RC<=4, funded by k41's standing direction, with the native
+  x86_64 question assigned to it as a human scope leaf. Charge
+  P<=12/E<=15/RC<=3, D=X=0; cumulative D<=115/RC<=102/P<=510/E<=187/X=0.

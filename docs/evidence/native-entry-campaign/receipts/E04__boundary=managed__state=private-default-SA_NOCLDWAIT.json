@@ -1,0 +1,49 @@
+{
+  "id": "E04__boundary=managed__state=private-default-SA_NOCLDWAIT",
+  "family": "E04",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "note": "raw_wait=1280 elapsed=1.181089541s worker=Some(Object {\"actualConfirmedReap\": Bool(true), \"pid\": Number(62198), \"rawStatus\": Number(0)}) managed=Some(Object {\"blocked\": Number(0), \"capturingThread\": Number(8291155840), \"currentThread\": Number(8291155840), \"ignored\": Number(0), \"pending\": Number(0), \"pendingQueryError\": Number(0), \"pgid\": Number(62363), \"pid\": Number(62363), \"recorded\": Bool(true), \"sid\": Number(53717), \"sigchldFlags\": Number(0)}) ending=None outcome=Some(Object {\"error\": Object {\"code\": String(\"supervision_failed\"), \"exit\": Number(5), \"message\": String(\"cannot wait on the launched child: No child processes (os error 10); it has been sent SIGKILL and could not be reaped — check for an orphaned process: No child processes (os error 10)\"), \"remedy\": String(\"check the selected program and its execution environment\"), \"stage\": String(\"exec\")}, \"schemaVersion\": Number(1)}) result=[] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired:front",
+      "conforms": true
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-only",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-only",
+      "conforms": false,
+      "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+      "note": "E04 { line: \"private_flags=32 runner_saw_flags=32 events=[Started] error=cannot wait on the launched child: No child processes (os error 10); SIGKILL attempted; could not be reaped — check for an orphaned process: No child processes (os error 10); child/group ownership unresolved; no confirmed reap after_flags=32\", clean: true }"
+    },
+    {
+      "subject": "repaired:front",
+      "conforms": true,
+      "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+      "note": ""
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true,
+      "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+      "note": "E04 { line: \"private_flags=32 runner_saw_flags=32 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=0\", clean: true }"
+    }
+  ],
+  "problems": []
+}

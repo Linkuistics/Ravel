@@ -1,0 +1,1 @@
+{"schema":1,"id":"F03__operation=reader-block__mode=perform-report-EIO","subject":"broken:ignored","conforms":false,"test":"worker::native_tests::native_f03_block_performed","pid":57268,"note":"named claim no-managed-start; Ok(())"}

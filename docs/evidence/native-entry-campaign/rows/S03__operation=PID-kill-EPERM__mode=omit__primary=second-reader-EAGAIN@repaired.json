@@ -1,0 +1,1 @@
+{"schema":1,"id":"S03__operation=PID-kill-EPERM__mode=omit__primary=second-reader-EAGAIN","subject":"repaired","conforms":true,"test":"worker::native_tests::native_s03_kill_omitted","pid":57488,"note":"kill-omitted"}

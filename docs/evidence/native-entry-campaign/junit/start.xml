@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="nextest-run" tests="2" skipped="0" failures="0" errors="0" uuid="f7b6066d-c24e-4d93-b491-b288ee1c98ac" timestamp="2026-10-16T00:06:14.394+11:00" time="0.033">
+    <testsuite name="keyed-launch::start_check" tests="2" skipped="0" errors="0" failures="0">
+        <testcase name="failed_spawn_never_calls_either_start_callback" classname="keyed-launch::start_check" timestamp="2026-10-16T00:06:14.394+11:00" time="0.007">
+            <system-out>
+running 1 test
+test failed_spawn_never_calls_either_start_callback ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+</system-out>
+            <system-err></system-err>
+        </testcase>
+        <testcase name="failed_start_check_retains_io_source_and_confirms_real_reap" classname="keyed-launch::start_check" timestamp="2026-10-16T00:06:14.394+11:00" time="0.033">
+            <system-out>
+running 1 test
+test failed_start_check_retains_io_source_and_confirms_real_reap ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.03s
+
+</system-out>
+            <system-err></system-err>
+        </testcase>
+    </testsuite>
+</testsuites>

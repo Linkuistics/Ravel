@@ -1,0 +1,1 @@
+{"schema":1,"id":"S01__operation=group-repeat-first__mode=omit-EPERM","subject":"broken:report","conforms":false,"test":"run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations","pid":61040,"note":"named claim stop-report-retained attempt=3; violated [\"stop-report-retained attempt=3\"]"}
