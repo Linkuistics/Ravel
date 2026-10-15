@@ -91,3 +91,16 @@ campaign/receipts and the support continuation.
   campaign/receipts, with a funding question k39 inserted ahead of k36 because
   the projected price exceeds the remaining balance (a projection, not an
   allocation).
+- K35 delivered E04's managed ignore-only mutant (at the runner, observed to
+  fail with the flag left set and ECHILD), E05's four direct/terminal INT
+  handoff rows on a real PTY with the invented-cancellation mutant detected, and
+  E08's four complete/escaped-reader rows with the controller owning and killing
+  its holder through an SCM_RIGHTS handoff and broken shielding failing the
+  eligibility receipt. Development controls on aarch64-apple-darwin, not the
+  immutable campaign; no product defect was found and no family is accepted.
+  Charge P≤25/E≤10/RC=0, D=X=0. Cumulative bounds are
+  D≤115/RC≤74/P≤290/E≤90/X=0 under caps D≤135/RC≤74/P≤325/E≤130/X=0; remaining
+  D≤20 exclusively phase closure, RC=0/P≤35/E≤40/X=0 for the rest of k31. K31's
+  remaining children are the k39 funding question, then k36 fault families, k37
+  settlement controls and k38 campaign/receipts. The older worker/terminal
+  fixture helpers (F03/S03 and C4) are still not routed through the controller.

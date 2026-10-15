@@ -65,7 +65,17 @@ pub(crate) fn handler_owner(number: libc::c_int) -> &'static str {
         _ => "other",
     }
 }
+/// The thread whose handler latched the first signal (E08: main owns it).
+#[cfg(test)]
+pub(crate) static HANDLER_THREAD: std::sync::atomic::AtomicU64 =
+    std::sync::atomic::AtomicU64::new(0);
 extern "C" fn on_signal(signal: libc::c_int) {
+    // pthread_self is async-signal-safe; one relaxed-order store, no allocation.
+    #[cfg(test)]
+    HANDLER_THREAD.store(
+        unsafe { libc::pthread_self() } as usize as u64,
+        Ordering::SeqCst,
+    );
     let _ = RECEIVED.compare_exchange(0, signal, Ordering::SeqCst, Ordering::SeqCst);
 }
 
@@ -310,6 +320,15 @@ impl Shield {
         }
         let set = handled_set()?;
         let mut previous = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        // E08's private break: report a shield without ever blocking, so a
+        // reader would inherit an eligible mask. Only the receipt can tell.
+        #[cfg(test)]
+        if crate::native_entry_tests::broken_shielding() {
+            mask_result(unsafe {
+                libc::pthread_sigmask(libc::SIG_BLOCK, ptr::null(), &mut previous)
+            })?;
+            return Ok(Self { previous });
+        }
         mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, &mut previous) })?;
         #[cfg(test)]
         if crate::worker::native_tests::block_fault().is_some() {

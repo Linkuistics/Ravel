@@ -21,6 +21,8 @@ enum Fault {
     PollEintr,
     PollLost,
     Running,
+    /// Record reader/creator receipts only; inject nothing (E08).
+    Observe,
 }
 #[derive(Default)]
 struct Control {
@@ -33,9 +35,12 @@ struct Control {
     reader_masks: Arc<Mutex<Vec<(bool, MaskReceipt)>>>,
     creator_before: Option<MaskReceipt>,
     creator_after: Option<MaskReceipt>,
+    finished: Arc<Mutex<Vec<bool>>>,
+    collected: Option<(usize, usize, Duration, Duration)>,
 }
 
 pub(super) type ReaderSink = Arc<Mutex<Vec<(bool, MaskReceipt)>>>;
+pub(super) type FinishedSink = Arc<Mutex<Vec<bool>>>;
 
 #[derive(Clone, Debug)]
 pub(super) struct MaskReceipt {
@@ -84,10 +89,56 @@ pub(super) fn record_reader(sink: Option<ReaderSink>, stdout: bool) {
         sink.lock().unwrap().push((stdout, mask_receipt()));
     }
 }
+pub(super) fn finished_sink() -> Option<FinishedSink> {
+    active().then(|| CONTROL.with(|c| Arc::clone(&c.borrow().finished)))
+}
+/// A reader reached the end of its stream. Recorded before it reports done.
+pub(super) fn record_finished(sink: Option<FinishedSink>, stdout: bool) {
+    if let Some(sink) = sink {
+        sink.lock().unwrap().push(stdout);
+    }
+}
+/// The bounded collection's own receipt: how many readers it waited for, how
+/// many completed within its window, the window and the time it actually took.
+pub(super) fn collected(streams: usize, completed: usize, window: Duration, took: Duration) {
+    if active() {
+        CONTROL.with(|c| c.borrow_mut().collected = Some((streams, completed, window, took)));
+    }
+}
+fn mask_json(mask: &MaskReceipt) -> serde_json::Value {
+    json!({"handled": mask.handled, "raw": mask.raw})
+}
+/// Everything E08 reads at a boundary: the creator's masks around reader
+/// creation, each reader's own mask taken on its thread, which readers reached
+/// the end of their stream, and the bounded collection. Read-only.
+pub(crate) fn reader_receipt() -> serde_json::Value {
+    CONTROL.with(|c| {
+        let c = c.borrow();
+        let readers: Vec<_> = c
+            .reader_masks
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|(stdout, mask)| json!({"stdout": stdout, "mask": mask_json(mask)}))
+            .collect();
+        let finished: Vec<bool> = c.finished.lock().unwrap().clone();
+        json!({
+            "creatorBefore": c.creator_before.as_ref().map(mask_json),
+            "creatorAfter": c.creator_after.as_ref().map(mask_json),
+            "readers": readers,
+            "finished": finished,
+            "collect": c.collected.map(|(streams, completed, window, took)| json!({
+                "streams": streams, "completed": completed,
+                "windowMs": window.as_millis() as u64, "tookMs": took.as_millis() as u64,
+            })),
+        })
+    })
+}
 thread_local! { static CONTROL: RefCell<Control> = RefCell::new(Control::default()); }
 
 pub(super) fn configure(case: &str) {
     let fault = match case {
+        "observe" => Fault::Observe,
         "block-omitted" => Fault::Block(Mutation::Omitted),
         "block-performed" => Fault::Block(Mutation::Performed),
         "first-create" => Fault::FirstCreate,
@@ -113,6 +164,14 @@ pub(super) fn configure(case: &str) {
 }
 pub(super) fn active() -> bool {
     CONTROL.with(|c| c.borrow().fault != Fault::None)
+}
+/// A fault was configured, as opposed to observation only.
+fn injected() -> bool {
+    CONTROL.with(|c| !matches!(c.borrow().fault, Fault::None | Fault::Observe))
+}
+/// Observation for the private real-main fixture, injecting nothing.
+pub(crate) fn observe() {
+    configure("observe");
 }
 pub(crate) fn block_fault() -> Option<Mutation> {
     CONTROL.with(|c| match c.borrow().fault {
@@ -144,7 +203,7 @@ pub(super) fn omit_create(stdout: bool) -> bool {
     })
 }
 pub(super) fn child_started(child: &Child, protocol: &UnixStream) {
-    if !active() {
+    if !injected() {
         return;
     }
     CONTROL.with(|c| {
@@ -216,7 +275,7 @@ pub(super) fn poll(child: &mut Child) -> io::Result<Option<ExitStatus>> {
 }
 
 pub(super) fn fixture_cleanup(child: &mut Child, product: &Teardown) {
-    if !active() {
+    if !injected() {
         return;
     }
     eprintln!("native worker product observation before fixture cleanup: pid={} status={:?} stops_failed={} reports={:?}", product.pid, product.status, product.stop_failed, product.reports);
@@ -306,3 +365,46 @@ reader_case!(native_s03_poll_eio, "poll-EIO");
 reader_case!(native_s03_poll_eintr, "poll-EINTR");
 reader_case!(native_s03_poll_echild, "poll-ECHILD");
 reader_case!(native_s03_running, "always-running");
+
+/// E08's private worker: the real protocol, with a deliberately escaped
+/// pipe-holder. Runs from the real-main fixture binary, never installed.
+///
+/// With a holder socket it first hands its stdout to the *controller*, which
+/// spawns and owns a holder process on that pipe and acknowledges. The worker
+/// then finishes the conversation and exits, so the pipe's last writer is the
+/// controller's holder, not anything the product owns.
+pub(crate) fn e08_worker() -> ! {
+    let selection: Value =
+        serde_json::from_slice(&fs::read(std::env::var_os("K28_E08_SELECTION").unwrap()).unwrap())
+            .unwrap();
+    let mut channel = unsafe { UnixStream::from_raw_fd(CHANNEL_FD) };
+    write_frame(
+        &mut channel,
+        &json!({"type":"hello","protocol":1,"packageVersion":PACKAGE_VERSION,"buildId":BUILD_ID,"bunVersion":"1.4.2"}),
+    )
+    .unwrap();
+    read_frame(&mut channel, 1_048_576).unwrap();
+    println!("owner stdout");
+    eprintln!("owner stderr");
+    if let Some(socket) = std::env::var_os("K28_E08_HOLDER") {
+        if let Err(error) = crate::native_barrier::send_descriptor(Path::new(&socket), 1) {
+            eprintln!("e08 worker: holder handoff failed: {error}");
+            std::process::exit(70);
+        }
+    }
+    write_frame(
+        &mut channel,
+        &json!({"type":"policy","policy":{"schemaVersion":2,"version":"native-entry","select":{"$ravel":"function"}}}),
+    )
+    .unwrap();
+    read_frame(&mut channel, 1_048_576).unwrap();
+    write_frame(
+        &mut channel,
+        &json!({"type":"selection","result":selection}),
+    )
+    .unwrap();
+    // The front closes the protocol after reading the selection.
+    let mut byte = [0];
+    let _ = channel.read(&mut byte);
+    std::process::exit(0);
+}

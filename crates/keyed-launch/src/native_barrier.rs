@@ -19,10 +19,12 @@
 
 use std::fs::File;
 use std::io::{self, Read as _, Write as _};
-use std::os::fd::{AsRawFd as _, FromRawFd as _, RawFd};
+use std::os::fd::{AsRawFd as _, FromRawFd as _, OwnedFd, RawFd};
 use std::os::unix::ffi::OsStrExt as _;
+use std::os::unix::net::{UnixListener, UnixStream};
+use std::os::unix::process::CommandExt as _;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, ExitStatus};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::time::{Duration, Instant};
 
 /// Names the private barrier directory for a fixture process.
@@ -134,6 +136,51 @@ pub fn exchange(boundary: &str, facts: &mut dyn FnMut() -> String) -> Result<(),
     }
 }
 
+/// Fixture side of an escaped-holder handoff. Sends `fd` over the controller's
+/// private socket and waits, bounded, for its acknowledgement that the
+/// controller now owns a descriptor of its own. After this returns the fixture
+/// may exit: the controller's holder keeps the underlying pipe open.
+pub fn send_descriptor(socket: &Path, fd: RawFd) -> Result<(), String> {
+    let stream = UnixStream::connect(socket).map_err(|error| format!("holder socket: {error}"))?;
+    let payload = *b"H";
+    let mut vector = libc::iovec {
+        iov_base: payload.as_ptr() as *mut libc::c_void,
+        iov_len: 1,
+    };
+    // SAFETY: CMSG_SPACE is a pure size computation.
+    let space = unsafe { libc::CMSG_SPACE(std::mem::size_of::<RawFd>() as u32) } as usize;
+    // u64 elements give the control buffer cmsghdr alignment.
+    let mut control = vec![0u64; space.div_ceil(8)];
+    // SAFETY: a zeroed msghdr is a valid empty message; the fields below point
+    // into buffers that outlive the call.
+    let mut message: libc::msghdr = unsafe { std::mem::zeroed() };
+    message.msg_iov = &mut vector;
+    message.msg_iovlen = 1;
+    message.msg_control = control.as_mut_ptr().cast();
+    message.msg_controllen = space as _;
+    // SAFETY: the buffer was sized by CMSG_SPACE for exactly one descriptor.
+    unsafe {
+        let header = libc::CMSG_FIRSTHDR(&message);
+        (*header).cmsg_level = libc::SOL_SOCKET;
+        (*header).cmsg_type = libc::SCM_RIGHTS;
+        (*header).cmsg_len = libc::CMSG_LEN(std::mem::size_of::<RawFd>() as u32) as _;
+        std::ptr::copy_nonoverlapping(&fd, libc::CMSG_DATA(header).cast::<RawFd>(), 1);
+    }
+    // SAFETY: a connected stream socket and a fully built message.
+    if unsafe { libc::sendmsg(stream.as_raw_fd(), &message, 0) } != 1 {
+        return Err(format!("holder send: {}", io::Error::last_os_error()));
+    }
+    if !readable(stream.as_raw_fd(), Instant::now() + Limits::FROZEN.ack)
+        .map_err(|error| format!("holder acknowledgement: {error}"))?
+    {
+        return Err("controller never acknowledged the holder handoff".to_owned());
+    }
+    let mut ack = [0u8; 1];
+    (&stream)
+        .read_exact(&mut ack)
+        .map_err(|error| format!("holder acknowledgement: {error}"))
+}
+
 /// How the controller's wait for a record ended, other than with a record.
 #[derive(Debug)]
 pub enum Wait {
@@ -190,6 +237,7 @@ pub struct Controller {
     status: Option<ExitStatus>,
     holders: Vec<Child>,
     holder_reaped: Vec<(u32, bool)>,
+    holder_port: Option<UnixListener>,
     faults: Vec<String>,
     stopped: bool,
     expired: bool,
@@ -221,6 +269,7 @@ impl Controller {
             status: None,
             holders: Vec::new(),
             holder_reaped: Vec::new(),
+            holder_port: None,
             faults: Vec::new(),
             stopped: false,
             expired: false,
@@ -240,6 +289,96 @@ impl Controller {
     /// An escaped pipe-holder or similar fixture child this controller owns.
     pub fn adopt_holder(&mut self, child: Child) {
         self.holders.push(child);
+    }
+
+    /// Offer a private socket on which a fixture may hand over one descriptor
+    /// (see [`send_descriptor`]). The controller then spawns its own holder
+    /// process, in a group of its own, whose stdout is that pipe, adopts it and
+    /// answers the fixture. The holder is the controller's child: it is killed
+    /// and waited by this controller on every path, never by recorded number.
+    pub fn serve_holder(&mut self, socket: &Path) -> io::Result<()> {
+        let listener = UnixListener::bind(socket)?;
+        listener.set_nonblocking(true)?;
+        self.holder_port = Some(listener);
+        Ok(())
+    }
+
+    /// Accept at most one pending handoff without blocking. Called from every
+    /// wait slice, so a fixture's handoff is serviced while the controller waits.
+    fn service_holder_port(&mut self) {
+        let Some(listener) = self.holder_port.as_ref() else {
+            return;
+        };
+        let stream = match listener.accept() {
+            Ok((stream, _)) => stream,
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => return,
+            Err(error) => {
+                self.faults.push(format!("holder socket accept: {error}"));
+                self.holder_port = None;
+                return;
+            }
+        };
+        match self.receive_holder(&stream) {
+            Ok(holder) => {
+                self.adopt_holder(holder);
+                let _ = (&stream).write_all(b"A");
+            }
+            Err(fault) => self.faults.push(fault),
+        }
+    }
+
+    fn receive_holder(&mut self, stream: &UnixStream) -> Result<Child, String> {
+        stream
+            .set_nonblocking(false)
+            .map_err(|error| format!("holder stream: {error}"))?;
+        if !readable(stream.as_raw_fd(), Instant::now() + self.limits.ack)
+            .map_err(|error| format!("holder wait: {error}"))?
+        {
+            return Err("holder handoff never arrived".to_owned());
+        }
+        let mut payload = [0u8; 1];
+        let mut vector = libc::iovec {
+            iov_base: payload.as_mut_ptr().cast(),
+            iov_len: 1,
+        };
+        // SAFETY: CMSG_SPACE is a pure size computation.
+        let space = unsafe { libc::CMSG_SPACE(std::mem::size_of::<RawFd>() as u32) } as usize;
+        let mut control = vec![0u64; space.div_ceil(8)];
+        // SAFETY: zeroed msghdr, then pointers into live buffers.
+        let mut message: libc::msghdr = unsafe { std::mem::zeroed() };
+        message.msg_iov = &mut vector;
+        message.msg_iovlen = 1;
+        message.msg_control = control.as_mut_ptr().cast();
+        message.msg_controllen = space as _;
+        // SAFETY: a connected stream socket and a fully built message.
+        let received = unsafe { libc::recvmsg(stream.as_raw_fd(), &mut message, 0) };
+        if received != 1 {
+            return Err(format!("holder receive: {}", io::Error::last_os_error()));
+        }
+        // SAFETY: the kernel filled the control buffer for this message; the
+        // descriptor is taken into ownership immediately.
+        let descriptor = unsafe {
+            let header = libc::CMSG_FIRSTHDR(&message);
+            if header.is_null()
+                || (*header).cmsg_level != libc::SOL_SOCKET
+                || (*header).cmsg_type != libc::SCM_RIGHTS
+            {
+                return Err("holder handoff carried no descriptor".to_owned());
+            }
+            OwnedFd::from_raw_fd(std::ptr::read_unaligned(
+                libc::CMSG_DATA(header).cast::<RawFd>(),
+            ))
+        };
+        // The holder's own group is the escape from the fixture's group. This
+        // controller's copy closes as soon as the spawn consumes it.
+        Command::new("/bin/sleep")
+            .arg("600")
+            .process_group(0)
+            .stdin(Stdio::null())
+            .stdout(Stdio::from(descriptor))
+            .stderr(Stdio::null())
+            .spawn()
+            .map_err(|error| format!("holder spawn: {error}"))
     }
 
     pub fn pid(&self) -> Option<u32> {
@@ -287,6 +426,7 @@ impl Controller {
                     Err(error) => return Err(Wait::Io(error)),
                 }
             }
+            self.service_holder_port();
             let now = Instant::now();
             if now >= by {
                 return Err(Wait::Timeout);

@@ -1364,6 +1364,8 @@ impl Capture {
             );
             #[cfg(test)]
             let reader_sink = native_tests::reader_sink();
+            #[cfg(test)]
+            let finished_sink = native_tests::finished_sink();
             thread::Builder::new()
                 .name(
                     if stdout {
@@ -1402,6 +1404,8 @@ impl Capture {
                             Err(_) => break,
                         }
                     }
+                    #[cfg(test)]
+                    native_tests::record_finished(finished_sink, stdout);
                     let _ = sender.send(());
                 })?;
             capture.streams += 1;
@@ -1427,6 +1431,10 @@ impl Capture {
     /// Everything kept so far, once both streams end or `by` passes, and
     /// whether any output went past the bound.
     fn collect(self, by: Instant) -> (Diagnostics, bool) {
+        #[cfg(test)]
+        let began = Instant::now();
+        #[cfg(test)]
+        let mut completed = 0;
         for _ in 0..self.streams {
             if self
                 .done
@@ -1435,7 +1443,18 @@ impl Capture {
             {
                 break;
             }
+            #[cfg(test)]
+            {
+                completed += 1;
+            }
         }
+        #[cfg(test)]
+        native_tests::collected(
+            self.streams,
+            completed,
+            by.saturating_duration_since(began),
+            began.elapsed(),
+        );
         let captured = self
             .captured
             .lock()

@@ -231,6 +231,80 @@ after the counter advanced. The ordering was fixed and the runs repeated.
 These are development controls on aarch64-apple-darwin, not immutable matrix
 receipts, and qualify neither Linux nor Rust 1.85.
 
+## Handoff and reader controls: E04 managed, E05, E08 (k35)
+
+`native-entry-handoff-reader-controls-k35` ran the three families that need a
+real PTY, a runner-level mutant seam or an escaped reader on the k34 controller,
+without creating another one. Everything below is a development control on
+aarch64-apple-darwin, not an immutable receipt, and qualifies neither Linux nor
+Rust 1.85. No product defect was found and production semantics are unchanged:
+every new seam is `cfg(test)`.
+
+**E04 managed.** The managed boundary is the runner's own `restore_child_watching`,
+which the ravel fixture links in non-test form, so its independent ignore-only
+mutant lives at the runner. The role installs a private default plus
+`SA_NOCLDWAIT` after entry, the runner's own query records the flags it saw
+immediately before its checked watching, and a real child's exit and wait are the
+receipt. The ravel-level managed row remains the end-to-end positive; the raw
+exec-flag reachability row is untouched and never relabelled.
+
+| Run | Runner saw flags | After the launch | Real child |
+|---|---|---|---|
+| Repaired | `SA_NOCLDWAIT` set | cleared | `Started, Reaped`, status 7, group gone |
+| Ignore-only mutant | `SA_NOCLDWAIT` set | **still set** | `Started` only; wait fails ECHILD, reap unconfirmed |
+
+**E05.** A launcher role on a PTY of its own (session and group leader, slave as
+controlling terminal) runs the transparent runner under the controller. A direct
+INT is `kill(launcher)`; a terminal INT is the VINTR byte written to the master.
+*Before handoff* is the last parent act before the spawn (launcher group
+foreground, no child); *after handoff* is the Started start check (child exec'd
+and foreground). The child records its pid, publishes through the channel and
+waits with the default INT disposition. Publication is confirmed through
+acknowledged probes before the signal, never a sleep.
+
+| Row | Facts at the barrier | Launcher latch after | Launch result |
+|---|---|---|---|
+| direct INT / before | pid = sid = pgrp = foreground, no child | INT | `Interrupted(INT)` |
+| direct INT / after | foreground = child ≠ launcher group, published | INT | `Interrupted(INT)`, group gone |
+| terminal INT / before | pid = sid = pgrp = foreground, no child | INT | `Interrupted(INT)` |
+| terminal INT / after | foreground = child ≠ launcher group, published | **empty** | `Exited`, child status SIGINT, signalled, group gone, no cancellation |
+
+The invented-cancellation mutant reports the child's own SIGINT death as the
+launcher's cancellation; only the publish-then-terminal-INT row detects it. The
+runner alone has no admission check, so the before-handoff rows still spawn and
+then cancel the child; the front's admission join is E06's selection-to-runner row.
+The first run of this family exposed a fixture defect, kept here: a process
+exiting onto an undrained PTY blocks in tty close beyond SIGKILL. The controller
+reported it as watchdog expiry with an unresolved identity at 30 s, and the row
+now owns a bounded drain thread joined on every path.
+
+**E08.** The private worker is this same executable in a worker role speaking the
+real protocol. For escaped-holder rows it hands its stdout to the **controller**
+over a private socket (`SCM_RIGHTS`); the controller spawns and owns a holder on
+that pipe in its own group, acknowledges, and the worker exits. A process-directed
+TERM is then delivered at the common finalisation barrier. The real Bun worker is
+not used for E08: it cannot give the controller a descriptor, and the
+reader/mask/finalisation behaviour does not depend on the worker implementation.
+
+| Readers | Result | Reader masks (own thread) | Creator before/after | Collection | Holder |
+|---|---|---|---|---|---|
+| both complete | success / refusal | both block INT, TERM, HUP | equal | 2 of 2, immediate | none |
+| one escaped | success / refusal | both block INT, TERM, HUP | equal | 1 of 2, window ≤ 1 s, took = window | killed and waited by controller |
+
+Owners at the barrier: refusal rows keep the front's handler (latch consumed on
+the main thread, recorded by a test-only handler-thread store); success rows have
+the runner's handlers installed over it, so the signal is joined late and the
+front latch is empty. The main-thread observation therefore covers refusal rows
+only. Breaking only the shield (report success, never block) leaves cancellation
+intact, because the latch is process-wide, and fails exactly the readers'
+eligibility receipt: their own masks record no handled signal blocked.
+
+Protected checks after the final edit: `task test:native-entry` (26 + 6 + 2),
+`task check` (320 run / 36 skipped, formatting, clippy, worker, PTY recovery) and
+`task test:terminal-recovery` passed. R01 reconciled by identity: all 310 prior
+identities present with unchanged ignored flags; 46 new identities. The three new
+rows passed five further unchanged repeats (flake detection only).
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -239,10 +313,10 @@ presence is a required case identity, not an execution result. Keep the frozen
 parameter products, mutation modes, four paired failures, two queued-TERM
 variants and S counts 8/7/8/7/2 unchanged.
 
-1. Finish E04's managed mutant; E05's four direct/terminal INT handoff cases;
-   and E08's four complete/escaped-reader cases (k35). E06's 15 acknowledged
-   boundary joins and E07's four first-consumption cases now have development
-   controls, below; they are not immutable receipts. Receipts must distinguish
+1. E04's managed mutant, E05's four direct/terminal INT handoff cases and E08's
+   four complete/escaped-reader cases (k35), E06's 15 acknowledged boundary
+   joins and E07's four first-consumption cases now have development controls,
+   above; they are not immutable receipts. Receipts must distinguish
    front/runner/child ownership, pending versus consumed state and real reader
    eligibility. No sleeps can establish ordering.
 2. Construct F02's six watching faults, F04's 14 selection/runner handler faults,

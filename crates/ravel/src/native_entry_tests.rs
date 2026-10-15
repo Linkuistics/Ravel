@@ -23,6 +23,7 @@ enum Broken {
     Reinstatement,
     BlockedPending,
     WorkerWatching,
+    Shielding,
     Join(Join),
 }
 /// The cancellation joins E06 removes one at a time. Fixed enumeration only.
@@ -69,6 +70,10 @@ pub(crate) fn broken_blocked_pending() -> bool {
 }
 pub(crate) fn broken_reinstatement() -> bool {
     BROKEN.get() == Broken::Reinstatement
+}
+/// E08's private break: the reader shield reports success without blocking.
+pub(crate) fn broken_shielding() -> bool {
+    BROKEN.get() == Broken::Shielding
 }
 pub(crate) fn skip_worker_repair() -> bool {
     BROKEN.get() == Broken::WorkerWatching
@@ -161,6 +166,8 @@ fn facts(boundary: &str) -> String {
         "blocked":blocked_bits(),"pending":pending_bits(),
         "frontLatch":crate::cancellation::received().map(|s| s.name()),
         "owners":{"INT":owner(libc::SIGINT),"TERM":owner(libc::SIGTERM),"HUP":owner(libc::SIGHUP)},
+        "handlerThread":crate::cancellation::HANDLER_THREAD.load(std::sync::atomic::Ordering::SeqCst),
+        "readers":crate::worker::native_tests::reader_receipt(),
         "managedStarted":at.join("managed-started.json").is_file(),
         "managedReaped":at.join("managed-reaped.json").is_file(),
         "workerWaited":at.join("worker-wait.json").is_file(),
@@ -196,6 +203,9 @@ fn native_entry_role() {
 }
 
 pub(crate) fn run_role() {
+    if std::env::var_os("K28_E08_WORKER").is_some() {
+        crate::worker::native_tests::e08_worker();
+    }
     let directory = root();
     if std::env::var_os("K28_ENTRY_JOB").is_some() {
         fs::write(
@@ -216,12 +226,18 @@ pub(crate) fn run_role() {
         "reinstatement" => Broken::Reinstatement,
         "blocked-pending" => Broken::BlockedPending,
         "worker-watching" => Broken::WorkerWatching,
+        "shielding" => Broken::Shielding,
         "join-selection" => Broken::Join(Join::Selection),
         "join-front" => Broken::Join(Join::Front),
         "join-outcome" => Broken::Join(Join::Outcome),
         "join-late" => Broken::Join(Join::Late),
         other => panic!("unknown fixed broken control {other}"),
     });
+    if family() == "E08" {
+        // Record reader and creator masks and the bounded collection; inject
+        // nothing.
+        crate::worker::native_tests::observe();
+    }
     receipt("launcher-entry.json", crate::signal_state::native_receipt());
     let output = File::create(directory.join("result-output")).unwrap();
     assert_eq!(unsafe { libc::dup2(output.as_raw_fd(), 1) }, 1);
@@ -259,6 +275,11 @@ pub(crate) fn run_role() {
         }
         _ => {}
     }
+    if case["result"] == "policy-refusal" {
+        selected = json!({"status":"refused","code":"owner_declined","message":"native entry refusal","remedy":"none"});
+    }
+    // E08's private worker returns this verbatim; the real worker reads policy.ts.
+    fs::write(directory.join("e08-selection.json"), selected.to_string()).unwrap();
     let policy = directory.join("policy.ts");
     fs::write(&policy, format!("export const policy={{schemaVersion:2,version:'native-entry',select(){{return {selected};}}}};" )).unwrap();
     // Only the fake managed process receives this marker. Worker environment
@@ -384,7 +405,35 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
         "build the private main-thread executable with task test:native-entry"
     );
     fs::copy(&private, &fixture).unwrap();
-    fs::copy(&worker, directory.path().join("libexec/ravel/ravel-policy")).unwrap();
+    let installed = directory.path().join("libexec/ravel/ravel-policy");
+    if case["family"] == "E08" {
+        // The private worker is this same executable in its worker role. Its
+        // settings are baked into the script: nothing is inherited.
+        let holder = if case["readers"] == "one-escaped-holder" {
+            format!(
+                "K28_E08_HOLDER='{}' ",
+                directory.path().join("holder.sock").display()
+            )
+        } else {
+            String::new()
+        };
+        fs::write(
+            &installed,
+            format!(
+                "#!/bin/sh\nK28_NATIVE_ENTRY_MAIN=1 K28_E08_WORKER=1 K28_E08_SELECTION='{}' {holder}exec '{}'\n",
+                directory.path().join("e08-selection.json").display(),
+                fixture.display()
+            ),
+        )
+        .unwrap();
+        fs::set_permissions(
+            &installed,
+            std::os::unix::fs::PermissionsExt::from_mode(0o755),
+        )
+        .unwrap();
+    } else {
+        fs::copy(&worker, &installed).unwrap();
+    }
     let stdout = directory.path().join("fixture-stdout");
     let stderr = directory.path().join("fixture-stderr");
     let signal = case["signal"].as_i64().unwrap_or(i64::from(libc::SIGTERM)) as i32;
@@ -396,6 +445,11 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
     let channels = directory.path().join("barrier");
     fs::create_dir(&channels).unwrap();
     let mut controller = Controller::new(&channels, Limits::FROZEN).unwrap();
+    if case["family"] == "E08" && case["readers"] == "one-escaped-holder" {
+        controller
+            .serve_holder(&directory.path().join("holder.sock"))
+            .unwrap();
+    }
     let mut command = Command::new(fixture);
     command
         .args(["--exact", ROLE, "--ignored", "--nocapture"])
@@ -579,7 +633,18 @@ struct Boundary {
 }
 
 fn boundary_row(boundary: &str, signal: i32, broken: &str) -> Boundary {
-    let row = json!({"family":"E06","boundary":boundary,"signal":signal});
+    drive_row(
+        json!({"family":"E06","boundary":boundary,"signal":signal}),
+        signal,
+        broken,
+    )
+}
+
+/// Drive one acknowledged exchange: ready, the actual signal, a probe that
+/// reads the facts fresh, and an acknowledged release.
+fn drive_row(row: Value, signal: i32, broken: &str) -> Boundary {
+    let boundary = row["boundary"].as_str().unwrap().to_owned();
+    let boundary = boundary.as_str();
     let (directory, mut controller, stderr) = launch(&row, broken);
     let ready = controller.ready();
     let mut ack = None;
@@ -626,7 +691,8 @@ fn boundary_row(boundary: &str, signal: i32, broken: &str) -> Boundary {
         settlement,
     };
     eprintln!(
-        "native E06 boundary={boundary} signal={signal} broken={broken}\n  {observed:?}\n{log}"
+        "native {} boundary={boundary} signal={signal} broken={broken}\n  {observed:?}\n{log}",
+        row["family"].as_str().unwrap()
     );
     observed
 }
@@ -762,6 +828,148 @@ fn native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing() {
             } else {
                 assert!(!axes.cancelled, "{boundary} {signal}: {axes:?}");
             }
+        }
+    }
+}
+
+// ---- E08: readers, creator masks and an escaped pipe-holder -----------------
+//
+// The private worker (this executable in its worker role) speaks the real
+// protocol. For the escaped-holder rows it first hands its stdout to the
+// controller, which spawns and owns a holder on that pipe. A process-directed
+// TERM is then delivered at the common finalisation barrier, after the readers
+// were collected, while the shielded readers may still be alive.
+
+fn reader_row(readers: &str, result: &str, broken: &str) -> Boundary {
+    drive_row(
+        json!({"family":"E08","boundary":"before-finalise","signal":libc::SIGTERM,
+               "readers":readers,"result":result}),
+        libc::SIGTERM,
+        broken,
+    )
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct ReaderAxes {
+    controller: bool,
+    cancelled: bool,
+    zero_result: bool,
+    /// Both readers' own masks, taken on their threads, blocked every handled signal.
+    shielded: bool,
+    /// The creating thread regained exactly the mask it entered with.
+    creator_restored: bool,
+    /// Completed versus still-blocked readers and the bounded collection.
+    reader_state: bool,
+    /// The front's handler ran on the main thread (front-owned rows only).
+    main_owns: bool,
+}
+impl ReaderAxes {
+    fn conforms(&self) -> bool {
+        self.controller
+            && self.cancelled
+            && self.zero_result
+            && self.shielded
+            && self.creator_restored
+            && self.reader_state
+            && self.main_owns
+    }
+}
+
+fn judge_readers(readers: &str, result: &str, seen: &Boundary) -> ReaderAxes {
+    let escaped = readers == "one-escaped-holder";
+    let ack = seen.ack.as_ref();
+    let facts = ack.map(|v| &v["readers"]);
+    let masks = facts
+        .and_then(|v| v["readers"].as_array())
+        .cloned()
+        .unwrap_or_default();
+    let raw = |which: &str| facts.map(|v| v[which]["raw"].clone());
+    let finished: Vec<bool> = facts
+        .and_then(|v| v["finished"].as_array())
+        .map(|list| list.iter().filter_map(Value::as_bool).collect())
+        .unwrap_or_default();
+    let collect = facts.map(|v| &v["collect"]);
+    let number = |name: &str| collect.and_then(|v| v[name].as_u64());
+    // The holder holds the worker's stdout only: stderr's reader completes and
+    // stdout's remains blocked until its owner kills the holder.
+    let state = if escaped {
+        finished == [false]
+            && number("streams") == Some(2)
+            && number("completed") == Some(1)
+            // Bounded by the existing one-second drain window, never a join.
+            && number("windowMs").is_some_and(|ms| ms <= 1000)
+            && number("tookMs")
+                .zip(number("windowMs"))
+                .is_some_and(|(took, window)| took + 50 >= window && took <= window + 500)
+    } else {
+        let mut both = finished.clone();
+        both.sort_unstable();
+        both == [false, true]
+            && number("streams") == Some(2)
+            && number("completed") == Some(2)
+            && number("tookMs").is_some_and(|ms| ms < 1000)
+    };
+    let holders_ok = if escaped {
+        seen.settlement.holders.len() == 1
+            && seen.settlement.holders[0].1
+            && seen.settlement.stopped_by_controller
+    } else {
+        seen.settlement.holders.is_empty()
+    };
+    // A refusal keeps the front's handlers; a selected launch leaves the
+    // runner's installed, so only the former has a front handler to observe.
+    let owner = ack.and_then(|v| v["owners"]["TERM"].as_str());
+    let main_owns = if result == "policy-refusal" {
+        owner == Some("front")
+            && ack.is_some_and(|v| {
+                v["frontLatch"] == "SIGTERM"
+                    && v["handlerThread"].as_u64() != Some(0)
+                    && v["handlerThread"] == v["tid"]
+            })
+    } else {
+        owner == Some("other") && ack.is_some_and(|v| v["frontLatch"].is_null())
+    };
+    ReaderAxes {
+        controller: seen.settlement.clean()
+            && seen.delivered.is_ok()
+            && seen.barrier_failure.is_none()
+            && holders_ok,
+        cancelled: seen.died_by == Some(libc::SIGTERM)
+            && seen
+                .outcome
+                .as_ref()
+                .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
+        zero_result: seen.result_empty,
+        shielded: masks.len() == 2 && masks.iter().all(|m| m["mask"]["handled"] == 7),
+        creator_restored: raw("creatorBefore").is_some_and(|b| !b.is_null())
+            && raw("creatorBefore") == raw("creatorAfter"),
+        reader_state: state,
+        main_owns,
+    }
+}
+
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_e08_reader_shield_collection_bound_and_escaped_holder_ownership() {
+    for readers in ["both-complete", "one-escaped-holder"] {
+        for result in ["selection-success", "policy-refusal"] {
+            let seen = reader_row(readers, result, "none");
+            let axes = judge_readers(readers, result, &seen);
+            assert!(axes.conforms(), "{readers}/{result}: {axes:?}");
+
+            // Breaking only the shield must fail the eligibility receipt and
+            // nothing the controller owns.
+            let broken = reader_row(readers, result, "shielding");
+            let axes = judge_readers(readers, result, &broken);
+            assert!(axes.controller, "{readers}/{result}: {axes:?}");
+            assert!(
+                axes.cancelled && axes.zero_result,
+                "{readers}/{result}: {axes:?}"
+            );
+            assert!(
+                !axes.shielded,
+                "{readers}/{result}: broken shielding passed the eligibility receipt"
+            );
         }
     }
 }

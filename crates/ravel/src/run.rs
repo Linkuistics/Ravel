@@ -274,6 +274,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     drop(output);
     #[cfg(test)]
     {
+        crate::native_entry_tests::barrier("before-finalise");
         crate::native_entry_tests::barrier("selection-failure-before-finalise");
         crate::native_entry_tests::barrier("no-ending-error-before-finalise");
     }

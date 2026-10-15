@@ -395,7 +395,16 @@ pub(crate) fn restore_child_watching() -> Result<bool, LaunchError> {
         }
         latched => latched == 1,
     };
-    if current.sa_sigaction == libc::SIG_IGN || current.sa_flags & libc::SA_NOCLDWAIT != 0 {
+    #[cfg(test)]
+    native_tests::watching_queried(current.sa_flags);
+    // The independent no-child-wait repair; E04's ignore-only mutant omits it.
+    #[cfg(test)]
+    let repairs_no_child_wait = !native_tests::ignore_only_repair();
+    #[cfg(not(test))]
+    let repairs_no_child_wait = true;
+    if current.sa_sigaction == libc::SIG_IGN
+        || repairs_no_child_wait && current.sa_flags & libc::SA_NOCLDWAIT != 0
+    {
         // SAFETY: `sigaction(2)` installing the default disposition with an
         // empty mask and no flags, which clears SA_NOCLDWAIT with it.
         unsafe {
@@ -1267,6 +1276,10 @@ fn run_with_output(
     // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
     // success after pre-exec signal death. Keep actual supervision on Ok:
     // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
+    // E05's before-handoff boundary: the launcher still owns the foreground
+    // and no child exists.
+    #[cfg(test)]
+    native_tests::before_spawn();
     let spawned = command.spawn();
     #[cfg(test)]
     terminal_tests::after_spawn();
@@ -1798,10 +1811,16 @@ fn supervise_reported(
             }
             Ok(Ended {
                 operation_reports: stops.iter().map(ToString::to_string).collect(),
-                end: match (interrupted, escalated) {
-                    (Some(signal), _) => End::Interrupted { signal },
-                    (None, true) => End::Escalated,
-                    (None, false) => End::Exited,
+                end: {
+                    // E05's private break: report the child's own SIGINT death
+                    // as the launcher's cancellation.
+                    #[cfg(test)]
+                    let interrupted = interrupted.or(native_tests::invented_cancellation(status));
+                    match (interrupted, escalated) {
+                        (Some(signal), _) => End::Interrupted { signal },
+                        (None, true) => End::Escalated,
+                        (None, false) => End::Exited,
+                    }
                 },
                 status,
                 elapsed,
