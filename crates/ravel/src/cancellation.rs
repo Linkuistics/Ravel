@@ -126,7 +126,24 @@ impl Handlers {
         RECEIVED.store(0, Ordering::SeqCst);
         for (signal, _) in HANDLED {
             let mut original = unsafe { std::mem::zeroed::<libc::sigaction>() };
-            checked(unsafe { libc::sigaction(signal, ptr::null(), &mut original) })?;
+            let queried = unsafe { libc::sigaction(signal, ptr::null(), &mut original) };
+            // F04: the first handled signal's action query. The physical query
+            // ran; only its report is substituted.
+            #[cfg(test)]
+            let queried = if signal == libc::SIGINT {
+                use crate::native_entry_tests::faults::{query, Query};
+                match query("action-query", queried) {
+                    Query::Real => queried,
+                    Query::Substituted => -1,
+                    Query::Ignored => {
+                        original = unsafe { std::mem::zeroed::<libc::sigaction>() };
+                        0
+                    }
+                }
+            } else {
+                queried
+            };
+            checked(queried)?;
             if original.sa_sigaction == libc::SIG_IGN {
                 continue;
             }
@@ -137,7 +154,19 @@ impl Handlers {
             // Own the original before any attempted mutation, including a
             // physical mutation whose reported result is later substituted.
             self.entry.push((signal, original));
-            checked(unsafe { libc::sigaction(signal, &action, ptr::null_mut()) })?;
+            let install = || unsafe { libc::sigaction(signal, &action, ptr::null_mut()) };
+            #[cfg(test)]
+            let installed = crate::native_entry_tests::faults::mutation_c(
+                match signal {
+                    libc::SIGINT => "INT-install",
+                    libc::SIGTERM => "TERM-install",
+                    _ => "HUP-install",
+                },
+                install,
+            );
+            #[cfg(not(test))]
+            let installed = install();
+            checked(installed)?;
         }
         self.installed_complete = true;
         mask_result(unsafe {
@@ -159,14 +188,34 @@ impl Handlers {
     }
 
     pub fn try_block_and_check(&mut self) -> io::Result<Option<Signal>> {
+        self.look(false)
+    }
+
+    /// Block, then read the pending set. `last` marks the common finalisation's
+    /// own look, the one F05's fixed sites select.
+    fn look(&mut self, last: bool) -> io::Result<Option<Signal>> {
         self.blocked = false;
         #[cfg(test)]
         if BLOCK_FAULT.load(Ordering::Relaxed) {
             return Err(io::Error::from_raw_os_error(libc::EIO));
         }
         let set = handled_set()?;
-        mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, ptr::null_mut()) })?;
+        let block = || unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, ptr::null_mut()) };
+        #[cfg(test)]
+        let blocked = if last {
+            crate::native_entry_tests::faults::mutation_r("finalisation-block", block)
+        } else {
+            block()
+        };
+        #[cfg(not(test))]
+        let blocked = block();
+        mask_result(blocked)?;
         self.blocked = true;
+        // F05's queued TERM is delivered here: blocked, and before any query.
+        #[cfg(test)]
+        if last {
+            crate::native_entry_tests::barrier("final-block-held");
+        }
         let mut pending = unsafe { std::mem::zeroed::<libc::sigset_t>() };
         let queried = unsafe { libc::sigpending(&mut pending) };
         #[cfg(test)]
@@ -175,10 +224,36 @@ impl Handlers {
         } else {
             queried
         };
+        #[cfg(test)]
+        let queried = if last {
+            use crate::native_entry_tests::faults::{query, Query};
+            match query("pending-query", queried) {
+                Query::Real => queried,
+                Query::Substituted => -1,
+                Query::Ignored => {
+                    pending = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+                    0
+                }
+            }
+        } else {
+            queried
+        };
+        let _ = last;
         checked(queried)?;
         let mut eligible = None;
         for (number, name) in HANDLED {
             let member = unsafe { libc::sigismember(&pending, number) };
+            #[cfg(test)]
+            let member = if last && number == libc::SIGTERM {
+                use crate::native_entry_tests::faults::{query, Query};
+                match query("TERM-membership", member) {
+                    Query::Real => member,
+                    Query::Substituted => -1,
+                    Query::Ignored => 0,
+                }
+            } else {
+                member
+            };
             if member == -1 {
                 return Err(io::Error::last_os_error());
             }
@@ -228,13 +303,17 @@ impl Handlers {
             0 => {}
             number => assert_eq!(unsafe { libc::raise(number) }, 0),
         }
-        let pending = match self.try_block_and_check() {
+        let mut pending_unknown = false;
+        let pending = match self.look(true) {
             Ok(signal) => signal,
             Err(error) => {
                 reports.push(io::Error::new(
                     error.kind(),
                     format!("final signal snapshot: {error}"),
                 ));
+                // The block may still hold: a queried-and-failed pending set is
+                // unknown, not empty. Its mask must outlive the diagnostics.
+                pending_unknown = self.blocked;
                 None
             }
         };
@@ -255,9 +334,19 @@ impl Handlers {
         let mut released = self.blocked;
         if self.blocked {
             for (number, action) in &self.entry {
-                if let Err(error) =
-                    checked(unsafe { libc::sigaction(*number, action, ptr::null_mut()) })
-                {
+                let release = || unsafe { libc::sigaction(*number, action, ptr::null_mut()) };
+                #[cfg(test)]
+                let release = crate::native_entry_tests::faults::mutation_c(
+                    match *number {
+                        libc::SIGINT => "INT-final-restore",
+                        libc::SIGTERM => "TERM-final-restore",
+                        _ => "HUP-final-restore",
+                    },
+                    release,
+                );
+                #[cfg(not(test))]
+                let release = release();
+                if let Err(error) = checked(release) {
                     reports.push(io::Error::new(
                         error.kind(),
                         format!("signal {number} disposition release: {error}"),
@@ -270,8 +359,17 @@ impl Handlers {
                 "main mask not confirmed blocked; handlers retained",
             ));
         }
-        if released && signal.is_none() {
-            if let Err(error) = signal_state::restore_mask() {
+        if released && signal.is_none() && pending_unknown {
+            // Restoring the mask would deliver a queued handled signal under its
+            // restored default action, killing the launcher before the original
+            // failure and every secondary report were written. Unknown pending
+            // state is neither cancellation nor its absence: report it, keep
+            // the signals blocked, and let the process end on the failure.
+            reports.push(io::Error::other(
+                "pending cancellation state unknown; handled signals retained blocked",
+            ));
+        } else if released && signal.is_none() {
+            if let Err(error) = signal_state::restore_mask_at("final-mask-restore") {
                 reports.push(io::Error::new(
                     error.kind(),
                     format!("final mask release: {error}"),
@@ -474,6 +572,43 @@ mod tests {
         let _ = signal_state::restore_mask();
         assert!(!reports.is_empty(), "the failed block was not reported");
         assert_eq!(signal.map(Signal::name), Some("SIGTERM"));
+    }
+
+    #[test]
+    fn an_unknown_pending_set_keeps_the_mask_blocked_through_the_reports() {
+        // Break: restore the mask after a failed pending query. A queued
+        // handled signal is then delivered under the restored default action,
+        // killing the launcher before any report is written.
+        let mut handlers = Handlers::install().unwrap();
+        PENDING_FAULT.store(true, Ordering::Relaxed);
+        let (signal, reports) = handlers.finalise(None);
+        PENDING_FAULT.store(false, Ordering::Relaxed);
+        let mut mask = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        assert_eq!(
+            unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, ptr::null(), &mut mask) },
+            0
+        );
+        let blocked = HANDLED
+            .iter()
+            .all(|&(number, _)| unsafe { libc::sigismember(&mask, number) } == 1);
+        let _ = signal_state::restore_mask();
+        assert!(signal.is_none(), "unknown state claimed a cancellation");
+        assert!(
+            reports
+                .iter()
+                .any(|report| report.to_string().contains("final signal snapshot")),
+            "the failed query was not reported: {reports:?}"
+        );
+        assert!(
+            reports
+                .iter()
+                .any(|report| report.to_string().contains("state unknown")),
+            "the retained mask was not reported: {reports:?}"
+        );
+        assert!(
+            blocked,
+            "the handled signals were unblocked before the reports"
+        );
     }
 
     #[test]

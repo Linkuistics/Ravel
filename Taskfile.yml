@@ -78,7 +78,9 @@ tasks:
       # The extra cfg applies only to this isolated test binary, not dependencies
       # or installed executables. It avoids libtest's extra signal-owning thread.
       # https://doc.rust-lang.org/cargo/commands/cargo-rustc.html
-      - cargo rustc --locked -p ravel --bin ravel --profile dev --target-dir target/native-entry-fixture -- --cfg test -A unused
+      # The runner's fault feature is off by default and never installed; only
+      # this isolated target turns it on, for F06's forked-child sites.
+      - cargo rustc --locked -p ravel --bin ravel --profile dev --features native-faults --target-dir target/native-entry-fixture -- --cfg test -A unused
       - task: test:session
         vars:
           # Include the fixture-dependent cases while excluding child-only roles.

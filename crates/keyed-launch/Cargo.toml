@@ -21,6 +21,12 @@ libc = "0.2"
 [dev-dependencies]
 tempfile = "3.10"
 
+# Off by default and never enabled by an installed or release build. Only the
+# isolated native-entry fixture target turns it on, so the private fault sites
+# in the runner's child-restoration path are reachable from the front's fixture.
+[features]
+native-faults = []
+
 [lints]
 workspace = true
 

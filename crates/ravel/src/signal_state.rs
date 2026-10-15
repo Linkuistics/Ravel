@@ -254,9 +254,23 @@ fn entry_mask() -> io::Result<libc::sigset_t> {
 /// Set this thread's mask back to the caller's. A signal that was blocked here
 /// and not by the caller, and is pending, is delivered as this returns.
 pub fn restore_mask() -> io::Result<()> {
+    restore_mask_at("")
+}
+
+/// [`restore_mask`] at one of F05's named transitions. `site` selects only the
+/// private fixed fault in test builds and is otherwise unused.
+pub fn restore_mask_at(site: &str) -> io::Result<()> {
     let mask = entry_mask()?;
     // SAFETY: the set is initialized; pthread_sigmask returns its error.
-    match unsafe { libc::pthread_sigmask(libc::SIG_SETMASK, &mask, ptr::null_mut()) } {
+    let restore = || unsafe { libc::pthread_sigmask(libc::SIG_SETMASK, &mask, ptr::null_mut()) };
+    #[cfg(test)]
+    let restored = crate::native_entry_tests::faults::mutation_r(site, restore);
+    #[cfg(not(test))]
+    let restored = {
+        let _ = site;
+        restore()
+    };
+    match restored {
         0 => Ok(()),
         error => Err(io::Error::from_raw_os_error(error)),
     }

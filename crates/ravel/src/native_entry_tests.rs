@@ -14,6 +14,8 @@ use crate::native_barrier::{Controller, Limits, Settlement};
 use serde_json::{json, Value};
 use std::time::{Duration, Instant};
 
+pub(crate) mod faults;
+
 const ROLE: &str = "native_entry_tests::native_entry_role";
 const RESULT: &str = "native 🪶\nresult";
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -24,6 +26,8 @@ enum Broken {
     BlockedPending,
     WorkerWatching,
     Shielding,
+    /// The selected F-row failure is ignored at its site.
+    IgnoreFault,
     Join(Join),
 }
 /// The cancellation joins E06 removes one at a time. Fixed enumeration only.
@@ -75,6 +79,28 @@ pub(crate) fn broken_reinstatement() -> bool {
 pub(crate) fn broken_shielding() -> bool {
     BROKEN.get() == Broken::Shielding
 }
+/// F06's sites run in the forked child of the real runner, which this fixture
+/// links without test cfg. The runner's off-by-default `native-faults` feature
+/// supplies them; the child writes its fixed two-byte record to a file this
+/// row owns, never formatted in the child.
+#[cfg(feature = "native-faults")]
+fn select_runner_fault(case: &Value) {
+    let record = File::create(root().join("child-fault-record.bin")).unwrap();
+    // The descriptor stays open for the process's life: the forked child needs
+    // it, and exec closes it (CLOEXEC) for any child that gets that far.
+    let fd = record.as_raw_fd();
+    std::mem::forget(record);
+    keyed_launch::native_fault_select(
+        case["site"].as_str().unwrap(),
+        case["mode"].as_str().unwrap(),
+        std::env::var("K28_ENTRY_BROKEN").is_ok_and(|mode| mode == "ignore-fault"),
+        fd,
+    );
+}
+#[cfg(not(feature = "native-faults"))]
+fn select_runner_fault(_: &Value) {
+    panic!("F06 needs the fixture built with --features native-faults (task test:native-entry)");
+}
 pub(crate) fn skip_worker_repair() -> bool {
     BROKEN.get() == Broken::WorkerWatching
 }
@@ -109,6 +135,9 @@ pub(crate) fn before_managed() {
     if active() && family() == "E04-managed" {
         private_no_child_wait();
     }
+    // The parent's known handoff block holds here: the admission block has
+    // been taken and the mask is restored only by the Started check.
+    barrier("handoff-block-held");
 }
 pub(crate) fn managed_event(event: LaunchEvent) {
     if !active() {
@@ -157,6 +186,27 @@ fn set_bits(set: &libc::sigset_t) -> u64 {
         .filter(|&signal| unsafe { libc::sigismember(set, signal) } == 1)
         .fold(0, |bits, signal| bits | bit(signal))
 }
+/// Whether this process still has any child at all, read without consuming
+/// one: `waitid` with WNOWAIT leaves an exited child waitable, so a probe never
+/// takes a reap the product owns. ECHILD is the only clean answer.
+fn stray_child() -> i64 {
+    // SAFETY: a zeroed siginfo is a valid output buffer for waitid.
+    let mut info = unsafe { std::mem::zeroed::<libc::siginfo_t>() };
+    // SAFETY: nonblocking, non-consuming query of this process's own children.
+    let result = unsafe {
+        libc::waitid(
+            libc::P_ALL,
+            0,
+            &mut info,
+            libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+        )
+    };
+    if result == -1 && io::Error::last_os_error().raw_os_error() == Some(libc::ECHILD) {
+        0
+    } else {
+        1
+    }
+}
 /// Current owner/mask/pending/consumed facts. Read-only; nothing here changes
 /// signal state, so a probe never becomes the thing it observes.
 fn facts(boundary: &str) -> String {
@@ -168,6 +218,8 @@ fn facts(boundary: &str) -> String {
         "owners":{"INT":owner(libc::SIGINT),"TERM":owner(libc::SIGTERM),"HUP":owner(libc::SIGHUP)},
         "handlerThread":crate::cancellation::HANDLER_THREAD.load(std::sync::atomic::Ordering::SeqCst),
         "readers":crate::worker::native_tests::reader_receipt(),
+        "foreground":unsafe{libc::tcgetpgrp(0)},"pgrp":unsafe{libc::getpgrp()},
+        "strayChild":stray_child(),
         "managedStarted":at.join("managed-started.json").is_file(),
         "managedReaped":at.join("managed-reaped.json").is_file(),
         "workerWaited":at.join("worker-wait.json").is_file(),
@@ -220,6 +272,10 @@ pub(crate) fn run_role() {
     }
     let case: Value = serde_json::from_str(&std::env::var("K28_ENTRY_CASE").unwrap()).unwrap();
     CASE.with(|c| *c.borrow_mut() = Some(case.clone()));
+    faults::select(&case);
+    if family() == "F06" {
+        select_runner_fault(&case);
+    }
     BROKEN.set(match std::env::var("K28_ENTRY_BROKEN").unwrap().as_str() {
         "none" => Broken::None,
         "capture" => Broken::Capture,
@@ -227,6 +283,7 @@ pub(crate) fn run_role() {
         "blocked-pending" => Broken::BlockedPending,
         "worker-watching" => Broken::WorkerWatching,
         "shielding" => Broken::Shielding,
+        "ignore-fault" => Broken::IgnoreFault,
         "join-selection" => Broken::Join(Join::Selection),
         "join-front" => Broken::Join(Join::Front),
         "join-outcome" => Broken::Join(Join::Outcome),
@@ -247,7 +304,9 @@ pub(crate) fn run_role() {
             libc::_exit(0);
         }
     }
-    if family() == "E04-worker" {
+    if family() == "E04-worker" || family() == "F02" {
+        // F02's precondition: private default plus no-child-wait (E03
+        // independently covers the executable-entry ignore).
         private_no_child_wait();
     }
     if family() == "F01" {
@@ -259,23 +318,18 @@ pub(crate) fn run_role() {
     let program = std::env::current_exe().unwrap();
     let mut selected = json!({"status":"selected","provider":"fixture","model":"native","effort":"fixture","reason":"native entry",
         "program":program,"args":["--exact",ROLE,"--ignored","--nocapture"]});
+    let spawn_enoent = case["outcome"] == "spawn-ENOENT";
     match case["boundary"].as_str() {
         Some("selection-failure-before-finalise") => {
             selected = json!({"status":"refused","code":"owner_declined","message":"native entry refusal","remedy":"none"});
         }
         Some("no-ending-error-before-finalise") => {
-            // Resolves at selection, then fails at exec: a missing interpreter
-            // is ENOENT from the spawn, not a selection failure.
-            let script = directory.join("missing-interpreter");
-            fs::write(&script, "#!/nonexistent/k28-interpreter\n").unwrap();
-            fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755))
-                .unwrap();
-            selected["program"] = json!(script);
-            selected["args"] = json!([]);
+            spawn_failure(&directory, &mut selected);
         }
+        _ if spawn_enoent => spawn_failure(&directory, &mut selected),
         _ => {}
     }
-    if case["result"] == "policy-refusal" {
+    if case["result"] == "policy-refusal" || case["outcome"] == "policy-refusal" {
         selected = json!({"status":"refused","code":"owner_declined","message":"native entry refusal","remedy":"none"});
     }
     // E08's private worker returns this verbatim; the real worker reads policy.ts.
@@ -320,6 +374,16 @@ pub(crate) fn run_role() {
             }
         }
     }
+}
+
+/// Resolves at selection, then fails at exec: a missing interpreter is ENOENT
+/// from the spawn, not a selection failure.
+fn spawn_failure(directory: &std::path::Path, selected: &mut Value) {
+    let script = directory.join("missing-interpreter");
+    fs::write(&script, "#!/nonexistent/k28-interpreter\n").unwrap();
+    fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
+    selected["program"] = json!(script);
+    selected["args"] = json!([]);
 }
 
 fn raw_entry(
@@ -381,9 +445,91 @@ fn read_json(path: PathBuf) -> Option<Value> {
         .map(|bytes| serde_json::from_slice(&bytes).unwrap())
 }
 
+/// A PTY the row owns for a fixture that must hold a terminal lease. The
+/// fixture is its session and group leader with the slave as controlling
+/// terminal. A process exiting onto an undrained terminal can block in tty close
+/// beyond SIGKILL, so the row drains its own master on a thread it joins on
+/// every path.
+struct Pty {
+    master: Option<File>,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    drain: Option<std::thread::JoinHandle<()>>,
+}
+impl Pty {
+    fn open() -> (Self, File) {
+        use std::os::fd::FromRawFd as _;
+        let (mut master, mut slave) = (-1, -1);
+        // SAFETY: openpty fills two descriptors that are owned immediately below.
+        assert_eq!(
+            unsafe {
+                libc::openpty(
+                    &mut master,
+                    &mut slave,
+                    std::ptr::null_mut(),
+                    std::ptr::null_mut(),
+                    std::ptr::null_mut(),
+                )
+            },
+            0
+        );
+        // SAFETY: fresh descriptors from openpty.
+        let (master, slave) = unsafe { (File::from_raw_fd(master), File::from_raw_fd(slave)) };
+        for fd in [master.as_raw_fd(), slave.as_raw_fd()] {
+            // SAFETY: close-on-exec on a descriptor this row owns.
+            assert_eq!(
+                unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) },
+                0
+            );
+        }
+        // SAFETY: O_NONBLOCK on a descriptor this row owns.
+        unsafe {
+            let flags = libc::fcntl(master.as_raw_fd(), libc::F_GETFL);
+            assert_eq!(
+                libc::fcntl(master.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK),
+                0
+            );
+        }
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let drain = {
+            let mut reader = master.try_clone().unwrap();
+            let stop = std::sync::Arc::clone(&stop);
+            std::thread::spawn(move || {
+                use std::io::Read as _;
+                let mut sink = [0u8; 4096];
+                while !stop.load(std::sync::atomic::Ordering::SeqCst) {
+                    let mut poll = libc::pollfd {
+                        fd: reader.as_raw_fd(),
+                        events: libc::POLLIN,
+                        revents: 0,
+                    };
+                    // SAFETY: one initialised pollfd, bounded wait.
+                    unsafe { libc::poll(&mut poll, 1, 20) };
+                    while matches!(reader.read(&mut sink), Ok(count) if count > 0) {}
+                }
+            })
+        };
+        (
+            Self {
+                master: Some(master),
+                stop,
+                drain: Some(drain),
+            },
+            slave,
+        )
+    }
+    /// Stop draining and close the master, after the fixture was settled.
+    fn finish(mut self) {
+        self.stop.store(true, std::sync::atomic::Ordering::SeqCst);
+        if let Some(drain) = self.drain.take() {
+            drain.join().unwrap();
+        }
+        drop(self.master.take());
+    }
+}
+
 /// Spawn one private real-main fixture under a controller that owns it. The
 /// fixture is its own process-group leader; the controller owns settlement.
-fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf) {
+fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf, Option<Pty>) {
     let directory = tempfile::tempdir().unwrap();
     for path in ["bin", "libexec/ravel", "home", "tmp"] {
         fs::create_dir_all(directory.path().join(path)).unwrap();
@@ -450,6 +596,10 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
             .serve_holder(&directory.path().join("holder.sock"))
             .unwrap();
     }
+    let (pty, slave) = match case["pty"].as_bool().unwrap_or(false).then(Pty::open) {
+        Some((pty, slave)) => (Some(pty), Some(slave)),
+        None => (None, None),
+    };
     let mut command = Command::new(fixture);
     command
         .args(["--exact", ROLE, "--ignored", "--nocapture"])
@@ -462,22 +612,41 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
         .env("K28_ENTRY_CASE", case.to_string())
         .env("K28_ENTRY_BROKEN", broken)
         .current_dir(directory.path())
-        .process_group(0)
         .stdout(File::create(&stdout).unwrap())
-        .stderr(File::create(&stderr).unwrap())
-        .stdin(Stdio::null());
+        .stderr(File::create(&stderr).unwrap());
+    match &pty {
+        Some(_) => {
+            // The slave is stdin and becomes the controlling terminal below.
+            command.stdin(slave.expect("slave of an open pty"));
+        }
+        None => {
+            command.process_group(0).stdin(Stdio::null());
+        }
+    }
     controller.configure(&mut command);
     // No allocation, JSON access or formatting in the child.
     unsafe {
+        if pty.is_some() {
+            // setsid makes the fixture its own session and group leader;
+            // TIOCSCTTY gives it the slave as its controlling terminal.
+            command.pre_exec(|| {
+                if libc::setsid() == -1 || libc::ioctl(0, libc::TIOCSCTTY as _, 0) == -1 {
+                    return Err(io::Error::last_os_error());
+                }
+                Ok(())
+            });
+        }
         command.pre_exec(move || raw_entry(signal, ignored, blocked, pending, chld));
     }
     controller.adopt(command.spawn().unwrap());
-    (directory, controller, stderr)
+    drop(command);
+    (directory, controller, stderr, pty)
 }
 
 fn case(case: Value, broken: &str) -> bool {
-    let (directory, mut controller, stderr) = launch(&case, broken);
+    let (directory, mut controller, stderr, pty) = launch(&case, broken);
     let settlement = controller.finish();
+    pty.into_iter().for_each(Pty::finish);
     let at = settlement.elapsed;
     let signal = case["signal"].as_i64().unwrap_or(i64::from(libc::SIGTERM)) as i32;
     let ignored = case["ignored"].as_bool().unwrap_or(false);
@@ -624,11 +793,18 @@ struct Boundary {
     died_by: Option<i32>,
     result_empty: bool,
     managed_started: bool,
+    worker_started: bool,
     managed_end: Option<String>,
     managed_group: Option<String>,
     worker_confirmed: bool,
     outcome: Option<Value>,
     barrier_failure: Option<Value>,
+    /// The selected F-row site: physical operation versus substituted report,
+    /// and the state after it. Absent when no fault site was reached.
+    fault: Option<Value>,
+    /// The runner child's own fixed two-byte record (F06): site, then bit 0
+    /// performed. Written before the child exited; never formatted there.
+    child_record: Option<Vec<u8>>,
     diagnostics: String,
 }
 
@@ -643,26 +819,52 @@ fn boundary_row(boundary: &str, signal: i32, broken: &str) -> Boundary {
 /// Drive one acknowledged exchange: ready, the actual signal, a probe that
 /// reads the facts fresh, and an acknowledged release.
 fn drive_row(row: Value, signal: i32, broken: &str) -> Boundary {
-    let boundary = row["boundary"].as_str().unwrap().to_owned();
+    drive(row, Some(signal), broken)
+}
+
+/// One whole case with no exchange at all: the fixture runs to its end under
+/// the controller, which owns and settles it.
+fn run_row(row: Value, broken: &str) -> Boundary {
+    drive(row, None, broken)
+}
+
+/// `Some(signal)` drives the exchange above. `None` on a row with a named
+/// boundary reads facts fresh and releases without delivering anything; on a
+/// row with no boundary the fixture is only observed to its end.
+fn drive(row: Value, action: Option<i32>, broken: &str) -> Boundary {
+    let boundary = row["boundary"].as_str().unwrap_or("").to_owned();
     let boundary = boundary.as_str();
-    let (directory, mut controller, stderr) = launch(&row, broken);
-    let ready = controller.ready();
+    let signal = action.unwrap_or(0);
+    let (directory, mut controller, stderr, pty) = launch(&row, broken);
+    let named = row["boundary"].is_string();
+    let ready = if named {
+        controller.ready()
+    } else {
+        Err("no boundary".to_owned())
+    };
     let mut ack = None;
-    let mut delivered = ready.clone().map(|_| ());
+    let mut delivered = if named {
+        ready.clone().map(|_| ())
+    } else {
+        Ok(())
+    };
     if ready.is_ok() {
         // The controller acts only between acknowledged exchanges: the ready
         // record, the signal, an acknowledgement that reads the facts fresh,
         // and then an acknowledged release.
-        delivered = controller
-            .signal(signal)
-            .and_then(|()| controller.probe().map(|facts| ack = Some(facts)))
-            .and_then(|()| controller.release());
+        delivered = match action {
+            Some(signal) => controller.signal(signal),
+            None => Ok(()),
+        }
+        .and_then(|()| controller.probe().map(|facts| ack = Some(facts)))
+        .and_then(|()| controller.release());
     }
     let settlement = if delivered.is_ok() {
         controller.finish()
     } else {
         controller.abort()
     };
+    pty.into_iter().for_each(Pty::finish);
     let parse = |text: String| -> Value {
         serde_json::from_str(text.split_once(' ').map_or(&text, |(_, facts)| facts)).unwrap()
     };
@@ -677,6 +879,7 @@ fn drive_row(row: Value, signal: i32, broken: &str) -> Boundary {
         died_by: settlement.status.and_then(|s| s.signal()),
         result_empty: result.is_empty(),
         managed_started: at.join("managed-started.json").is_file(),
+        worker_started: at.join("worker-wait.json").is_file(),
         managed_end: ending
             .as_ref()
             .and_then(|v| v["end"].as_str().map(str::to_owned)),
@@ -687,6 +890,8 @@ fn drive_row(row: Value, signal: i32, broken: &str) -> Boundary {
             .is_some_and(|v| v["actualConfirmedReap"] == true),
         outcome: read_json(at.join("outcome.json")),
         barrier_failure: read_json(at.join("barrier-failure.json")),
+        fault: read_json(at.join("fault-receipt.json")),
+        child_record: fs::read(at.join("child-fault-record.bin")).ok(),
         diagnostics: log.clone(),
         settlement,
     };
@@ -830,6 +1035,632 @@ fn native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing() {
             }
         }
     }
+}
+
+// ---- F rows: single-site reported faults ------------------------------------
+//
+// Each row selects one fixed site and one mode. The repaired product must fail
+// closed there; the broken subject ignores that one failure and must therefore
+// fail a named axis. Physical operation and substituted report are separate
+// fields of the fault receipt, never one field.
+
+/// What an admission-stage failure must look like: refused before any worker
+/// or managed child exists, no result bytes, the site's own receipt.
+#[derive(Debug)]
+struct Refused {
+    controller: bool,
+    failed: bool,
+    zero_result: bool,
+    code: bool,
+    text: bool,
+    no_worker: bool,
+    no_managed: bool,
+    site: bool,
+}
+impl Refused {
+    fn conforms(&self) -> bool {
+        self.controller
+            && self.failed
+            && self.zero_result
+            && self.code
+            && self.text
+            && self.no_worker
+            && self.no_managed
+            && self.site
+    }
+}
+fn fault_site_matches(seen: &Boundary, site: &str, mode: &str, broken: bool) -> bool {
+    seen.fault.as_ref().is_some_and(|fault| {
+        fault["site"] == site
+            && fault["mode"] == mode
+            && fault["operationPerformed"] == (mode != "omit")
+            && fault["reported"] == "EIO"
+            && fault["failureIgnored"] == broken
+    })
+}
+fn refused(
+    seen: &Boundary,
+    code: &str,
+    text: &str,
+    site: &str,
+    mode: &str,
+    broken: bool,
+) -> Refused {
+    Refused {
+        controller: seen.settlement.clean()
+            && seen.delivered.is_ok()
+            && seen.barrier_failure.is_none(),
+        failed: seen
+            .settlement
+            .status
+            .is_some_and(|status| !status.success()),
+        zero_result: seen.result_empty,
+        code: seen
+            .outcome
+            .as_ref()
+            .is_some_and(|v| v["error"]["code"] == code),
+        text: seen.outcome.as_ref().is_some_and(|v| {
+            v["error"]["message"]
+                .as_str()
+                .is_some_and(|m| m.contains(text))
+        }),
+        no_worker: !seen.worker_confirmed && !seen.worker_started,
+        no_managed: !seen.managed_started,
+        site: fault_site_matches(seen, site, mode, broken),
+    }
+}
+
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f02_worker_watching_faults_refuse_before_any_worker() {
+    for (site, mode) in [
+        ("watch-action-query", "report"),
+        ("default-action-repair", "omit"),
+        ("default-action-repair", "perform"),
+    ] {
+        let row = json!({"family":"F02","owner":"worker","site":site,"mode":mode});
+        let seen = run_row(row.clone(), "none");
+        let axes = refused(
+            &seen,
+            "worker_failed",
+            "cannot establish worker watching",
+            site,
+            mode,
+            false,
+        );
+        assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
+        let fault = seen.fault.as_ref().unwrap();
+        // The physical state after the site, separately from the report: the
+        // omitted repair left no-child-wait set, the performed one cleared it.
+        if site == "default-action-repair" {
+            assert_eq!(
+                fault["after"]["sigchld"]["noChildWait"],
+                mode == "omit",
+                "{site}/{mode}: actual SIGCHLD state"
+            );
+        }
+
+        // The broken subject ignores that one failure and admits the worker.
+        let broken = run_row(row, "ignore-fault");
+        let axes = refused(
+            &broken,
+            "worker_failed",
+            "cannot establish worker watching",
+            site,
+            mode,
+            true,
+        );
+        assert!(axes.controller && axes.site, "{site}/{mode}: {axes:?}");
+        // The worker was admitted although watching was never established; its
+        // own later failure is a different report, not the watching refusal.
+        assert!(
+            !axes.conforms() && !axes.no_worker && !axes.text,
+            "{site}/{mode}: ignoring the failure still refused: {axes:?}"
+        );
+    }
+}
+
+/// F04's selection-owned handlers. Install and query faults fail admission
+/// before any worker or child; the receipt at the finalisation boundary names
+/// which handlers the front still owns, and the mask it still holds.
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned() {
+    // (site, mode, owners of INT/TERM/HUP after the site)
+    let rows = [
+        ("action-query", "report", ["default", "default", "default"]),
+        ("INT-install", "omit", ["default", "default", "default"]),
+        ("INT-install", "perform", ["front", "default", "default"]),
+        ("TERM-install", "omit", ["front", "default", "default"]),
+        ("TERM-install", "perform", ["front", "front", "default"]),
+    ];
+    for (site, mode, owners) in rows {
+        let row = json!({"family":"F04","owner":"selection","site":site,"mode":mode,
+            "boundary":"before-finalise"});
+        let seen = run_row(row.clone(), "none");
+        let axes = refused(
+            &seen,
+            "cancellation_unavailable",
+            "Input/output error",
+            site,
+            mode,
+            false,
+        );
+        assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
+        // The subset the front owns when it reaches finalisation, and that the
+        // handled signals are still blocked: nothing was released early.
+        let facts = seen.ready.as_ref().expect("finalisation facts");
+        let found =
+            ["INT", "TERM", "HUP"].map(|name| facts["owners"][name].as_str().unwrap().to_owned());
+        assert_eq!(found, owners, "{site}/{mode}: partial installed subset");
+        let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+        assert_eq!(
+            facts["blocked"].as_u64().unwrap() & handled,
+            handled,
+            "{site}/{mode}: handled signals unblocked before finalisation"
+        );
+
+        let broken = run_row(row, "ignore-fault");
+        let axes = refused(
+            &broken,
+            "cancellation_unavailable",
+            "Input/output error",
+            site,
+            mode,
+            true,
+        );
+        assert!(axes.controller && axes.site, "{site}/{mode}: {axes:?}");
+        // Admission proceeded: the worker ran and the failure left no refusal.
+        assert!(
+            !axes.conforms() && !axes.no_worker && !axes.code,
+            "{site}/{mode}: ignoring the failure still failed admission: {axes:?}"
+        );
+    }
+}
+
+/// Rows whose failure lands at the common finalisation, after the work they
+/// would otherwise report: the original outcome must survive beside a secondary
+/// label, nothing may be written, and the failed site's physical state is the
+/// operation's own, never the report's.
+#[derive(Debug)]
+struct Finalised {
+    controller: bool,
+    failed: bool,
+    zero_result: bool,
+    /// The original outcome (refusal / spawn failure) is still what was reported.
+    original: bool,
+    /// The secondary failure's label is in the diagnostics.
+    secondary: bool,
+    site: bool,
+    /// What actually happened to the managed child before finalisation.
+    child: bool,
+}
+impl Finalised {
+    fn conforms(&self) -> bool {
+        self.controller
+            && self.failed
+            && self.zero_result
+            && self.original
+            && self.secondary
+            && self.site
+            && self.child
+    }
+}
+#[allow(clippy::too_many_arguments)]
+fn finalised(
+    seen: &Boundary,
+    original: &str,
+    secondary: &str,
+    site: &str,
+    mode: &str,
+    broken: bool,
+    child_ran: bool,
+) -> Finalised {
+    Finalised {
+        controller: seen.settlement.clean()
+            && seen.delivered.is_ok()
+            && seen.barrier_failure.is_none(),
+        failed: seen
+            .settlement
+            .status
+            .is_some_and(|status| !status.success()),
+        zero_result: seen.result_empty,
+        original: original.is_empty() || seen.diagnostics.contains(original),
+        secondary: seen.diagnostics.contains(secondary),
+        site: fault_site_matches(seen, site, mode, broken),
+        child: if child_ran {
+            seen.managed_started
+                && seen.worker_confirmed
+                && seen.managed_group.as_deref() == Some("Gone")
+        } else {
+            !seen.managed_started
+        },
+    }
+}
+
+/// F04's final restore. The same front operation, at two finalisation
+/// boundaries: only the front's handlers installed (policy refusal) and the
+/// runner's handlers installed over them (a completed launch).
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result() {
+    for (owner, result) in [("selection", "policy-refusal"), ("runner", "success")] {
+        for mode in ["omit", "perform"] {
+            let row = json!({"family":"F04","owner":owner,"site":"INT-final-restore",
+                "mode":mode,"result":result,"boundary":"before-finalise"});
+            let seen = run_row(row.clone(), "none");
+            let child_ran = owner == "runner";
+            let original = if owner == "selection" {
+                "owner_declined"
+            } else {
+                ""
+            };
+            let axes = finalised(
+                &seen,
+                original,
+                "disposition release",
+                "INT-final-restore",
+                mode,
+                false,
+                child_ran,
+            );
+            assert!(axes.conforms(), "{owner}/{mode}: {axes:?}");
+            // Who owns INT afterwards is the operation's, not the report's:
+            // omitted left the installed owner, performed restored the entry
+            // action. Either way the failed release keeps the mask blocked.
+            let after = &seen.fault.as_ref().unwrap()["after"];
+            let installed = if owner == "selection" {
+                "front"
+            } else {
+                "other"
+            };
+            let expected = if mode == "omit" { installed } else { "default" };
+            assert_eq!(after["INT"], expected, "{owner}/{mode}: actual INT owner");
+            let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+            assert_eq!(after["blocked"].as_u64().unwrap() & handled, handled);
+
+            let broken = run_row(row, "ignore-fault");
+            let axes = finalised(
+                &broken,
+                original,
+                "disposition release",
+                "INT-final-restore",
+                mode,
+                true,
+                child_ran,
+            );
+            assert!(axes.controller && axes.site, "{owner}/{mode}: {axes:?}");
+            assert!(
+                !axes.conforms() && !axes.secondary,
+                "{owner}/{mode}: ignoring the failed release still reported it: {axes:?}"
+            );
+        }
+    }
+}
+
+/// F05's finalisation rows: three outcomes by the common finalisation's own
+/// operations. Rows that query the pending set queue an actual TERM under the
+/// block first, so uncertainty could only become "no cancellation" by a defect.
+const F05_OUTCOMES: [(&str, &str, bool); 3] = [
+    // outcome, text the original failure must keep, did the child run
+    ("selection-success", "", true),
+    ("policy-refusal", "owner_declined", false),
+    ("spawn-ENOENT", "No such file or directory", false),
+];
+const F05_OPERATIONS: [(&str, &str, &str); 6] = [
+    ("finalisation-block", "omit", "final signal snapshot"),
+    ("finalisation-block", "perform", "final signal snapshot"),
+    ("pending-query", "report", "final signal snapshot"),
+    ("TERM-membership", "report", "final signal snapshot"),
+    ("final-mask-restore", "omit", "final mask release"),
+    ("final-mask-restore", "perform", "final mask release"),
+];
+
+fn f05_row(outcome: &str, site: &str, mode: &str, broken: &str) -> Boundary {
+    let queued = matches!(site, "pending-query" | "TERM-membership");
+    let mut row = json!({"family":"F05","outcome":outcome,"site":site,"mode":mode});
+    if queued {
+        row["boundary"] = json!("final-block-held");
+        return drive(row, Some(libc::SIGTERM), broken);
+    }
+    run_row(row, broken)
+}
+
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f05_finalisation_failures_keep_the_original_and_never_write_a_result() {
+    let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+    for (outcome, original, child_ran) in F05_OUTCOMES {
+        for (site, mode, secondary) in F05_OPERATIONS {
+            let label = format!("{outcome}/{site}/{mode}");
+            let queued = matches!(site, "pending-query" | "TERM-membership");
+            let seen = f05_row(outcome, site, mode, "none");
+            let axes = finalised(&seen, original, secondary, site, mode, false, child_ran);
+            if queued {
+                // The signal was an actual pending TERM at the failed query;
+                // its only legitimate reports are a failure or the signal's own
+                // death. A success carrying a result is the defect.
+                let facts = seen.ack.as_ref().expect("acknowledged facts");
+                assert!(
+                    facts["pending"].as_u64().unwrap() & bit(libc::SIGTERM) != 0,
+                    "{label}: TERM was not actually pending at the query: {facts}"
+                );
+                // Unknown pending state keeps the handled signals blocked until
+                // the diagnostics are written. The incumbent restored the mask,
+                // so the queued TERM killed the launcher under its default
+                // action before the original or any secondary report existed.
+                assert!(axes.conforms(), "{label}: {axes:?}");
+                assert_eq!(seen.died_by, None, "{label}: killed before reporting");
+            } else {
+                assert!(axes.conforms(), "{label}: {axes:?}");
+            }
+            // The physical state is the operation's own, never the report's.
+            let after = &seen.fault.as_ref().unwrap()["after"];
+            let blocked = after["blocked"].as_u64().unwrap() & handled;
+            match (site, mode) {
+                ("finalisation-block", "omit") => assert_eq!(blocked, 0, "{label}"),
+                ("finalisation-block", "perform") => assert_eq!(blocked, handled, "{label}"),
+                ("final-mask-restore", "omit") => assert_eq!(blocked, handled, "{label}"),
+                ("final-mask-restore", "perform") => assert_eq!(blocked, 0, "{label}"),
+                _ => {}
+            }
+
+            let broken = f05_row(outcome, site, mode, "ignore-fault");
+            let axes = finalised(&broken, original, secondary, site, mode, true, child_ran);
+            assert!(axes.controller && axes.site, "{label}: broken {axes:?}");
+            assert!(
+                !axes.conforms() && !axes.secondary,
+                "{label}: ignoring the failure still reported it: {axes:?}"
+            );
+            if queued {
+                // The ignored query lets the mask restore deliver the actual
+                // TERM: death by the signal with no report at all.
+                assert_eq!(broken.died_by, Some(libc::SIGTERM), "{label}");
+            }
+        }
+    }
+}
+
+/// The paired failure: the original policy refusal and the secondary final
+/// mask restore failure. The refusal's own code and exit status stay the
+/// reported failure; the restore failure is retained beside it, not instead.
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure() {
+    let seen = f05_row("policy-refusal", "final-mask-restore", "omit", "none");
+    let outcome = seen.outcome.as_ref().expect("a failure outcome");
+    assert!(seen.settlement.clean() && seen.result_empty, "{seen:?}");
+    assert_eq!(outcome["error"]["code"], "policy_refused", "{outcome}");
+    assert_eq!(outcome["error"]["exit"], 3, "{outcome}");
+    assert!(
+        seen.settlement.status.is_some_and(|s| s.code() == Some(3)),
+        "{seen:?}"
+    );
+    assert!(
+        seen.diagnostics
+            .contains("final mask release: Input/output error"),
+        "secondary failure lost: {}",
+        seen.diagnostics
+    );
+    assert!(fault_site_matches(
+        &seen,
+        "final-mask-restore",
+        "omit",
+        false
+    ));
+    assert!(!seen.managed_started);
+
+    // The ignored restore failure leaves the refusal alone, with no trace of
+    // the secondary: the pair assertion above cannot hold.
+    let broken = f05_row(
+        "policy-refusal",
+        "final-mask-restore",
+        "omit",
+        "ignore-fault",
+    );
+    assert!(broken.settlement.clean(), "{broken:?}");
+    assert!(
+        !broken.diagnostics.contains("final mask release"),
+        "{broken:?}"
+    );
+}
+
+/// F05's Started parent-mask restore: a live real child, its group and a PTY
+/// terminal lease. The failed check must enter bounded real stop, wait and
+/// terminal recovery before returning, never lend the terminal again, and the
+/// front must still finalise and write nothing.
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal() {
+    let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+    for mode in ["omit", "perform"] {
+        let row = json!({"family":"F05","outcome":"selection-success","site":"Started-parent-restore",
+            "mode":mode,"pty":true,"boundary":"before-finalise"});
+        let seen = run_row(row.clone(), "none");
+        let facts = seen.ready.as_ref().expect("finalisation facts");
+        let at = |key: &str| facts[key].as_i64().unwrap();
+        let outcome = seen.outcome.as_ref().expect("a failure outcome");
+        assert!(
+            seen.settlement.clean() && seen.delivered.is_ok(),
+            "{mode}: {seen:?}"
+        );
+        assert!(
+            seen.settlement.status.is_some_and(|s| !s.success()),
+            "{mode}"
+        );
+        assert!(seen.result_empty, "{mode}: bytes were written");
+        assert_eq!(
+            outcome["error"]["code"], "supervision_failed",
+            "{mode}: {outcome}"
+        );
+        // The live child was started once and the runner confirmed its actual
+        // reap during its own error cleanup; no ending was ever produced.
+        assert!(seen.managed_started, "{mode}");
+        assert!(seen.worker_confirmed, "{mode}");
+        assert!(
+            facts["managedReaped"] == true,
+            "{mode}: no confirmed reap: {facts}"
+        );
+        assert!(seen.managed_end.is_none(), "{mode}");
+        // The terminal is the launcher's again, and nothing is left unreaped.
+        assert_eq!(
+            at("foreground"),
+            at("pgrp"),
+            "{mode}: terminal not returned"
+        );
+        assert_eq!(at("strayChild"), 0, "{mode}: a child remains");
+        assert!(
+            fault_site_matches(&seen, "Started-parent-restore", mode, false),
+            "{mode}"
+        );
+        // The restore's own physical state, not its report.
+        let blocked = seen.fault.as_ref().unwrap()["after"]["blocked"]
+            .as_u64()
+            .unwrap()
+            & handled;
+        assert_eq!(blocked, if mode == "omit" { handled } else { 0 }, "{mode}");
+
+        // Ignoring the failed restore leaves a launch that simply completes.
+        let broken = run_row(row, "ignore-fault");
+        assert!(broken.settlement.clean(), "{mode}: {broken:?}");
+        assert!(
+            !broken.result_empty && broken.settlement.status.is_some_and(|s| s.success()),
+            "{mode}: ignoring the failure still failed the launch: {broken:?}"
+        );
+    }
+}
+
+/// The queued-TERM variant of the Started restore. TERM is delivered while the
+/// parent's handoff block still holds (so it is pending, never consumed), the
+/// restore is then omitted and reported failed, and the common finalisation
+/// must join the pending signal with the original failure retained under it.
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f05_started_restore_failure_with_queued_term_joins_at_finalisation() {
+    let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+    let row = json!({"family":"F05","outcome":"selection-success","site":"Started-parent-restore",
+        "mode":"omit","pty":true,"boundary":"started-before-mask-restore"});
+    let seen = drive_row(row.clone(), libc::SIGTERM, "none");
+    assert!(
+        seen.settlement.clean() && seen.delivered.is_ok(),
+        "{seen:?}"
+    );
+    // The controller's TERM was an actual pending signal under the block: the
+    // handler never ran, so nothing consumed it before finalisation.
+    let ready = seen.ready.as_ref().expect("ready facts");
+    let ack = seen.ack.as_ref().expect("acknowledged facts");
+    assert_eq!(
+        ready["blocked"].as_u64().unwrap() & handled,
+        handled,
+        "{ready}"
+    );
+    assert_ne!(
+        ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
+        0,
+        "{ack}"
+    );
+    assert!(
+        ack["frontLatch"].is_null() && ack["managedStarted"] == true,
+        "{ack}"
+    );
+    // Joined at finalisation: death by the selected signal, no bytes, the
+    // original failure still reported, and the live child cleaned up first.
+    assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
+    assert!(seen.result_empty);
+    assert!(
+        seen.outcome
+            .as_ref()
+            .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
+        "{seen:?}"
+    );
+    assert!(
+        seen.diagnostics
+            .contains("Started parent transition failed"),
+        "original failure lost under cancellation: {}",
+        seen.diagnostics
+    );
+    assert!(seen.managed_started && seen.managed_end.is_none());
+    assert!(fault_site_matches(
+        &seen,
+        "Started-parent-restore",
+        "omit",
+        false
+    ));
+
+    // Ignoring the failed restore lets the child run to its end, and the
+    // original failure never exists to be retained.
+    let broken = drive_row(row, libc::SIGTERM, "ignore-fault");
+    assert!(broken.settlement.clean(), "{broken:?}");
+    assert!(
+        !broken
+            .diagnostics
+            .contains("Started parent transition failed"),
+        "{broken:?}"
+    );
+}
+
+/// The queued-TERM variant of F06's action failure: TERM delivered while the
+/// parent's handoff block holds, the child's TERM action restore omitted and
+/// reported failed, and the spawn failure joined with the pending signal at
+/// the front's finalisation. Runs the real runner's child path.
+#[test]
+#[ignore = "private real-main fixture; run task test:native-entry"]
+fn native_f06_action_failure_with_queued_term_joins_at_finalisation() {
+    let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+    let row = json!({"family":"F06","site":"TERM-action-restore","mode":"omit",
+        "boundary":"handoff-block-held"});
+    let seen = drive_row(row.clone(), libc::SIGTERM, "none");
+    assert!(
+        seen.settlement.clean() && seen.delivered.is_ok(),
+        "{seen:?}"
+    );
+    let ready = seen.ready.as_ref().expect("ready facts");
+    let ack = seen.ack.as_ref().expect("acknowledged facts");
+    assert_eq!(
+        ready["blocked"].as_u64().unwrap() & handled,
+        handled,
+        "{ready}"
+    );
+    assert_ne!(
+        ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
+        0,
+        "{ack}"
+    );
+    assert!(ack["frontLatch"].is_null(), "{ack}");
+    // The failed spawn consumed nothing; finalisation joins the pending TERM.
+    assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
+    assert!(seen.result_empty);
+    assert!(
+        seen.outcome
+            .as_ref()
+            .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
+        "{seen:?}"
+    );
+    assert!(
+        seen.diagnostics.contains("cannot spawn")
+            && seen.diagnostics.contains("Input/output error"),
+        "original spawn failure lost under cancellation: {}",
+        seen.diagnostics
+    );
+    assert!(!seen.managed_started && seen.managed_end.is_none());
+    assert!(seen.worker_confirmed, "worker teardown was not confirmed");
+    // The child's own record, written before exit: operation omitted.
+    let record = seen.child_record.clone().unwrap_or_default();
+    assert_eq!(
+        record.len(),
+        2,
+        "the child never reached the site: {record:?}"
+    );
+    assert_eq!(record[1] & 1, 0, "the omitted restore was performed");
+
+    // Ignoring the action failure runs the child, and the original spawn
+    // failure never exists to be retained under the cancellation.
+    let broken = drive_row(row, libc::SIGTERM, "ignore-fault");
+    assert!(broken.settlement.clean(), "{broken:?}");
+    assert!(
+        !broken.diagnostics.contains("cannot spawn"),
+        "ignoring the failure still failed the spawn: {broken:?}"
+    );
 }
 
 // ---- E08: readers, creator masks and an escaped pipe-holder -----------------

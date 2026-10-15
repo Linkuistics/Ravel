@@ -562,7 +562,17 @@ pub fn evaluate<T>(
     let mut teardown = Teardown {
         pid: child.id(),
         status: stopped.status,
-        reports: stopped.reports,
+        reports: {
+            #[cfg(test)]
+            let dropped = native_tests::drop_wait_reports();
+            #[cfg(not(test))]
+            let dropped = false;
+            if dropped {
+                Vec::new()
+            } else {
+                stopped.reports
+            }
+        },
         stop_failed: stopped.stop_failed,
         directory,
         removed,
@@ -1040,15 +1050,36 @@ fn child_watching() -> io::Result<()> {
         return Ok(());
     }
     let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
-    if unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut action) } == -1 {
+    let queried = unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut action) };
+    // F02: the physical query ran; only its report is substituted.
+    #[cfg(test)]
+    let queried = {
+        use crate::native_entry_tests::faults::{query, Query};
+        match query("watch-action-query", queried) {
+            Query::Real => queried,
+            Query::Substituted => -1,
+            Query::Ignored => {
+                action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+                0
+            }
+        }
+    };
+    if queried == -1 {
         return Err(io::Error::last_os_error());
     }
     if action.sa_sigaction == libc::SIG_IGN || action.sa_flags & libc::SA_NOCLDWAIT != 0 {
         let mut default = unsafe { std::mem::zeroed::<libc::sigaction>() };
         default.sa_sigaction = libc::SIG_DFL;
-        if unsafe { libc::sigemptyset(&mut default.sa_mask) } == -1
-            || unsafe { libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut()) } == -1
-        {
+        if unsafe { libc::sigemptyset(&mut default.sa_mask) } == -1 {
+            return Err(io::Error::last_os_error());
+        }
+        let repair = || unsafe { libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut()) };
+        #[cfg(test)]
+        let repaired =
+            crate::native_entry_tests::faults::mutation_c("default-action-repair", repair);
+        #[cfg(not(test))]
+        let repaired = repair();
+        if repaired == -1 {
             return Err(io::Error::last_os_error());
         }
     }

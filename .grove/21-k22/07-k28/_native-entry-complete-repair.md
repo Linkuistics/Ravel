@@ -287,3 +287,21 @@ campaign/receipts.
   unchanged matrix, amendments and 30/5/5 envelope carry forward; review
   integration, support qualification and narrower acceptance are not funded.
   The full k28 campaign and all parent/root obligations stay live.
+
+K36 (inside k31) built the F02/F04/F05/F06 families, the four paired failures and
+the two queued-TERM variants as development controls, each with a failing
+broken subject, on aarch64-apple-darwin and not the immutable campaign. The
+queued-TERM F05 rows found and repaired one product defect: after a failed final
+pending query the incumbent finalisation restored the mask, so a queued TERM
+killed the launcher under its default action before any report was written;
+unknown pending state now keeps the handled signals blocked through settlement
+(claiming no cancellation), with a unit control that fails without it. F06's
+forked-child sites use the runner's off-by-default `native-faults` feature, only
+in the isolated fixture target. The F03 paired row still uses the older worker
+helper; routing it and C4's through the controller is k37's. Charge
+P≤52/E≤24/RC=0, D=X=0. Cumulative bounds are D≤115/RC≤77/P≤342/E≤114/X=0 under
+caps D≤135/RC≤87/P≤402/E≤174/X=0; remaining D≤20 exclusively phase closure,
+RC≤10/P≤60/E≤60/X=0 for k37, k38 and an optional RC≤5 review. The full k28
+campaign, supported-target qualification and all parent/root obligations stay
+live; no node closes. K31's remaining children are k37 settlement controls and
+k38 campaign/receipts.

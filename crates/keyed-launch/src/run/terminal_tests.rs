@@ -19,6 +19,17 @@ thread_local! {
     static UNKNOWN_STATUS: Cell<bool> = const { Cell::new(false) };
 }
 
+/// A paired secondary failure: the physical terminal handback runs, and only
+/// its report is substituted. Same thread as the launch.
+pub(super) fn inject_handback_report() {
+    FAULTS.set(FAULTS.get() | HANDBACK);
+}
+/// The broken control for a retained recovery report: the same substituted
+/// report, discarded by the product.
+pub(super) fn drop_recovery_reports() {
+    DROP_REPORTS.set(true);
+}
+
 pub(super) fn recovery_status(actual: Option<ExitStatus>) -> Option<ExitStatus> {
     if UNKNOWN_STATUS.get() {
         None

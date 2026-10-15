@@ -37,6 +37,9 @@ struct Control {
     creator_after: Option<MaskReceipt>,
     finished: Arc<Mutex<Vec<bool>>>,
     collected: Option<(usize, usize, Duration, Duration)>,
+    /// The paired row's broken subject: the worker's wait/stop reports are
+    /// discarded before they join the failure.
+    drop_reports: bool,
 }
 
 pub(super) type ReaderSink = Arc<Mutex<Vec<(bool, MaskReceipt)>>>;
@@ -137,6 +140,14 @@ pub(crate) fn reader_receipt() -> serde_json::Value {
 thread_local! { static CONTROL: RefCell<Control> = RefCell::new(Control::default()); }
 
 pub(super) fn configure(case: &str) {
+    // F03's paired row: second reader creation omitted (EAGAIN) plus the
+    // worker's own try_wait reported failed (EIO). Same fixed faults as S03's
+    // poll-EIO row; only the identity and the assertions differ.
+    let (case, drop_reports) = match case {
+        "paired-second-create-poll-EIO" => ("poll-EIO", false),
+        "paired-second-create-poll-EIO-dropped" => ("poll-EIO", true),
+        other => (other, false),
+    };
     let fault = match case {
         "observe" => Fault::Observe,
         "block-omitted" => Fault::Block(Mutation::Omitted),
@@ -158,6 +169,7 @@ pub(super) fn configure(case: &str) {
     CONTROL.with(|c| {
         *c.borrow_mut() = Control {
             fault,
+            drop_reports,
             ..Control::default()
         }
     });
@@ -172,6 +184,9 @@ fn injected() -> bool {
 /// Observation for the private real-main fixture, injecting nothing.
 pub(crate) fn observe() {
     configure("observe");
+}
+pub(super) fn drop_wait_reports() -> bool {
+    CONTROL.with(|c| c.borrow().drop_reports)
 }
 pub(crate) fn block_fault() -> Option<Mutation> {
     CONTROL.with(|c| match c.borrow().fault {
@@ -365,6 +380,29 @@ reader_case!(native_s03_poll_eio, "poll-EIO");
 reader_case!(native_s03_poll_eintr, "poll-EINTR");
 reader_case!(native_s03_poll_echild, "poll-ECHILD");
 reader_case!(native_s03_running, "always-running");
+
+/// F03's paired failure: the omitted second reader creation and the worker's
+/// own wait report, both surviving. The broken subject discards the worker's
+/// reports, which the fixture's assertion for the pair rejects.
+#[test]
+fn native_paired_f03_second_create_keeps_the_worker_wait_report() {
+    admission_tests::cases(
+        &["native-reader"],
+        &["paired-second-create-poll-EIO"],
+        &["front"],
+    );
+    let broken = std::panic::catch_unwind(|| {
+        admission_tests::cases(
+            &["native-reader"],
+            &["paired-second-create-poll-EIO-dropped"],
+            &["front"],
+        );
+    });
+    assert!(
+        broken.is_err(),
+        "discarding the worker's wait report was not detected"
+    );
+}
 
 /// E08's private worker: the real protocol, with a deliberately escaped
 /// pipe-holder. Runs from the real-main fixture binary, never installed.

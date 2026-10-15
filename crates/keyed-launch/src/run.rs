@@ -347,13 +347,42 @@ fn install_termination_handler(catch_interrupt: bool) -> Result<(), LaunchError>
     for &signal in cancelling {
         let mut current = unsafe { std::mem::zeroed::<libc::sigaction>() };
         let checked = (|| -> std::io::Result<()> {
-            os_result(unsafe { libc::sigaction(signal, std::ptr::null(), &mut current) })?;
+            let queried = unsafe { libc::sigaction(signal, std::ptr::null(), &mut current) };
+            // F04: the first query's physical result is real; only its report
+            // is substituted.
+            #[cfg(any(test, feature = "native-faults"))]
+            let queried = if signal == libc::SIGTERM {
+                match crate::native_hooks::query(crate::native_hooks::HANDLER_QUERY, queried) {
+                    crate::native_hooks::Query::Real => queried,
+                    crate::native_hooks::Query::Substituted => -1,
+                    crate::native_hooks::Query::Ignored => {
+                        current = unsafe { std::mem::zeroed::<libc::sigaction>() };
+                        0
+                    }
+                }
+            } else {
+                queried
+            };
+            os_result(queried)?;
             if current.sa_sigaction != libc::SIG_IGN {
                 let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
                 action.sa_sigaction = handler as libc::sighandler_t;
                 action.sa_flags = libc::SA_RESTART;
                 os_result(unsafe { libc::sigemptyset(&mut action.sa_mask) })?;
-                os_result(unsafe { libc::sigaction(signal, &action, std::ptr::null_mut()) })?;
+                let install = || unsafe { libc::sigaction(signal, &action, std::ptr::null_mut()) };
+                #[cfg(any(test, feature = "native-faults"))]
+                let installed = match signal {
+                    libc::SIGINT => {
+                        crate::native_hooks::mutation_c(crate::native_hooks::INT_INSTALL, install)
+                    }
+                    libc::SIGTERM => {
+                        crate::native_hooks::mutation_c(crate::native_hooks::TERM_INSTALL, install)
+                    }
+                    _ => install(),
+                };
+                #[cfg(not(any(test, feature = "native-faults")))]
+                let installed = install();
+                os_result(installed)?;
             }
             Ok(())
         })();
@@ -385,7 +414,18 @@ static SIGCHLD_IGNORED_AT_ENTRY: AtomicU8 = AtomicU8::new(0);
 /// launcher's, not the child's.
 pub(crate) fn restore_child_watching() -> Result<bool, LaunchError> {
     let mut current = unsafe { std::mem::zeroed::<libc::sigaction>() };
-    os_result(unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut current) })
+    let queried = unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut current) };
+    // F02: the physical query ran; only its report is substituted.
+    #[cfg(any(test, feature = "native-faults"))]
+    let queried = match crate::native_hooks::query(crate::native_hooks::WATCH_QUERY, queried) {
+        crate::native_hooks::Query::Real => queried,
+        crate::native_hooks::Query::Substituted => -1,
+        crate::native_hooks::Query::Ignored => {
+            current = unsafe { std::mem::zeroed::<libc::sigaction>() };
+            0
+        }
+    };
+    os_result(queried)
         .map_err(|error| LaunchError::new(format!("cannot query child watching: {error}")))?;
     let ignored = match SIGCHLD_IGNORED_AT_ENTRY.load(Ordering::Relaxed) {
         0 => {
@@ -412,11 +452,13 @@ pub(crate) fn restore_child_watching() -> Result<bool, LaunchError> {
             default.sa_sigaction = libc::SIG_DFL;
             os_result(libc::sigemptyset(&mut default.sa_mask))
                 .and_then(|()| {
-                    os_result(libc::sigaction(
-                        libc::SIGCHLD,
-                        &default,
-                        std::ptr::null_mut(),
-                    ))
+                    let repair = || libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut());
+                    #[cfg(any(test, feature = "native-faults"))]
+                    let repaired =
+                        crate::native_hooks::mutation_c(crate::native_hooks::WATCH_REPAIR, repair);
+                    #[cfg(not(any(test, feature = "native-faults")))]
+                    let repaired = repair();
+                    os_result(repaired)
                 })
                 .map_err(|error| {
                     LaunchError::new(format!("cannot repair child watching: {error}"))
@@ -508,6 +550,13 @@ impl EntrySignals {
         // handler is SIG_IGN or SIG_DFL.
         unsafe {
             let mut mask: libc::sigset_t = std::mem::zeroed();
+            // F06: fixed pre-exec sites. Atomics and one `write` only.
+            #[cfg(any(test, feature = "native-faults"))]
+            os_result(crate::native_hooks::mutation_c(
+                crate::native_hooks::MASK_BUILD,
+                || libc::sigemptyset(&mut mask),
+            ))?;
+            #[cfg(not(any(test, feature = "native-faults")))]
             os_result(libc::sigemptyset(&mut mask))?;
             for signal in SIGNAL_NUMBERS.filter(|&signal| {
                 (!cfg!(target_vendor = "apple") || signal <= 31)
@@ -527,9 +576,23 @@ impl EntrySignals {
                     libc::SIG_DFL
                 };
                 os_result(libc::sigemptyset(&mut action.sa_mask))?;
-                os_result(libc::sigaction(signal, &action, std::ptr::null_mut()))?;
+                let restore = || libc::sigaction(signal, &action, std::ptr::null_mut());
+                #[cfg(any(test, feature = "native-faults"))]
+                let restored = if signal == libc::SIGTERM {
+                    crate::native_hooks::mutation_c(crate::native_hooks::TERM_RESTORE, restore)
+                } else {
+                    restore()
+                };
+                #[cfg(not(any(test, feature = "native-faults")))]
+                let restored = restore();
+                os_result(restored)?;
             }
-            match libc::pthread_sigmask(libc::SIG_SETMASK, &mask, std::ptr::null_mut()) {
+            let set = || libc::pthread_sigmask(libc::SIG_SETMASK, &mask, std::ptr::null_mut());
+            #[cfg(any(test, feature = "native-faults"))]
+            let set = crate::native_hooks::mutation_r(crate::native_hooks::MASK_RESTORE, set);
+            #[cfg(not(any(test, feature = "native-faults")))]
+            let set = set();
+            match set {
                 0 => Ok(()),
                 error => Err(std::io::Error::from_raw_os_error(error)),
             }
@@ -2142,5 +2205,7 @@ mod watching_tests {
     }
 }
 
+#[cfg(test)]
+mod native_faults;
 #[cfg(test)]
 mod native_tests;

@@ -305,6 +305,79 @@ Protected checks after the final edit: `task test:native-entry` (26 + 6 + 2),
 identities present with unchanged ignored flags; 46 new identities. The three new
 rows passed five further unchanged repeats (flake detection only).
 
+## Fault families, paired and queued-TERM controls (k36)
+
+`native-entry-fault-families-k36` constructed the remaining F families on the
+k34 controller: F02 (6), F04 (14), F05 (20), F06 (6), the four paired failures
+and the two queued-TERM variants. Everything here is a development control on
+aarch64-apple-darwin, not the immutable campaign; it qualifies neither Linux nor
+Rust 1.85, and no family is accepted.
+
+**Mechanism.** One private fixed-site hook per owner. A *mutation* site either
+omits the physical operation (a failed mutation that changed nothing) or
+performs it and then reports EIO; a *query* site always performs the physical
+query and substitutes only the report. An irreversible operation is never
+simulated by rewriting its report. Each row writes a receipt that keeps the
+operation performed, the actual result/errno, the reported EIO and the actual
+state afterwards (handler owners, mask, pending, SIGCHLD flags) as separate
+fields. The row's one broken subject ignores that failure at its site. The
+front/worker sites are `cfg(test)` in `ravel`. The runner's sites are `cfg(test)`
+in `keyed-launch`, plus one off-by-default Cargo feature, `native-faults`, that
+only the isolated fixture target enables (`task test:native-entry`) so F06's
+forked-child sites are reachable from the front's real-main fixture; installed
+and release builds never enable it. The child's pre-exec sites use two atomics
+and one fixed two-byte `write` (site; performed, failed, foreground bits), with
+no allocation or formatting.
+
+| Rows | Test (owner) | Observed on the repaired product | Broken subject |
+|---|---|---|---|
+| F02 worker ×3 | `native_f02_worker_watching_faults_refuse_before_any_worker` (ravel fixture) | `worker_failed` “cannot establish worker watching”, no worker waited, zero bytes; omitted repair left no-child-wait set, performed repair cleared it | Worker admitted; its own later ECHILD teardown failure replaces the watching refusal |
+| F02 managed ×3 | `native_f02_managed_watching_faults_refuse_before_any_child` (runner role) | “cannot query/repair child watching”, no Started, spawn errno accessor `None` (spawn-only), no stray child, same omit/perform flag states | Child admitted (`Started`) |
+| F04 selection ×5 | `native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned` | `cancellation_unavailable` before any worker; the front owns exactly the installed subset (query: none; INT omit: none; INT perform: INT; TERM omit: INT; TERM perform: INT, TERM) with the handled signals still blocked at finalisation | Admission proceeds, worker runs |
+| F04 runner ×5 | `native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned` (runner role) | “cannot install runner handler for signal N”, no Started; the runner installs TERM, HUP, INT in that order, so the partial subset is TERM/HUP for an INT fault and none or TERM for a TERM fault | Child admitted |
+| F04 INT final restore ×4 (selection refusal, runner completed launch) | `native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result` | The release failure keeps the installed owner (omit) or the entry action (perform) and keeps the mask blocked; refusal or ending retained, “disposition release” reported, zero bytes; the completed launch's child ran, was reaped and the group gone | Failure not reported, result written |
+| F05 finalisation ×18 | `native_f05_finalisation_failures_keep_the_original_and_never_write_a_result` | Three outcomes × block omit/perform, pending query, TERM membership, final mask restore omit/perform: original outcome kept, secondary label present, zero bytes; the block/restore rows' physical mask matches the operation, not the report | Secondary label absent; queued-TERM rows die by the TERM with no report |
+| F05 Started ×2 | `native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal` (PTY lease) | Started once, confirmed Reaped before return, no Ended, terminal foreground back with the launcher, no child left (`waitid` WNOWAIT), `supervision_failed` with the group-stop reports kept; omit left the handled signals blocked, perform restored them | The launch completes and writes its result |
+| F06 ×6 | `native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal` (PTY role) | Spawn fails with EIO as the actual spawn errno, no Started, the child's own record shows performed/omitted while it was the terminal's foreground group, foreground and modes restored, no stray child | Child runs and exits 7 |
+| Paired F03 | `native_paired_f03_second_create_keeps_the_worker_wait_report` | Second reader creation (EAGAIN) and the worker's try_wait EIO both in the failure | Worker reports discarded; the pair assertion rejects it |
+| Paired F05 Started + recovery, F06 + C4 recovery | `native_paired_started_restore_and_child_action_keep_the_recovery_report` (runner role) | Primary and the substituted terminal-handback report both returned; the handback physically ran | Recovery report discarded |
+| Paired F05 refusal | `native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure` | Refusal's own code and exit 3 kept; “final mask release” reported beside it | Secondary absent |
+| Queued TERM, F05 Started | `native_f05_started_restore_failure_with_queued_term_joins_at_finalisation` (front) | TERM pending behind the handoff block, never consumed; joined at finalisation: death by TERM, original Started failure in diagnostics | Failure never exists to retain |
+| Queued TERM, F06 | `native_f06_action_failure_with_queued_term_joins_at_finalisation` (front, feature seam) | Same transfer with the spawn failure retained; worker teardown confirmed | Spawn failure absent |
+| Runner side of both | `native_queued_term_stays_pending_through_a_failed_started_or_spawn` | The failed launch consumed nothing; the signal joins only when the parent restores its mask | — |
+
+**One product defect, repaired.** The queued-TERM F05 rows (pending query and
+TERM membership) showed that, after a failed final pending query, the incumbent
+finalisation still restored the mask. The queued TERM was then delivered under
+its restored default action and killed the launcher before the original failure
+or any secondary report was written: exit by SIGTERM, empty diagnostics, and
+byte-for-byte what the ignore-the-failure subject also did, so the control could
+not discriminate until the product was corrected. Unknown pending state now keeps
+the handled signals blocked through settlement and the launcher ends on the
+reported failure (“pending cancellation state unknown; handled signals retained
+blocked”). It claims no cancellation. The unit test
+`an_unknown_pending_set_keeps_the_mask_blocked_through_the_reports` fails
+without the correction, and the six queued rows now differ from their broken
+subject. The pre-repair observation above is the only baseline failure claimed.
+
+**Already-correct baselines.** No other row was run against a pre-repair
+subject: the sites did not exist before this leaf, and the rows establish that
+the current product fails closed at each. No baseline failure is invented for
+them. Each still has a failing broken subject, as tabulated. Immutable
+baseline/broken/repaired receipts, per-row digests and the one-writer record are
+the campaign's (k38).
+
+**Limits.** The paired F05 Started + terminal-recovery case is asserted at the
+runner's API, where the C4 report seam is; the front forwards the runner error's
+text whole, as the F05 Started rows show. The runner-side rows run in a role
+process owned by the shared controller; the front-side rows run in the private
+real-main fixture. On Darwin the group-stop EPERM reports for already-reaped
+zombie groups appear in these rows' diagnostics and are the approved retained
+benign reports. Protected checks: `task test:native-entry` (35 front, 11 runner,
+2 Started API checks) and `task check` (326 run, 45 skipped) passed; R01
+reconciled by identity: all 310 prior identities present with unchanged ignored
+flags, 61 new identities of which 15 are this leaf's.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -319,11 +392,10 @@ variants and S counts 8/7/8/7/2 unchanged.
    above; they are not immutable receipts. Receipts must distinguish
    front/runner/child ownership, pending versus consumed state and real reader
    eligibility. No sleeps can establish ordering.
-2. Construct F02's six watching faults, F04's 14 selection/runner handler faults,
-   F05's 20 finalisation/Started-mask faults, and F06's six pre-exec faults.
-   Keep pre-exec controls fixed and allocation-free. Exercise the four paired
-   cases and two pending-TERM variants through the agreed real-process/PTY/front
-   seams. Retain original and secondary reports under cancellation precedence.
+2. F02's six watching faults, F04's 14 handler faults, F05's 20 finalisation
+   and Started-mask faults, F06's six pre-exec faults, the four paired cases and
+   the two pending-TERM variants now have development controls (k36, above); they
+   are not immutable receipts.
 3. Complete matching broken controls for the implemented families, especially
    S02's bound/identity claims and F03/S03 report/deadline claims. Finish S04's
    seven-row recovery set and both S05 first-HUP-then-TERM rows. Do not substitute

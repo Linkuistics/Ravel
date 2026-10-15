@@ -316,7 +316,10 @@ observation exists does fixed handled-signal order choose between pending ones.
 Common finalisation SHALL preserve the original operational failure and every
 secondary transition/cleanup report, including selection-failure and no-ending
 paths. Unknown pending state cannot establish no cancellation or permit result
-success. Handlers remain present through the mask-restoration join; disposition
+success. A pending set that could not be read leaves the handled signals blocked
+until every report is written: restoring the mask first would deliver a queued
+signal under its default action and end the launcher before the original failure
+or any secondary report existed. Handlers remain present through the mask-restoration join; disposition
 release occurs under a blocked calling mask with readers still shielded. Failed
 release prevents result output. Cancellation is reported before checked default,
 selected-signal unblocking and re-raise; failed propagation uses the existing

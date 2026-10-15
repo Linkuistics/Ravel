@@ -19,5 +19,9 @@ tempfile = "3.10"
 [build-dependencies]
 sha2 = "0.10"
 
+# Private fixture seam: forwards the runner's off-by-default fault feature.
+[features]
+native-faults = ["keyed-launch/native-faults"]
+
 [lints]
 workspace = true

@@ -594,6 +594,17 @@ fn worker_reap_admission_fixture() {
                 assert!(text.contains("kill pid") && text.contains("os error 1"))
             }
             "poll-EIO" => assert!(text.contains("try_wait pid") && text.contains("os error 5")),
+            // The pair: the creation failure and the worker's wait report.
+            "paired-second-create-poll-EIO" | "paired-second-create-poll-EIO-dropped" => {
+                assert!(
+                    text.contains("os error 35") || text.contains("os error 11"),
+                    "creation failure lost: {text}"
+                );
+                assert!(
+                    text.contains("try_wait pid") && text.contains("os error 5"),
+                    "worker wait report lost: {text}"
+                );
+            }
             "poll-ECHILD" => assert!(text.contains("os error 10") && text.contains("unconfirmed")),
             "poll-EINTR" => assert!(text.contains("deadline") && text.contains("EINTR retries")),
             "always-running" => assert!(text.contains("deadline")),

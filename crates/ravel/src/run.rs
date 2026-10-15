@@ -190,7 +190,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         let mut start_check = || {
             #[cfg(test)]
             crate::native_entry_tests::barrier("started-before-mask-restore");
-            signal_state::restore_mask()
+            signal_state::restore_mask_at("Started-parent-restore")
         };
         let supervised = match &confined {
             Some(confined) => keyed_launch::run_confined_observed_with_start_check(
