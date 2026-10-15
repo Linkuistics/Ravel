@@ -521,6 +521,9 @@ pub fn evaluate<T>(
         child.stderr.take(),
         limits.diagnostics.value,
     );
+    // F03's private break: the reader failure is ignored, so admission goes on.
+    #[cfg(test)]
+    let reader_reports = native_tests::reader_reports(reader_reports);
 
     let channel = Bounded {
         channel: &front_end,
@@ -1102,6 +1105,11 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
         began
     };
     let drain_by = by + DRAIN_GRACE;
+    // S03's private deadline break lets the poll loop outlive the 2-second bound.
+    #[cfg(test)]
+    let by_loop = by + native_tests::deadline_slack();
+    #[cfg(not(test))]
+    let by_loop = by;
     let mut reports = Vec::new();
     let mut stop_failed = false;
     let pid = child.id() as libc::pid_t;
@@ -1123,7 +1131,9 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
     let mut first_interrupted = None;
     let mut interrupts = 0u64;
     loop {
-        if Instant::now() >= by {
+        if Instant::now() >= by_loop {
+            #[cfg(test)]
+            native_tests::teardown_took(began.elapsed());
             if interrupts > 0 {
                 reports.push(format!(
                     "try_wait first errno {first_interrupted:?}, EINTR retries {interrupts}"
@@ -1156,6 +1166,11 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
                 interrupts = interrupts.saturating_add(1);
             }
             Err(error) => {
+                // S03's private identity-guard break keeps polling after ECHILD.
+                #[cfg(test)]
+                let lost = error.raw_os_error() == Some(libc::ECHILD)
+                    && !native_tests::identity_guard_broken();
+                #[cfg(not(test))]
                 let lost = error.raw_os_error() == Some(libc::ECHILD);
                 reports.push(format!("try_wait pid {pid}: {error}"));
                 if lost {
@@ -1186,7 +1201,9 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
             }
             killed = true;
         }
-        thread::sleep(Duration::from_millis(10).min(by.saturating_duration_since(Instant::now())));
+        thread::sleep(
+            Duration::from_millis(10).min(by_loop.saturating_duration_since(Instant::now())),
+        );
     }
 }
 

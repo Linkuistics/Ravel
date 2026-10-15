@@ -28,6 +28,59 @@ pub(super) struct Control {
     waited_once: bool,
     broken_report: bool,
     physical: Vec<String>,
+    /// Numeric stop attempts the identity-guard break made on a released
+    /// identity. Recorded only: no signal is ever performed for them.
+    released_attempts: Vec<String>,
+}
+
+thread_local! {
+    /// S02/S03's private deadline break: how far past its absolute bound the
+    /// owner may keep waiting. Zero everywhere except a named broken subject.
+    static SLACK: std::cell::Cell<Duration> = const { std::cell::Cell::new(Duration::ZERO) };
+    /// The private identity-guard break: ECHILD and release stop disarming
+    /// numeric signalling and wait ownership.
+    static GUARD_BROKEN: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// The fault a role process arms for the next owned child.
+    static NEXT_FAULT: std::cell::Cell<Fault> = const { std::cell::Cell::new(Fault::None) };
+}
+pub(super) fn deadline_slack() -> Duration {
+    SLACK.get()
+}
+pub(super) fn identity_guard_broken() -> bool {
+    GUARD_BROKEN.get()
+}
+
+/// Puts a broken subject in force for one row and restores the repaired
+/// subject on every path, including a failed assertion.
+struct Subject;
+impl Subject {
+    fn enter(broken: Broken) -> Self {
+        SLACK.set(match broken {
+            Broken::Deadline => Duration::from_secs(1),
+            _ => Duration::ZERO,
+        });
+        GUARD_BROKEN.set(broken == Broken::Identity);
+        Subject
+    }
+}
+impl Drop for Subject {
+    fn drop(&mut self) {
+        SLACK.set(Duration::ZERO);
+        GUARD_BROKEN.set(false);
+    }
+}
+
+/// The one named defect a row's broken subject carries. `Repaired` is the
+/// product as built.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Broken {
+    Repaired,
+    /// The injected failure is ignored: its report never exists.
+    Report,
+    /// A bounded wait or observation is allowed to outlive its absolute bound.
+    Deadline,
+    /// ECHILD/release no longer disarms signalling or wait ownership.
+    Identity,
 }
 
 fn set_errno(number: i32) {
@@ -41,6 +94,16 @@ fn set_errno(number: i32) {
     }
 }
 impl Control {
+    pub(super) fn configured() -> Self {
+        Self {
+            fault: NEXT_FAULT.get(),
+            ..Self::default()
+        }
+    }
+    pub(super) fn after_release(&mut self, target: i32, signal: i32) {
+        self.released_attempts
+            .push(format!("target={target} signal={signal} not performed"));
+    }
     pub(super) fn stop(&mut self, attempt: u32, target: i32, signal: i32) -> i32 {
         let injected = matches!(self.fault, Fault::Stop { attempt: n, .. } if n == attempt);
         let performed =
@@ -200,10 +263,25 @@ impl Drop for Fixture {
     }
 }
 
-fn settlement_case(
-    fault: Fault,
-    broken: bool,
-) -> (String, Vec<LaunchEvent>, Duration, Vec<String>) {
+/// Everything one failed-Started settlement row observed, with the physical
+/// operation and the substituted report kept apart.
+struct Settled {
+    message: String,
+    events: Vec<LaunchEvent>,
+    elapsed: Duration,
+    physical: Vec<String>,
+    released: bool,
+    actual_reap: bool,
+    released_attempts: usize,
+    spawn_errno: Option<i32>,
+    source_errno: Option<i32>,
+}
+
+/// One failed-Started row. The fixture keeps its own handle and reaps only
+/// after product ownership is released; its cleanup failing fails every row,
+/// repaired or broken.
+fn settle(fault: Fault, broken: Broken) -> Settled {
+    let _subject = Subject::enter(broken);
     let child = Command::new("/bin/sleep")
         .arg("20")
         .process_group(0)
@@ -211,7 +289,7 @@ fn settlement_case(
         .unwrap();
     let mut child = OwnedChild::new(child);
     child.control.fault = fault;
-    child.control.broken_report = broken;
+    child.control.broken_report = broken == Broken::Report;
     let state = Rc::new(RefCell::new(child));
     let fixture = Fixture(Rc::clone(&state));
     let mut events = Vec::new();
@@ -231,28 +309,139 @@ fn settlement_case(
     )
     .unwrap_err();
     let elapsed = at.elapsed();
+    // A later numeric stop on the released identity: the control records an
+    // attempt (never performs one) only when the identity guard is broken.
+    Shared(Rc::clone(&state)).signal(libc::SIGKILL);
     let released = !state.borrow().reserved;
     let physical = state.borrow().control.physical.clone();
+    let released_attempts = state.borrow().control.released_attempts.len();
     let actual_reap = state.borrow().reaped;
     let cleanup = fixture.cleanup();
-    eprintln!("native settlement fault={fault:?} broken={broken} elapsed={elapsed:?} product_released={released} actual_reap={actual_reap:?} events={events:?} fixture_cleanup={cleanup:?} error={error}\nphysical={physical:#?}");
-    assert!(released);
-    cleanup.unwrap();
-    assert_eq!(error.raw_os_error(), None);
-    assert_eq!(
-        std::error::Error::source(&error)
-            .unwrap()
-            .downcast_ref::<std::io::Error>()
-            .unwrap()
-            .raw_os_error(),
-        Some(libc::EIO)
-    );
-    assert_eq!(
-        events.iter().filter(|&&e| e == LaunchEvent::Reaped).count(),
-        usize::from(actual_reap.is_some())
-    );
-    assert!(elapsed < Duration::from_millis(2500));
-    (error.to_string(), events, elapsed, physical)
+    eprintln!("native settlement fault={fault:?} broken={broken:?} elapsed={elapsed:?} product_released={released} actual_reap={actual_reap:?} events={events:?} fixture_cleanup={cleanup:?} released_attempts={released_attempts} error={error}\nphysical={physical:#?}");
+    cleanup.expect("fixture ownership must settle on every row");
+    Settled {
+        message: error.to_string(),
+        events,
+        elapsed,
+        physical,
+        released,
+        actual_reap: actual_reap.is_some(),
+        released_attempts,
+        spawn_errno: error.raw_os_error(),
+        source_errno: std::error::Error::source(&error)
+            .and_then(|source| source.downcast_ref::<std::io::Error>())
+            .and_then(std::io::Error::raw_os_error),
+    }
+}
+
+const STARTED: [LaunchEvent; 1] = [LaunchEvent::Started];
+const STARTED_REAPED: [LaunchEvent; 2] = [LaunchEvent::Started, LaunchEvent::Reaped];
+
+impl Settled {
+    /// Names every claim this row does not meet. Claims are the contract's, not
+    /// the instrument's: the same list judges repaired and broken subjects.
+    fn violations(&self, fault: Fault) -> Vec<String> {
+        let mut named = Vec::new();
+        let mut claim = |held: bool, name: &str| {
+            if !held {
+                named.push(name.to_owned());
+            }
+        };
+        claim(self.released, "ownership-released");
+        claim(
+            self.spawn_errno.is_none(),
+            "spawn-errno-accessor-spawn-only",
+        );
+        claim(
+            self.source_errno == Some(libc::EIO),
+            "start-check-source-retained",
+        );
+        claim(
+            self.events
+                .iter()
+                .filter(|&&e| e == LaunchEvent::Reaped)
+                .count()
+                == usize::from(self.actual_reap),
+            "reaped-only-on-actual-reap",
+        );
+        claim(self.released_attempts == 0, "no-signal-after-release");
+        let message = &self.message;
+        let deadline_bound = self.elapsed >= ERROR_SETTLEMENT
+            && self.elapsed < ERROR_SETTLEMENT + Duration::from_millis(500);
+        match fault {
+            Fault::Stop { attempt, .. } => {
+                claim(
+                    message.contains(&format!("stop attempt {attempt} target")),
+                    &format!("stop-report-retained attempt={attempt}"),
+                );
+                claim(self.events == STARTED_REAPED, "reaped-after-stops");
+                claim(
+                    self.physical
+                        .iter()
+                        .filter(|s| s.starts_with("stop attempt="))
+                        .count()
+                        == 4,
+                    "every-stop-attempted",
+                );
+                claim(
+                    self.elapsed < Duration::from_millis(2500),
+                    "bounded-by-error-settlement",
+                );
+            }
+            Fault::ObserveEio => {
+                claim(
+                    message.contains("settlement observation:"),
+                    "observation-error-reported",
+                );
+                claim(
+                    self.events == STARTED_REAPED,
+                    "reaped-after-recovered-error",
+                );
+            }
+            Fault::WaitEio => {
+                claim(
+                    message.contains("wait recovered after errno"),
+                    "wait-error-reported",
+                );
+                claim(
+                    self.events == STARTED_REAPED,
+                    "reaped-after-recovered-error",
+                );
+            }
+            Fault::ObserveEintr | Fault::WaitEintr | Fault::Running => {
+                claim(deadline_bound, "absolute-deadline");
+                claim(message.contains("deadline"), "deadline-expiry-reported");
+                claim(self.events == STARTED, "no-invented-reap");
+            }
+            Fault::ObserveLost => {
+                claim(self.events == STARTED, "identity-released-without-reap");
+                claim(
+                    message.contains("ownership unresolved"),
+                    "unresolved-ownership-reported",
+                );
+                claim(
+                    self.elapsed < Duration::from_secs(1),
+                    "loss-does-not-wait-out-deadline",
+                );
+            }
+            Fault::WaitLost => {
+                claim(self.events == STARTED, "identity-released-without-reap");
+                claim(
+                    message.contains("wait lost ownership"),
+                    "ownership-loss-reported",
+                );
+                claim(
+                    self.elapsed < Duration::from_secs(1),
+                    "loss-does-not-wait-out-deadline",
+                );
+            }
+            Fault::None => {}
+        }
+        if matches!(fault, Fault::ObserveEintr) {
+            claim(message.contains("EINTR retries"), "retries-reported");
+        }
+        named
+    }
 }
 
 #[test]
@@ -260,54 +449,72 @@ fn native_s01_retains_each_stop_report_and_distinguishes_physical_operations() {
     for attempt in 1..=4 {
         for performed in [false, true] {
             let fault = Fault::Stop { attempt, performed };
-            let (message, events, _, physical) = settlement_case(fault, false);
-            assert!(message.contains(&format!("stop attempt {attempt} target")));
-            assert_eq!(events, [LaunchEvent::Started, LaunchEvent::Reaped]);
-            assert_eq!(
-                physical
-                    .iter()
-                    .filter(|s| s.starts_with("stop attempt="))
-                    .count(),
-                4
-            );
-            // A fixed lost-report mutant performs the same physical operations.
-            // Its absence must fail the independently named report expectation.
-            let (broken, _, _, _) = settlement_case(fault, true);
+            let repaired = settle(fault, Broken::Repaired);
+            assert_eq!(repaired.violations(fault), Vec::<String>::new());
+            // Omitted and performed rows differ only in the physical receipt.
+            let marker = format!("attempt={attempt} target");
             assert!(
-                !broken.contains(&format!("stop attempt {attempt} target")),
-                "broken report control was not detected"
+                repaired
+                    .physical
+                    .iter()
+                    .any(|s| s.contains(&marker) && s.contains(&format!("performed={performed}"))),
+                "row did not exercise the named physical operation: {:?}",
+                repaired.physical
+            );
+            // The lost-report mutant performs the same physical operations.
+            let broken = settle(fault, Broken::Report);
+            let named = format!("stop-report-retained attempt={attempt}");
+            assert!(
+                broken.violations(fault).contains(&named),
+                "broken report control was not detected: {:?}",
+                broken.violations(fault)
             );
         }
     }
 }
 
+/// S02's seven rows, each with the one claim its named broken subject must
+/// fail: ignored reports for the EIO rows, an outlived bound for the EINTR and
+/// always-running rows, and a kept identity for the ECHILD rows.
+const S02: [(Fault, Broken, &str); 7] = [
+    (
+        Fault::ObserveEio,
+        Broken::Report,
+        "observation-error-reported",
+    ),
+    (Fault::ObserveEintr, Broken::Deadline, "absolute-deadline"),
+    (
+        Fault::ObserveLost,
+        Broken::Identity,
+        "identity-released-without-reap",
+    ),
+    (Fault::WaitEio, Broken::Report, "wait-error-reported"),
+    (Fault::WaitEintr, Broken::Deadline, "absolute-deadline"),
+    (
+        Fault::WaitLost,
+        Broken::Identity,
+        "loss-does-not-wait-out-deadline",
+    ),
+    (Fault::Running, Broken::Deadline, "absolute-deadline"),
+];
+
 #[test]
 fn native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership() {
-    for fault in [
-        Fault::ObserveEio,
-        Fault::ObserveEintr,
-        Fault::ObserveLost,
-        Fault::WaitEio,
-        Fault::WaitEintr,
-        Fault::WaitLost,
-        Fault::Running,
-    ] {
-        let (message, events, elapsed, _) = settlement_case(fault, false);
-        match fault {
-            Fault::ObserveEio => assert!(message.contains("settlement observation:")),
-            Fault::WaitEio => assert!(message.contains("wait recovered after errno")),
-            Fault::ObserveLost | Fault::WaitLost => {
-                assert!(
-                    message.contains("reap unconfirmed") || message.contains("no confirmed reap")
-                );
-                assert_eq!(events, [LaunchEvent::Started]);
-            }
-            _ => {
-                assert!(message.contains("deadline"));
-                assert!(elapsed >= ERROR_SETTLEMENT);
-                assert_eq!(events, [LaunchEvent::Started]);
-            }
-        }
+    for (fault, break_with, claim) in S02 {
+        let repaired = settle(fault, Broken::Repaired);
+        assert_eq!(
+            repaired.violations(fault),
+            Vec::<String>::new(),
+            "{fault:?}: {}",
+            repaired.message
+        );
+        let broken = settle(fault, break_with);
+        assert!(
+            broken.violations(fault).iter().any(|v| v == claim),
+            "{fault:?} with {break_with:?} did not fail {claim}: {:?} {}",
+            broken.violations(fault),
+            broken.message
+        );
     }
 }
 
@@ -790,9 +997,10 @@ fn e05_facts(stage: &str) -> String {
     let (pid, sid, group) = unsafe { (libc::getpid(), libc::getsid(0), libc::getpgrp()) };
     format!(
         "stage={stage} pid={pid} sid={sid} pgrp={group} fg={foreground} child={child} \
-         published={} latch={}",
+         published={} latch={} runs={}",
         i32::from(published),
-        INTERRUPTED_BY.load(Ordering::SeqCst)
+        INTERRUPTED_BY.load(Ordering::SeqCst),
+        HANDLER_RUNS.load(Ordering::SeqCst)
     )
 }
 
@@ -1094,7 +1302,20 @@ fn e05_row(delivery: &str, boundary: &str, broken: &str) -> E05 {
                 .write_all(&[3])
                 .map_err(|error| format!("VINTR write: {error}"))?;
         }
-        row.ack = Some(controller.probe()?);
+        // The delivery is asynchronous. Where the launcher is the target its
+        // handler's own run counter is the acknowledgement, polled through
+        // acknowledged probes (never a sleep) until it is seen or the bounded
+        // window ends; an absence is then a fact, not an early read.
+        let by_launcher = delivery == "direct" || boundary == "before";
+        let window = Instant::now() + Duration::from_secs(3);
+        loop {
+            let facts = controller.probe()?;
+            let seen = facts_number(Some(&facts), "runs").is_some_and(|runs| runs > 0);
+            row.ack = Some(facts);
+            if !by_launcher || seen || Instant::now() >= window {
+                break;
+            }
+        }
         controller.release()
     })();
     let settlement = if flow.is_ok() {
@@ -1136,4 +1357,175 @@ fn native_e05_direct_and_terminal_int_before_and_after_handoff() {
         !axes.attributed && invented.interrupted_by_launcher(),
         "the invented-cancellation mutant was not detected: {axes:?} {invented:?}"
     );
+}
+
+// ---- S05 (runner): a second signal at settlement never replaces the first ----
+//
+// A failed Started check raises HUP, which settlement consumes first. The
+// controller acknowledges that consumption, delivers TERM at the settlement
+// barrier, and the always-running observation then waits out its bound. The
+// result must name HUP, keep the deadline report and never name TERM.
+
+static S05_ACTIVE: AtomicBool = AtomicBool::new(false);
+static S05_DONE: AtomicBool = AtomicBool::new(false);
+
+/// Called by error settlement immediately after it took the first signal.
+pub(super) fn settlement_first_consumed(first: Option<i32>) {
+    if !S05_ACTIVE.load(Ordering::SeqCst) || S05_DONE.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    let mut ready = true;
+    let result = crate::native_barrier::exchange("settlement-first-consumed", &mut || {
+        let wait = !std::mem::replace(&mut ready, false);
+        format!(
+            "{} consumed={}",
+            facts("settlement", wait),
+            first.unwrap_or(0)
+        )
+    });
+    if let Err(error) = result {
+        eprintln!("S05 barrier failure at settlement: {error}");
+        std::process::exit(70);
+    }
+}
+
+const S05_ROLE: &str = "run::native_tests::native_s05_role";
+
+#[test]
+#[ignore = "private S05 runner role; run task test:native-entry"]
+fn native_s05_role() {
+    let Some(out) = std::env::var_os("K28_S05_OUT") else {
+        return;
+    };
+    let broken = std::env::var("K28_S05_BREAK").unwrap();
+    BREAK.store(
+        BREAKS.iter().position(|&b| b == broken).unwrap() as u8,
+        Ordering::SeqCst,
+    );
+    ACTIVE.store(true, Ordering::SeqCst);
+    S05_ACTIVE.store(true, Ordering::SeqCst);
+    NEXT_FAULT.set(Fault::Running);
+    let argv = crate::Argv::new("/bin/sleep".into(), vec!["30".into()]);
+    let mut events = Vec::new();
+    let result = run_observed_with_start_check(
+        Launch {
+            argv: &argv,
+            channel: None,
+            scrub: &[],
+            grant: &[],
+            transparent: None,
+            cwd: None,
+            escalation: Escalation {
+                grace: Duration::ZERO,
+                kill_grace: Duration::ZERO,
+            },
+        },
+        &mut |event| events.push(event),
+        &mut || {
+            // The first signal: latched by the runner's handler before the
+            // check returns, consumed by settlement's first act.
+            assert_eq!(unsafe { libc::raise(libc::SIGHUP) }, 0);
+            Err(std::io::Error::from_raw_os_error(libc::EIO))
+        },
+    );
+    let line = match result {
+        Ok(_) => "ended".to_owned(),
+        Err(error) => format!(
+            "error consumed={:?} events={events:?} message={error}",
+            error.consumed_signal()
+        ),
+    };
+    std::fs::write(std::path::PathBuf::from(out), line).unwrap();
+}
+
+#[derive(Debug)]
+struct S05 {
+    latch_at_consumption: Option<i32>,
+    latch_after_second: Option<i32>,
+    outcome: String,
+    clean: bool,
+    reported: Vec<String>,
+}
+
+fn s05_row(broken: &str) -> S05 {
+    use crate::native_barrier::{Controller, Limits};
+    use std::os::unix::process::CommandExt as _;
+    let directory = tempfile::tempdir().unwrap();
+    let channels = directory.path().join("barrier");
+    std::fs::create_dir(&channels).unwrap();
+    let out = directory.path().join("outcome");
+    let mut controller = Controller::new(&channels, Limits::FROZEN).unwrap();
+    let mut command = Command::new(std::env::current_exe().unwrap());
+    command
+        .args(["--exact", S05_ROLE, "--ignored", "--nocapture"])
+        .env("K28_S05_BREAK", broken)
+        .env("K28_S05_OUT", &out)
+        .process_group(0)
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    controller.configure(&mut command);
+    controller.adopt(command.spawn().unwrap());
+    let mut row = S05 {
+        latch_at_consumption: None,
+        latch_after_second: None,
+        outcome: String::new(),
+        clean: false,
+        reported: Vec::new(),
+    };
+    let flow = (|| -> Result<(), String> {
+        let ready = controller.ready()?;
+        row.latch_at_consumption = field(&ready, "latch");
+        if field(&ready, "consumed") != Some(libc::SIGHUP) {
+            return Err(format!("first consumption was not HUP: {ready}"));
+        }
+        controller.signal(libc::SIGTERM)?;
+        row.latch_after_second = field(&controller.probe()?, "latch");
+        controller.release()
+    })();
+    let settlement = if flow.is_ok() {
+        controller.finish()
+    } else {
+        controller.abort()
+    };
+    row.clean =
+        flow.is_ok() && settlement.clean() && settlement.status.is_some_and(|s| s.success());
+    if let Err(error) = flow {
+        row.reported.push(error);
+    }
+    row.outcome = std::fs::read_to_string(&out).unwrap_or_default();
+    eprintln!("native S05 runner broken={broken}: {row:?} {settlement:?}");
+    row
+}
+
+impl S05 {
+    fn conforms(&self) -> bool {
+        self.clean
+            && self.latch_at_consumption == Some(0)
+            && self.latch_after_second == Some(libc::SIGTERM)
+            && self
+                .outcome
+                .contains(&format!("consumed=Some({})", libc::SIGHUP))
+            && self.outcome.contains("deadline")
+    }
+}
+
+#[test]
+fn native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report() {
+    let repaired = s05_row("none");
+    assert!(repaired.conforms(), "{repaired:?}");
+    // The consumption was acknowledged (empty latch) before TERM was sent, and
+    // TERM was latched afterwards, so the order is observed, not assumed.
+    let broken = s05_row("error");
+    assert!(
+        broken.clean,
+        "controller settlement stayed clean: {broken:?}"
+    );
+    assert!(
+        broken
+            .outcome
+            .contains(&format!("consumed=Some({})", libc::SIGTERM)),
+        "the overwrite break did not let TERM replace HUP: {broken:?}"
+    );
+    assert!(!broken.conforms());
 }

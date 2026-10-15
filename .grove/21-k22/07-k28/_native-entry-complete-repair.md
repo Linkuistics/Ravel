@@ -305,3 +305,20 @@ RC≤10/P≤60/E≤60/X=0 for k37, k38 and an optional RC≤5 review. The full k
 campaign, supported-target qualification and all parent/root obligations stay
 live; no node closes. K31's remaining children are k37 settlement controls and
 k38 campaign/receipts.
+
+K37 (inside k31) finished the settlement controls as development controls on
+aarch64-apple-darwin, not the immutable campaign: S02's bound and identity
+claims, F03/S03's report/deadline/identity claims, S04's seven recovery rows and
+both S05 first-HUP-then-TERM rows, each with a named broken subject that fails
+the claim it names, judged by named contract claims. The worker driver and C4
+`pty_case` now run under the shared controller (one `poll` accessor added), and
+a protected check exposed one instrument race in E05's acknowledgement, fixed
+there. No product defect was found; no tree-owned review was cut and RC<=5 is
+unspent. The 32 S identities (8/7/8/7/2) and 153 rows are unchanged and
+individually reconciled in `docs/native-entry-development-evidence.md`. Charge
+P<=30/E<=18/RC<=1, D=X=0. Cumulative bounds are
+D<=115/RC<=78/P<=372/E<=132/X=0 under caps D<=135/RC<=87/P<=402/E<=174/X=0;
+remaining D<=20 exclusively phase closure, RC<=9/P<=30/E<=42/X=0 for k38 and the
+optional RC<=5 review. The full k28 campaign, supported-target qualification and
+all parent/root obligations stay live; no node closes. K31's remaining child is
+k38 campaign/receipts.

@@ -17,6 +17,37 @@ thread_local! {
     static PREPARED: Cell<bool> = const { Cell::new(false) };
     static DROP_REPORTS: Cell<bool> = const { Cell::new(false) };
     static UNKNOWN_STATUS: Cell<bool> = const { Cell::new(false) };
+    /// The one named S04 defect in force, if any. Zero is the product as built.
+    static BREAKS: Cell<u8> = const { Cell::new(0) };
+    /// What the runner's latch held when the second signal was delivered.
+    static LATCH_AT_SECOND: Cell<i32> = const { Cell::new(-1) };
+    /// The native S04/S05 role is active: the fixture stands in for a child
+    /// that left the terminal in raw mode.
+    static S04: Cell<bool> = const { Cell::new(false) };
+    static HAND_OWN: Cell<bool> = const { Cell::new(false) };
+    /// The foreground group when the spawn returned: the recorded child's.
+    static CHILD_AT_SPAWN: Cell<i32> = const { Cell::new(0) };
+}
+
+const BREAK_TAKEOVER: u8 = 1;
+const BREAK_UNCERTAINTY: u8 = 2;
+const BREAK_HANDBACK: u8 = 4;
+const BREAK_RESTORE: u8 = 8;
+/// Unknown status borrows the signal-death delegated-group rule.
+pub(super) fn break_unknown_status_takeover() -> bool {
+    BREAKS.get() & BREAK_TAKEOVER != 0
+}
+/// The unconfirmed foreground/modes reports are never made.
+pub(super) fn break_uncertainty_report() -> bool {
+    BREAKS.get() & BREAK_UNCERTAINTY != 0
+}
+/// The recorded child's group is never handed back.
+pub(super) fn break_handback() -> bool {
+    BREAKS.get() & BREAK_HANDBACK != 0
+}
+/// Saved modes are not restored although the launcher is foreground.
+pub(super) fn break_mode_restoration() -> bool {
+    BREAKS.get() & BREAK_RESTORE != 0
 }
 
 /// A paired secondary failure: the physical terminal handback runs, and only
@@ -164,6 +195,23 @@ pub(super) fn after_handoff(probe: Option<Probe>, tty: Option<RawFd>) -> std::io
 }
 
 pub(super) fn after_spawn() {
+    if S04.get() {
+        let terminal = Terminal::open().unwrap();
+        CHILD_AT_SPAWN.set(terminal.foreground());
+        // What a real child that set raw mode and was ended would leave: the
+        // physical modes differ from the saved ones, so restoration is
+        // observable. Done with SIGTTOU ignored: this group is not foreground.
+        unsafe {
+            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
+            let mut raw = terminal.attributes().unwrap();
+            raw.c_lflag &= !(libc::ECHO | libc::ICANON);
+            assert_eq!(libc::tcsetattr(terminal.fd(), libc::TCSANOW, &raw), 0);
+            libc::signal(libc::SIGTTOU, previous);
+        }
+        if HAND_OWN.get() {
+            terminal.hand_to(own_group()).unwrap();
+        }
+    }
     let holder = FOREIGN.get();
     if holder > 0 {
         Terminal::open().unwrap().hand_to(holder).unwrap();
@@ -178,6 +226,8 @@ pub(super) fn after_spawn() {
 
 pub(super) fn reported(operation: &str, result: std::io::Result<()>) -> std::io::Result<()> {
     if CANCEL.get() && operation == "terminal handback" {
+        // The first signal's consumption is acknowledged by an empty latch.
+        LATCH_AT_SECOND.set(INTERRUPTED_BY.load(Ordering::Relaxed));
         unsafe {
             libc::raise(libc::SIGTERM);
         }
@@ -339,8 +389,11 @@ fn terminal_recovery_role() {
     let terminal = Terminal::open().unwrap();
     let own = own_group();
     let saved = terminal.attributes().unwrap();
-    if case == "native-unknown-foreign" {
-        native_unknown_foreground_role(terminal, saved);
+    if case == "native-unknown-foreign"
+        || case == "native-s05-modes"
+        || case.starts_with("native-s04-")
+    {
+        native_s04_role(terminal, saved, &case);
         return;
     }
     let background = case == "background";
@@ -742,6 +795,14 @@ fn terminal_recovery_controls_detect_discarded_reports() {
 }
 
 fn pty_case(case: &str, broken: bool) {
+    pty_case_with(case, broken.then_some("1"), None);
+}
+
+/// `broken` names the one defect the role puts in force; `claim` is the named
+/// contract claim that broken run must report violated. A broken run that fails
+/// for any other reason is not a detection.
+fn pty_case_with(case: &str, broken: Option<&str>, claim: Option<&str>) {
+    use crate::native_barrier::{Controller, Limits};
     let root = tempfile::tempdir().unwrap();
     let (mut master, mut slave) = (-1, -1);
     assert_eq!(
@@ -777,8 +838,8 @@ fn pty_case(case: &str, broken: bool) {
         .stdin(slave.try_clone().unwrap())
         .stdout(slave.try_clone().unwrap())
         .stderr(slave);
-    if broken {
-        command.env("C4_BROKEN", "1");
+    if let Some(kind) = broken {
+        command.env("C4_BROKEN", kind);
     }
     // SAFETY: only child-safe syscalls, establishing this fixture's own PTY.
     unsafe {
@@ -789,7 +850,12 @@ fn pty_case(case: &str, broken: bool) {
             Ok(())
         });
     }
-    let mut child = command.spawn().unwrap();
+    // The shared controller owns the fixture: its 30-second envelope bounds
+    // every wait and it alone stops and reaps the identity on a failed case.
+    let barrier = root.path().join("barrier");
+    std::fs::create_dir(&barrier).unwrap();
+    let mut controller = Controller::new(&barrier, Limits::FROZEN).unwrap();
+    controller.adopt(command.spawn().unwrap());
     drop(command);
     let flags = unsafe { libc::fcntl(master.as_raw_fd(), libc::F_GETFL) };
     assert_eq!(
@@ -807,7 +873,7 @@ fn pty_case(case: &str, broken: bool) {
             std::fs::write(root.path().join("release"), "terminal INT written").unwrap();
             interrupted = true;
         }
-        if let Some(status) = child.try_wait().unwrap() {
+        if let Some(status) = controller.poll().unwrap() {
             break status;
         }
         let now = Instant::now();
@@ -822,26 +888,28 @@ fn pty_case(case: &str, broken: bool) {
             .unwrap();
             // The fixture retains actual child handles/receipt and completes their
             // waits. Killing only its group would strand separately grouped children.
-            unsafe {
-                libc::kill(child.id() as i32, libc::SIGTERM);
-            }
+            let _ = controller.signal(libc::SIGTERM);
             abort_requested = Some(now);
         }
         if abort_requested
             .is_some_and(|requested| now.duration_since(requested) > Duration::from_secs(6))
         {
-            let _ = child.kill();
-            let _ = child.wait();
+            let settlement = controller.abort();
             panic!(
-                "C4 fixture cleanup unconfirmed after cooperative abort: {}",
+                "C4 fixture cleanup unconfirmed after cooperative abort: {settlement:?}: {}",
                 String::from_utf8_lossy(&output)
             );
         }
         std::thread::sleep(Duration::from_millis(2));
     };
     drain(&mut master, &mut output);
+    let settlement = controller.finish();
+    assert!(
+        settlement.clean(),
+        "C4 fixture ownership did not settle cleanly: {settlement:?}"
+    );
     eprintln!(
-        "C4 case={case} broken={broken}: {}",
+        "C4 case={case} broken={broken:?}: {}",
         String::from_utf8_lossy(&output)
     );
     if case == "fixture-timeout" {
@@ -857,11 +925,26 @@ fn pty_case(case: &str, broken: bool) {
             String::from_utf8_lossy(&output)
         );
     }
-    if broken {
+    if broken.is_some() {
         assert!(
             !status.success() && String::from_utf8_lossy(&output).contains("panicked at"),
             "broken control was not detected: {case}: {status:?}"
         );
+        if let Some(claim) = claim {
+            let text = String::from_utf8_lossy(&output).replace(['\r', '\n'], " ");
+            let violated = text
+                .split("S04 claim violated: ")
+                .nth(1)
+                .unwrap_or_default();
+            assert!(
+                violated
+                    .split("   ")
+                    .next()
+                    .unwrap_or_default()
+                    .contains(claim),
+                "{case} with {broken:?} failed, but not the claim {claim}: {text}"
+            );
+        }
     } else {
         assert!(
             status.success(),
@@ -966,15 +1049,115 @@ fn native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty() 
     pty_case("native-unknown-foreign", false);
 }
 
-fn native_unknown_foreground_role(terminal: Terminal, saved: libc::termios) {
-    let mut holder = Command::new("/bin/sleep")
-        .arg("20")
-        .process_group(0)
-        .spawn()
-        .unwrap();
-    let holder_pid = holder.id() as i32;
-    FOREIGN.set(holder_pid);
+/// One test per approved S04 row, so each identity is reconciled on its own.
+/// The repaired row must hold every claim; each named broken subject must fail
+/// the claim it names. A row with two named defects checks both.
+macro_rules! s04_row {
+    ($name:ident, $row:literal, [$(($kind:literal, $claim:literal)),+ $(,)?]) => {
+        #[test]
+        fn $name() {
+            let case = concat!("native-s04-", $row);
+            pty_case_with(case, None, None);
+            $(pty_case_with(case, Some($kind), Some($claim));)+
+        }
+    };
+}
+s04_row!(
+    native_s04_foreground_own,
+    "foreground-own",
+    [("restore", "saved-modes-restored")]
+);
+s04_row!(
+    native_s04_foreground_child,
+    "foreground-child",
+    [("handback", "recorded-child-group-handed-back")]
+);
+s04_row!(
+    native_s04_foreground_unrelated,
+    "foreground-unrelated",
+    [
+        ("takeover", "foreign-foreground-preserved"),
+        ("uncertainty", "unconfirmed-foreground-reported")
+    ]
+);
+s04_row!(
+    native_s04_foreground_query_eio,
+    "foreground-query-EIO",
+    [("report", "query-report-retained")]
+);
+s04_row!(
+    native_s04_handback_eio,
+    "handback-EIO",
+    [("report", "handback-report-retained")]
+);
+s04_row!(
+    native_s04_modes_eio,
+    "modes-EIO",
+    [("report", "modes-report-retained")]
+);
+s04_row!(
+    native_s04_sigttou_restore_eio,
+    "SIGTTOU-restore-EIO",
+    [("report", "sigttou-report-retained")]
+);
+
+/// S05's terminal row: HUP is consumed first, TERM arrives during recovery
+/// reports, and the failed mode report is still retained.
+#[test]
+fn native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report() {
+    pty_case_with("native-s05-modes", None, None);
+    pty_case_with(
+        "native-s05-modes",
+        Some("report"),
+        Some("modes-report-retained"),
+    );
+}
+
+/// The seven approved S04 rows and S05's terminal row, all with unknown status
+/// after a failed Started check. Physical PTY operations run; only the error
+/// rows substitute a report afterwards. Every claim is judged after the
+/// fixture's own foreground, modes and holder are settled, so a violated claim
+/// never leaves the PTY dirty. `C4_BROKEN` names the one defect in force.
+fn native_s04_role(terminal: Terminal, saved: libc::termios, case: &str) {
+    let row = match case {
+        "native-unknown-foreign" => "foreground-unrelated",
+        "native-s05-modes" => "s05-modes",
+        other => other.strip_prefix("native-s04-").unwrap(),
+    };
+    let kind = std::env::var("C4_BROKEN").ok();
+    let own = own_group();
+    let bits = match row {
+        "foreground-query-EIO" => QUERY,
+        "handback-EIO" => HANDBACK,
+        "modes-EIO" | "s05-modes" => MODES,
+        "SIGTTOU-restore-EIO" => TTOU,
+        _ => 0,
+    };
     UNKNOWN_STATUS.set(true);
+    S04.set(true);
+    FAULTS.set(bits);
+    CANCEL.set(row == "s05-modes");
+    HAND_OWN.set(row == "foreground-own");
+    match kind.as_deref() {
+        None => {}
+        Some("report") => DROP_REPORTS.set(true),
+        Some("takeover") => BREAKS.set(BREAK_TAKEOVER),
+        Some("uncertainty") => BREAKS.set(BREAK_UNCERTAINTY),
+        Some("handback") => BREAKS.set(BREAK_HANDBACK),
+        Some("restore") => BREAKS.set(BREAK_RESTORE),
+        Some(other) => panic!("unknown S04 break {other}"),
+    }
+    let mut holder = (row == "foreground-unrelated").then(|| {
+        Command::new("/bin/sleep")
+            .arg("20")
+            .process_group(0)
+            .spawn()
+            .unwrap()
+    });
+    let holder_pid = holder.as_ref().map(|child| child.id() as i32);
+    if let Some(pid) = holder_pid {
+        FOREIGN.set(pid);
+    }
     let argv = crate::Argv::new("/usr/bin/true".into(), vec![]);
     let mut events = Vec::new();
     let result = run_observed_with_start_check(
@@ -993,42 +1176,146 @@ fn native_unknown_foreground_role(terminal: Terminal, saved: libc::termios) {
         &mut |event| events.push(event),
         &mut || Err(std::io::Error::from_raw_os_error(libc::EIO)),
     );
+    // Observe first, then settle the fixture, then judge.
     let after = terminal.foreground();
     let modes = local_modes(&terminal);
+    let second_latch = LATCH_AT_SECOND.get();
+    let pending = take_interrupt();
+    let child_group = CHILD_AT_SPAWN.get();
     FOREIGN.set(0);
     UNKNOWN_STATUS.set(false);
+    S04.set(false);
+    FAULTS.set(0);
+    CANCEL.set(false);
+    HAND_OWN.set(false);
+    BREAKS.set(0);
+    DROP_REPORTS.set(false);
     let recovered = terminal
-        .hand_to(own_group())
+        .hand_to(own)
         .and_then(|()| terminal.restore(&saved));
-    let until = Instant::now() + Duration::from_secs(2);
-    let mut killed = false;
-    let cleanup = loop {
-        match holder.try_wait() {
-            Ok(Some(status)) => break Ok(status),
-            Err(error) => break Err(error),
-            Ok(None) => {}
+    let cleanup = holder.as_mut().map(|child| {
+        let until = Instant::now() + Duration::from_secs(2);
+        let mut killed = false;
+        loop {
+            match child.try_wait() {
+                Ok(Some(status)) => break Ok(status),
+                Err(error) => break Err(error),
+                Ok(None) => {}
+            }
+            if !killed {
+                child.kill().unwrap();
+                killed = true;
+            }
+            if Instant::now() >= until {
+                break Err(std::io::Error::new(
+                    std::io::ErrorKind::TimedOut,
+                    "foreign fixture cleanup unconfirmed",
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(1));
         }
-        if !killed {
-            holder.kill().unwrap();
-            killed = true;
-        }
-        if Instant::now() >= until {
-            break Err(std::io::Error::new(
-                std::io::ErrorKind::TimedOut,
-                "foreign fixture cleanup unconfirmed",
-            ));
-        }
-        std::thread::sleep(Duration::from_millis(1));
-    };
+    });
     let error = result.unwrap_err();
-    eprintln!("native S04 unrelated: physical_reap_events={events:?}, substituted_recovery_status=None, foreground={after}, foreign={holder_pid}, modes={modes}, cleanup={cleanup:?}, error={error}");
-    assert!(cleanup.is_ok());
-    recovered.unwrap();
-    assert_eq!(events, [LaunchEvent::Started, LaunchEvent::Reaped]);
-    assert_eq!(after, holder_pid);
+    let text = error.to_string();
+    let restored = modes == saved.c_lflag & !libc::PENDIN;
+    eprintln!("native S04 row={row} broken={kind:?}: events={events:?} foreground={after} own={own} child_group={child_group} holder={holder_pid:?} modes_restored={restored} second_latch={second_latch} pending={pending:?} consumed={:?} cleanup={cleanup:?} error={text}", error.consumed_signal());
     assert!(
-        error.to_string().contains("unconfirmed"),
-        "silent unknown-status recovery: {error}"
+        cleanup.as_ref().is_none_or(Result::is_ok),
+        "fixture cleanup"
     );
-    assert!(error.to_string().contains("mode"));
+    recovered.unwrap();
+    let mut claims = Vec::new();
+    let mut claim = |held: bool, name: &str| {
+        if !held {
+            claims.push(name.to_owned());
+        }
+    };
+    claim(
+        events == [LaunchEvent::Started, LaunchEvent::Reaped],
+        "started-then-reaped",
+    );
+    claim(
+        error.raw_os_error().is_none()
+            && std::error::Error::source(&error)
+                .and_then(|source| source.downcast_ref::<std::io::Error>())
+                .and_then(std::io::Error::raw_os_error)
+                == Some(libc::EIO),
+        "start-check-source-retained",
+    );
+    let diagnostics = text.contains("terminal") || text.contains("unconfirmed");
+    match row {
+        "foreground-own" => {
+            claim(after == own, "launcher-foreground-kept");
+            claim(restored, "saved-modes-restored");
+            claim(!diagnostics, "no-invented-recovery-diagnostic");
+        }
+        "foreground-child" => {
+            claim(after == own, "recorded-child-group-handed-back");
+            claim(restored, "saved-modes-restored");
+            claim(!diagnostics, "no-invented-recovery-diagnostic");
+        }
+        "foreground-unrelated" => {
+            claim(Some(after) == holder_pid, "foreign-foreground-preserved");
+            claim(
+                text.contains("unconfirmed") && text.contains("foreground"),
+                "unconfirmed-foreground-reported",
+            );
+            claim(text.contains("mode"), "unconfirmed-modes-reported");
+            claim(!restored, "saved-modes-not-applied-to-a-foreign-holder");
+        }
+        "foreground-query-EIO" => {
+            claim(
+                text.contains("terminal foreground query failed"),
+                "query-report-retained",
+            );
+            claim(after == child_group, "no-handback-after-failed-query");
+        }
+        "handback-EIO" => {
+            claim(
+                text.contains("terminal handback failed"),
+                "handback-report-retained",
+            );
+            claim(after == own, "physical-handback-performed");
+            claim(restored, "saved-modes-restored");
+        }
+        "modes-EIO" => {
+            claim(
+                text.contains("terminal mode restoration failed"),
+                "modes-report-retained",
+            );
+            claim(restored, "physical-restoration-performed");
+        }
+        "SIGTTOU-restore-EIO" => {
+            claim(
+                text.contains("temporary SIGTTOU restoration failed"),
+                "sigttou-report-retained",
+            );
+            claim(after == own && restored, "physical-operations-performed");
+        }
+        "s05-modes" => {
+            claim(
+                text.contains("terminal mode restoration failed"),
+                "modes-report-retained",
+            );
+            claim(
+                error.consumed_signal() == Some(libc::SIGHUP),
+                "first-consumption-retained",
+            );
+            claim(
+                second_latch == 0,
+                "first-consumption-acknowledged-before-second",
+            );
+            claim(
+                pending == Some(libc::SIGTERM),
+                "second-signal-pending-not-consumed",
+            );
+            claim(after == own && restored, "physical-operations-performed");
+        }
+        other => panic!("unknown S04 row {other}"),
+    }
+    assert!(
+        claims.is_empty(),
+        "S04 claim violated: {}",
+        claims.join(", ")
+    );
 }

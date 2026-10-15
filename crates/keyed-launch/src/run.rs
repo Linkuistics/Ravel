@@ -969,7 +969,13 @@ impl Lease {
         // A record is conditional holder evidence, never a reservation after
         // std's failed-child wait. The caller excludes competing transfers and
         // unrelated group-ID reuse from this observation through handback.
-        let take = if !failed_spawn && status.and_then(|s| s.signal()).is_some() {
+        // S04's private foreign-holder break lets unknown status borrow the
+        // signal-death rule, which is the takeover the contract forbids.
+        #[cfg(test)]
+        let delegated = terminal_tests::break_unknown_status_takeover() && status.is_none();
+        #[cfg(not(test))]
+        let delegated = false;
+        let take = if !failed_spawn && (status.and_then(|s| s.signal()).is_some() || delegated) {
             let leader = unsafe { libc::getsid(0) };
             holder > 0 && holder != own && holder != leader
         } else {
@@ -981,11 +987,17 @@ impl Lease {
                 LaunchError::new("terminal attempt ownership missing; recovery unconfirmed"),
             );
         }
+        #[cfg(test)]
+        let uncertainty_dropped = terminal_tests::break_uncertainty_report();
+        #[cfg(not(test))]
+        let uncertainty_dropped = false;
+        #[cfg(test)]
+        let take = take && !terminal_tests::break_handback();
         if take {
             if let Err(error) = terminal.hand_to(own) {
                 append_recovery(&mut reports, error);
             }
-        } else if (failed_spawn || status.is_none()) && holder != own {
+        } else if (failed_spawn || status.is_none()) && holder != own && !uncertainty_dropped {
             append_recovery(&mut reports, LaunchError::new(format!("terminal held by unrelated foreground group {holder}; preserved; foreground and saved-mode recovery unconfirmed")));
         }
         let after = terminal.foreground();
@@ -995,8 +1007,14 @@ impl Lease {
             Ok(())
         };
         recovery_report(&mut reports, "terminal foreground confirmation", query);
+        #[cfg(test)]
+        let restore_skipped = terminal_tests::break_mode_restoration();
+        #[cfg(not(test))]
+        let restore_skipped = false;
         if after == own {
-            if let Some(saved) = &self.saved {
+            if restore_skipped {
+                // Private break: the saved modes are silently left as found.
+            } else if let Some(saved) = &self.saved {
                 if let Err(error) = terminal.restore(saved) {
                     append_recovery(&mut reports, error);
                 }
@@ -1006,7 +1024,7 @@ impl Lease {
                     LaunchError::new("terminal saved modes missing; recovery unconfirmed"),
                 );
             }
-        } else if (take || status.is_none()) && after != -1 {
+        } else if (take || status.is_none()) && after != -1 && !uncertainty_dropped {
             append_recovery(
                 &mut reports,
                 LaunchError::new("terminal handback unconfirmed; saved modes not restored"),
@@ -1584,12 +1602,18 @@ impl OwnedChild {
             attempts: 0,
             confirmation_error: None,
             #[cfg(test)]
-            control: native_tests::Control::default(),
+            control: native_tests::Control::configured(),
         }
     }
 
     fn stop_target(&mut self, target: i32, signal: i32) {
         if !self.reserved {
+            // S02's private identity-guard break would keep numeric signalling
+            // armed here. The control records the attempt and never performs it.
+            #[cfg(test)]
+            if native_tests::identity_guard_broken() {
+                self.control.after_release(target, signal);
+            }
             return;
         }
         self.attempts = self.attempts.saturating_add(1);
@@ -1643,7 +1667,11 @@ impl Process for OwnedChild {
         let result = self.control.observed(result, &mut info);
         if result != 0 {
             let error = std::io::Error::last_os_error();
-            if error.raw_os_error() == Some(libc::ECHILD) {
+            #[cfg(test)]
+            let guard_broken = native_tests::identity_guard_broken();
+            #[cfg(not(test))]
+            let guard_broken = false;
+            if error.raw_os_error() == Some(libc::ECHILD) && !guard_broken {
                 self.reserved = false;
             }
             return Err(error);
@@ -1667,9 +1695,14 @@ impl Process for OwnedChild {
         if !self.reserved {
             return Err(std::io::Error::from_raw_os_error(libc::ECHILD));
         }
+        #[cfg(test)]
+        let slack = native_tests::deadline_slack();
+        #[cfg(not(test))]
+        let slack = Duration::ZERO;
         let by = *self
             .by
-            .get_or_insert_with(|| Instant::now() + ERROR_SETTLEMENT);
+            .get_or_insert_with(|| Instant::now() + ERROR_SETTLEMENT)
+            + slack;
         let mut first = None;
         let mut retries = 0u64;
         loop {
@@ -1699,7 +1732,11 @@ impl Process for OwnedChild {
                 let error = std::io::Error::last_os_error();
                 first.get_or_insert(error.raw_os_error().unwrap_or(libc::EIO));
                 retries = retries.saturating_add(1);
-                if error.raw_os_error() == Some(libc::ECHILD) {
+                #[cfg(test)]
+                let guard_broken = native_tests::identity_guard_broken();
+                #[cfg(not(test))]
+                let guard_broken = false;
+                if error.raw_os_error() == Some(libc::ECHILD) && !guard_broken {
                     self.reserved = false;
                     return Err(std::io::Error::other(format!("wait lost ownership: {error}; first wait errno {first:?}, retries {retries}; reap unconfirmed")));
                 }
@@ -1917,6 +1954,9 @@ fn error_settlement(
     observer: &mut dyn FnMut(LaunchEvent),
 ) -> Failed {
     let first = take_interrupt();
+    // S05: the first consumed signal is acknowledged before a second arrives.
+    #[cfg(test)]
+    native_tests::settlement_first_consumed(first);
     let mut error = error.with_consumed_signal(first);
     child.bound(by);
     if Instant::now() >= by {
@@ -1940,6 +1980,9 @@ fn error_settlement(
     // trace. Failed Started additionally observes under WNOWAIT first.
     if repeated_groups {
         let mut interrupted_polls = 0u64;
+        // S02's private deadline break lets the observation outlive the bound.
+        #[cfg(test)]
+        let by = by + native_tests::deadline_slack();
         while child.reserved() && Instant::now() < by {
             match child.exited() {
                 Ok(true) => break,

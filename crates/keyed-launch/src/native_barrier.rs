@@ -483,6 +483,20 @@ impl Controller {
         })
     }
 
+    /// Non-blocking check of the owned fixture's exit. The status is recorded
+    /// once, so a later settlement never waits on or signals a reaped identity.
+    pub fn poll(&mut self) -> io::Result<Option<ExitStatus>> {
+        if let Some(status) = self.status {
+            return Ok(Some(status));
+        }
+        let Some(child) = self.child.as_mut() else {
+            return Ok(None);
+        };
+        let observed = child.try_wait()?;
+        self.status = observed;
+        Ok(observed)
+    }
+
     /// Deliver a signal to the owned, still-unreaped fixture process.
     pub fn signal(&mut self, signal: i32) -> Result<(), String> {
         let Some(child) = self.child.as_mut() else {

@@ -78,7 +78,15 @@ pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
                 fs::create_dir(root.path().join("home")).unwrap();
                 fs::create_dir(root.path().join("tmp")).unwrap();
                 let started = Instant::now();
-                let mut child = Command::new(&fixture)
+                let barrier = root.path().join("barrier");
+                fs::create_dir(&barrier).unwrap();
+                let mut controller = crate::native_barrier::Controller::new(
+                    &barrier,
+                    crate::native_barrier::Limits::FROZEN,
+                )
+                .unwrap();
+                let mut command = Command::new(&fixture);
+                command
                     .args([
                         "--exact",
                         "worker::admission_tests::worker_reap_admission_fixture",
@@ -102,24 +110,20 @@ pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
                     ))
                     .stderr(Stdio::from(
                         fs::File::create(root.path().join("fixture-stderr")).unwrap(),
-                    ))
-                    .spawn()
-                    .unwrap();
-                let status = match wait_bounded(&mut child, Duration::from_secs(8)) {
-                    Ok(status) => status,
-                    Err(error) => {
-                        // The direct fixture is still unreaped on timeout and
-                        // reserves this group identity for its policy workers.
-                        if error.kind() == ErrorKind::TimedOut {
-                            let pid = libc::pid_t::try_from(child.id()).unwrap();
-                            unsafe { libc::kill(-pid, libc::SIGKILL) };
-                        }
-                        let emergency = wait_bounded(&mut child, Duration::from_secs(2));
-                        panic!(
-                            "fixture deadline/wait failure: {error}; emergency reap: {emergency:?}"
-                        );
-                    }
-                };
+                    ));
+                // The shared controller owns the fixture and its group: it
+                // waits at most to the 25-second work deadline, and on expiry
+                // alone stops (group, then PID) and reaps the still-unreaped
+                // identity. A fixture that is not clean is a failed receipt.
+                controller.adopt(command.spawn().unwrap());
+                let settlement = controller.finish();
+                if !settlement.clean() {
+                    panic!(
+                        "fixture ownership did not settle cleanly: {settlement:?}; log: {}",
+                        fs::read_to_string(root.path().join("fixture-stderr")).unwrap_or_default()
+                    );
+                }
+                let status = settlement.status.unwrap();
                 let output = std::process::Output {
                     status,
                     stdout: fs::read(root.path().join("fixture-stdout")).unwrap(),
@@ -438,6 +442,27 @@ fn selected(program: &str, args: Vec<Value>) -> Value {
         "provider":"fixture", "model":"fixture", "effort":"fixture", "reason":"admission"})
 }
 
+/// A named broken subject must fail its row, and fail it as the row names.
+/// `needle` is the claim (or the instrument's own refusal) that failure must
+/// carry; any other failure, including a fixture timeout, is not a detection.
+pub(super) fn detects(fault: &str, needle: &str) {
+    let payload = std::panic::catch_unwind(|| cases(&["native-reader"], &[fault], &["front"]))
+        .expect_err(&format!("broken subject {fault} was not detected"));
+    let text = payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| {
+            payload
+                .downcast_ref::<&str>()
+                .map(|text| (*text).to_owned())
+        })
+        .unwrap_or_default();
+    assert!(
+        text.contains(needle),
+        "broken subject {fault} failed, but not as {needle:?}: {text}"
+    );
+}
+
 #[test]
 #[ignore = "process-isolated role invoked by worker_reap_admission cases"]
 fn worker_reap_admission_fixture() {
@@ -581,40 +606,100 @@ fn worker_reap_admission_fixture() {
     unsafe { libc::close(saved) };
     drop(output);
     if scenario == "native-reader" {
-        let failure = outcome.expect_err("reader failure admitted a selection");
+        // A named claim, never a bare assertion: the parent distinguishes a
+        // broken subject failing the claim it names from any other failure.
+        let Err(failure) = outcome else {
+            panic!("S03 claim violated: reader-failure-refuses-admission");
+        };
         let text = failure.to_text();
         eprintln!("native reader {fault}: {text}");
-        assert!(text.contains("cannot admit diagnostic readers"));
-        assert!(text.contains("reader") && text.contains("pid"));
-        match fault.as_str() {
-            "stop-omitted" | "stop-performed" => {
-                assert!(text.contains("stop pid") && text.contains("os error 1"))
+        let mut claims = Vec::new();
+        let mut claim = |held: bool, name: &str| {
+            if !held {
+                claims.push(name.to_owned());
             }
-            "kill-omitted" | "kill-performed" => {
-                assert!(text.contains("kill pid") && text.contains("os error 1"))
-            }
-            "poll-EIO" => assert!(text.contains("try_wait pid") && text.contains("os error 5")),
+        };
+        claim(
+            text.contains("cannot admit diagnostic readers"),
+            "reader-admission-failure-reported",
+        );
+        claim(
+            text.contains("reader") && text.contains("pid"),
+            "worker-identity-reported",
+        );
+        let creation = text.contains("os error 35") || text.contains("os error 11");
+        let took = super::native_tests::teardown_receipt();
+        let bounded = took.is_some_and(|took| {
+            took >= Duration::from_secs(2) && took < Duration::from_millis(2500)
+        });
+        let base = ["-dropped", "-slack", "-unguarded", "-ignored"]
+            .iter()
+            .find_map(|suffix| fault.strip_suffix(suffix))
+            .unwrap_or(&fault);
+        match base {
+            "stop-omitted" | "stop-performed" => claim(
+                text.contains("stop pid") && text.contains("os error 1"),
+                "stop-report-retained",
+            ),
+            "kill-omitted" | "kill-performed" => claim(
+                text.contains("kill pid") && text.contains("os error 1"),
+                "kill-report-retained",
+            ),
+            "poll-EIO" => claim(
+                text.contains("try_wait pid") && text.contains("os error 5"),
+                "wait-report-retained",
+            ),
             // The pair: the creation failure and the worker's wait report.
-            "paired-second-create-poll-EIO" | "paired-second-create-poll-EIO-dropped" => {
-                assert!(
-                    text.contains("os error 35") || text.contains("os error 11"),
-                    "creation failure lost: {text}"
-                );
-                assert!(
+            "paired-second-create-poll-EIO" => {
+                claim(creation, "creation-failure-retained");
+                claim(
                     text.contains("try_wait pid") && text.contains("os error 5"),
-                    "worker wait report lost: {text}"
+                    "worker-wait-report-retained",
                 );
             }
-            "poll-ECHILD" => assert!(text.contains("os error 10") && text.contains("unconfirmed")),
-            "poll-EINTR" => assert!(text.contains("deadline") && text.contains("EINTR retries")),
-            "always-running" => assert!(text.contains("deadline")),
-            "first-create" | "second-create" => {
-                assert!(text.contains("os error 35") || text.contains("os error 11"))
+            "poll-ECHILD" => claim(
+                text.contains("os error 10") && text.contains("unconfirmed"),
+                "ownership-loss-reported",
+            ),
+            "poll-EINTR" => {
+                claim(
+                    text.contains("deadline") && text.contains("EINTR retries"),
+                    "deadline-and-retries-reported",
+                );
+                claim(bounded, "absolute-deadline");
             }
-            _ => assert!(text.contains("os error 5")),
+            "always-running" => {
+                claim(text.contains("deadline"), "deadline-expiry-reported");
+                claim(bounded, "absolute-deadline");
+            }
+            "first-create" | "second-create" => claim(creation, "creation-failure-retained"),
+            _ => claim(text.contains("os error 5"), "mask-failure-retained"),
         }
-        assert!(!root.join("started").exists());
-        assert!(fs::read(root.join("result-output")).unwrap().is_empty());
+        // S03's primary failure is the second reader's creation: it survives
+        // every secondary stop, wait and deadline report.
+        if matches!(
+            base,
+            "stop-omitted"
+                | "stop-performed"
+                | "kill-omitted"
+                | "kill-performed"
+                | "poll-EIO"
+                | "poll-EINTR"
+                | "poll-ECHILD"
+                | "always-running"
+        ) {
+            claim(creation, "original-creation-failure-retained");
+        }
+        claim(!root.join("started").exists(), "no-managed-start");
+        claim(
+            fs::read(root.join("result-output")).unwrap().is_empty(),
+            "no-result-written",
+        );
+        assert!(
+            claims.is_empty(),
+            "S03 claim violated: {}",
+            claims.join(", ")
+        );
         return;
     }
     if scenario.starts_with("nofault-") {

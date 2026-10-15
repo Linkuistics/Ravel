@@ -378,6 +378,138 @@ benign reports. Protected checks: `task test:native-entry` (35 front, 11 runner,
 reconciled by identity: all 310 prior identities present with unchanged ignored
 flags, 61 new identities of which 15 are this leaf's.
 
+## Settlement controls (k37)
+
+`native-entry-settlement-controls-k37` finished the settlement family: S02's
+bound and identity claims, F03/S03's report and deadline claims, S04's seven
+unknown-status recovery rows and both S05 first-HUP-then-TERM rows, plus the
+F03 broken subjects. Everything is a development control on aarch64-apple-darwin,
+not the immutable campaign; it qualifies neither Linux nor Rust 1.85 and no
+family is accepted. The 32 S identities (8/7/8/7/2) and the 153-row manifest are
+unchanged.
+
+**Judged by claims, not by the instrument.** Each row's observations are kept as
+facts (physical operation, substituted report, elapsed time, ownership state,
+events, foreground and modes) and judged by a list of *named claims* taken from
+the contract. The same list judges the repaired product and the row's one named
+broken subject, and a broken subject counts as detected only when it violates
+the claim it names. A broken run that fails for any other reason (a timeout, a
+crash, a different claim) is not a detection. Every fixture's own cleanup is
+asserted on every row, repaired or broken.
+
+| Subject | One defect each | Seam (all `cfg(test)`; none reaches an installed build) |
+|---|---|---|
+| report | the injected failure is ignored, so its report never exists | existing `broken_report`, worker `drop_wait_reports`, `reader_reports`, terminal `DROP_REPORTS` |
+| deadline | the bounded observation, wait or worker poll may outlive its absolute bound by 1 s | `deadline_slack` at the runner observation and reap loops and the worker poll loop |
+| identity | ECHILD no longer releases ownership or disarms numeric signalling | `identity_guard_broken` at `exited`, `reap`, `stop_target` and the worker poll |
+| takeover / uncertainty / handback / restore | unknown status borrows the signal-death rule; the unconfirmed foreground and modes reports are never made; the recorded child's group is not handed back; saved modes are not restored | `terminal_tests::break_*` in `Lease::reclaim` |
+| overwrite | a later consumed signal replaces the first | the existing `first_latch_broken("error")` |
+
+The deadline rows assert both bounds: a repaired row must run its whole
+2-second bound (a row that returned early exercised nothing) and finish inside
+2.5 seconds, and the 1-second slack subject must overrun it. ECHILD rows must
+settle at once (under 1 second) with ownership reported unresolved and no Reaped,
+and the identity subject must fail by reaping, or by waiting out the deadline.
+After release a later numeric stop on the released identity is requested; the
+control records an attempt (it never performs one) only when the guard is broken.
+
+**S04 and S05 on a PTY.** One role runs unknown status after a failed Started
+check on its own PTY. Physical operations run and only the error rows substitute
+a report afterwards. The fixture stands in for a child that left the terminal
+raw, so mode restoration is observable, and it settles its own foreground, modes
+and any foreign holder (killed and reaped by the fixture, bounded) before the
+claims are judged, so a violated claim never leaves the PTY dirty. S05 on the
+terminal acknowledges the first consumption by the runner latch being empty at
+the moment TERM is raised during the recovery reports; S05 on the runner uses
+the shared controller, acknowledging HUP's consumption at the settlement barrier
+(latch empty, consumed=HUP), delivering TERM, and acknowledging its latching by
+the handler's own run counter before release.
+
+**Owners moved onto the controller.** The worker fixture driver (F03/S03 and
+every older admission case) and the C4/terminal `pty_case` no longer run their
+own 8-second wait and group kill or blocking `wait`. Each adopts its fixture in
+the shared 30/5/5 controller (`finish`, or `abort` on the cooperative-abort
+path) and a non-clean settlement is a failed receipt. One small accessor was
+added to the controller, `poll`, a non-blocking exit check that records the
+status once so a later settlement never signals a reaped identity.
+
+**One instrument defect found and corrected.** E05's direct and terminal-INT
+rows read the launcher's latch in the acknowledgement probe immediately after
+the signal was sent. Delivery is asynchronous, so under the full-workspace load
+of `task check` the probe once read an empty latch for a row whose launcher did
+receive the INT (the launch outcome was `Interrupted(INT)`); the same row passed
+alone. Where the launcher is the target the controller now polls acknowledged
+probes until the handler's own run counter is seen or a 3-second window ends, so
+an absence is a fact. Rows where the launcher must not receive the signal are
+unchanged. The earlier red check log is the failing observation; no baseline
+failure is claimed otherwise.
+
+**Reconciliation.** Each manifest identity, its test, its named broken subject
+and the claim that subject must fail. Rows sharing a test are separate
+iterations of that test and each is asserted (S01's eight and S02's seven).
+Every identity below is present in `cargo nextest list` at this commit.
+
+| Manifest identity | Test | Named broken subject | Claim it must fail |
+|---|---|---|---|
+| `F03__operation=reader-block__mode=omit-EIO` | `native_f03_block_omitted` | reader failure ignored | no-managed-start |
+| `F03__operation=reader-block__mode=perform-report-EIO` | `native_f03_block_performed` | reader failure ignored | no-managed-start |
+| `F03__operation=first-create__mode=omit-EAGAIN` | `native_f03_first_create` | reader failure ignored | no-managed-start |
+| `F03__operation=second-create__mode=omit-EAGAIN` | `native_f03_second_create` | reader failure ignored | no-managed-start |
+| `F03__operation=creator-restore__mode=omit-EIO` | `native_f03_restore_omitted` | reader failure ignored | no-managed-start |
+| `F03__operation=creator-restore__mode=perform-report-EIO` | `native_f03_restore_performed` | reader failure ignored | no-managed-start |
+| `S01__operation=group-first__mode=omit-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 1, omitted) | stop-report-retained attempt=1 |
+| `S01__operation=group-first__mode=perform-report-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 1, performed) | stop-report-retained attempt=1 |
+| `S01__operation=PID__mode=omit-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 2, omitted) | stop-report-retained attempt=2 |
+| `S01__operation=PID__mode=perform-report-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 2, performed) | stop-report-retained attempt=2 |
+| `S01__operation=group-repeat-first__mode=omit-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 3, omitted) | stop-report-retained attempt=3 |
+| `S01__operation=group-repeat-first__mode=perform-report-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 3, performed) | stop-report-retained attempt=3 |
+| `S01__operation=group-repeat-second__mode=omit-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 4, omitted) | stop-report-retained attempt=4 |
+| `S01__operation=group-repeat-second__mode=perform-report-EPERM` | `native_s01_retains_each_stop_report_and_distinguishes_physical_operations` | report discarded (attempt 4, performed) | stop-report-retained attempt=4 |
+| `S02__operation=observation-EIO-once` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | report ignored | observation-error-reported |
+| `S02__operation=observation-EINTR-until-deadline` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | bound outlived by 1 s | absolute-deadline |
+| `S02__operation=observation-ECHILD` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | ECHILD keeps identity | identity-released-without-reap |
+| `S02__operation=wait-EIO-once` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | report ignored | wait-error-reported |
+| `S02__operation=wait-EINTR-until-deadline` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | bound outlived by 1 s | absolute-deadline |
+| `S02__operation=wait-ECHILD` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | ECHILD keeps identity | loss-does-not-wait-out-deadline |
+| `S02__operation=always-running-until-deadline` | `native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership` | bound outlived by 1 s | absolute-deadline |
+| `S03__operation=PID-stop-EPERM__mode=omit__primary=second-reader-EAGAIN` | `native_s03_stop_omitted` | reports discarded | stop-report-retained |
+| `S03__operation=PID-stop-EPERM__mode=perform-report__primary=second-reader-EAGAIN` | `native_s03_stop_performed` | reports discarded | stop-report-retained |
+| `S03__operation=PID-kill-EPERM__mode=omit__primary=second-reader-EAGAIN` | `native_s03_kill_omitted` | reports discarded | kill-report-retained |
+| `S03__operation=PID-kill-EPERM__mode=perform-report__primary=second-reader-EAGAIN` | `native_s03_kill_performed` | reports discarded | kill-report-retained |
+| `S03__operation=try-wait-EIO__mode=report__primary=second-reader-EAGAIN` | `native_s03_poll_eio` | reports discarded | wait-report-retained |
+| `S03__operation=EINTR-until-deadline__mode=report__primary=second-reader-EAGAIN` | `native_s03_poll_eintr` | bound outlived by 1 s | absolute-deadline |
+| `S03__operation=ECHILD__mode=report__primary=second-reader-EAGAIN` | `native_s03_poll_echild` | ECHILD keeps identity | signalled after reported ECHILD |
+| `S03__operation=always-running__mode=report__primary=second-reader-EAGAIN` | `native_s03_running` | bound outlived by 1 s | absolute-deadline |
+| `S04__recovery=foreground-own` | `native_s04_foreground_own` | mode restoration skipped | saved-modes-restored |
+| `S04__recovery=foreground-child` | `native_s04_foreground_child` | handback skipped | recorded-child-group-handed-back |
+| `S04__recovery=foreground-unrelated` | `native_s04_foreground_unrelated` | takeover (a); uncertainty dropped (b) | (a) foreign-foreground-preserved; (b) unconfirmed-foreground-reported |
+| `S04__recovery=foreground-query-EIO` | `native_s04_foreground_query_eio` | report ignored | query-report-retained |
+| `S04__recovery=handback-EIO` | `native_s04_handback_eio` | report ignored | handback-report-retained |
+| `S04__recovery=modes-EIO` | `native_s04_modes_eio` | report ignored | modes-report-retained |
+| `S04__recovery=SIGTTOU-restore-EIO` | `native_s04_sigttou_restore_eio` | report ignored | sigttou-report-retained |
+| `S05__signals=HUP-then-TERM__secondary=S02-always-running` | `native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report` | later consumption replaces the first | consumed names TERM, not HUP |
+| `S05__signals=HUP-then-TERM__secondary=S04-modes-EIO` | `native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report` | mode report ignored | modes-report-retained |
+
+**Already-correct baselines.** None of these rows was run against a pre-repair
+subject: the S sites are bounded by the k28 repair itself, and these rows
+establish that the repaired product holds each claim and that its single named
+defect does not. No baseline failure is invented. Immutable
+baseline/broken/repaired receipts, digests and the one-writer record remain
+k38's.
+
+**Limits.** The S02/S03 ECHILD and always-running rows substitute the report and
+retain the physical reservation; they never claim a physical ECHILD or a stuck
+kernel, and the independent fixture owner reaps afterwards. Polling bounds
+guard user-space retries, not scheduler or kernel stalls. The paired F05 Started
+and F06 rows remain asserted at the runner's API (k36). The terminal rows exercise
+unknown status through the runner's own recovery, not the front. Protected checks:
+`task test:native-entry` (35 front, 20 runner, 2 Started API checks) and
+`task check` (336 run, 46 skipped) passed; R01 reconciled by identity: all 310
+prior identities present with unchanged ignored flags, 72 new identities in all.
+No tree-owned instrument review was cut: every broken subject was observed
+failing the claim it names, the seams are `cfg(test)`-only and equivalent to the
+incumbent in non-test builds, and the reserved RC≤5 stays unspent.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -396,16 +528,18 @@ variants and S counts 8/7/8/7/2 unchanged.
    and Started-mask faults, F06's six pre-exec faults, the four paired cases and
    the two pending-TERM variants now have development controls (k36, above); they
    are not immutable receipts.
-3. Complete matching broken controls for the implemented families, especially
-   S02's bound/identity claims and F03/S03 report/deadline claims. Finish S04's
-   seven-row recovery set and both S05 first-HUP-then-TERM rows. Do not substitute
-   report rewriting for an irreversible physical operation.
+3. S02's bound/identity claims, F03/S03's report/deadline claims, S04's seven
+   rows and both S05 rows now have development controls with a named failing
+   broken subject each (k37, above); they are not immutable receipts. Do not
+   substitute report rewriting for an irreversible physical operation.
 4. Qualify every native controller: 30 seconds total, acknowledgements within
    five seconds, last five seconds reserved for cleanup. The shared barrier
-   controller below has its three failing controls; the older C4/terminal and
-   worker fixture helpers are not yet routed through it. Preserve and boundedly
+   controller has its three failing controls (k34); the worker fixture driver and
+   the C4/terminal `pty_case` now run under it (k37). Preserve and boundedly
    settle every owned child, holder, pipe and PTY on failure as well as success.
-   Older C4 fixture mechanics are not automatically a qualified native controller.
+   A fixture child that the role itself owns (a foreign holder, a C4 child in
+   another group) is settled by the role's own bounded cleanup, and only the
+   cooperative abort or the controller's group kill reaches it on a failed case.
 5. Finish all instruments before measurement. Freeze source, binaries, helpers,
    manifests, reference expectations, exclusions and measured platform domain;
    digest every read subject before/after. Produce one immutable receipt per

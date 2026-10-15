@@ -40,6 +40,14 @@ struct Control {
     /// The paired row's broken subject: the worker's wait/stop reports are
     /// discarded before they join the failure.
     drop_reports: bool,
+    /// How far past its absolute bound the worker teardown may keep polling.
+    slack: Duration,
+    /// ECHILD no longer ends polling and numeric signalling.
+    guard_broken: bool,
+    /// F03's break: a reader creation/mask failure is ignored.
+    ignore_reader_failures: bool,
+    /// How long the teardown actually took when its deadline expired.
+    teardown_took: Option<Duration>,
 }
 
 pub(super) type ReaderSink = Arc<Mutex<Vec<(bool, MaskReceipt)>>>;
@@ -140,13 +148,23 @@ pub(crate) fn reader_receipt() -> serde_json::Value {
 thread_local! { static CONTROL: RefCell<Control> = RefCell::new(Control::default()); }
 
 pub(super) fn configure(case: &str) {
+    // A row's named broken subject is a suffix on its fixed case name; the
+    // repaired product has none. Each suffix puts exactly one defect in force.
+    let (case, broken) = [
+        ("-dropped", "report"),
+        ("-slack", "deadline"),
+        ("-unguarded", "identity"),
+        ("-ignored", "ignored"),
+    ]
+    .into_iter()
+    .find_map(|(suffix, kind)| case.strip_suffix(suffix).map(|base| (base, kind)))
+    .unwrap_or((case, "repaired"));
     // F03's paired row: second reader creation omitted (EAGAIN) plus the
     // worker's own try_wait reported failed (EIO). Same fixed faults as S03's
     // poll-EIO row; only the identity and the assertions differ.
-    let (case, drop_reports) = match case {
-        "paired-second-create-poll-EIO" => ("poll-EIO", false),
-        "paired-second-create-poll-EIO-dropped" => ("poll-EIO", true),
-        other => (other, false),
+    let case = match case {
+        "paired-second-create-poll-EIO" => "poll-EIO",
+        other => other,
     };
     let fault = match case {
         "observe" => Fault::Observe,
@@ -169,7 +187,14 @@ pub(super) fn configure(case: &str) {
     CONTROL.with(|c| {
         *c.borrow_mut() = Control {
             fault,
-            drop_reports,
+            drop_reports: broken == "report",
+            slack: if broken == "deadline" {
+                Duration::from_secs(1)
+            } else {
+                Duration::ZERO
+            },
+            guard_broken: broken == "identity",
+            ignore_reader_failures: broken == "ignored",
             ..Control::default()
         }
     });
@@ -184,6 +209,27 @@ fn injected() -> bool {
 /// Observation for the private real-main fixture, injecting nothing.
 pub(crate) fn observe() {
     configure("observe");
+}
+pub(super) fn deadline_slack() -> Duration {
+    CONTROL.with(|c| c.borrow().slack)
+}
+pub(super) fn identity_guard_broken() -> bool {
+    CONTROL.with(|c| c.borrow().guard_broken)
+}
+pub(super) fn teardown_took(took: Duration) {
+    CONTROL.with(|c| c.borrow_mut().teardown_took = Some(took));
+}
+/// The worker teardown's own receipt: how long it ran when its bound expired.
+pub(crate) fn teardown_receipt() -> Option<Duration> {
+    CONTROL.with(|c| c.borrow().teardown_took)
+}
+/// F03's broken subject: the creation/mask failure never reaches admission.
+pub(super) fn reader_reports(reports: Vec<String>) -> Vec<String> {
+    if CONTROL.with(|c| c.borrow().ignore_reader_failures) {
+        Vec::new()
+    } else {
+        reports
+    }
 }
 pub(super) fn drop_wait_reports() -> bool {
     CONTROL.with(|c| c.borrow().drop_reports)
@@ -256,7 +302,7 @@ pub(super) fn poll(child: &mut Child) -> io::Result<Option<ExitStatus>> {
         let mut c = c.borrow_mut();
         if c.reported_lost {
             c.product_polls_after_lost += 1;
-            panic!("product polled after reported ECHILD");
+            panic!("product signalled after reported ECHILD");
         }
         let fault = match c.fault {
             Fault::PollEio if !c.poll_once => Some(libc::EIO),
@@ -358,28 +404,105 @@ pub(super) fn fixture_cleanup(child: &mut Child, product: &Teardown) {
     });
 }
 
+/// One row: the repaired product must hold every claim, and the row's named
+/// broken subject must fail the named one. `$kind` is the fixed suffix that puts
+/// exactly one defect in force; `$claim` is what that defect must be seen to
+/// violate. A broken run that fails any other way is not a detection.
 macro_rules! reader_case {
-    ($name:ident, $fault:literal) => {
+    ($name:ident, $fault:literal, $kind:literal, $claim:literal) => {
         #[test]
         fn $name() {
             admission_tests::cases(&["native-reader"], &[$fault], &["front"]);
+            admission_tests::detects(concat!($fault, $kind), $claim);
         }
     };
 }
-reader_case!(native_f03_block_omitted, "block-omitted");
-reader_case!(native_f03_block_performed, "block-performed");
-reader_case!(native_f03_first_create, "first-create");
-reader_case!(native_f03_second_create, "second-create");
-reader_case!(native_f03_restore_omitted, "restore-omitted");
-reader_case!(native_f03_restore_performed, "restore-performed");
-reader_case!(native_s03_stop_omitted, "stop-omitted");
-reader_case!(native_s03_stop_performed, "stop-performed");
-reader_case!(native_s03_kill_omitted, "kill-omitted");
-reader_case!(native_s03_kill_performed, "kill-performed");
-reader_case!(native_s03_poll_eio, "poll-EIO");
-reader_case!(native_s03_poll_eintr, "poll-EINTR");
-reader_case!(native_s03_poll_echild, "poll-ECHILD");
-reader_case!(native_s03_running, "always-running");
+reader_case!(
+    native_f03_block_omitted,
+    "block-omitted",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_f03_block_performed,
+    "block-performed",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_f03_first_create,
+    "first-create",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_f03_second_create,
+    "second-create",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_f03_restore_omitted,
+    "restore-omitted",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_f03_restore_performed,
+    "restore-performed",
+    "-ignored",
+    "no-managed-start"
+);
+reader_case!(
+    native_s03_stop_omitted,
+    "stop-omitted",
+    "-dropped",
+    "stop-report-retained"
+);
+reader_case!(
+    native_s03_stop_performed,
+    "stop-performed",
+    "-dropped",
+    "stop-report-retained"
+);
+reader_case!(
+    native_s03_kill_omitted,
+    "kill-omitted",
+    "-dropped",
+    "kill-report-retained"
+);
+reader_case!(
+    native_s03_kill_performed,
+    "kill-performed",
+    "-dropped",
+    "kill-report-retained"
+);
+reader_case!(
+    native_s03_poll_eio,
+    "poll-EIO",
+    "-dropped",
+    "wait-report-retained"
+);
+reader_case!(
+    native_s03_poll_eintr,
+    "poll-EINTR",
+    "-slack",
+    "absolute-deadline"
+);
+// The guard break keeps polling a released identity; the instrument's own
+// refusal to answer after a reported ECHILD names that.
+reader_case!(
+    native_s03_poll_echild,
+    "poll-ECHILD",
+    "-unguarded",
+    "product signalled after reported ECHILD"
+);
+reader_case!(
+    native_s03_running,
+    "always-running",
+    "-slack",
+    "absolute-deadline"
+);
 
 /// F03's paired failure: the omitted second reader creation and the worker's
 /// own wait report, both surviving. The broken subject discards the worker's
@@ -391,16 +514,9 @@ fn native_paired_f03_second_create_keeps_the_worker_wait_report() {
         &["paired-second-create-poll-EIO"],
         &["front"],
     );
-    let broken = std::panic::catch_unwind(|| {
-        admission_tests::cases(
-            &["native-reader"],
-            &["paired-second-create-poll-EIO-dropped"],
-            &["front"],
-        );
-    });
-    assert!(
-        broken.is_err(),
-        "discarding the worker's wait report was not detected"
+    admission_tests::detects(
+        "paired-second-create-poll-EIO-dropped",
+        "worker-wait-report-retained",
     );
 }
 
