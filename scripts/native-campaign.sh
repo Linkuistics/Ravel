@@ -12,6 +12,16 @@ IFS=$'\n\t'
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 manifest="docs/native-entry-cases.json"
 plan="docs/native-entry-campaign-plan.json"
+# The kernel family this run measures. The plan's `platforms.<name>.rows` give a
+# row's expectations where the kernel's behaviour differs from the base plan's
+# (which was frozen on Darwin); an override is exact, row by row, with a reason.
+platform="${NATIVE_CAMPAIGN_PLATFORM:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
+# Set only where the measured "kernel" is an emulator (user-mode emulation of
+# another CPU's executables on this one's kernel). It names the emulation, and
+# selects `platforms.<platform>-emulated`, whose rows, `limits` and
+# `expected_test_failures` account for what the emulator cannot reproduce. An
+# emulated run is never a qualification of the emulated target's kernel.
+emulation="${NATIVE_CAMPAIGN_EMULATION:-}"
 
 die() {
   printf 'native-campaign: %s\n' "$*" >&2
@@ -97,12 +107,22 @@ domain_to() {
     --arg task "$(task --version)" \
     --arg uname "$(uname -a)" \
     --arg os "$( (sw_vers 2>/dev/null || cat /etc/os-release 2>/dev/null) | tr '\n' ';')" \
+    --arg platform "$platform" \
+    --arg machine "$(uname -m)" \
+    --arg kernel "$(uname -r)" \
+    --arg libc_runtime "$( (ldd --version 2>&1 | head -n 1) || true)" \
+    --arg tools "$( (cat /opt/native-linux/tools.txt 2>/dev/null) | tr '\n' ';')" \
+    --arg emulated "$emulation" \
+    --arg emulator "$( ( [ -z "$emulation" ] || /qemu/qemu --version 2>&1 | head -n 1) || true)" \
     --arg libc "$(awk '/^name = "libc"$/{getline; print $3}' "$root/Cargo.lock" | tr -d '"' | head -n 1)" \
     --arg revision "$( (cd "$root" && jj log --no-graph -r @- -T 'commit_id' 2>/dev/null) || echo unknown)" \
     --arg incumbent "$(git -C "$root" rev-parse '0515419edd29^{commit}' 2>/dev/null || echo unknown)" \
     --arg incumbent_tree "$(git -C "$root" rev-parse '0515419edd29^{tree}' 2>/dev/null || echo unknown)" \
     '{rustc: $rustc, cargo: $cargo, nextest: $nextest, task: $task, uname: $uname,
-      os: $os, libc_crate: $libc, parent_revision: $revision,
+      os: $os, platform: $platform, machine: $machine, kernel: $kernel,
+      libc_runtime: $libc_runtime, tools: $tools,
+      emulated: (if $emulated == "" then false else {options: $emulated, emulator: $emulator} end),
+      libc_crate: $libc, parent_revision: $revision,
       incumbent_revision: $incumbent, incumbent_tree: $incumbent_tree}' >"$out"
 }
 
@@ -159,13 +179,17 @@ reconcile_into() {
   fi
   jq -n --slurpfile m "$manifest_file" --slurpfile p "$plan_file" --slurpfile r "$records" \
     --slurpfile t "$tests_file" --argjson check_tests "$([ -n "${own_tests:-}" ] && echo false || echo true)" \
-    --arg receipts "$receipts" '
+    --arg receipts "$receipts" --arg platform "$platform" --arg emulation "$emulation" '
     ($m[0].rows) as $rows | ($p[0]) as $plan | ($r[0]) as $records
+    | (if $emulation == "" then [$platform] else ["\($platform)-emulated", $platform] end) as $keys
+    | (if $emulation == "" then {} else ($plan.platforms["\($platform)-emulated"].limits // {}) end) as $limits
+    | (if $emulation == "" then [] else ($plan.platforms["\($platform)-emulated"].expected_test_failures // []) end) as $expected_failures
     | ($records | group_by(.id) | map({key: .[0].id, value: .}) | from_entries) as $byid
     | ($rows | map(.id)) as $ids
     | ($rows | map(
         . as $row
-        | ($plan.rows[$row.id]
+        | ($keys | map($plan.platforms[.].rows[$row.id]) | map(select(. != null)) | first
+           // $plan.rows[$row.id]
            // ([$plan.patterns[]? | select(. as $pat | $pat.family == $row.family and ($row.id | test($pat.match)))] | first | .spec)
            // $plan.families[$row.family]) as $spec
         | if $spec == null then {id: $row.id, family: $row.family, status: "unplanned",
@@ -219,7 +243,11 @@ reconcile_into() {
                      then "verdict \($o.conforms) where \($e.conforms) was required: \($o.subject)"
                      else empty end ]) as $problems
             | {id: $row.id, family: $row.family,
-               status: (if ($problems | length) == 0 then "reconciled" else "unreconciled" end),
+               status: (if ($problems | length) == 0
+                        then (if $limits[$row.id] != null then "limit-not-observed" else "reconciled" end)
+                        elif $limits[$row.id] != null then "emulation-limited"
+                        else "unreconciled" end),
+               limit: ($limits[$row.id] // null),
                failing_broken_detected: (($spec.violates // []) | length > 0),
                reason: ($spec.reason // null),
                baseline: $baseline,
@@ -228,15 +256,21 @@ reconcile_into() {
     | ($records | map(.id) | unique | map(select(. as $i | $ids | index($i) | not))) as $unknown
     | ($t[0]) as $tests
     | ($tests | map(select(.status == "passed") | .test)) as $passed
+    | ($tests | map(select(.status != "passed") | "\(.binary) \(.test)")) as $failed_names
+    | ($expected_failures | map("\(.binary) \(.test)")) as $expected_names
     | {total_rows: ($ids | length),
        tests_executed: ($tests | length),
-       tests_failed: ($tests | map(select(.status != "passed") | "\(.binary) \(.test)")),
+       tests_failed: $failed_names,
+       tests_failed_expected: ($failed_names | map(select(. as $n | $expected_names | index($n)))),
+       tests_failed_unexpected: ($failed_names | map(select(. as $n | $expected_names | index($n) | not))),
+       expected_not_failed: ($expected_names | map(select(. as $n | $failed_names | index($n) | not))),
        records_from_unexecuted_tests:
          (if $check_tests
           then ($records | map(select(.test as $n | ($tests | map(.test) | index($n)) | not) | "\(.id)@\(.subject)"))
           else [] end),
        reconciled: ($results | map(select(.status == "reconciled")) | length),
-       unreconciled: ($results | map(select(.status != "reconciled")) | map(.id)),
+       emulation_limited: ($results | map(select(.status == "emulation-limited")) | map(.id)),
+       unreconciled: ($results | map(select(.status != "reconciled" and .status != "emulation-limited")) | map(.id)),
        baseline: {
          fails: ($results | map(select(.baseline.class == "fails") | .id)),
          already_correct: ($results | map(select(.baseline.class == "already-correct") | .id)),
@@ -268,12 +302,16 @@ reconcile_into() {
   rm -f "$records"
   rm -f "$summary.tmp"
   [ -z "${own_tests:-}" ] || rm -f "$tests_file"
+  # An emulation-limited row is accounted for, not reconciled: the gate passes
+  # only if every row is one or the other, every failing test was expected to
+  # fail, and every expected failure did.
   jq -e '(.unreconciled | length) == 0 and (.unknown_ids | length) == 0
          and (.duplicate_manifest_ids | length) == 0
-         and (.tests_failed | length) == 0
+         and (.tests_failed_unexpected | length) == 0
+         and (.expected_not_failed | length) == 0
          and (.records_from_unexecuted_tests | length) == 0
          and (.baseline_problems | length) == 0
-         and .reconciled == .total_rows' "$summary" >/dev/null
+         and (.reconciled + (.emulation_limited | length)) == .total_rows' "$summary" >/dev/null
 }
 
 # Compare a nextest listing with the manifest's protected identities one by one:
@@ -340,14 +378,20 @@ cmd_run() {
 
   export K40_ROW_DIR="$out/rows"
   local failed=0
+  local code
   for step in front runner start; do
     printf 'native-campaign: native-entry:%s\n' "$step"
-    if ! NEXTEST_PROFILE="campaign-$step" task "native-entry:$step" >"$out/logs/$step.txt" 2>&1; then
-      printf 'native-campaign: native-entry:%s FAILED; see %s\n' "$step" "$out/logs/$step.txt" >&2
-      failed=1
-    fi
+    code=0
+    NEXTEST_PROFILE="campaign-$step" task "native-entry:$step" >"$out/logs/$step.txt" 2>&1 || code=$?
     if [ -f "target/nextest/campaign-$step/junit.xml" ]; then
       cp "target/nextest/campaign-$step/junit.xml" "$out/junit/$step.xml"
+    fi
+    if [ "$code" -ne 0 ]; then
+      printf 'native-campaign: native-entry:%s FAILED (exit %s); see %s\n' "$step" "$code" "$out/logs/$step.txt" >&2
+      # A nonzero exit is explained only by failing cases in the junit file,
+      # which reconciliation judges against the plan's expected failures; a
+      # step that failed without one (a build error, a crash) is a failure here.
+      grep -qE '<(failure|error)[ >]' "$out/junit/$step.xml" 2>/dev/null || failed=1
     fi
   done
   unset K40_ROW_DIR
@@ -355,13 +399,15 @@ cmd_run() {
   # The incumbent's own baseline instruments file under the same one writer, in
   # the same rows directory, under the subject `baseline`.
   printf 'native-campaign: incumbent baseline\n'
-  if ! NEXTEST_PROFILE=campaign-incumbent bash scripts/native-incumbent.sh test --rows "$out/rows" \
-    >"$out/logs/incumbent.txt" 2>&1; then
-    printf 'native-campaign: incumbent baseline FAILED; see %s\n' "$out/logs/incumbent.txt" >&2
-    failed=1
-  fi
+  code=0
+  NEXTEST_PROFILE=campaign-incumbent bash scripts/native-incumbent.sh test --rows "$out/rows" \
+    >"$out/logs/incumbent.txt" 2>&1 || code=$?
   if [ -f "target/native-incumbent/tree/target/nextest/campaign-incumbent/junit.xml" ]; then
     cp "target/native-incumbent/tree/target/nextest/campaign-incumbent/junit.xml" "$out/junit/incumbent.xml"
+  fi
+  if [ "$code" -ne 0 ]; then
+    printf 'native-campaign: incumbent baseline FAILED (exit %s); see %s\n' "$code" "$out/logs/incumbent.txt" >&2
+    grep -qE '<(failure|error)[ >]' "$out/junit/incumbent.xml" 2>/dev/null || failed=1
   fi
 
   digest_to "$out/subjects-after.json"
@@ -495,23 +541,146 @@ RECORDS
   expect_fail hosted hosted_rejected_premise "premise was hosted" "a rejected premise that has a record"
 
   # The real plan must resolve every real manifest row: with no records at all
-  # each row is unreconciled for missing records, and none is unplanned.
-  mkdir -p "$work/real/rows"
-  if reconcile_into "$work/real/rows" "$root/$manifest" "$root/$plan" "$work/real/receipts" \
-    "$work/real/summary.json" 2>/dev/null; then
-    die "selftest: an empty record set reconciled against the real manifest"
+  # each row is unreconciled for missing records, and none is unplanned. It must
+  # do so for every platform the plan names, not only the running one.
+  local saved_platform="$platform" each
+  for each in darwin linux; do
+    platform="$each"
+    mkdir -p "$work/real-$each/rows"
+    if reconcile_into "$work/real-$each/rows" "$root/$manifest" "$root/$plan" "$work/real-$each/receipts" \
+      "$work/real-$each/summary.json" 2>/dev/null; then
+      die "selftest: an empty record set reconciled against the real manifest ($each)"
+    fi
+    jq -s -e '
+      (map(select(.status == "unplanned")) | length) == 0
+      and length == 153
+      and (map(.problems | length) | all(. > 0))
+      and (map(.baseline.class) | all(. == "observed" or . == "unobserved"
+                                      or . == "unclassified" or . == "rejected-premise"))' \
+      "$work/real-$each/receipts"/*.json >/dev/null ||
+      die "selftest: the plan does not resolve every manifest row ($each)"
+    printf 'selftest ok   the %s plan resolves all %s manifest rows to %s expected records\n' \
+      "$each" "$(jq -s 'length' "$work/real-$each/receipts"/*.json)" \
+      "$(jq -s 'map(.expected | length) | add' "$work/real-$each/receipts"/*.json)"
+  done
+  # The platform dimension changes exactly the rows it names and nothing else:
+  # the two plans expect different records only where an override says so.
+  local only want
+  only="$(for id in $(jq -r '.rows[].id' "$root/$manifest"); do
+      cmp -s "$work/real-darwin/receipts/$id.json" "$work/real-linux/receipts/$id.json" || printf '%s\n' "$id"
+    done | LC_ALL=C sort)"
+  want="$(jq -r '.platforms.linux.rows | keys[]' "$root/$plan" | LC_ALL=C sort)"
+  [ "$only" = "$want" ] ||
+    die "selftest: the platforms differ on rows other than the overrides: $only"
+  printf 'selftest ok   the darwin and linux plans differ on exactly the %s overridden rows\n' \
+    "$(printf '%s\n' "$want" | grep -c .)"
+  # An override applies on its platform and never on another: the same record
+  # set is accepted under the plan that expects it and rejected under the other.
+  jq '.platforms = {linux: {rows: {"X01__a=2": {repaired: ["repaired"],
+        conforms: ["broken:one"], reason: "linux differs", baseline: {class: "observed"}}}}}' \
+    "$p" >"$work/plan-platform.json"
+  fresh platform
+  platform=darwin
+  reconcile_into "$work/platform/rows" "$m" "$work/plan-platform.json" "$work/platform/receipts-darwin" \
+    "$work/platform/summary-darwin.json" ||
+    die "selftest: the base plan was not used off the overridden platform"
+  platform=linux
+  if reconcile_into "$work/platform/rows" "$m" "$work/plan-platform.json" "$work/platform/receipts-linux" \
+    "$work/platform/summary-linux.json"; then
+    die "selftest: a platform override was not applied on its platform"
   fi
-  jq -s -e '
-    (map(select(.status == "unplanned")) | length) == 0
-    and length == 153
-    and (map(.problems | length) | all(. > 0))
-    and (map(.baseline.class) | all(. == "observed" or . == "unobserved"
-                                    or . == "unclassified" or . == "rejected-premise"))' \
-    "$work/real/receipts"/*.json >/dev/null ||
-    die "selftest: the plan does not resolve every manifest row"
-  printf 'selftest ok   the plan resolves all %s manifest rows to %s expected records\n' \
-    "$(jq -s 'length' "$work/real/receipts"/*.json)" \
-    "$(jq -s 'map(.expected | length) | add' "$work/real/receipts"/*.json)"
+  grep -q 'verdict false where true was required: broken:one' "$work/platform/receipts-linux"/*.json ||
+    die "selftest: the platform override failed, but not as the override's expectation"
+  platform="$saved_platform"
+  printf 'selftest ok   a platform override is applied on its platform and not on another (rejected where contradicted)\n'
+
+  # Emulated runs: a listed limit is accounted for, never reconciled; anything
+  # else that diverges, a limit that did not diverge, and a test failure the plan
+  # did not expect or an expected one that passed, are each rejected.
+  jq '.platforms = {linux: {rows: {}}, "linux-emulated": {rows: {},
+        limits: {"X01__a=2": {reason: "the emulator cannot reproduce it", control: "a probe"}},
+        expected_test_failures: [{binary: "b", test: "bad", reason: "emulator"}]}}' \
+    "$p" >"$work/plan-emulated.json"
+  flip_to_diverge() {
+    jq '.conforms = true' "$1/X01__a=2@broken:one.json" >"$1/tmp" && mv "$1/tmp" "$1/X01__a=2@broken:one.json"
+  }
+  platform=linux
+  emulation=qemu-user
+  fresh emulated
+  flip_to_diverge "$work/emulated/rows"
+  jq -n '[{binary: "b", test: "t", status: "passed"}, {binary: "b", test: "bad", status: "failed"}]' \
+    >"$work/tests-emulated.json"
+  reconcile_into "$work/emulated/rows" "$m" "$work/plan-emulated.json" "$work/emulated/receipts" \
+    "$work/emulated/summary.json" "$work/tests-emulated.json" ||
+    die "selftest: a listed emulation limit and its expected test failure were rejected"
+  jq -e '.emulation_limited == ["X01__a=2"] and .reconciled == 2 and (.unreconciled | length) == 0
+         and .tests_failed_expected == ["b bad"] and (.tests_failed_unexpected | length) == 0' \
+    "$work/emulated/summary.json" >/dev/null ||
+    die "selftest: the limited row was not accounted for as limited"
+  jq -e '.status == "emulation-limited" and .limit.reason != null and (.problems | length) == 1' \
+    "$work/emulated/receipts/X01__a=2.json" >/dev/null ||
+    die "selftest: the limited row's receipt does not carry its status, reason and problem"
+  printf 'selftest ok   an emulation-limited row and an expected test failure are accounted for, not reconciled\n'
+
+  jq 'del(.platforms["linux-emulated"].limits["X01__a=2"])' "$work/plan-emulated.json" \
+    >"$work/plan-emulated-unlisted.json"
+  fresh emulatedunlisted
+  flip_to_diverge "$work/emulatedunlisted/rows"
+  if reconcile_into "$work/emulatedunlisted/rows" "$m" "$work/plan-emulated-unlisted.json" \
+    "$work/emulatedunlisted/receipts" "$work/emulatedunlisted/summary.json" "$work/tests-emulated.json"; then
+    die "selftest: a divergence the plan did not list was accepted under emulation"
+  fi
+  jq -e '.status == "unreconciled" and .limit == null' \
+    "$work/emulatedunlisted/receipts/X01__a=2.json" >/dev/null ||
+    die "selftest: the unlisted divergence was not left unreconciled"
+  printf 'selftest ok   an unlisted divergence under emulation (rejected)\n'
+
+  fresh emulatedstale
+  if reconcile_into "$work/emulatedstale/rows" "$m" "$work/plan-emulated.json" \
+    "$work/emulatedstale/receipts" "$work/emulatedstale/summary.json" "$work/tests-emulated.json"; then
+    die "selftest: a listed limit that did not diverge was accepted"
+  fi
+  jq -e '.status == "limit-not-observed"' "$work/emulatedstale/receipts/X01__a=2.json" >/dev/null ||
+    die "selftest: the stale limit was not named"
+  printf 'selftest ok   a listed limit whose row did not diverge (rejected as stale)\n'
+
+  jq -n '[{binary: "b", test: "t", status: "passed"}, {binary: "b", test: "bad", status: "failed"},
+          {binary: "b", test: "worse", status: "failed"}]' >"$work/tests-unexpected.json"
+  fresh emulatedunexpected
+  flip_to_diverge "$work/emulatedunexpected/rows"
+  if reconcile_into "$work/emulatedunexpected/rows" "$m" "$work/plan-emulated.json" \
+    "$work/emulatedunexpected/receipts" "$work/emulatedunexpected/summary.json" "$work/tests-unexpected.json"; then
+    die "selftest: a test failure the plan did not expect was accepted"
+  fi
+  jq -e '.tests_failed_unexpected == ["b worse"]' "$work/emulatedunexpected/summary.json" >/dev/null ||
+    die "selftest: the unexpected failure was not named"
+  jq -n '[{binary: "b", test: "t", status: "passed"}, {binary: "b", test: "bad", status: "passed"}]' \
+    >"$work/tests-heals.json"
+  fresh emulatedheals
+  flip_to_diverge "$work/emulatedheals/rows"
+  if reconcile_into "$work/emulatedheals/rows" "$m" "$work/plan-emulated.json" \
+    "$work/emulatedheals/receipts" "$work/emulatedheals/summary.json" "$work/tests-heals.json"; then
+    die "selftest: an expected failure that passed was accepted"
+  fi
+  jq -e '.expected_not_failed == ["b bad"]' "$work/emulatedheals/summary.json" >/dev/null ||
+    die "selftest: the expected failure that passed was not named"
+  printf 'selftest ok   an unexpected test failure, and an expected one that passed (rejected)\n'
+
+  # The same limits mean nothing off emulation: a native run is judged strictly.
+  emulation=""
+  jq -n '[{binary: "b", test: "t", status: "passed"}]' >"$work/tests-native.json"
+  fresh emulatednative
+  flip_to_diverge "$work/emulatednative/rows"
+  if reconcile_into "$work/emulatednative/rows" "$m" "$work/plan-emulated.json" \
+    "$work/emulatednative/receipts" "$work/emulatednative/summary.json" "$work/tests-native.json"; then
+    die "selftest: an emulation limit was honoured outside emulation"
+  fi
+  jq -e '.status == "unreconciled"
+         and (.problems | index("verdict true where false was required: broken:one")) != null' \
+    "$work/emulatednative/receipts/X01__a=2.json" >/dev/null ||
+    die "selftest: the native run failed, but not on the row's own divergence"
+  printf 'selftest ok   an emulation limit outside emulation (rejected, on the divergence itself)\n'
+  platform="$saved_platform"
 
   # A second writer for one receipt is refused rather than overwritten.
   fresh twice

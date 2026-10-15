@@ -455,6 +455,51 @@ fn ended_by(child: &Child, by: Instant) -> bool {
     }
 }
 
+/// Whether process group `pgid` holds a member that has not ended.
+///
+/// An ended but unreaped member is still in the group and still addressable, and
+/// what a probe of a group holding only such members answers is the kernel's:
+/// Darwin answers `EPERM`, so a successful signal-0 probe there means a live
+/// member; Linux answers success for a zombie (measured on the Docker VM's
+/// 7.0.14 kernel: success for the probe and for SIGKILL, `ESRCH` only after the
+/// reap), so the process table is read instead and a zombie is not live.
+/// https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html: field 3 is the
+/// state (`Z` zombie, `X` dead) and field 5 the process group ID.
+#[cfg(target_os = "linux")]
+fn group_has_live_member(pgid: libc::pid_t) -> bool {
+    let Ok(entries) = fs::read_dir("/proc") else {
+        panic!("the process table is unreadable");
+    };
+    entries.flatten().any(|entry| {
+        let Ok(name) = entry.file_name().into_string() else {
+            return false;
+        };
+        if name.is_empty() || !name.bytes().all(|byte| byte.is_ascii_digit()) {
+            return false;
+        }
+        // A process that ends between the listing and the read is simply absent.
+        let Ok(stat) = fs::read_to_string(entry.path().join("stat")) else {
+            return false;
+        };
+        // `pid (comm) state ppid pgrp ...`: comm may hold spaces and parentheses,
+        // so the fields are those after the last closing parenthesis.
+        let Some((_, rest)) = stat.rsplit_once(')') else {
+            return false;
+        };
+        let mut fields = rest.split_whitespace();
+        let state = fields.next();
+        let _parent = fields.next();
+        let group = fields.next().and_then(|field| field.parse::<libc::pid_t>().ok());
+        group == Some(pgid) && !matches!(state, Some("Z" | "X"))
+    })
+}
+
+#[cfg(not(target_os = "linux"))]
+fn group_has_live_member(pgid: libc::pid_t) -> bool {
+    // SAFETY: signal 0 only probes the group.
+    unsafe { libc::kill(-pgid, 0) == 0 }
+}
+
 fn s03_run(fault: &str, primary: bool) -> S03Run {
     let exe = std::env::current_exe().unwrap();
     let worker = exe
@@ -523,12 +568,10 @@ fn s03_run(fault: &str, primary: bool) -> S03Run {
     // ended but is still unreaped, so the group's ID is reserved to it and
     // only a worker the incumbent did not end can keep the group present:
     // observe that, then end it, bounded, so no row leaves a process. A group
-    // holding only the unreaped role answers EPERM, not success.
-    let present = || {
-        // SAFETY: signal 0 only probes the group the fixture created, whose ID
-        // the unreaped role still reserves.
-        unsafe { libc::kill(-pid, 0) == 0 }
-    };
+    // holding only the unreaped role has no live member (`group_has_live_member`
+    // names how each kernel says so); the probe is of the group the fixture
+    // created, whose ID the unreaped role still reserves.
+    let present = || group_has_live_member(pid);
     std::thread::sleep(Duration::from_millis(300));
     let orphan_survived = present();
     if orphan_survived {
@@ -848,7 +891,9 @@ fn native_baseline_paired_f03_second_create_keeps_the_worker_wait_report() {
 /// reserved: a live member answers the probe, the group is signalled by an
 /// identity the caller still owns, and only the reap releases it. The same group
 /// reaped first answers `ESRCH`, which is exactly the state the previous cleanup
-/// signalled blindly.
+/// signalled blindly. What the group answers once only the unreaped leader is
+/// left is the kernel's: `EPERM` on Darwin, success on Linux (where the probe of
+/// "has a live member" is the process table's, not the signal's).
 #[test]
 #[ignore = "private process fixture; run native-incumbent.sh test"]
 fn native_baseline_control_s03_an_unreaped_role_reserves_its_group() {
@@ -869,15 +914,24 @@ fn native_baseline_control_s03_an_unreaped_role_reserves_its_group() {
     );
     // Ended and unreaped: the surviving member answers, so the group is present.
     assert_eq!(probe(pid), None, "a live member must answer the group probe");
+    assert!(
+        group_has_live_member(pid),
+        "the surviving member must be a live member of the group"
+    );
     // SAFETY: the leader is unreaped, so the group's ID is its own.
     assert_eq!(unsafe { libc::kill(-pid, libc::SIGKILL) }, 0);
     let by = Instant::now() + Duration::from_secs(2);
-    while probe(pid).is_none() {
+    while group_has_live_member(pid) {
         assert!(Instant::now() < by, "the member did not end");
         std::thread::sleep(Duration::from_millis(5));
     }
-    // Only the unreaped leader is left: the group is still reserved (EPERM,
-    // never ESRCH) until the reap releases it.
+    // Only the unreaped leader is left: the group is still reserved, never
+    // ESRCH, until the reap releases it. Darwin says so with EPERM; Linux
+    // answers the signal for the zombie, which is why `group_has_live_member`
+    // exists.
+    #[cfg(target_os = "linux")]
+    assert_eq!(probe(pid), None);
+    #[cfg(not(target_os = "linux"))]
     assert_eq!(probe(pid), Some(libc::EPERM));
     leader.wait().unwrap();
     assert_eq!(probe(pid), Some(libc::ESRCH));

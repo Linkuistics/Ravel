@@ -1,0 +1,40 @@
+{
+  "id": "F04__owner=selection__operation=INT-install__mode=omit-EIO",
+  "family": "F04",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_f04_selection_handler_faults",
+    "note": "unmet [\"handled-signals-blocked-at-finalisation\"]; held [\"failed-exit\", \"zero-result\", \"cancellation-unavailable-code\", \"errno-reported\", \"no-worker\", \"no-managed\", \"partial-subset-owned\"]; exit 5; result_empty=true; owners at finalisation [\"default\", \"default\", \"default\"], expected [\"default\", \"default\", \"default\"]; fault=\"INT-install\" \"omit\" performed=false actual=0 errno=null; stderr: {\"error\":{\"code\":\"cancellation_unavailable\",\"exit\":5,\"message\":\"cannot catch INT, TERM and HUP, which cancel selection: Input/output error (os error 5)\",\"remedy\":\"run ravel where it can install signal handlers; nothing was evaluated\",\"source\":\"/tmp/.tmpRlXkW2/policy.ts\",\"stage\":\"evaluation\"},\"schemaVersion\":1}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

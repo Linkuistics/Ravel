@@ -1,0 +1,67 @@
+check: formatting passed
+check: scripts passed
+check: worker-build passed
+check: worker-probes passed
+check: runtime-integrity passed
+check: worker-types passed
+check: lint FAILED; full log: /work/target/check.URssfx
+
+=== formatting
+
+=== scripts
+
+=== worker-build
+worker: build passed; complete log: /work/target/worker-check.grvCxv
+
+=== worker-probes
+worker: probes passed; complete log: /work/target/worker-check.nOB3pX
+
+=== runtime-integrity
+runtime-integrity: verified archive, corrupt-cache recovery, valid-cache reuse and corrupt-download refusal passed (bun-linux-aarch64 1.4.2)
+
+=== worker-types
+worker: typecheck passed; complete log: /work/target/worker-check.CAJPyu
+
+=== lint
+    Checking keyed-launch v1.0.0 (/work/crates/keyed-launch)
+    Checking tempfile v3.27.0
+   Compiling sha2 v0.10.9
+    Checking clap v4.6.7
+    Checking serde_json v1.0.150
+error: operator precedence can trip the unwary
+   --> crates/keyed-launch/src/run.rs:534:45
+    |
+534 |                 .fold(0_u64, |bits, signal| bits | 1 << (signal - 1))
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider parenthesizing your expression: `bits | (1 << (signal - 1))`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#precedence
+    = note: `-D clippy::precedence` implied by `-D clippy::all`
+    = help: to override `-D clippy::all` add `#[allow(clippy::precedence)]`
+
+   Compiling ravel v1.0.0 (/work/crates/ravel)
+error: use of `format!` to build up a string from an iterator
+  --> crates/ravel/build.rs:72:5
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: call `fold` instead
+  --> crates/ravel/build.rs:72:18
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |                  ^^^
+help: ... and use the `write!` macro here
+  --> crates/ravel/build.rs:72:29
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |                             ^^^^^^^^^^^^^^^^^^^^^
+   = note: this can be written more efficiently by appending to a `String` directly
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+   = note: `-D clippy::format-collect` implied by `-D clippy::all`
+   = help: to override `-D clippy::all` add `#[allow(clippy::format_collect)]`
+
+error: could not compile `ravel` (build script) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `keyed-launch` (lib) due to 1 previous error
+error: could not compile `keyed-launch` (lib test) due to 1 previous error
+task: Failed to run task "check": exit status 1

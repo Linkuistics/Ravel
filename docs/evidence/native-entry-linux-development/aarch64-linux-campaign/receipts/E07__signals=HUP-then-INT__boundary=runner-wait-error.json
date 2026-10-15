@@ -1,0 +1,49 @@
+{
+  "id": "E07__signals=HUP-then-INT__boundary=runner-wait-error",
+  "family": "E07",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::baseline_tests::native_baseline_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "note": "E07 { first_ack_latch: Some(1), second_ack_latch: Some(2), consumed_ack_latch: Some(2), outcome: \"error consumed=Some(2) message=cannot wait on the launched child: Input/output error (os error 5); it has been sent SIGKILL and reaped\", clean: true, reported: [] }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:latch",
+      "conforms": false
+    },
+    {
+      "subject": "broken:error",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:error",
+      "conforms": false,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: \"error consumed=Some(2) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; and reaped\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "broken:latch",
+      "conforms": false,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(1), second_ack_latch: Some(2), consumed_ack_latch: Some(2), outcome: \"error consumed=Some(2) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; and reaped\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(1), second_ack_latch: Some(1), consumed_ack_latch: Some(2), outcome: \"error consumed=Some(1) message=cannot wait on the launched child: Input/output error (os error 5); SIGKILL attempted; and reaped\", clean: true, reported: [] }"
+    }
+  ],
+  "problems": []
+}

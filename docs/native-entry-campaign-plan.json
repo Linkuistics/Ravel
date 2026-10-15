@@ -1,8 +1,88 @@
 {
  "schema": 1,
- "purpose": "Expected (row, subject) records and verdicts for the native-entry campaign. 'repaired' subjects must conform; 'violates' broken subjects must violate the claim they name; 'conforms' lists subjects that conform by design and carry a reason. 'baseline' classifies the incumbent product (the pre-repair revision, built as its own frozen tree) under the same claims: class 'observed' needs one baseline record whose raw verdict is classified fails (violated a claim) or already-correct (held every claim) and is never required to fail; class 'rejected-premise' carries the reason and the missing mechanism and must have no record. A row with no baseline entry is unclassified and fails reconciliation. Resolution order: exact row, then the first matching pattern of the row's family, then the family default. This file is a subject of every campaign: digest it before and after.",
+ "purpose": "Expected (row, subject) records and verdicts for the native-entry campaign. 'repaired' subjects must conform; 'violates' broken subjects must violate the claim they name; 'conforms' lists subjects that conform by design and carry a reason. 'baseline' classifies the incumbent product (the pre-repair revision, built as its own frozen tree) under the same claims: class 'observed' needs one baseline record whose raw verdict is classified fails (violated a claim) or already-correct (held every claim) and is never required to fail; class 'rejected-premise' carries the reason and the missing mechanism and must have no record. A row with no baseline entry is unclassified and fails reconciliation. Resolution order: the running platform's exact row (platforms.<name>.rows), then the base exact row, then the first matching pattern of the row's family, then the family default. This file is a subject of every campaign: digest it before and after.",
  "domain": "aarch64-apple-darwin host receipts only; they qualify neither GNU/Linux nor Rust 1.85",
  "rows": {},
+ "platforms": {
+  "linux": {
+   "reason": "The base plan's expectations were frozen on aarch64-apple-darwin. A platform row replaces the base expectation for that exact row where the kernel's behaviour differs, each with its reason; the 153 row identities are never changed or dropped.",
+   "rows": {
+    "E03__disposition=ignore": {
+     "repaired": [
+      "repaired"
+     ],
+     "violates": [
+      "broken:worker-watching"
+     ],
+     "reason": "Linux: an ignored SIGCHLD disposition is itself the no-zombie state (a wait fails with ECHILD once the children are gone) and execve preserves SIG_IGN while clearing action flags (flush_signal_handlers, v6.18), so skipping the worker repair loses the worker's wait. The Darwin premise (skip-repair is already waitable because exec clears the flag) does not exist on this kernel; this row is a failing discriminator of its own, and the E04 worker row stays independent.",
+     "baseline": {
+      "class": "observed"
+     }
+    },
+    "E04__boundary=raw-executable-entry__state=Darwin-flag-reachability": {
+     "repaired": [
+      "repaired"
+     ],
+     "violates": [],
+     "reason": "Linux: executable entry always sees action flags cleared (flush_signal_handlers, v6.18), so SA_NOCLDWAIT cannot reach it by inheritance. The verdict asserts the observed flag is clear after the harness read back its pre-exec injection (default plus SA_NOCLDWAIT, confirmed before exec, or the spawn is refused); it never relabels the private injection as inheritance. No repair is claimed and no mutant exists. The row keeps its Darwin spelling as its identity.",
+     "baseline": {
+      "class": "observed"
+     }
+    }
+   }
+  },
+  "linux-emulated": {
+   "reason": "x86_64-unknown-linux-gnu under QEMU user-mode emulation on an aarch64 Linux kernel. Rows an emulator cannot reproduce are listed with their reason and control rather than reconciled; every other row must reconcile to the platform expectations of 'linux'. Emulated receipts qualify nothing about an x86-64 kernel.",
+   "rows": {},
+   "limits": {
+    "E04__boundary=worker__state=private-default-SA_NOCLDWAIT": {
+     "reason": "QEMU's user-mode emulator installs its own host signal handler for a guest's SIGCHLD and does not forward SA_NOCLDWAIT to the host kernel, so the private default-plus-SA_NOCLDWAIT state this row injects has no effect: the skip-repair subject's waits still succeed. That is a property of this emulator, not a statement about an x86-64 kernel.",
+     "control": "scripts/native-linux/emulation-probe.c, one source built for both targets: nocldwait_wait is ECHILD natively on aarch64 Linux and the child's exit status under the emulator, while sigign_wait is ECHILD in both."
+    },
+    "E04__boundary=managed__state=private-default-SA_NOCLDWAIT": {
+     "reason": "QEMU's user-mode emulator installs its own host signal handler for a guest's SIGCHLD and does not forward SA_NOCLDWAIT to the host kernel, so the private default-plus-SA_NOCLDWAIT state this row injects has no effect: the skip-repair subject's waits still succeed. That is a property of this emulator, not a statement about an x86-64 kernel. The front's managed row is also unobserved because its test stopped at the worker row.",
+     "control": "scripts/native-linux/emulation-probe.c, one source built for both targets: nocldwait_wait is ECHILD natively on aarch64 Linux and the child's exit status under the emulator, while sigign_wait is ECHILD in both."
+    },
+    "E04__boundary=raw-executable-entry__state=Darwin-flag-reachability": {
+     "reason": "Not executed: the test that files this row stopped at the worker row above (the emulator's SA_NOCLDWAIT limit) before reaching it. No observation of executable-entry flags exists for this target.",
+     "control": "scripts/native-linux/emulation-probe.c, one source built for both targets: nocldwait_wait is ECHILD natively on aarch64 Linux and the child's exit status under the emulator, while sigign_wait is ECHILD in both."
+    },
+    "E07__signals=TERM-then-HUP__boundary=runner-active": {
+     "reason": "Under the emulator the later-wins guard break (broken:guard) conformed: the runner reported the first signal although the guard that retains it was removed, so the row's discriminator did not discriminate and its test stopped there; the rows after it did not execute. The cause is not isolated: the runner's loop and signal delivery run inside the emulator, whose timing and signal queueing are not the kernel's, and no native x86-64 run exists to separate the emulator from the architecture.",
+     "control": "Native aarch64 Linux reconciles all four E07 rows with every break failing (this campaign's native run); the native x86-64 run that would discriminate does not exist."
+    },
+    "E07__signals=TERM-then-HUP__boundary=runner-wait-error": {
+     "reason": "Not executed: the E07 test stopped at the first row's non-discriminating guard break (see E07__signals=TERM-then-HUP__boundary=runner-active).",
+     "control": "Native aarch64 Linux reconciles all four E07 rows with every break failing (this campaign's native run); the native x86-64 run that would discriminate does not exist."
+    },
+    "E07__signals=HUP-then-INT__boundary=runner-active": {
+     "reason": "Not executed: the E07 test stopped at the first row's non-discriminating guard break (see E07__signals=TERM-then-HUP__boundary=runner-active).",
+     "control": "Native aarch64 Linux reconciles all four E07 rows with every break failing (this campaign's native run); the native x86-64 run that would discriminate does not exist."
+    },
+    "E07__signals=HUP-then-INT__boundary=runner-wait-error": {
+     "reason": "Not executed: the E07 test stopped at the first row's non-discriminating guard break (see E07__signals=TERM-then-HUP__boundary=runner-active).",
+     "control": "Native aarch64 Linux reconciles all four E07 rows with every break failing (this campaign's native run); the native x86-64 run that would discriminate does not exist."
+    }
+   },
+   "expected_test_failures": [
+    {
+     "binary": "ravel::bin/ravel",
+     "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+     "reason": "QEMU's user-mode emulator installs its own host signal handler for a guest's SIGCHLD and does not forward SA_NOCLDWAIT to the host kernel, so the private default-plus-SA_NOCLDWAIT state this row injects has no effect: the skip-repair subject's waits still succeed. That is a property of this emulator, not a statement about an x86-64 kernel."
+    },
+    {
+     "binary": "keyed-launch",
+     "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+     "reason": "QEMU's user-mode emulator installs its own host signal handler for a guest's SIGCHLD and does not forward SA_NOCLDWAIT to the host kernel, so the private default-plus-SA_NOCLDWAIT state this row injects has no effect: the skip-repair subject's waits still succeed. That is a property of this emulator, not a statement about an x86-64 kernel."
+    },
+    {
+     "binary": "keyed-launch",
+     "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+     "reason": "Under the emulator the later-wins guard break (broken:guard) conformed: the runner reported the first signal although the guard that retains it was removed, so the row's discriminator did not discriminate and its test stopped there; the rows after it did not execute. The cause is not isolated: the runner's loop and signal delivery run inside the emulator, whose timing and signal queueing are not the kernel's, and no native x86-64 run exists to separate the emulator from the architecture."
+    }
+   ]
+  }
+ },
  "patterns": [
   {
    "family": "E02",

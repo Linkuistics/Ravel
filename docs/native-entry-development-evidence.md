@@ -1088,6 +1088,193 @@ questions (K4, k6, G2 to G5, R-W) or the book. A local pass is not supported-tar
 qualification, and the 30 rejected premises are properties of the incumbent
 rather than of the repaired product.
 
+## GNU/Linux and minimum-Rust continuation: development increment (k49)
+
+`native-entry-linux-qualification-k49` became a node when its first session found
+a production-source finding at the declared minimum Rust that its own charter
+sends to a separate correction run. This section records the increment that
+session delivered: the Linux environments, the ports of the instruments and
+driver, and **development** measurements. Nothing here is an immutable receipt
+and nothing here qualifies a target. The immutable runs follow the correction,
+because any production edit invalidates the digests they freeze. Development
+artefacts are kept under
+[`docs/evidence/native-entry-linux-development/`](evidence/native-entry-linux-development).
+
+### Environments
+
+Each target runs in a Docker image built by `scripts/native-linux/Dockerfile`
+(Ubuntu 26.04.1 pinned by digest, **rustc 1.85.0**, the exact floor of
+`rust-version = "1.85"`, cargo-nextest 0.9.148 and Task 3.54.0 as on Darwin,
+bubblewrap, a C compiler; each tool's SHA-256 is in the image and in the
+campaign's `domain.json`). `scripts/native-linux.sh` stages a copy of the
+working tree (none of the host's build output) and the checkout's git objects,
+so the frozen incumbent revision is exported exactly as on Darwin. The Docker VM's
+kernel is 7.0.14-linuxkit, aarch64, glibc 2.43. `task native-linux:image` and
+`task test:native-linux` are the entry points.
+
+Four container settings were each measured to be necessary, and each is a
+property of running the product's sandbox in a container, not of the product:
+
+| Setting | What happens without it |
+|---|---|
+| `seccomp=unconfined` | Docker's profile refuses `unshare(2)`; every confined check fails (`confinement_unusable`). `scripts/release-smoke.sh` records the same finding. |
+| `systempaths=unconfined` | Docker masks parts of `/proc`; the kernel refuses a new procfs mount in a user namespace, so bubblewrap fails (`Can't mount proc`). 18 protected failures remained with the first setting alone. |
+| `--init` | A `sleep` PID 1 never reaps reparented orphans, so every group-absence check reads zombies as present. 8 protected failures. |
+| uid 1000, not root | As the release smoke's floor container runs; permission bits bind. |
+
+With all four the plain protected suite on aarch64 Linux is 338 passed, 46
+skipped: the same 384 identities as k43's Darwin run. The `hostile` tests need
+`task probes` first, as `task check` runs it.
+
+### What differs from Darwin
+
+Three Darwin premises do not exist on this kernel. Each was repaired in an
+instrument and none in production code.
+
+| Premise | Linux fact | Where |
+|---|---|---|
+| E03: skipping the worker's SIGCHLD repair is harmless at an ignored-SIGCHLD entry, because exec clears Darwin's no-child-wait state. | An ignored SIGCHLD is itself the no-zombie state (a wait returns ECHILD once children are gone) and exec preserves `SIG_IGN`, clearing only action flags: [`flush_signal_handlers`, v6.18](https://github.com/torvalds/linux/blob/v6.18/kernel/signal.c#L489); [sigaction(2)](https://man7.org/linux/man-pages/man2/sigaction.2.html). The skip-repair subject fails ECHILD, so `E03__disposition=ignore` is a failing discriminator of its own and the incumbent genuinely fails it. | plan override, instrument assertion |
+| E04 raw executable entry: observe whether SA_NOCLDWAIT reaches entry. | Action flags are cleared at exec, so it cannot. The row now asserts the flag is clear **after a read-back-confirmed pre-exec injection** (an unconfirmed injection refuses the spawn), so "cleared" can only mean exec cleared it. It is never relabelled as inheritance. | plan override, `raw_entry` |
+| Incumbent S03 driver: a group holding only unreaped zombies answers `EPERM`. | Measured on this kernel: success for the signal-0 probe and for SIGKILL, ESRCH only after the reap. The driver and its control read live members from `/proc/<pid>/stat` (state `Z`/`X` excluded) on Linux, and keep the probe elsewhere. | incumbent overlay |
+
+The plan gains a platform dimension rather than a second plan:
+`platforms.<name>.rows` replaces a base expectation for one exact row, with its
+reason. The 153 identities and 327 expected records are unchanged, and the
+driver's selftest shows the Darwin and Linux plans differ on exactly the two
+overridden rows and that an override applies only on its platform. A Darwin
+development campaign with the edited instruments reconciles 153 of 153 and its
+receipts equal k43's immutable ones item by item (0 of 153 differ; incumbent
+67/56/30).
+
+**Handled-signal domain** (`scripts/native-linux/signal-domain.c`, built and run
+on each target): `_NSIG` 65, `SIGRTMIN` 34, `SIGRTMAX` 64; the kernel's
+`rt_sigaction` answers for 1 to 64 and refuses 65; glibc's `sigaction` refuses
+32 and 33 with EINVAL. The product's domain (1 to 64 excluding 32 and 33 on GNU
+Linux) is exactly that.
+
+### aarch64 Linux development campaign
+
+One `task test:native-campaign` run on aarch64-unknown-linux-gnu (kernel
+7.0.14, glibc 2.43, rustc 1.85.0): 112 tests executed, none failed, no subject
+moved, **153 of 153 rows reconciled**. The incumbent baseline is 68 fails, 55
+already correct, 30 rejected premises, against Darwin's 67/56/30: the one row
+that changes class is `E03__disposition=ignore` (already correct on Darwin, fails
+here), and two other receipts differ only in the order their observed records
+are listed. Elapsed 1 minute 11 seconds; the 30/5/5 controller envelope was
+never approached.
+
+R01 through the six Taskfile tasks, joined identity by identity as k43 did
+(`scripts/native-r01.sh`, with the join's failing controls):
+
+| Task | Result | Protected identities |
+|---|---|---|
+| frozen listing | 310 of 310 preserved, 74 new | 310 |
+| `test:cli` | exit 0 | 13 of 13 (14 in scope) |
+| `test:session` | exit 0 | 219 of 219 (227 in scope) |
+| `test:runner` | exit 0 | 71 of 71 (83 in scope) |
+| `test:terminal-recovery` | exit 0 | the two private PTY selections |
+| `test` | exit 0 | 290 of 290 (310 in scope, 20 ignored) |
+| `check` | **exit 201, at the lint step** | 0 of 290 (the nextest step never ran) |
+
+### Minimum Rust 1.85: the lint step fails
+
+`task check`'s lint step fails at the declared minimum on **every** platform.
+The Darwin campaign at Rust 1.99 could not see it. Clippy 0.1.85 (both 1.85.0
+and 1.85.1) reports four deny-level errors, all of which clippy 1.86.0
+accepts; a scratch copy with the four sites rewritten is clean for
+`--workspace --all-targets -D warnings` and for `native-faults`
+([the log on the unmodified tree](evidence/native-entry-linux-development/minimum-rust-clippy/clippy-1.85-unmodified-tree.txt)
+and [the proposed repair, not applied](evidence/native-entry-linux-development/minimum-rust-clippy/proposed-repair-not-applied.patch)):
+
+| Site | Lint | Kind of file |
+|---|---|---|
+| `crates/keyed-launch/src/run.rs:534` | `clippy::precedence` (`bits \| 1 << n`) | production library |
+| `crates/ravel/build.rs:72` | `clippy::format_collect` | production build script |
+| `crates/ravel/src/context.rs:723` | `clippy::format_collect` | production library |
+| `crates/ravel/tests/cli.rs:451` | `clippy::format_collect` | protected test file |
+
+Rust 1.85.1 builds the workspace with `--all-targets` and the `native-faults`
+fixture with no compiler error or warning. No API newer than 1.85 is used by the
+repaired code or its instruments. The repair is a source edit in production
+files, so by the charter it is its own failing-first correction run and is not
+made here.
+
+An earlier check on the Darwin host reported 1.85 clippy clean. That reading was
+a broken instrument: `rustup run 1.85 cargo clippy` resolved to Homebrew's
+clippy 0.1.99 driving rustc 1.85.1. The genuine 0.1.85 driver
+(`~/.rustup/toolchains/1.85-*/bin/cargo-clippy`) reports the four errors above.
+Any lint check at a pinned toolchain must name its clippy version.
+
+### x86_64 under user-mode emulation
+
+An x86_64 Linux kernel is not available to the campaign. The target is run under
+QEMU user-mode emulation on the aarch64 kernel above, and every result in this
+subsection is **emulated** and qualifies nothing about an x86-64 kernel.
+
+*Getting a faithful guest.* Docker Desktop's registered QEMU (10.2.3) maps a
+64-bit guest above 2^47 on this VM's 48-bit address space, and rustc's allocator
+then faults before doing any work (rustc 1.85.0 and 1.93.1, and under no
+allocator setting or CPU model tried). `scripts/release-smoke.sh` documents the
+same finding and its fix: a guest base of 2^47 (`-B 0x800000000000`) through a
+private binfmt_misc instance with the pinned QEMU. `scripts/native-linux-qemu.sh`
+reuses that mechanism with the guest as the namespace's root, at CPU model
+Nehalem (the floor the release smoke emulates). The guest's address space and
+vDSO are checked before use. rustc, cargo, nextest and the pinned Bun x64 all
+run under it; the workspace builds, and the plain protected suite runs in
+about 93 seconds.
+
+*What the emulator cannot do* (`scripts/native-linux/emulation-probe.c`, one
+source built for both targets):
+
+| Operation | aarch64 Linux, native | x86_64, emulated |
+|---|---|---|
+| threads per process, as the host counts them | 1 | **2** (a second thread, named `qemu`) |
+| `unshare(CLONE_NEWUSER)` | succeeds | **EINVAL** (it needs a single-threaded caller) |
+| wait under SIGCHLD = SIG_DFL + SA_NOCLDWAIT | ECHILD | **the child's exit status** |
+| wait under SIGCHLD = SIG_IGN | ECHILD | ECHILD |
+| `kill(-pgid, 0)` for one unreaped zombie | success | success |
+
+So no emulated process can create a user namespace, which the product's
+bubblewrap confinement needs, and the emulator does not honour SA_NOCLDWAIT.
+
+*Protected suite under emulation.* `cargo nextest run --workspace`: 338 run, 261
+passed, 77 failed, 46 skipped. 74 of the 77 need a user namespace
+(`confinement_unusable`: 68 partial-acquisition cases, 3 `ravel::cli` `--confine`
+cases, 2 `keyed-launch::confinement`, 1 confined-cancellation case); 1
+(`the_child_sees_its_arg0_while_its_program_is_what_runs`) reads the process's
+own argv from `ps`, which under the emulator is the emulator's; 2 are matrix
+instruments (below). The 74 are an emulation limit, not a product fact, and no
+protected expectation was changed.
+
+*Matrix under emulation.* `task test:native-campaign` with the platform
+`linux-emulated`: 112 tests executed, **146 of 153 rows reconciled** to the
+Linux expectations and **7 emulation-limited**, each with its reason and
+control, 3 expected test failures and no unexpected one, no subject moved.
+The driver accounts for a limited row as its own status and rejects a limit
+whose row did not diverge, a divergence the plan did not list and a test
+failure it did not expect (selftest). The seven:
+
+| Rows | What was observed | Cause |
+|---|---|---|
+| E04 worker, E04 managed, E04 raw | the skip-repair and ignore-only subjects still confirm the wait; the raw row's test stopped before it ran | the emulator does not honour SA_NOCLDWAIT (probe above) |
+| E07 ×4 | `broken:guard` conformed (the runner reported the first signal although the later-wins guard was removed); the remaining E07 rows did not execute | **not isolated**: the runner's loop and signal delivery run inside the emulator, and no native x86-64 run exists to separate the emulator from the architecture |
+
+The incumbent baseline under emulation is 66 fails, 57 already correct, 30
+rejected; the two E04 rows whose class moves are among the seven and carry no
+meaning. Elapsed 5 minutes 26 seconds, no controller timeout.
+
+### What this increment establishes
+
+Linux and emulation environments that reproduce, a driver and plan that carry a
+platform dimension and an emulation accounting with failing controls, and
+development measurements that say: the repaired product reconciles 153 of 153 on
+aarch64 Linux at Rust 1.85.0 with three Darwin premises replaced by measured
+Linux ones; its protected suite passes there; the declared minimum's lint step
+does not; and under emulation 146 of 153 rows agree while seven cannot be
+reproduced and 74 protected identities cannot run. It does **not** establish an
+immutable receipt for any Linux target, `task check` at the minimum, or anything
+about a native x86-64 kernel.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows

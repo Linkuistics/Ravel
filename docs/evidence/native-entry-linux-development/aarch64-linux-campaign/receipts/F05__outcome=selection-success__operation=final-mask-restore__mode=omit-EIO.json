@@ -1,0 +1,39 @@
+{
+  "id": "F05__outcome=selection-success__operation=final-mask-restore__mode=omit-EIO",
+  "family": "F05",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_f05_final_mask_restore_and_started_restore",
+    "note": "unmet [\"secondary-names-the-operation\"]; held [\"failed-exit\", \"zero-result\", \"original-retained\", \"secondary-retained\", \"child-ran-and-reaped\"]; exit 5; result_empty=true; handled signals blocked after the site: 0b0; fault=\"final-mask-restore\" \"omit\" performed=false actual=0 errno=null; stderr: {\"bounds\":{\"context\":{\"bytes\":262144,\"from\":\"default\"},\"diagnostics\":{\"bytes\":262144,\"from\":\"fixed\"},\"message\":{\"bytes\":1048576,\"from\":\"fixed\"},\"selection\":{\"from\":\"default\",\"ms\":30000},\"source\":{\"bytes\":65536,\"from\":\"default\"},\"sources\":{\"from\":\"fixed\",\"sources\":256}},\"context\":null,\"diagnostics\":{\"stderr\":\"\",\"stdout\":\"\"},\"policy\":{\"path\":\"/tmp/.tmp6hgp5Z/policy.ts\",\"version\":\"native-entry\"},\"policyEnvironment\":[],\"promptSource\":\"argument\",\"resolution\":\"/tmp/.tmp6hgp5Z/bin/fixture (an absolute path)\",\"schemaVersion\":1,\"selection\":{\"effort\":\"fixture\",\"model\":\"native\",\"provider\":\"fixture\",\"reason\":\"native entry\"},\"selectionMs\":7,\"worker\":{\"buildId\":\"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c\",\"bunVersion\":\"1.4.2\",\"path\":\"/tmp/.tmp6hgp5Z/libexec/ravel/ravel-policy\",\"version\":\"1.0.0\"}} | ravel: Input/output error (os error 5) | {\"error\":{\"code\":\"signal_state_unavailable\",\"exit\":5,\"message\":\"Input/output error (os error 5)\",\"remedy\":\"correct the named process or temporary-directory error and retry start-session\",\"stage\":\"exec\"},\"schemaVersion\":1}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

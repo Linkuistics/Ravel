@@ -359,10 +359,19 @@ no-unrelated-ID-reuse premises, confirming launcher foreground before restoring
 modes. It SHALL retain query, handback, mode and temporary disposition failures,
 and SHALL NOT lend again after a Started check failure. No broader delegated
 foreground takeover is authorised by unknown status. The required behavior is
-agreed. K28 has a committed development increment and a subset of development controls,
-commissioned after the k26 funding agreement and k27 planning handoff. Its
-[development evidence and remaining qualification](../native-entry-development-evidence.md)
-do not establish complete conformance.
+agreed and implemented, and its conformance is measured per target: each
+measurement qualifies only the kernel, libc and compiler it names. The frozen
+153-row matrix, its incumbent baseline and the 310 protected test identities have
+immutable receipts on aarch64-apple-darwin (Rust 1.99) only. The GNU/Linux and
+minimum-Rust continuation is open in the
+[development evidence](../native-entry-development-evidence.md): aarch64 Linux at
+the declared minimum Rust 1.85.0 and x86_64 Linux under user-mode emulation have
+development measurements, which are not immutable receipts; x86_64 under
+emulation cannot establish that kernel's signal, process-group, namespace or PTY
+semantics and is accounted for row by row; and the declared minimum's own lint
+step is not yet clean. Until that continuation closes, no Linux target and no
+Rust version below the one measured is qualified, and a returning host and
+independent adoption are not measured.
 
 ## Test seams for the repair contract
 

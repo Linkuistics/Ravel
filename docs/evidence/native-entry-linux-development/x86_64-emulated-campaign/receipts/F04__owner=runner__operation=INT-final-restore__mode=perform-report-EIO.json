@@ -1,0 +1,40 @@
+{
+  "id": "F04__owner=runner__operation=INT-final-restore__mode=perform-report-EIO",
+  "family": "F04",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_f04_int_final_restore_failure",
+    "note": "unmet [\"failed-exit\", \"zero-result\", \"release-failure-reported\", \"handled-signals-blocked-after\"]; held [\"original-retained\", \"child-ran-and-reaped\", \"owner-is-the-operations-own\"]; exit 0; result_empty=false; INT owner after \"default\" (expected default); fault=\"INT-final-restore\" \"perform\" performed=true actual=0 errno=null; stderr: {\"bounds\":{\"context\":{\"bytes\":262144,\"from\":\"default\"},\"diagnostics\":{\"bytes\":262144,\"from\":\"fixed\"},\"message\":{\"bytes\":1048576,\"from\":\"fixed\"},\"selection\":{\"from\":\"default\",\"ms\":30000},\"source\":{\"bytes\":65536,\"from\":\"default\"},\"sources\":{\"from\":\"fixed\",\"sources\":256}},\"context\":null,\"diagnostics\":{\"stderr\":\"\",\"stdout\":\"\"},\"policy\":{\"path\":\"/tmp/.tmpFv70WO/policy.ts\",\"version\":\"native-entry\"},\"policyEnvironment\":[],\"promptSource\":\"argument\",\"resolution\":\"/tmp/.tmpFv70WO/bin/fixture (an absolute path)\",\"schemaVersion\":1,\"selection\":{\"effort\":\"fixture\",\"model\":\"native\",\"provider\":\"fixture\",\"reason\":\"native entry\"},\"selectionMs\":451,\"worker\":{\"buildId\":\"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c\",\"bunVersion\":\"1.4.2\",\"path\":\"/tmp/.tmpFv70WO/libexec/ravel/ravel-policy\",\"version\":\"1.0.0\"}}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

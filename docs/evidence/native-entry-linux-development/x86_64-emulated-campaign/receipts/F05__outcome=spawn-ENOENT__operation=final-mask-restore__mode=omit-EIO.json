@@ -1,0 +1,40 @@
+{
+  "id": "F05__outcome=spawn-ENOENT__operation=final-mask-restore__mode=omit-EIO",
+  "family": "F05",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_f05_final_mask_restore_and_started_restore",
+    "note": "unmet [\"secondary-names-the-operation\"]; held [\"failed-exit\", \"zero-result\", \"original-retained\", \"secondary-retained\", \"child-ran-and-reaped\"]; exit 127; result_empty=true; handled signals blocked after the site: 0b100000000000011; fault=\"final-mask-restore\" \"omit\" performed=false actual=0 errno=null; stderr: {\"bounds\":{\"context\":{\"bytes\":262144,\"from\":\"default\"},\"diagnostics\":{\"bytes\":262144,\"from\":\"fixed\"},\"message\":{\"bytes\":1048576,\"from\":\"fixed\"},\"selection\":{\"from\":\"default\",\"ms\":30000},\"source\":{\"bytes\":65536,\"from\":\"default\"},\"sources\":{\"from\":\"fixed\",\"sources\":256}},\"context\":null,\"diagnostics\":{\"stderr\":\"\",\"stdout\":\"\"},\"policy\":{\"path\":\"/tmp/.tmpgFBbUi/policy.ts\",\"version\":\"native-entry\"},\"policyEnvironment\":[],\"promptSource\":\"argument\",\"resolution\":\"/tmp/.tmpgFBbUi/missing-interpreter (an absolute path)\",\"schemaVersion\":1,\"selection\":{\"effort\":\"fixture\",\"model\":\"native\",\"provider\":\"fixture\",\"reason\":\"native entry\"},\"selectionMs\":444,\"worker\":{\"buildId\":\"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c\",\"bunVersion\":\"1.4.2\",\"path\":\"/tmp/.tmpgFBbUi/libexec/ravel/ravel-policy\",\"version\":\"1.0.0\"}} | ravel: Input/output error (os error 5) | {\"error\":{\"code\":\"supervision_failed\",\"exit\":127,\"message\":\"cannot spawn \\\"/tmp/.tmpgFBbUi/missing-interpreter\\\": No such file or directory (os error 2); check that the program exists and is executable\",\"remedy\":\"check the selected program and its execution environment\",\"stage\":\"exec\"},\"schemaVersion\":1}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

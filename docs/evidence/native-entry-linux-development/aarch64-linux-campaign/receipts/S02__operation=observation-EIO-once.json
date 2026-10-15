@@ -1,0 +1,39 @@
+{
+  "id": "S02__operation=observation-EIO-once",
+  "family": "S02",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "run::baseline_tests::native_baseline_s02_observation_eio_once",
+    "note": "violated []; Settled { text: \"cannot wait on the launched child: Input/output error (os error 5); it has been sent SIGKILL and reaped\", events: [Started, Reaped], elapsed: 173.959µs, physical_reaps: 1, signals_after_report: 0, spawn_errno: None }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:report",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:report",
+      "conforms": false,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "named claim observation-error-reported; violated [\"observation-error-reported\"]"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "[]"
+    }
+  ],
+  "problems": []
+}

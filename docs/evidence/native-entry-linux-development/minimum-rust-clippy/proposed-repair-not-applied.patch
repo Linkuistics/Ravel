@@ -1,0 +1,54 @@
+--- a/crates/keyed-launch/src/run.rs
++++ b/crates/keyed-launch/src/run.rs
+@@ -531,7 +531,7 @@
+         let bits = |signals: &mut dyn Iterator<Item = libc::c_int>| {
+             signals
+                 .filter(|signal| SIGNAL_NUMBERS.contains(signal))
+-                .fold(0_u64, |bits, signal| bits | 1 << (signal - 1))
++                .fold(0_u64, |bits, signal| bits | (1 << (signal - 1)))
+         };
+         Self {
+             ignored: bits(&mut ignored.into_iter()),
+--- a/crates/ravel/build.rs
++++ b/crates/ravel/build.rs
+@@ -69,5 +69,9 @@
+ }
+ 
+ fn hex(bytes: &[u8]) -> String {
+-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
++    use std::fmt::Write as _;
++    bytes.iter().fold(String::new(), |mut text, byte| {
++        write!(text, "{byte:02x}").expect("writing to a String cannot fail");
++        text
++    })
+ }
+--- a/crates/ravel/src/context.rs
++++ b/crates/ravel/src/context.rs
+@@ -720,7 +720,11 @@
+ }
+ 
+ pub fn hex(bytes: &[u8]) -> String {
+-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
++    use std::fmt::Write as _;
++    bytes.iter().fold(String::new(), |mut text, byte| {
++        write!(text, "{byte:02x}").expect("writing to a String cannot fail");
++        text
++    })
+ }
+ 
+ #[cfg(test)]
+--- a/crates/ravel/tests/cli.rs
++++ b/crates/ravel/tests/cli.rs
+@@ -448,7 +448,11 @@
+     fs::create_dir_all(worker.parent().unwrap()).unwrap();
+     let hello = r#"{"type":"hello","protocol":1,"packageVersion":"0.0.0","buildId":"wrong-source","bunVersion":"1.4.2"}"#;
+     let length = u32::try_from(hello.len()).unwrap().to_be_bytes();
+-    let prefix_bytes: String = length.iter().map(|byte| format!("\\{byte:03o}")).collect();
++    let prefix_bytes = length.iter().fold(String::new(), |mut text, byte| {
++        use std::fmt::Write as _;
++        write!(text, "\\{byte:03o}").unwrap();
++        text
++    });
+     fs::write(
+         &worker,
+         format!("#!/bin/sh\nprintf '{prefix_bytes}' >&3\nprintf '%s' '{hello}' >&3\n"),

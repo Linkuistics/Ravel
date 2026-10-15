@@ -429,12 +429,31 @@ fn raw_entry(
             if libc::sigaction(libc::SIGCHLD, &action, std::ptr::null_mut()) == -1 {
                 return Err(io::Error::last_os_error());
             }
+            // The injection is read back before exec: a later "cleared at entry"
+            // reading is only an exec observation if the state was really set.
+            let mut set = std::mem::zeroed::<libc::sigaction>();
+            if libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut set) == -1 {
+                return Err(io::Error::last_os_error());
+            }
+            if !chld_injection_confirmed(chld, set.sa_sigaction, set.sa_flags) {
+                return Err(io::Error::from_raw_os_error(libc::EIO));
+            }
         }
         if pending && libc::raise(signal) != 0 {
             return Err(io::Error::last_os_error());
         }
     }
     Ok(())
+}
+/// Whether the raw SIGCHLD state read back after injecting `chld` (1 ignore,
+/// 2 default with no-child-wait) is the state that was meant. Fixed data only:
+/// it runs between fork and exec.
+fn chld_injection_confirmed(chld: i32, handler: libc::sighandler_t, flags: i32) -> bool {
+    match chld {
+        1 => handler == libc::SIG_IGN,
+        2 => handler == libc::SIG_DFL && flags & libc::SA_NOCLDWAIT != 0,
+        _ => true,
+    }
 }
 /// Short manifest label of a handled or tracked signal.
 fn label(signal: i32) -> &'static str {
@@ -737,11 +756,17 @@ fn case(case: Value, broken: &str) -> bool {
     let family = case["family"].as_str().unwrap();
     if family == "E04-raw" {
         let flags = launcher["sigchldFlags"].as_i64().unwrap() as i32;
+        let inherited = flags & libc::SA_NOCLDWAIT != 0;
         eprintln!(
-            "Darwin executable SA_NOCLDWAIT reachability: raw_flags={flags}; inherited={}",
-            flags & libc::SA_NOCLDWAIT != 0
+            "executable-entry SA_NOCLDWAIT reachability: raw_flags={flags}; inherited={inherited}"
         );
-        return status.success() && result.is_empty() && managed.is_none() && worker.is_none();
+        let ran = status.success() && result.is_empty() && managed.is_none() && worker.is_none();
+        // Darwin: an observation only, whichever the answer. Linux: exec clears
+        // every handler's flags (flush_signal_handlers sets sa_flags to 0 for
+        // each signal, ignored ones included), so a set flag at entry would
+        // contradict the source and is a failed row, never an inheritance claim.
+        // https://github.com/torvalds/linux/blob/v6.18/kernel/signal.c#L489
+        return ran && (!cfg!(target_os = "linux") || !inherited);
     }
     if family == "F01" {
         return !status.success()
@@ -851,7 +876,17 @@ fn native_e03_both_real_waits_survive_ignored_sigchld_entry() {
         // Darwin can preserve the ignore while clearing no-child-wait across
         // exec. Record that already-waitable baseline honestly. The private
         // E04 worker row supplies the failing repair discriminator in that domain.
-        let already_waitable = LAST_RAW_CHLD_FLAGS.get() & libc::SA_NOCLDWAIT == 0;
+        // On Linux the ignored disposition is itself the no-zombie state (wait
+        // fails with ECHILD once the children are gone) and exec preserves it,
+        // so the ignore row is a failing discriminator of its own and only the
+        // default row is already waitable.
+        // https://man7.org/linux/man-pages/man2/sigaction.2.html (Notes: "POSIX.1-2001
+        // specifies that if the disposition of SIGCHLD is set to SIG_IGN ...")
+        let already_waitable = if cfg!(target_os = "linux") {
+            chld == 0
+        } else {
+            LAST_RAW_CHLD_FLAGS.get() & libc::SA_NOCLDWAIT == 0
+        };
         assert_eq!(mutant, already_waitable);
         eprintln!("E03 skip-repair mutant conformance={mutant}; raw no-child-wait present={}; private E04 is the independent repair control", !already_waitable);
     }

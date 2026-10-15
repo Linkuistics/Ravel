@@ -1,0 +1,40 @@
+{
+  "id": "F04__owner=selection__operation=INT-final-restore__mode=perform-report-EIO",
+  "family": "F04",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_f04_int_final_restore_failure",
+    "note": "unmet [\"release-failure-reported\", \"handled-signals-blocked-after\"]; held [\"failed-exit\", \"zero-result\", \"original-retained\", \"child-ran-and-reaped\", \"owner-is-the-operations-own\"]; exit 3; result_empty=true; INT owner after \"default\" (expected default); fault=\"INT-final-restore\" \"perform\" performed=true actual=0 errno=null; stderr: {\"diagnostics\":{\"stderr\":\"\",\"stdout\":\"\"},\"error\":{\"code\":\"policy_refused\",\"exit\":3,\"input\":\"--kind native\",\"message\":\"the policy /tmp/.tmpBoCcL9/policy.ts refused the selection: native entry refusal\",\"policyCode\":\"owner_declined\",\"remedy\":\"none\",\"source\":\"/tmp/.tmpBoCcL9/policy.ts\",\"stage\":\"selection\"},\"schemaVersion\":1}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

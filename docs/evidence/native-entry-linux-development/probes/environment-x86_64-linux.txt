@@ -1,0 +1,17 @@
+Linux efda39c65013 7.0.14-linuxkit #1 SMP PREEMPT Fri Sep 18 10:19:32 UTC 2026 x86_64 GNU/Linux
+Ubuntu 26.04.1 LTS
+ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43
+rustc 1.85.0 (4d91de4e4 2025-02-17)
+binary: rustc
+commit-hash: 4d91de4e48198da2e33413efdcd9cd2cc0c46688
+cargo-nextest 0.9.148 (cd1d6d546 2026-10-07)
+3.54.0
+07d5a76ba859dc045883efd538d96c7b86cf10166f4e834afbb5981012b461c3  /opt/rustup/toolchains/1.85.0-x86_64-unknown-linux-gnu/bin/rustc
+1815642e0eaa0cf4ea86c3ba4299c21c4f2d68ae4a427881ea1f33070b2aae9b  /opt/rustup/toolchains/1.85.0-x86_64-unknown-linux-gnu/bin/cargo
+5d16e1f60a83aebeb71c9dfdae7ae6a3d351b31c6a91bd1d3508975339e9c135  /opt/rustup/toolchains/1.85.0-x86_64-unknown-linux-gnu/bin/cargo-clippy
+5d90e4b57cf7ae89a83c35428a245c0de9fa050fd13c5ad7f19b2ee4b561ae6f  /opt/rustup/toolchains/1.85.0-x86_64-unknown-linux-gnu/bin/rustfmt
+53470cfc9b5cbcd96780db2d348700d76af962467503791f1f8a8824d8967e5c  /opt/cargo/bin/cargo-nextest
+f00f13e91018d0aa8d4b5dc59ec5b523d0f8941760e33276ea31af7eb86fd61f  /usr/local/bin/task
+679fac51cb33a98e95e6900a8b917c91c854a52cfcba1b4759d567d0e193b81e  /usr/bin/jq
+311de5f94ecea1d98052ccdc94166591dce89e031e7357debd2f3213b547f7df  /usr/bin/shellcheck
+523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6  /usr/bin/bwrap

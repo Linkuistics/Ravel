@@ -1,0 +1,38 @@
+{
+  "id": "S01__operation=group-first__mode=perform-report-EPERM",
+  "family": "S01",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "Every S01 row faults one stop attempt of the settlement that follows a failed Started check, and its one named claim reads that attempt's retained report. The incumbent's Started is the infallible observer(LaunchEvent::Started), a `&mut dyn FnMut(LaunchEvent)`, so no check can fail, and its stops (kill, Process::signal, Process::kill_group) return nothing and ignore the failure on purpose. There is no operation report channel, so the fact the claim reads cannot exist; it is recorded as the reason, not as a failure the incumbent was never observed to commit.",
+    "missing": "checked stop operations with a per-attempt report channel (and the fallible post-spawn start check that leads to them)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:report",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:report",
+      "conforms": false,
+      "test": "run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations",
+      "note": "named claim stop-report-retained attempt=1; violated [\"stop-report-retained attempt=1\"]"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations",
+      "note": "[]"
+    }
+  ],
+  "problems": []
+}

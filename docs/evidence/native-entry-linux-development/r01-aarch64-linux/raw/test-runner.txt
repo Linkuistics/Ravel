@@ -1,0 +1,104 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+────────────
+ Nextest run ID 7f001333-9532-425b-aedf-193c05b16c4e with nextest profile: default
+    Starting 97 tests across 9 binaries (17 tests skipped)
+        PASS [   0.002s] ( 1/97) keyed-launch channel::tests::signalling_creates_an_empty_file
+        PASS [   0.002s] ( 2/97) keyed-launch channel::tests::discarding_removes_the_file_and_succeeds_when_there_was_none
+        PASS [   0.002s] ( 3/97) keyed-launch channel::tests::abandoned_cleanup_names_the_directory_when_it_cannot_be_listed
+        PASS [   0.002s] ( 4/97) keyed-launch channel::tests::abandoned_cleanup_removes_channels_and_leaves_every_other_entry_alone
+        PASS [   0.002s] ( 5/97) keyed-launch channel::tests::appearance_does_not_follow_links_or_read_large_files_or_fifos
+        PASS [   0.002s] ( 6/97) keyed-launch channel::tests::allocation_names_a_missing_directory_and_says_what_to_do
+        PASS [   0.002s] ( 7/97) keyed-launch channel::tests::an_allocated_channel_names_a_path_that_does_not_yet_exist
+        PASS [   0.002s] ( 8/97) keyed-launch channel::tests::anything_at_the_channel_name_has_appeared_and_nothing_else_has
+        PASS [   0.003s] ( 9/97) keyed-launch channel::tests::completion_stays_in_its_original_directory
+        PASS [   0.003s] (10/97) keyed-launch channel::tests::successive_allocations_in_one_directory_never_collide
+        PASS [   0.002s] (11/97) keyed-launch run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory
+        PASS [   0.002s] (12/97) keyed-launch run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict
+        PASS [   0.027s] (13/97) keyed-launch run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn
+        PASS [   0.052s] (14/97) keyed-launch run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report
+        PASS [   0.048s] (15/97) keyed-launch run::terminal_tests::native_s04_foreground_child
+        PASS [   0.045s] (16/97) keyed-launch run::terminal_tests::native_s04_foreground_own
+        PASS [   0.047s] (17/97) keyed-launch run::terminal_tests::native_s04_foreground_query_eio
+        PASS [   0.074s] (18/97) keyed-launch run::terminal_tests::native_s04_foreground_unrelated
+        PASS [   0.049s] (19/97) keyed-launch run::terminal_tests::native_s04_handback_eio
+        PASS [   0.329s] (20/97) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   0.048s] (21/97) keyed-launch run::terminal_tests::native_s04_modes_eio
+        PASS [   0.048s] (22/97) keyed-launch run::terminal_tests::native_s04_sigttou_restore_eio
+        PASS [   0.027s] (23/97) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+        PASS [   0.048s] (24/97) keyed-launch run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report
+        PASS [   0.005s] (25/97) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+        PASS [   0.002s] (26/97) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+        PASS [   1.027s] (27/97) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+        PASS [   0.002s] (28/97) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+        PASS [   0.003s] (29/97) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+        PASS [   0.002s] (30/97) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.002s] (31/97) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.034s] (32/97) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.002s] (33/97) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        PASS [   0.002s] (34/97) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+        PASS [   0.001s] (35/97) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        PASS [   0.002s] (36/97) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        PASS [   1.068s] (37/97) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+        PASS [   1.539s] (38/97) keyed-launch run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child
+        PASS [   0.001s] (39/97) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.001s] (40/97) keyed-launch run::wait_events::the_first_consumed_signal_survives_a_second_handler_call
+        PASS [   0.002s] (41/97) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.002s] (42/97) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+        PASS [   0.003s] (43/97) keyed-launch::authority direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs
+        PASS [   0.002s] (44/97) keyed-launch::confinement a_confined_program_that_is_not_an_absolute_path_refuses
+        PASS [   1.621s] (45/97) keyed-launch run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff
+        PASS [   0.302s] (46/97) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   0.653s] (47/97) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation
+        PASS [   0.645s] (48/97) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes
+        PASS [   2.085s] (49/97) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+        PASS [   2.638s] (50/97) keyed-launch run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   0.539s] (51/97) keyed-launch::job a_child_that_exits_normally_leaves_the_foreground_with_another_group
+        PASS [   0.535s] (52/97) keyed-launch::job a_launcher_started_in_the_background_takes_no_foreground
+        PASS [   0.525s] (53/97) keyed-launch::job a_launcher_with_hup_ignored_at_entry_installs_no_hup_handler
+        PASS [   2.029s] (54/97) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+        PASS [   3.166s] (55/97) keyed-launch run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal
+        PASS [   0.529s] (56/97) keyed-launch::job a_launcher_with_sigchld_ignored_still_supervises_its_child_to_an_end
+        PASS [   1.566s] (57/97) keyed-launch::interrupt an_interrupt_is_reported_against_the_launch_it_arrives_in_and_no_other
+        PASS [   0.526s] (58/97) keyed-launch::launch a_caller_built_argv_is_spawned_whole_and_directly
+        PASS [   1.048s] (59/97) keyed-launch::job a_transparent_launcher_hands_its_child_the_entry_state_it_was_given
+        PASS [   0.526s] (60/97) keyed-launch::launch a_channel_appearance_does_not_emit_reaped_before_the_child_exits
+        PASS [   4.007s] (61/97) keyed-launch run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report
+        PASS [   1.029s] (62/97) keyed-launch::job a_transparent_launcher_with_a_terminal_is_cancelled_by_int
+        PASS [   1.051s] (63/97) keyed-launch::job int_cancels_a_launch_with_no_terminal
+        PASS [   0.005s] (64/97) keyed-launch::launch a_program_that_does_not_exist_names_itself_and_says_what_to_check
+        PASS [   0.529s] (65/97) keyed-launch::launch a_child_signals_through_the_published_path
+        PASS [   0.529s] (66/97) keyed-launch::launch a_child_that_never_signals_ends_unsignalled
+        PASS [   0.525s] (67/97) keyed-launch::launch a_grant_replaces_a_scrubbed_value_and_cannot_replace_the_channel
+        PASS [   0.525s] (68/97) keyed-launch::launch a_scrubbed_variable_is_removed_from_an_inherited_environment
+        PASS [   1.027s] (69/97) keyed-launch::launch a_child_that_signals_and_exits_inside_the_grace_is_never_touched
+        PASS [   2.548s] (70/97) keyed-launch::job a_raw_mode_child_killed_by_the_escalation_leaves_the_terminal_restored
+        PASS [   0.528s] (71/97) keyed-launch::launch an_ignored_sigint_in_the_launcher_does_not_reach_the_child
+        PASS [   1.049s] (72/97) keyed-launch::launch an_empty_channel_signals
+        PASS [   0.526s] (73/97) keyed-launch::launch granting_the_channel_survives_a_scrub_list_that_names_it
+        PASS [   6.195s] (74/97) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+        PASS [   2.037s] (75/97) keyed-launch::launch a_signalled_child_that_keeps_waiting_is_terminated_after_the_grace
+        PASS [   0.523s] (76/97) keyed-launch::launch observed_immediate_exit_and_failed_spawn_have_exact_events
+        PASS [   2.544s] (77/97) keyed-launch::launch a_child_that_ignores_sigterm_is_killed_after_the_kill_grace
+        PASS [   2.039s] (78/97) keyed-launch::launch a_stopped_child_is_neither_reaped_nor_killed
+        PASS [   0.525s] (79/97) keyed-launch::launch the_channel_path_is_published_under_the_callers_chosen_variable_name
+        PASS [   0.004s] (80/97) keyed-launch::noninteractive a_plainly_launched_child_consumes_callers_stdin_and_shares_its_session_and_descriptors
+        PASS [   0.524s] (81/97) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs
+        PASS [   1.525s] (82/97) keyed-launch::launch an_unsignalled_child_runs_to_its_own_exit_untouched
+        PASS [   0.523s] (83/97) keyed-launch::launch the_child_starts_in_the_given_directory
+        PASS [   0.688s] (84/97) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation
+        PASS [   1.044s] (85/97) keyed-launch::launch successive_launches_get_independent_channels
+        PASS [   0.002s] (86/97) keyed-launch::reraise a_reraised_signal_reaches_the_parent_as_a_wait_status
+        PASS [   0.002s] (87/97) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.022s] (88/97) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+        PASS [   0.816s] (89/97) keyed-launch::noninteractive leader_exit_stops_a_group_helper_before_runner_returns
+        PASS [   3.078s] (90/97) keyed-launch::launch a_term_ignoring_descendant_is_gone_before_the_launch_returns
+        PASS [   0.664s] (91/97) keyed-launch::noninteractive standalone_child_has_a_new_session_and_cannot_consume_callers_stdin
+        PASS [   1.154s] (92/97) keyed-launch::noninteractive sigint_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.153s] (93/97) keyed-launch::noninteractive sigterm_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.687s] (94/97) keyed-launch::noninteractive a_stubborn_noninteractive_child_is_killed_after_the_kill_grace
+        PASS [   2.057s] (95/97) keyed-launch::launch the_escalation_reaps_the_childs_descendants
+        PASS [   5.543s] (96/97) keyed-launch::job after_a_death_by_signal_the_launcher_takes_the_terminal_from_another_group
+        PASS [  17.179s] (97/97) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [  17.184s] 97 tests run: 97 passed, 17 skipped

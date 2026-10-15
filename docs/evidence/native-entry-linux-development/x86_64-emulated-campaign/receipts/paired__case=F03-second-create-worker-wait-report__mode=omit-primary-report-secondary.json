@@ -1,0 +1,40 @@
+{
+  "id": "paired__case=F03-second-create-worker-wait-report__mode=omit-primary-report-secondary",
+  "family": "paired",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "worker::native_tests::native_baseline_paired_f03_second_create_keeps_the_worker_wait_report",
+    "note": "unmet [\"creation-failure-retained\", \"worker-wait-report-retained\"]; exit exit status: 101; teardown_ran=false; secondary_reached=false; orphaned_worker_survived=false; the incumbent's thread::spawn panicked at the second reader, so neither the creation failure nor the worker's wait report was written; elapsed 105.646791ms",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:dropped",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:dropped",
+      "conforms": false,
+      "test": "worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report",
+      "note": "Ok(())"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report",
+      "note": "paired-second-create-poll-EIO"
+    }
+  ],
+  "problems": []
+}

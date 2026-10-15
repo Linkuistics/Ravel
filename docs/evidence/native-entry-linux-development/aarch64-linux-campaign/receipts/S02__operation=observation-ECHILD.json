@@ -1,0 +1,39 @@
+{
+  "id": "S02__operation=observation-ECHILD",
+  "family": "S02",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::baseline_tests::native_baseline_s02_observation_echild",
+    "note": "violated [\"no-signal-after-release\"]; Settled { text: \"cannot wait on the launched child: No child processes (os error 10); it has been sent SIGKILL and reaped\", events: [Started, Reaped], elapsed: 291.292µs, physical_reaps: 1, signals_after_report: 1, spawn_errno: None }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:identity",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:identity",
+      "conforms": false,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "named claim identity-released-without-reap; violated [\"no-signal-after-release\", \"identity-released-without-reap\", \"unresolved-ownership-reported\"]"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "[]"
+    }
+  ],
+  "problems": []
+}

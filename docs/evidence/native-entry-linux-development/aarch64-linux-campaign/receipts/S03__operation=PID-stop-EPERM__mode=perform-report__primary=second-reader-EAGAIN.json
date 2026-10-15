@@ -1,0 +1,39 @@
+{
+  "id": "S03__operation=PID-stop-EPERM__mode=perform-report__primary=second-reader-EAGAIN",
+  "family": "S03",
+  "status": "reconciled",
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "worker::native_tests::native_baseline_s03_second_reader_creation_failure_with_a_secondary_fault",
+    "note": "unmet [\"reader-admission-failure-reported\", \"worker-identity-reported\", \"original-creation-failure-retained\", \"stop-report-retained\"]; held [\"no-managed-start\", \"result-stdout-empty\"]; exit exit status: 101; teardown_ran=false; secondary_reached=false; orphaned_worker_survived=false; the incumbent's thread::spawn panicked at the second reader and no failure was reported; elapsed 7.179541ms",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:dropped",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:dropped",
+      "conforms": false,
+      "test": "worker::native_tests::native_s03_stop_performed",
+      "note": "named claim stop-report-retained; Ok(())"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "worker::native_tests::native_s03_stop_performed",
+      "note": "stop-performed"
+    }
+  ],
+  "problems": []
+}

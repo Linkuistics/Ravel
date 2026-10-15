@@ -1,0 +1,18 @@
+{
+  "rustc": "rustc 1.85.0 (4d91de4e4 2025-02-17);binary: rustc;commit-hash: 4d91de4e48198da2e33413efdcd9cd2cc0c46688;commit-date: 2025-02-17;host: aarch64-unknown-linux-gnu;release: 1.85.0;LLVM version: 19.1.7;",
+  "cargo": "cargo 1.85.0 (d73d2caf9 2024-12-31)",
+  "nextest": "cargo-nextest 0.9.148 (cd1d6d546 2026-10-07)",
+  "task": "3.54.0",
+  "uname": "Linux 249f2e76ee0f 7.0.14-linuxkit #1 SMP PREEMPT Fri Sep 18 10:19:32 UTC 2026 aarch64 GNU/Linux",
+  "os": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\";NAME=\"Ubuntu\";VERSION_ID=\"26.04\";VERSION=\"26.04.1 LTS (Resolute Raccoon)\";VERSION_CODENAME=resolute;ID=ubuntu;ID_LIKE=debian;HOME_URL=\"https://www.ubuntu.com/\";SUPPORT_URL=\"https://help.ubuntu.com/\";BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\";PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\";UBUNTU_CODENAME=resolute;LOGO=ubuntu-logo;",
+  "platform": "linux",
+  "machine": "aarch64",
+  "kernel": "7.0.14-linuxkit",
+  "libc_runtime": "ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43",
+  "tools": "15f6e4ce9f583b929c996c91562bad6d4454f3281de858b02cdfdef615fac433  /opt/cargo/bin/rustc;15f6e4ce9f583b929c996c91562bad6d4454f3281de858b02cdfdef615fac433  /opt/cargo/bin/cargo;546f3e545dd4a9a42201ff542ac25af33253db37809a4c90dd26dbfaed6da4e4  /opt/cargo/bin/cargo-nextest;e7aa12d271f9829354138ac243dd89b7bacdcad5ecdb40d7924502eba7e80aed  /usr/local/bin/task;7795412e97a7bee761a2291ea06f61a3a786d27c4dfd385c4ab0147a5c778a36  /usr/bin/jq;984c97e949318aef6e96bdd276eb808927fd56db782e3b06a0ca0df400aa7ded  /usr/bin/shellcheck;",
+  "emulated": false,
+  "libc_crate": "0.2.186",
+  "parent_revision": "unknown",
+  "incumbent_revision": "0515419edd29a2063c3bcbbcd44a1d390bc0e2d8",
+  "incumbent_tree": "3d8ce25dcc5cb06597bcd389be5d88bd87408adf"
+}

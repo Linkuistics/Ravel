@@ -139,6 +139,30 @@ tasks:
     cmds:
       - bash scripts/native-campaign.sh selftest
 
+  native-linux:image:
+    desc: Build the GNU/Linux subject image for PLATFORM (arm64 native, amd64 emulated)
+    requires:
+      vars:
+        - name: PLATFORM
+          enum: [arm64, amd64]
+    cmds:
+      - bash scripts/native-linux.sh image {{.PLATFORM}}
+
+  test:native-linux:
+    desc: Run the whole native support measurement on a GNU/Linux target in Docker (OUT must not exist)
+    requires:
+      vars:
+        - name: PLATFORM
+          enum: [arm64, amd64]
+        - name: OUT
+    cmds:
+      - bash scripts/native-linux.sh campaign {{.PLATFORM}} {{.OUT}}
+
+  test:native-r01-controls:
+    desc: Prove the R01 join rejects a missing identity, a failure line, an empty log and a wrong scope
+    cmds:
+      - bash scripts/native-r01.sh selftest
+
   test:runner:
     desc: Run focused local-runner checks (optional nextest arguments)
     cmds:

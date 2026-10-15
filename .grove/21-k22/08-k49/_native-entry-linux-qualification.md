@@ -1,4 +1,4 @@
-# native-entry-linux-qualification-k49
+# native-entry-linux-qualification-k49 — brief
 
 ## Goal
 
@@ -92,4 +92,50 @@ use beyond entry, G4 unread alternatives, G5 target execution, R-W runtime and
 lifecycle debt, and every root obligation. A pass here closes none of them and
 does not advance the book.
 
-## Decisions (running log)
+## Decomposition
+
+The first session ported the instruments, driver, plan and Linux environments,
+took development measurements, and found that the repaired product's own lint
+step fails at the declared minimum Rust on every platform (four sites, three in
+production source). The charter requires a production repair to be its own
+failing-first correction run, and a production edit invalidates every digest an
+immutable run freezes, so the immutable runs must follow it. The leaf therefore
+became this node. The children, in order:
+
+1. `native-entry-linux-instruments-k50` (done): environments, ports, plan/driver
+   platform and emulation accounting, development measurements, findings.
+2. `native-entry-minimum-rust-lint-correction`: the failing-first correction of
+   the four lint sites, with the behaviour-preservation evidence the charter
+   asks for.
+3. `native-entry-linux-campaign-run`: the immutable measurement on the corrected
+   tree for aarch64 Linux (native, Rust 1.85.0) and x86_64 Linux (emulated),
+   R01 on each through the six Taskfile tasks, the documents reconciled before
+   the freeze, the evidence note, and the actual charges.
+
+`native-entry-x86-64-linux-scope` (requirements, a sibling after this node)
+carries the human choice the charter names for native x86_64.
+
+## Findings carried into the remaining children
+
+- **Declared-minimum lint (k50).** Clippy 0.1.85 reports four deny-level errors
+  on the unmodified tree, on Darwin and on Linux alike: `clippy::precedence` at
+  `crates/keyed-launch/src/run.rs:534` and `clippy::format_collect` at
+  `crates/ravel/build.rs:72`, `crates/ravel/src/context.rs:723` and
+  `crates/ravel/tests/cli.rs:451` (a protected test file). Clippy 0.1.86 is clean.
+  A scratch copy with the four sites rewritten is clean at 1.85 for
+  `--workspace --all-targets -D warnings` and for `native-faults`; the patch is
+  kept unapplied in `docs/evidence/native-entry-linux-development/minimum-rust-clippy/`.
+  A lint check at a pinned toolchain must name its clippy version: `rustup run 1.85
+  cargo clippy` on the Darwin host resolved to Homebrew's clippy 0.1.99.
+- **Emulation (k50).** x86_64 runs under QEMU user-mode with the guest base the
+  release smoke documents. The emulator cannot create user namespaces (a second
+  host thread per process, so `unshare(CLONE_NEWUSER)` is EINVAL) and does not
+  honour SA_NOCLDWAIT. Under it 146 of 153 rows reconcile and 7 are
+  emulation-limited with reasons; 74 of the plain suite's 338 identities need a
+  namespace and fail. It cannot qualify an x86-64 kernel.
+- **Environment (k50).** Docker needs `seccomp=unconfined`, `systempaths=
+  unconfined`, `--init` and a non-root user for the product's sandbox and group
+  checks to be meaningful; each is measured in the evidence note.
+- **Digested documents.** The completion spec and the transition design carry
+  status statements that are subjects of the campaign. Edit them before the
+  freeze, never after, and state only what is measured.

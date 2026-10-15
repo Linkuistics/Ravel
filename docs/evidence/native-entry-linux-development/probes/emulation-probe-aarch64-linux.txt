@@ -1,0 +1,7 @@
+host_threads=1
+unshare_newuser=0
+nocldwait_wait=ECHILD
+sigign_wait=ECHILD
+default_wait=7
+zombie_group_probe=0
+zombie_group_probe_after_reap=No such process

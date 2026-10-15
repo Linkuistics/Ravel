@@ -1,0 +1,28 @@
+{
+  "id": "E04__boundary=raw-executable-entry__state=Darwin-flag-reachability",
+  "family": "E04",
+  "status": "emulation-limited",
+  "limit": {
+    "reason": "Not executed: the test that files this row stopped at the worker row above (the emulator's SA_NOCLDWAIT limit) before reaching it. No observation of executable-entry flags exists for this target.",
+    "control": "scripts/native-linux/emulation-probe.c, one source built for both targets: nocldwait_wait is ECHILD natively on aarch64 Linux and the child's exit status under the emulator, while sigign_wait is ECHILD in both."
+  },
+  "failing_broken_detected": false,
+  "reason": "Linux: executable entry always sees action flags cleared (flush_signal_handlers, v6.18), so SA_NOCLDWAIT cannot reach it by inheritance. The verdict asserts the observed flag is clear after the harness read back its pre-exec injection (default plus SA_NOCLDWAIT, confirmed before exec, or the spawn is refused); it never relabels the private injection as inheritance. No repair is claimed and no mutant exists. The row keeps its Darwin spelling as its identity.",
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "note": "raw SIGCHLD flags 0; SA_NOCLDWAIT reached the executable entry: false; raw_wait=0 elapsed=25.691125ms worker=None managed=None ending=None outcome=None result=[] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    }
+  ],
+  "observed": [],
+  "problems": [
+    "missing record: repaired"
+  ]
+}

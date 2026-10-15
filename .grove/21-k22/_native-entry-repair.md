@@ -505,4 +505,23 @@ D<=115/RC<=102/P<=510/E<=187/X=0 against the historical caps
 D<=135/RC<=88/P<=467/E<=177/X=0, which no longer gate required work (k41);
 remaining D<=20 exclusively phase closure.
 
-K22 stays open: k49 is live before the book, and returning-host, adoption, K4/k6, G2-G5/R-W and every root obligation remain live. Local native success closes none of them.
+K50 (the first child of k49, inside k22) built the GNU/Linux (aarch64 native)
+and emulated (x86_64) environments, ported the instruments, driver and plan to a
+platform dimension with emulation accounting, and took **development**
+measurements; it is not the immutable run and no receipt of it qualifies a target.
+On aarch64 Linux at rustc 1.85.0 the matrix reconciles 153 of 153 (incumbent
+68/55/30; one row changes class, plus two measured Darwin premises replaced), the
+plain suite is 338 passed and R01 joins 310 of 310 through five of six tasks.
+Under emulation 146 reconcile and 7 are limited with reasons; 74 protected
+identities cannot run (the emulator cannot create user namespaces). The sixth R01
+task, `check`, fails at its lint step at the declared minimum on every platform:
+clippy 0.1.85 reports four deny-level errors (three in production source, one in
+a protected test), which clippy 0.1.86 accepts. Production source is unchanged and
+the repair is cut as its own failing-first correction run. k49 became a node
+(k50 done; k51 correction, k52 immutable run), and the native x86_64 human choice
+is cut as k53. Charge P<=45/E<=40/RC<=3, D=X=0; no reviewer was spawned.
+Cumulative D<=115/RC<=105/P<=555/E<=227/X=0 against the historical caps
+D<=135/RC<=88/P<=467/E<=177/X=0, which no longer gate required work (k41);
+remaining D<=20 exclusively phase closure.
+
+K22 stays open: k49's remaining children and k53 are live before the book, and returning-host, adoption, K4/k6, G2-G5/R-W and every root obligation remain live. Local native success closes none of them.

@@ -1,0 +1,39 @@
+{
+  "id": "F02__boundary=managed__operation=default-action-repair__mode=omit-EIO",
+  "family": "F02",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "The row faults the runner's default-action repair of default plus no-child-wait. The incumbent's runner repairs SIGCHLD only when the inherited disposition is an ignore (`SIG_IGN`) and performs no repair at all for default plus no-child-wait, so under the row's state there is no repair operation to omit or to report failed. A control on the same role sees the repair site reached for an ignored disposition and not reached for default plus no-child-wait; the query row of the same boundary is hosted. The failure this absence causes (ECHILD at the managed wait) is E04's managed row, already recorded.",
+    "missing": "the independent no-child-wait repair of a default SIGCHLD disposition (the incumbent repairs only an ignored one)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child",
+      "note": "Row { line: \"events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[2, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0\", clean: true }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child",
+      "note": "F02 managed site=2 mode=2: failed=[] Row { line: \"events=[] error=\\\"cannot repair child watching: Input/output error (os error 5)\\\" errno=None consumed=None records=[2, 0] stray=-1 stray_errno=Some(10) chld_nocldwait=1 int=runner term=runner hup=runner foreground_restored=-1 modes_unchanged=-1 pending_term=0 latch_before=0 latch_after=0\", clean: true }"
+    }
+  ],
+  "problems": []
+}
