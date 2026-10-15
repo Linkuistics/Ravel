@@ -634,3 +634,25 @@ P≤5/E≤10/RC≤1 and reserved D≤20. Neither projection is spend. Material n
 design/review or runtime infrastructure earns a precise human continuation.
 Minimum-Rust/Linux qualification, G2–G5/R-W, k4/k6 history, later comparative
 selection and all root delivery/documentation obligations remain live.
+
+K21 freezes the additive fallible Started check and exact finite expansion in
+native-entry-repair-k22. Existing infallible observers adapt unchanged; failed
+Started checks retain io source/first cancellation/reports and require bounded
+real child/group/wait/terminal settlement. The spawn-only errno accessor remains
+unset after Started. E/F tuples, private barriers, fault modes and paired secondary
+reports are fixed in k22; no product/control construction or behavioral execution
+occurred in planning. Tier 2 source/trace/coverage checks support the existing seam,
+not runtime conformance. No new architectural decision or ADR change follows.
+
+K21 charges conservative D≤5/RC≤1, P=E=X=0 including verification and closure.
+Cumulative correctness charges are D≤100/RC≤45/P≤140/E≤30/X=0; remaining
+D≤20 exclusively phase-closure reserve, shared RC≤5/P≤100/E≤90/X=0.
+K22, before the book, commissions the one complete independently useful repair
+at P≤95/E≤80/RC≤4, D=X=0, including all source/control work, frozen red/broken/
+green receipts, untouched protected checks, one narrow review and closure.
+Full use would leave P≤5/E≤10/RC≤1 plus reserved D≤20; projections are not spend.
+New protocol/review/infrastructure needs a precise human continuation, without
+reserve borrowing. K22 closure records actual spend and the next precise
+continuation before the book. Minimum-Rust/Linux, G2–G5/R-W, k4/k6 history and
+all root delivery/documentation obligations remain live; no phase/root close,
+comparative gain or independent adoption is established.
