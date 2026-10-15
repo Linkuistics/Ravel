@@ -816,3 +816,12 @@ leaves D≤20 reserved/RC=0/P=0/E=0/X=0; allocations are not spend. No new
 protocol, infrastructure, support qualification or narrower acceptance is
 authorised. Rust 1.85/Linux, returning-host, adoption, K4/k6/G2–G5/R-W and every
 root/book obligation stay live; no parent/phase/root close or gain follows.
+
+K32's bounded source review records a cancellation race between the last runner
+latch read and final blocking. Native-entry-development-k33 integrates the
+review before native-entry-qualification-k31; the full qualification remains
+required. K32 charges RC≤5, D=P=E=X=0 including retirement/commit. Cumulative
+bounds are D≤115/RC≤72/P≤225/E≤60/X=0, leaving D≤20 exclusively phase closure
+and shared RC≤2/P≤100/E≤70/X=0 for k33/k31. No parent, phase or root closes;
+support qualification, comparative work and every delivery/book obligation
+remain live.

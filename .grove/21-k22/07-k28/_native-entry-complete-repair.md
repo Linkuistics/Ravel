@@ -233,3 +233,10 @@ documentation obligations remain live. No comparative gain is inferred.
   passing the balance forward. The one in-session reviewer stays spent. This
   node's full acceptance contract, the unchanged matrix and the 30/5/5 envelope
   carry forward. Full use leaves D≤20 reserved/RC=0/P=0/E=0/X=0.
+
+- K32's bounded source review found a late-runner-latch cancellation race;
+  native-entry-development-k33 integrates that review before k31. Charge
+  RC≤5, D=P=E=X=0, including review closure. Cumulative bounds are
+  D≤115/RC≤72/P≤225/E≤60/X=0; remaining D≤20 exclusively phase closure,
+  RC≤2/P≤100/E≤70/X=0 shared by k33/k31. Full acceptance, the fixed campaign,
+  support qualification and all parent obligations remain live.

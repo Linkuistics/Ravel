@@ -326,3 +326,10 @@ RC≤7/P≤100/E≤70/X=0. K32 receives RC≤5; any integration and k31 share
 P≤100/E≤70/RC≤2, D=X=0. Full use leaves only D≤20 reserved; allocations are not
 spend. K22 keeps live work and cannot close; all support/comparison/root
 obligations remain live.
+
+K32 records one source-supported cancellation race in common finalisation.
+Native-entry-development-k33 integrates that review before k31 qualification.
+K32 charges RC≤5, D=P=E=X=0 including closure; cumulative bounds are now
+D≤115/RC≤72/P≤225/E≤60/X=0. Remaining D≤20 is exclusively phase closure;
+k33/k31 share RC≤2/P≤100/E≤70/X=0. The full k28 campaign, supported-target
+qualification and all parent/root obligations remain live; no node closes.

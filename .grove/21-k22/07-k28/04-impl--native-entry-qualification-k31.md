@@ -21,6 +21,11 @@ are D≤20 exclusively phase closure/RC≤7/P≤100/E≤70/X=0. The k32 review r
 RC≤5; any integration it earns and this leaf share P≤100/E≤70/RC≤2, D=X=0.
 Subtract actual review/integration charges before this leaf's own spend.
 
+K32 has now charged conservative RC≤5 and placed k33 integration before this
+leaf. Current cumulative bounds are D≤115/RC≤72/P≤225/E≤60/X=0; the remaining
+shared balance for k33 and this leaf is P≤100/E≤70/RC≤2, D=X=0, with D≤20
+exclusively phase closure. Consume k33's actual new charges before proceeding.
+
 ## Done when
 
 - Meet every original k28 Done when against T0–T8, the two Started APIs and the
