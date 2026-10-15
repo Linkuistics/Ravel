@@ -1,14 +1,15 @@
 //! F07 on the incumbent: exit propagation, judged by the repaired claims.
 //!
 //! Compiled only into the frozen incumbent subject (`scripts/native-incumbent.sh`).
-//! The incumbent's `reraise` performs two operations to end the process by the
-//! cancelling signal: it unblocks (`restore_mask`, ignoring the result) and it
-//! raises (ignoring the result). The seams below place the row's one fault at
-//! exactly those two calls and add no check, no report and no default-action
-//! step: `reraise` performs no `sigaction` at all (the entry disposition was
-//! restored earlier, by the handlers' `Drop`), so the TERM-default rows name an
-//! operation the incumbent does not perform at propagation and are rejected
-//! premises in the plan, never run here.
+//! The incumbent ends the process by the cancelling signal in three operations,
+//! each of whose result it ignores: the handlers' `Drop` reinstates the entry
+//! disposition (for TERM in the default-entry state that is the default action),
+//! `reraise` unblocks (`restore_mask`) and `reraise` raises. The seams below
+//! place the row's one fault at exactly one of those three calls and add no
+//! check, no report and no repair. `reraise` itself performs no `sigaction`; the
+//! TERM-default rows are hosted at the `Drop` restore, which the propagation
+//! path performs immediately before it and which is where the incumbent puts the
+//! signal's default action back.
 //!
 //! Each row runs in a fresh process under a bounded controller of its own. A
 //! fixture that never reached the point it was to fault is an instrument fault
@@ -24,6 +25,8 @@ use std::time::{Duration, Instant};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Fault {
     None,
+    DefaultOmitted,
+    DefaultPerformed,
     UnblockOmitted,
     UnblockPerformed,
     RaiseOmitted,
@@ -39,6 +42,30 @@ fn set_errno(error: i32) {
     #[cfg(target_os = "linux")]
     unsafe {
         *libc::__errno_location() = error;
+    }
+}
+
+/// The handlers' entry-disposition restore for one signal, in `Handlers::drop`.
+/// For TERM from the default-entry state this is the operation that puts the
+/// default action back. The row substitutes only its report: omitted, nothing
+/// changes; performed, the physical restore runs first. The incumbent ignores
+/// the result either way.
+pub(super) fn default_action(signal: i32, real: impl FnOnce() -> i32) -> i32 {
+    match (FAULT.get(), signal == libc::SIGTERM) {
+        (Fault::DefaultOmitted, true) => {
+            eprintln!("native baseline F07 default: performed=false substituted=EIO");
+            set_errno(libc::EIO);
+            -1
+        }
+        (Fault::DefaultPerformed, true) => {
+            let actual = real();
+            eprintln!(
+                "native baseline F07 default: performed=true actual={actual} substituted=EIO"
+            );
+            set_errno(libc::EIO);
+            -1
+        }
+        _ => real(),
     }
 }
 
@@ -80,6 +107,8 @@ fn native_baseline_propagation_role() {
         return;
     };
     FAULT.set(match case.as_str() {
+        "default-omitted" => Fault::DefaultOmitted,
+        "default-performed" => Fault::DefaultPerformed,
         "unblock-omitted" => Fault::UnblockOmitted,
         "unblock-performed" => Fault::UnblockPerformed,
         "raise-omitted" => Fault::RaiseOmitted,
@@ -98,7 +127,8 @@ fn native_baseline_propagation_role() {
     let output = File::create(path).unwrap();
     assert_eq!(unsafe { libc::dup2(output.as_raw_fd(), 1) }, 1);
     // The incumbent drops its handlers before it re-raises: that restores the
-    // entry disposition, which is how the signal's default action is back.
+    // entry disposition, which is how the signal's default action is back. The
+    // TERM-default rows fault exactly this restore.
     drop(handlers);
     if case == "custom-handler" {
         // The harness control for the TERM-default rows: a handler of the
@@ -215,18 +245,22 @@ fn ids() -> Vec<String> {
 fn native_baseline_f07_exit_propagation_transitions_and_real_signal_death() {
     let ids = ids();
     assert_eq!(ids.len(), 6);
+    let mut hosted = 0;
     let find = |suffix: &str| -> String {
         let matching: Vec<_> = ids.iter().filter(|id| id.ends_with(suffix)).collect();
         assert_eq!(matching.len(), 1, "{suffix}: {matching:?}");
         matching[0].clone()
     };
     for (case, suffix, marker) in [
+        ("default-omitted", "operation=TERM-default__mode=omit-EIO", Some("F07 default: performed=false")),
+        ("default-performed", "operation=TERM-default__mode=perform-report-EIO", Some("F07 default: performed=true")),
         ("unblock-omitted", "operation=TERM-unblock__mode=omit-EIO", Some("F07 unblock: performed=false")),
         ("unblock-performed", "operation=TERM-unblock__mode=perform-report-EIO", Some("F07 unblock: performed=true")),
         ("raise-omitted", "operation=TERM-raise__mode=omit-EIO", Some("F07 raise: performed=false")),
         ("signal-death", "operation=TERM-raise__mode=unmodified-signal-death-control", None),
     ] {
         let id = find(suffix);
+        hosted += 1;
         let seen = run(case);
         // Instrument integrity: the process reached the boundary and, for a
         // fault row, the selected operation. Anything else files no record.
@@ -262,6 +296,8 @@ fn native_baseline_f07_exit_propagation_transitions_and_real_signal_death() {
             ),
         );
     }
+    // Every F07 row of the manifest is hosted; none is a rejected premise.
+    assert_eq!(hosted, 6);
 }
 
 // A harness control: with no fault the same fixture ends by the real signal, so
@@ -274,13 +310,20 @@ fn native_baseline_control_f07_the_unfaulted_fixture_dies_by_the_signal() {
     assert_eq!(seen.status.signal(), Some(libc::SIGTERM), "{}", seen.log);
     let faulted = run("unblock-omitted");
     assert_eq!(faulted.status.code(), Some(128 + libc::SIGTERM), "{}", faulted.log);
+    // The TERM-default seam is likewise seen to change the ending: with the
+    // restore omitted the incumbent's handler is still installed, so the same
+    // fixture exits by code instead of by the signal.
+    let omitted = run("default-omitted");
+    assert_eq!(omitted.status.code(), Some(128 + libc::SIGTERM), "{}", omitted.log);
+    assert!(omitted.log.contains("F07 default: performed=false"), "{}", omitted.log);
 }
 
-/// The F07 TERM-default rows are rejected premises: `reraise` performs no step
-/// that sets the signal's default action (the entry disposition was restored
-/// earlier, by the handlers' `Drop`). Seen here as a fact: with a handler of the
-/// fixture's own installed just before `reraise`, the raise runs that handler and
-/// the process ends by `exit(143)`, not by the signal.
+/// Where the TERM-default rows are hosted, seen as a fact: `reraise` itself
+/// performs no step that sets the signal's default action. With a handler of
+/// the fixture's own installed after the handlers' `Drop` and just before
+/// `reraise`, the raise runs that handler and the process ends by `exit(143)`,
+/// not by the signal, so the default action the unfaulted fixture dies by is the
+/// `Drop` restore's, which is the operation the TERM-default rows fault.
 #[test]
 #[ignore = "private process fixture; run native-incumbent.sh test"]
 fn native_baseline_control_f07_reraise_performs_no_default_action_step() {

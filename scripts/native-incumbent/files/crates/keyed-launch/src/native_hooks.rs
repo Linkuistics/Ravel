@@ -21,6 +21,9 @@ pub(crate) const TERM_INSTALL: u8 = 5;
 pub(crate) const TERM_RESTORE: u8 = 6;
 pub(crate) const MASK_BUILD: u8 = 7;
 pub(crate) const MASK_RESTORE: u8 = 8;
+/// The terminal handback's report in the runner's recovery (the paired F05
+/// row's secondary): the physical handback runs, only its report is replaced.
+pub(crate) const HANDBACK_REPORT: u8 = 9;
 
 #[cfg_attr(not(test), allow(dead_code))]
 pub(crate) const REPORT: u8 = 1;
@@ -118,6 +121,26 @@ pub(crate) fn mutation_r(site: u8, real: impl FnOnce() -> i32) -> i32 {
     libc::EIO
 }
 
+/// The recovery report of one runner operation. Only the terminal handback is a
+/// site: the physical handback has already run, and a selected row replaces its
+/// report by a failure the product then retains or discards as it does for a
+/// real one. The text is the one the runner's own unit-test seam produces.
+pub(crate) fn recovery_report(
+    operation: &str,
+    result: std::io::Result<()>,
+) -> std::io::Result<()> {
+    if operation != "terminal handback" || selected(HANDBACK_REPORT).is_none() {
+        return result;
+    }
+    record(HANDBACK_REPORT, true, result.is_err());
+    if IGNORE.load(Ordering::SeqCst) {
+        return result;
+    }
+    result.and(Err(std::io::Error::other(format!(
+        "C4 substituted {operation} report after physical operation"
+    ))))
+}
+
 /// The private fixture's one entry point: select a fixed site by name. The
 /// string form keeps the site numbers private. Any unknown name is a fixture
 /// defect and stops it.
@@ -127,9 +150,11 @@ pub fn native_fault_select(site: &str, mode: &str, ignore: bool, record_fd: i32)
         "TERM-action-restore" => TERM_RESTORE,
         "mask-set-build" => MASK_BUILD,
         "mask-restore" => MASK_RESTORE,
+        "terminal-handback-report" => HANDBACK_REPORT,
         other => panic!("unknown fixed runner fault site {other}"),
     };
     let mode = match mode {
+        "report" => REPORT,
         "omit" => OMIT,
         "perform" => PERFORM,
         other => panic!("unknown fixed runner fault mode {other}"),

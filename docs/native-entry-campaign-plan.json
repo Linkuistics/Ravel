@@ -652,23 +652,6 @@
      "class": "observed"
     }
    }
-  },
-  {
-   "family": "F07",
-   "match": "operation=TERM-default__",
-   "spec": {
-    "repaired": [
-     "repaired"
-    ],
-    "violates": [
-     "broken:ignore-fault"
-    ],
-    "baseline": {
-     "class": "rejected-premise",
-     "reason": "The row faults the default-action step of exit propagation. The incumbent's `reraise` unblocks the signal (`restore_mask`) and raises it; it performs no `sigaction` at all, because the entry disposition was restored earlier, by the handlers' `Drop` (F04's final-restore operation, hosted there). A control with a handler of the fixture's own installed after the handlers dropped and just before `reraise` shows the raise reaching that handler and the process ending by `exit(143)` rather than by the signal, so no default-action step exists in propagation to fault.",
-     "missing": "a default-action transition of the selected signal inside exit propagation"
-    }
-   }
   }
  ],
  "families": {

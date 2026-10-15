@@ -816,11 +816,13 @@ physical EINTR, ECHILD or thread exhaustion.
 `native-entry-incumbent-faults-k46`, the third and last child of the
 incumbent-baseline node (k42), classified the 67 fault rows: F01 (3), F02 (6),
 F03 (6), F04 (14), F05 (20), F06 (6), F07 (6), the four paired failures and the
-two queued-TERM variants. Forty-five are observed from a real incumbent run (41
-fail, 4 are already correct) and 22 are rejected premises, each naming the
+two queued-TERM variants. Forty-seven are observed from a real incumbent run (43
+fail, 4 are already correct) and 20 are rejected premises, each naming the
 operation the incumbent never performs and each checked by a control on the same
-fixture. It takes no immutable measurement and changes no repaired production
-code; the incumbent build gains seams, and one off-by-default feature.
+fixture. (k46 recorded 45 and 22; the [integration of its review
+(k48)](#instrument-integration-k48) hosted the two F07 TERM-default rows.) It
+takes no immutable measurement and changes no repaired production code; the
+incumbent build gains seams, and one off-by-default feature.
 
 **Where the hooks sit.** Every hook is a call at an operation the incumbent
 already performs, with the report substituted after the physical operation (or
@@ -836,7 +838,7 @@ check, a report or a repair.
 | F04 runner, F02 managed query | `install_termination_handler`'s `disposition` query and `signal()` installs, and `restore_child_watching`'s query: all unchecked. |
 | F05 Started, F05 final restore | `restore_mask_at("Started-parent-restore")`, which the front swallows with `let _`, and `restore_mask_at("final-mask-restore")`, which is collected as a cleanup error. |
 | F06 | `EntrySignals::reinstate` in the forked child: `sigemptyset` and the TERM `sigaction` (unchecked) and the final `pthread_sigmask` (the one result it checks). Reachable from the front fixture through the same off-by-default `native-faults` feature the repaired runner has, which the incumbent's private fixture build now also enables; no installed build does. |
-| F07 | `reraise`'s unblock (`restore_mask`, ignored) and `raise` (ignored). |
+| F07 | The handlers' `Drop` restore of the TERM entry action (the default action, in the default-entry state), then `reraise`'s unblock (`restore_mask`, ignored) and `raise` (ignored). |
 
 **Observed rows** (development run, aarch64-apple-darwin, not an immutable
 receipt). The named claims are the repaired rows' own; the table gives what the
@@ -856,10 +858,10 @@ incumbent met and did not.
 | F05 Started restore (2) | 0 | 2 | Swallowed: the child runs to its end and the launch writes its result with exit 0 (no `supervision_failed`, an `Ended` is produced). The mask is the operation's own. |
 | F06 TERM restore, mask build (4) | 0 | 4 | Unchecked: the spawn succeeds, the child runs and exits 7. The child's own site record shows performed or omitted while it held the terminal; the terminal and modes come back. |
 | F06 mask restore (2) | 2 | 0 | The one checked operation: the spawn fails with EIO as the actual errno, no Started, terminal and modes restored, no stray child. |
-| F07 unblock (2), raise omitted (1) | 0 | 3 | Nothing is reported: omitted unblock and omitted raise end by `exit(143)`; a performed unblock ends by the signal. No `cannot propagate` line. |
+| F07 TERM default (2), unblock (2), raise omitted (1) | 0 | 5 | Nothing is reported: an omitted default restore leaves the incumbent's own handler installed so the raise ends by `exit(143)`; a performed default restore (report substituted) and a performed unblock end by the signal; an omitted unblock and an omitted raise end by `exit(143)`. No `cannot propagate` line. |
 | F07 real signal death control | 1 | 0 | Raise ends the process by the real signal. |
 | Paired F03 | 0 | 1 | The same incumbent path as S03's wait-EIO row: neither the creation failure nor the worker's wait report is written. |
-| Paired F05 Started + recovery report, paired F06 + C4 report | 0 | 2 | The primary never exists (the Started restore and the TERM action restore are both swallowed), so `primary-retained` is unmet. The substituted handback report is the launch's only error and is retained: the incumbent returns it although the child ran to completion. |
+| Paired F05 Started + recovery report, paired F06 + C4 report | 0 | 2 | The primary never exists (the Started restore and the TERM action restore are both swallowed), so `primary-retained` is unmet. The substituted handback report is the launch's only error and is retained: the incumbent returns it although the child ran to completion (F05 Started: `supervision_failed`, exit 5, nothing written). The F05 Started pair is one real front run: the front's own restore omitted and the runner's handback report substituted. |
 | Queued TERM, F05 Started and F06 TERM action | 0 | 2 | The pending TERM is an actual signal under the parent's block and is joined at the tail (death by TERM, zero bytes, outcome names TERM, and for F06 the worker teardown confirmed). Unmet: the original Started or spawn failure was never raised (F05: the child ran to its end and an `Ended` was produced; F06: the child started and was then interrupted). |
 
 **Judgement calls a reader should check.**
@@ -880,15 +882,18 @@ incumbent met and did not.
    incumbent's own `record()` after `main` began; the real record is kept for
    every signal but TERM so SIGPIPE, which the Rust runtime has since ignored,
    is not handed to the managed child.
-4. *The paired F05 Started row* is hosted at the runner with the observer
-   standing in for the front's swallowed restore, exactly as the repaired role's
-   start check stands in for it. The cancellation rows and the single Started
-   rows are hosted end to end at the front.
+4. *The paired F05 Started row* is hosted end to end at the front, beside the
+   cancellation rows and the single Started rows: the front's own
+   `restore_mask_at("Started-parent-restore")` is the omitted primary and the
+   runner's terminal-handback report is the substituted secondary, selected by
+   a `native-faults`-only seam. k46 had hosted it at the runner with a fixture
+   callback standing in for the front's swallowed restore, so the recorded
+   failure was the callback's own choice; k48 replaced that (see below).
 5. *F06's shared feature.* The front fixture reaches the forked child's sites
    through `native-faults`, which the incumbent's `keyed-launch` and `ravel`
    crates now declare as the repaired ones do.
 
-**Rejected premises** (22), each verified on the same fixture: the selected
+**Rejected premises** (20), each verified on the same fixture: the selected
 site is never reached (no receipt), while a hosted row on the same fixture
 reaches its own.
 
@@ -898,7 +903,6 @@ reaches its own.
 | F02 managed repair (2) | The no-child-wait repair of a default disposition: the incumbent repairs only `SIG_IGN`. On the runner role the repair site is reached for an ignored SIGCHLD and is not reached for default plus no-child-wait, and the query site is reached in both. |
 | F05 final block, pending query, TERM membership (12: 3 outcomes x 4) | The common finalisation's signal snapshot. The incumbent's only block and pending query are the pre-launch `block_and_check`; each of the four sites selected on each outcome is never reached and the launch runs to its end. |
 | F05 final mask restore on policy refusal (2), paired F05 refusal (1) | A mask restore on the selection-refusal path: the refusal settles without one (the handled signals were never blocked). The site is not reached on a refusal, which ends with its own exit 3, and is reached on the spawn-ENOENT path of the same fixture. |
-| F07 TERM default (2) | A default-action transition inside propagation: `reraise` performs no `sigaction`. With a handler of the fixture's own put in place after the handlers drop and before `reraise`, the raise reaches it and the process ends by `exit(143)`, not by the signal. The entry-disposition restore the incumbent does perform is the `Drop` that F04's final-restore rows host. |
 
 **Harness controls**, none of which files a row: the F02 repair-site control
 above; a checked child operation (mask restore) fails the spawn while the
@@ -910,13 +914,12 @@ F07 control and every held claim in the failing rows (the EIO text, the
 refusal code, the owners, the site record) are readings the same instruments
 return when the incumbent does it right.
 
-**Result.** 67 of 67 classified: 45 observed (4 already correct, 41 fails) and
-22 rejected premises. Across the node, with k44 and k45: 65 rows fail, 56 are
-already correct and 32 are rejected premises, 153 of 153 by identity and none
-unclassified or unobserved. The development campaign ran 109 tests (59 repaired, 50
-incumbent), none failed, digested 327 subjects unchanged after, and all 153
-repaired identities still reconcile.
-`task check` passed 338/46. `task test:native-incumbent-controls` states 22
+**Result.** 67 of 67 classified: 47 observed (4 already correct, 43 fails) and
+20 rejected premises. Across the node, with k44 and k45: 67 rows fail, 56 are
+already correct and 30 are rejected premises, 153 of 153 by identity and none
+unclassified or unobserved. (As k46 first recorded them, before k48's
+integration, the figures were 45/22 and 65/56/32.) The development campaign
+figures are in the k48 section. `task test:native-incumbent-controls` states 22
 files differing from git's export.
 
 **What this does not establish.** The same limits as k44 and k45: no immutable
@@ -925,6 +928,65 @@ account of an operation the pre-repair product does not perform, not a claim tha
 it behaves correctly under that fault. The failures are the incumbent's responses
 to substituted reports and to a documented std panic, not physical EIO, EAGAIN
 or thread exhaustion.
+
+## Instrument integration (k48)
+
+`native-entry-incumbent-instrument-k48` integrated the committed findings of
+`native-entry-incumbent-instrument-k47`, the fresh-context read of the whole
+incumbent instrument before the frozen campaign. Each of its four findings was
+reproduced from source before it was classified, and all four were real. It
+takes no immutable measurement and changes no repaired production code or
+repaired instrument; every change is to the incumbent's seams, its overlay and
+the plan's baseline classification.
+
+| Finding | What was wrong | Resolution |
+|---|---|---|
+| Worker fixture cleanup could kill a reused group (S03 ×8, F03 ×6, paired F03) | `s03_run` reaped the role, then probed and `SIGKILL`ed its numeric group; nothing reserved that group once the role was reaped | The role's exit is observed with `waitid(WEXITED|WNOHANG|WNOWAIT)`; the group is probed and killed while the unreaped leader still reserves it; the role is reaped last |
+| The same cleanup's watchdog waited without a deadline | On timeout the group was killed and `child.wait()` then blocked, with the kill result ignored | The timeout settles through a bounded (2 s) unreaped wait, reports the kill errno and fails without waiting if the role is unconfirmed |
+| The paired F05 Started row recorded the fixture's choice | The runner role's observer evaluated and discarded `Err(EIO)`; no front restore was performed and the report seam selected nothing | Hosted at the front: the real `restore_mask_at("Started-parent-restore")` omitted, and the runner's handback report substituted in the same run through a `native-faults`-only seam in `recovery_report`; the role's stand-in is removed |
+| F07 TERM-default rows rejected an operation the incumbent performs | `Handlers::drop` reinstates the TERM entry action just before `reraise`, which is the default-action transition of the incumbent's propagation path; F04 hosts only INT's restore | Hosted at that restore; the two rows moved from rejected premise to observed |
+
+**What the corrected instrument shows.** The development run of the corrected
+incumbent was compared row by row with a run of the incumbent as k47 reviewed it
+(same host, same revision, built from the committed patches). All 121 rows
+observed before kept their verdict, and the 45 whose notes record their named
+claims kept the same unmet and held lists. Other than the paired F05 Started
+row and the two new ones, every row's note differed only in process IDs,
+temporary paths and timings; the S03, F03 and paired F03 notes matched modulo
+timings (the orphaned worker still survived where it did before), so the cleanup
+corrections changed no observation. The paired F05 Started row is still
+a fail on the same single unmet claim (`primary-retained`: the front swallows
+its Started restore, so there is no primary to retain), now measured at the
+real restore. The two TERM-default rows are new observations, both fails: with
+the restore omitted the incumbent's handler is still installed and the process
+ends by `exit(143)` with no report, and with the restore performed and its report
+substituted the process ends by the real signal with no report (the repaired
+claim is the exit code and the `cannot propagate` line).
+
+**Controls added.** `native_baseline_control_s03_an_unreaped_role_reserves_its_group`
+shows on this host that an ended, unreaped group leader keeps the group present
+(a live member answers the probe), keeps it reserved once only the leader is
+left (`EPERM`, never `ESRCH`) and releases it only at the reap;
+`native_baseline_control_s03_settlement_is_bounded` shows the bounded wait
+returning at its deadline for a role that has not ended. The F07 control now also
+shows the omitted TERM-default restore changing the unfaulted ending from signal
+death to `exit(143)`; the custom-handler control is kept and now states that it
+locates the default action at the `Drop`, not at `reraise`.
+
+**Result.** 153 of 153 by identity, none unclassified or unobserved: 67 rows
+fail, 56 are already correct and 30 are rejected premises. The development
+campaign (`task test:native-campaign`, aarch64-apple-darwin) executed 112 tests
+(59 repaired, 53 incumbent), none failed, digested 327 subjects unchanged after,
+and reconciled all 153 rows against 327 records with no baseline problem.
+`task test:native-incumbent-controls` still states 22 files differing from git's
+export, and `task test:native-campaign-controls` passes.
+
+**What this does not establish.** The same limits as k44 to k46: no immutable
+receipts and no GNU/Linux or Rust 1.85 qualification. The failures are the
+incumbent's responses to substituted reports, not physical EIO. The k47 review
+re-derived most rows from source and took the rest (E01–E05, E06's other twelve,
+E08's two selection-success rows) from this note; k48 did not re-derive those
+either, and reran them only as part of the development run above.
 
 ## Exact remainder before acceptance
 

@@ -133,3 +133,20 @@ bounds are D<=115/RC<=96/P<=463/E<=162/X=0. The historical RC<=88 cap is exceede
 by eight; the standing k41 direction removes budget gates and requires no funding
 leaf. K43, supported-target qualification and every parent/root obligation remain
 live; no node closes.
+
+K48 (the tree-owned integration of k47, inside k42) triaged the four findings,
+all real, and corrected the incumbent instrument before k43's freeze: the S03/F03
+worker fixture's cleanup now settles its group while the unreaped role reserves
+it and is bounded; the paired F05 Started row is hosted at the front's own
+restore with the runner's handback report substituted in the same run; and the
+two F07 TERM-default rows are hosted at the incumbent's `Handlers::drop` TERM
+restore. The classification is **153 of 153 by identity: 67 fails, 56 already
+correct, 30 rejected premises** (superseding k46's 65/56/32), with the 121
+previously observed rows rerun row by row and unchanged. K42 closes. K43 remains
+the one live leaf of k38: it freezes the corrected incumbent (build with
+`task native-incumbent:build`, `scripts/native-incumbent.sh`), takes the immutable
+campaign, reconciles the documentation and cuts the support continuation. No
+product defect; production code unchanged. Charge P<=35/E<=10/RC<=3, D=X=0.
+Cumulative D<=115/RC<=99/P<=498/E<=172/X=0; RC and P exceed the historical caps
+(RC<=88, P<=467), which no longer gate required work under k41; remaining D<=20
+exclusively phase closure.

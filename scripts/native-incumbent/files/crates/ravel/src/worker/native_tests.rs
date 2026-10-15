@@ -418,6 +418,43 @@ struct S03Run {
     orphan_survived: bool,
 }
 
+/// Whether `child` has ended, observed without reaping it. `WNOWAIT` leaves the
+/// child's PID, which is its group's ID, reserved to the caller.
+fn ended_unreaped(child: &Child) -> bool {
+    // SAFETY: an initialised siginfo, this process's own child, no reap.
+    let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+    let result = unsafe {
+        libc::waitid(
+            libc::P_PID,
+            child.id(),
+            &mut info,
+            libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+        )
+    };
+    assert_eq!(result, 0, "waitid on the S03 role: {}", io::Error::last_os_error());
+    // SAFETY: `waitid` filled `info`; `si_pid` is zero when nothing was reported.
+    let reported = unsafe { info.si_pid() } != 0;
+    reported
+        && matches!(
+            info.si_code,
+            libc::CLD_EXITED | libc::CLD_KILLED | libc::CLD_DUMPED
+        )
+}
+
+/// Wait, bounded, for `child` to end without reaping it: `false` when `by`
+/// passes first. Nothing here can block past the deadline.
+fn ended_by(child: &Child, by: Instant) -> bool {
+    loop {
+        if ended_unreaped(child) {
+            return true;
+        }
+        if Instant::now() >= by {
+            return false;
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    }
+}
+
 fn s03_run(fault: &str, primary: bool) -> S03Run {
     let exe = std::env::current_exe().unwrap();
     let worker = exe
@@ -464,32 +501,45 @@ fn s03_run(fault: &str, primary: bool) -> S03Run {
         ));
     let mut child = command.spawn().unwrap();
     let pid = libc::pid_t::try_from(child.id()).unwrap();
-    let by = Instant::now() + Duration::from_secs(8);
-    let status = loop {
-        match child.try_wait().unwrap() {
-            Some(status) => break status,
-            None if Instant::now() >= by => {
-                // The fixture is still unreaped and reserves its group's ID.
-                unsafe { libc::kill(-pid, libc::SIGKILL) };
-                let _ = child.wait();
-                panic!("S03 fixture exceeded its bound ({fault})");
-            }
-            None => std::thread::sleep(Duration::from_millis(5)),
-        }
-    };
+    // The role is the group's leader and is never reaped until the group has
+    // been settled: an unreaped child still reserves its PID, which is also
+    // its group's ID, so no signal below can reach a group that has since
+    // been given to another process.
+    if !ended_by(&child, Instant::now() + Duration::from_secs(8)) {
+        // SAFETY: the role is unreaped, so it still reserves its group's ID.
+        let killed = unsafe { libc::kill(-pid, libc::SIGKILL) };
+        let kill_error = (killed == -1).then(io::Error::last_os_error);
+        // Bounded: a role that does not end is reported, never awaited.
+        let ended = ended_by(&child, Instant::now() + Duration::from_secs(2));
+        let reaped = ended && child.try_wait().is_ok_and(|status| status.is_some());
+        panic!(
+            "S03 fixture exceeded its bound ({fault}); group kill {kill_error:?}; \
+             the role {}",
+            if reaped { "was reaped" } else { "was still unconfirmed and was left unreaped" }
+        );
+    }
     let elapsed = started.elapsed();
-    // The worker is a child of the role and shares its group. The role is
-    // reaped, so only a worker the incumbent did not end can keep the group
-    // present: observe that, then end it, bounded, so no row leaves a process.
+    // The worker is a child of the role and shares its group. The role has
+    // ended but is still unreaped, so the group's ID is reserved to it and
+    // only a worker the incumbent did not end can keep the group present:
+    // observe that, then end it, bounded, so no row leaves a process. A group
+    // holding only the unreaped role answers EPERM, not success.
     let present = || {
-        // SAFETY: signal 0 only probes the group the fixture created.
+        // SAFETY: signal 0 only probes the group the fixture created, whose ID
+        // the unreaped role still reserves.
         unsafe { libc::kill(-pid, 0) == 0 }
     };
     std::thread::sleep(Duration::from_millis(300));
     let orphan_survived = present();
     if orphan_survived {
-        // SAFETY: the group is the fixture's own and is still reserved by a member.
-        unsafe { libc::kill(-pid, libc::SIGKILL) };
+        // SAFETY: as above; the group is the fixture's own and its ID is reserved.
+        let killed = unsafe { libc::kill(-pid, libc::SIGKILL) };
+        assert_ne!(
+            killed,
+            -1,
+            "S03 fixture could not signal the incumbent's orphaned worker ({fault}): {}",
+            io::Error::last_os_error()
+        );
         let by = Instant::now() + Duration::from_secs(2);
         while present() {
             assert!(
@@ -499,6 +549,8 @@ fn s03_run(fault: &str, primary: bool) -> S03Run {
             std::thread::sleep(Duration::from_millis(5));
         }
     }
+    // Only now is the role reaped: it has ended, so this returns at once.
+    let status = child.wait().unwrap();
     S03Run {
         status,
         log: fs::read_to_string(root.path().join("fixture-stderr")).unwrap_or_default(),
@@ -785,4 +837,72 @@ fn native_baseline_paired_f03_second_create_keeps_the_worker_wait_report() {
             seen.status, seen.orphan_survived, seen.elapsed
         ),
     );
+}
+
+// ---- fixture controls ---------------------------------------------------------
+//
+// The fixture's own cleanup is an instrument, and an instrument is credited only
+// after it is seen to fail. These file no row.
+
+/// A group whose leader is ended but unreaped is still addressable and still
+/// reserved: a live member answers the probe, the group is signalled by an
+/// identity the caller still owns, and only the reap releases it. The same group
+/// reaped first answers `ESRCH`, which is exactly the state the previous cleanup
+/// signalled blindly.
+#[test]
+#[ignore = "private process fixture; run native-incumbent.sh test"]
+fn native_baseline_control_s03_an_unreaped_role_reserves_its_group() {
+    let probe = |pid: libc::pid_t| -> Option<i32> {
+        // SAFETY: signal 0 only probes.
+        let result = unsafe { libc::kill(-pid, 0) };
+        (result == -1).then(|| io::Error::last_os_error().raw_os_error().unwrap())
+    };
+    let mut leader = Command::new("/bin/sh")
+        .args(["-c", "sleep 30 & exit 0"])
+        .process_group(0)
+        .spawn()
+        .unwrap();
+    let pid = libc::pid_t::try_from(leader.id()).unwrap();
+    assert!(
+        ended_by(&leader, Instant::now() + Duration::from_secs(5)),
+        "the control's leader did not end"
+    );
+    // Ended and unreaped: the surviving member answers, so the group is present.
+    assert_eq!(probe(pid), None, "a live member must answer the group probe");
+    // SAFETY: the leader is unreaped, so the group's ID is its own.
+    assert_eq!(unsafe { libc::kill(-pid, libc::SIGKILL) }, 0);
+    let by = Instant::now() + Duration::from_secs(2);
+    while probe(pid).is_none() {
+        assert!(Instant::now() < by, "the member did not end");
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    // Only the unreaped leader is left: the group is still reserved (EPERM,
+    // never ESRCH) until the reap releases it.
+    assert_eq!(probe(pid), Some(libc::EPERM));
+    leader.wait().unwrap();
+    assert_eq!(probe(pid), Some(libc::ESRCH));
+}
+
+/// The role's own wait is bounded: a role that does not end is reported at the
+/// deadline, not awaited for its life.
+#[test]
+#[ignore = "private process fixture; run native-incumbent.sh test"]
+fn native_baseline_control_s03_settlement_is_bounded() {
+    let mut child = Command::new("/bin/sleep")
+        .arg("30")
+        .process_group(0)
+        .spawn()
+        .unwrap();
+    let pid = libc::pid_t::try_from(child.id()).unwrap();
+    let at = Instant::now();
+    assert!(!ended_by(&child, at + Duration::from_millis(150)));
+    assert!(
+        at.elapsed() < Duration::from_secs(2),
+        "the bounded wait outlived its deadline: {:?}",
+        at.elapsed()
+    );
+    // SAFETY: unreaped child, its group's ID is reserved.
+    unsafe { libc::kill(-pid, libc::SIGKILL) };
+    assert!(ended_by(&child, Instant::now() + Duration::from_secs(5)));
+    child.wait().unwrap();
 }

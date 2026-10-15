@@ -28,7 +28,18 @@ diff -ruN a/crates/ravel/src/native_entry_tests.rs b/crates/ravel/src/native_ent
      );
  }
  pub(crate) fn worker_wait(pid: u32, status: &io::Result<std::process::ExitStatus>) {
-@@ -726,7 +730,12 @@
+@@ -273,6 +277,10 @@
+     let case: Value = serde_json::from_str(&std::env::var("K28_ENTRY_CASE").unwrap()).unwrap();
+     CASE.with(|c| *c.borrow_mut() = Some(case.clone()));
+     faults::select(&case);
++    // The paired F05 row's secondary, in the same real front run: the runner's
++    // terminal handback report (fixture builds with `native-faults` only).
++    #[cfg(all(test, feature = "native-faults"))]
++    baseline::select_pair(&case);
+     if family() == "F06" {
+         select_runner_fault(&case);
+     }
+@@ -726,7 +734,12 @@
      let outcome = read_json(directory.path().join("outcome.json"));
      let result = fs::read(directory.path().join("result-output")).unwrap();
      let log = fs::read_to_string(stderr).unwrap();

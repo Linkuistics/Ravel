@@ -6,10 +6,11 @@
 //! `run/native_faults.rs`: the same role, the same controller, the same fixed
 //! two-byte site record and the same facts, with the repaired internals the
 //! incumbent does not have left out (there is no `start_check`, so the repaired
-//! role's start-check closure has no counterpart; the Started transition is the
-//! front's, which the incumbent swallows, and the role's observer stands in for
-//! exactly that). Row identities come from the frozen manifest and each verdict
-//! is filed under the subject `baseline` through the write-once recorder.
+//! role's start-check closure has no counterpart). The Started transition is the
+//! front's, which the incumbent swallows; nothing in this role stands in for it,
+//! and the paired F05 Started row is hosted at the front's own restore instead.
+//! Row identities come from the frozen manifest and each verdict is filed under
+//! the subject `baseline` through the write-once recorder.
 //!
 //! Every site is a hook at an operation the incumbent already performs; none
 //! adds a check, a report or a repair. A fact the instrument could not observe
@@ -91,10 +92,6 @@ fn native_baseline_fault_role() {
     if std::env::var("K28_FAULT_PAIR").as_deref() == Ok("handback") {
         terminal_tests::inject_handback_report();
     }
-    // The front's Started parent-mask restore, which the incumbent swallows
-    // (`let _ = signal_state::restore_mask_at(..)`). The role has no mask of
-    // its own to restore, so the stand-in is the failed restore, ignored.
-    let started_fails = case == "started";
     let argv = crate::Argv::new("/bin/sh".into(), vec!["-c".into(), "exit 7".into()]);
     let entry = EntrySignals::new([], []);
     let mut events = Vec::new();
@@ -111,12 +108,7 @@ fn native_baseline_fault_role() {
                 kill_grace: Duration::from_secs(1),
             },
         },
-        &mut |event| {
-            if started_fails && event == LaunchEvent::Started {
-                let _ = Err::<(), _>(std::io::Error::from_raw_os_error(libc::EIO));
-            }
-            events.push(event)
-        },
+        &mut |event| events.push(event),
     );
     let ended = match &result {
         Ok(ended) => format!(
@@ -500,34 +492,12 @@ fn native_baseline_f06_child_restoration_faults() {
 
 #[test]
 #[ignore = "private runner fault role; run native-incumbent.sh test"]
-fn native_baseline_paired_started_restore_and_child_action() {
+fn native_baseline_paired_child_action_and_recovery_report() {
     let mut hosted = 0;
     for id in rows("paired") {
         match parameter(&id, "case") {
-            // F05: the Started parent restore (omitted, reported failed) with
-            // the terminal handback's report failing during recovery.
-            "F05-Started-restore-recovery-report" => {
-                hosted += 1;
-                let row = paired_row("started", 0, 0, true, "handback");
-                file(
-                    &id,
-                    "paired F05 Started restore + recovery report",
-                    &row,
-                    &[
-                        (
-                            "primary-retained",
-                            row.line.contains("Started parent transition failed: Input/output error"),
-                        ),
-                        ("secondary-retained", row.line.contains(HANDBACK_REPORT)),
-                        (
-                            "child-started-and-actually-reaped",
-                            row.line.contains("events=[Started, Reaped]"),
-                        ),
-                        ("no-stray-child", row.is("stray", "-1")),
-                        ("terminal-physically-returned", row.is("foreground_restored", "1")),
-                    ],
-                );
-            }
+            // F05 Started: hosted at the front, where the Started restore is
+            // (`native_entry_tests::baseline`); no runner role performs it.
             // F06: the TERM action restore omitted in the child, same report.
             "F06-action-C4-recovery-report" => {
                 hosted += 1;
@@ -553,7 +523,7 @@ fn native_baseline_paired_started_restore_and_child_action() {
             _ => {}
         }
     }
-    assert_eq!(hosted, 2);
+    assert_eq!(hosted, 1);
 }
 
 // ---- harness controls --------------------------------------------------------

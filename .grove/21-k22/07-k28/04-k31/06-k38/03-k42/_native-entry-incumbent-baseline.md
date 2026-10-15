@@ -155,3 +155,19 @@ bounds are D<=115/RC<=96/P<=463/E<=162/X=0. The historical RC<=88 cap is exceede
 by eight; the standing k41 direction removes budget gates and requires no funding
 leaf. K43, supported-target qualification and every parent/root obligation remain
 live; no node closes.
+
+K48 integrated k47's four findings, each reproduced from source and each real:
+the S03/F03 fixture cleanup (a reaped group signalled by number, and an
+unbounded wait on its timeout branch) now observes the role's exit unreaped and
+settles the group while the leader reserves it, bounded; the paired F05 Started
+row is now one real front run (the front's own omitted Started restore plus the
+runner's substituted handback report) instead of a fixture callback; and the two
+F07 TERM-default rows, rejected because `reraise` performs no `sigaction`, are
+hosted at the `Handlers::drop` TERM restore the incumbent performs on its
+propagation path, both observed as fails. Re-run against the pre-integration
+incumbent row by row: all 121 earlier observed rows kept their verdict and claim
+lists. The node stands at **153 of 153 by identity: 67 fails, 56 already correct,
+30 rejected premises**; a development campaign reconciled all 153 with 112 tests
+passing and 327 subjects unchanged. Charge P<=35/E<=10/RC<=3, D=X=0; cumulative
+D<=115/RC<=99/P<=498/E<=172/X=0 (no funding leaf, per k41). The Done when above
+is met, so k42 closes with k48; k43 owns the frozen campaign.

@@ -219,6 +219,22 @@ fn native_baseline_e08_reader_shield_and_collection_bound() {
     }
 }
 
+/// The paired F05 row's secondary, selected in the fixture's own process: the
+/// runner's terminal handback report (after the physical handback), so the
+/// row's primary and secondary are both faulted in one real front run. The
+/// site's two-byte record goes to the file the F06 rows' child record uses.
+#[cfg(feature = "native-faults")]
+pub(super) fn select_pair(case: &Value) {
+    if case["pair"] != "handback" {
+        return;
+    }
+    let record = File::create(root().join("child-fault-record.bin")).unwrap();
+    let fd = record.as_raw_fd();
+    // Kept open for the process's life, as the F06 selection does.
+    std::mem::forget(record);
+    keyed_launch::native_fault_select("terminal-handback-report", "report", false, fd);
+}
+
 // ---- F01, F04, F05 and the queued-TERM rows (k46) ----------------------------
 //
 // Every hosted row below faults one operation the incumbent already performs,
@@ -594,6 +610,69 @@ fn native_baseline_queued_term_rows() {
         );
     }
     assert_eq!(hosted, 2);
+}
+
+/// The paired F05 Started row, hosted end to end at the front. The primary is
+/// the front's own Started parent restore (`restore_mask_at`, which the
+/// incumbent swallows with `let _`), omitted and reported failed at that call;
+/// the secondary is the runner's terminal handback report, substituted after the
+/// physical handback in the same run. No fixture callback stands in for either
+/// operation: the incumbent's own front performs the first and its own runner the
+/// second, and what each does with its failure is what is judged.
+#[test]
+#[ignore = "private real-main fixture; run native-incumbent.sh test"]
+fn native_baseline_paired_started_restore_and_recovery_report() {
+    const HANDBACK_REPORT: &str =
+        "C4 substituted terminal handback report after physical operation";
+    let mut hosted = 0;
+    for (id, p) in rows("paired") {
+        if p["case"] != "F05-Started-restore-recovery-report" {
+            continue;
+        }
+        hosted += 1;
+        let row = json!({"family":"F05","outcome":"selection-success",
+            "site":"Started-parent-restore","mode":"omit","pty":true,
+            "boundary":"before-finalise","pair":"handback"});
+        let seen = run_row(row, "none");
+        integrity(&id, &seen, "Started-parent-restore", "omit");
+        // The secondary's site was reached in this run, on the incumbent's own
+        // runner: its record is the fixed two bytes, bit 0 the physical
+        // handback having run. Otherwise the row observed nothing of it.
+        let record = seen.child_record.clone().unwrap_or_default();
+        assert_eq!(record.len(), 2, "{id}: the handback report site was not reached: {record:?}");
+        assert_eq!(record[0], 9, "{id}: {record:?}");
+        assert_eq!(record[1] & 1, 1, "{id}: the handback was not performed: {record:?}");
+        let facts = seen.ready.as_ref().expect("finalisation facts");
+        let at = |key: &str| facts[key].as_i64().unwrap();
+        let retained = |needle: &str| {
+            seen.diagnostics.contains(needle)
+                || seen.outcome.as_ref().is_some_and(|v| {
+                    v["error"]["message"].as_str().is_some_and(|m| m.contains(needle))
+                })
+        };
+        let mut claims = Claims::new();
+        claims.claim("primary-retained", retained("Started parent transition failed"));
+        claims.claim("secondary-retained", retained(HANDBACK_REPORT));
+        claims.claim(
+            "child-started-and-actually-reaped",
+            seen.managed_started && seen.worker_confirmed && facts["managedReaped"] == true,
+        );
+        claims.claim("no-stray-child", at("strayChild") == 0);
+        claims.claim("terminal-physically-returned", at("foreground") == at("pgrp"));
+        baseline(
+            &id,
+            claims.conforms(),
+            &claims.note(
+                &seen,
+                &format!(
+                    "ended {:?}; the launch {}; handback site record {record:?}",
+                    seen.managed_end,
+                    if seen.result_empty { "wrote nothing" } else { "completed and wrote its result" }
+                ),
+            ),
+        );
+    }
+    assert_eq!(hosted, 1);
 }
 
 /// The F02 worker rows and the F05 finalisation-time rows are rejected

@@ -674,7 +674,18 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
                  0 => Ok(()),
                  error => Err(std::io::Error::from_raw_os_error(error)),
              }
-@@ -1203,6 +1291,10 @@
+@@ -613,6 +701,10 @@
+     operation: &'static str,
+     result: std::io::Result<()>,
+ ) {
++    // The paired F05 row's secondary, from the front's own run: the physical
++    // handback ran; only its report is substituted (`native-faults` builds).
++    #[cfg(any(test, feature = "native-faults"))]
++    let result = crate::native_hooks::recovery_report(operation, result);
+     #[cfg(test)]
+     let result = terminal_tests::reported(operation, result);
+     if let Err(error) = result {
+@@ -1203,6 +1295,10 @@
      // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
      // success after pre-exec signal death. Keep actual supervision on Ok:
      // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
@@ -685,7 +696,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      let spawned = command.spawn();
      #[cfg(test)]
      terminal_tests::after_spawn();
-@@ -1256,7 +1348,11 @@
+@@ -1256,7 +1352,11 @@
          mode,
          observer,
          || lease.borrow_mut().lend(),
@@ -698,7 +709,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      )
  }
  
-@@ -1367,6 +1463,10 @@
+@@ -1367,6 +1467,10 @@
                  libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
              )
          };
@@ -709,7 +720,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
          if result != 0 {
              return Err(std::io::Error::last_os_error());
          }
-@@ -1385,7 +1485,16 @@
+@@ -1385,7 +1489,16 @@
      }
  
      fn reap(&mut self) -> std::io::Result<ExitStatus> {
@@ -727,7 +738,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      }
  
      fn signal(&mut self, signal: i32) {
-@@ -1394,11 +1503,15 @@
+@@ -1394,11 +1507,15 @@
  
      fn kill_group(&mut self) {
          let pgid = self.id() as libc::pid_t;
@@ -743,7 +754,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
          // SAFETY: as above; the child is still unreaped.
          unsafe { libc::kill(-pgid, libc::SIGKILL) };
      }
-@@ -1494,6 +1607,10 @@
+@@ -1494,6 +1611,10 @@
          }) => {
              reclaim(Some(status)).map_err(|error| error.with_consumed_signal(interrupted))?;
              let group = child.confirm_gone();
@@ -754,7 +765,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
              Ok(Ended {
                  end: match (interrupted, escalated) {
                      (Some(signal), _) => End::Interrupted { signal },
-@@ -1532,12 +1649,16 @@
+@@ -1532,12 +1653,16 @@
      loop {
          lend();
  
@@ -771,7 +782,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
                  if mode == Mode::Confined {
                      child.signal(libc::SIGKILL);
                      watch = Watch::Killed;
-@@ -1656,6 +1777,8 @@
+@@ -1656,6 +1781,8 @@
  /// poll and the signal, which the next poll reports anyway. This is the shell's
  /// `kill … 2>/dev/null`, written down.
  fn kill(pgid: libc::pid_t, signal: libc::c_int) {
@@ -780,7 +791,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      // SAFETY: `kill(2)` on the process group of, and then the pid of, a child
      // of this process.
      unsafe {
-@@ -1670,3 +1793,9 @@
+@@ -1670,3 +1797,9 @@
  
  #[cfg(test)]
  mod terminal_tests;
@@ -894,29 +905,32 @@ diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
              if installed == -1 {
                  return Err(io::Error::last_os_error());
              }
-@@ -134,7 +188,20 @@
+@@ -134,7 +188,23 @@
      fn drop(&mut self) {
          for (signal, entry) in &self.entry {
              // SAFETY: reinstating a disposition sigaction itself reported.
 -            unsafe { libc::sigaction(*signal, entry, ptr::null_mut()) };
 +            let release = || unsafe { libc::sigaction(*signal, entry, ptr::null_mut()) };
 +            // F04's final restore: the incumbent releases here, in `Drop`, and
-+            // ignores the result.
++            // ignores the result. F07's TERM-default rows fault the same
++            // restore at propagation, where it puts the default action back.
 +            #[cfg(test)]
-+            let _ = crate::native_entry_tests::faults::mutation_c(
-+                match *signal {
-+                    libc::SIGINT => "INT-final-restore",
-+                    libc::SIGTERM => "TERM-final-restore",
-+                    _ => "HUP-final-restore",
-+                },
-+                release,
-+            );
++            let _ = baseline_propagation_tests::default_action(*signal, || {
++                crate::native_entry_tests::faults::mutation_c(
++                    match *signal {
++                        libc::SIGINT => "INT-final-restore",
++                        libc::SIGTERM => "TERM-final-restore",
++                        _ => "HUP-final-restore",
++                    },
++                    release,
++                )
++            });
 +            #[cfg(not(test))]
 +            let _ = release();
          }
      }
  }
-@@ -176,9 +243,19 @@
+@@ -176,9 +246,19 @@
      // the caller reads.
      let _ = io::stdout().flush();
      let _ = io::stderr().flush();
@@ -937,7 +951,7 @@ diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
      // Every handled signal terminates by default, a caught one could not have
      // been inherited, and one the caller blocked was never received, so this
      // is reached only if something else in the process has since changed that
-@@ -189,6 +266,11 @@
+@@ -189,6 +269,11 @@
  /// Run `start` with the handled signals blocked in this thread, so that a
  /// thread it starts inherits them blocked and never takes one.
  pub fn shielded<T>(start: impl FnOnce() -> T) -> T {
@@ -949,7 +963,7 @@ diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
      // SAFETY: the sets are initialised by sigemptyset and pthread_sigmask
      // before use, and the calling thread's own mask is put back as it was.
      unsafe {
-@@ -198,14 +280,28 @@
+@@ -198,14 +283,28 @@
              libc::sigaddset(&mut blocked, signal);
          }
          let mut previous: libc::sigset_t = std::mem::zeroed();
