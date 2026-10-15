@@ -168,6 +168,85 @@ pub(crate) fn e08_worker() -> ! {
     std::process::exit(0);
 }
 
+// ---- F03: the shield's block, the reader creations and the creator's restore --
+//
+// The incumbent performs exactly these four operations around its readers:
+// `shielded` blocks the handled signals on the creating thread, the two
+// `thread::spawn` calls create the readers, and `shielded` puts the creator's
+// mask back. It reads neither mask result, and `thread::spawn` has no failure
+// return (std panics). The fixture places the row's one fault at the operation
+// the incumbent performs and lets the incumbent do what it does; it adds no
+// check. A reader's or the creator's mask is observed, never changed.
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+enum F03 {
+    #[default]
+    None,
+    BlockOmitted,
+    BlockPerformed,
+    FirstCreate,
+    SecondCreate,
+    RestoreOmitted,
+    RestorePerformed,
+}
+thread_local! { static F03_ARMED: std::cell::Cell<F03> = const { std::cell::Cell::new(F03::None) }; }
+
+fn f03() -> F03 {
+    F03_ARMED.get()
+}
+/// Whether the armed row is one where the incumbent returns from the front
+/// (a mask fault it never reads), rather than dying in `thread::spawn`.
+pub(crate) fn returns_normally() -> bool {
+    matches!(
+        f03(),
+        F03::BlockOmitted | F03::BlockPerformed | F03::RestoreOmitted | F03::RestorePerformed
+    )
+}
+/// The shield's block, with the row's substituted report (a `pthread_sigmask`
+/// result is the error number itself).
+pub(crate) fn shield_block(real: impl FnOnce() -> libc::c_int) -> libc::c_int {
+    match f03() {
+        F03::BlockOmitted => {
+            eprintln!("native baseline F03 block: performed=false reported=EIO");
+            libc::EIO
+        }
+        F03::BlockPerformed => {
+            let actual = real();
+            eprintln!("native baseline F03 block: performed=true actual={actual} reported=EIO");
+            libc::EIO
+        }
+        _ => real(),
+    }
+}
+/// The creator's mask restore, with the row's substituted report.
+pub(crate) fn creator_restore(real: impl FnOnce() -> libc::c_int) -> libc::c_int {
+    match f03() {
+        F03::RestoreOmitted => {
+            eprintln!("native baseline F03 restore: performed=false reported=EIO");
+            libc::EIO
+        }
+        F03::RestorePerformed => {
+            let actual = real();
+            eprintln!("native baseline F03 restore: performed=true actual={actual} reported=EIO");
+            libc::EIO
+        }
+        _ => real(),
+    }
+}
+/// What the incumbent's readers and creator looked like, as one line.
+pub(super) fn f03_receipts() -> String {
+    CONTROL.with(|c| {
+        let c = c.borrow();
+        let readers = c.reader_masks.lock().unwrap();
+        format!(
+            "creator_before_handled={:?} creator_after_handled={:?} readers_handled={:?}",
+            c.creator_before.as_ref().map(|m| m.handled),
+            c.creator_after.as_ref().map(|m| m.handled),
+            readers.iter().map(|(_, m)| m.handled).collect::<Vec<_>>(),
+        )
+    })
+}
+
 // ---- S03: second reader creation fails, with a secondary fault armed -------
 //
 // The repaired worker creates its readers with a checked `Builder::spawn`, and
@@ -197,6 +276,27 @@ enum S03 {
 thread_local! { static S03_ARMED: std::cell::Cell<S03> = const { std::cell::Cell::new(S03::None) }; }
 
 pub(super) fn arm_s03(fault: &str) {
+    // F03 rows, and the paired F03 row, which is S03's wait-report case. A
+    // fixture that arms any row also observes its readers, injecting nothing.
+    F03_ARMED.set(match fault {
+        "block-omitted" => F03::BlockOmitted,
+        "block-performed" => F03::BlockPerformed,
+        "first-create" => F03::FirstCreate,
+        "second-create" => F03::SecondCreate,
+        "restore-omitted" => F03::RestoreOmitted,
+        "restore-performed" => F03::RestorePerformed,
+        _ => F03::None,
+    });
+    if f03() != F03::None {
+        // Observation only: readers' and creator's masks, nothing injected.
+        CONTROL.with(|c| {
+            *c.borrow_mut() = Control {
+                observing: true,
+                ..Control::default()
+            }
+        });
+        return;
+    }
     S03_ARMED.set(match fault {
         "stop-omitted" => S03::StopOmitted,
         "stop-performed" => S03::StopPerformed,
@@ -230,6 +330,18 @@ fn set_errno(number: i32) {
 /// second reader (stderr) fails the way std reports an OS refusal: its
 /// `thread::spawn` is `Builder::spawn(..).expect("failed to spawn thread")`.
 pub(super) fn before_reader_create(stdout: bool) {
+    // F03's creations: the first reader (stdout) or the second (stderr).
+    match (f03(), stdout) {
+        (F03::FirstCreate, true) | (F03::SecondCreate, false) => {
+            eprintln!(
+                "native baseline F03: the {} reader creation is refused (EAGAIN)",
+                if stdout { "first" } else { "second" }
+            );
+            Err::<(), io::Error>(io::Error::from_raw_os_error(libc::EAGAIN))
+                .expect("failed to spawn thread");
+        }
+        _ => {}
+    }
     if armed() == S03::None || stdout {
         return;
     }
@@ -515,4 +627,162 @@ fn native_baseline_control_s03_an_armed_secondary_is_reached_without_the_primary
             "{fault}: the armed secondary was not reached by the incumbent's teardown: {seen:?}"
         );
     }
+}
+
+// ---- F03 rows and the paired F03 row ----------------------------------------
+//
+// The same private role as S03's, with the row's one fault placed at the
+// operation the incumbent performs: the shield's block, a reader creation, or
+// the creator's restore. The claims are the repaired `native-reader` scenario's
+// own, named one by one; a claim the incumbent has no text for is unmet, never
+// a thing the instrument invented.
+
+fn f03_manifest_ids(family: &str) -> Vec<String> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/native-entry-cases.json");
+    let manifest: serde_json::Value =
+        serde_json::from_slice(&fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display())))
+            .unwrap();
+    manifest["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|row| row["family"] == family)
+        .map(|row| row["id"].as_str().unwrap().to_owned())
+        .collect()
+}
+
+fn id_part(id: &str, name: &str) -> String {
+    id.split("__")
+        .find_map(|part| part.strip_prefix(&format!("{name}=")))
+        .unwrap_or_else(|| panic!("{id} names no {name}"))
+        .to_owned()
+}
+
+fn f03_fault(id: &str) -> &'static str {
+    match (id_part(id, "operation").as_str(), id_part(id, "mode").as_str()) {
+        ("reader-block", "omit-EIO") => "block-omitted",
+        ("reader-block", "perform-report-EIO") => "block-performed",
+        ("first-create", "omit-EAGAIN") => "first-create",
+        ("second-create", "omit-EAGAIN") => "second-create",
+        ("creator-restore", "omit-EIO") => "restore-omitted",
+        ("creator-restore", "perform-report-EIO") => "restore-performed",
+        other => panic!("{id}: {other:?} is not a fixed F03 case"),
+    }
+}
+
+#[test]
+#[ignore = "private real-process fixture; run native-incumbent.sh test"]
+fn native_baseline_f03_reader_shield_creation_and_restore_faults() {
+    let ids = f03_manifest_ids("F03");
+    assert_eq!(ids.len(), 6);
+    for id in ids {
+        let fault = f03_fault(&id);
+        let seen = s03_run(fault, true);
+        let create = matches!(fault, "first-create" | "second-create");
+        // Instrument integrity: the named operation was faulted where the
+        // incumbent performs it, and the role ended as the incumbent's own code
+        // makes it end, or this file no record.
+        if create {
+            let which = if fault == "first-create" { "first" } else { "second" };
+            assert!(
+                seen.log.contains(&format!("the {which} reader creation is refused"))
+                    && seen.log.contains("failed to spawn thread"),
+                "{id}: the creation was not refused: {seen:?}"
+            );
+        } else {
+            let marker = if fault.starts_with("block") { "F03 block: performed=" } else { "F03 restore: performed=" };
+            assert!(seen.log.contains(marker), "{id}: the site was not reached: {seen:?}");
+            assert!(
+                seen.log.contains("native baseline F03 outcome:"),
+                "{id}: the incumbent did not return from the front: {seen:?}"
+            );
+        }
+        // The claims. A reader-creation panic prints no failure at all, so every
+        // report claim has no text to be found in; a mask fault the incumbent
+        // never reads prints none either.
+        let failure_text = seen
+            .log
+            .lines()
+            .filter(|l| l.contains("cannot admit diagnostic readers") || l.starts_with("native baseline F03 failure:"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let admission_reported = seen.log.contains("cannot admit diagnostic readers");
+        let identity_reported = failure_text.contains("reader") && failure_text.contains("pid");
+        let retained = if create {
+            failure_text.contains("os error 35") || failure_text.contains("os error 11")
+        } else {
+            failure_text.contains("os error 5")
+        };
+        let claims = [
+            ("reader-admission-failure-reported", admission_reported),
+            ("worker-identity-reported", identity_reported),
+            (if create { "creation-failure-retained" } else { "mask-failure-retained" }, retained),
+            ("no-managed-start", !seen.started),
+            ("no-result-written", !seen.result.contains("\"status\"") && !seen.result.contains("native")),
+        ];
+        let unmet: Vec<_> = claims.iter().filter(|(_, held)| !held).map(|(n, _)| *n).collect();
+        let held: Vec<_> = claims.iter().filter(|(_, held)| *held).map(|(n, _)| *n).collect();
+        let receipts = seen
+            .log
+            .lines()
+            .filter(|l| l.starts_with("native baseline"))
+            .collect::<Vec<_>>()
+            .join(" | ");
+        crate::native_barrier::row(
+            &id,
+            "baseline",
+            unmet.is_empty(),
+            &format!(
+                "unmet {unmet:?}; held {held:?}; exit {}; managed_started={}; orphaned_worker_survived={}; \
+                 elapsed {:?}; {receipts}",
+                seen.status, seen.started, seen.orphan_survived, seen.elapsed
+            ),
+        );
+    }
+}
+
+/// F03's paired failure is S03's wait-report case: the omitted second reader
+/// creation as the primary and the worker's own `try_wait` EIO as the
+/// secondary. The incumbent has one path for it, so the same fixture is run and
+/// the verdict filed under the paired identity.
+#[test]
+#[ignore = "private real-process fixture; run native-incumbent.sh test"]
+fn native_baseline_paired_f03_second_create_keeps_the_worker_wait_report() {
+    let ids: Vec<_> = f03_manifest_ids("paired")
+        .into_iter()
+        .filter(|id| id_part(id, "case").starts_with("F03-"))
+        .collect();
+    assert_eq!(ids.len(), 1);
+    let id = &ids[0];
+    let seen = s03_run("poll-EIO", true);
+    assert!(
+        seen.log.contains("the second reader creation is refused")
+            && seen.log.contains("failed to spawn thread"),
+        "{id}: the primary was not injected: {seen:?}"
+    );
+    let teardown_ran = seen.log.contains("physical worker pid=");
+    let secondary = seen.log.contains("native baseline S03 secondary reached");
+    // The claims read the failure the front *reports*: a process ended by a
+    // panic reports nothing, and the panic's own text is not a report.
+    let reported = seen.log.contains("cannot admit diagnostic readers");
+    let creation_retained =
+        reported && (seen.log.contains("os error 35") || seen.log.contains("os error 11"));
+    let text_has_both = reported && creation_retained && seen.log.contains("try_wait pid");
+    let claims = [
+        ("creation-failure-retained", creation_retained),
+        ("worker-wait-report-retained", text_has_both && secondary),
+        ("no-managed-start", !seen.started),
+    ];
+    let unmet: Vec<_> = claims.iter().filter(|(_, held)| !held).map(|(n, _)| *n).collect();
+    crate::native_barrier::row(
+        id,
+        "baseline",
+        unmet.is_empty(),
+        &format!(
+            "unmet {unmet:?}; exit {}; teardown_ran={teardown_ran}; secondary_reached={secondary}; \
+             orphaned_worker_survived={}; the incumbent's thread::spawn panicked at the second reader, \
+             so neither the creation failure nor the worker's wait report was written; elapsed {:?}",
+            seen.status, seen.orphan_survived, seen.elapsed
+        ),
+    );
 }

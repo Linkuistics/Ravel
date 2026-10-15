@@ -111,7 +111,10 @@ cmd_build() {
     cd "$tree"
     # The same isolated target the repaired fixture uses: the extra cfg applies to
     # this one binary only and keeps libtest's signal-owning thread out of it.
-    cargo rustc --locked -p ravel --bin ravel --profile dev \
+    # --features native-faults: the off-by-default seam that makes the runner's
+    # child-restoration operations reachable from this fixture (F06); an
+    # installed or release build never enables it.
+    cargo rustc --locked -p ravel --bin ravel --profile dev --features native-faults \
       --target-dir target/native-entry-fixture -- --cfg test -A unused
     cargo test --locked --workspace --no-run
   )

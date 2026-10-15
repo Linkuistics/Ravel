@@ -13,18 +13,47 @@ diff -ruN a/.config/nextest.toml b/.config/nextest.toml
 +path = "junit.xml"
 +store-success-output = true
 +store-failure-output = true
+diff -ruN a/crates/keyed-launch/Cargo.toml b/crates/keyed-launch/Cargo.toml
+--- a/crates/keyed-launch/Cargo.toml
++++ b/crates/keyed-launch/Cargo.toml
+@@ -21,6 +21,12 @@
+ [dev-dependencies]
+ tempfile = "3.10"
+ 
++# Private fixture seam, off by default and never enabled by an installed or
++# release build: the same feature the repaired runner has, so the front's fixture
++# can reach the incumbent's child-restoration operations (F06).
++[features]
++native-faults = []
++
+ [lints]
+ workspace = true
+ 
 diff -ruN a/crates/keyed-launch/src/lib.rs b/crates/keyed-launch/src/lib.rs
 --- a/crates/keyed-launch/src/lib.rs
 +++ b/crates/keyed-launch/src/lib.rs
-@@ -38,6 +38,8 @@
+@@ -38,6 +38,10 @@
  mod channel;
  mod confinement;
  mod error;
 +#[cfg(test)]
 +mod native_barrier;
++#[cfg(any(test, feature = "native-faults"))]
++mod native_hooks;
  mod run;
  
  pub use argv::Argv;
+@@ -46,6 +50,10 @@
+     confinement_available, confinement_system_reads, regular_file_at, FilesystemGrants,
+ };
+ pub use error::LaunchError;
++/// Private fixture seam: absent unless the `native-faults` feature is enabled,
++/// which only the isolated native-entry fixture build does.
++#[cfg(feature = "native-faults")]
++pub use native_hooks::native_fault_select;
+ pub use run::{
+     reraise, run, run_confined_observed, run_noninteractive, run_observed, take_interrupt, End,
+     Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
 diff -ruN a/crates/keyed-launch/src/run/terminal_tests.rs b/crates/keyed-launch/src/run/terminal_tests.rs
 --- a/crates/keyed-launch/src/run/terminal_tests.rs
 +++ b/crates/keyed-launch/src/run/terminal_tests.rs
@@ -74,8 +103,16 @@ diff -ruN a/crates/keyed-launch/src/run/terminal_tests.rs b/crates/keyed-launch/
      let holder = FOREIGN.get();
      if holder > 0 {
          Terminal::open().unwrap().hand_to(holder).unwrap();
-@@ -158,6 +190,8 @@
+@@ -156,8 +188,16 @@
+     }
+ }
  
++/// The F rows' paired secondary: the incumbent's own C4 substitution of the
++/// terminal handback's report, after the physical handback ran.
++pub(super) fn inject_handback_report() {
++    FAULTS.set(FAULTS.get() | HANDBACK);
++}
++
  pub(super) fn reported(operation: &str, result: std::io::Result<()>) -> std::io::Result<()> {
      if CANCEL.get() && operation == "terminal handback" {
 +        // The first signal's consumption is acknowledged by an empty latch.
@@ -83,7 +120,7 @@ diff -ruN a/crates/keyed-launch/src/run/terminal_tests.rs b/crates/keyed-launch/
          unsafe {
              libc::raise(libc::SIGTERM);
          }
-@@ -319,6 +353,10 @@
+@@ -319,6 +359,10 @@
      let terminal = Terminal::open().unwrap();
      let own = own_group();
      let saved = terminal.attributes().unwrap();
@@ -94,7 +131,7 @@ diff -ruN a/crates/keyed-launch/src/run/terminal_tests.rs b/crates/keyed-launch/
      let background = case == "background";
      let foreign = matches!(
          case.as_str(),
-@@ -936,3 +974,393 @@
+@@ -936,3 +980,393 @@
      );
      assert!(error.contains("terminal foreground query failed"));
  }
@@ -511,7 +548,133 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
  }
  
  /// Catch the signals that cancel this launch, so a launcher can forward
-@@ -1203,6 +1215,10 @@
+@@ -326,10 +338,54 @@
+         &[libc::SIGTERM, libc::SIGHUP]
+     };
+     for &signal in cancelling {
+-        if disposition(signal) != libc::SIG_IGN {
++        // F04's action query is the first signal's (TERM). The physical query
++        // runs; only its report is substituted, and the incumbent reads no
++        // report at all.
++        #[cfg(any(test, feature = "native-faults"))]
++        let current = if signal == libc::SIGTERM {
++            disposition_reported(signal, crate::native_hooks::HANDLER_QUERY)
++        } else {
++            disposition(signal)
++        };
++        #[cfg(not(any(test, feature = "native-faults")))]
++        let current = disposition(signal);
++        if current != libc::SIG_IGN {
+             // SAFETY: `signal(2)` with a handler that performs one relaxed
+             // atomic store.
+-            unsafe { libc::signal(signal, handler as libc::sighandler_t) };
++            let install = || unsafe {
++                if libc::signal(signal, handler as libc::sighandler_t) == libc::SIG_ERR {
++                    -1
++                } else {
++                    0
++                }
++            };
++            // F04's installs. The incumbent never reads the result.
++            #[cfg(any(test, feature = "native-faults"))]
++            let _ = match signal {
++                libc::SIGINT => crate::native_hooks::mutation_c(crate::native_hooks::INT_INSTALL, install),
++                libc::SIGTERM => crate::native_hooks::mutation_c(crate::native_hooks::TERM_INSTALL, install),
++                _ => install(),
++            };
++            #[cfg(not(any(test, feature = "native-faults")))]
++            let _ = install();
++        }
++    }
++}
++
++/// [`disposition`] with F02's and F04's one query site: the physical query runs
++/// and, when the row selects it, its report is substituted by a failure. The
++/// incumbent's own handling of a failed query is to read the zeroed action it
++/// started with, so that is what a substituted failure leaves it.
++#[cfg(any(test, feature = "native-faults"))]
++fn disposition_reported(signal: libc::c_int, site: u8) -> libc::sighandler_t {
++    // SAFETY: `sigaction(2)` with a null new action only reads the current one
++    // into an initialised struct.
++    unsafe {
++        let mut current: libc::sigaction = std::mem::zeroed();
++        let queried = libc::sigaction(signal, std::ptr::null(), &mut current);
++        match crate::native_hooks::query(site, queried) {
++            crate::native_hooks::Query::Real => current.sa_sigaction,
++            _ => 0,
+         }
+     }
+ }
+@@ -365,7 +421,12 @@
+ pub(crate) fn restore_child_watching() -> bool {
+     let ignored = match SIGCHLD_IGNORED_AT_ENTRY.load(Ordering::Relaxed) {
+         0 => {
+-            let ignored = disposition(libc::SIGCHLD) == libc::SIG_IGN;
++            // F02's watching query; see `disposition_reported`.
++            #[cfg(any(test, feature = "native-faults"))]
++            let current = disposition_reported(libc::SIGCHLD, crate::native_hooks::WATCH_QUERY);
++            #[cfg(not(any(test, feature = "native-faults")))]
++            let current = disposition(libc::SIGCHLD);
++            let ignored = current == libc::SIG_IGN;
+             SIGCHLD_IGNORED_AT_ENTRY.store(if ignored { 1 } else { 2 }, Ordering::Relaxed);
+             ignored
+         }
+@@ -378,7 +439,13 @@
+             let mut default: libc::sigaction = std::mem::zeroed();
+             default.sa_sigaction = libc::SIG_DFL;
+             libc::sigemptyset(&mut default.sa_mask);
+-            libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut());
++            let repair = || libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut());
++            // F02's repair. The incumbent performs it only for an *ignored*
++            // disposition, and never reads the result.
++            #[cfg(any(test, feature = "native-faults"))]
++            let _ = crate::native_hooks::mutation_c(crate::native_hooks::WATCH_REPAIR, repair);
++            #[cfg(not(any(test, feature = "native-faults")))]
++            let _ = repair();
+         }
+     }
+     ignored
+@@ -466,6 +533,12 @@
+         // handler is SIG_IGN or SIG_DFL.
+         unsafe {
+             let mut mask: libc::sigset_t = std::mem::zeroed();
++            // F06's pre-exec sites: atomics and one `write` only.
++            #[cfg(any(test, feature = "native-faults"))]
++            let _ = crate::native_hooks::mutation_c(crate::native_hooks::MASK_BUILD, || {
++                libc::sigemptyset(&mut mask)
++            });
++            #[cfg(not(any(test, feature = "native-faults")))]
+             libc::sigemptyset(&mut mask);
+             for signal in SIGNAL_NUMBERS {
+                 let bit = 1_u64 << (signal - 1);
+@@ -482,9 +555,24 @@
+                     libc::SIG_DFL
+                 };
+                 libc::sigemptyset(&mut action.sa_mask);
+-                libc::sigaction(signal, &action, std::ptr::null_mut());
++                let restore = || libc::sigaction(signal, &action, std::ptr::null_mut());
++                // F06's TERM action restore. The incumbent never reads it.
++                #[cfg(any(test, feature = "native-faults"))]
++                let _ = if signal == libc::SIGTERM {
++                    crate::native_hooks::mutation_c(crate::native_hooks::TERM_RESTORE, restore)
++                } else {
++                    restore()
++                };
++                #[cfg(not(any(test, feature = "native-faults")))]
++                let _ = restore();
+             }
+-            match libc::pthread_sigmask(libc::SIG_SETMASK, &mask, std::ptr::null_mut()) {
++            let set = || libc::pthread_sigmask(libc::SIG_SETMASK, &mask, std::ptr::null_mut());
++            // F06's mask restore: the one result the incumbent does check.
++            #[cfg(any(test, feature = "native-faults"))]
++            let set = crate::native_hooks::mutation_r(crate::native_hooks::MASK_RESTORE, set);
++            #[cfg(not(any(test, feature = "native-faults")))]
++            let set = set();
++            match set {
+                 0 => Ok(()),
+                 error => Err(std::io::Error::from_raw_os_error(error)),
+             }
+@@ -1203,6 +1291,10 @@
      // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
      // success after pre-exec signal death. Keep actual supervision on Ok:
      // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
@@ -522,7 +685,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      let spawned = command.spawn();
      #[cfg(test)]
      terminal_tests::after_spawn();
-@@ -1256,7 +1272,11 @@
+@@ -1256,7 +1348,11 @@
          mode,
          observer,
          || lease.borrow_mut().lend(),
@@ -535,7 +698,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      )
  }
  
-@@ -1367,6 +1387,10 @@
+@@ -1367,6 +1463,10 @@
                  libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
              )
          };
@@ -546,7 +709,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
          if result != 0 {
              return Err(std::io::Error::last_os_error());
          }
-@@ -1385,7 +1409,16 @@
+@@ -1385,7 +1485,16 @@
      }
  
      fn reap(&mut self) -> std::io::Result<ExitStatus> {
@@ -564,7 +727,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      }
  
      fn signal(&mut self, signal: i32) {
-@@ -1394,11 +1427,15 @@
+@@ -1394,11 +1503,15 @@
  
      fn kill_group(&mut self) {
          let pgid = self.id() as libc::pid_t;
@@ -580,7 +743,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
          // SAFETY: as above; the child is still unreaped.
          unsafe { libc::kill(-pgid, libc::SIGKILL) };
      }
-@@ -1494,6 +1531,10 @@
+@@ -1494,6 +1607,10 @@
          }) => {
              reclaim(Some(status)).map_err(|error| error.with_consumed_signal(interrupted))?;
              let group = child.confirm_gone();
@@ -591,7 +754,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
              Ok(Ended {
                  end: match (interrupted, escalated) {
                      (Some(signal), _) => End::Interrupted { signal },
-@@ -1532,12 +1573,16 @@
+@@ -1532,12 +1649,16 @@
      loop {
          lend();
  
@@ -608,7 +771,7 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
                  if mode == Mode::Confined {
                      child.signal(libc::SIGKILL);
                      watch = Watch::Killed;
-@@ -1656,6 +1701,8 @@
+@@ -1656,6 +1777,8 @@
  /// poll and the signal, which the next poll reports anyway. This is the shell's
  /// `kill … 2>/dev/null`, written down.
  fn kill(pgid: libc::pid_t, signal: libc::c_int) {
@@ -617,13 +780,29 @@ diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
      // SAFETY: `kill(2)` on the process group of, and then the pid of, a child
      // of this process.
      unsafe {
-@@ -1670,3 +1717,6 @@
+@@ -1670,3 +1793,9 @@
  
  #[cfg(test)]
  mod terminal_tests;
 +
 +#[cfg(test)]
 +mod baseline_tests;
++
++#[cfg(test)]
++mod baseline_faults_tests;
+diff -ruN a/crates/ravel/Cargo.toml b/crates/ravel/Cargo.toml
+--- a/crates/ravel/Cargo.toml
++++ b/crates/ravel/Cargo.toml
+@@ -19,5 +19,9 @@
+ [build-dependencies]
+ sha2 = "0.10"
+ 
++# Private fixture seam: forwards the runner's off-by-default fault feature.
++[features]
++native-faults = ["keyed-launch/native-faults"]
++
+ [lints]
+ workspace = true
 diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
 --- a/crates/ravel/src/cancellation.rs
 +++ b/crates/ravel/src/cancellation.rs
@@ -665,7 +844,100 @@ diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
      let _ = RECEIVED.compare_exchange(0, signal, Ordering::SeqCst, Ordering::SeqCst);
  }
  
-@@ -189,6 +217,11 @@
+@@ -70,7 +98,20 @@
+             // SAFETY: a zeroed sigaction is a valid value, and with a null new
+             // action sigaction only writes the current one into it.
+             let mut entry: libc::sigaction = unsafe { std::mem::zeroed() };
+-            if unsafe { libc::sigaction(signal, ptr::null(), &mut entry) } == -1 {
++            let queried = unsafe { libc::sigaction(signal, ptr::null(), &mut entry) };
++            // F04's action query: the first handled signal's. The physical
++            // query ran; only its report is substituted.
++            #[cfg(test)]
++            let queried = if signal == libc::SIGINT {
++                use crate::native_entry_tests::faults::{query, Query};
++                match query("action-query", queried) {
++                    Query::Substituted => -1,
++                    _ => queried,
++                }
++            } else {
++                queried
++            };
++            if queried == -1 {
+                 return Err(io::Error::last_os_error());
+             }
+             if entry.sa_sigaction == libc::SIG_IGN {
+@@ -78,13 +119,26 @@
+             }
+             // SAFETY: the action's mask is emptied before use, and the handler
+             // performs one atomic operation.
+-            let installed = unsafe {
++            let install = || unsafe {
+                 let mut action: libc::sigaction = std::mem::zeroed();
+                 action.sa_sigaction = on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
+                 action.sa_flags = libc::SA_RESTART;
+                 libc::sigemptyset(&mut action.sa_mask);
+                 libc::sigaction(signal, &action, ptr::null_mut())
+             };
++            // F04's installs: the same operation, with the row's one site
++            // either omitted or performed and then reported failed.
++            #[cfg(test)]
++            let installed = crate::native_entry_tests::faults::mutation_c(
++                match signal {
++                    libc::SIGINT => "INT-install",
++                    libc::SIGTERM => "TERM-install",
++                    _ => "HUP-install",
++                },
++                install,
++            );
++            #[cfg(not(test))]
++            let installed = install();
+             if installed == -1 {
+                 return Err(io::Error::last_os_error());
+             }
+@@ -134,7 +188,20 @@
+     fn drop(&mut self) {
+         for (signal, entry) in &self.entry {
+             // SAFETY: reinstating a disposition sigaction itself reported.
+-            unsafe { libc::sigaction(*signal, entry, ptr::null_mut()) };
++            let release = || unsafe { libc::sigaction(*signal, entry, ptr::null_mut()) };
++            // F04's final restore: the incumbent releases here, in `Drop`, and
++            // ignores the result.
++            #[cfg(test)]
++            let _ = crate::native_entry_tests::faults::mutation_c(
++                match *signal {
++                    libc::SIGINT => "INT-final-restore",
++                    libc::SIGTERM => "TERM-final-restore",
++                    _ => "HUP-final-restore",
++                },
++                release,
++            );
++            #[cfg(not(test))]
++            let _ = release();
+         }
+     }
+ }
+@@ -176,9 +243,19 @@
+     // the caller reads.
+     let _ = io::stdout().flush();
+     let _ = io::stderr().flush();
++    // The unblock, and the raise: the only two operations the incumbent
++    // performs to propagate. Both results are ignored.
++    #[cfg(test)]
++    let _ = baseline_propagation_tests::unblock(|| signal_state::restore_mask());
++    #[cfg(not(test))]
+     let _ = signal_state::restore_mask();
+     // SAFETY: raise only sends a signal to this thread.
+-    unsafe { libc::raise(signal.number) };
++    #[cfg(test)]
++    baseline_propagation_tests::raise(signal.number);
++    #[cfg(not(test))]
++    unsafe {
++        libc::raise(signal.number)
++    };
+     // Every handled signal terminates by default, a caught one could not have
+     // been inherited, and one the caller blocked was never received, so this
+     // is reached only if something else in the process has since changed that
+@@ -189,6 +266,11 @@
  /// Run `start` with the handled signals blocked in this thread, so that a
  /// thread it starts inherits them blocked and never takes one.
  pub fn shielded<T>(start: impl FnOnce() -> T) -> T {
@@ -677,6 +949,35 @@ diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
      // SAFETY: the sets are initialised by sigemptyset and pthread_sigmask
      // before use, and the calling thread's own mask is put back as it was.
      unsafe {
+@@ -198,14 +280,28 @@
+             libc::sigaddset(&mut blocked, signal);
+         }
+         let mut previous: libc::sigset_t = std::mem::zeroed();
++        // F03's two operations. The incumbent reads neither result.
++        #[cfg(test)]
++        let _ = crate::worker::native_tests::shield_block(|| {
++            libc::pthread_sigmask(libc::SIG_BLOCK, &blocked, &mut previous)
++        });
++        #[cfg(not(test))]
+         libc::pthread_sigmask(libc::SIG_BLOCK, &blocked, &mut previous);
+         let started = start();
++        #[cfg(test)]
++        let _ = crate::worker::native_tests::creator_restore(|| {
++            libc::pthread_sigmask(libc::SIG_SETMASK, &previous, ptr::null_mut())
++        });
++        #[cfg(not(test))]
+         libc::pthread_sigmask(libc::SIG_SETMASK, &previous, ptr::null_mut());
+         started
+     }
+ }
+ 
+ #[cfg(test)]
++mod baseline_propagation_tests;
++
++#[cfg(test)]
+ mod tests {
+     use super::*;
+ 
 diff -ruN a/crates/ravel/src/main.rs b/crates/ravel/src/main.rs
 --- a/crates/ravel/src/main.rs
 +++ b/crates/ravel/src/main.rs
@@ -744,7 +1045,7 @@ diff -ruN a/crates/ravel/src/run.rs b/crates/ravel/src/run.rs
          let launch = Launch {
              argv: &argv,
              channel: Some((allocated.channel(), EXIT_FILE_VARIABLE)),
-@@ -158,8 +173,16 @@
+@@ -158,9 +173,19 @@
          };
          let mut started = false;
          let mut observe = |event| {
@@ -756,12 +1057,16 @@ diff -ruN a/crates/ravel/src/run.rs b/crates/ravel/src/run.rs
 +            }
              if event == LaunchEvent::Started {
                  started = true;
+-                let _ = signal_state::restore_mask();
 +                #[cfg(test)]
 +                crate::native_entry_tests::barrier("started-before-mask-restore");
-                 let _ = signal_state::restore_mask();
++                // The incumbent restores here and ignores the result; F05's
++                // Started transition is this operation.
++                let _ = signal_state::restore_mask_at("Started-parent-restore");
              }
          };
-@@ -189,6 +212,8 @@
+         let supervised = match &confined {
+@@ -189,6 +214,8 @@
              _ => None,
          };
          let ending = ended.insert(supervision);
@@ -770,7 +1075,18 @@ diff -ruN a/crates/ravel/src/run.rs b/crates/ravel/src/run.rs
          let result = allocated
              .result_after(ending)
              .map_err(|error| failed("session_result_invalid", error))?;
-@@ -227,6 +252,12 @@
+@@ -209,8 +236,8 @@
+     // A failed confined command may not have installed runner handlers.
+     // Restore while whichever handler owns the transition is still installed,
+     // then inspect both latches after dispositions have returned to entry.
+-    let mask =
+-        signal_state::restore_mask().map_err(|error| failed("signal_state_unavailable", error));
++    let mask = signal_state::restore_mask_at("final-mask-restore")
++        .map_err(|error| failed("signal_state_unavailable", error));
+     let channel_cleanup = channel.map_or(Ok(()), |channel| {
+         channel
+             .close()
+@@ -227,6 +254,12 @@
              .map_err(|error| failed("output_unavailable", error))
      });
      drop(output);
@@ -786,7 +1102,7 @@ diff -ruN a/crates/ravel/src/run.rs b/crates/ravel/src/run.rs
 diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
 --- a/crates/ravel/src/signal_state.rs
 +++ b/crates/ravel/src/signal_state.rs
-@@ -44,6 +44,28 @@
+@@ -44,6 +44,33 @@
  static RECORDED: AtomicBool = AtomicBool::new(false);
  static IGNORED: AtomicU64 = AtomicU64::new(0);
  static BLOCKED: AtomicU64 = AtomicU64::new(0);
@@ -800,6 +1116,11 @@ diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
 +static RAW_PENDING_ERROR: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
 +#[cfg(test)]
 +static CAPTURING_THREAD: AtomicU64 = AtomicU64::new(0);
++/// F01's report substitution: which of the initializer's three operations has
++/// its *report* replaced by EIO after the physical operation ran (1 mask query,
++/// 2 TERM action query, 3 TERM membership). 0 selects none.
++#[cfg(test)]
++static CAPTURE_FAULT: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 +
 +#[cfg(test)]
 +fn errno() -> i32 {
@@ -815,15 +1136,50 @@ diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
  
  fn bit(signal: libc::c_int) -> u64 {
      1 << (signal - 1)
-@@ -79,12 +101,40 @@
-             {
+@@ -68,23 +95,70 @@
+     // them, from zeroed values; a null new action or set only queries.
+     unsafe {
+         let mut mask: libc::sigset_t = std::mem::zeroed();
+-        if libc::pthread_sigmask(libc::SIG_BLOCK, ptr::null(), &mut mask) != 0 {
++        let queried = libc::pthread_sigmask(libc::SIG_BLOCK, ptr::null(), &mut mask);
++        #[cfg(test)]
++        let queried = if CAPTURE_FAULT.load(Ordering::Relaxed) == 1 {
++            libc::EIO
++        } else {
++            queried
++        };
++        if queried != 0 {
+             return;
+         }
+         let (mut ignored, mut blocked) = (0, 0);
+         for signal in SIGNALS {
+             let mut action: libc::sigaction = std::mem::zeroed();
+-            if libc::sigaction(signal, ptr::null(), &mut action) == 0
+-                && action.sa_sigaction == libc::SIG_IGN
+-            {
++            let queried = libc::sigaction(signal, ptr::null(), &mut action);
++            #[cfg(test)]
++            let queried = if signal == libc::SIGTERM && CAPTURE_FAULT.load(Ordering::Relaxed) == 2 {
++                -1
++            } else {
++                queried
++            };
++            if queried == 0 && action.sa_sigaction == libc::SIG_IGN {
                  ignored |= bit(signal);
              }
+-            if libc::sigismember(&mask, signal) == 1 {
 +            #[cfg(test)]
 +            if signal == libc::SIGCHLD {
 +                RAW_CHLD_FLAGS.store(action.sa_flags as i32, Ordering::Relaxed);
 +            }
-             if libc::sigismember(&mask, signal) == 1 {
++            let member = libc::sigismember(&mask, signal);
++            #[cfg(test)]
++            let member = if signal == libc::SIGTERM && CAPTURE_FAULT.load(Ordering::Relaxed) == 3 {
++                -1
++            } else {
++                member
++            };
++            if member == 1 {
                  blocked |= bit(signal);
              }
          }
@@ -856,7 +1212,32 @@ diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
          RECORDED.store(true, Ordering::Release);
      }
  }
-@@ -153,3 +203,34 @@
+@@ -133,9 +207,23 @@
+ /// Set this thread's mask back to the caller's. A signal that was blocked here
+ /// and not by the caller, and is pending, is delivered as this returns.
+ pub fn restore_mask() -> io::Result<()> {
++    restore_mask_at("")
++}
++
++/// [`restore_mask`] at one named transition. `site` selects only the private
++/// fixed fault in test builds and is otherwise unused.
++pub fn restore_mask_at(site: &str) -> io::Result<()> {
+     let mask = entry_mask();
+     // SAFETY: the set is initialized; pthread_sigmask returns its error.
+-    match unsafe { libc::pthread_sigmask(libc::SIG_SETMASK, &mask, ptr::null_mut()) } {
++    let restore = || unsafe { libc::pthread_sigmask(libc::SIG_SETMASK, &mask, ptr::null_mut()) };
++    #[cfg(test)]
++    let restored = crate::native_entry_tests::faults::mutation_r(site, restore);
++    #[cfg(not(test))]
++    let restored = {
++        let _ = site;
++        restore()
++    };
++    match restored {
+         0 => Ok(()),
+         error => Err(io::Error::from_raw_os_error(error)),
+     }
+@@ -153,3 +241,63 @@
          SIGNALS.filter(|&signal| blocked & bit(signal) != 0),
      )
  }
@@ -872,14 +1253,43 @@ diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
 +        "pid": unsafe { libc::getpid() }, "sid": unsafe { libc::getsid(0) }, "pgid": unsafe { libc::getpgrp() }})
 +}
 +
-+/// Shared instrument entry points. The capture-failure injection acts on a
-+/// recorded capture error the incumbent lacks (its initializer has no error
-+/// path), so a baseline run never selects it. The wrong-capture function below
-+/// is the harness control: it hands the managed child a deliberately wrong
-+/// entry state so the instrument is seen to fail it.
++/// Shared instrument entry point for F01. The initializer already ran before
++/// `main`, so the row's report substitution is applied by running the
++/// incumbent's *own* initializer once more with that one operation's report
++/// replaced by EIO (the physical operation still runs). Nothing is added to the
++/// incumbent: a failed mask query leaves the record unpublished, which is its
++/// own checked path, and a failed action query or membership is read by its
++/// loop as "not ignored" / "not blocked", which is its own unchecked path.
 +#[cfg(test)]
-+pub(crate) fn native_capture_report(_operation: i32, _broken: bool) {
-+    unreachable!("the incumbent has no capture-error record to report");
++pub(crate) fn native_capture_report(operation: i32, _broken: bool) {
++    // The re-run happens after the Rust runtime changed SIGPIPE, so what the
++    // real initializer recorded is kept for every signal but TERM, the one
++    // signal the substituted report can change.
++    let (ignored, blocked) = (
++        IGNORED.load(Ordering::Relaxed),
++        BLOCKED.load(Ordering::Relaxed),
++    );
++    RECORDED.store(false, Ordering::Release);
++    CAPTURE_FAULT.store(operation as u8, Ordering::Relaxed);
++    record();
++    CAPTURE_FAULT.store(0, Ordering::Relaxed);
++    let term = bit(libc::SIGTERM);
++    IGNORED.store(
++        (ignored & !term) | (IGNORED.load(Ordering::Relaxed) & term),
++        Ordering::Relaxed,
++    );
++    BLOCKED.store(
++        (blocked & !term) | (BLOCKED.load(Ordering::Relaxed) & term),
++        Ordering::Relaxed,
++    );
++    eprintln!(
++        "native baseline F01: operation {operation} reported EIO; the initializer {} its record",
++        if RECORDED.load(Ordering::Acquire) {
++            "published"
++        } else {
++            "did not publish"
++        }
++    );
 +}
 +
 +#[cfg(test)]
@@ -904,14 +1314,28 @@ diff -ruN a/crates/ravel/src/worker_admission_tests.rs b/crates/ravel/src/worker
      let root = std::env::current_dir().unwrap();
      let missing = root.join("missing-program");
      let program = if route == "choice-missing" {
-@@ -574,6 +577,11 @@
+@@ -574,6 +577,25 @@
      assert_eq!(unsafe { libc::dup2(saved, 1) }, 1);
      unsafe { libc::close(saved) };
      drop(output);
++    if scenario == "native-reader" && super::native_tests::returns_normally() {
++        // F03's mask faults, which the incumbent never reads: it returns from
++        // the front. The facts the baseline judges, as one line.
++        eprintln!(
++            "native baseline F03 outcome: ok={} started={} {}",
++            outcome.is_ok(),
++            root.join("started").exists(),
++            super::native_tests::f03_receipts()
++        );
++        if let Err(failure) = &outcome {
++            eprintln!("native baseline F03 failure: {}", failure.to_text());
++        }
++        return;
++    }
 +    if scenario == "native-reader" {
-+        // Reached only if the incumbent returned from a failed second reader
++        // Reached only if the incumbent returned from a failed reader
 +        // creation, which the baseline reads as an instrument fault.
-+        panic!("S03 baseline: the incumbent returned after the second reader failed: {outcome:?}");
++        panic!("S03 baseline: the incumbent returned after a reader creation failed: {outcome:?}");
 +    }
      if scenario.starts_with("nofault-") {
          assert!(outcome.is_ok(), "no-fault session failed: {outcome:?}");

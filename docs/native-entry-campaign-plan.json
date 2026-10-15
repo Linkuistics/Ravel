@@ -197,7 +197,10 @@
      "repaired"
     ],
     "violates": [],
-    "reason": "Real-signal-death control: a successful raise cannot report afterwards, so there is no ignore-the-failure mutant for it."
+    "reason": "Real-signal-death control: a successful raise cannot report afterwards, so there is no ignore-the-failure mutant for it.",
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -209,7 +212,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -221,7 +227,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -233,7 +242,12 @@
     ],
     "violates": [
      "broken:ignore-fault"
-    ]
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The pair is the policy refusal and a failed final mask restore. On a policy refusal the incumbent settles the selection failure without restoring the signal mask at all: its handled signals are blocked only by the pre-launch `block_and_check`, which a refusal never reaches, so the final restore the row faults is not performed on this path. The same fixture selecting the site on a refusal reaches nothing, and reaches the site on the spawn-ENOENT path (hosted by F05).",
+     "missing": "a final signal-mask restore on the selection-refusal path (the incumbent neither blocks nor restores the mask there)"
+    }
    }
   },
   {
@@ -245,7 +259,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -522,6 +539,136 @@
      "class": "observed"
     }
    }
+  },
+  {
+   "family": "F05",
+   "match": "operation=(finalisation-block|pending-query|TERM-membership)__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row faults one operation of the repaired common finalisation's signal snapshot: the final handled-signal block, the pending-set query behind it, or the TERM membership read of that set, taken after the work and before the mask is released. The incumbent has no such snapshot: its only block and pending query are the pre-launch `block_and_check`, before the managed child exists, and its finalisation restores the mask directly. The same fixture selecting each of these sites on the incumbent reaches none of them, on all three outcomes, and the launch runs to its end.",
+     "missing": "a final handled-signal block with a pending query and TERM membership read before the finalisation mask release"
+    }
+   }
+  },
+  {
+   "family": "F05",
+   "match": "outcome=policy-refusal__operation=final-mask-restore__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "On a policy refusal the incumbent settles the selection failure without restoring the signal mask at all: its handled signals are blocked only by the pre-launch `block_and_check`, which a refusal never reaches, so the final mask restore the row faults is not performed on this path. The same fixture selecting the site on a refusal reaches nothing and ends with the refusal's own exit 3, and it reaches the same site on the spawn-ENOENT path (hosted).",
+     "missing": "a final signal-mask restore on the selection-refusal path (the incumbent neither blocks nor restores the mask there)"
+    }
+   }
+  },
+  {
+   "family": "F05",
+   "match": "operation=final-mask-restore__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "observed"
+    }
+   }
+  },
+  {
+   "family": "F05",
+   "match": "operation=Started-parent-restore__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "observed"
+    }
+   }
+  },
+  {
+   "family": "F02",
+   "match": "boundary=worker__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row faults the worker-side watching establishment (the SIGCHLD action query, or the default-action repair that clears default plus no-child-wait) before the worker is spawned. The incumbent's worker admission performs neither: its worker module never names SIGCHLD, so under the row's state the worker is spawned and later waited unwatched. The same fixture selecting each of the three sites on the incumbent reaches none of them and the worker is admitted; the failure that absence causes (ECHILD at the worker's wait) is E04's worker row, already recorded.",
+     "missing": "worker-side child-watching establishment: a SIGCHLD action query and a default-action repair before the worker is spawned"
+    }
+   }
+  },
+  {
+   "family": "F02",
+   "match": "boundary=managed__operation=default-action-repair__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row faults the runner's default-action repair of default plus no-child-wait. The incumbent's runner repairs SIGCHLD only when the inherited disposition is an ignore (`SIG_IGN`) and performs no repair at all for default plus no-child-wait, so under the row's state there is no repair operation to omit or to report failed. A control on the same role sees the repair site reached for an ignored disposition and not reached for default plus no-child-wait; the query row of the same boundary is hosted. The failure this absence causes (ECHILD at the managed wait) is E04's managed row, already recorded.",
+     "missing": "the independent no-child-wait repair of a default SIGCHLD disposition (the incumbent repairs only an ignored one)"
+    }
+   }
+  },
+  {
+   "family": "F02",
+   "match": "boundary=managed__operation=watch-action-query__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "observed"
+    }
+   }
+  },
+  {
+   "family": "F07",
+   "match": "operation=TERM-default__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row faults the default-action step of exit propagation. The incumbent's `reraise` unblocks the signal (`restore_mask`) and raises it; it performs no `sigaction` at all, because the entry disposition was restored earlier, by the handlers' `Drop` (F04's final-restore operation, hosted there). A control with a handler of the fixture's own installed after the handlers dropped and just before `reraise` shows the raise reaching that handler and the process ending by `exit(143)` rather than by the signal, so no default-action step exists in propagation to fault.",
+     "missing": "a default-action transition of the selected signal inside exit propagation"
+    }
+   }
   }
  ],
  "families": {
@@ -612,7 +759,10 @@
    ],
    "violates": [
     "broken:ignore-fault"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "F02": {
    "repaired": [
@@ -628,7 +778,10 @@
    ],
    "violates": [
     "broken:ignored"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "F04": {
    "repaired": [
@@ -636,7 +789,10 @@
    ],
    "violates": [
     "broken:ignore-fault"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "F05": {
    "repaired": [
@@ -652,7 +808,10 @@
    ],
    "violates": [
     "broken:ignore-fault"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "F07": {
    "repaired": [
@@ -660,7 +819,10 @@
    ],
    "violates": [
     "broken:ignore-fault"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "paired": {
    "repaired": [
@@ -675,7 +837,10 @@
    ],
    "violates": [
     "broken:ignore-fault"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "S01": {
    "repaired": [

@@ -112,3 +112,13 @@ reconciliation and the support continuation cut.
   remaining D≤20 (phase closure), RC≤3/P≤28/E≤21/X=0 for k46 and k43. K42
   stays a node (k46 remains); the frozen campaign, docs reconciliation and the
   support continuation stay in k43.
+- K46 (the third and last child of k42, inside k38) classified the 67 fault
+  rows: 45 observed (41 fails, 4 already correct) and 22 rejected premises. The
+  incumbent baseline now classifies 153 of 153 rows (65 fails, 56 already
+  correct, 32 rejected premises) by identity. No in-session reviewer: the whole
+  incumbent instrument earns one tree-owned `review-impl` leaf (k47, before
+  k43's freeze). No product defect. Charge P<=24/E<=6/RC<=1, D=X=0. Cumulative
+  D<=115/RC<=86/P<=463/E<=162/X=0 under caps D<=135/RC<=88/P<=467/E<=177/X=0;
+  remaining D<=20 (phase closure), RC<=2/P<=4/E<=15/X=0 for k47 and k43. The
+  frozen campaign, docs reconciliation and the support continuation stay in
+  k43.

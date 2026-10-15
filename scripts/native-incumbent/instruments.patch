@@ -28,12 +28,15 @@ diff -ruN a/crates/ravel/src/native_entry_tests.rs b/crates/ravel/src/native_ent
      );
  }
  pub(crate) fn worker_wait(pid: u32, status: &io::Result<std::process::ExitStatus>) {
-@@ -726,7 +730,9 @@
+@@ -726,7 +730,12 @@
      let outcome = read_json(directory.path().join("outcome.json"));
      let result = fs::read(directory.path().join("result-output")).unwrap();
      let log = fs::read_to_string(stderr).unwrap();
 -    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at);
-+    let facts = format!("raw_wait={} elapsed={:?} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}", status.into_raw(), at);
++    // The lines the incumbent's own seams printed (every one begins "native
++    // baseline"): which operation was faulted and what it did.
++    let seams: Vec<&str> = log.lines().filter(|l| l.starts_with("native baseline")).collect();
++    let facts = format!("raw_wait={} elapsed={:?} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?} seams={seams:?}", status.into_raw(), at);
 +    LAST_FACTS.with(|last| *last.borrow_mut() = facts.clone());
 +    eprintln!("native entry case={case} broken={broken} {facts} launcher={launcher}\n{log}");
      assert_eq!(launcher["recorded"], true);

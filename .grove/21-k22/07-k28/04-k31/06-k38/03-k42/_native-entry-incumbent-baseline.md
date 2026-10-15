@@ -130,3 +130,17 @@ rows, the charges and balances, and retires the node's closing obligations.
   P<=20/E<=8/RC<=1, D=X=0. Cumulative D<=115/RC<=85/P<=439/E<=156/X=0;
   remaining D<=20 (phase closure), RC<=3/P<=28/E<=21/X=0 for k46 and k43. 67
   rows stay unclassified (k46); no node closes.
+
+- K46 (third and last child) classified the 67 fault rows from real runs and
+  controls: 45 observed (41 fails, 4 already correct) and 22 rejected premises,
+  each with a control on the same fixture. With k44 and k45 the node stands at
+  65 fails, 56 already correct and 32 rejected, 153 of 153 by identity with none
+  unclassified (the driver's selftests reject a missing, unclassified or
+  reasonless row). K46 spent no in-session reviewer and cut one tree-owned
+  `review-impl` leaf (k47) for the whole incumbent instrument before k43's
+  freeze; the node closes when it and any integration retire. Charge
+  P<=24/E<=6/RC<=1, D=X=0. Cumulative D<=115/RC<=86/P<=463/E<=162/X=0 under
+  caps D<=135/RC<=88/P<=467/E<=177/X=0; remaining D<=20 (phase closure),
+  RC<=2/P<=4/E<=15/X=0 for k47 and k43. The evidence note section is "Fault-
+  family baseline (k46)"; the frozen campaign, docs reconciliation and the
+  support continuation stay in k43.
