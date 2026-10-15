@@ -552,3 +552,27 @@ the closure reserve cannot fund it. Allocations are not spend. The one-session
 CLI consumer, C4 authority premises, k4/k6 comparison history, G2–G5/R-W debt
 and all root delivery/documentation obligations remain unchanged; no parent
 completion or comparative gain follows from this agreement.
+
+K18 completed the bounded current-source/toolchain planning read without product
+edits or behavioral execution. Pre-runtime entry capture and output-thread
+shielding already exist; their unchecked failure paths, runner-only late SIGCHLD
+repair, discarded Started mask failure and separate selection-failure settlement
+still require a coherent checked transition design. K18's fixed discriminator
+matrix retains worker/child waits, ignored/blocked signals, direct versus
+terminal INT, transition/after-reap/no-ending cancellation and protected C1–C4.
+It establishes neither runtime conformance nor a complete supported producer
+price. Existing shielding is a mechanism to preserve and check, not an absent
+feature to reinvent. SA_NOCLDWAIT exec reachability remains an explicit question.
+
+K18 conservatively charges D≤10/RC=P=E=X=0 including verification/retirement/
+commit. Correctness cumulative charged bounds are D≤80/RC≤38/P≤140/E≤30/X=0;
+remaining D≤20 (all phase-closure reserve)/RC≤2/P≤100/E≤90/X=0.
+`native-entry-transition-funding-k19`, before the book, is the precise human
+continuation. It proposes additional D≤20/RC≤10 for checked-transition design,
+complete pricing and shared review/coordination/closure, raising caps to
+D≤120/RC≤50 while leaving P≤240/E≤120/X=0 unchanged. This is not authorization
+or spend; no producer is commissioned. A complete entry-to-settlement price
+must cover source, finite owner-local controls, red/green, protected CLI/C1–C4/
+runner/workspace checks, evidence and closure from actual balances. No reserve
+is borrowed. Native entry, k4/k6/G2–G5/R-W debt and all root delivery/documentation
+obligations remain live; no parent completion or comparative gain follows.
