@@ -113,6 +113,22 @@ tasks:
       - task: native-entry:runner
       - task: native-entry:start
 
+  native-incumbent:build:
+    desc: Build the frozen incumbent subject (the pre-repair product plus private test seams)
+    cmds:
+      - task: worker
+      - bash scripts/native-incumbent.sh build
+
+  test:native-incumbent:
+    desc: Run the incumbent's baseline instruments, filing one record per row under DIR (development run)
+    cmds:
+      - bash scripts/native-incumbent.sh test --rows {{.DIR}}
+
+  test:native-incumbent-controls:
+    desc: Prove the incumbent build reproduces, differs from git only by its seams and refuses a drifted tree
+    cmds:
+      - bash scripts/native-incumbent.sh selftest
+
   test:native-campaign:
     desc: Freeze subjects, run the finite native cases and reconcile every row (DIR must not exist)
     cmds:

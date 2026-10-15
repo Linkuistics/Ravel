@@ -607,6 +607,86 @@ baseline, and every claim that a row fails before the repair, is unmeasured.
 The 143 failing broken subjects are deliberate mutations of the repaired code,
 not the incumbent product. The tooling qualifies neither GNU/Linux nor Rust 1.85.
 
+## Incumbent subject and front baseline (k44)
+
+`native-entry-incumbent-front-k44`, the first child of the incumbent-baseline
+node (k42), built the incumbent as its own frozen tree, added the `baseline`
+verdict class to the plan and driver, and filed a classified baseline for the 46
+rows the front's instruments host. It takes no immutable measurement, changes no
+production code and finds no product defect.
+
+**The incumbent subject.** `scripts/native-incumbent.sh` exports git revision
+`0515419edd29` (the parent of the first repair commit) into
+`target/native-incumbent/tree`, outside the repaired tree and its subjects, and
+adds only:
+
+| Addition | What it is |
+|---|---|
+| `seams.patch` | Private `cfg(test)` call sites in five product files (`main`, `run`, `cancellation`, `signal_state`, `worker`) and one nextest profile. Each places the repaired instrument's hook at the point in the incumbent's own flow that corresponds to it. None changes behaviour in a non-test build. |
+| the repaired instruments, verbatim | `native_entry_tests.rs` and its `faults.rs`, `native_barrier.rs` and the manifest, copied from the repaired tree. They are never edited for the incumbent. |
+| `instruments.patch` | Three adaptations to the copied front instrument: the module declaration for the baseline instruments, the `operation_reports` field that `Ended` lacks in the incumbent, and one fact string kept so the baseline can record it. |
+| `files/` | The baseline instruments (`native_entry_tests/baseline.rs`, which reads every row's identity and parameters from the frozen manifest) and the observation half of the worker reader receipts. |
+
+The compiled worker is the repaired tree's, because the incumbent's worker
+sources, build script and compile script are identical and the build asserts
+that from the two trees. A hunk that no longer applies is refused
+(`--fuzz=0`). The source tree is reproduced exactly from the recipe; the debug
+binaries are not bit-identical across rebuilds, so they are digested within each
+run, before and after, like every other built subject. Twelve files differ from
+git's export (five patched product files, the nextest profile, three instrument
+sources, the manifest copy and the two files under `files/`), and
+`task test:native-incumbent-controls` states that count.
+
+**Placement is a judgement.** The repaired barriers sit where the repaired front
+finalises. The incumbent has no common finalisation: its choice drops the
+selection's handlers on a failed selection and the front then settles that failure
+directly, so the "before finalise" barriers for a refused selection sit just
+before that settlement. A signal delivered before the choice drops its handlers
+would be latched; the incumbent's window is the gap after that, which the repaired
+design closes. The rows below are classified at that placement, and the note
+on each record carries the facts.
+
+**The `baseline` class.** The plan states, per row, `observed` or
+`rejected-premise` with a reason and the missing mechanism; a row with no entry is
+unclassified. An observed row needs one `baseline` record, whose raw verdict the
+driver classifies as `fails` (a claim was violated) or `already-correct`; it is
+never required to fail. A rejected premise carries its reason and must have no
+record. Failing controls (`task test:native-campaign-controls`) reject a missing
+baseline record, an unclassified row, a rejected premise without a reason, an
+unknown class, a record with no verdict and a rejected premise that has a
+record, and they require both observed outcomes to be accepted.
+
+**Harness controls.** An "already correct" reading is credited only because the
+same instruments were seen to fail the incumbent when it was made wrong: a
+managed child handed a wrong entry state fails E01's claims, and readers created
+without the shield fail E08's eligibility receipt. Both run in
+`native_baseline_control_*` and file no row.
+
+**Rows hosted and their classification** (development run, aarch64-apple-darwin,
+not an immutable receipt):
+
+| Family | Rows | Already correct | Fails | Facts behind the failures |
+|---|---:|---:|---:|---|
+| E01 entry state | 16 | 16 | 0 | |
+| E02 blocked pending | 6 | 6 | 0 | |
+| E03 SIGCHLD at entry | 2 | 2 | 0 | The ignore row holds on Darwin because exec leaves no no-child-wait flag (raw flags 0), as the repaired tree's own E03 note records. |
+| E04 flag boundaries | 3 | 1 | 2 | The worker row: the worker's reap is unconfirmed (`No child processes`, ECHILD) and its teardown fails. The managed row: the runner cannot wait (`cannot wait on the launched child: No child processes`). The raw row is an observation: flags 0, not inherited, so it is recorded as holding. |
+| E06 boundary joins | 15 | 12 | 3 | The three refusal-before-finalise rows: the process is ended by the delivered signal at the boundary, before the front reports the original refusal or any cancellation. |
+| E08 readers | 4 | 2 | 2 | The two policy-refusal rows, for the same reason; both success rows hold, with shielded readers, a restored creating mask and a bounded collection. |
+| **Total** | **46** | **39** | **7** | |
+
+The incumbent already holds E01, E02, E03's ignore row and E06/E08's success and
+reaped/ENOENT/Started boundaries. It fails exactly where its handlers are absent
+(after a refused selection) or where its watching repair does not cover the
+no-child-wait flag. 107 rows remain unclassified and visible in the driver:
+E05, E07 and S01–S05 (k45) and F01–F07, paired and cancellation (k46).
+
+**What this does not establish.** There are no immutable per-case baseline
+receipts; the campaign run is k43's. The baseline qualifies neither GNU/Linux nor
+Rust 1.85. A seam is an observation or a call site, never a mechanism the
+incumbent lacks: rows whose premise needs a missing mechanism are rejected
+premises in k45 and k46, with the mechanism named.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -644,8 +724,9 @@ variants and S counts 8/7/8/7/2 unchanged.
    substituted reports, product settlement and fixture cleanup distinct. Rerun
    affected rows after edits and reconcile identities individually. The row
    recorders, plan, digest driver and its failing controls now exist (k40,
-   above); the incumbent subject with its baseline records and the frozen
-   campaign run remain.
+   above); the incumbent subject and its front baseline now exist (k44, above),
+   with the runner, worker, terminal and fault rows (k45, k46) and the frozen
+   campaign run remaining.
 6. Complete R01 through the existing Taskfile tasks and preserve every previous
    expectation. Publish qualified evidence only when earned. Reconcile the
    approved operation-report API amendment throughout docs. Price and cut the

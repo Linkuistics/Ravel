@@ -21,6 +21,12 @@ Taskfile tasks `test:cli`, `test:session`, `test:runner`,
 `test:terminal-recovery`, `test` and `check` for R01 with the 310 identities and
 ignored flags frozen first.
 
+The driver, as extended by k44, also builds the frozen incumbent subject
+(`scripts/native-incumbent.sh`), digests it with the other subjects, runs its
+baseline instruments into the same rows directory under the subject `baseline`,
+and fails reconciliation until every row has a baseline classification in the
+plan and a record or a reasoned rejected premise (k44, k45, k46).
+
 ## Done when
 
 - Source, instrument, helper, reference, exclusion, plan and toolchain subjects

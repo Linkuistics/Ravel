@@ -863,3 +863,10 @@ caps D≤135/RC≤88/P≤467/E≤177/X=0; cumulative D≤115/RC≤83/P≤397/E�
 remaining D≤20 (phase closure), RC≤5/P≤70/E≤35/X=0 for the incumbent baseline
 k42 and the frozen campaign k43. No phase or root closes; support, comparative
 and delivery/book obligations remain live.
+
+K44 (inside k38) built the incumbent subject and the `baseline` class and filed
+46 front rows (39 already-correct, 7 fails); charge P≤22/E≤6/RC≤1, D=X=0.
+Cumulative D≤115/RC≤84/P≤419/E≤148/X=0 under caps D≤135/RC≤88/P≤467/E≤177/X=0;
+remaining D≤20 (phase closure), RC≤4/P≤48/E≤29/X=0 for k45, k46 and k43. No
+phase or root closes; support, comparative and delivery/book obligations remain
+live.

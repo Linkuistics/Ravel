@@ -1,0 +1,41 @@
+diff -ruN a/crates/ravel/src/native_entry_tests.rs b/crates/ravel/src/native_entry_tests.rs
+--- a/crates/ravel/src/native_entry_tests.rs
++++ b/crates/ravel/src/native_entry_tests.rs
+@@ -15,6 +15,8 @@
+ use std::time::{Duration, Instant};
+ 
+ pub(crate) mod faults;
++#[cfg(test)]
++mod baseline;
+ 
+ const ROLE: &str = "native_entry_tests::native_entry_role";
+ const RESULT: &str = "native 🪶\nresult";
+@@ -40,6 +42,8 @@
+     Late,
+ }
+ thread_local! {
++    /// The facts of the last `case`, for the baseline's recorded note.
++    static LAST_FACTS: RefCell<String> = const { RefCell::new(String::new()) };
+     static CASE: RefCell<Option<Value>> = const { RefCell::new(None) };
+     static BROKEN: Cell<Broken> = const { Cell::new(Broken::None) };
+     static LAST_RAW_CHLD_FLAGS: Cell<i32> = const { Cell::new(0) };
+@@ -154,7 +158,7 @@
+ pub(crate) fn managed_ending(ending: &Ended) {
+     receipt(
+         "managed-ending.json",
+-        json!({"rawStatus":ending.status.into_raw(),"end":format!("{:?}",ending.end),"group":format!("{:?}",ending.group),"elapsedNanos":ending.elapsed.as_nanos().to_string(),"operationReports":ending.operation_reports}),
++        json!({"rawStatus":ending.status.into_raw(),"end":format!("{:?}",ending.end),"group":format!("{:?}",ending.group),"elapsedNanos":ending.elapsed.as_nanos().to_string(),"operationReports":Vec::<String>::new()}),
+     );
+ }
+ pub(crate) fn worker_wait(pid: u32, status: &io::Result<std::process::ExitStatus>) {
+@@ -726,7 +730,9 @@
+     let outcome = read_json(directory.path().join("outcome.json"));
+     let result = fs::read(directory.path().join("result-output")).unwrap();
+     let log = fs::read_to_string(stderr).unwrap();
+-    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at);
++    let facts = format!("raw_wait={} elapsed={:?} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}", status.into_raw(), at);
++    LAST_FACTS.with(|last| *last.borrow_mut() = facts.clone());
++    eprintln!("native entry case={case} broken={broken} {facts} launcher={launcher}\n{log}");
+     assert_eq!(launcher["recorded"], true);
+     assert_eq!(
+         launcher["capturingThread"], launcher["currentThread"],

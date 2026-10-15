@@ -90,3 +90,13 @@ reconciliation and the support continuation cut.
   Bookkeeping: renew P≤65/E≤3/RC≤1; caps D≤135/RC≤88/P≤467/E≤177/X=0;
   cumulative D≤115/RC≤83/P≤397/E≤142/X=0; remaining D≤20 (phase closure),
   RC≤5/P≤70/E≤35/X=0 for k42 (projected P≤55/E≤15) and k43 (P≤15/E≤20).
+- K44 (inside k38) built the incumbent subject (`0515419edd29` exported from
+  git, a private-seam patch, the repaired instruments copied verbatim and a
+  baseline module), added the `baseline` class to the plan and driver with
+  failing controls, and filed 46 front rows from a real run: 39 already-correct
+  and 7 fails. Charge P≤22/E≤6/RC≤1, D=X=0, no reviewer spawned. Cumulative
+  bounds D≤115/RC≤84/P≤419/E≤148/X=0 under caps D≤135/RC≤88/P≤467/E≤177/X=0;
+  remaining D≤20 (phase closure), RC≤4/P≤48/E≤29/X=0 for k45, k46 and k43. K42
+  is a node (k44 landed; k45 runner, worker and terminal rows and k46 fault rows
+  remain; 107 rows unclassified). The frozen campaign, docs reconciliation and
+  the support continuation stay in k43.

@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "purpose": "Expected (row, subject) records and verdicts for the native-entry campaign. 'repaired' subjects must conform; 'violates' broken subjects must violate the claim they name; 'conforms' lists subjects that conform by design and carry a reason. Resolution order: exact row, then the first matching pattern of the row's family, then the family default. This file is a subject of every campaign: digest it before and after.",
+ "purpose": "Expected (row, subject) records and verdicts for the native-entry campaign. 'repaired' subjects must conform; 'violates' broken subjects must violate the claim they name; 'conforms' lists subjects that conform by design and carry a reason. 'baseline' classifies the incumbent product (the pre-repair revision, built as its own frozen tree) under the same claims: class 'observed' needs one baseline record whose raw verdict is classified fails (violated a claim) or already-correct (held every claim) and is never required to fail; class 'rejected-premise' carries the reason and the missing mechanism and must have no record. A row with no baseline entry is unclassified and fails reconciliation. Resolution order: exact row, then the first matching pattern of the row's family, then the family default. This file is a subject of every campaign: digest it before and after.",
  "domain": "aarch64-apple-darwin host receipts only; they qualify neither GNU/Linux nor Rust 1.85",
  "rows": {},
  "patterns": [
@@ -15,7 +15,10 @@
     "conforms": [
      "broken:blocked-pending"
     ],
-    "reason": "Negative control: with no pending signal the entry-blocked-pending mutant is not discriminating, so it conforms by design."
+    "reason": "Negative control: with no pending signal the entry-blocked-pending mutant is not discriminating, so it conforms by design.",
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -27,7 +30,10 @@
     ],
     "violates": [
      "broken:worker-watching"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -40,7 +46,10 @@
     ],
     "violates": [
      "broken:ignore-only"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -51,7 +60,10 @@
      "repaired"
     ],
     "violates": [],
-    "reason": "Observation of whether the flag reaches executable entry; no repair is claimed and no mutant exists. The measured flag state is in the record's note."
+    "reason": "Observation of whether the flag reaches executable entry; no repair is claimed and no mutant exists. The measured flag state is in the record's note.",
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -75,7 +87,10 @@
     ],
     "violates": [
      "broken:join-selection"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -87,7 +102,10 @@
     ],
     "violates": [
      "broken:join-outcome"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -99,7 +117,10 @@
     ],
     "violates": [
      "broken:join-late"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -111,7 +132,10 @@
     ],
     "violates": [
      "broken:join-front"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -123,7 +147,10 @@
     ],
     "violates": [
      "broken:join-late"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -438,7 +465,10 @@
    "violates": [
     "broken:capture",
     "broken:reinstatement"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E02": {
    "repaired": [
@@ -446,7 +476,10 @@
    ],
    "violates": [
     "broken:blocked-pending"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E03": {
    "repaired": [
@@ -456,7 +489,10 @@
    "conforms": [
     "broken:worker-watching"
    ],
-   "reason": "Darwin exec clears the private no-child-wait flag, so skipping the worker repair still confirms both waits; the E04 worker row is the independent failing discriminator in this domain. No baseline failure is invented."
+   "reason": "Darwin exec clears the private no-child-wait flag, so skipping the worker repair still confirms both waits; the E04 worker row is the independent failing discriminator in this domain. No baseline failure is invented.",
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E04": {
    "repaired": [
@@ -475,7 +511,10 @@
    "repaired": [
     "repaired"
    ],
-   "violates": []
+   "violates": [],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E07": {
    "repaired": [
@@ -489,7 +528,10 @@
    ],
    "violates": [
     "broken:shielding"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "F01": {
    "repaired": [

@@ -1,0 +1,371 @@
+diff -ruN a/.config/nextest.toml b/.config/nextest.toml
+--- a/.config/nextest.toml
++++ b/.config/nextest.toml
+@@ -6,3 +6,11 @@
+ [[profile.default.overrides]]
+ filter = "test(worker_reap_admission) | test(partial_acquisition_cleanup)"
+ threads-required = "num-test-threads"
++
++# The campaign driver's one junit profile for the incumbent subject's baseline
++# instruments, selected with NEXTEST_PROFILE.
++# https://nexte.st/docs/machine-readable/junit/
++[profile.campaign-incumbent.junit]
++path = "junit.xml"
++store-success-output = true
++store-failure-output = true
+diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
+--- a/crates/ravel/src/cancellation.rs
++++ b/crates/ravel/src/cancellation.rs
+@@ -49,9 +49,37 @@
+         .map(|&(number, name)| Signal { number, name })
+ }
+ 
++/// Which owner's handler is installed for `number`, by comparing the installed
++/// action's address with the front's own handler. Read-only; test builds only.
++#[cfg(test)]
++pub(crate) fn handler_owner(number: libc::c_int) -> &'static str {
++    let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
++    if unsafe { libc::sigaction(number, ptr::null(), &mut action) } == -1 {
++        return "unknown";
++    }
++    let front = on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
++    match action.sa_sigaction {
++        libc::SIG_DFL => "default",
++        libc::SIG_IGN => "ignore",
++        address if address == front => "front",
++        _ => "other",
++    }
++}
++/// The thread whose handler latched the first signal (E08: main owns it).
++#[cfg(test)]
++pub(crate) static HANDLER_THREAD: std::sync::atomic::AtomicU64 =
++    std::sync::atomic::AtomicU64::new(0);
++
+ /// Only an atomic store is async-signal-safe, so that is all the handler
+ /// does. The first signal is kept: it is the one that cancelled.
+ extern "C" fn on_signal(signal: libc::c_int) {
++    // pthread_self is async-signal-safe; one store, no allocation. Test builds
++    // only: which thread ran the front's handler.
++    #[cfg(test)]
++    HANDLER_THREAD.store(
++        unsafe { libc::pthread_self() } as usize as u64,
++        Ordering::SeqCst,
++    );
+     let _ = RECEIVED.compare_exchange(0, signal, Ordering::SeqCst, Ordering::SeqCst);
+ }
+ 
+@@ -189,6 +217,11 @@
+ /// Run `start` with the handled signals blocked in this thread, so that a
+ /// thread it starts inherits them blocked and never takes one.
+ pub fn shielded<T>(start: impl FnOnce() -> T) -> T {
++    // Harness control only: a baseline run never selects the unshielded mutant.
++    #[cfg(test)]
++    if crate::native_entry_tests::broken_shielding() {
++        return start();
++    }
+     // SAFETY: the sets are initialised by sigemptyset and pthread_sigmask
+     // before use, and the calling thread's own mask is put back as it was.
+     unsafe {
+diff -ruN a/crates/ravel/src/main.rs b/crates/ravel/src/main.rs
+--- a/crates/ravel/src/main.rs
++++ b/crates/ravel/src/main.rs
+@@ -9,6 +9,11 @@
+ mod frame;
+ mod inputs;
+ mod limits;
++#[cfg(test)]
++#[path = "../../keyed-launch/src/native_barrier.rs"]
++mod native_barrier;
++#[cfg(test)]
++mod native_entry_tests;
+ mod policy;
+ mod program;
+ mod refusal;
+@@ -27,6 +32,11 @@
+ use crate::refusal::{Failure, Refusal, Stage, EXIT_MALFORMED};
+ 
+ fn main() -> ExitCode {
++    #[cfg(test)]
++    if std::env::var_os("K28_NATIVE_ENTRY_MAIN").is_some() {
++        native_entry_tests::run_role();
++        unreachable!("the private main-thread fixture must exit explicitly");
++    }
+     let arguments: Vec<OsString> = std::env::args_os().collect();
+     // Only a command line that did not parse, or whose words are never parsed,
+     // is scanned for `--json`, so that it still honours the one-JSON-error
+diff -ruN a/crates/ravel/src/run.rs b/crates/ravel/src/run.rs
+--- a/crates/ravel/src/run.rs
++++ b/crates/ravel/src/run.rs
+@@ -59,6 +59,14 @@
+                     .remove()
+                     .map_err(|error| failed("session_cleanup_failed", error))
+             });
++            // Private seams, test builds only: the incumbent settles a selection
++            // failure here, with its handlers already dropped by the choice, so
++            // this is where the common finalisation boundaries sit for it.
++            #[cfg(test)]
++            {
++                crate::native_entry_tests::barrier("before-finalise");
++                crate::native_entry_tests::barrier("selection-failure-before-finalise");
++            }
+             return settle(
+                 Err(failure),
+                 None,
+@@ -119,6 +127,8 @@
+             );
+         }
+ 
++        #[cfg(test)]
++        crate::native_entry_tests::barrier("selection-to-runner");
+         if let Some(signal) = handlers.block_and_check() {
+             return Err(crate::cancellation::refusal(signal, &source).into());
+         }
+@@ -144,7 +154,12 @@
+         ]
+         .map(OsStr::new)
+         .into();
++        #[cfg(test)]
++        crate::native_entry_tests::before_managed();
+         let entry = signal_state::entry();
++        // Harness control only: a baseline run selects no mutant.
++        #[cfg(test)]
++        let entry = crate::native_entry_tests::entry_override(entry);
+         let launch = Launch {
+             argv: &argv,
+             channel: Some((allocated.channel(), EXIT_FILE_VARIABLE)),
+@@ -158,8 +173,16 @@
+         };
+         let mut started = false;
+         let mut observe = |event| {
++            #[cfg(test)]
++            crate::native_entry_tests::managed_event(event);
++            #[cfg(test)]
++            if event == LaunchEvent::Reaped {
++                crate::native_entry_tests::barrier("after-reap-before-front");
++            }
+             if event == LaunchEvent::Started {
+                 started = true;
++                #[cfg(test)]
++                crate::native_entry_tests::barrier("started-before-mask-restore");
+                 let _ = signal_state::restore_mask();
+             }
+         };
+@@ -189,6 +212,8 @@
+             _ => None,
+         };
+         let ending = ended.insert(supervision);
++        #[cfg(test)]
++        crate::native_entry_tests::managed_ending(ending);
+         let result = allocated
+             .result_after(ending)
+             .map_err(|error| failed("session_result_invalid", error))?;
+@@ -227,6 +252,12 @@
+             .map_err(|error| failed("output_unavailable", error))
+     });
+     drop(output);
++    #[cfg(test)]
++    {
++        crate::native_entry_tests::barrier("before-finalise");
++        crate::native_entry_tests::barrier("selection-failure-before-finalise");
++        crate::native_entry_tests::barrier("no-ending-error-before-finalise");
++    }
+     drop(handlers);
+     let late_signal = keyed_launch::take_interrupt().and_then(crate::cancellation::Signal::of);
+     let signal = join_cancellation(crate::cancellation::received(), runner_signal, late_signal);
+diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
+--- a/crates/ravel/src/signal_state.rs
++++ b/crates/ravel/src/signal_state.rs
+@@ -44,6 +44,28 @@
+ static RECORDED: AtomicBool = AtomicBool::new(false);
+ static IGNORED: AtomicU64 = AtomicU64::new(0);
+ static BLOCKED: AtomicU64 = AtomicU64::new(0);
++// Private observation seams, test builds only: what the entry looked like beyond
++// the ignored set and the mask. Read-only; nothing here changes a disposition.
++#[cfg(test)]
++static RAW_CHLD_FLAGS: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
++#[cfg(test)]
++static RAW_PENDING: AtomicU64 = AtomicU64::new(0);
++#[cfg(test)]
++static RAW_PENDING_ERROR: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
++#[cfg(test)]
++static CAPTURING_THREAD: AtomicU64 = AtomicU64::new(0);
++
++#[cfg(test)]
++fn errno() -> i32 {
++    #[cfg(target_vendor = "apple")]
++    unsafe {
++        *libc::__error()
++    }
++    #[cfg(target_os = "linux")]
++    unsafe {
++        *libc::__errno_location()
++    }
++}
+ 
+ fn bit(signal: libc::c_int) -> u64 {
+     1 << (signal - 1)
+@@ -79,12 +101,40 @@
+             {
+                 ignored |= bit(signal);
+             }
++            #[cfg(test)]
++            if signal == libc::SIGCHLD {
++                RAW_CHLD_FLAGS.store(action.sa_flags as i32, Ordering::Relaxed);
++            }
+             if libc::sigismember(&mask, signal) == 1 {
+                 blocked |= bit(signal);
+             }
+         }
+         IGNORED.store(ignored, Ordering::Relaxed);
+         BLOCKED.store(blocked, Ordering::Relaxed);
++        #[cfg(test)]
++        {
++            let mut pending: libc::sigset_t = std::mem::zeroed();
++            if libc::sigpending(&mut pending) == 0 {
++                let mut bits = 0;
++                // The signal numbers this platform has; the incumbent's own
++                // loop above queries past them and tolerates the refusal.
++                #[cfg(target_vendor = "apple")]
++                let numbers = 1..=31;
++                #[cfg(not(target_vendor = "apple"))]
++                let numbers = 1..=64;
++                for signal in numbers.filter(|&n| !cfg!(target_env = "gnu") || (n != 32 && n != 33)) {
++                    match libc::sigismember(&pending, signal) {
++                        1 => bits |= bit(signal),
++                        0 => {}
++                        _ => RAW_PENDING_ERROR.store(errno(), Ordering::Relaxed),
++                    }
++                }
++                RAW_PENDING.store(bits, Ordering::Relaxed);
++            } else {
++                RAW_PENDING_ERROR.store(errno(), Ordering::Relaxed);
++            }
++            CAPTURING_THREAD.store(libc::pthread_self() as usize as u64, Ordering::Relaxed);
++        }
+         RECORDED.store(true, Ordering::Release);
+     }
+ }
+@@ -153,3 +203,34 @@
+         SIGNALS.filter(|&signal| blocked & bit(signal) != 0),
+     )
+ }
++
++/// The entry record and the thread facts the instruments judge. Test builds only.
++#[cfg(test)]
++pub(crate) fn native_receipt() -> serde_json::Value {
++    serde_json::json!({"recorded": RECORDED.load(Ordering::Acquire),
++        "ignored": IGNORED.load(Ordering::Relaxed), "blocked": BLOCKED.load(Ordering::Relaxed),
++        "pending": RAW_PENDING.load(Ordering::Relaxed), "pendingQueryError": RAW_PENDING_ERROR.load(Ordering::Relaxed),
++        "capturingThread": CAPTURING_THREAD.load(Ordering::Relaxed), "currentThread": unsafe { libc::pthread_self() as usize as u64 },
++        "sigchldFlags": RAW_CHLD_FLAGS.load(Ordering::Relaxed),
++        "pid": unsafe { libc::getpid() }, "sid": unsafe { libc::getsid(0) }, "pgid": unsafe { libc::getpgrp() }})
++}
++
++/// Shared instrument entry points. The capture-failure injection acts on a
++/// recorded capture error the incumbent lacks (its initializer has no error
++/// path), so a baseline run never selects it. The wrong-capture function below
++/// is the harness control: it hands the managed child a deliberately wrong
++/// entry state so the instrument is seen to fail it.
++#[cfg(test)]
++pub(crate) fn native_capture_report(_operation: i32, _broken: bool) {
++    unreachable!("the incumbent has no capture-error record to report");
++}
++
++#[cfg(test)]
++pub(crate) fn native_wrong_capture(signal: i32) -> keyed_launch::EntrySignals {
++    let ignored = IGNORED.load(Ordering::Relaxed) ^ bit(signal);
++    let blocked = BLOCKED.load(Ordering::Relaxed) ^ bit(signal);
++    keyed_launch::EntrySignals::new(
++        SIGNALS.filter(|&s| ignored & bit(s) != 0),
++        SIGNALS.filter(|&s| blocked & bit(s) != 0),
++    )
++}
+diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
+--- a/crates/ravel/src/worker.rs
++++ b/crates/ravel/src/worker.rs
+@@ -545,6 +545,8 @@
+         removed,
+     };
+     #[cfg(test)]
++    crate::native_entry_tests::worker_wait(teardown.pid, &teardown.status);
++    #[cfg(test)]
+     crate::directory_control::receipt(format!(
+         "actual worker wait pid={} result={:?} operations={:?}",
+         teardown.pid, teardown.status, teardown.reports
+@@ -1238,7 +1240,13 @@
+             streams += 1;
+             let (captured, overflow, sender) =
+                 (Arc::clone(&captured), Arc::clone(&overflow), sender.clone());
++            #[cfg(test)]
++            let reader_sink = native_tests::reader_sink();
++            #[cfg(test)]
++            let finished_sink = native_tests::finished_sink();
+             thread::spawn(move || {
++                #[cfg(test)]
++                native_tests::record_reader(reader_sink, stdout);
+                 let mut chunk = [0; 8192];
+                 loop {
+                     match stream.read(&mut chunk) {
+@@ -1264,9 +1272,13 @@
+                         Err(_) => break,
+                     }
+                 }
++                #[cfg(test)]
++                native_tests::record_finished(finished_sink, stdout);
+                 let _ = sender.send(());
+             });
+         };
++        #[cfg(test)]
++        native_tests::creator_before();
+         cancellation::shielded(|| {
+             spawn(
+                 stdout.map(|stream| Box::new(stream) as Box<dyn Read + Send>),
+@@ -1277,6 +1289,8 @@
+                 false,
+             );
+         });
++        #[cfg(test)]
++        native_tests::creator_after();
+         Capture {
+             captured,
+             overflow,
+@@ -1292,6 +1306,10 @@
+     /// Everything kept so far, once both streams end or `by` passes, and
+     /// whether any output went past the bound.
+     fn collect(self, by: Instant) -> (Diagnostics, bool) {
++        #[cfg(test)]
++        let began = Instant::now();
++        #[cfg(test)]
++        let mut completed = 0;
+         for _ in 0..self.streams {
+             if self
+                 .done
+@@ -1300,7 +1318,18 @@
+             {
+                 break;
+             }
++            #[cfg(test)]
++            {
++                completed += 1;
++            }
+         }
++        #[cfg(test)]
++        native_tests::collected(
++            self.streams,
++            completed,
++            by.saturating_duration_since(began),
++            began.elapsed(),
++        );
+         let captured = self
+             .captured
+             .lock()
+@@ -1315,6 +1344,9 @@
+ mod admission_tests;
+ 
+ #[cfg(test)]
++pub(crate) mod native_tests;
++
++#[cfg(test)]
+ mod tests {
+     use super::*;
+ 

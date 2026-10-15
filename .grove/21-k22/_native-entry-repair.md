@@ -446,3 +446,14 @@ where charters ask, and X=0/zero production disruption still binds. K41 charges
 RC≤4, D=P=E=X=0. Bookkeeping: caps D≤135/RC≤88/P≤467/E≤177/X=0; cumulative
 D≤115/RC≤83/P≤397/E≤142/X=0; remaining D≤20 (phase closure),
 RC≤5/P≤70/E≤35/X=0 for k42 and k43. K22 keeps live work and cannot close.
+
+K44 (the first child of k42, inside k38) built the incumbent subject
+(`0515419edd29` exported from git, a private-seam patch, the repaired
+instruments copied verbatim and a baseline module), added the `baseline` class
+to the plan and driver with failing controls, and filed 46 front rows from a
+real run: 39 already-correct and 7 fails. Charge P≤22/E≤6/RC≤1, D=X=0, no
+reviewer spawned. Cumulative bounds D≤115/RC≤84/P≤419/E≤148/X=0 under caps
+D≤135/RC≤88/P≤467/E≤177/X=0; remaining D≤20 (phase closure), RC≤4/P≤48/E≤29/X=0
+for k45, k46 and k43. K42 is a node (k44 landed; k45 runner, worker and terminal
+rows and k46 fault rows remain; 107 rows unclassified). K22 keeps live work and
+cannot close.

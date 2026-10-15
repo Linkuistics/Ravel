@@ -27,10 +27,11 @@ usage: native-campaign.sh run --out DIR
        native-campaign.sh r01 --out FILE        (reconcile the 310 protected identities)
        native-campaign.sh selftest              (failing controls for this driver)
 
-run builds the private fixtures, freezes and digests every subject, runs the
-three finite native Taskfile selections under separate nextest profiles, digests
-again and reconciles. DIR must not exist: a campaign directory has one writer
-and is never reused.
+run builds the private fixtures and the frozen incumbent subject, freezes and
+digests every subject, runs the three finite native Taskfile selections under
+separate nextest profiles and the incumbent's baseline instruments under a
+fourth, digests again and reconciles. DIR must not exist: a campaign directory
+has one writer and is never reused.
 EOF
   exit 2
 }
@@ -75,6 +76,16 @@ digest_to() {
   jq -Rn '[inputs | split("\t") | {kind: .[0], name: .[1], sha256: .[2]}]
           | map({key: "\(.kind):\(.name)", value: .sha256}) | from_entries' <"$listing" >"$out"
   rm -f "$listing"
+  # The incumbent subject is its own frozen tree with its own digest map; its keys
+  # are prefixed, so one before/after comparison covers both subjects.
+  if [ -d "$root/target/native-incumbent/tree" ]; then
+    local incumbent
+    incumbent="$(mktemp)"
+    bash "$root/scripts/native-incumbent.sh" digest --out "$incumbent" ||
+      die "the incumbent subject could not be digested"
+    jq -s '.[0] + .[1]' "$out" "$incumbent" >"$out.merged" && mv "$out.merged" "$out"
+    rm -f "$incumbent"
+  fi
 }
 
 domain_to() {
@@ -88,8 +99,11 @@ domain_to() {
     --arg os "$( (sw_vers 2>/dev/null || cat /etc/os-release 2>/dev/null) | tr '\n' ';')" \
     --arg libc "$(awk '/^name = "libc"$/{getline; print $3}' "$root/Cargo.lock" | tr -d '"' | head -n 1)" \
     --arg revision "$( (cd "$root" && jj log --no-graph -r @- -T 'commit_id' 2>/dev/null) || echo unknown)" \
+    --arg incumbent "$(git -C "$root" rev-parse '0515419edd29^{commit}' 2>/dev/null || echo unknown)" \
+    --arg incumbent_tree "$(git -C "$root" rev-parse '0515419edd29^{tree}' 2>/dev/null || echo unknown)" \
     '{rustc: $rustc, cargo: $cargo, nextest: $nextest, task: $task, uname: $uname,
-      os: $os, libc_crate: $libc, parent_revision: $revision}' >"$out"
+      os: $os, libc_crate: $libc, parent_revision: $revision,
+      incumbent_revision: $incumbent, incumbent_tree: $incumbent_tree}' >"$out"
 }
 
 # compare BEFORE AFTER: a subject that moved, appeared or vanished is a failure.
@@ -155,13 +169,44 @@ reconcile_into() {
            // ([$plan.patterns[]? | select(. as $pat | $pat.family == $row.family and ($row.id | test($pat.match)))] | first | .spec)
            // $plan.families[$row.family]) as $spec
         | if $spec == null then {id: $row.id, family: $row.family, status: "unplanned",
+              baseline: {class: "unclassified",
+                         problems: ["baseline: no plan entry for the row or its family"]},
               expected: [], observed: [], problems: ["no plan entry for the row or its family"]}
           else
             ([($spec.repaired // [])[] | {subject: ., conforms: true}]
              + [($spec.violates // [])[] | {subject: ., conforms: false}]
              + [($spec.conforms // [])[] | {subject: ., conforms: true}]) as $expected
             | ($byid[$row.id] // []) as $seen
-            | ($seen | map({subject, conforms, test, note})) as $observed
+            | ($seen | map(select(.subject != "baseline")) | map({subject, conforms, test, note})) as $observed
+            | ($seen | map(select(.subject == "baseline"))) as $baseline_seen
+            | ($spec.baseline // null) as $planned
+            | (if $planned == null or ($planned.class // "") == "" then
+                 {class: "unclassified", problems: ["baseline: the plan gives no classification"]}
+               elif $planned.class == "observed" then
+                 if ($baseline_seen | length) == 0 then
+                   {class: "unobserved", problems: ["baseline: missing record for an observed row"]}
+                 else
+                   ($baseline_seen[0]) as $r
+                   | if ($r.conforms | type) == "boolean" then
+                       {class: (if $r.conforms then "already-correct" else "fails" end),
+                        conforms: $r.conforms, test: $r.test, note: $r.note, problems: []}
+                     else
+                       {class: "unclassified", test: $r.test,
+                        problems: ["baseline: the record carries no verdict"]}
+                     end
+                 end
+               elif $planned.class == "rejected-premise" then
+                 {class: "rejected-premise", reason: ($planned.reason // null),
+                  missing: ($planned.missing // null),
+                  problems:
+                    ((if (($planned.reason // "") | gsub("\\s"; "")) == ""
+                      then ["baseline: a rejected premise has no reason"] else [] end)
+                     + (if ($baseline_seen | length) > 0
+                        then ["baseline: a rejected premise has a record, so its premise was hosted"]
+                        else [] end))}
+               else
+                 {class: "unclassified", problems: ["baseline: unknown class \($planned.class)"]}
+               end) as $baseline
             | ([ $expected[] | . as $e
                  | if ($observed | map(select(.subject == $e.subject)) | length) == 0
                    then "missing record: \($e.subject)" else empty end ]
@@ -177,6 +222,7 @@ reconcile_into() {
                status: (if ($problems | length) == 0 then "reconciled" else "unreconciled" end),
                failing_broken_detected: (($spec.violates // []) | length > 0),
                reason: ($spec.reason // null),
+               baseline: $baseline,
                expected: $expected, observed: $observed, problems: $problems}
           end)) as $results
     | ($records | map(.id) | unique | map(select(. as $i | $ids | index($i) | not))) as $unknown
@@ -191,6 +237,14 @@ reconcile_into() {
           else [] end),
        reconciled: ($results | map(select(.status == "reconciled")) | length),
        unreconciled: ($results | map(select(.status != "reconciled")) | map(.id)),
+       baseline: {
+         fails: ($results | map(select(.baseline.class == "fails") | .id)),
+         already_correct: ($results | map(select(.baseline.class == "already-correct") | .id)),
+         rejected_premise: ($results | map(select(.baseline.class == "rejected-premise") | .id)),
+         unclassified: ($results | map(select(.baseline.class == "unclassified") | .id)),
+         unobserved: ($results | map(select(.baseline.class == "unobserved") | .id))},
+       baseline_problems: ($results | map(select((.baseline.problems | length) > 0)
+                                          | {id, problems: .baseline.problems})),
        unknown_ids: $unknown,
        duplicate_manifest_ids: ($ids | group_by(.) | map(select(length > 1) | .[0])),
        rows: $results}' >"$summary.tmp" || {
@@ -218,6 +272,7 @@ reconcile_into() {
          and (.duplicate_manifest_ids | length) == 0
          and (.tests_failed | length) == 0
          and (.records_from_unexecuted_tests | length) == 0
+         and (.baseline_problems | length) == 0
          and .reconciled == .total_rows' "$summary" >/dev/null
 }
 
@@ -277,6 +332,9 @@ cmd_run() {
 
   printf 'native-campaign: building the private fixtures\n'
   task native-entry:build >"$out/logs/build.txt" 2>&1 || die "build failed; see $out/logs/build.txt"
+  printf 'native-campaign: building the incumbent subject\n'
+  bash scripts/native-incumbent.sh build >"$out/logs/incumbent-build.txt" 2>&1 ||
+    die "incumbent build failed; see $out/logs/incumbent-build.txt"
   domain_to "$out/domain.json"
   digest_to "$out/subjects-before.json"
 
@@ -293,6 +351,18 @@ cmd_run() {
     fi
   done
   unset K40_ROW_DIR
+
+  # The incumbent's own baseline instruments file under the same one writer, in
+  # the same rows directory, under the subject `baseline`.
+  printf 'native-campaign: incumbent baseline\n'
+  if ! NEXTEST_PROFILE=campaign-incumbent bash scripts/native-incumbent.sh test --rows "$out/rows" \
+    >"$out/logs/incumbent.txt" 2>&1; then
+    printf 'native-campaign: incumbent baseline FAILED; see %s\n' "$out/logs/incumbent.txt" >&2
+    failed=1
+  fi
+  if [ -f "target/native-incumbent/tree/target/nextest/campaign-incumbent/junit.xml" ]; then
+    cp "target/native-incumbent/tree/target/nextest/campaign-incumbent/junit.xml" "$out/junit/incumbent.xml"
+  fi
 
   digest_to "$out/subjects-after.json"
   local drift=0
@@ -332,8 +402,11 @@ cmd_selftest() {
       {id: "X01__a=1", family: "X01"}, {id: "X01__a=2", family: "X01"},
       {id: "Y01__b=1", family: "Y01"}]}' >"$m"
   jq -n '{families: {
-      X01: {repaired: ["repaired"], violates: ["broken:one"]},
-      Y01: {repaired: ["repaired"], conforms: ["broken:neg"], reason: "negative control"}}}' >"$p"
+      X01: {repaired: ["repaired"], violates: ["broken:one"], baseline: {class: "observed"}},
+      Y01: {repaired: ["repaired"], conforms: ["broken:neg"], reason: "negative control",
+            baseline: {class: "rejected-premise",
+                       reason: "the incumbent never performs the operation this row faults",
+                       missing: "operation Z"}}}}' >"$p"
 
   fresh() { # fresh NAME: a complete, correct record set in $work/NAME/rows
     local rows="$work/$1/rows"
@@ -346,8 +419,10 @@ cmd_selftest() {
     done <<'RECORDS'
 X01__a=1 repaired true
 X01__a=1 broken:one false
+X01__a=1 baseline false
 X01__a=2 repaired true
 X01__a=2 broken:one false
+X01__a=2 baseline true
 Y01__b=1 repaired true
 Y01__b=1 broken:neg true
 RECORDS
@@ -358,10 +433,10 @@ RECORDS
       die "selftest: the correct record set was rejected"
     printf 'selftest ok   %s\n' "$2"
   }
-  expect_fail() { # expect_fail NAME MUTATOR NEEDLE DESCRIPTION
+  expect_fail() { # expect_fail NAME MUTATOR NEEDLE DESCRIPTION [PLAN]
     fresh "$1"
     "$2" "$work/$1/rows"
-    if reconcile_into "$work/$1/rows" "$m" "$p" "$work/$1/receipts" "$work/$1/summary.json"; then
+    if reconcile_into "$work/$1/rows" "$m" "${5:-$p}" "$work/$1/receipts" "$work/$1/summary.json"; then
       die "selftest: $4 was accepted"
     fi
     grep -q "$3" "$work/$1/summary.json" "$work/$1/receipts"/*.json 2>/dev/null ||
@@ -385,11 +460,39 @@ RECORDS
   }
 
   expect_pass good "complete and correct records"
+  # Observed baselines are classified from the record and never required to fail:
+  # one row the incumbent fails, one it already holds, one premise it cannot host.
+  jq -e '.baseline.fails == ["X01__a=1"] and .baseline.already_correct == ["X01__a=2"]
+         and .baseline.rejected_premise == ["Y01__b=1"] and .baseline.unclassified == []' \
+    "$work/good/summary.json" >/dev/null ||
+    die "selftest: baseline outcomes were not classified from the records"
+  printf 'selftest ok   baselines classified from their records: fails, already-correct, rejected-premise\n'
   expect_fail missing drop_record "missing record: broken:one" "a missing record"
   expect_fail unknown add_unknown "Z99__q=1" "an identity outside the manifest"
   expect_fail flipped flip_verdict "verdict true where false was required" "a broken subject that conformed"
   expect_fail extra extra_subject "unexpected record: broken:other" "a record the plan does not expect"
   expect_fail negative negative_violates "verdict false where true was required" "a negative control that violated"
+
+  # The baseline class: each guarantee is seen to reject its wrong input.
+  drop_baseline() { rm "$1/X01__a=1@baseline.json"; }
+  baseline_without_verdict() {
+    jq -n '{schema: 1, id: "X01__a=2", subject: "baseline", conforms: "maybe", test: "t", note: ""}' \
+      >"$1/X01__a=2@baseline.json.tmp" && mv "$1/X01__a=2@baseline.json.tmp" "$1/X01__a=2@baseline.json"
+  }
+  hosted_rejected_premise() {
+    jq -n '{schema: 1, id: "Y01__b=1", subject: "baseline", conforms: true, test: "t", note: ""}' \
+      >"$1/Y01__b=1@baseline.json"
+  }
+  jq 'del(.families.X01.baseline)' "$p" >"$work/plan-unclassified.json"
+  jq '.families.Y01.baseline.reason = " "' "$p" >"$work/plan-no-reason.json"
+  jq '.families.Y01.baseline.class = "pending"' "$p" >"$work/plan-unknown-class.json"
+  expect_fail nobaseline drop_baseline "missing record for an observed row" "a missing baseline record"
+  expect_fail unclassified true "gives no classification" "an unclassified row" "$work/plan-unclassified.json"
+  expect_fail noreason true "has no reason" "a rejected premise without a reason" "$work/plan-no-reason.json"
+  expect_fail unknownclass true "unknown class pending" "a baseline class the driver does not know" \
+    "$work/plan-unknown-class.json"
+  expect_fail noverdict baseline_without_verdict "carries no verdict" "a baseline record with no verdict"
+  expect_fail hosted hosted_rejected_premise "premise was hosted" "a rejected premise that has a record"
 
   # The real plan must resolve every real manifest row: with no records at all
   # each row is unreconciled for missing records, and none is unplanned.
@@ -401,7 +504,10 @@ RECORDS
   jq -s -e '
     (map(select(.status == "unplanned")) | length) == 0
     and length == 153
-    and (map(.problems | length) | all(. > 0))' "$work/real/receipts"/*.json >/dev/null ||
+    and (map(.problems | length) | all(. > 0))
+    and (map(.baseline.class) | all(. == "observed" or . == "unobserved"
+                                    or . == "unclassified" or . == "rejected-premise"))' \
+    "$work/real/receipts"/*.json >/dev/null ||
     die "selftest: the plan does not resolve every manifest row"
   printf 'selftest ok   the plan resolves all %s manifest rows to %s expected records\n' \
     "$(jq -s 'length' "$work/real/receipts"/*.json)" \
@@ -434,7 +540,7 @@ RECORDS
     "$work/unexecuted/summary.json" "$work/tests-other.json"; then
     die "selftest: records from a test that never ran were accepted"
   fi
-  jq -e '.records_from_unexecuted_tests | length == 6' "$work/unexecuted/summary.json" >/dev/null ||
+  jq -e '.records_from_unexecuted_tests | length == 8' "$work/unexecuted/summary.json" >/dev/null ||
     die "selftest: unexecuted-test records were not named"
   printf 'selftest ok   a failed test, and records from a test that never ran (rejected)\n'
 
