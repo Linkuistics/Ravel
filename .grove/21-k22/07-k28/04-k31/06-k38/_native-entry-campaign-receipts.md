@@ -122,3 +122,14 @@ reconciliation and the support continuation cut.
   remaining D<=20 (phase closure), RC<=2/P<=4/E<=15/X=0 for k47 and k43. The
   frozen campaign, docs reconciliation and the support continuation stay in
   k43.
+
+K47's inspection-only review of the incumbent instrument records four findings
+in native-entry-incumbent-instrument-k47 and cuts its tree-owned integration
+before k43's freeze. The reported 65/56/32 classification remains development
+evidence subject to that triage; no baseline verdict was changed or rerun by the
+review. K42 stays open through integration. Charge RC<=10 minutes including
+inspection, findings, bookkeeping, retirement and commit, D=P=E=X=0; cumulative
+bounds are D<=115/RC<=96/P<=463/E<=162/X=0. The historical RC<=88 cap is exceeded
+by eight; the standing k41 direction removes budget gates and requires no funding
+leaf. K43, supported-target qualification and every parent/root obligation remain
+live; no node closes.

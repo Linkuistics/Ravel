@@ -469,3 +469,14 @@ product defect. Charge P≤20/E≤8/RC≤1, D=X=0. Cumulative
 D≤115/RC≤85/P≤439/E≤156/X=0 under caps D≤135/RC≤88/P≤467/E≤177/X=0; remaining
 D≤20 (phase closure), RC≤3/P≤28/E≤21/X=0 for k46 and k43. K42 stays a node (k46
 remains); K22 keeps live work and cannot close.
+
+K47's inspection-only review of the incumbent instrument records four findings
+in native-entry-incumbent-instrument-k47 and cuts its tree-owned integration
+before k43's freeze. The reported 65/56/32 classification remains development
+evidence subject to that triage; no baseline verdict was changed or rerun by the
+review. K42 stays open through integration. Charge RC<=10 minutes including
+inspection, findings, bookkeeping, retirement and commit, D=P=E=X=0; cumulative
+bounds are D<=115/RC<=96/P<=463/E<=162/X=0. The historical RC<=88 cap is exceeded
+by eight; the standing k41 direction removes budget gates and requires no funding
+leaf. K43, supported-target qualification and every parent/root obligation remain
+live; no node closes.
