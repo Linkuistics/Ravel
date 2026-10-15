@@ -2,17 +2,17 @@
 
 Run `task docs:result-job`, then open
 <http://127.0.0.1:8774/#discussion>. The document fills the browser window.
-If that port is occupied, use `task docs:result-job PORT=8878` and open
-<http://127.0.0.1:8878/#discussion> (this design's presentation).
+If that port is occupied, use `task docs:result-job PORT=8879` and open
+<http://127.0.0.1:8879/#discussion> (this design's presentation).
 Graph views start at the dark node labelled **Start here**; sequences start
 at their first message. Sources remain editable beside the viewer.
 
-- [Completion and failure → Required failure facts and settlement precedence](index.html#diagram-repair-outcomes) — Added error-carried cancellation and original-failure/cleanup/result order, including no-ending settlement.
-- [Completion and failure → Owned terminal handoff followed by failed exec](index.html#diagram-failed-exec) — Added attempted-group recording and checked failed-exec recovery under explicit exclusive-lease premises; separated spawn-reported success from confirmed exec.
-- [Native entry and lifetime → One-session launcher owns entry through final exit](index.html#diagram-native-entry) — Applied the agreed CLI lifetime, pre-runtime capture, child-watching prerequisite and final exit boundary.
-- [Required failure settlement](../../specs/result-job-completion.md#required-failure-settlement) — Specified resource owners, original failures, cancellation and secondary diagnostics for the four known gaps.
-- [One-session native launcher entry](../../specs/result-job-completion.md#one-session-native-launcher-entry) — Separated child transparency from restoring a continuing host and defined signal/terminal authority through exit.
-- [Repair evidence and discriminating checks](../../completion-failure-design-evidence.md#discriminating-checks) — Named exact enabling points, fault controls, protected expectations and actual fixture cleanup still owed.
+- [Native entry and lifetime → One-session launcher owns entry through final exit](index.html#diagram-native-entry) — Added checked watching, selection-failure ownership, fallible Started and common finalisation.
+- [Native entry and lifetime → Failed Started transition retains owned teardown](index.html#diagram-entry-failure) — Added real bounded cleanup after a failed parent-mask transition with a spawned child.
+- [Checked native-entry transitions](../../specs/result-job-completion.md#checked-native-entry-transitions) — Stated required failure, shielding and settlement guarantees.
+- [Ownership and transition protocol](../../native-entry-transition-design.md#transition-protocol) — Assigned every checked transition and its failure owner.
+- [Frozen discriminator manifest](../../native-entry-transition-design.md#frozen-discriminator-manifest) — Defined exact entry, signal, failure and protected-case parameters with physical receipts and broken controls.
+- [Complete repair price](../../native-entry-transition-design.md#complete-repair-price-and-handoff) — Priced the full incumbent repair and recorded the focused review's scope.
 
 Unchanged context remains in [current ownership](index.html#diagram-ownership),
 [nominal settlement](index.html#diagram-settlement),

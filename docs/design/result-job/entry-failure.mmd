@@ -1,0 +1,27 @@
+sequenceDiagram
+  participant F as Front signal scope
+  participant R as Runner
+  participant C as Managed child
+  participant A as Shielded readers
+  Note over F,A: Entry values immutable, readers keep handled signals blocked
+  F->>F: Block, inspect pending and selection latch
+  F->>R: Start under blocked calling mask
+  R->>R: Check handlers and watching
+  R->>C: Spawn with checked child entry state
+  R->>F: Started, restore parent mask
+  alt Parent restore fails
+    F-->>R: Transition failure
+    R->>C: Bounded stop and group cleanup before reap
+    C-->>R: Actual wait outcome
+    R->>R: Checked terminal recovery
+    R-->>F: Original transition error, first cancellation, all reports
+  else Parent restore succeeds
+    R->>C: Supervise job
+    C-->>R: End or supervision error
+    R-->>F: Ending or failure, first cancellation, all reports
+  end
+  F->>F: Cleanup resources with handlers present
+  F->>F: Join pending/front/outcome/late facts
+  Note over F,A: Selection failure joins here too, no reader becomes eligible
+  F->>F: Checked final signal release
+  Note over F: Only fully successful settlement permits exact result write

@@ -113,6 +113,65 @@ reaching a bound with unfinished work earns a precise remainder, not a reset.
 Retain the incumbent CLI and unchanged configuration/complete-session promises.
 Select no component, package, target, extraction or migration here.
 
+## Decisions (running log)
+
+- Preserve immutable executable-entry values separately from mutable launcher
+  repairs. Own the front signal scope through selection failure and every
+  no-ending path; check watching before the worker and managed child. Keep
+  reader shielding permanent with bounded collection rather than thread joining.
+- Use the existing Started observation seam with an additive fallible path:
+  observation failure after spawn must enter real runner cleanup before return.
+  Preserve existing infallible entry points and Started's spawn-reported meaning.
+  The design/control matrix and conditional complete P≤95/E≤80/RC≤4 estimate
+  are in `docs/native-entry-transition-design.md`; no producer is commissioned
+  pending the focused transition review and actual-charge accounting.
+- Linux v6.18 source clears SA_NOCLDWAIT across exec; its standalone-flag
+  discriminator is post-entry and private. Darwin inheritance remains unclaimed
+  pending a raw initializer receipt; that private fixture never proves exec
+  inheritance. Existing runtime/toolchain/target promises remain live.
+- The one focused reviewer reported no concrete findings in the assigned
+  failure-transition scope; there are no findings to classify. A self-read
+  clarified T8's table ordering without changing its accompanying protocol.
+  No second review, product edit or behavioral execution occurred.
+- Charge conservative D≤15/RC≤3 minutes, P=E=X=0, including source/design,
+  the narrow review, presentation and document checks, tree update, retirement
+  and commit. Cumulative correctness bounds are D≤95/RC≤44/P≤140/E≤30/X=0;
+  remaining D≤25 (D≤20 exclusively phase-closure reserve), shared
+  RC≤6/P≤100/E≤90/X=0. No reserve is borrowed.
+- The complete repair estimate is P≤95/E≤80/RC≤4. Grove design does not cut
+  implementation leaves: externalise the exact next planning mandate as
+  native-entry-repair-k21 before the book, D≤5/RC≤1, P=E=X=0. It freezes the
+  additive observation interface and finite parameter expansion and commissions
+  only the complete supported producer from actual balances. Material new
+  discovery/review earns a precise funding remainder. Cross-target/minimum-Rust
+  execution and all root obligations remain live; no phase/root close follows.
+
+## Verification and stopping state
+
+The reusable docs:result-job task serves the updated document at port 8879;
+8878 was occupied and was left alone. Chrome rendered the updated native-entry
+flow at a readable desktop scale. A fresh entry-failure deep link exposed a
+Mermaid label-semicolon parse error; replacing those separators with commas
+made the sequence render. The final screenshot shows both alternatives, actual
+wait/recovery and the common finalisation. Topic outline, current-discussion
+panel and changed markers agree. Mobile and dark appearance were not checked;
+this is presentation delivery, not a runtime or comprehension result.
+
+Manifest source existence/unique IDs/changed summaries and touched-text
+whitespace checks pass. The shifted book's SHA-256 remains
+1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a.
+Resolve and the resolved-path brief-chain place k21 at the root before the
+book. The full changed-path enumeration contains only task-tree and design/
+specification/presentation files. No production code or behavioral control
+changed and no behavioral suite was run. Coverage's Mermaid partial ranges
+were read directly in full; new/changed artifacts were read as source rather
+than inferred complete from the graph. Installed std source digests match k18.
+
+The design and complete scoped repair estimate are delivered. K21 is the
+bounded planning handoff required by the design kind; it and the book remain
+live, so the root cannot close. No ADR meets the architectural-change test.
+Retire only k20 and seal the task's focused jj change.
+
 K4 retains reference `0bdcb1f9ae24db5e9dd499308dd791744e908eb0`, one iteration/
 seven attempts, R=1/8,F=4/4,N=3/6,D≤45/RC≤15/P=E=X=0; k6 separately retains
 D≤45/RC≤10/P=E=X=0. G2 six-month cost, G3 delivery/use beyond entry, G4 unread

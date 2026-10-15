@@ -605,3 +605,32 @@ K4/k6 comparison history, G2–G5/R-W debt, the conditional C4 authority premise
 the separate returning-host contract and all root delivery/documentation
 obligations remain unchanged. K20 and the book remain live, so no parent
 completion, target/migration/extraction or comparative gain is earned.
+
+K20 now records the checked native-entry design in the existing completion
+specification and docs/native-entry-transition-design.md, with editable views.
+The front scope survives selection failure, checked watching precedes both
+children, reader shielding lasts through thread exit and a failed Started mask
+transition enters bounded real runner cleanup. Immutable child entry values
+remain separate from launcher repairs. The finite matrix distinguishes physical
+operations from substituted reports, Linux post-entry SA_NOCLDWAIT from exec
+inheritance and Darwin flag reachability still unclaimed. One focused reviewer
+found no concrete issue in its assigned transition scope. No product/control
+construction or runtime execution occurred; C1–C4 and conditional C4 premises
+retain their prior scope. The ADR set changes no architectural decision.
+
+K20 conservatively charges D≤15/RC≤3, P=E=X=0 including review/presentation/
+tree/verification/retirement/commit. Cumulative correctness charged bounds are
+D≤95/RC≤44/P≤140/E≤30/X=0; remaining D≤25 (D≤20 exclusively phase-closure
+reserve), shared RC≤6/P≤100/E≤90/X=0. Its complete repair estimate is
+P≤95/E≤80/RC≤4, including source, finite instruments, red/broken/green,
+untouched protected checks, evidence and producer closure.
+
+native-entry-repair-k21 is the exact next planning continuation before the book,
+allocated D≤5/RC≤1, P=E=X=0, to freeze the additive fallible Started interface
+and finite parameter expansion and commission only that complete supported
+producer from actual balances. Full planning allocation leaves D≤20 reserved,
+RC≤5/P≤100/E≤90/X=0; full subsequent producer allocation would leave
+P≤5/E≤10/RC≤1 and reserved D≤20. Neither projection is spend. Material new
+design/review or runtime infrastructure earns a precise human continuation.
+Minimum-Rust/Linux qualification, G2–G5/R-W, k4/k6 history, later comparative
+selection and all root delivery/documentation obligations remain live.

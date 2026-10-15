@@ -1,27 +1,92 @@
 {
-  "title": "Completion failures and launcher lifetime",
-  "intro": "Required corrections to the incumbent launcher's four known failure gaps, with its agreed one-session CLI lifetime. Current-source views and the unselected regrouping remain context. Boxes denote in-process responsibilities, not packages or deployment containers. Graph views start at the dark Start here node; sequences start at their first message. The A0–A15 inventory remains fixed-reference evidence; C1 error cancellation is now retained and privately checked. Design and rendering establish no runtime conformance.",
+  "title": "Checked native-entry transitions",
+  "intro": "Proposed checked entry-to-settlement corrections for the incumbent one-session CLI. C1–C4 have scoped checked evidence; native-entry transitions remain a design awaiting implementation and runtime checks. Boxes denote in-process responsibilities. Graph views start at the dark Start here node; sequences start at their first message. Historical composition views retain their fixed-reference scope.",
   "groups": [
-    {"id": "ownership", "title": "Completion ownership", "description": "Can a consumer receive a settled result without reconstructing the protocol?"},
-    {"id": "failure", "title": "Completion and failure", "description": "What must be joined before a result can escape, and what can an error discard?"},
-    {"id": "entry", "title": "Native entry and lifetime", "description": "Which signal and terminal decisions belong to a direct caller?"}
+    {
+      "id": "ownership",
+      "title": "Completion ownership",
+      "description": "Can a consumer receive a settled result without reconstructing the protocol?"
+    },
+    {
+      "id": "failure",
+      "title": "Completion and failure",
+      "description": "What must be joined before a result can escape, and what can an error discard?"
+    },
+    {
+      "id": "entry",
+      "title": "Native entry and lifetime",
+      "description": "Which signal and terminal decisions belong to a direct caller?"
+    }
   ],
   "discussion": {
-    "title": "Retain failure facts through cleanup, then exit the launcher",
-    "status": "C1 transfer checked; C2/C3/C4 and native entry pending",
-    "summary": "Consumed cancellation must survive a no-ending error. Worker teardown gates admission, partial allocators report checked cleanup, and failed exec retains the terminal lease and spawn cause. The one-session CLI owns signal/terminal authority until settlement and exit; a persistent runner has a separate contract. Corrections preserve the incumbent and do not select a package, comparative target or migration.",
-    "diagramIds": ["repair-outcomes", "failed-exec", "native-entry", "acquisition", "settlement", "ownership"],
+    "title": "Keep signal protection through every failure exit",
+    "status": "Focused transition review found no concrete issue; runtime checks remain owed",
+    "summary": "The front retains signal ownership on selection failure. Watching precedes both children; readers remain shielded until thread exit. Failed Started mask restoration enters real runner teardown. The complete design, exact discriminator families and conditional repair price are in docs/native-entry-transition-design.md.",
+    "diagramIds": [
+      "native-entry",
+      "entry-failure",
+      "repair-outcomes"
+    ],
     "updatedDiagrams": [
-      {"id": "acquisition", "summary": "Runner errors retain consumed cancellation after the C1 repair; no ending or group absence is fabricated."},
-      {"id": "ownership", "summary": "Remaining limits concern unconfirmed lifecycle facts, partial cleanup, terminal recovery and host lifetime."}
+      {
+        "id": "native-entry",
+        "summary": "Added checked watching, selection-failure ownership, fallible Started and common finalisation."
+      },
+      {
+        "id": "entry-failure",
+        "summary": "Added bounded real cleanup after a failed parent-mask transition with a spawned child."
+      }
     ]
   },
   "diagrams": [
-    {"id": "ownership", "group": "ownership", "title": "Consumer pairing versus a completion owner", "source": "ownership.mmd", "caption": "B0 nominal composition is source-supported at 0bdcb1f9ae24db5e9dd499308dd791744e908eb0, with fixed-reference acquisition counterexamples in the source inventory and later C1 repair evidence in docs/completion-failure-design-evidence.md. R-I/C/W remain unselected proposals. Solid arrows are calls/outcomes; dotted arrows are file appearance or unmet transfer knowledge. O1–O10 remain required. No package, public reuse or recurring gain is selected."},
-    {"id": "settlement", "group": "failure", "title": "Publication, ending and cleanup join before return", "source": "settlement.mmd", "caption": "Nominal current front path when the runner returns its own Ended. Selection is shown without protocol internals; worker wait-error admission is a separate limit. Start events and appearance polls are omitted. Cleanup diagnostics and cancellation precedence apply to supplied observations. No-ending failures are covered by the acquisition view; this is not all-interleaving or runtime preservation evidence."},
-    {"id": "acquisition", "group": "failure", "title": "Acquisition and no-ending failure limits", "source": "acquisition.mmd", "caption": "A0–A15 refer to the textual source inventory in docs/result-job-source-evidence.md. This compact view aggregates stopping branches: early preparation refuses directly; selection failure explicitly removes the prepared workspace; partial allocator cleanup remains local. Solid arrows show control/outcomes, not ownership proof. Amber nodes mark remaining source limits. C1 retains error cancellation; private wait-error checks and front transfer are recorded in docs/completion-failure-design-evidence.md. No alternative or package is selected."},
-    {"id": "repair-outcomes", "group": "failure", "title": "Required failure facts and settlement precedence", "source": "repair-outcomes.mmd", "caption": "Required repair contract, not current implementation or observed conformance. Solid arrows are decisions and outcome order. Retained runner cancellation can come from success or error; worker reap and allocator cleanup reports belong to their own resource owners. An original missing/invalid-result failure is checked before cleanup precedence. Every operational report remains available even when cancellation wins. See the completion specification and discriminating evidence matrix."},
-    {"id": "failed-exec", "group": "failure", "title": "Owned terminal handoff followed by failed exec", "source": "failed-exec.mmd", "caption": "Proposed bounded correction for an interactive lease initially owned by the launcher. Checked handback requires no competing foreground transfer or unrelated reuse of the recorded group identity through recovery; CLI lifetime alone does not establish those premises. The record never authorises post-reap group signalling. All recovery errors stay beside the original spawn errno. Started means spawn-reported success, not confirmed exec. Background launches take no lease. Pinned Rust source and this diagram establish no PTY conformance; real checks remain owed."},
-    {"id": "native-entry", "group": "entry", "title": "One-session launcher owns entry through final exit", "source": "native-entry.mmd", "caption": "The human agreed the first native consumer's process lifetime. Solid arrows show required lifetime order; the dotted edge names the separate persistent-runner contract. Child entry transparency remains distinct from returning-host restoration. The CLI still owes checked launch cleanup and late cancellation joining. No native package, independent adopting project or runtime result is established by this design."}
+    {
+      "id": "ownership",
+      "group": "ownership",
+      "title": "Consumer pairing versus a completion owner",
+      "source": "ownership.mmd",
+      "caption": "B0 nominal composition is source-supported at 0bdcb1f9ae24db5e9dd499308dd791744e908eb0, with fixed-reference acquisition counterexamples in the source inventory and later C1 repair evidence in docs/completion-failure-design-evidence.md. R-I/C/W remain unselected proposals. Solid arrows are calls/outcomes; dotted arrows are file appearance or unmet transfer knowledge. O1–O10 remain required. No package, public reuse or recurring gain is selected."
+    },
+    {
+      "id": "settlement",
+      "group": "failure",
+      "title": "Publication, ending and cleanup join before return",
+      "source": "settlement.mmd",
+      "caption": "Nominal current front path when the runner returns its own Ended. Selection is shown without protocol internals; worker wait-error admission is a separate limit. Start events and appearance polls are omitted. Cleanup diagnostics and cancellation precedence apply to supplied observations. No-ending failures are covered by the acquisition view; this is not all-interleaving or runtime preservation evidence."
+    },
+    {
+      "id": "acquisition",
+      "group": "failure",
+      "title": "Acquisition and no-ending failure limits",
+      "source": "acquisition.mmd",
+      "caption": "A0–A15 refer to the textual source inventory in docs/result-job-source-evidence.md. This compact view aggregates stopping branches: early preparation refuses directly; selection failure explicitly removes the prepared workspace; partial allocator cleanup remains local. Solid arrows show control/outcomes, not ownership proof. Amber nodes mark remaining source limits. C1 retains error cancellation; private wait-error checks and front transfer are recorded in docs/completion-failure-design-evidence.md. No alternative or package is selected."
+    },
+    {
+      "id": "repair-outcomes",
+      "group": "failure",
+      "title": "Required failure facts and settlement precedence",
+      "source": "repair-outcomes.mmd",
+      "caption": "Required repair contract, not current implementation or observed conformance. Solid arrows are decisions and outcome order. Retained runner cancellation can come from success or error; worker reap and allocator cleanup reports belong to their own resource owners. An original missing/invalid-result failure is checked before cleanup precedence. Every operational report remains available even when cancellation wins. See the completion specification and discriminating evidence matrix."
+    },
+    {
+      "id": "failed-exec",
+      "group": "failure",
+      "title": "Owned terminal handoff followed by failed exec",
+      "source": "failed-exec.mmd",
+      "caption": "Proposed bounded correction for an interactive lease initially owned by the launcher. Checked handback requires no competing foreground transfer or unrelated reuse of the recorded group identity through recovery; CLI lifetime alone does not establish those premises. The record never authorises post-reap group signalling. All recovery errors stay beside the original spawn errno. Started means spawn-reported success, not confirmed exec. Background launches take no lease. Pinned Rust source and this diagram establish no PTY conformance; real checks remain owed."
+    },
+    {
+      "id": "native-entry",
+      "group": "entry",
+      "title": "One-session launcher owns entry through final exit",
+      "source": "native-entry.mmd",
+      "caption": "Proposed checked protocol, not observed runtime behavior. The front scope survives selection failure and no-ending errors. Child entry values remain immutable; successful release is part of settlement. C4 handback still requires exclusive foreground authority and no unrelated group-identity reuse. A persistent runner remains a separate contract."
+    },
+    {
+      "id": "entry-failure",
+      "group": "entry",
+      "title": "Failed Started transition retains owned teardown",
+      "source": "entry-failure.mmd",
+      "caption": "Proposed failure sequence through the existing lifecycle observation seam. A mask-restoration error after spawn cannot return until bounded runner cleanup, actual wait and checked terminal recovery have been attempted. All original and secondary reports survive; no result escapes. Remaining readers keep their inherited shield. This sequence is not model checking or runtime evidence."
+    }
   ]
 }

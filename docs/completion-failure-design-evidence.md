@@ -8,8 +8,11 @@ discriminating checks. C1 is now implemented with the
 preservation now have [checked observations](#c2-checked-observations);
 C3 now has [checked allocator/consumer observations](#c3-checked-observations).
 C4 now has [checked terminal/consumer observations](#c4-checked-observations).
-Native entry remains required work. A design or rendered diagram establishes no
-runtime conformance. The earlier
+The [checked native-entry transition design](native-entry-transition-design.md)
+now records the owner/failure protocol, exact finite discriminator families,
+source/toolchain limits and complete repair estimate. These controls remain
+unbuilt and unexecuted. Native entry remains required work. A design or rendered
+diagram establishes no runtime conformance. The earlier
 [A0–A15 inventory and C1–C4](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 remain observations at fixed reference
 `0bdcb1f9ae24db5e9dd499308dd791744e908eb0`.

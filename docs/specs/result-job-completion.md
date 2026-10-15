@@ -288,6 +288,43 @@ bytes after settlement and exits. No call-entry capture, complete restoration of
 a returning host, independent adopting project, package selection or observed
 independent-use result is inferred from this lifetime agreement.
 
+### Checked native-entry transitions
+
+The launcher SHALL retain an immutable, complete executable-entry record
+separately from its own signal repairs. A required valid-signal query failure
+prevents worker and managed launch; unsupported or runtime-reserved signal
+numbers are excluded explicitly, never by treating every query error as absence.
+Child restoration checks every required action and mask operation. Host watching
+repair covers ignored SIGCHLD and independent no-child-wait state before either
+child, without changing the child's captured entry values.
+
+A single front-owned scope SHALL survive selection failure as well as success.
+Partial handler installation, reader creation and mask transitions retain their
+known protection and every failure report through explicit settlement. No new
+child is admitted after a failed transition. Output-reader shielding is checked
+before creation and lasts until each thread exits. Bounded diagnostic collection
+may leave shielded readers alive until CLI exit; no unbounded join or additional
+policy-descendant supervision promise follows.
+
+Failure of the parent-mask transition after spawn SHALL enter runner-owned
+bounded teardown, actual wait and checked terminal recovery before returning.
+It cannot become an early error return that abandons the spawned child. First
+consumed cancellation survives later signals and every such failure. Simultaneous
+pending standard signals supply no arrival chronology; only when no consumed
+observation exists does fixed handled-signal order choose between pending ones.
+
+Common finalisation SHALL preserve the original operational failure and every
+secondary transition/cleanup report, including selection-failure and no-ending
+paths. Unknown pending state cannot establish no cancellation or permit result
+success. Handlers remain present through the mask-restoration join; disposition
+release occurs under a blocked calling mask with readers still shielded. Failed
+release prevents result output. Cancellation is reported before checked default,
+selected-signal unblocking and re-raise; failed propagation uses the existing
+numeric fallback and retains the transition diagnostics. This is a required
+correction contract, not observed conformance. The
+[transition design and finite discriminator plan](../native-entry-transition-design.md)
+give its source, support limits, alternatives and complete repair estimate.
+
 ## Test seams for the repair contract
 
 Retain the agreed public CLI with real TypeScript policy and fake managed jobs,

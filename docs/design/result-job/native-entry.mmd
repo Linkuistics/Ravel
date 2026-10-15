@@ -1,18 +1,27 @@
 flowchart TB
-  start["Start here: one-session CLI"]
-  entry["Capture ignores and mask<br/>before runtime"]
-  authority["Own signals and terminal<br/>Enable child watching"]
-  child["Apply child entry state<br/>INT follows foreground"]
-  settle["Supervise, clean up, settle"]
-  exit["Signal or exact bytes<br/>Exit this process"]
-  host["Persistent runner<br/>Separate host contract"]
-  start -->|"1. executable entry"| entry
-  entry -->|"2. before worker and job"| authority
-  authority -->|"3. launch after admitted selection"| child
-  child -->|"4. cleanup on every returned path"| settle
-  settle -->|"5. final CLI boundary"| exit
-  exit -.->|"no arbitrary host-resumption promise"| host
+  start["Start here: immutable entry capture"]
+  front["Front owns checked signal scope"]
+  worker["Enable watching before worker<br/>Create shielded readers"]
+  choice{"Selection outcome"}
+  runner["Block and join<br/>Checked runner handler handoff"]
+  child["Checked child state and spawn<br/>Fallible Started transition"]
+  supervise["Runner owns stop, group cleanup,<br/>reap and terminal recovery"]
+  settle["Common front finalisation<br/>Every outcome; handlers retained"]
+  result{"All settlement checks passed<br/>and no cancellation?"}
+  success["Release checked signal state<br/>Write exact bytes and exit"]
+  failure["Retain all reports<br/>Signal or numeric failure and exit"]
+  start -->|"1. complete record required"| front
+  front -->|"2. no child after transition failure"| worker
+  worker -->|"3. real worker reap gates admission"| choice
+  choice -->|"4. success"| runner
+  choice -->|"4. failure; keep front scope"| settle
+  runner -->|"5. admission passes"| child
+  runner -->|"5. failure; no ending"| settle
+  child -->|"6. spawn-reported success or observer failure"| supervise
+  child -->|"6. failed spawn and C4 recovery"| settle
+  supervise -->|"7. ending or error plus first signal"| settle
+  settle -->|"8. pending and late joins; explicit cleanup"| result
+  result -->|"yes"| success
+  result -->|"no"| failure
   classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
-  classDef limit fill:#fff2d6,color:#3e2c08,stroke:#ae791a,stroke-dasharray:5 4
   class start start
-  class host limit
