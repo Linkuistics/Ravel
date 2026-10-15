@@ -356,6 +356,14 @@ guidance from the workstreams' current state instead of waiting for completion.
 The intake below supersedes the wait requirement from `plan-k1`; the existing
 configuration, session and acceptance constraints remain in force.
 
+On 2026-10-15, answering `native-entry-campaign-funding-k41`, the human said
+verbatim “I'm not actually concerned about the budget - just do what is
+required.” Budget caps, allocations and reserves (D/RC/P/E) therefore no longer
+gate required work: sessions do what the agreed contract requires without
+cutting funding-question leaves, and still record actual charges where a
+charter asks. Zero production disruption (X=0) is not a budget and still binds;
+a producer still cannot narrow acceptance, and scope choices remain the human's.
+
 ## Current upstream guidance
 
 ### Provenance and standing
@@ -845,3 +853,13 @@ remaining D≤20 exclusively phase closure, RC≤10/P≤112/E≤84/X=0 for k31's
 fault-family, settlement and campaign children and one optional instrument
 review. No phase or root closes; support, comparative and delivery/book
 obligations remain live.
+
+K36, K37 and K40 (inside k31) built the fault-family, settlement and
+campaign-tooling development instruments, charging P≤107/E≤52/RC≤2 together,
+D=X=0 (records in the k22 and k31 briefs). K41 read the incumbent's source
+(about 129 rows hostable, about 24 rejected premises) and received the standing
+budget direction recorded in Notes; it charges RC≤4, D=P=E=X=0. Bookkeeping:
+caps D≤135/RC≤88/P≤467/E≤177/X=0; cumulative D≤115/RC≤83/P≤397/E≤142/X=0;
+remaining D≤20 (phase closure), RC≤5/P≤70/E≤35/X=0 for the incumbent baseline
+k42 and the frozen campaign k43. No phase or root closes; support, comparative
+and delivery/book obligations remain live.

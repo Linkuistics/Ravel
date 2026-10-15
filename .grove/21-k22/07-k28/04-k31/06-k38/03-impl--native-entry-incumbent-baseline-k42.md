@@ -28,6 +28,10 @@ Known: the E03 skip-repair mutant conforms on Darwin because exec clears the
 private flag; the E04 worker row is the discriminator there. Host-only receipts
 qualify only aarch64-apple-darwin.
 
+K41's decisions log holds a family-level, source-only hostability read of the
+incumbent and the human's funding answer: start from that read and verify each
+row against the incumbent source.
+
 ## Done when
 
 - The incumbent subject is built reproducibly from `0515419edd29` plus only

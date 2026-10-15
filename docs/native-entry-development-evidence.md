@@ -711,3 +711,18 @@ are D≤135/RC≤87/P≤402/E≤174/X=0, with zero production disruption and the
 closure reserve intact. After k39's RC≤3, balances are D≤20 exclusively phase
 closure and RC≤10/P≤112/E≤84/X=0 shared by the remaining children. Review
 integration, support qualification and narrower acceptance are not funded.
+
+`native-entry-campaign-funding-k41` read the incumbent product `0515419edd29`
+before pricing the remaining campaign. Its source performs most of the matrix's
+faulted operations but discards their results, so about 129 of the 153 rows can
+be hosted once private test seams are ported to it. About 24 rows target an
+operation the incumbent never performs (it has, for example, no
+finalisation-time pending query) and are rejected premises whatever the
+funding. The read is source-only and family-level;
+`native-entry-incumbent-baseline-k42` verifies each row. The human's answer was
+**“I'm not actually concerned about the budget - just do what is required.”**
+Budget caps no longer gate required work; zero production disruption still
+binds and no acceptance is narrowed. After k41's RC≤4, cumulative bounds are
+D≤115/RC≤83/P≤397/E≤142/X=0 under caps D≤135/RC≤88/P≤467/E≤177/X=0, kept as
+bookkeeping, with D≤20 for phase closure and RC≤5/P≤70/E≤35/X=0 remaining for
+k42 and k43.

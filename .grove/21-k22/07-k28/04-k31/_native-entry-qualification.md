@@ -174,3 +174,14 @@ stay live; no node closes.
 
 K31's remaining child is the k38 node: funding question, incumbent subject and
 baseline, then the frozen campaign and the support continuation.
+
+K41 (inside k38) read the incumbent's source before pricing: about 129 rows are
+hostable once private seams are ported to operations it performs, and about 24
+target operations it never performs. The human answered verbatim **“I'm not
+actually concerned about the budget - just do what is required.”** K42 hosts
+every hostable row and nothing is narrowed; budget caps no longer gate required
+work, so no further funding-question leaf is cut. Charges are still recorded
+where charters ask, and X=0/zero production disruption still binds. K41 charges
+RC≤4, D=P=E=X=0. Bookkeeping: caps D≤135/RC≤88/P≤467/E≤177/X=0; cumulative
+D≤115/RC≤83/P≤397/E≤142/X=0; remaining D≤20 (phase closure),
+RC≤5/P≤70/E≤35/X=0 for k42 and k43. No node closes.

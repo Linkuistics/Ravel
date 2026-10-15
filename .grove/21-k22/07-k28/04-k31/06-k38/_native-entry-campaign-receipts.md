@@ -74,3 +74,19 @@ reconciliation and the support continuation cut.
   P<=45/E<=32/RC<=5 plus the funding session's RC<=3: a shortfall of roughly
   P<=40 with no D/E/X increase, which k41 puts to the human. A projection, not
   an allocation; nothing is renewed and no matrix row is narrowed.
+- K41 read the incumbent's source before pricing (family level, in k41's
+  decisions log): about 129 rows are hostable once private seams are ported to
+  operations the incumbent performs, mostly unchecked; about 24 target an
+  operation it never performs and are rejected premises whatever the funding.
+  The human answered verbatim **“I'm not actually concerned about the budget -
+  just do what is required.”** K42 hosts every hostable row; cost is no longer
+  a reason to leave one unhosted, so a rejected premise needs a missing
+  operation or fixture premise. Budget caps no longer gate required work: no
+  further funding-question leaf is cut, and k43's support continuation needs no
+  funding question (any scope choice it raises stays the human's). Charges are
+  still recorded where charters ask; X=0/zero production disruption still
+  binds. The optional instrument review is not required; k42 may cut it before
+  k43's freeze if it judges one necessary. K41 charges RC≤4, D=P=E=X=0.
+  Bookkeeping: renew P≤65/E≤3/RC≤1; caps D≤135/RC≤88/P≤467/E≤177/X=0;
+  cumulative D≤115/RC≤83/P≤397/E≤142/X=0; remaining D≤20 (phase closure),
+  RC≤5/P≤70/E≤35/X=0 for k42 (projected P≤55/E≤15) and k43 (P≤15/E≤20).
