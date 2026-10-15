@@ -741,3 +741,23 @@ would leave D≤20 reserved/RC=0/P=0/E≤5/X=0; allocations are not spend.
 This requirements session cuts no implementation leaf and closes no parent.
 Minimum-Rust/Linux, returning-host, k4/k6/G2–G5/R-W and all root obligations
 remain live; no book advancement, target, extraction or comparative gain follows.
+
+K27 completes the mechanical handoff without product/control construction or
+behavioral execution. native-entry-complete-repair-k28 inside k22 is the sole
+next complete repair producer before the book. It retains unchanged additive
+Started API/T0–T8/E/F/R, exactly 32 approved S rows, selected bounded settlement,
+individual protected traces, immutable per-case receipts and the 30/5/5 envelope.
+
+K27 charges conservative D≤5/RC≤1, P=E=X=0 including verification/retirement/
+commit. Cumulative correctness charged bounds are D≤115/RC≤60/P≤155/E≤30/X=0;
+approved caps remain D≤135/RC≤65/P≤280/E≤120/X=0. Remaining balances are
+D≤20 exclusively phase closure, RC≤5/P≤125/E≤90/X=0. K28 allocates the full
+P≤125/E≤85/RC≤5, D=X=0, including every source/control, measurement, protected
+check, evidence, one narrow review and closure. Full use would leave D≤20
+reserved/RC=0/P=0/E≤5/X=0; projections are not charges. K28 records actual
+spend and preserves receipts, then prices/funds/cuts the exact support remainder
+before the book. Minimum-Rust/Linux qualification and returning-host/comparison/
+root obligations remain live; no local success closes the phase or root.
+Material discovery, second substantial review, insufficient complete price or
+extra infrastructure needs precise renewed funding, never reserve borrowing
+or narrower acceptance. Existing ADRs change no architectural decision.

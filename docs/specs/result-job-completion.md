@@ -352,7 +352,8 @@ modes. It SHALL retain query, handback, mode and temporary disposition failures,
 and SHALL NOT lend again after a Started check failure. No broader delegated
 foreground takeover is authorised by unknown status. The required behavior is
 agreed; this mechanism and its finite cleanup-failure controls remain unimplemented
-and await the complete repair's funding and commissioning.
+and are commissioned as the complete native-entry-complete-repair-k28 after
+the k26 funding agreement and k27 planning handoff; conformance remains unobserved.
 
 ## Test seams for the repair contract
 

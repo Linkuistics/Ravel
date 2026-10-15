@@ -257,3 +257,22 @@ P≤125/E≤90/X=0, sufficient for the full P≤125/E≤85/RC≤5 producer. Full
 both would leave D≤20 reserved/RC=0/P=0/E≤5/X=0; projections are not spend.
 Record actual planning charges before commissioning that producer. The complete
 repair and all support/comparison/root obligations remain live; k22 cannot close.
+
+K27 completes the mechanical handoff as native-entry-complete-repair-k28, one
+complete producer inside this node before the book. Frozen API/T0–T8/E/F/R and
+exactly 32 approved S rows remain unchanged. The selected owner-local bounded
+settlement, protected trace reconciliation, 30/5/5 controller envelope and
+physical-operation/report distinctions carry forward. No product/control or
+native behavior was constructed/executed; no new architectural decision follows.
+
+K27 charges conservative D≤5/RC≤1, P=E=X=0 including verification/retirement/
+commit. Cumulative correctness charged bounds are D≤115/RC≤60/P≤155/E≤30/X=0;
+remaining D≤20 exclusively phase closure, RC≤5/P≤125/E≤90/X=0. K28 allocates
+the complete P≤125/E≤85/RC≤5, D=X=0, including all source/instruments,
+measurements, evidence, one narrow review and closure. Full use leaves D≤20
+reserved/RC=0/P=0/E≤5/X=0; allocations are not spend. K28 records actual charges
+and preserves receipts, then prices/funds/cuts the exact next support remainder
+before the book; no reserve borrowing or acceptance narrowing. Additional
+discovery/review/infrastructure needs precise renewal. Minimum-Rust/Linux,
+returning-host, k4/k6/G2–G5/R-W and all root obligations remain live. K22 cannot
+close merely because the local repair succeeds.

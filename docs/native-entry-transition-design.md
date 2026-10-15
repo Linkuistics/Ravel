@@ -355,8 +355,8 @@ operation receipts remain distinct from these existing event assertions.
 
 The approved amendment is **S01–S05 only**, single-site rows, no Cartesian
 expansion with E/F/R. The human approved this exact 32-row scope in
-native-entry-complete-funding-k26; construction awaits the complete producer's
-commissioning by planning. Existing F03/F05 real-process/PTY controls cover
+native-entry-complete-funding-k26; construction is commissioned in the complete
+native-entry-complete-repair-k28 producer. Existing F03/F05 real-process/PTY controls cover
 the healthy cleanup path; S adds only the missing uncertainty discriminators.
 Controls are private fixed enums at Process/worker/Lease owners, never installed
 switches or a generic syscall facade. Use the existing CLI with real policy/fake
@@ -415,8 +415,8 @@ than an implementation workaround or new target infrastructure.
 ## Complete repair price and handoff
 
 The old P≤95/E≤80/RC≤4 estimate is replaced by the following complete price,
-funded by k26; the producer awaits commissioning by planning. Prices are
-conservative effort ceilings in minutes, not measured spend. They cover the
+funded by k26 and commissioned as native-entry-complete-repair-k28 by k27.
+Prices are conservative effort ceilings in minutes, not measured spend. They cover the
 whole coherent repair, never just settlement.
 
 | Work | P | E |
@@ -446,6 +446,17 @@ D≤20 reserved/RC=0/P=0/E≤5/X=0; allocations are not spend. The approved scop
 includes the exact S rows, unchanged T0–T8/additive Started API and 30/5/5
 envelope above. Longer legal graces need their exact priced timing remainder
 before execution; no blanket matrix or target infrastructure is authorised.
+
+K27 charges conservative D≤5/RC≤1, P=E=X=0 for the mechanical handoff including
+verification/retirement/commit. Cumulative correctness charged bounds are now
+D≤115/RC≤60/P≤155/E≤30/X=0, leaving D≤20 exclusively phase closure,
+RC≤5/P≤125/E≤90/X=0. K28 receives the complete P≤125/E≤85/RC≤5 allocation,
+D=X=0, including all instruments, measurements, evidence, one narrow review
+and closure. Full use would leave reserved D≤20 and E≤5, with RC=P=X=0;
+allocations are not spend. It must preserve receipts, record actual charges
+and price/fund/cut the next exact support remainder before the book. This
+handoff constructs/runs no product or behavioral control and changes no API,
+transition, parameter expansion or selected mechanism.
 
 Minimum Rust 1.85/Linux runtime qualification and the returning-host contract
 remain outside this local repair price and remain live obligations; no phase

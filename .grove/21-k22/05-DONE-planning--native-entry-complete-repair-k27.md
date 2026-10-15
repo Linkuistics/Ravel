@@ -73,3 +73,42 @@ Minimum Rust 1.85/Linux qualification, the separate returning-host contract,
 k4/k6 comparison history, G2–G5/R-W and all root delivery/documentation
 obligations remain live. No target, extraction, comparative gain, independent
 adoption, parent close or book advancement follows from this handoff.
+
+## Decisions (running log)
+
+- The smallest independently useful increment remains the complete checked
+  native-entry-to-settlement repair inside k22. Capture, front, worker and runner
+  share admission and finalisation guarantees; separate module leaves would not
+  meet this contract independently. Carry the approved design, frozen additive
+  Started API, T0–T8 and E/F/R expansion unchanged, plus exactly S01–S05's
+  8+7+8+7+2=32 approved rows. No mechanism discovery or runtime work occurs here.
+- Charge conservative D≤5/RC≤1 minutes for this mechanical handoff, including
+  context/contract verification, tree writing, accounting and retirement/commit;
+  P=E=X=0. Approved caps remain D≤135/RC≤65/P≤280/E≤120/X=0.
+  Cumulative correctness charged bounds become D≤115/RC≤60/P≤155/E≤30/X=0;
+  actual remaining balances are D≤20 exclusively phase closure, RC≤5/P≤125/
+  E≤90/X=0. Commission only the complete P≤125/E≤85/RC≤5 producer, D=X=0,
+  including all controls, measurements, evidence, one narrow review and closure.
+  Full use would leave D≤20 reserved/RC=0/P=0/E≤5/X=0; this is a projection,
+  not spend. Acceptance is not reduced to fit the price; new discovery, a second
+  substantial review or extra infrastructure needs precise renewed funding.
+- Cut native-entry-complete-repair-k28 as the sole complete producer inside k22,
+  before book-structure-k5. This mechanical transfer needs no new reviewer;
+  k28 retains its funded one narrow review. K22 remains open, with support work
+  still owed after local repair; no ancestor cascade or ADR change is earned.
+
+## Verification and stopping state
+
+Read the full jj diff and resolve/brief-chain output for k28: the one producer,
+two brief updates, planning decisions/retirement and documentation commissioning
+notes are the complete change. Product source, fixtures, Taskfile, behavioral
+requirements, API, T0–T8 and E/F/R/S rows are unchanged. No behavioral suite or
+native fixture ran. Arithmetic: caps 135/65/280/120/0 minus cumulative charges
+115/60/155/30/0 leaves 20/5/125/90/0; the producer's full allocation leaves
+20/0/0/5/0. S rows remain 8+7+8+7+2=32. Preserve reserved D≤20.
+
+Tier 2 coverage generation 2026-10-15T04:08:28Z matched metadata with no
+recorded gaps for all read contract/brief/ADR/Taskfile paths; the new k28 path
+also matched at generation 2026-10-15T04:09:53Z. Every relied-on document was
+read directly; coverage remains best effort and establishes no conformance.
+Retire only k27 and seal one jj change, leaving k28 live inside k22.
