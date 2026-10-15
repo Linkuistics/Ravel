@@ -112,3 +112,21 @@ rows, the charges and balances, and retires the node's closing obligations.
   already-correct and 7 fails. Charge P<=22/E<=6/RC<=1, D=X=0. K45 owns E05, E07
   and S01-S05 (40 rows) and k46 the 67 fault rows; 107 rows stay unclassified
   and visible in the driver. No node closes.
+
+- K45 (second child) hosted and classified the 40 runner, worker and terminal
+  rows from real runs: E05 (4) already-correct; E07 (4) fails (the handler
+  overwrites the latch); S02 observation EIO and wait ECHILD already-correct,
+  the other four fail (EINTR is fatal and unretried, ECHILD is followed by a
+  signal, a wait EIO is not retried); S03 (8) fail (the incumbent's
+  `thread::spawn` panics at a refused second reader, so no teardown runs and
+  its worker is left running); S04 six already-correct and one fails (a
+  missing status is treated like an exit, so a foreign foreground is preserved
+  without a report); S05's terminal row already-correct. Rejected premises:
+  S01 x8 (no operation report channel), S02 always-running and S05's runner
+  row (no error path for a merely running child). This corrects the
+  decomposition's prediction that S03's reader creation exists as a checked
+  operation: it exists only as an unchecked `thread::spawn`, and was hosted as
+  std documents it. The reviewer allowance of this leaf is spent. Charge
+  P<=20/E<=8/RC<=1, D=X=0. Cumulative D<=115/RC<=85/P<=439/E<=156/X=0;
+  remaining D<=20 (phase closure), RC<=3/P<=28/E<=21/X=0 for k46 and k43. 67
+  rows stay unclassified (k46); no node closes.

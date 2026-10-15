@@ -161,8 +161,11 @@ cmd_test() {
   [ -d "$tree" ] || die "no incumbent tree: $tree"
   (
     cd "$tree"
+    # One invocation, so the campaign's one junit file names every test: the
+    # front and worker instruments live in the ravel binary, the runner and
+    # terminal instruments in the keyed-launch library.
     K40_ROW_DIR="$2" NEXTEST_PROFILE="${NEXTEST_PROFILE:-default}" \
-      cargo nextest run --locked -p ravel --bin ravel \
+      cargo nextest run --locked -p ravel --bin ravel -p keyed-launch --lib \
       -E 'test(native_baseline)' --run-ignored all --no-fail-fast
   )
 }

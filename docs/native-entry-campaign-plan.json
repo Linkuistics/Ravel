@@ -75,7 +75,10 @@
     ],
     "violates": [
      "broken:invent"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -164,7 +167,10 @@
      "broken:latch",
      "broken:guard",
      "broken:at-reap"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -177,7 +183,10 @@
     "violates": [
      "broken:latch",
      "broken:error"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -248,7 +257,10 @@
     ],
     "violates": [
      "broken:report"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -260,7 +272,10 @@
     ],
     "violates": [
      "broken:deadline"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -272,7 +287,10 @@
     ],
     "violates": [
      "broken:identity"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -284,7 +302,10 @@
     ],
     "violates": [
      "broken:report"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -296,7 +317,10 @@
     ],
     "violates": [
      "broken:deadline"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -308,7 +332,10 @@
     ],
     "violates": [
      "broken:identity"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -320,7 +347,12 @@
     ],
     "violates": [
      "broken:deadline"
-    ]
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row's faulted operation is an observation that never answers while the child must already be gone, reached through a failed Started check and ended by an absolute error-settlement deadline. The incumbent enters no error path for a child that is merely still running: an always-running observation is its ordinary supervision loop, a documented stall the caller closes, so there is no settlement to observe and no deadline for the claim to read. (Its observation and reap failures, which it does handle, are the other six S02 rows and are hosted.)",
+     "missing": "an absolute error-settlement deadline over a still-running child (the incumbent's error paths are an observation failure and a reap failure only)"
+    }
    }
   },
   {
@@ -332,7 +364,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -344,7 +379,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -356,7 +394,10 @@
     ],
     "violates": [
      "broken:dropped"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -368,7 +409,10 @@
     ],
     "violates": [
      "broken:slack"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -380,7 +424,10 @@
     ],
     "violates": [
      "broken:unguarded"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -392,7 +439,10 @@
     ],
     "violates": [
      "broken:slack"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -404,7 +454,10 @@
     ],
     "violates": [
      "broken:restore"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -416,7 +469,10 @@
     ],
     "violates": [
      "broken:handback"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -429,7 +485,10 @@
     "violates": [
      "broken:takeover",
      "broken:uncertainty"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   },
   {
@@ -441,7 +500,12 @@
     ],
     "violates": [
      "broken:error"
-    ]
+    ],
+    "baseline": {
+     "class": "rejected-premise",
+     "reason": "The row raises HUP at a failed Started check and delivers TERM while the settlement waits out an always-running observation, and its claims read the settlement's deadline report. The row's faulted operation is an observation that never answers while the child must already be gone, reached through a failed Started check and ended by an absolute error-settlement deadline. The incumbent enters no error path for a child that is merely still running: an always-running observation is its ordinary supervision loop, a documented stall the caller closes, so there is no settlement to observe and no deadline for the claim to read. (Its observation and reap failures, which it does handle, are the other six S02 rows and are hosted.)",
+     "missing": "the start check, and an absolute error-settlement deadline over a still-running child (the incumbent's error paths are an observation failure and a reap failure only)"
+    }
    }
   },
   {
@@ -453,7 +517,10 @@
     ],
     "violates": [
      "broken:report"
-    ]
+    ],
+    "baseline": {
+     "class": "observed"
+    }
    }
   }
  ],
@@ -505,7 +572,10 @@
     "repaired"
    ],
    "violates": [],
-   "reason": "Positive row: the frozen contract names a child-status discriminator only for the PTY-VINTR after-handoff row."
+   "reason": "Positive row: the frozen contract names a child-status discriminator only for the PTY-VINTR after-handoff row.",
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E06": {
    "repaired": [
@@ -520,7 +590,10 @@
    "repaired": [
     "repaired"
    ],
-   "violates": []
+   "violates": [],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "E08": {
    "repaired": [
@@ -610,19 +683,32 @@
    ],
    "violates": [
     "broken:report"
-   ]
+   ],
+   "baseline": {
+    "class": "rejected-premise",
+    "reason": "Every S01 row faults one stop attempt of the settlement that follows a failed Started check, and its one named claim reads that attempt's retained report. The incumbent's Started is the infallible observer(LaunchEvent::Started), a `&mut dyn FnMut(LaunchEvent)`, so no check can fail, and its stops (kill, Process::signal, Process::kill_group) return nothing and ignore the failure on purpose. There is no operation report channel, so the fact the claim reads cannot exist; it is recorded as the reason, not as a failure the incumbent was never observed to commit.",
+    "missing": "checked stop operations with a per-attempt report channel (and the fallible post-spawn start check that leads to them)"
+   }
   },
   "S02": {
    "repaired": [
     "repaired"
    ],
-   "violates": []
+   "violates": [],
+   "baseline": {
+    "class": "rejected-premise",
+    "reason": "The row's faulted operation is an observation that never answers while the child must already be gone, reached through a failed Started check and ended by an absolute error-settlement deadline. The incumbent enters no error path for a child that is merely still running: an always-running observation is its ordinary supervision loop, a documented stall the caller closes, so there is no settlement to observe and no deadline for the claim to read. (Its observation and reap failures, which it does handle, are the other six S02 rows and are hosted.)",
+    "missing": "an absolute error-settlement deadline over a still-running child (the incumbent's error paths are an observation failure and a reap failure only)"
+   }
   },
   "S03": {
    "repaired": [
     "repaired"
    ],
-   "violates": []
+   "violates": [],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "S04": {
    "repaired": [
@@ -630,7 +716,10 @@
    ],
    "violates": [
     "broken:report"
-   ]
+   ],
+   "baseline": {
+    "class": "observed"
+   }
   },
   "S05": {
    "repaired": [

@@ -167,3 +167,352 @@ pub(crate) fn e08_worker() -> ! {
     let _ = channel.read(&mut byte);
     std::process::exit(0);
 }
+
+// ---- S03: second reader creation fails, with a secondary fault armed -------
+//
+// The repaired worker creates its readers with a checked `Builder::spawn`, and
+// turns a failed second creation into a teardown whose stop, kill and wait the
+// row then faults. The incumbent creates them with `thread::spawn`, which has
+// no failure return: std documents a panic if the OS fails to create a thread
+// (https://doc.rust-lang.org/std/thread/fn.spawn.html), and nothing in the
+// front catches it. The fixture injects the primary where the incumbent
+// performs it and lets the incumbent do what std does, then arms the row's
+// secondary fault at the stop, kill and poll operations of the incumbent's own
+// teardown, so that "never reached" is observed, not assumed: a reached
+// secondary writes `native baseline S03 secondary reached` to stderr.
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+enum S03 {
+    #[default]
+    None,
+    StopOmitted,
+    StopPerformed,
+    KillOmitted,
+    KillPerformed,
+    PollEio,
+    PollEintr,
+    PollLost,
+    Running,
+}
+thread_local! { static S03_ARMED: std::cell::Cell<S03> = const { std::cell::Cell::new(S03::None) }; }
+
+pub(super) fn arm_s03(fault: &str) {
+    S03_ARMED.set(match fault {
+        "stop-omitted" => S03::StopOmitted,
+        "stop-performed" => S03::StopPerformed,
+        "kill-omitted" => S03::KillOmitted,
+        "kill-performed" => S03::KillPerformed,
+        "poll-EIO" => S03::PollEio,
+        "poll-EINTR" => S03::PollEintr,
+        "poll-ECHILD" => S03::PollLost,
+        "always-running" => S03::Running,
+        other => panic!("unknown fixed S03 case {other}"),
+    });
+}
+fn armed() -> S03 {
+    S03_ARMED.get()
+}
+fn reached(operation: &str) {
+    eprintln!("native baseline S03 secondary reached: {operation}");
+}
+fn set_errno(number: i32) {
+    #[cfg(target_vendor = "apple")]
+    unsafe {
+        *libc::__error() = number;
+    }
+    #[cfg(target_os = "linux")]
+    unsafe {
+        *libc::__errno_location() = number;
+    }
+}
+
+/// Called where the incumbent creates a reader, before `thread::spawn`. The
+/// second reader (stderr) fails the way std reports an OS refusal: its
+/// `thread::spawn` is `Builder::spawn(..).expect("failed to spawn thread")`.
+pub(super) fn before_reader_create(stdout: bool) {
+    if armed() == S03::None || stdout {
+        return;
+    }
+    // The harness control that leaves the secondary armed without the primary.
+    if std::env::var_os("C2_S03_PRIMARY").is_some_and(|mode| mode == "off") {
+        return;
+    }
+    eprintln!("native baseline S03: the second reader creation is refused (EAGAIN)");
+    Err::<(), io::Error>(io::Error::from_raw_os_error(libc::EAGAIN))
+        .expect("failed to spawn thread");
+}
+pub(super) fn stop(pid: i32, signal: i32) -> i32 {
+    let mode = match (armed(), signal) {
+        (S03::StopOmitted, libc::SIGTERM) => Some(false),
+        (S03::StopPerformed, libc::SIGTERM) => Some(true),
+        _ => None,
+    };
+    let Some(performed) = mode else {
+        return unsafe { libc::kill(pid, signal) };
+    };
+    reached("PID stop");
+    if performed {
+        unsafe { libc::kill(pid, signal) };
+    }
+    set_errno(libc::EPERM);
+    -1
+}
+pub(super) fn kill(child: &mut Child) -> io::Result<()> {
+    match armed() {
+        mode @ (S03::KillOmitted | S03::KillPerformed) => {
+            reached("PID kill");
+            if mode == S03::KillPerformed {
+                let _ = child.kill();
+            }
+            Err(io::Error::from_raw_os_error(libc::EPERM))
+        }
+        _ => child.kill(),
+    }
+}
+pub(super) fn poll(child: &mut Child) -> io::Result<Option<ExitStatus>> {
+    match armed() {
+        S03::PollEio => {
+            reached("try_wait");
+            Err(io::Error::from_raw_os_error(libc::EIO))
+        }
+        S03::PollEintr => {
+            reached("try_wait");
+            Err(io::Error::from_raw_os_error(libc::EINTR))
+        }
+        S03::PollLost => {
+            reached("try_wait");
+            Err(io::Error::from_raw_os_error(libc::ECHILD))
+        }
+        S03::Running => {
+            reached("try_wait");
+            Ok(None)
+        }
+        _ => child.try_wait(),
+    }
+}
+
+/// What one S03 role run left behind.
+#[derive(Debug)]
+struct S03Run {
+    status: std::process::ExitStatus,
+    log: String,
+    started: bool,
+    /// What the role's redirected result descriptor holds. The libtest harness
+    /// prints its own failure text there when the role panics, so the product's
+    /// result is judged by the absence of any selection output.
+    result: String,
+    elapsed: Duration,
+    /// Whether the incumbent's worker was still alive after the role had died.
+    orphan_survived: bool,
+}
+
+fn s03_run(fault: &str, primary: bool) -> S03Run {
+    let exe = std::env::current_exe().unwrap();
+    let worker = exe
+        .ancestors()
+        .nth(3)
+        .unwrap()
+        .join("libexec/ravel/ravel-policy");
+    assert!(worker.is_file(), "run task worker: {}", worker.display());
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    let libexec = root.path().join("libexec/ravel");
+    fs::create_dir_all(&bin).unwrap();
+    fs::create_dir_all(&libexec).unwrap();
+    let fixture = bin.join("fixture");
+    fs::copy(&exe, &fixture).unwrap();
+    fs::copy(&worker, libexec.join("ravel-policy")).unwrap();
+    fs::create_dir(root.path().join("home")).unwrap();
+    fs::create_dir(root.path().join("tmp")).unwrap();
+    let started = Instant::now();
+    let mut command = Command::new(&fixture);
+    command
+        .args([
+            "--exact",
+            "worker::admission_tests::worker_reap_admission_fixture",
+            "--ignored",
+            "--nocapture",
+        ])
+        .env_clear()
+        .env("PATH", "/usr/bin:/bin")
+        .env("HOME", root.path().join("home"))
+        .env("TMPDIR", root.path().join("tmp"))
+        .env("C2_SCENARIO", "native-reader")
+        .env("C2_FAULT", fault)
+        .env("C2_ROUTE", "front")
+        .env("C2_S03_PRIMARY", if primary { "on" } else { "off" })
+        .env("C2_FRONT", exe.ancestors().nth(2).unwrap().join("ravel"))
+        .current_dir(root.path())
+        .process_group(0)
+        .stdout(Stdio::from(
+            fs::File::create(root.path().join("fixture-stdout")).unwrap(),
+        ))
+        .stderr(Stdio::from(
+            fs::File::create(root.path().join("fixture-stderr")).unwrap(),
+        ));
+    let mut child = command.spawn().unwrap();
+    let pid = libc::pid_t::try_from(child.id()).unwrap();
+    let by = Instant::now() + Duration::from_secs(8);
+    let status = loop {
+        match child.try_wait().unwrap() {
+            Some(status) => break status,
+            None if Instant::now() >= by => {
+                // The fixture is still unreaped and reserves its group's ID.
+                unsafe { libc::kill(-pid, libc::SIGKILL) };
+                let _ = child.wait();
+                panic!("S03 fixture exceeded its bound ({fault})");
+            }
+            None => std::thread::sleep(Duration::from_millis(5)),
+        }
+    };
+    let elapsed = started.elapsed();
+    // The worker is a child of the role and shares its group. The role is
+    // reaped, so only a worker the incumbent did not end can keep the group
+    // present: observe that, then end it, bounded, so no row leaves a process.
+    let present = || {
+        // SAFETY: signal 0 only probes the group the fixture created.
+        unsafe { libc::kill(-pid, 0) == 0 }
+    };
+    std::thread::sleep(Duration::from_millis(300));
+    let orphan_survived = present();
+    if orphan_survived {
+        // SAFETY: the group is the fixture's own and is still reserved by a member.
+        unsafe { libc::kill(-pid, libc::SIGKILL) };
+        let by = Instant::now() + Duration::from_secs(2);
+        while present() {
+            assert!(
+                Instant::now() < by,
+                "S03 fixture could not end the incumbent's orphaned worker ({fault})"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+    S03Run {
+        status,
+        log: fs::read_to_string(root.path().join("fixture-stderr")).unwrap_or_default(),
+        started: root.path().join("started").exists(),
+        result: fs::read_to_string(root.path().join("result-output")).unwrap_or_default(),
+        elapsed,
+        orphan_survived,
+    }
+}
+
+/// The fixed role case a manifest row names.
+fn s03_fault(id: &str) -> &'static str {
+    let part = |name: &str| {
+        id.split("__")
+            .find_map(|part| part.strip_prefix(&format!("{name}=")))
+            .unwrap_or("")
+            .to_owned()
+    };
+    match (part("operation").as_str(), part("mode").as_str()) {
+        ("PID-stop-EPERM", "omit") => "stop-omitted",
+        ("PID-stop-EPERM", "perform-report") => "stop-performed",
+        ("PID-kill-EPERM", "omit") => "kill-omitted",
+        ("PID-kill-EPERM", "perform-report") => "kill-performed",
+        ("try-wait-EIO", "report") => "poll-EIO",
+        ("EINTR-until-deadline", "report") => "poll-EINTR",
+        ("ECHILD", "report") => "poll-ECHILD",
+        ("always-running", "report") => "always-running",
+        other => panic!("{id}: {other:?} is not a fixed S03 case"),
+    }
+}
+
+fn s03_manifest_ids() -> Vec<String> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/native-entry-cases.json");
+    let manifest: serde_json::Value =
+        serde_json::from_slice(&fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display())))
+            .unwrap();
+    manifest["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|row| row["family"] == "S03")
+        .map(|row| row["id"].as_str().unwrap().to_owned())
+        .collect()
+}
+
+#[test]
+#[ignore = "private real-process fixture; run native-incumbent.sh test"]
+fn native_baseline_s03_second_reader_creation_failure_with_a_secondary_fault() {
+    let ids = s03_manifest_ids();
+    assert_eq!(ids.len(), 8);
+    for id in ids {
+        let fault = s03_fault(&id);
+        let seen = s03_run(fault, true);
+        // Instrument integrity: the primary must have been injected where the
+        // incumbent creates its second reader, and the process must have ended
+        // there, or the row did not exercise its premise.
+        assert!(
+            seen.log.contains("the second reader creation is refused")
+                && seen.log.contains("failed to spawn thread"),
+            "{id}: the primary was not injected: {seen:?}"
+        );
+        // Whether the teardown the secondary fault lives in ran at all: the
+        // line the incumbent's teardown prints once it has stopped and reaped
+        // the worker, and whether any armed secondary was reached.
+        let teardown_ran = seen.log.contains("physical worker pid=");
+        let secondary = seen.log.contains("native baseline S03 secondary reached");
+        // The named claims read the failure the front reports. The incumbent
+        // reported none: the process ended by the panic, so each report claim
+        // has no text to be found in, and the one the row names is unattempted.
+        let reported = !seen.status.success() && teardown_ran;
+        let mut unmet = vec![
+            "reader-admission-failure-reported",
+            "worker-identity-reported",
+            "original-creation-failure-retained",
+        ];
+        unmet.push(match fault {
+            "stop-omitted" | "stop-performed" => "stop-report-retained",
+            "kill-omitted" | "kill-performed" => "kill-report-retained",
+            "poll-EIO" => "wait-report-retained",
+            "poll-EINTR" | "always-running" => "absolute-deadline",
+            "poll-ECHILD" => "ownership-loss-reported",
+            _ => unreachable!(),
+        });
+        let held = ["no-managed-start", "result-stdout-empty"];
+        // No managed start, and no selection result on stdout: the only text
+        // there is the libtest harness reporting the role's own panic.
+        assert!(
+            !seen.started && !seen.result.contains("\"status\""),
+            "{id}: {seen:?}"
+        );
+        let conforms = reported && unmet.is_empty();
+        crate::native_barrier::row(
+            &id,
+            "baseline",
+            conforms,
+            &format!(
+                "unmet {unmet:?}; held {held:?}; exit {}; teardown_ran={teardown_ran}; \
+                 secondary_reached={secondary}; orphaned_worker_survived={}; the incumbent's \
+                 thread::spawn panicked at the second reader and no failure was reported; \
+                 elapsed {:?}",
+                seen.status, seen.orphan_survived, seen.elapsed
+            ),
+        );
+    }
+}
+
+// A harness control: with the primary absent the same armed secondary fault is
+// reached by the incumbent's own teardown, so "never reached" above is a
+// property of the primary and not of a hook that cannot fire. It files no row.
+#[test]
+#[ignore = "private real-process fixture; run native-incumbent.sh test"]
+fn native_baseline_control_s03_an_armed_secondary_is_reached_without_the_primary() {
+    for (fault, operation) in [("poll-EIO", "try_wait"), ("always-running", "try_wait")] {
+        let seen = s03_run(fault, false);
+        assert!(
+            !seen.log.contains("the second reader creation is refused"),
+            "{fault}: the primary was injected: {seen:?}"
+        );
+        assert!(
+            seen.log.contains("physical worker pid="),
+            "{fault}: the teardown did not run: {seen:?}"
+        );
+        assert!(
+            seen.log
+                .contains(&format!("native baseline S03 secondary reached: {operation}")),
+            "{fault}: the armed secondary was not reached by the incumbent's teardown: {seen:?}"
+        );
+    }
+}

@@ -13,6 +13,617 @@ diff -ruN a/.config/nextest.toml b/.config/nextest.toml
 +path = "junit.xml"
 +store-success-output = true
 +store-failure-output = true
+diff -ruN a/crates/keyed-launch/src/lib.rs b/crates/keyed-launch/src/lib.rs
+--- a/crates/keyed-launch/src/lib.rs
++++ b/crates/keyed-launch/src/lib.rs
+@@ -38,6 +38,8 @@
+ mod channel;
+ mod confinement;
+ mod error;
++#[cfg(test)]
++mod native_barrier;
+ mod run;
+ 
+ pub use argv::Argv;
+diff -ruN a/crates/keyed-launch/src/run/terminal_tests.rs b/crates/keyed-launch/src/run/terminal_tests.rs
+--- a/crates/keyed-launch/src/run/terminal_tests.rs
++++ b/crates/keyed-launch/src/run/terminal_tests.rs
+@@ -16,6 +16,24 @@
+     static CANCEL: Cell<bool> = const { Cell::new(false) };
+     static PREPARED: Cell<bool> = const { Cell::new(false) };
+     static DROP_REPORTS: Cell<bool> = const { Cell::new(false) };
++    /// What the runner's latch held when the second signal was delivered.
++    static LATCH_AT_SECOND: Cell<i32> = const { Cell::new(-1) };
++    /// The native S04/S05 role is active: the fixture stands in for a child
++    /// that left the terminal in raw mode.
++    static S04: Cell<bool> = const { Cell::new(false) };
++    static HAND_OWN: Cell<bool> = const { Cell::new(false) };
++    /// The foreground group when the spawn returned: the recorded child's.
++    static CHILD_AT_SPAWN: Cell<i32> = const { Cell::new(0) };
++}
++
++/// Immediately before recovery: S04's own-foreground row requires the launcher
++/// to hold the foreground when recovery runs. The incumbent lends the terminal
++/// again on every poll tick, so the fixture establishes that precondition at
++/// the recovery boundary itself rather than before the loop.
++pub(super) fn before_recovery() {
++    if HAND_OWN.get() {
++        Terminal::open().unwrap().hand_to(own_group()).unwrap();
++    }
+ }
+ 
+ #[derive(Clone, Copy)]
+@@ -144,6 +162,20 @@
+ }
+ 
+ pub(super) fn after_spawn() {
++    if S04.get() {
++        let terminal = Terminal::open().unwrap();
++        CHILD_AT_SPAWN.set(terminal.foreground());
++        // What a real child that set raw mode and was ended would leave: the
++        // physical modes differ from the saved ones, so restoration is
++        // observable. Done with SIGTTOU ignored: this group is not foreground.
++        unsafe {
++            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
++            let mut raw = terminal.attributes().unwrap();
++            raw.c_lflag &= !(libc::ECHO | libc::ICANON);
++            assert_eq!(libc::tcsetattr(terminal.fd(), libc::TCSANOW, &raw), 0);
++            libc::signal(libc::SIGTTOU, previous);
++        }
++    }
+     let holder = FOREIGN.get();
+     if holder > 0 {
+         Terminal::open().unwrap().hand_to(holder).unwrap();
+@@ -158,6 +190,8 @@
+ 
+ pub(super) fn reported(operation: &str, result: std::io::Result<()>) -> std::io::Result<()> {
+     if CANCEL.get() && operation == "terminal handback" {
++        // The first signal's consumption is acknowledged by an empty latch.
++        LATCH_AT_SECOND.set(INTERRUPTED_BY.load(Ordering::Relaxed));
+         unsafe {
+             libc::raise(libc::SIGTERM);
+         }
+@@ -319,6 +353,10 @@
+     let terminal = Terminal::open().unwrap();
+     let own = own_group();
+     let saved = terminal.attributes().unwrap();
++    if case.starts_with("native-baseline-") {
++        native_s04_role(terminal, saved, &case);
++        return;
++    }
+     let background = case == "background";
+     let foreign = matches!(
+         case.as_str(),
+@@ -936,3 +974,393 @@
+     );
+     assert!(error.contains("terminal foreground query failed"));
+ }
++
++// ---- native S04 and S05 (terminal row), judged on the incumbent ------------
++//
++// The repaired instrument reaches unknown status through a failed Started
++// check. The incumbent has no start check, so the fixture does not claim that
++// path. It reaches `Lease::reclaim(None, false)` the way the incumbent itself
++// can: its supervision loop's observation fails, it sends SIGKILL, and its
++// reap then fails too, which leaves recovery with no status. Both reports are
++// substituted at operations the incumbent performs (the physical `waitid`
++// has run; the physical `wait` is omitted so the fixture, not the product,
++// holds the reservation and reaps it afterwards). The terminal operations,
++// foreground and modes are the real ones on the role's own PTY, and a
++// substituted report follows its physical operation exactly as in the repaired
++// rows. `start-check-source-retained` has no counterpart: its fact (a start
++// check's error) cannot exist.
++
++/// One row, as a role process on its own PTY. Every claim is judged after the
++/// fixture's own foreground, modes and holder are settled, so a violated claim
++/// never leaves the PTY dirty. `C4_BROKEN=report` is the harness control that
++/// discards the substituted report.
++fn native_s04_role(terminal: Terminal, saved: libc::termios, case: &str) {
++    let row = case.strip_prefix("native-baseline-").unwrap();
++    let kind = std::env::var("C4_BROKEN").ok();
++    let own = own_group();
++    let bits = match row {
++        "foreground-query-EIO" => QUERY,
++        "handback-EIO" => HANDBACK,
++        "modes-EIO" | "s05-modes" => MODES,
++        "SIGTTOU-restore-EIO" => TTOU,
++        _ => 0,
++    };
++    super::baseline_tests::unknown_status(true);
++    S04.set(true);
++    FAULTS.set(bits);
++    CANCEL.set(row == "s05-modes");
++    HAND_OWN.set(row == "foreground-own");
++    match kind.as_deref() {
++        None => {}
++        Some("report") => DROP_REPORTS.set(true),
++        Some(other) => panic!("unknown baseline control {other}"),
++    }
++    let mut holder = (row == "foreground-unrelated").then(|| {
++        Command::new("/bin/sleep")
++            .arg("20")
++            .process_group(0)
++            .spawn()
++            .unwrap()
++    });
++    let holder_pid = holder.as_ref().map(|child| child.id() as i32);
++    if let Some(pid) = holder_pid {
++        FOREIGN.set(pid);
++    }
++    let argv = crate::Argv::new("/usr/bin/true".into(), vec![]);
++    let mut events = Vec::new();
++    let result = run_observed(
++        Launch {
++            argv: &argv,
++            channel: None,
++            scrub: &[],
++            grant: &[],
++            transparent: None,
++            cwd: None,
++            escalation: Escalation {
++                grace: Duration::ZERO,
++                kill_grace: Duration::ZERO,
++            },
++        },
++        &mut |event| events.push(event),
++    );
++    // Observe first, then settle the fixture, then judge.
++    let after = terminal.foreground();
++    let modes = local_modes(&terminal);
++    let second_latch = LATCH_AT_SECOND.get();
++    let pending = take_interrupt();
++    let child_group = CHILD_AT_SPAWN.get();
++    FOREIGN.set(0);
++    super::baseline_tests::unknown_status(false);
++    S04.set(false);
++    FAULTS.set(0);
++    CANCEL.set(false);
++    HAND_OWN.set(false);
++    DROP_REPORTS.set(false);
++    let recovered = terminal
++        .hand_to(own)
++        .and_then(|()| terminal.restore(&saved));
++    // The product never reaped (its wait failed), so the physical child is
++    // still a zombie the fixture alone owns: reap it, bounded.
++    let child_reap = super::baseline_tests::fixture_reap();
++    let physical_reaps = super::baseline_tests::physical_reaps();
++    let cleanup = holder.as_mut().map(|child| {
++        let until = Instant::now() + Duration::from_secs(2);
++        let mut killed = false;
++        loop {
++            match child.try_wait() {
++                Ok(Some(status)) => break Ok(status),
++                Err(error) => break Err(error),
++                Ok(None) => {}
++            }
++            if !killed {
++                child.kill().unwrap();
++                killed = true;
++            }
++            if Instant::now() >= until {
++                break Err(std::io::Error::new(
++                    std::io::ErrorKind::TimedOut,
++                    "foreign fixture cleanup unconfirmed",
++                ));
++            }
++            std::thread::sleep(Duration::from_millis(1));
++        }
++    });
++    let (text, consumed) = match &result {
++        Ok(ended) => (
++            format!("ended end={:?} group={:?}", ended.end, ended.group),
++            None,
++        ),
++        Err(error) => (error.to_string(), error.consumed_signal()),
++    };
++    let restored = modes == saved.c_lflag & !libc::PENDIN;
++    eprintln!("native baseline S04 row={row} control={kind:?}: physical_reaps={physical_reaps} events={events:?} foreground={after} own={own} child_group={child_group} holder={holder_pid:?} modes_restored={restored} second_latch={second_latch} pending={pending:?} consumed={consumed:?} cleanup={cleanup:?} result={text}");
++    assert!(
++        cleanup.as_ref().is_none_or(Result::is_ok),
++        "fixture cleanup"
++    );
++    recovered.unwrap();
++    child_reap.expect("fixture child reap must settle on every row");
++    let mut claims = Vec::new();
++    let mut claim = |held: bool, name: &str| {
++        if !held {
++            claims.push(name.to_owned());
++        }
++    };
++    claim(
++        events
++            .iter()
++            .filter(|&&event| event == LaunchEvent::Reaped)
++            .count()
++            == physical_reaps as usize,
++        "reaped-only-on-actual-reap",
++    );
++    let diagnostics = text.contains("terminal") || text.contains("unconfirmed");
++    match row {
++        "foreground-own" => {
++            claim(after == own, "launcher-foreground-kept");
++            claim(restored, "saved-modes-restored");
++            claim(!diagnostics, "no-invented-recovery-diagnostic");
++        }
++        "foreground-child" => {
++            claim(after == own, "recorded-child-group-handed-back");
++            claim(restored, "saved-modes-restored");
++            claim(!diagnostics, "no-invented-recovery-diagnostic");
++        }
++        "foreground-unrelated" => {
++            claim(Some(after) == holder_pid, "foreign-foreground-preserved");
++            claim(
++                text.contains("unconfirmed") && text.contains("foreground"),
++                "unconfirmed-foreground-reported",
++            );
++            claim(text.contains("mode"), "unconfirmed-modes-reported");
++            claim(!restored, "saved-modes-not-applied-to-a-foreign-holder");
++        }
++        "foreground-query-EIO" => {
++            claim(
++                text.contains("terminal foreground query failed"),
++                "query-report-retained",
++            );
++            claim(after == child_group, "no-handback-after-failed-query");
++        }
++        "handback-EIO" => {
++            claim(
++                text.contains("terminal handback failed"),
++                "handback-report-retained",
++            );
++            claim(after == own, "physical-handback-performed");
++            claim(restored, "saved-modes-restored");
++        }
++        "modes-EIO" => {
++            claim(
++                text.contains("terminal mode restoration failed"),
++                "modes-report-retained",
++            );
++            claim(restored, "physical-restoration-performed");
++        }
++        "SIGTTOU-restore-EIO" => {
++            claim(
++                text.contains("temporary SIGTTOU restoration failed"),
++                "sigttou-report-retained",
++            );
++            claim(after == own && restored, "physical-operations-performed");
++        }
++        "s05-modes" => {
++            claim(
++                text.contains("terminal mode restoration failed"),
++                "modes-report-retained",
++            );
++            claim(
++                consumed == Some(libc::SIGHUP),
++                "first-consumption-retained",
++            );
++            claim(
++                second_latch == 0,
++                "first-consumption-acknowledged-before-second",
++            );
++            claim(
++                pending == Some(libc::SIGTERM),
++                "second-signal-pending-not-consumed",
++            );
++            claim(after == own && restored, "physical-operations-performed");
++        }
++        other => panic!("unknown S04 row {other}"),
++    }
++    assert!(
++        claims.is_empty(),
++        "S04 claim violated: {}",
++        claims.join(", ")
++    );
++}
++
++/// Run one role on its own PTY under the shared controller and judge the
++/// incumbent: `Ok(note)` when every claim held, `Err(claims)` naming each one
++/// the incumbent did not meet. Any other way the role can fail is the
++/// instrument's, and panics here without a verdict.
++fn baseline_pty(case: &str, control: Option<&str>) -> Result<String, String> {
++    use crate::native_barrier::{Controller, Limits};
++    let root = tempfile::tempdir().unwrap();
++    let (mut master, mut slave) = (-1, -1);
++    assert_eq!(
++        unsafe {
++            libc::openpty(
++                &mut master,
++                &mut slave,
++                std::ptr::null_mut(),
++                std::ptr::null_mut(),
++                std::ptr::null_mut(),
++            )
++        },
++        0
++    );
++    let (mut master, slave) = unsafe { (File::from_raw_fd(master), File::from_raw_fd(slave)) };
++    for fd in [master.as_raw_fd(), slave.as_raw_fd()] {
++        assert_eq!(
++            unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) },
++            0
++        );
++    }
++    let mut command = Command::new(std::env::current_exe().unwrap());
++    command
++        .args([
++            "--exact",
++            ROLE,
++            "--ignored",
++            "--nocapture",
++            "--test-threads=1",
++        ])
++        .env("C4_CASE", case)
++        .env("C4_ROOT", root.path())
++        .stdin(slave.try_clone().unwrap())
++        .stdout(slave.try_clone().unwrap())
++        .stderr(slave);
++    if let Some(kind) = control {
++        command.env("C4_BROKEN", kind);
++    }
++    // SAFETY: only child-safe syscalls, establishing this fixture's own PTY.
++    unsafe {
++        command.pre_exec(|| {
++            if libc::setsid() == -1 || libc::ioctl(0, libc::TIOCSCTTY as _, 0) == -1 {
++                return Err(std::io::Error::last_os_error());
++            }
++            Ok(())
++        });
++    }
++    // The shared controller owns the fixture: its 30-second envelope bounds
++    // every wait and it alone stops and reaps the identity on a failed case.
++    let barrier = root.path().join("barrier");
++    std::fs::create_dir(&barrier).unwrap();
++    let mut controller = Controller::new(&barrier, Limits::FROZEN).unwrap();
++    controller.adopt(command.spawn().unwrap());
++    drop(command);
++    let flags = unsafe { libc::fcntl(master.as_raw_fd(), libc::F_GETFL) };
++    assert_eq!(
++        unsafe { libc::fcntl(master.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK) },
++        0
++    );
++    let until = Instant::now() + Duration::from_secs(12);
++    let mut output = Vec::new();
++    let status = loop {
++        drain(&mut master, &mut output);
++        if let Some(status) = controller.poll().unwrap() {
++            break status;
++        }
++        if Instant::now() >= until {
++            let settlement = controller.abort();
++            panic!(
++                "baseline fixture did not finish: {settlement:?}: {}",
++                String::from_utf8_lossy(&output)
++            );
++        }
++        std::thread::sleep(Duration::from_millis(2));
++    };
++    drain(&mut master, &mut output);
++    let settlement = controller.finish();
++    assert!(
++        settlement.clean(),
++        "baseline fixture ownership did not settle cleanly: {settlement:?}"
++    );
++    let text = String::from_utf8_lossy(&output).replace(['\r', '\n'], " ");
++    eprintln!("native baseline case={case} control={control:?}: {text}");
++    if status.success() {
++        return Ok(text);
++    }
++    match text.split("S04 claim violated: ").nth(1) {
++        Some(violated) => Err(violated.split("   ").next().unwrap_or_default().trim().to_owned()),
++        None => panic!("baseline role failed for a reason that is not a claim: {status:?}: {text}"),
++    }
++}
++
++/// The identity of a manifest row, read from the frozen manifest.
++fn manifest_has(id: &str) -> bool {
++    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/native-entry-cases.json");
++    std::fs::read_to_string(&path)
++        .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
++        .contains(&format!("\"id\": \"{id}\""))
++}
++
++/// The role's own fact line, without the test harness around it.
++fn trimmed(text: &str) -> String {
++    text.find("native baseline S04 row=")
++        .map_or(text, |at| &text[at..])
++        .trim()
++        .to_owned()
++}
++
++fn baseline_row(id: &str, row: &str) {
++    assert!(manifest_has(id), "{id} is not a frozen manifest row");
++    let (conforms, note) = match baseline_pty(&format!("native-baseline-{row}"), None) {
++        Ok(text) => (true, trimmed(&text)),
++        Err(claims) => (false, format!("violated: {claims}")),
++    };
++    crate::native_barrier::row(id, "baseline", conforms, &note);
++}
++
++macro_rules! baseline_s04 {
++    ($name:ident, $row:literal) => {
++        #[test]
++        fn $name() {
++            baseline_row(concat!("S04__recovery=", $row), $row);
++        }
++    };
++}
++baseline_s04!(native_baseline_s04_foreground_own, "foreground-own");
++baseline_s04!(native_baseline_s04_foreground_child, "foreground-child");
++baseline_s04!(native_baseline_s04_foreground_unrelated, "foreground-unrelated");
++baseline_s04!(native_baseline_s04_foreground_query_eio, "foreground-query-EIO");
++baseline_s04!(native_baseline_s04_handback_eio, "handback-EIO");
++baseline_s04!(native_baseline_s04_modes_eio, "modes-EIO");
++baseline_s04!(native_baseline_s04_sigttou_restore_eio, "SIGTTOU-restore-EIO");
++
++/// S05's terminal row: HUP is consumed first, TERM arrives during recovery
++/// reports, and the failed mode report must still be retained.
++#[test]
++fn native_baseline_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report() {
++    baseline_row(
++        "S05__signals=HUP-then-TERM__secondary=S04-modes-EIO",
++        "s05-modes",
++    );
++}
++
++// A harness control: the same role against the incumbent with its substituted
++// report discarded must be seen to fail the claim that names it, so the rows
++// above that read "holds" are not an instrument that reads true everywhere.
++#[test]
++fn native_baseline_control_s04_a_discarded_report_is_detected() {
++    for (row, claim) in [
++        ("modes-EIO", "modes-report-retained"),
++        ("handback-EIO", "handback-report-retained"),
++    ] {
++        let case = format!("native-baseline-{row}");
++        assert!(
++            baseline_pty(&case, None).is_ok(),
++            "{row}: the incumbent was expected to retain its report"
++        );
++        match baseline_pty(&case, Some("report")) {
++            Err(claims) => assert!(
++                claims.contains(claim),
++                "{row}: failed, but not the claim {claim}: {claims}"
++            ),
++            Ok(text) => panic!("{row}: a discarded report was not detected: {text}"),
++        }
++    }
++}
+diff -ruN a/crates/keyed-launch/src/run.rs b/crates/keyed-launch/src/run.rs
+--- a/crates/keyed-launch/src/run.rs
++++ b/crates/keyed-launch/src/run.rs
+@@ -289,7 +289,19 @@
+ /// that is async-signal-safe. Signalling and reaping the child happen one poll
+ /// tick later, on [`run`]'s ordinary stack.
+ extern "C" fn on_terminate(signal: libc::c_int) {
++    // A private control (never an installed switch): the repaired runner's
++    // first-wins latch, so a harness control can show the instrument reads
++    // "holds" when the latch is right.
++    #[cfg(test)]
++    if baseline_tests::first_wins() {
++        let _ = INTERRUPTED_BY.compare_exchange(0, signal, Ordering::Relaxed, Ordering::Relaxed);
++        baseline_tests::handler_ran();
++        return;
++    }
+     INTERRUPTED_BY.store(signal, Ordering::Relaxed);
++    // After the latch: a controller that sees this count has seen the latch.
++    #[cfg(test)]
++    baseline_tests::handler_ran();
+ }
+ 
+ /// Catch the signals that cancel this launch, so a launcher can forward
+@@ -1203,6 +1215,10 @@
+     // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
+     // success after pre-exec signal death. Keep actual supervision on Ok:
+     // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
++    // E05's before-handoff boundary: the launcher still owns the foreground
++    // and no child exists.
++    #[cfg(test)]
++    baseline_tests::before_spawn();
+     let spawned = command.spawn();
+     #[cfg(test)]
+     terminal_tests::after_spawn();
+@@ -1256,7 +1272,11 @@
+         mode,
+         observer,
+         || lease.borrow_mut().lend(),
+-        |status| lease.borrow_mut().reclaim(status, false),
++        |status| {
++            #[cfg(test)]
++            terminal_tests::before_recovery();
++            lease.borrow_mut().reclaim(status, false)
++        },
+     )
+ }
+ 
+@@ -1367,6 +1387,10 @@
+                 libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+             )
+         };
++        // The physical observation has run; a private control may substitute
++        // only its report (E07's runner-wait-error boundary).
++        #[cfg(test)]
++        let result = baseline_tests::observed(result);
+         if result != 0 {
+             return Err(std::io::Error::last_os_error());
+         }
+@@ -1385,7 +1409,16 @@
+     }
+ 
+     fn reap(&mut self) -> std::io::Result<ExitStatus> {
+-        Child::wait(self)
++        // A private control may report a wait failure instead of waiting, which
++        // retains the physical reservation for the fixture to reap.
++        #[cfg(test)]
++        if let Some(error) = baseline_tests::reap_report(self.id() as libc::pid_t) {
++            return Err(error);
++        }
++        let result = Child::wait(self);
++        #[cfg(test)]
++        baseline_tests::physical_reap(&result);
++        result
+     }
+ 
+     fn signal(&mut self, signal: i32) {
+@@ -1394,11 +1427,15 @@
+ 
+     fn kill_group(&mut self) {
+         let pgid = self.id() as libc::pid_t;
++        #[cfg(test)]
++        baseline_tests::signal_attempt();
+         // SAFETY: `kill(2)` on the group the unreaped child still leads. A
+         // failure is ignored: ESRCH means nothing is left, and EPERM a group
+         // holding only zombies.
+         unsafe { libc::kill(-pgid, libc::SIGKILL) };
+         std::thread::sleep(SECOND_KILL_PAUSE);
++        #[cfg(test)]
++        baseline_tests::signal_attempt();
+         // SAFETY: as above; the child is still unreaped.
+         unsafe { libc::kill(-pgid, libc::SIGKILL) };
+     }
+@@ -1494,6 +1531,10 @@
+         }) => {
+             reclaim(Some(status)).map_err(|error| error.with_consumed_signal(interrupted))?;
+             let group = child.confirm_gone();
++            // A private control: report the child's own SIGINT death as the
++            // launcher's cancellation, so the instrument is seen to fail it.
++            #[cfg(test)]
++            let interrupted = interrupted.or(baseline_tests::invented_cancellation(status));
+             Ok(Ended {
+                 end: match (interrupted, escalated) {
+                     (Some(signal), _) => End::Interrupted { signal },
+@@ -1532,12 +1573,16 @@
+     loop {
+         lend();
+ 
++        #[cfg(test)]
++        baseline_tests::runner_active();
+         // Check cancellation before accepting even an already-exited child.
+         // In nested launches the outer supervisor may have only a short grace
+         // left, which is why a confined child is killed at once.
+         if interrupted.is_none() {
+             if let Some(signal) = take_interrupt() {
+                 interrupted = Some(signal);
++                #[cfg(test)]
++                baseline_tests::first_consumed(signal);
+                 if mode == Mode::Confined {
+                     child.signal(libc::SIGKILL);
+                     watch = Watch::Killed;
+@@ -1656,6 +1701,8 @@
+ /// poll and the signal, which the next poll reports anyway. This is the shell's
+ /// `kill … 2>/dev/null`, written down.
+ fn kill(pgid: libc::pid_t, signal: libc::c_int) {
++    #[cfg(test)]
++    baseline_tests::signal_attempt();
+     // SAFETY: `kill(2)` on the process group of, and then the pid of, a child
+     // of this process.
+     unsafe {
+@@ -1670,3 +1717,6 @@
+ 
+ #[cfg(test)]
+ mod terminal_tests;
++
++#[cfg(test)]
++mod baseline_tests;
 diff -ruN a/crates/ravel/src/cancellation.rs b/crates/ravel/src/cancellation.rs
 --- a/crates/ravel/src/cancellation.rs
 +++ b/crates/ravel/src/cancellation.rs
@@ -280,6 +891,31 @@ diff -ruN a/crates/ravel/src/signal_state.rs b/crates/ravel/src/signal_state.rs
 +        SIGNALS.filter(|&s| blocked & bit(s) != 0),
 +    )
 +}
+diff -ruN a/crates/ravel/src/worker_admission_tests.rs b/crates/ravel/src/worker_admission_tests.rs
+--- a/crates/ravel/src/worker_admission_tests.rs
++++ b/crates/ravel/src/worker_admission_tests.rs
+@@ -441,6 +441,9 @@
+     let scenario = std::env::var("C2_SCENARIO").unwrap();
+     let fault = std::env::var("C2_FAULT").unwrap();
+     let route = std::env::var("C2_ROUTE").unwrap();
++    if scenario == "native-reader" {
++        super::native_tests::arm_s03(&fault);
++    }
+     let root = std::env::current_dir().unwrap();
+     let missing = root.join("missing-program");
+     let program = if route == "choice-missing" {
+@@ -574,6 +577,11 @@
+     assert_eq!(unsafe { libc::dup2(saved, 1) }, 1);
+     unsafe { libc::close(saved) };
+     drop(output);
++    if scenario == "native-reader" {
++        // Reached only if the incumbent returned from a failed second reader
++        // creation, which the baseline reads as an instrument fault.
++        panic!("S03 baseline: the incumbent returned after the second reader failed: {outcome:?}");
++    }
+     if scenario.starts_with("nofault-") {
+         assert!(outcome.is_ok(), "no-fault session failed: {outcome:?}");
+         return;
 diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
 --- a/crates/ravel/src/worker.rs
 +++ b/crates/ravel/src/worker.rs
@@ -292,7 +928,46 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
      crate::directory_control::receipt(format!(
          "actual worker wait pid={} result={:?} operations={:?}",
          teardown.pid, teardown.status, teardown.reports
-@@ -1238,7 +1240,13 @@
+@@ -1006,7 +1008,11 @@
+ 
+ fn kill_and_wait(child: &mut Child) -> Stopped {
+     let mut reports = Vec::new();
+-    if let Err(error) = child.kill() {
++    #[cfg(test)]
++    let killed = native_tests::kill(child);
++    #[cfg(not(test))]
++    let killed = child.kill();
++    if let Err(error) = killed {
+         reports.push(format!("kill: {error}"));
+     }
+     Stopped {
+@@ -1022,7 +1028,11 @@
+             Ok(pid) => {
+                 // SAFETY: this is the unreaped child; no confirmed wait has
+                 // released its PID. Never signal after try_wait confirms reap.
+-                if unsafe { libc::kill(pid, signal) } == -1 {
++                #[cfg(test)]
++                let sent = native_tests::stop(pid, signal);
++                #[cfg(not(test))]
++                let sent = unsafe { libc::kill(pid, signal) };
++                if sent == -1 {
+                     reports.push(format!(
+                         "stop (signal {signal}): {}",
+                         io::Error::last_os_error()
+@@ -1035,7 +1045,11 @@
+     let grace = Instant::now() + CLEANUP_GRACE;
+     let mut poll = Duration::from_millis(1);
+     while Instant::now() < grace {
+-        match child.try_wait() {
++        #[cfg(test)]
++        let waited = native_tests::poll(child);
++        #[cfg(not(test))]
++        let waited = child.try_wait();
++        match waited {
+             Ok(Some(status)) => {
+                 return Stopped {
+                     status: Ok(status),
+@@ -1238,7 +1252,17 @@
              streams += 1;
              let (captured, overflow, sender) =
                  (Arc::clone(&captured), Arc::clone(&overflow), sender.clone());
@@ -300,13 +975,17 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
 +            let reader_sink = native_tests::reader_sink();
 +            #[cfg(test)]
 +            let finished_sink = native_tests::finished_sink();
++            // S03's primary: the OS refuses the second reader thread. std's
++            // `thread::spawn` has no failure return; it panics.
++            #[cfg(test)]
++            native_tests::before_reader_create(stdout);
              thread::spawn(move || {
 +                #[cfg(test)]
 +                native_tests::record_reader(reader_sink, stdout);
                  let mut chunk = [0; 8192];
                  loop {
                      match stream.read(&mut chunk) {
-@@ -1264,9 +1272,13 @@
+@@ -1264,9 +1288,13 @@
                          Err(_) => break,
                      }
                  }
@@ -320,7 +999,7 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
          cancellation::shielded(|| {
              spawn(
                  stdout.map(|stream| Box::new(stream) as Box<dyn Read + Send>),
-@@ -1277,6 +1289,8 @@
+@@ -1277,6 +1305,8 @@
                  false,
              );
          });
@@ -329,7 +1008,7 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
          Capture {
              captured,
              overflow,
-@@ -1292,6 +1306,10 @@
+@@ -1292,6 +1322,10 @@
      /// Everything kept so far, once both streams end or `by` passes, and
      /// whether any output went past the bound.
      fn collect(self, by: Instant) -> (Diagnostics, bool) {
@@ -340,7 +1019,7 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
          for _ in 0..self.streams {
              if self
                  .done
-@@ -1300,7 +1318,18 @@
+@@ -1300,7 +1334,18 @@
              {
                  break;
              }
@@ -359,7 +1038,7 @@ diff -ruN a/crates/ravel/src/worker.rs b/crates/ravel/src/worker.rs
          let captured = self
              .captured
              .lock()
-@@ -1315,6 +1344,9 @@
+@@ -1315,6 +1360,9 @@
  mod admission_tests;
  
  #[cfg(test)]

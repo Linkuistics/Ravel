@@ -687,6 +687,130 @@ Rust 1.85. A seam is an observation or a call site, never a mechanism the
 incumbent lacks: rows whose premise needs a missing mechanism are rejected
 premises in k45 and k46, with the mechanism named.
 
+## Runner, worker and terminal baseline (k45)
+
+`native-entry-incumbent-runner-k45`, the second child of the incumbent-baseline
+node (k42), classified the 40 runner-, worker- and terminal-level rows: E05 (4),
+E07 (4), S01 (8), S02 (7), S03 (8), S04 (7) and S05 (2). Thirty are observed
+from a real incumbent run and ten are rejected premises, each naming the
+operation or mechanism the incumbent lacks. It takes no immutable measurement,
+changes no production code and finds no product defect.
+
+**What was hosted, and where the hooks sit.** The runner and terminal
+instruments are `cfg(test)` code in the `keyed-launch` library and the worker's
+in the ravel binary, so `native-incumbent.sh test` runs both in one nextest
+invocation and the driver's one junit file names every test. The new
+`files/.../run/baseline_tests.rs` ports the repaired E05 and E07 fixture roles,
+controller flow and named claims (`E07::conforms`, `E05::axes`) and adds S02;
+`terminal_tests.rs` gains the repaired S04/S05 role and claims; the worker
+overlay gains S03. Every hook is a call site at an operation the incumbent
+performs:
+
+| Hook | Where in the incumbent's own flow |
+|---|---|
+| handler-run count | after the handler's latch store, so a controller that sees the count has seen the latch |
+| `before_spawn` | immediately before `command.spawn()`, after the latch is cleared: E05's before-handoff boundary |
+| `runner_active`, `first_consumed` | the supervision loop's first iteration after `lend`, and immediately after `take_interrupt` returned a signal |
+| observation report | after the physical `waitid(WNOWAIT)`; E07's runner-wait-error, S02's observation rows and S04's unknown status substitute an errno there |
+| reap report | in place of the physical wait, which is omitted so the reservation stays with the fixture, which reaps it afterwards (never the product); S02's wait rows and S04 |
+| signal-attempt count | `kill()` and `kill_group`, counted only after a reported ECHILD |
+| E05 after-handoff barrier | the `Started` notification, the incumbent's only post-spawn point and the place the repaired start check runs |
+| before-recovery | S04's own-foreground precondition, placed at the recovery boundary because the incumbent lends again on every poll tick |
+| second-reader creation, stop, kill, poll | S03's primary at `thread::spawn`, and the secondary fault at the teardown's own stop, kill and `try_wait` |
+
+None adds a mechanism. `first_wins` latch and `invented` cancellation are
+harness controls only: they make the incumbent right or wrong in the one way a
+row names, to show the instrument can read both ways.
+
+**Observed rows** (development run, aarch64-apple-darwin, not an immutable
+receipt):
+
+| Family | Rows | Already correct | Fails | Facts behind the failures |
+|---|---:|---:|---:|---|
+| E05 direct/terminal INT | 4 | 4 | 0 | Direct INT is the launcher's before and after handoff; terminal VINTR is the launcher's before handoff and the child's after, with the child's own status and no launcher cancellation invented from it. |
+| E07 first consumed | 4 | 0 | 4 | The handler overwrites the latch with a plain store: after TERM then HUP the acknowledged latch is HUP (HUP then INT: INT) before the runner consumed anything, so the launch names the later signal in both the active and runner-wait-error variants. |
+| S02 observation and wait | 6 | 2 | 4 | See below. |
+| S03 second reader | 8 | 0 | 8 | The incumbent creates readers with `thread::spawn`, so the refused second creation is a panic (exit 101) with no failure reported; its teardown never runs, so the armed secondary fault is never reached, and the worker it spawned is left running (observed alive after the role died, then ended by the fixture). The claims that read the reported failure, and the one the row names, are unmet; `no-managed-start` and an empty result hold. |
+| S04 unknown-status recovery | 7 | 6 | 1 | Foreground-unrelated: the foreign holder is preserved, but the incumbent gates its unconfirmed-foreground report on a failed spawn alone and treats a missing status like an ordinary exit, so `unconfirmed-foreground-reported` and `unconfirmed-modes-reported` fail while `foreign-foreground-preserved` and `saved-modes-not-applied-to-a-foreign-holder` hold. The other six hold, including retained query, handback, modes and SIGTTOU reports. |
+| S05 terminal (S04 modes) | 1 | 1 | 0 | HUP is consumed before the second signal, TERM stays pending and unconsumed, and the mode report is retained. |
+
+**S02: what the incumbent does with a substituted report.** The repaired rows
+reach these faults through a failed Started check and a bounded settlement,
+neither of which the incumbent has, but the incumbent performs both operations
+(the `waitid(WNOWAIT)` observation and the reap) and each has an error path:
+an observation failure sends SIGKILL and reaps, a reap failure ends the launch
+with no status. The report is substituted there and the incumbent's response is
+judged by the repaired row's named claims, with the repaired text restated by
+meaning (the failed operation and its errno are named):
+
+| Row | Result | Claims met or unmet |
+|---|---|---|
+| observation EIO once | already correct | The failure is reported and the child is SIGKILLed and reaped: `[Started, Reaped]`. |
+| observation EINTR | fails | The first EINTR is fatal and the child is killed at once, in 1.5 ms: `absolute-deadline`, `deadline-expiry-reported` and `retries-reported` are unmet (there is no retry window). |
+| observation ECHILD | fails | After the reported ECHILD the incumbent still signals the numeric group and PID (`no-signal-after-release`). |
+| wait EIO once | fails | There is no retry: no Reaped, an error with no status (`reaped-after-recovered-error`). |
+| wait EINTR | fails | As observation EINTR: no retry window, so the three deadline claims are unmet. |
+| wait ECHILD | already correct | The ECHILD is reported, nothing is signalled after it, no Reaped is invented, and it ends well inside a second. |
+
+The substituted EINTR and ECHILD are reports at the operation, never physical
+EINTR or ECHILD; the physical `waitid` has run, and a substituted reap report
+omits the physical wait. Not judged, because the fact cannot exist:
+`start-check-source-retained` (no start check) and `ownership-released` (the
+incumbent has no reservation state to read).
+
+**S04 and S05's terminal row.** The repaired role reaches unknown status
+through a failed Started check. These rows reach `Lease::reclaim(None, false)`
+the way the incumbent itself can: observation fails, SIGKILL, and the reap
+fails, so recovery is called without a status. The terminal operations, the
+foreground and the modes are the real ones on the role's own PTY, and a
+substituted recovery report follows its physical operation as in the repaired
+rows. `start-check-source-retained` has no counterpart. The own-foreground row
+places its precondition at the recovery boundary, a fixture-placed state rather
+than one the incumbent's loop reaches. An earlier draft of this section
+substituted `None` after a successful reap; a review found that this
+manufactured a combination (a known reap with unknown status) the incumbent
+cannot reach, and the rows were rehosted on its real path.
+
+**Rejected premises**, verified against source with a control (the same patterns
+counted in both trees: 0 in the incumbent and 13/5/9/2 in the repaired `run.rs`
+for `start_check`, `stop_reports`, `ERROR_SETTLEMENT`, `operation_reports`;
+`thread::Builder` 0 and `thread::spawn` 1 in the incumbent's `worker.rs`, the
+reverse in the repaired):
+
+| Rows | Missing operation or mechanism |
+|---|---|
+| S01 (8) | Checked stops with a per-attempt report, and the fallible start check that leads to them. `kill`, `Process::signal` and `Process::kill_group` return `()` and ignore the failure on purpose, so the one claim each row names (the faulted attempt's retained report) reads a fact that cannot exist. This is recorded as the reason, not as a failure. |
+| S02 always-running (1) | An absolute error-settlement deadline over a child that is merely still running. The incumbent enters no error path for one: its supervision loop polls with `WNOHANG` every 500 ms and is a documented stall the caller closes, so there is no settlement to observe and no deadline to read. |
+| S05 runner (1) | The start check, and the same deadline over an always-running observation while a second signal arrives. |
+
+**Harness controls.** Each is seen to read the other way, so the "already
+correct" readings are not an instrument that reads true everywhere and the
+failures are not one that reads false everywhere: the incumbent with a
+first-wins latch conforms E07's active and runner-wait-error rows while the
+unmodified incumbent does not; the incumbent that reports the child's
+terminal-INT death as its own cancellation fails E05's `attributed` axis; the
+incumbent with its substituted report discarded fails S04's
+`modes-report-retained` and `handback-report-retained`; and with S03's primary
+absent the same armed secondary is reached by the incumbent's own teardown, so
+"never reached" is a property of the primary and not of a hook that cannot
+fire. They file no row.
+
+**Result.** 40 of 40 classified: 30 observed (14 already correct, 16 fails) and
+10 rejected premises. The development campaign (90 tests: 59 repaired, 31
+incumbent) digested 321 subjects, unchanged after, and all 153 repaired
+identities still reconcile. Across the node 24 rows fail, 52 are already
+correct, 10 are rejected premises and 67 stay unclassified for k46.
+`task test:native-incumbent-controls` now states 17 files differing from git's
+export. F03 (k46) shares S03's primary and will observe the same panic at the
+same site.
+
+**What this does not establish.** The same limits as k44: no immutable
+receipts, no GNU/Linux or Rust 1.85 qualification. The ten rejected premises
+are an account of mechanisms absent from the pre-repair product, not a claim
+that it behaves correctly under those faults. S02 and S03 failures are the
+incumbent's responses to substituted reports and to a documented std panic, not
+physical EINTR, ECHILD or thread exhaustion.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -725,8 +849,8 @@ variants and S counts 8/7/8/7/2 unchanged.
    affected rows after edits and reconcile identities individually. The row
    recorders, plan, digest driver and its failing controls now exist (k40,
    above); the incumbent subject and its front baseline now exist (k44, above),
-   with the runner, worker, terminal and fault rows (k45, k46) and the frozen
-   campaign run remaining.
+   with the runner, worker and terminal rows (k45, above) and the fault rows
+   (k46) and the frozen campaign run remaining.
 6. Complete R01 through the existing Taskfile tasks and preserve every previous
    expectation. Publish qualified evidence only when earned. Reconcile the
    approved operation-report API amendment throughout docs. Price and cut the

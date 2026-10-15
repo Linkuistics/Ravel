@@ -100,3 +100,15 @@ reconciliation and the support continuation cut.
   is a node (k44 landed; k45 runner, worker and terminal rows and k46 fault rows
   remain; 107 rows unclassified). The frozen campaign, docs reconciliation and
   the support continuation stay in k43.
+- K45 (the second child of k42, inside k38) classified the 40 runner, worker
+  and terminal rows from real incumbent runs: 30 observed (14 already-correct,
+  16 fails) and 10 rejected premises (S01 x8, S02 always-running, S05 runner).
+  With k44 the node stands at 24 fails, 52 already-correct, 10 rejected and 67
+  unclassified (k46). The one in-session reviewer, spent here, corrected a
+  first draft that had rejected S02, S03 and the S04 substitution on too
+  narrow a premise; S02, S03 and S04 are hosted on the incumbent's own error
+  paths. No product defect. Charge P≤20/E≤8/RC≤1, D=X=0. Cumulative
+  D≤115/RC≤85/P≤439/E≤156/X=0 under caps D≤135/RC≤88/P≤467/E≤177/X=0;
+  remaining D≤20 (phase closure), RC≤3/P≤28/E≤21/X=0 for k46 and k43. K42
+  stays a node (k46 remains); the frozen campaign, docs reconciliation and the
+  support continuation stay in k43.
