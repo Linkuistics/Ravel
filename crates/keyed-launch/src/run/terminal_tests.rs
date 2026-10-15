@@ -925,6 +925,46 @@ fn pty_case_with(case: &str, broken: Option<&str>, claim: Option<&str>) {
             String::from_utf8_lossy(&output)
         );
     }
+    // The manifest rows this helper judges: S04's seven and S05's terminal row.
+    let manifest_id = match case {
+        "native-s05-modes" => {
+            Some("S05__signals=HUP-then-TERM__secondary=S04-modes-EIO".to_owned())
+        }
+        other => other
+            .strip_prefix("native-s04-")
+            .map(|row| format!("S04__recovery={row}")),
+    };
+    if let Some(id) = &manifest_id {
+        let text = String::from_utf8_lossy(&output).replace(['\r', '\n'], " ");
+        match broken {
+            Some(kind) => {
+                let violated = text
+                    .split("S04 claim violated: ")
+                    .nth(1)
+                    .unwrap_or_default();
+                let named = claim.is_none_or(|claim| {
+                    violated
+                        .split("   ")
+                        .next()
+                        .unwrap_or_default()
+                        .contains(claim)
+                });
+                let detected = !status.success() && text.contains("panicked at") && named;
+                crate::native_barrier::row(
+                    id,
+                    &format!("broken:{kind}"),
+                    !detected,
+                    &format!("named claim {claim:?}; {status:?}: {text}"),
+                );
+            }
+            None => crate::native_barrier::row(
+                id,
+                "repaired",
+                status.success(),
+                &format!("{status:?}: {text}"),
+            ),
+        }
+    }
     if broken.is_some() {
         assert!(
             !status.success() && String::from_utf8_lossy(&output).contains("panicked at"),

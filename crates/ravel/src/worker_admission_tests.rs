@@ -445,7 +445,9 @@ fn selected(program: &str, args: Vec<Value>) -> Value {
 /// A named broken subject must fail its row, and fail it as the row names.
 /// `needle` is the claim (or the instrument's own refusal) that failure must
 /// carry; any other failure, including a fixture timeout, is not a detection.
-pub(super) fn detects(fault: &str, needle: &str) {
+/// Whether the broken subject failed, and failed as the named claim. A subject
+/// that passed, or failed for another reason, is not a detection.
+pub(super) fn detection(fault: &str, needle: &str) -> Result<(), String> {
     let payload = std::panic::catch_unwind(|| cases(&["native-reader"], &[fault], &["front"]))
         .expect_err(&format!("broken subject {fault} was not detected"));
     let text = payload
@@ -457,10 +459,13 @@ pub(super) fn detects(fault: &str, needle: &str) {
                 .map(|text| (*text).to_owned())
         })
         .unwrap_or_default();
-    assert!(
-        text.contains(needle),
-        "broken subject {fault} failed, but not as {needle:?}: {text}"
-    );
+    if text.contains(needle) {
+        Ok(())
+    } else {
+        Err(format!(
+            "broken subject {fault} failed, but not as {needle:?}: {text}"
+        ))
+    }
 }
 
 #[test]

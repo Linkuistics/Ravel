@@ -446,11 +446,24 @@ impl Settled {
 
 #[test]
 fn native_s01_retains_each_stop_report_and_distinguishes_physical_operations() {
+    const OPERATIONS: [&str; 4] = [
+        "group-first",
+        "PID",
+        "group-repeat-first",
+        "group-repeat-second",
+    ];
     for attempt in 1..=4 {
         for performed in [false, true] {
             let fault = Fault::Stop { attempt, performed };
+            let id = format!(
+                "S01__operation={}__mode={}-EPERM",
+                OPERATIONS[(attempt - 1) as usize],
+                if performed { "perform-report" } else { "omit" }
+            );
             let repaired = settle(fault, Broken::Repaired);
-            assert_eq!(repaired.violations(fault), Vec::<String>::new());
+            let held = repaired.violations(fault);
+            crate::native_barrier::row(&id, "repaired", held.is_empty(), &format!("{held:?}"));
+            assert_eq!(held, Vec::<String>::new());
             // Omitted and performed rows differ only in the physical receipt.
             let marker = format!("attempt={attempt} target");
             assert!(
@@ -464,10 +477,16 @@ fn native_s01_retains_each_stop_report_and_distinguishes_physical_operations() {
             // The lost-report mutant performs the same physical operations.
             let broken = settle(fault, Broken::Report);
             let named = format!("stop-report-retained attempt={attempt}");
+            let seen = broken.violations(fault);
+            crate::native_barrier::row(
+                &id,
+                "broken:report",
+                !seen.contains(&named),
+                &format!("named claim {named}; violated {seen:?}"),
+            );
             assert!(
-                broken.violations(fault).contains(&named),
-                "broken report control was not detected: {:?}",
-                broken.violations(fault)
+                seen.contains(&named),
+                "broken report control was not detected: {seen:?}"
             );
         }
     }
@@ -501,18 +520,42 @@ const S02: [(Fault, Broken, &str); 7] = [
 #[test]
 fn native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership() {
     for (fault, break_with, claim) in S02 {
+        let id = match fault {
+            Fault::ObserveEio => "S02__operation=observation-EIO-once",
+            Fault::ObserveEintr => "S02__operation=observation-EINTR-until-deadline",
+            Fault::ObserveLost => "S02__operation=observation-ECHILD",
+            Fault::WaitEio => "S02__operation=wait-EIO-once",
+            Fault::WaitEintr => "S02__operation=wait-EINTR-until-deadline",
+            Fault::WaitLost => "S02__operation=wait-ECHILD",
+            Fault::Running => "S02__operation=always-running-until-deadline",
+            other => panic!("{other:?} is not an S02 row"),
+        };
+        let subject = match break_with {
+            Broken::Report => "broken:report",
+            Broken::Deadline => "broken:deadline",
+            Broken::Identity => "broken:identity",
+            other => panic!("{other:?} is not a named S02 broken subject"),
+        };
         let repaired = settle(fault, Broken::Repaired);
+        let held = repaired.violations(fault);
+        crate::native_barrier::row(id, "repaired", held.is_empty(), &format!("{held:?}"));
         assert_eq!(
-            repaired.violations(fault),
+            held,
             Vec::<String>::new(),
             "{fault:?}: {}",
             repaired.message
         );
         let broken = settle(fault, break_with);
+        let seen = broken.violations(fault);
+        crate::native_barrier::row(
+            id,
+            subject,
+            !seen.iter().any(|v| v == claim),
+            &format!("named claim {claim}; violated {seen:?}"),
+        );
         assert!(
-            broken.violations(fault).iter().any(|v| v == claim),
-            "{fault:?} with {break_with:?} did not fail {claim}: {:?} {}",
-            broken.violations(fault),
+            seen.iter().any(|v| v == claim),
+            "{fault:?} with {break_with:?} did not fail {claim}: {seen:?} {}",
             broken.message
         );
     }
@@ -756,13 +799,27 @@ fn e07_row(first: i32, second: i32, error: bool, broken: &str) -> E07 {
 
 #[test]
 fn native_e07_first_consumed_cancellation_survives_every_later_delivery() {
-    let rows = [(libc::SIGTERM, libc::SIGHUP), (libc::SIGHUP, libc::SIGINT)];
-    for (first, second) in rows {
+    let rows = [
+        (libc::SIGTERM, libc::SIGHUP, "TERM-then-HUP"),
+        (libc::SIGHUP, libc::SIGINT, "HUP-then-INT"),
+    ];
+    for (first, second, order) in rows {
         for error in [false, true] {
+            let id = format!(
+                "E07__signals={order}__boundary={}",
+                if error {
+                    "runner-wait-error"
+                } else {
+                    "runner-active"
+                }
+            );
             let baseline = e07_row(first, second, error, "none");
-            assert!(baseline.conforms(first, error), "{baseline:?}");
             // The acknowledged later delivery landed after the first's
             // consumption, so the runner's own result is the evidence.
+            let held =
+                baseline.conforms(first, error) && baseline.consumed_ack_latch == Some(second);
+            crate::native_barrier::row(&id, "repaired", held, &format!("{baseline:?}"));
+            assert!(baseline.conforms(first, error), "{baseline:?}");
             assert_eq!(baseline.consumed_ack_latch, Some(second), "{baseline:?}");
             // Each guard is load-bearing: break the latch store, then the
             // consumption guard / reap join (active) or the error composition
@@ -774,15 +831,23 @@ fn native_e07_first_consumed_cancellation_survives_every_later_delivery() {
             };
             for broken in breaks {
                 let seen = e07_row(first, second, error, broken);
+                let shape = seen
+                    .outcome
+                    .starts_with(if error { "error " } else { "ended " });
+                // Detected only when the controller stayed clean, the launch kept
+                // its shape and the later signal won: nothing else is the claim.
+                let detected = seen.clean && shape && seen.named() == Some(second);
+                crate::native_barrier::row(
+                    &id,
+                    &format!("broken:{broken}"),
+                    !detected,
+                    &format!("{seen:?}"),
+                );
                 assert!(
                     seen.clean,
                     "{broken}: controller settlement must stay clean: {seen:?}"
                 );
-                assert!(
-                    seen.outcome
-                        .starts_with(if error { "error " } else { "ended " }),
-                    "{broken}: launch shape changed: {seen:?}"
-                );
+                assert!(shape, "{broken}: launch shape changed: {seen:?}");
                 assert_eq!(
                     seen.named(),
                     Some(second),
@@ -938,7 +1003,13 @@ fn e04_row(broken: &str) -> E04 {
 
 #[test]
 fn native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails() {
+    const ID: &str = "E04__boundary=managed__state=private-default-SA_NOCLDWAIT";
     let repaired = e04_row("none");
+    let held = repaired.clean
+        && repaired.no_child_wait_seen()
+        && repaired.repaired()
+        && repaired.confirmed();
+    crate::native_barrier::row(ID, "repaired:runner", held, &format!("{repaired:?}"));
     assert!(repaired.clean, "{repaired:?}");
     assert!(
         repaired.no_child_wait_seen(),
@@ -951,6 +1022,9 @@ fn native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails() 
     // instrument's own receipt proves it left the flag in place; the real child
     // is then reaped by the kernel and no wait can be confirmed.
     let mutant = e04_row("ignore-only");
+    let detected =
+        mutant.clean && mutant.no_child_wait_seen() && !mutant.repaired() && !mutant.confirmed();
+    crate::native_barrier::row(ID, "broken:ignore-only", !detected, &format!("{mutant:?}"));
     assert!(mutant.clean, "controller settlement: {mutant:?}");
     assert!(mutant.no_child_wait_seen(), "{mutant:?}");
     assert!(
@@ -1340,8 +1414,22 @@ fn e05_row(delivery: &str, boundary: &str, broken: &str) -> E05 {
 fn native_e05_direct_and_terminal_int_before_and_after_handoff() {
     for delivery in ["direct", "pty"] {
         for boundary in ["before", "after"] {
+            let id = format!(
+                "E05__delivery={}__boundary={boundary}-handoff",
+                if delivery == "direct" {
+                    "direct-INT"
+                } else {
+                    "PTY-VINTR"
+                }
+            );
             let seen = e05_row(delivery, boundary, "none");
             let axes = seen.axes(delivery, boundary);
+            crate::native_barrier::row(
+                &id,
+                "repaired",
+                axes.conforms(),
+                &format!("{axes:?} {seen:?}"),
+            );
             assert!(axes.conforms(), "{delivery}/{boundary}: {axes:?} {seen:?}");
         }
     }
@@ -1349,6 +1437,17 @@ fn native_e05_direct_and_terminal_int_before_and_after_handoff() {
     // launcher's cancellation. Only the publish-then-terminal-INT row can tell.
     let invented = e05_row("pty", "after", "invent");
     let axes = invented.axes("pty", "after");
+    let detected = axes.controller
+        && axes.target
+        && axes.routed
+        && !axes.attributed
+        && invented.interrupted_by_launcher();
+    crate::native_barrier::row(
+        "E05__delivery=PTY-VINTR__boundary=after-handoff",
+        "broken:invent",
+        !detected,
+        &format!("{axes:?} {invented:?}"),
+    );
     assert!(
         axes.controller && axes.target && axes.routed,
         "{axes:?} {invented:?}"
@@ -1512,11 +1611,24 @@ impl S05 {
 
 #[test]
 fn native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report() {
+    const ID: &str = "S05__signals=HUP-then-TERM__secondary=S02-always-running";
     let repaired = s05_row("none");
+    crate::native_barrier::row(
+        ID,
+        "repaired",
+        repaired.conforms(),
+        &format!("{repaired:?}"),
+    );
     assert!(repaired.conforms(), "{repaired:?}");
     // The consumption was acknowledged (empty latch) before TERM was sent, and
     // TERM was latched afterwards, so the order is observed, not assumed.
     let broken = s05_row("error");
+    let detected = broken.clean
+        && broken
+            .outcome
+            .contains(&format!("consumed=Some({})", libc::SIGTERM))
+        && !broken.conforms();
+    crate::native_barrier::row(ID, "broken:error", !detected, &format!("{broken:?}"));
     assert!(
         broken.clean,
         "controller settlement stayed clean: {broken:?}"
@@ -1528,4 +1640,63 @@ fn native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_r
         "the overwrite break did not let TERM replace HUP: {broken:?}"
     );
     assert!(!broken.conforms());
+}
+
+// ---- campaign row records (k40) ------------------------------------------------
+
+#[test]
+fn native_row_record_is_write_once_read_only_and_names_its_verdict() {
+    use std::os::unix::fs::PermissionsExt as _;
+    let directory = tempfile::tempdir().unwrap();
+    let at = directory.path();
+    crate::native_barrier::record_row(
+        at,
+        "E01__signal=INT",
+        "repaired",
+        true,
+        "a \"quoted\"\nnote",
+    )
+    .unwrap();
+    let path = at.join("E01__signal=INT@repaired.json");
+    let text = std::fs::read_to_string(&path).unwrap();
+    assert!(text.contains("\"conforms\":true"), "{text}");
+    assert!(text.contains("\"id\":\"E01__signal=INT\""), "{text}");
+    assert!(text.contains("a \\\"quoted\\\"\\nnote"), "{text}");
+    // The record is read-only from its creation, and a second one for the same
+    // row and subject is refused instead of replacing the first.
+    assert_eq!(
+        std::fs::metadata(&path).unwrap().permissions().mode() & 0o222,
+        0
+    );
+    let second = crate::native_barrier::record_row(at, "E01__signal=INT", "repaired", false, "");
+    assert_eq!(
+        second.unwrap_err().kind(),
+        std::io::ErrorKind::AlreadyExists
+    );
+    assert!(std::fs::read_to_string(&path)
+        .unwrap()
+        .contains("\"conforms\":true"));
+    // A different subject of the same row is a different record.
+    crate::native_barrier::record_row(at, "E01__signal=INT", "broken:capture", false, "").unwrap();
+}
+
+#[test]
+fn native_row_record_refuses_names_that_could_leave_the_directory() {
+    let directory = tempfile::tempdir().unwrap();
+    for (id, subject) in [
+        ("../escape", "repaired"),
+        ("a/b", "repaired"),
+        ("E01", "bro@ken"),
+        ("", "repaired"),
+        ("E01", ""),
+        ("E01 x", "repaired"),
+    ] {
+        let result = crate::native_barrier::record_row(directory.path(), id, subject, true, "");
+        assert_eq!(
+            result.unwrap_err().kind(),
+            std::io::ErrorKind::InvalidInput,
+            "{id:?} {subject:?}"
+        );
+    }
+    assert_eq!(std::fs::read_dir(directory.path()).unwrap().count(), 0);
 }

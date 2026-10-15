@@ -415,3 +415,22 @@ remaining D<=20 exclusively phase closure, RC<=9/P<=30/E<=42/X=0 for k38 and the
 optional RC<=5 review. The full k28 campaign, supported-target qualification and
 all parent/root obligations stay live; no node closes. K31's remaining child is
 k38 campaign/receipts.
+
+K40 (inside k31's k38 node) built the campaign tooling as development
+instruments on aarch64-apple-darwin, not the immutable campaign. Every native
+instrument now files one write-once record per judged (row, subject); a plan file
+expands the 153 rows to 327 expected records (143 rows with a failing broken
+subject, ten with a named reason); one driver freezes and digests every subject
+before and after, reconciles rows, tests and the 310 protected identities item by
+item and refuses a second writer; and each guarantee was seen to reject its
+deliberately wrong input. A development run reconciled 153 of 153 rows and 310 of
+310 protected identities (74 new), and `task check` passed 338 run/46 skipped.
+No product defect was found and production code is unchanged. Charge
+P<=25/E<=10/RC<=1, D=X=0. Cumulative bounds are
+D<=115/RC<=79/P<=397/E<=142/X=0 under caps D<=135/RC<=87/P<=402/E<=174/X=0;
+remaining D<=20 exclusively phase closure, RC<=8/P<=5/E<=32/X=0. K38 is now a
+node: the funding question, the incumbent subject with its baseline records and
+the frozen campaign (R01 per Taskfile task, docs reconciliation, support
+continuation) remain, and the projected price exceeds the remaining P. The full
+k28 campaign, supported-target qualification and all parent/root obligations
+stay live; no node closes.

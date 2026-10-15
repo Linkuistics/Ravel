@@ -407,100 +407,130 @@ pub(super) fn fixture_cleanup(child: &mut Child, product: &Teardown) {
 /// One row: the repaired product must hold every claim, and the row's named
 /// broken subject must fail the named one. `$kind` is the fixed suffix that puts
 /// exactly one defect in force; `$claim` is what that defect must be seen to
-/// violate. A broken run that fails any other way is not a detection.
+/// violate. A broken run that fails any other way is not a detection. `$id` is
+/// the manifest identity the row's two records are filed under.
 macro_rules! reader_case {
-    ($name:ident, $fault:literal, $kind:literal, $claim:literal) => {
+    ($name:ident, $id:literal, $fault:literal, $kind:literal, $claim:literal) => {
         #[test]
         fn $name() {
-            admission_tests::cases(&["native-reader"], &[$fault], &["front"]);
-            admission_tests::detects(concat!($fault, $kind), $claim);
+            let repaired = std::panic::catch_unwind(|| {
+                admission_tests::cases(&["native-reader"], &[$fault], &["front"]);
+            });
+            crate::native_barrier::row($id, "repaired", repaired.is_ok(), $fault);
+            if let Err(payload) = repaired {
+                std::panic::resume_unwind(payload);
+            }
+            let detected = admission_tests::detection(concat!($fault, "-", $kind), $claim);
+            crate::native_barrier::row(
+                $id,
+                concat!("broken:", $kind),
+                detected.is_err(),
+                &format!("named claim {}; {:?}", $claim, detected),
+            );
+            if let Err(message) = detected {
+                panic!("{message}");
+            }
         }
     };
 }
 reader_case!(
     native_f03_block_omitted,
+    "F03__operation=reader-block__mode=omit-EIO",
     "block-omitted",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_f03_block_performed,
+    "F03__operation=reader-block__mode=perform-report-EIO",
     "block-performed",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_f03_first_create,
+    "F03__operation=first-create__mode=omit-EAGAIN",
     "first-create",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_f03_second_create,
+    "F03__operation=second-create__mode=omit-EAGAIN",
     "second-create",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_f03_restore_omitted,
+    "F03__operation=creator-restore__mode=omit-EIO",
     "restore-omitted",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_f03_restore_performed,
+    "F03__operation=creator-restore__mode=perform-report-EIO",
     "restore-performed",
-    "-ignored",
+    "ignored",
     "no-managed-start"
 );
 reader_case!(
     native_s03_stop_omitted,
+    "S03__operation=PID-stop-EPERM__mode=omit__primary=second-reader-EAGAIN",
     "stop-omitted",
-    "-dropped",
+    "dropped",
     "stop-report-retained"
 );
 reader_case!(
     native_s03_stop_performed,
+    "S03__operation=PID-stop-EPERM__mode=perform-report__primary=second-reader-EAGAIN",
     "stop-performed",
-    "-dropped",
+    "dropped",
     "stop-report-retained"
 );
 reader_case!(
     native_s03_kill_omitted,
+    "S03__operation=PID-kill-EPERM__mode=omit__primary=second-reader-EAGAIN",
     "kill-omitted",
-    "-dropped",
+    "dropped",
     "kill-report-retained"
 );
 reader_case!(
     native_s03_kill_performed,
+    "S03__operation=PID-kill-EPERM__mode=perform-report__primary=second-reader-EAGAIN",
     "kill-performed",
-    "-dropped",
+    "dropped",
     "kill-report-retained"
 );
 reader_case!(
     native_s03_poll_eio,
+    "S03__operation=try-wait-EIO__mode=report__primary=second-reader-EAGAIN",
     "poll-EIO",
-    "-dropped",
+    "dropped",
     "wait-report-retained"
 );
 reader_case!(
     native_s03_poll_eintr,
+    "S03__operation=EINTR-until-deadline__mode=report__primary=second-reader-EAGAIN",
     "poll-EINTR",
-    "-slack",
+    "slack",
     "absolute-deadline"
 );
 // The guard break keeps polling a released identity; the instrument's own
 // refusal to answer after a reported ECHILD names that.
 reader_case!(
     native_s03_poll_echild,
+    "S03__operation=ECHILD__mode=report__primary=second-reader-EAGAIN",
     "poll-ECHILD",
-    "-unguarded",
+    "unguarded",
     "product signalled after reported ECHILD"
 );
 reader_case!(
     native_s03_running,
+    "S03__operation=always-running__mode=report__primary=second-reader-EAGAIN",
     "always-running",
-    "-slack",
+    "slack",
     "absolute-deadline"
 );
 
@@ -509,15 +539,37 @@ reader_case!(
 /// reports, which the fixture's assertion for the pair rejects.
 #[test]
 fn native_paired_f03_second_create_keeps_the_worker_wait_report() {
-    admission_tests::cases(
-        &["native-reader"],
-        &["paired-second-create-poll-EIO"],
-        &["front"],
+    const ID: &str =
+        "paired__case=F03-second-create-worker-wait-report__mode=omit-primary-report-secondary";
+    let repaired = std::panic::catch_unwind(|| {
+        admission_tests::cases(
+            &["native-reader"],
+            &["paired-second-create-poll-EIO"],
+            &["front"],
+        );
+    });
+    crate::native_barrier::row(
+        ID,
+        "repaired",
+        repaired.is_ok(),
+        "paired-second-create-poll-EIO",
     );
-    admission_tests::detects(
+    if let Err(payload) = repaired {
+        std::panic::resume_unwind(payload);
+    }
+    let detected = admission_tests::detection(
         "paired-second-create-poll-EIO-dropped",
         "worker-wait-report-retained",
     );
+    crate::native_barrier::row(
+        ID,
+        "broken:dropped",
+        detected.is_err(),
+        &format!("{detected:?}"),
+    );
+    if let Err(message) = detected {
+        panic!("{message}");
+    }
 }
 
 /// E08's private worker: the real protocol, with a deliberately escaped

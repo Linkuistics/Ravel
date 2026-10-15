@@ -191,18 +191,38 @@ fn case(case: &str, broken: bool) -> bool {
 }
 #[test]
 fn native_f07_checks_each_exit_transition_and_real_signal_death() {
-    for name in [
-        "default-omitted",
-        "default-performed",
-        "unblock-omitted",
-        "unblock-performed",
-        "raise-omitted",
+    for (name, id) in [
+        (
+            "default-omitted",
+            "F07__operation=TERM-default__mode=omit-EIO",
+        ),
+        (
+            "default-performed",
+            "F07__operation=TERM-default__mode=perform-report-EIO",
+        ),
+        (
+            "unblock-omitted",
+            "F07__operation=TERM-unblock__mode=omit-EIO",
+        ),
+        (
+            "unblock-performed",
+            "F07__operation=TERM-unblock__mode=perform-report-EIO",
+        ),
+        ("raise-omitted", "F07__operation=TERM-raise__mode=omit-EIO"),
     ] {
-        assert!(case(name, false), "failed checked transition: {name}");
-        assert!(
-            !case(name, true),
-            "broken transition control was not detected: {name}"
-        );
+        let held = case(name, false);
+        crate::native_barrier::row(id, "repaired", held, name);
+        assert!(held, "failed checked transition: {name}");
+        let seen = case(name, true);
+        crate::native_barrier::row(id, "broken:ignore-fault", seen, name);
+        assert!(!seen, "broken transition control was not detected: {name}");
     }
-    assert!(case("signal-death", false));
+    let death = case("signal-death", false);
+    crate::native_barrier::row(
+        "F07__operation=TERM-raise__mode=unmodified-signal-death-control",
+        "repaired",
+        death,
+        "signal-death",
+    );
+    assert!(death);
 }

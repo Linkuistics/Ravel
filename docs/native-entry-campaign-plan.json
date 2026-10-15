@@ -1,0 +1,600 @@
+{
+ "schema": 1,
+ "purpose": "Expected (row, subject) records and verdicts for the native-entry campaign. 'repaired' subjects must conform; 'violates' broken subjects must violate the claim they name; 'conforms' lists subjects that conform by design and carry a reason. Resolution order: exact row, then the first matching pattern of the row's family, then the family default. This file is a subject of every campaign: digest it before and after.",
+ "domain": "aarch64-apple-darwin host receipts only; they qualify neither GNU/Linux nor Rust 1.85",
+ "rows": {},
+ "patterns": [
+  {
+   "family": "E02",
+   "match": "pending=no$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [],
+    "conforms": [
+     "broken:blocked-pending"
+    ],
+    "reason": "Negative control: with no pending signal the entry-blocked-pending mutant is not discriminating, so it conforms by design."
+   }
+  },
+  {
+   "family": "E04",
+   "match": "boundary=worker__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:worker-watching"
+    ]
+   }
+  },
+  {
+   "family": "E04",
+   "match": "boundary=managed__",
+   "spec": {
+    "repaired": [
+     "repaired:front",
+     "repaired:runner"
+    ],
+    "violates": [
+     "broken:ignore-only"
+    ]
+   }
+  },
+  {
+   "family": "E04",
+   "match": "boundary=raw-executable-entry__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [],
+    "reason": "Observation of whether the flag reaches executable entry; no repair is claimed and no mutant exists. The measured flag state is in the record's note."
+   }
+  },
+  {
+   "family": "E05",
+   "match": "delivery=PTY-VINTR__boundary=after-handoff$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:invent"
+    ]
+   }
+  },
+  {
+   "family": "E06",
+   "match": "boundary=selection-to-runner__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:join-selection"
+    ]
+   }
+  },
+  {
+   "family": "E06",
+   "match": "boundary=Started-before-mask-restore__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:join-outcome"
+    ]
+   }
+  },
+  {
+   "family": "E06",
+   "match": "boundary=reaped-before-front__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:join-late"
+    ]
+   }
+  },
+  {
+   "family": "E06",
+   "match": "boundary=refusal-before-finalise__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:join-front"
+    ]
+   }
+  },
+  {
+   "family": "E06",
+   "match": "boundary=ENOENT-before-finalise__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:join-late"
+    ]
+   }
+  },
+  {
+   "family": "E07",
+   "match": "boundary=runner-active$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:latch",
+     "broken:guard",
+     "broken:at-reap"
+    ]
+   }
+  },
+  {
+   "family": "E07",
+   "match": "boundary=runner-wait-error$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:latch",
+     "broken:error"
+    ]
+   }
+  },
+  {
+   "family": "F07",
+   "match": "unmodified-signal-death-control$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [],
+    "reason": "Real-signal-death control: a successful raise cannot report afterwards, so there is no ignore-the-failure mutant for it."
+   }
+  },
+  {
+   "family": "paired",
+   "match": "case=F03-",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "paired",
+   "match": "case=F05-Started-",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "paired",
+   "match": "case=F05-refusal-",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:ignore-fault"
+    ]
+   }
+  },
+  {
+   "family": "paired",
+   "match": "case=F06-",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=observation-EIO-once$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:report"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=observation-EINTR-until-deadline$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:deadline"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=observation-ECHILD$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:identity"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=wait-EIO-once$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:report"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=wait-EINTR-until-deadline$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:deadline"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=wait-ECHILD$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:identity"
+    ]
+   }
+  },
+  {
+   "family": "S02",
+   "match": "operation=always-running-until-deadline$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:deadline"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=PID-stop-EPERM__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=PID-kill-EPERM__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=try-wait-EIO__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:dropped"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=EINTR-until-deadline__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:slack"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=ECHILD__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:unguarded"
+    ]
+   }
+  },
+  {
+   "family": "S03",
+   "match": "operation=always-running__",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:slack"
+    ]
+   }
+  },
+  {
+   "family": "S04",
+   "match": "recovery=foreground-own$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:restore"
+    ]
+   }
+  },
+  {
+   "family": "S04",
+   "match": "recovery=foreground-child$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:handback"
+    ]
+   }
+  },
+  {
+   "family": "S04",
+   "match": "recovery=foreground-unrelated$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:takeover",
+     "broken:uncertainty"
+    ]
+   }
+  },
+  {
+   "family": "S05",
+   "match": "secondary=S02-always-running$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:error"
+    ]
+   }
+  },
+  {
+   "family": "S05",
+   "match": "secondary=S04-modes-EIO$",
+   "spec": {
+    "repaired": [
+     "repaired"
+    ],
+    "violates": [
+     "broken:report"
+    ]
+   }
+  }
+ ],
+ "families": {
+  "E01": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:capture",
+    "broken:reinstatement"
+   ]
+  },
+  "E02": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:blocked-pending"
+   ]
+  },
+  "E03": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [],
+   "conforms": [
+    "broken:worker-watching"
+   ],
+   "reason": "Darwin exec clears the private no-child-wait flag, so skipping the worker repair still confirms both waits; the E04 worker row is the independent failing discriminator in this domain. No baseline failure is invented."
+  },
+  "E04": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "E05": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [],
+   "reason": "Positive row: the frozen contract names a child-status discriminator only for the PTY-VINTR after-handoff row."
+  },
+  "E06": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "E07": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "E08": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:shielding"
+   ]
+  },
+  "F01": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "F02": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "F03": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignored"
+   ]
+  },
+  "F04": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "F05": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "F06": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "F07": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "paired": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "cancellation": {
+   "repaired": [
+    "repaired",
+    "repaired:runner"
+   ],
+   "violates": [
+    "broken:ignore-fault"
+   ]
+  },
+  "S01": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:report"
+   ]
+  },
+  "S02": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "S03": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  },
+  "S04": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": [
+    "broken:report"
+   ]
+  },
+  "S05": {
+   "repaired": [
+    "repaired"
+   ],
+   "violates": []
+  }
+ }
+}

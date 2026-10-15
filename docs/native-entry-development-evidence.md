@@ -510,6 +510,103 @@ No tree-owned instrument review was cut: every broken subject was observed
 failing the claim it names, the seams are `cfg(test)`-only and equivalent to the
 incumbent in non-test builds, and the reserved RC≤5 stays unspent.
 
+## Campaign tooling and row identity (k40)
+
+`native-entry-campaign-tooling-k40` built the measurement instrument that the
+immutable campaign needs, and nothing it does not. It takes no immutable
+measurement and finds no product defect. Before it, the instruments judged whole
+families inside single test functions and carried no manifest identity, so a
+per-row receipt did not exist to freeze.
+
+**Row records.** Every native instrument now files one record per judged
+(row, subject) at the point it judges it, through `native_barrier::row` (test
+builds only; inert unless a private `K40_ROW_DIR` names a directory). A record is
+`<id>@<subject>.json`, created exclusively with mode 0444, so a second record for
+one row and subject panics instead of replacing the first, and an unsafe name is
+refused. It carries the manifest id, the subject, `conforms`, the judging test's
+name and process and a bounded note. Production code and installed builds are
+unchanged.
+
+| Subject | Meaning of `conforms` |
+|---|---|
+| `repaired` (also `repaired:front`, `repaired:runner`) | The product as built holds every claim the row's assertions make. Two names exist only where one row has an end-to-end front record and a runner-level record |
+| `broken:<name>` | The named defect was *not* detected. It is `false` only when the broken subject violated the claim it names; a broken run that fails any other way is recorded `true`, because that is not a detection |
+
+Records are made before the assertion that would panic, so a violated claim is a
+recorded verdict, and the test's own failure follows. Where a test already made
+many assertions about one subject they are run under a recording wrapper rather
+than rewritten; the assertions are unchanged.
+
+**The plan.** [`native-entry-campaign-plan.json`](native-entry-campaign-plan.json)
+says which subjects each manifest row must have and with which verdict. A row is
+resolved by exact id, then by the first matching pattern of its family, then by
+the family default, and the 153 rows expand to 327 expected records. 143 rows
+have at least one failing broken subject. Ten do not, each with its reason:
+E02 `pending=no` (three negative controls: the entry-blocked-pending mutant is not
+discriminating without a pending signal), E03 (two rows: Darwin exec clears the
+private flag, so skipping the worker repair still confirms both waits and the E04
+worker row is the discriminator), E04 raw-executable-entry (an observation of
+whether the flag reaches the entry, with the measured flag state in its note),
+E05 (three positive rows; only PTY-VINTR after handoff has a defined
+discriminator) and F07's real-signal-death control. The plan is a subject of
+every campaign: it is digested before and after like the source.
+
+**The driver.** `scripts/native-campaign.sh` (Taskfile `test:native-campaign`)
+freezes and digests every subject before and after a run, runs the three finite
+Taskfile selections (`native-entry:front`, `native-entry:runner`,
+`native-entry:start`, which `test:native-entry` is now composed of) under a
+separate nextest profile each so their junit files cannot overwrite each other,
+and reconciles item by item. Its subjects are the source tree (`Cargo.*`,
+Taskfile, `.cargo`, `.config`, `scripts`, `crates` without the worker's
+dependency tree), the manifest, the plan, the transition design and the
+completion spec, the two built private executables and every workspace test
+binary; 123 digests in the development run. The measured domain
+(toolchain, nextest, task, kernel, libc crate, parent revision) is written beside
+them. The campaign directory must not exist, the driver is the only writer of
+every file in it except the write-once instrument records, a second receipt
+writer is refused, and a moved, appeared or vanished subject fails the run.
+
+It reconciles in both directions and reports rather than totals: each row's
+expected subjects against the observed ones (missing, unexpected, wrong
+verdict), manifest identities with no record, record identities outside the
+manifest, every failed test, and every record whose judging test did not appear
+as passed in the junit. `r01` reconciles the 310 protected identities against a
+nextest listing one by one, by presence and ignored flag, counting new identities
+apart so they can never stand in for a missing one.
+
+**Controls, each seen to fail.** `task test:native-campaign-controls` runs the
+driver against deliberately wrong inputs and requires the named rejection:
+a missing record, an identity outside the manifest, a broken subject that
+conformed, a record the plan does not expect, a negative control that violated,
+a second writer for one receipt, a failed test, records from a test that never
+ran, a missing protected identity masked by a new one, a changed ignored flag, and
+a changed, vanished and appeared digest. The same run asserts that the real plan
+resolves all 153 real rows. Two unit tests assert that the recorder is
+write-once, read-only and refuses names that could leave its directory.
+
+Two defects in the instrument were found by these controls and corrected before
+any run was credited: a `jq` selector that read the wrong `.` inside a
+`select(...)` and, separately, a second-writer refusal that exited only a pipe's
+subshell inside an `if` and so was lost. Neither reached a measurement.
+
+**Development run.** `task test:native-campaign DIR=...` on aarch64-apple-darwin
+built the fixtures, digested 123 subjects (unchanged after), ran 59 tests
+(35 front, 22 runner, two Started API checks), all passed, and reconciled
+**153 of 153** rows against 327 records, with no unexpected record, no unknown
+identity and no record from a test that did not run. `r01` found all 310
+protected identities with unchanged ignored flags and 74 new identities.
+`task check` passed 338 run/46 skipped. The
+[archived summary](evidence/native-entry-development/k40-development-campaign/)
+holds the reconciliation, the per-row table, the test list, the digests and the
+domain. **This is a development run**: the instruments and recorder changed
+between runs, the baseline subject does not exist, and nothing here is an
+immutable per-case baseline/broken/repaired receipt.
+
+**What this does not establish.** There is still no incumbent subject, so every
+baseline, and every claim that a row fails before the repair, is unmeasured.
+The 143 failing broken subjects are deliberate mutations of the repaired code,
+not the incumbent product. The tooling qualifies neither GNU/Linux nor Rust 1.85.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -545,7 +642,10 @@ variants and S counts 8/7/8/7/2 unchanged.
    digest every read subject before/after. Produce one immutable receipt per
    baseline/broken/repaired case with one writer. Keep actual operations,
    substituted reports, product settlement and fixture cleanup distinct. Rerun
-   affected rows after edits and reconcile identities individually.
+   affected rows after edits and reconcile identities individually. The row
+   recorders, plan, digest driver and its failing controls now exist (k40,
+   above); the incumbent subject with its baseline records and the frozen
+   campaign run remain.
 6. Complete R01 through the existing Taskfile tasks and preserve every previous
    expectation. Publish qualified evidence only when earned. Reconcile the
    approved operation-report API amendment throughout docs. Price and cut the

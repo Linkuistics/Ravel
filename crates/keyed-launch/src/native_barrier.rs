@@ -620,3 +620,88 @@ impl Drop for Controller {
         }
     }
 }
+
+// ---- campaign row records -----------------------------------------------------
+//
+// One write-once record per judged (row, subject). The instrument that judges a
+// row is the only writer of its record; the campaign driver reads them and writes
+// everything else. No installed switch: the variable is read only by test builds.
+
+/// Names the directory a campaign driver collects row records from.
+pub const ROW_DIRECTORY_VARIABLE: &str = "K40_ROW_DIR";
+
+const ROW_NOTE_LIMIT: usize = 4000;
+
+fn row_name_ok(name: &str) -> bool {
+    !name.is_empty()
+        && name.bytes().all(|b| {
+            b.is_ascii_alphanumeric() || matches!(b, b'_' | b'=' | b'-' | b'.' | b':' | b'+')
+        })
+}
+
+fn json_string(text: &str) -> String {
+    let mut out = String::with_capacity(text.len() + 2);
+    out.push('"');
+    for c in text.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+/// Write one read-only record: `<id>@<subject>.json`. A second record for the
+/// same row and subject is refused rather than replaced, so a row judged twice is
+/// a defect the campaign sees. `conforms` is the raw judgement of the subject
+/// against the row's claims; whether that was required is the plan's to say.
+pub fn record_row(
+    directory: &Path,
+    id: &str,
+    subject: &str,
+    conforms: bool,
+    note: &str,
+) -> io::Result<()> {
+    use std::os::unix::fs::OpenOptionsExt as _;
+    if !row_name_ok(id) || !row_name_ok(subject) {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("unsafe row record name {id:?} / {subject:?}"),
+        ));
+    }
+    let mut end = note.len().min(ROW_NOTE_LIMIT);
+    while !note.is_char_boundary(end) {
+        end -= 1;
+    }
+    let thread = std::thread::current();
+    let body = format!(
+        "{{\"schema\":1,\"id\":{},\"subject\":{},\"conforms\":{conforms},\"test\":{},\"pid\":{},\"note\":{}}}\n",
+        json_string(id),
+        json_string(subject),
+        json_string(thread.name().unwrap_or("")),
+        std::process::id(),
+        json_string(&note[..end]),
+    );
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o444)
+        .open(directory.join(format!("{id}@{subject}.json")))?;
+    file.write_all(body.as_bytes())
+}
+
+/// Record one judged row when a campaign names a directory; otherwise inert.
+/// Call it before asserting, so a violated claim is recorded as such.
+pub fn row(id: &str, subject: &str, conforms: bool, note: &str) {
+    if let Some(directory) = std::env::var_os(ROW_DIRECTORY_VARIABLE) {
+        if let Err(error) = record_row(Path::new(&directory), id, subject, conforms, note) {
+            panic!("campaign row record {id}@{subject}: {error}");
+        }
+    }
+}

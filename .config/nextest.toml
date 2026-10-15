@@ -6,3 +6,21 @@
 [[profile.default.overrides]]
 filter = "test(worker_reap_admission) | test(partial_acquisition_cleanup)"
 threads-required = "num-test-threads"
+
+# One junit file per campaign step, so the three native selections never
+# overwrite each other. The campaign driver selects these with NEXTEST_PROFILE.
+# https://nexte.st/docs/machine-readable/junit/
+[profile.campaign-front.junit]
+path = "junit.xml"
+store-success-output = true
+store-failure-output = true
+
+[profile.campaign-runner.junit]
+path = "junit.xml"
+store-success-output = true
+store-failure-output = true
+
+[profile.campaign-start.junit]
+path = "junit.xml"
+store-success-output = true
+store-failure-output = true

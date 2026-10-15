@@ -1,0 +1,10 @@
+{
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew);binary: rustc;commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4;commit-date: 2026-09-28;host: aarch64-apple-darwin;release: 1.99.0;LLVM version: 23.1.2;",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27) (Homebrew)",
+  "nextest": "cargo-nextest 0.9.148",
+  "task": "3.54.0",
+  "uname": "Darwin byrd.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041 arm64",
+  "os": "ProductName:\t\tmacOS;ProductVersion:\t\t27.0.1;BuildVersion:\t\t26A434;",
+  "libc_crate": "0.2.186",
+  "parent_revision": "d2dbd25487535df1d0b87651a68305644e6b68e6"
+}

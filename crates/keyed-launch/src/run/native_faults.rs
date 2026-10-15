@@ -364,12 +364,18 @@ fn paired_row(
     row
 }
 
-fn ensure_conforms(label: &str, row: &Row, checks: &[(&str, bool)]) {
+fn ensure_conforms(id: &str, subject: &str, label: &str, row: &Row, checks: &[(&str, bool)]) {
     let failed: Vec<_> = checks
         .iter()
         .filter(|(_, ok)| !ok)
         .map(|(n, _)| *n)
         .collect();
+    crate::native_barrier::row(
+        id,
+        subject,
+        row.clean && failed.is_empty(),
+        &format!("{label}: failed={failed:?} {row:?}"),
+    );
     assert!(
         row.clean && failed.is_empty(),
         "{label}: controller={} failed={failed:?} {row:?}",
@@ -379,16 +385,36 @@ fn ensure_conforms(label: &str, row: &Row, checks: &[(&str, bool)]) {
 
 #[test]
 fn native_f02_managed_watching_faults_refuse_before_any_child() {
-    // (site, mode, text, no-child-wait left set after the site)
+    // (site, mode, text, no-child-wait left set after the site, row id)
     let rows = [
-        (WATCH_QUERY, REPORT, "cannot query child watching", true),
-        (WATCH_REPAIR, OMIT, "cannot repair child watching", true),
-        (WATCH_REPAIR, PERFORM, "cannot repair child watching", false),
+        (
+            WATCH_QUERY,
+            REPORT,
+            "cannot query child watching",
+            true,
+            "F02__boundary=managed__operation=watch-action-query__mode=report-EIO",
+        ),
+        (
+            WATCH_REPAIR,
+            OMIT,
+            "cannot repair child watching",
+            true,
+            "F02__boundary=managed__operation=default-action-repair__mode=omit-EIO",
+        ),
+        (
+            WATCH_REPAIR,
+            PERFORM,
+            "cannot repair child watching",
+            false,
+            "F02__boundary=managed__operation=default-action-repair__mode=perform-report-EIO",
+        ),
     ];
-    for (site, mode, text, left_set) in rows {
+    for (site, mode, text, left_set, id) in rows {
         let label = format!("F02 managed site={site} mode={mode}");
         let row = fault_row("watching", site, mode, "none", false);
         ensure_conforms(
+            id,
+            "repaired",
             &label,
             &row,
             &[
@@ -408,6 +434,8 @@ fn native_f02_managed_watching_faults_refuse_before_any_child() {
         // The ignored failure admits the child although watching was never
         // established.
         let broken = fault_row("watching", site, mode, "ignore", false);
+        let detected = broken.clean && broken.admitted() && !broken.refused(text);
+        crate::native_barrier::row(id, "broken:ignore-fault", !detected, &format!("{broken:?}"));
         assert!(broken.clean, "{label}: controller {broken:?}");
         assert!(
             broken.admitted() && !broken.refused(text),
@@ -418,20 +446,52 @@ fn native_f02_managed_watching_faults_refuse_before_any_child() {
 
 #[test]
 fn native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned() {
-    // (site, mode, signal named in the report, owners of INT/TERM/HUP after)
+    // (site, mode, signal named in the report, owners of INT/TERM/HUP after, id)
     // The runner installs in the order TERM, HUP, INT.
     let rows = [
-        (HANDLER_QUERY, REPORT, 15, ["default", "default", "default"]),
-        (INT_INSTALL, OMIT, 2, ["default", "runner", "runner"]),
-        (INT_INSTALL, PERFORM, 2, ["runner", "runner", "runner"]),
-        (TERM_INSTALL, OMIT, 15, ["default", "default", "default"]),
-        (TERM_INSTALL, PERFORM, 15, ["default", "runner", "default"]),
+        (
+            HANDLER_QUERY,
+            REPORT,
+            15,
+            ["default", "default", "default"],
+            "F04__owner=runner__operation=action-query__mode=report-EIO",
+        ),
+        (
+            INT_INSTALL,
+            OMIT,
+            2,
+            ["default", "runner", "runner"],
+            "F04__owner=runner__operation=INT-install__mode=omit-EIO",
+        ),
+        (
+            INT_INSTALL,
+            PERFORM,
+            2,
+            ["runner", "runner", "runner"],
+            "F04__owner=runner__operation=INT-install__mode=perform-report-EIO",
+        ),
+        (
+            TERM_INSTALL,
+            OMIT,
+            15,
+            ["default", "default", "default"],
+            "F04__owner=runner__operation=TERM-install__mode=omit-EIO",
+        ),
+        (
+            TERM_INSTALL,
+            PERFORM,
+            15,
+            ["default", "runner", "default"],
+            "F04__owner=runner__operation=TERM-install__mode=perform-report-EIO",
+        ),
     ];
-    for (site, mode, signal, owners) in rows {
+    for (site, mode, signal, owners, id) in rows {
         let label = format!("F04 runner site={site} mode={mode}");
         let text = format!("cannot install runner handler for signal {signal}");
         let row = fault_row("handlers", site, mode, "none", false);
         ensure_conforms(
+            id,
+            "repaired",
             &label,
             &row,
             &[
@@ -446,6 +506,8 @@ fn native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
             ],
         );
         let broken = fault_row("handlers", site, mode, "ignore", false);
+        let detected = broken.clean && broken.admitted() && !broken.refused(&text);
+        crate::native_barrier::row(id, "broken:ignore-fault", !detected, &format!("{broken:?}"));
         assert!(broken.clean, "{label}: controller {broken:?}");
         assert!(
             broken.admitted() && !broken.refused(&text),
@@ -457,17 +519,43 @@ fn native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
 #[test]
 fn native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal() {
     let rows = [
-        (TERM_RESTORE, OMIT),
-        (TERM_RESTORE, PERFORM),
-        (MASK_BUILD, OMIT),
-        (MASK_BUILD, PERFORM),
-        (MASK_RESTORE, OMIT),
-        (MASK_RESTORE, PERFORM),
+        (
+            TERM_RESTORE,
+            OMIT,
+            "F06__operation=TERM-action-restore__mode=omit-EIO",
+        ),
+        (
+            TERM_RESTORE,
+            PERFORM,
+            "F06__operation=TERM-action-restore__mode=perform-report-EIO",
+        ),
+        (
+            MASK_BUILD,
+            OMIT,
+            "F06__operation=mask-set-build__mode=omit-EIO",
+        ),
+        (
+            MASK_BUILD,
+            PERFORM,
+            "F06__operation=mask-set-build__mode=perform-report-EIO",
+        ),
+        (
+            MASK_RESTORE,
+            OMIT,
+            "F06__operation=mask-restore__mode=omit-EIO",
+        ),
+        (
+            MASK_RESTORE,
+            PERFORM,
+            "F06__operation=mask-restore__mode=perform-report-EIO",
+        ),
     ];
-    for (site, mode) in rows {
+    for (site, mode, id) in rows {
         let label = format!("F06 site={site} mode={mode}");
         let row = fault_row("child", site, mode, "none", true);
         ensure_conforms(
+            id,
+            "repaired",
             &label,
             &row,
             &[
@@ -489,6 +577,9 @@ fn native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal()
             ],
         );
         let broken = fault_row("child", site, mode, "ignore", true);
+        let detected =
+            broken.clean && broken.admitted() && broken.line.contains("end=Exited code=Some(7)");
+        crate::native_barrier::row(id, "broken:ignore-fault", !detected, &format!("{broken:?}"));
         assert!(broken.clean, "{label}: controller {broken:?}");
         assert!(
             broken.admitted() && broken.line.contains("end=Exited code=Some(7)"),
@@ -498,6 +589,10 @@ fn native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal()
 }
 
 const HANDBACK_REPORT: &str = "C4 substituted terminal handback report after physical operation";
+const PAIRED_F05: &str =
+    "paired__case=F05-Started-restore-recovery-report__mode=omit-primary-report-secondary";
+const PAIRED_F06: &str =
+    "paired__case=F06-action-C4-recovery-report__mode=omit-primary-report-secondary";
 
 /// Paired failures: the omitted primary operation plus a reported secondary
 /// one. Both must survive in the returned error, beside the real cleanup.
@@ -507,6 +602,8 @@ fn native_paired_started_restore_and_child_action_keep_the_recovery_report() {
     // terminal handback's report failing during real recovery of a live child.
     let started = paired_row("started", 0, 0, "none", true, "handback", false);
     ensure_conforms(
+        PAIRED_F05,
+        "repaired",
         "paired F05 Started restore + recovery report",
         &started,
         &[
@@ -532,6 +629,8 @@ fn native_paired_started_restore_and_child_action_keep_the_recovery_report() {
     // F06: the TERM action restore omitted in the child, with the same report.
     let child = paired_row("child", TERM_RESTORE, OMIT, "none", true, "handback", false);
     ensure_conforms(
+        PAIRED_F06,
+        "repaired",
         "paired F06 action + C4 recovery report",
         &child,
         &[
@@ -551,8 +650,15 @@ fn native_paired_started_restore_and_child_action_keep_the_recovery_report() {
     );
     // Breaking the retained secondary: the same physical handback with its
     // substituted report discarded by the product. The primary stands alone.
-    for (case, site, mode) in [("started", 0, 0), ("child", TERM_RESTORE, OMIT)] {
+    for (case, site, mode, id) in [
+        ("started", 0, 0, PAIRED_F05),
+        ("child", TERM_RESTORE, OMIT, PAIRED_F06),
+    ] {
         let dropped = paired_row(case, site, mode, "none", true, "dropped", false);
+        let detected = dropped.clean
+            && !dropped.line.contains(HANDBACK_REPORT)
+            && dropped.line.contains("error=");
+        crate::native_barrier::row(id, "broken:dropped", !detected, &format!("{dropped:?}"));
         assert!(dropped.clean, "{dropped:?}");
         assert!(
             !dropped.line.contains(HANDBACK_REPORT) && dropped.line.contains("error="),
@@ -566,12 +672,26 @@ fn native_paired_started_restore_and_child_action_keep_the_recovery_report() {
 /// the parent's finalisation, and the failure's own reports are retained.
 #[test]
 fn native_queued_term_stays_pending_through_a_failed_started_or_spawn() {
-    for (label, case, site, mode) in [
-        ("F05 Started restore", "started", 0, 0),
-        ("F06 action restore", "child", TERM_RESTORE, OMIT),
+    for (label, case, site, mode, id) in [
+        (
+            "F05 Started restore",
+            "started",
+            0,
+            0,
+            "cancellation__case=F05-Started-restore__mode=omit-EIO__signal=parent-blocked-pending-TERM",
+        ),
+        (
+            "F06 action restore",
+            "child",
+            TERM_RESTORE,
+            OMIT,
+            "cancellation__case=F06-TERM-action__mode=omit-EIO__signal=parent-blocked-pending-TERM",
+        ),
     ] {
         let row = paired_row(case, site, mode, "none", true, "", true);
         ensure_conforms(
+            id,
+            "repaired:runner",
             label,
             &row,
             &[

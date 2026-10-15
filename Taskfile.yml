@@ -71,8 +71,8 @@ tasks:
     cmds:
       - bash scripts/terminal-recovery-check.sh
 
-  test:native-entry:
-    desc: Build the private main-thread fixture and run native development checks (qualification incomplete)
+  native-entry:build:
+    desc: Build the worker and the private main-thread fixture executable for native checks
     cmds:
       - task: worker
       # The extra cfg applies only to this isolated test binary, not dependencies
@@ -81,17 +81,47 @@ tasks:
       # The runner's fault feature is off by default and never installed; only
       # this isolated target turns it on, for F06's forked-child sites.
       - cargo rustc --locked -p ravel --bin ravel --profile dev --features native-faults --target-dir target/native-entry-fixture -- --cfg test -A unused
+
+  native-entry:front:
+    desc: Run the front's native-entry cases against the built private fixture
+    cmds:
       - task: test:session
         vars:
           # Include the fixture-dependent cases while excluding child-only roles.
           # https://nexte.st/docs/filtersets/
           CLI_ARGS: "--bin ravel -E 'test(native_) & not test(native_entry_role) & not test(native_propagation_role)' --run-ignored all --no-fail-fast"
+
+  native-entry:runner:
+    desc: Run the runner's native-entry cases (library tests)
+    cmds:
       - task: test:runner
         vars:
           CLI_ARGS: "--lib -E 'test(native_)' --no-fail-fast"
+
+  native-entry:start:
+    desc: Run the public Started-check API cases
+    cmds:
       - task: test:runner
         vars:
           CLI_ARGS: "--test start_check"
+
+  test:native-entry:
+    desc: Build the private main-thread fixture and run native development checks (qualification incomplete)
+    cmds:
+      - task: native-entry:build
+      - task: native-entry:front
+      - task: native-entry:runner
+      - task: native-entry:start
+
+  test:native-campaign:
+    desc: Freeze subjects, run the finite native cases and reconcile every row (DIR must not exist)
+    cmds:
+      - bash scripts/native-campaign.sh run --out {{.DIR}}
+
+  test:native-campaign-controls:
+    desc: Prove the campaign driver rejects drifted digests, duplicate writers and unreconciled rows
+    cmds:
+      - bash scripts/native-campaign.sh selftest
 
   test:runner:
     desc: Run focused local-runner checks (optional nextest arguments)

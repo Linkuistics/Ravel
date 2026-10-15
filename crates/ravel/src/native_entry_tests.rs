@@ -436,6 +436,68 @@ fn raw_entry(
     }
     Ok(())
 }
+/// Short manifest label of a handled or tracked signal.
+fn label(signal: i32) -> &'static str {
+    match signal {
+        libc::SIGINT => "INT",
+        libc::SIGTERM => "TERM",
+        libc::SIGHUP => "HUP",
+        libc::SIGPIPE => "PIPE",
+        other => panic!("signal {other} has no manifest label"),
+    }
+}
+/// File one judged (row, subject) under the campaign's directory, if any.
+fn record(id: &str, subject: &str, conforms: bool, note: &str) {
+    crate::native_barrier::row(id, subject, conforms, note);
+}
+/// The manifest's spelling of a fault mode.
+fn mode_label(mode: &str) -> &'static str {
+    match mode {
+        "report" => "report-EIO",
+        "omit" => "omit-EIO",
+        "perform" => "perform-report-EIO",
+        other => panic!("mode {other} has no manifest name"),
+    }
+}
+fn panic_text(payload: &(dyn std::any::Any + Send)) -> String {
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| {
+            payload
+                .downcast_ref::<&str>()
+                .map(|text| (*text).to_owned())
+        })
+        .unwrap_or_default()
+}
+/// Run the claims a row's assertions make of one subject and file the verdict
+/// before any failure propagates: a violated claim is a recorded verdict.
+fn judged<R>(id: &str, subject: &str, claims: impl FnOnce() -> R) -> R {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(claims)) {
+        Ok(value) => {
+            record(id, subject, true, "");
+            value
+        }
+        Err(payload) => {
+            record(id, subject, false, &panic_text(&*payload));
+            std::panic::resume_unwind(payload)
+        }
+    }
+}
+/// The same for a named broken subject: its assertions state the *violation*, so
+/// their holding means the defect was detected and the subject did not conform.
+fn detected<R>(id: &str, subject: &str, violation: impl FnOnce() -> R) -> R {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(violation)) {
+        Ok(value) => {
+            record(id, subject, false, "violation detected");
+            value
+        }
+        Err(payload) => {
+            record(id, subject, true, &panic_text(&*payload));
+            std::panic::resume_unwind(payload)
+        }
+    }
+}
 fn bit(signal: i32) -> u64 {
     1u64 << (signal - 1)
 }
@@ -725,9 +787,21 @@ fn native_e01_entry_state_and_independent_capture_reinstatement_controls() {
             for blocked in [false, true] {
                 let row =
                     json!({"family":"E01","signal":signal,"ignored":ignored,"blocked":blocked});
-                assert!(case(row.clone(), "none"));
-                assert!(!case(row.clone(), "capture"));
-                assert!(!case(row, "reinstatement"));
+                let id = format!(
+                    "E01__signal={}__disposition={}__mask={}",
+                    label(signal),
+                    if ignored { "ignore" } else { "default" },
+                    if blocked { "blocked" } else { "clear" }
+                );
+                let repaired = case(row.clone(), "none");
+                record(&id, "repaired", repaired, "");
+                assert!(repaired);
+                let capture = case(row.clone(), "capture");
+                record(&id, "broken:capture", capture, "");
+                assert!(!capture);
+                let reinstatement = case(row, "reinstatement");
+                record(&id, "broken:reinstatement", reinstatement, "");
+                assert!(!reinstatement);
             }
         }
     }
@@ -738,8 +812,16 @@ fn native_e02_entry_blocked_pending_is_not_cancellation() {
     for signal in [libc::SIGINT, libc::SIGTERM, libc::SIGHUP] {
         for pending in [false, true] {
             let row = json!({"family":"E02","signal":signal,"blocked":true,"pending":pending});
-            assert!(case(row.clone(), "none"));
+            let id = format!(
+                "E02__signal={}__pending={}",
+                label(signal),
+                if pending { "yes" } else { "no" }
+            );
+            let repaired = case(row.clone(), "none");
+            record(&id, "repaired", repaired, "");
+            assert!(repaired);
             let mutant = case(row, "blocked-pending");
+            record(&id, "broken:blocked-pending", mutant, "");
             assert_eq!(
                 mutant, !pending,
                 "the no-pending row is a negative control, not an invented baseline failure"
@@ -752,8 +834,20 @@ fn native_e02_entry_blocked_pending_is_not_cancellation() {
 fn native_e03_both_real_waits_survive_ignored_sigchld_entry() {
     for chld in [0, 1] {
         let row = json!({"family":"E03","chld":chld});
-        assert!(case(row.clone(), "none"));
+        let id = format!(
+            "E03__disposition={}",
+            if chld == 0 { "default" } else { "ignore" }
+        );
+        let repaired = case(row.clone(), "none");
+        record(&id, "repaired", repaired, "");
+        assert!(repaired);
         let mutant = case(row, "worker-watching");
+        record(
+            &id,
+            "broken:worker-watching",
+            mutant,
+            &format!("raw flags {}", LAST_RAW_CHLD_FLAGS.get()),
+        );
         // Darwin can preserve the ignore while clearing no-child-wait across
         // exec. Record that already-waitable baseline honestly. The private
         // E04 worker row supplies the failing repair discriminator in that domain.
@@ -765,18 +859,48 @@ fn native_e03_both_real_waits_survive_ignored_sigchld_entry() {
 #[test]
 #[ignore = "private real-main fixture; run task test:native-entry"]
 fn native_e04_private_flag_boundaries_and_separate_exec_reachability() {
-    assert!(case(json!({"family":"E04-worker"}), "none"));
-    assert!(!case(json!({"family":"E04-worker"}), "worker-watching"));
-    assert!(case(json!({"family":"E04-managed"}), "none"));
-    assert!(case(json!({"family":"E04-raw","chld":2}), "none"));
+    const WORKER: &str = "E04__boundary=worker__state=private-default-SA_NOCLDWAIT";
+    const MANAGED: &str = "E04__boundary=managed__state=private-default-SA_NOCLDWAIT";
+    const RAW: &str = "E04__boundary=raw-executable-entry__state=Darwin-flag-reachability";
+    let repaired = case(json!({"family":"E04-worker"}), "none");
+    record(WORKER, "repaired", repaired, "");
+    assert!(repaired);
+    let mutant = case(json!({"family":"E04-worker"}), "worker-watching");
+    record(WORKER, "broken:worker-watching", mutant, "");
+    assert!(!mutant);
+    // The end-to-end positive; the runner-level role owns the failing mutant.
+    let managed = case(json!({"family":"E04-managed"}), "none");
+    record(MANAGED, "repaired:front", managed, "");
+    assert!(managed);
+    // An observation, never a repair claim: whether the flag reached the entry.
+    let raw = case(json!({"family":"E04-raw","chld":2}), "none");
+    record(
+        RAW,
+        "repaired",
+        raw,
+        &format!(
+            "raw SIGCHLD flags {}; SA_NOCLDWAIT reached the executable entry: {}",
+            LAST_RAW_CHLD_FLAGS.get(),
+            LAST_RAW_CHLD_FLAGS.get() & libc::SA_NOCLDWAIT != 0
+        ),
+    );
+    assert!(raw);
 }
 #[test]
 #[ignore = "private real-main fixture; run task test:native-entry"]
 fn native_f01_initializer_result_failures_admit_no_children() {
     for operation in 1..=3 {
         let row = json!({"family":"F01","operation":operation});
-        assert!(case(row.clone(), "none"));
-        assert!(!case(row, "capture"));
+        let id = format!(
+            "F01__operation={}__mode=report-EIO",
+            ["mask-query", "TERM-action-query", "TERM-membership"][operation - 1]
+        );
+        let repaired = case(row.clone(), "none");
+        record(&id, "repaired", repaired, "");
+        assert!(repaired);
+        let ignored = case(row, "capture");
+        record(&id, "broken:ignore-fault", ignored, "");
+        assert!(!ignored);
     }
 }
 
@@ -1014,13 +1138,38 @@ const BOUNDARIES: [(&str, &str); 5] = [
 fn native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing() {
     for (boundary, mutant) in BOUNDARIES {
         for signal in [libc::SIGINT, libc::SIGTERM, libc::SIGHUP] {
+            let id = format!(
+                "E06__boundary={}__signal={}",
+                match boundary {
+                    "selection-to-runner" => "selection-to-runner",
+                    "started-before-mask-restore" => "Started-before-mask-restore",
+                    "after-reap-before-front" => "reaped-before-front",
+                    "selection-failure-before-finalise" => "refusal-before-finalise",
+                    "no-ending-error-before-finalise" => "ENOENT-before-finalise",
+                    other => panic!("boundary {other} has no manifest name"),
+                },
+                label(signal)
+            );
             let seen = boundary_row(boundary, signal, "none");
             let axes = judge(boundary, signal, &seen);
+            record(&id, "repaired", axes.conforms(), &format!("{axes:?}"));
             assert!(axes.conforms(), "{boundary} signal {signal}: {axes:?}");
 
             // Removing only the corresponding join must fail a named axis.
             let broken = boundary_row(boundary, signal, mutant);
             let axes = judge(boundary, signal, &broken);
+            let detected = axes.controller
+                && if boundary == "selection-to-runner" {
+                    axes.cancelled && !axes.boundary && broken.managed_started
+                } else {
+                    !axes.cancelled
+                };
+            record(
+                &id,
+                &format!("broken:{mutant}"),
+                !detected,
+                &format!("{axes:?}"),
+            );
             assert!(axes.controller, "{boundary} {signal}: controller {axes:?}");
             if boundary == "selection-to-runner" {
                 // The final join still reports the signal, but the runner was
@@ -1118,6 +1267,14 @@ fn native_f02_worker_watching_faults_refuse_before_any_worker() {
         ("default-action-repair", "omit"),
         ("default-action-repair", "perform"),
     ] {
+        let id = format!(
+            "F02__boundary=worker__operation={site}__mode={}",
+            match mode {
+                "report" => "report-EIO",
+                "omit" => "omit-EIO",
+                _ => "perform-report-EIO",
+            }
+        );
         let row = json!({"family":"F02","owner":"worker","site":site,"mode":mode});
         let seen = run_row(row.clone(), "none");
         let axes = refused(
@@ -1128,10 +1285,19 @@ fn native_f02_worker_watching_faults_refuse_before_any_worker() {
             mode,
             false,
         );
-        assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
-        let fault = seen.fault.as_ref().unwrap();
+        let fault = seen.fault.as_ref();
         // The physical state after the site, separately from the report: the
         // omitted repair left no-child-wait set, the performed one cleared it.
+        let state = site != "default-action-repair"
+            || fault.is_some_and(|f| f["after"]["sigchld"]["noChildWait"] == (mode == "omit"));
+        record(
+            &id,
+            "repaired",
+            axes.conforms() && state,
+            &format!("{axes:?} state_ok={state}"),
+        );
+        assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
+        let fault = seen.fault.as_ref().unwrap();
         if site == "default-action-repair" {
             assert_eq!(
                 fault["after"]["sigchld"]["noChildWait"],
@@ -1150,6 +1316,11 @@ fn native_f02_worker_watching_faults_refuse_before_any_worker() {
             mode,
             true,
         );
+        // Detected: the worker was admitted although watching was never
+        // established, and its own later failure is not the watching refusal.
+        let detected =
+            axes.controller && axes.site && !axes.conforms() && !axes.no_worker && !axes.text;
+        record(&id, "broken:ignore-fault", !detected, &format!("{axes:?}"));
         assert!(axes.controller && axes.site, "{site}/{mode}: {axes:?}");
         // The worker was admitted although watching was never established; its
         // own later failure is a different report, not the watching refusal.
@@ -1175,6 +1346,10 @@ fn native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_ow
         ("TERM-install", "perform", ["front", "front", "default"]),
     ];
     for (site, mode, owners) in rows {
+        let id = format!(
+            "F04__owner=selection__operation={site}__mode={}",
+            mode_label(mode)
+        );
         let row = json!({"family":"F04","owner":"selection","site":site,"mode":mode,
             "boundary":"before-finalise"});
         let seen = run_row(row.clone(), "none");
@@ -1186,19 +1361,21 @@ fn native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_ow
             mode,
             false,
         );
-        assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
-        // The subset the front owns when it reaches finalisation, and that the
-        // handled signals are still blocked: nothing was released early.
-        let facts = seen.ready.as_ref().expect("finalisation facts");
-        let found =
-            ["INT", "TERM", "HUP"].map(|name| facts["owners"][name].as_str().unwrap().to_owned());
-        assert_eq!(found, owners, "{site}/{mode}: partial installed subset");
-        let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
-        assert_eq!(
-            facts["blocked"].as_u64().unwrap() & handled,
-            handled,
-            "{site}/{mode}: handled signals unblocked before finalisation"
-        );
+        judged(&id, "repaired", || {
+            assert!(axes.conforms(), "{site}/{mode}: {axes:?}");
+            // The subset the front owns when it reaches finalisation, and that
+            // the handled signals are still blocked: nothing released early.
+            let facts = seen.ready.as_ref().expect("finalisation facts");
+            let found = ["INT", "TERM", "HUP"]
+                .map(|name| facts["owners"][name].as_str().unwrap().to_owned());
+            assert_eq!(found, owners, "{site}/{mode}: partial installed subset");
+            let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+            assert_eq!(
+                facts["blocked"].as_u64().unwrap() & handled,
+                handled,
+                "{site}/{mode}: handled signals unblocked before finalisation"
+            );
+        });
 
         let broken = run_row(row, "ignore-fault");
         let axes = refused(
@@ -1211,10 +1388,12 @@ fn native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_ow
         );
         assert!(axes.controller && axes.site, "{site}/{mode}: {axes:?}");
         // Admission proceeded: the worker ran and the failure left no refusal.
-        assert!(
-            !axes.conforms() && !axes.no_worker && !axes.code,
-            "{site}/{mode}: ignoring the failure still failed admission: {axes:?}"
-        );
+        detected(&id, "broken:ignore-fault", || {
+            assert!(
+                !axes.conforms() && !axes.no_worker && !axes.code,
+                "{site}/{mode}: ignoring the failure still failed admission: {axes:?}"
+            );
+        });
     }
 }
 
@@ -1286,6 +1465,10 @@ fn finalised(
 fn native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result() {
     for (owner, result) in [("selection", "policy-refusal"), ("runner", "success")] {
         for mode in ["omit", "perform"] {
+            let id = format!(
+                "F04__owner={owner}__operation=INT-final-restore__mode={}",
+                mode_label(mode)
+            );
             let row = json!({"family":"F04","owner":owner,"site":"INT-final-restore",
                 "mode":mode,"result":result,"boundary":"before-finalise"});
             let seen = run_row(row.clone(), "none");
@@ -1304,20 +1487,22 @@ fn native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result(
                 false,
                 child_ran,
             );
-            assert!(axes.conforms(), "{owner}/{mode}: {axes:?}");
-            // Who owns INT afterwards is the operation's, not the report's:
-            // omitted left the installed owner, performed restored the entry
-            // action. Either way the failed release keeps the mask blocked.
-            let after = &seen.fault.as_ref().unwrap()["after"];
-            let installed = if owner == "selection" {
-                "front"
-            } else {
-                "other"
-            };
-            let expected = if mode == "omit" { installed } else { "default" };
-            assert_eq!(after["INT"], expected, "{owner}/{mode}: actual INT owner");
-            let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
-            assert_eq!(after["blocked"].as_u64().unwrap() & handled, handled);
+            judged(&id, "repaired", || {
+                assert!(axes.conforms(), "{owner}/{mode}: {axes:?}");
+                // Who owns INT afterwards is the operation's, not the report's:
+                // omitted left the installed owner, performed restored the entry
+                // action. Either way the failed release keeps the mask blocked.
+                let after = &seen.fault.as_ref().unwrap()["after"];
+                let installed = if owner == "selection" {
+                    "front"
+                } else {
+                    "other"
+                };
+                let expected = if mode == "omit" { installed } else { "default" };
+                assert_eq!(after["INT"], expected, "{owner}/{mode}: actual INT owner");
+                let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
+                assert_eq!(after["blocked"].as_u64().unwrap() & handled, handled);
+            });
 
             let broken = run_row(row, "ignore-fault");
             let axes = finalised(
@@ -1330,10 +1515,12 @@ fn native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result(
                 child_ran,
             );
             assert!(axes.controller && axes.site, "{owner}/{mode}: {axes:?}");
-            assert!(
-                !axes.conforms() && !axes.secondary,
-                "{owner}/{mode}: ignoring the failed release still reported it: {axes:?}"
-            );
+            detected(&id, "broken:ignore-fault", || {
+                assert!(
+                    !axes.conforms() && !axes.secondary,
+                    "{owner}/{mode}: ignoring the failed release still reported it: {axes:?}"
+                );
+            });
         }
     }
 }
@@ -1373,50 +1560,59 @@ fn native_f05_finalisation_failures_keep_the_original_and_never_write_a_result()
     for (outcome, original, child_ran) in F05_OUTCOMES {
         for (site, mode, secondary) in F05_OPERATIONS {
             let label = format!("{outcome}/{site}/{mode}");
+            let id = format!(
+                "F05__outcome={outcome}__operation={site}__mode={}",
+                mode_label(mode)
+            );
             let queued = matches!(site, "pending-query" | "TERM-membership");
             let seen = f05_row(outcome, site, mode, "none");
             let axes = finalised(&seen, original, secondary, site, mode, false, child_ran);
-            if queued {
-                // The signal was an actual pending TERM at the failed query;
-                // its only legitimate reports are a failure or the signal's own
-                // death. A success carrying a result is the defect.
-                let facts = seen.ack.as_ref().expect("acknowledged facts");
-                assert!(
-                    facts["pending"].as_u64().unwrap() & bit(libc::SIGTERM) != 0,
-                    "{label}: TERM was not actually pending at the query: {facts}"
-                );
-                // Unknown pending state keeps the handled signals blocked until
-                // the diagnostics are written. The incumbent restored the mask,
-                // so the queued TERM killed the launcher under its default
-                // action before the original or any secondary report existed.
-                assert!(axes.conforms(), "{label}: {axes:?}");
-                assert_eq!(seen.died_by, None, "{label}: killed before reporting");
-            } else {
-                assert!(axes.conforms(), "{label}: {axes:?}");
-            }
-            // The physical state is the operation's own, never the report's.
-            let after = &seen.fault.as_ref().unwrap()["after"];
-            let blocked = after["blocked"].as_u64().unwrap() & handled;
-            match (site, mode) {
-                ("finalisation-block", "omit") => assert_eq!(blocked, 0, "{label}"),
-                ("finalisation-block", "perform") => assert_eq!(blocked, handled, "{label}"),
-                ("final-mask-restore", "omit") => assert_eq!(blocked, handled, "{label}"),
-                ("final-mask-restore", "perform") => assert_eq!(blocked, 0, "{label}"),
-                _ => {}
-            }
+            judged(&id, "repaired", || {
+                if queued {
+                    // The signal was an actual pending TERM at the failed query;
+                    // its only legitimate reports are a failure or the signal's
+                    // own death. A success carrying a result is the defect.
+                    let facts = seen.ack.as_ref().expect("acknowledged facts");
+                    assert!(
+                        facts["pending"].as_u64().unwrap() & bit(libc::SIGTERM) != 0,
+                        "{label}: TERM was not actually pending at the query: {facts}"
+                    );
+                    // Unknown pending state keeps the handled signals blocked
+                    // until the diagnostics are written. The incumbent restored
+                    // the mask, so the queued TERM killed the launcher under its
+                    // default action before the original or any secondary report
+                    // existed.
+                    assert!(axes.conforms(), "{label}: {axes:?}");
+                    assert_eq!(seen.died_by, None, "{label}: killed before reporting");
+                } else {
+                    assert!(axes.conforms(), "{label}: {axes:?}");
+                }
+                // The physical state is the operation's own, never the report's.
+                let after = &seen.fault.as_ref().unwrap()["after"];
+                let blocked = after["blocked"].as_u64().unwrap() & handled;
+                match (site, mode) {
+                    ("finalisation-block", "omit") => assert_eq!(blocked, 0, "{label}"),
+                    ("finalisation-block", "perform") => assert_eq!(blocked, handled, "{label}"),
+                    ("final-mask-restore", "omit") => assert_eq!(blocked, handled, "{label}"),
+                    ("final-mask-restore", "perform") => assert_eq!(blocked, 0, "{label}"),
+                    _ => {}
+                }
+            });
 
             let broken = f05_row(outcome, site, mode, "ignore-fault");
             let axes = finalised(&broken, original, secondary, site, mode, true, child_ran);
             assert!(axes.controller && axes.site, "{label}: broken {axes:?}");
-            assert!(
-                !axes.conforms() && !axes.secondary,
-                "{label}: ignoring the failure still reported it: {axes:?}"
-            );
-            if queued {
-                // The ignored query lets the mask restore deliver the actual
-                // TERM: death by the signal with no report at all.
-                assert_eq!(broken.died_by, Some(libc::SIGTERM), "{label}");
-            }
+            detected(&id, "broken:ignore-fault", || {
+                assert!(
+                    !axes.conforms() && !axes.secondary,
+                    "{label}: ignoring the failure still reported it: {axes:?}"
+                );
+                if queued {
+                    // The ignored query lets the mask restore deliver the actual
+                    // TERM: death by the signal with no report at all.
+                    assert_eq!(broken.died_by, Some(libc::SIGTERM), "{label}");
+                }
+            });
         }
     }
 }
@@ -1427,28 +1623,32 @@ fn native_f05_finalisation_failures_keep_the_original_and_never_write_a_result()
 #[test]
 #[ignore = "private real-main fixture; run task test:native-entry"]
 fn native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure() {
+    const ID: &str =
+        "paired__case=F05-refusal-final-restore-original__mode=omit-primary-report-secondary";
     let seen = f05_row("policy-refusal", "final-mask-restore", "omit", "none");
-    let outcome = seen.outcome.as_ref().expect("a failure outcome");
-    assert!(seen.settlement.clean() && seen.result_empty, "{seen:?}");
-    assert_eq!(outcome["error"]["code"], "policy_refused", "{outcome}");
-    assert_eq!(outcome["error"]["exit"], 3, "{outcome}");
-    assert!(
-        seen.settlement.status.is_some_and(|s| s.code() == Some(3)),
-        "{seen:?}"
-    );
-    assert!(
-        seen.diagnostics
-            .contains("final mask release: Input/output error"),
-        "secondary failure lost: {}",
-        seen.diagnostics
-    );
-    assert!(fault_site_matches(
-        &seen,
-        "final-mask-restore",
-        "omit",
-        false
-    ));
-    assert!(!seen.managed_started);
+    judged(ID, "repaired", || {
+        let outcome = seen.outcome.as_ref().expect("a failure outcome");
+        assert!(seen.settlement.clean() && seen.result_empty, "{seen:?}");
+        assert_eq!(outcome["error"]["code"], "policy_refused", "{outcome}");
+        assert_eq!(outcome["error"]["exit"], 3, "{outcome}");
+        assert!(
+            seen.settlement.status.is_some_and(|s| s.code() == Some(3)),
+            "{seen:?}"
+        );
+        assert!(
+            seen.diagnostics
+                .contains("final mask release: Input/output error"),
+            "secondary failure lost: {}",
+            seen.diagnostics
+        );
+        assert!(fault_site_matches(
+            &seen,
+            "final-mask-restore",
+            "omit",
+            false
+        ));
+        assert!(!seen.managed_started);
+    });
 
     // The ignored restore failure leaves the refusal alone, with no trace of
     // the secondary: the pair assertion above cannot hold.
@@ -1459,10 +1659,12 @@ fn native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure() {
         "ignore-fault",
     );
     assert!(broken.settlement.clean(), "{broken:?}");
-    assert!(
-        !broken.diagnostics.contains("final mask release"),
-        "{broken:?}"
-    );
+    detected(ID, "broken:ignore-fault", || {
+        assert!(
+            !broken.diagnostics.contains("final mask release"),
+            "{broken:?}"
+        );
+    });
 }
 
 /// F05's Started parent-mask restore: a live real child, its group and a PTY
@@ -1474,59 +1676,67 @@ fn native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure() {
 fn native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal() {
     let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
     for mode in ["omit", "perform"] {
+        let id = format!(
+            "F05__outcome=selection-success__operation=Started-parent-restore__mode={}",
+            mode_label(mode)
+        );
         let row = json!({"family":"F05","outcome":"selection-success","site":"Started-parent-restore",
             "mode":mode,"pty":true,"boundary":"before-finalise"});
         let seen = run_row(row.clone(), "none");
-        let facts = seen.ready.as_ref().expect("finalisation facts");
-        let at = |key: &str| facts[key].as_i64().unwrap();
-        let outcome = seen.outcome.as_ref().expect("a failure outcome");
-        assert!(
-            seen.settlement.clean() && seen.delivered.is_ok(),
-            "{mode}: {seen:?}"
-        );
-        assert!(
-            seen.settlement.status.is_some_and(|s| !s.success()),
-            "{mode}"
-        );
-        assert!(seen.result_empty, "{mode}: bytes were written");
-        assert_eq!(
-            outcome["error"]["code"], "supervision_failed",
-            "{mode}: {outcome}"
-        );
-        // The live child was started once and the runner confirmed its actual
-        // reap during its own error cleanup; no ending was ever produced.
-        assert!(seen.managed_started, "{mode}");
-        assert!(seen.worker_confirmed, "{mode}");
-        assert!(
-            facts["managedReaped"] == true,
-            "{mode}: no confirmed reap: {facts}"
-        );
-        assert!(seen.managed_end.is_none(), "{mode}");
-        // The terminal is the launcher's again, and nothing is left unreaped.
-        assert_eq!(
-            at("foreground"),
-            at("pgrp"),
-            "{mode}: terminal not returned"
-        );
-        assert_eq!(at("strayChild"), 0, "{mode}: a child remains");
-        assert!(
-            fault_site_matches(&seen, "Started-parent-restore", mode, false),
-            "{mode}"
-        );
-        // The restore's own physical state, not its report.
-        let blocked = seen.fault.as_ref().unwrap()["after"]["blocked"]
-            .as_u64()
-            .unwrap()
-            & handled;
-        assert_eq!(blocked, if mode == "omit" { handled } else { 0 }, "{mode}");
+        judged(&id, "repaired", || {
+            let facts = seen.ready.as_ref().expect("finalisation facts");
+            let at = |key: &str| facts[key].as_i64().unwrap();
+            let outcome = seen.outcome.as_ref().expect("a failure outcome");
+            assert!(
+                seen.settlement.clean() && seen.delivered.is_ok(),
+                "{mode}: {seen:?}"
+            );
+            assert!(
+                seen.settlement.status.is_some_and(|s| !s.success()),
+                "{mode}"
+            );
+            assert!(seen.result_empty, "{mode}: bytes were written");
+            assert_eq!(
+                outcome["error"]["code"], "supervision_failed",
+                "{mode}: {outcome}"
+            );
+            // The live child was started once and the runner confirmed its actual
+            // reap during its own error cleanup; no ending was ever produced.
+            assert!(seen.managed_started, "{mode}");
+            assert!(seen.worker_confirmed, "{mode}");
+            assert!(
+                facts["managedReaped"] == true,
+                "{mode}: no confirmed reap: {facts}"
+            );
+            assert!(seen.managed_end.is_none(), "{mode}");
+            // The terminal is the launcher's again, and nothing is left unreaped.
+            assert_eq!(
+                at("foreground"),
+                at("pgrp"),
+                "{mode}: terminal not returned"
+            );
+            assert_eq!(at("strayChild"), 0, "{mode}: a child remains");
+            assert!(
+                fault_site_matches(&seen, "Started-parent-restore", mode, false),
+                "{mode}"
+            );
+            // The restore's own physical state, not its report.
+            let blocked = seen.fault.as_ref().unwrap()["after"]["blocked"]
+                .as_u64()
+                .unwrap()
+                & handled;
+            assert_eq!(blocked, if mode == "omit" { handled } else { 0 }, "{mode}");
+        });
 
         // Ignoring the failed restore leaves a launch that simply completes.
         let broken = run_row(row, "ignore-fault");
         assert!(broken.settlement.clean(), "{mode}: {broken:?}");
-        assert!(
-            !broken.result_empty && broken.settlement.status.is_some_and(|s| s.success()),
-            "{mode}: ignoring the failure still failed the launch: {broken:?}"
-        );
+        detected(&id, "broken:ignore-fault", || {
+            assert!(
+                !broken.result_empty && broken.settlement.status.is_some_and(|s| s.success()),
+                "{mode}: ignoring the failure still failed the launch: {broken:?}"
+            );
+        });
     }
 }
 
@@ -1540,63 +1750,69 @@ fn native_f05_started_restore_failure_with_queued_term_joins_at_finalisation() {
     let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
     let row = json!({"family":"F05","outcome":"selection-success","site":"Started-parent-restore",
         "mode":"omit","pty":true,"boundary":"started-before-mask-restore"});
+    const ID: &str =
+        "cancellation__case=F05-Started-restore__mode=omit-EIO__signal=parent-blocked-pending-TERM";
     let seen = drive_row(row.clone(), libc::SIGTERM, "none");
-    assert!(
-        seen.settlement.clean() && seen.delivered.is_ok(),
-        "{seen:?}"
-    );
-    // The controller's TERM was an actual pending signal under the block: the
-    // handler never ran, so nothing consumed it before finalisation.
-    let ready = seen.ready.as_ref().expect("ready facts");
-    let ack = seen.ack.as_ref().expect("acknowledged facts");
-    assert_eq!(
-        ready["blocked"].as_u64().unwrap() & handled,
-        handled,
-        "{ready}"
-    );
-    assert_ne!(
-        ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
-        0,
-        "{ack}"
-    );
-    assert!(
-        ack["frontLatch"].is_null() && ack["managedStarted"] == true,
-        "{ack}"
-    );
-    // Joined at finalisation: death by the selected signal, no bytes, the
-    // original failure still reported, and the live child cleaned up first.
-    assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
-    assert!(seen.result_empty);
-    assert!(
-        seen.outcome
-            .as_ref()
-            .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
-        "{seen:?}"
-    );
-    assert!(
-        seen.diagnostics
-            .contains("Started parent transition failed"),
-        "original failure lost under cancellation: {}",
-        seen.diagnostics
-    );
-    assert!(seen.managed_started && seen.managed_end.is_none());
-    assert!(fault_site_matches(
-        &seen,
-        "Started-parent-restore",
-        "omit",
-        false
-    ));
+    judged(ID, "repaired", || {
+        assert!(
+            seen.settlement.clean() && seen.delivered.is_ok(),
+            "{seen:?}"
+        );
+        // The controller's TERM was an actual pending signal under the block: the
+        // handler never ran, so nothing consumed it before finalisation.
+        let ready = seen.ready.as_ref().expect("ready facts");
+        let ack = seen.ack.as_ref().expect("acknowledged facts");
+        assert_eq!(
+            ready["blocked"].as_u64().unwrap() & handled,
+            handled,
+            "{ready}"
+        );
+        assert_ne!(
+            ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
+            0,
+            "{ack}"
+        );
+        assert!(
+            ack["frontLatch"].is_null() && ack["managedStarted"] == true,
+            "{ack}"
+        );
+        // Joined at finalisation: death by the selected signal, no bytes, the
+        // original failure still reported, and the live child cleaned up first.
+        assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
+        assert!(seen.result_empty);
+        assert!(
+            seen.outcome
+                .as_ref()
+                .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
+            "{seen:?}"
+        );
+        assert!(
+            seen.diagnostics
+                .contains("Started parent transition failed"),
+            "original failure lost under cancellation: {}",
+            seen.diagnostics
+        );
+        assert!(seen.managed_started && seen.managed_end.is_none());
+        assert!(fault_site_matches(
+            &seen,
+            "Started-parent-restore",
+            "omit",
+            false
+        ));
+    });
 
     // Ignoring the failed restore lets the child run to its end, and the
     // original failure never exists to be retained.
     let broken = drive_row(row, libc::SIGTERM, "ignore-fault");
     assert!(broken.settlement.clean(), "{broken:?}");
-    assert!(
-        !broken
-            .diagnostics
-            .contains("Started parent transition failed"),
-        "{broken:?}"
-    );
+    detected(ID, "broken:ignore-fault", || {
+        assert!(
+            !broken
+                .diagnostics
+                .contains("Started parent transition failed"),
+            "{broken:?}"
+        );
+    });
 }
 
 /// The queued-TERM variant of F06's action failure: TERM delivered while the
@@ -1609,58 +1825,64 @@ fn native_f06_action_failure_with_queued_term_joins_at_finalisation() {
     let handled = bit(libc::SIGINT) | bit(libc::SIGTERM) | bit(libc::SIGHUP);
     let row = json!({"family":"F06","site":"TERM-action-restore","mode":"omit",
         "boundary":"handoff-block-held"});
+    const ID: &str =
+        "cancellation__case=F06-TERM-action__mode=omit-EIO__signal=parent-blocked-pending-TERM";
     let seen = drive_row(row.clone(), libc::SIGTERM, "none");
-    assert!(
-        seen.settlement.clean() && seen.delivered.is_ok(),
-        "{seen:?}"
-    );
-    let ready = seen.ready.as_ref().expect("ready facts");
-    let ack = seen.ack.as_ref().expect("acknowledged facts");
-    assert_eq!(
-        ready["blocked"].as_u64().unwrap() & handled,
-        handled,
-        "{ready}"
-    );
-    assert_ne!(
-        ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
-        0,
-        "{ack}"
-    );
-    assert!(ack["frontLatch"].is_null(), "{ack}");
-    // The failed spawn consumed nothing; finalisation joins the pending TERM.
-    assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
-    assert!(seen.result_empty);
-    assert!(
-        seen.outcome
-            .as_ref()
-            .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
-        "{seen:?}"
-    );
-    assert!(
-        seen.diagnostics.contains("cannot spawn")
-            && seen.diagnostics.contains("Input/output error"),
-        "original spawn failure lost under cancellation: {}",
-        seen.diagnostics
-    );
-    assert!(!seen.managed_started && seen.managed_end.is_none());
-    assert!(seen.worker_confirmed, "worker teardown was not confirmed");
-    // The child's own record, written before exit: operation omitted.
-    let record = seen.child_record.clone().unwrap_or_default();
-    assert_eq!(
-        record.len(),
-        2,
-        "the child never reached the site: {record:?}"
-    );
-    assert_eq!(record[1] & 1, 0, "the omitted restore was performed");
+    judged(ID, "repaired", || {
+        assert!(
+            seen.settlement.clean() && seen.delivered.is_ok(),
+            "{seen:?}"
+        );
+        let ready = seen.ready.as_ref().expect("ready facts");
+        let ack = seen.ack.as_ref().expect("acknowledged facts");
+        assert_eq!(
+            ready["blocked"].as_u64().unwrap() & handled,
+            handled,
+            "{ready}"
+        );
+        assert_ne!(
+            ack["pending"].as_u64().unwrap() & bit(libc::SIGTERM),
+            0,
+            "{ack}"
+        );
+        assert!(ack["frontLatch"].is_null(), "{ack}");
+        // The failed spawn consumed nothing; finalisation joins the pending TERM.
+        assert_eq!(seen.died_by, Some(libc::SIGTERM), "{seen:?}");
+        assert!(seen.result_empty);
+        assert!(
+            seen.outcome
+                .as_ref()
+                .is_some_and(|v| v["error"]["signal"] == "SIGTERM"),
+            "{seen:?}"
+        );
+        assert!(
+            seen.diagnostics.contains("cannot spawn")
+                && seen.diagnostics.contains("Input/output error"),
+            "original spawn failure lost under cancellation: {}",
+            seen.diagnostics
+        );
+        assert!(!seen.managed_started && seen.managed_end.is_none());
+        assert!(seen.worker_confirmed, "worker teardown was not confirmed");
+        // The child's own record, written before exit: operation omitted.
+        let record = seen.child_record.clone().unwrap_or_default();
+        assert_eq!(
+            record.len(),
+            2,
+            "the child never reached the site: {record:?}"
+        );
+        assert_eq!(record[1] & 1, 0, "the omitted restore was performed");
+    });
 
     // Ignoring the action failure runs the child, and the original spawn
     // failure never exists to be retained under the cancellation.
     let broken = drive_row(row, libc::SIGTERM, "ignore-fault");
     assert!(broken.settlement.clean(), "{broken:?}");
-    assert!(
-        !broken.diagnostics.contains("cannot spawn"),
-        "ignoring the failure still failed the spawn: {broken:?}"
-    );
+    detected(ID, "broken:ignore-fault", || {
+        assert!(
+            !broken.diagnostics.contains("cannot spawn"),
+            "ignoring the failure still failed the spawn: {broken:?}"
+        );
+    });
 }
 
 // ---- E08: readers, creator masks and an escaped pipe-holder -----------------
@@ -1784,14 +2006,26 @@ fn judge_readers(readers: &str, result: &str, seen: &Boundary) -> ReaderAxes {
 fn native_e08_reader_shield_collection_bound_and_escaped_holder_ownership() {
     for readers in ["both-complete", "one-escaped-holder"] {
         for result in ["selection-success", "policy-refusal"] {
+            let id = format!(
+                "E08__readers={}__result={result}",
+                match readers {
+                    "one-escaped-holder" => "one-escaped-holder",
+                    other => other,
+                }
+            );
             let seen = reader_row(readers, result, "none");
             let axes = judge_readers(readers, result, &seen);
+            record(&id, "repaired", axes.conforms(), &format!("{axes:?}"));
             assert!(axes.conforms(), "{readers}/{result}: {axes:?}");
 
             // Breaking only the shield must fail the eligibility receipt and
             // nothing the controller owns.
             let broken = reader_row(readers, result, "shielding");
             let axes = judge_readers(readers, result, &broken);
+            // Detected: only the eligibility receipt fails; everything the
+            // controller owns, the cancellation and the result stay intact.
+            let caught = axes.controller && axes.cancelled && axes.zero_result && !axes.shielded;
+            record(&id, "broken:shielding", !caught, &format!("{axes:?}"));
             assert!(axes.controller, "{readers}/{result}: {axes:?}");
             assert!(
                 axes.cancelled && axes.zero_result,
