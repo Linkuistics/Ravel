@@ -131,6 +131,9 @@ impl<'a> From<Launch<'a>> for Job<'a> {
 /// completion.
 #[derive(Debug)]
 pub struct Ended {
+    /// Individual nonfatal stop reports retained after actual reap, successful
+    /// terminal recovery and confirmed group absence. EPERM alone is not absence.
+    pub operation_reports: Vec<String>,
     pub end: End,
     pub status: ExitStatus,
     pub elapsed: Duration,
@@ -201,7 +204,7 @@ enum Watch {
     Signalled(Instant),
     Terminated(Instant),
     /// SIGKILL has been sent; only the exit is awaited.
-    Killed,
+    Killed(Instant),
 }
 
 /// The signal [`on_terminate`] last received, or `0`, read by [`run`]'s poll
@@ -289,7 +292,7 @@ pub fn reraise(signal: i32) -> ! {
 /// that is async-signal-safe. Signalling and reaping the child happen one poll
 /// tick later, on [`run`]'s ordinary stack.
 extern "C" fn on_terminate(signal: libc::c_int) {
-    INTERRUPTED_BY.store(signal, Ordering::Relaxed);
+    let _ = INTERRUPTED_BY.compare_exchange(0, signal, Ordering::Relaxed, Ordering::Relaxed);
 }
 
 /// Catch the signals that cancel this launch, so a launcher can forward
@@ -314,7 +317,7 @@ extern "C" fn on_terminate(signal: libc::c_int) {
 /// Installed by [`run`] rather than exported, because [`End::Interrupted`] is a
 /// promise this crate makes and a caller cannot be relied on to have enabled
 /// it.
-fn install_termination_handler(catch_interrupt: bool) {
+fn install_termination_handler(catch_interrupt: bool) -> Result<(), LaunchError> {
     // Through the function *pointer* rather than casting the function item
     // straight to an integer, which rustc warns about: a function item is
     // zero-sized and the cast reads as a value conversion rather than the
@@ -326,23 +329,25 @@ fn install_termination_handler(catch_interrupt: bool) {
         &[libc::SIGTERM, libc::SIGHUP]
     };
     for &signal in cancelling {
-        if disposition(signal) != libc::SIG_IGN {
-            // SAFETY: `signal(2)` with a handler that performs one relaxed
-            // atomic store.
-            unsafe { libc::signal(signal, handler as libc::sighandler_t) };
+        let mut current = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        let checked = (|| -> std::io::Result<()> {
+            os_result(unsafe { libc::sigaction(signal, std::ptr::null(), &mut current) })?;
+            if current.sa_sigaction != libc::SIG_IGN {
+                let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+                action.sa_sigaction = handler as libc::sighandler_t;
+                action.sa_flags = libc::SA_RESTART;
+                os_result(unsafe { libc::sigemptyset(&mut action.sa_mask) })?;
+                os_result(unsafe { libc::sigaction(signal, &action, std::ptr::null_mut()) })?;
+            }
+            Ok(())
+        })();
+        if let Err(error) = checked {
+            return Err(LaunchError::new(format!(
+                "cannot install runner handler for signal {signal}: {error}"
+            )));
         }
     }
-}
-
-/// The current disposition of `signal`, read without changing it.
-fn disposition(signal: libc::c_int) -> libc::sighandler_t {
-    // SAFETY: `sigaction(2)` with a null new action only reads the current one
-    // into an initialised struct.
-    unsafe {
-        let mut current: libc::sigaction = std::mem::zeroed();
-        libc::sigaction(signal, std::ptr::null(), &mut current);
-        current.sa_sigaction
-    }
+    Ok(())
 }
 
 /// Whether this process inherited SIGCHLD ignored: `0` not yet read, `1` yes,
@@ -362,26 +367,38 @@ static SIGCHLD_IGNORED_AT_ENTRY: AtomicU8 = AtomicU8::new(0);
 /// Answers whether the entry disposition was the ignore, so the spawn can hand
 /// the child the disposition it would have inherited. The repair is the
 /// launcher's, not the child's.
-pub(crate) fn restore_child_watching() -> bool {
+pub(crate) fn restore_child_watching() -> Result<bool, LaunchError> {
+    let mut current = unsafe { std::mem::zeroed::<libc::sigaction>() };
+    os_result(unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut current) })
+        .map_err(|error| LaunchError::new(format!("cannot query child watching: {error}")))?;
     let ignored = match SIGCHLD_IGNORED_AT_ENTRY.load(Ordering::Relaxed) {
         0 => {
-            let ignored = disposition(libc::SIGCHLD) == libc::SIG_IGN;
+            let ignored = current.sa_sigaction == libc::SIG_IGN;
             SIGCHLD_IGNORED_AT_ENTRY.store(if ignored { 1 } else { 2 }, Ordering::Relaxed);
             ignored
         }
         latched => latched == 1,
     };
-    if ignored {
+    if current.sa_sigaction == libc::SIG_IGN || current.sa_flags & libc::SA_NOCLDWAIT != 0 {
         // SAFETY: `sigaction(2)` installing the default disposition with an
         // empty mask and no flags, which clears SA_NOCLDWAIT with it.
         unsafe {
             let mut default: libc::sigaction = std::mem::zeroed();
             default.sa_sigaction = libc::SIG_DFL;
-            libc::sigemptyset(&mut default.sa_mask);
-            libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut());
+            os_result(libc::sigemptyset(&mut default.sa_mask))
+                .and_then(|()| {
+                    os_result(libc::sigaction(
+                        libc::SIGCHLD,
+                        &default,
+                        std::ptr::null_mut(),
+                    ))
+                })
+                .map_err(|error| {
+                    LaunchError::new(format!("cannot repair child watching: {error}"))
+                })?;
         }
     }
-    ignored
+    Ok(ignored)
 }
 
 /// The signals the child is handed back at their **default** disposition.
@@ -466,11 +483,14 @@ impl EntrySignals {
         // handler is SIG_IGN or SIG_DFL.
         unsafe {
             let mut mask: libc::sigset_t = std::mem::zeroed();
-            libc::sigemptyset(&mut mask);
-            for signal in SIGNAL_NUMBERS {
+            os_result(libc::sigemptyset(&mut mask))?;
+            for signal in SIGNAL_NUMBERS.filter(|&signal| {
+                (!cfg!(target_vendor = "apple") || signal <= 31)
+                    && (!cfg!(target_env = "gnu") || (signal != 32 && signal != 33))
+            }) {
                 let bit = 1_u64 << (signal - 1);
                 if self.blocked & bit != 0 {
-                    libc::sigaddset(&mut mask, signal);
+                    os_result(libc::sigaddset(&mut mask, signal))?;
                 }
                 if signal == libc::SIGKILL || signal == libc::SIGSTOP {
                     continue;
@@ -481,8 +501,8 @@ impl EntrySignals {
                 } else {
                     libc::SIG_DFL
                 };
-                libc::sigemptyset(&mut action.sa_mask);
-                libc::sigaction(signal, &action, std::ptr::null_mut());
+                os_result(libc::sigemptyset(&mut action.sa_mask))?;
+                os_result(libc::sigaction(signal, &action, std::ptr::null_mut()))?;
             }
             match libc::pthread_sigmask(libc::SIG_SETMASK, &mask, std::ptr::null_mut()) {
                 0 => Ok(()),
@@ -877,8 +897,8 @@ impl Lease {
             if let Err(error) = terminal.hand_to(own) {
                 append_recovery(&mut reports, error);
             }
-        } else if failed_spawn && holder != own {
-            append_recovery(&mut reports, LaunchError::new(format!("terminal held by unrelated foreground group {holder}; preserved; recovery unconfirmed")));
+        } else if (failed_spawn || status.is_none()) && holder != own {
+            append_recovery(&mut reports, LaunchError::new(format!("terminal held by unrelated foreground group {holder}; preserved; foreground and saved-mode recovery unconfirmed")));
         }
         let after = terminal.foreground();
         let query = if after == -1 {
@@ -898,7 +918,7 @@ impl Lease {
                     LaunchError::new("terminal saved modes missing; recovery unconfirmed"),
                 );
             }
-        } else if take && after != -1 {
+        } else if (take || status.is_none()) && after != -1 {
             append_recovery(
                 &mut reports,
                 LaunchError::new("terminal handback unconfirmed; saved modes not restored"),
@@ -974,7 +994,22 @@ pub fn run_observed(
     launch: Launch<'_>,
     observer: &mut dyn FnMut(LaunchEvent),
 ) -> Result<Ended, LaunchError> {
-    run_with_output(launch.into(), observer, None, None)
+    run_observed_with_start_check(launch, observer, &mut || Ok(()))
+}
+
+/// Run with a fallible parent transition immediately after Started.
+///
+/// Both callbacks are synchronous, prompt and nonpanicking. The child, group
+/// reservation and terminal lease are owned before Started is emitted once.
+/// The check runs once on spawn success, never on failed spawn. A failed check
+/// retains its I/O source and performs bounded stop/reap/recovery before return;
+/// it never returns a successful ending. Reaped remains actual-wait evidence.
+pub fn run_observed_with_start_check(
+    launch: Launch<'_>,
+    observer: &mut dyn FnMut(LaunchEvent),
+    start_check: &mut dyn FnMut() -> std::io::Result<()>,
+) -> Result<Ended, LaunchError> {
+    run_with_output(launch.into(), observer, start_check, None, None)
 }
 
 /// Run a noninteractive child in a new POSIX session, without a controlling
@@ -1007,6 +1042,7 @@ pub fn run_noninteractive(
             escalation: launch.escalation,
         },
         &mut |_| {},
+        &mut || Ok(()),
         Some(output),
         None,
     )
@@ -1023,14 +1059,26 @@ pub fn run_confined_observed(
     policy: &crate::FilesystemGrants<'_>,
     observer: &mut dyn FnMut(LaunchEvent),
 ) -> Result<Ended, LaunchError> {
+    run_confined_observed_with_start_check(launch, policy, observer, &mut || Ok(()))
+}
+
+/// Confined counterpart of [`run_observed_with_start_check`], with the same
+/// callback, failure-settlement and event contract.
+pub fn run_confined_observed_with_start_check(
+    launch: Launch<'_>,
+    policy: &crate::FilesystemGrants<'_>,
+    observer: &mut dyn FnMut(LaunchEvent),
+    start_check: &mut dyn FnMut() -> std::io::Result<()>,
+) -> Result<Ended, LaunchError> {
     let mut command = crate::confinement::command_with_grants(launch.argv, policy)?;
     command.env_clear();
-    run_with_output(launch.into(), observer, None, Some(command))
+    run_with_output(launch.into(), observer, start_check, None, Some(command))
 }
 
 fn run_with_output(
     launch: Job<'_>,
     observer: &mut dyn FnMut(LaunchEvent),
+    start_check: &mut dyn FnMut() -> std::io::Result<()>,
     output: Option<File>,
     confined_command: Option<Command>,
 ) -> Result<Ended, LaunchError> {
@@ -1043,9 +1091,11 @@ fn run_with_output(
     // A detached child is in a session of its own and could never be handed
     // the terminal, so only an interactive launch opens it.
     let terminal = if detached { None } else { Terminal::open() };
-    install_termination_handler(terminal.is_none() || launch.transparent.is_some());
+    // Clear only stale state before the new handlers can become eligible.
+    INTERRUPTED_BY.store(0, Ordering::Relaxed);
+    install_termination_handler(terminal.is_none() || launch.transparent.is_some())?;
     let transparent = launch.transparent.copied();
-    let sigchld_ignored = restore_child_watching();
+    let sigchld_ignored = restore_child_watching()?;
     let descriptor_limit = if detached { descriptor_limit()? } else { 3 };
 
     let mut command = confined_command.unwrap_or_else(|| {
@@ -1198,8 +1248,6 @@ fn run_with_output(
     // Clear the latch *before* the spawn, never after: see `INTERRUPTED_BY`. A
     // signal that arrived while no child existed is the launcher's to handle
     // through `take_interrupt`, and is not evidence about the child below.
-    INTERRUPTED_BY.store(0, Ordering::Relaxed);
-
     // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
     // success after pre-exec signal death. Keep actual supervision on Ok:
     // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
@@ -1233,8 +1281,6 @@ fn run_with_output(
         }
     };
 
-    observer(LaunchEvent::Started);
-
     // The parent's half of the same `setpgid` — insurance, not a race. The
     // `pre_exec` above takes `std` off `posix_spawn` onto fork-and-exec, and
     // successful spawn ordinarily follows exec; signal death before exec can also
@@ -1248,16 +1294,51 @@ fn run_with_output(
 
     lease.child = pgid;
     let lease = std::cell::RefCell::new(lease);
-
-    supervise_reported(
+    let child = OwnedChild::new(child);
+    supervise_started(
         child,
         launch.completion.map(|(channel, _)| channel),
         launch.escalation,
         mode,
         observer,
+        start_check,
         || lease.borrow_mut().lend(),
         |status| lease.borrow_mut().reclaim(status, false),
     )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn supervise_started(
+    mut child: impl Process,
+    channel: Option<&Channel>,
+    escalation: Escalation,
+    mode: Mode,
+    observer: &mut dyn FnMut(LaunchEvent),
+    start_check: &mut dyn FnMut() -> std::io::Result<()>,
+    lend: impl FnMut(),
+    reclaim: impl FnOnce(Option<ExitStatus>) -> Result<(), LaunchError>,
+) -> Result<Ended, LaunchError> {
+    observer(LaunchEvent::Started);
+    if let Err(cause) = start_check() {
+        let error = LaunchError::new(format!("Started parent transition failed: {cause}"))
+            .with_io_source(cause);
+        let Failed { error, status } = error_settlement(
+            &mut child,
+            error,
+            Instant::now() + ERROR_SETTLEMENT,
+            true,
+            observer,
+        );
+        #[cfg(test)]
+        let status = terminal_tests::recovery_status(status);
+        let recovery = reclaim(status);
+        return Err(match recovery {
+            Ok(()) => error,
+            Err(report) => error.with_diagnostic(report),
+        });
+    }
+
+    supervise_reported(child, channel, escalation, mode, observer, lend, reclaim)
 }
 
 /// Include existing descriptors even if the caller lowered its soft limit
@@ -1341,7 +1422,7 @@ trait Process {
     /// Whether the child has exited, **leaving it unreaped**. A stop is not an
     /// exit.
     fn exited(&mut self) -> std::io::Result<bool>;
-    /// Reap the child, blocking, and answer its status.
+    /// Attempt reap within the owner's absolute bound and answer its status.
     fn reap(&mut self) -> std::io::Result<ExitStatus>;
     /// Signal the whole group, then the child itself.
     fn signal(&mut self, signal: i32);
@@ -1350,10 +1431,109 @@ trait Process {
     fn kill_group(&mut self);
     /// After the reap, and only querying: whether the group is gone.
     fn confirm_gone(&mut self) -> Group;
+    /// The first settlement bound wins. Test processes keep the logical seam.
+    fn bound(&mut self, _by: Instant) {}
+    fn reserved(&self) -> bool {
+        true
+    }
+    fn actual_reap(&self) -> Option<ExitStatus> {
+        None
+    }
+    fn stop_reports(&mut self) -> Vec<StopReport> {
+        Vec::new()
+    }
+    fn release(&mut self) {}
+    fn confirmation_report(&mut self) -> Option<LaunchError> {
+        None
+    }
 }
 
-impl Process for Child {
+const ERROR_SETTLEMENT: Duration = Duration::from_secs(2);
+
+struct StopReport {
+    attempt: u32,
+    target: i32,
+    signal: i32,
+    error: std::io::Error,
+}
+
+impl std::fmt::Display for StopReport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "stop attempt {} target {} signal {}: {}",
+            self.attempt, self.target, self.signal, self.error
+        )
+    }
+}
+
+/// Sole wait owner. A raw nonblocking reap must disarm numeric signalling,
+/// independently of any later operation/report failure.
+struct OwnedChild {
+    child: Child,
+    reserved: bool,
+    reaped: Option<ExitStatus>,
+    by: Option<Instant>,
+    stops: Vec<StopReport>,
+    attempts: u32,
+    confirmation_error: Option<std::io::Error>,
+    #[cfg(test)]
+    control: native_tests::Control,
+}
+
+impl OwnedChild {
+    fn new(child: Child) -> Self {
+        Self {
+            child,
+            reserved: true,
+            reaped: None,
+            by: None,
+            stops: Vec::new(),
+            attempts: 0,
+            confirmation_error: None,
+            #[cfg(test)]
+            control: native_tests::Control::default(),
+        }
+    }
+
+    fn stop_target(&mut self, target: i32, signal: i32) {
+        if !self.reserved {
+            return;
+        }
+        self.attempts = self.attempts.saturating_add(1);
+        if self.by.is_some_and(|by| Instant::now() >= by) {
+            self.stops.push(StopReport {
+                attempt: self.attempts,
+                target,
+                signal,
+                error: std::io::Error::new(
+                    std::io::ErrorKind::TimedOut,
+                    "stop omitted after settlement deadline",
+                ),
+            });
+            return;
+        }
+        // SAFETY: only the unreaped direct child reserves these numeric IDs.
+        #[cfg(not(test))]
+        let result = unsafe { libc::kill(target, signal) };
+        #[cfg(test)]
+        let result = self.control.stop(self.attempts, target, signal);
+        if result == -1 {
+            self.stops.push(StopReport {
+                attempt: self.attempts,
+                target,
+                signal,
+                error: std::io::Error::last_os_error(),
+            });
+        }
+    }
+}
+
+impl Process for OwnedChild {
     fn exited(&mut self) -> std::io::Result<bool> {
+        if !self.reserved {
+            return Err(std::io::Error::from_raw_os_error(libc::ECHILD));
+        }
         // WNOWAIT observes the exit without releasing the child's PID, which
         // is also its group's ID. The rest of the group is killed before the
         // reap, so the ID cannot have been reused by the time the signal lands.
@@ -1362,13 +1542,19 @@ impl Process for Child {
         let result = unsafe {
             libc::waitid(
                 libc::P_PID,
-                self.id(),
+                self.child.id(),
                 &mut info,
                 libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
             )
         };
+        #[cfg(test)]
+        let result = self.control.observed(result, &mut info);
         if result != 0 {
-            return Err(std::io::Error::last_os_error());
+            let error = std::io::Error::last_os_error();
+            if error.raw_os_error() == Some(libc::ECHILD) {
+                self.reserved = false;
+            }
+            return Err(error);
         }
         // SAFETY: `waitid` filled `info`; `si_pid` is zero when nothing was
         // reported.
@@ -1385,26 +1571,102 @@ impl Process for Child {
     }
 
     fn reap(&mut self) -> std::io::Result<ExitStatus> {
-        Child::wait(self)
+        use std::os::unix::process::ExitStatusExt as _;
+        if !self.reserved {
+            return Err(std::io::Error::from_raw_os_error(libc::ECHILD));
+        }
+        let by = *self
+            .by
+            .get_or_insert_with(|| Instant::now() + ERROR_SETTLEMENT);
+        let mut first = None;
+        let mut retries = 0u64;
+        loop {
+            if Instant::now() >= by {
+                self.reserved = false;
+                return Err(std::io::Error::new(std::io::ErrorKind::TimedOut, format!(
+                    "child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno {first:?}, retries {retries}"
+                )));
+            }
+            let mut raw = 0;
+            // WNOWAIT observation reserved the PID; only this owner reaps it.
+            // https://pubs.opengroup.org/onlinepubs/9799919799/functions/waitpid.html
+            #[cfg(not(test))]
+            let result = unsafe { libc::waitpid(self.child.id() as i32, &mut raw, libc::WNOHANG) };
+            #[cfg(test)]
+            let result = self.control.wait(self.child.id() as i32, &mut raw);
+            if result == self.child.id() as i32 {
+                self.reserved = false;
+                let status = ExitStatus::from_raw(raw);
+                self.reaped = Some(status);
+                return match first {
+                    Some(errno) => Err(std::io::Error::other(format!("wait recovered after errno {errno}; retries {retries}; actual reap confirmed"))),
+                    None => Ok(status),
+                };
+            }
+            if result == -1 {
+                let error = std::io::Error::last_os_error();
+                first.get_or_insert(error.raw_os_error().unwrap_or(libc::EIO));
+                retries = retries.saturating_add(1);
+                if error.raw_os_error() == Some(libc::ECHILD) {
+                    self.reserved = false;
+                    return Err(std::io::Error::other(format!("wait lost ownership: {error}; first wait errno {first:?}, retries {retries}; reap unconfirmed")));
+                }
+            }
+            std::thread::sleep(
+                KILLED_POLL_INTERVAL.min(by.saturating_duration_since(Instant::now())),
+            );
+        }
     }
 
     fn signal(&mut self, signal: i32) {
-        kill(self.id() as libc::pid_t, signal);
+        let pid = self.child.id() as i32;
+        self.stop_target(-pid, signal);
+        self.stop_target(pid, signal);
     }
 
     fn kill_group(&mut self) {
-        let pgid = self.id() as libc::pid_t;
-        // SAFETY: `kill(2)` on the group the unreaped child still leads. A
-        // failure is ignored: ESRCH means nothing is left, and EPERM a group
-        // holding only zombies.
-        unsafe { libc::kill(-pgid, libc::SIGKILL) };
-        std::thread::sleep(SECOND_KILL_PAUSE);
-        // SAFETY: as above; the child is still unreaped.
-        unsafe { libc::kill(-pgid, libc::SIGKILL) };
+        let pgid = self.child.id() as i32;
+        self.stop_target(-pgid, libc::SIGKILL);
+        let remaining = self.by.map_or(SECOND_KILL_PAUSE, |by| {
+            by.saturating_duration_since(Instant::now())
+        });
+        std::thread::sleep(SECOND_KILL_PAUSE.min(remaining));
+        self.stop_target(-pgid, libc::SIGKILL);
     }
 
     fn confirm_gone(&mut self) -> Group {
-        confirm_gone(self.id() as libc::pid_t)
+        match confirm_gone(self.child.id() as libc::pid_t) {
+            Ok(group) => group,
+            Err(error) => {
+                self.confirmation_error = Some(error);
+                Group::Present {
+                    pgid: self.child.id() as i32,
+                }
+            }
+        }
+    }
+    fn bound(&mut self, by: Instant) {
+        self.by = Some(self.by.map_or(by, |old| old.min(by)));
+    }
+    fn reserved(&self) -> bool {
+        self.reserved
+    }
+    fn actual_reap(&self) -> Option<ExitStatus> {
+        self.reaped
+    }
+    fn stop_reports(&mut self) -> Vec<StopReport> {
+        std::mem::take(&mut self.stops)
+    }
+    fn release(&mut self) {
+        self.reserved = false;
+    }
+    fn confirmation_report(&mut self) -> Option<LaunchError> {
+        self.confirmation_error.take().map(|error| {
+            LaunchError::new(format!(
+                "group absence query failed; state unknown: {error}"
+            ))
+            .with_io_source(error)
+        })
     }
 }
 
@@ -1415,18 +1677,21 @@ impl Process for Child {
 /// signal, and macOS also gives it for a group of zombies, so it is "present"
 /// like a success is. A query that hits a reused ID after the reap reads as
 /// present too, which fails safe.
-fn confirm_gone(pgid: libc::pid_t) -> Group {
+fn confirm_gone(pgid: libc::pid_t) -> std::io::Result<Group> {
     let deadline = Instant::now() + GROUP_CONFIRMATION;
     loop {
         // SAFETY: `kill(2)` with signal 0, the existence probe, which sends
         // nothing.
-        if unsafe { libc::kill(-pgid, 0) } == -1
-            && std::io::Error::last_os_error().raw_os_error() == Some(libc::ESRCH)
-        {
-            return Group::Gone;
+        if unsafe { libc::kill(-pgid, 0) } == -1 {
+            let error = std::io::Error::last_os_error();
+            match error.raw_os_error() {
+                Some(libc::ESRCH) => return Ok(Group::Gone),
+                Some(libc::EPERM) => {}
+                _ => return Err(error),
+            }
         }
         if Instant::now() >= deadline {
-            return Group::Present { pgid };
+            return Ok(Group::Present { pgid });
         }
         std::thread::sleep(Duration::from_millis(10));
     }
@@ -1438,6 +1703,7 @@ struct Watched {
     interrupted: Option<i32>,
     escalated: bool,
     elapsed: Duration,
+    stops: Vec<StopReport>,
 }
 
 /// A supervision that failed, with the child's status if it was reaped anyway.
@@ -1491,10 +1757,31 @@ fn supervise_reported(
             interrupted,
             escalated,
             elapsed,
+            stops,
         }) => {
-            reclaim(Some(status)).map_err(|error| error.with_consumed_signal(interrupted))?;
+            reclaim(Some(status))
+                .map_err(|error| append_stops(error, &stops).with_consumed_signal(interrupted))?;
             let group = child.confirm_gone();
+            if let Some(report) = child.confirmation_report() {
+                return Err(append_stops(report, &stops).with_consumed_signal(interrupted));
+            }
+            if !stops.is_empty() {
+                // A zombie-only Darwin group may reject SIGKILL with EPERM.
+                // The human-approved exception requires all three confirmations.
+                let tolerated = group == Group::Gone
+                    && stops.iter().all(|report| {
+                        matches!(report.error.raw_os_error(), Some(libc::EPERM | libc::ESRCH))
+                    });
+                if !tolerated {
+                    return Err(append_stops(
+                        LaunchError::new("required group stop failed"),
+                        &stops,
+                    )
+                    .with_consumed_signal(interrupted));
+                }
+            }
             Ok(Ended {
+                operation_reports: stops.iter().map(ToString::to_string).collect(),
                 end: match (interrupted, escalated) {
                     (Some(signal), _) => End::Interrupted { signal },
                     (None, true) => End::Escalated,
@@ -1516,6 +1803,92 @@ fn supervise_reported(
     }
 }
 
+fn append_stops(mut error: LaunchError, reports: &[StopReport]) -> LaunchError {
+    for report in reports {
+        error = error.with_diagnostic(report);
+    }
+    error
+}
+
+/// One error owner, one absolute bound; no background waiter and no new lend.
+fn error_settlement(
+    child: &mut impl Process,
+    error: LaunchError,
+    by: Instant,
+    repeated_groups: bool,
+    observer: &mut dyn FnMut(LaunchEvent),
+) -> Failed {
+    let first = take_interrupt();
+    let mut error = error.with_consumed_signal(first);
+    child.bound(by);
+    if Instant::now() >= by {
+        child.release();
+        return Failed {
+            error: error
+                .with_diagnostic(
+                    "settlement deadline expired; child/group ownership unresolved and released",
+                )
+                .with_consumed_signal(take_interrupt()),
+            status: None,
+        };
+    }
+    if child.reserved() {
+        child.signal(libc::SIGKILL);
+    }
+    if repeated_groups && child.reserved() {
+        child.kill_group();
+    }
+    // The legacy emergency path keeps its exact single kill -> logical wait
+    // trace. Failed Started additionally observes under WNOWAIT first.
+    if repeated_groups {
+        let mut interrupted_polls = 0u64;
+        while child.reserved() && Instant::now() < by {
+            match child.exited() {
+                Ok(true) => break,
+                Ok(false) => {}
+                Err(report) if report.kind() == std::io::ErrorKind::Interrupted => {
+                    interrupted_polls = interrupted_polls.saturating_add(1);
+                }
+                Err(report) => {
+                    error = error.with_diagnostic(format!("settlement observation: {report}"));
+                    break;
+                }
+            }
+            std::thread::sleep(
+                KILLED_POLL_INTERVAL.min(by.saturating_duration_since(Instant::now())),
+            );
+        }
+        if interrupted_polls > 0 {
+            error = error.with_diagnostic(format!(
+                "settlement observation EINTR retries {interrupted_polls}"
+            ));
+        }
+    }
+    let reaped = child.reap();
+    let status = reaped
+        .as_ref()
+        .ok()
+        .copied()
+        .or_else(|| child.actual_reap());
+    error = error.with_consumed_signal(take_interrupt());
+    error = append_stops(error, &child.stop_reports());
+    if let Err(report) = reaped {
+        error = error.with_diagnostic(if status.is_some() {
+            format!("wait reported an error; actual reap confirmed: {report}")
+        } else {
+            format!("could not be reaped — check for an orphaned process: {report}")
+        });
+    }
+    if status.is_some() {
+        error = error.with_diagnostic("and reaped");
+        observer(LaunchEvent::Reaped);
+    } else {
+        error = error.with_diagnostic("child/group ownership unresolved; no confirmed reap");
+    }
+    child.release();
+    Failed { error, status }
+}
+
 fn watch(
     child: &mut impl Process,
     channel: Option<&Channel>,
@@ -1530,6 +1903,18 @@ fn watch(
     let mut escalated = false;
 
     loop {
+        if let Watch::Killed(by) = watch {
+            if Instant::now() >= by {
+                return Err(error_settlement(
+                    child,
+                    LaunchError::new("post-SIGKILL deadline expired")
+                        .with_consumed_signal(interrupted),
+                    by,
+                    false,
+                    observer,
+                ));
+            }
+        }
         lend();
 
         // Check cancellation before accepting even an already-exited child.
@@ -1540,7 +1925,9 @@ fn watch(
                 interrupted = Some(signal);
                 if mode == Mode::Confined {
                     child.signal(libc::SIGKILL);
-                    watch = Watch::Killed;
+                    let by = Instant::now() + ERROR_SETTLEMENT;
+                    child.bound(by);
+                    watch = Watch::Killed(by);
                 } else {
                     child.signal(signal);
                     if matches!(watch, Watch::Running | Watch::Signalled(_)) {
@@ -1553,32 +1940,26 @@ fn watch(
         match child.exited() {
             Ok(true) => break,
             Ok(false) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
             Err(error) => {
                 // The child's state is now unknown, and returning here would
                 // leave an interactive one holding the terminal with nothing
                 // left to reap it. Ending it is the last thing this launch can
                 // still do correctly, so it does that before reporting.
-                child.signal(libc::SIGKILL);
-                let reaped = child.reap();
-                let at_reap = take_interrupt();
-                let interrupted = interrupted.or(at_reap);
-                let (status, report) = match reaped {
-                    Ok(status) => (Some(status), "reaped".to_owned()),
-                    Err(error) => (
-                        None,
-                        format!("could not be reaped — check for an orphaned process: {error}"),
-                    ),
+                let by = match watch {
+                    Watch::Killed(by) => by.min(Instant::now() + ERROR_SETTLEMENT),
+                    _ => Instant::now() + ERROR_SETTLEMENT,
                 };
-                if status.is_some() {
-                    observer(LaunchEvent::Reaped);
-                }
-                return Err(Failed {
-                    error: LaunchError::new(format!(
-                        "cannot wait on the launched child: {error}; it has been sent SIGKILL and {}",
-                        report
-                    )).with_consumed_signal(interrupted),
-                    status,
-                });
+                return Err(error_settlement(
+                    child,
+                    LaunchError::new(format!(
+                        "cannot wait on the launched child: {error}; SIGKILL attempted"
+                    ))
+                    .with_consumed_signal(interrupted),
+                    by,
+                    false,
+                    observer,
+                ));
             }
         }
 
@@ -1599,12 +1980,29 @@ fn watch(
             }
             Watch::Terminated(at) if at.elapsed() >= escalation.kill_grace => {
                 child.signal(libc::SIGKILL);
-                Watch::Killed
+                let by = Instant::now() + ERROR_SETTLEMENT;
+                child.bound(by);
+                Watch::Killed(by)
             }
             other => other,
         };
 
-        std::thread::sleep(if matches!(watch, Watch::Killed) {
+        let stops = child.stop_reports();
+        if !stops.is_empty() {
+            let by = match watch {
+                Watch::Killed(by) => by,
+                _ => Instant::now() + ERROR_SETTLEMENT,
+            };
+            return Err(error_settlement(
+                child,
+                append_stops(LaunchError::new("required job stop failed"), &stops)
+                    .with_consumed_signal(interrupted),
+                by,
+                false,
+                observer,
+            ));
+        }
+        std::thread::sleep(if matches!(watch, Watch::Killed(_)) {
             KILLED_POLL_INTERVAL
         } else {
             POLL_INTERVAL
@@ -1614,6 +2012,7 @@ fn watch(
     // A child ended by the escalation exits non-zero, or by signal. That is
     // the normal completion path, not a failure: the caller judges the work;
     // the runner reports channel appearance and process status separately.
+    child.bound(Instant::now() + ERROR_SETTLEMENT);
     child.kill_group();
     let reaped = child.reap();
     // Freeze the launch at the reap, before an observer, terminal recovery or
@@ -1621,47 +2020,35 @@ fn watch(
     let at_reap = take_interrupt();
     let elapsed = started.elapsed();
     let interrupted = interrupted.or(at_reap);
-    let status = reaped.map_err(|error| Failed {
-        error: LaunchError::new(format!("cannot reap the exited child: {error}"))
-            .with_consumed_signal(interrupted),
-        status: None,
-    })?;
-    observer(LaunchEvent::Reaped);
+    let status = reaped
+        .as_ref()
+        .ok()
+        .copied()
+        .or_else(|| child.actual_reap());
+    let stops = child.stop_reports();
+    if status.is_some() {
+        observer(LaunchEvent::Reaped);
+    }
+    let status = match reaped {
+        Ok(status) => status,
+        Err(error) => {
+            return Err(Failed {
+                error: append_stops(
+                    LaunchError::new(format!("cannot reap the exited child: {error}")),
+                    &stops,
+                )
+                .with_consumed_signal(interrupted),
+                status,
+            })
+        }
+    };
     Ok(Watched {
         status,
         interrupted,
         escalated,
         elapsed,
+        stops,
     })
-}
-
-/// Signal the job this process launched — **the whole process group, then the
-/// child itself**.
-///
-/// A grandchild the child spawned — a tool subprocess, a language server, an
-/// agent's own in-flight command — is a member of that group and is reaped with
-/// its parent rather than surviving it. That matters beyond tidiness: such a
-/// grandchild can hold a lock its launcher's caller is about to wait on, and
-/// then the escalation's SIGKILL buys a stall rather than a teardown.
-///
-/// `pgid` is the child's pid, made a group leader by the `process_group(0)`
-/// [`run`] sets before the spawn, or by the `setsid` a detached launch makes —
-/// a failure there is a failed spawn, and no child. A group with that id can
-/// only have been created by that process, so `-pgid` cannot name an unrelated
-/// job even in the impossible case where the group was never created; the
-/// direct `kill` behind it covers that case. Every call is made before the
-/// child is reaped, while its pid still reserves the id.
-///
-/// A failure is ignored on purpose — ESRCH means the process exited between the
-/// poll and the signal, which the next poll reports anyway. This is the shell's
-/// `kill … 2>/dev/null`, written down.
-fn kill(pgid: libc::pid_t, signal: libc::c_int) {
-    // SAFETY: `kill(2)` on the process group of, and then the pid of, a child
-    // of this process.
-    unsafe {
-        libc::kill(-pgid, signal);
-        libc::kill(pgid, signal);
-    }
 }
 
 #[cfg(test)]
@@ -1670,3 +2057,40 @@ mod wait_events;
 
 #[cfg(test)]
 mod terminal_tests;
+
+#[cfg(test)]
+mod watching_tests {
+    use super::*;
+    #[test]
+    fn default_with_no_child_wait_is_repaired_independently_of_ignore() {
+        // Break: repair only SIG_IGN and silently auto-reap a real child.
+        // The private action is installed after executable entry.
+        let mut before = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        assert_eq!(
+            unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut before) },
+            0
+        );
+        let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        action.sa_sigaction = libc::SIG_DFL;
+        action.sa_flags = libc::SA_NOCLDWAIT;
+        assert_eq!(unsafe { libc::sigemptyset(&mut action.sa_mask) }, 0);
+        assert_eq!(
+            unsafe { libc::sigaction(libc::SIGCHLD, &action, std::ptr::null_mut()) },
+            0
+        );
+        let _ = restore_child_watching();
+        let mut after = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        assert_eq!(
+            unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut after) },
+            0
+        );
+        assert_eq!(
+            unsafe { libc::sigaction(libc::SIGCHLD, &before, std::ptr::null_mut()) },
+            0
+        );
+        assert_eq!(after.sa_flags & libc::SA_NOCLDWAIT, 0);
+    }
+}
+
+#[cfg(test)]
+mod native_tests;

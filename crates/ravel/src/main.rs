@@ -9,6 +9,8 @@ mod environment;
 mod frame;
 mod inputs;
 mod limits;
+#[cfg(test)]
+mod native_entry_tests;
 mod policy;
 mod program;
 mod refusal;
@@ -27,6 +29,11 @@ use crate::cli::{Cli, Command};
 use crate::refusal::{Failure, Refusal, Stage, EXIT_MALFORMED};
 
 fn main() -> ExitCode {
+    #[cfg(test)]
+    if std::env::var_os("K28_NATIVE_ENTRY_MAIN").is_some() {
+        native_entry_tests::run_role();
+        unreachable!("the private main-thread fixture must exit explicitly");
+    }
     let arguments: Vec<OsString> = std::env::args_os().collect();
     // Only a command line that did not parse, or whose words are never parsed,
     // is scanned for `--json`, so that it still honours the one-JSON-error

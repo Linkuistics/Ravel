@@ -761,3 +761,42 @@ root obligations remain live; no local success closes the phase or root.
 Material discovery, second substantial review, insufficient complete price or
 extra infrastructure needs precise renewed funding, never reserve borrowing
 or narrower acceptance. Existing ADRs change no architectural decision.
+
+K28's first attempt preserves an unsealed cross-layer repair and partial
+development controls, with the complete producer still live. Its exact remaining
+qualification work and available failed/green logs are in
+`docs/native-entry-development-evidence.md`; no immutable complete native campaign
+or qualified-controller set exists. The human approved retaining benign stop
+EPERM after confirmed reap/recovery/ESRCH absence, and `Ended::operation_reports`
+in the existing JSON notice. Neither amendment waives failure/cancellation
+precedence or complete qualification.
+
+The first attempt conservatively charges P≤70/E≤15/RC≤4, D=X=0, including
+preservation and verification. Cumulative correctness bounds become
+D≤115/RC≤64/P≤225/E≤45/X=0; remaining D≤20 exclusively phase closure,
+RC≤1/P≤55/E≤75/X=0. `native-entry-qualification-funding-k29`, before live k28
+inside k22, proposes the remaining complete P≤100/E≤70/RC≤10, D=X=0. Exact
+shortfall is P≤45/RC≤9; proposed caps D≤135/RC≤74/P≤325/E≤120/X=0 require
+explicit approval, no D/E/X increase or reserve borrowing. No retirement or
+parent closure is claimed. Support/floors, returning-host, independent adoption,
+K4/k6/G2–G5/R-W and every root/book obligation remain live.
+
+K28 is now an open node, preserving its entire original acceptance contract.
+Its first child native-entry-development-k30 delivers the tested cross-layer
+source/development increment together; the remaining native qualification stays
+live as native-entry-qualification-k31 after k29 funding and the tree-owned
+review of k30. This replaces the earlier unsealed/force-stop preservation plan.
+No module is accepted separately, no complete native-conformance campaign is
+claimed, and no parent/phase/root closes. Decomposition does not reset the one
+in-session review allowance already spent across k28.
+
+Additional observed verification replaces the first attempt's E≤15 bound with
+E≤30 (delta E≤15 only); P≤70/RC≤4, D=X=0 remain counted once across k30/k28.
+Cumulative correctness bounds are D≤115/RC≤64/P≤225/E≤60/X=0; remaining D≤20
+exclusively phase closure/RC≤1/P≤55/E≤60/X=0. The aggregate remaining price is
+P≤100/E≤70/RC≤10, D=X=0. Its exact shortfall is now P≤45/E≤10/RC≤9:
+proposed caps D≤135/RC≤74/P≤325/E≤130/X=0, leaving only D≤20 reserved on full
+use. This replaces the earlier no-E-increase proposal, not the approved caps.
+K29 must obtain explicit renewal before allocating the aggregate remainder.
+No new design reserve, infrastructure, comparative gain, support qualification
+or narrower acceptance follows. All support/comparison/root obligations stay live.

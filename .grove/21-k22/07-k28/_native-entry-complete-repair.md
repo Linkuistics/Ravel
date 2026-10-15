@@ -1,4 +1,4 @@
-# native-entry-complete-repair-k28
+# native-entry-complete-repair-k28 — brief
 
 ## Goal
 
@@ -124,3 +124,103 @@ against actual target libc headers and preserve executable-versus-private
 SA_NOCLDWAIT distinctions. A returning host requires a separate contract.
 K4/k6 comparison history, G2–G5/R-W, independent adoption and all root delivery/
 documentation obligations remain live. No comparative gain is inferred.
+
+## Decisions (running log)
+
+- The human clarified ordinary-stop EPERM handling verbatim: **“Allow success
+  after confirmed complete cleanup; retain the EPERM report (Recommended)”**.
+  Darwin can report EPERM for a group containing only unreaped zombies. Retain
+  the individual stop report, but actual reap, successful terminal recovery and
+  an ESRCH group-absence confirmation may establish successful completion.
+  This exception does not turn EPERM into absence or permit success with an
+  unconfirmed lifecycle, recovery or group. Initiating Started/transition errors
+  remain failures. Preserve the otherwise unchanged frozen API and case matrix.
+- The human approved the necessary successful-outcome diagnostic extension
+  verbatim: **“Carry reports in Ended and the JSON notice (Recommended)”**.
+  Add an operation-reports field to Ended (existing struct literals need the
+  field), while preserving launch argument types and Result<Ended, LaunchError>.
+  Emit successful benign stop reports in the existing single JSON notice rather
+  than extra runner stderr lines. Non-JSON consumers can report those same
+  returned observations. This is the explicit amendment to the additive API.
+- Freeze `docs/native-entry-cases.json` before native measurements: 153 concrete
+  native/control rows plus the 310 existing test identities (including ignored
+  fixtures). Paired and queued-TERM cases use the omitted primary mutation;
+  ordinary mutation rows retain both omitted and performed/report modes.
+  Development red/green logs under `.jj/k28-measure/` are not immutable matrix
+  measurements or conformance receipts. The full source/instrument digests and
+  controller validation remain required before those measurements.
+- Spend the leaf's one narrow reviewer on failed-Started cleanup and
+  first-signal/reader/finaliser composition. Both findings are valid and
+  actionable: stale mask knowledge could permit disposition release after a
+  failed final block; unknown-status recovery could silently preserve a foreign
+  foreground without reporting unconfirmed modes/foreground. The first now has
+  an observed failing development control and a passing correction. The second
+  reporting correction still requires its physical PTY discriminator. No second
+  reviewer has been used; executable controls must conclusively cover the fixes.
+- Executable-entry fixtures must run the front on the actual initializer thread.
+  The initial libtest-based controller correctly captured entry state but moved
+  the front to a test thread, so thread-directed pending E02 signals remained on
+  libtest's main thread. Reject those runs as E02 conformance evidence. The
+  isolated cfg(test) binary now dispatches through its real main and records
+  capturing/current thread identity; installed builds have no dispatch switch.
+- On the measured Darwin host, E03's inherited ignored-SIGCHLD skip-repair mutant
+  can still confirm both real waits: its raw no-child-wait flag is clear at exec.
+  Do not invent an E03 baseline failure or call the private flag exec-inherited.
+  The existing E04 private post-entry no-child-wait row is the independent failing
+  pre-worker-repair discriminator in that domain. GNU/Linux and the Rust floor
+  remain outside these local observations and still require qualification.
+- The replacement private real-main entry run passed E01/E02/E03/E04/F01 in
+  development. Both review corrections now have observed failing controls and
+  corrected passing runs, including the physical foreign-foreground PTY case.
+  These are construction evidence, not a frozen native-conformance campaign.
+- The complete remaining instrument/controller/evidence work no longer fits
+  this attempt's remaining producer balance. Keep the entire cross-layer repair
+  live in this leaf, unsealed; do not retire a partial module or count development
+  summaries as acceptance. `docs/native-entry-development-evidence.md` records
+  the exact unfulfilled families, controls, provenance/receipt obligations and
+  proposed remaining price. The manifest's mutable `phase` description was
+  replaced with a purpose statement; its 153 row identities and 310 protected
+  identities remain unchanged. No frozen measurement had begun.
+- Conservatively charge this first attempt P≤70/E≤15/RC≤4, D=X=0, including
+  source/control construction, failed and green development checks, the one
+  reviewer, evidence/tree preservation and verification. These bounds include
+  this attempt's ending work; they are not the full original allocation charged
+  as spend. Cumulative bounds are D≤115/RC≤64/P≤225/E≤45/X=0. Remaining
+  balances are D≤20 exclusively phase closure, RC≤1/P≤55/E≤75/X=0. A future
+  attempt must add only its new charges, never charge this attempt again.
+- Insert native-entry-qualification-funding-k29 before this leaf inside k22.
+  Propose remaining P≤100/E≤70/RC≤10, D=X=0: exact shortfall P≤45/RC≤9,
+  no D/E/X increase, proposed caps D≤135/RC≤74/P≤325/E≤120/X=0. The price
+  includes the unchanged finite matrix, qualified bounded controllers, complete
+  baseline/broken/repaired receipts, affected/protected checks, evidence and
+  tree-owned review if needed. The proposal is not approval or spend; no
+  renewed producer allocation is commissioned yet. Preserve reserved D, the
+  support continuation and every root obligation. Force-stop leaves k28 live;
+  no retirement, sealing commit or parent cascade is claimed.
+- Fresh preservation checks observed a default-concurrency worker-startup timeout
+  in the existing nofault-Unicode case, with actual cleanup confirmed. The same
+  unchanged case passed alone and in sequential full runs. Retain all outputs;
+  this does not prove the cause or qualify the native campaign. Sequential
+  session (242), runner (78), workspace (320) and check (320) runs passed, with
+  source digests unchanged during those checks.
+- A clean-build control exposed a private-fixture prerequisite in the five new
+  entry families. Mark only those new families explicit to test:native-entry;
+  that task builds their private executable, includes ignored tests and excludes
+  the two child-only roles. The revised task passed. Final ordinary check passed
+  315 cases with the private executable hidden, retaining all 310 preexisting
+  identities/ignored flags. This changes no required matrix acceptance.
+- The tested cross-layer development increment is now an independently useful
+  boundary; revise the earlier force-stop/unsealed plan. Decompose this item,
+  keeping its entire acceptance contract in the k28 node, and retire/commit only
+  its development child. Keep the full qualification producer live, preceded by
+  k29 funding and a tree-owned review of the draft's partial-handler/final-mask
+  composition. The one in-session reviewer is spent across this whole scope and
+  must not reset through decomposition. No module is accepted separately.
+- Replace this attempt's E≤15 charged bound with conservative E≤30, including
+  failed/focused/sequential verification and fixture-prerequisite controls. This
+  adds E≤15 only; P≤70/RC≤4, D=X=0 are unchanged and counted once across the
+  development child/node. Cumulative bounds are D≤115/RC≤64/P≤225/E≤60/X=0;
+  balances D≤20 exclusively phase closure/RC≤1/P≤55/E≤60/X=0. The unchanged
+  remaining price P≤100/E≤70/RC≤10 now needs P≤45/E≤10/RC≤9 renewal:
+  proposed caps D≤135/RC≤74/P≤325/E≤130/X=0. Full use leaves D≤20 reserved
+  only. This replaces the earlier proposal; no renewal is approved or allocated.

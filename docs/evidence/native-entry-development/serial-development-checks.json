@@ -1,0 +1,60 @@
+{
+  "purpose": "Development preservation checks only; full matrix is unqualified",
+  "sourceExclusions": [
+    "docs/evidence/native-entry-development/",
+    ".jj/ and target/ generated build and development outputs",
+    "external compiler/libc/runtime dependencies are not source-frozen here"
+  ],
+  "environment": {
+    "NEXTEST_TEST_THREADS": "1"
+  },
+  "sourceFileCount": 177,
+  "sourceChangedDuringChecks": [],
+  "commands": [
+    {
+      "command": [
+        "task",
+        "test:session"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 221.4760292500141,
+      "log": "serial-preservation-1.txt"
+    },
+    {
+      "command": [
+        "task",
+        "test:runner"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 52.82542866599397,
+      "log": "serial-preservation-2.txt"
+    },
+    {
+      "command": [
+        "task",
+        "test:terminal-recovery"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 3.815709958988009,
+      "log": "serial-preservation-3.txt"
+    },
+    {
+      "command": [
+        "task",
+        "test"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 274.05080100000487,
+      "log": "serial-preservation-4.txt"
+    },
+    {
+      "command": [
+        "task",
+        "check"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 289.8042316659994,
+      "log": "serial-preservation-5.txt"
+    }
+  ]
+}

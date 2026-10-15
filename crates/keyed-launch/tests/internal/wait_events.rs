@@ -59,6 +59,15 @@ const NO_WAIT: Escalation = Escalation {
     kill_grace: Duration::ZERO,
 };
 
+#[test]
+fn the_first_consumed_signal_survives_a_second_handler_call() {
+    let _serial = serial();
+    INTERRUPTED_BY.store(0, Ordering::Relaxed);
+    on_terminate(libc::SIGHUP);
+    on_terminate(libc::SIGTERM);
+    assert_eq!(take_interrupt(), Some(libc::SIGHUP));
+}
+
 /// Every path to a reaped child runs the end in one order: the exit is observed
 /// unreaped, the group is killed, the child is reaped and reported, the
 /// terminal is taken back, and only then is the group confirmed gone. A wait failure skips the group steps, which need a child

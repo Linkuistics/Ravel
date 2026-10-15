@@ -1,0 +1,42 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(required_query_errors)'
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1861:4
+     |
+1861 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib) generated 1 warning
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
+────────────
+ Nextest run ID f008a6d2-3b91-4b90-b7ca-93447be7b120 with nextest profile: default
+    Starting 1 test across 1 binary (181 tests skipped)
+        FAIL [   0.012s] (1/1) ravel::bin/ravel signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state
+  stdout ───
+
+    running 1 test
+    test signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state ... FAILED
+
+    failures:
+
+    failures:
+        signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 181 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state' (46975979) panicked at crates/ravel/src/signal_state.rs:135:13:
+    assertion `left == right` failed: capture fault 2 published incomplete state
+      left: 1
+     right: 0
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.015s] 1 test run: 0 passed, 1 failed, 181 skipped
+        FAIL [   0.012s] (1/1) ravel::bin/ravel signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state
+error: test run failed
+task: Failed to run task "test:session": exit status 100

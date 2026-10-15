@@ -1,0 +1,57 @@
+# native-entry-qualification-k31
+
+## Goal
+
+Complete and qualify k28's whole native-entry-to-settlement repair against its
+unchanged full contract, exact matrix and protected expectations. Build on the
+committed cross-layer development increment k30; do not restart or retire
+individual owners as successful repairs.
+
+## Context
+
+Read the k28 brief, k29's funding answer, the tree-owned review of k30 and any
+resulting integration, `docs/native-entry-development-evidence.md`, the selected
+transition design, completion spec and exact cases manifest. Development logs
+are not the native campaign. Consume actual funding/review charges and balances;
+no allocation or one-reviewer allowance resets here.
+
+The proposed aggregate remainder is P≤100/E≤70/RC≤10, D=X=0, including k29,
+the tree review, any justified integration and producer closure. Before approval,
+remaining balances are only D≤20 reserved/RC≤1/P≤55/E≤60/X=0. Proposed renewal
+P≤45/E≤10/RC≤9 (caps D≤135/RC≤74/P≤325/E≤130/X=0) is not authorization.
+K29 precedes this node and must settle a fitting complete allocation first.
+
+## Done when
+
+- Meet every original k28 Done when against T0–T8, the two Started APIs and the
+  approved Ended/EPERM amendments. Keep first cancellation and all operation
+  reports, actual-only lifecycle facts and ownership-preserving absolute bounds.
+- Complete the exact remaining E/F/S controls, four paired failures and two
+  queued-TERM variants listed in the evidence note. Preserve all 153 identities,
+  specified mutation modes and the S01–S05 counts 8/7/8/7/2. Do not enlarge the
+  matrix, add target infrastructure or narrow acceptance.
+- Qualify 30/5/5 controllers before native measurements, with observed watchdog,
+  blocked-acknowledgement/failed-release and escaped-holder cleanup controls.
+  Keep physical operations, substituted reports, product and fixture settlement
+  distinct, and retain bounded ownership of every fixture resource on every path.
+- Freeze all source/instrument/helper/reference/exclusion/toolchain subjects,
+  digest before/after and publish immutable per-case baseline/broken/repaired
+  receipts with one writer. Reconcile rows and every original R01 identity
+  individually, rerunning affected cases after any input change. Already-correct
+  baselines and rejected fixture premises stay explicit.
+- Use Taskfile checks and preserve prior expectations. Reconcile valid findings
+  through the scheduled review/integration route. The original in-session review
+  allowance is spent across k28; do not spawn another reviewer here.
+- Publish qualified evidence only when earned. Charge only new effort, subtract
+  actual preceding funding/review/integration charges from the renewed aggregate
+  and update the brief chain. Insufficient complete price, further mechanism
+  discovery or additional review needs a precise continuation, no reserved D.
+- Price, fund and cut the exact Rust 1.85/Linux support continuation inside k22
+  before the book. Keep returning-host, adoption, K4/k6/G2–G5/R-W and every root
+  obligation live. Local native success alone cannot close k22 or correctness.
+
+## Notes
+
+The previous attempt already charged P≤70/E≤30/RC≤4 once, D=X=0. Do not charge
+it again. The parent's full acceptance survives decomposition. A complete local
+native qualification is not supported-target or independent-use qualification.

@@ -11,6 +11,9 @@ thread_local! {
 }
 
 pub(super) fn reported_teardown(report: &mut Teardown, child: &mut Child) {
+    if super::native_tests::active() {
+        return;
+    }
     if REPORT.with(|control| control.borrow().is_none()) {
         return;
     }
@@ -53,7 +56,7 @@ pub(super) fn reported_teardown(report: &mut Teardown, child: &mut Child) {
 // Each fixture is a separate process, including global signals, HOME, output
 // descriptors and the actual locate() path. Environment controls exist only in
 // this ignored test role, never in the product or owner policy contract.
-fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
+pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
     let exe = std::env::current_exe().unwrap();
     let worker = exe
         .ancestors()
@@ -441,6 +444,9 @@ fn worker_reap_admission_fixture() {
     let scenario = std::env::var("C2_SCENARIO").unwrap();
     let fault = std::env::var("C2_FAULT").unwrap();
     let route = std::env::var("C2_ROUTE").unwrap();
+    if scenario == "native-reader" {
+        super::native_tests::configure(&fault);
+    }
     let root = std::env::current_dir().unwrap();
     let missing = root.join("missing-program");
     let program = if route == "choice-missing" {
@@ -574,6 +580,32 @@ fn worker_reap_admission_fixture() {
     assert_eq!(unsafe { libc::dup2(saved, 1) }, 1);
     unsafe { libc::close(saved) };
     drop(output);
+    if scenario == "native-reader" {
+        let failure = outcome.expect_err("reader failure admitted a selection");
+        let text = failure.to_text();
+        eprintln!("native reader {fault}: {text}");
+        assert!(text.contains("cannot admit diagnostic readers"));
+        assert!(text.contains("reader") && text.contains("pid"));
+        match fault.as_str() {
+            "stop-omitted" | "stop-performed" => {
+                assert!(text.contains("stop pid") && text.contains("os error 1"))
+            }
+            "kill-omitted" | "kill-performed" => {
+                assert!(text.contains("kill pid") && text.contains("os error 1"))
+            }
+            "poll-EIO" => assert!(text.contains("try_wait pid") && text.contains("os error 5")),
+            "poll-ECHILD" => assert!(text.contains("os error 10") && text.contains("unconfirmed")),
+            "poll-EINTR" => assert!(text.contains("deadline") && text.contains("EINTR retries")),
+            "always-running" => assert!(text.contains("deadline")),
+            "first-create" | "second-create" => {
+                assert!(text.contains("os error 35") || text.contains("os error 11"))
+            }
+            _ => assert!(text.contains("os error 5")),
+        }
+        assert!(!root.join("started").exists());
+        assert!(fs::read(root.join("result-output")).unwrap().is_empty());
+        return;
+    }
     if scenario.starts_with("nofault-") {
         assert!(outcome.is_ok(), "no-fault session failed: {outcome:?}");
         return;

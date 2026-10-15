@@ -34,52 +34,41 @@ fn failed(code: &'static str, message: impl std::fmt::Display) -> Refusal {
 
 pub fn run(args: &RunArgs) -> Result<(), Failure> {
     signal_state::recorded()?;
-    let exit_dir = args.exit_dir.as_deref().map(exit_dir).transpose()?;
-    let prepared = choice::prepare(&args.selection)?;
-    let confined = args
-        .confine
-        .then(|| {
-            crate::confinement::Confined::prepare(
-                &prepared,
-                exit_dir.as_deref(),
-                &args.runtime_read,
-            )
-        })
-        .transpose()?;
-    let selected = choice::choose_prepared(prepared);
-    let Selected {
-        choice,
-        handlers,
-        source,
-    } = match selected {
-        Ok(selected) => selected,
-        Err(failure) => {
-            let cleanup = confined.map_or(Ok(()), |confined| {
-                confined
-                    .remove()
-                    .map_err(|error| failed("session_cleanup_failed", error))
-            });
-            return settle(
-                Err(failure),
-                None,
-                vec![cleanup],
-                crate::cancellation::received(),
-                "selection",
-                &mut io::stderr(),
-            )
-            .map(|_| ());
-        }
-    };
+    let mut handlers = crate::cancellation::Handlers::new();
+    let mut confined: Option<crate::confinement::Confined> = None;
+    let mut source = "selection".to_owned();
     let mut channel = None;
     let mut output = None;
     let mut ended = None;
     let mut runner_signal = None;
-    for report in &choice.operational {
-        eprintln!("ravel: {report}");
-    }
+    let mut selection_notice = None;
     // Every path through this closure joins explicit cleanup below, including
     // allocation/reservation failures and cancellation before runner startup.
     let result = (|| -> Result<String, Failure> {
+        handlers
+            .begin()
+            .map_err(|error| failed("cancellation_unavailable", error))?;
+        let exit_dir = args.exit_dir.as_deref().map(exit_dir).transpose()?;
+        let prepared = choice::prepare(&args.selection)?;
+        source = prepared.entry.display();
+        confined = args
+            .confine
+            .then(|| {
+                crate::confinement::Confined::prepare(
+                    &prepared,
+                    exit_dir.as_deref(),
+                    &args.runtime_read,
+                )
+            })
+            .transpose()?;
+        let Selected {
+            choice,
+            source: selected_source,
+        } = choice::choose_prepared(prepared)?;
+        source = selected_source;
+        for report in &choice.operational {
+            eprintln!("ravel: {report}");
+        }
         output =
             Some(ResultOutput::reserve().map_err(|error| failed("output_unavailable", error))?);
         let parent = exit_dir.as_deref().or_else(|| {
@@ -93,9 +82,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 .map_err(|error| failed("session_channel_unavailable", error))?,
         );
         if args.json {
-            eprintln!(
-                "{}",
-                json!({"schemaVersion": 1, "selection": {
+            selection_notice = Some(json!({"schemaVersion": 1, "selection": {
             "provider": choice.command.provider, "model": choice.command.model,
             "effort": choice.command.effort, "reason": choice.command.reason,
         }, "policy": {"path": choice.entry.path, "version": choice.version},
@@ -106,8 +93,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         "promptSource": match &choice.inputs.prompt.source {
             crate::inputs::PromptSource::Argument => "argument".to_owned(),
             crate::inputs::PromptSource::File(path) => path.display().to_string(),
-        }, "diagnostics": choice.diagnostics.to_json()})
-            );
+        }, "diagnostics": choice.diagnostics.to_json()}));
         } else {
             eprint!("{}", choice.diagnostics.to_text());
             eprintln!(
@@ -119,7 +105,10 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             );
         }
 
-        if let Some(signal) = handlers.block_and_check() {
+        if let Some(signal) = handlers
+            .try_block_and_check()
+            .map_err(|error| failed("signal_state_unavailable", error))?
+        {
             return Err(crate::cancellation::refusal(signal, &source).into());
         }
         let argv = Argv::new(
@@ -144,13 +133,30 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         ]
         .map(OsStr::new)
         .into();
+        #[cfg(test)]
+        crate::native_entry_tests::before_managed();
         let entry = signal_state::entry();
+        #[cfg(test)]
+        let entry = crate::native_entry_tests::entry_override(entry);
         let launch = Launch {
             argv: &argv,
             channel: Some((allocated.channel(), EXIT_FILE_VARIABLE)),
             scrub: &scrub,
             grant: &grant,
-            transparent: Some(&entry),
+            transparent: {
+                #[cfg(test)]
+                {
+                    if crate::native_entry_tests::broken_reinstatement() {
+                        None
+                    } else {
+                        Some(&entry)
+                    }
+                }
+                #[cfg(not(test))]
+                {
+                    Some(&entry)
+                }
+            },
             cwd: confined
                 .as_ref()
                 .map(|confined| confined.writable[0].as_path()),
@@ -158,21 +164,27 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         };
         let mut started = false;
         let mut observe = |event| {
+            #[cfg(test)]
+            crate::native_entry_tests::managed_event(event);
             if event == LaunchEvent::Started {
                 started = true;
-                let _ = signal_state::restore_mask();
             }
         };
         let supervised = match &confined {
-            Some(confined) => keyed_launch::run_confined_observed(
+            Some(confined) => keyed_launch::run_confined_observed_with_start_check(
                 launch,
                 &keyed_launch::FilesystemGrants {
                     writable: &confined.writable,
                     runtime_read: &confined.reads(),
                 },
                 &mut observe,
+                &mut signal_state::restore_mask,
             ),
-            None => keyed_launch::run_observed(launch, &mut observe),
+            None => keyed_launch::run_observed_with_start_check(
+                launch,
+                &mut observe,
+                &mut signal_state::restore_mask,
+            ),
         };
         let supervision = supervised.map_err(|error| {
             let (failure, observed) = supervision_failure(
@@ -189,6 +201,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             _ => None,
         };
         let ending = ended.insert(supervision);
+        #[cfg(test)]
+        crate::native_entry_tests::managed_ending(ending);
         let result = allocated
             .result_after(ending)
             .map_err(|error| failed("session_result_invalid", error))?;
@@ -206,11 +220,22 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .into()
         })
     })();
+    if let Some(mut notice) = selection_notice {
+        if let Some(ending) = &ended {
+            notice["operationReports"] = json!(ending.operation_reports);
+        }
+        eprintln!("{notice}");
+    } else if let Some(ending) = &ended {
+        for report in &ending.operation_reports {
+            eprintln!("ravel: {report}");
+        }
+    }
     // A failed confined command may not have installed runner handlers.
     // Restore while whichever handler owns the transition is still installed,
     // then inspect both latches after dispositions have returned to entry.
-    let mask =
-        signal_state::restore_mask().map_err(|error| failed("signal_state_unavailable", error));
+    let mask = handlers
+        .restore_entry_mask()
+        .map_err(|error| failed("signal_state_unavailable", error));
     let channel_cleanup = channel.map_or(Ok(()), |channel| {
         channel
             .close()
@@ -227,13 +252,17 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .map_err(|error| failed("output_unavailable", error))
     });
     drop(output);
-    drop(handlers);
-    let late_signal = keyed_launch::take_interrupt().and_then(crate::cancellation::Signal::of);
-    let signal = join_cancellation(crate::cancellation::received(), runner_signal, late_signal);
+    let (signal, signal_reports) = handlers.finalise(runner_signal);
+    let mut cleanups = vec![mask, channel_cleanup, private_cleanup, restore];
+    cleanups.extend(
+        signal_reports
+            .into_iter()
+            .map(|error| Err(failed("signal_state_unavailable", error))),
+    );
     let result = settle(
         result,
         ended.as_ref(),
-        vec![mask, channel_cleanup, private_cleanup, restore],
+        cleanups,
         signal,
         &source,
         &mut io::stderr(),
@@ -272,6 +301,7 @@ fn supervision_failure(
     )
 }
 
+#[cfg(test)]
 fn join_cancellation(
     front: Option<crate::cancellation::Signal>,
     outcome: Option<crate::cancellation::Signal>,
@@ -434,6 +464,7 @@ mod tests {
     fn cancellation_reports_a_surviving_group_and_suppresses_the_result() {
         let mut diagnostics = Vec::new();
         let ended = keyed_launch::Ended {
+            operation_reports: Vec::new(),
             end: End::Interrupted {
                 signal: libc::SIGTERM,
             },
@@ -561,6 +592,7 @@ mod tests {
             assert_eq!(failure.refusal.message, "original failure");
         }
         let ended = keyed_launch::Ended {
+            operation_reports: Vec::new(),
             end: End::Exited,
             status: std::process::ExitStatus::from_raw(0),
             elapsed: Duration::ZERO,
@@ -733,6 +765,7 @@ mod tests {
             assert_eq!(fields["signalled"], "false");
             assert_eq!(fields["interrupted"], "false");
             let ended = keyed_launch::Ended {
+                operation_reports: Vec::new(),
                 end: End::Exited,
                 status,
                 elapsed: Duration::ZERO,

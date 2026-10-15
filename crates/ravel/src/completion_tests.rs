@@ -136,6 +136,7 @@ fn a_result_requires_the_corresponding_reaped_non_cancelled_launch() {
     let channel = SessionChannel::allocate(parent.path()).unwrap();
     publish_result(channel.channel().path(), "ready").unwrap();
     let mut ending = Ended {
+        operation_reports: Vec::new(),
         end: End::Exited,
         status: std::process::ExitStatus::from_raw(0),
         elapsed: std::time::Duration::ZERO,

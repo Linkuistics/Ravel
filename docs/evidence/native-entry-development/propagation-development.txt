@@ -1,0 +1,9 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_f07)'
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.10s
+────────────
+ Nextest run ID 3ed04cd2-d64a-42fc-bbde-bffd87f418ed with nextest profile: default
+    Starting 1 test across 1 binary (199 tests skipped)
+        PASS [   0.041s] (1/1) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+────────────
+     Summary [   0.041s] 1 test run: 1 passed, 199 skipped

@@ -5,14 +5,14 @@ use std::path::Path;
 use serde_json::{Map, Value};
 
 use crate::authority::{self, PolicyEntry};
-use crate::cancellation::{self, Handlers};
+use crate::cancellation;
 use crate::cli::SelectionArgs;
 use crate::context::{self, Delivered, SourceBreach};
 use crate::inputs::Inputs;
 use crate::limits::{Limits, Origin};
 use crate::policy::{self, Command, Policy, Validator, SCHEMA_VERSION};
 use crate::program::{self, Executable};
-use crate::refusal::{Diagnostics, Failure, Refusal, Stage, EXIT_REFUSED, EXIT_WORKER};
+use crate::refusal::{Diagnostics, Failure, Refusal, Stage, EXIT_REFUSED};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 
@@ -63,25 +63,11 @@ pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
     let source = entry.display();
     let worker_path = worker::locate()?;
 
-    let handlers = Handlers::install().map_err(|error| {
-        Refusal::new(
-            "cancellation_unavailable",
-            Stage::Evaluation,
-            EXIT_WORKER,
-            format!("cannot catch INT, TERM and HUP, which cancel selection: {error}"),
-            "run ravel where it can install signal handlers; nothing was evaluated",
-        )
-        .source(&source)
-    })?;
     match evaluate_and_resolve(inputs, entry, &worker_path) {
         // The program is resolved, and the handlers stay: the caller decides
         // when a signal stops cancelling.
         Ok(choice) => match cancellation::received() {
-            None => Ok(Selected {
-                choice,
-                handlers,
-                source,
-            }),
+            None => Ok(Selected { choice, source }),
             Some(signal) => Err(Failure::with_diagnostics(
                 cancellation::refusal(signal, &source).report(
                     &choice.operational.join("\n"),
@@ -90,10 +76,7 @@ pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
                 choice.diagnostics,
             )),
         },
-        Err(failure) => {
-            drop(handlers);
-            Err(overruled(failure, &source))
-        }
+        Err(failure) => Err(overruled(failure, &source)),
     }
 }
 
@@ -101,7 +84,6 @@ pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
 /// handled signal from here on is noted, and nothing yet acts on it.
 pub struct Selected {
     pub choice: Choice,
-    pub handlers: Handlers,
     /// The policy entry, as a cancellation names it.
     pub source: String,
 }

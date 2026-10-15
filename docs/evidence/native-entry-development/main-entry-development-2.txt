@@ -1,0 +1,14 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_e01) | test(native_e02) | test(native_e03) | test(native_e04) | test(native_f01)' --no-fail-fast
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.84s
+────────────
+ Nextest run ID 2d762872-261e-495a-afb8-44fef71bc5bb with nextest profile: default
+    Starting 5 tests across 1 binary (201 tests skipped)
+        PASS [   2.804s] (1/5) ravel::bin/ravel native_entry_tests::native_f01_initializer_result_failures_admit_no_children
+        PASS [   3.551s] (2/5) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+        PASS [   5.249s] (3/5) ravel::bin/ravel native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [  13.719s] (4/5) ravel::bin/ravel native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation
+        SLOW [> 60.000s] (───) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+        PASS [  62.614s] (5/5) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+────────────
+     Summary [  62.614s] 5 tests run: 5 passed (1 slow), 201 skipped

@@ -1,0 +1,20 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(an_unknown_pending) | test(required_query_errors)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1868:4
+     |
+1868 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+warning: `keyed-launch` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.62s
+────────────
+ Nextest run ID 641eda7d-3b6b-44be-970e-48506aaeeeb7 with nextest profile: default
+    Starting 2 tests across 1 binary (181 tests skipped)
+        PASS [   0.008s] (1/2) ravel::bin/ravel cancellation::tests::an_unknown_pending_set_never_confirms_absence
+        PASS [   0.014s] (2/2) ravel::bin/ravel signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state
+────────────
+     Summary [   0.015s] 2 tests run: 2 passed, 181 skipped

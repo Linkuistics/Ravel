@@ -1,0 +1,18 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(default_with_no_child_wait)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1868:4
+     |
+1868 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+────────────
+ Nextest run ID b7c652c9-3e1d-4eea-b3ba-43fe761a41cc with nextest profile: default
+    Starting 1 test across 1 binary (28 tests skipped)
+        PASS [   0.007s] (1/1) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+────────────
+     Summary [   0.007s] 1 test run: 1 passed, 28 skipped

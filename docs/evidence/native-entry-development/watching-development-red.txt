@@ -1,0 +1,42 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(default_with_no_child_wait)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1861:4
+     |
+1861 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+────────────
+ Nextest run ID 41f42984-80d4-4ec7-a73c-1d4399d6c4b4 with nextest profile: default
+    Starting 1 test across 1 binary (28 tests skipped)
+        FAIL [   0.007s] (1/1) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+  stdout ───
+
+    running 1 test
+    test run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore ... FAILED
+
+    failures:
+
+    failures:
+        run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore' (46987604) panicked at crates/keyed-launch/src/run.rs:1895:9:
+    assertion `left == right` failed
+      left: 32
+     right: 0
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.007s] 1 test run: 0 passed, 1 failed, 28 skipped
+        FAIL [   0.007s] (1/1) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+error: test run failed
+task: Failed to run task "test:runner": exit status 100

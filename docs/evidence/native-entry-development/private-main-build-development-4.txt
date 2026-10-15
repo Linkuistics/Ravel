@@ -1,0 +1,2 @@
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.17s

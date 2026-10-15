@@ -1,0 +1,44 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1861:4
+     |
+1861 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
+────────────
+ Nextest run ID 521ae6c9-28f8-4279-968f-ec838bf4fccb with nextest profile: default
+    Starting 27 tests across 1 binary (1 test skipped)
+        PASS [   0.013s] ( 1/27) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+        PASS [   0.013s] ( 2/27) keyed-launch channel::tests::completion_stays_in_its_original_directory
+        PASS [   0.013s] ( 3/27) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+        PASS [   0.014s] ( 4/27) keyed-launch channel::tests::signalling_creates_an_empty_file
+        PASS [   0.014s] ( 5/27) keyed-launch channel::tests::abandoned_cleanup_removes_channels_and_leaves_every_other_entry_alone
+        PASS [   0.015s] ( 6/27) keyed-launch channel::tests::allocation_names_a_missing_directory_and_says_what_to_do
+        PASS [   0.016s] ( 7/27) keyed-launch channel::tests::anything_at_the_channel_name_has_appeared_and_nothing_else_has
+        PASS [   0.016s] ( 8/27) keyed-launch channel::tests::abandoned_cleanup_names_the_directory_when_it_cannot_be_listed
+        PASS [   0.017s] ( 9/27) keyed-launch channel::tests::successive_allocations_in_one_directory_never_collide
+        PASS [   0.018s] (10/27) keyed-launch channel::tests::an_allocated_channel_names_a_path_that_does_not_yet_exist
+        PASS [   0.020s] (11/27) keyed-launch channel::tests::discarding_removes_the_file_and_succeeds_when_there_was_none
+        PASS [   0.023s] (12/27) keyed-launch channel::tests::appearance_does_not_follow_links_or_read_large_files_or_fifos
+        PASS [   0.011s] (13/27) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        PASS [   0.011s] (14/27) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.012s] (15/27) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.026s] (16/27) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+        PASS [   0.012s] (17/27) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+        PASS [   0.013s] (18/27) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        PASS [   0.011s] (19/27) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.013s] (20/27) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        PASS [   0.012s] (21/27) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.034s] (22/27) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+        PASS [   0.048s] (23/27) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.316s] (24/27) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   1.160s] (25/27) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+        PASS [   2.054s] (26/27) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+        PASS [   2.259s] (27/27) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+────────────
+     Summary [   2.259s] 27 tests run: 27 passed, 1 skipped

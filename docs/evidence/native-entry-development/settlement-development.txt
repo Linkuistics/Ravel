@@ -1,0 +1,10 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_s01) | test(native_s02)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+────────────
+ Nextest run ID 150ba520-e075-4382-b2ef-9174ca68d0a9 with nextest profile: default
+    Starting 2 tests across 1 binary (31 tests skipped)
+        PASS [   0.388s] (1/2) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   6.121s] (2/2) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [   6.121s] 2 tests run: 2 passed, 31 skipped

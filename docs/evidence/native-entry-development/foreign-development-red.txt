@@ -1,0 +1,64 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_unknown_status)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+────────────
+ Nextest run ID b79c8d91-84a2-4867-a32a-7d798fa456da with nextest profile: default
+    Starting 1 test across 1 binary (29 tests skipped)
+        FAIL [   0.042s] (1/1) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+  stdout ───
+
+    running 1 test
+    test run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty ... FAILED
+
+    failures:
+
+    failures:
+        run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 29 filtered out; finished in 0.04s
+
+  stderr ───
+    C4 case=native-unknown-foreign broken=false: 
+    running 1 test
+    test run::terminal_tests::terminal_recovery_role ... native S04 unrelated: physical_reap_events=[Started, Reaped], substituted_recovery_status=None, foreground=50785, foreign=50785, modes=1483, cleanup=Ok(ExitStatus(unix_wait_status(9))), error=Started parent transition failed: Input/output error (os error 5); stop target -50786 signal 9: Operation not permitted (os error 1); and reaped
+
+    thread 'run::terminal_tests::terminal_recovery_role' (47236262) panicked at crates/keyed-launch/src/run/terminal_tests.rs:988:5:
+    silent unknown-status recovery: Started parent transition failed: Input/output error (os error 5); stop target -50786 signal 9: Operation not permitted (os error 1); and reaped
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    FAILED
+
+    failures:
+
+    failures:
+        run::terminal_tests::terminal_recovery_role
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 29 filtered out; finished in 0.03s
+
+
+
+    thread 'run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty' (47236259) panicked at crates/keyed-launch/src/run/terminal_tests.rs:851:9:
+    C4 fixture failed: ExitStatus(unix_wait_status(25856)): 
+    running 1 test
+    test run::terminal_tests::terminal_recovery_role ... native S04 unrelated: physical_reap_events=[Started, Reaped], substituted_recovery_status=None, foreground=50785, foreign=50785, modes=1483, cleanup=Ok(ExitStatus(unix_wait_status(9))), error=Started parent transition failed: Input/output error (os error 5); stop target -50786 signal 9: Operation not permitted (os error 1); and reaped
+
+    thread 'run::terminal_tests::terminal_recovery_role' (47236262) panicked at crates/keyed-launch/src/run/terminal_tests.rs:988:5:
+    silent unknown-status recovery: Started parent transition failed: Input/output error (os error 5); stop target -50786 signal 9: Operation not permitted (os error 1); and reaped
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    FAILED
+
+    failures:
+
+    failures:
+        run::terminal_tests::terminal_recovery_role
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 29 filtered out; finished in 0.03s
+
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.043s] 1 test run: 0 passed, 1 failed, 29 skipped
+        FAIL [   0.042s] (1/1) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+error: test run failed
+task: Failed to run task "test:runner": exit status 100

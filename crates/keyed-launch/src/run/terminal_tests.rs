@@ -16,6 +16,15 @@ thread_local! {
     static CANCEL: Cell<bool> = const { Cell::new(false) };
     static PREPARED: Cell<bool> = const { Cell::new(false) };
     static DROP_REPORTS: Cell<bool> = const { Cell::new(false) };
+    static UNKNOWN_STATUS: Cell<bool> = const { Cell::new(false) };
+}
+
+pub(super) fn recovery_status(actual: Option<ExitStatus>) -> Option<ExitStatus> {
+    if UNKNOWN_STATUS.get() {
+        None
+    } else {
+        actual
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -319,6 +328,10 @@ fn terminal_recovery_role() {
     let terminal = Terminal::open().unwrap();
     let own = own_group();
     let saved = terminal.attributes().unwrap();
+    if case == "native-unknown-foreign" {
+        native_unknown_foreground_role(terminal, saved);
+        return;
+    }
     let background = case == "background";
     let foreign = matches!(
         case.as_str(),
@@ -935,4 +948,76 @@ fn terminal_recovery_retains_lending_query_failure() {
         "lost earlier physical foreground-query failure: {error}"
     );
     assert!(error.contains("terminal foreground query failed"));
+}
+
+#[test]
+fn native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty() {
+    pty_case("native-unknown-foreign", false);
+}
+
+fn native_unknown_foreground_role(terminal: Terminal, saved: libc::termios) {
+    let mut holder = Command::new("/bin/sleep")
+        .arg("20")
+        .process_group(0)
+        .spawn()
+        .unwrap();
+    let holder_pid = holder.id() as i32;
+    FOREIGN.set(holder_pid);
+    UNKNOWN_STATUS.set(true);
+    let argv = crate::Argv::new("/usr/bin/true".into(), vec![]);
+    let mut events = Vec::new();
+    let result = run_observed_with_start_check(
+        Launch {
+            argv: &argv,
+            channel: None,
+            scrub: &[],
+            grant: &[],
+            transparent: None,
+            cwd: None,
+            escalation: Escalation {
+                grace: Duration::ZERO,
+                kill_grace: Duration::ZERO,
+            },
+        },
+        &mut |event| events.push(event),
+        &mut || Err(std::io::Error::from_raw_os_error(libc::EIO)),
+    );
+    let after = terminal.foreground();
+    let modes = local_modes(&terminal);
+    FOREIGN.set(0);
+    UNKNOWN_STATUS.set(false);
+    let recovered = terminal
+        .hand_to(own_group())
+        .and_then(|()| terminal.restore(&saved));
+    let until = Instant::now() + Duration::from_secs(2);
+    let mut killed = false;
+    let cleanup = loop {
+        match holder.try_wait() {
+            Ok(Some(status)) => break Ok(status),
+            Err(error) => break Err(error),
+            Ok(None) => {}
+        }
+        if !killed {
+            holder.kill().unwrap();
+            killed = true;
+        }
+        if Instant::now() >= until {
+            break Err(std::io::Error::new(
+                std::io::ErrorKind::TimedOut,
+                "foreign fixture cleanup unconfirmed",
+            ));
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    };
+    let error = result.unwrap_err();
+    eprintln!("native S04 unrelated: physical_reap_events={events:?}, substituted_recovery_status=None, foreground={after}, foreign={holder_pid}, modes={modes}, cleanup={cleanup:?}, error={error}");
+    assert!(cleanup.is_ok());
+    recovered.unwrap();
+    assert_eq!(events, [LaunchEvent::Started, LaunchEvent::Reaped]);
+    assert_eq!(after, holder_pid);
+    assert!(
+        error.to_string().contains("unconfirmed"),
+        "silent unknown-status recovery: {error}"
+    );
+    assert!(error.to_string().contains("mode"));
 }

@@ -1,0 +1,54 @@
+Development verification only; not a frozen native-conformance campaign.
+["task", "test:native-entry"]
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.QwpjCS
+task: [test:native-entry] cargo rustc --locked -p ravel --bin ravel --profile dev --target-dir target/native-entry-fixture -- --cfg test -A unused
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.56s
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+────────────
+ Nextest run ID dd1d93ad-02dd-4797-9926-11f28e4241d4 with nextest profile: default
+    Starting 20 tests across 1 binary (186 tests skipped)
+        PASS [   0.056s] ( 1/20) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+        PASS [   0.140s] ( 2/20) ravel::bin/ravel worker::native_tests::native_s03_poll_eio
+        PASS [   1.208s] ( 3/20) ravel::bin/ravel worker::native_tests::native_s03_poll_echild
+        PASS [   1.220s] ( 4/20) ravel::bin/ravel worker::native_tests::native_s03_kill_performed
+        PASS [   1.223s] ( 5/20) ravel::bin/ravel worker::native_tests::native_f03_second_create
+        PASS [   1.225s] ( 6/20) ravel::bin/ravel worker::native_tests::native_f03_block_performed
+        PASS [   1.225s] ( 7/20) ravel::bin/ravel worker::native_tests::native_f03_block_omitted
+        PASS [   1.230s] ( 8/20) ravel::bin/ravel worker::native_tests::native_f03_restore_performed
+        PASS [   1.231s] ( 9/20) ravel::bin/ravel worker::native_tests::native_f03_first_create
+        PASS [   1.231s] (10/20) ravel::bin/ravel worker::native_tests::native_f03_restore_omitted
+        PASS [   2.186s] (11/20) ravel::bin/ravel worker::native_tests::native_s03_poll_eintr
+        PASS [   1.179s] (12/20) ravel::bin/ravel worker::native_tests::native_s03_stop_omitted
+        PASS [   1.170s] (13/20) ravel::bin/ravel worker::native_tests::native_s03_stop_performed
+        PASS [   2.310s] (14/20) ravel::bin/ravel worker::native_tests::native_s03_running
+        PASS [   3.115s] (15/20) ravel::bin/ravel native_entry_tests::native_f01_initializer_result_failures_admit_no_children
+        PASS [   3.200s] (16/20) ravel::bin/ravel worker::native_tests::native_s03_kill_omitted
+        PASS [   4.145s] (17/20) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+        PASS [   5.614s] (18/20) ravel::bin/ravel native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [  14.110s] (19/20) ravel::bin/ravel native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation
+        SLOW [> 60.000s] (─────) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+        PASS [  61.594s] (20/20) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+────────────
+     Summary [  61.594s] 20 tests run: 20 passed (1 slow), 186 skipped
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID 94dbeff3-6053-4bfc-8fda-f7f6874394af with nextest profile: default
+    Starting 3 tests across 1 binary (30 tests skipped)
+        PASS [   0.046s] (1/3) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+        PASS [   0.448s] (2/3) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   6.128s] (3/3) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [   6.128s] 3 tests run: 3 passed, 30 skipped
+task: [test:runner] cargo nextest run --locked -p keyed-launch --test start_check
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID 183bb073-e0da-45c1-928a-b740a9a35e88 with nextest profile: default
+    Starting 2 tests across 1 binary
+        PASS [   0.007s] (1/2) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.036s] (2/2) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+────────────
+     Summary [   0.036s] 2 tests run: 2 passed, 0 skipped

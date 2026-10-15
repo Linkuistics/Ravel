@@ -1,0 +1,12 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --test start_check
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+error[E0432]: unresolved import `keyed_launch::run_observed_with_start_check`
+ --> crates/keyed-launch/tests/start_check.rs:7:20
+  |
+7 | use keyed_launch::{run_observed_with_start_check, Argv, Escalation, Launch, LaunchEvent};
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `run_observed_with_start_check` in the root
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `keyed-launch` (test "start_check") due to 1 previous error
+error: command `/opt/homebrew/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package keyed-launch --test start_check --locked` exited with code 101
+task: Failed to run task "test:runner": exit status 101

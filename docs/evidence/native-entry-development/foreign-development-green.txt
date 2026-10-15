@@ -1,0 +1,9 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_unknown_status)'
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+────────────
+ Nextest run ID 30cd8292-3181-4522-b38f-553e90ce96a1 with nextest profile: default
+    Starting 1 test across 1 binary (29 tests skipped)
+        PASS [   0.038s] (1/1) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+────────────
+     Summary [   0.039s] 1 test run: 1 passed, 29 skipped

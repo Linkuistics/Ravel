@@ -1,0 +1,19 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --test start_check
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1861:4
+     |
+1861 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+────────────
+ Nextest run ID 980686fd-6b54-457c-a5ea-80a91e1b53ac with nextest profile: default
+    Starting 2 tests across 1 binary
+        PASS [   0.007s] (1/2) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.031s] (2/2) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+────────────
+     Summary [   0.031s] 2 tests run: 2 passed, 0 skipped

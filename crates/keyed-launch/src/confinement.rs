@@ -123,7 +123,7 @@ pub fn confinement_available() -> Result<(), LaunchError> {
         .stdin(std::process::Stdio::null());
     // An inherited ignored SIGCHLD would auto-reap the probe. Repair it only
     // for this wait, then restore the caller's disposition, including on error.
-    let ignored = crate::run::restore_child_watching();
+    let ignored = crate::run::restore_child_watching()?;
     let output = command.output();
     if ignored {
         // SAFETY: restoring the disposition inspected before the probe.

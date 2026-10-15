@@ -1,0 +1,33 @@
+{
+  "purpose": "Development preservation checks only; full matrix is unqualified",
+  "sourceExclusions": [
+    "docs/evidence/native-entry-development/",
+    ".jj/ and target/ generated build and development outputs",
+    "external compiler/libc/runtime dependencies are not source-frozen here"
+  ],
+  "environment": {
+    "NEXTEST_TEST_THREADS": "1"
+  },
+  "sourceFileCount": 177,
+  "sourceChangedDuringChecks": [],
+  "commands": [
+    {
+      "command": [
+        "task",
+        "test:native-entry"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 114.7766544590122,
+      "log": "fixture-preservation-1.txt"
+    },
+    {
+      "command": [
+        "task",
+        "check"
+      ],
+      "returncode": 0,
+      "elapsedSeconds": 204.43440179200843,
+      "log": "fixture-preservation-2.txt"
+    }
+  ]
+}

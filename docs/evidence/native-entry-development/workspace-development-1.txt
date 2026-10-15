@@ -1,0 +1,163 @@
+task: [test] cargo nextest run --locked --workspace
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.42s
+────────────
+ Nextest run ID fe65f665-cb5d-4825-a0a0-823fbdd38877 with nextest profile: default
+    Starting 296 tests across 14 binaries (20 tests skipped)
+        PASS [   0.012s] (  1/296) keyed-launch channel::tests::an_allocated_channel_names_a_path_that_does_not_yet_exist
+        PASS [   0.016s] (  2/296) keyed-launch channel::tests::allocation_names_a_missing_directory_and_says_what_to_do
+        PASS [   0.016s] (  3/296) keyed-launch channel::tests::abandoned_cleanup_names_the_directory_when_it_cannot_be_listed
+        PASS [   0.016s] (  4/296) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+        PASS [   0.017s] (  5/296) keyed-launch channel::tests::successive_allocations_in_one_directory_never_collide
+        PASS [   0.018s] (  6/296) keyed-launch channel::tests::completion_stays_in_its_original_directory
+        PASS [   0.018s] (  7/296) keyed-launch channel::tests::signalling_creates_an_empty_file
+        PASS [   0.020s] (  8/296) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+        PASS [   0.020s] (  9/296) keyed-launch channel::tests::abandoned_cleanup_removes_channels_and_leaves_every_other_entry_alone
+        PASS [   0.021s] ( 10/296) keyed-launch channel::tests::appearance_does_not_follow_links_or_read_large_files_or_fifos
+        PASS [   0.022s] ( 11/296) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+        PASS [   0.023s] ( 12/296) keyed-launch channel::tests::anything_at_the_channel_name_has_appeared_and_nothing_else_has
+        PASS [   0.023s] ( 13/296) keyed-launch channel::tests::discarding_removes_the_file_and_succeeds_when_there_was_none
+        PASS [   0.012s] ( 14/296) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.015s] ( 15/296) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.015s] ( 16/296) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        PASS [   0.014s] ( 17/296) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        PASS [   0.015s] ( 18/296) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        PASS [   0.013s] ( 19/296) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.018s] ( 20/296) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+        PASS [   0.015s] ( 21/296) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.014s] ( 22/296) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+        PASS [   0.037s] ( 23/296) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+        PASS [   0.012s] ( 24/296) keyed-launch::confinement a_confined_program_that_is_not_an_absolute_path_refuses
+        PASS [   0.027s] ( 25/296) keyed-launch::authority direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs
+        PASS [   0.055s] ( 26/296) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.322s] ( 27/296) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   0.554s] ( 28/296) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation
+        PASS [   0.558s] ( 29/296) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes
+        PASS [   0.555s] ( 30/296) keyed-launch::job a_child_that_exits_normally_leaves_the_foreground_with_another_group
+        PASS [   0.560s] ( 31/296) keyed-launch::job a_launcher_with_sigchld_ignored_still_supervises_its_child_to_an_end
+        PASS [   0.565s] ( 32/296) keyed-launch::job a_launcher_with_hup_ignored_at_entry_installs_no_hup_handler
+        PASS [   0.566s] ( 33/296) keyed-launch::job a_launcher_started_in_the_background_takes_no_foreground
+        PASS [   0.562s] ( 34/296) keyed-launch::job after_a_death_by_signal_the_launcher_takes_the_terminal_from_another_group
+        PASS [   0.009s] ( 35/296) keyed-launch::launch a_program_that_does_not_exist_names_itself_and_says_what_to_check
+        PASS [   0.548s] ( 36/296) keyed-launch::launch a_caller_built_argv_is_spawned_whole_and_directly
+        PASS [   1.070s] ( 37/296) keyed-launch::job a_transparent_launcher_with_a_terminal_is_cancelled_by_int
+        PASS [   0.548s] ( 38/296) keyed-launch::launch a_channel_appearance_does_not_emit_reaped_before_the_child_exits
+        PASS [   0.545s] ( 39/296) keyed-launch::launch a_child_signals_through_the_published_path
+        PASS [   1.097s] ( 40/296) keyed-launch::job a_transparent_launcher_hands_its_child_the_entry_state_it_was_given
+        PASS [   0.542s] ( 41/296) keyed-launch::launch a_child_that_never_signals_ends_unsignalled
+        PASS [   0.541s] ( 42/296) keyed-launch::launch a_grant_replaces_a_scrubbed_value_and_cannot_replace_the_channel
+        PASS [   1.079s] ( 43/296) keyed-launch::job int_cancels_a_launch_with_no_terminal
+        PASS [   0.540s] ( 44/296) keyed-launch::launch a_scrubbed_variable_is_removed_from_an_inherited_environment
+        PASS [   1.186s] ( 45/296) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+        PASS [   1.645s] ( 46/296) keyed-launch::interrupt an_interrupt_is_reported_against_the_launch_it_arrives_in_and_no_other
+        PASS [   0.551s] ( 47/296) keyed-launch::launch an_ignored_sigint_in_the_launcher_does_not_reach_the_child
+        PASS [   0.543s] ( 48/296) keyed-launch::launch granting_the_channel_survives_a_scrub_list_that_names_it
+        PASS [   0.535s] ( 49/296) keyed-launch::launch observed_immediate_exit_and_failed_spawn_have_exact_events
+        PASS [   0.543s] ( 50/296) keyed-launch::launch the_channel_path_is_published_under_the_callers_chosen_variable_name
+        PASS [   0.013s] ( 51/296) keyed-launch::noninteractive a_plainly_launched_child_consumes_callers_stdin_and_shares_its_session_and_descriptors
+        PASS [   2.067s] ( 52/296) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+        PASS [   1.563s] ( 53/296) keyed-launch::launch a_child_that_signals_and_exits_inside_the_grace_is_never_touched
+        PASS [   1.078s] ( 54/296) keyed-launch::launch an_empty_channel_signals
+        PASS [   0.544s] ( 55/296) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs
+        PASS [   0.544s] ( 56/296) keyed-launch::launch the_child_starts_in_the_given_directory
+        PASS [   0.009s] ( 57/296) keyed-launch::reraise a_reraised_signal_reaches_the_parent_as_a_wait_status
+        PASS [   1.081s] ( 58/296) keyed-launch::launch successive_launches_get_independent_channels
+        PASS [   0.007s] ( 59/296) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.008s] ( 60/296) ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.569s] ( 61/296) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation
+        PASS [   0.008s] ( 62/296) ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.011s] ( 63/296) ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.008s] ( 64/296) ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.008s] ( 65/296) ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.032s] ( 66/296) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+        PASS [   0.010s] ( 67/296) ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.010s] ( 68/296) ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.011s] ( 69/296) ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.009s] ( 70/296) ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   2.320s] ( 71/296) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+        FAIL [   0.312s] ( 72/296) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+  stdout ───
+
+    running 1 test
+    test context_reads_params_choice_and_environment_grants_reach_policy ... FAILED
+
+    failures:
+
+    failures:
+        context_reads_params_choice_and_environment_grants_reach_policy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.30s
+
+  stderr ───
+
+    thread 'context_reads_params_choice_and_environment_grants_reach_policy' (47089580) panicked at crates/ravel/tests/cli.rs:184:5:
+    ravel: refused (signal_state_unavailable, stage exec): executable-entry signal capture unavailable (operation 2, signal 9, errno 22); nothing was evaluated
+      source: /Users/antony/Development/Ravel.simplify-and-componentize/target/debug/ravel
+      remedy: reinstall ravel from a release archive or the Homebrew formula; a build for this platform must run its initializer before main
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 15 tests still running
+        FAIL [   0.313s] ( 73/296) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+  stdout ───
+
+    running 1 test
+    test confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy ... FAILED
+
+    failures:
+
+    failures:
+        confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.31s
+
+  stderr ───
+
+    thread 'confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy' (47089575) panicked at crates/ravel/tests/cli.rs:361:5:
+    ravel: refused (signal_state_unavailable, stage exec): executable-entry signal capture unavailable (operation 2, signal 9, errno 22); nothing was evaluated
+      source: /Users/antony/Development/Ravel.simplify-and-componentize/target/debug/ravel
+      remedy: reinstall ravel from a release archive or the Homebrew formula; a build for this platform must run its initializer before main
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.285s] ( 74/296) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   2.616s] ( 75/296) keyed-launch::job a_raw_mode_child_killed_by_the_escalation_leaves_the_terminal_restored
+        PASS [   1.549s] ( 76/296) keyed-launch::launch an_unsignalled_child_runs_to_its_own_exit_untouched
+        PASS [   0.542s] ( 77/296) keyed-launch::noninteractive standalone_child_has_a_new_session_and_cannot_consume_callers_stdin
+        PASS [   0.717s] ( 78/296) keyed-launch::noninteractive leader_exit_stops_a_group_helper_before_runner_returns
+        PASS [   2.067s] ( 79/296) keyed-launch::launch a_signalled_child_that_keeps_waiting_is_terminated_after_the_grace
+        PASS [   2.577s] ( 80/296) keyed-launch::launch a_child_that_ignores_sigterm_is_killed_after_the_kill_grace
+        PASS [   2.066s] ( 81/296) keyed-launch::launch a_stopped_child_is_neither_reaped_nor_killed
+        PASS [   1.064s] ( 82/296) keyed-launch::noninteractive sigint_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.054s] ( 83/296) keyed-launch::noninteractive sigterm_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.575s] ( 84/296) keyed-launch::noninteractive a_stubborn_noninteractive_child_is_killed_after_the_kill_grace
+        PASS [   2.080s] ( 85/296) keyed-launch::launch the_escalation_reaps_the_childs_descendants
+        PASS [   3.131s] ( 86/296) keyed-launch::launch a_term_ignoring_descendant_is_gone_before_the_launch_returns
+        FAIL [  10.013s] ( 87/296) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+  stdout ───
+
+    running 1 test
+    test cancellation_during_selection_launches_nothing_and_during_session_reaps_group ... FAILED
+
+    failures:
+
+    failures:
+        cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 10.01s
+
+  stderr ───
+
+    thread 'cancellation_during_selection_launches_nothing_and_during_session_reaps_group' (47089576) panicked at crates/ravel/tests/cli.rs:252:9:
+    fixture never became ready: /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmpFRbdZs/ready
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [  12.299s] 87/296 tests run: 84 passed, 3 failed, 20 skipped
+        FAIL [   0.312s] ( 72/296) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        FAIL [   0.313s] ( 73/296) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        FAIL [  10.013s] ( 87/296) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+warning: 209/296 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+task: Failed to run task "test": exit status 100

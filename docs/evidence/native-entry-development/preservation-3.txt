@@ -1,0 +1,264 @@
+Development verification only; not a frozen native-conformance campaign.
+["task", "test:session"]
+task: [test:session] cargo nextest run --locked -p ravel 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+────────────
+ Nextest run ID dcd524b4-de35-4f86-929f-f6800a6c2918 with nextest profile: default
+    Starting 242 tests across 5 binaries (10 tests skipped)
+        PASS [   0.011s] (  1/242) ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.011s] (  2/242) ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.012s] (  3/242) ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.013s] (  4/242) ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.014s] (  5/242) ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.018s] (  6/242) ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.020s] (  7/242) ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.020s] (  8/242) ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.022s] (  9/242) ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.195s] ( 10/242) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.194s] ( 11/242) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   0.318s] ( 12/242) ravel::cli worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup
+        PASS [   0.329s] ( 13/242) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   0.328s] ( 14/242) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure
+        PASS [   0.389s] ( 15/242) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   0.877s] ( 16/242) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   0.882s] ( 17/242) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        PASS [   0.934s] ( 18/242) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   1.001s] ( 19/242) ravel::hostile a_package_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   0.858s] ( 20/242) ravel::hostile a_probe_build_is_never_accepted_as_an_installations_worker
+        PASS [   1.337s] ( 21/242) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.374s] ( 22/242) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.464s] ( 23/242) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   0.660s] ( 24/242) ravel::hostile diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses
+        PASS [   0.016s] ( 25/242) ravel::session_process end_session_refuses_missing_empty_and_stale_inherited_context
+        PASS [   0.542s] ( 26/242) ravel::session_process a_child_that_exits_without_signalling_has_no_opaque_result
+        PASS [   0.632s] ( 27/242) ravel::hostile tsconfig_paths_beside_an_admitted_entry_stay_inert_and_fire_under_the_tsconfig_probe
+        PASS [   0.007s] ( 28/242) ravel::bin/ravel authority::tests::only_a_path_the_worker_imports_exactly_is_a_specifier
+        PASS [   2.011s] ( 29/242) ravel::hostile a_cwd_dotenv_and_bunfig_preload_stay_inert_and_fire_under_the_autoload_probe
+        PASS [   0.045s] ( 30/242) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+        PASS [   0.007s] ( 31/242) ravel::bin/ravel cancellation::tests::a_handled_signal_pending_behind_the_block_cancels
+        PASS [   0.006s] ( 32/242) ravel::bin/ravel cancellation::tests::an_unknown_pending_set_never_confirms_absence
+        PASS [   0.006s] ( 33/242) ravel::bin/ravel cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block
+        PASS [   0.006s] ( 34/242) ravel::bin/ravel choice::tests::the_request_carries_the_prompt_and_every_parameter_beside_the_caller_data
+        PASS [   0.007s] ( 35/242) ravel::bin/ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.007s] ( 36/242) ravel::bin/ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.007s] ( 37/242) ravel::bin/ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.013s] ( 38/242) ravel::bin/ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.009s] ( 39/242) ravel::bin/ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.009s] ( 40/242) ravel::bin/ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.008s] ( 41/242) ravel::bin/ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.007s] ( 42/242) ravel::bin/ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.010s] ( 43/242) ravel::bin/ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.007s] ( 44/242) ravel::bin/ravel context::tests::a_later_version_is_unsupported_and_an_executable_field_says_why
+        PASS [   0.006s] ( 45/242) ravel::bin/ravel context::tests::a_marker_is_named_for_what_it_marks_only_in_a_loaders_result
+        PASS [   0.007s] ( 46/242) ravel::bin/ravel context::tests::delivery_attaches_the_measured_sources_and_measures_the_sorted_encoding
+        PASS [   0.007s] ( 47/242) ravel::bin/ravel context::tests::each_malformed_shape_is_refused_at_its_location
+        PASS [   0.007s] ( 48/242) ravel::bin/ravel context::tests::every_field_of_a_version_1_context_is_accepted_and_nothing_is_required_but_the_version
+        PASS [   0.007s] ( 49/242) ravel::bin/ravel context::tests::more_source_records_than_the_bound_refuse_by_name
+        PASS [   0.006s] ( 50/242) ravel::bin/ravel environment::tests::a_flag_adds_to_the_names_the_owner_settings_grant
+        PASS [   0.006s] ( 51/242) ravel::bin/ravel environment::tests::a_grant_is_one_name_and_duplicates_are_one_grant
+        PASS [   0.006s] ( 52/242) ravel::bin/ravel environment::tests::exclusion_is_by_class_and_leaves_its_near_misses_grantable
+        PASS [   0.006s] ( 53/242) ravel::bin/ravel frame::tests::a_frame_round_trips_with_a_big_endian_length
+        PASS [   1.719s] ( 54/242) ravel::hostile bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   2.098s] ( 55/242) ravel::hostile a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autoload_probe
+        PASS [   0.006s] ( 56/242) ravel::bin/ravel limits::tests::a_bound_outside_its_range_or_not_plain_digits_is_malformed
+        PASS [   0.007s] ( 57/242) ravel::bin/ravel frame::tests::a_truncated_frame_reads_as_closed_and_an_oversized_one_is_refused
+        PASS [   1.782s] ( 58/242) ravel::hostile an_imports_alias_to_a_registered_specifier_is_a_package_lookup_and_never_the_embedded_module
+        PASS [   0.007s] ( 59/242) ravel::bin/ravel limits::tests::a_context_budget_below_the_read_default_caps_each_read
+        PASS [   0.006s] ( 60/242) ravel::bin/ravel limits::tests::a_flag_replaces_a_setting_which_replaces_the_default
+        PASS [   0.006s] ( 61/242) ravel::bin/ravel limits::tests::the_defaults_and_their_origins
+        PASS [   0.006s] ( 62/242) ravel::bin/ravel limits::tests::the_selection_bound_is_one_second_to_ten_minutes
+        PASS [   1.992s] ( 63/242) ravel::hostile a_package_json_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   1.247s] ( 64/242) ravel::hostile node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   1.041s] ( 65/242) ravel::session_process cancellation_reaps_the_child_and_discards_an_already_published_result
+        PASS [   1.884s] ( 66/242) ravel::hostile classes_with_no_known_firing_configuration_are_reported_not_counted
+        PASS [   2.800s] ( 67/242) ravel::hostile a_cwd_package_json_stays_inert_and_fires_for_an_entry_admitted_there
+        PASS [   1.756s] ( 68/242) ravel::hostile the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly
+        PASS [   3.139s] ( 69/242) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+        PASS [   2.395s] ( 70/242) ravel::hostile every_documented_specifier_resolves_to_its_embedded_module_beside_a_package_shadow
+        PASS [   3.070s] ( 71/242) ravel::session_process nested_session_signals_only_its_own_inherited_context
+        PASS [   2.543s] ( 72/242) ravel::bin/ravel native_entry_tests::native_f01_initializer_result_failures_admit_no_children
+        PASS [   3.412s] ( 73/242) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+        PASS [   5.073s] ( 74/242) ravel::bin/ravel native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [   7.372s] ( 75/242) ravel::hostile a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+        PASS [   6.187s] ( 76/242) ravel::session_process opaque_results_return_after_the_signalling_process_is_reaped
+        PASS [  14.099s] ( 77/242) ravel::bin/ravel native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation
+        SLOW [> 60.000s] (───────) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+        PASS [  61.688s] ( 78/242) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+        PASS [   0.139s] ( 79/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean
+        PASS [   0.213s] ( 80/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove
+        PASS [   0.118s] ( 81/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_create_clean
+        PASS [   0.125s] ( 82/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean
+        PASS [   0.121s] ( 83/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove
+        PASS [   0.149s] ( 84/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move
+        PASS [   0.128s] ( 85/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace
+        PASS [   0.124s] ( 86/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink
+        PASS [   0.121s] ( 87/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown
+        PASS [   0.163s] ( 88/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean
+        PASS [   0.118s] ( 89/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove
+        PASS [   0.128s] ( 90/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation
+        PASS [   0.123s] ( 91/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean
+        PASS [   0.159s] ( 92/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove
+        PASS [   0.120s] ( 93/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean
+        PASS [   0.126s] ( 94/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove
+        PASS [   0.129s] ( 95/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success
+        PASS [   0.155s] ( 96/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move
+        PASS [   0.120s] ( 97/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove
+        PASS [   0.125s] ( 98/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace
+        PASS [   0.118s] ( 99/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink
+        PASS [   0.159s] (100/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown
+        PASS [   0.007s] (101/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_moved_path_destructor_disarmed
+        PASS [   1.281s] (102/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined
+        PASS [   1.320s] (103/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_empty
+        PASS [   1.273s] (104/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_multiline
+        PASS [   1.344s] (105/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_unicode
+        PASS [   0.757s] (106/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup
+        PASS [   0.791s] (107/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int
+        PASS [   0.743s] (108/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late
+        PASS [   0.823s] (109/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term
+        PASS [   0.740s] (110/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean
+        PASS [   0.738s] (111/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove
+        PASS [   0.740s] (112/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean
+        PASS [   0.740s] (113/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean
+        PASS [   0.826s] (114/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove
+        PASS [   0.122s] (115/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_partial_move
+        PASS [   0.112s] (116/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_partial_replace
+        PASS [   0.196s] (117/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_partial_symlink
+        PASS [   0.111s] (118/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_partial_unknown
+        PASS [   0.759s] (119/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean
+        PASS [   0.808s] (120/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove
+        PASS [   0.124s] (121/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_real_channel_errno
+        PASS [   0.119s] (122/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transfer_success
+        PASS [   0.195s] (123/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_move
+        PASS [   0.113s] (124/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_remove
+        PASS [   0.117s] (125/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_replace
+        PASS [   0.114s] (126/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_symlink
+        PASS [   0.168s] (127/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_unknown
+        PASS [   0.742s] (128/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_choice_missing
+        PASS [   0.832s] (129/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_choice_valid
+        PASS [   0.742s] (130/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front
+        PASS [   0.131s] (131/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean
+        PASS [   0.175s] (132/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean
+        PASS [   0.121s] (133/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove
+        PASS [   0.133s] (134/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean
+        PASS [   0.125s] (135/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove
+        PASS [   0.156s] (136/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean
+        PASS [   0.120s] (137/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove
+        PASS [   0.735s] (138/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_late_cancellation_wait
+        PASS [   0.441s] (139/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate
+        PASS [   0.839s] (140/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait
+        PASS [   0.823s] (141/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait
+        PASS [   0.859s] (142/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait
+        PASS [   0.795s] (143/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait
+        PASS [   0.803s] (144/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait
+        PASS [   0.127s] (145/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean
+        PASS [   0.208s] (146/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove
+        PASS [   0.112s] (147/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_move
+        PASS [   0.114s] (148/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_replace
+        PASS [   0.113s] (149/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_symlink
+        PASS [   0.203s] (150/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_unknown
+        PASS [   0.434s] (151/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait
+        PASS [   0.387s] (152/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait
+        PASS [   0.466s] (153/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait
+        PASS [   0.418s] (154/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait
+        PASS [   0.383s] (155/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait
+        PASS [   0.762s] (156/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait
+        PASS [   0.791s] (157/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait
+        PASS [   0.738s] (158/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait
+        PASS [   0.827s] (159/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait
+        PASS [   0.737s] (160/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait
+        PASS [   0.153s] (161/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean
+        PASS [   0.193s] (162/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove
+        PASS [   0.131s] (163/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean
+        PASS [   0.119s] (164/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove
+        PASS [   1.134s] (165/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait
+        PASS [   1.205s] (166/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait
+        PASS [   1.153s] (167/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait
+        PASS [   1.157s] (168/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait
+        PASS [   1.152s] (169/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait
+        PASS [   0.740s] (170/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transfer_success
+        PASS [   0.736s] (171/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_move
+        PASS [   0.727s] (172/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_remove
+        PASS [   0.724s] (173/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_replace
+        PASS [   0.729s] (174/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_symlink
+        PASS [   0.782s] (175/242) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_unknown
+        PASS [   0.008s] (176/242) ravel::bin/ravel policy::tests::a_version_1_policy_refuses_with_the_rewrite_remedy_and_another_as_unsupported
+        PASS [   0.009s] (177/242) ravel::bin/ravel run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error
+        PASS [   0.009s] (178/242) ravel::bin/ravel policy::tests::each_other_failure_of_select_has_its_own_code
+        PASS [   0.010s] (179/242) ravel::bin/ravel policy::tests::a_selected_result_is_the_command_as_returned
+        PASS [   0.010s] (180/242) ravel::bin/ravel run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement
+        PASS [   0.010s] (181/242) ravel::bin/ravel settings::tests::a_missing_file_or_a_home_that_cannot_place_one_sets_nothing
+        PASS [   0.011s] (182/242) ravel::bin/ravel policy::tests::a_result_over_the_message_bound_refuses_by_name
+        PASS [   0.011s] (183/242) ravel::bin/ravel policy::tests::a_policy_is_a_version_a_select_and_an_optional_loader
+        PASS [   0.011s] (184/242) ravel::bin/ravel policy::tests::every_malformed_result_names_where_it_is_wrong
+        PASS [   0.012s] (185/242) ravel::bin/ravel run::tests::runner_error_conversion_preserves_start_classifications_and_success_settlement
+        PASS [   0.012s] (186/242) ravel::bin/ravel policy::tests::a_policys_refusal_keeps_its_code_beside_the_stable_one
+        PASS [   0.013s] (187/242) ravel::bin/ravel settings::tests::every_key_is_optional_and_each_is_read
+        PASS [   0.014s] (188/242) ravel::bin/ravel settings::tests::a_settings_path_that_is_not_a_regular_file_refuses
+        PASS [   0.014s] (189/242) ravel::bin/ravel run::tests::cancellation_reports_a_surviving_group_and_suppresses_the_result
+        PASS [   0.015s] (190/242) ravel::bin/ravel policy::tests::every_invalid_policy_names_where_it_is_wrong
+        PASS [   0.021s] (191/242) ravel::bin/ravel settings::tests::a_value_is_held_to_its_flags_rule_and_the_file_to_its_shape
+        PASS [   0.013s] (192/242) ravel::bin/ravel signal_state::capture_tests::required_query_errors_never_publish_partial_entry_state
+        PASS [   0.715s] (193/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_during_real_teardown
+        PASS [   0.492s] (194/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_eof_overflow
+        PASS [   0.935s] (195/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_hup
+        PASS [   0.764s] (196/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_int
+        PASS [   1.176s] (197/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_term
+        PASS [   1.776s] (198/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_cancellation_timeout_overflow
+        PASS [   0.065s] (199/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_fixture_deadline
+        PASS [   0.888s] (200/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_late_choice_cancellation
+        PASS [   1.348s] (201/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_nofault_empty
+        PASS [   1.272s] (202/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_nofault_multiline
+        FAIL [   1.182s] (203/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_nofault_unicode
+  stdout ───
+
+    running 1 test
+    test worker::admission_tests::worker_reap_admission_nofault_unicode ... FAILED
+
+    failures:
+
+    failures:
+        worker::admission_tests::worker_reap_admission_nofault_unicode
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 205 filtered out; finished in 1.17s
+
+  stderr ───
+    case scenario=nofault-unicode fault=none route=front status=exit status: 101 elapsed=1.172411458s
+    physical worker pid=44113 status=signal: 15 (SIGTERM) directory=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/tmp/ravel-worker.fH7M0L removed=true
+    reported worker pid=44113 status=Ok(ExitStatus(unix_wait_status(15))) removal=Ok(()) operations=[]
+    END-REPORT-INPUT
+
+    thread 'worker::admission_tests::worker_reap_admission_fixture' (47928196) panicked at crates/ravel/src/worker_admission_tests.rs:610:9:
+    no-fault session failed: Err(Failure { refusal: Refusal(Details { code: "selection_timeout", stage: Evaluation, message: "the policy worker /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/libexec/ravel/ravel-policy was not ready for the policy within the selection bound of 1000 ms (settings.json), so worker teardown was attempted and nothing was launched", remedy: "reinstall ravel so that its front and worker come from one build; in a source checkout, run `task worker`; on a heavily loaded machine, or allow more time with timeoutMs in the owner settings or --timeout-ms, up to 600000", exit: 124, input: Some("settings.json"), source: Some("/private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/libexec/ravel/ravel-policy"), location: None, policy_code: None, bound: Some(Bound { name: "selection", unit: "ms", value: 1000, origin: Set("settings.json") }), signal: None }), diagnostics: Some(Diagnostics { stdout: [], stderr: [] }) })
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+    thread 'worker::admission_tests::worker_reap_admission_nofault_unicode' (47928170) panicked at crates/ravel/src/worker_admission_tests.rs:134:17:
+    nofault-unicode/none/front: physical worker pid=44113 status=signal: 15 (SIGTERM) directory=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/tmp/ravel-worker.fH7M0L removed=true
+    reported worker pid=44113 status=Ok(ExitStatus(unix_wait_status(15))) removal=Ok(()) operations=[]
+    END-REPORT-INPUT
+
+    thread 'worker::admission_tests::worker_reap_admission_fixture' (47928196) panicked at crates/ravel/src/worker_admission_tests.rs:610:9:
+    no-fault session failed: Err(Failure { refusal: Refusal(Details { code: "selection_timeout", stage: Evaluation, message: "the policy worker /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/libexec/ravel/ravel-policy was not ready for the policy within the selection bound of 1000 ms (settings.json), so worker teardown was attempted and nothing was launched", remedy: "reinstall ravel so that its front and worker come from one build; in a source checkout, run `task worker`; on a heavily loaded machine, or allow more time with timeoutMs in the owner settings or --timeout-ms, up to 600000", exit: 124, input: Some("settings.json"), source: Some("/private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8aH0Fb/libexec/ravel/ravel-policy"), location: None, policy_code: None, bound: Some(Bound { name: "selection", unit: "ms", value: 1000, origin: Set("settings.json") }), signal: None }), diagnostics: Some(Diagnostics { stdout: [], stderr: [] }) })
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+    running 1 test
+    test worker::admission_tests::worker_reap_admission_fixture ... FAILED
+
+    failures:
+
+    failures:
+        worker::admission_tests::worker_reap_admission_fixture
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 205 filtered out; finished in 1.02s
+
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [ 118.845s] 203/242 tests run: 202 passed (1 slow), 1 failed, 10 skipped
+        FAIL [   1.182s] (203/242) ravel::bin/ravel worker::admission_tests::worker_reap_admission_nofault_unicode
+warning: 39/242 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+task: Failed to run task "test:session": exit status 100

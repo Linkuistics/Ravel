@@ -5,209 +5,361 @@ use std::sync::atomic::{AtomicI32, Ordering};
 use crate::refusal::{Refusal, Stage};
 use crate::signal_state;
 
-/// The handled signals, by number and name.
 const HANDLED: [(libc::c_int, &str); 3] = [
     (libc::SIGINT, "SIGINT"),
     (libc::SIGTERM, "SIGTERM"),
     (libc::SIGHUP, "SIGHUP"),
 ];
-
-/// The first handled signal received, or 0. Process-global, because a
-/// disposition is.
 static RECEIVED: AtomicI32 = AtomicI32::new(0);
+#[cfg(test)]
+static PENDING_FAULT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+#[cfg(test)]
+static BLOCK_FAULT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
-/// One of the handled signals.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Signal {
     number: libc::c_int,
     name: &'static str,
 }
-
 impl Signal {
     pub fn of(number: i32) -> Option<Self> {
         HANDLED
             .iter()
-            .find(|&&(handled, _)| handled == number)
+            .find(|&&(n, _)| n == number)
             .map(|&(number, name)| Self { number, name })
     }
     pub fn name(self) -> &'static str {
         self.name
     }
-
-    /// The status a shell reports for a process this signal ended: `128 + N`.
     pub fn exit(self) -> u8 {
         u8::try_from(128 + self.number).unwrap_or(u8::MAX)
     }
 }
-
-/// The handled signal received since the handlers were installed, if any.
 pub fn received() -> Option<Signal> {
-    let number = RECEIVED.load(Ordering::SeqCst);
-    HANDLED
-        .iter()
-        .find(|&&(handled, _)| handled == number)
-        .map(|&(number, name)| Signal { number, name })
+    Signal::of(RECEIVED.load(Ordering::SeqCst))
 }
-
-/// Only an atomic store is async-signal-safe, so that is all the handler
-/// does. The first signal is kept: it is the one that cancelled.
 extern "C" fn on_signal(signal: libc::c_int) {
     let _ = RECEIVED.compare_exchange(0, signal, Ordering::SeqCst, Ordering::SeqCst);
 }
 
-/// The handlers installed for one evaluation. Dropping them restores each
-/// signal's entry disposition.
+fn checked(result: i32) -> io::Result<()> {
+    if result == -1 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+fn mask_result(result: i32) -> io::Result<()> {
+    if result == 0 {
+        Ok(())
+    } else {
+        Err(io::Error::from_raw_os_error(result))
+    }
+}
+fn handled_set() -> io::Result<libc::sigset_t> {
+    let mut set = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+    checked(unsafe { libc::sigemptyset(&mut set) })?;
+    for (signal, _) in HANDLED {
+        checked(unsafe { libc::sigaddset(&mut set, signal) })?;
+    }
+    Ok(set)
+}
+
+/// Front-owned protection, retained even after partial installation. No Drop
+/// performs a hidden transition: all release reports belong to finalisation.
 pub struct Handlers {
     entry: Vec<(libc::c_int, libc::sigaction)>,
+    blocked: bool,
+    installed_complete: bool,
 }
-
 impl Handlers {
-    /// Catch each handled signal that is not ignored, keeping its entry
-    /// disposition to restore.
-    pub fn install() -> io::Result<Handlers> {
-        let mut handlers = Handlers { entry: Vec::new() };
+    pub fn new() -> Self {
+        Self {
+            entry: Vec::new(),
+            blocked: false,
+            installed_complete: false,
+        }
+    }
+
+    pub fn begin(&mut self) -> io::Result<()> {
+        let set = handled_set()?;
+        let mut previous = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, &mut previous) })?;
+        self.blocked = true;
+        RECEIVED.store(0, Ordering::SeqCst);
         for (signal, _) in HANDLED {
-            // SAFETY: a zeroed sigaction is a valid value, and with a null new
-            // action sigaction only writes the current one into it.
-            let mut entry: libc::sigaction = unsafe { std::mem::zeroed() };
-            if unsafe { libc::sigaction(signal, ptr::null(), &mut entry) } == -1 {
-                return Err(io::Error::last_os_error());
-            }
-            if entry.sa_sigaction == libc::SIG_IGN {
+            let mut original = unsafe { std::mem::zeroed::<libc::sigaction>() };
+            checked(unsafe { libc::sigaction(signal, ptr::null(), &mut original) })?;
+            if original.sa_sigaction == libc::SIG_IGN {
                 continue;
             }
-            // SAFETY: the action's mask is emptied before use, and the handler
-            // performs one atomic operation.
-            let installed = unsafe {
-                let mut action: libc::sigaction = std::mem::zeroed();
-                action.sa_sigaction = on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
-                action.sa_flags = libc::SA_RESTART;
-                libc::sigemptyset(&mut action.sa_mask);
-                libc::sigaction(signal, &action, ptr::null_mut())
-            };
-            if installed == -1 {
+            let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+            action.sa_sigaction = on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
+            action.sa_flags = libc::SA_RESTART;
+            checked(unsafe { libc::sigemptyset(&mut action.sa_mask) })?;
+            // Own the original before any attempted mutation, including a
+            // physical mutation whose reported result is later substituted.
+            self.entry.push((signal, original));
+            checked(unsafe { libc::sigaction(signal, &action, ptr::null_mut()) })?;
+        }
+        self.installed_complete = true;
+        mask_result(unsafe {
+            libc::pthread_sigmask(libc::SIG_SETMASK, &previous, ptr::null_mut())
+        })?;
+        self.blocked = false;
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub fn install() -> io::Result<Self> {
+        let mut scope = Self::new();
+        scope.begin()?;
+        Ok(scope)
+    }
+    #[cfg(test)]
+    pub fn block_and_check(&mut self) -> Option<Signal> {
+        self.try_block_and_check().expect("checked signal snapshot")
+    }
+
+    pub fn try_block_and_check(&mut self) -> io::Result<Option<Signal>> {
+        self.blocked = false;
+        #[cfg(test)]
+        if BLOCK_FAULT.load(Ordering::Relaxed) {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        }
+        let set = handled_set()?;
+        mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, ptr::null_mut()) })?;
+        self.blocked = true;
+        let mut pending = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        let queried = unsafe { libc::sigpending(&mut pending) };
+        #[cfg(test)]
+        let queried = if PENDING_FAULT.load(Ordering::Relaxed) {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        } else {
+            queried
+        };
+        checked(queried)?;
+        let mut eligible = None;
+        for (number, name) in HANDLED {
+            let member = unsafe { libc::sigismember(&pending, number) };
+            if member == -1 {
                 return Err(io::Error::last_os_error());
             }
-            handlers.entry.push((signal, entry));
-        }
-        Ok(handlers)
-    }
-
-    /// The linearization point. Block the handled signals in this thread; the
-    /// threads that drain the worker have them blocked already, so from here
-    /// on none of them is taken by any thread, and one that arrives stays
-    /// pending. Then look once more: a signal the handler noted, or one now
-    /// pending that the caller had not blocked, cancels. A signal the caller
-    /// blocked was never a cancellation, and stays pending for the harness.
-    ///
-    /// The signals stay blocked whatever the answer: until [`reraise`]
-    /// reports a cancellation, or the pre-exec hook reinstates the caller's
-    /// mask.
-    pub fn block_and_check(&self) -> Option<Signal> {
-        // SAFETY: the sets are initialised by sigemptyset and sigpending
-        // before use.
-        let pending = unsafe {
-            let mut handled: libc::sigset_t = std::mem::zeroed();
-            libc::sigemptyset(&mut handled);
-            for (signal, _) in &self.entry {
-                libc::sigaddset(&mut handled, *signal);
+            if member == 1
+                && eligible.is_none()
+                && {
+                    #[cfg(not(test))]
+                    {
+                        !signal_state::blocked_at_entry(number)
+                    }
+                    #[cfg(test)]
+                    {
+                        !signal_state::blocked_at_entry(number)
+                            || crate::native_entry_tests::broken_blocked_pending()
+                    }
+                }
+                && !signal_state::ignored_at_entry(number)
+            {
+                eligible = Some(Signal { number, name });
             }
-            libc::pthread_sigmask(libc::SIG_BLOCK, &handled, ptr::null_mut());
-            let mut pending: libc::sigset_t = std::mem::zeroed();
-            libc::sigemptyset(&mut pending);
-            libc::sigpending(&mut pending);
-            pending
-        };
-        received().or_else(|| {
-            HANDLED
-                .iter()
-                .filter(|&&(signal, _)| self.entry.iter().any(|(handled, _)| *handled == signal))
-                .filter(|&&(signal, _)| !signal_state::blocked_at_entry(signal))
-                // SAFETY: the set was filled by sigpending.
-                .find(|&&(signal, _)| unsafe { libc::sigismember(&pending, signal) } == 1)
-                .map(|&(number, name)| Signal { number, name })
-        })
-    }
-}
-
-impl Drop for Handlers {
-    fn drop(&mut self) {
-        for (signal, entry) in &self.entry {
-            // SAFETY: reinstating a disposition sigaction itself reported.
-            unsafe { libc::sigaction(*signal, entry, ptr::null_mut()) };
         }
+        Ok(received().or(eligible))
+    }
+
+    pub fn finalise(&mut self, outcome: Option<Signal>) -> (Option<Signal>, Vec<io::Error>) {
+        let front = received();
+        let mut reports = Vec::new();
+        if let Err(error) = self.restore_entry_mask() {
+            reports.push(io::Error::new(
+                error.kind(),
+                format!("entry mask restore: {error}"),
+            ));
+        }
+        // Handlers are still present while entry restoration delivers eligible
+        // pending cancellation. Readers retain their independently inherited mask.
+        let front = front.or(received());
+        let late = keyed_launch::take_interrupt().and_then(Signal::of);
+        let pending = match self.try_block_and_check() {
+            Ok(signal) => signal,
+            Err(error) => {
+                reports.push(io::Error::new(
+                    error.kind(),
+                    format!("final signal snapshot: {error}"),
+                ));
+                None
+            }
+        };
+        let signal = front.or(outcome).or(late).or(received()).or(pending);
+        let mut released = self.blocked;
+        if self.blocked {
+            for (number, action) in &self.entry {
+                if let Err(error) =
+                    checked(unsafe { libc::sigaction(*number, action, ptr::null_mut()) })
+                {
+                    reports.push(io::Error::new(
+                        error.kind(),
+                        format!("signal {number} disposition release: {error}"),
+                    ));
+                    released = false;
+                }
+            }
+        } else {
+            reports.push(io::Error::other(
+                "main mask not confirmed blocked; handlers retained",
+            ));
+        }
+        if released && signal.is_none() {
+            if let Err(error) = signal_state::restore_mask() {
+                reports.push(io::Error::new(
+                    error.kind(),
+                    format!("final mask release: {error}"),
+                ));
+            } else {
+                self.blocked = false;
+            }
+        }
+        (signal, reports)
+    }
+
+    pub fn restore_entry_mask(&mut self) -> io::Result<()> {
+        if !self.installed_complete {
+            return Err(io::Error::other("partial signal installation; entry-mask release deferred until the blocked final snapshot"));
+        }
+        self.blocked = false;
+        signal_state::restore_mask()
     }
 }
 
-/// Refuse with the cancellation if a handled signal has been received.
 pub fn check(source: &str) -> Result<(), Refusal> {
     match received() {
         Some(signal) => Err(refusal(signal, source)),
         None => Ok(()),
     }
 }
-
-/// The refusal a cancelled selection reports before it re-raises `signal`.
 pub fn refusal(signal: Signal, source: &str) -> Refusal {
     let name = signal.name();
-    Refusal::new(
-        "selection_cancelled",
-        Stage::Evaluation,
-        signal.exit(),
-        format!(
-            "selection with the policy {source} was cancelled by {name}: worker teardown was \
-             attempted and nothing was launched"
-        ),
-        format!(
-            "nothing needs fixing if the signal was meant; otherwise run the same command again. \
-             ravel ends by re-raising {name}, so its caller sees that signal"
-        ),
-    )
-    .source(source)
-    .signal(signal)
+    Refusal::new("selection_cancelled", Stage::Evaluation, signal.exit(),
+        format!("selection with the policy {source} was cancelled by {name}: worker teardown was attempted and nothing was launched"),
+        format!("nothing needs fixing if the signal was meant; otherwise run the same command again. ravel ends by re-raising {name}, so its caller sees that signal"))
+        .source(source).signal(signal)
 }
 
-/// End this process with `signal`, under the disposition it had at entry,
-/// which the evaluation's handlers restored when they were dropped. The
-/// caller's mask comes back first, since the linearization point blocked the
-/// handled signals: a cancelling signal still pending is delivered then.
+/// A reader inherits this block permanently; only its creator is restored.
+pub struct Shield {
+    previous: libc::sigset_t,
+}
+impl Shield {
+    pub fn block() -> io::Result<Self> {
+        #[cfg(test)]
+        if crate::worker::native_tests::block_fault()
+            == Some(crate::worker::native_tests::Mutation::Omitted)
+        {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        }
+        let set = handled_set()?;
+        let mut previous = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &set, &mut previous) })?;
+        #[cfg(test)]
+        if crate::worker::native_tests::block_fault().is_some() {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        }
+        Ok(Self { previous })
+    }
+    pub fn restore(self) -> io::Result<()> {
+        #[cfg(test)]
+        if crate::worker::native_tests::restore_fault()
+            == Some(crate::worker::native_tests::Mutation::Omitted)
+        {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        }
+        mask_result(unsafe {
+            libc::pthread_sigmask(libc::SIG_SETMASK, &self.previous, ptr::null_mut())
+        })?;
+        #[cfg(test)]
+        if crate::worker::native_tests::restore_fault().is_some() {
+            return Err(io::Error::from_raw_os_error(libc::EIO));
+        }
+        Ok(())
+    }
+}
+
 pub fn reraise(signal: Signal) -> ! {
-    // A signal death loses buffered output, and the refusal is the last thing
-    // the caller reads.
     let _ = io::stdout().flush();
     let _ = io::stderr().flush();
-    let _ = signal_state::restore_mask();
-    // SAFETY: raise only sends a signal to this thread.
-    unsafe { libc::raise(signal.number) };
-    // Every handled signal terminates by default, a caught one could not have
-    // been inherited, and one the caller blocked was never received, so this
-    // is reached only if something else in the process has since changed that
-    // disposition or blocked the signal.
+    let propagate = (|| -> io::Result<()> {
+        let handled = handled_set()?;
+        mask_result(unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, &handled, ptr::null_mut()) })?;
+        let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        action.sa_sigaction = libc::SIG_DFL;
+        checked(unsafe { libc::sigemptyset(&mut action.sa_mask) })?;
+        #[cfg(not(test))]
+        let defaulted = unsafe { libc::sigaction(signal.number, &action, ptr::null_mut()) };
+        #[cfg(test)]
+        let defaulted = propagation_tests::default_action(signal.number, &action);
+        checked(defaulted).map_err(|error| {
+            io::Error::new(error.kind(), format!("selected default action: {error}"))
+        })?;
+        let mut selected = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        checked(unsafe { libc::sigemptyset(&mut selected) })?;
+        checked(unsafe { libc::sigaddset(&mut selected, signal.number) })?;
+        #[cfg(not(test))]
+        let unblocked =
+            unsafe { libc::pthread_sigmask(libc::SIG_UNBLOCK, &selected, ptr::null_mut()) };
+        #[cfg(test)]
+        let unblocked = propagation_tests::unblock(&selected);
+        mask_result(unblocked).map_err(|error| {
+            io::Error::new(error.kind(), format!("selected signal unblock: {error}"))
+        })?;
+        #[cfg(not(test))]
+        let raised = unsafe { libc::raise(signal.number) };
+        #[cfg(test)]
+        let raised = propagation_tests::raise(signal.number);
+        mask_result(raised).map_err(|error| {
+            io::Error::new(error.kind(), format!("selected signal raise: {error}"))
+        })
+    })();
+    if let Err(error) = propagate {
+        eprintln!("ravel: cannot propagate {}: {error}", signal.name());
+    }
     std::process::exit(i32::from(signal.exit()))
 }
 
-/// Run `start` with the handled signals blocked in this thread, so that a
-/// thread it starts inherits them blocked and never takes one.
-pub fn shielded<T>(start: impl FnOnce() -> T) -> T {
-    // SAFETY: the sets are initialised by sigemptyset and pthread_sigmask
-    // before use, and the calling thread's own mask is put back as it was.
-    unsafe {
-        let mut blocked: libc::sigset_t = std::mem::zeroed();
-        libc::sigemptyset(&mut blocked);
-        for (signal, _) in HANDLED {
-            libc::sigaddset(&mut blocked, signal);
-        }
-        let mut previous: libc::sigset_t = std::mem::zeroed();
-        libc::pthread_sigmask(libc::SIG_BLOCK, &blocked, &mut previous);
-        let started = start();
-        libc::pthread_sigmask(libc::SIG_SETMASK, &previous, ptr::null_mut());
-        started
-    }
-}
+#[cfg(test)]
+mod propagation_tests;
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn final_block_failure_retains_handlers_even_after_a_previous_block() {
+        let mut handlers = Handlers::install().unwrap();
+        assert!(handlers.try_block_and_check().unwrap().is_none());
+        signal_state::restore_mask().unwrap();
+        BLOCK_FAULT.store(true, Ordering::Relaxed);
+        let (_, reports) = handlers.finalise(None);
+        BLOCK_FAULT.store(false, Ordering::Relaxed);
+        let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        assert_eq!(
+            unsafe { libc::sigaction(libc::SIGTERM, ptr::null(), &mut action) },
+            0
+        );
+        let kept =
+            action.sa_sigaction == on_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
+        let _ = handlers.finalise(None);
+        assert!(!reports.is_empty());
+        assert!(kept, "stale mask knowledge authorised disposition release");
+    }
+
+    #[test]
+    fn an_unknown_pending_set_never_confirms_absence() {
+        // Break: ignore sigpending failure and accept an empty zeroed set.
+        let mut handlers = Handlers::install().unwrap();
+        PENDING_FAULT.store(true, Ordering::Relaxed);
+        let observed = handlers.try_block_and_check();
+        PENDING_FAULT.store(false, Ordering::Relaxed);
+        assert!(observed.is_err(), "unknown pending state became absence");
+    }
 
     /// The path the command seam cannot reach: a handled signal that arrives
     /// between the block and the look, which only `sigpending` can see, since
@@ -220,7 +372,7 @@ mod tests {
         unsafe {
             let mut mask: libc::sigset_t = std::mem::zeroed();
             libc::pthread_sigmask(libc::SIG_BLOCK, ptr::null(), &mut mask);
-            let handlers = Handlers::install().unwrap();
+            let mut handlers = Handlers::install().unwrap();
             let &(signal, name) = HANDLED
                 .iter()
                 .find(|&&(signal, _)| {

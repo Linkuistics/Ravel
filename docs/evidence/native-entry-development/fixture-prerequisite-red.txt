@@ -1,0 +1,29 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_e01)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+────────────
+ Nextest run ID 95eec310-e18c-471f-badc-abbce9806202 with nextest profile: default
+    Starting 1 test across 1 binary (205 tests skipped)
+        FAIL [   0.007s] (1/1) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+  stdout ───
+
+    running 1 test
+    test native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls ... FAILED
+
+    failures:
+
+    failures:
+        native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 205 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls' (48109374) panicked at crates/ravel/src/native_entry_tests.rs:293:5:
+    build the private main-thread executable with task test:native-entry
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   0.008s] 1 test run: 0 passed, 1 failed, 205 skipped
+        FAIL [   0.007s] (1/1) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+error: test run failed
+task: Failed to run task "test:session": exit status 100

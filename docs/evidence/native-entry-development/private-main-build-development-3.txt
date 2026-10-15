@@ -1,0 +1,377 @@
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+warning: unused import: `super::*`
+   --> crates/ravel/src/authority.rs:169:9
+    |
+169 |     use super::*;
+    |         ^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::os::unix::ffi::OsStrExt as _`
+   --> crates/ravel/src/authority.rs:170:9
+    |
+170 |     use std::os::unix::ffi::OsStrExt as _;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::os::fd::AsRawFd as _`
+   --> crates/ravel/src/cancellation/propagation_tests.rs:5:5
+    |
+  5 | use std::os::fd::AsRawFd as _;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+   --> crates/ravel/src/cancellation.rs:328:1
+    |
+328 | mod propagation_tests;
+    | ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> crates/ravel/src/cancellation.rs:332:9
+    |
+332 |     use super::*;
+    |         ^^^^^^^^
+
+warning: unused import: `std::path::PathBuf`
+   --> crates/ravel/src/choice.rs:370:9
+    |
+370 |     use std::path::PathBuf;
+    |         ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> crates/ravel/src/choice.rs:372:9
+    |
+372 |     use super::*;
+    |         ^^^^^^^^
+
+warning: unused imports: `CallerContext` and `Measured`
+   --> crates/ravel/src/choice.rs:373:26
+    |
+373 |     use crate::context::{CallerContext, Measured};
+    |                          ^^^^^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `PromptSource` and `Prompt`
+   --> crates/ravel/src/choice.rs:374:25
+    |
+374 |     use crate::inputs::{Prompt, PromptSource};
+    |                         ^^^^^^  ^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> crates/ravel/src/environment.rs:186:9
+    |
+186 |     use super::*;
+    |         ^^^^^^^^
+
+warning: unused import: `super::*`
+  --> crates/ravel/src/frame.rs:86:9
+   |
+86 |     use super::*;
+   |         ^^^^^^^^
+
+warning: unused import: `serde_json::json`
+  --> crates/ravel/src/frame.rs:87:9
+   |
+87 |     use serde_json::json;
+   |         ^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> crates/ravel/src/run.rs:428:9
+    |
+428 |     use super::*;
+    |         ^^^^^^^^
+
+warning: unused import: `crate::cancellation::Signal`
+   --> crates/ravel/src/run.rs:429:9
+    |
+429 |     use crate::cancellation::Signal;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::os::unix::process::ExitStatusExt as _`
+   --> crates/ravel/src/run.rs:430:9
+    |
+430 |     use std::os::unix::process::ExitStatusExt as _;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> crates/ravel/src/signal_state.rs:310:9
+    |
+310 |     use super::*;
+    |         ^^^^^^^^
+    |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+   --> crates/ravel/src/signal_state.rs:309:1
+    |
+309 | mod capture_tests {
+    | ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `clap::Parser as _`
+    --> crates/ravel/src/worker_admission_tests.rs:5:5
+     |
+   5 | use clap::Parser as _;
+     |     ^^^^^^^^^^^^^^^^^
+     |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+    --> crates/ravel/src/worker.rs:1450:1
+     |
+1450 | mod admission_tests;
+     | ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+    --> crates/ravel/src/worker.rs:1457:9
+     |
+1457 |     use super::*;
+     |         ^^^^^^^^
+
+warning: unused import: `std::io`
+   --> crates/ravel/src/partial_acquisition_tests.rs:3:5
+    |
+  3 | use std::io;
+    |     ^^^^^^^
+    |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+   --> crates/ravel/src/main.rs:194:1
+    |
+194 | mod partial_acquisition_tests;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::path::PathBuf`
+   --> crates/ravel/src/partial_acquisition_tests.rs:5:5
+    |
+  5 | use std::path::PathBuf;
+    |     ^^^^^^^^^^^^^^^^^^
+    |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+   --> crates/ravel/src/main.rs:194:1
+    |
+194 | mod partial_acquisition_tests;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `CONTROL` and `Control`
+   --> crates/ravel/src/partial_acquisition_tests.rs:9:32
+    |
+  9 | use crate::directory_control::{Control, CONTROL};
+    |                                ^^^^^^^  ^^^^^^^
+    |
+help: if this is a test module, consider adding a `#[cfg(test)]` to the containing module
+   --> crates/ravel/src/main.rs:194:1
+    |
+194 | mod partial_acquisition_tests;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::fs`
+ --> crates/ravel/src/completion_tests.rs:1:5
+  |
+1 | use std::fs;
+  |     ^^^^^^^
+
+warning: unused import: `std::os::unix::fs::symlink`
+ --> crates/ravel/src/completion_tests.rs:2:5
+  |
+2 | use std::os::unix::fs::symlink;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `MAX_RESULT_BYTES`, `SessionChannel`, and `publish_result`
+ --> crates/ravel/src/completion_tests.rs:4:13
+  |
+4 | use super::{publish_result, SessionChannel, MAX_RESULT_BYTES};
+  |             ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
+
+warning: associated items `install` and `block_and_check` are never used
+   --> crates/ravel/src/cancellation.rs:114:12
+    |
+ 75 | impl Handlers {
+    | ------------- associated items in this implementation
+...
+114 |     pub fn install() -> io::Result<Self> {
+    |            ^^^^^^^
+...
+120 |     pub fn block_and_check(&mut self) -> Option<Signal> {
+    |            ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: variants `DefaultPerformed` and `UnblockPerformed` are never constructed
+  --> crates/ravel/src/cancellation/propagation_tests.rs:14:5
+   |
+11 | enum Fault {
+   |      ----- variants in this enum
+...
+14 |     DefaultPerformed,
+   |     ^^^^^^^^^^^^^^^^
+15 |     UnblockOmitted,
+16 |     UnblockPerformed,
+   |     ^^^^^^^^^^^^^^^^
+   |
+   = note: `Fault` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: constant `ROLE` is never used
+  --> crates/ravel/src/cancellation/propagation_tests.rs:85:7
+   |
+85 | const ROLE: &str = "cancellation::propagation_tests::native_propagation_role";
+   |       ^^^^
+
+warning: function `collect` is never used
+   --> crates/ravel/src/cancellation/propagation_tests.rs:117:4
+    |
+117 | fn collect(mut child: std::process::Child) -> Result<ExitStatus, String> {
+    |    ^^^^^^^
+
+warning: function `case` is never used
+   --> crates/ravel/src/cancellation/propagation_tests.rs:160:4
+    |
+160 | fn case(case: &str, broken: bool) -> bool {
+    |    ^^^^
+
+warning: function `limits` is never used
+   --> crates/ravel/src/context.rs:730:8
+    |
+730 |     fn limits() -> Limits {
+    |        ^^^^^^
+
+warning: function `budget` is never used
+   --> crates/ravel/src/context.rs:735:8
+    |
+735 |     fn budget(bytes: usize) -> Limits {
+    |        ^^^^^^
+
+warning: function `refused` is never used
+   --> crates/ravel/src/context.rs:741:8
+    |
+741 |     fn refused(author: Author, value: Value) -> Refusal {
+    |        ^^^^^^^
+
+warning: function `read` is never used
+   --> crates/ravel/src/limits.rs:293:8
+    |
+293 |     fn read(timeout_ms: Option<&str>, context_bytes: Option<&str>) -> Result<Limits, Refusal> {
+    |        ^^^^
+
+warning: function `raw_entry` is never used
+   --> crates/ravel/src/native_entry_tests.rs:213:4
+    |
+213 | fn raw_entry(
+    |    ^^^^^^^^^
+
+warning: function `bit` is never used
+   --> crates/ravel/src/native_entry_tests.rs:263:4
+    |
+263 | fn bit(signal: i32) -> u64 {
+    |    ^^^
+
+warning: function `read_json` is never used
+   --> crates/ravel/src/native_entry_tests.rs:266:4
+    |
+266 | fn read_json(path: PathBuf) -> Option<Value> {
+    |    ^^^^^^^^^
+
+warning: function `case` is never used
+   --> crates/ravel/src/native_entry_tests.rs:272:4
+    |
+272 | fn case(case: Value, broken: &str) -> bool {
+    |    ^^^^
+
+warning: function `valid` is never used
+   --> crates/ravel/src/policy.rs:537:8
+    |
+537 |     fn valid() -> Value {
+    |        ^^^^^
+
+warning: function `limits` is never used
+   --> crates/ravel/src/policy.rs:545:8
+    |
+545 |     fn limits() -> Limits {
+    |        ^^^^^^
+
+warning: function `command` is never used
+   --> crates/ravel/src/policy.rs:549:8
+    |
+549 |     fn command() -> Value {
+    |        ^^^^^^^
+
+warning: function `judged` is never used
+   --> crates/ravel/src/policy.rs:556:8
+    |
+556 |     fn judged(result: Value) -> Result<Command, Refusal> {
+    |        ^^^^^^
+
+warning: function `join_cancellation` is never used
+   --> crates/ravel/src/run.rs:305:4
+    |
+305 | fn join_cancellation(
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `read` is never used
+   --> crates/ravel/src/settings.rs:140:8
+    |
+140 |     fn read(contents: &str) -> Result<Settings, Refusal> {
+    |        ^^^^
+
+warning: function `cases` is never used
+  --> crates/ravel/src/worker_admission_tests.rs:59:15
+   |
+59 | pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
+   |               ^^^^^
+
+warning: function `selected` is never used
+   --> crates/ravel/src/worker_admission_tests.rs:436:4
+    |
+436 | fn selected(program: &str, args: Vec<Value>) -> Value {
+    |    ^^^^^^^^
+
+warning: variant `Performed` is never constructed
+ --> crates/ravel/src/worker/native_tests.rs:8:5
+  |
+6 | pub(crate) enum Mutation {
+  |                 -------- variant in this enum
+7 |     Omitted,
+8 |     Performed,
+  |     ^^^^^^^^^
+  |
+  = note: `Mutation` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: multiple variants are never constructed
+  --> crates/ravel/src/worker/native_tests.rs:14:5
+   |
+11 | enum Fault {
+   |      ----- variants in this enum
+...
+14 |     Block(Mutation),
+   |     ^^^^^
+15 |     FirstCreate,
+   |     ^^^^^^^^^^^
+16 |     SecondCreate,
+   |     ^^^^^^^^^^^^
+17 |     CreatorRestore(Mutation),
+   |     ^^^^^^^^^^^^^^
+18 |     Stop(Mutation),
+   |     ^^^^
+19 |     Kill(Mutation),
+   |     ^^^^
+20 |     PollEio,
+   |     ^^^^^^^
+21 |     PollEintr,
+   |     ^^^^^^^^^
+22 |     PollLost,
+   |     ^^^^^^^^
+   |
+   = note: `Fault` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: function `configure` is never used
+  --> crates/ravel/src/worker/native_tests.rs:89:15
+   |
+89 | pub(super) fn configure(case: &str) {
+   |               ^^^^^^^^^
+
+warning: function `case` is never used
+  --> crates/ravel/src/partial_acquisition_tests.rs:11:4
+   |
+11 | fn case(role: &str, step: &str, mutation: &str, route: &str) {
+   |    ^^^^
+
+warning: function `descriptors` is never used
+   --> crates/ravel/src/partial_acquisition_tests.rs:990:4
+    |
+990 | fn descriptors() -> Vec<i32> {
+    |    ^^^^^^^^^^^
+
+warning: `ravel` (bin "ravel") generated 49 warnings (run `cargo fix --bin "ravel" -p ravel` to apply 23 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s

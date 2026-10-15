@@ -1,0 +1,40 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(final_block_failure)'
+warning: function `kill` is never used
+    --> crates/keyed-launch/src/run.rs:1868:4
+     |
+1868 | fn kill(pgid: libc::pid_t, signal: libc::c_int) {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `keyed-launch` (lib) generated 1 warning
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+────────────
+ Nextest run ID 187b485e-7a06-4931-84aa-ef130bcfe709 with nextest profile: default
+    Starting 1 test across 1 binary (183 tests skipped)
+        FAIL [   0.008s] (1/1) ravel::bin/ravel cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block
+  stdout ───
+
+    running 1 test
+    test cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block ... FAILED
+
+    failures:
+
+    failures:
+        cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block' (47060872) panicked at crates/ravel/src/cancellation.rs:200:9:
+    stale mask knowledge authorised disposition release
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.010s] 1 test run: 0 passed, 1 failed, 183 skipped
+        FAIL [   0.008s] (1/1) ravel::bin/ravel cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block
+error: test run failed
+task: Failed to run task "test:session": exit status 100

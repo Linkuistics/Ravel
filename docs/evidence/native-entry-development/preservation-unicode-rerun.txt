@@ -1,0 +1,8 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(worker_reap_admission_nofault_unicode)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+────────────
+ Nextest run ID e0de01f0-f51a-4830-a163-a4aefdcbfab6 with nextest profile: default
+    Starting 1 test across 1 binary (205 tests skipped)
+        PASS [   1.268s] (1/1) ravel::bin/ravel worker::admission_tests::worker_reap_admission_nofault_unicode
+────────────
+     Summary [   1.268s] 1 test run: 1 passed, 205 skipped

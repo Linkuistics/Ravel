@@ -1,0 +1,57 @@
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import time
+
+root = Path.cwd()
+work = root / '.jj/k28-measure'
+archive = root / 'docs/evidence/native-entry-development'
+paths = [line for line in (work / 'source-paths.txt').read_text().splitlines()
+         if not line.startswith('docs/evidence/native-entry-development/')]
+
+def digests() -> dict[str, str]:
+    return {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+            for name in paths if (root / name).is_file()}
+
+before = digests()
+(work / 'serial-development-source-before.json').write_text(json.dumps(before, indent=2) + '\n')
+commands = [
+    ['task', 'test:session'],
+    ['task', 'test:runner'],
+    ['task', 'test:terminal-recovery'],
+    ['task', 'test'],
+    ['task', 'check'],
+]
+results = []
+for number, command in enumerate(commands, 1):
+    print(f'START {number}/{len(commands)} {command}', flush=True)
+    started = time.monotonic()
+    log = work / f'serial-preservation-{number}.txt'
+    with log.open('w') as output:
+        output.write('Development verification only; not a frozen native-conformance campaign.\n')
+        output.write(json.dumps(command) + '\n')
+        output.flush()
+        result = subprocess.run(command, stdout=output, stderr=subprocess.STDOUT, check=False,
+                                env={**os.environ, 'NEXTEST_TEST_THREADS': '1'})
+    row = {'command': command, 'returncode': result.returncode,
+           'elapsedSeconds': time.monotonic() - started, 'log': log.name}
+    results.append(row)
+    print(f'END {json.dumps(row)}', flush=True)
+    if result.returncode:
+        print(log.read_text()[-18000:], flush=True)
+        break
+
+after = digests()
+(work / 'serial-development-source-after.json').write_text(json.dumps(after, indent=2) + '\n')
+changed = [name for name in set(before) | set(after) if before.get(name) != after.get(name)]
+summary = {'purpose': 'Development preservation checks only; full matrix is unqualified',
+           'sourceExclusions': ['docs/evidence/native-entry-development/',
+                                '.jj/ and target/ generated build and development outputs',
+                                'external compiler/libc/runtime dependencies are not source-frozen here'],
+           'environment': {'NEXTEST_TEST_THREADS': '1'}, 'sourceFileCount': len(before), 'sourceChangedDuringChecks': sorted(changed),
+           'commands': results}
+(work / 'serial-development-checks.json').write_text(json.dumps(summary, indent=2) + '\n')
+print(json.dumps({'completed': len(results), 'sourceChanged': changed}), flush=True)
+raise SystemExit(1 if changed or any(row['returncode'] for row in results) else 0)

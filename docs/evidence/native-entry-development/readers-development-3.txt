@@ -1,0 +1,22 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_f03) | test(native_s03)' --no-fail-fast
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.80s
+────────────
+ Nextest run ID 8e4a53ad-5ce4-40a9-b199-fe7b7d16e976 with nextest profile: default
+    Starting 14 tests across 1 binary (184 tests skipped)
+        PASS [   0.150s] ( 1/14) ravel::bin/ravel worker::native_tests::native_s03_poll_eio
+        PASS [   1.144s] ( 2/14) ravel::bin/ravel worker::native_tests::native_s03_poll_echild
+        PASS [   1.153s] ( 3/14) ravel::bin/ravel worker::native_tests::native_s03_stop_performed
+        PASS [   1.158s] ( 4/14) ravel::bin/ravel worker::native_tests::native_f03_first_create
+        PASS [   1.159s] ( 5/14) ravel::bin/ravel worker::native_tests::native_f03_restore_omitted
+        PASS [   1.160s] ( 6/14) ravel::bin/ravel worker::native_tests::native_s03_stop_omitted
+        PASS [   1.161s] ( 7/14) ravel::bin/ravel worker::native_tests::native_f03_restore_performed
+        PASS [   1.163s] ( 8/14) ravel::bin/ravel worker::native_tests::native_f03_block_performed
+        PASS [   1.165s] ( 9/14) ravel::bin/ravel worker::native_tests::native_s03_kill_performed
+        PASS [   1.165s] (10/14) ravel::bin/ravel worker::native_tests::native_f03_block_omitted
+        PASS [   1.169s] (11/14) ravel::bin/ravel worker::native_tests::native_f03_second_create
+        PASS [   2.143s] (12/14) ravel::bin/ravel worker::native_tests::native_s03_running
+        PASS [   2.145s] (13/14) ravel::bin/ravel worker::native_tests::native_s03_poll_eintr
+        PASS [   3.147s] (14/14) ravel::bin/ravel worker::native_tests::native_s03_kill_omitted
+────────────
+     Summary [   3.148s] 14 tests run: 14 passed, 184 skipped

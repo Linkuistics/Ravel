@@ -1,0 +1,33 @@
+task: [test:session] cargo nextest run --locked -p ravel --no-fail-fast
+   Compiling keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+error[E0063]: missing field `operation_reports` in initializer of `Ended`
+   --> crates/ravel/src/completion_tests.rs:138:22
+    |
+138 |     let mut ending = Ended {
+    |                      ^^^^^ missing `operation_reports`
+
+For more information about this error, try `rustc --explain E0063`.
+error: could not compile `ravel` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0063]: missing field `operation_reports` in initializer of `Ended`
+   --> crates/ravel/src/run.rs:418:21
+    |
+418 |         let ended = keyed_launch::Ended {
+    |                     ^^^^^^^^^^^^^^^^^^^ missing `operation_reports`
+
+error[E0063]: missing field `operation_reports` in initializer of `Ended`
+   --> crates/ravel/src/run.rs:545:21
+    |
+545 |         let ended = keyed_launch::Ended {
+    |                     ^^^^^^^^^^^^^^^^^^^ missing `operation_reports`
+
+error[E0063]: missing field `operation_reports` in initializer of `Ended`
+   --> crates/ravel/src/run.rs:717:25
+    |
+717 |             let ended = keyed_launch::Ended {
+    |                         ^^^^^^^^^^^^^^^^^^^ missing `operation_reports`
+
+error: could not compile `ravel` (bin "ravel" test) due to 4 previous errors
+error: command `/opt/homebrew/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package ravel --locked` exited with code 101
+task: Failed to run task "test:session": exit status 101

@@ -335,6 +335,9 @@ pub fn evaluate<T>(
         .source(worker.to_string_lossy())
     };
 
+    child_watching()
+        .map_err(|error| failed(format!("cannot establish worker watching: {error}")))?;
+
     // bunfig autoloading, and dotenv autoloading for the worker's first VM,
     // read the directory a process starts in, so the worker starts in one
     // that is the front's own and empty, though it moves to `/` before it
@@ -435,11 +438,18 @@ pub fn evaluate<T>(
         })?;
         #[cfg(test)]
         crate::directory_control::before_spawn(worker);
+        #[cfg(test)]
+        let native_ignore_term = native_tests::active();
         // SAFETY: the closure runs between fork and exec, so it calls only
         // async-signal-safe functions (`dup2`, `fcntl`) on descriptors computed
         // before the fork, and touches no Rust runtime state or allocator.
         unsafe {
             command.pre_exec(move || {
+                #[cfg(test)]
+                if native_ignore_term && libc::signal(libc::SIGTERM, libc::SIG_IGN) == libc::SIG_ERR
+                {
+                    return Err(io::Error::last_os_error());
+                }
                 // `dup2` onto itself would leave close-on-exec set, and
                 // `above_stdio` guarantees the source is at least 3.
                 if channel == CHANNEL_FD {
@@ -504,7 +514,9 @@ pub fn evaluate<T>(
     };
     // The front keeps only its own end, so the worker's exit reads as EOF.
     drop(worker_end);
-    let capture = Capture::start(
+    #[cfg(test)]
+    native_tests::child_started(&child, &front_end);
+    let (capture, reader_reports) = Capture::start(
         child.stdout.take(),
         child.stderr.take(),
         limits.diagnostics.value,
@@ -524,16 +536,26 @@ pub fn evaluate<T>(
     };
     // Retain the conversation even when cancellation supersedes it: its
     // original cause and metadata still belong in the failure report.
-    let result = converse(channel, asked, started, judge);
+    let result = if reader_reports.is_empty() {
+        converse(channel, asked, started, judge)
+    } else {
+        Err(Conversation::Broken(failed(format!(
+            "cannot admit diagnostic readers for worker pid {}: {}",
+            child.id(),
+            reader_reports.join("; ")
+        ))))
+    };
     drop(front_end);
     let stopped = match &result {
+        _ if !reader_reports.is_empty() => stop(&mut child, Some(libc::SIGTERM)),
         _ if cancellation::received().is_some() => stop(&mut child, Some(libc::SIGTERM)),
         _ if capture.overflowed() => kill_and_wait(&mut child),
         Ok(_) | Err(Conversation::Refused(_)) => stop(&mut child, None),
         Err(Conversation::Expired { .. }) => stop(&mut child, Some(libc::SIGTERM)),
         Err(Conversation::Broken(_) | Conversation::Ended(_)) => kill_and_wait(&mut child),
     };
-    let (diagnostics, overflowed) = capture.collect(Instant::now() + DRAIN_GRACE);
+    let (diagnostics, overflowed) =
+        capture.collect((Instant::now() + DRAIN_GRACE).min(stopped.drain_by));
     let directory = private_dir.path().to_owned();
     let removed = private_dir.cleanup();
     #[allow(unused_mut)]
@@ -541,6 +563,7 @@ pub fn evaluate<T>(
         pid: child.id(),
         status: stopped.status,
         reports: stopped.reports,
+        stop_failed: stopped.stop_failed,
         directory,
         removed,
     };
@@ -550,10 +573,14 @@ pub fn evaluate<T>(
         teardown.pid, teardown.status, teardown.reports
     ));
     #[cfg(test)]
+    crate::native_entry_tests::worker_wait(teardown.pid, &teardown.status);
+    #[cfg(test)]
+    native_tests::fixture_cleanup(&mut child, &teardown);
+    #[cfg(test)]
     admission_tests::reported_teardown(&mut teardown, &mut child);
     #[cfg(test)]
     crate::directory_control::worker_reports(&mut teardown.status, &mut teardown.reports);
-    let admitted = teardown.status.is_ok() && teardown.removed.is_ok();
+    let admitted = teardown.status.is_ok() && teardown.removed.is_ok() && !teardown.stop_failed;
     let operational = teardown.describe(worker);
     let primary = overflowed.then(|| output_limit(entry, limits));
     let (success, original) = match result {
@@ -636,6 +663,7 @@ struct Teardown {
     pid: u32,
     status: io::Result<ExitStatus>,
     reports: Vec<String>,
+    stop_failed: bool,
     directory: PathBuf,
     removed: io::Result<()>,
 }
@@ -1002,60 +1030,132 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refus
 struct Stopped {
     status: io::Result<ExitStatus>,
     reports: Vec<String>,
+    drain_by: Instant,
+    stop_failed: bool,
+}
+
+fn child_watching() -> io::Result<()> {
+    #[cfg(test)]
+    if crate::native_entry_tests::skip_worker_repair() {
+        return Ok(());
+    }
+    let mut action = unsafe { std::mem::zeroed::<libc::sigaction>() };
+    if unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut action) } == -1 {
+        return Err(io::Error::last_os_error());
+    }
+    if action.sa_sigaction == libc::SIG_IGN || action.sa_flags & libc::SA_NOCLDWAIT != 0 {
+        let mut default = unsafe { std::mem::zeroed::<libc::sigaction>() };
+        default.sa_sigaction = libc::SIG_DFL;
+        if unsafe { libc::sigemptyset(&mut default.sa_mask) } == -1
+            || unsafe { libc::sigaction(libc::SIGCHLD, &default, std::ptr::null_mut()) } == -1
+        {
+            return Err(io::Error::last_os_error());
+        }
+    }
+    Ok(())
 }
 
 fn kill_and_wait(child: &mut Child) -> Stopped {
-    let mut reports = Vec::new();
-    if let Err(error) = child.kill() {
-        reports.push(format!("kill: {error}"));
-    }
-    Stopped {
-        status: child.wait(),
-        reports,
-    }
+    bounded_stop(child, None, false)
+}
+fn stop(child: &mut Child, signal: Option<libc::c_int>) -> Stopped {
+    bounded_stop(child, signal, true)
 }
 
-fn stop(child: &mut Child, signal: Option<libc::c_int>) -> Stopped {
+fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) -> Stopped {
+    let began = Instant::now();
+    let by = began + Duration::from_secs(2);
+    let grace = if graceful {
+        (began + CLEANUP_GRACE).min(by)
+    } else {
+        began
+    };
+    let drain_by = by + DRAIN_GRACE;
     let mut reports = Vec::new();
+    let mut stop_failed = false;
+    let pid = child.id() as libc::pid_t;
     if let Some(signal) = signal {
-        match libc::pid_t::try_from(child.id()) {
-            Ok(pid) => {
-                // SAFETY: this is the unreaped child; no confirmed wait has
-                // released its PID. Never signal after try_wait confirms reap.
-                if unsafe { libc::kill(pid, signal) } == -1 {
-                    reports.push(format!(
-                        "stop (signal {signal}): {}",
-                        io::Error::last_os_error()
-                    ));
-                }
-            }
-            Err(error) => reports.push(format!("stop: cannot represent worker PID: {error}")),
+        #[cfg(not(test))]
+        let stopped = unsafe { libc::kill(pid, signal) };
+        #[cfg(test)]
+        let stopped = native_tests::stop(pid, signal);
+        if stopped == -1 {
+            stop_failed = true;
+            reports.push(format!(
+                "stop pid {pid} signal {signal}: {}",
+                io::Error::last_os_error()
+            ));
         }
     }
-    let grace = Instant::now() + CLEANUP_GRACE;
-    let mut poll = Duration::from_millis(1);
-    while Instant::now() < grace {
-        match child.try_wait() {
+    let mut killed = false;
+    let mut skip_grace = false;
+    let mut first_interrupted = None;
+    let mut interrupts = 0u64;
+    loop {
+        if Instant::now() >= by {
+            if interrupts > 0 {
+                reports.push(format!(
+                    "try_wait first errno {first_interrupted:?}, EINTR retries {interrupts}"
+                ));
+            }
+            return Stopped {
+                status: Err(io::Error::new(ErrorKind::TimedOut, "worker teardown deadline expired; child ownership released, actual reap unconfirmed")),
+                reports, drain_by, stop_failed,
+            };
+        }
+        #[cfg(not(test))]
+        let observed = child.try_wait();
+        #[cfg(test)]
+        let observed = native_tests::poll(child);
+        match observed {
             Ok(Some(status)) => {
+                if interrupts > 0 {
+                    reports.push(format!("try_wait first errno {first_interrupted:?}, EINTR retries {interrupts}; actual reap confirmed"));
+                }
                 return Stopped {
                     status: Ok(status),
                     reports,
-                }
+                    drain_by,
+                    stop_failed,
+                };
             }
             Ok(None) => {}
+            Err(error) if error.kind() == ErrorKind::Interrupted => {
+                first_interrupted.get_or_insert(error.raw_os_error());
+                interrupts = interrupts.saturating_add(1);
+            }
             Err(error) => {
-                reports.push(format!("try_wait: {error}"));
-                break;
+                let lost = error.raw_os_error() == Some(libc::ECHILD);
+                reports.push(format!("try_wait pid {pid}: {error}"));
+                if lost {
+                    return Stopped {
+                        status: Err(error),
+                        reports,
+                        drain_by,
+                        stop_failed,
+                    };
+                }
+                skip_grace = true;
             }
         }
-        thread::sleep(poll);
-        poll = (poll * 2).min(Duration::from_millis(16));
-    }
-    let stopped = kill_and_wait(child);
-    reports.extend(stopped.reports);
-    Stopped {
-        status: stopped.status,
-        reports,
+        if !killed && (skip_grace || Instant::now() >= grace) {
+            // No try_wait reported reap/ECHILD. This owner alone may signal
+            // this PID; the worker shares our group, which must not be killed.
+            #[cfg(not(test))]
+            let killed_result = child.kill();
+            #[cfg(test)]
+            let killed_result = if native_tests::stop(pid, libc::SIGKILL) == -1 {
+                Err(io::Error::last_os_error())
+            } else {
+                Ok(())
+            };
+            if let Err(error) = killed_result {
+                stop_failed = true;
+                reports.push(format!("kill pid {pid}: {error}"));
+            }
+            killed = true;
+        }
+        thread::sleep(Duration::from_millis(10).min(by.saturating_duration_since(Instant::now())));
     }
 }
 
@@ -1227,62 +1327,97 @@ impl Capture {
         stdout: Option<impl Read + Send + 'static>,
         stderr: Option<impl Read + Send + 'static>,
         limit: u64,
-    ) -> Capture {
+    ) -> (Capture, Vec<String>) {
+        #[cfg(test)]
+        native_tests::creator_before();
         let captured = Arc::new(Mutex::new(Diagnostics::default()));
         let overflow = Arc::new(AtomicBool::new(false));
         let (sender, done) = mpsc::channel();
         let limit = usize::try_from(limit).unwrap_or(usize::MAX);
-        let mut streams = 0;
-        let mut spawn = |stream: Option<Box<dyn Read + Send>>, stdout: bool| {
-            let Some(mut stream) = stream else { return };
-            streams += 1;
-            let (captured, overflow, sender) =
-                (Arc::clone(&captured), Arc::clone(&overflow), sender.clone());
-            thread::spawn(move || {
-                let mut chunk = [0; 8192];
-                loop {
-                    match stream.read(&mut chunk) {
-                        Ok(0) => break,
-                        Ok(read) => {
-                            let mut captured = captured
-                                .lock()
-                                .unwrap_or_else(|poisoned| poisoned.into_inner());
-                            let room =
-                                limit.saturating_sub(captured.stdout.len() + captured.stderr.len());
-                            let kept = read.min(room);
-                            let buffer = if stdout {
-                                &mut captured.stdout
-                            } else {
-                                &mut captured.stderr
-                            };
-                            buffer.extend_from_slice(&chunk[..kept]);
-                            if kept < read {
-                                overflow.store(true, Ordering::SeqCst);
-                            }
-                        }
-                        Err(error) if error.kind() == ErrorKind::Interrupted => {}
-                        Err(_) => break,
-                    }
-                }
-                let _ = sender.send(());
-            });
-        };
-        cancellation::shielded(|| {
-            spawn(
-                stdout.map(|stream| Box::new(stream) as Box<dyn Read + Send>),
-                true,
-            );
-            spawn(
-                stderr.map(|stream| Box::new(stream) as Box<dyn Read + Send>),
-                false,
-            );
-        });
-        Capture {
+        let mut capture = Capture {
             captured,
             overflow,
             done,
-            streams,
+            streams: 0,
+        };
+        let mut reports = Vec::new();
+        let shield = match cancellation::Shield::block() {
+            Ok(shield) => shield,
+            Err(error) => {
+                #[cfg(test)]
+                native_tests::creator_after();
+                return (capture, vec![format!("reader mask block: {error}")]);
+            }
+        };
+        let mut spawn = |stream: Option<Box<dyn Read + Send>>, stdout: bool| -> io::Result<()> {
+            let Some(mut stream) = stream else {
+                return Ok(());
+            };
+            #[cfg(test)]
+            if native_tests::omit_create(stdout) {
+                return Err(io::Error::from_raw_os_error(libc::EAGAIN));
+            }
+            let (captured, overflow, sender) = (
+                Arc::clone(&capture.captured),
+                Arc::clone(&capture.overflow),
+                sender.clone(),
+            );
+            #[cfg(test)]
+            let reader_sink = native_tests::reader_sink();
+            thread::Builder::new()
+                .name(
+                    if stdout {
+                        "policy-stdout"
+                    } else {
+                        "policy-stderr"
+                    }
+                    .into(),
+                )
+                .spawn(move || {
+                    #[cfg(test)]
+                    native_tests::record_reader(reader_sink, stdout);
+                    // The reader retains its inherited shield until thread exit.
+                    let mut chunk = [0; 8192];
+                    loop {
+                        match stream.read(&mut chunk) {
+                            Ok(0) => break,
+                            Ok(read) => {
+                                let mut captured = captured
+                                    .lock()
+                                    .unwrap_or_else(|poisoned| poisoned.into_inner());
+                                let room = limit
+                                    .saturating_sub(captured.stdout.len() + captured.stderr.len());
+                                let kept = read.min(room);
+                                let buffer = if stdout {
+                                    &mut captured.stdout
+                                } else {
+                                    &mut captured.stderr
+                                };
+                                buffer.extend_from_slice(&chunk[..kept]);
+                                if kept < read {
+                                    overflow.store(true, Ordering::SeqCst);
+                                }
+                            }
+                            Err(error) if error.kind() == ErrorKind::Interrupted => {}
+                            Err(_) => break,
+                        }
+                    }
+                    let _ = sender.send(());
+                })?;
+            capture.streams += 1;
+            Ok(())
+        };
+        let created = spawn(stdout.map(|s| Box::new(s) as Box<dyn Read + Send>), true)
+            .and_then(|()| spawn(stderr.map(|s| Box::new(s) as Box<dyn Read + Send>), false));
+        if let Err(error) = created {
+            reports.push(format!("reader thread create: {error}"));
         }
+        if let Err(error) = shield.restore() {
+            reports.push(format!("reader creator mask restore: {error}"));
+        }
+        #[cfg(test)]
+        native_tests::creator_after();
+        (capture, reports)
     }
 
     fn overflowed(&self) -> bool {
@@ -1313,6 +1448,9 @@ impl Capture {
 #[cfg(test)]
 #[path = "worker_admission_tests.rs"]
 mod admission_tests;
+
+#[cfg(test)]
+pub(crate) mod native_tests;
 
 #[cfg(test)]
 mod tests {

@@ -1,7 +1,9 @@
 # Checked native-entry transitions
 
-This is a design for the incumbent one-session launcher, not implemented or
-runtime-qualified behavior. The [completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
+This is the selected design for the incumbent one-session launcher. K28 has
+a committed cross-layer development increment and partial checks; complete runtime qualification
+is outstanding. The [development evidence and exact remainder](native-entry-development-evidence.md)
+separate those checks from the required conformance campaign. The [completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
 owns the required behavior. C1–C4 retain their existing scoped receipts and the
 conditional C4 foreground/group-identity premises. A persistent runner that
 returns to arbitrary host work needs a separate contract.
@@ -35,6 +37,13 @@ recovery before returning that transition error. It must not return directly
 from the callback with a live child. Started still means spawn-reported success.
 This extends an existing lifecycle seam; it is not a public testing option or
 a new generic syscall service. The additive API is frozen in the repair brief: observed entry points gain a separate prompt, synchronous fallible start check; existing infallible entry points adapt with an always-successful check.
+
+The human additionally approved `Ended::operation_reports: Vec<String>` to
+retain benign stop reports after confirmed completion. Existing struct literals
+must supply that field; launch arguments and `Result<Ended, LaunchError>` stay
+the same. The front includes these reports as `operationReports` in its existing
+single JSON selection notice, emitted after supervision, or reports them to
+stderr for non-JSON operation. No extra runner stderr record is emitted.
 
 ## Transition protocol
 
@@ -134,7 +143,8 @@ No broader host/toolchain support is established by this design.
 
 ## Frozen discriminator manifest
 
-These are exact parameter families, not implemented tests. The producer freezes
+These are exact parameter families. Only a subset has development instruments;
+none has the complete required baseline/broken/repaired qualification. The producer freezes
 their expansion before red/green, with one immutable row per concrete parameter.
 Use public CLI/real policy/fake jobs for end-to-end cases; owner-local forked
 processes for unreachable transitions; existing real-process/PTY seams for jobs.
@@ -143,7 +153,7 @@ processes for unreachable transitions; existing real-process/PTY seams for jobs.
 |---|---|
 | E01(signal INT/TERM/HUP/PIPE × disposition default/ignore × mask clear/blocked) | Controller sets state immediately before exec; raw initializer and managed child's first-code action/mask receipts agree. PIPE uses a raw/native helper before a helper runtime resets it. Break capture or child reinstatement separately; relevant parameter must fail. |
 | E02(signal INT/TERM/HUP × pending yes/no, blocked at entry) | Controller queues while blocked before exec. Launcher must not cancel; child mask remains blocked. Pending is not promised to cross fork: parent pending and child blocked-state receipts are distinct. Control that counts entry-blocked pending as cancellation fails. |
-| E03(SIGCHLD default/ignore) | Raw executable entry plus actual worker PID/wait and managed PID/group/wait receipts; both waits confirmed before admission/result. Disable pre-worker repair and show ignored case fails. |
+| E03(SIGCHLD default/ignore) | Raw executable entry plus actual worker PID/wait and managed PID/group/wait receipts; both waits confirmed before admission/result. Disable pre-worker repair. Record an already-waitable baseline honestly when exec clears no-child-wait; E04's independent private flag control must discriminate the repair in that domain. |
 | E04(default+SA_NOCLDWAIT, worker/managed boundary) | Private post-entry action fixture, raw query confirms flag immediately before checked watching. Real child exit/wait receipts; broken ignore-only repair fails. Darwin raw exec-flag observation is a separate reachability row, not proof borrowed from this fixture. |
 | E05(direct launcher INT / PTY foreground INT, before/after handoff) | Controller uses actual launcher PID versus terminal VINTR write, records SID/PGIDs/tcgetpgrp and acknowledgements. Direct INT cancels; after-handoff terminal INT kills default child. Publish before child death distinguishes child status from invented launcher cancellation. No sleeps as ordering oracle. |
 | E06(boundary selection-to-runner / Started / after-reap-before-front / selection-failure-before-finalise / no-ending-error-before-finalise × signal INT/TERM/HUP) | Fixed private acknowledgement barrier places actual signal at named boundary; record handler owner, main/reader masks, pending and consumed facts, child/reap/resource state and zero result. Remove the corresponding join or overwrite first latch and require failure. |
@@ -239,8 +249,9 @@ the D≤20 phase-closure reserve or declaring the native repair complete.
 
 ## Bounded error-settlement protocol
 
-This is the selected mechanism for the agreed failure contract, not implemented
-behavior. Keep the frozen Started API, T0–T8, first consumed cancellation and
+This is the selected mechanism for the agreed failure contract. K28's draft
+implementation is not completely runtime-qualified. Keep the approved Started
+API and operation-reports amendment, T0–T8, first consumed cancellation and
 spawn-only errno classification. The callback io::Error remains the source;
 cleanup reports never replace it. No result or new admission follows a failure.
 
@@ -287,6 +298,13 @@ signal and errno. A successful kill means delivery was attempted successfully,
 not exit. ESRCH is a no-target report, never a reap receipt; EPERM is retained.
 Do not infer group absence from stop success. Group probes distinguish ESRCH
 (absent), present/EPERM, and other query errors (unknown with the original errno).
+
+K28's human clarification allows ordinary completion after a pre-reap stop
+reports EPERM, provided actual reap, successful terminal recovery and a later
+ESRCH group-absence confirmation all succeed. Retain each EPERM report; the
+errno alone establishes neither absence nor success. Other initiating failures
+remain failures. This preserves ordinary Darwin completion when a group holds
+only unreaped zombies, which the incumbent already tolerates.
 
 Production runner observation uses waitid(WEXITED|WNOHANG|WNOWAIT), keeping the
 unreaped child's PID reserved until all required group signals finish. The
@@ -413,6 +431,12 @@ nonblocking ownership semantics; that earns a precise design continuation rather
 than an implementation workaround or new target infrastructure.
 
 ## Complete repair price and handoff
+
+K28's first development attempt has shown this price insufficient for the
+complete instruments/controller/evidence work. The
+[remaining price and funding continuation](native-entry-development-evidence.md#domain-and-continuation-price)
+preserve the full acceptance scope. K28 remains an open node with qualification still live; the historical
+funding and handoff below do not commission an unapproved renewal.
 
 The old P≤95/E≤80/RC≤4 estimate is replaced by the following complete price,
 funded by k26 and commissioned as native-entry-complete-repair-k28 by k27.

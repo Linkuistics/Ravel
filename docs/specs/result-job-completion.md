@@ -336,7 +336,12 @@ kernel stalls. Existing normal production graces remain unchanged.
 
 Every required stop, wait and recovery operation SHALL retain its own outcome
 alongside the initiating failure and first consumed cancellation. Stop success
-is not confirmed termination. Only an actual wait confirms reap; no result,
+is not confirmed termination. A stop EPERM report may coexist with successful
+completion only after actual reap, successful terminal recovery and an ESRCH
+group-absence confirmation. The report remains in `Ended::operation_reports`
+and the front's existing single JSON notice (`operationReports`), or its
+non-JSON diagnostics; EPERM itself never establishes absence. Initiating
+transition errors remain failures. Only an actual wait confirms reap; no result,
 status, Reaped event or group absence may be invented on expiry or ECHILD.
 After confirmed reap, identity loss or release, numeric signals are forbidden.
 All required group stops precede reap while identity is reserved. Expiry SHALL
@@ -351,9 +356,10 @@ no-unrelated-ID-reuse premises, confirming launcher foreground before restoring
 modes. It SHALL retain query, handback, mode and temporary disposition failures,
 and SHALL NOT lend again after a Started check failure. No broader delegated
 foreground takeover is authorised by unknown status. The required behavior is
-agreed; this mechanism and its finite cleanup-failure controls remain unimplemented
-and are commissioned as the complete native-entry-complete-repair-k28 after
-the k26 funding agreement and k27 planning handoff; conformance remains unobserved.
+agreed. K28 has a committed development increment and a subset of development controls,
+commissioned after the k26 funding agreement and k27 planning handoff. Its
+[development evidence and remaining qualification](../native-entry-development-evidence.md)
+do not establish complete conformance.
 
 ## Test seams for the repair contract
 

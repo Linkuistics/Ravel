@@ -1,0 +1,9 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(worker_reap_admission_recovered_poll_success)'
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.67s
+────────────
+ Nextest run ID 0b8909d4-3a98-464b-945b-123bf3701de5 with nextest profile: default
+    Starting 1 test across 1 binary (183 tests skipped)
+        PASS [   0.783s] (1/1) ravel::bin/ravel worker::admission_tests::worker_reap_admission_recovered_poll_success
+────────────
+     Summary [   0.783s] 1 test run: 1 passed, 183 skipped

@@ -71,6 +71,26 @@ tasks:
     cmds:
       - bash scripts/terminal-recovery-check.sh
 
+  test:native-entry:
+    desc: Build the private main-thread fixture and run native development checks (qualification incomplete)
+    cmds:
+      - task: worker
+      # The extra cfg applies only to this isolated test binary, not dependencies
+      # or installed executables. It avoids libtest's extra signal-owning thread.
+      # https://doc.rust-lang.org/cargo/commands/cargo-rustc.html
+      - cargo rustc --locked -p ravel --bin ravel --profile dev --target-dir target/native-entry-fixture -- --cfg test -A unused
+      - task: test:session
+        vars:
+          # Include the fixture-dependent cases while excluding child-only roles.
+          # https://nexte.st/docs/filtersets/
+          CLI_ARGS: "--bin ravel -E 'test(native_) & not test(native_entry_role) & not test(native_propagation_role)' --run-ignored all --no-fail-fast"
+      - task: test:runner
+        vars:
+          CLI_ARGS: "--lib -E 'test(native_)' --no-fail-fast"
+      - task: test:runner
+        vars:
+          CLI_ARGS: "--test start_check"
+
   test:runner:
     desc: Run focused local-runner checks (optional nextest arguments)
     cmds:

@@ -47,6 +47,7 @@ pub use confinement::{
 };
 pub use error::LaunchError;
 pub use run::{
-    reraise, run, run_confined_observed, run_noninteractive, run_observed, take_interrupt, End,
-    Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
+    reraise, run, run_confined_observed, run_confined_observed_with_start_check,
+    run_noninteractive, run_observed, run_observed_with_start_check, take_interrupt, End, Ended,
+    EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
 };
