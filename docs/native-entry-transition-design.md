@@ -353,9 +353,10 @@ operation receipts remain distinct from these existing event assertions.
 
 ### Finite cleanup-failure amendment
 
-Propose **S01–S05 only**, single-site rows, no Cartesian expansion with E/F/R.
-This is an explicitly priced amendment awaiting funding/commissioning; k24 did
-not authorise its construction. Existing F03/F05 real-process/PTY controls cover
+The approved amendment is **S01–S05 only**, single-site rows, no Cartesian
+expansion with E/F/R. The human approved this exact 32-row scope in
+native-entry-complete-funding-k26; construction awaits the complete producer's
+commissioning by planning. Existing F03/F05 real-process/PTY controls cover
 the healthy cleanup path; S adds only the missing uncertainty discriminators.
 Controls are private fixed enums at Process/worker/Lease owners, never installed
 switches or a generic syscall facade. Use the existing CLI with real policy/fake
@@ -413,9 +414,10 @@ than an implementation workaround or new target infrastructure.
 
 ## Complete repair price and handoff
 
-The old P≤95/E≤80/RC≤4 estimate is replaced by the following complete proposal;
-none is commissioned. Prices are conservative effort ceilings in minutes, not
-measured spend. They cover the whole coherent repair, never just settlement.
+The old P≤95/E≤80/RC≤4 estimate is replaced by the following complete price,
+funded by k26; the producer awaits commissioning by planning. Prices are
+conservative effort ceilings in minutes, not measured spend. They cover the
+whole coherent repair, never just settlement.
 
 | Work | P | E |
 |---|---:|---:|
@@ -431,15 +433,19 @@ measured spend. They cover the whole coherent repair, never just settlement.
 | Bounded affected-row reruns and receipt reconciliation | 0 | 10 |
 | **Complete producer** | **125** | **85** |
 
-Fund producer RC≤5 for one focused review, coordination and retirement/commit;
-mechanical planning/handoff D≤5/RC≤1; funding agreement recording/closure RC≤4.
-After k25's conservative D≤10/RC≤2 charge, cumulative bounds are
-D≤110/RC≤55/P≤155/E≤30/X=0 and balances D≤20 exclusively phase closure,
-RC=0/P≤85/E≤90/X=0. The complete next cycle requires D≤5/RC≤10/P≤125/E≤85,
-so the precise shortfall is **D≤5/RC≤10/P≤40**, with no additional E or X.
-Recommend caps D≤135/RC≤65/P≤280/E≤120/X=0, retaining the original D≤20
-reserve. Agreement charges precede allocating planning; actual unused allocation
-is not spend. Cut only the funding/scope continuation inside k22 before the book.
+The human's k26 answer was **“approved”** to adding D≤5/RC≤10/P≤40, with
+no E/X increase. Approved caps are D≤135/RC≤65/P≤280/E≤120/X=0, retaining
+zero production disruption and the original D≤20 phase-closure reserve. K26
+charges conservative RC≤4, D=P=E=X=0; cumulative bounds are D≤110/RC≤59/
+P≤155/E≤30/X=0. Balances are D≤25 (5 planning, 20 reserved)/RC≤6/P≤125/
+E≤90/X=0. native-entry-complete-repair-k27 alone receives D≤5/RC≤1 for the
+mechanical planning handoff, P=E=X=0. Record its actual charges before it
+commissions the complete P≤125/E≤85/RC≤5 producer, including one focused
+review, coordination and retirement/commit. Full use of both allocations leaves
+D≤20 reserved/RC=0/P=0/E≤5/X=0; allocations are not spend. The approved scope
+includes the exact S rows, unchanged T0–T8/additive Started API and 30/5/5
+envelope above. Longer legal graces need their exact priced timing remainder
+before execution; no blanket matrix or target infrastructure is authorised.
 
 Minimum Rust 1.85/Linux runtime qualification and the returning-host contract
 remain outside this local repair price and remain live obligations; no phase

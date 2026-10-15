@@ -16,21 +16,22 @@ The latter owns behavior; the design owns T0–T8 and E01–E08/F01–F07/R01.
 Existing capture and reader shielding are retained mechanisms to check.
 The three existing ADRs remain current; no package/extraction is selected.
 
-Current approved phase caps after k24: D≤130/RC≤55/P≤240/E≤120/X=0 minutes,
-zero production disruption. K23 charges P≤15/RC≤4 and k24 charges RC≤4,
-with no other spend in those leaves. Cumulative correctness charged bounds are
-D≤100/RC≤53/P≤155/E≤30/X=0. Remaining balances are D≤30 (D≤10 for bounded
-protocol revision/repricing and D≤20 exclusively phase-closure reserve), shared
-RC≤2/P≤85/E≤90/X=0.
+Current approved phase caps after k26: D≤135/RC≤65/P≤280/E≤120/X=0 minutes,
+zero production disruption. Cumulative correctness charged bounds are
+D≤110/RC≤59/P≤155/E≤30/X=0. Remaining balances are D≤25 (D≤5 for the
+mechanical planning handoff and D≤20 exclusively phase-closure reserve), shared
+RC≤6/P≤125/E≤90/X=0. K26's verbatim approval and charges are recorded below.
 
 The original complete P≤95/E≤80/RC≤4 estimate is suspended: source verification
 did not establish the existing bounded error-settlement mechanism it assumed.
-The original allocation is not a renewed entitlement. K24 authorises only the
-next design/pricing continuation, allocated D≤10 including closure and shared
-RC≤2 for at most one focused review/coordination/closure, P=E=X=0. Reprice the
-whole repair, finite controls, measured red/broken/green, protected checks,
-evidence and review/closure from actual balances before commissioning any new
-producer. Do not borrow reserve, reset caps or silently enlarge controls.
+The original allocation is not a renewed entitlement. K25 supplies the selected
+bounded protocol and complete replacement price. K26 approves that full scope
+and the exact 32-row S amendment; native-entry-complete-repair-k27 alone receives
+D≤5/RC≤1, P=E=X=0, to commission one complete producer from actual balances.
+The producer price is P≤125/E≤85/RC≤5, D=X=0, including controls, measured
+red/broken/green, protected checks, evidence and review/closure. No product work
+is commissioned by this requirements session. Do not borrow reserve, reset caps
+or silently enlarge controls.
 
 ## Done when
 
@@ -46,7 +47,8 @@ producer. Do not borrow reserve, reset caps or silently enlarge controls.
 - Add only the fallible Started interface frozen below, retaining all existing
   infallible entry points and event expectations. A check failure must enter
   bounded real stop/group cleanup/wait/terminal recovery before returning.
-- Build and freeze exactly the concrete parameter expansion below before
+- Build and freeze exactly the concrete parameter expansion below plus the
+  approved 32 S01–S05 rows in docs/native-entry-transition-design.md before
   measuring red/broken/green. Keep controls private and owner-local, fixed enums
   or fixed fixture data, without installed switches or a generic syscall layer.
   Exercise public CLI/real policy/fake job, real-process and PTY seams as agreed.
@@ -237,3 +239,21 @@ human continuation before the book. The repair stays one complete future produce
 none is commissioned from insufficient balances and no reserve is borrowed.
 Minimum-Rust/Linux qualification, returning-host, k4/k6/G2–G5/R-W and all root
 obligations remain live; no parent/phase/root close or comparative gain follows.
+
+K26's human answered verbatim **“approved”** to adding D≤5/RC≤10/P≤40,
+raising caps to D≤135/RC≤65/P≤280/E≤120/X=0 while retaining zero production
+disruption and the original D≤20 phase-closure reserve. Approval explicitly
+covers the design's exact 32 S01–S05 rows at the existing CLI/real-policy/fake-job,
+real-process and PTY seams, unchanged T0–T8/additive Started API, and the 30/5/5
+controller envelope. Longer legal graces still require their exact priced timing
+remainder before execution; no blanket matrix or target infrastructure is funded.
+
+K26 charges conservative RC≤4, D=P=E=X=0 including recording/tree/verification/
+retirement/commit. Cumulative charged bounds are D≤110/RC≤59/P≤155/E≤30/X=0;
+remaining D≤25 (5 planning, 20 exclusively phase closure), RC≤6/P≤125/E≤90/X=0.
+native-entry-complete-repair-k27 is the sole next planning handoff inside k22,
+allocated D≤5/RC≤1, P=E=X=0. Full planning use leaves D≤20 reserved/RC≤5/
+P≤125/E≤90/X=0, sufficient for the full P≤125/E≤85/RC≤5 producer. Full use of
+both would leave D≤20 reserved/RC=0/P=0/E≤5/X=0; projections are not spend.
+Record actual planning charges before commissioning that producer. The complete
+repair and all support/comparison/root obligations remain live; k22 cannot close.

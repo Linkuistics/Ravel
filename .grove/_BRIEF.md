@@ -720,3 +720,24 @@ human continuation before the book. The repair stays one complete future produce
 none is commissioned from insufficient balances and no reserve is borrowed.
 Minimum-Rust/Linux qualification, returning-host, k4/k6/G2–G5/R-W and all root
 obligations remain live; no parent/phase/root close or comparative gain follows.
+
+K26's human answered verbatim **“approved”** to the complete repair renewal:
+add D≤5/RC≤10/P≤40, raising phase caps to D≤135/RC≤65/P≤280/E≤120/X=0
+with zero production disruption and the original D≤20 closure reserve intact.
+Approval includes exactly 32 S01–S05 cleanup-failure rows at the existing agreed
+CLI/real-policy/fake-job, real-process and PTY seams, unchanged T0–T8/additive
+Started API, and the 30-second outer/5-second acknowledgement/5-second cleanup
+envelope. Longer legal graces require an exact priced timing remainder before
+execution; no blanket matrix or target infrastructure is authorised.
+
+K26 conservatively charges RC≤4 for agreement recording/tree/verification/
+retirement/commit, D=P=E=X=0. Cumulative correctness charged bounds are
+D≤110/RC≤59/P≤155/E≤30/X=0; remaining D≤25 (5 planning and 20 exclusively
+phase closure), RC≤6/P≤125/E≤90/X=0. native-entry-complete-repair-k27 inside
+k22, before the book, alone receives D≤5/RC≤1, P=E=X=0 for mechanical planning
+and commissioning the one complete producer from actual balances. The complete
+producer price is P≤125/E≤85/RC≤5, D=X=0. Full use of planning and producer
+would leave D≤20 reserved/RC=0/P=0/E≤5/X=0; allocations are not spend.
+This requirements session cuts no implementation leaf and closes no parent.
+Minimum-Rust/Linux, returning-host, k4/k6/G2–G5/R-W and all root obligations
+remain live; no book advancement, target, extraction or comparative gain follows.
