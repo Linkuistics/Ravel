@@ -1,0 +1,23 @@
+# After the R01 run's 'check' failed native_f03_first_create (a 1000 ms selection deadline missed), same tree, digests unchanged (post-edit.sha verified)
+# task check, alone:
+check: formatting passed
+check: scripts passed
+check: worker-build passed
+check: worker-probes passed
+check: runtime-integrity passed
+check: worker-types passed
+check: lint passed
+check: terminal-recovery passed
+check: complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/check.PRagJ5
+     Summary [  93.187s] 338 tests run: 338 passed, 46 skipped
+
+# cargo nextest run --locked --workspace --no-fail-fast, repeat 1:
+     Summary [  93.679s] 338 tests run: 338 passed, 46 skipped
+# cargo nextest run --locked --workspace --no-fail-fast, repeat 2:
+     Summary [  93.487s] 338 tests run: 338 passed, 46 skipped
+# cargo nextest run --locked --workspace --no-fail-fast, repeat 3:
+     Summary [  93.192s] 338 tests run: 338 passed, 46 skipped
+
+# the single case, cargo nextest run --locked -p ravel -E 'test(=worker::native_tests::native_f03_first_create)':
+quiet:  15 runs, 0 failures
+loaded: 15 runs, 0 failures (one busy-loop per CPU, 16, running alongside)

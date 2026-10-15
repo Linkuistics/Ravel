@@ -1,0 +1,127 @@
+# cargo:  cargo 1.85.0 (d73d2caf9 2024-12-31)
+# rustc:  rustc 1.85.0 (4d91de4e4 2025-02-17)
+# clippy: clippy 0.1.85 (4d91de4e48 2025-02-17)   <- what cargo clippy dispatches to
+# mode:   enum
+# cmd: RUSTFLAGS="-W clippy::all" cargo clippy --locked --workspace --all-targets
+   Compiling libc v0.2.186
+   Compiling version_check v0.9.5
+   Compiling getrandom v0.4.2
+   Compiling rustix v1.1.4
+    Checking cfg-if v1.0.4
+    Checking bitflags v2.11.1
+    Checking once_cell v1.21.4
+    Checking fastrand v2.4.1
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+    Checking utf8parse v0.2.2
+    Checking anstyle v1.0.14
+    Checking colorchoice v1.0.5
+    Checking anstyle-parse v1.0.0
+   Compiling serde_core v1.0.228
+    Checking anstyle-query v1.1.5
+    Checking is_terminal_polyfill v1.70.2
+   Compiling zmij v1.0.21
+    Checking clap_lex v1.1.1
+   Compiling serde_json v1.0.150
+    Checking strsim v0.11.1
+   Compiling heck v0.5.0
+    Checking anstream v1.0.0
+    Checking itoa v1.0.18
+   Compiling generic-array v0.14.7
+    Checking memchr v2.8.0
+    Checking clap_builder v4.6.7
+   Compiling syn v3.0.8
+    Checking errno v0.3.14
+    Checking keyed-launch v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/keyed-launch)
+    Checking cpufeatures v0.2.17
+warning: operator precedence can trip the unwary
+   --> crates/keyed-launch/src/run.rs:534:45
+    |
+534 |                 .fold(0_u64, |bits, signal| bits | 1 << (signal - 1))
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider parenthesizing your expression: `bits | (1 << (signal - 1))`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#precedence
+    = note: `-W clippy::precedence` implied by `-W clippy::all`
+    = help: to override `-W clippy::all` add `#[allow(clippy::precedence)]`
+
+warning: `keyed-launch` (lib) generated 1 warning (run `cargo clippy --fix --lib -p keyed-launch` to apply 1 suggestion)
+    Checking tempfile v3.27.0
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+   Compiling ravel v1.0.0 (/Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel)
+warning: use of `format!` to build up a string from an iterator
+  --> crates/ravel/build.rs:72:5
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: call `fold` instead
+  --> crates/ravel/build.rs:72:18
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |                  ^^^
+help: ... and use the `write!` macro here
+  --> crates/ravel/build.rs:72:29
+   |
+72 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+   |                             ^^^^^^^^^^^^^^^^^^^^^
+   = note: this can be written more efficiently by appending to a `String` directly
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+   = note: `-W clippy::format-collect` implied by `-W clippy::all`
+   = help: to override `-W clippy::all` add `#[allow(clippy::format_collect)]`
+
+warning: `ravel` (build script) generated 1 warning
+   Compiling clap_derive v4.6.7
+warning: `keyed-launch` (lib test) generated 1 warning (1 duplicate)
+    Checking clap v4.6.7
+warning: use of `format!` to build up a string from an iterator
+   --> crates/ravel/tests/cli.rs:451:32
+    |
+451 |     let prefix_bytes: String = length.iter().map(|byte| format!("\\{byte:03o}")).collect();
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: call `fold` instead
+   --> crates/ravel/tests/cli.rs:451:46
+    |
+451 |     let prefix_bytes: String = length.iter().map(|byte| format!("\\{byte:03o}")).collect();
+    |                                              ^^^
+help: ... and use the `write!` macro here
+   --> crates/ravel/tests/cli.rs:451:57
+    |
+451 |     let prefix_bytes: String = length.iter().map(|byte| format!("\\{byte:03o}")).collect();
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^
+    = note: this can be written more efficiently by appending to a `String` directly
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+    = note: `-W clippy::format-collect` implied by `-W clippy::all`
+    = help: to override `-W clippy::all` add `#[allow(clippy::format_collect)]`
+
+warning: `ravel` (test "cli") generated 1 warning
+warning: use of `format!` to build up a string from an iterator
+   --> crates/ravel/src/context.rs:723:5
+    |
+723 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: call `fold` instead
+   --> crates/ravel/src/context.rs:723:18
+    |
+723 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    |                  ^^^
+help: ... and use the `write!` macro here
+   --> crates/ravel/src/context.rs:723:29
+    |
+723 |     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    |                             ^^^^^^^^^^^^^^^^^^^^^
+    = note: this can be written more efficiently by appending to a `String` directly
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+    = note: `-W clippy::format-collect` implied by `-W clippy::all`
+    = help: to override `-W clippy::all` add `#[allow(clippy::format_collect)]`
+
+warning: `ravel` (bin "ravel") generated 1 warning
+warning: `ravel` (bin "ravel" test) generated 1 warning (1 duplicate)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.38s
+# exit: 0

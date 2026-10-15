@@ -58,3 +58,33 @@ a new one is the same kind of finding and is repaired here, not elsewhere.
 
 ## Decisions (running log)
 
+- **Red was taken on the unmodified tree, from the genuine 0.1.85 driver, and my
+  first reading was wrong in the same way k50's was.** Four toolchains (1.85.0,
+  1.85.1, 1.86.0, 1.93.1) all read clean because `cargo` resolves `cargo clippy`
+  through `~/.cargo/bin` before `PATH`, so a toolchain-first `PATH` ran clippy
+  0.1.93. Fixed by `RUSTUP_TOOLCHAIN` and by printing `cargo clippy --version` in
+  each log header; then 1.85.0 and 1.85.1 fail (exit 101) and 1.86.0 and 1.93.1
+  are clean with the identical command. Because a failing crate hides the sites
+  behind it, a `-W clippy::all` enumeration run prints all four.
+- **`hex` follows `channel.rs`'s own idiom** (`String::with_capacity`, `write!`,
+  `let _ =` with its "Infallible" comment) rather than the patch k50 left
+  unapplied, which used `.expect` in production. The protected test line uses
+  `array.map(..).concat()`, which needs no import and changes one line.
+- **No test was added.** A permanent `hex` test would add a protected identity and
+  complicate the immutable run's join; the differential is a script in the
+  evidence directory instead, built from the revisions' own source text.
+- **Object code is not evidence for the precedence site.** The planted fault left
+  both object files byte-identical (`EntrySignals::new` is generic). MIR and HIR,
+  which went dirty on the fault, are the instrument; the evidence says so.
+- **Measured, then one failure found.** Darwin R01 preserved 310 of 310 and every
+  task passed except `check`, whose nextest step missed a 1000 ms selection
+  deadline once (`native_f03_first_create`, `first-create-ignored`). Not
+  reproduced in a `check` rerun, three further suite runs and 30 isolated runs.
+  Reported as unestablished, not as a flake; the receipt stays as measured.
+  aarch64 Linux at 1.85.0 passed build, clippy, fmt and all six R01 tasks
+  including `check`, the first pass of `check` at the declared minimum.
+- **k43 and k50 receipts untouched**; the evidence note says where they describe
+  the pre-edit tree. Documents digested by the campaign (the spec, the transition
+  design, the plan, the case manifest) were not edited here; k52 owns that.
+- **The container was left up for inspection and is taken down** before the leaf
+  retires; the Darwin R01 run's `target/` is local build output.

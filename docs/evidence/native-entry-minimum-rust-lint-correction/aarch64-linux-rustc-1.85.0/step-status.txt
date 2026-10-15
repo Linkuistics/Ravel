@@ -1,0 +1,8 @@
+rust-minimum-version	0
+rust-build	0
+rust-clippy	0
+rust-clippy-faults	0
+rust-fmt	0
+worker-setup	0
+fixture-build	0
+r01	0

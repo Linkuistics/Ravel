@@ -1,0 +1,2 @@
+cli.rs fixture script: 1025 comparisons, 993 differ
+checked 644 comparisons, 1214 differ

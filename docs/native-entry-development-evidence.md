@@ -1088,6 +1088,12 @@ questions (K4, k6, G2 to G5, R-W) or the book. A local pass is not supported-tar
 qualification, and the 30 rejected premises are properties of the incumbent
 rather than of the repaired product.
 
+**These receipts describe the tree before the minimum-Rust lint correction.**
+The correction ([k51](#minimum-rust-lint-correction-k51)) edits four source sites
+afterwards, so the digests recorded here are of the pre-edit tree. They stay as
+measured and are not edited; the immutable campaign on the corrected tree is the
+run leaf's.
+
 ## GNU/Linux and minimum-Rust continuation: development increment (k49)
 
 `native-entry-linux-qualification-k49` became a node when its first session found
@@ -1199,6 +1205,8 @@ repaired code or its instruments. The repair is a source edit in production
 files, so by the charter it is its own failing-first correction run and is not
 made here.
 
+The repair is made and measured in [the next section](#minimum-rust-lint-correction-k51).
+
 An earlier check on the Darwin host reported 1.85 clippy clean. That reading was
 a broken instrument: `rustup run 1.85 cargo clippy` resolved to Homebrew's
 clippy 0.1.99 driving rustc 1.85.1. The genuine 0.1.85 driver
@@ -1274,6 +1282,119 @@ does not; and under emulation 146 of 153 rows agree while seven cannot be
 reproduced and 74 protected identities cannot run. It does **not** establish an
 immutable receipt for any Linux target, `task check` at the minimum, or anything
 about a native x86-64 kernel.
+
+## Minimum-Rust lint correction (k51)
+
+`native-entry-minimum-rust-lint-correction-k51` is the failing-first correction
+the k49 charter asked for: `task check`'s lint step must pass at the declared
+minimum Rust, and nothing else may change. Its logs, the instruments and the
+receipts are under
+[`docs/evidence/native-entry-minimum-rust-lint-correction/`](evidence/native-entry-minimum-rust-lint-correction).
+
+### Red first, on the unmodified tree
+
+The tree was `15cb3f675cec` with no edit. The same command
+(`cargo clippy --locked --workspace --all-targets -- -D warnings`, and again with
+`--features native-faults`) was run under four toolchains, each log naming the
+clippy that `cargo clippy` really dispatched to:
+
+| Toolchain | clippy | Result |
+|---|---|---|
+| rustc 1.85.0 | 0.1.85 (`4d91de4e48`) | **fails**, exit 101 |
+| rustc 1.85.1 | 0.1.85 (`4eb161250e`) | **fails**, exit 101 |
+| rustc 1.86.0 | 0.1.86 | clean |
+| rustc 1.93.1 | 0.1.93 | clean |
+
+Clippy stops dependents behind a failing crate, so the deny-level run reports
+`clippy::precedence` in `keyed-launch` and `clippy::format_collect` in the build
+script and then stops. To see every site on the unmodified tree, a second run with
+`RUSTFLAGS="-W clippy::all"` demotes the lints to warnings and prints all four,
+at the lines named in the finding above, for 1.85.0 and 1.85.1
+(`red/*-enum.txt`). The red is therefore the declared minimum's: the same tree and
+command are clean one minor release later.
+
+*Instrument finding.* The first four readings were all clean. `cargo` looks a
+subcommand up in `~/.cargo/bin` (rustup's proxies) before `PATH`, so putting a
+toolchain's `bin` first on `PATH` still ran the default toolchain's clippy, 0.1.93
+(`cargo clippy --version`, run under that `PATH`, printed it). The harness
+(`lint.sh`) now selects the toolchain with `RUSTUP_TOOLCHAIN` and writes
+`cargo clippy --version` at the top of every log. This is the same trap k50 met
+with Homebrew's clippy, one layer further down, and the header is the control.
+
+### The repair
+
+| Site | Change |
+|---|---|
+| `crates/keyed-launch/src/run.rs:534` | `bits \| 1 << (signal - 1)` becomes `bits \| (1 << (signal - 1))`. Parentheses only. |
+| `crates/ravel/build.rs` `hex` | the `map(format!).collect()` becomes a `String::with_capacity` loop with `write!`, the idiom `crates/keyed-launch/src/channel.rs` already uses for its own `hex`. |
+| `crates/ravel/src/context.rs` `hex` | the same. |
+| `crates/ravel/tests/cli.rs:451` | `length.iter().map(..).collect::<String>()` becomes `length.map(..).concat()`. Only how the octal escape string is built differs; the line before and the assertions after are untouched. |
+
+No `#[allow]` was added. No test file other than the one protected line changed,
+no test was added (so the 310 identities, and the 74 new ones, are the same
+names), and nothing under `docs/evidence/native-entry-campaign` or the incumbent
+subject changed.
+
+### Behaviour is unchanged
+
+- **Precedence site.** `-Zunpretty=mir` and `-Zunpretty=hir` of the `keyed-launch`
+  library on nightly 1.97, before and after, are byte-identical (18620 and 3829
+  lines, `precedence-site-compiled-form.txt`). The control is a deliberate fault,
+  `signal - 1` to `signal - 2`: it changes MIR by four lines and HIR by two, so the
+  comparison is seen to go dirty. *Object code is not evidence here:* the same
+  fault left both object files byte-identical, because `EntrySignals::new` is
+  generic and is monomorphised only in the crates that call it. MIR and HIR are
+  taken before monomorphisation, which is why they are the instrument.
+- **Both `hex` functions.** `hex-differential.py` extracts `fn hex` from the base
+  revision and the working tree (not retyped copies), compiles old and new side by
+  side with rustc 1.85.0 and compares them on every single byte `0..=255`, the
+  whole run, the empty slice and 64 pseudo-random lengths: 644 comparisons, 0
+  differ. The mutant (`{byte:02X}`) differs in 221.
+- **The protected test's fixture.** The same script extracts the statements that
+  compute the length prefix and the `format!` that builds the worker script, and
+  compares the full script text for every `hello` length 0 to 1023 and the test's
+  own `hello`: 1025 comparisons, 0 differ; the mutant (`03x`) differs in 993.
+
+### Green, and the protected expectations
+
+| Reading | Result |
+|---|---|
+| clippy 0.1.85 (1.85.0 and 1.85.1), `--workspace --all-targets -D warnings`, and with `native-faults` | clean (`green/`) |
+| clippy 0.1.86 and 0.1.93, the same | clean |
+| `cargo fmt --all --check` at 1.85.0 and 1.93.1 | clean |
+| aarch64-apple-darwin, `scripts/native-r01.sh run` (Homebrew rustc 1.99) | 310 of 310 preserved, 74 new identities; `test:cli` 13 of 14 in scope (1 ignored fixture), `test:session` 219 of 227 (8), `test:runner` 71 of 83 (12), `test` 290 of 310 (20); subject digests identical before and after |
+| aarch64 GNU/Linux, rustc/clippy 1.85.0, kernel 7.0.14-linuxkit, glibc 2.43 | `cargo build --all-targets`, clippy (both feature sets) and fmt exit 0; R01 through all six tasks exit 0, **including `check`**: eight steps passed, 338 of 338 tests, 290 of 290 identities, digests identical before and after |
+
+The Linux row is the first time `task check` passes at the declared minimum. The
+join's failing controls (`task test:native-r01-controls`) pass.
+
+**One failure to report.** In the Darwin R01 run, `task check` exited 201: the
+nextest step failed `worker::native_tests::native_f03_first_create`, whose
+`first-create-ignored` broken subject was refused with `selection_timeout` at the
+1000 ms bound. The identical suite had passed 338 of 338 in `task test` 90
+seconds earlier in the same run, and all other `check` steps passed. On the same
+tree (digests re-verified) `task check` alone then passed, three further
+whole-suite runs passed (338 of 338 each), and the case alone passed 15 of 15
+quiet and 15 of 15 beside one busy loop per CPU
+(`darwin-check-reruns/summary.txt`). The failed receipt is kept as it was, in
+`r01-darwin-aarch64-apple-darwin/check.txt`, and the join counted it
+(`failure_lines: 2`). **The cause is not established**: this is one failure in
+six whole-suite runs, not reproduced, on a host where other processes (indexers,
+the terminal) were active. `.config/nextest.toml` already names this class: a
+protected one-second deadline must not compete with other work. It is
+independent of the four edited sites (a deadline, and the edit changes only
+digest rendering and a parenthesis), but "independent by inspection" is not a
+reproduction, so the immutable run should be taken on a quiet host and must treat
+a repeat as a finding.
+
+### What this establishes, and what it does not
+
+At the declared minimum Rust the workspace builds, lints and formats clean, with
+behaviour shown unchanged at each edited site, the protected suite and R01
+unchanged on aarch64-apple-darwin and on aarch64 GNU/Linux, and `task check`
+passing on both. It is **not** an immutable campaign receipt: the frozen matrix
+was not rerun on the corrected tree, nothing about x86_64 is measured, and the
+k43 and k50 receipts describe the tree before this edit.
 
 ## Exact remainder before acceptance
 

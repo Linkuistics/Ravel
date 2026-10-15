@@ -60,3 +60,17 @@ remainder, do not widen it silently.
 
 ## Decisions (running log)
 
+## Carried from k51
+
+- The corrected tree passes `task check` at 1.85.0 on aarch64 Linux and at
+  Darwin's compiler, and clippy 0.1.85 (1.85.0 and 1.85.1) is clean. The lint
+  harness and its failing control are in
+  `docs/evidence/native-entry-minimum-rust-lint-correction/lint.sh`; name clippy's
+  version in every log and select the toolchain with `RUSTUP_TOOLCHAIN`.
+- One `task check` on Darwin missed a 1000 ms selection deadline once
+  (`native_f03_first_create`, `first-create-ignored`) while indexers and the
+  terminal were running; six whole-suite runs and 30 isolated runs otherwise
+  passed. Take the immutable runs on a quiet host, one at a time, and treat a
+  repeat as a finding rather than rerunning until it passes.
+- The Darwin and Linux R01 summaries of k51 describe the tree before this run's
+  document edits; they are not a substitute for this run's receipts.

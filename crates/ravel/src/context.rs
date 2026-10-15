@@ -1,5 +1,6 @@
 //! Validate caller/loader data and attach measured file sources within the context budget.
 
+use std::fmt::Write as _;
 use std::fs;
 use std::io::Read as _;
 use std::os::unix::fs::OpenOptionsExt as _;
@@ -720,7 +721,12 @@ fn quoted(key: &str) -> String {
 }
 
 pub fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    let mut rendered = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        // Infallible: `String`'s `Write` never errors, and the format is fixed.
+        let _ = write!(&mut rendered, "{byte:02x}");
+    }
+    rendered
 }
 
 #[cfg(test)]

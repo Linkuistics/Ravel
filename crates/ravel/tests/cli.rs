@@ -448,7 +448,7 @@ fn selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses()
     fs::create_dir_all(worker.parent().unwrap()).unwrap();
     let hello = r#"{"type":"hello","protocol":1,"packageVersion":"0.0.0","buildId":"wrong-source","bunVersion":"1.4.2"}"#;
     let length = u32::try_from(hello.len()).unwrap().to_be_bytes();
-    let prefix_bytes: String = length.iter().map(|byte| format!("\\{byte:03o}")).collect();
+    let prefix_bytes = length.map(|byte| format!("\\{byte:03o}")).concat();
     fs::write(
         &worker,
         format!("#!/bin/sh\nprintf '{prefix_bytes}' >&3\nprintf '%s' '{hello}' >&3\n"),

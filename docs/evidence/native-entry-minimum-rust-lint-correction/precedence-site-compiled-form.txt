@@ -1,0 +1,16 @@
+# nightly rustc rustc 1.97.0-nightly (36ba2c771 2026-04-23), -Zunpretty of crates/keyed-launch/src/lib.rs, tree at 15cb3f675cec (before) and with the k51 edit (after)
+# 'mutant' is the same edit with (signal - 1) changed to (signal - 2), a deliberate fault
+8ca1f1cc4b9835fc77112b51474801d9244ea51767b35e45cc1f3d1c4e35ba1c  before/mir (18620 lines)
+6367895fc5ab819221cb7a943c60f5a878c4b8a69805c582a3f40a557134460c  before/hir (3829 lines)
+8ca1f1cc4b9835fc77112b51474801d9244ea51767b35e45cc1f3d1c4e35ba1c  after/mir (18620 lines)
+6367895fc5ab819221cb7a943c60f5a878c4b8a69805c582a3f40a557134460c  after/hir (3829 lines)
+c1ead97ad0707d0dc97665834334c452eb7234978933d02e461884dd5bdabdb7  mut/mir (18620 lines)
+8eba10cdbc340425030298fe7a0868045781b32d10f97acf920714a727d8c13d  mut/hir (3829 lines)
+
+diff line counts (before vs after): mir 0, hir 0
+diff line counts (after vs mutant): mir 4, hir 2
+
+# object files, o0/o3 sha256, identical for before, after AND mutant (so not evidence; see forms.sh)
+829949672fa45c55cc2f0786f6b0f768002e054fd9e3fe50872c2fbeab983270  o0/keyed_launch.o
+63aac101948ffce3ef04a93d612858f573c5147e8a07b2fd9e54f8e5b4354d80  o3/keyed_launch.o
+mutant 829949672fa45c55cc2f0786f6b0f768002e054fd9e3fe50872c2fbeab983270  o0/keyed_launch.o

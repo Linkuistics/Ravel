@@ -1,0 +1,11 @@
+{
+  "in_scope": 310,
+  "ignored_fixtures_in_scope": 20,
+  "checked": 290,
+  "passed": 290,
+  "not_passed": [],
+  "failure_lines": [
+    "        FAIL [   3.337s] (335/338) ravel::bin/ravel worker::native_tests::native_f03_first_create",
+    "        FAIL [   3.337s] (335/338) ravel::bin/ravel worker::native_tests::native_f03_first_create"
+  ]
+}

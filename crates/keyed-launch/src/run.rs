@@ -531,7 +531,7 @@ impl EntrySignals {
         let bits = |signals: &mut dyn Iterator<Item = libc::c_int>| {
             signals
                 .filter(|signal| SIGNAL_NUMBERS.contains(signal))
-                .fold(0_u64, |bits, signal| bits | 1 << (signal - 1))
+                .fold(0_u64, |bits, signal| bits | (1 << (signal - 1)))
         };
         Self {
             ignored: bits(&mut ignored.into_iter()),

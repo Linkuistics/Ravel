@@ -7,6 +7,7 @@
 //! from any other source. The two definitions must agree byte for byte: the
 //! `shasum -a 256` line of each file in `source_files` order, hashed again.
 
+use std::fmt::Write as _;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -69,5 +70,10 @@ fn collect_typescript(crate_dir: &Path, relative: &Path, files: &mut Vec<String>
 }
 
 fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    let mut rendered = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        // Infallible: `String`'s `Write` never errors, and the format is fixed.
+        let _ = write!(&mut rendered, "{byte:02x}");
+    }
+    rendered
 }
