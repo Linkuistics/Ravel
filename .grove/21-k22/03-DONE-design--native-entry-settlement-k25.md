@@ -90,3 +90,50 @@ K4/K6 comparison history, G2–G5/R-W debt and all root delivery/documentation
 obligations remain live through the parent brief. No target, extraction,
 simplification gain, independent adoption, book acceptance or phase/root close
 follows from a protocol design or a supported price.
+
+## Decisions (running log)
+
+- Select owner-local nonblocking wait with a 2-second absolute runner error/post-KILL budget and 2-second total worker teardown, retaining its 1-second grace and separate 1-second bounded reader collection. No physical blocking wait reaches recovery. Expiry reports unresolved ownership; it cannot establish reap or group absence.
+- Preserve protected logical wait-event traces individually; emergency observation failure retains its single group-then-PID stop, while failed Started uses checked stop plus two pre-reap group stops. ECHILD/released identity forbids further signals. Unknown-status terminal recovery preserves foreign holders and reports unconfirmed foreground/modes under C4's authority/no-reuse premises.
+- Propose exactly 32 S01–S05 cleanup-failure rows, retaining frozen E/F/R. They are priced but not commissioned, use owner-local controls and separate physical operations from reported substitutions within the 30/5/5 controller envelope.
+
+- The one permitted focused reviewer returned “No concrete finding” against
+  boundedness, identity safety and uncertainty/report retention. No findings need
+  classification; no second review was launched. This is a narrow aimed read,
+  not behavioral evidence. Protected logical traces were reconciled individually.
+- Charge conservative D≤10/RC≤2, P=E=X=0 including protocol/source evidence,
+  finite amendment/pricing, presentation, focused review, tree/verification and
+  retirement/commit. Cumulative correctness bounds are D≤110/RC≤55/P≤155/
+  E≤30/X=0; remaining D≤20 exclusively closure reserve, RC=0/P≤85/E≤90/X=0.
+  The full future cycle needs D≤5/RC≤10/P≤125/E≤85, so exact added funding is
+  D≤5/RC≤10/P≤40. Recommend caps D≤135/RC≤65/P≤280/E≤120/X=0. No unused
+  allocation is spend and no reserve is borrowed. Cut only the precise funding
+  continuation native-entry-complete-funding-k26; no producer is commissioned.
+
+## Verification and stopping state
+
+Read the complete nine-path jj diff. Mechanical checks pass for docs/tree-only
+scope, whitespace, local link targets, manifest/source references, frozen additive
+API and E/F/R byte equality against the parent, unchanged book SHA-256 and all
+price/balance/amendment arithmetic. Product source and protected wait-event tests
+are unchanged; no behavioral suite, native fixture or measurement ran.
+
+Served the existing viewer through task docs:result-job PORT=8881. Chrome opened
+the exact entry-failure deep link and visibly rendered the revised sequence,
+current-discussion panel and updated marker. Corrected a Mermaid message separator
+parse error and rechecked the actual layout. Desktop light appearance was checked;
+mobile/dark appearance and human comprehension were not checked. Port 8879 was
+occupied by an unusable stale viewer, so the dedicated presentation uses 8881.
+
+Source Tier 2 coverage matched metadata with no recorded Rust gaps at generation
+2026-10-15T03:45:25Z. Subsequent document coverage reports partial Mermaid line 18
+and changed README/manifest metadata; those exact sources were read in full and
+the diagram rendered in the browser. Best-effort coverage is not completeness.
+The final self-read made the normal logical reap deadline explicit as well as
+the failed-Started deadline, and disallowed unbounded terminal EINTR retry.
+No architectural/package decision changes, so the ADR set remains current.
+
+Retire only k25. The complete repair remains unimplemented in k22, whose next live
+leaf is native-entry-complete-funding-k26 before the unchanged book. No parent
+cascade, correctness-phase close or root close is earned. Seal this design and
+funding handoff as one jj change; preserve the phase-closure reserve.

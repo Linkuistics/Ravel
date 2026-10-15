@@ -34,7 +34,7 @@ a spawned child: it must perform bounded stop/group cleanup/wait and terminal
 recovery before returning that transition error. It must not return directly
 from the callback with a live child. Started still means spawn-reported success.
 This extends an existing lifecycle seam; it is not a public testing option or
-a new generic syscall service. The exact additive Rust name belongs to planning.
+a new generic syscall service. The additive API is frozen in the repair brief: observed entry points gain a separate prompt, synchronous fallible start check; existing infallible entry points adapt with an always-successful check.
 
 ## Transition protocol
 
@@ -155,10 +155,11 @@ processes for unreachable transitions; existing real-process/PTY seams for jobs.
 | F06 child(action / mask-set construction / mask restore); F07 re-raise(default action / unblock / raise) | Child fault uses fixed pre-exec data and reports actual spawn/wait/C4 recovery. Re-raise faults execute in forked fixtures; parent distinguishes WIFSIGNALED from numeric 128+N fallback and asserts zero result. Disable the relevant check and require the report/result assertion to fail. |
 | R01 protected existing expectations | Untouched CLI/configuration/exact UTF-8/empty/nested/first-writer/final-write, C1–C4 and runner process/PTY cases run through existing Taskfile tasks. Preserve physical operation versus substituted-report distinctions and C4 exclusive authority/no-reuse premises. |
 
-Every barrier has a deadline and two-way acknowledgement. Outer controller
-deadline is 20 seconds for one case; on timeout send TERM, then KILL after at
-most 2 seconds, wait at most 5 seconds and report unresolved identity rather
-than signal a reused group. PTY owner saves/restores foreground/modes and closes
+Every barrier has a deadline and two-way acknowledgement. The frozen controller envelope is 30 seconds per case, including cleanup,
+with each acknowledgement bounded by 5 seconds and the final 5 seconds reserved
+for controller cleanup. This replaces the earlier illustrative 20-second recipe.
+On timeout use only still-owned identities, bounded nonblocking wait and explicit
+unresolved-identity reports; never extend the outer deadline. PTY owner saves/restores foreground/modes and closes
 both ends; fixture PID handles remain owned through cleanup. Do not kill by a
 recorded group number after direct-child reap. Tests involving escaped pipe
 holders retain their own direct-child ownership. The producer may shorten
@@ -202,7 +203,7 @@ the exact source:
 
 | Finding | Classification and disposition |
 |---|---|
-| Blocking emergency wait and deadline-free killed state cannot supply bounded cleanup. | **Valid and actionable.** An explicit error-settlement deadline and uncertainty outcome must be specified and priced before reuse. No deadline was selected here. |
+| Blocking emergency wait and deadline-free killed state cannot supply bounded cleanup. | **Valid and actionable.** An explicit error-settlement deadline and uncertainty outcome must be specified and priced before reuse. No deadline was selected by that prerequisite read. |
 | Stop and group-kill failures are discarded. | **Valid and actionable.** Preserve individual operation reports alongside the initiating check error and first consumed cancellation. Existing LaunchError aggregation is sufficient for carrying text; it does not make the stop operations checked. |
 | Emergency settlement omits the normal second group-kill attempt and post-reap group confirmation. | **Contract stated unclearly in the review prompt.** The existing emergency branch does attempt one group signal, so it is not evidence of no group-stop attempt. It supplies neither the ordinary repeated-kill sequence nor a group-absence receipt. Decide the required pre-reap stop protocol; error return may explicitly retain uncertainty and need not invent Group::Gone. Existing protected wait-event traces must remain reconciled individually. |
 | Unknown-status reclaim can leave a foreign foreground holder and saved modes without reporting uncertainty. | **Valid and actionable for reporting.** Arbitrary takeover is not authorised. Preserve the existing C4 authority and no-reuse premises, and distinguish recovery attempted from recovery confirmed. |
@@ -214,7 +215,8 @@ accessor; append recovery diagnostics; emit Reaped only for actual successful
 wait. Entering ordinary watching after a failed check would call `lend` again,
 contrary to the frozen error-path requirement.
 
-The missing decisions are the bound and nonblocking observation strategy after
+K23 left the following decisions for the selected protocol below: the bound
+and nonblocking observation strategy after
 failed Started or worker-reader admission, treatment of stop/observation/wait
 failures and EINTR/ECHILD without authorising signalling an uncertain or reaped
 identity, the pre-reap group-stop sequence, and unknown-status terminal recovery
@@ -235,45 +237,211 @@ The complete repair remains live as one future producer. The material discovery
 triggers the mandate's scope/funding continuation; it does not permit borrowing
 the D≤20 phase-closure reserve or declaring the native repair complete.
 
-## Initial repair estimate and handoff
+## Bounded error-settlement protocol
 
-**This estimate is suspended pending the bounded-settlement prerequisite above.**
-It records the original design price, not a current complete supported price.
-Implementation has not commissioned a narrower replacement repair.
+This is the selected mechanism for the agreed failure contract, not implemented
+behavior. Keep the frozen Started API, T0–T8, first consumed cancellation and
+spawn-only errno classification. The callback io::Error remains the source;
+cleanup reports never replace it. No result or new admission follows a failure.
 
-One focused fresh-context reviewer read the ownership/transition protocol and
-relevant cases against the required signal/failure contract. It returned
-“No concrete findings within the assigned transition-review scope.” There are
-no findings to classify. This is one narrow read, not proof of the protocol or
-runtime conformance. A subsequent self-read clarified T8's already-described
-ordering in the table: handlers remain installed for mask restoration and the
-final pending join; disposition release comes afterwards under the block.
+### Deadlines and ownership
 
-Design estimates in minutes, against P≤100/E≤90 shared unused balances:
+Use monotonic absolute deadlines, never restarted by EINTR, another signal or a
+secondary failure. Runner error settlement has **2 seconds**, beginning when a
+Started check fails or the first non-EINTR observation/wait/stop error occurs.
+The ordinary Killed state also has a 2-second deadline beginning with its first
+SIGKILL attempt; expiry becomes an error. A normal observed exit starts the same 2-second budget before its pre-reap
+group stops if no deadline exists yet; every logical reap therefore has a
+deadline even when it first encounters EINTR. If budgets overlap, use the earlier
+deadline. This does not shorten configured normal channel grace or kill-grace.
+The existing 20ms repeat-group-stop pause is inside this bound. Existing
+post-reap group confirmation remains at most 1 second, query-only, after terminal
+recovery; it is not a renewed child-wait budget. A recovery failure still skips
+confirmation as the protected traces require.
+
+Worker teardown has **2 seconds total** from reader-admission failure (or entry
+to stop on other failure): retain the existing at-most-1-second graceful wait,
+then SIGKILL and nonblocking observation for only the remainder. An observation
+error may skip the remaining grace but cannot restart the deadline. Signal only
+the worker PID: it shares the launcher's group. Diagnostic collection retains
+its shared 1-second DRAIN_GRACE, beginning after teardown, capped at t0+3 seconds.
+No reader join is required. The worker evaluation deadline remains unchanged.
+
+At expiry attempt terminal recovery immediately, retain known child/group/lease
+facts until that attempt and the final cancellation sample, then return an error
+naming unresolved ownership. Rust Child drop is neither reap nor termination;
+a surviving child/group may remain for the caller/operator after CLI exit.
+There is no background reaper or resumed-host guarantee. Disarm all later numeric
+signals once ownership is released or uncertain. Report attempted stop, confirmed
+reap, group absence and foreground/mode recovery independently. No timeout may
+manufacture Reaped, a status, Group::Gone or successful terminal recovery.
+The deadlines bound user-space polling/retries, not scheduler stalls or an OS
+syscall that never returns. Use nonblocking wait and TCSANOW recovery: no physical
+Child::wait, blocking waitpid, terminal drain or unbounded retry reaches recovery.
+
+### Checked operations and identity
+
+Retain the Process seam and worker-local teardown boundary. Checked signalling
+returns an ordered report for each group and direct-PID syscall, with target,
+signal and errno. A successful kill means delivery was attempted successfully,
+not exit. ESRCH is a no-target report, never a reap receipt; EPERM is retained.
+Do not infer group absence from stop success. Group probes distinguish ESRCH
+(absent), present/EPERM, and other query errors (unknown with the original errno).
+
+Production runner observation uses waitid(WEXITED|WNOHANG|WNOWAIT), keeping the
+unreaped child's PID reserved until all required group signals finish. The
+logical reap operation uses waitpid(WNOHANG) under that same owner, decoding a
+status only when the expected PID is returned. Poll at at most 10ms intervals,
+clipped to the absolute remainder. Worker uses Child::try_wait under its sole
+owner. A zero/None observation is still running, not an error or reap. EINTR is
+recorded in the operation receipt and retried only within the same deadline,
+without accumulating an unbounded diagnostic string; retain first errno and
+retry count. Other errors remain secondary to the initiating failure. ECHILD
+invalidates reservation immediately: no subsequent signal, no status or Reaped,
+report unknown lifecycle and proceed to conditional terminal recovery. A wait
+error that does not establish identity loss allows bounded retry while exclusive
+wait ownership remains; a private substituted error must retain the separately
+recorded physical wait fact and can never restore a released reservation.
+
+Failed Started uses checked group-then-PID SIGKILL, followed by the existing two
+group-only SIGKILL attempts separated by 20ms, all before reap and only while
+reservation remains. Observe unreaped exit and bounded reap; if observation is
+unavailable, the already completed stop sequence permits direct nonblocking reap.
+Never call lend again. Legacy emergency observation failure retains its existing
+single group-then-PID stop followed by logical wait, rather than adding a second
+kill-group event to protected traces. This is a visible trade-off: uncertainty
+can be returned; repeated group stops and confirmed absence are not claimed on
+that legacy error path. Normal observed exit retains two group stops before reap.
+At any confirmed reap, freeze elapsed and consumed cancellation before emitting
+Reaped once, then recover. No signals follow confirmed reap, including after a
+substituted failed report. On no-reap expiry sample cancellation before recovery;
+T7 joins any later runner/front/pending observations without replacing the first.
+
+### Unknown-status terminal recovery
+
+Keep C4's exclusive foreground authority and no unrelated recorded-ID reuse
+through handback premises, including after ECHILD/release. Query foreground;
+if already owned, restore saved modes. If it equals the owned recorded child
+group and the premises hold, attempt handback, query again, then restore modes
+only if the launcher is confirmed foreground. A foreign holder with unknown
+status is preserved and explicitly reported as unconfirmed foreground AND modes;
+unknown status never enables the broader signal-death delegated-group rule.
+Query, handback, saved-mode restore and temporary SIGTTOU restoration reports all
+survive. A successful mode syscall is its operation confirmation, not a claim of
+universal terminal recovery. Each terminal operation is attempted once, with EINTR retained rather than an
+unbounded retry. Missing modes or ownership facts are errors. Failure
+cannot lead to a new lend or successful result. No-lease launches require no
+foreground operation. Existing known-status C4 behavior remains unchanged.
+
+### Protected wait-event reconciliation
+
+These are exact existing logical traces, not permission to use blocking waits.
+The real adapter performs bounded physical polls inside the logical wait; new
+operation receipts remain distinct from these existing event assertions.
+
+| Existing case | Preserved trace/meaning |
+|---|---|
+| confirmed_reap_precedes_recovery: poll | poll → kill-group → wait → reaped → recover → confirm |
+| same: recovery, confirmed / failed | poll → kill → wait → reaped → recover / poll → kill → wait → recover; no confirm |
+| same: escalation, confirmed / failed | poll → poll → term → poll → kill → poll → kill-group → wait → [reaped only if confirmed] → recover → [confirm only if confirmed] |
+| cancellation_forwards_or_kills_by_mode | interactive/noninteractive forward → poll → kill → poll → kill-group → wait → confirm; confined kill → poll → poll → kill-group → wait → confirm |
+| check_wait_failure variants | optional forward → poll → kill (poll failure) or kill-group (observed exit) → wait → optional reaped → recover; preserve each early/at-reap signal tuple and both original reports |
+| surviving group | Keep actual status beside Group::Present; no invented absence. |
+| after-reap signal / elapsed / second sample | Freeze ending duration before observer/recovery; recovery signal stays late; drain reap sample without replacing the first. |
+| reported recovery failure | Retain earlier observation/reap and cancellation reports, leave recovery signal late, and skip confirm in every failed-watch/failed-reap tuple. |
+| error annotations | Preserve first cancellation, original spawn-only errno and every diagnostic. |
+
+### Finite cleanup-failure amendment
+
+Propose **S01–S05 only**, single-site rows, no Cartesian expansion with E/F/R.
+This is an explicitly priced amendment awaiting funding/commissioning; k24 did
+not authorise its construction. Existing F03/F05 real-process/PTY controls cover
+the healthy cleanup path; S adds only the missing uncertainty discriminators.
+Controls are private fixed enums at Process/worker/Lease owners, never installed
+switches or a generic syscall facade. Use the existing CLI with real policy/fake
+job, real-process and PTY boundaries. Each row records actual physical operation,
+substituted report, monotonic timestamps, PID/group reservation state, cancellation,
+all reports, Reaped count, foreground/modes and fixture cleanup separately.
+
+| ID | Exact parameters and meaningful broken control |
+|---|---|
+| S01 | Failed Started, group-first kill / PID kill / first repeat-group kill / second repeat-group kill; each successful physical operation+reported EPERM and omitted operation+EPERM (8 rows). Actual other stops remain; break by discarding that report. |
+| S02 | Failed Started, WNOWAIT observation EIO once / EINTR until deadline / ECHILD; final wait EIO once / EINTR until deadline / ECHILD; plus always-running until deadline (7 rows). Fixed real-operation receipt plus substituted outcome, never claim physical ECHILD or stuck kernel. On simulated release forbid further signals; break deadline or identity guard as appropriate. |
+| S03 | Worker second-reader-create EAGAIN plus PID stop EPERM / kill EPERM / try_wait EIO / EINTR until deadline / ECHILD / always-running (6 rows). Stop/kill each have omitted and performed+reported modes (8 rows total). Break each report check, absolute deadline or identity guard. Retain original creation failure and every report, no Selected/start. |
+| S04 | Unknown status after failed Started: foreground own / recorded child / unrelated group / foreground query EIO / handback EIO / mode restore EIO / SIGTTOU restore EIO (7 rows). Physical PTY operations then substituted EIO for error rows; existing C4 omitted-operation coverage remains. Unrelated holder is a controller-owned group under the C4 premises. Break the corresponding confirmation/report or foreign-holder guard. |
+| S05 | Failed Started plus first consumed HUP then TERM at settlement, once with S02 always-running and once with S04 mode-report failure (2 rows). Acknowledge first consumption; break overwrite/report retention. |
+
+The amendment has 32 concrete rows. Every row runs baseline, its named broken
+control and repaired subject; a baseline already correct is reported as such.
+No simulated error is labelled an actual failed physical wait. Controllers keep
+independent direct-child handles for all real fixtures and escaped pipe holders;
+they clean physically after product ownership is released, without reusing a
+numeric group. Validate watchdog expiry, blocked acknowledgement and holder-cleanup
+controls. Broken unbounded waits are killed by the outer controller, not awaited.
+
+Reserve 0–25 seconds for setup/acks/case and 25–30 for cleanup; acknowledgements
+each consume the SAME outer budget, never serial additions. Error settlement
+uses at most 2 seconds, worker drain at most 1, runner confirmation at most 1.
+Fixed ordinary fixtures use existing production grace/kill-grace values and must
+show their sum plus setup/ack/confirmation fits the first 25 seconds in the frozen
+manifest. Arbitrary legal user-configured grace values need not fit: if selected,
+the exact remainder is max(0, setup+ack+graces+2+1−25) seconds, priced before any
+run; no such long-grace row is commissioned here. Controller cleanup sends TERM
+only while owned, uses at most 1 second before KILL, then WNOHANG until the 5-second
+cleanup deadline. If even independent cleanup cannot confirm, record failure and
+unresolved fixture identity, never a passing receipt or unbounded cleanup wait.
+
+### Focused design review
+
+One fresh-context reviewer challenged boundedness, identity safety and report
+retention against the frozen contract and returned “No concrete finding.” No
+finding requires classification and no second read was launched. This is one
+aimed review, not measured execution or a proof of all OS behaviors. Tier 2
+graph generation 2026-10-15T03:45:25Z reports matching metadata and no recorded
+issue for the runner, worker and protected wait-event source; exact source was
+read as well. Coverage remains best effort.
+
+### Alternatives and reversal condition
+
+Keeping blocking wait cannot bound recovery. A reaper thread would introduce a
+second wait owner and a lifetime beyond error return without guaranteeing physical
+reap; reject it here. Owner-local nonblocking wait preserves reservation and the
+existing seams, at the cost of explicit unresolved-child errors. Reverse this
+choice only if an actual supported-platform wait primitive cannot satisfy these
+nonblocking ownership semantics; that earns a precise design continuation rather
+than an implementation workaround or new target infrastructure.
+
+## Complete repair price and handoff
+
+The old P≤95/E≤80/RC≤4 estimate is replaced by the following complete proposal;
+none is commissioned. Prices are conservative effort ceilings in minutes, not
+measured spend. They cover the whole coherent repair, never just settlement.
 
 | Work | P | E |
 |---|---:|---:|
-| Checked capture/domain and front scope including choice failure | 20 | 0 |
-| Checked worker watching/readers and partial thread failure | 15 | 0 |
-| Checked runner handoff/fallible Started/child operations/first latch | 20 | 0 |
-| Common finalisation/reporting/re-raise and C1–C4 composition | 15 | 0 |
-| Finite fixture/barrier controls, manifest and evidence preparation | 20 | 0 |
-| Measured red/broken/green case families | 0 | 35 |
-| Untouched protected CLI/C1–C4/runner and workspace/check workflows | 0 | 25 |
-| Receipt reconciliation and bounded rerun allowance | 5 | 20 |
-| **Complete production/check estimate** | **95** | **80** |
+| Capture/domain and front scope through choice failure | 20 | 0 |
+| Checked worker watching, readers and bounded teardown | 20 | 0 |
+| Runner additive Started, child checks, checked stops/nonblocking settlement | 30 | 0 |
+| Common finalisation, uncertainty, terminal and cancellation composition | 15 | 0 |
+| Frozen E/F/R plus 32 S rows, barriers/cleanup controls, immutable manifests | 30 | 0 |
+| Evidence and item-by-item subject/receipt reconciliation | 10 | 0 |
+| Frozen E/F baseline/broken/repaired measurements | 0 | 35 |
+| S baseline/broken/repaired and cleanup-controller validation | 0 | 15 |
+| Protected test:list identities, CLI/session/runner/terminal/workspace/check | 0 | 25 |
+| Bounded affected-row reruns and receipt reconciliation | 0 | 10 |
+| **Complete producer** | **125** | **85** |
 
-Allow RC≤4 for the producer's one narrow review, coordination and retirement/
-commit; unused allocations are not spend. The focused transition review found
-no concrete issue within its assigned scope. The estimate does not include new
-Linux infrastructure or minimum-toolchain installation.
-Those domains remain explicitly unqualified; unchanged release support promises
-remain debt rather than waived requirements. If those executions are required
-to close this phase, price their precise continuation before claiming closure.
+Fund producer RC≤5 for one focused review, coordination and retirement/commit;
+mechanical planning/handoff D≤5/RC≤1; funding agreement recording/closure RC≤4.
+After k25's conservative D≤10/RC≤2 charge, cumulative bounds are
+D≤110/RC≤55/P≤155/E≤30/X=0 and balances D≤20 exclusively phase closure,
+RC=0/P≤85/E≤90/X=0. The complete next cycle requires D≤5/RC≤10/P≤125/E≤85,
+so the precise shortfall is **D≤5/RC≤10/P≤40**, with no additional E or X.
+Recommend caps D≤135/RC≤65/P≤280/E≤120/X=0, retaining the original D≤20
+reserve. Agreement charges precede allocating planning; actual unused allocation
+is not spend. Cut only the funding/scope continuation inside k22 before the book.
 
-The design session cannot cut implementation leaves. If supported after review,
-the next planning leaf merely freezes the additive observation contract and
-parameter expansion and commissions this complete vertical increment from
-actual remaining balances. It must not discover a second mechanism under a
-nominally mechanical allowance. A substantive new protocol/review need instead
-earns a precise human funding/scope continuation, with no reserve borrowing.
+Minimum Rust 1.85/Linux runtime qualification and the returning-host contract
+remain outside this local repair price and remain live obligations; no phase
+closure is earned. Source support is Darwin-host design evidence, not execution
+of native cases. No product, fixtures or behavioral suite is built/run here.

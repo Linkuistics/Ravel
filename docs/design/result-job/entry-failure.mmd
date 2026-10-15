@@ -11,9 +11,14 @@ sequenceDiagram
   R->>F: Started, restore parent mask
   alt Parent restore fails
     F-->>R: Transition failure
-    R->>C: Bounded stop and group cleanup before reap
-    C-->>R: Actual wait outcome
-    R->>R: Checked terminal recovery
+    R->>C: Checked group/PID stop, pre-reap group stops
+    R->>R: Nonblocking observation/reap, 2s absolute deadline
+    alt Actual reap confirmed
+      R->>F: Reaped once, identity released
+    else Deadline or ECHILD
+      R->>R: Retain uncertainty, disable released-ID signals
+    end
+    R->>R: Conditional foreground/mode recovery, no new lend
     R-->>F: Original transition error, first cancellation, all reports
   else Parent restore succeeds
     R->>C: Supervise job

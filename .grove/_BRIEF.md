@@ -697,3 +697,26 @@ No implementation or control amendment is commissioned by this renewal alone.
 K22 and the book remain live, with all prior support/comparison/root obligations.
 No parent/phase/root close, target, extraction, comparative gain or independent
 adoption is earned.
+
+K25 selects the unimplemented bounded settlement protocol in the existing design
+and required spec: owner-local nonblocking observation, absolute 2-second runner
+error/post-KILL and total worker teardown bounds, separate existing 1-second
+worker drain/group confirmation, checked individual stops and explicit unresolved
+ownership. ECHILD/reap/release disables numeric signalling. Unknown status grants
+no foreign-foreground takeover; all recovery uncertainty and original/secondary
+reports survive to T7. Existing protected logical wait-event traces are reconciled
+individually. Exactly 32 S01–S05 rows are proposed and priced, not commissioned;
+frozen API/T0–T8/E/F/R remain. One focused reviewer returned no concrete finding.
+No product/control or native behavior was constructed/executed.
+
+K25 conservatively charges D≤10/RC≤2, P=E=X=0 including verification/retirement/
+commit. Cumulative correctness bounds become D≤110/RC≤55/P≤155/E≤30/X=0;
+remaining D≤20 exclusively phase closure, RC=0/P≤85/E≤90/X=0. The complete
+producer price is P≤125/E≤85/RC≤5; necessary planning is D≤5/RC≤1 and
+funding-agreement recording/closure RC≤4. Exact shortfall is D≤5/RC≤10/P≤40,
+with no E/X increase: propose caps D≤135/RC≤65/P≤280/E≤120/X=0. Allocations
+are not spend. native-entry-complete-funding-k26 inside k22 is the next precise
+human continuation before the book. The repair stays one complete future producer;
+none is commissioned from insufficient balances and no reserve is borrowed.
+Minimum-Rust/Linux qualification, returning-host, k4/k6/G2–G5/R-W and all root
+obligations remain live; no parent/phase/root close or comparative gain follows.

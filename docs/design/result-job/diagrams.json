@@ -19,22 +19,17 @@
     }
   ],
   "discussion": {
-    "title": "Keep signal protection through every failure exit",
-    "status": "Focused transition review found no concrete issue; runtime checks remain owed",
-    "summary": "The front retains signal ownership on selection failure. Watching precedes both children; readers remain shielded until thread exit. Failed Started mask restoration enters real runner teardown. The complete design, exact discriminator families and conditional repair price are in docs/native-entry-transition-design.md.",
+    "title": "Bound error settlement and retain unresolved ownership",
+    "status": "Proposed mechanism; complete funding decision remains",
+    "summary": "Two-second runner/worker settlement uses nonblocking waits. Expiry is an explicit error, with conditional terminal recovery and no invented reap. Complete repair price is P125/E85 plus planning/review/funding closure.",
     "diagramIds": [
-      "native-entry",
       "entry-failure",
-      "repair-outcomes"
+      "native-entry"
     ],
     "updatedDiagrams": [
       {
-        "id": "native-entry",
-        "summary": "Added checked watching, selection-failure ownership, fallible Started and common finalisation."
-      },
-      {
         "id": "entry-failure",
-        "summary": "Added bounded real cleanup after a failed parent-mask transition with a spawned child."
+        "summary": "Added absolute deadline, confirmed-reap versus uncertainty branches and conditional recovery without renewed lending."
       }
     ]
   },
@@ -86,7 +81,7 @@
       "group": "entry",
       "title": "Failed Started transition retains owned teardown",
       "source": "entry-failure.mmd",
-      "caption": "Proposed failure sequence through the existing lifecycle observation seam. A mask-restoration error after spawn cannot return until bounded runner cleanup, actual wait and checked terminal recovery have been attempted. All original and secondary reports survive; no result escapes. Remaining readers keep their inherited shield. This sequence is not model checking or runtime evidence."
+      "caption": "Proposed unimplemented failure sequence. Two-second nonblocking settlement returns confirmed reap or explicit uncertainty before conditional terminal recovery. No signal follows released/uncertain identity; no foreign foreground takeover or new lend is authorised. All reports and common finalisation remain required."
     }
   ]
 }

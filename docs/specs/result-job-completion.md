@@ -324,10 +324,35 @@ numeric fallback and retains the transition diagnostics. This is a required
 correction contract, not observed conformance. The
 [transition design and finite discriminator plan](../native-entry-transition-design.md)
 give its source, support limits, alternatives and complete repair estimate.
-The design's [implementation prerequisite](../native-entry-transition-design.md#implementation-prerequisite-bounded-error-settlement)
-records why the original estimate is suspended: existing blocking cleanup paths
-cannot supply the required bounded failure settlement. The requirement remains;
-no native-entry implementation or conformance result is established by that read.
+The [bounded error-settlement protocol](../native-entry-transition-design.md#bounded-error-settlement-protocol)
+selects nonblocking ownership-preserving observation. Runner error settlement
+SHALL stop polling within two seconds of failed Started or the first settlement
+error; ordinary post-SIGKILL watching has the same bound from its first kill
+attempt. Worker failure teardown SHALL finish its attempts within two seconds,
+including its existing graceful second; bounded reader collection adds at most
+one second. Absolute deadlines never restart on EINTR or secondary failures.
+These are polling/retry limits, not real-time guarantees against scheduler or
+kernel stalls. Existing normal production graces remain unchanged.
+
+Every required stop, wait and recovery operation SHALL retain its own outcome
+alongside the initiating failure and first consumed cancellation. Stop success
+is not confirmed termination. Only an actual wait confirms reap; no result,
+status, Reaped event or group absence may be invented on expiry or ECHILD.
+After confirmed reap, identity loss or release, numeric signals are forbidden.
+All required group stops precede reap while identity is reserved. Expiry SHALL
+proceed to checked conditional terminal recovery and common finalisation,
+reporting any still-unresolved child/group ownership rather than blocking until
+physical exit. This may leave a surviving process; the error must say so.
+
+Unknown-status recovery SHALL preserve an unrelated foreground holder and
+report unconfirmed foreground and saved-mode recovery. It may reclaim the
+recorded child's foreground only under the existing exclusive-authority and
+no-unrelated-ID-reuse premises, confirming launcher foreground before restoring
+modes. It SHALL retain query, handback, mode and temporary disposition failures,
+and SHALL NOT lend again after a Started check failure. No broader delegated
+foreground takeover is authorised by unknown status. The required behavior is
+agreed; this mechanism and its finite cleanup-failure controls remain unimplemented
+and await the complete repair's funding and commissioning.
 
 ## Test seams for the repair contract
 
