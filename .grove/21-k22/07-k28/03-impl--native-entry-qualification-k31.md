@@ -15,11 +15,11 @@ transition design, completion spec and exact cases manifest. Development logs
 are not the native campaign. Consume actual funding/review charges and balances;
 no allocation or one-reviewer allowance resets here.
 
-The proposed aggregate remainder is P≤100/E≤70/RC≤10, D=X=0, including k29,
-the tree review, any justified integration and producer closure. Before approval,
-remaining balances are only D≤20 reserved/RC≤1/P≤55/E≤60/X=0. Proposed renewal
-P≤45/E≤10/RC≤9 (caps D≤135/RC≤74/P≤325/E≤130/X=0) is not authorization.
-K29 precedes this node and must settle a fitting complete allocation first.
+K29's human approved the renewal verbatim (“Approve the renewal (Recommended)”):
+caps D≤135/RC≤74/P≤325/E≤130/X=0. After k29's RC≤3 charge, remaining balances
+are D≤20 exclusively phase closure/RC≤7/P≤100/E≤70/X=0. The k32 review receives
+RC≤5; any integration it earns and this leaf share P≤100/E≤70/RC≤2, D=X=0.
+Subtract actual review/integration charges before this leaf's own spend.
 
 ## Done when
 

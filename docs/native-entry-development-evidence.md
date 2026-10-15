@@ -87,7 +87,7 @@ first-signal/reader/finaliser composition. Both returned findings were classifie
 
 These executable controls address those fixes. No second in-session reviewer
 was used. Further substantial review must be a tree-owned `review-impl` leaf;
-the proposed remainder reserves time for that route, not another spawned reader.
+the approved remainder reserves RC≤5 for that route, not another spawned reader.
 The review does not cover later code or unconstructed matrix controls.
 
 ## Current preservation checks
@@ -183,22 +183,28 @@ complete matrix and bounded-controller obligations cannot fit the remaining
 P≤55 after this attempt's conservative P≤70 charge. This is an insufficient
 complete-price continuation, not permission to narrow acceptance.
 
-Propose the following **remaining** work, in minutes: P≤100 (80 for remaining
-finite instruments/controllers/source corrections, 20 for immutable evidence and
+The **remaining** work is priced, in minutes, at P≤100 (80 for remaining finite
+instruments/controllers/source corrections, 20 for immutable evidence and
 documentation), E≤70 (15 controller validation, 30 native campaigns, 10 protected
 checks, 15 affected reruns/reconciliation), RC≤10 (3 agreement/recording, 5 for
-the tree-owned review, 2 remaining coordination/closure), D=X=0. Current remaining
-balances after the recorded attempt are D≤20 reserved/RC≤1/P≤55/E≤60/X=0.
-The exact shortfall is therefore **P≤45/E≤10/RC≤9**, with no D/X increase.
-Proposed phase caps are D≤135/RC≤74/P≤325/E≤130/X=0. Full use would leave
-only D≤20 reserved; prices and proposed caps are not approval or spend. The
-attempt charges P≤70/E≤30/RC≤4, D=X=0, once across k30/k28; cumulative bounds
-are D≤115/RC≤64/P≤225/E≤60/X=0. The E≤30 bound replaces the earlier E≤15
+the tree-owned review, 2 remaining coordination/closure), D=X=0. Balances after
+the recorded attempt were D≤20 reserved/RC≤1/P≤55/E≤60/X=0, so the exact
+shortfall was **P≤45/E≤10/RC≤9**, with no D/X increase. The attempt charges
+P≤70/E≤30/RC≤4, D=X=0, once across k30/k28; cumulative bounds before funding
+were D≤115/RC≤64/P≤225/E≤60/X=0. The E≤30 bound replaces the earlier E≤15
 preservation proposal, covering the additional failed/focused/sequential and
 clean-fixture verification. It does not add another P≤70 or RC≤4 charge.
 
-The human funding continuation is `native-entry-qualification-funding-k29`,
-ordered before the open k28 node inside k22. It must obtain explicit agreement
-before committing a renewed producer allocation. No correctness/root closure,
-book acceptance, comparative gain or support qualification follows from this
-attempt. K4/k6, G2–G5/R-W and the root's delivery/documentation work remain live.
+The human's answer in `native-entry-qualification-funding-k29` was **“Approve
+the renewal (Recommended)”**. Approved phase caps are D≤135/RC≤74/P≤325/E≤130/X=0,
+retaining zero production disruption and the original D≤20 phase-closure reserve.
+K29 charges conservative RC≤3, D=P=E=X=0; cumulative bounds are
+D≤115/RC≤67/P≤225/E≤60/X=0 and balances D≤20 exclusively phase closure,
+RC≤7/P≤100/E≤70/X=0. The tree-owned review `native-entry-development-k32`
+receives RC≤5; any integration it earns and `native-entry-qualification-k31`
+share P≤100/E≤70/RC≤2, D=X=0. Full use leaves only D≤20 reserved; allocations
+are not spend. The approval covers the unchanged matrix, amendments and 30/5/5
+envelope, not new protocol, infrastructure or narrower acceptance. No
+correctness/root closure, book acceptance, comparative gain or support
+qualification follows. K4/k6, G2–G5/R-W and the root's delivery/documentation
+work remain live.

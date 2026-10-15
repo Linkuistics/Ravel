@@ -800,3 +800,19 @@ use. This replaces the earlier no-E-increase proposal, not the approved caps.
 K29 must obtain explicit renewal before allocating the aggregate remainder.
 No new design reserve, infrastructure, comparative gain, support qualification
 or narrower acceptance follows. All support/comparison/root obligations stay live.
+
+K29's human answered verbatim **“Approve the renewal (Recommended)”** to adding
+P≤45/E≤10/RC≤9 with no D/X increase. Approved phase caps are now
+D≤135/RC≤74/P≤325/E≤130/X=0; zero production disruption and the original D≤20
+phase-closure reserve remain. The renewed aggregate P≤100/E≤70/RC≤10 is shared
+across k29, the tree-owned k32 review, any earned integration and k31
+qualification, at the unchanged 153-row matrix, EPERM/Ended amendments and
+30/5/5 envelope. K29 charges conservative RC≤3, D=P=E=X=0, including
+verification/recording/tree/retirement/commit. Cumulative correctness charged
+bounds are D≤115/RC≤67/P≤225/E≤60/X=0; remaining D≤20 exclusively phase
+closure, RC≤7/P≤100/E≤70/X=0. K32 receives RC≤5, D=P=E=X=0; any integration it
+earns and k31 share P≤100/E≤70/RC≤2, D=X=0, charging actual work only. Full use
+leaves D≤20 reserved/RC=0/P=0/E=0/X=0; allocations are not spend. No new
+protocol, infrastructure, support qualification or narrower acceptance is
+authorised. Rust 1.85/Linux, returning-host, adoption, K4/k6/G2–G5/R-W and every
+root/book obligation stay live; no parent/phase/root close or gain follows.

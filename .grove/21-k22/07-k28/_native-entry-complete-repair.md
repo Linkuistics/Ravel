@@ -224,3 +224,12 @@ documentation obligations remain live. No comparative gain is inferred.
   remaining price P≤100/E≤70/RC≤10 now needs P≤45/E≤10/RC≤9 renewal:
   proposed caps D≤135/RC≤74/P≤325/E≤130/X=0. Full use leaves D≤20 reserved
   only. This replaces the earlier proposal; no renewal is approved or allocated.
+- K29's human answered verbatim **“Approve the renewal (Recommended)”**: caps
+  D≤135/RC≤74/P≤325/E≤130/X=0, no D/X increase, D≤20 closure reserve intact.
+  After k29's conservative RC≤3 charge, cumulative bounds are
+  D≤115/RC≤67/P≤225/E≤60/X=0; remaining D≤20 exclusively closure,
+  RC≤7/P≤100/E≤70/X=0. K32 receives RC≤5, inspection only; any integration it
+  earns and k31 share P≤100/E≤70/RC≤2, D=X=0, each charging actual work and
+  passing the balance forward. The one in-session reviewer stays spent. This
+  node's full acceptance contract, the unchanged matrix and the 30/5/5 envelope
+  carry forward. Full use leaves D≤20 reserved/RC=0/P=0/E=0/X=0.

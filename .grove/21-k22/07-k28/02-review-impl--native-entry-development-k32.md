@@ -14,9 +14,9 @@ findings only, under the review-impl skill; the qualifier still owes the full
 Read k30's committed artifact through its handle, the k28 brief, the required
 completion spec and selected native transition design. The available development
 failures/passes and explicit unqualified remainder are in
-`docs/native-entry-development-evidence.md`. K29's explicit renewal must precede
-this review: its proposed aggregate includes RC≤5 here, shared with the other
-remaining work rather than resetting the phase caps.
+`docs/native-entry-development-evidence.md`. K29's human approved the renewal
+verbatim (“Approve the renewal (Recommended)”); this review is allocated RC≤5,
+D=P=E=X=0, from the shared aggregate rather than resetting the phase caps.
 
 K28 already used one in-session reviewer. This is the tree-owned continuation
 for the additional doubt, never a renewed spawned-review allowance. No current
@@ -41,8 +41,8 @@ is supplied; do not invent or copy one.
   Identify any claimed development control whose construction cannot distinguish
   the failure it purports to test.
 - Report findings with source evidence and applicable contract. Do not edit
-  product code or spend an in-session reviewer. Charge actual RC within the
-  approved aggregate; do not borrow D or infer permission from the proposed cap.
+  product code or spend an in-session reviewer. Charge actual RC within its
+  RC≤5 allocation; do not borrow D or exceed the approved caps.
 - If integration is warranted, cut the ordinary integrate-review-impl step
   before live qualification k31, naming this review's handle rather than
   transcribing its findings as the integration charter. Leave full acceptance,

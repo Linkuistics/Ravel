@@ -65,3 +65,39 @@ basis for continuation; preserve its failed and passing outputs. Ordinary check
 passes without a prebuilt private entry fixture; test:native-entry runs those
 new families explicitly. No preexisting identity/ignored flag was changed. No
 complete native campaign is accepted from development logs.
+
+## Decisions (running log)
+
+- The human answered verbatim **“Approve the renewal (Recommended)”** to the
+  renewal presented in this session: add P≤45/E≤10/RC≤9 minutes, with no D/X
+  increase, raising phase caps to D≤135/RC≤74/P≤325/E≤130/X=0. The original
+  D≤20 phase-closure reserve, X=0 and zero production disruption remain binding.
+  The approval funds the aggregate remaining P≤100/E≤70/RC≤10, D=X=0, as shared
+  ceilings across this agreement, the tree-owned k32 review, any justified
+  integration and k31 qualification. It covers the unchanged 153-row matrix
+  (including the four paired failures, two queued-TERM variants and S counts
+  8/7/8/7/2), the EPERM/Ended amendments and the 30/5/5 controller envelope. No
+  new protocol, all-fault product, target infrastructure, support qualification
+  or narrower acceptance is authorised.
+- This is one funding decision. The repair contract, matrix and agreed
+  CLI/real-policy/fake-job, real-process and PTY seams were settled by k22, k26
+  and k28 and are unchanged, so it is below the threshold for a full grilling.
+  Before presenting, the session confirmed a clean working copy on sealed k30,
+  the manifest's 153 rows and 310 protected identities, and the ledger arithmetic.
+  By the evidence table, about 66 rows have development instruments and 87 have
+  none; no row has a qualified receipt and no controller is qualified. The
+  instrument figure P≤80 was presented as the least certain, slack-free price.
+- Charge conservative RC≤3 for this agreement's context verification,
+  recording, tree handoff, verification and retirement/commit, D=P=E=X=0.
+  Cumulative correctness charged bounds are D≤115/RC≤67/P≤225/E≤60/X=0;
+  remaining D≤20 exclusively phase closure, RC≤7/P≤100/E≤70/X=0. Allocate
+  RC≤5, D=P=E=X=0, to the tree-owned review native-entry-development-k32. Any
+  integration it earns and native-entry-qualification-k31 share the remaining
+  P≤100/E≤70/RC≤2, D=X=0, each charging only actual work and passing the
+  balance forward. Full use leaves D≤20 reserved/RC=0/P=0/E=0/X=0. Allocations
+  are not spend.
+- No new leaf is cut: k32 and k31 already exist inside the open k28 node, with
+  review before qualification. Record the approved allocation in the brief chain,
+  k28's running log and both leaves' contexts. K22 and k28 keep live work, so no
+  node closes. Rust 1.85/Linux support, returning-host, independent adoption,
+  K4/k6/G2–G5/R-W and all root/book obligations remain live.
