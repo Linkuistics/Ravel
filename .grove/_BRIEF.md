@@ -919,4 +919,31 @@ D<=115/RC<=102/P<=510/E<=187/X=0 against the historical caps
 D<=135/RC<=88/P<=467/E<=177/X=0, which no longer gate required work (k41);
 remaining D<=20 exclusively phase closure.
 
-No root goal is met by this: native-entry correctness is measured on one host only, k49 (Linux and Rust 1.85) is live in k22 before book-structure-k5, and returning-host, adoption, K4/k6, G2-G5/R-W and the delivery and documentation goals remain live.
+K52 (the last child of k49, inside k22) took the immutable GNU/Linux measurement on
+the corrected tree and re-ran Darwin. Its first aarch64 run failed at the
+incumbent build: k51's behaviour-preserving `hex` rewrite in `crates/ravel/build.rs`
+tripped the incumbent driver's worker-identity guard, which no run had exercised
+since. The guard now pins that one difference by the SHA-256 of its diff and
+still refuses any other (three controls); the failed run is kept as the finding
+and every reported run was taken after the repair. Results, each from one tree
+with subjects digested before and after, unchanged: **aarch64-apple-darwin**
+(rustc 1.99.0) 153 of 153 rows, 0 of 153 receipts differ from k43, R01 310 of 310
+through six tasks exiting 0; **aarch64-unknown-linux-gnu** (7.0.14-linuxkit,
+glibc 2.43, rustc 1.85.0 native) 153 of 153 rows with the two platform overrides
+(E03 ignore, E04 raw entry) and 151 receipts equal to k43's, build/clippy
+-D warnings/fmt clean, R01 310 of 310 through six tasks exiting 0 including
+`task check`; **x86_64-unknown-linux-gnu under QEMU user-mode, recorded as
+emulated** 146 of 153 rows, 7 emulation-limited each with reason and control, and
+74 protected identities that cannot run (a user namespace cannot be created),
+shown by a no-fail-fast supplement (261 passed, 77 failed: 74 namespace, 1 argv
+read from `ps`, 2 matrix instruments). Nothing about an x86-64 kernel is
+established; the native-x86_64 choice stays in `native-entry-x86-64-linux-scope-k53`,
+whose numbers did not move. The documents' status statements were edited once,
+before any run, and claim scope without outcome. Evidence:
+`docs/evidence/native-entry-linux-campaign/` and the k52 section of
+`docs/native-entry-development-evidence.md`. No production source changed.
+Charge P<=30/E<=30/RC=0, D=X=0; k50 and k51 recorded no charge, so the cumulative
+is at least D<=115/RC<=102/P<=540/E<=217/X=0 against historical caps that no
+longer gate required work (k41); remaining D<=20 exclusively phase closure.
+
+No root goal is met by this: native-entry correctness is measured with immutable receipts on aarch64 Darwin and aarch64 Linux at Rust 1.85.0 and only under emulation on x86_64 (native-entry-x86-64-linux-scope-k53 is live in k22 before book-structure-k5), and returning-host, adoption, K4/k6, G2-G5/R-W and the delivery and documentation goals remain live.

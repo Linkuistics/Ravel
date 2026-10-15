@@ -1,0 +1,1 @@
+{"schema":1,"id":"F05__outcome=spawn-ENOENT__operation=TERM-membership__mode=report-EIO","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result","pid":58228,"note":"violation detected"}

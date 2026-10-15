@@ -1,0 +1,1404 @@
+{
+  "in_scope": 310,
+  "ignored_fixtures_in_scope": 20,
+  "checked": 290,
+  "passed": 12,
+  "not_passed": [
+    {
+      "binary": "keyed-launch",
+      "test": "run::terminal_tests::terminal_recovery_record_validation_is_bounded",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::terminal_tests::terminal_recovery_reports_and_controls",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::terminal_tests::terminal_recovery_retains_lending_query_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::terminal_tests::terminal_recovery_without_terminal_has_no_lease",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::a_surviving_group_is_reported_beside_the_childs_status",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::cancellation_forwards_or_kills_by_mode",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::cancellation_survives_final_reap_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::cancellation_survives_observation_failure_with_failed_reap",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch",
+      "test": "run::wait_events::the_reap_sample_drains_a_second_cancellation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::authority",
+      "test": "direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::confinement",
+      "test": "a_confined_program_that_is_not_an_absolute_path_refuses",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::confinement",
+      "test": "confined_child_and_descendants_cannot_read_or_write_outside_the_invocation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::confinement",
+      "test": "explicit_runtime_file_grant_allows_reads_but_denies_writes",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::interrupt",
+      "test": "an_interrupt_is_reported_against_the_launch_it_arrives_in_and_no_other",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_child_that_exits_normally_leaves_the_foreground_with_another_group",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_launcher_started_in_the_background_takes_no_foreground",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_launcher_with_hup_ignored_at_entry_installs_no_hup_handler",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_launcher_with_sigchld_ignored_still_supervises_its_child_to_an_end",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_raw_mode_child_killed_by_the_escalation_leaves_the_terminal_restored",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_transparent_launcher_hands_its_child_the_entry_state_it_was_given",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "a_transparent_launcher_with_a_terminal_is_cancelled_by_int",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "after_a_death_by_signal_the_launcher_takes_the_terminal_from_another_group",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::job",
+      "test": "int_cancels_a_launch_with_no_terminal",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_caller_built_argv_is_spawned_whole_and_directly",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_channel_appearance_does_not_emit_reaped_before_the_child_exits",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_child_signals_through_the_published_path",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_child_that_ignores_sigterm_is_killed_after_the_kill_grace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_child_that_never_signals_ends_unsignalled",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_child_that_signals_and_exits_inside_the_grace_is_never_touched",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_grant_replaces_a_scrubbed_value_and_cannot_replace_the_channel",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_program_that_does_not_exist_names_itself_and_says_what_to_check",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_scrubbed_variable_is_removed_from_an_inherited_environment",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_signalled_child_that_keeps_waiting_is_terminated_after_the_grace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_stopped_child_is_neither_reaped_nor_killed",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "a_term_ignoring_descendant_is_gone_before_the_launch_returns",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "an_empty_channel_signals",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "an_ignored_sigint_in_the_launcher_does_not_reach_the_child",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "an_unsignalled_child_runs_to_its_own_exit_untouched",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "granting_the_channel_survives_a_scrub_list_that_names_it",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "observed_immediate_exit_and_failed_spawn_have_exact_events",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "successive_launches_get_independent_channels",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "the_channel_path_is_published_under_the_callers_chosen_variable_name",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "the_child_sees_its_arg0_while_its_program_is_what_runs",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "the_child_starts_in_the_given_directory",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "the_escalation_reaps_the_childs_descendants",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "a_confined_child_is_killed_at_once_on_cancellation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "a_plainly_launched_child_consumes_callers_stdin_and_shares_its_session_and_descriptors",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "a_stubborn_noninteractive_child_is_killed_after_the_kill_grace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "leader_exit_stops_a_group_helper_before_runner_returns",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "sigint_cancellation_is_forwarded_to_a_noninteractive_child",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "sigterm_cancellation_is_forwarded_to_a_noninteractive_child",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "standalone_child_has_a_new_session_and_cannot_consume_callers_stdin",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::reraise",
+      "test": "a_reraised_signal_reaches_the_parent_as_a_wait_status",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::invalid_or_oversized_results_refuse_without_publishing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel",
+      "test": "completion::tests::stale_context_cannot_end_a_later_session",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "authority::tests::only_a_path_the_worker_imports_exactly_is_a_specifier",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "cancellation::tests::a_handled_signal_pending_behind_the_block_cancels",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "choice::tests::the_request_carries_the_prompt_and_every_parameter_beside_the_caller_data",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::invalid_or_oversized_results_refuse_without_publishing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "completion::tests::stale_context_cannot_end_a_later_session",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::a_later_version_is_unsupported_and_an_executable_field_says_why",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::a_marker_is_named_for_what_it_marks_only_in_a_loaders_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::delivery_attaches_the_measured_sources_and_measures_the_sorted_encoding",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::each_malformed_shape_is_refused_at_its_location",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::every_field_of_a_version_1_context_is_accepted_and_nothing_is_required_but_the_version",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "context::tests::more_source_records_than_the_bound_refuse_by_name",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "environment::tests::a_flag_adds_to_the_names_the_owner_settings_grant",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "environment::tests::a_grant_is_one_name_and_duplicates_are_one_grant",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "environment::tests::exclusion_is_by_class_and_leaves_its_near_misses_grantable",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "frame::tests::a_frame_round_trips_with_a_big_endian_length",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "frame::tests::a_truncated_frame_reads_as_closed_and_an_oversized_one_is_refused",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "limits::tests::a_bound_outside_its_range_or_not_plain_digits_is_malformed",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "limits::tests::a_context_budget_below_the_read_default_caps_each_read",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "limits::tests::a_flag_replaces_a_setting_which_replaces_the_default",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "limits::tests::the_defaults_and_their_origins",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "limits::tests::the_selection_bound_is_one_second_to_ten_minutes",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_create_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_moved_path_destructor_disarmed",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_empty",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_multiline",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_unicode",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_partial_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_partial_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_partial_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_partial_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_real_channel_errno",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transfer_success",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_transferred_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_choice_missing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_choice_valid",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_late_cancellation_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_partial_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transfer_success",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_transferred_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::a_policy_is_a_version_a_select_and_an_optional_loader",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::a_policys_refusal_keeps_its_code_beside_the_stable_one",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::a_result_over_the_message_bound_refuses_by_name",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::a_selected_result_is_the_command_as_returned",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::a_version_1_policy_refuses_with_the_rewrite_remedy_and_another_as_unsupported",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::each_other_failure_of_select_has_its_own_code",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::every_invalid_policy_names_where_it_is_wrong",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "policy::tests::every_malformed_result_names_where_it_is_wrong",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "run::tests::cancellation_overrides_prelaunch_failure_and_reports_every_cleanup_error",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "run::tests::cancellation_reports_a_surviving_group_and_suppresses_the_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "run::tests::runner_error_conversion_joins_cancellation_before_no_ending_settlement",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "run::tests::runner_error_conversion_preserves_start_classifications_and_success_settlement",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "settings::tests::a_missing_file_or_a_home_that_cannot_place_one_sets_nothing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "settings::tests::a_settings_path_that_is_not_a_regular_file_refuses",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "settings::tests::a_value_is_held_to_its_flags_rule_and_the_file_to_its_shape",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "settings::tests::every_key_is_optional_and_each_is_read",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_during_real_teardown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_eof_overflow",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_hup",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_int",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_term",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_cancellation_timeout_overflow",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_fixture_deadline",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_late_choice_cancellation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_nofault_empty",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_nofault_multiline",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_nofault_unicode",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_nonzero_confirmed_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_eof_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_eof_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_overflow_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_overflow_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_pre_ready_timeout_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_pre_ready_timeout_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_protocol_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_protocol_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_refusal_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_refusal_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_timeout_both",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_primary_reports_timeout_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_recovered_poll_refusal",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_recovered_poll_success",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_both_choice_missing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_both_choice_valid",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_both_front",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_remove_choice_missing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_remove_choice_valid",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_remove_front",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_wait_choice_missing",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_wait_choice_valid",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::admission_tests::worker_reap_admission_success_gate_wait_front",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "worker::tests::a_frame_written_before_the_worker_exited_is_still_read",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "cancellation_during_selection_launches_nothing_and_during_session_reaps_group",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "context_reads_params_choice_and_environment_grants_reach_policy",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "end_requires_one_result_and_live_inherited_context",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "nested_command_context_is_isolated_and_first_result_wins",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "refused_policy_never_launches_and_unreported_exit_is_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "settings_bounds_and_discarded_storage_refuse_without_launching",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "terminal_recovery_public_cli_failed_exec",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "two_verbs_help_version_and_no_compatibility_commands",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_cwd_dotenv_and_bunfig_preload_stay_inert_and_fire_under_the_autoload_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_cwd_package_json_stays_inert_and_fires_for_an_entry_admitted_there",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autoload_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_package_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_package_json_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "a_probe_build_is_never_accepted_as_an_installations_worker",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "an_imports_alias_to_a_registered_specifier_is_a_package_lookup_and_never_the_embedded_module",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "classes_with_no_known_firing_configuration_are_reported_not_counted",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "every_documented_specifier_resolves_to_its_embedded_module_beside_a_package_shadow",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::hostile",
+      "test": "tsconfig_paths_beside_an_admitted_entry_stay_inert_and_fire_under_the_tsconfig_probe",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::session_process",
+      "test": "a_child_that_exits_without_signalling_has_no_opaque_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::session_process",
+      "test": "cancellation_reaps_the_child_and_discards_an_already_published_result",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::session_process",
+      "test": "end_session_refuses_missing_empty_and_stale_inherited_context",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::session_process",
+      "test": "nested_session_signals_only_its_own_inherited_context",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::session_process",
+      "test": "opaque_results_return_after_the_signalling_process_is_reaped",
+      "status": "not-passed"
+    }
+  ],
+  "failure_lines": [
+    "        FAIL [   1.237s] ( 25/338) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+    "        FAIL [   1.680s] ( 28/338) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "        FAIL [   1.237s] ( 25/338) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+    "        FAIL [   1.680s] ( 28/338) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery"
+  ]
+}

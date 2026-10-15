@@ -1,0 +1,32 @@
+{
+  "in_scope": 14,
+  "ignored_fixtures_in_scope": 1,
+  "checked": 13,
+  "passed": 9,
+  "not_passed": [
+    {
+      "binary": "ravel::cli",
+      "test": "confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "two_verbs_help_version_and_no_compatibility_commands",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+      "status": "not-passed"
+    }
+  ],
+  "failure_lines": [
+    "        FAIL [   0.222s] ( 1/13) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+    "        FAIL [   0.222s] ( 1/13) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy"
+  ]
+}

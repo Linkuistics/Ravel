@@ -1,0 +1,145 @@
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.106
+   Compiling cfg-if v1.0.4
+   Compiling unicode-ident v1.0.24
+   Compiling libc v0.2.186
+   Compiling quote v1.0.45
+   Compiling utf8parse v0.2.2
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling cpufeatures v0.2.17
+   Compiling serde_core v1.0.228
+   Compiling getrandom v0.4.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling zmij v1.0.21
+   Compiling rustix v1.1.4
+   Compiling anstyle v1.0.14
+   Compiling clap_lex v1.1.1
+   Compiling generic-array v0.14.7
+   Compiling bitflags v2.11.1
+   Compiling serde_json v1.0.150
+   Compiling strsim v0.11.1
+   Compiling anstream v1.0.0
+   Compiling linux-raw-sys v0.12.1
+   Compiling heck v0.5.0
+   Compiling clap_builder v4.6.7
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling itoa v1.0.18
+   Compiling fastrand v2.4.1
+   Compiling memchr v2.8.0
+   Compiling syn v3.0.8
+   Compiling once_cell v1.21.4
+   Compiling digest v0.10.7
+   Compiling keyed-launch v1.0.0 (/work/target/native-incumbent/tree/crates/keyed-launch)
+   Compiling sha2 v0.10.9
+   Compiling tempfile v3.27.0
+   Compiling ravel v1.0.0 (/work/target/native-incumbent/tree/crates/ravel)
+   Compiling clap_derive v4.6.7
+   Compiling clap v4.6.7
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 37.67s
+   Compiling cfg-if v1.0.4
+   Compiling libc v0.2.186
+   Compiling getrandom v0.4.2
+   Compiling rustix v1.1.4
+   Compiling bitflags v2.11.1
+   Compiling linux-raw-sys v0.12.1
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.4.1
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling utf8parse v0.2.2
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling generic-array v0.14.7
+   Compiling cpufeatures v0.2.17
+   Compiling zmij v1.0.21
+   Compiling anstyle-parse v1.0.0
+   Compiling serde_core v1.0.228
+   Compiling anstyle v1.0.14
+   Compiling anstyle-query v1.1.5
+   Compiling colorchoice v1.0.5
+   Compiling strsim v0.11.1
+   Compiling anstream v1.0.0
+   Compiling serde_json v1.0.150
+   Compiling heck v0.5.0
+   Compiling clap_lex v1.1.1
+   Compiling keyed-launch v1.0.0 (/work/target/native-incumbent/tree/crates/keyed-launch)
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling clap_builder v4.6.7
+   Compiling memchr v2.8.0
+   Compiling syn v3.0.8
+   Compiling digest v0.10.7
+   Compiling itoa v1.0.18
+   Compiling tempfile v3.27.0
+   Compiling sha2 v0.10.9
+   Compiling ravel v1.0.0 (/work/target/native-incumbent/tree/crates/ravel)
+warning: method `admitted` is never used
+   --> crates/keyed-launch/src/run/baseline_faults_tests.rs:192:8
+    |
+167 | impl Row {
+    | -------- method in this implementation
+...
+192 |     fn admitted(&self) -> bool {
+    |        ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+   Compiling clap_derive v4.6.7
+warning: `keyed-launch` (lib test) generated 1 warning
+   Compiling clap v4.6.7
+warning: variant `None` is never constructed
+  --> crates/ravel/src/native_entry_tests.rs:38:5
+   |
+37 | pub(crate) enum Join {
+   |                 ---- variant in this enum
+38 |     None,
+   |     ^^^^
+   |
+   = note: `Join` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` on by default
+
+warning: function `broken_join` is never used
+  --> crates/ravel/src/native_entry_tests.rs:70:15
+   |
+70 | pub(crate) fn broken_join() -> Join {
+   |               ^^^^^^^^^^^
+
+warning: function `broken_blocked_pending` is never used
+  --> crates/ravel/src/native_entry_tests.rs:76:15
+   |
+76 | pub(crate) fn broken_blocked_pending() -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `broken_reinstatement` is never used
+  --> crates/ravel/src/native_entry_tests.rs:79:15
+   |
+79 | pub(crate) fn broken_reinstatement() -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `skip_worker_repair` is never used
+   --> crates/ravel/src/native_entry_tests.rs:108:15
+    |
+108 | pub(crate) fn skip_worker_repair() -> bool {
+    |               ^^^^^^^^^^^^^^^^^^
+
+warning: `ravel` (bin "ravel" test) generated 5 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 45.96s
+  Executable unittests src/lib.rs (target/debug/deps/keyed_launch-d6004300d1e84e06)
+  Executable tests/authority.rs (target/debug/deps/authority-62a18ccb86ca7757)
+  Executable tests/confinement.rs (target/debug/deps/confinement-2c38ef002203fa7c)
+  Executable tests/interrupt.rs (target/debug/deps/interrupt-31574f4cde1c173c)
+  Executable tests/job.rs (target/debug/deps/job-6e8a92f1ce7e14dc)
+  Executable tests/launch.rs (target/debug/deps/launch-e97e8a137cf1a71c)
+  Executable tests/noninteractive.rs (target/debug/deps/noninteractive-c140d761bb8a7d77)
+  Executable tests/reraise.rs (target/debug/deps/reraise-29d5aed8f73a3b60)
+  Executable unittests src/lib.rs (target/debug/deps/ravel-d7c39e86f63ecb72)
+  Executable unittests src/main.rs (target/debug/deps/ravel-228449265613988f)
+  Executable tests/cli.rs (target/debug/deps/cli-74c4e2753d004279)
+  Executable tests/hostile.rs (target/debug/deps/hostile-01bcfefdf62448a3)
+  Executable tests/session_process.rs (target/debug/deps/session_process-fd18c7a95d8e79b1)

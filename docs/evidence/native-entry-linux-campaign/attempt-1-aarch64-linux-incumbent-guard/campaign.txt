@@ -1,0 +1,5 @@
+task: [test:native-campaign] bash scripts/native-campaign.sh run --out /work/target/k49/campaign
+native-campaign: building the private fixtures
+native-campaign: building the incumbent subject
+native-campaign: incumbent build failed; see /work/target/k49/campaign/logs/incumbent-build.txt
+task: Failed to run task "test:native-campaign": exit status 1

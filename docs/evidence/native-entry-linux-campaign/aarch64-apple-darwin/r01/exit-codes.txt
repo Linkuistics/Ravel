@@ -1,0 +1,6 @@
+test:cli	0
+test:session	0
+test:runner	0
+test:terminal-recovery	0
+test	0
+check	0

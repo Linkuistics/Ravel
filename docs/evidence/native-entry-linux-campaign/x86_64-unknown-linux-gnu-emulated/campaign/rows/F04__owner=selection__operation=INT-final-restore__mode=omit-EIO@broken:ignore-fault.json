@@ -1,0 +1,1 @@
+{"schema":1,"id":"F04__owner=selection__operation=INT-final-restore__mode=omit-EIO","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result","pid":13961,"note":"violation detected"}

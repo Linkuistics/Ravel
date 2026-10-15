@@ -1,0 +1,8 @@
+== docker version
+client 29.8.1; server 29.8.1 linux/arm64
+== docker vm kernel
+7.0.14-linuxkit | Docker Desktop | aarch64
+== image
+sha256:7dcd4df58913121bd914952ac8d12262797e33560824e273e84834611503ba64 amd64 2026-10-15T13:47:26.76914913Z
+== base image
+ARG BASE=ubuntu@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7

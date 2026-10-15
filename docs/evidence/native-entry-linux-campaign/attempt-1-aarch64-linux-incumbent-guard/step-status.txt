@@ -1,0 +1,9 @@
+signal-domain	0
+emulation-probe	0
+rust-minimum-version	0
+rust-build	0
+rust-clippy	0
+rust-fmt	0
+worker-setup	0
+campaign	201
+r01	1

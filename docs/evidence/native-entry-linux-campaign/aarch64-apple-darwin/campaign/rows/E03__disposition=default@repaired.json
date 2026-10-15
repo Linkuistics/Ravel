@@ -1,0 +1,1 @@
+{"schema":1,"id":"E03__disposition=default","subject":"repaired","conforms":true,"test":"native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry","pid":58224,"note":""}

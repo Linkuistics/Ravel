@@ -1,0 +1,3 @@
+{"total":310,"preserved":310,"new_identities":74,"not_preserved":0}
+native-incumbent: incumbent built subject missing: target/native-entry-fixture/debug/ravel
+native-campaign: the incumbent subject could not be digested

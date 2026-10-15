@@ -1,0 +1,18 @@
+{
+  "rustc": "rustc 1.85.0 (4d91de4e4 2025-02-17);binary: rustc;commit-hash: 4d91de4e48198da2e33413efdcd9cd2cc0c46688;commit-date: 2025-02-17;host: aarch64-unknown-linux-gnu;release: 1.85.0;LLVM version: 19.1.7;",
+  "cargo": "cargo 1.85.0 (d73d2caf9 2024-12-31)",
+  "nextest": "cargo-nextest 0.9.148 (cd1d6d546 2026-10-07)",
+  "task": "3.54.0",
+  "uname": "Linux 31bb3b277dfb 7.0.14-linuxkit #1 SMP PREEMPT Fri Sep 18 10:19:32 UTC 2026 aarch64 GNU/Linux",
+  "os": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\";NAME=\"Ubuntu\";VERSION_ID=\"26.04\";VERSION=\"26.04.1 LTS (Resolute Raccoon)\";VERSION_CODENAME=resolute;ID=ubuntu;ID_LIKE=debian;HOME_URL=\"https://www.ubuntu.com/\";SUPPORT_URL=\"https://help.ubuntu.com/\";BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\";PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\";UBUNTU_CODENAME=resolute;LOGO=ubuntu-logo;",
+  "platform": "linux",
+  "machine": "aarch64",
+  "kernel": "7.0.14-linuxkit",
+  "libc_runtime": "ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43",
+  "tools": "15a2862496e6af4a91cd36c20e39386a7f2fec62c95076e430b360e03d11cca9  /opt/rustup/toolchains/1.85.0-aarch64-unknown-linux-gnu/bin/rustc;888e12949093ceadb868274c38aed329242750b46fb2c25f14f4fecfb34397ef  /opt/rustup/toolchains/1.85.0-aarch64-unknown-linux-gnu/bin/cargo;03dbbc7efef78be9610c6f569e2d5a93823dbc60193b3fb55d0816740e61ff15  /opt/rustup/toolchains/1.85.0-aarch64-unknown-linux-gnu/bin/cargo-clippy;04202c5cad385db05192806c75f0215c7aa7cd966ad5fdc5726086b517be7c9c  /opt/rustup/toolchains/1.85.0-aarch64-unknown-linux-gnu/bin/rustfmt;546f3e545dd4a9a42201ff542ac25af33253db37809a4c90dd26dbfaed6da4e4  /opt/cargo/bin/cargo-nextest;e7aa12d271f9829354138ac243dd89b7bacdcad5ecdb40d7924502eba7e80aed  /usr/local/bin/task;7795412e97a7bee761a2291ea06f61a3a786d27c4dfd385c4ab0147a5c778a36  /usr/bin/jq;984c97e949318aef6e96bdd276eb808927fd56db782e3b06a0ca0df400aa7ded  /usr/bin/shellcheck;cf5b710ff9c799104c10c011266952441910479fefd4e660cba45bb9fc5a716f  /usr/bin/bwrap;",
+  "emulated": false,
+  "libc_crate": "0.2.186",
+  "parent_revision": "unknown",
+  "incumbent_revision": "0515419edd29a2063c3bcbbcd44a1d390bc0e2d8",
+  "incumbent_tree": "3d8ce25dcc5cb06597bcd389be5d88bd87408adf"
+}

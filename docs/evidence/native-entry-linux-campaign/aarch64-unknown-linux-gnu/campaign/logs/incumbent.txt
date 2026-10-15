@@ -1,0 +1,107 @@
+warning: method `admitted` is never used
+   --> crates/keyed-launch/src/run/baseline_faults_tests.rs:192:8
+    |
+167 | impl Row {
+    | -------- method in this implementation
+...
+192 |     fn admitted(&self) -> bool {
+    |        ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `keyed-launch` (lib test) generated 1 warning
+warning: variant `None` is never constructed
+  --> crates/ravel/src/native_entry_tests.rs:38:5
+   |
+37 | pub(crate) enum Join {
+   |                 ---- variant in this enum
+38 |     None,
+   |     ^^^^
+   |
+   = note: `Join` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` on by default
+
+warning: function `broken_join` is never used
+  --> crates/ravel/src/native_entry_tests.rs:70:15
+   |
+70 | pub(crate) fn broken_join() -> Join {
+   |               ^^^^^^^^^^^
+
+warning: function `broken_blocked_pending` is never used
+  --> crates/ravel/src/native_entry_tests.rs:76:15
+   |
+76 | pub(crate) fn broken_blocked_pending() -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `broken_reinstatement` is never used
+  --> crates/ravel/src/native_entry_tests.rs:79:15
+   |
+79 | pub(crate) fn broken_reinstatement() -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `skip_worker_repair` is never used
+   --> crates/ravel/src/native_entry_tests.rs:108:15
+    |
+108 | pub(crate) fn skip_worker_repair() -> bool {
+    |               ^^^^^^^^^^^^^^^^^^
+
+warning: `ravel` (bin "ravel" test) generated 5 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID 15a08c59-6ec8-4471-83c2-9357a0349ec5 with nextest profile: campaign-incumbent
+    Starting 53 tests across 3 binaries (238 tests skipped)
+        PASS [   0.002s] ( 1/53) keyed-launch run::baseline_faults_tests::native_baseline_fault_role
+        PASS [   0.006s] ( 2/53) keyed-launch run::baseline_faults_tests::native_baseline_f02_managed_watching_query
+        PASS [   0.001s] ( 3/53) keyed-launch run::baseline_tests::native_baseline_role_e05
+        PASS [   0.001s] ( 4/53) keyed-launch run::baseline_tests::native_baseline_role_e07
+        PASS [   0.002s] ( 5/53) keyed-launch run::baseline_tests::native_baseline_s02_observation_echild
+        PASS [   0.002s] ( 6/53) keyed-launch run::baseline_tests::native_baseline_s02_observation_eintr_until_deadline
+        PASS [   0.002s] ( 7/53) keyed-launch run::baseline_tests::native_baseline_s02_observation_eio_once
+        PASS [   0.526s] ( 8/53) keyed-launch run::baseline_faults_tests::native_baseline_paired_child_action_and_recovery_report
+        PASS [   0.528s] ( 9/53) keyed-launch run::baseline_faults_tests::native_baseline_control_f06_a_checked_child_operation_fails_the_spawn
+        PASS [   0.523s] (10/53) keyed-launch run::baseline_tests::native_baseline_s02_wait_echild
+        PASS [   0.550s] (11/53) keyed-launch run::baseline_tests::native_baseline_control_e05_an_invented_cancellation_is_detected
+        PASS [   0.018s] (12/53) keyed-launch run::terminal_tests::native_baseline_control_s04_a_discarded_report_is_detected
+        PASS [   0.005s] (13/53) keyed-launch run::terminal_tests::native_baseline_s04_foreground_child
+        PASS [   0.005s] (14/53) keyed-launch run::terminal_tests::native_baseline_s04_foreground_own
+        PASS [   0.007s] (15/53) keyed-launch run::terminal_tests::native_baseline_s04_foreground_query_eio
+        PASS [   0.007s] (16/53) keyed-launch run::terminal_tests::native_baseline_s04_foreground_unrelated
+        PASS [   0.005s] (17/53) keyed-launch run::terminal_tests::native_baseline_s04_handback_eio
+        PASS [   0.005s] (18/53) keyed-launch run::terminal_tests::native_baseline_s04_modes_eio
+        PASS [   0.005s] (19/53) keyed-launch run::terminal_tests::native_baseline_s04_sigttou_restore_eio
+        PASS [   0.003s] (20/53) ravel::bin/ravel cancellation::baseline_propagation_tests::native_baseline_control_f07_reraise_performs_no_default_action_step
+        PASS [   0.004s] (21/53) keyed-launch run::terminal_tests::native_baseline_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report
+        PASS [   0.008s] (22/53) ravel::bin/ravel cancellation::baseline_propagation_tests::native_baseline_control_f07_the_unfaulted_fixture_dies_by_the_signal
+        PASS [   0.002s] (23/53) ravel::bin/ravel cancellation::baseline_propagation_tests::native_baseline_propagation_role
+        PASS [   0.013s] (24/53) ravel::bin/ravel cancellation::baseline_propagation_tests::native_baseline_f07_exit_propagation_transitions_and_real_signal_death
+        PASS [   0.525s] (25/53) keyed-launch run::baseline_tests::native_baseline_s02_wait_eintr_until_deadline
+        PASS [   0.524s] (26/53) keyed-launch run::baseline_tests::native_baseline_s02_wait_eio_once
+        PASS [   1.536s] (27/53) keyed-launch run::baseline_faults_tests::native_baseline_control_f02_the_incumbent_repairs_only_an_ignored_disposition
+        PASS [   1.553s] (28/53) keyed-launch run::baseline_tests::native_baseline_control_e07_a_first_wins_latch_is_seen_to_hold
+        PASS [   1.558s] (29/53) keyed-launch run::baseline_tests::native_baseline_e07_first_consumed_cancellation_survives_every_later_delivery
+        PASS [   1.104s] (30/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_control_a_wrong_entry_state_is_detected
+        PASS [   2.097s] (31/53) keyed-launch run::baseline_tests::native_baseline_e05_direct_and_terminal_int_before_and_after_handoff
+        PASS [   2.102s] (32/53) keyed-launch run::baseline_faults_tests::native_baseline_f06_child_restoration_faults
+        PASS [   1.069s] (33/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_control_unshielded_readers_are_detected
+        PASS [   0.576s] (34/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry
+        PASS [   0.584s] (35/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [   0.086s] (36/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_f04_selection_handler_faults
+        PASS [   2.621s] (37/53) keyed-launch run::baseline_faults_tests::native_baseline_f04_runner_handler_faults
+        PASS [   0.549s] (38/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_paired_started_restore_and_recovery_report
+        PASS [   2.482s] (39/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_control_rejected_premises_name_operations_the_incumbent_never_performs
+        PASS [   0.008s] (40/53) ravel::bin/ravel worker::native_tests::native_baseline_control_s03_an_unreaped_role_reserves_its_group
+        PASS [   1.116s] (41/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_f01_initializer_result_failures
+        PASS [   0.606s] (42/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_queued_term_rows
+        PASS [   0.163s] (43/53) ravel::bin/ravel worker::native_tests::native_baseline_control_s03_settlement_is_bounded
+        PASS [   1.147s] (44/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_f04_int_final_restore_failure
+        PASS [   0.323s] (45/53) ravel::bin/ravel worker::native_tests::native_baseline_paired_f03_second_create_keeps_the_worker_wait_report
+        PASS [   2.236s] (46/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_f05_final_mask_restore_and_started_restore
+        PASS [   3.010s] (47/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation
+        PASS [   3.312s] (48/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e02_entry_blocked_pending_is_not_cancellation
+        PASS [   3.116s] (49/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e08_reader_shield_and_collection_bound
+        PASS [   2.713s] (50/53) ravel::bin/ravel worker::native_tests::native_baseline_control_s03_an_armed_secondary_is_reached_without_the_primary
+        PASS [   2.619s] (51/53) ravel::bin/ravel worker::native_tests::native_baseline_s03_second_reader_creation_failure_with_a_secondary_fault
+        PASS [   4.111s] (52/53) ravel::bin/ravel worker::native_tests::native_baseline_f03_reader_shield_creation_and_restore_faults
+        PASS [   8.971s] (53/53) ravel::bin/ravel native_entry_tests::baseline::native_baseline_e01_entry_state_reaches_the_managed_child
+────────────
+     Summary [  10.024s] 53 tests run: 53 passed, 238 skipped

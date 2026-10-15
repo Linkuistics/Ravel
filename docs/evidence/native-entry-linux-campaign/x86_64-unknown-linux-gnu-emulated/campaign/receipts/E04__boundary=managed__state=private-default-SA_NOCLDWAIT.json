@@ -1,0 +1,50 @@
+{
+  "id": "E04__boundary=managed__state=private-default-SA_NOCLDWAIT",
+  "family": "E04",
+  "status": "emulation-limited",
+  "limit": {
+    "reason": "QEMU's user-mode emulator installs its own host signal handler for a guest's SIGCHLD and does not forward SA_NOCLDWAIT to the host kernel, so the private default-plus-SA_NOCLDWAIT state this row injects has no effect: the skip-repair subject's waits still succeed. That is a property of this emulator, not a statement about an x86-64 kernel. The front's managed row is also unobserved because its test stopped at the worker row.",
+    "control": "scripts/native-linux/emulation-probe.c, one source built for both targets: nocldwait_wait is ECHILD natively on aarch64 Linux and the child's exit status under the emulator, while sigign_wait is ECHILD in both."
+  },
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "note": "raw_wait=0 elapsed=1.093336875s worker=Some(Object {\"actualConfirmedReap\": Bool(true), \"pid\": Number(18180), \"rawStatus\": Number(0)}) managed=Some(Object {\"blocked\": Number(0), \"capturingThread\": Number(140735840016896), \"currentThread\": Number(140735840016896), \"ignored\": Number(0), \"pending\": Number(0), \"pendingQueryError\": Number(0), \"pgid\": Number(18272), \"pid\": Number(18272), \"recorded\": Bool(true), \"sid\": Number(95), \"sigchldFlags\": Number(0)}) ending=Some(Object {\"elapsedNanos\": String(\"521329001\"), \"end\": String(\"Exited\"), \"group\": String(\"Gone\"), \"operationReports\": Array [], \"rawStatus\": Number(0)}) outcome=Some(Object {\"success\": Bool(true)}) result=[110, 97, 116, 105, 118, 101, 32, 240, 159, 170, 182, 10, 114, 101, 115, 117, 108, 116] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired:front",
+      "conforms": true
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-only",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-only",
+      "conforms": true,
+      "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+      "note": "E04 { line: \"private_flags=67108866 runner_saw_flags=67108866 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=67108866\", clean: true }"
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true,
+      "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+      "note": "E04 { line: \"private_flags=67108866 runner_saw_flags=67108866 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=67108864\", clean: true }"
+    }
+  ],
+  "problems": [
+    "missing record: repaired:front",
+    "verdict true where false was required: broken:ignore-only"
+  ]
+}

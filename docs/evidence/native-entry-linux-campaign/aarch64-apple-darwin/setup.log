@@ -1,0 +1,8 @@
+task: [setup] bash crates/ravel/scripts/dispatch.sh setup
+ravel: Bun 1.4.2 development runtime in /Users/antony/Development/Ravel.simplify-and-componentize/crates/ravel/../../target/tools
+task: [deps] bash crates/ravel/scripts/dispatch.sh deps
+bun install v1.4.2 (744846f84)
+
+Checked 6 installs across 26 packages (no changes) [6.00ms]
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.temxSI
+worker: probes passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.7tpoiF

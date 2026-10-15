@@ -1,0 +1,11 @@
+task: [setup] bash crates/ravel/scripts/dispatch.sh setup
+ravel: Bun 1.4.2 development runtime in /work/crates/ravel/../../target/tools
+task: [deps] bash crates/ravel/scripts/dispatch.sh deps
+bun install v1.4.2 (744846f84)
+
++ @types/bun@1.4.2
++ typescript@7.0.2
+
+6 packages installed [863.00ms]
+worker: build passed; complete log: /work/target/worker-check.KXeGup
+worker: probes passed; complete log: /work/target/worker-check.jfXUY5

@@ -1,0 +1,1 @@
+{"schema":1,"id":"F07__operation=TERM-raise__mode=unmodified-signal-death-control","subject":"baseline","conforms":true,"test":"cancellation::baseline_propagation_tests::native_baseline_f07_exit_propagation_transitions_and_real_signal_death","pid":61107,"note":"signal death 15; reported a failed transition: false; result bytes 0"}

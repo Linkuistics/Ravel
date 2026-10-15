@@ -1,0 +1,461 @@
+[
+ {
+  "binary": "keyed-launch",
+  "test": "run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+  "cause": "matrix-instrument-emulation-limited"
+ },
+ {
+  "binary": "keyed-launch",
+  "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+  "cause": "matrix-instrument-emulation-limited"
+ },
+ {
+  "binary": "keyed-launch::confinement",
+  "test": "confined_child_and_descendants_cannot_read_or_write_outside_the_invocation",
+  "cause": "user-namespace-unavailable",
+  "evidence": "bwrap: Creating new namespace failed (captured stderr)"
+ },
+ {
+  "binary": "keyed-launch::confinement",
+  "test": "explicit_runtime_file_grant_allows_reads_but_denies_writes",
+  "cause": "user-namespace-unavailable",
+  "evidence": "bwrap namespace creation (confined route; stderr shown in the log)"
+ },
+ {
+  "binary": "keyed-launch::launch",
+  "test": "the_child_sees_its_arg0_while_its_program_is_what_runs",
+  "cause": "argv-read-from-ps"
+ },
+ {
+  "binary": "keyed-launch::noninteractive",
+  "test": "a_confined_child_is_killed_at_once_on_cancellation",
+  "cause": "user-namespace-unavailable",
+  "evidence": "bwrap: Creating new namespace failed (captured stderr)"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::bin/ravel",
+  "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::cli",
+  "test": "confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+  "cause": "user-namespace-unavailable",
+  "evidence": "confinement_unusable / bwrap namespace message in the test output"
+ },
+ {
+  "binary": "ravel::cli",
+  "test": "unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+  "cause": "user-namespace-unavailable",
+  "evidence": "inferred: the test passes --confine (crates/ravel/tests/cli.rs:491); exit 2 where 5 is asserted, no stderr captured before the assertion; the same test passes natively on aarch64"
+ },
+ {
+  "binary": "ravel::cli",
+  "test": "worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+  "cause": "user-namespace-unavailable",
+  "evidence": "inferred: the test passes --confine; exit 2 where 5 is asserted, no stderr captured before the assertion; the same test passes natively on aarch64"
+ }
+]

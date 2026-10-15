@@ -1,0 +1,29 @@
+2026-10-15T15:14:55Z
+task: [test:native-campaign] bash scripts/native-campaign.sh run --out target/k52/darwin/campaign
+native-campaign: building the private fixtures
+native-campaign: building the incumbent subject
+native-campaign: native-entry:front
+native-campaign: native-entry:runner
+native-campaign: native-entry:start
+native-campaign: incumbent baseline
+{
+  "native_steps_failed": false,
+  "subjects_moved": false,
+  "rows_unreconciled": false
+}
+campaign exit 0
+2026-10-15T15:16:52Z
+{"total":310,"preserved":310,"new_identities":74,"not_preserved":0}
+native-r01: test:cli exited 0
+{"in_scope":14,"ignored_fixtures_in_scope":1,"checked":13,"passed":13,"not_passed":0,"failure_lines":0}
+native-r01: test:session exited 0
+{"in_scope":227,"ignored_fixtures_in_scope":8,"checked":219,"passed":219,"not_passed":0,"failure_lines":0}
+native-r01: test:runner exited 0
+{"in_scope":83,"ignored_fixtures_in_scope":12,"checked":71,"passed":71,"not_passed":0,"failure_lines":0}
+native-r01: test:terminal-recovery exited 0
+native-r01: test exited 0
+{"in_scope":310,"ignored_fixtures_in_scope":20,"checked":290,"passed":290,"not_passed":0,"failure_lines":0}
+native-r01: check exited 0
+{"in_scope":310,"ignored_fixtures_in_scope":20,"checked":290,"passed":290,"not_passed":0,"failure_lines":0}
+r01 exit 0
+2026-10-15T15:22:04Z

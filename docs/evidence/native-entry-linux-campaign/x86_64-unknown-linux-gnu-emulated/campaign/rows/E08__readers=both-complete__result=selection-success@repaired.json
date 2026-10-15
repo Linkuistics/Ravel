@@ -1,0 +1,1 @@
+{"schema":1,"id":"E08__readers=both-complete__result=selection-success","subject":"repaired","conforms":true,"test":"native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership","pid":13653,"note":"ReaderAxes { controller: true, cancelled: true, zero_result: true, shielded: true, creator_restored: true, reader_state: true, main_owns: true }"}

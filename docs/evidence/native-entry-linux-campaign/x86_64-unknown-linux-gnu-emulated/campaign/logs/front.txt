@@ -1,0 +1,69 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_) & not test(native_entry_role) & not test(native_propagation_role)' --run-ignored all --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+────────────
+ Nextest run ID b91f7600-a05e-46ce-98e7-b3b1f989c7f0 with nextest profile: campaign-front
+    Starting 35 tests across 1 binary (189 tests skipped)
+        PASS [   0.180s] ( 1/35) ravel::bin/ravel native_entry_tests::native_controller_never_signals_a_reaped_fixture
+        PASS [   0.189s] ( 2/35) ravel::bin/ravel native_entry_tests::native_controller_escaped_holder_is_stopped_and_reaped_by_its_owner
+        PASS [   0.565s] ( 3/35) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+        PASS [   2.007s] ( 4/35) ravel::bin/ravel native_entry_tests::native_f01_initializer_result_failures_admit_no_children
+        FAIL [   2.336s] ( 5/35) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+  stdout ───
+
+    running 1 test
+    test native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability ... FAILED
+
+    failures:
+
+    failures:
+        native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 223 filtered out; finished in 2.24s
+
+  stderr ───
+    native entry case={"family":"E04-worker"} broken=none raw_wait=0 elapsed=1.096815375s launcher={"blocked":0,"capturingThread":140736098019904,"currentThread":140736098019904,"ignored":0,"pending":0,"pendingQueryError":0,"pgid":13620,"pid":13620,"recorded":true,"sid":95,"sigchldFlags":0} worker=Some(Object {"actualConfirmedReap": Bool(true), "pid": Number(13662), "rawStatus": Number(0)}) managed=Some(Object {"blocked": Number(0), "capturingThread": Number(140735837125184), "currentThread": Number(140735837125184), "ignored": Number(0), "pending": Number(0), "pendingQueryError": Number(0), "pgid": Number(13773), "pid": Number(13773), "recorded": Bool(true), "sid": Number(95), "sigchldFlags": Number(0)}) ending=Some(Object {"elapsedNanos": String("521676750"), "end": String("Exited"), "group": String("Gone"), "operationReports": Array [], "rawStatus": Number(0)}) outcome=Some(Object {"success": Bool(true)}) result=[110, 97, 116, 105, 118, 101, 32, 240, 159, 170, 182, 10, 114, 101, 115, 117, 108, 116]
+    {"bounds":{"context":{"bytes":262144,"from":"default"},"diagnostics":{"bytes":262144,"from":"fixed"},"message":{"bytes":1048576,"from":"fixed"},"selection":{"from":"default","ms":30000},"source":{"bytes":65536,"from":"default"},"sources":{"from":"fixed","sources":256}},"context":null,"diagnostics":{"stderr":"","stdout":""},"operationReports":[],"policy":{"path":"/tmp/.tmpkNVjub/policy.ts","version":"native-entry"},"policyEnvironment":[],"promptSource":"argument","resolution":"/tmp/.tmpkNVjub/bin/fixture (an absolute path)","schemaVersion":1,"selection":{"effort":"fixture","model":"native","provider":"fixture","reason":"native entry"},"selectionMs":449,"worker":{"buildId":"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c","bunVersion":"1.4.2","path":"/tmp/.tmpkNVjub/libexec/ravel/ravel-policy","version":"1.0.0"}}
+
+    native entry case={"family":"E04-worker"} broken=worker-watching raw_wait=0 elapsed=1.073045459s launcher={"blocked":0,"capturingThread":140736113076800,"currentThread":140736113076800,"ignored":0,"pending":0,"pendingQueryError":0,"pgid":13831,"pid":13831,"recorded":true,"sid":95,"sigchldFlags":0} worker=Some(Object {"actualConfirmedReap": Bool(true), "pid": Number(13851), "rawStatus": Number(0)}) managed=Some(Object {"blocked": Number(0), "capturingThread": Number(140736001518144), "currentThread": Number(140736001518144), "ignored": Number(0), "pending": Number(0), "pendingQueryError": Number(0), "pgid": Number(13901), "pid": Number(13901), "recorded": Bool(true), "sid": Number(95), "sigchldFlags": Number(0)}) ending=Some(Object {"elapsedNanos": String("522447501"), "end": String("Exited"), "group": String("Gone"), "operationReports": Array [], "rawStatus": Number(0)}) outcome=Some(Object {"success": Bool(true)}) result=[110, 97, 116, 105, 118, 101, 32, 240, 159, 170, 182, 10, 114, 101, 115, 117, 108, 116]
+    {"bounds":{"context":{"bytes":262144,"from":"default"},"diagnostics":{"bytes":262144,"from":"fixed"},"message":{"bytes":1048576,"from":"fixed"},"selection":{"from":"default","ms":30000},"source":{"bytes":65536,"from":"default"},"sources":{"from":"fixed","sources":256}},"context":null,"diagnostics":{"stderr":"","stdout":""},"operationReports":[],"policy":{"path":"/tmp/.tmplJ3rUJ/policy.ts","version":"native-entry"},"policyEnvironment":[],"promptSource":"argument","resolution":"/tmp/.tmplJ3rUJ/bin/fixture (an absolute path)","schemaVersion":1,"selection":{"effort":"fixture","model":"native","provider":"fixture","reason":"native entry"},"selectionMs":446,"worker":{"buildId":"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c","bunVersion":"1.4.2","path":"/tmp/.tmplJ3rUJ/libexec/ravel/ravel-policy","version":"1.0.0"}}
+
+
+    thread 'native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability' panicked at crates/ravel/src/native_entry_tests.rs:905:5:
+    assertion failed: !mutant
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   3.996s] ( 6/35) ravel::bin/ravel native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [   3.642s] ( 7/35) ravel::bin/ravel native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker
+        PASS [   3.461s] ( 8/35) ravel::bin/ravel native_entry_tests::native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal
+        PASS [   7.638s] ( 9/35) ravel::bin/ravel native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership
+        PASS [   5.976s] (10/35) ravel::bin/ravel native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   6.692s] (11/35) ravel::bin/ravel native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result
+        PASS [   1.826s] (12/35) ravel::bin/ravel native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation
+        PASS [   1.201s] (13/35) ravel::bin/ravel native_entry_tests::native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure
+        PASS [   1.781s] (14/35) ravel::bin/ravel native_entry_tests::native_f06_action_failure_with_queued_term_joins_at_finalisation
+        PASS [  10.150s] (15/35) ravel::bin/ravel native_entry_tests::native_controller_blocked_acknowledgement_and_failed_release_are_failed_receipts
+        PASS [   2.348s] (16/35) ravel::bin/ravel worker::native_tests::native_f03_block_omitted
+        PASS [  11.624s] (17/35) ravel::bin/ravel native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation
+        PASS [   2.338s] (18/35) ravel::bin/ravel worker::native_tests::native_f03_block_performed
+        PASS [   2.332s] (19/35) ravel::bin/ravel worker::native_tests::native_f03_first_create
+        PASS [   2.342s] (20/35) ravel::bin/ravel worker::native_tests::native_f03_restore_omitted
+        PASS [   0.388s] (21/35) ravel::bin/ravel worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report
+        PASS [   2.355s] (22/35) ravel::bin/ravel worker::native_tests::native_f03_restore_performed
+        PASS [   0.371s] (23/35) ravel::bin/ravel worker::native_tests::native_s03_poll_eio
+        PASS [   1.367s] (24/35) ravel::bin/ravel worker::native_tests::native_s03_poll_echild
+        PASS [   2.344s] (25/35) ravel::bin/ravel worker::native_tests::native_f03_second_create
+        PASS [   2.396s] (26/35) ravel::bin/ravel worker::native_tests::native_s03_kill_performed
+        PASS [   2.381s] (27/35) ravel::bin/ravel worker::native_tests::native_s03_stop_omitted
+        PASS [   2.403s] (28/35) ravel::bin/ravel worker::native_tests::native_s03_stop_performed
+        PASS [   5.361s] (29/35) ravel::bin/ravel worker::native_tests::native_s03_poll_eintr
+        PASS [   6.379s] (30/35) ravel::bin/ravel worker::native_tests::native_s03_kill_omitted
+        PASS [   5.361s] (31/35) ravel::bin/ravel worker::native_tests::native_s03_running
+        PASS [  24.862s] (32/35) ravel::bin/ravel native_entry_tests::native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing
+        PASS [  25.139s] (33/35) ravel::bin/ravel native_entry_tests::native_controller_watchdog_expiry_is_a_failed_receipt_that_stops_the_fixture
+        PASS [  26.244s] (34/35) ravel::bin/ravel native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result
+        PASS [  52.199s] (35/35) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+────────────
+     Summary [  52.233s] 35 tests run: 34 passed, 1 failed, 189 skipped
+        FAIL [   2.336s] ( 5/35) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+error: test run failed
+task: Failed to run task "native-entry:front": task: Failed to run task "test:session": exit status 100

@@ -1,0 +1,1 @@
+{"schema":1,"id":"F05__outcome=selection-success__operation=Started-parent-restore__mode=omit-EIO","subject":"repaired","conforms":true,"test":"native_entry_tests::native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal","pid":14214,"note":""}

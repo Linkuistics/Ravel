@@ -1,0 +1,30 @@
+{
+  "id": "F07__operation=TERM-raise__mode=unmodified-signal-death-control",
+  "family": "F07",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": false,
+  "reason": "Real-signal-death control: a successful raise cannot report afterwards, so there is no ignore-the-failure mutant for it.",
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "cancellation::baseline_propagation_tests::native_baseline_f07_exit_propagation_transitions_and_real_signal_death",
+    "note": "signal death 15; reported a failed transition: false; result bytes 0",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    }
+  ],
+  "observed": [
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death",
+      "note": "signal-death"
+    }
+  ],
+  "problems": []
+}

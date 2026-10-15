@@ -1,0 +1,1 @@
+{"schema":1,"id":"E08__readers=both-complete__result=selection-success","subject":"baseline","conforms":true,"test":"native_entry_tests::baseline::native_baseline_e08_reader_shield_and_collection_bound","pid":18079,"note":"ReaderAxes { controller: true, cancelled: true, zero_result: true, shielded: true, creator_restored: true, reader_state: true, main_owns: true }"}

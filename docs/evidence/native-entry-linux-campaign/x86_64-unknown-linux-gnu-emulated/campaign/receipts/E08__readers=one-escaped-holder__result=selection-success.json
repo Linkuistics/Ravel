@@ -1,0 +1,40 @@
+{
+  "id": "E08__readers=one-escaped-holder__result=selection-success",
+  "family": "E08",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "native_entry_tests::baseline::native_baseline_e08_reader_shield_and_collection_bound",
+    "note": "ReaderAxes { controller: true, cancelled: true, zero_result: true, shielded: true, creator_restored: true, reader_state: true, main_owns: true }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:shielding",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:shielding",
+      "conforms": false,
+      "test": "native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership",
+      "note": "ReaderAxes { controller: true, cancelled: true, zero_result: true, shielded: false, creator_restored: true, reader_state: true, main_owns: true }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership",
+      "note": "ReaderAxes { controller: true, cancelled: true, zero_result: true, shielded: true, creator_restored: true, reader_state: true, main_owns: true }"
+    }
+  ],
+  "problems": []
+}

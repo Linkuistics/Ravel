@@ -1,0 +1,6 @@
+test:cli	201
+test:session	201
+test:runner	201
+test:terminal-recovery	0
+test	201
+check	201

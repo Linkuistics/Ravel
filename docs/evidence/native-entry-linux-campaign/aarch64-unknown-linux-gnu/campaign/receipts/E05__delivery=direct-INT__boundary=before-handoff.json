@@ -1,0 +1,30 @@
+{
+  "id": "E05__delivery=direct-INT__boundary=before-handoff",
+  "family": "E05",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": false,
+  "reason": "Positive row: the frozen contract names a child-status discriminator only for the PTY-VINTR after-handoff row.",
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "run::baseline_tests::native_baseline_e05_direct_and_terminal_int_before_and_after_handoff",
+    "note": "E05Axes { controller: true, target: true, routed: true, attributed: true, reaped: true, foreground_restored: true } E05 { ready: Some(\"before-handoff stage=before-handoff pid=11732 sid=11732 pgrp=11732 fg=11732 child=0 published=0 latch=0 runs=0\"), ack: Some(\"before-handoff stage=before-handoff pid=11732 sid=11732 pgrp=11732 fg=11732 child=0 published=0 latch=2 runs=1\"), outcome: \"events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=true group=Gone foreground_restored=true\", clean: true, faults: [] }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    }
+  ],
+  "observed": [
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff",
+      "note": "E05Axes { controller: true, target: true, routed: true, attributed: true, reaped: true, foreground_restored: true } E05 { ready: Some(\"before-handoff stage=before-handoff pid=11272 sid=11272 pgrp=11272 fg=11272 child=0 published=0 latch=0 runs=0\"), ack: Some(\"before-handoff stage=before-handoff pid=11272 sid=11272 pgrp=11272 fg=11272 child=0 published=0 latch=2 runs=1\"), outcome: \"events=[Started, Reaped] end=Interrupted { signal: 2 } status_signal=Some(2) signalled=false group=Gone foreground_restored=true\", clean: true, faults: [] }"
+    }
+  ],
+  "problems": []
+}

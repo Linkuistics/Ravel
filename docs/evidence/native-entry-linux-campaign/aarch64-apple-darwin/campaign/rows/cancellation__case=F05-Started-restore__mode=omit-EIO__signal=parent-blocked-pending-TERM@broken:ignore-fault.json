@@ -1,0 +1,1 @@
+{"schema":1,"id":"cancellation__case=F05-Started-restore__mode=omit-EIO__signal=parent-blocked-pending-TERM","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation","pid":58256,"note":"violation detected"}

@@ -1,0 +1,50 @@
+{
+  "id": "cancellation__case=F05-Started-restore__mode=omit-EIO__signal=parent-blocked-pending-TERM",
+  "family": "cancellation",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_queued_term_rows",
+    "note": "unmet [\"original-failure-retained\", \"live-child-cleaned-up-with-no-ending\"]; held [\"joined-at-finalisation-death-by-TERM\", \"zero-result\", \"outcome-names-TERM\"]; signal 15; result_empty=true; managed_started=true ended=Some(\"Exited\") child_record=None; fault=\"Started-parent-restore\" \"omit\" performed=false actual=0 errno=null; stderr: {\"bounds\":{\"context\":{\"bytes\":262144,\"from\":\"default\"},\"diagnostics\":{\"bytes\":262144,\"from\":\"fixed\"},\"message\":{\"bytes\":1048576,\"from\":\"fixed\"},\"selection\":{\"from\":\"default\",\"ms\":30000},\"source\":{\"bytes\":65536,\"from\":\"default\"},\"sources\":{\"from\":\"fixed\",\"sources\":256}},\"context\":null,\"diagnostics\":{\"stderr\":\"\",\"stdout\":\"\"},\"policy\":{\"path\":\"/private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8lmA58/policy.ts\",\"version\":\"native-entry\"},\"policyEnvironment\":[],\"promptSource\":\"argument\",\"resolution\":\"/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8lmA58/bin/fixture (an absolute path)\",\"schemaVersion\":1,\"selection\":{\"effort\":\"fixture\",\"model\":\"native\",\"provider\":\"fixture\",\"reason\":\"native entry\"},\"selectionMs\":609,\"worker\":{\"buildId\":\"fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c\",\"bunVersion\":\"1.4.2\",\"path\":\"/private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8lmA58/libexec/ravel/ravel-policy\",\"version\":\"1.0.0\"}} | {\"error\":{\"code\":\"session_cancelled\",\"exit\":143,\"message\":\"session selected by /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmp8lmA58/policy.ts was cancelled by SIGTERM\",\"remedy\":\"retry the same command if cancellation was unintended\",\"signal\":\"SIGTERM\",\"stage\":\"exec\"},\"schemaVersion\":1}",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired:runner",
+      "conforms": true,
+      "test": "run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn",
+      "note": "F05 Started restore: failed=[] Row { line: \"events=[Started, Reaped] error=\\\"Started parent transition failed: Input/output error (os error 5); stop attempt 4 target -60345 signal 9: Operation not permitted (os error 1); and reaped\\\" errno=None consumed=None records=[] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=1 latch_before=0 latch_after=15\", clean: true }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

@@ -1,0 +1,1 @@
+{"schema":1,"id":"E03__disposition=ignore","subject":"broken:worker-watching","conforms":false,"test":"native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry","pid":9737,"note":"raw flags 0"}

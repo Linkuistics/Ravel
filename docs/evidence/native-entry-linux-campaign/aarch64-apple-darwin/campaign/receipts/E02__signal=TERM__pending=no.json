@@ -1,0 +1,40 @@
+{
+  "id": "E02__signal=TERM__pending=no",
+  "family": "E02",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": false,
+  "reason": "Negative control: with no pending signal the entry-blocked-pending mutant is not discriminating, so it conforms by design.",
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "native_entry_tests::baseline::native_baseline_e02_entry_blocked_pending_is_not_cancellation",
+    "note": "raw_wait=0 elapsed=1.208866541s worker=Some(Object {\"actualConfirmedReap\": Bool(true), \"pid\": Number(61385), \"rawStatus\": Number(0)}) managed=Some(Object {\"blocked\": Number(16384), \"capturingThread\": Number(8291155840), \"currentThread\": Number(8291155840), \"ignored\": Number(0), \"pending\": Number(0), \"pendingQueryError\": Number(0), \"pgid\": Number(61403), \"pid\": Number(61403), \"recorded\": Bool(true), \"sid\": Number(55530), \"sigchldFlags\": Number(0)}) ending=Some(Object {\"elapsedNanos\": String(\"533690750\"), \"end\": String(\"Exited\"), \"group\": String(\"Gone\"), \"operationReports\": Array [], \"rawStatus\": Number(0)}) outcome=Some(Object {\"success\": Bool(true)}) result=[110, 97, 116, 105, 118, 101, 32, 240, 159, 170, 182, 10, 114, 101, 115, 117, 108, 116] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:blocked-pending",
+      "conforms": true
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:blocked-pending",
+      "conforms": true,
+      "test": "native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation",
+      "note": ""
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

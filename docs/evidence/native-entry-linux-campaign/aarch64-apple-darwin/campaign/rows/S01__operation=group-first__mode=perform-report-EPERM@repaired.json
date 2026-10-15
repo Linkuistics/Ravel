@@ -1,0 +1,1 @@
+{"schema":1,"id":"S01__operation=group-first__mode=perform-report-EPERM","subject":"repaired","conforms":true,"test":"run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations","pid":60316,"note":"[]"}

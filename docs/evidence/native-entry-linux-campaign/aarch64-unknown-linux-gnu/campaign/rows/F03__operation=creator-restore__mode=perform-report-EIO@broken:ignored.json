@@ -1,0 +1,1 @@
+{"schema":1,"id":"F03__operation=creator-restore__mode=perform-report-EIO","subject":"broken:ignored","conforms":false,"test":"worker::native_tests::native_f03_restore_performed","pid":10438,"note":"named claim no-managed-start; Ok(())"}

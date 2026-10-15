@@ -360,18 +360,20 @@ modes. It SHALL retain query, handback, mode and temporary disposition failures,
 and SHALL NOT lend again after a Started check failure. No broader delegated
 foreground takeover is authorised by unknown status. The required behavior is
 agreed and implemented, and its conformance is measured per target: each
-measurement qualifies only the kernel, libc and compiler it names. The frozen
-153-row matrix, its incumbent baseline and the 310 protected test identities have
-immutable receipts on aarch64-apple-darwin (Rust 1.99) only. The GNU/Linux and
-minimum-Rust continuation is open in the
-[development evidence](../native-entry-development-evidence.md): aarch64 Linux at
-the declared minimum Rust 1.85.0 and x86_64 Linux under user-mode emulation have
-development measurements, which are not immutable receipts; x86_64 under
-emulation cannot establish that kernel's signal, process-group, namespace or PTY
-semantics and is accounted for row by row; and the declared minimum's own lint
-step is not yet clean. Until that continuation closes, no Linux target and no
-Rust version below the one measured is qualified, and a returning host and
-independent adoption are not measured.
+measurement qualifies only the kernel, libc and compiler it names, and only as
+far as its receipts say. The frozen 153-row matrix, its incumbent baseline and
+the 310 protected test identities are measured on three targets:
+aarch64-apple-darwin (Rust 1.99), aarch64-unknown-linux-gnu natively at the
+declared minimum Rust 1.85.0, and x86_64-unknown-linux-gnu under QEMU user-mode
+emulation. The x86_64 measurement is emulated and is never a qualification of an
+x86-64 kernel: it cannot create user namespaces or honour SA_NOCLDWAIT, so its
+rows and protected identities that need either are accounted for with a reason
+and a control, not reconciled and not dropped. Each target's domain, receipts,
+row-by-row reconciliation and limits are in the
+[evidence note](../native-entry-development-evidence.md); this paragraph claims
+nothing a receipt there does not carry. Open and unmeasured: a native x86-64
+kernel (`native-entry-x86-64-linux-scope`), any other kernel, libc or Rust
+version, a returning host and independent adoption.
 
 ## Test seams for the repair contract
 

@@ -1,0 +1,1 @@
+{"schema":1,"id":"E04__boundary=worker__state=private-default-SA_NOCLDWAIT","subject":"broken:worker-watching","conforms":false,"test":"native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability","pid":58223,"note":""}

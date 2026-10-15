@@ -1,0 +1,1 @@
+{"schema":1,"id":"S03__operation=EINTR-until-deadline__mode=report__primary=second-reader-EAGAIN","subject":"broken:slack","conforms":false,"test":"worker::native_tests::native_s03_poll_eintr","pid":58651,"note":"named claim absolute-deadline; Ok(())"}

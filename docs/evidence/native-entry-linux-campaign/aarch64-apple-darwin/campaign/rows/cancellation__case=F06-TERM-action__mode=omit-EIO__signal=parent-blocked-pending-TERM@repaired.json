@@ -1,0 +1,1 @@
+{"schema":1,"id":"cancellation__case=F06-TERM-action__mode=omit-EIO__signal=parent-blocked-pending-TERM","subject":"repaired","conforms":true,"test":"native_entry_tests::native_f06_action_failure_with_queued_term_joins_at_finalisation","pid":58264,"note":""}

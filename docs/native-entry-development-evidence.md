@@ -11,6 +11,10 @@ acceptance contract stays live as `native-entry-complete-repair-k28`;
 no module is accepted as a separately completed repair. The development increment
 is committed together; review and qualification remain live.
 
+**Current measured status, per target:** see
+[GNU/Linux immutable campaign (k52)](#gnulinux-immutable-campaign-k52). Sections
+below that describe a leaf's own scope are historical for that leaf.
+
 ## Implemented development surface
 
 The draft checks executable-entry capture, independent SIGCHLD watching repair,
@@ -1396,6 +1400,166 @@ passing on both. It is **not** an immutable campaign receipt: the frozen matrix
 was not rerun on the corrected tree, nothing about x86_64 is measured, and the
 k43 and k50 receipts describe the tree before this edit.
 
+## GNU/Linux immutable campaign (k52)
+
+`native-entry-linux-campaign-run-k52` took the immutable measurement on the
+corrected tree, as k43 did for Darwin: the frozen 153-row matrix, its incumbent
+baseline and the 310 protected identities through the six Taskfile tasks, on
+three targets. Every receipt is under
+[`docs/evidence/native-entry-linux-campaign/`](evidence/native-entry-linux-campaign),
+one directory per target, each with its `domain.json`, `subjects-before.json` and
+`subjects-after.json`, `rows/` (write-once records), `receipts/` (one per row),
+`reconciliation.json`, the nextest logs and the R01 joins.
+`compare-receipts.py` and its output `compare-receipts.txt` are the item-by-item
+comparison against k43 quoted below. The k43, k50 and k51 directories are
+untouched; they describe earlier trees.
+
+### What was measured, and on what
+
+The tree is parent revision `6674fd024c10` with this leaf's working-copy edits:
+the two digested documents (made once, before any run; they state scope and point
+here, and claim no outcome) and one instrument edit (below). Each target ran from
+that one tree, one at a time, with nothing else running.
+
+| | aarch64-apple-darwin | aarch64-unknown-linux-gnu | x86_64-unknown-linux-gnu, **emulated** |
+|---|---|---|---|
+| Kernel, libc | Darwin 27.0.0 (macOS 27.0.1, 26A434), system libc, libc crate 0.2.186 | 7.0.14-linuxkit (Docker Desktop VM), glibc 2.43 (Ubuntu 26.04.1) | the same aarch64 VM kernel under QEMU user-mode 10.2.3, `-B 0x800000000000 -cpu Nehalem`, same glibc userland |
+| Compiler | rustc 1.99.0 | **rustc 1.85.0**, the declared minimum | **rustc 1.85.0** |
+| Tools | nextest 0.9.148, task 3.54.0 | nextest 0.9.148, task 3.54.0, tool digests in `domain.txt` | the same versions, x86_64 builds |
+| Subjects digested before and after | 336, none moved | 336, none moved | 336, none moved |
+| Build, clippy `-D warnings`, `fmt --check` | not part of this run (k51 ran them on the host) | pass, pass, pass | pass, pass, pass |
+| Matrix rows reconciled | **153 of 153** | **153 of 153** | **146 of 153**; 7 emulation-limited |
+| Tests executed / failed unexpectedly | 112 / 0 | 112 / 0 | 112 / 0 (3 expected failures, the limited rows) |
+| Baseline (incumbent `0515419edd29`) | 67 fail, 56 already correct, 30 rejected | 68 fail, 55 already correct, 30 rejected | 66 fail, 57 already correct, 30 rejected |
+| R01 | 310 of 310 preserved, 74 new; six tasks exit 0 | 310 of 310 preserved, 74 new; six tasks exit 0 | 310 of 310 preserved, 74 new; **see below** |
+| Wall time (campaign / R01) | 1 min 57 s / 5 min 12 s | 1 min 13 s / 2 min 42 s | 5 min 59 s / 4 min 24 s |
+
+Darwin's and aarch64 Linux's six R01 tasks each exit 0 and join identity by
+identity: `test:cli` 13 of 13 non-ignored (14 in scope), `test:session` 219 of
+219 (227), `test:runner` 71 of 71 (83), `test` and `check` 290 of 290 (310, 20
+ignored fixtures), `test:terminal-recovery` its two private PTY selections. The
+338 run plus 46 skipped are the 310 protected identities and the 74 new ones on
+both. `task check` passes at 1.85.0 on aarch64 Linux, its first immutable
+pass at the declared minimum.
+
+### The first aarch64 run found an instrument defect, and was not used
+
+The first immutable aarch64 run (`attempt-1-aarch64-linux-incumbent-guard/`)
+failed: the campaign step exited 201 at the incumbent build, and R01 exited 1
+because the incumbent was never built to be digested. The incumbent driver
+refuses to build unless its worker sources are byte-for-byte the repaired
+tree's, and `crates/ravel/build.rs` is one of them. k51 had rewritten `hex` there
+(same output for all 256 byte values, shown in k51), so the guard, which had
+never run since, correctly said the files differ. Nothing had exercised the
+campaign between k43 and this run (k50 ran before the edit, k51 ran R01 only).
+
+The repair is one instrument edit, in `scripts/native-incumbent.sh`: the one
+sanctioned difference is pinned as the SHA-256 of the normal-format `diff` of the
+incumbent's `build.rs` against the repaired tree's. Any other difference in
+`build.rs`, or any difference in the rest of the worker, is still refused, and the
+selftest was extended with three controls seen to behave: the unmodified
+incumbent is accepted, a `build.rs` identical to the repaired tree's is
+accepted, and the same file with one further line is rejected
+(`bash scripts/native-incumbent.sh selftest`). Because `scripts/` is a digested
+subject, the edit invalidated that run and any earlier digest, so the Darwin,
+aarch64 and x86_64 runs reported here were all taken after it and none before.
+The failed run's directory is kept as the finding, unaltered.
+
+### aarch64 Linux, Rust 1.85.0, native
+
+All 153 rows reconcile. 151 receipts equal k43's Darwin receipts field for field
+(verdicts, subjects, baseline class, status); the two that differ are exactly the
+two rows whose Darwin premise does not exist on this kernel and which carry their
+platform expectation and reason in the plan: `E03__disposition=ignore` (an
+ignored SIGCHLD is itself the no-zombie state, and exec keeps SIG_IGN, so the
+skip-repair subject fails ECHILD and the incumbent baseline moves from
+already-correct to fails) and `E04__boundary=raw-executable-entry` (exec always
+clears action flags, so the row asserts the flag is clear after a
+read-back-confirmed injection). These are the same two k50 found in
+development; the immutable run reproduces them. No new difference appeared. The
+handled-signal domain read from the target's own headers and kernel is 1 to 64
+with glibc reserving 32 and 33 (`signal-domain.txt`).
+
+### x86_64 Linux under user-mode emulation (recorded as emulated)
+
+The matrix and the suite build and run under the emulator, and 146 of 153 rows
+reconcile to the Linux expectations. It is **not** a qualification of an x86-64
+kernel: no kernel, signal, process-group or PTY semantics of that architecture
+have been observed, and nothing here may be cited as such.
+
+The seven emulation-limited rows each carry a reason and a control in their
+receipt (`limit`), and are neither reconciled nor dropped:
+
+| Rows | Observation | Cause and control |
+|---|---|---|
+| E04 worker, E04 managed (2) | the skip-repair and ignore-only subjects still confirm the wait | QEMU does not honour SA_NOCLDWAIT: `emulation-probe.c`, one source built for both targets, gives `ECHILD` natively and the child's exit status here, and `ECHILD` for SIG_IGN in both |
+| E04 raw executable entry (1) | not executed; its test stopped at the worker row | the same limit; no observation of entry flags exists for this target |
+| E07 TERM-then-HUP runner-active (1) | `broken:guard` conformed: the runner reported the first signal though the retaining guard was removed | **not isolated**: the loop and its signal queueing run inside the emulator; native aarch64 reconciles all four E07 rows with every break failing, and a native x86-64 run that would separate emulator from architecture does not exist |
+| E07 other three (3) | not executed; the test stopped at the first row | the same |
+
+**R01 under emulation is not a join and says so.** The six tasks stop under
+nextest's default fail-fast after two failures (34 of 338 run), so those logs are
+not a partition of the identities. They are kept as measured, and are not the
+account of what cannot run. A supplementary run, in the same container and after
+the campaign's subjects were digested again, took `cargo nextest run --locked
+--workspace --no-fail-fast` (the Taskfile's `test` command with one flag), kept
+under `supplement-no-fail-fast/`: 338 run, **261 passed, 77 failed**, 46 skipped,
+identical to k50's development figures. Joined against the manifest, 215 of the
+290 non-ignored protected identities pass and 75 do not; the other two failures
+are new matrix instruments. The 77 failures, classified from their own output
+(`failure-classification.json`):
+
+| Cause | Failures | How it is known |
+|---|---|---|
+| a user namespace cannot be created (`unshare(CLONE_NEWUSER)` is `EINVAL` for every emulated process: a second host thread) | **74** | 69 show `confinement_unusable`, 3 show bwrap's own "Creating new namespace failed"; 2 (`ravel::cli`, exit 2 where 5 is asserted before any diagnostic is captured) are **inferred**: both pass `--confine` and both pass natively on aarch64 |
+| the child's argv as `ps` reads it is the emulator's | 1 | `the_child_sees_its_arg0_while_its_program_is_what_runs` |
+| the matrix instruments of the two limited families | 2 | E04 managed and E07, as above |
+
+These 74 are the protected identities that cannot run here; every one of them
+passes natively on aarch64 Linux at the same compiler. No protected expectation
+was changed or weakened to obtain any figure.
+
+### Darwin, on the corrected tree
+
+`task test:native-campaign` and `native-r01.sh run` on the host, into new
+directories, equal k43's item by item: 153 receipts and 450 rows with 0
+differing (free text, pids and list order excluded; `compare-receipts.py`), the
+same 112 tests, the same R01 counts. One thing in k43's directory does not match
+its own table: its stored `test-cli.txt.r01.json` reads scope 0, while its log
+holds 13 `PASS` lines and its note says 13 of 13. This run's join of the same
+task is 13 of 14 in scope (one ignored fixture), as k43's table says. k43's
+directory is not edited. The `check` step passed (338 passed, 46 skipped); the
+selection-deadline miss k51 recorded did not reproduce in this run, and is not
+explained by it.
+
+### Support limits, per target
+
+- **aarch64-apple-darwin** (Darwin 27.0.0, rustc 1.99.0): the matrix and R01 are
+  measured with immutable receipts, on the kernel and compiler named.
+- **aarch64-unknown-linux-gnu** (7.0.14-linuxkit in Docker Desktop, glibc 2.43,
+  rustc 1.85.0, the declared minimum): the matrix and R01 are measured with
+  immutable receipts, with two rows holding platform expectations. This is one
+  kernel and one libc; another Linux kernel or glibc is not measured, and the
+  container needs four settings (`seccomp=unconfined`, `systempaths=unconfined`,
+  `--init`, a non-root user) which are properties of running the product's
+  sandbox in a container.
+- **x86_64-unknown-linux-gnu**: built, linted at 1.85.0, and run **under
+  emulation only**. 146 rows reconcile, 7 are limited with reason and control,
+  and 74 protected identities cannot run. Nothing about an x86-64 kernel is
+  established. Native x86-64 is the open choice in
+  `native-entry-x86-64-linux-scope`; the numbers did not move from k50's.
+- **Not measured on any target**: other kernels, libc versions and Rust versions
+  (only 1.85.0 and 1.99.0 were run), a returning host, independent adoption, and
+  the root obligations this campaign never owned.
+
+### Charges
+
+This leaf charges P≤30 / E≤30 / RC=0 minutes, X=0, D=0 (no in-session reviewer
+was spent; the guard repair is covered by an executable control). Machine time
+was about 28 minutes: the failed run 2, Darwin 7, aarch64 4, x86_64 12, the
+supplement 3. k50 and k51 recorded no separate charge, so this note does not sum
+a node total; the node's projection was P≤45 / E≤60 / RC≤4.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows
@@ -1434,8 +1598,8 @@ variants and S counts 8/7/8/7/2 unchanged.
    affected rows after edits and reconcile identities individually. The row
    recorders, plan, digest driver and its failing controls now exist (k40,
    above); the incumbent subject and its baseline now exist for all 153 rows
-   (k44, k45 and k46, above), and the frozen campaign has since run (k43,
-   above) on the host only.
+   (k44, k45 and k46, above), and the frozen campaign has since run on the
+   host (k43, above) and on both Linux targets (k52, above).
 6. Complete R01 through the existing Taskfile tasks and preserve every previous
    expectation. Publish qualified evidence only when earned. Reconcile the
    approved operation-report API amendment throughout docs. Price and cut the
@@ -1443,8 +1607,9 @@ variants and S counts 8/7/8/7/2 unchanged.
 
 The frozen native campaign now exists for aarch64-apple-darwin and Rust 1.99
 ([above](#frozen-campaign-and-r01-k43)); the development summaries earlier in
-this note remain development evidence. The support continuation owns the same
-matrix on GNU/Linux and Rust 1.85.
+this note remain development evidence. The support continuation ran the same
+matrix on GNU/Linux and Rust 1.85 (k52, above); a native x86-64 kernel remains
+open.
 The source development increment is sealed under k30. K28 remains an open node;
 `native-entry-qualification-k31` carries the complete remaining acceptance work
 after funding and the tree-owned review. Decomposition does not reset the one

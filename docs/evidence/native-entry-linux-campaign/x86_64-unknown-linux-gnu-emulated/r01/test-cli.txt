@@ -1,0 +1,43 @@
+task: [test:cli] cargo nextest run --locked -p ravel --test cli 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+────────────
+ Nextest run ID 5c757667-4305-4e8c-8e99-aa7431a848e4 with nextest profile: default
+    Starting 13 tests across 1 binary (1 test skipped)
+        FAIL [   0.222s] ( 1/13) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+  stdout ───
+
+    running 1 test
+    test confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy ... FAILED
+
+    failures:
+
+    failures:
+        confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.11s
+
+  stderr ───
+
+    thread 'confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy' panicked at crates/ravel/tests/cli.rs:361:5:
+    ravel: refused (confinement_unusable, stage cli): cannot confine with /tmp/.tmpTW6At4/work: confinement backend could not establish the probe sandbox (exit status: 1): bwrap: Creating new namespace failed, likely because the kernel does not support user namespaces.  bwrap must be installed setuid on such systems.; nothing was selected
+      input: --confine
+      remedy: supply existing writable directories other than /, regular runtime files, and the system confinement backend; no unconfined fallback is available
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 9 tests still running
+        PASS [   0.336s] ( 2/13) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.896s] ( 3/13) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   1.242s] ( 4/13) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   1.263s] ( 5/13) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   1.367s] ( 6/13) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.717s] ( 7/13) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   2.217s] ( 8/13) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   2.224s] ( 9/13) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   5.360s] (10/13) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+────────────
+     Summary [   5.377s] 10/13 tests run: 9 passed, 1 failed, 1 skipped
+        FAIL [   0.222s] ( 1/13) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+warning: 3/13 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+task: Failed to run task "test:cli": exit status 100

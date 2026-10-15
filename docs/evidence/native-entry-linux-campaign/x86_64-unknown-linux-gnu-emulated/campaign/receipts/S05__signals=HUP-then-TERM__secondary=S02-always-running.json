@@ -1,0 +1,39 @@
+{
+  "id": "S05__signals=HUP-then-TERM__secondary=S02-always-running",
+  "family": "S05",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "The row raises HUP at a failed Started check and delivers TERM while the settlement waits out an always-running observation, and its claims read the settlement's deadline report. The row's faulted operation is an observation that never answers while the child must already be gone, reached through a failed Started check and ended by an absolute error-settlement deadline. The incumbent enters no error path for a child that is merely still running: an always-running observation is its ordinary supervision loop, a documented stall the caller closes, so there is no settlement to observe and no deadline for the claim to read. (Its observation and reap failures, which it does handle, are the other six S02 rows and are hosted.)",
+    "missing": "the start check, and an absolute error-settlement deadline over a still-running child (the incumbent's error paths are an observation failure and a reap failure only)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:error",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:error",
+      "conforms": false,
+      "test": "run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report",
+      "note": "S05 { latch_at_consumption: Some(0), latch_after_second: Some(15), outcome: \"error consumed=Some(15) events=[Started] message=Started parent transition failed: Input/output error (os error 5); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report",
+      "note": "S05 { latch_at_consumption: Some(0), latch_after_second: Some(15), outcome: \"error consumed=Some(1) events=[Started] message=Started parent transition failed: Input/output error (os error 5); could not be reaped — check for an orphaned process: child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno None, retries 0; child/group ownership unresolved; no confirmed reap\", clean: true, reported: [] }"
+    }
+  ],
+  "problems": []
+}

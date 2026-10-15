@@ -1,0 +1,1 @@
+{"schema":1,"id":"F02__boundary=worker__operation=default-action-repair__mode=omit-EIO","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker","pid":58218,"note":"Refused { controller: true, failed: true, zero_result: true, code: true, text: false, no_worker: false, no_managed: true, site: true }"}

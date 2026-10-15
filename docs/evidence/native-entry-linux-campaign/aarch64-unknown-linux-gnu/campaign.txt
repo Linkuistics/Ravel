@@ -1,0 +1,12 @@
+task: [test:native-campaign] bash scripts/native-campaign.sh run --out /work/target/k49/campaign
+native-campaign: building the private fixtures
+native-campaign: building the incumbent subject
+native-campaign: native-entry:front
+native-campaign: native-entry:runner
+native-campaign: native-entry:start
+native-campaign: incumbent baseline
+{
+  "native_steps_failed": false,
+  "subjects_moved": false,
+  "rows_unreconciled": false
+}

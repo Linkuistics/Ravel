@@ -1,0 +1,76 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --lib -E 'test(native_)' --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+────────────
+ Nextest run ID 1cad3fb2-8781-4ab7-905f-91f75e46708e with nextest profile: campaign-runner
+    Starting 22 tests across 1 binary (35 tests skipped)
+        PASS [   0.107s] ( 1/22) keyed-launch run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory
+        PASS [   0.116s] ( 2/22) keyed-launch run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict
+        PASS [   0.250s] ( 3/22) keyed-launch run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn
+        PASS [   0.414s] ( 4/22) keyed-launch run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report
+        PASS [   0.463s] ( 5/22) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   0.242s] ( 6/22) keyed-launch run::terminal_tests::native_s04_foreground_child
+        PASS [   0.247s] ( 7/22) keyed-launch run::terminal_tests::native_s04_foreground_own
+        PASS [   0.250s] ( 8/22) keyed-launch run::terminal_tests::native_s04_foreground_query_eio
+        PASS [   1.062s] ( 9/22) keyed-launch run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff
+        PASS [   0.246s] (10/22) keyed-launch run::terminal_tests::native_s04_handback_eio
+        PASS [   0.344s] (11/22) keyed-launch run::terminal_tests::native_s04_foreground_unrelated
+        FAIL [   1.269s] (12/22) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+  stdout ───
+
+    running 1 test
+    test run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails ... FAILED
+
+    failures:
+
+    failures:
+        run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 1.16s
+
+  stderr ───
+    native E04 managed broken=none: E04 { line: "private_flags=67108866 runner_saw_flags=67108866 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=67108864", clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 569.41775ms }
+    native E04 managed broken=ignore-only: E04 { line: "private_flags=67108866 runner_saw_flags=67108866 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=67108866", clean: true } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 565.446209ms }
+
+    thread 'run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails' panicked at crates/keyed-launch/src/run/native_tests.rs:1034:5:
+    ignore-only repair still confirmed the child's wait: E04 { line: "private_flags=67108866 runner_saw_flags=67108866 events=[Started, Reaped] end=Exited code=Some(7) group=Gone after_flags=67108866", clean: true }
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.246s] (13/22) keyed-launch run::terminal_tests::native_s04_modes_eio
+        PASS [   0.247s] (14/22) keyed-launch run::terminal_tests::native_s04_sigttou_restore_eio
+        PASS [   0.250s] (15/22) keyed-launch run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report
+        PASS [   0.177s] (16/22) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+        FAIL [   1.703s] (17/22) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+  stdout ───
+
+    running 1 test
+    test run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery ... FAILED
+
+    failures:
+
+    failures:
+        run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 1.60s
+
+  stderr ───
+    native E07 first=15 second=1 error=false broken=none: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: "ended interrupted=15", clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 526.244084ms }
+    native E07 first=15 second=1 error=false broken=latch: E07 { first_ack_latch: Some(15), second_ack_latch: Some(1), consumed_ack_latch: Some(1), outcome: "ended interrupted=1", clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 519.786125ms }
+    native E07 first=15 second=1 error=false broken=guard: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: "ended interrupted=15", clean: true, reported: [] } Settlement { status: Some(ExitStatus(unix_wait_status(0))), watchdog_expired: false, stopped_by_controller: false, unresolved: [], holders: [], faults: [], elapsed: 524.4335ms }
+
+    thread 'run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery' panicked at crates/keyed-launch/src/run/native_tests.rs:851:17:
+    assertion `left == right` failed: guard did not let the later signal win for 15->1 error=false: E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: "ended interrupted=15", clean: true, reported: [] }
+      left: Some(15)
+     right: Some(1)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   1.984s] (18/22) keyed-launch run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child
+        PASS [   3.240s] (19/22) keyed-launch run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   4.005s] (20/22) keyed-launch run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal
+        PASS [   4.224s] (21/22) keyed-launch run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report
+        PASS [  17.352s] (22/22) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [  17.510s] 22 tests run: 20 passed, 2 failed, 35 skipped
+        FAIL [   1.269s] (12/22) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+        FAIL [   1.703s] (17/22) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+error: test run failed
+task: Failed to run task "native-entry:runner": task: Failed to run task "test:runner": exit status 100

@@ -1,0 +1,43 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(native_) & not test(native_entry_role) & not test(native_propagation_role)' --run-ignored all --no-fail-fast
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+────────────
+ Nextest run ID 58cb3b24-a8ee-4df7-85c0-a21e6cc77873 with nextest profile: campaign-front
+    Starting 35 tests across 1 binary (189 tests skipped)
+        PASS [   0.022s] ( 1/35) ravel::bin/ravel native_entry_tests::native_controller_never_signals_a_reaped_fixture
+        PASS [   0.033s] ( 2/35) ravel::bin/ravel native_entry_tests::native_controller_escaped_holder_is_stopped_and_reaped_by_its_owner
+        PASS [   0.055s] ( 3/35) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+        PASS [   2.392s] ( 4/35) ravel::bin/ravel native_entry_tests::native_f05_started_restore_failure_with_queued_term_joins_at_finalisation
+        PASS [   2.599s] ( 5/35) ravel::bin/ravel native_entry_tests::native_f06_action_failure_with_queued_term_joins_at_finalisation
+        PASS [   2.911s] ( 6/35) ravel::bin/ravel native_entry_tests::native_f01_initializer_result_failures_admit_no_children
+        PASS [   3.400s] ( 7/35) ravel::bin/ravel native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker
+        PASS [   3.725s] ( 8/35) ravel::bin/ravel native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability
+        PASS [   1.375s] ( 9/35) ravel::bin/ravel native_entry_tests::native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure
+        PASS [   4.378s] (10/35) ravel::bin/ravel native_entry_tests::native_f05_started_restore_failure_cleans_up_the_live_child_and_terminal
+        PASS [   2.611s] (11/35) ravel::bin/ravel worker::native_tests::native_f03_block_omitted
+        PASS [   2.428s] (12/35) ravel::bin/ravel worker::native_tests::native_f03_block_performed
+        PASS [   5.374s] (13/35) ravel::bin/ravel native_entry_tests::native_e03_both_real_waits_survive_ignored_sigchld_entry
+        PASS [   0.265s] (14/35) ravel::bin/ravel worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report
+        PASS [   2.390s] (15/35) ravel::bin/ravel worker::native_tests::native_f03_first_create
+        PASS [   2.407s] (16/35) ravel::bin/ravel worker::native_tests::native_f03_restore_omitted
+        PASS [   2.404s] (17/35) ravel::bin/ravel worker::native_tests::native_f03_restore_performed
+        PASS [   0.256s] (18/35) ravel::bin/ravel worker::native_tests::native_s03_poll_eio
+        PASS [   1.237s] (19/35) ravel::bin/ravel worker::native_tests::native_s03_poll_echild
+        PASS [   2.379s] (20/35) ravel::bin/ravel worker::native_tests::native_f03_second_create
+        PASS [   7.126s] (21/35) ravel::bin/ravel native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   2.276s] (22/35) ravel::bin/ravel worker::native_tests::native_s03_kill_performed
+        PASS [   8.267s] (23/35) ravel::bin/ravel native_entry_tests::native_f04_int_final_restore_failure_retains_ownership_and_blocks_the_result
+        PASS [   2.290s] (24/35) ravel::bin/ravel worker::native_tests::native_s03_stop_omitted
+        PASS [   2.282s] (25/35) ravel::bin/ravel worker::native_tests::native_s03_stop_performed
+        PASS [   9.218s] (26/35) ravel::bin/ravel native_entry_tests::native_e08_reader_shield_collection_bound_and_escaped_holder_ownership
+        PASS [  10.017s] (27/35) ravel::bin/ravel native_entry_tests::native_controller_blocked_acknowledgement_and_failed_release_are_failed_receipts
+        PASS [   5.243s] (28/35) ravel::bin/ravel worker::native_tests::native_s03_poll_eintr
+        PASS [   5.254s] (29/35) ravel::bin/ravel worker::native_tests::native_s03_running
+        PASS [   6.265s] (30/35) ravel::bin/ravel worker::native_tests::native_s03_kill_omitted
+        PASS [  13.767s] (31/35) ravel::bin/ravel native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation
+        PASS [  25.012s] (32/35) ravel::bin/ravel native_entry_tests::native_controller_watchdog_expiry_is_a_failed_receipt_that_stops_the_fixture
+        PASS [  29.188s] (33/35) ravel::bin/ravel native_entry_tests::native_e06_each_boundary_joins_cancellation_and_each_join_is_load_bearing
+        PASS [  31.929s] (34/35) ravel::bin/ravel native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result
+        SLOW [> 60.000s] (─────) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+        PASS [  60.291s] (35/35) ravel::bin/ravel native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls
+────────────
+     Summary [  60.295s] 35 tests run: 35 passed (1 slow), 189 skipped

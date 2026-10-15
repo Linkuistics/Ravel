@@ -1,0 +1,52 @@
+task: [test:session] cargo nextest run --locked -p ravel 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+────────────
+ Nextest run ID 3f6ff75b-6491-49f0-aab6-05a262c5d229 with nextest profile: default
+    Starting 241 tests across 5 binaries (29 tests skipped)
+        PASS [   0.102s] (  1/241) ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.113s] (  2/241) ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.127s] (  3/241) ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.127s] (  4/241) ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.138s] (  5/241) ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.139s] (  6/241) ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.154s] (  7/241) ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.159s] (  8/241) ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.163s] (  9/241) ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        FAIL [   0.180s] ( 10/241) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+  stdout ───
+
+    running 1 test
+    test confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy ... FAILED
+
+    failures:
+
+    failures:
+        confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.10s
+
+  stderr ───
+
+    thread 'confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy' panicked at crates/ravel/tests/cli.rs:361:5:
+    ravel: refused (confinement_unusable, stage cli): cannot confine with /tmp/.tmpR5SgmA/work: confinement backend could not establish the probe sandbox (exit status: 1): bwrap: Creating new namespace failed, likely because the kernel does not support user namespaces.  bwrap must be installed setuid on such systems.; nothing was selected
+      input: --confine
+      remedy: supply existing writable directories other than /, regular runtime files, and the system confinement backend; no unconfined fallback is available
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 9 tests still running
+        PASS [   0.304s] ( 11/241) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.851s] ( 12/241) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   1.235s] ( 13/241) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   1.204s] ( 14/241) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   1.332s] ( 15/241) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.658s] ( 16/241) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   2.227s] ( 17/241) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   2.193s] ( 18/241) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   5.424s] ( 19/241) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+────────────
+     Summary [   5.586s] 19/241 tests run: 18 passed, 1 failed, 29 skipped
+        FAIL [   0.180s] ( 10/241) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+warning: 222/241 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+task: Failed to run task "test:session": exit status 100

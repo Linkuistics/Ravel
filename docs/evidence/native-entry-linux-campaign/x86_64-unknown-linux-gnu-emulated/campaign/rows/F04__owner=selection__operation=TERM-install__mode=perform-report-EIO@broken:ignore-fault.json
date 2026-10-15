@@ -1,0 +1,1 @@
+{"schema":1,"id":"F04__owner=selection__operation=TERM-install__mode=perform-report-EIO","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_f04_selection_handler_faults_fail_admission_with_the_partial_subset_owned","pid":13976,"note":"violation detected"}

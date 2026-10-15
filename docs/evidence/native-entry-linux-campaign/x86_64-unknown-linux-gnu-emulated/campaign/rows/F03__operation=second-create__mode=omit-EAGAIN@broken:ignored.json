@@ -1,0 +1,1 @@
+{"schema":1,"id":"F03__operation=second-create__mode=omit-EAGAIN","subject":"broken:ignored","conforms":false,"test":"worker::native_tests::native_f03_second_create","pid":15003,"note":"named claim no-managed-start; Ok(())"}

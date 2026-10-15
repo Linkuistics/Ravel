@@ -59,10 +59,27 @@ export_pristine() {
   git -C "$root" archive "$revision" | tar -x -C "$into"
 }
 
-# Fails unless the incumbent's worker is byte-for-byte the repaired tree's.
+# The one sanctioned difference inside worker_paths: k51 rewrote build.rs's `hex`
+# helper (same output for every byte, shown by
+# docs/evidence/native-entry-minimum-rust-lint-correction) so the repaired tree
+# lints clean at the declared minimum Rust. It is pinned as the SHA-256 of
+# `diff` (normal format, no timestamps) of the incumbent's file against the
+# repaired tree's, so any other edit to build.rs is still refused.
+build_rs=crates/ravel/build.rs
+build_rs_hex_rewrite_sha256=445d14e0f50ef010781b4ad0b6a984767151010d7fa46d49d80832ed28535706
+
+# Fails unless the incumbent's worker is the repaired tree's: byte for byte, but
+# for the one pinned difference in build.rs above.
 worker_identity() {
-  local pristine="$1" path
+  local pristine="$1" path seen
   for path in "${worker_paths[@]}"; do
+    if [ "$path" = "$build_rs" ]; then
+      if cmp -s "$pristine/$path" "$root/$path"; then continue; fi
+      seen="$({ diff "$pristine/$path" "$root/$path" || true; } | shasum -a 256 | cut -d' ' -f1)"
+      [ "$seen" = "$build_rs_hex_rewrite_sha256" ] ||
+        die "the incumbent's $path differs from the repaired tree by more than the pinned hex rewrite; its worker would have to be built separately"
+      continue
+    fi
     diff -r -x node_modules "$pristine/$path" "$root/$path" >/dev/null ||
       die "the incumbent's $path differs from the repaired tree; its worker would have to be built separately"
   done
@@ -252,6 +269,21 @@ cmd_selftest() {
     die "selftest: a different worker source was accepted"
   fi
   printf 'selftest ok   a worker source that differs from the repaired tree (rejected)\n'
+
+  # The pinned difference is exactly that: the unmodified incumbent passes, and
+  # the pinned difference plus any other build.rs edit does not.
+  export_pristine "$work/hexonly"
+  (worker_identity "$work/hexonly") ||
+    die "selftest: the incumbent's worker was refused although only the pinned hex rewrite differs"
+  printf 'selftest ok   the pinned hex rewrite alone (accepted)\n'
+  cp "$root/$build_rs" "$work/hexonly/$build_rs"
+  (worker_identity "$work/hexonly") ||
+    die "selftest: a build.rs identical to the repaired tree was refused"
+  printf '// changed\n' >>"$work/hexonly/$build_rs"
+  if (worker_identity "$work/hexonly") 2>/dev/null; then
+    die "selftest: a build.rs with a further edit was accepted"
+  fi
+  printf 'selftest ok   build.rs identical to the repaired tree (accepted) and with a further edit (rejected)\n'
 
   # An existing tree is never assembled into.
   if (assemble "$work/one") 2>/dev/null; then

@@ -1,0 +1,40 @@
+{
+  "id": "F06__operation=TERM-action-restore__mode=omit-EIO",
+  "family": "F06",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::baseline_faults_tests::native_baseline_f06_child_restoration_faults",
+    "note": "F06 TERM-action-restore: unmet [\"spawn-failed-before-any-Started\", \"actual-spawn-errno-EIO\"]; held [\"childs-site-record-with-terminal-handed-over\", \"terminal-returned-to-the-launcher\", \"modes-unchanged\", \"no-stray-child\"]; events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 chld_ignored=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal",
+      "note": "Row { line: \"events=[Started, Reaped] end=Exited code=Some(7) group=Gone records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0\", clean: true }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal",
+      "note": "F06 site=6 mode=2: failed=[] Row { line: \"events=[] error=\\\"cannot spawn \\\\\\\"/bin/sh\\\\\\\": Input/output error (os error 5); check that the program exists and is executable\\\" errno=Some(5) consumed=None records=[6, 4] stray=-1 stray_errno=Some(10) chld_nocldwait=0 int=runner term=runner hup=runner foreground_restored=1 modes_unchanged=1 pending_term=0 latch_before=0 latch_after=0\", clean: true }"
+    }
+  ],
+  "problems": []
+}

@@ -1,0 +1,9 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch --test start_check
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID 7b7b8cb3-8001-47b4-a8e1-a0f72d1e1900 with nextest profile: campaign-start
+    Starting 2 tests across 1 binary
+        PASS [   0.006s] (1/2) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.032s] (2/2) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+────────────
+     Summary [   0.032s] 2 tests run: 2 passed, 0 skipped

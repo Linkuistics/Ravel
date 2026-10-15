@@ -1,0 +1,60 @@
+{
+  "id": "E07__signals=TERM-then-HUP__boundary=runner-active",
+  "family": "E07",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::baseline_tests::native_baseline_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "note": "E07 { first_ack_latch: Some(15), second_ack_latch: Some(1), consumed_ack_latch: Some(1), outcome: \"ended interrupted=1\", clean: true, reported: [] }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:latch",
+      "conforms": false
+    },
+    {
+      "subject": "broken:guard",
+      "conforms": false
+    },
+    {
+      "subject": "broken:at-reap",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:at-reap",
+      "conforms": false,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: \"ended interrupted=1\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "broken:guard",
+      "conforms": false,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: \"ended interrupted=1\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "broken:latch",
+      "conforms": false,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(15), second_ack_latch: Some(1), consumed_ack_latch: Some(1), outcome: \"ended interrupted=1\", clean: true, reported: [] }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+      "note": "E07 { first_ack_latch: Some(15), second_ack_latch: Some(15), consumed_ack_latch: Some(1), outcome: \"ended interrupted=15\", clean: true, reported: [] }"
+    }
+  ],
+  "problems": []
+}

@@ -1,0 +1,40 @@
+{
+  "id": "E04__boundary=worker__state=private-default-SA_NOCLDWAIT",
+  "family": "E04",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "note": "raw_wait=1280 elapsed=654.77625ms worker=Some(Object {\"actualConfirmedReap\": Bool(false), \"errno\": Number(10), \"error\": String(\"No child processes (os error 10)\"), \"pid\": Number(61161)}) managed=None ending=None outcome=Some(Object {\"diagnostics\": Object {\"stderr\": String(\"\"), \"stdout\": String(\"\")}, \"error\": Object {\"code\": String(\"worker_failed\"), \"exit\": Number(5), \"message\": String(\"policy conversation completed, but required worker teardown failed\\npolicy worker /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmpyMITO2/libexec/ravel/ravel-policy (pid 61161): try_wait: No child processes (os error 10); wait: No child processes (os error 10); worker reap unconfirmed\\npolicy worker /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmpyMITO2/libexec/ravel/ravel-policy (pid 61161): kill: No such process (os error 3); wait: No child processes (os error 10); worker reap unconfirmed\\npolicy worker /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmpyMITO2/libexec/ravel/ravel-policy (pid 61161): wait: No child processes (os error 10); worker reap unconfirmed\"), \"remedy\": String(\"reinstall ravel so that its front and worker come from one build; in a source checkout, run `task worker`; inspect the named worker/OS operation before retrying; do not signal a PID that may have been reused; if private-directory removal failed, verify the owned path and remove it manually before retrying\"), \"source\": String(\"/private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/.tmpyMITO2/libexec/ravel/ravel-policy\"), \"stage\": String(\"worker\")}, \"schemaVersion\": Number(1)}) result=[] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:worker-watching",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:worker-watching",
+      "conforms": false,
+      "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+      "note": ""
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

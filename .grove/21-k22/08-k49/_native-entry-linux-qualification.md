@@ -139,3 +139,21 @@ carries the human choice the charter names for native x86_64.
 - **Digested documents.** The completion spec and the transition design carry
   status statements that are subjects of the campaign. Edit them before the
   freeze, never after, and state only what is measured.
+
+## Outcome (k52)
+
+The third child ran. After a first aarch64 run failed on the incumbent driver's
+worker-identity guard (k51's `hex` rewrite in `crates/ravel/build.rs`, the one
+difference, now pinned by the SHA-256 of its diff with controls), the three
+targets were measured from one tree: aarch64-apple-darwin 153 of 153 and equal to
+k43 receipt by receipt; aarch64-unknown-linux-gnu at Rust 1.85.0 natively 153 of
+153 (two platform rows), R01 310 of 310 through six tasks including `check`;
+x86_64-unknown-linux-gnu **emulated** 146 reconciled, 7 limited with reason and
+control, 74 protected identities that cannot run. Support is stated per target in
+the evidence note's k52 section; native x86_64 stays open in k53. The Done-when
+items are met: Rust 1.85 builds and lints, the matrix runs per target with the
+Linux-premise rows classified, the x86_64 remainder is its own requirements leaf
+(no narrowing, emulation not called qualification), R01 is joined per target, the
+spec and design are reconciled (before the freeze), and charges are recorded. The
+node's three children are terminal.
+

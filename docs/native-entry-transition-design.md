@@ -1,10 +1,12 @@
 # Checked native-entry transitions
 
 This is the selected design for the incumbent one-session launcher. It is
-implemented, with immutable receipts on Darwin arm64 only; the GNU Linux and
-minimum-Rust continuation is open. The
-[development evidence and exact remainder](native-entry-development-evidence.md)
-state each target's measured domain, receipts and limits. The [completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
+implemented and measured per target: aarch64-apple-darwin, aarch64 GNU Linux
+natively at the declared minimum Rust 1.85.0, and x86-64 GNU Linux under
+user-mode emulation, which is recorded as emulated and never as qualification. The
+[evidence note](native-entry-development-evidence.md) states each target's
+measured domain, receipts and limits; a native x86-64 kernel is the open
+`native-entry-x86-64-linux-scope`. The [completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
 owns the required behavior. C1–C4 retain their existing scoped receipts and the
 conditional C4 foreground/group-identity premises. A persistent runner that
 returns to arbitrary host work needs a separate contract.
@@ -139,16 +141,15 @@ b940084d7eb6a299eb4bfeb8e34901bc051e7ac4, aarch64-apple-darwin. K18's installed
 std startup/exec source read is retained. Both digests were rechecked unchanged:
 startup SHA-256 6c706c9a79d6a6ca3870a605800d7a74ba98cf41764c12cd4538a37812bba6aa;
 exec SHA-256 1c0f874f1835e5befa6e8bdd65450903f475248b525d3b7b5e1ce861311a21d0.
-Minimum Rust 1.85 and GNU Linux arm64 have since been executed in development
-(one kernel and glibc, recorded in the [evidence](native-entry-development-evidence.md))
-and GNU Linux x86-64 only under user-mode emulation; none has immutable
-receipts yet. No broader host, kernel, libc or toolchain support is established
-by this design.
+Minimum Rust 1.85.0 and GNU Linux arm64 are measured on one kernel and glibc,
+and GNU Linux x86-64 only under user-mode emulation, each as the
+[evidence note](native-entry-development-evidence.md) records. No broader host,
+kernel, libc or toolchain support is established by this design.
 
 ## Frozen discriminator manifest
 
 These are exact parameter families. Each has an instrument and an immutable
-baseline/broken/repaired receipt on Darwin arm64 (see the evidence note); the 153
+baseline/broken/repaired receipt per measured target (see the evidence note); the 153
 row identities are the same on every target, and where a kernel's premise
 differs the campaign plan carries a per-platform expectation with its reason.
 The producer froze their expansion before red/green, with one immutable row per
@@ -257,8 +258,8 @@ the D≤20 phase-closure reserve or declaring the native repair complete.
 ## Bounded error-settlement protocol
 
 This is the selected mechanism for the agreed failure contract. K28's draft
-implementation is runtime-qualified only on the target the evidence note names
-as having immutable receipts. Keep the approved Started
+implementation is runtime-qualified only on the targets, and only to the extent,
+the evidence note's receipts name. Keep the approved Started
 API and operation-reports amendment, T0–T8, first consumed cancellation and
 spawn-only errno classification. The callback io::Error remains the source;
 cleanup reports never replace it. No result or new admission follows a failure.
@@ -490,8 +491,8 @@ and price/fund/cut the next exact support remainder before the book. This
 handoff constructs/runs no product or behavioral control and changes no API,
 transition, parameter expansion or selected mechanism.
 
-Minimum Rust 1.85/Linux runtime qualification was outside this local repair
-price and is the open support continuation (see the evidence note); the
+Minimum Rust 1.85/Linux runtime measurement was outside this local repair
+price and is recorded in the evidence note as its own continuation; the
 returning-host contract remains a live obligation, and no phase closure is
 earned. Source support is Darwin-host design evidence, not execution
 of native cases. No product, fixtures or behavioral suite is built/run here.

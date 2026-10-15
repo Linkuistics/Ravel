@@ -1,0 +1,40 @@
+{
+  "id": "S02__operation=wait-EINTR-until-deadline",
+  "family": "S02",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "run::baseline_tests::native_baseline_s02_wait_eintr_until_deadline",
+    "note": "violated [\"absolute-deadline\", \"deadline-expiry-reported\", \"retries-reported\"]; Settled { text: \"cannot reap the exited child: Interrupted system call (os error 4)\", events: [Started], elapsed: 521.95275ms, physical_reaps: 0, signals_after_report: 0, spawn_errno: None }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:deadline",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:deadline",
+      "conforms": false,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "named claim absolute-deadline; violated [\"absolute-deadline\"]"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "[]"
+    }
+  ],
+  "problems": []
+}

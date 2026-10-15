@@ -1,0 +1,15 @@
+2026-10-15T15:22:42Z
+task: [test:native-linux] bash scripts/native-linux.sh campaign arm64 /Users/antony/Development/Ravel.simplify-and-componentize/target/k52/aarch64-linux-run2
+native-linux: ravel-native-linux-arm64 is up
+measure: signal-domain
+measure: emulation-probe
+measure: rust-minimum-version
+measure: rust-build
+measure: rust-clippy
+measure: rust-fmt
+measure: worker-setup
+measure: campaign
+measure: r01
+measure: complete; failed=0
+exit 0
+2026-10-15T15:26:50Z

@@ -1,0 +1,539 @@
+{
+  "in_scope": 310,
+  "ignored_fixtures_in_scope": 20,
+  "checked": 290,
+  "passed": 215,
+  "not_passed": [
+    {
+      "binary": "keyed-launch::confinement",
+      "test": "confined_child_and_descendants_cannot_read_or_write_outside_the_invocation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::confinement",
+      "test": "explicit_runtime_file_grant_allows_reads_but_denies_writes",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::launch",
+      "test": "the_child_sees_its_arg0_while_its_program_is_what_runs",
+      "status": "not-passed"
+    },
+    {
+      "binary": "keyed-launch::noninteractive",
+      "test": "a_confined_child_is_killed_at_once_on_cancellation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::bin/ravel",
+      "test": "partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+      "status": "not-passed"
+    },
+    {
+      "binary": "ravel::cli",
+      "test": "worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+      "status": "not-passed"
+    }
+  ],
+  "failure_lines": [
+    "        FAIL [   1.282s] ( 26/338) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+    "        FAIL [   1.715s] ( 34/338) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "        FAIL [   1.081s] ( 49/338) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation",
+    "        FAIL [   1.083s] ( 50/338) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes",
+    "        FAIL [   0.624s] ( 80/338) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs",
+    "        FAIL [   1.189s] ( 86/338) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation",
+    "        FAIL [   0.175s] (101/338) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+    "        FAIL [   0.176s] (111/338) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+    "        FAIL [   0.176s] (112/338) ravel::cli worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+    "        FAIL [   0.223s] (174/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean",
+    "        FAIL [   0.198s] (175/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove",
+    "        FAIL [   0.212s] (177/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean",
+    "        FAIL [   0.210s] (178/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove",
+    "        FAIL [   0.195s] (179/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move",
+    "        FAIL [   0.215s] (180/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace",
+    "        FAIL [   0.203s] (181/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink",
+    "        FAIL [   0.194s] (182/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown",
+    "        FAIL [   0.206s] (183/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean",
+    "        FAIL [   0.202s] (184/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove",
+    "        FAIL [   0.211s] (185/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation",
+    "        FAIL [   0.213s] (186/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean",
+    "        FAIL [   0.210s] (187/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove",
+    "        FAIL [   0.209s] (188/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean",
+    "        FAIL [   0.205s] (189/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove",
+    "        FAIL [   0.210s] (190/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success",
+    "        FAIL [   0.205s] (191/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move",
+    "        FAIL [   0.200s] (192/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove",
+    "        FAIL [   0.208s] (193/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace",
+    "        FAIL [   0.205s] (194/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink",
+    "        FAIL [   0.210s] (195/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown",
+    "        FAIL [   0.213s] (197/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined",
+    "        FAIL [   0.214s] (201/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup",
+    "        FAIL [   0.210s] (202/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int",
+    "        FAIL [   0.213s] (203/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late",
+    "        FAIL [   0.209s] (204/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term",
+    "        FAIL [   0.205s] (205/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean",
+    "        FAIL [   0.210s] (206/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove",
+    "        FAIL [   0.202s] (207/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean",
+    "        FAIL [   0.214s] (208/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean",
+    "        FAIL [   0.218s] (209/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove",
+    "        FAIL [   0.201s] (214/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean",
+    "        FAIL [   0.208s] (215/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove",
+    "        FAIL [   0.202s] (225/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front",
+    "        FAIL [   0.212s] (226/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean",
+    "        FAIL [   0.215s] (227/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean",
+    "        FAIL [   0.197s] (228/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove",
+    "        FAIL [   0.208s] (229/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean",
+    "        FAIL [   0.207s] (230/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove",
+    "        FAIL [   0.200s] (231/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean",
+    "        FAIL [   0.204s] (232/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove",
+    "        FAIL [   0.210s] (234/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate",
+    "        FAIL [   0.205s] (235/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait",
+    "        FAIL [   0.207s] (236/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait",
+    "        FAIL [   0.196s] (237/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait",
+    "        FAIL [   0.202s] (238/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait",
+    "        FAIL [   0.198s] (239/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait",
+    "        FAIL [   0.211s] (240/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean",
+    "        FAIL [   0.207s] (241/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove",
+    "        FAIL [   0.201s] (246/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait",
+    "        FAIL [   0.207s] (247/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait",
+    "        FAIL [   0.203s] (248/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait",
+    "        FAIL [   0.207s] (249/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait",
+    "        FAIL [   0.203s] (250/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait",
+    "        FAIL [   0.194s] (251/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait",
+    "        FAIL [   0.196s] (252/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait",
+    "        FAIL [   0.196s] (253/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait",
+    "        FAIL [   0.220s] (254/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait",
+    "        FAIL [   0.211s] (255/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait",
+    "        FAIL [   0.204s] (256/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean",
+    "        FAIL [   0.200s] (257/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove",
+    "        FAIL [   0.200s] (258/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean",
+    "        FAIL [   0.209s] (259/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove",
+    "        FAIL [   0.212s] (260/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait",
+    "        FAIL [   0.195s] (261/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait",
+    "        FAIL [   0.200s] (262/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait",
+    "        FAIL [   0.210s] (263/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait",
+    "        FAIL [   0.216s] (264/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait",
+    "        FAIL [   1.282s] ( 26/338) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails",
+    "        FAIL [   1.715s] ( 34/338) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery",
+    "        FAIL [   1.081s] ( 49/338) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation",
+    "        FAIL [   1.083s] ( 50/338) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes",
+    "        FAIL [   0.624s] ( 80/338) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs",
+    "        FAIL [   1.189s] ( 86/338) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation",
+    "        FAIL [   0.175s] (101/338) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy",
+    "        FAIL [   0.176s] (111/338) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure",
+    "        FAIL [   0.176s] (112/338) ravel::cli worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup",
+    "        FAIL [   0.223s] (174/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_clean",
+    "        FAIL [   0.198s] (175/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_canonical_remove",
+    "        FAIL [   0.212s] (177/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_clean",
+    "        FAIL [   0.210s] (178/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_identity_remove",
+    "        FAIL [   0.195s] (179/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_move",
+    "        FAIL [   0.215s] (180/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_replace",
+    "        FAIL [   0.203s] (181/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_symlink",
+    "        FAIL [   0.194s] (182/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_partial_unknown",
+    "        FAIL [   0.206s] (183/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_clean",
+    "        FAIL [   0.202s] (184/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_protected_remove",
+    "        FAIL [   0.211s] (185/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_real_runtime_validation",
+    "        FAIL [   0.213s] (186/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_clean",
+    "        FAIL [   0.210s] (187/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_runtime_remove",
+    "        FAIL [   0.209s] (188/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_clean",
+    "        FAIL [   0.205s] (189/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_temporary_remove",
+    "        FAIL [   0.210s] (190/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transfer_success",
+    "        FAIL [   0.205s] (191/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_move",
+    "        FAIL [   0.200s] (192/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_remove",
+    "        FAIL [   0.208s] (193/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_replace",
+    "        FAIL [   0.205s] (194/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_symlink",
+    "        FAIL [   0.210s] (195/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_confined_transferred_unknown",
+    "        FAIL [   0.213s] (197/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_nofault_confined",
+    "        FAIL [   0.214s] (201/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_hup",
+    "        FAIL [   0.210s] (202/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_int",
+    "        FAIL [   0.213s] (203/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_late",
+    "        FAIL [   0.209s] (204/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_cancellation_term",
+    "        FAIL [   0.205s] (205/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_clean",
+    "        FAIL [   0.210s] (206/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_channel_remove",
+    "        FAIL [   0.202s] (207/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_create_clean",
+    "        FAIL [   0.214s] (208/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_clean",
+    "        FAIL [   0.218s] (209/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_identity_remove",
+    "        FAIL [   0.201s] (214/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_clean",
+    "        FAIL [   0.208s] (215/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_session_reader_remove",
+    "        FAIL [   0.202s] (225/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_cleanup_gate_front",
+    "        FAIL [   0.212s] (226/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_create_clean",
+    "        FAIL [   0.215s] (227/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_clean",
+    "        FAIL [   0.197s] (228/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_descriptors_remove",
+    "        FAIL [   0.208s] (229/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_clean",
+    "        FAIL [   0.207s] (230/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_duplicate_remove",
+    "        FAIL [   0.200s] (231/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_clean",
+    "        FAIL [   0.204s] (232/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_identity_remove",
+    "        FAIL [   0.210s] (234/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_nonzero_cleanup_gate",
+    "        FAIL [   0.205s] (235/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_hup_wait",
+    "        FAIL [   0.207s] (236/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_int_wait",
+    "        FAIL [   0.196s] (237/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_cancel_term_wait",
+    "        FAIL [   0.202s] (238/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_remove_wait",
+    "        FAIL [   0.198s] (239/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_overflow_unknown_wait",
+    "        FAIL [   0.211s] (240/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_clean",
+    "        FAIL [   0.207s] (241/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_pair_remove",
+    "        FAIL [   0.201s] (246/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_hup_wait",
+    "        FAIL [   0.207s] (247/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_int_wait",
+    "        FAIL [   0.203s] (248/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_cancel_term_wait",
+    "        FAIL [   0.207s] (249/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_remove_wait",
+    "        FAIL [   0.203s] (250/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_protocol_unknown_wait",
+    "        FAIL [   0.194s] (251/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_hup_wait",
+    "        FAIL [   0.196s] (252/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_int_wait",
+    "        FAIL [   0.196s] (253/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_cancel_term_wait",
+    "        FAIL [   0.220s] (254/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_remove_wait",
+    "        FAIL [   0.211s] (255/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_refusal_unknown_wait",
+    "        FAIL [   0.204s] (256/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_clean",
+    "        FAIL [   0.200s] (257/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_missing_remove",
+    "        FAIL [   0.200s] (258/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_clean",
+    "        FAIL [   0.209s] (259/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_spawn_other_remove",
+    "        FAIL [   0.212s] (260/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_hup_wait",
+    "        FAIL [   0.195s] (261/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_int_wait",
+    "        FAIL [   0.200s] (262/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_cancel_term_wait",
+    "        FAIL [   0.210s] (263/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_remove_wait",
+    "        FAIL [   0.216s] (264/338) ravel::bin/ravel partial_acquisition_tests::partial_acquisition_cleanup_worker_timeout_unknown_wait"
+  ]
+}

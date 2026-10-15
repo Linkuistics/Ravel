@@ -1,0 +1,1 @@
+{"schema":1,"id":"S02__operation=wait-ECHILD","subject":"baseline","conforms":true,"test":"run::baseline_tests::native_baseline_s02_wait_echild","pid":11775,"note":"violated []; Settled { text: \"cannot reap the exited child: No child processes (os error 10)\", events: [Started], elapsed: 521.268834ms, physical_reaps: 0, signals_after_report: 0, spawn_errno: None }"}

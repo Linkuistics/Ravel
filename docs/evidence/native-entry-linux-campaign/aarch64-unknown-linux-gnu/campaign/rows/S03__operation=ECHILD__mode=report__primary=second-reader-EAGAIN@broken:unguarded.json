@@ -1,0 +1,1 @@
+{"schema":1,"id":"S03__operation=ECHILD__mode=report__primary=second-reader-EAGAIN","subject":"broken:unguarded","conforms":false,"test":"worker::native_tests::native_s03_poll_echild","pid":10558,"note":"named claim product signalled after reported ECHILD; Ok(())"}

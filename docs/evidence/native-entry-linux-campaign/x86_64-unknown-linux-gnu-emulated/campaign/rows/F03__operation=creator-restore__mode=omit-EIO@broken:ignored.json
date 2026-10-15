@@ -1,0 +1,1 @@
+{"schema":1,"id":"F03__operation=creator-restore__mode=omit-EIO","subject":"broken:ignored","conforms":false,"test":"worker::native_tests::native_f03_restore_omitted","pid":14819,"note":"named claim no-managed-start; Ok(())"}

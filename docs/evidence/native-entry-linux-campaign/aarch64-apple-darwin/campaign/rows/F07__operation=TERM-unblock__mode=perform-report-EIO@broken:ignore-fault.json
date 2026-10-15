@@ -1,0 +1,1 @@
+{"schema":1,"id":"F07__operation=TERM-unblock__mode=perform-report-EIO","subject":"broken:ignore-fault","conforms":false,"test":"cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death","pid":58216,"note":"unblock-performed"}

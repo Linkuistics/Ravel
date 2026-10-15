@@ -13,6 +13,11 @@ The development evidence is in `docs/native-entry-development-evidence.md`,
 x86_64-unknown-linux-gnu under QEMU user-mode emulation on an aarch64 Linux
 kernel, with the pinned QEMU and the guest base the release smoke documents. It
 builds and runs, and 146 of 153 matrix rows reconcile to the Linux expectations.
+k52's immutable emulated run reproduced those numbers exactly (146 reconciled, 7
+limited with reason and control, 74 protected identities that cannot run); the
+receipts are under `docs/evidence/native-entry-linux-campaign/
+x86_64-unknown-linux-gnu-emulated/` and the argument is in the evidence note's
+k52 section.
 It **cannot** qualify an x86-64 kernel, for reasons that are properties of the
 emulator and are measured:
 

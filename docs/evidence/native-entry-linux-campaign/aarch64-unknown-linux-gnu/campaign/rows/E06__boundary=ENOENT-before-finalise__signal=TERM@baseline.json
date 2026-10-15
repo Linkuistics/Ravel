@@ -1,0 +1,1 @@
+{"schema":1,"id":"E06__boundary=ENOENT-before-finalise__signal=TERM","subject":"baseline","conforms":true,"test":"native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation","pid":12052,"note":"Axes { controller: true, cancelled: true, zero_result: true, boundary: true }"}

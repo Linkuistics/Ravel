@@ -1,0 +1,30 @@
+{
+  "id": "E04__boundary=raw-executable-entry__state=Darwin-flag-reachability",
+  "family": "E04",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": false,
+  "reason": "Observation of whether the flag reaches executable entry; no repair is claimed and no mutant exists. The measured flag state is in the record's note.",
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "native_entry_tests::baseline::native_baseline_e04_private_flag_boundaries_and_raw_entry",
+    "note": "raw SIGCHLD flags 0; SA_NOCLDWAIT reached the executable entry: false; raw_wait=0 elapsed=91.066125ms worker=None managed=None ending=None outcome=None result=[] seams=[]",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    }
+  ],
+  "observed": [
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_e04_private_flag_boundaries_and_separate_exec_reachability",
+      "note": "raw SIGCHLD flags 0; SA_NOCLDWAIT reached the executable entry: false"
+    }
+  ],
+  "problems": []
+}

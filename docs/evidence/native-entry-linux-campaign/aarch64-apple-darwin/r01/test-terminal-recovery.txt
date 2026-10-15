@@ -1,0 +1,483 @@
+task: [test:terminal-recovery] bash scripts/terminal-recovery-check.sh
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID cbf8b0c9-afa0-4bc7-9177-e0fa2f0704d3 with nextest profile: default
+    Starting 6 tests across 9 binaries (108 tests skipped)
+       START [         ] (1/6) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+
+running 1 test
+C4 case=query broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 query: own=69649 parent_observed_handoff=Some(69650) after=69649 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 query: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516166) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing terminal foreground query: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=handback broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 handback: own=69651 parent_observed_handoff=Some(69652) after=69651 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 handback: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516172) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing terminal handback: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=modes broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 modes: own=69653 parent_observed_handoff=Some(69654) after=69653 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 modes: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516178) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing terminal mode restoration: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=ttou broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 ttou: own=69655 parent_observed_handoff=Some(69656) after=69655 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 ttou: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516184) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing temporary SIGTTOU restoration: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=combined broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 combined: own=69657 parent_observed_handoff=Some(69658) after=69657 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 combined: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516190) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing terminal handback: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=cancel broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 cancel: own=69659 parent_observed_handoff=Some(69660) after=69659 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 cancel: recorded direct child is no longer waitable (ECHILD); runner events remain []
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516196) panicked at crates/keyed-launch/src/run/terminal_tests.rs:720:17:
+missing terminal handback: cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=success-fault broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 success-fault: own=69661 parent_observed_handoff=Some(69662) after=69661 modes_restored=true events=[Started, Reaped] result=Ok(Ended { operation_reports: ["stop attempt 1 target -69662 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69662 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(0)), elapsed: 522.933333ms, signalled: false, group: Gone })
+C4 success-fault: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516202) panicked at crates/keyed-launch/src/run/terminal_tests.rs:681:28:
+called `Result::unwrap_err()` on an `Ok` value: Ended { operation_reports: ["stop attempt 1 target -69662 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69662 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(0)), elapsed: 522.933333ms, signalled: false, group: Gone }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.53s
+
+
+C4 case=success-fds broken=Some("1"): 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... 
+thread 'run::terminal_tests::terminal_recovery_role' (3516307) panicked at crates/keyed-launch/src/run/terminal_tests.rs:299:9:
+attempt pipe descriptor leaked into exec: 12:0:11711891114712492426
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+C4 success-fds: own=69691 parent_observed_handoff=Some(69692) after=69691 modes_restored=true events=[Started, Reaped] result=Ok(Ended { operation_reports: ["stop attempt 1 target -69692 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69692 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(25856)), elapsed: 530.908959ms, signalled: false, group: Gone })
+C4 success-fds: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+
+thread 'run::terminal_tests::terminal_recovery_role' (3516301) panicked at crates/keyed-launch/src/run/terminal_tests.rs:679:9:
+assertion failed: result.unwrap().status.success()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    run::terminal_tests::terminal_recovery_role
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.53s
+
+
+test run::terminal_tests::terminal_recovery_controls_detect_discarded_reports ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 1.13s
+
+        PASS [   1.133s] (1/6) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+       START [         ] (2/6) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+
+running 1 test
+C4 case=missing broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 missing: own=69697 parent_observed_handoff=Some(69698) after=69697 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+C4 missing: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+test run::terminal_tests::terminal_recovery_failed_exec_restores_foreground ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.01s
+
+        PASS [   0.028s] (2/6) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+       START [         ] (3/6) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+
+running 1 test
+test run::terminal_tests::terminal_recovery_record_validation_is_bounded ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+        PASS [   0.009s] (3/6) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+       START [         ] (4/6) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+
+running 1 test
+C4 case=before broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 before: own=69701 parent_observed_handoff=None after=69701 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Permission denied (os error 13); check that the program exists and is executable; terminal attempted-group record missing or malformed; recovery unconfirmed; terminal attempt ownership missing; recovery unconfirmed)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=bad-record broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 bad-record: own=69703 parent_observed_handoff=None after=69703 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Bad file descriptor (os error 9); check that the program exists and is executable; terminal attempted-group record missing or malformed; recovery unconfirmed; terminal attempt ownership missing; recovery unconfirmed)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=malformed broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 malformed: own=69705 parent_observed_handoff=Some(69706) after=69706 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal attempted-group record has invalid group; recovery unconfirmed; terminal attempt ownership missing; recovery unconfirmed; terminal held by unrelated foreground group 69706; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored)
+C4 malformed: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=handoff-failure broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 handoff-failure: own=69707 parent_observed_handoff=None after=69707 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Bad file descriptor (os error 9); check that the program exists and is executable)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=pipe-failure broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 pipe-failure: own=69709 parent_observed_handoff=None after=69709 modes_restored=true events=[] result=Err(cannot prepare terminal attempted-group pipe: Too many open files (os error 24))
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=background broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 background: own=69710 parent_observed_handoff=None after=69711 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=foreign broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 foreign: own=69713 parent_observed_handoff=Some(69715) after=69714 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal held by unrelated foreground group 69714; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored)
+C4 foreign: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=controller-failure broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... 
+thread '<unnamed>' (3516391) panicked at crates/keyed-launch/src/run/terminal_tests.rs:512:17:
+deliberate controller failure
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+C4 controller-failure: own=69716 parent_observed_handoff=Some(69718) after=69717 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Input/output error (os error 5); check that the program exists and is executable; terminal held by unrelated foreground group 69717; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored)
+C4 controller-failure: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=barrier-timeout broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 barrier-timeout: own=69719 parent_observed_handoff=Some(69721) after=69720 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Operation timed out (os error 60); check that the program exists and is executable; terminal held by unrelated foreground group 69720; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored)
+C4 barrier-timeout: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.40s
+
+
+C4 case=fixture-timeout broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 fixture-timeout: own=69722 parent_observed_handoff=Some(69724) after=69723 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": Input/output error (os error 5); check that the program exists and is executable; terminal held by unrelated foreground group 69723; preserved; foreground and saved-mode recovery unconfirmed; terminal handback unconfirmed; saved modes not restored)
+C4 fixture-timeout: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.01s
+
+
+C4 case=query broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 query: own=69725 parent_observed_handoff=Some(69726) after=69726 modes_restored=false events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal foreground query failed: C4 substituted terminal foreground query report after physical operation)
+C4 query: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=handback broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 handback: own=69727 parent_observed_handoff=Some(69728) after=69727 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal handback failed: C4 substituted terminal handback report after physical operation)
+C4 handback: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=modes broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 modes: own=69729 parent_observed_handoff=Some(69730) after=69729 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation)
+C4 modes: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=ttou broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 ttou: own=69731 parent_observed_handoff=Some(69732) after=69731 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation)
+C4 ttou: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=combined broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 combined: own=69733 parent_observed_handoff=Some(69734) after=69733 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal handback failed: C4 substituted terminal handback report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation)
+C4 combined: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=cancel broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 cancel: own=69735 parent_observed_handoff=Some(69736) after=69735 modes_restored=true events=[] result=Err(cannot spawn "/ravel-c4-missing-program": No such file or directory (os error 2); check that the program exists and is executable; terminal handback failed: C4 substituted terminal handback report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation)
+C4 cancel: recorded direct child is no longer waitable (ECHILD); runner events remain []
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+
+C4 case=success broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 success: own=69737 parent_observed_handoff=Some(69738) after=69737 modes_restored=true events=[Started, Reaped] result=Ok(Ended { operation_reports: ["stop attempt 1 target -69738 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69738 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(0)), elapsed: 532.497166ms, signalled: false, group: Gone })
+C4 success: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.54s
+
+
+C4 case=success-fault broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 success-fault: own=69739 parent_observed_handoff=Some(69740) after=69739 modes_restored=true events=[Started, Reaped] result=Err(terminal handback failed: C4 substituted terminal handback report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; stop attempt 1 target -69740 signal 9: Operation not permitted (os error 1); stop attempt 2 target -69740 signal 9: Operation not permitted (os error 1))
+C4 success-fault: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.53s
+
+
+C4 case=success-cancel-fault broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 success-cancel-fault: own=69769 parent_observed_handoff=Some(69770) after=69769 modes_restored=true events=[Started, Reaped] result=Err(required job stop failed; stop attempt 3 target -69770 signal 9: Operation not permitted (os error 1); stop attempt 5 target -69770 signal 9: Operation not permitted (os error 1); and reaped; terminal handback failed: C4 substituted terminal handback report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation; terminal mode restoration failed: C4 substituted terminal mode restoration report after physical operation; temporary SIGTTOU restoration failed: C4 substituted temporary SIGTTOU restoration report after physical operation)
+C4 success-cancel-fault: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
+
+C4 case=success-fds broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 exec: both attempted-group and all four barrier pipe descriptors closed across exec
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+C4 success-fds: own=69771 parent_observed_handoff=Some(69772) after=69771 modes_restored=true events=[Started, Reaped] result=Ok(Ended { operation_reports: ["stop attempt 1 target -69772 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69772 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(0)), elapsed: 525.585125ms, signalled: false, group: Gone })
+C4 success-fds: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.53s
+
+
+C4 case=signal-death broken=None: 
+running 1 test
+test run::terminal_tests::terminal_recovery_role ... C4 signal-death: own=69773 parent_observed_handoff=Some(69774) after=69773 modes_restored=true events=[Started, Reaped] result=Ok(Ended { operation_reports: ["stop attempt 1 target -69774 signal 9: Operation not permitted (os error 1)", "stop attempt 2 target -69774 signal 9: Operation not permitted (os error 1)"], end: Exited, status: ExitStatus(unix_wait_status(2)), elapsed: 23.941584ms, signalled: false, group: Gone })
+C4 signal-death: recorded direct child is no longer waitable (ECHILD); runner events remain [Started, Reaped]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.03s
+
+
+test run::terminal_tests::terminal_recovery_reports_and_controls ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 2.30s
+
+        PASS [   2.309s] (4/6) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+       START [         ] (5/6) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+
+running 1 test
+test run::terminal_tests::terminal_recovery_retains_lending_query_failure ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+        PASS [   0.013s] (5/6) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+       START [         ] (6/6) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+
+running 1 test
+test run::terminal_tests::terminal_recovery_without_terminal_has_no_lease ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+        PASS [   0.013s] (6/6) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+────────────
+     Summary [   3.506s] 6 tests run: 6 passed, 108 skipped
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+────────────
+ Nextest run ID fa18d292-c2ce-4784-91e6-8ba1fcb0359d with nextest profile: default
+    Starting 1 test across 1 binary (223 tests skipped)
+       START [         ] (1/1) ravel::bin/ravel run::tests::terminal_recovery_consumes_pty_receipts
+
+running 1 test
+C4 front missing: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front missing: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front missing: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front before: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front before: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front before: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front bad-record: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front bad-record: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front bad-record: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front malformed: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front malformed: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front malformed: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front handoff-failure: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front handoff-failure: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front handoff-failure: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front pipe-failure: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front pipe-failure: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front pipe-failure: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front background: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front background: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front background: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front foreign: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front foreign: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front foreign: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front query: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front query: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front query: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front handback: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front handback: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front handback: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front modes: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front modes: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front modes: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front ttou: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front ttou: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front ttou: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front combined: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front combined: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front combined: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front cancel: front=None late=None selected=Some(Signal { number: 1, name: "SIGHUP" }); exact runner message and four outer reports retained; no ending/result
+C4 front cancel: front=None late=Some(15) selected=Some(Signal { number: 1, name: "SIGHUP" }); exact runner message and four outer reports retained; no ending/result
+C4 front cancel: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front success-fault: front=None late=None selected=None; exact runner message and four outer reports retained; no ending/result
+C4 front success-fault: front=None late=Some(15) selected=Some(Signal { number: 15, name: "SIGTERM" }); exact runner message and four outer reports retained; no ending/result
+C4 front success-fault: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front success-cancel-fault: front=None late=None selected=Some(Signal { number: 1, name: "SIGHUP" }); exact runner message and four outer reports retained; no ending/result
+C4 front success-cancel-fault: front=None late=Some(15) selected=Some(Signal { number: 1, name: "SIGHUP" }); exact runner message and four outer reports retained; no ending/result
+C4 front success-cancel-fault: front=Some(2) late=Some(15) selected=Some(Signal { number: 2, name: "SIGINT" }); exact runner message and four outer reports retained; no ending/result
+C4 front success: actual runner status exit status: 0; no publication refuses; no invented launcher cancellation
+C4 front success-fds: actual runner status exit status: 0; no publication refuses; no invented launcher cancellation
+C4 front signal-death: actual runner status signal: 2 (SIGINT); no publication refuses; no invented launcher cancellation
+test run::tests::terminal_recovery_consumes_pty_receipts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in 0.00s
+
+        PASS [   0.008s] (1/1) ravel::bin/ravel run::tests::terminal_recovery_consumes_pty_receipts
+────────────
+     Summary [   0.009s] 1 test run: 1 passed, 223 skipped

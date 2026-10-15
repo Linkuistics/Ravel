@@ -1,0 +1,20 @@
+task: [test:cli] cargo nextest run --locked -p ravel --test cli 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+────────────
+ Nextest run ID efcab7d8-006a-4eaa-bc0a-32b84747305b with nextest profile: default
+    Starting 13 tests across 1 binary (1 test skipped)
+        PASS [   0.008s] ( 1/13) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.006s] ( 2/13) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   0.023s] ( 3/13) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   0.021s] ( 4/13) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure
+        PASS [   0.042s] ( 5/13) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   0.020s] ( 6/13) ravel::cli worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup
+        PASS [   0.552s] ( 7/13) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   0.565s] ( 8/13) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   0.688s] ( 9/13) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        PASS [   1.036s] (10/13) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.038s] (11/13) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.067s] (12/13) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   2.755s] (13/13) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+────────────
+     Summary [   2.756s] 13 tests run: 13 passed, 1 skipped

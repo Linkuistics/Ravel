@@ -1,0 +1,1 @@
+{"schema":1,"id":"E01__signal=INT__disposition=ignore__mask=blocked","subject":"broken:capture","conforms":false,"test":"native_entry_tests::native_e01_entry_state_and_independent_capture_reinstatement_controls","pid":58227,"note":""}

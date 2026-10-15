@@ -1,0 +1,1 @@
+{"schema":1,"id":"E02__signal=HUP__pending=yes","subject":"repaired","conforms":true,"test":"native_entry_tests::native_e02_entry_blocked_pending_is_not_cancellation","pid":13569,"note":""}

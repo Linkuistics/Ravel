@@ -1,0 +1,40 @@
+{
+  "id": "F03__operation=first-create__mode=omit-EAGAIN",
+  "family": "F03",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "worker::native_tests::native_baseline_f03_reader_shield_creation_and_restore_faults",
+    "note": "unmet [\"reader-admission-failure-reported\", \"worker-identity-reported\", \"creation-failure-retained\"]; held [\"no-managed-start\", \"no-result-written\"]; exit exit status: 101; managed_started=false; orphaned_worker_survived=false; elapsed 98.618584ms; native baseline F03: the first reader creation is refused (EAGAIN)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignored",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignored",
+      "conforms": false,
+      "test": "worker::native_tests::native_f03_first_create",
+      "note": "named claim no-managed-start; Ok(())"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "worker::native_tests::native_f03_first_create",
+      "note": "first-create"
+    }
+  ],
+  "problems": []
+}

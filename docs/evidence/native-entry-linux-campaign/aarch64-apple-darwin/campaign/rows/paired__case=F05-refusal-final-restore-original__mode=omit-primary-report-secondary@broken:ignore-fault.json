@@ -1,0 +1,1 @@
+{"schema":1,"id":"paired__case=F05-refusal-final-restore-original__mode=omit-primary-report-secondary","subject":"broken:ignore-fault","conforms":false,"test":"native_entry_tests::native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure","pid":58486,"note":"violation detected"}

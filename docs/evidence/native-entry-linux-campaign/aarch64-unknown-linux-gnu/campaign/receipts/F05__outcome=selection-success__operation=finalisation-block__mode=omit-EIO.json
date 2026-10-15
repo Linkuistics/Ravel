@@ -1,0 +1,39 @@
+{
+  "id": "F05__outcome=selection-success__operation=finalisation-block__mode=omit-EIO",
+  "family": "F05",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "The row faults one operation of the repaired common finalisation's signal snapshot: the final handled-signal block, the pending-set query behind it, or the TERM membership read of that set, taken after the work and before the mask is released. The incumbent has no such snapshot: its only block and pending query are the pre-launch `block_and_check`, before the managed child exists, and its finalisation restores the mask directly. The same fixture selecting each of these sites on the incumbent reaches none of them, on all three outcomes, and the launch runs to its end.",
+    "missing": "a final handled-signal block with a pending query and TERM membership read before the finalisation mask release",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

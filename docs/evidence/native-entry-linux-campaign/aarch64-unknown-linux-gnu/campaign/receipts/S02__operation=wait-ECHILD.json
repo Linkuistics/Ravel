@@ -1,0 +1,40 @@
+{
+  "id": "S02__operation=wait-ECHILD",
+  "family": "S02",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "already-correct",
+    "conforms": true,
+    "test": "run::baseline_tests::native_baseline_s02_wait_echild",
+    "note": "violated []; Settled { text: \"cannot reap the exited child: No child processes (os error 10)\", events: [Started], elapsed: 521.268834ms, physical_reaps: 0, signals_after_report: 0, spawn_errno: None }",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:identity",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:identity",
+      "conforms": false,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "named claim loss-does-not-wait-out-deadline; violated [\"no-signal-after-release\", \"ownership-loss-reported\", \"loss-does-not-wait-out-deadline\"]"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership",
+      "note": "[]"
+    }
+  ],
+  "problems": []
+}

@@ -1,0 +1,39 @@
+{
+  "id": "F05__outcome=policy-refusal__operation=final-mask-restore__mode=omit-EIO",
+  "family": "F05",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "On a policy refusal the incumbent settles the selection failure without restoring the signal mask at all: its handled signals are blocked only by the pre-launch `block_and_check`, which a refusal never reaches, so the final mask restore the row faults is not performed on this path. The same fixture selecting the site on a refusal reaches nothing and ends with the refusal's own exit 3, and it reaches the same site on the spawn-ENOENT path (hosted).",
+    "missing": "a final signal-mask restore on the selection-refusal path (the incumbent neither blocks nor restores the mask there)",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": "violation detected"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f05_finalisation_failures_keep_the_original_and_never_write_a_result",
+      "note": ""
+    }
+  ],
+  "problems": []
+}

@@ -1,0 +1,1 @@
+{"schema":1,"id":"E06__boundary=Started-before-mask-restore__signal=INT","subject":"baseline","conforms":true,"test":"native_entry_tests::baseline::native_baseline_e06_boundaries_join_cancellation","pid":18039,"note":"Axes { controller: true, cancelled: true, zero_result: true, boundary: true }"}

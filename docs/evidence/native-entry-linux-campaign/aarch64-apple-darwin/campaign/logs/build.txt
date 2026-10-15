@@ -1,0 +1,3 @@
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.xMvISl
+task: [native-entry:build] cargo rustc --locked -p ravel --bin ravel --profile dev --features native-faults --target-dir target/native-entry-fixture -- --cfg test -A unused
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s

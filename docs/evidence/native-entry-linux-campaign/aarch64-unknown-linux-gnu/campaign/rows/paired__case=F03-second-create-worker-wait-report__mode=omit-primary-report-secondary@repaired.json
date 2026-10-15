@@ -1,0 +1,1 @@
+{"schema":1,"id":"paired__case=F03-second-create-worker-wait-report__mode=omit-primary-report-secondary","subject":"repaired","conforms":true,"test":"worker::native_tests::native_paired_f03_second_create_keeps_the_worker_wait_report","pid":10453,"note":"paired-second-create-poll-EIO"}

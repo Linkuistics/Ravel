@@ -1,0 +1,39 @@
+{
+  "id": "F02__boundary=worker__operation=watch-action-query__mode=report-EIO",
+  "family": "F02",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "rejected-premise",
+    "reason": "The row faults the worker-side watching establishment (the SIGCHLD action query, or the default-action repair that clears default plus no-child-wait) before the worker is spawned. The incumbent's worker admission performs neither: its worker module never names SIGCHLD, so under the row's state the worker is spawned and later waited unwatched. The same fixture selecting each of the three sites on the incumbent reaches none of them and the worker is admitted; the failure that absence causes (ECHILD at the worker's wait) is E04's worker row, already recorded.",
+    "missing": "worker-side child-watching establishment: a SIGCHLD action query and a default-action repair before the worker is spawned",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:ignore-fault",
+      "conforms": false,
+      "test": "native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker",
+      "note": "Refused { controller: true, failed: true, zero_result: true, code: true, text: false, no_worker: false, no_managed: true, site: true }"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "native_entry_tests::native_f02_worker_watching_faults_refuse_before_any_worker",
+      "note": "Refused { controller: true, failed: true, zero_result: true, code: true, text: true, no_worker: true, no_managed: true, site: true } state_ok=true"
+    }
+  ],
+  "problems": []
+}

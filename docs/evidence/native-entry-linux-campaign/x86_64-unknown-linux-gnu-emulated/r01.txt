@@ -1,0 +1,12 @@
+{"total":310,"preserved":310,"new_identities":74,"not_preserved":0}
+native-r01: test:cli exited 201
+{"in_scope":14,"ignored_fixtures_in_scope":1,"checked":13,"passed":9,"not_passed":4,"failure_lines":2}
+native-r01: test:session exited 201
+{"in_scope":227,"ignored_fixtures_in_scope":8,"checked":219,"passed":18,"not_passed":201,"failure_lines":2}
+native-r01: test:runner exited 201
+{"in_scope":83,"ignored_fixtures_in_scope":12,"checked":71,"passed":11,"not_passed":60,"failure_lines":4}
+native-r01: test:terminal-recovery exited 0
+native-r01: test exited 201
+{"in_scope":310,"ignored_fixtures_in_scope":20,"checked":290,"passed":12,"not_passed":278,"failure_lines":4}
+native-r01: check exited 201
+{"in_scope":310,"ignored_fixtures_in_scope":20,"checked":290,"passed":12,"not_passed":278,"failure_lines":4}

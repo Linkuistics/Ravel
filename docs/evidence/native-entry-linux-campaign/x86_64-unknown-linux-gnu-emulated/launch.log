@@ -1,0 +1,19 @@
+2026-10-15T15:26:59Z
+task: [test:native-linux] bash scripts/native-linux.sh campaign amd64 /Users/antony/Development/Ravel.simplify-and-componentize/target/k52/x86_64-linux-emulated
+native-linux-qemu: userland unpacked; qemu-x86_64 version 10.2.3 (v10.2.3), -cpu Nehalem
+native-linux-qemu: guest address space below 0x800000000000, with a vDSO, under -cpu Nehalem
+native-linux: ravel-native-linux-amd64 is up
+measure: signal-domain
+measure: emulation-probe
+measure: rust-minimum-version
+measure: rust-build
+measure: rust-clippy
+measure: rust-fmt
+measure: worker-setup
+measure: campaign
+measure: r01
+measure: r01 exited 1
+measure: complete; failed=1
+task: Failed to run task "test:native-linux": exit status 1
+exit 201
+2026-10-15T15:39:04Z

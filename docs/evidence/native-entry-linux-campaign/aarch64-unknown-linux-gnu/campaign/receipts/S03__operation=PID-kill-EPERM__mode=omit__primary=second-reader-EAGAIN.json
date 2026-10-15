@@ -1,0 +1,40 @@
+{
+  "id": "S03__operation=PID-kill-EPERM__mode=omit__primary=second-reader-EAGAIN",
+  "family": "S03",
+  "status": "reconciled",
+  "limit": null,
+  "failing_broken_detected": true,
+  "reason": null,
+  "baseline": {
+    "class": "fails",
+    "conforms": false,
+    "test": "worker::native_tests::native_baseline_s03_second_reader_creation_failure_with_a_secondary_fault",
+    "note": "unmet [\"reader-admission-failure-reported\", \"worker-identity-reported\", \"original-creation-failure-retained\", \"kill-report-retained\"]; held [\"no-managed-start\", \"result-stdout-empty\"]; exit exit status: 101; teardown_ran=false; secondary_reached=false; orphaned_worker_survived=false; the incumbent's thread::spawn panicked at the second reader and no failure was reported; elapsed 5.783125ms",
+    "problems": []
+  },
+  "expected": [
+    {
+      "subject": "repaired",
+      "conforms": true
+    },
+    {
+      "subject": "broken:dropped",
+      "conforms": false
+    }
+  ],
+  "observed": [
+    {
+      "subject": "broken:dropped",
+      "conforms": false,
+      "test": "worker::native_tests::native_s03_kill_omitted",
+      "note": "named claim kill-report-retained; Ok(())"
+    },
+    {
+      "subject": "repaired",
+      "conforms": true,
+      "test": "worker::native_tests::native_s03_kill_omitted",
+      "note": "kill-omitted"
+    }
+  ],
+  "problems": []
+}

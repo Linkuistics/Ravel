@@ -1,0 +1,19 @@
+== docs/evidence/native-entry-linux-campaign/aarch64-apple-darwin/campaign
+receipts: k43 153, target 153, same names True, differing 0
+rows: k43 450, target 450, same names True, differing 0
+== docs/evidence/native-entry-linux-campaign/aarch64-unknown-linux-gnu/campaign
+receipts: k43 153, target 153, same names True, differing 2
+  E03__disposition=ignore: baseline,expected,failing_broken_detected,observed,reason (status reconciled)
+  E04__boundary=raw-executable-entry__state=Darwin-flag-reachability: reason (status reconciled)
+rows: k43 450, target 450, same names True, differing 2
+== docs/evidence/native-entry-linux-campaign/x86_64-unknown-linux-gnu-emulated/campaign
+receipts: k43 153, target 153, same names True, differing 8
+  E03__disposition=ignore: baseline,expected,failing_broken_detected,observed,reason (status reconciled)
+  E04__boundary=managed__state=private-default-SA_NOCLDWAIT: baseline,observed,problems,status (status emulation-limited)
+  E04__boundary=raw-executable-entry__state=Darwin-flag-reachability: observed,problems,reason,status (status emulation-limited)
+  E04__boundary=worker__state=private-default-SA_NOCLDWAIT: baseline,observed,problems,status (status emulation-limited)
+  E07__signals=HUP-then-INT__boundary=runner-active: observed,problems,status (status emulation-limited)
+  E07__signals=HUP-then-INT__boundary=runner-wait-error: observed,problems,status (status emulation-limited)
+  E07__signals=TERM-then-HUP__boundary=runner-active: observed,problems,status (status emulation-limited)
+  E07__signals=TERM-then-HUP__boundary=runner-wait-error: observed,problems,status (status emulation-limited)
+rows: k43 450, target 437, same names False, differing 20
