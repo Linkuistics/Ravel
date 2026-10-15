@@ -675,12 +675,25 @@ D=E=X=0, including source verification, evidence, its one reviewer and closure.
 Cumulative correctness bounds are D≤100/RC≤49/P≤155/E≤30/X=0; remaining
 D≤20 exclusively phase-closure reserve, shared RC≤1/P≤85/E≤90/X=0.
 
-K24 proposes additional D≤10/shared RC≤5 for bounded protocol revision and a
-complete new price, raising only the D cap to 130 and RC cap to 55 if approved.
-P≤240/E≤120/X=0 and zero production disruption remain. This is a proposal,
-not approval or spend; no new producer or finite-control amendment is authorised.
-Record the agreement's actual charges before commissioning design, then require
-a complete supported repair price from actual balances or an exact funding
-remainder. The D≤20 reserve is untouched. K22, k24 and the book remain live;
-all prior support/comparison/root obligations remain. No parent/phase/root close,
-target, extraction, comparative gain or independent adoption is earned.
+K24's human answered verbatim **“Approve the bounded renewal (Recommended)”**
+to additional D≤10/shared RC≤5 for bounded protocol revision and complete
+repricing. Approved phase caps are D≤130/RC≤55/P≤240/E≤120/X=0; zero production
+disruption and the D≤20 phase-closure reserve remain. K24 charges conservative
+RC≤4 for agreement/context verification, recording/tree/verification/retirement/
+commit, D=P=E=X=0. Cumulative correctness charged bounds are
+D≤100/RC≤53/P≤155/E≤30/X=0. Remaining D≤30 comprises D≤10 for this protocol/
+pricing continuation and D≤20 exclusively phase-closure reserve; shared
+RC≤2/P≤85/E≤90/X=0 remain.
+
+`native-entry-settlement-k25` inside k22 allocates D≤10 including closure and
+shared RC≤2 for at most one focused review/coordination/closure, P=E=X=0.
+It must specify bounded runner/worker error settlement, checked stop reports,
+safe pre-reap group identity and unknown-status terminal-recovery uncertainty,
+justify any finite-control amendment at the agreed seams within the existing
+30/5/5-second controller bounds, and price the complete repair from actual
+balances. The old complete estimate stays suspended. A supported complete price
+must precede commissioning; any precise excess needs further human funding.
+No implementation or control amendment is commissioned by this renewal alone.
+K22 and the book remain live, with all prior support/comparison/root obligations.
+No parent/phase/root close, target, extraction, comparative gain or independent
+adoption is earned.

@@ -16,17 +16,21 @@ The latter owns behavior; the design owns T0–T8 and E01–E08/F01–F07/R01.
 Existing capture and reader shielding are retained mechanisms to check.
 The three existing ADRs remain current; no package/extraction is selected.
 
-Approved phase caps: D≤120/RC≤50/P≤240/E≤120/X=0 minutes, zero production
-disruption. After k21 conservative charges (D≤5/RC≤1, P=E=X=0), cumulative
-correctness charges are D≤100/RC≤45/P≤140/E≤30/X=0. Actual remaining balances:
-D≤20 exclusively phase-closure reserve, shared RC≤5/P≤100/E≤90/X=0.
-This complete producer allocates P≤95/E≤80/RC≤4, D=X=0; allocations are not
-spend. Price includes source 70 P, finite controls/manifest/evidence preparation
-20 P, reconciliation 5 P; measured cases 35 E, protected checks 25 E, bounded
-reruns/reconciliation 20 E. RC includes at most one narrow reviewer,
-coordination and retirement/commit. Full use leaves P≤5/E≤10/RC≤1 and reserved
-D≤20, not new authority. Record actual spend and externalise any precise remainder
-before the book. Do not borrow reserve, reset caps or silently enlarge controls.
+Current approved phase caps after k24: D≤130/RC≤55/P≤240/E≤120/X=0 minutes,
+zero production disruption. K23 charges P≤15/RC≤4 and k24 charges RC≤4,
+with no other spend in those leaves. Cumulative correctness charged bounds are
+D≤100/RC≤53/P≤155/E≤30/X=0. Remaining balances are D≤30 (D≤10 for bounded
+protocol revision/repricing and D≤20 exclusively phase-closure reserve), shared
+RC≤2/P≤85/E≤90/X=0.
+
+The original complete P≤95/E≤80/RC≤4 estimate is suspended: source verification
+did not establish the existing bounded error-settlement mechanism it assumed.
+The original allocation is not a renewed entitlement. K24 authorises only the
+next design/pricing continuation, allocated D≤10 including closure and shared
+RC≤2 for at most one focused review/coordination/closure, P=E=X=0. Reprice the
+whole repair, finite controls, measured red/broken/green, protected checks,
+evidence and review/closure from actual balances before commissioning any new
+producer. Do not borrow reserve, reset caps or silently enlarge controls.
 
 ## Done when
 
@@ -67,7 +71,8 @@ before the book. Do not borrow reserve, reset caps or silently enlarge controls.
 - Publish evidence linked from the design/contract with actual measured domain,
   red/broken/green subjects, controls, failures, limits and spend. One narrow
   reviewer may challenge failed-Started cleanup and first-signal/reader/finaliser
-  composition within RC≤4; classify every finding. A second substantial review,
+  composition only within the revised producer's funded allowance; the original
+  RC≤4 allocation is suspended. Classify every finding. A second substantial review,
   material protocol discovery or extra runtime infrastructure earns only a precise
   funded/scope continuation before book-structure-k5. Do not claim phase closure.
 
@@ -199,3 +204,13 @@ independent adoption, parent/root completion or book acceptance follows.
   closure reserve, shared RC≤1/P≤85/E≤90/X=0. K24 carries the exact proposed
   renewal. No complete replacement producer is commissioned before revised
   protocol/pricing; this node's original estimate is suspended, not renewed.
+- K24's human answered verbatim **“Approve the bounded renewal (Recommended)”**.
+  Caps become D≤130/RC≤55/P≤240/E≤120/X=0; the D≤20 phase-closure reserve
+  remains untouched. K24 charges conservative RC≤4, D=P=E=X=0, including
+  agreement recording/tree/verification/retirement/commit. Cumulative bounds are
+  D≤100/RC≤53/P≤155/E≤30/X=0; remaining D≤30 (10 for protocol/pricing and
+  20 exclusively closure reserve), shared RC≤2/P≤85/E≤90/X=0.
+  `native-entry-settlement-k25` alone receives D≤10/RC≤2, P=E=X=0 for the
+  next design/pricing continuation inside this node.
+  No replacement producer, control amendment, parent close or book advancement
+  is authorised by this renewal alone.
