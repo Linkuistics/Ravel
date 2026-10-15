@@ -2,7 +2,7 @@
 
 use std::ffi::OsStr;
 use std::fs::File;
-use std::io::Write as _;
+use std::io::{Read as _, Write as _};
 use std::os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 use std::os::unix::process::CommandExt as _;
 use std::path::Path;
@@ -539,14 +539,40 @@ impl Terminal {
     /// taking it back. Ignoring SIGTTOU across the call and restoring the
     /// previous disposition afterwards is the standard job-control dance, and
     /// it is why this is a method rather than a bare call at three sites.
-    fn hand_to(&self, pgid: libc::pid_t) {
-        // SAFETY: `signal(2)` and `tcsetpgrp(3)` on a descriptor this struct
-        // owns; the previous disposition is restored before returning.
-        unsafe {
-            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
-            libc::tcsetpgrp(self.fd(), pgid);
-            libc::signal(libc::SIGTTOU, previous);
+    fn hand_to(&self, pgid: libc::pid_t) -> Result<(), LaunchError> {
+        self.with_ttou_ignored("terminal handback", || {
+            // SAFETY: this lease owns the descriptor and the admitted holder policy.
+            unsafe { libc::tcsetpgrp(self.fd(), pgid) }
+        })
+    }
+
+    fn with_ttou_ignored(
+        &self,
+        operation: &'static str,
+        action: impl FnOnce() -> libc::c_int,
+    ) -> Result<(), LaunchError> {
+        // SAFETY: exclusive launcher disposition authority; restore on every path.
+        let previous = unsafe { libc::signal(libc::SIGTTOU, libc::SIG_IGN) };
+        if previous == libc::SIG_ERR {
+            return Err(LaunchError::new(format!(
+                "cannot suppress SIGTTOU for {operation}: {}",
+                std::io::Error::last_os_error()
+            )));
         }
+        let mut reports = None;
+        recovery_report(&mut reports, operation, os_result(action()));
+        // SAFETY: restore the exact disposition returned above, even after action failure.
+        let restored = unsafe { libc::signal(libc::SIGTTOU, previous) };
+        recovery_report(
+            &mut reports,
+            "temporary SIGTTOU restoration",
+            if restored == libc::SIG_ERR {
+                Err(std::io::Error::last_os_error())
+            } else {
+                Ok(())
+            },
+        );
+        reports.map_or(Ok(()), Err)
     }
 
     /// The terminal's current attributes, or `None` if they cannot be read.
@@ -564,15 +590,136 @@ impl Terminal {
     ///
     /// Made with SIGTTOU ignored for the same reason as [`Terminal::hand_to`].
     /// It is called only from the foreground, but the guard costs nothing.
-    fn restore(&self, attributes: &libc::termios) {
-        // SAFETY: `signal(2)` and `tcsetattr(3)` on a descriptor this struct
-        // owns, with attributes `tcgetattr` produced; the previous disposition
-        // is restored before returning.
-        unsafe {
-            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
-            libc::tcsetattr(self.fd(), libc::TCSANOW, attributes);
-            libc::signal(libc::SIGTTOU, previous);
+    fn restore(&self, attributes: &libc::termios) -> Result<(), LaunchError> {
+        self.with_ttou_ignored("terminal mode restoration", || {
+            // SAFETY: saved tcgetattr output and this lease's live descriptor.
+            unsafe { libc::tcsetattr(self.fd(), libc::TCSANOW, attributes) }
+        })
+    }
+}
+
+fn os_result(result: libc::c_int) -> std::io::Result<()> {
+    if result == -1 {
+        Err(std::io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+// Reports are secondary to the spawn/watch cause. Continue required recovery
+// attempts after a failed report, retaining each operation's diagnostic.
+fn recovery_report(
+    reports: &mut Option<LaunchError>,
+    operation: &'static str,
+    result: std::io::Result<()>,
+) {
+    #[cfg(test)]
+    let result = terminal_tests::reported(operation, result);
+    if let Err(error) = result {
+        append_recovery(
+            reports,
+            LaunchError::new(format!("{operation} failed: {error}")),
+        );
+    }
+}
+
+fn append_recovery(reports: &mut Option<LaunchError>, error: LaunchError) {
+    *reports = Some(match reports.take() {
+        Some(primary) => primary.with_diagnostic(error),
+        None => error,
+    });
+}
+
+/// Private fixed-size attempted-group record, prepared only for an owned lease.
+/// No descriptor survives exec; no group is signalled using this record.
+struct AttemptGroup {
+    reader: File,
+    writer: OwnedFd,
+}
+
+impl AttemptGroup {
+    fn prepare() -> Result<Self, LaunchError> {
+        let make = || -> std::io::Result<Self> {
+            let mut fds = [-1; 2];
+            // SAFETY: valid output storage. Ownership is established immediately.
+            os_result(unsafe { libc::pipe(fds.as_mut_ptr()) })?;
+            let ends = unsafe { [OwnedFd::from_raw_fd(fds[0]), OwnedFd::from_raw_fd(fds[1])] };
+            // Keep the private ends above stdio even when a caller closed 0/1/2.
+            let duplicate = |fd| -> std::io::Result<OwnedFd> {
+                let copy = unsafe { libc::fcntl(fd, libc::F_DUPFD_CLOEXEC, 3) };
+                if copy == -1 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                Ok(unsafe { OwnedFd::from_raw_fd(copy) })
+            };
+            let reader = duplicate(ends[0].as_raw_fd())?;
+            let writer = duplicate(ends[1].as_raw_fd())?;
+            // A missing/partial record must never hang recovery, even if some
+            // unrelated fork retained an endpoint. Only one four-byte write exists.
+            let flags = unsafe { libc::fcntl(reader.as_raw_fd(), libc::F_GETFL) };
+            if flags == -1 {
+                return Err(std::io::Error::last_os_error());
+            }
+            os_result(unsafe {
+                libc::fcntl(reader.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK)
+            })?;
+            Ok(Self {
+                reader: File::from(reader),
+                writer,
+            })
+        };
+        make().map_err(|error| {
+            LaunchError::new(format!(
+                "cannot prepare terminal attempted-group pipe: {error}"
+            ))
+        })
+    }
+
+    fn receive(mut self) -> Result<libc::pid_t, LaunchError> {
+        drop(self.writer); // Parent's writer closes on both spawn outcomes.
+        let mut record = [0u8; 5];
+        let count = loop {
+            match self.reader.read(&mut record) {
+                Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+                other => break other,
+            }
         }
+        .map_err(|error| {
+            LaunchError::new(format!(
+                "terminal attempted-group record unavailable: {error}"
+            ))
+        })?;
+        if count != 4 {
+            return Err(LaunchError::new(
+                "terminal attempted-group record missing or malformed; recovery unconfirmed",
+            ));
+        }
+        let group = i32::from_ne_bytes([record[0], record[1], record[2], record[3]]);
+        if group <= 0 {
+            return Err(LaunchError::new(
+                "terminal attempted-group record has invalid group; recovery unconfirmed",
+            ));
+        }
+        Ok(group)
+    }
+}
+
+/// Runs only in the restricted pre-exec child: fixed data and child-safe syscalls.
+fn record_attempt(fd: RawFd, group: libc::pid_t) -> std::io::Result<()> {
+    let record = group.to_ne_bytes();
+    loop {
+        let written = unsafe { libc::write(fd, record.as_ptr().cast(), record.len()) };
+        if written == record.len() as isize {
+            return Ok(());
+        }
+        if written == -1 {
+            let error = std::io::Error::last_os_error();
+            if error.kind() == std::io::ErrorKind::Interrupted {
+                continue;
+            }
+            return Err(error);
+        }
+        return Err(std::io::Error::from_raw_os_error(libc::EIO));
     }
 }
 
@@ -598,19 +745,34 @@ struct Lease {
     /// The attributes at the moment the launch first held it, when they
     /// could be read.
     saved: Option<libc::termios>,
+    reports: Option<LaunchError>,
 }
 
 impl Lease {
     /// Before the spawn: whether this launcher holds the foreground now, and
     /// if so the descriptor the child hands itself the terminal through.
-    fn hold_before_spawn(&mut self) -> Option<RawFd> {
-        let terminal = self.terminal.as_ref()?;
-        if terminal.foreground() != own_group() {
-            return None;
+    fn hold_before_spawn(&mut self) -> Result<Option<RawFd>, LaunchError> {
+        let Some(terminal) = self.terminal.as_ref() else {
+            return Ok(None);
+        };
+        let holder = terminal.foreground();
+        if holder == -1 {
+            return Err(LaunchError::new(format!(
+                "cannot query terminal foreground before spawn: {}",
+                std::io::Error::last_os_error()
+            )));
         }
+        if holder != own_group() {
+            return Ok(None);
+        }
+        self.saved = Some(terminal.attributes().ok_or_else(|| {
+            LaunchError::new(format!(
+                "cannot save terminal modes before spawn: {}",
+                std::io::Error::last_os_error()
+            ))
+        })?);
         self.held = true;
-        self.saved = terminal.attributes();
-        Some(terminal.fd())
+        Ok(Some(terminal.fd()))
     }
 
     /// Called on every poll tick, and once before the spawn. Re-checked each
@@ -621,14 +783,40 @@ impl Lease {
         let Some(terminal) = &self.terminal else {
             return;
         };
-        if terminal.foreground() != own_group() {
+        if self.reports.is_some() {
+            return;
+        }
+        let holder = terminal.foreground();
+        if holder == -1 {
+            append_recovery(
+                &mut self.reports,
+                LaunchError::new(format!(
+                    "terminal foreground query while lending failed: {}",
+                    std::io::Error::last_os_error()
+                )),
+            );
+            return;
+        }
+        if holder != own_group() {
             return;
         }
         if !self.held {
+            let Some(saved) = terminal.attributes() else {
+                append_recovery(
+                    &mut self.reports,
+                    LaunchError::new(format!(
+                        "cannot save terminal modes before lending: {}",
+                        std::io::Error::last_os_error()
+                    )),
+                );
+                return;
+            };
             self.held = true;
-            self.saved = terminal.attributes();
+            self.saved = Some(saved);
         }
-        terminal.hand_to(self.child);
+        if let Err(error) = terminal.hand_to(self.child) {
+            append_recovery(&mut self.reports, error);
+        }
     }
 
     /// Take the terminal back once the child is reaped, and restore it.
@@ -647,26 +835,76 @@ impl Lease {
     /// The attributes go back whenever the launcher ends in the foreground,
     /// so a raw-mode child killed by the escalation still leaves cooked mode
     /// behind.
-    fn reclaim(&self, status: Option<ExitStatus>) {
+    fn reclaim(
+        &mut self,
+        status: Option<ExitStatus>,
+        failed_spawn: bool,
+    ) -> Result<(), LaunchError> {
         use std::os::unix::process::ExitStatusExt as _;
+        let mut reports = self.reports.take();
         let Some(terminal) = self.terminal.as_ref().filter(|_| self.held) else {
-            return;
+            return reports.map_or(Ok(()), Err);
         };
         let holder = terminal.foreground();
+        let query = if holder == -1 {
+            Err(std::io::Error::last_os_error())
+        } else {
+            Ok(())
+        };
+        let mut query_report = None;
+        recovery_report(&mut query_report, "terminal foreground query", query);
+        if let Some(error) = query_report {
+            append_recovery(&mut reports, error);
+            return reports.map_or(Ok(()), Err);
+        }
         let own = own_group();
-        let take = if status.and_then(|status| status.signal()).is_some() {
-            // SAFETY: `getsid(2)` on this process, which cannot fail.
+        // A record is conditional holder evidence, never a reservation after
+        // std's failed-child wait. The caller excludes competing transfers and
+        // unrelated group-ID reuse from this observation through handback.
+        let take = if !failed_spawn && status.and_then(|s| s.signal()).is_some() {
             let leader = unsafe { libc::getsid(0) };
             holder > 0 && holder != own && holder != leader
         } else {
-            holder == self.child
+            self.child > 0 && holder == self.child
         };
+        if failed_spawn && self.child <= 0 {
+            append_recovery(
+                &mut reports,
+                LaunchError::new("terminal attempt ownership missing; recovery unconfirmed"),
+            );
+        }
         if take {
-            terminal.hand_to(own);
+            if let Err(error) = terminal.hand_to(own) {
+                append_recovery(&mut reports, error);
+            }
+        } else if failed_spawn && holder != own {
+            append_recovery(&mut reports, LaunchError::new(format!("terminal held by unrelated foreground group {holder}; preserved; recovery unconfirmed")));
         }
-        if let Some(saved) = self.saved.as_ref().filter(|_| terminal.foreground() == own) {
-            terminal.restore(saved);
+        let after = terminal.foreground();
+        let query = if after == -1 {
+            Err(std::io::Error::last_os_error())
+        } else {
+            Ok(())
+        };
+        recovery_report(&mut reports, "terminal foreground confirmation", query);
+        if after == own {
+            if let Some(saved) = &self.saved {
+                if let Err(error) = terminal.restore(saved) {
+                    append_recovery(&mut reports, error);
+                }
+            } else {
+                append_recovery(
+                    &mut reports,
+                    LaunchError::new("terminal saved modes missing; recovery unconfirmed"),
+                );
+            }
+        } else if take && after != -1 {
+            append_recovery(
+                &mut reports,
+                LaunchError::new("terminal handback unconfirmed; saved modes not restored"),
+            );
         }
+        reports.map_or(Ok(()), Err)
     }
 }
 
@@ -718,7 +956,7 @@ pub fn run(launch: Launch<'_>) -> Result<Ended, LaunchError> {
 /// Parent-side evidence about one launched child, independent of its completion signal.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LaunchEvent {
-    /// Spawn succeeded. The child may already have exited.
+    /// Spawn reported success; exec is not confirmed. The child may already have exited.
     Started,
     /// A wait confirmed reap, even if supervision returns an error afterwards.
     Reaped,
@@ -857,8 +1095,15 @@ fn run_with_output(
         child: 0,
         held: false,
         saved: None,
+        reports: None,
     };
-    let handover_fd = lease.hold_before_spawn();
+    let handover_fd = lease.hold_before_spawn()?;
+    let attempt = handover_fd.map(|_| AttemptGroup::prepare()).transpose()?;
+    #[cfg(test)]
+    terminal_tests::prepared(&mut command, attempt.as_ref());
+    let attempt_fd = attempt.as_ref().map(|pipe| pipe.writer.as_raw_fd());
+    #[cfg(test)]
+    let probe = terminal_tests::probe();
 
     // The group, through `std`'s own checked path rather than a `setpgid` of our
     // own: it runs it before the `pre_exec` callbacks below and reports a
@@ -872,7 +1117,9 @@ fn run_with_output(
     // async-signal-safe functions. `signal`, `getpid` and `tcsetpgrp` (an
     // `ioctl`) are all on POSIX's list, as is everything
     // `EntrySignals::reinstate` calls; nothing here allocates, locks, or
-    // touches Rust runtime state. `std` itself resets only SIGPIPE across a
+    // touches Rust runtime state. Child memory is not parent communication:
+    // https://doc.rust-lang.org/std/os/unix/process/trait.CommandExt.html#tymethod.pre_exec
+    // `std` itself resets only SIGPIPE across a
     // spawn and inherits the signal mask, so everything below is work nothing
     // else is doing.
     unsafe {
@@ -898,10 +1145,39 @@ fn run_with_output(
             // Until the `tcsetpgrp` below returns, this process is a background
             // group touching the terminal, which is precisely what SIGTTOU is
             // raised for. The loop that follows puts the disposition back.
-            libc::signal(libc::SIGTTOU, libc::SIG_IGN);
-            if let Some(fd) = handover_fd {
-                libc::tcsetpgrp(fd, libc::getpid());
+            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
+            if previous == libc::SIG_ERR {
+                return Err(std::io::Error::last_os_error());
             }
+            #[cfg(test)]
+            terminal_tests::before_handoff(probe)?;
+            if let (Some(fd), Some(record_fd)) = (handover_fd, attempt_fd) {
+                #[cfg(test)]
+                let record_fd = terminal_tests::record_fd(probe, record_fd);
+                let group = libc::getpid();
+                #[cfg(test)]
+                let group = terminal_tests::record_group(probe, group);
+                record_attempt(record_fd, group)?;
+                #[cfg(test)]
+                let fd = terminal_tests::handoff_fd(probe, fd);
+                let handoff = loop {
+                    let result = libc::tcsetpgrp(fd, libc::getpid());
+                    if result == 0 {
+                        break Ok(());
+                    }
+                    let error = std::io::Error::last_os_error();
+                    if error.kind() != std::io::ErrorKind::Interrupted {
+                        break Err(error);
+                    }
+                };
+                let restored = libc::signal(libc::SIGTTOU, previous);
+                handoff?;
+                if restored == libc::SIG_ERR {
+                    return Err(std::io::Error::last_os_error());
+                }
+            }
+            #[cfg(test)]
+            terminal_tests::after_handoff(probe, handover_fd)?;
             // A transparent launcher's child gets its launcher's entry state
             // whole, SIGTTOU's and SIGCHLD's included, and the mask last.
             if let Some(entry) = &transparent {
@@ -924,19 +1200,45 @@ fn run_with_output(
     // through `take_interrupt`, and is not evidence about the child below.
     INTERRUPTED_BY.store(0, Ordering::Relaxed);
 
-    let child = command.spawn().map_err(|error| {
-        LaunchError::new(format!(
-            "cannot spawn {:?}: {error}; check that the program exists and is executable",
-            launch.argv.program()
-        ))
-        .with_errno(error.raw_os_error())
-    })?;
+    // Rust 1.99 Unix spawn waits on ordinary exec errors, but EOF can report
+    // success after pre-exec signal death. Keep actual supervision on Ok:
+    // https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs
+    let spawned = command.spawn();
+    #[cfg(test)]
+    terminal_tests::after_spawn();
+    let attempted = attempt.map(AttemptGroup::receive).transpose();
+    let child = match spawned {
+        Ok(child) => {
+            if let Err(error) = attempted {
+                append_recovery(&mut lease.reports, error);
+            }
+            child
+        }
+        Err(cause) => {
+            let mut error = LaunchError::new(format!(
+                "cannot spawn {:?}: {cause}; check that the program exists and is executable",
+                launch.argv.program()
+            ))
+            .with_errno(cause.raw_os_error())
+            .with_consumed_signal(take_interrupt());
+            match attempted {
+                Ok(Some(group)) => lease.child = group,
+                Ok(None) => {}
+                Err(report) => error = error.with_diagnostic(report),
+            }
+            if let Err(report) = lease.reclaim(None, true) {
+                error = error.with_diagnostic(report);
+            }
+            return Err(error.with_consumed_signal(take_interrupt()));
+        }
+    };
 
     observer(LaunchEvent::Started);
 
     // The parent's half of the same `setpgid` — insurance, not a race. The
     // `pre_exec` above takes `std` off `posix_spawn` onto fork-and-exec, and
-    // `spawn` then returns only after the child has exec'd, so this call is
+    // successful spawn ordinarily follows exec; signal death before exec can also
+    // report success. On the ordinary path this call is
     // measured to fail EACCES. Kept: that ordering is undocumented, not a rule.
     let pgid = child.id() as libc::pid_t;
     // SAFETY: `setpgid(2)` naming this process's own child.
@@ -947,14 +1249,14 @@ fn run_with_output(
     lease.child = pgid;
     let lease = std::cell::RefCell::new(lease);
 
-    supervise(
+    supervise_reported(
         child,
         launch.completion.map(|(channel, _)| channel),
         launch.escalation,
         mode,
         observer,
         || lease.borrow_mut().lend(),
-        |status| lease.borrow().reclaim(status),
+        |status| lease.borrow_mut().reclaim(status, false),
     )
 }
 
@@ -1157,6 +1459,7 @@ struct Failed {
 /// The child's status is fixed at step 1, so nothing after it can change what
 /// the launch reports about the child. Step 5 can only add whether anything
 /// survived it.
+#[cfg(test)]
 fn supervise(
     child: impl Process,
     channel: Option<&Channel>,
@@ -1172,8 +1475,7 @@ fn supervise(
     })
 }
 
-// Composition boundary only: the existing lease still performs unchecked
-// recovery. This accepts its report without claiming checked terminal syscalls.
+// Keep the original watch outcome and cancellation when checked recovery fails.
 fn supervise_reported(
     mut child: impl Process,
     channel: Option<&Channel>,
@@ -1365,3 +1667,6 @@ fn kill(pgid: libc::pid_t, signal: libc::c_int) {
 #[cfg(test)]
 #[path = "../tests/internal/wait_events.rs"]
 mod wait_events;
+
+#[cfg(test)]
+mod terminal_tests;

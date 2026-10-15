@@ -61,8 +61,12 @@ reap failure. It returns `None` for unrelated errors; `raw_os_error()` remains
 the primary spawn errno. Message/Debug retain original and secondary diagnostic
 text. The final wait attempt drains the signal latch before observation/recovery;
 a signal arriving after that sample remains the caller's late observation.
-A failed exec after pre-exec handoff can still bypass terminal reclaim.
-Failure never licenses result success. The
+A failed exec retains its lease and checks foreground/mode recovery before
+returning the original spawn errno. The private attempted-group pipe records
+ownership before handoff, closes across exec and never authorises signalling
+that recorded identity after failed spawn. Handback requires exclusive foreground
+authority and no unrelated group-ID reuse through recovery; CLI lifetime alone
+does not supply those premises. Failure never licenses result success. The
 [source inventory](result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
 states these conditional paths and checks still owed, and the
 [completion spec](specs/result-job-completion.md#acquisition-and-entry-limits)
@@ -75,11 +79,10 @@ requires consumed cancellation to survive the runner's error, checked terminal
 recovery after failed exec, and explicit failure diagnostics. Its
 [entry contract](specs/result-job-completion.md#one-session-native-launcher-entry)
 requires capture before runtime changes and waitability before every child,
-including the policy worker. Those are design requirements with checks still
-owed except for the checked C1 transfer described in the
-[repair evidence](completion-failure-design-evidence.md#c1-checked-observations).
-Its private recovery-report seam checks composition; production reclaim remains
-unchecked and actual recovery failure is still C4. A persistent runner has its own
+including the policy worker. [C1–C4 evidence](completion-failure-design-evidence.md#c4-checked-observations)
+now distinguishes real PTY handoff/recovery, physically confirmed waits and
+private recovery-report substitutions. Native entry capture, waitability and
+checked handler/mask transitions still require conformance work. A persistent runner has its own
 continuing-host contract, and no host-restoration or concurrency guarantee
 is established here.
 
@@ -91,6 +94,10 @@ noninteractive isolation, terminal modes and foreground recovery, confinement,
 and injected wait errors. Subprocess roles marked ignored are fixtures invoked
 by the ordinary tests; they are not omitted acceptance cases. The wait-error
 instrument remains test-only under `tests/internal/wait_events.rs`.
+`task test:terminal-recovery` runs the private runner PTY matrix, then passes its
+exact error fields into the front's real conversion/settlement. `task check`
+includes that paired task as well as the full workspace suite. The fixtures
+separately restore the terminal and confirm child waits after injected failures.
 
 [Cargo's guard](../.cargo/config.toml) force-clears session launch, signal,
 exit, run-ID and state-directory controls for both legacy and renamed tools.

@@ -195,8 +195,9 @@ The [acquisition inventory](result-job-source-evidence.md#acquisition-and-stoppi
 also records the original unchecked-worker-wait path, destructor-only partial-
 directory cleanup and failed-exec terminal-reclaim gap. C2 now corrects admission
 with scoped checks; C3 now checks partial acquisition and retained identity
-through cleanup. Failed-exec recovery and native entry remain source-admitted
-limits under O2/O7/O8/O9. The historical inventory is not an observation
+through cleanup. C4 now checks failed-exec terminal recovery under its exclusive
+lease and identity premises. Native entry remains conformance work under
+O2/O7/O8/O9. The historical inventory is not an observation
 that those OS failures occurred at runtime. Ordinary selected-scope cleanup still runs on
 output/channel/launch failure without an ending.
 
@@ -204,7 +205,7 @@ The [failure repair contract](specs/result-job-completion.md#required-failure-se
 now assigns each correction to its existing resource owner and retains original
 failure/cancellation precedence plus secondary diagnostics. The
 [discriminating checks](completion-failure-design-evidence.md#discriminating-checks)
-record C1–C3 corrections; C4 and native entry remain plans.
+record C1–C4 corrections and their measured limits; native entry remains required work.
 These local repairs select no component arrangement.
 
 These participants have different local knowledge. The publisher knows only

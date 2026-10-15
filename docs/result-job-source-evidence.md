@@ -9,8 +9,10 @@ fixed reference inspected here. The later
 [C1 repair and checked observations](completion-failure-design-evidence.md#c1-checked-observations)
 retain cancellation across runner errors and no-ending front settlement; the
 later [C2/C3 checks](completion-failure-design-evidence.md#c3-checked-observations)
-cover worker admission and partial-directory ownership; the inventory and
-counterexamples below remain fixed-reference evidence. A direct
+cover worker admission and partial-directory ownership. Later
+[C4 checks](completion-failure-design-evidence.md#c4-checked-observations)
+cover failed-exec terminal recovery under its authority premises; the inventory
+and counterexamples below remain fixed-reference evidence. A direct
 native runner call also retains changes to its host's signal dispositions.
 
 This record supports the [completion contract](specs/result-job-completion.md),

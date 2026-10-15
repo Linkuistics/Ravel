@@ -54,12 +54,15 @@ private-directory removal, with [C2 checks](../completion-failure-design-evidenc
 covering failed reported waits/removal and original diagnostic preservation.
 Private-directory allocators now retain recorded identity through partial
 preparation, successful transfer and explicit checked cleanup; [C3 observations](../completion-failure-design-evidence.md#c3-checked-observations)
-cover original/cleanup reports, replacement protection and admission. An interactive
-pre-exec terminal handoff followed by exec failure can still bypass terminal reclaim. These source-admitted cases prevent asserting complete
-settlement on every failure path. They do not relax the session specification's
-worker ordering, cancellation, cleanup or terminal promises, and have not been
-observed at runtime in that source-only investigation. C1–C3's private injected reports and regression observations are recorded
-separately from those remaining source limits.
+cover original/cleanup reports, replacement protection and admission.
+[C4 observations](../completion-failure-design-evidence.md#c4-checked-observations)
+now check retained terminal ownership through failed exec, reportable recovery
+and actual spawn/reap distinctions on the measured host. Their exclusive lease
+and group-identity premises remain conditional. These scoped observations do not
+establish complete native-entry conformance or relax the session specification's
+worker ordering, cancellation, cleanup or terminal promises. C1–C4's private
+substituted reports and physical observations remain distinct from unexecuted
+entry/toolchain/target assumptions.
 
 Direct native entry is separate from the CLI's selected-scope transfer.
 Transparent entry state is supplied by the caller and applied to the child;
@@ -89,7 +92,7 @@ name the smallest missing premises and checks still owed.
 The following is the repair contract for the incumbent launcher, derived from
 the unchanged session promises and the agreed one-session consumer. It is a
 contract for corrections, **not a claim of complete executable conformance**.
-C1–C3 have scoped checked evidence; failed-exec recovery and native-entry
+C1–C4 have scoped checked evidence; terminal authority premises and native-entry
 limits above still apply. The
 [repair evidence and check plan](../completion-failure-design-evidence.md)
 separate that source, proposed enabling points and checks not yet run.

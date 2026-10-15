@@ -570,3 +570,165 @@ fn worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup() {
     }
     assert!(!text.contains("starting provider"));
 }
+
+#[test]
+#[ignore = "private CLI PTY subprocess"]
+fn terminal_recovery_cli_role() {
+    use std::os::unix::fs::PermissionsExt as _;
+    if std::env::var_os("C4_CLI_ROLE").is_none() {
+        return;
+    }
+    let tty = unsafe { libc::open(c"/dev/tty".as_ptr(), libc::O_RDWR | libc::O_CLOEXEC) };
+    assert!(tty >= 0);
+    let mut saved: libc::termios = unsafe { std::mem::zeroed() };
+    assert_eq!(unsafe { libc::tcgetattr(tty, &mut saved) }, 0);
+    let own = unsafe { libc::getpgrp() };
+    for (name, interpreter, expected) in [
+        ("missing", "/ravel-c4-no-interpreter", 127),
+        ("denied", "private", 126),
+    ] {
+        let fixture = Fixture::new();
+        let interpreter = if interpreter == "private" {
+            let path = fixture.root.join("interpreter");
+            fs::write(&path, "unexecutable interpreter").unwrap();
+            fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
+            path
+        } else {
+            PathBuf::from(interpreter)
+        };
+        let script = fixture.root.join("executable");
+        fs::write(&script, format!("#!{}\n", interpreter.display())).unwrap();
+        fs::set_permissions(&script, fs::Permissions::from_mode(0o700)).unwrap();
+        let policy = format!(
+            r#"import {{ definePolicy }} from "ravel/sdk";
+export const policy = definePolicy({{ schemaVersion: 2, version: "C4-cli",
+select() {{ return {{ status: "selected", program: {:?}, args: [], provider: "fixture", model: "fixture", effort: "fixture", reason: "C4 real failed exec" }}; }} }});"#,
+            script.to_str().unwrap()
+        );
+        let output = fixture.start(&policy, "C4 no model service");
+        let foreground = unsafe { libc::tcgetpgrp(tty) };
+        let mut after: libc::termios = unsafe { std::mem::zeroed() };
+        let read_modes = unsafe { libc::tcgetattr(tty, &mut after) };
+        // Independent fixture cleanup, including a broken subject's lost terminal.
+        unsafe {
+            let previous = libc::signal(libc::SIGTTOU, libc::SIG_IGN);
+            assert_eq!(libc::tcsetpgrp(tty, own), 0);
+            assert_eq!(libc::tcsetattr(tty, libc::TCSANOW, &saved), 0);
+            assert_ne!(libc::signal(libc::SIGTTOU, previous), libc::SIG_ERR);
+        }
+        assert_eq!(read_modes, 0);
+        assert_eq!(
+            output.status.code(),
+            Some(expected),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(output.stdout.is_empty());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("cannot spawn"));
+        assert_eq!(
+            foreground, own,
+            "public CLI failed exec did not recover foreground"
+        );
+        assert_eq!(after.c_lflag & !libc::PENDIN, saved.c_lflag & !libc::PENDIN);
+        assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
+        eprintln!("C4 public CLI {name}: real TypeScript policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed");
+    }
+    assert_eq!(unsafe { libc::close(tty) }, 0);
+}
+
+#[test]
+fn terminal_recovery_public_cli_failed_exec() {
+    use std::io::Read as _;
+    use std::os::fd::{AsRawFd as _, FromRawFd as _};
+    use std::os::unix::process::CommandExt as _;
+    use std::process::Stdio;
+    use std::time::{Duration, Instant};
+    let (mut master, mut slave) = (-1, -1);
+    assert_eq!(
+        unsafe {
+            libc::openpty(
+                &mut master,
+                &mut slave,
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+            )
+        },
+        0
+    );
+    let (mut master, slave) =
+        unsafe { (fs::File::from_raw_fd(master), fs::File::from_raw_fd(slave)) };
+    for fd in [master.as_raw_fd(), slave.as_raw_fd()] {
+        assert_eq!(
+            unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) },
+            0
+        );
+    }
+    let mut command = Command::new(std::env::current_exe().unwrap());
+    command
+        .args([
+            "--exact",
+            "terminal_recovery_cli_role",
+            "--ignored",
+            "--nocapture",
+            "--test-threads=1",
+        ])
+        .env("C4_CLI_ROLE", "1")
+        .stdin(slave.try_clone().unwrap())
+        .stdout(slave.try_clone().unwrap())
+        .stderr(Stdio::from(slave));
+    // SAFETY: this child becomes the session leader of only this fresh PTY.
+    unsafe {
+        command.pre_exec(|| {
+            if libc::setsid() == -1 || libc::ioctl(0, libc::TIOCSCTTY as _, 0) == -1 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let mut child = command.spawn().unwrap();
+    drop(command);
+    let flags = unsafe { libc::fcntl(master.as_raw_fd(), libc::F_GETFL) };
+    assert_eq!(
+        unsafe { libc::fcntl(master.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK) },
+        0
+    );
+    let until = Instant::now() + Duration::from_secs(20);
+    let mut output = Vec::new();
+    let status = loop {
+        let mut buffer = [0; 4096];
+        while let Ok(n) = master.read(&mut buffer) {
+            if n == 0 {
+                break;
+            }
+            output.extend_from_slice(&buffer[..n]);
+        }
+        if let Some(status) = child.try_wait().unwrap() {
+            break status;
+        }
+        if Instant::now() >= until {
+            unsafe {
+                libc::kill(-(child.id() as i32), libc::SIGKILL);
+            }
+            let _ = child.wait();
+            panic!(
+                "C4 public CLI PTY timed out: {}",
+                String::from_utf8_lossy(&output)
+            );
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    };
+    let mut buffer = [0; 4096];
+    while let Ok(n) = master.read(&mut buffer) {
+        if n == 0 {
+            break;
+        }
+        output.extend_from_slice(&buffer[..n]);
+    }
+    eprintln!("{}", String::from_utf8_lossy(&output));
+    assert!(
+        status.success(),
+        "C4 public CLI: {status:?}: {}",
+        String::from_utf8_lossy(&output)
+    );
+}

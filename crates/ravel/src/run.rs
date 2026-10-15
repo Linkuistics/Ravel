@@ -582,4 +582,187 @@ mod tests {
             );
         }
     }
+    // Receipts come from real runner PTY fixtures, preserving the exact
+    // Display/errno/cancellation/Started values used by run's conversion.
+    // The paired Taskfile task supplies them; no production fault API exists.
+    #[test]
+    #[ignore = "paired runner PTY receipts: task test:terminal-recovery"]
+    fn terminal_recovery_consumes_pty_receipts() {
+        use std::collections::HashMap;
+        use std::os::unix::process::ExitStatusExt as _;
+        let root = std::path::PathBuf::from(
+            std::env::var_os("C4_RECEIPTS").expect("run task test:terminal-recovery"),
+        );
+        for (case, expected_errno, expected_signal, started) in [
+            ("missing", libc::ENOENT, 0, false),
+            ("before", libc::EACCES, 0, false),
+            ("bad-record", libc::EBADF, 0, false),
+            ("malformed", libc::ENOENT, 0, false),
+            ("handoff-failure", libc::EBADF, 0, false),
+            ("pipe-failure", 0, 0, false),
+            ("background", libc::ENOENT, 0, false),
+            ("foreign", libc::ENOENT, 0, false),
+            ("query", libc::ENOENT, 0, false),
+            ("handback", libc::ENOENT, 0, false),
+            ("modes", libc::ENOENT, 0, false),
+            ("ttou", libc::ENOENT, 0, false),
+            ("combined", libc::ENOENT, 0, false),
+            ("cancel", libc::ENOENT, libc::SIGHUP, false),
+            ("success-fault", 0, 0, true),
+            ("success-cancel-fault", 0, libc::SIGHUP, true),
+        ] {
+            let text = std::fs::read_to_string(root.join(format!("{case}.txt"))).unwrap();
+            let fields: HashMap<_, _> = text
+                .lines()
+                .map(|line| line.split_once('=').unwrap())
+                .collect();
+            assert_eq!(fields["errno"].parse::<i32>().unwrap(), expected_errno);
+            assert_eq!(fields["signal"].parse::<i32>().unwrap(), expected_signal);
+            assert_eq!(fields["started"].parse::<bool>().unwrap(), started);
+            let message = fields["error"];
+            let expected_reports: &[&str] = match case {
+                "query" => &["terminal foreground query failed"],
+                "handback" => &["terminal handback failed"],
+                "modes" => &["terminal mode restoration failed"],
+                "ttou" => &["temporary SIGTTOU restoration failed"],
+                "combined" | "cancel" | "success-fault" | "success-cancel-fault" => &[
+                    "terminal handback failed",
+                    "terminal mode restoration failed",
+                    "temporary SIGTTOU restoration failed",
+                ],
+                "foreign" => &["unrelated foreground"],
+                "before" | "bad-record" | "malformed" => &["record", "ownership missing"],
+                "pipe-failure" => &["cannot prepare terminal attempted-group pipe"],
+                _ => &[],
+            };
+            for report in expected_reports {
+                assert!(
+                    message.contains(report),
+                    "{case} missing {report}: {message}"
+                );
+            }
+            if matches!(
+                case,
+                "ttou" | "combined" | "cancel" | "success-fault" | "success-cancel-fault"
+            ) {
+                assert_eq!(
+                    message
+                        .matches("temporary SIGTTOU restoration failed")
+                        .count(),
+                    2
+                );
+            }
+            for (front, late) in [
+                (None, None),
+                (None, Some(libc::SIGTERM)),
+                (Some(libc::SIGINT), Some(libc::SIGTERM)),
+            ] {
+                let errno = (expected_errno != 0).then_some(expected_errno);
+                let runner = (expected_signal != 0).then_some(expected_signal);
+                let (failure, observed) =
+                    supervision_failure(message.into(), errno, runner, started);
+                let selected = front.or(runner).or(late).and_then(Signal::of);
+                let signal = join_cancellation(
+                    front.and_then(Signal::of),
+                    observed,
+                    late.and_then(Signal::of),
+                );
+                assert_eq!(signal, selected);
+                let mut diagnostics = Vec::new();
+                let failure = settle(
+                    Err(failure.into()),
+                    None,
+                    vec![
+                        Err(failed("cleanup", "outer mask restoration")),
+                        Err(failed("cleanup", "outer channel cleanup")),
+                        Err(failed("cleanup", "outer private cleanup")),
+                        Err(failed("cleanup", "outer output restoration")),
+                    ],
+                    signal,
+                    "C4 actual runner receipt",
+                    &mut diagnostics,
+                )
+                .unwrap_err();
+                let diagnostics = String::from_utf8(diagnostics).unwrap();
+                assert_eq!(failure.refusal.signal, selected);
+                if selected.is_some() {
+                    assert!(
+                        diagnostics.contains(message),
+                        "lost original/secondary runner diagnostics"
+                    );
+                    assert_eq!(failure.refusal.code, "session_cancelled");
+                } else {
+                    assert_eq!(failure.refusal.message, message);
+                    assert_eq!(
+                        failure.refusal.exit,
+                        if started {
+                            5
+                        } else if expected_errno == libc::ENOENT {
+                            127
+                        } else {
+                            126
+                        }
+                    );
+                }
+                for label in [
+                    "outer mask restoration",
+                    "outer channel cleanup",
+                    "outer private cleanup",
+                    "outer output restoration",
+                ] {
+                    assert!(diagnostics.contains(label));
+                }
+                eprintln!("C4 front {case}: front={front:?} late={late:?} selected={selected:?}; exact runner message and four outer reports retained; no ending/result");
+            }
+        }
+        for case in ["success", "success-fds", "signal-death"] {
+            let text = std::fs::read_to_string(root.join(format!("{case}.txt"))).unwrap();
+            let fields: HashMap<_, _> = text
+                .lines()
+                .map(|line| line.split_once('=').unwrap())
+                .collect();
+            let status = std::process::ExitStatus::from_raw(fields["status"].parse().unwrap());
+            assert_eq!(
+                status.signal(),
+                if case == "signal-death" {
+                    Some(libc::SIGINT)
+                } else {
+                    None
+                }
+            );
+            assert_eq!(fields["signalled"], "false");
+            assert_eq!(fields["interrupted"], "false");
+            let ended = keyed_launch::Ended {
+                end: End::Exited,
+                status,
+                elapsed: Duration::ZERO,
+                signalled: false,
+                group: Group::Gone,
+            };
+            let directory = tempfile::tempdir().unwrap();
+            let channel = SessionChannel::allocate(directory.path()).unwrap();
+            assert_eq!(channel.result_after(&ended).unwrap(), None);
+            channel.close().unwrap();
+            let failure = Refusal::new(
+                "session_result_missing",
+                Stage::Exec,
+                1,
+                "managed process ended without a result",
+                "publish a result",
+            );
+            let result = settle(
+                Err(failure.into()),
+                Some(&ended),
+                vec![Ok(())],
+                None,
+                "C4 receipt",
+                &mut Vec::new(),
+            )
+            .unwrap_err();
+            assert_eq!(result.refusal.exit, 1);
+            assert_eq!(result.refusal.code, "session_result_missing");
+            assert_eq!(result.refusal.signal, None);
+            eprintln!("C4 front {case}: actual runner status {status}; no publication refuses; no invented launcher cancellation");
+        }
+    }
 }

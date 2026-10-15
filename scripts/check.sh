@@ -28,6 +28,7 @@ run_check worker-probes bash scripts/worker-check.sh probes
 run_check runtime-integrity bash scripts/runtime-integrity.test.sh
 run_check worker-types bash scripts/worker-check.sh typecheck
 run_check lint cargo clippy --locked --workspace --all-targets
+run_check terminal-recovery bash scripts/terminal-recovery-check.sh
 printf 'check: complete log: %s\n' "$log"
 # Keep nextest's own reporting visible; do not wrap its UI in log scraping.
 # https://nexte.st/docs/running/

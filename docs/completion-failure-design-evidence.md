@@ -7,8 +7,9 @@ discriminating checks. C1 is now implemented with the
 [C1 observations below](#c1-checked-observations). C2 admission and diagnostic
 preservation now have [checked observations](#c2-checked-observations);
 C3 now has [checked allocator/consumer observations](#c3-checked-observations).
-C4 and native entry remain required work. A design or rendered diagram establishes no runtime
-conformance. The earlier
+C4 now has [checked terminal/consumer observations](#c4-checked-observations).
+Native entry remains required work. A design or rendered diagram establishes no
+runtime conformance. The earlier
 [A0–A15 inventory and C1–C4](result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
 remain observations at fixed reference
 `0bdcb1f9ae24db5e9dd499308dd791744e908eb0`.
@@ -17,10 +18,10 @@ remain observations at fixed reference
 
 | Gap / obligation | Current source evidence | Local repair and hidden decision |
 |---|---|---|
-| C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1217) samples at every final wait attempt and carries its first signal through `Failed.error`. [`supervise_reported`](../crates/keyed-launch/src/run.rs#L1177) composes that error with recovery reports. [`run`](../crates/ravel/src/run.rs#L32) reads the error observation before conversion even without an ending. | `LaunchError::consumed_signal()` retains numeric cancellation separately from message/errno. Front joins front, outcome, late and reports superseded errors. No global requeue, fabricated `Ended`, or failed-wait group assertion. Checked C1 evidence is below; actual checked reclaim remains C4. |
+| C1 / O7, O6, O9 | [`watch`](../crates/keyed-launch/src/run.rs#L1217) samples at every final wait attempt and carries its first signal through `Failed.error`. [`supervise_reported`](../crates/keyed-launch/src/run.rs#L1177) composes that error with recovery reports. [`run`](../crates/ravel/src/run.rs#L32) reads the error observation before conversion even without an ending. | `LaunchError::consumed_signal()` retains numeric cancellation separately from message/errno. Front joins front, outcome, late and reports superseded errors. No global requeue, fabricated `Ended`, or failed-wait group assertion. Checked C1 evidence is below; checked terminal recovery is recorded under C4. |
 | C2 / O2, O3, O9 | [`evaluate`](../crates/ravel/src/worker.rs#L317) retains conversation and teardown reports, then checks confirmed wait and required removal before success. [`evaluate_and_resolve`](../crates/ravel/src/choice.rs#L118) resolves only after evaluation returns. | Evaluator gates successful evaluation on confirmed teardown. Keep conversation judgment, bounded output, timeout and cancellation precedence; retain wait/removal errors as secondary operational diagnostics when a conversation already failed. |
 | C3 / O9 | [`Confined::prepare`](../crates/ravel/src/confinement.rs), [`SessionChannel::allocate`](../crates/ravel/src/completion.rs) and worker preparation retain a private [`PrivateDirectory`](../crates/ravel/src/private_directory.rs) from creation through transfer/cleanup. | Disarm pathname-only TempDir cleanup before identity capture, preserve original cause plus every checked cleanup report, and compare recorded device/inode/type before removal. Unknown identity refuses deletion; explicit attempts disarm Drop. Anchored reads remain separate. C3 evidence below limits the snapshot guarantee. |
-| C4 / O8, O9 | [`hold_before_spawn`](../crates/keyed-launch/src/run.rs#L606) saves a lease; [`run_with_output`](../crates/keyed-launch/src/run.rs#L793) can hand foreground to the child before failed exec returns through `?`. [`reclaim`](../crates/keyed-launch/src/run.rs#L650) occurs only inside supervision and returns no checked outcome. | Runner keeps that lease through the spawn result and makes recovery reportable. Identify this attempt's group before handoff; preserve spawn errno while appending recovery failures. Keep existing delegated-foreground policy for successful launches. |
+| C4 / O8, O9 | [`Lease`](../crates/keyed-launch/src/run.rs) retains saved modes/authority and the private `AttemptGroup` pipe through the spawn result. Failed spawn checks its record and recovers before returning; successful spawn uses `supervise_reported` and actual reap. | Fixed-size child-safe write precedes checked handoff. Every recovery query, handback, mode and temporary SIGTTOU restoration report survives beside original errno/cancellation. Failed-spawn handback is conditional on exclusive foreground authority and no unrelated ID reuse; no recorded ID is signalled on that path. |
 | Native entry / O2, O7, O8 | [`record`](../crates/ravel/src/signal_state.rs#L66) runs before Rust startup; [`EntrySignals`](../crates/keyed-launch/src/run.rs#L429) supplies child state. Host handlers and ignored-SIGCHLD repair persist. | CLI lifetime owns host signal authority until exit. Capture before runtime changes; establish waitability before the worker as well as before the managed child; keep required mask/terminal cleanup and late joining. No arbitrary continuing-host restoration. |
 
 The source was discovered with Tier 2 graph verification in project
@@ -378,6 +379,99 @@ native auto-reap and unchecked signal/mask/terminal premises remain outside thes
 checks. C4 and native entry remain required. No extraction, supported component
 target, independent adoption, migration, comparison restart or simplification
 gain follows from C3 success.
+
+## C4 checked observations
+
+Final `task check` passes all 290 workspace tests (20 ignored fixture/paired
+roles), plus the paired C4 run of six private tests and its actual front consumer.
+The PTY transcript contains 22 ordinary cases and eight deliberately broken
+controls; front settlement checks 48 error/precedence branches and three absent-
+publication branches. All 283 prior C3 workspace identities, 136 focused session
+identities, 11 protected runner identities and 13 CLI identities are individually
+matched to current PASS outcomes in the receipt.
+
+The runner now retains its lease across failed spawn and successful supervision.
+An owned interactive lease saves modes before handoff and prepares a private
+CLOEXEC pipe above stdio. After checked group creation, restricted child code
+writes exactly one native four-byte group record before checked foreground
+handoff; EINTR is retried, and incomplete writes refuse before handoff. The
+parent closes its writer on both spawn outcomes and reads a bounded record.
+Missing, malformed or unavailable ownership information prevents a successful
+recovery report. Background, detached and no-terminal launches create no pipe.
+The exec'd test job checks both attempted-group and all four barrier pipe
+identities are absent; a deliberate CLOEXEC-clear control detects a real leak.
+
+Failed spawn never signals the recorded group. Under the admitted exclusive
+lease and no unrelated group-ID reuse through handback, it restores modes when
+already foreground or reclaims the recorded attempt and then restores modes.
+An unrelated holder is preserved and reported, as is failed querying or
+unconfirmed handback. Each required recovery operation contributes its own
+failure report; failures during earlier lending are retained too. Actual
+supervision keeps the delegated-foreground policy and physical reap/event order.
+Checked recovery failure blocks result settlement, while original spawn errno
+and first consumed cancellation survive the actual front's no-ending conversion.
+
+[Measured receipts](failed-exec-terminal-recovery-checks.txt.gz) retain frozen
+before/after SHA-256 manifests, exact commands/status and per-case output. Each
+manifest includes the tracked input set, Cargo.lock, the collector and inspected
+installed Rust Unix spawn source. Generated outputs/caches, downloaded dependency
+source, installed executables and OS state are not frozen by those manifests.
+The isolated baseline at `f8d765d2317093f3f37ad3e182e00925648ac58d`
+changes only the new public CLI test among product/test sources; every product
+source stays unchanged. Scratch setup also adds symlinks to the existing build
+cache and installed worker dependencies, separately listed in the receipt and
+outside its frozen dependency-source scope. It
+fails specifically on foreground recovery after the missing-interpreter start,
+after retaining 127 and empty stdout. An initial baseline setup selected zero
+tests and earns no behavioral credit. The first final paired attempt inspected
+already-closed unused test endpoints on the no-controller path; the probe was
+corrected to distinguish these from the always-live attempted-group endpoints.
+A protected C1 test rejected an added group confirmation after recovery failure;
+the implementation restored the existing stopping order without weakening that
+test. Earlier exploratory build/fixture errors
+are retained separately from the final frozen acceptance runs.
+
+| Instrument | Observation |
+|---|---|
+| Failed exec after real handoff | Child records its actual foreground; a parent controller independently observes that same group and raw modes while exec is blocked. ENOENT remains primary; foreground and saved modes return; runner Started/Reaped events are absent. A subsequent ECHILD check and the inspected std source distinguish the library's physical failed-child wait from runner notification. |
+| Before handoff / record / preparation | Private pre-handoff EACCES and record-write EBADF controls, checked handoff EBADF, actual pipe-preparation EMFILE and missing/partial/oversized/invalid-record cases refuse without an invented successful recovery. A malformed record after real handoff preserves the unconfirmed holder until independent fixture cleanup. |
+| No owned lease / foreign holder | Background and no-terminal controls prepare no attempted-group pipe. A real unrelated foreground group's exact identity and raw modes are preserved under the serialized lease premise; its actual Child handle is killed/waited by the fixture. This is not an atomic query/set or ID-reservation test. |
+| Recovery reports | After actual failed exec/handoff, separate query, handback, mode and temporary SIGTTOU-restoration substitutions survive, including combined action failures and both temporary-restoration reports. Physical operations precede substitutions; these are not forced OS failures. Explicit discarded-report controls are rejected for every fault family and combined/successful-supervision cases. Real ENOTTY lending/recovery queries also retain both reports. |
+| Cancellation / consumer | Real HUP is consumed before recovery; real TERM during recovery cannot erase it. The same rule holds after successful spawn/supervision. The paired task feeds exact runner message/errno/signal/Started receipts into front conversion and settlement, checks front/runner/late precedence and four outer reports, and refuses every candidate result. Outer cleanup reports in that consumer test are substituted reports, not physical cleanup failures. |
+| Pre-exec terminal INT | A private child-safe barrier follows actual handoff. The PTY master writes Ctrl-C while INT is blocked; the child verifies INT pending before entry-mask restoration. The missing executable never execs, but spawn reports success; actual Started/Reaped, SIGINT child status, group absence and terminal recovery follow the supervision path. The front refuses absent publication without inventing launcher cancellation. |
+| Normal / descriptors / public CLI | Normal interactive supervision and exact no-publication refusal remain intact. The exec'd job checks descriptor identities rather than FD numbers alone. Real TypeScript policies selecting missing/denied interpreters produce 127/126, no stdout result, recovered foreground/modes and removed private directories. Existing noninteractive/process/PTY and complete-session expectations remain protected. |
+| Fixture failure / one review | One narrow reviewer found timeout cleanup could strand separately grouped children. Child-side unused endpoints now close before the bounded barrier, a waited child owner retains the foreign holder, and cooperative abort lets the actual parent confirm waits before exit. Deliberate controller panic, barrier timeout and fixture timeout exercise cleanup through uninjected terminal restoration. No second reviewer or redesign was commissioned. |
+| Protected / workspace | The receipt compares each prior C3 workspace PASS identity with its current workspace outcome, plus each focused protected identity, rather than comparing totals. `task check` includes formatting, shell lint, worker build/probes, runtime integrity, types, Rust lint, paired C4 checks and the full workspace suite. |
+
+C4 source verification used Tier 2 graph evidence in
+`Users-antony-Development-Ravel.simplify-and-componentize`, generation
+`2026-10-15T01:54:57Z`. Lease and front conversion searches, direct traces and
+exact source established the relevant branches. Final coverage checks for every
+material source/test/task/document path reported matching metadata and no
+recorded gap; this best-effort signal is not a completeness proof. Changed
+instruments and the installed std source were read directly.
+
+Executed domain: Rust 1.99.0 (b940084d7, Homebrew), macOS arm64
+`aarch64-apple-darwin`, nextest 0.9.148 and the project's pinned Bun 1.4.2.
+The installed Unix spawn source has SHA-256
+`1c0f874f1835e5befa6e8bdd65450903f475248b525d3b7b5e1ce861311a21d0`.
+Its ordinary exec-error branch physically waits before returning errno; EOF can
+report spawn success on pre-exec death. Nonempty pre-exec callbacks disable its
+posix_spawn path; checked setpgid precedes callbacks. These observations were
+verified against the installed source and the official
+[Rust 1.99 Unix implementation](https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs),
+with the [pre-exec contract](https://doc.rust-lang.org/std/os/unix/process/trait.CommandExt.html#tymethod.pre_exec)
+cited beside the restricted child code. No graceful recovery from std's pipe/
+wait panic or uncatchable death is promised. Rust 1.85 floor and Linux targets
+were not executed here; the earlier 1.85/1.98 observations are not substituted
+for the used toolchain.
+
+C4 does not establish native executable-entry capture, worker and managed-child
+waitability, ignored/blocked-signal transparency or checked handler/mask
+transitions. Those consequential obligations remain before the book agreement.
+A continuing host still has a separate lifetime/restoration contract. No target,
+component extraction, migration, independent adoption, comparison restart or
+simplification gain follows from this repair.
 
 ## Evidence limits and remaining work
 

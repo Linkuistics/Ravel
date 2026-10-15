@@ -8,9 +8,15 @@ are restored for the child, including ignores inherited by a transparent wrapper
 Ravel uses this runner for the selected process, separately from policy evaluation.
 
 The [acquisition evidence](../result-job-source-evidence.md#c4-interactive-pre-exec-handoff-followed-by-exec-failure)
-identifies a conditional failed-exec path after foreground handoff that bypasses
-reclaim. The job and terminal obligations remain required; that path has not
-been runtime-tested in the source observation and is not a new accepted residue.
+identifies the original failed-exec path after foreground handoff. The runner
+now retains the lease and a private attempted-group record through spawn,
+checks foreground/mode recovery and retains every recovery failure beside the
+original errno or cancellation. [C4 checks](../completion-failure-design-evidence.md#c4-checked-observations)
+exercise that behavior on the measured host. Failed-spawn handback requires
+exclusive foreground authority and no unrelated reuse of the recorded group ID
+through handback; the record never authorises signalling that ID after reap.
+CLI lifetime alone supplies neither premise. This conditional policy does not
+establish an atomic query/handback or complete native-entry conformance.
 
 A new session (setsid) was rejected for interactive children: it loses the caller's
 controlling terminal and cannot receive a foreground handoff. A process group is

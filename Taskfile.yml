@@ -66,6 +66,11 @@ tasks:
     cmds:
       - cargo nextest list --locked --workspace {{.CLI_ARGS}}
 
+  test:terminal-recovery:
+    desc: Pair private real-PTY recovery receipts with actual front conversion/settlement
+    cmds:
+      - bash scripts/terminal-recovery-check.sh
+
   test:runner:
     desc: Run focused local-runner checks (optional nextest arguments)
     cmds:

@@ -155,3 +155,65 @@ The first consumer remains a one-session launcher CLI; a continuing host or
 persistent runner has a separate contract. Root independent-capability delivery,
 unchanged configuration/complete sessions, supported target/migration decisions,
 the human book structure and the practical post-proof reader checkpoint remain.
+
+## Decisions (running log)
+
+- Adopt the already approved k8 mechanism without reopening design. Implement
+  inside the existing runner lease; use private cfg(test) subprocess/PTY controls
+  and existing front conversion/settlement checks. First reproduce the lost
+  foreground against unchanged product behavior, then retain the private
+  attempted-group pipe through spawn and report checked recovery errors.
+- Used compiler: Rust 1.99.0 (b940084d7), aarch64-apple-darwin. The installed
+  rust-src and official 1.99.0 Unix spawn source are available for verification;
+  measurements will be limited to this host, not the supported target set.
+- Implementation sequence: failing real-PTY control; lease/pipe/error repair;
+  discriminating handoff, report, signal-death and descriptor controls plus actual
+  front settlement; one narrow reviewer; frozen measurements and protected
+  `task check`; evidence, exact continuation/funding and retirement/commit.
+- The one narrow fresh reviewer reported a valid fixture timeout defect: killing
+  only the fixture group could strand its separately grouped children. Close the
+  child's unused barrier endpoints, bound its pre-exec poll, retain a waited
+  child owner for the foreign holder, and request cooperative fixture cleanup
+  before any emergency termination. Deliberate controller-failure,
+  barrier-timeout and fixture-timeout controls now confirm physical waits and
+  uninjected terminal cleanup. This executable seam settles the fix; no second
+  reviewer is commissioned. No product-logic finding was reported.
+- Recovery also retains a physical foreground-query failure during lending,
+  before its later recovery query. The /dev/null ENOTTY discriminator failed
+  before that correction and passes after it. This extends checked reporting
+  within the existing lease owner, without a syscall abstraction.
+- Parent/child actual handoff receipts, missing/malformed records, failed
+  handoff, real pipe-preparation EMFILE, background/no-terminal controls, actual
+  unrelated-holder preservation, report substitutions, error-carried first
+  consumed cancellation and pre-exec pending terminal INT remain separate cases.
+  The paired private test task consumes the runner's exact message/errno/signal/
+  Started fields through the actual front conversion and no-ending settlement.
+- An isolated jj workspace at k14's `f8d765d2` receives only the new public CLI
+  PTY test. Its frozen run fails specifically because the missing-interpreter
+  spawn keeps 127 but leaves a different foreground group. The first baseline
+  setup selected zero tests (wrong copy source); that run is retained as setup
+  failure and earns no behavioral credit. The corrected run preserves every
+  product source from the incumbent. No active product mutation is measured.
+- Protected C1 rejected an extra group-confirmation call after reported recovery
+  failure. Restore the incumbent stopping order (recover, return its error with
+  consumed cancellation; confirm group only after successful recovery), keeping
+  the old assertion unchanged. The first final paired measurement also found
+  the descriptor probe inspecting already-closed unused no-controller ends;
+  distinguish those from the two always-live attempted-group ends. Both failed
+  measurements are retained; neither earns final acceptance credit.
+- Final frozen acceptance passes: `task check` (290 workspace cases and all
+  deterministic checks, including paired C4), focused session 136, protected
+  runner 11 and CLI 13. The final paired transcript has 22 ordinary PTY cases,
+  eight explicit broken controls, 48 exact-error consumer precedence branches
+  and three no-publication consumer branches. All 283 prior workspace PASS
+  identities and each focused identity are individually confirmed, not inferred
+  from totals. All measured before/after manifests match. The linked compressed
+  receipt preserves failures as well as the final passing observations.
+- Conservative actual charged bounds for this leaf are P≤35/E≤10/RC≤2 minutes,
+  D=X=0, including instruments, source/toolchain verification, evidence, one
+  narrow reviewer, protected measurements and coordination/retirement/commit.
+  Cumulative correctness charges are D≤70/RC≤35/P≤140/E≤30/X=0. Remaining are
+  D≤20 (all phase-closure reserve)/RC=0/P≤100/E≤90/X=0. Unused P≤30/E≤25 of this
+  leaf's allocation is not spend. Neither closure reserve nor a new leaf funds
+  native discovery/design/review; place the precise human funding continuation
+  before the book and leave all consequential entry obligations explicit.

@@ -497,3 +497,33 @@ Record the reader's words, difficulties, reported coverage and unknowns.
 Human acceptance, observed task performance, model proxies and mechanical
 results remain separate evidence. An early comprehension failure stops that
 read and routes a bounded correction to its owning stage.
+
+K16 now corrects and checks C4 on the incumbent. The runner retains an owned
+terminal lease and private attempted-group pipe through the spawn outcome,
+checks recovery and keeps original errno/first consumed cancellation plus each
+secondary report through actual front settlement. Failed-spawn recovery never
+signals the recorded identity and remains conditional on exclusive foreground
+authority and no unrelated group-ID reuse through handback. Real PTY receipts
+separate handoff/modes/waits, substituted reports and pre-exec signal death;
+Started remains spawn-reported success. The unchanged k14 product fails the new
+public CLI foreground test. Eight broken controls, 22 ordinary PTY cases and
+48 error/three absent-publication consumer branches discriminate the repair.
+One narrow reviewer found a fixture cleanup gap, fixed and checked through
+controller/barrier/fixture timeout controls. A protected C1 stopping-order
+regression was corrected without weakening its test. All 290 workspace cases,
+136 focused session cases, 11 protected runner cases and 13 CLI cases pass;
+each of the prior 283 workspace identities is individually confirmed. The
+C4 evidence document and linked frozen receipts retain the measured domain,
+failed attempts, source support and authority limits.
+
+K16 conservatively charges P≤35/E≤10/RC≤2 minutes including instruments,
+source/evidence, measurements, the one reviewer and coordination/retirement/
+commit; D=X=0. Cumulative correctness bounds are D≤70/RC≤35/P≤140/E≤30/X=0.
+Remaining are D≤20 (all phase-closure reserve), RC=0/P≤100/E≤90/X=0. Its unused
+allocation is not spend. `native-entry-funding-k17`, before the book, is the next
+precise human continuation: executable-entry capture, worker/managed-child
+waitability, ignored/blocked signals and checked handler/mask transitions still
+need a complete priced slice and renewed planning/review authority. Its proposed
+D≤10/RC≤5 renewal is not authorization; it does not consume the closure reserve
+or reset any cap. Root delivery, comparison history and G2–G5/R-W debt remain;
+no parent completion, extraction, target/migration or simplification gain follows.
