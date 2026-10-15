@@ -71,3 +71,64 @@ G4 unread alternatives, G5 runtime and R-W lifecycle/compatibility debt remain.
 Independent-capability delivery, later supported target/migration decisions,
 unchanged configuration/complete sessions, the human book structure and practical
 post-proof reader checkpoint remain root work.
+
+## Decisions (running log)
+
+- The human answered “yes” to the bounded C4 continuation: allocate P≤65/E≤35
+  minutes from the existing correctness balances and raise the phase RC cap
+  from 30 to 35 minutes. The renewed RC≤5 is shared between recording/closing
+  this agreement and C4's single narrow reviewer, coordination and closure.
+  D≤90/P≤240/E≤120/X=0 remain unchanged; the remaining D≤20 is still entirely
+  reserved for phase closure. The acceptance seams and conditional terminal
+  ownership premises already agreed in k7/k8 remain in force. There is one
+  unsettled funding decision here, now answered; no full grilling is needed.
+- Grow only `failed-exec-terminal-recovery` before `book-structure-k5`, using
+  k8's existing design and fixed discriminating checks. This requirements leaf
+  makes no product edits, constructs no fault control and runs no behavioral
+  check. Current-source/toolchain verification belongs to the funded repair;
+  newly necessary discovery/design or a further review needs explicit funding.
+  Native entry remains a separately priced continuation before the book.
+- Charge conservative RC≤3 for this agreement's recording, tree update,
+  verification, retirement and commit, including closure; D=P=E=X=0. The
+  shared renewed pool therefore leaves RC≤2 for C4's one narrow reviewer,
+  coordination and closure. Correctness cumulative charged bounds become
+  D≤70/RC≤33/P≤105/E≤20/X=0. Remaining D≤20 (all phase-closure reserve),
+  RC≤2/P≤135/E≤100/X=0. Allocate C4 P≤65/E≤35/RC≤2, D=X=0;
+  full use would leave D≤20/RC=0/P≤70/E≤65/X=0. Unused allocations are not spend.
+
+## Agreed next mandate
+
+`failed-exec-terminal-recovery-k16` implements/checks k8's existing C4 design
+through the runner and real PTY boundary. Its fixed cases cover observed handoff
+then failed exec, before-handoff/background/unrelated-holder controls, narrow
+recovery-report failures, and pre-exec signal death distinguished from reported
+spawn failure. Preserve original errno, all recovery reports, consumed/late
+cancellation, actual reap and the existing successful-launch policy. Started
+still means spawn-reported success. Exclusive foreground/group-identity premises
+remain conditional and explicit; no post-reap record licenses group signalling.
+
+Protect real-policy CLI behavior and C1/C2/C3 result/cancellation/admission/cleanup
+expectations. Actual source/toolchain verification, private control construction,
+discriminating checks and regressions belong to k16's P/E allocation. Record
+immutable per-case receipts and actual charges; use at most one reviewer within
+the remaining RC. Material redesign, further review or native-entry discovery
+needs explicit funding. K16 precedes `book-structure-k5` and must retain the
+precise native-entry continuation before that agreement. No existing ADR decision,
+configuration/session promise, comparison account or root deliverable changes.
+
+## Verification and stopping state
+
+Resolve and brief-chain identify k16 under the unchanged root brief before the
+book agreement. The book's body has identical SHA-256 before/after its rename
+(`1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a`).
+The full jj diff contains only this agreement, its next mandate, root promotion
+and task renames. Direct whitespace inspection reports no trailing whitespace.
+No product/runtime tests were run; C3 outcomes above come from existing evidence.
+Tier 2 coverage generation `2026-10-15T01:35:21Z` reports matching metadata and
+no recorded gaps for the four touched task/brief paths; their full changed text
+was read directly. That is best-effort coverage, not proof of completeness.
+
+The agreement, root brief and k16 carry the same RC renewal, charged account and
+remaining allocation. No new architectural decision earns an ADR or review leaf.
+K16 and the book remain live, so no parent closes. Retire this requirements leaf
+and seal its one focused jj change; native entry and root delivery remain owed.

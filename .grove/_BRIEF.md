@@ -235,6 +235,25 @@ supported exact slice; any further discovery/design/review funding must be
 agreed without spending the closure reserve. C4/native entry, root delivery
 and documentation remain live, so no parent completion is earned.
 
+K15's human agreement now renews that bounded C4 continuation: “yes” to
+P≤65/E≤35 from existing balances and raising the phase RC cap from 30 to 35
+minutes, sharing the added five between agreement closure and C4's one narrow
+reviewer/coordination/closure. D≤90/P≤240/E≤120/X=0 remain unchanged.
+K15 conservatively charges RC≤3 including recording/tree/verification/retirement/
+commit, D=P=E=X=0; cumulative correctness bounds are now
+D≤70/RC≤33/P≤105/E≤20/X=0. Remaining are D≤20 (all phase-closure reserve),
+RC≤2/P≤135/E≤100/X=0. `failed-exec-terminal-recovery-k16`, before the book,
+allocates P≤65/E≤35/RC≤2, D=X=0 for k8's existing terminal repair, fixed PTY and
+recovery-report controls, protected CLI/C1/C2/C3 checks, evidence and closure.
+Full use would leave D≤20/RC=0/P≤70/E≤65/X=0; allocations are not spend.
+Its actual source/toolchain verification belongs to implementation; material
+redesign or further review requires explicit funding. Lease/identity premises
+stay conditional and Started remains spawn-reported success. Native-entry
+waitability/signal/mask work still needs its precise separately priced
+continuation before the book; no unreserved discovery/design is funded and the
+closure reserve cannot fund it. K4/K6 history and all root obligations below
+remain unchanged; no parent completion or comparative gain is inferred.
+
 K4's reference/frame/spend, k6's separate spend, G2–G5 and R-W runtime/lifecycle
 debt remain. The k7 agreement contains the detailed scope, enabling points and
 test expectations. Correctness repairs precede any later comparative target
