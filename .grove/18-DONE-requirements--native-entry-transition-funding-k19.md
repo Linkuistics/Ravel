@@ -96,3 +96,54 @@ debt remain. No target, extraction, migration, independent adoption,
 simplification gain or root completion follows. Unchanged configuration and
 complete sessions, later design, human book structure and practical post-proof
 reader checkpoint remain live.
+
+## Decisions (running log)
+
+- The human answered **“Approve the bounded renewal (Recommended)”** to the
+  question approving D≤20 additional design/pricing minutes (phase D cap
+  100→120) and RC≤10 additional shared review/coordination/closure minutes
+  (phase RC cap 40→50), preserving the D≤20 phase-closure reserve and retaining
+  phase P≤240/E≤120/X=0. This explicitly renews the k19 proposal; k17's prior
+  approval is not its authority. Zero production disruption remains required.
+- The renewal funds only the exact checked native-entry transition design and
+  complete repair price before the book, through the already agreed public
+  CLI/real-policy/fake-job, transport/real-process and runner/PTY seams and
+  finite justified owner-local controls. It commissions no implementation.
+  Before this agreement's closure charge, the approved caps are
+  D≤120/RC≤50/P≤240/E≤120/X=0, charged bounds remain
+  D≤80/RC≤38/P≤140/E≤30/X=0, and balances are D≤40 (D≤20 for this design/pricing
+  continuation and D≤20 reserved for phase closure), shared RC≤12/P≤100/E≤90/X=0.
+  Proposed allocations remain distinct from charges; the shared RC is not a
+  per-leaf allowance. Required entry correctness and all root obligations remain.
+- Charge conservative RC≤3 minutes for this agreement, recording, tree update,
+  verification, retirement and commit; D=P=E=X=0. Cumulative correctness charged
+  bounds are now D≤80/RC≤41/P≤140/E≤30/X=0. Under the approved caps, balances
+  are D≤40 (D≤20 available for this design/pricing slice and D≤20 exclusively
+  phase-closure reserve), shared RC≤9/P≤100/E≤90/X=0. The renewal is authority;
+  this charge is spend; the continuation's allocation is neither.
+- Insert `native-entry-transitions-k20` as the exact design/pricing continuation
+  before `book-structure-k5`, prospectively allocating D≤20/RC≤4 and P=E=X=0.
+  The D envelope includes D≤12 for checked ownership/transitions, D≤5 for exact
+  cases/private controls and D≤3 for complete pricing/tree/closure. RC≤4 covers
+  at most one focused adversarial transition review and its coordination/closure;
+  the remaining RC≤5 stays shared for subsequent producer work and closure.
+  Actual charges, rather than full allocations, govern later commissioning.
+- This leaf required one human decision: the bounded renewal. Existing
+  requirements and test seams are settled and carried forward, so the full
+  interdependent-question interview is not triggered. No new product design,
+  code, behavioral controls or measurements are produced here. A review of this
+  funding record is not needed; the consequential transition design's one narrow
+  review is explicitly priced in k20. No architectural decision changes, so the
+  ADR set remains current. K20 and the book stay live; the root cannot close.
+
+## Verification
+
+The full jj diff is read for the agreement record, k20 mandate, root promotion
+and filename-only book move. Resolve identifies k20 before the book and its
+brief chain is the root brief. The book's SHA-256 remains
+`1ec62bb523ab56e47af33a7a3030e0605bc37924a6ecbfff88338f898b40d28a`
+across the move. Changed text has no trailing whitespace. This agreement
+changes no product source or runtime contract; no behavioral checks are run
+and no new runtime qualification is claimed. Retirement and the focused jj
+commit include this record and the supported continuation; live k20 and book
+work prevent a parent-close cascade.

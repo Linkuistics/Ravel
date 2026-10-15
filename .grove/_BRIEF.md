@@ -576,3 +576,32 @@ must cover source, finite owner-local controls, red/green, protected CLI/C1–C4
 runner/workspace checks, evidence and closure from actual balances. No reserve
 is borrowed. Native entry, k4/k6/G2–G5/R-W debt and all root delivery/documentation
 obligations remain live; no parent completion or comparative gain follows.
+
+K19's human answered **“Approve the bounded renewal (Recommended)”** to adding
+D≤20 for checked native-entry transition design and complete pricing, and
+RC≤10 for shared review/coordination/closure. Approved phase caps are now
+D≤120/RC≤50/P≤240/E≤120/X=0; the original D≤20 phase-closure reserve and zero
+production disruption remain. K19 charges conservative RC≤3 for agreement,
+recording/tree/verification/retirement/commit, D=P=E=X=0. Cumulative correctness
+charged bounds are D≤80/RC≤41/P≤140/E≤30/X=0. Remaining are D≤40 (D≤20 for
+this design/pricing slice and D≤20 exclusively phase-closure reserve), shared
+RC≤9/P≤100/E≤90/X=0. The approval, allocations and charges are distinct.
+
+`native-entry-transitions-k20`, before the book, is the exact bounded
+design/pricing continuation. It prospectively allocates D≤20 (12 for checked
+ownership/transitions, 5 for exact cases/private controls and 3 for complete
+pricing/tree/closure) and RC≤4 for at most one focused adversarial transition
+review and its coordination/closure; P=E=X=0. Full use leaves D≤20 exclusively
+phase-closure reserve and shared RC≤5/P≤100/E≤90/X=0. Actual charges govern
+later commissioning. The design must settle the k18 entry-to-settlement
+ownership/failure joins, freeze exact discriminators through the already agreed
+CLI/real-process/PTY seams, resolve executable versus private SA_NOCLDWAIT
+reachability, preserve C1–C4 and price the complete useful producer against
+actual balances. Existing capture/shielding are mechanisms to preserve and check.
+No implementation is commissioned from unused P/E balances; unsupported work
+earns a precise continuation before the book without reserve borrowing.
+
+K4/k6 comparison history, G2–G5/R-W debt, the conditional C4 authority premises,
+the separate returning-host contract and all root delivery/documentation
+obligations remain unchanged. K20 and the book remain live, so no parent
+completion, target/migration/extraction or comparative gain is earned.
