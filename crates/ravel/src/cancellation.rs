@@ -15,6 +15,11 @@ static RECEIVED: AtomicI32 = AtomicI32::new(0);
 static PENDING_FAULT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 #[cfg(test)]
 static BLOCK_FAULT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+/// A signal number raised on the finalising thread after the entry mask is
+/// restored and immediately before the final block: the deterministic boundary
+/// at which a runner handler can run with nothing yet blocked.
+#[cfg(test)]
+static RAISE_BEFORE_FINAL_BLOCK: AtomicI32 = AtomicI32::new(0);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Signal {
@@ -178,7 +183,11 @@ impl Handlers {
         // Handlers are still present while entry restoration delivers eligible
         // pending cancellation. Readers retain their independently inherited mask.
         let front = front.or(received());
-        let late = keyed_launch::take_interrupt().and_then(Signal::of);
+        #[cfg(test)]
+        match RAISE_BEFORE_FINAL_BLOCK.swap(0, Ordering::SeqCst) {
+            0 => {}
+            number => assert_eq!(unsafe { libc::raise(number) }, 0),
+        }
         let pending = match self.try_block_and_check() {
             Ok(signal) => signal,
             Err(error) => {
@@ -189,6 +198,12 @@ impl Handlers {
                 None
             }
         };
+        // The runner's handlers outlive supervision and write only their own
+        // latch. Consume it after the block attempt: a handler that ran before
+        // it has stored by now, and a later signal stays pending. A read
+        // before the block lets a signal land between the read and the block,
+        // consumed and so absent from the pending set.
+        let late = keyed_launch::take_interrupt().and_then(Signal::of);
         let signal = front.or(outcome).or(late).or(received()).or(pending);
         let mut released = self.blocked;
         if self.blocked {
@@ -349,6 +364,60 @@ mod tests {
         let _ = handlers.finalise(None);
         assert!(!reports.is_empty());
         assert!(kept, "stale mask knowledge authorised disposition release");
+    }
+
+    /// A real launch leaves the runner's handlers installed over the front's,
+    /// so a signal after the entry restore sets only the runner latch.
+    fn leave_runner_handlers_installed() {
+        let argv = keyed_launch::Argv::new("/usr/bin/true".into(), Vec::new());
+        let ended = keyed_launch::run_noninteractive(
+            keyed_launch::NoninteractiveLaunch {
+                argv: &argv,
+                scrub: &[],
+                cwd: None,
+                escalation: keyed_launch::Escalation {
+                    grace: std::time::Duration::from_secs(1),
+                    kill_grace: std::time::Duration::from_secs(1),
+                },
+            },
+            tempfile::tempfile().unwrap(),
+        )
+        .expect("the trivial launch ends");
+        assert!(matches!(ended.end, keyed_launch::End::Exited));
+        assert_eq!(keyed_launch::take_interrupt(), None);
+    }
+
+    #[test]
+    fn a_runner_signal_between_the_entry_restore_and_the_final_block_cancels() {
+        // Break: read the runner latch before the final block. TERM then runs
+        // the runner handler after that read, is consumed, and is never pending.
+        let mut handlers = Handlers::install().unwrap();
+        leave_runner_handlers_installed();
+        RAISE_BEFORE_FINAL_BLOCK.store(libc::SIGTERM, Ordering::SeqCst);
+        let (signal, reports) = handlers.finalise(None);
+        assert_eq!(
+            RAISE_BEFORE_FINAL_BLOCK.load(Ordering::SeqCst),
+            0,
+            "the boundary was never reached"
+        );
+        assert_eq!(received(), None, "the front handler ran; wrong boundary");
+        let _ = signal_state::restore_mask();
+        assert!(reports.is_empty(), "{reports:?}");
+        assert_eq!(signal.map(Signal::name), Some("SIGTERM"));
+    }
+
+    #[test]
+    fn a_runner_signal_survives_a_failed_final_block() {
+        // Break: drop the runner latch when the final block fails.
+        let mut handlers = Handlers::install().unwrap();
+        leave_runner_handlers_installed();
+        RAISE_BEFORE_FINAL_BLOCK.store(libc::SIGTERM, Ordering::SeqCst);
+        BLOCK_FAULT.store(true, Ordering::Relaxed);
+        let (signal, reports) = handlers.finalise(None);
+        BLOCK_FAULT.store(false, Ordering::Relaxed);
+        let _ = signal_state::restore_mask();
+        assert!(!reports.is_empty(), "the failed block was not reported");
+        assert_eq!(signal.map(Signal::name), Some("SIGTERM"));
     }
 
     #[test]

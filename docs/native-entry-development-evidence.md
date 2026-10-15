@@ -121,6 +121,43 @@ The Unicode timeout remains a failed run. Its real worker was terminated and its
 private directory removed. Passing reruns do not establish the timeout's cause or
 prove default-concurrency reliability. No expectation or timeout was enlarged.
 
+## Tree-owned review of the development artifact
+
+`native-entry-development-k32` read k30's artifact against the current source and
+reported one finding, integrated by `native-entry-development-k33`: common
+finalisation consumed the runner latch **before** it confirmed the final block.
+The runner's handlers outlive supervision and write only their own latch, so a
+TERM arriving between that read and the block was consumed, absent from the
+pending set and invisible to the front latch. Finalisation could then release
+dispositions and the mask and let the result be written. The contract already
+required the final blocked latch/pending snapshot (T8), so this was an
+implementation defect, not an unclear contract. The review made no other
+concrete report-composition finding and states it is not exhaustive.
+
+`Handlers::finalise` now attempts the final block first and consumes the runner
+latch afterwards, whether or not the block succeeded. Front/outcome/late/pending
+precedence is unchanged. Two private development controls discriminate the
+ordering:
+
+- A real trivial launch leaves the runner's handlers installed over the front's.
+  A test-only seam then raises a real TERM on the finalising thread after the
+  entry-mask restore and immediately before the final block. The unfixed order
+  returned no cancellation and failed at that assertion; the corrected order
+  returns SIGTERM. The same boundary is also run with the final block failing
+  (a substituted report), which must keep both the failed-snapshot report and the
+  signal; the unfixed order failed there too.
+- Both controls assert the boundary was reached and that the front handler did
+  not run, so a wrong boundary or wrong handler cannot satisfy them.
+
+These are development controls on this host (aarch64-apple-darwin only), not
+immutable matrix receipts. The signal and runner handler are physical; the
+failing block in the second control is a substituted report. They do not replace
+E06's acknowledged boundary joins or E07's first-consumption cases, which stay
+live in k31, and they qualify neither Linux nor Rust 1.85. After the fix, `check`
+passed 317 run/27 skipped, `test:native-entry` passed its 20 front, 3 runner and
+2 Started checks, and `test:terminal-recovery` passed. The two controls are new
+identities; no existing identity or expectation changed.
+
 ## Exact remainder before acceptance
 
 The [case manifest](native-entry-cases.json) preserves 153 concrete native rows

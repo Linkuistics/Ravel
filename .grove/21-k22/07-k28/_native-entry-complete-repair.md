@@ -240,3 +240,10 @@ documentation obligations remain live. No comparative gain is inferred.
   D≤115/RC≤72/P≤225/E≤60/X=0; remaining D≤20 exclusively phase closure,
   RC≤2/P≤100/E≤70/X=0 shared by k33/k31. Full acceptance, the fixed campaign,
   support qualification and all parent obligations remain live.
+
+- K33 integrated k32's late-runner-latch finding: finalisation now consumes the
+  runner latch after the final block, with two failing-then-passing private
+  controls. Charge RC≤1/P≤10/E≤5, D=X=0. Cumulative bounds are
+  D≤115/RC≤73/P≤235/E≤65/X=0; remaining D≤20 exclusively phase closure,
+  RC≤1/P≤90/E≤65/X=0 for k31. Full acceptance, the fixed campaign, support
+  qualification and all parent obligations remain live.

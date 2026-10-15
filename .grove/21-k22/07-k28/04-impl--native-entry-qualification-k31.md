@@ -60,3 +60,8 @@ exclusively phase closure. Consume k33's actual new charges before proceeding.
 The previous attempt already charged P≤70/E≤30/RC≤4 once, D=X=0. Do not charge
 it again. The parent's full acceptance survives decomposition. A complete local
 native qualification is not supported-target or independent-use qualification.
+
+K33 integrated k32 and charged RC≤1/P≤10/E≤5, D=X=0. Cumulative bounds are now
+D≤115/RC≤73/P≤235/E≤65/X=0; this leaf's remaining balance is D≤20 exclusively
+phase closure, RC≤1/P≤90/E≤65/X=0. Finalisation now consumes the runner latch
+after confirming the block; the E06/E07 joins and the full matrix stay owed here.

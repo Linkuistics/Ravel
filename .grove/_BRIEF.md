@@ -825,3 +825,11 @@ bounds are D≤115/RC≤72/P≤225/E≤60/X=0, leaving D≤20 exclusively phase 
 and shared RC≤2/P≤100/E≤70/X=0 for k33/k31. No parent, phase or root closes;
 support qualification, comparative work and every delivery/book obligation
 remain live.
+
+K33 integrated K32's runner-latch finding: finalisation consumes that latch
+after the final block, covered by two failing-then-passing development controls.
+It charges RC≤1/P≤10/E≤5, D=X=0. Cumulative bounds are
+D≤115/RC≤73/P≤235/E≤65/X=0, leaving D≤20 exclusively phase closure and
+RC≤1/P≤90/E≤65/X=0 for native-entry-qualification-k31. No parent, phase or
+root closes; qualification, support, comparative and delivery/book obligations
+remain live.

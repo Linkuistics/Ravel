@@ -333,3 +333,9 @@ K32 charges RC≤5, D=P=E=X=0 including closure; cumulative bounds are now
 D≤115/RC≤72/P≤225/E≤60/X=0. Remaining D≤20 is exclusively phase closure;
 k33/k31 share RC≤2/P≤100/E≤70/X=0. The full k28 campaign, supported-target
 qualification and all parent/root obligations remain live; no node closes.
+
+K33 fixes and verifies k32's finalisation race (RC≤1/P≤10/E≤5, D=X=0).
+Cumulative bounds are D≤115/RC≤73/P≤235/E≤65/X=0; remaining D≤20 is
+exclusively phase closure and k31 holds RC≤1/P≤90/E≤65/X=0. The full k28
+campaign, supported-target qualification and all parent/root obligations stay
+live; no node closes.
