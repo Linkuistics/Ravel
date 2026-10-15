@@ -393,3 +393,15 @@ envelope, not new protocol, infrastructure or narrower acceptance. No
 correctness/root closure, book acceptance, comparative gain or support
 qualification follows. K4/k6, G2–G5/R-W and the root's delivery/documentation
 work remain live.
+
+`native-entry-fault-families-funding-k39` repriced the remainder after k34 and
+k35 from their actual charges. K35's rows cost about 2.8 P each, against the
+0.5–0.8 P assumed when k31 was decomposed, and F02, F04 and F06 have no fault
+seams yet. The remaining price is P≤112/E≤84/RC≤13. Projections: fault families
+P≤58/E≤31/RC≤2, settlement controls P≤27/E≤18/RC≤1, campaign and receipts
+P≤27/E≤35/RC≤2, the funding session RC≤3 and an optional RC≤5 instrument review.
+The human's answer was **“Renew full shortfall (Recommended)”**. Approved caps
+are D≤135/RC≤87/P≤402/E≤174/X=0, with zero production disruption and the D≤20
+closure reserve intact. After k39's RC≤3, balances are D≤20 exclusively phase
+closure and RC≤10/P≤112/E≤84/X=0 shared by the remaining children. Review
+integration, support qualification and narrower acceptance are not funded.

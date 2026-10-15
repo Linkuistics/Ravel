@@ -833,3 +833,15 @@ D≤115/RC≤73/P≤235/E≤65/X=0, leaving D≤20 exclusively phase closure and
 RC≤1/P≤90/E≤65/X=0 for native-entry-qualification-k31. No parent, phase or
 root closes; qualification, support, comparative and delivery/book obligations
 remain live.
+
+K31's controller and handoff/reader children, recorded in its brief, charged
+RC≤1/P≤55/E≤25, leaving cumulative bounds D≤115/RC≤74/P≤290/E≤90/X=0. Their
+actual rate showed the remaining price, P≤112/E≤84/RC≤13, exceeded the balance.
+K39's human answered verbatim **“Renew full shortfall (Recommended)”**: add
+RC≤13/P≤77/E≤44, no D/X, raising phase caps to D≤135/RC≤87/P≤402/E≤174/X=0
+with zero production disruption and the original D≤20 closure reserve intact.
+K39 charges RC≤3, D=P=E=X=0. Cumulative bounds are D≤115/RC≤77/P≤290/E≤90/X=0;
+remaining D≤20 exclusively phase closure, RC≤10/P≤112/E≤84/X=0 for k31's
+fault-family, settlement and campaign children and one optional instrument
+review. No phase or root closes; support, comparative and delivery/book
+obligations remain live.

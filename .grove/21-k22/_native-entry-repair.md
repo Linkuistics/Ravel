@@ -368,3 +368,15 @@ k28 campaign, supported-target qualification and all parent/root obligations
 stay live; no node closes. K31's remaining children are the k39 funding
 question, k36 fault families, k37 settlement controls and k38
 campaign/receipts.
+
+K39 (inside k31) recomputed the remaining qualification from actual charges at
+P≤112/E≤84/RC≤13. Its human answered verbatim **“Renew full shortfall
+(Recommended)”**: add RC≤13/P≤77/E≤44, no D/X, raising caps to
+D≤135/RC≤87/P≤402/E≤174/X=0 with zero production disruption and the original
+D≤20 phase-closure reserve intact. K39 charges RC≤3, D=P=E=X=0. Cumulative
+bounds are D≤115/RC≤77/P≤290/E≤90/X=0; remaining D≤20 exclusively phase
+closure, RC≤10/P≤112/E≤84/X=0, shared by k36–k38 and an optional RC≤5
+tree-owned instrument review, each charging actual work. Full use leaves only
+D≤20 reserved. No protocol, infrastructure, review integration, support
+qualification or narrower acceptance is funded. Rust 1.85/Linux, returning host,
+k4/k6/G2–G5/R-W and all root obligations remain live; no node closes.

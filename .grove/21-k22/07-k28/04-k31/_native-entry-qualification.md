@@ -104,3 +104,17 @@ campaign/receipts and the support continuation.
   remaining children are the k39 funding question, then k36 fault families, k37
   settlement controls and k38 campaign/receipts. The older worker/terminal
   fixture helpers (F03/S03 and C4) are still not routed through the controller.
+- K39 recomputed the remainder from actual charges (k35 about 2.8 P per row
+  against the projected 0.5–0.8; F02/F04/F06 have no fault seams yet) at
+  P≤112/E≤84/RC≤13. The human answered verbatim **“Renew full shortfall
+  (Recommended)”**: add RC≤13/P≤77/E≤44, no D/X, so caps become
+  D≤135/RC≤87/P≤402/E≤174/X=0 with the D≤20 closure reserve and zero
+  production disruption intact. K39 charges RC≤3, D=P=E=X=0. Cumulative bounds
+  are D≤115/RC≤77/P≤290/E≤90/X=0; remaining D≤20 exclusively closure,
+  RC≤10/P≤112/E≤84/X=0, shared by k36–k38 and the optional review, each charging
+  actual work and passing the balance forward. Projections, not allocations:
+  k36 P≤58/E≤31/RC≤2, k37 P≤27/E≤18/RC≤1, k38 P≤27/E≤35/RC≤2, and RC≤5 for one
+  tree-owned review of the new instruments that k37 cuts before k38's freeze
+  only if it judges one necessary. Review integration, Rust 1.85/Linux
+  qualification and returning host are not funded. Full use leaves only D≤20
+  reserved; an overrun stops at a precise continuation. No node closes.

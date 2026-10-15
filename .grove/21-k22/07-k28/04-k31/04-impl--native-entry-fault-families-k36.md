@@ -13,6 +13,12 @@ Mutation rows keep both the omitted and the performed+substituted modes; query
 rows use the substituted report. Pre-exec controls stay fixed and allocation-free.
 Never rewrite a report to model an irreversible physical operation.
 
+Funding (k39): k36–k38 share RC≤10/P≤112/E≤84, D=X=0, with D≤20 reserved
+exclusively for phase closure. This leaf's projection, not allocation, is
+P≤58/E≤31/RC≤2: 38 owner-site rows (F02, F04, F05 finalisation) and 14
+live-child/PTY rows (F05 Started, F06, paired, queued-TERM). Charge actual work
+and pass the balance forward; an overrun stops at a precise continuation.
+
 ## Done when
 
 - All 46 F rows plus four paired and two cancellation cases run on the controller

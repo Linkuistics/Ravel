@@ -276,3 +276,14 @@ k28 campaign, supported-target qualification and all parent/root obligations
 stay live; no node closes. K31's remaining children are the k39 funding
 question, k36 fault families, k37 settlement controls and k38
 campaign/receipts.
+
+- K39's human answered verbatim **“Renew full shortfall (Recommended)”** to the
+  remainder recomputed from actual charges (P≤112/E≤84/RC≤13): add
+  RC≤13/P≤77/E≤44, no D/X, so caps become D≤135/RC≤87/P≤402/E≤174/X=0, with
+  the D≤20 closure reserve and zero production disruption intact. K39 charges
+  RC≤3, D=P=E=X=0. Cumulative bounds are D≤115/RC≤77/P≤290/E≤90/X=0; remaining
+  D≤20 exclusively phase closure, RC≤10/P≤112/E≤84/X=0, shared by k36–k38 and
+  an optional RC≤5 tree-owned instrument review, each charging actual work. The
+  unchanged matrix, amendments and 30/5/5 envelope carry forward; review
+  integration, support qualification and narrower acceptance are not funded.
+  The full k28 campaign and all parent/root obligations stay live.

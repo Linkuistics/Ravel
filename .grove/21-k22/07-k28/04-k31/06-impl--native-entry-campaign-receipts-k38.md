@@ -12,6 +12,11 @@ Runs after k34–k37 are committed and all instruments are finished. Read the k3
 brief's Done when. Any input change invalidates the affected rows; rerun them.
 Read the "provenance of a measurement" rules in the Grove execute reference.
 
+Funding (k39): this leaf's projection, from the shared balance, is
+P≤27/E≤35/RC≤2: receipt/digest tooling, the incumbent subject, the campaign,
+evidence and docs, and pricing and cutting the support continuation. That
+continuation's funding question charges its own RC inside the renewal it asks for.
+
 ## Done when
 
 - Source/instrument/helper/reference/exclusion/toolchain subjects digested before
