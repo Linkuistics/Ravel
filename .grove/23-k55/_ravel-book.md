@@ -162,6 +162,11 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Opening-unit proof checked the corrected worker-directory sequence against
+  source and found no further chapter correction. `docs/book/figures.md`
+  records art and proof's separate local viewing coverage and the remote,
+  theme and viewport limits. Keep those limits distinct from the owner's
+  later stand-in read and the release's publication checks.
 - The opening unit was drafted before chapters 3–6 existed, so its forward
   mentions use chapter numbers and titles. Once those targets exist, link the
   mentions in chapters 1 and 2 as part of `book-first-half`; chapter 6 links

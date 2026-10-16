@@ -51,22 +51,6 @@ authority.
 - The reader is the contract's reader. Do not teach shell, Git, JSON, Rust,
   TypeScript or the general OS concepts it assumes.
 
-## Handed forward
-
-- **Proof** — chapters 3–6 do not exist at this draft, so their forward mentions
-  are plain chapter numbers/titles. Link them when targets exist during the
-  first-half set proof; chapter 6 remains page-level. The parent already carries
-  the second-half conversion for chapters 7–12. Check every first-use term link
-  against the final wording and figures.
-- **Proof** — art k80 inspected both figures in local mdBook through native
-  Chrome with Auto displaying a light page and with Navy. Chapter 2's container
-  figure and nested-publication, worker-directory sequence and information
-  tables also rendered legibly in VS Code's light Markdown preview. Other
-  mdBook themes, narrower viewports and chapter 1's editor preview remain
-  uninspected; `docs/book/figures.md` records the exact coverage. Native app
-  access works even though the browser inventory is empty and `iab` unavailable.
-  GitHub and the published site remain unavailable before push/publication.
-
 ## Figures delivered
 
 `system-context.puml` and `process-authority.puml`, with generated SVGs, are

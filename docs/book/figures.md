@@ -160,6 +160,13 @@ tables were inspected in Navy. Its container figure and those tables also
 rendered legibly in VS Code's Markdown preview, in Restricted Mode on a light
 background. The raw chapter and PlantUML sources were read alongside them.
 
+Opening-unit proof independently inspected both figures and their surrounding
+notation in the locally served mdBook through native Chrome on 2026-10-16,
+on a light page. Chapter 2's authority, nested-publication, worker-directory
+sequence and information tables were legible there too. Both chapters and
+their figure sources were read in raw form. These checks do not extend the
+earlier art inspection to additional themes, editor previews or viewport sizes.
+
 The computer-use browser inventory was empty and the in-app browser unavailable;
 native app access supplied these checks. No human comprehension result follows
 from an art-stage visual inspection.
