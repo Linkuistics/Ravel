@@ -33,3 +33,30 @@ outside the book. Mechanical checks do not establish human comprehension.
 - Last act: add the `art` leaf with bare stem `writing-an-owner-policy` unless a
   live later sibling already holds it, with the actual figure/text needs in its
   body. Retire and commit this leaf normally.
+
+## Decisions (running log)
+
+- One spelling per term, matching chapters 1–3: "managed program", "managed
+  agent" and "the managed group" became the managed process and the managed
+  process's group; "the front" became the native front; the environment
+  variable the managed process inherits is the session-result context, not the
+  result channel (contract term risks).
+- First-use links on this page added for caller, session, policy worker,
+  native front, managed process, session-result context and confinement, to
+  the chapter 2 anchors chapter 3 uses. Forward chapter 5, 6 and 9 mentions
+  stay plain text (their pages do not exist; the set proof links them).
+- Uncheckable or figurative wording replaced by its mechanism: the default
+  export sentence now names the `policy` export the worker checks
+  (`crates/ravel/worker/src/main.ts`, "no named export"); "package shadow" and
+  "embedded registration" now say the alias never reaches the embedded module;
+  the selection-deadline outcome is named `selection_timeout`; helpers that
+  "return" a code now return a refusal with that code; "terminal routes" now
+  says both routes start interactive agents that need a terminal.
+- Slash pairs written out (`invalid or unserialisable`, `context or read`,
+  `private and obsolete`, `name and exports`, `main` and `exports`);
+  "unserializable" to British spelling; demonstratives given nouns ("This
+  check", "Changing to `/`").
+- No structural or technical-truth defect found; no correction run cut.
+  Every code block and example label is byte-identical to the draft (checked
+  by extracting both from `@-` and the working copy). `task docs:examples`:
+  7 passed, 0 failed, 0 skipped; `task docs:book:build` passed.

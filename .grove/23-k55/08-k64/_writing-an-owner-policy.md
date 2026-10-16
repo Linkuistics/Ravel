@@ -162,3 +162,12 @@ under the contract. Human comprehension, actual agent execution, terminal
 interaction, editor/GitHub rendering and publication remain unmeasured by this
 draft. The dated personal handoff remains untouched in owner-configuration.md
 until the planned guide-migration leaf preserves it outside the book.
+
+## Copy-edit to art
+
+Copy-edit changed sentences and terms only: the chapter now uses chapter 1–3's
+spellings (managed process, the managed process's group, native front,
+session-result context for the inherited `RAVEL_EXIT_FILE` path) and links
+each term-list word at its first use on the page. Every code block and example
+label is unchanged, and the examples check and book build passed afterwards.
+Nothing was handed forward to art or proof beyond the art leaf's own body.
