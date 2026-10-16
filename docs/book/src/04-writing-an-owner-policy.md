@@ -360,7 +360,7 @@ Run it from the checkout root after its development dependencies are installed.
 )
 ```
 
-The policies on this page need no Bun-specific global types, so the standalone
+The policies introduced so far need no Bun-specific global types, so the standalone
 configuration uses `types: []`. A policy using runtime-specific APIs needs the
 corresponding development declarations too. Keep runtime validation: the
 installed worker still checks the object and selection it actually receives.
@@ -742,3 +742,805 @@ refusal without depending on permissions. Remove that directory with `rmdir`
 before restoring a choice file. The other unreadable-file conditions share
 `choice_unreadable`; this example demonstrates that code, not every filesystem
 failure that can produce it.
+
+## Supply policy context
+
+A caller can supply a JSON document with `--context PATH`. The path is relative
+to the caller's working directory and names a readable regular file. Its
+`schemaVersion` is `1`, independently of the policy's version-2 interface.
+The document carries facts and attributed judgements that your policy can use
+to choose among commands it defines. It does not grant permission to run a
+command named by those facts.
+
+| Field | Accepted data |
+|---|---|
+| `schemaVersion` | Required: the number `1`. |
+| `summary` | Optional string; it can be empty. |
+| `acceptanceCriteria` | Optional array of strings. |
+| `facts` | Optional object whose values are JSON data. |
+| `assessments` | Optional object whose values are `{ by, value }`: a nonblank author name and JSON data. |
+| `sources` | Optional array of at most 256 source records. Each has a nonblank `name` and identifies the source with `sha256`, a nonblank `version`, or both. An optional `bytes` is a nonnegative whole number. A digest is 64 lowercase hexadecimal digits. |
+
+Absent means unknown. For example, an absent `facts` differs from a known empty
+object. Unknown top-level fields refuse, including `program`, `args`, `argv`,
+`command`, `select`, `loadContext`, `env`, `environment`, `exec`, `shell` and
+`script`. Nested JSON facts remain data even if a key has one of those names.
+Neither the caller nor the loader supplies the `measured` field: Ravel adds it.
+One JSON object shape is reserved even inside facts or assessment values: an
+object whose only key is `$ravel`. Ravel uses that shape to mark values JSON
+cannot carry and refuses it as `context_invalid`; choose another key for your
+own data.
+
+Without `loadContext`, `select` receives the caller's document with that
+measurement attached, or `undefined` when the caller supplied none. With a
+loader, `select` receives what the loader returns instead. The loader receives
+`request.context`, so it can explicitly retain or replace the caller's data;
+Ravel does not merge the two documents for you. The loader can be asynchronous
+and shares the selection deadline with policy import and `select`.
+
+The loader's host offers two synchronous reads:
+
+| Operation | Return value |
+|---|---|
+| `host.readText(path, maxBytes?)` | `{ text, source }`, decoding the file as UTF-8. |
+| `host.readJson(path, maxBytes?)` | `{ value, source }`, decoding UTF-8 and parsing JSON. Validate the resulting JSON for your policy's own needs. |
+
+Both resolve relative paths against `request.cwd`, require a regular file and
+return a `source` with its canonical `name`, actual `bytes` and `sha256`.
+The default read limit is 65,536 bytes, reduced to the context budget if that is
+smaller. A positive whole-number `maxBytes` can set a read's limit up to the
+context budget. A read exceeding its limit, requesting more than the budget,
+or exceeding the measured-source count refuses even if the loader catches its
+exception. A missing file, bad UTF-8 or invalid JSON throws; if that error
+escapes the loader, the refusal identifies the unreadable source. A loader
+that requires valid content can return its own refusal, just as `select` can;
+then `select` is not called.
+
+Ravel attaches a `measured` array to the frozen delivered document. Its records
+have `name`, `bytes`, `sha256` and `via` (`"--context"`, `"readText"` or
+`"readJson"`). The caller's document is first, then successful host reads in
+order, including repeated reads of the same file. The limit is 256 measured
+records, counting the caller's document. The document's own `sources` array
+has a separate 256-record limit. The entire delivered JSON, including
+`measured`, has to fit the context budget; a small input file can still produce
+an oversized delivered document once its measurement is attached.
+
+A `sources` record or an assessment's `by` attributes a claim. A host measurement
+identifies the bytes read. Neither authenticates the author or proves the claim
+true. Trusted owner code can also read files or the network directly, but those
+reads are outside this measurement ledger. Keep routing authority in owner
+code: use outside information to choose a defined route, rather than treating
+outside text as a program or an argument template to execute.
+
+This example retains caller data and adds a local readiness fact and summary.
+The JSON readiness file is checked before the text is read. The fake reports
+the summary and the measurement methods, so the two successful commands show
+what changes when the caller supplies a document.
+
+Complete example: assemble policy context, validate its required fact, and
+exercise caller-data, unreadable-source and read-bound refusals.
+
+**`policy.ts`**
+
+```ts
+import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-context-1",
+  loadContext(request, host) {
+    const readiness = host.readJson("ready.json");
+    const value = readiness.value;
+    if (value === null || typeof value !== "object" || Array.isArray(value)
+        || !("ready" in value) || value.ready !== true) {
+      return {
+        status: "refused",
+        code: "not_ready",
+        message: "The local readiness file does not say ready: true.",
+        remedy: "Set ready to true in ready.json when the work is ready.",
+      };
+    }
+    const brief = host.readText("brief.txt", 128);
+    return {
+      ...request.context,
+      schemaVersion: 1,
+      summary: brief.text.trim(),
+      facts: { ...request.context?.facts, ready: true },
+      sources: [...(request.context?.sources ?? []), readiness.source, brief.source],
+    };
+  },
+  select(request, context) {
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [context?.summary ?? "", context?.measured.map((s) => s.via).join(",") ?? ""],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: `Local readiness accepted for ${request.kind}.`,
+    };
+  },
+});
+```
+
+**`caller.json`**
+
+```json
+{
+  "schemaVersion": 1,
+  "acceptanceCriteria": ["Keep the public interface unchanged."],
+  "assessments": { "scope": { "by": "caller", "value": "small" } },
+  "sources": [{ "name": "work-brief", "version": "revision-1" }]
+}
+```
+
+**`ready.json`**
+
+```json
+{"ready": true}
+```
+
+**`brief.txt`**
+
+```text
+Check the interface.
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+set -eu
+[ "$#" -eq 2 ]
+result=$(printf '%s\n%s' "$1" "$2")
+ravel end-session -- "$result"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Report the supplied summary and source methods.'
+```
+
+**Standard output, without a final newline**
+
+```text
+Check the interface.
+readJson,readText
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Report the supplied summary and source methods.'
+```
+
+**Standard output, without a final newline**
+
+```text
+Check the interface.
+--context,readJson,readText
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ printf '{"ready":false}\n' > ready.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+  policy code: not_ready
+  remedy: Set ready to true in ready.json when the work is ready.
+```
+
+**Exit status**
+
+```text
+3
+```
+
+**Command**
+
+```console
+$ printf '{"ready":true}\n' > ready.json && rm brief.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+  source: <scratch>/work/brief.txt
+  location: policy.loadContext
+```
+
+**Exit status**
+
+```text
+3
+```
+
+**Command**
+
+```console
+$ printf '%129s' x > brief.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+ravel: refused (source_too_large, stage context): loadContext in <scratch>/work/policy.ts read <scratch>/work/brief.txt, which holds more than its limit of 128 bytes (129 bytes or more)
+```
+
+**Exit status**
+
+```text
+3
+```
+
+**Command**
+
+```console
+$ printf '{"schemaVersion":1,"program":"fake-agent"}\n' > caller.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+ravel: refused (context_invalid, stage context): `program` would be an executable field, and a context is data: it supplies no program, argument, environment or policy
+```
+
+**Exit status**
+
+```text
+3
+```
+
+The final command refuses the caller's invalid document before running the
+loader, so the oversized text file from the preceding command is not read.
+These examples exercise the policy's one accepted route and explicit refusal,
+plus representative Ravel refusals. The complete policy-context diagnostic
+vocabulary is below; all these codes exit 3 and launch nothing.
+
+| Code | What to correct |
+|---|---|
+| `context_unreadable` | The `--context` path cannot be read as a regular file. |
+| `context_invalid` | The document is not valid JSON or has the wrong shape; the loader returns invalid/unserializable data or no document, or supplies `measured` itself. |
+| `unsupported_version` | A nonnegative integer representable as an unsigned 64-bit value names a context schema version other than 1. Negative, fractional or wrong-type versions are `context_invalid`. |
+| `context_loader_failed` | The loader throws or rejects for a reason other than a recognised source-read failure or bound breach. |
+| `context_loader_unsettled` | The loader's promise remains pending after no work is left that could settle it. |
+| `context_source_unreadable` | A required host read fails, including bad UTF-8 or JSON, and that failure escapes the loader. |
+| `source_too_large` | A host read exceeds its limit or asks for a limit above the context budget. |
+| `too_many_sources` | Either the measured ledger or the document's attributed `sources` exceeds 256 entries. |
+| `context_too_large` | The caller document or the delivered document exceeds the context budget. |
+| `policy_refused` | The loader returns a well-formed refusal; its own code, message and remedy explain the requirement. |
+
+A promise that keeps work alive until the deadline has the selection-timeout
+outcome instead. Invalid host arguments can produce a loader failure; a malformed
+refusal returned by the loader is invalid context. Chapter 6, Reference, supplies
+the complete lookup entries, including failures shared with policy selection.
+
+## Set bounds and grant environment names
+
+Owner settings live at `$HOME/.config/ravel/settings.json`, even when
+`--config` chooses another policy. The file is optional; an absent file or an
+empty JSON object selects the defaults. If `HOME` is missing or relative, no
+settings file is read; the default policy entry still needs an absolute `HOME`,
+so use an explicit entry in that case.
+
+| Key | Value and default | Caller adjustment |
+|---|---|---|
+| `timeoutMs` | Whole-number milliseconds, 1,000–600,000 inclusive; default 30,000. | `--timeout-ms` replaces it. |
+| `contextBytes` | Whole-number bytes, 1–8,388,608 inclusive; default 262,144 (256 KiB). | `--context-bytes` replaces it. |
+| `policyEnv` | Array of environment-variable names; default no extra grants. | Each `--policy-env NAME` adds one name. |
+
+Settings are checked as a whole before overrides are applied. A valid CLI
+replacement does not rescue an invalid setting. An unreadable or non-regular
+settings file, invalid JSON, a non-object document, a `policyEnv` value other
+than an array of strings, or an unknown key
+produces `settings_invalid` (exit 2). An invalid numeric bound or malformed
+grant name produces `malformed_input` (exit 2). Unknown keys include obsolete
+`stateDir`; remove it rather than pointing it at an old store. No storage is
+opened. CLI numeric bounds accept only plain decimal digits within the range,
+with no sign, fraction, exponent or whitespace; values are never clamped.
+
+The request reports six effective limits. The first two settings affect the
+others only as shown here; they do not bound the managed program's running time.
+
+| Request field | Effective bound | How it is set |
+|---|---|---|
+| `selectionMs` | Policy import, loader and selection together, timed from worker spawn. | `timeoutMs`, then a replacing `--timeout-ms`; otherwise 30,000 ms. |
+| `contextBytes` | Caller document and delivered policy-context JSON, including measured records. | `contextBytes`, then a replacing `--context-bytes`; otherwise 262,144 bytes. |
+| `sourceBytes` | Default bytes for one host read. | The smaller of 65,536 and `contextBytes`; a read can set `maxBytes` from 1 through `contextBytes`. |
+| `sources` | Measured records, including the caller document; separately, attributed source records. | Fixed at 256 for each array. |
+| `messageBytes` | A policy snapshot or selection result in the private protocol. | Fixed at 1,048,576 bytes (1 MiB). The context has its own budget. |
+| `diagnosticsBytes` | Worker standard output and standard error combined. | Fixed at 262,144 bytes (256 KiB). |
+
+Overflow refuses rather than truncating data to fit. A context/read overflow
+uses the codes above; a policy snapshot or selection exceeding its protocol
+bound uses `message_too_large`, and excessive worker output uses
+`output_limit` (both exit 3). For excessive output Ravel retains only the first
+262,144 diagnostic bytes and discards the rest while stopping the worker; this
+does not admit the selection. Exceeding the selection deadline is
+`selection_timeout` (exit 124). A caller can increase an adjustable bound only
+within its hard range; the policy cannot raise a bound by changing request data.
+
+The policy worker receives the caller's `HOME`, `PATH`, `TMPDIR`, `LANG` and
+`LC_*` variables when present. Grant additional names only when policy code
+needs their values, for example to make a network request while choosing a
+route. The grant is a name, never `NAME=value`; its value comes from the front's
+environment. Duplicate names collapse to one grant. A name that is unset stays
+unset. Grant diagnostics report names and whether they are set, never values;
+your own policy can still disclose a value if it prints one.
+
+The following exclusions are case-sensitive and apply to both settings and
+CLI grants. An excluded name produces `excluded_grant` (exit 2).
+
+| Name or prefix pattern | Why it is excluded |
+|---|---|
+| `BUN_*` | Runtime startup and options, including preloads and runtime mode. |
+| `NODE_OPTIONS`, `NODE_PATH`, `NODE_PRESERVE_SYMLINKS` | Runtime startup and module resolution. |
+| `NODE_CHANNEL_*` | Runtime IPC descriptors and channel options. |
+| `LD_*`, `DYLD_*` | Dynamic-loader inputs. |
+| `RAVEL_*` | Ravel's own controls, including session-result authority. |
+| `HARNESS_DISPATCH_*` | Legacy dispatch controls. |
+
+Ravel itself sets `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0` in the worker; an owner
+grant cannot replace it. The exclusions match these exact names and prefixes,
+not every name beginning with `NODE` or `BUN`. A grant name must be nonempty
+UTF-8 and contain no `=`. The worker's environment is distinct from the managed
+program's: an unconfined managed program otherwise inherits the caller's
+environment after Ravel scrubs its private/obsolete controls and supplies its
+own result channel. Granting a credential to the worker is not needed merely
+because the managed agent uses that credential. Confinement has its own managed
+environment rules, taught in chapter 5, Running sessions.
+
+The next policy reports only whether two invented grant names are present.
+Its output also shows how a lowered context budget reduces the default read
+limit. The fake publishes that report exactly.
+
+Complete example: observe settings, CLI replacements and additional grants,
+then reject an obsolete key and a forbidden grant.
+
+**`home/.config/ravel/settings.json`**
+
+```json
+{"timeoutMs": 5000, "contextBytes": 1024, "policyEnv": ["BOOK_FIRST"]}
+```
+
+**`policy.ts`**
+
+```ts
+import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-settings-1",
+  select(request) {
+    const limits = request.limits;
+    const report = [limits.selectionMs, limits.contextBytes, limits.sourceBytes,
+      limits.sources, limits.messageBytes, limits.diagnosticsBytes,
+      process.env.BOOK_FIRST !== undefined, process.env.BOOK_SECOND !== undefined];
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [JSON.stringify(report)],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Report effective bounds and grant presence.",
+    };
+  },
+});
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+set -eu
+[ "$#" -eq 1 ]
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
+```
+
+**Standard output, without a final newline**
+
+```text
+[5000,1024,1024,256,1048576,262144,true,false]
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --timeout-ms 6000 --context-bytes 2048 --policy-env BOOK_SECOND --prompt 'Report effective bounds and grant presence.'
+```
+
+**Standard output, without a final newline**
+
+```text
+[6000,2048,2048,256,1048576,262144,true,true]
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ rm home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
+```
+
+**Standard output, without a final newline**
+
+```text
+[30000,262144,65536,256,1048576,262144,false,false]
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ printf '{"stateDir":"old-store"}\n' > home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+ravel: refused (settings_invalid, stage cli): the owner settings file <scratch>/work/home/.config/ravel/settings.json holds the unknown key "stateDir"
+```
+
+**Exit status**
+
+```text
+2
+```
+
+**Command**
+
+```console
+$ rm home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --policy-env NODE_OPTIONS --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+ravel: refused (excluded_grant, stage cli): --policy-env NODE_OPTIONS is never granted to the policy worker: NODE_OPTIONS, NODE_PATH and NODE_PRESERVE_SYMLINKS change what code loads, and from where
+```
+
+**Exit status**
+
+```text
+2
+```
+
+## Resolve policy imports
+
+Use the literal import names `ravel/sdk` and `ravel/examples/static` for the
+embedded modules. They resolve to the worker's embedded copies even when a
+package beside your policy tries to supply those same names. Ravel reserves
+only those two exact names; `ravel/anything-else` is an ordinary package lookup.
+Editing installed SDK source or a copied static table does not change the
+embedded copies. Import a local copy by its file path when you intend to use it.
+
+Relative imports resolve beside the importing file. If your entry is a symlink,
+its real file determines that location. Keep a helper beside the policy and
+write, for example, `import { route } from "./routes.ts"`. The agent example
+below exercises that layout. A relative host read is different: it resolves
+against the caller's `request.cwd`, as the context example showed.
+
+Ordinary dependencies resolve from their importing file's location through
+Bun's package resolver. The nearest `package.json` that reads as a package
+supplies the `imports` map and the package's own name/exports; an unparseable
+or non-package file is passed over. Package main/exports resolution remains
+enabled. Install dependencies yourself: the standalone worker does not
+install a missing dependency automatically.
+
+An alias in a package's `imports` map whose target is `ravel/sdk` is still a
+package lookup. It does not return to the embedded registration and can load
+a package shadow. Use the literal `ravel/sdk` import when you need that embedded
+identity. The same qualification applies to `ravel/examples/static`.
+
+The compiled worker disables dotenv, bunfig and tsconfig autoloading. A
+`tsconfig.json` path alias that helps your editor therefore does not by itself
+make a runtime import work. `package.json` autoloading stays enabled for the
+package behaviour above. The front clears runtime-injection variables and
+disables Bun's runtime transpiler cache before starting the worker in a private
+empty directory. Before importing owner code, the worker changes its directory
+to `/`. File imports still resolve from their files; imports without a file
+location, such as a virtual module, resolve from that process directory.
+
+This keeps the temporary directory's ancestors out of those no-file lookups;
+it leaves `/package.json` and `/node_modules` within the resolver's reach.
+Owner code can change directory or import arbitrary code itself. A native Bun
+`Worker` created by policy code starts another runtime instance; the disabled
+dotenv switch prevents that instance from loading ambient dotenv files.
+These controls govern startup and resolution, not confinement of trusted owner
+code. The policy still runs outside any managed-process confinement.
+
+## Route to Claude Code and Codex
+
+Once the fake checks establish your routing, a route can name an installed
+agent program. Ravel treats it as an executable: it neither configures an
+account nor supplies a prompt convention. Follow the
+[Claude Code quickstart](https://code.claude.com/docs/en/quickstart) or
+[Codex CLI documentation](https://learn.chatgpt.com/docs/codex/cli) for
+installation and sign-in. Agent installation, accounts and credentials are
+outside this chapter.
+
+The flags below were checked on 2026-10-16 against the installed programs'
+own `--version` and `--help`: Claude Code 2.1.301 and codex-cli 0.163.0.
+Recheck your installed help when changing a route. This records flag support;
+it is not a real-agent execution test.
+
+| Program | Arguments this example uses | Meaning in the checked help |
+|---|---|---|
+| `claude` | `--effort medium`, then the prompt after `--` | Sets effort and supplies the initial prompt. The normal CLI is interactive; `-p`/`--print` selects noninteractive output instead. |
+| `codex` | `--no-daemon --no-alt-screen --sandbox workspace-write --ask-for-approval on-request`, then the prompt after `--` | Runs without the shared background server, preserves terminal scrollback, selects the workspace-write sandbox and lets the agent request approvals. Omitting a subcommand selects the interactive CLI. |
+
+The `--` separator keeps an option-looking prompt positional. These routes use
+the agents' configured model defaults; the Ravel label `configured-default`
+describes that decision, rather than claiming a particular resolved model.
+An explicit model choice belongs in the agent's arguments as well as any Ravel
+label you use to report it. Ravel's `effort` label does not set agent effort:
+the Claude route passes a real flag, while the Codex route leaves it configured.
+
+These are terminal routes for attended work. Run a real interactive agent from
+a foreground terminal so Ravel can lend the terminal to its managed process.
+`--no-alt-screen` changes Codex's display, not whether it needs a terminal.
+`--no-daemon` keeps this example's Codex invocation out of a shared background
+server; do not assume a process that escapes the managed group is supervised
+by Ravel. Chapter 9, Jobs, signals and the terminal, explains terminal lending,
+recovery and the process-group boundary. The automated example below uses fake
+programs without a terminal and establishes argument delivery only.
+
+The caller's prompt includes the ending command and the exact opaque result.
+The real agent needs permission to execute that command and write the inherited
+result path; its own sandbox and approval settings are independent of Ravel's.
+If the agent exits without publishing, even with status 0, Ravel reports no
+result. Put `ravel` on the agent's `PATH`, or write its installed absolute path
+in the ending instructions. Ravel inserts none of these instructions itself.
+
+Complete example: validate both agent routes and the unknown-kind refusal,
+using fake executables that return the received argument vector.
+
+**`policy.ts`**
+
+```ts
+import { definePolicy } from "ravel/sdk";
+import { route } from "./routes.ts";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-agents-1",
+  select: route,
+});
+```
+
+**`routes.ts`**
+
+```ts
+import type { SelectionRequest, SelectionResult } from "ravel/sdk";
+
+export function route(request: SelectionRequest): SelectionResult {
+  if (request.kind === "claude-demo") {
+    return {
+      status: "selected",
+      program: "claude",
+      args: ["--effort", "medium", "--", request.prompt],
+      provider: "agent-configured",
+      model: "configured-default",
+      effort: "medium",
+      reason: "Use the attended Claude Code route.",
+    };
+  }
+  if (request.kind === "codex-demo") {
+    return {
+      status: "selected",
+      program: "codex",
+      args: ["--no-daemon", "--no-alt-screen", "--sandbox", "workspace-write",
+        "--ask-for-approval", "on-request", "--", request.prompt],
+      provider: "agent-configured",
+      model: "configured-default",
+      effort: "configured-default",
+      reason: "Use the attended Codex route.",
+    };
+  }
+  return {
+    status: "refused",
+    code: "unsupported_kind",
+    message: "No agent route matches this kind.",
+    remedy: "Use claude-demo or codex-demo, or add an owner route.",
+  };
+}
+```
+
+**`bin/claude`**
+
+```sh
+#!/bin/sh
+set -eu
+result=$(printf '<%s>\n' "$@")
+ravel end-session -- "$result"
+```
+
+**`bin/codex`**
+
+```sh
+#!/bin/sh
+set -eu
+result=$(printf '<%s>\n' "$@")
+ravel end-session -- "$result"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/claude bin/codex
+$ for kind in claude-demo codex-demo; do
+    printf '%s\n' "$kind"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Read the project and report one improvement. When done, run ravel end-session -- "reviewed" as your last action, then do nothing else.' || exit "$?"
+    printf '\n'
+  done
+```
+
+**Standard output**
+
+```text
+claude-demo
+<--effort>
+<medium>
+<-->
+<Read the project and report one improvement. When done, run ravel end-session -- "reviewed" as your last action, then do nothing else.>
+codex-demo
+<--no-daemon>
+<--no-alt-screen>
+<--sandbox>
+<workspace-write>
+<--ask-for-approval>
+<on-request>
+<-->
+<Read the project and report one improvement. When done, run ravel end-session -- "reviewed" as your last action, then do nothing else.>
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+  policy code: unsupported_kind
+  remedy: Use claude-demo or codex-demo, or add an owner route.
+```
+
+**Exit status**
+
+```text
+3
+```
+
+The fakes deliberately publish their arguments instead of acting on the prompt.
+The transcript checks the caller's ending instructions arrive unchanged; it
+does not show an agent obeying them or prove its sandbox permits completion.
+Before real use, check the agent's access to the Ravel executable and result
+path under your chosen permissions, and retain fake checks for every new route.
+
+## Copy an existing policy
+
+A policy copy is a configuration change you can validate before using it for
+real work. Keep the source and destination available while reconciling them.
+Ravel has no init or migration verb and imports no stored history.
+
+1. Compare the source directory with `$HOME/.config/ravel`. Preserve both
+   directories and any destination edits. Identify the entry, relative helpers,
+   dependencies and settings before copying; a policy may need more than one
+   file.
+2. Copy only missing files, without overwriting existing destination files.
+   Reconcile differing files explicitly in the destination, keeping the source
+   intact. An older installed tool and its configuration can remain independent.
+3. Change SDK imports to the literal `ravel/sdk`. Keep relative helpers beside
+   their importing files and install their dependencies where the resolver can
+   find them. Caller-specific helpers remain caller-owned files: Ravel embeds
+   no caller adapter. Reconcile each helper's imports too.
+4. Preserve the intended kind mappings, selected arguments, labels, owner
+   version and refusals. If the policy uses `readChoice`, reconcile the offered
+   arrangements with each checkout's `.ravel-choice`; copying the helper does
+   not make Ravel read that file automatically.
+5. Reconcile `timeoutMs`, `contextBytes` and `policyEnv` with the destination's
+   settings. Keep supported bounds and grants, and remove obsolete storage
+   settings such as `stateDir`. Copy no records, databases, snapshots or history;
+   none is an input to this configuration.
+6. Typecheck the destination against its installed declarations using the recipe
+   above. Then validate every route and refusal with fakes on a private `PATH`,
+   a cleared environment, temporary `HOME` and `TMPDIR`, and bounded execution.
+   Reproduce the intended settings under that temporary `HOME`: `--config`
+   alone does not move settings beside your test policy. Replace any absolute
+   selected program paths with fake paths in a test copy; a private `PATH`
+   cannot intercept an absolute executable.
+7. Compare the captured argument vectors and exact results with the intended
+   routing. Check loader refusals and choice combinations as well as unknown
+   kinds. Once those checks pass, use the reconciled destination for real
+   sessions with the caller's ending instructions and the chosen agent's own
+   permissions.

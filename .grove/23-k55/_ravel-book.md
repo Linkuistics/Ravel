@@ -162,6 +162,18 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Chapter 4 part B supplies context/settings/grants/imports/agent-route/copying
+  teaching. Chapter 6 re-enumerates the SDK exports, configuration shapes and
+  full admission/selection/context codes, all six bounds, settings error codes,
+  every excluded grant class (including `HARNESS_DISPATCH_*`), managed versus
+  worker environments, embedded literal imports/package alias limits, and
+  installed paths. Its entries link back to chapter 4's task sections. The
+  document-node brief now completes the owner-configuration guide disposition;
+  the dated personal handoff still awaits the planned preservation/migration.
+  Agent help was rechecked on 2026-10-16: Claude Code 2.1.301 and Codex 0.163.0.
+  The fake-route evidence establishes argument delivery only, not real-agent
+  execution, permissions, terminal interaction or human comprehension.
+
 - Chapter 3 completed its four editorial stages without a proof correction.
   Its complete example passed (one example; installation remains a labelled
   fragment). Preserve its distinction between exact stdout/status and the

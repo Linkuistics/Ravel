@@ -99,19 +99,66 @@ declaration sets, and a numeric `program` is rejected by both recipes.
 
 ### Owner-configuration guide disposition
 
-This is the current sentence-group classification for the guide fold-in;
-part B completes its own rows, then the fold-in leaf verifies absorption.
+This is the completed sentence-group classification for the guide fold-in;
+the fold-in leaf verifies absorption after this document's proof.
 `docs/owner-configuration.md` itself remains unchanged here.
 
 | Guide statements outside the dated handoff | Teaching destination |
 |---|---|
 | Default policy entry; `version` is the owner's label; explicit `readChoice`; caller kinds/labels/arguments | Part A: define/select/checkout-choice sections |
-| Settings keys, absence defaults, all six bounds, CLI overrides and grants | Part B: bounds/grants; chapter 6 supplies lookup entries |
+| Settings keys, absence defaults, all six bounds, CLI overrides and grants | Chapter 4: `Set bounds and grant environment names`; chapter 6 supplies lookup entries |
 | Why executable TypeScript and why a separate worker | Chapter 2 already introduces the authority split; chapter 7 owns the architectural rationale (guide's optional-depth pointer) |
-| Preserve both configuration directories, copy missing files, reconcile edits, SDK and relative imports, caller helpers, choices/bounds/grants, `stateDir`, no stored history, old installation independent | Part B: copying/imports/bounds |
+| Preserve both configuration directories, copy missing files, reconcile edits, SDK and relative imports, caller helpers, choices/bounds/grants, `stateDir`, no stored history, old installation independent | Chapter 4: `Copy an existing policy`, `Resolve policy imports` and `Set bounds and grant environment names` |
 | `start-session` launches; no inspect/init; fake executables, cleared environment, temporary channels, bounded checks, captured arguments/exact result and refusals | Part A: select/validate sections teach the real-launch check and the book's bounded seam; chapter 6 owns the full verb inventory including absence of init |
 | Generated public declarations, temporary absolute-path tsconfig, pinned checker, strict options, no checker needed for installed execution | Part A: typechecking; extends the guide to cover installed declarations and the static module mapping |
 
 The dated personal handoff stays outside the book and is not copied into this
 chapter. Part A establishes no human-comprehension result, real-agent run,
 GitHub rendering or publication evidence. Those limits remain the contract's.
+
+## Part B to copy-edit
+
+The five reserved sections are now present in order. Part A's examples and
+progression are retained; one sentence now scopes its no-runtime-types claim
+to the policies introduced so far, because part B uses process.env.
+Part B adds complete examples for a context loader, effective settings/grants
+and agent routes with a relative helper. The context example tests its accepted
+route with and without a caller document, its explicit not-ready refusal and
+representative source/shape/bound failures. The grants example prints only
+invented-name presence, not credential values. Both real-program routes and
+their unknown-kind refusal run through fake `claude`/`codex` executables; their
+returned argument vector tests delivery, not agent obedience or permissions.
+
+Help provenance is 2026-10-16 AEDT: Claude Code 2.1.301 and codex-cli 0.163.0.
+The latter differs from the earlier briefing snapshot. Model defaults and
+Codex effort are labelled as configured defaults, not guessed resolved values.
+The terminal/permissions paragraphs explicitly limit what fake tests establish.
+The external setup links were opened in their official documentation.
+
+One aimed reviewer read the context and import explanations against source.
+Its two mechanical qualifications (reserved `$ravel` objects and the precise
+unsupported-version case) were accepted after direct source verification.
+No further review was materialised; copy-edit keeps its own charter.
+
+The complete book's examples check passed (7 examples, none failed or skipped;
+6 in this chapter); the final book build passed without warnings. Every chapter
+policy and the relative helper typechecked against checkout and installed
+declarations. The settings example uses process.env and needs runtime types
+when checked; the standalone part A recipe's types: [] qualification still
+applies to the policies it introduces. The leaf records the measurement and
+unchanged-example checks, without promoting them to comprehension evidence.
+
+Chapter 6's future lookup scope includes every SDK exported type/helper and
+shape, all policy admission/selection/context refusal codes, all six bounds,
+settings refusal distinctions, the exact never-grantable classes (including
+`HARNESS_DISPATCH_*`), managed versus worker environments, literal embedded
+imports and package-alias limits, and installed source/declaration paths.
+Chapter 4 teaches the policy-context and settings refusal vocabulary here;
+chapter 6 re-enumerates from source rather than treating this prose as authority.
+The parent book brief carries this handoff to that sibling.
+
+No art-owned defect was identified. Figures remain the art stage's decision
+under the contract. Human comprehension, actual agent execution, terminal
+interaction, editor/GitHub rendering and publication remain unmeasured by this
+draft. The dated personal handoff remains untouched in owner-configuration.md
+until the planned guide-migration leaf preserves it outside the book.
