@@ -1,0 +1,20 @@
+run 1
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 2
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 3
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 4
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 5
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 6
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 7
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 8
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)
+run 9
+figures: session-outcomes.svg differs from what session-outcomes.puml renders; run 'task docs:figures:update' if the change is intended
+figures: successful-session.svg differs from what successful-session.puml renders; run 'task docs:figures:update' if the change is intended
+figures: one or more figures do not match their sources

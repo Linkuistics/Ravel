@@ -1,0 +1,18 @@
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.e0RnGV
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+task: [docs:examples] bash scripts/examples.sh check
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/03-a-complete-session.md:69
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:152
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:430
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:553
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:867
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:1212
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/04-writing-an-owner-policy.md:1465
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:80
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:180
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:320
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:434
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:659
+pass /Users/antony/Development/Ravel.simplify-and-componentize/docs/book/src/05-running-sessions.md:720
+examples: 13 passed, 0 failed, 0 skipped; 6 fragment(s) not run; 0 page error(s)

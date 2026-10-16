@@ -1,0 +1,2 @@
+task: [docs:figures] bash scripts/figures.sh check
+figures: 7 figure(s) match their sources (PlantUML 1.2026.8, d2 0.9.0, DejaVu 2.37)

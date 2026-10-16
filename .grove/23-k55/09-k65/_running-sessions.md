@@ -72,10 +72,15 @@ establishes no real-agent behaviour, terminal interaction or human
 comprehension. The first proof's independent views and limits are in
 `docs/book/figures.md`; the owner's stand-in read remains outstanding.
 Proof found an intermittent `selection-cancellation.svg` regeneration mismatch
-after an initial green check. The checked inputs did not change, and subsequent
-retained renders and checks matched, leaving the cause unknown. One art
-correction and another whole-document proof are queued; this node remains open
-until they settle the figure-delivery question. Do not regenerate the committed
-SVG blindly or interpret passing retries as a diagnosed correction.
+and discarded its differing bytes. Art's correction retained a fresh failure
+in two other figures, each differing only by source metadata. The pinned
+PlantUML has an unsynchronised shared-options initialisation; `--threads 1`
+avoids that race, with thirty unchanged-input checks matching all seven SVGs
+and the figure controls passing. The original lost selection render's cause
+remains unknown. `docs/evidence/book-figures-k92/README.md` holds the failed
+bytes, source support and bounded observation; neither renderer pins nor
+figure assets changed. The existing whole-document proof remains next and
+this node stays open. Do not infer universal reproducibility or accept a
+future mismatch by blind regeneration or retries.
 Native x86-64 qualification and remote/published rendering remain
 the book contract's declared unknowns.

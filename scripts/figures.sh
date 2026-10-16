@@ -351,9 +351,13 @@ render_all() {
   done < <(figure_sources "$dir")
   if ((${#plantuml[@]} > 0)); then
     # -nometadata keeps PlantUML from embedding an encoded copy of the source.
+    # 1.2026.8 lazily publishes shared format options before hiding metadata;
+    # parallel file workers can retain the default with metadata enabled.
+    # One worker avoids that race without altering or filtering the SVG.
+    # Observed failing bytes and verification: docs/evidence/book-figures-k92/.
     (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" "$java" \
       -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dsun.java2d.fontpath="$fontdir" \
-      -jar "$TOOLS/$PLANTUML_JAR_NAME" -tsvg -nometadata -charset UTF-8 \
+      -jar "$TOOLS/$PLANTUML_JAR_NAME" --threads 1 -tsvg -nometadata -charset UTF-8 \
       -SdefaultFontName="DejaVu Sans" -SmonospacedFontName="DejaVu Sans Mono" \
       -o "$out" "${plantuml[@]}" >/dev/null 2>"$work/plantuml.err") ||
       die "PlantUML could not render the figures: $(cat "$work/plantuml.err")"

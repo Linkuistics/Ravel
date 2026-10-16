@@ -57,3 +57,43 @@ This is the first art correction run for chapter 5. Draft and copy-edit are
 omitted because the specific discrepancy concerns generated figure bytes;
 neither narrative nor example bytes were implicated. A second art correction
 against this document is an escalation under the editorial-family rule.
+
+## Decisions (running log)
+
+- Retained renders of the unchanged check passed eight times, then run 9
+  failed for `session-outcomes.svg` and `successful-session.svg`. Each differs
+  only by one `<?plantuml-src ...?>` processing instruction. The checked
+  source/tool/font inventory stayed unchanged. These are fresh observed
+  failures; k91's discarded selection render still cannot be compared.
+- The pinned jar's bytecode and its v1.2026.8 source show unsynchronised lazy
+  publication of `CliOptions.fileFormatOption` before `hideMetadata()`, shared
+  across the default parallel file workers. Test `--threads 1` as a narrowly
+  justified avoidance of this race; retain all pins, sources, SVGs and exact
+  comparisons. A separate JVM per figure costs more startup and is unnecessary
+  if serial processing agrees. Stripping metadata after rendering would hide
+  the renderer fault rather than avoid the shared initialisation.
+- Use the actual failed regeneration as the red check, then repeated full
+  regeneration and the existing figure controls for verification. No mock
+  assertion of a command-line flag is needed. Preserve the failed bytes and
+  the bounded observation, rather than claiming all runtimes deterministic.
+- Thirty serial checks matched every committed SVG with the script, figure
+  inputs, jar and fonts unchanged. All existing figure controls also passed.
+  Retain the single-worker correction and its evidence under
+  `docs/evidence/book-figures-k92/`; no asset regeneration is justified.
+- Declined an in-session reviewer: the retained real-render failure and the
+  executable comparisons are the stronger instrument for this behavioural
+  change. No claim is made to have traced the failed JVM's exact interleaving,
+  diagnosed k91's lost render, or established every runtime's reproducibility.
+- The whole chapter needs no additional figure; its existing diagrams and
+  tables carry the relations. This is editorial judgement, not a medium
+  limitation. Visible output is unchanged, so prior local viewing evidence
+  stays in place with no new browser/editor inspection claim. The existing
+  `running-sessions-k93` proof is the successor; cut nothing extra.
+- Final required tasks exited 0 on unchanged checked inputs:
+  `task docs:figures` matched seven SVGs, `task docs:examples` passed all 13
+  complete examples (zero failed/skipped; six fragments not run), and
+  `task docs:book:build` passed without warnings. Shellcheck and shfmt passed.
+  The durable evidence includes both the fresh failure and green runs.
+  No ADR changes: this is renderer invocation mechanics, with no changed
+  architecture, medium or version. The document node remains live for k93;
+  no parent cascade closes here.

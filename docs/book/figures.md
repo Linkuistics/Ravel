@@ -153,15 +153,22 @@ compare and says so by name.
 | DejaVu fonts | 2.37, upright Sans, Sans Bold, Sans Mono and Sans Mono Bold | into `target/tools/fonts/dejavu-2.37`, archive and each face checked |
 | Java runtime | 11 or later; not fetched | found on PATH, `JAVA_HOME`, `FIGURES_JAVA` or Homebrew's `openjdk` |
 
-Everything that could make two runs differ, and what was done about it
-(seen on 2026-10-16 unless marked otherwise):
+Known sources of differing renders, and the controls checked for them
+(seen on 2026-10-16 unless marked otherwise; these observations are not a
+guarantee across every Java runtime):
 
 - **Timestamps and ids**: none. PlantUML's SVG has no date and its element ids
   are sequential; d2 derives its class hash from the diagram. Two renders on one
   host are byte-identical, and so is a render from another directory under
   another file name.
 - **Embedded source**: PlantUML appends an encoded copy of the source unless
-  told not to; `-nometadata` removes it.
+  told not to; `-nometadata` requests its removal. The pinned release can race
+  while initialising shared format options when processing files concurrently,
+  and fresh failed renders contained source metadata despite this flag.
+  `--threads 1` avoids that concurrent initialisation. The exact comparison
+  remains unchanged: the checker neither removes metadata nor retries failures.
+  [The retained failure and bounded verification](../evidence/book-figures-k92/README.md)
+  distinguish observed differing bytes from the source-supported race diagnosis.
 - **Fonts**: PlantUML measures text with the Java runtime's fonts, so the same
   source gave different widths on macOS and Ubuntu. The renderer is run with
   Java's font path set to the four pinned DejaVu faces and
@@ -216,10 +223,14 @@ Proof also found an intermittent regeneration discrepancy: its initial
 check removed its scratch output, so the differing bytes are unavailable.
 The before/after digests of the checked book, script and crate sources and
 workspace manifests were unchanged. Two direct renders retained for comparison
-and six subsequent full checks all matched the committed SVGs. This does not
-explain the failed run or establish reproducibility. An art correction and
-another proof are queued under the chapter's document node; the SVGs and
-renderer pins were left unchanged pending that investigation.
+and six subsequent full checks all matched the committed SVGs. This did not
+explain the failed run or establish reproducibility. The following art
+correction retained a fresh failure in two other figures: each differed only
+by embedded source metadata. Its evidence and the single-worker correction
+are [recorded separately](../evidence/book-figures-k92/README.md). The lost
+selection render cannot be assigned that cause retrospectively. The SVGs,
+sources and renderer pins remain unchanged; the existing proof successor
+reads the correction and its limits.
 
 Chapter 5's art stage inspected the three new SVGs and their adjacent
 explanations at chapter width in the locally served mdBook through Chrome on

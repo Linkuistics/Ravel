@@ -1,0 +1,41 @@
+figures-test: ok: fresh fetch caches once and a verified cache is reused without a fetch
+figures-test: ok: a corrupt cached asset is fetched again once and repaired
+figures-test: ok: a corrupt download is refused for its digest and not cached
+figures-test: ok: a corrupt cache is not trusted as a fallback for a corrupt download
+figures-test: ok: a wrong pinned digest refuses an asset that is otherwise intact
+figures-test: ok: a failed download is reported as one
+figures-test: ok: the committed fixtures match what the pinned renderers produce
+figures-test: ok: every fixture renders twice to identical bytes, equal to the committed SVG
+figures-test: ok: D2_*, GRAPHVIZ_DOT, PLANTUML_*, JVM options, locale and a skin file in the working directory change nothing
+figures-test: ok: a changed source fails the compare
+figures-test: ok: a changed SVG fails the compare
+figures-test: ok: a missing SVG fails
+figures-test: ok: an SVG with no source fails
+figures-test: ok: update rewrites a stale SVG and writes a missing one
+figures-test: ok: check passes after update
+figures-test: ok: a second update succeeds
+figures-test: ok: update is idempotent
+figures-test: ok: changing the d2 layout engine changes the output and fails
+figures-test: ok: changing the d2 theme changes the output and fails
+figures-test: ok: changing a shared include changes the figures that use it
+figures-test: ok: an SVG without the generic font fallback fails
+figures-test: ok: without the pinned fonts the same source renders differently (the font pin changes the output)
+figures-test: ok: a PlantUML SVG from another version is named as such
+figures-test: ok: a d2 SVG from another version is named as such
+figures-test: ok: a PlantUML source without the Smetana pragma is refused
+figures-test: ok: a PlantUML file with two diagrams is refused
+figures-test: ok: a remote include is refused
+figures-test: ok: a sketched d2 figure is refused
+figures-test: ok: the d2 TALA engine is refused
+figures-test: ok: a d2 source without its theme is refused
+figures-test: ok: two sources with one stem are refused
+figures-test: ok: a file of another kind is refused
+figures-test: ok: a subdirectory is refused
+figures-test: ok: a missing PlantUML is refused with the remedy
+figures-test: ok: a tampered PlantUML jar is refused
+figures-test: ok: a d2 of another version is refused
+figures-test: ok: a tampered pinned font is refused
+figures-test: ok: an extra font on the font path is refused
+figures-test: ok: one page with a figure builds in mdBook: the SVG is copied byte for byte and the page references it with its alt text
+figures-test: ok: note: mdBook also copies the editable sources beside the SVGs into the built book
+figures-test: fetch refusals, reproducibility, environment isolation, compare and lint controls and the page build passed
