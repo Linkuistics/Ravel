@@ -10,7 +10,7 @@
 
 - [Writing an owner policy](04-writing-an-owner-policy.md)
 - [Running sessions](05-running-sessions.md)
-- [Reference]()
+- [Reference](06-reference.md)
 
 # Part III: Inside Ravel
 

@@ -59,3 +59,23 @@ then the three remaining stages once:
 
 - Part A cuts part B as its last act, ahead of copy-edit, the same way
   chapter 4 does.
+
+## Current draft boundary
+
+Part A supplies chapter 6's command line, statuses, streams/notices and
+environment entries and links it from SUMMARY. Its subject-derived inventory
+and validation are in `reference-chapter-k75`. The configuration draft fills
+the eight reserved headings already in the chapter: Policy entry and settings;
+Bounds; Policy and request; Selection and refusal; Policy context and host
+operations; SDK and module resolution; Shipped sample; Installed layout.
+It removes the placeholders and the opening incomplete-draft statement.
+
+Part A found no discrepancy in the overlapping teaching in chapters 4/5.
+Preserve settings validation before overrides, JSON notice emission before
+final settlement, conditional operationReports, signal-vs-status distinctions,
+and the different worker/managed environment rules. Its 13 complete examples,
+seven existing figures and warning-free book build pass on unchanged subjects;
+this does not establish comprehension, terminal or real-agent operation, native
+x86-64 qualification, or remote viewing. Part B and proof re-enumerate their
+own scope against the subject. Art still owes the reusable package/deployment
+views named above.
