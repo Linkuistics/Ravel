@@ -9,8 +9,9 @@ Consider a tool that asks for a code review. The tool knows the files to review
 and what to do with the answer. The person running it wants to choose the
 reviewing program for their account. Ravel separates those decisions: the
 tool asks for a review, the person's configuration selects a command, and
-Ravel takes responsibility for running that command to completion. The same
-tool can use different programs under different owners' configurations.
+Ravel runs that command, supervises it until it has ended and been cleaned up,
+and returns its result. The same tool can use different programs under
+different owners' configurations.
 
 ## From a request to a result
 
@@ -30,16 +31,17 @@ unchanged. The policy decides how to put it into the selected command's
 arguments. Ravel adds no task instructions.
 
 One `start-session` invocation is a
-[session](02-actors-and-words.md#caller-and-owner). Ravel remains the
-supervisor of the selected [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
-for that session. An AI coding agent is one possible program; the book calls
+[session](02-actors-and-words.md#caller-and-owner). For the length of the
+session, Ravel supervises the program the policy selected, which runs as the
+session's [managed process](02-actors-and-words.md#the-managed-process-and-its-result).
+An AI coding agent is one possible program; the book calls
 such an agent program a [harness](02-actors-and-words.md#the-managed-process-and-its-result).
 Ravel also works with ordinary programs that use its completion command.
 
 The caller's prompt supplies the ending instructions, including the result
 values it understands. From within the session, `ravel end-session RESULT`
 publishes one [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-and asks the supervisor to end the session. “Opaque” means that Ravel carries
+and asks Ravel to end the session. “Opaque” means that Ravel carries
 the value without interpreting it. If the caller chooses `continue` as a
 value, Ravel returns those bytes; the caller decides whether to start more
 work. `end-session` finds the enclosing session through its inherited
@@ -48,14 +50,15 @@ It takes no session ID or target argument.
 
 Publication is the start of completion, not proof that completion succeeded.
 Before returning a successful result, Ravel confirms that the managed process
-has ended and been reaped, that its process group is gone, and that required
-cleanup succeeded. Reaping confirms the child's termination to its parent;
-the process group is the operating system's grouping Ravel uses for job
-cleanup. Chapter 3, “A complete session, end to end”, explains those mechanics
+has ended and been reaped, that its process group is gone, and that the
+session's temporary files have been removed. Reaping is the parent collecting
+a finished child's exit status. The process group is the operating system's
+grouping of the managed process with its descendants, and Ravel cleans up the
+whole group. Chapter 3, “A complete session, end to end”, explains those mechanics
 as a session reaches them.
 
 A successful `start-session` writes the exact result bytes to standard output,
-without adding a newline. The managed program's standard output is redirected
+without adding a newline. The managed process's standard output is redirected
 to standard error, where its output and Ravel's diagnostics can be kept apart
 from the result stream. The caller checks whether `start-session` succeeded
 before interpreting that stream. A failure while writing the final result can
@@ -68,8 +71,9 @@ has not completed the protocol, even if its exit status is zero. Cancellation
 of the session suppresses a result even if it was already published. A
 supervision or cleanup failure also prevents success. Conversely, a published
 result can succeed after cleanup even if the managed process later exits
-nonzero. The result, the process's exit status and the work it produced answer
-different questions.
+nonzero. The result is the value the caller's ending instructions asked for,
+the exit status reports how the process ended, and the work is whatever the
+program changed; none of the three stands in for another.
 
 ## Decide whether Ravel fits
 
@@ -86,11 +90,10 @@ It still owns the task and the decisions made after the session ends.
 | Model access, credentials, usage metering or model selection rules | Run the command chosen by policy | The selected program's model integration and the owner's selection rules |
 | A host that continues doing arbitrary work after a launch | The CLI supervises one session and exits | A separate continuing-host contract, which is not delivered here |
 
-Ravel is a **[launcher CLI](#decide-whether-ravel-fits)**: one invocation
-supervises one managed launch, settles its result or failure, then exits.
-A **[persistent runner](#decide-whether-ravel-fits)** has a host that continues
-after a launch settles. Ravel's one-session lifetime does not supply the
-contract that such a continuing host needs.
+Ravel is a **launcher CLI**: one invocation supervises one managed launch,
+settles its result or failure, then exits. A **persistent runner** would be a
+host that keeps running after a launch settles. Ravel does not provide one,
+and its one-session lifetime does not supply the contract such a host needs.
 
 Ravel has no persistent session store or history lookup. Its
 [result channel](02-actors-and-words.md#the-managed-process-and-its-result)
@@ -103,13 +106,15 @@ Grove, a task-tree driver, is one illustrative caller. It supplies its own task
 kinds and interprets its own ending values. Those conventions belong to Grove.
 Another caller can use different kinds and results without a Ravel adapter.
 
-The supervision guarantee also has limits. A descendant that deliberately
-leaves its process group escapes that group's cleanup. Detached children
-started by policy escape the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)'s
-cleanup guarantee. An abrupt,
-uncatchable death of Ravel can leave the managed program or temporary files
+The supervision guarantee also has limits. A descendant that moves itself out
+of the managed process group is not reached by that group's cleanup, and the
+session can succeed while it still runs. Detached children started by policy
+are outside the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)'s
+cleanup guarantee. If Ravel is killed abruptly, for example with SIGKILL,
+which it cannot catch, the managed process or temporary files can be left
 behind. Code running as the same user can tamper with files; Ravel's session
-separation does not authenticate that code. Chapter 2 explains why the
+separation does not authenticate that code.
+[Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the
 authority boundaries are useful within those limits.
 
 ## Choose a reading route
@@ -126,10 +131,11 @@ Ravel's domain and the job-control details its behaviour depends on.
   chapter 8, “Following a session through the code”, and chapter 11,
   “Developing Ravel”. Chapter 9, “Jobs, signals and the terminal”, and chapter
   12, “Delivering Ravel”, provide the mechanics and delivery details.
-- To reuse a component, chapters 1 and 2 give the domain, with chapters 7 and
-  9 as background. Chapter 10, “Using Ravel's components in your project”, is
-  unwritten until a supported extracted component and its consumer exist.
-  The internal package boundaries alone do not provide that contract.
+- To reuse a component, read chapters 1 and 2, then chapter 10, “Using
+  Ravel's components in your project”, with chapters 7 and 9 as background.
+  Chapter 10 is unwritten until a supported extracted component and its
+  consumer exist; Ravel's internal package boundaries are not, on their own, a
+  supported interface for another project.
 
 Reading the chapters in order is the learning route. The first practical
 session uses a tiny policy and a fake agent, so learning the protocol needs
@@ -138,13 +144,15 @@ agents is outside the book's scope.
 
 ## Understand the evidence limits
 
-Checks of how Ravel starts a session and cleans it up have been measured on aarch64 macOS and
-native aarch64 GNU/Linux. Each measurement covers only its recorded platform
-and compiler. The x86_64 GNU/Linux target has been built, linted at Rust 1.85.0
-and run under QEMU user-mode emulation, which runs x86-64 programs without
-testing an x86-64 kernel. No x86-64 kernel is qualified. These
-are limits on the evidence, not equivalent support measurements for all three
-targets. Chapter 12 explains the delivery and platform limits in detail.
+How Ravel starts a session and cleans it up has been checked by recorded
+measurements on aarch64 macOS with Rust 1.99, and on native aarch64 GNU/Linux
+with Rust 1.85.0, the declared minimum. Each measurement covers only the
+platform, kernel, C library and compiler it records. The x86_64 GNU/Linux
+target has been built, linted at Rust 1.85.0 and run under QEMU user-mode
+emulation, which translates x86-64 programs to run on the host's own kernel,
+so no x86-64 kernel takes part. No x86-64 kernel is qualified. These are limits
+on the evidence: the three targets do not have equivalent support
+measurements. Chapter 12 explains the delivery and platform limits in detail.
 
 The book's reader checkpoints use the owner as a labelled stand-in for a
 developer new to Ravel. Those reads can establish the owner's results and
