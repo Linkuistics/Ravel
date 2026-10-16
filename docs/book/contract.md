@@ -28,12 +28,17 @@ instead has a strong pedagogical focus."
 
 ### The reader
 
-The reader is a software engineer with no background in Ravel's context.
+The reader is a 16-year-old software engineer with no background in Ravel.
+Assume the programming knowledge below, and write in plain, direct language.
+Do not assume familiarity with specialist systems terminology beyond the
+stated prerequisites.
 
 - **Assumed, and not taught:** everyday shell use (PATH, environment
   variables, quoting, pipes), Git and JSON; reading and writing TypeScript and
   Rust; general OS concepts: processes and PIDs, exec, exit status, signals as
-  a mechanism, file descriptors and pipes, and file permissions.
+  a mechanism, file descriptors and pipes, and file permissions; and all
+  diagram types used in the book. Readers unfamiliar with a notation can look
+  it up; the book explains only its own figure conventions.
 - **Not assumed, and taught where the book first needs it:**
   - Ravel's own domain: callers, owners, owner policy, sessions, kinds,
     results, and who holds which authority.
@@ -45,10 +50,8 @@ The reader is a software engineer with no background in Ravel's context.
   - The Bun runtime's compile, autoload and module-resolution behaviour, where
     Ravel depends on it.
   - The `libc` job-control calls the runner makes.
-  - Each diagram notation the book uses (C4, UML and SysML diagram kinds),
-    explained where it first appears.
 - **Never taught:** TypeScript or Rust language features, shell, Git, JSON,
-  general programming, or the general OS concepts above.
+  general programming, diagram notation, or the general OS concepts above.
 
 ### What the reader can do afterwards
 
@@ -80,7 +83,7 @@ The book keeps these roles apart:
 - the **caller**, which invokes Ravel, supplies the prompt and its ending
   instructions, and interprets the result;
 - the **owner**, who writes the policy and settings for their account;
-- **Ravel** itself: the native front, the policy worker, the runner and the
+- **Ravel** itself: the Ravel CLI, the policy worker, the runner and the
   result channel;
 - the **managed process**, the selected program and its descendants;
 - **contributors**, who develop and deliver Ravel;
@@ -104,7 +107,7 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 5 | Running sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
-| 7 | How Ravel is built | explain the native front, why policy runs as a separate TypeScript worker that is reaped before anything launches, why the runner is its own Rust package, and how the parts compose |
+| 7 | How Ravel is built | explain the Ravel CLI, why policy runs as a separate TypeScript worker that is reaped before anything launches, why the runner is its own Rust package, and how the parts compose |
 | 8 | Following a session through the code | follow one successful session from `main` to the result write, then the refusal and cancellation forks and the error and signal precedence, and find where a change belongs |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
 | **Part IV** | **Reusing and developing Ravel** | |
@@ -147,12 +150,12 @@ quotes source excerpts but does not cover the complete source.
 - **Who holds which authority.** Owner policy is trusted code that chooses
   the program but is given no result authority: it never receives a
   session-result context, and its worker is reaped before anything launches.
-  Only the native front supervises. Each managed process holds only its own
+  Only the Ravel CLI supervises. Each managed process holds only its own
   result context.
 - **Validating with fake agents.** Every runnable example uses fake programs,
   and a policy author learns to check every route and refusal that way.
 - **The stated limits, said plainly:** same-user tampering, abrupt death of
-  the front, descendants that leave their process group, detached policy
+  the Ravel CLI, descendants that leave their process group, detached policy
   children, and the support statement (aarch64 macOS and aarch64 Linux are
   measured; x86_64 Linux is built and run only under emulation).
 
@@ -208,7 +211,7 @@ matters:
   policy; that is confinement.
 - **Harness**: the agent program a policy selects. It is not a test harness.
 - **Refusal**: a decision not to launch, made by the owner policy or by Ravel
-  judging that policy or its admission. It is not a worker or supervision
+  checking that policy's file, behaviour or data. It is not a worker or supervision
   failure, nor a selection timeout.
 
 ### Coverage inventories
@@ -228,7 +231,7 @@ gives it a chapter 6 entry.
    passes on or refuses to grant.
 2. **Configuration inputs**, from the session specification, the SDK's
    exported declarations and the settings reader: the policy entry and how it
-   is found and admitted; every settings key and the refusal of unknown keys;
+   is found and checked; every settings key and the refusal of unknown keys;
    every bound; the policy object's fields; the request, selection and refusal
    fields; the policy context document's fields and the host operations; the
    SDK's exports and the embedded imports; the module-resolution rules; and
@@ -240,7 +243,7 @@ gives it a chapter 6 entry.
    exits nonzero; a repeated `end-session` (the first value wins); a natural
    exit without a result, including status 0; `end-session` with missing,
    empty or stale context; malformed CLI input or settings; a refusal by the
-   policy or of the policy's behaviour, data or admission; a missing, stale or
+   policy or of the policy's file, behaviour or data; a missing, stale or
    mismatched worker and other worker or supervision failures; a selection
    timeout; a selected program that cannot be executed or found; cancellation
    by INT, TERM or HUP during selection and during supervision, including after
@@ -258,7 +261,7 @@ gives it a chapter 6 entry.
    caller's context; the first complete publication wins and stays exact;
    success requires reap and confirmed group cleanup; cancellation suppresses
    results; the terminal's foreground and modes are recovered; only result
-   bytes reach stdout; installed execution uses the matched front and worker.
+   bytes reach stdout; installed execution uses the matched Ravel CLI and worker.
 5. **Contributor workflows**, from `task --list`: setup, build, the test and
    check tasks, install and smoke, the release tasks, and the book's own tasks.
    The native-entry, incumbent and Linux measurement tasks are evidence
@@ -305,6 +308,13 @@ coverage:
 Each figure answers a reader question at a stated level. The art stage may
 refine, merge or add to this list; it keeps one visual vocabulary across the
 book and adds a diagram kind only when the question changes.
+
+The book also has one visual style across diagram types: a shared colour
+palette, fonts and type sizes, line weights, arrow styling and spacing
+conventions. Shared style definitions carry these choices; a notation-specific
+difference has an explicit reason. Art checks these properties across the
+whole book after the chapter units exist, before the final whole-book proof.
+This checks visual consistency, not the reader's knowledge of notation.
 
 | Reader question | Level and notation | Where |
 |---|---|---|
@@ -353,6 +363,14 @@ book and adds a diagram kind only when the question changes.
 - **Normative keywords**: none. The book does not use MUST, SHOULD, MAY or
   their kin. The specifications hold the rules; the book states behaviour in
   plain indicative sentences.
+- **Plain vocabulary**: call the Rust command-line program the “Ravel CLI”,
+  not “front” or “native front”. Say what it does: it checks
+  inputs, accepts a value, allows a launch, starts a program or chooses the
+  final outcome. Avoid specialist substitutes such as “admits”, “admission”
+  and unexplained “settlement”. Keep code identifiers exact. Explain a
+  technical term when the reader needs the concept; do not use a synonym
+  that hides a different technical meaning. Apply this language to figure
+  labels, captions, keys and alt text as well as prose.
 - **Simple, self-contained language**: every page can be understood without
   following a link. A link is optional depth, and it names its destination and
   purpose.
@@ -417,8 +435,9 @@ The house style's points, as this book takes them:
   and dynamic views); UML diagram kinds (sequence, state machine, activity,
   component, deployment, timing); SysML diagram kinds where one answers a
   question better than its UML counterpart; and others where a reader question
-  calls for them. Each notation is explained where the book first uses it, and
-  every convention a figure uses is identifiable on or beside it.
+  calls for them. Readers are assumed to know these notations or look them up.
+  Every book-specific convention a figure uses is identifiable on or beside it;
+  the book does not teach the notation itself.
 - **Figure renderers**: PlantUML 1.2026.8, using its bundled C4-PlantUML 2.13.0
   library and its built-in Smetana layout so that no separate Graphviz is
   needed, for the C4, UML and SysML-style diagrams; and d2 0.9.0 for structure
@@ -448,7 +467,7 @@ The house style's points, as this book takes them:
   IV are drafted.
 - **Read 2** follows proof of Parts III and IV. Tasks: explain why Ravel has a
   TypeScript worker and two Rust packages; follow one session through the code
-  to where a cancellation is settled; and build and test Ravel from a checkout.
+  to where its final cancellation outcome is chosen; and build and test Ravel from a checkout.
 - **Chapter 10's read** follows that chapter's proof. Task: use the extracted
   component through its interface.
 - **Every read** begins at chapter 1 or at its stated entry, in the locally

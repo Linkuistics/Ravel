@@ -11,6 +11,10 @@ owner settled the contract in `book-structure-k5` on 2026-10-16.
 
 - Chapters 1–9, 11 and 12 exist under `docs/book/src/` in the contract's order,
   each taken through draft → copy-edit → art → proof under the contract.
+- A whole-book art pass unifies colours, fonts, type sizes, line weights,
+  arrows and spacing across those chapters, followed by whole-book proof
+  before read 2. Readers know the diagram types; only book-specific
+  conventions need explanations.
 - The book's Taskfile tasks exist and pass: the mdBook build and local serve,
   the figure regenerate-and-compare check, the complete-example check through
   the CLI/real-policy/fake-program seam, and the source-excerpt check. `task
@@ -69,9 +73,10 @@ book runs before `component-work-scope-k57`, which follows the node at the root.
 
 ## First half: units and shared conventions
 
-Cut by `ravel-book-first-half-k56`. Positions 02–05 are the scaffold and one
-small product fix, 06–10 the five drafting units, 11 the set proof, 12–13 the
-guide migration and 14 read 1. Chapters are drafted from the code and the
+Cut by `ravel-book-first-half-k56`: the scaffold and one small product fix,
+the five drafting units, the set proof, guide migration and read 1. The owner's
+later prose and diagram amendments add a set correction before migration.
+Chapters are drafted from the code and the
 normative specifications. The guides they replace are sources that may be
 stale, so each chapter verifies a claim against the subject.
 
@@ -160,86 +165,50 @@ reduced README.
 - The first figure for "packages, worker and SDK, in source and in an
   installation" appears in chapter 6; chapters 7 and 12 reuse it.
 
-## Handed forward to the first-half set proof
+## First-half set proof and owner amendments
 
-- Chapter 6 completed all four stages and reference-chapter-k66 closes.
-  Its proof re-derived inventories 1 and 2 from the current CLI/source/spec,
-  including 49 diagnostic codes, 19 SDK exports, six bounds and eleven archive
-  paths (nine installed files). No missing entry or conflicting chapter 4/5
-  teaching was found; every lookup entry has a teaching destination. Preserve
-  the context-stage message_too_large loader-failure case, exact-high careful
-  override, settings-before-overrides, worker/managed environment distinctions,
-  notice-before-settlement and conditional operationReports. The two reusable
-  figures, source-components and installed-files, keep linked code, separate
-  processes, embedded modules and editable files distinct for chapters 7/12.
-  Nine figures match, thirteen complete examples pass (zero failed/skipped;
-  six fragments not run), the book builds without warnings and all 289 chapter
-  link/image destinations resolve on 178 unchanged enumerated subjects.
-  docs/book/figures.md records proof's Chrome/raw inspection and its viewing
-  limits. No chapter correction or handed-forward defect remains. Mechanical,
-  source and visual evidence establish no new-reader comprehension, real-agent
-  behaviour, terminal interaction or native x86-64 qualification; the owner's
-  stand-in read, remote views and chapter 10 retain their separate limits.
+`book-first-half-k67` read chapters 1–6 as a set and checked the learning,
+caller and policy-author routes. It links the outstanding first-half chapter
+mentions and qualifies abbreviated policy-context prose. Its source-derived
+inventories find no missing CLI option, status, diagnostic code, SDK export,
+setting, bound or installed path. The task records sources, scope, checks and
+limits; this is not a comprehension result.
 
-- Chapter 5 completed all four stages and its bounded art/proof correction
-  run. The final proof re-derived every normal CLI status and found no further
-  chapter change. Seven figures match, all thirteen complete book examples
-  pass (none failed/skipped; six fragments not run), and the book builds
-  without warnings on unchanged inputs. The chapter node's guide-disposition
-  notes remain the fold-in input. `docs/book/figures.md` records this proof's
-  separate Chrome/raw viewing and unavailable editor-preview/remote surfaces.
-  The art correction retains actual metadata-only failing SVGs and thirty
-  matching single-worker checks; the earlier discarded selection render's
-  exact cause remains unknown. Preserve that bounded claim and investigate
-  any future mismatch. Human comprehension, real-agent operation, terminal
-  interaction and native x86-64 qualification remain unestablished by these
-  checks; the owner's stand-in read is still outstanding.
+The owner changed the contract during that proof:
 
-- Chapter 4 completed all four stages. Proof re-enumerated its configuration
-  coverage from the SDK, settings, bounds and validators. Its local correction
-  adds `message_too_large` for an oversized loader failure report; chapter 6
-  must cover that context-stage use as well as policy snapshots and selection
-  results. A temporary loader confirmed exit 3 and empty stdout. All seven
-  complete book examples pass (six in chapter 4), four figures match and the
-  book builds without warnings. The node's guide-disposition table remains the
-  fold-in input; its dated personal handoff still needs preservation outside
-  the book. `docs/book/figures.md` records proof's separate local Chrome/raw
-  viewing and the unavailable editor preview, remote views and other viewing
-  limits. These checks establish no human comprehension, real-agent operation,
-  agent permissions or terminal interaction. No correction run remains.
+- Readers already know the diagram types, or can look them up. Remove generic
+  notation tutorials; retain each figure's own keys and meaning.
+- Unify visual style across the whole book: colours, fonts, type sizes, line
+  weights, arrows and spacing. Shared definitions carry the style. A final
+  whole-book art pass follows the chapter units and precedes final proof and
+  read 2. This is visual consistency, not a new `art-review` kind.
+- Write for a 16-year-old software engineer with the contract's programming
+  prerequisites. Use **Ravel CLI**, first defined as the `ravel` command-line
+  program, instead of “front” or “native front”. Use plain actions such as
+  “checks”, “accepts” and “allows” instead of specialist wording such as
+  “admits”. Simplify the whole prose, rather than replacing only those words.
+  Figure labels, captions, keys and alt text follow the same language.
 
-- Chapter 4 part B supplies context/settings/grants/imports/agent-route/copying
-  teaching. Chapter 6 re-enumerates the SDK exports, configuration shapes and
-  full admission/selection/context codes, all six bounds, settings error codes,
-  every excluded grant class (including `HARNESS_DISPATCH_*`), managed versus
-  worker environments, embedded literal imports/package alias limits, and
-  installed paths. Its entries link back to chapter 4's task sections. The
-  document-node brief now completes the owner-configuration guide disposition;
-  the dated personal handoff still awaits the planned preservation/migration.
-  Agent help was rechecked on 2026-10-16: Claude Code 2.1.301 and Codex 0.163.0.
-  The fake-route evidence establishes argument delivery only, not real-agent
-  execution, permissions, terminal interaction or human comprehension.
+These requirements are in `docs/book/contract.md`, with the chosen term in
+`CONTEXT.md`. The correction run `book-first-half-k98` (copy-edit),
+`book-first-half-k99` (art) and `book-first-half-k100` (proof) precedes guide
+migration. Art applies the notation decision, the prose terms
+to figures, and the first-half's shared visual style. The later `ravel-book-k101`
+art leaf checks the completed book across chapter and diagram boundaries.
+Read 1 and its planning continuation insert the second-half work before that
+whole-book art leaf; read 2 stays after its proof. No parent closes here.
 
-- Chapter 3 completed its four editorial stages without a proof correction.
-  Its complete example passed (one example; installation remains a labelled
-  fragment). Preserve its distinction between exact stdout/status and the
-  stable stderr excerpt, which permits retained operational reports. Forward
-  chapter mentions remain plain text until their pages exist; link chapters
-  4–6 from chapter 3 in the set proof, with later targets handled by the
-  second half. `docs/book/figures.md` records chapter 3's separate art/proof
-  viewing coverage and limits. Neither supplies terminal-interaction or human
-  comprehension evidence; the owner's stand-in read remains outstanding.
-- Opening-unit proof checked the corrected worker-directory sequence against
-  source and found no further chapter correction. `docs/book/figures.md`
-  records art and proof's separate local viewing coverage and the remote,
-  theme and viewport limits. Keep those limits distinct from the owner's
-  later stand-in read and the release's publication checks.
-- The opening unit was drafted before chapters 3–6 existed, so its forward
-  mentions use chapter numbers and titles. Once those targets exist, link the
-  mentions in chapters 1 and 2 as part of `book-first-half`; chapter 6 links
-  stay page-level. Later-half targets follow the existing rule above.
-- Guide fold-in: chapter 1 qualifies `session-cli.md`'s “without database
-  access” as no Ravel-owned persistent store. Trusted owner policy can make
-  direct filesystem/network reads. It also locates unchanged prompt delivery
-  at the caller-to-policy boundary; the policy constructs the selected
-  program's arguments. Preserve these distinctions when reconciling the guide.
+The earlier unit handoffs have owners and no unresolved first-half list
+remains. Preserve these facts through guide migration: no Ravel-owned store
+is not a restriction on trusted policy's filesystem/network access; the
+unchanged prompt promise ends at caller-to-policy delivery and policy builds
+program arguments. Unit guide-disposition tables remain migration inputs.
+Preserve the dated personal handoff outside the book. The art correction's
+retained metadata-only failures and thirty serial matches do not establish
+the cause of the discarded selection render or universal reproducibility.
+
+All second-half handoffs above remain live. Inventories 4 (component
+obligations) and 5 (contributor workflows) are not yet claimed. GitHub rendering,
+the published site, real-agent behaviour, interactive-terminal operation,
+native x86-64 qualification and new-reader comprehension remain separate
+unknowns. Chapter 10 belongs to the future supported-component work.

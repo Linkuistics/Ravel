@@ -813,5 +813,5 @@ The native x86-64 qualification is tracked in
 [Ravel issue 1](https://github.com/Linkuistics/Ravel/issues/1).
 The examples here establish their checked routing, byte delivery and status
 behaviour; they do not establish real-agent behaviour, interactive terminal
-operation or whether a new reader can use the book. Chapter 6, “Reference”,
+operation or whether a new reader can use the book. [Chapter 6, “Reference”](06-reference.md),
 provides the lookup entries for the inputs and outputs taught here.

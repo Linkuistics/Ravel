@@ -15,7 +15,7 @@ responsibilities remain distinct.
 
 **Session**: One `start-session` invocation: a **Caller**'s request routed
 through the **Owner policy** to one **Managed process**, supervised until its
-**Opaque result** or failure is settled.
+**Opaque result** or failure is reported after required cleanup attempts.
 _Avoid_: run, job, POSIX session
 
 **Kind**: The **Caller**'s open token naming the sort of **Session** it asks
@@ -23,10 +23,11 @@ for. Only the **Owner policy** gives it meaning.
 _Avoid_: task kind, type
 
 **Launcher CLI**: A one-session, process-lifetime consumer that supervises a
-**Managed process**, settles its **Opaque result** or failure, then exits.
+**Managed process**, reports its **Opaque result** or failure after required cleanup attempts,
+then exits.
 
 **Persistent runner**: A separate component whose host lifetime continues after
-a managed launch settles. Its continuing-host contract is distinct from the
+a managed launch finishes. Its continuing-host contract is distinct from the
 **Launcher CLI**'s one-session lifetime.
 
 **Owner policy**: The executable TypeScript configuration authorised to select
@@ -39,22 +40,24 @@ data, never authority.
 _Avoid_: context (unqualified), session context
 
 **Refusal**: A decision not to launch, made by the **Owner policy** itself or by
-Ravel when that policy's behaviour, data or admission cannot be accepted. It
+Ravel when it cannot accept that policy's file, behaviour or data. It
 is not a failure of the **Policy worker** or of supervision.
 _Avoid_: rejection, error
 
 **Policy worker**: The separate process evaluating the owner policy for the
-native front. It is not a managed process and receives no session-result context.
+Ravel CLI. It is not a managed process and receives no session-result context.
 
-**Native front**: The Rust `ravel` executable. During `start-session` it owns
-policy admission, managed-process supervision and final result settlement.
+**Ravel CLI**: The Rust `ravel` command-line program. During
+`start-session` it checks the policy, supervises the managed process and
+chooses the final result or failure to report.
+_Avoid_: front, native front
 
-**Runner**: The Rust library code executing inside the native front that launches
+**Runner**: The Rust library code executing inside the Ravel CLI that launches
 and supervises the managed job. It is not a separate running service or the
 undelivered **Persistent runner**.
 
 **Managed process**: The direct child selected by the owner policy and supervised
-as a job by the native front. Its process group is the scope of job cleanup.
+as a job by the Ravel CLI. Its process group is the scope of job cleanup.
 
 **Harness**: The agent program an **Owner policy** selects to work on the
 **Session**'s prompt, such as an AI coding agent's command-line tool. Ravel

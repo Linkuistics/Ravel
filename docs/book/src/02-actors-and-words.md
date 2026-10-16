@@ -159,7 +159,7 @@ the inner session, while the outer process keeps its own publication path.
 
 The **policy context** is version-1 JSON data delivered to the policy's
 `select` function. It comes from the caller or from the policy's optional
-context loader. It can describe the work and the sources used to inform a
+policy-context loader. It can describe the work and the sources used to inform a
 choice. Reads through Ravel's provided host operations are measured: Ravel
 records each source's canonical name, byte count and the SHA-256 digest of the
 bytes actually read. Direct reads by policy code are possible but are not
@@ -222,6 +222,6 @@ guarantees a caller can rely on: a successful Ravel result confirms the defined
 supervision and cleanup boundary, not that arbitrary same-user code has been
 contained or that the caller's task was done correctly.
 
-Chapter 3, “A complete session, end to end”, puts these roles together with a
+[Chapter 3, “A complete session, end to end”](03-a-complete-session.md), puts these roles together with a
 small policy and a fake agent. The fake makes the routing, publication and
 cleanup visible without introducing an agent account or a model service.

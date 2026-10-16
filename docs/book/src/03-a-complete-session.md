@@ -172,7 +172,7 @@ the caller's working directory; the worker's directory does not redefine it.
 
 The worker imports `policy.ts` and calls `select`. The literal import
 `ravel/sdk` resolves to the worker's embedded SDK, so this example needs no
-local dependency installation. The policy has no context loader and the
+local dependency installation. The policy has no policy-context loader and the
 caller supplied no [policy context](02-actors-and-words.md#three-different-kinds-of-information).
 Selection therefore depends only on the request in this example.
 
@@ -214,7 +214,7 @@ group does not create a new POSIX session or log the process in again. A POSIX
 session is a different operating-system grouping associated with job control;
 the unconfined process remains in the caller's POSIX session. A
 [confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
-POSIX session, a separate case that chapter 5, “Running sessions”, teaches.
+POSIX session, a separate case that [chapter 5, “Running sessions”](05-running-sessions.md#confine-the-managed-process), teaches.
 
 If you run from an interactive terminal, another group matters: the
 terminal's **foreground process group**. The controlling terminal delivers
@@ -332,7 +332,7 @@ needs to recognise each one.
 
 Conversely, a managed process can publish a result and later exit nonzero
 without invalidating that result. Ravel judges publication, cancellation and
-cleanup separately from the program's exit status. Chapter 5 teaches the
+cleanup separately from the program's exit status. [Chapter 5](05-running-sessions.md#interpret-the-exit-status) teaches the
 outcomes and their exit codes with examples.
 
 The state machine below shows why a session with a published value can still
@@ -370,7 +370,9 @@ the final settlement decision. A newly arriving signal after that decision
 can still terminate the front during writing, and a failed write may leave
 only a prefix on standard output. Chapter 8 develops the full outcome decision.
 
-To write routing rules beyond this single fake, continue with chapter 4,
-“Writing an owner policy”. To invoke Ravel from your own tool, continue with
-chapter 5. Chapter 8, “Following a session through the code”, follows this
+To write routing rules beyond this single fake, continue with
+[chapter 4, “Writing an owner policy”](04-writing-an-owner-policy.md).
+To invoke Ravel from your own tool, continue with
+[chapter 5, “Running sessions”](05-running-sessions.md).
+Chapter 8, “Following a session through the code”, follows this
 same sequence into the implementation.

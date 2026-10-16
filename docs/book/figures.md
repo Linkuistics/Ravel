@@ -220,6 +220,27 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+The first-half set proof independently read all six chapters and the nine
+figure sources with both shared style files on 2026-10-16. In locally served
+mdBook through Chrome at the existing light-page chapter width, it inspected
+the chapter 1 reading routes, chapter 5 caller-input tables, chapter 3 outcome
+figure and adjacent explanation, and chapter 6's publication, status and
+diagnostic entries. The sampled diagram, prose and tables were legible, and
+the caller-route link opened its intended page. This samples direct reference,
+status, error and figure entries; it is not a full visual consistency audit.
+
+VS Code exposed a blank preview surface, so this pass supplies no editor-preview
+evidence. Other themes and viewports, the full set of full-size diagrams,
+GitHub rendering of the unpublished branch and the unpublished site were not
+inspected. Raw files
+were read. The owner changed the contract during this proof: assume familiar
+diagram notation, unify colours/fonts/line weights and other visual properties,
+and use plain prose for a 16-year-old software engineer, naming the command-line
+program **Ravel CLI**. The queued copy-edit → art → proof run applies these
+changes across the first half; a later whole-book art pass checks all chapters.
+The present nine-figure comparison establishes source agreement, not compliance
+with those new requirements or human comprehension.
+
 Chapter 6's art stage inspected both new diagrams and their adjacent
 explanations at chapter width in the locally served mdBook through Chrome on
 a light page on 2026-10-16. Both SVGs were opened at full size. A deployment

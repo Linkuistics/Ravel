@@ -45,6 +45,12 @@ them, and the second half's planning leaf cut under `ravel-book-k55`.
   examples policy's source-excerpt check (chapter 8), and read 2's tasks from
   the contract. If corrections are still open when the session ends, the
   planning leaf is cut after them in the walk.
+- Insert that planning leaf before the live whole-book `ravel-book` art leaf,
+  using its stable handle from the node brief/tree. Its planning body requires
+  chapter units and guide migration before whole-book art, then whole-book
+  proof and read 2. Chapter 10 remains outside this node. The final art pass
+  checks colours, fonts, line weights, arrows and spacing across the complete
+  book; the prose target and Ravel CLI term are the amended contract's.
 - The owner's word on whether the migrated README and removed guides read
   correctly is recorded.
 

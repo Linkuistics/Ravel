@@ -68,7 +68,7 @@ has ended and been reaped, that its process group is gone, and that the
 session's temporary files have been removed. Reaping is the parent collecting
 a finished child's exit status. The process group is the operating system's
 grouping of the managed process with its descendants, and Ravel cleans up the
-whole group. Chapter 3, “A complete session, end to end”, explains those mechanics
+whole group. [Chapter 3, “A complete session, end to end”](03-a-complete-session.md#launch-the-managed-job), explains those mechanics
 as a session reaches them.
 
 A successful `start-session` writes the exact result bytes to standard output,
@@ -149,10 +149,12 @@ The book assumes everyday shell, Git and JSON use, the ability to read
 TypeScript and Rust, and general operating-system knowledge. It teaches
 Ravel's domain and the job-control details its behaviour depends on.
 
-- To call Ravel from your own tool, read chapters 1–3, then chapter 5,
-  “Running sessions”. Chapter 6, “Reference”, is the lookup chapter.
-- To write owner policy, read chapters 1–3, then chapter 4, “Writing an owner
-  policy”, with chapter 6 for lookup.
+- To call Ravel from your own tool, read chapters 1–3, then
+  [chapter 5, “Running sessions”](05-running-sessions.md).
+  [Chapter 6, “Reference”](06-reference.md), is the lookup chapter.
+- To write owner policy, read chapters 1–3, then
+  [chapter 4, “Writing an owner policy”](04-writing-an-owner-policy.md),
+  with [chapter 6](06-reference.md) for lookup.
 - To change Ravel, read chapters 1–3, then chapter 7, “How Ravel is built”,
   chapter 8, “Following a session through the code”, and chapter 11,
   “Developing Ravel”. Chapter 9, “Jobs, signals and the terminal”, and chapter

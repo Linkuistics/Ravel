@@ -41,7 +41,7 @@ delivered
 which can be `undefined`, and a host with `diagnostic(text)` and an `AbortSignal` at
 `signal`. The host lets asynchronous work observe the selection deadline and
 lets policy write diagnostic text. It gives `select` no file-read operations;
-those belong to the context loader's host.
+those belong to the policy-context loader's host.
 
 The request is frozen data. Use this table to find the caller input your
 decision needs and distinguish it from Ravel's effective bounds:
@@ -60,8 +60,8 @@ decision needs and distinguish it from Ravel's effective bounds:
 
 An absent optional field means the caller did not supply it. `limits` names
 `selectionMs`, `contextBytes`, `sourceBytes`, `sources`, `messageBytes` and
-`diagnosticsBytes`: the whole-selection time, delivered-context bytes, default
-bytes per host read, measured-source count, protocol-message bytes and combined
+`diagnosticsBytes`: the whole-selection time, delivered policy-context bytes,
+default bytes per host read, measured-source count, protocol-message bytes and combined
 worker-output bytes. These are values to read; changing a policy-side value
 cannot raise the enforced bound. Settings and their ranges are introduced later.
 
@@ -834,9 +834,9 @@ a source record identifying the bytes read:
 
 Both resolve relative paths against `request.cwd`, require a regular file and
 return a `source` with its canonical `name`, actual `bytes` and `sha256`.
-The default read limit is 65,536 bytes, reduced to the context budget if that is
-smaller. A positive whole-number `maxBytes` can set a read's limit up to the
-context budget. A read exceeding its limit, requesting more than the budget,
+The default read limit is 65,536 bytes, reduced to the policy-context budget if
+that is smaller. A positive whole-number `maxBytes` can set a read's limit up
+to the policy-context budget. A read exceeding its limit, requesting more than the budget,
 or exceeding the measured-source count refuses even if the loader catches its
 exception. A missing file, bad UTF-8 or invalid JSON throws; if that error
 escapes the loader, the refusal identifies the unreadable source. A loader
@@ -849,8 +849,8 @@ have `name`, `bytes`, `sha256` and `via` (`"--context"`, `"readText"` or
 order, including repeated reads of the same file. The limit is 256 measured
 records, counting the caller's document. The document's own `sources` array
 has a separate 256-record limit. The entire delivered JSON, including
-`measured`, has to fit the context budget; a small input file can still produce
-an oversized delivered document once its measurement is attached.
+`measured`, has to fit the policy-context budget; a small input file can still
+produce an oversized delivered document once its measurement is attached.
 
 A `sources` record or an assessment's `by` attributes a claim. A host measurement
 identifies the bytes read. Neither authenticates the author or proves the claim
@@ -1091,19 +1091,19 @@ Use the code to locate the input, loader behaviour or bound that needs changing:
 |---|---|
 | `context_unreadable` | The `--context` path cannot be read as a regular file. |
 | `context_invalid` | The document is not valid JSON or has the wrong shape; the loader returns invalid or unserialisable data or no document, or supplies `measured` itself. |
-| `unsupported_version` | A nonnegative integer representable as an unsigned 64-bit value names a context schema version other than 1. Negative, fractional or wrong-type versions are `context_invalid`. |
+| `unsupported_version` | A nonnegative integer representable as an unsigned 64-bit value names a policy-context schema version other than 1. Negative, fractional or wrong-type versions are `context_invalid`. |
 | `context_loader_failed` | The loader throws or rejects for a reason other than a recognised source-read failure or bound breach. |
 | `context_loader_unsettled` | The loader's promise remains pending after no work is left that could settle it. |
 | `message_too_large` | A loader failure report exceeds the fixed 1 MiB protocol-message bound; shorten the error it reports. |
 | `context_source_unreadable` | A required host read fails, including bad UTF-8 or JSON, and that failure escapes the loader. |
-| `source_too_large` | A host read exceeds its limit or asks for a limit above the context budget. |
+| `source_too_large` | A host read exceeds its limit or asks for a limit above the policy-context budget. |
 | `too_many_sources` | Either the measured ledger or the document's attributed `sources` exceeds 256 entries. |
-| `context_too_large` | The caller document or the delivered document exceeds the context budget. |
+| `context_too_large` | The caller document or the delivered document exceeds the policy-context budget. |
 | `policy_refused` | The loader returns a well-formed refusal; its own code, message and remedy explain the requirement. |
 
 A promise that keeps work alive until the deadline has the `selection_timeout`
 outcome instead. Invalid host arguments can produce a loader failure; a malformed
-refusal returned by the loader is invalid context. Chapter 6, Reference, supplies
+refusal returned by the loader is invalid policy context. [Chapter 6, “Reference”](06-reference.md), supplies
 the complete lookup entries, including failures shared with policy selection.
 
 ## Set bounds and grant environment names
@@ -1144,11 +1144,11 @@ running time.
 | `contextBytes` | Caller document and delivered policy-context JSON, including measured records. | `contextBytes`, then a replacing `--context-bytes`; otherwise 262,144 bytes. |
 | `sourceBytes` | Default bytes for one host read. | The smaller of 65,536 and `contextBytes`; a read can set `maxBytes` from 1 through `contextBytes`. |
 | `sources` | Measured records, including the caller document; separately, attributed source records. | Fixed at 256 for each array. |
-| `messageBytes` | A policy snapshot, selection result or failure report in the private protocol. | Fixed at 1,048,576 bytes (1 MiB). The context document has its own budget. |
+| `messageBytes` | A policy snapshot, selection result or failure report in the private protocol. | Fixed at 1,048,576 bytes (1 MiB). The policy-context document has its own budget. |
 | `diagnosticsBytes` | Worker standard output and standard error combined. | Fixed at 262,144 bytes (256 KiB). |
 
-Overflow refuses rather than truncating data to fit. A context or read overflow
-uses the codes above; a policy snapshot, selection result or failure report
+Overflow refuses rather than truncating data to fit. A policy-context or
+host-read overflow uses the codes above; a policy snapshot, selection result or failure report
 exceeding its protocol bound uses `message_too_large`, and excessive worker output uses
 `output_limit` (both exit 3). For excessive output Ravel retains only the first
 262,144 diagnostic bytes and discards the rest while stopping the worker; this
@@ -1186,8 +1186,8 @@ environment after Ravel removes its private and obsolete controls and supplies
 the session-result context. The worker needs no grant of a credential merely
 because the managed process uses that credential.
 [Confinement](02-actors-and-words.md#trust-and-confinement) applies its own
-environment rules to the managed process, taught in chapter 5, Running
-sessions.
+environment rules to the managed process, taught in
+[chapter 5, “Running sessions”](05-running-sessions.md#confine-the-managed-process).
 
 Compare the columns before granting a name: a credential needed only by an
 unconfined managed process does not need a policy-worker grant.
@@ -1206,7 +1206,7 @@ Confinement changes the managed-process column's rules; it does not confine
 the policy worker.
 
 The next policy reports only whether two invented grant names are present.
-Its output also shows how a lowered context budget reduces the default read
+Its output also shows how a lowered policy-context budget reduces the default read
 limit. The fake publishes that report exactly.
 
 Complete example: observe settings, CLI replacements and additional grants,
@@ -1381,7 +1381,7 @@ Relative imports resolve beside the importing file. If your entry is a symlink,
 its real file determines that location. Keep a helper beside the policy and
 write, for example, `import { route } from "./routes.ts"`. The agent example
 below exercises that layout. A relative host read is different: it resolves
-against the caller's `request.cwd`, as the context example showed.
+against the caller's `request.cwd`, as the policy-context example showed.
 
 Ordinary dependencies resolve from their importing file's location through Bun's
 package resolver. The nearest `package.json` that reads as a package supplies
