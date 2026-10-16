@@ -58,10 +58,13 @@ authority.
   first-half set proof; chapter 6 remains page-level. The parent already carries
   the second-half conversion for chapters 7–12. Check every first-use term link
   against the final wording and figures.
-- **Proof** — inspect the figures in the actual local mdBook themes and an editor
-  preview when a browser/UI surface is available. Art inspected white-canvas
-  raster previews of both real SVGs; the build serves byte-identical SVGs with
-  full alt text and full-size links, but computer use had no browser endpoint.
+- **Proof** — art k80 inspected both figures in local mdBook through native
+  Chrome with Auto displaying a light page and with Navy. Chapter 2's container
+  figure and nested-publication, worker-directory sequence and information
+  tables also rendered legibly in VS Code's light Markdown preview. Other
+  mdBook themes, narrower viewports and chapter 1's editor preview remain
+  uninspected; `docs/book/figures.md` records the exact coverage. Native app
+  access works even though the browser inventory is empty and `iab` unavailable.
   GitHub and the published site remain unavailable before push/publication.
 
 ## Figures delivered
@@ -72,4 +75,6 @@ under `docs/book/src/figures/`. The shared `_style.puml` and
 carry role sentences, notation keys and text alternatives. The existing fit
 and responsibility tables and new result/status/work, nested publication,
 information-kind and platform-evidence tables carry the unit's comparisons.
+The correction pass adds the worker-directory sequence table, distinguishing
+startup location, the move before policy import and cleanup before launch.
 

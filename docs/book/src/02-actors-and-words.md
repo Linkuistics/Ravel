@@ -178,6 +178,15 @@ embedded modules or imports owner policy, and policy code can change the
 worker's working directory again. During worker cleanup, before it launches
 the selected program, the native front removes the worker's private directory.
 
+The sequence separates the worker's startup location from the location where
+policy begins executing, while keeping private-directory removal before launch.
+
+| Point in policy evaluation | Working-directory fact |
+|---|---|
+| Worker startup | The native front starts the worker in its empty private directory |
+| Before policy import | The worker changes to `/`; policy code can subsequently change its working directory |
+| Worker cleanup, before the managed launch | The native front removes the worker's private directory after the worker has ended and been reaped |
+
 Use this comparison to keep selection data and a working location separate
 from the inherited path that directs result publication.
 

@@ -150,6 +150,20 @@ layout engine at all. No kind in the contract's figure list needed Graphviz, so
 there is no Smetana limitation to escalate. Whether a larger figure lays out
 legibly under Smetana is the art stage's to judge on the real figures.
 
+## Viewing checks
+
+Opening-unit art inspected both SVGs in the locally served mdBook through
+native Chrome on 2026-10-16, with Auto displaying a light page and with Navy.
+The white canvases, labels, arrows and legends remained legible in both.
+Chapter 2's nested-publication, worker-directory sequence and information
+tables were inspected in Navy. Its container figure and those tables also
+rendered legibly in VS Code's Markdown preview, in Restricted Mode on a light
+background. The raw chapter and PlantUML sources were read alongside them.
+
+The computer-use browser inventory was empty and the in-app browser unavailable;
+native app access supplied these checks. No human comprehension result follows
+from an art-stage visual inspection.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The
@@ -158,13 +172,9 @@ legibly under Smetana is the art stage's to judge on the real figures.
   pinned hosts); other Java runtimes than OpenJDK 21 and 27.
 - A reader's browser without DejaVu Sans: the generic fallback is in the SVG,
   but the rendering in such a browser was not inspected.
-- How the figures look in mdBook's dark themes: PlantUML's SVG has a white
-  background. Opening-unit art inspected raster previews of the actual SVGs
-  on white, including the explicit dark legend text and light legend fill.
-  Browser inspection was attempted, but the session's computer-use browser
-  inventory was empty and the in-app browser unavailable. The built mdBook's
-  themes and an editor preview therefore still need visual inspection;
-  source/SVG agreement and a successful build do not establish their appearance.
+- mdBook's Rust, Coal and Ayu themes, narrower viewports, and chapter 1's editor
+  preview. The checks above cover only the named pages and environments.
+- The published site, which is unavailable before the book's first release.
 
 ## Checking the check
 
