@@ -524,4 +524,24 @@ Cumulative D<=115/RC<=105/P<=555/E<=227/X=0 against the historical caps
 D<=135/RC<=88/P<=467/E<=177/X=0, which no longer gate required work (k41);
 remaining D<=20 exclusively phase closure.
 
-K22 stays open: k49's remaining children and k53 are live before the book, and returning-host, adoption, K4/k6, G2-G5/R-W and every root obligation remain live. Local native success closes none of them.
+K53 put the native x86-64 choice to the human after checking its framing. x86_64
+Linux is a shipped target (v1.0.0's archive). The host launcher routes amd64
+only through emulation. testanyware, the human's first answer (verbatim "USe
+testanyware"), boots only arm64 guests on this Mac; a clone reported aarch64.
+The human then answered verbatim "Add x86_64 to testanyware (Recommended)",
+"We should use QEMU in that case, after cross-building. HOWEVER - we can leave
+this for now as a GH issue on this repo." and "And a GH issue in testanyware".
+Native x86-64 qualification is deferred out of this grove, not rejected, to
+[Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1), which
+depends on
+[Linkuistics/TestAnyware#1](https://github.com/Linkuistics/TestAnyware/issues/1):
+an x86_64 guest under QEMU full-system emulation, binaries cross-built on the
+host, and results recorded as a real x86-64 kernel on an emulated CPU. No
+x86_64 run leaf is cut and nothing is narrowed.
+native-entry-x86-64-support-statement-k54 carries the support statement into
+the spec, design and evidence note. K53's charter asks for no charge and
+records none, so the cumulative stays at least
+D<=115/RC<=102/P<=540/E<=217/X=0 against historical caps that no longer gate
+required work (k41).
+
+K22 stays open: k54 is live before the book, and returning-host, adoption, K4/k6, G2-G5/R-W and every root obligation remain live. Local native success closes none of them.
