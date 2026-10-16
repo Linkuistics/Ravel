@@ -97,6 +97,26 @@ The sequence is `successful-session`; the reusable outcome view is
 live beside them in chapter 3. Its state machine groups operations and names
 settled outcomes; the full precedence algorithm belongs to chapter 8.
 
+Chapter 5 adds `selection-cancellation` and `supervision-cancellation`, using
+the same sequence notation. They show attempts that can fail, so neither uses
+an X to claim that reap or removal was confirmed on every pictured path.
+The dashed return arrow reports the cancellation outcome to the caller;
+the supervision view's green publication arrow ends at the result channel.
+
+`settled-exit-status` refines the settlement portion of `session-outcomes`
+without changing that chapter 3 overview. Its dot enters this detail rather
+than starting a new session. The blue phases express outcome precedence, not
+implementation call order, and its grey outcomes add the status numbers.
+It covers `start-session`; chapter 5's preceding table also covers
+`end-session`, help and version. These local conventions are taught beside
+the figures and repeated in their keys. All three sources use the existing
+PlantUML pin, Smetana layout and `_uml-style.puml`; the update and compare
+tasks below regenerate them alongside the earlier figures.
+
+Chapter 5 also uses page-native tables for program-path resolution, nested
+session-result authority, confined versus unconfined launches and output-stream
+routing. These need no separate source or SVG; mdBook renders their Markdown.
+
 ## What is recorded, and where
 
 | Fact | Recorded in | Kept honest by |
@@ -172,6 +192,20 @@ there is no Smetana limitation to escalate. Whether a larger figure lays out
 legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
+
+Chapter 5's art stage inspected the three new SVGs and their adjacent
+explanations at chapter width in the locally served mdBook through Chrome on
+a light page on 2026-10-16. The initial renders were also opened through their
+full-size SVG links. After separating the cancellation-status labels and
+clarifying two sequence labels, the regenerated views were checked again at
+chapter width with the browser's cached assets refreshed. The four new
+page-native tables were legible there too. The whole chapter, the PlantUML
+sources and the shared styles were read as raw files.
+
+This pass did not inspect an editor preview, other themes, narrower viewports,
+GitHub or the unpublished site. The earlier isolated-guest capture limitation
+was not retried. These are visual and source checks, not evidence of human
+comprehension, real-agent behaviour or interactive terminal operation.
 
 Chapter 4's proof independently inspected the selection/refusal and evaluation
 tables, caller/loader cases and host reads, context diagnostic entries, settings

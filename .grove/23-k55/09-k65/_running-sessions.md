@@ -54,19 +54,6 @@ confinement, notices) and interpret every outcome and exit code.
 - Do not teach the job-control mechanics here beyond what interpreting an
   outcome needs; chapter 9 teaches them.
 
-## Handed forward
-
-- **art** — add the two cancellation sequences at “Cancel during selection
-  or supervision”, one showing worker teardown with no managed launch, one
-  showing managed-group cleanup and result suppression after publication.
-  Extend or reuse chapter 3's outcome state machine beside “Interpret the
-  exit status”, maintaining that figure's shared visual vocabulary. Distinguish
-  failed cleanup attempts from confirmed cleanup, original failure precedence,
-  final-write failure and publication from delivery. The surrounding prose
-  already supplies the technical sequence; art owns notation, captions, alt
-  text and the rendered views. Do not duplicate the existing chapter 3 asset
-  mechanically or silently change its teaching when extending it.
-
 ## Draft coverage and guide fold-in
 
 Chapter 5 supplies the `session-cli.md` teaching for caller inputs, unchanged
@@ -82,6 +69,7 @@ empty publication and natural exit; nesting; confinement; selection
 cancellation; and cancellation after publication. Two local fragments cover
 caller result capture and physical terminal interaction. The automated seam
 establishes no real-agent behaviour, terminal interaction or human
-comprehension. The prescribed art/proof views and owner's stand-in read remain
-outstanding; native x86-64 qualification and remote/published rendering remain
+comprehension. The proof views and owner's stand-in read remain outstanding;
+art's viewing coverage and limits are in `docs/book/figures.md`.
+Native x86-64 qualification and remote/published rendering remain
 the book contract's declared unknowns.

@@ -1,0 +1,39 @@
+@startuml
+!pragma layout smetana
+!include _uml-style.puml
+title Cancellation during selection — UML sequence
+hide footbox
+participant "caller" as Caller
+participant "<color:#FFFFFF>native front" as Front #1E4F78
+participant "<color:#FFFFFF>policy worker" as Worker #1E4F78
+
+Caller -> Front : start-session
+create Worker
+Front -> Worker : Start worker; check identity; send request
+note over Front, Worker
+  The worker evaluates trusted owner policy.
+  It has no session-result context.
+end note
+== Cancellation reaches the front ==
+Worker -> Front : SIGINT (the example below)
+Front -> Worker : Close protocol; attempt bounded stop and wait
+Front -> Front : Drain bounded diagnostics; attempt\nworker private-directory cleanup
+note over Front, Worker
+  Reap and removal must be confirmed before claiming them.
+  Failed attempts remain diagnostics; no X certifies teardown here.
+  No managed process is launched.
+  No result channel is allocated.
+end note
+Front -> Front : Keep cancellation primary; retain any\noriginal failure and teardown problems
+Front --> Caller : Report cancellation; re-raise INT\n(shell status 130); no result bytes
+
+legend bottom
+  Read downwards: order, not elapsed time. Dashed verticals: lifelines.
+  Solid arrows: actions; dashed arrow: reported outcome; bent arrows: local work.
+  Blue boxes: Ravel processes. Grey box: caller. Bars group related steps.
+  This example sends INT directly to the front; it is not keyboard delivery.
+  HUP and TERM give shell statuses 129 and 143 by the same cancellation rule.
+  A failed signal propagation uses the corresponding numeric exit as fallback.
+  Cancellation reports attempted teardown, not a guarantee that cleanup succeeded.
+endlegend
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+!pragma layout smetana
+!include _uml-style.puml
+title From settlement to exit status — UML state machine
+hide empty description
+hide stereotype
+
+state "Settling cancellation" as Cancellation
+state "Settling the original outcome" as Original
+state "Settling required cleanup" as Cleanup
+state "Writing the result" as Writing
+state "Cancelled\n129: HUP\n130: INT\n143: TERM" as Cancelled <<outcome>>
+state "Original failure retained\n1: no result\n2: invalid inputs or settings\n3: policy refusal or admission refusal\n5: worker, supervision or result failure\n124: selection deadline\n126: pre-start execution failure\n127: program or interpreter not found" as Failure <<outcome>>
+state "5: cleanup, recovery or group failure" as CleanupFailure <<outcome>>
+state "5: result write or flush failed" as WriteFailure <<outcome>>
+state "0: exact result delivered" as Success <<outcome>>
+
+[*] --> Cancellation
+Cancellation -right-> Cancelled : [cancellation selected]
+Cancellation --> Original : [no cancellation]
+Original -right-> Failure : [original failure]
+Original --> Cleanup : [valid candidate result]
+Cleanup -right-> CleanupFailure : [required cleanup failed\nor group survives]
+Cleanup -[#135E50]-> Writing : [reap, group absence and\nrequired cleanup confirmed]
+Writing -right-> WriteFailure : write or flush fails
+Writing -[#135E50]-> Success : write and flush succeed
+
+legend bottom
+  Refinement of chapter 3's settlement phase for start-session.
+  Dot: entry to this detail. Blue boxes: conceptual settlement phases.
+  Grey boxes: outcomes. Arrows: transitions. Brackets: conditions.
+  Applicable cleanup is attempted before reporting an outcome.
+  This order expresses precedence, not the implementation's call order.
+  Original failures keep their status when later cleanup also fails.
+  Cancellation suppresses a published result and retains other diagnostics.
+  Green: the only success route. Empty publication is a valid value.
+  A later nonzero child exit does not invalidate that value.
+  A failed final write can leave a prefix; a late signal can interrupt it.
+  end-session, help and version invocations are covered by the table, not this view.
+endlegend
+@enduml

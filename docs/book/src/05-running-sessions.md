@@ -37,7 +37,8 @@ caller token. Ravel has no catalogue of kinds and derives none from a file
 name. A policy may route `review`, refuse it, or treat it like any other kind.
 The caller and policy author agree on that vocabulary.
 
-Other inputs carry data the policy can use:
+These inputs supply policy data; they do not ask Ravel to read a task or assign
+it meaning:
 
 | Input | What the policy receives |
 |---|---|
@@ -56,9 +57,16 @@ and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and
 The `--timeout-ms` bound applies to policy evaluation, not the managed
 process's working time.
 
-The selected program runs in the caller's working directory. Ravel resolves
-an absolute program path directly, a relative path containing `/` against that
-directory, and a bare program name through the caller's `PATH`. It passes the
+The selected program runs in the caller's working directory. The spelling of
+its program path determines where Ravel looks for it:
+
+| Selected program | Resolution base |
+|---|---|
+| Absolute path | The named path itself |
+| Relative path containing `/` | The caller's working directory |
+| Bare program name | The caller's `PATH` |
+
+Ravel passes the
 argument strings directly, without shell splitting or expansion. An unconfined
 managed process otherwise inherits the caller's environment, with
 `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`, `HARNESS_DISPATCH_EXIT_FILE`,
@@ -301,6 +309,14 @@ When the inner invocation returns, the outer process decides what to publish
 for the outer session. Publishing the inner result does not finish the outer
 session, and `end-session` accepts no session ID or target argument.
 
+Each process uses the session-result context it inherited to publish;
+the outer process must explicitly turn the inner result into an outer result:
+
+| Process | Session-result context | What its `end-session` call publishes |
+|---|---|---|
+| Outer managed process, also the inner caller | Keeps the outer session's `RAVEL_EXIT_FILE` | The outer session's result |
+| Inner managed process | Receives a fresh inner `RAVEL_EXIT_FILE` | The inner session's result, returned to the outer process after inner cleanup |
+
 Complete example: the inner program publishes `inner`, and the outer program
 uses that result in `inner|outer`. Create these files in a fresh directory
 and make both files under `bin/` executable. These values have no trailing
@@ -478,6 +494,19 @@ interactive program; chapter 9, “Jobs, signals and the terminal”, develops
 the mechanism. Confinement is a separate choice from an agent program's own
 permission flags.
 
+Use this comparison to choose confinement with its environment and terminal
+consequences together; neither mode confines the owner policy:
+
+| Property | Unconfined managed process | Confined managed process |
+|---|---|---|
+| Filesystem access | No Ravel confinement | Writable working and private run directories; admitted runtime reads and explicit grants |
+| Caller environment | Inherited, with the obsolete variables listed above removed | Only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*` retained |
+| Temporary-path variables | Inherited | `TMPDIR`, `TMP` and `TEMP` point to the private run directory |
+| Session-result context | Fresh `RAVEL_EXIT_FILE` | Fresh `RAVEL_EXIT_FILE` |
+| Process grouping | New process group in the caller's POSIX session | New POSIX session |
+| Caller terminal | Lent when Ravel's group owns the foreground | Not lent; noninteractive |
+| Network | No Ravel confinement | Permitted by confinement |
+
 ## Read notices without confusing them with results
 
 For `start-session`, stdout contains only the exact result bytes, without an
@@ -493,6 +522,15 @@ output. The managed program can still print arbitrary text there. Preserve
 stderr as a diagnostic stream; do not parse the entire stream as one JSON
 document. The managed program can print a line that looks like a Ravel notice,
 so a line's shape does not prove that Ravel wrote it.
+
+Reserve stdout for the successful session result, and keep stderr as a mixed
+diagnostic stream even with `--json`:
+
+| Output | Destination | Effect of `--json` |
+|---|---|---|
+| Exact opaque result after successful settlement | Caller stdout, without an added newline | None |
+| Managed process stdout and stderr | Caller stderr | None; arbitrary program text remains |
+| Ravel routing notice and failure document | Caller stderr | JSON documents replace their text form |
 
 The version-1 routing notice describes `selection`, `policy`, `worker`,
 `selectionMs`, delivered `context`, effective `bounds`, `policyEnvironment`,
@@ -579,12 +617,43 @@ Likewise, a newly arriving signal after the final cancellation decision can
 interrupt the result write. There is no atomic guarantee covering both signal
 arrival and an arbitrary stdout write.
 
+The following view expands [chapter 3's outcome state machine](03-a-complete-session.md#recognise-the-other-outcomes)
+at settlement: cancellation wins over an original failure, which keeps its
+status if later cleanup also fails. Only a valid result with confirmed cleanup
+reaches the final write. This is the precedence of outcomes, not the order of
+function calls; applicable cleanup is attempted before reporting any outcome.
+
+This UML state machine starts at the solid dot, entering the settlement detail.
+Blue rounded boxes are conceptual phases of the native front's work, grey
+boxes are outcomes, and bracketed arrow labels give transition conditions.
+The green route is successful result delivery. The view covers `start-session`;
+the table also covers `end-session`, help and version invocations.
+
+![Settlement checks cancellation first, then retains an original failure and its status, then requires confirmed cleanup before writing the result. Cancellation gives 129, 130 or 143; original failures retain 1, 2, 3, 5, 124, 126 or 127. Cleanup or final-write failure gives 5; only a successful write and flush gives 0.](figures/settled-exit-status.svg)
+
+[Open the settlement view at full size](figures/settled-exit-status.svg).
+
 ## Cancel during selection or supervision
 
 Cancellation of selection stops the policy worker and prevents the managed
 launch. Ravel attempts worker teardown and reports the cancellation with any
 teardown problems. The worker has no session-result context, so it cannot
 publish an enclosing result through the ordinary `end-session` interface.
+
+The selection sequence shows why cancellation can require worker cleanup even
+though no managed process was launched. It follows the example below, where
+the worker sends INT directly to the native front.
+
+In these UML sequences, order runs down the dashed participant lifelines;
+it is not an elapsed-time scale. Solid arrows name actions, bent arrows name
+work within a participant, and the dashed return arrow reports the outcome to
+the caller. Blue boxes are Ravel processes, grey boxes are external participants,
+and labelled bars group steps. No lifetime ends with an X here: teardown is
+attempted, and a failure cannot certify reap or removal.
+
+![The caller starts selection, the policy worker sends SIGINT to the native front, and the front attempts worker teardown and private-directory cleanup. It retains teardown problems, launches no managed process, and reports cancellation with no result.](figures/selection-cancellation.svg)
+
+[Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
 Complete example: the policy sends SIGINT directly to its parent, the native
 front, then waits indefinitely. This causes selection cancellation without a terminal or
@@ -636,6 +705,16 @@ During supervision, cancellation stops the managed process's group and attempts 
 terminal recovery and temporary cleanup before reporting the signal. The
 result stays suppressed even when it was already published. Cleanup failure
 does not change cancellation into success; the failure is reported beside it.
+
+The supervision sequence shows that publication does not protect a value from
+cancellation: the green arrow reaches the gold temporary result channel, but
+no result reaches the caller. The runner executes inside the native front;
+the managed process's group includes the descendants that stay in that group.
+The pictured cleanup steps are attempts, with failures retained as diagnostics.
+
+![The managed process publishes candidate via end-session, then sends SIGINT to the native front. The front attempts group shutdown, reap, terminal recovery and temporary cleanup, suppresses the published result, and reports cancellation even if cleanup fails.](figures/supervision-cancellation.svg)
+
+[Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 
 Complete example: publish a candidate result, send SIGINT directly to the
 front, then stay alive for the supervisor to stop the job. Create the files
