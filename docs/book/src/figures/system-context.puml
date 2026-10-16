@@ -1,0 +1,22 @@
+@startuml
+!pragma layout smetana
+!include <C4/C4_Context>
+!include _style.puml
+title Where Ravel sits — C4 system context
+Person(owner, "owner", "Controls the account's owner policy and settings")
+System_Ext(caller, "caller", "Person or program: supplies the task and interprets the result")
+System(ravel, "Ravel", "Routes one request, supervises the selected program and settles the session")
+System_Ext(managed, "managed process", "The selected program: performs the work")
+Rel_D(owner, ravel, "Configures routing", "owner policy and settings")
+Rel_R(caller, ravel, "Requests a session", "start-session: kind and prompt")
+Rel_L(ravel, caller, "Returns opaque result after successful cleanup", "standard output", $tags="result")
+Rel_D(ravel, managed, "Launches and supervises", "selected command")
+Rel_U(managed, ravel, "Publishes opaque result; requests completion", "end-session", $tags="result")
+legend bottom
+  Person shape: human role. Boxes: software or a labelled caller role.
+  Blue: Ravel. Grey: participants outside Ravel.
+  Angle-bracket labels name element types; square brackets name interfaces.
+  Arrows follow their labels; green arrows carry the opaque result.
+  This view hides Ravel's processes. Boxes are not security boundaries.
+endlegend
+@enduml

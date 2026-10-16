@@ -37,6 +37,9 @@ integrations. The policy selects the actual command needed to invoke the
 chosen program. Ravel runs that command without shell expansion or word
 splitting; a shell is involved only if the policy selects one.
 
+The [system-context figure in chapter 1](01-what-ravel-is-for.md#from-a-request-to-a-result) puts these
+roles around Ravel: the caller chooses the work and the owner controls routing.
+
 ## Policy evaluation and supervision
 
 The **native front** is the Rust `ravel` executable. During `start-session` it
@@ -98,7 +101,25 @@ The runner's underlying completion channel only reports that a file appeared.
 Ravel's result handling checks and reads the contents. Neither the file's
 appearance nor the policy worker's selection is itself a successful session.
 
-The participants' responsibilities can be compared directly:
+The figure shows why a policy response cannot complete a session: it reaches
+the native front through a separate path from the managed process's opaque
+result. It uses C4's container level, opening the single Ravel box from
+chapter 1 into processes and a store. Here, a container means a running unit
+or a store, not an operating-system container. Boxes name processes or the
+external caller; the cylinder represents temporary files, not a database.
+The enclosing outline groups Ravel's software, not a sandbox. Blue marks
+Ravel's processes, grey external participants and gold the temporary channel;
+labels identify them without colour. Arrowheads follow the labelled actions
+or data, with green tracing the opaque result. Steps 1 and 2 show ordering:
+the worker is cleaned up before the managed process starts. This is a map of
+participants across a session, not a picture of processes running together.
+
+![The native front evaluates the request through a separate policy worker, which evaluates trusted owner policy without session-result context and sends a selection or refusal through a separate socket. Before launching the managed process, the native front confirms that the worker ended and was reaped and its private directory was removed. The runner executes inside the native front and supervises the managed process. That process receives session-result context and uses end-session to publish into the temporary result channel. The native front validates and reads the publication, then writes the opaque result to the caller only after successful cleanup.](figures/process-authority.svg)
+
+[Open the process-and-authority figure at full size.](figures/process-authority.svg)
+
+The responsibility table locates final supervision and result settlement in
+the native front, while the caller and owner retain their separate decisions.
 
 | Participant | Decides or performs | Authority Ravel gives it |
 |---|---|---|
@@ -126,6 +147,14 @@ keeps its own session-result context. Ordinary inheritance therefore directs
 each completion command to its enclosing session rather than to a session
 selected by an ID.
 
+The mapping shows why an inner completion command normally ends the inner
+session while the outer process retains its own publication path.
+
+| Process invoking `end-session` | Inherited session-result context | Publication goes to |
+|---|---|---|
+| Outer managed process and its ordinary children | Outer session's path | Outer session's result channel |
+| Inner managed process and its ordinary children | Fresh inner session's path | Inner session's result channel |
+
 The **policy context** is version-1 JSON data delivered to the policy's
 `select` function. It comes from the caller or from the policy's optional
 context loader. It can describe the work and the sources used to inform a
@@ -142,6 +171,15 @@ The worker runs in a private directory of its own, while the selected program
 runs in the caller's working directory. A policy author uses the request's
 `cwd` when the caller's location matters, rather than assuming the worker's
 current directory is the same.
+
+Use this comparison to keep selection data and a working location separate
+from the inherited path that directs result publication.
+
+| Information | Form | Purpose |
+|---|---|---|
+| Session-result context | Inherited `RAVEL_EXIT_FILE` path | Directs `end-session` to the enclosing session's result channel |
+| Policy context | Version-1 JSON data | Informs the owner policy's selection; supplies no session-result authority |
+| Caller's working directory | Request's `cwd` | Names where the caller is working; the selected program runs there |
 
 ## Trust and confinement
 

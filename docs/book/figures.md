@@ -42,6 +42,40 @@ mdBook output alike. The alt text is written in the page, not in the SVG, and
 says what the figure shows. mdBook copies every non-Markdown file in `src/`
 into the built book, so the editable sources are published beside the SVGs.
 
+## Visual vocabulary
+
+The opening unit establishes these conventions in `src/figures/_style.puml`.
+Include it after the bundled C4 library. Later units reuse the conventions and
+extend them only for a new reader question; explain each extension beside its
+first figure.
+
+| Convention | Meaning |
+|---|---|
+| C4 system-context view | Ravel as one system, surrounded by its caller, owner and selected program |
+| C4 container view | Ravel's running units and temporary store; not OS containers or simultaneous process lifetimes |
+| Person shape | A human role; the caller uses a labelled box because it can be a person or a program |
+| Blue box (`#1E4F78`) | Ravel system or process, at the level the view names |
+| Grey box (`#E8EDF2`) | External participant, such as caller or managed process |
+| Gold cylinder (`#FFF1CF`) | Temporary result channel; the cylinder does not imply a database or persistent store |
+| Dashed enclosing outline | Software membership, not authentication, a sandbox or a process-group boundary |
+| Directed arrow | The action or information named on it; it does not imply a function call or chronology |
+| Green arrow (`#135E50`) | Opaque-result path, also identified by its label |
+| Numbered relations | Only the ordering explicitly stated in the key; not a complete sequence diagram |
+| Angle-bracket labels | C4 element types and the `temporary` tag |
+| Square-bracket labels | Technology, interface or data, as the words specify |
+
+The runner is text inside the native front's box: it executes there and has no
+separate process box. The policy response and opaque-result paths have separate
+arrows. Worker completion, reap and private-directory removal precede the
+managed launch; the container view's key states that admission rule explicitly.
+
+Each figure has an adjacent sentence stating what the reader should learn,
+local notation teaching, a key inside the image, meaningful Markdown alt text
+and a full-size SVG link. Colours supplement labels. Keep a white canvas,
+dark legend text and explicit light legend fill so the SVG is self-contained
+when displayed on a dark page. The chapter's text remains the alternative
+when the image cannot be read.
+
 ## What is recorded, and where
 
 | Fact | Recorded in | Kept honest by |
@@ -125,7 +159,12 @@ legibly under Smetana is the art stage's to judge on the real figures.
 - A reader's browser without DejaVu Sans: the generic fallback is in the SVG,
   but the rendering in such a browser was not inspected.
 - How the figures look in mdBook's dark themes: PlantUML's SVG has a white
-  background. The art stage inspects the declared viewing environments.
+  background. Opening-unit art inspected raster previews of the actual SVGs
+  on white, including the explicit dark legend text and light legend fill.
+  Browser inspection was attempted, but the session's computer-use browser
+  inventory was empty and the in-app browser unavailable. The built mdBook's
+  themes and an editor preview therefore still need visual inspection;
+  source/SVG agreement and a successful build do not establish their appearance.
 
 ## Checking the check
 

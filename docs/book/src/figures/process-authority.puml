@@ -1,0 +1,31 @@
+@startuml
+!pragma layout smetana
+!include <C4/C4_Container>
+!include _style.puml
+title Processes and authority — C4 container view
+System_Ext(caller, "caller", "Requests work and interprets the opaque result")
+System_Boundary(ravel, "Ravel — software boundary, not a sandbox") {
+  Container(worker, "policy worker", "Separate process; compiled Bun", "Evaluates trusted owner policy. No session-result context.")
+  Container(front, "native front", "Rust process: ravel start-session", "Admits the selection and settles the result. The runner executes inside this process and owns launch and supervision.")
+  ContainerDb(channel, "result channel", "Temporary directory and completion file", "Carries one opaque result; no persistent history", $tags="temporary")
+}
+System_Ext(managed, "managed process", "Selected direct child; its children inherit its session-result context")
+Rel_D(caller, front, "Requests a session", "kind and prompt")
+Rel_U(front, caller, "Writes opaque result only after successful cleanup", "standard output", $tags="result")
+Rel_L(front, worker, "1. Evaluates request", "bounded request; restricted environment")
+Rel_R(worker, front, "Policy response", "selection or refusal; separate socket")
+Rel_D(front, managed, "2. Launches only after worker cleanup; supervises", "selected command; session-result context")
+Rel_L(managed, channel, "Publishes opaque result via end-session", "inherited session-result context", $tags="result")
+Rel_U(channel, front, "Supplies published opaque result", "file appearance, then validation and read", $tags="result")
+legend bottom
+  Boxes name processes or the external caller; cylinder: temporary files.
+  Blue: Ravel processes. Grey: external participants. Gold: temporary channel.
+  Arrows follow their labels; green arrows carry the opaque result.
+  1 precedes 2: the worker and managed process are not concurrent phases.
+  Before 2: worker ended and reaped; its private directory removed.
+  A valid selection alone is insufficient for launch.
+  The runner is library code inside the native front, not another process.
+  Angle brackets: element types. Square brackets: technology or interface.
+  Boundaries do not authenticate same-user code or contain detached children.
+endlegend
+@enduml

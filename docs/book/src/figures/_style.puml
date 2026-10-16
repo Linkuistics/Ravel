@@ -1,0 +1,16 @@
+' Shared book vocabulary; include after the bundled C4 notation.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #334155
+skinparam defaultFontSize 14
+skinparam wrapWidth 220
+skinparam maxMessageSize 55
+skinparam legendBackgroundColor #F8FAFC
+skinparam legendBorderColor #64748B
+skinparam legendFontColor #172B3A
+UpdateElementStyle("person", $bgColor="#475569", $fontColor="#FFFFFF", $borderColor="#334155")
+UpdateElementStyle("system", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59")
+UpdateElementStyle("external_system", $bgColor="#E8EDF2", $fontColor="#172B3A", $borderColor="#64748B")
+UpdateElementStyle("container", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59")
+AddElementTag("temporary", $bgColor="#FFF1CF", $fontColor="#3D321A", $borderColor="#8A6B26")
+AddRelTag("result", $textColor="#135E50", $lineColor="#135E50")

@@ -48,6 +48,20 @@ work. `end-session` finds the enclosing session through its inherited
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 It takes no session ID or target argument.
 
+The figure separates the caller's choice of work from the owner's choice of
+program, with Ravel responsible for supervision between request and result.
+It uses C4's system-context level: one box represents Ravel as a whole, while
+the other shapes represent the people or programs it works with. A person
+shape marks the human owner; the caller's box can represent a person or a
+program. Arrowheads show the direction of the labelled action or information.
+Blue identifies Ravel and grey identifies external participants; the labels
+also carry that distinction. Green arrows trace the opaque result. These
+shapes describe responsibilities, not security boundaries.
+
+![The owner configures Ravel through owner policy and settings. The caller sends a kind and prompt with start-session. Ravel launches and supervises the managed process, which publishes an opaque result with end-session. Ravel returns that result to the caller on standard output only after successful cleanup.](figures/system-context.svg)
+
+[Open the system-context figure at full size.](figures/system-context.svg)
+
 Publication is the start of completion, not proof that completion succeeded.
 Before returning a successful result, Ravel confirms that the managed process
 has ended and been reaped, that its process group is gone, and that the
@@ -75,12 +89,24 @@ nonzero. The result is the value the caller's ending instructions asked for,
 the exit status reports how the process ended, and the work is whatever the
 program changed; none of the three stands in for another.
 
+The table keeps the three outputs separate so that an exit status or a changed
+file cannot be mistaken for the result the caller requested.
+
+| What the session produces | What it tells the caller | What it does not establish |
+|---|---|---|
+| Opaque result | The value published with `end-session`, returned after successful supervision and cleanup | That the requested work is correct |
+| Managed process's exit status | How that process ended | That it published a result or that the session succeeded |
+| Work, such as changed files | What the selected program changed | That it published a result or completed cleanup |
+
 ## Decide whether Ravel fits
 
 Ravel fits when your tool needs an owner-selected program, one supervised
 session and an explicit result. The tool can leave routing to the account's
 configuration and use the same completion protocol for each selected program.
 It still owns the task and the decisions made after the session ends.
+
+Use this table to decide which part of your need Ravel meets and which part
+still needs a caller, service or selected program.
 
 | If you need… | Ravel's part | What remains outside Ravel |
 |---|---|---|
@@ -153,6 +179,15 @@ emulation, which translates x86-64 programs to run on the host's own kernel,
 so no x86-64 kernel takes part. No x86-64 kernel is qualified. These are limits
 on the evidence: the three targets do not have equivalent support
 measurements. Chapter 12 explains the delivery and platform limits in detail.
+
+The comparison shows why a built or emulated target does not carry the same
+evidence as a measured native target.
+
+| Target | Recorded execution | Compiler | Limit |
+|---|---|---|---|
+| aarch64 macOS | Native measurements | Rust 1.99 | Only the recorded platform and compiler |
+| aarch64 GNU/Linux | Native measurements | Rust 1.85.0, the declared minimum | Only the recorded kernel, C library and compiler |
+| x86_64 GNU/Linux | Built, linted and run under QEMU user-mode emulation | Rust 1.85.0 | Uses the host's kernel; no x86-64 kernel is qualified |
 
 The book's reader checkpoints use the owner as a labelled stand-in for a
 developer new to Ravel. Those reads can establish the owner's results and
