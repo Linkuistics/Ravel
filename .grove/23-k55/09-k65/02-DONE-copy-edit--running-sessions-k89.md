@@ -44,3 +44,35 @@ anchors. Chapter 6 is still unwritten, so its mention stays plain text until
 its page exists. The node's coverage/migration notes serve the later guide
 fold-in; this stage removes no guide. The prescribed art, proof and owner's
 stand-in read are still outstanding.
+
+## Decisions (running log)
+
+- One spelling per term, matching chapters 1–4: "the managed process's group"
+  replaces "managed group" and "managed foreground group"; `end-session`
+  replaces "the publisher"; "fake agent" replaces "the fake"; "lend" (chapter
+  3's word) replaces "borrow"; "routing notice" names the text-form starting
+  line as well as the JSON notice (`run.rs` prints the text line before
+  launch, the JSON notice after supervision); "result channel" replaces bare
+  "channel".
+- Term-list words linked at first use on the page: native front moved to its
+  first use (confinement read grants), result channel, runner, refusal.
+  Reaping is linked to chapter 3's definition instead of being re-defined here.
+- Figurative or uncheckable wording replaced by mechanism, each checked
+  against source: the scrubbed launch variables named from `run.rs` (instead of
+  "old launch controls"); "ending" stated as the runner's account of how the
+  job ended, with `operationReports` absent exactly when supervision failed
+  before it; "unchanged-text promise", "cleanup promise has a defined
+  boundary", "debris", "another full grace", "authenticated notice", "session
+  protocol", "remains primary" and the worker identity "pairs builds" each
+  restated as what happens.
+- Status-2 conditions (invalid prompt, unusable backend, overlaps) are no
+  longer called refusals, which the term list reserves for status 3.
+- Slash pairs in the status table written out; British spelling unchanged.
+- The status table gains one sentence linking each row's status to where it
+  is taught, which completes the contract's direct-entry rule (local context
+  and a link back) for exit codes. No example, label or expected output
+  changed.
+- Gates: `task docs:examples` 13 passed, 0 failed, 0 skipped, 0 page errors;
+  `task docs:book:build` built without warnings; all 33 anchor links in the
+  built chapter resolve. No in-session reviewer was spent. Nothing is handed
+  back to draft.
