@@ -62,20 +62,36 @@ then the three remaining stages once:
 
 ## Current draft boundary
 
-Part A supplies chapter 6's command line, statuses, streams/notices and
-environment entries and links it from SUMMARY. Its subject-derived inventory
-and validation are in `reference-chapter-k75`. The configuration draft fills
-the eight reserved headings already in the chapter: Policy entry and settings;
-Bounds; Policy and request; Selection and refusal; Policy context and host
-operations; SDK and module resolution; Shipped sample; Installed layout.
-It removes the placeholders and the opening incomplete-draft statement.
+Both planned drafting parts are complete. Part A supplies the CLI, statuses,
+streams/notices and environment entries; its inventory is in
+`reference-chapter-k75`. Part B fills all eight configuration/layout headings
+and removes the draft placeholders; its inventory is in
+`reference-chapter-k94`: three settings, six bounds, policy/request/selection/
+refusal/context and nested shapes, four host members, 19 SDK exports, six
+static-example exports, 49 diagnostic codes and eleven archive paths (nine
+installed pair/assets plus README/LICENSE).
 
-Part A found no discrepancy in the overlapping teaching in chapters 4/5.
-Preserve settings validation before overrides, JSON notice emission before
-final settlement, conditional operationReports, signal-vs-status distinctions,
-and the different worker/managed environment rules. Its 13 complete examples,
-seven existing figures and warning-free book build pass on unchanged subjects;
-this does not establish comprehension, terminal or real-agent operation, native
-x86-64 qualification, or remote viewing. Part B and proof re-enumerate their
-own scope against the subject. Art still owes the reusable package/deployment
-views named above.
+Neither draft found a discrepancy in the overlapping chapter 4/5 teaching.
+Preserve settings validation before overrides, caller versus delivered policy
+context, JSON notice emission before final settlement, conditional
+operationReports, signal-vs-status distinctions, original-error/cancellation
+precedence and different worker/managed environments. The message_too_large
+entry includes oversized loader failure reports at the context stage. The
+sample's careful choice sets exactly high, including for xhigh static routes.
+
+Part B's whole-book checks pass: 13 complete examples, seven existing figures,
+warning-free build, and all 276 chapter links resolved against built HTML.
+The 3,442 source/document/script/manifest subjects remained unchanged through
+validation. This establishes no comprehension, terminal or real-agent
+operation, native x86-64 qualification, or remote viewing. Proof re-enumerates
+against the subject. The already queued copy-edit is next.
+
+## Handed forward
+
+- **Art — Installed layout:** add the reusable C4 component and UML
+  deployment views. The prose/table now supplies the relationships: two Rust
+  packages, runner linked into the front, separate compiled worker embedding
+  SDK/static modules, adjacent editable sources/declarations/sample/notices,
+  canonical-front-relative worker discovery and worker reap before managed
+  launch. The figures need no new product or extraction claim. Later chapters
+  7 and 12 reuse them.

@@ -23,6 +23,12 @@ under `docs/book/contract.md`, after both planned drafting parts.
 - Read part B's final scope and any added handoff before starting. Structural
   or technical defects belong to draft under the editorial correction-run
   rule; this stage owns prose, not a second unrecorded technical draft.
+- Part B adds the configuration fields and 49 diagnostic-code rows. Keep
+  `message_too_large`'s context-stage loader failure case and the sample's
+  exact `high` override (including static `xhigh` routes). Preserve the local
+  distinction between caller `request.context` and delivered `measured` data,
+  and between installed editable source and embedded runtime modules. The
+  node's art handoff identifies the figure relationships now stated in prose.
 
 ## Done when
 
