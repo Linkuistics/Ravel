@@ -1,0 +1,45 @@
+@startuml
+!pragma layout smetana
+!include _uml-style.puml
+title Installed pair and supporting files — UML deployment view
+skinparam componentStyle uml2
+skinparam artifact {
+  BackgroundColor #E8EDF2
+  BorderColor #64748B
+  FontColor #172B3A
+  BackgroundColor<<executable>> #1E4F78
+  BorderColor<<executable>> #163A59
+  FontColor<<executable>> #FFFFFF
+}
+skinparam nodeBackgroundColor #F8FAFC
+skinparam nodeBorderColor #64748B
+skinparam packageBackgroundColor #FFFFFF
+skinparam packageBorderColor #64748B
+
+node "Host" as host {
+  package "PREFIX (installation directory)" as prefix {
+    artifact "bin/ravel\nnative front\nwith linked runner" as front <<executable>>
+    package "libexec/ravel (directory)" as libexec {
+      artifact "ravel-policy\npolicy worker\nwith Bun, SDK and static example embedded" as worker <<executable>>
+      artifact "sdk/index.ts\nsdk/index.d.ts" as sdk <<file group>>
+      artifact "examples/static.ts\nexamples/static.d.ts\nexamples/sample.ts" as examples <<file group>>
+      artifact "notices/NOTICES.md\nnotices/bun-LICENSE.md" as notices <<file group>>
+    }
+  }
+}
+front ..> worker : locates from its\ncanonical real path;\nchecks build identity
+worker -[hidden]down-> sdk
+sdk -[hidden]down-> examples
+examples -[hidden]down-> notices
+
+legend bottom
+  Node: host. Tabbed outlines: directories, not runtime boundaries.
+  File icons: installed artifacts. Blue: executables. Grey: supporting files.
+  A file group lists separate files relative to libexec/ravel.
+  Dashed arrow: discovery and pairing dependency, not a process timeline.
+  Editing adjacent sources does not replace embedded modules.
+  Declarations support typechecking; sample.ts is copied and edited by the owner.
+  No host Bun, Node.js or source checkout is needed for installed execution.
+  Release archives additionally carry README.md and LICENSE at their root.
+endlegend
+@enduml

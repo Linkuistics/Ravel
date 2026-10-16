@@ -300,6 +300,10 @@ handles both. Ignored or blocked entry signals are not automatically cancellatio
 
 ### Standard streams
 
+> **Table — Stream routing:** Keep result stdout separate from stderr, which
+> combines managed output and diagnostics; stdin serves the managed process
+> rather than supplying an implicit prompt.
+
 | Stream | Session behaviour | Teaching |
 |---|---|---|
 | stdout | `start-session` writes only the exact successful result, without an added newline. Empty publication is zero bytes. A failed final write can leave a prefix, so check status. `end-session` writes no stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
@@ -812,6 +816,11 @@ the applied choice in `reason`. See
 
 ### Import resolution
 
+> **Table — Resolution bases:** The exact embedded specifiers select compiled
+> modules; file imports resolve from the importing file, and other bare names
+> follow Bun's package lookup. Use the matching row to determine which copy an
+> import loads and which directory supplies its starting point.
+
 | Name or input | Resolution and consequence | Teaching |
 |---|---|---|
 | `ravel/sdk` | Literal import selects the worker's embedded SDK even when a package of that name is also reachable. Installed source edits do not replace it. | [Embedded imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
@@ -857,10 +866,16 @@ and `careful` in `request.cwd`. With no file it chooses `default`; an empty
 file or more than one name returns owner refusal `one_choice`. The helper's
 `choice_unreadable` and `choice_unoffered` refusals pass through unchanged. See [offer a checkout choice](04-writing-an-owner-policy.md#offer-a-checkout-choice).
 
-`default` returns the static selection. `careful` keeps its program, model and
-provider, sets effort to exactly `high`, rebuilds the model, effort and prompt
-arguments and uses reason `careful choice`; a missing route still refuses. The
-`careful` choice sets `high` even for a static `xhigh` route. Edit the copy to
+> **Table — Sample choices:** `careful` replaces the static effort with exactly
+> `high`, including when the static route chose `xhigh`; either choice still
+> refuses a missing route.
+
+| Choice | Effect on the static selection |
+|---|---|
+| `default` | Returns the static selection unchanged. |
+| `careful` | Keeps program, model and provider; sets effort to exactly `high`, rebuilds the model, effort and prompt arguments, and uses reason `careful choice`. |
+
+Edit the copy to
 express the arrangement you intend and validate every branch with fake agents.
 See [choice behaviour](04-writing-an-owner-policy.md#offer-a-checkout-choice).
 
@@ -911,6 +926,39 @@ reaps it before managed launch, then supervises the selected job using that
 library. The worker embeds executable SDK and example modules; the installed
 source and declaration files support editing and typechecking separately.
 See [the session's processes](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy).
+
+> **Figure — Source responsibilities:** The runner and the native front's
+> admission and settlement code execute in one process; the policy worker
+> executes separately. This C4 component view opens the native front's dashed
+> boundary to show its internal responsibilities. Its blue component boxes
+> name linked code, while the blue container box names the worker process and
+> the grey box names the selected program. The boundary is software membership,
+> not a sandbox. Arrows mean the use or supervision stated on their labels,
+> not a complete timeline. The worker must end and be reaped, and its private
+> directory removed, before the runner launches the managed process.
+
+![C4 component view: crates/ravel supplies admission and settlement inside the native front, which uses the linked runner from crates/keyed-launch. The native front evaluates owner policy in a separate compiled worker from crates/ravel/worker/src, with Bun, the SDK and static example embedded. Only after worker reap and private-directory removal does the runner launch and supervise the selected managed process. The worker has no session-result context.](figures/source-components.svg)
+
+> **Figure link:** [Open the source-responsibility view at full size](figures/source-components.svg).
+> See [policy evaluation and supervision](02-actors-and-words.md#policy-evaluation-and-supervision)
+> for the processes' roles.
+
+> **Figure — Installed files:** Keep the native front and worker from one
+> build together; the adjacent editable sources and declarations support
+> policy authoring without replacing the embedded modules. In this UML
+> deployment view, the node is the host and the tabbed outlines group
+> directories. File icons name installed artifacts: blue for executables,
+> grey for supporting files. A “file group” lists separate files, not an
+> archive or process. The dashed arrow states the discovery and pairing
+> dependency; it does not represent concurrent process lifetimes. `PREFIX`
+> is the installation directory, independent of the owner's `HOME`.
+
+![UML deployment view: PREFIX contains bin/ravel, including the linked runner, and libexec/ravel/ravel-policy, including Bun and the embedded SDK and static example. The native front finds the worker from its own canonical real path and checks build identity. Beside the worker are SDK source and declarations, static-example source and declarations, the copyable sample policy and two notice files. Editing these sources does not replace embedded modules. Installed execution needs no host Bun, Node.js or source checkout. Release archives also carry README.md and LICENSE at their root.](figures/installed-files.svg)
+
+> **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
+> See [embedded imports and editable copies](04-writing-an-owner-policy.md#resolve-policy-imports)
+> and [copy an owner policy](04-writing-an-owner-policy.md#copy-an-existing-policy)
+> for how to use the supporting files.
 
 > **Note:** Chapter 10 remains unwritten until a supported extracted
 > component exists. The installed layout does not establish such a consumer

@@ -119,6 +119,26 @@ routing. These need no separate source or SVG; mdBook renders their Markdown.
 
 ## What is recorded, and where
 
+Chapter 6 adds `source-components` (C4 component) and `installed-files` (UML
+deployment), reusable in chapters 7 and 12. The component view opens the native
+front to show admission/settlement and the linked runner as blue components;
+the worker stays a separate, unexpanded process. The dashed outline is process
+membership, not confinement. This is a finer level than the earlier container
+view, where the runner remains text within the native front's box.
+
+The deployment view uses a node for the host, tabbed outlines for installation
+directories and file icons for artifacts. Blue icons are executables, grey
+icons supporting files; a labelled file group lists separate files. Its dashed
+arrow is a discovery/pairing dependency, not chronology. Both figures carry
+keys, adjacent reader takeaways, local notation teaching, meaningful alt text
+and full-size links. The chapter's installed table remains the direct lookup.
+Their sources declare Smetana, reuse the shared styles and use the existing
+PlantUML pin and update/compare tasks below.
+
+Chapter 6 also adds a page-native comparison of the sample policy's two
+choices, and explicit reader takeaways for the existing stream-routing and
+import-resolution tables. These render directly from the chapter's Markdown.
+
 | Fact | Recorded in | Kept honest by |
 |---|---|---|
 | Renderer version | `scripts/figures.sh` (one constant and one digest per tool); the contract names the versions | each SVG carries the renderer's own stamp (`<?plantuml 1.2026.8?>`, `data-d2-version="v0.9.0"`), which `task docs:figures` checks on the fresh and the committed file |
@@ -199,6 +219,20 @@ there is no Smetana limitation to escalate. Whether a larger figure lays out
 legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
+
+Chapter 6's art stage inspected both new diagrams and their adjacent
+explanations at chapter width in the locally served mdBook through Chrome on
+a light page on 2026-10-16. Both SVGs were opened at full size. A deployment
+arrow label initially crowded its directory boundary; after shortening it,
+the regenerated diagram was checked again at full size and chapter width.
+The installed-path table was legible alongside its explanation. The whole
+chapter and both PlantUML sources were read as raw files.
+
+This pass did not inspect an editor preview, other themes, narrower viewports,
+GitHub's rendering or the unpublished site. The earlier guest-capture
+limitation was not retried. These are visual/source checks and establish no
+human comprehension, terminal or real-agent operation, or native x86-64
+qualification. Proof performs its own whole-chapter read and viewing checks.
 
 Chapter 5's final proof after the art correction independently inspected all
 three diagrams, their notation and adjacent explanations, and all seven

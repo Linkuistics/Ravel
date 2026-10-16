@@ -86,14 +86,31 @@ validation. This establishes no comprehension, terminal or real-agent
 operation, native x86-64 qualification, or remote viewing. Proof re-enumerates
 against the subject. Copy-edit (`reference-chapter-k95`) is complete: its
 spellings and checked wording are in its running log, and it found no
-structural or technical defect. Art is queued next.
+structural or technical defect. Art (`reference-chapter-k96`) is complete;
+proof is the remaining stage.
 
-## Handed forward
+## Art boundary
 
-- **Art — Installed layout:** add the reusable C4 component and UML
-  deployment views. The prose/table now supplies the relationships: two Rust
-  packages, runner linked into the front, separate compiled worker embedding
-  SDK/static modules, adjacent editable sources/declarations/sample/notices,
-  canonical-front-relative worker discovery and worker reap before managed
-  launch. The figures need no new product or extraction claim. Later chapters
-  7 and 12 reuse them.
+The installed-layout entry retains its lookup table and now carries
+`source-components` (C4 component) and `installed-files` (UML deployment), each
+with editable PlantUML, SVG, local notation teaching, a reader takeaway, alt
+text and a full-size link. Chapters 7 and 12 can reuse them. The runner stays
+linked inside the native front, the worker is separate, and embedded modules
+remain distinct from installed editable sources and declarations. No product,
+architecture, extraction or renderer decision changed.
+
+The sample's default/careful comparison is now a page-native table, retaining
+exactly high even for xhigh routes and refusal on missing routes. Existing
+stream and import tables have explicit takeaways. Art read the whole chapter;
+it found no defect requiring an earlier-stage correction run.
+
+All nine figures match, thirteen complete examples pass (zero failed/skipped;
+six labelled fragments not run), and the book builds without warnings.
+All 289 chapter link/image destinations resolve against built HTML; both
+figures retain alt text in inline and zoom copies. Missing-file, missing-anchor,
+missing-alt and missing-image controls reject their bad inputs. The 173
+enumerated crate/script/book/root-manifest subjects stayed unchanged across
+validation. These are bounded source and mechanical checks, not an inventory
+re-enumeration or human-comprehension result. Proof re-enumerates the subject.
+`docs/book/figures.md` records local Chrome/raw viewing and its uninspected
+surfaces; the sample-choice table was also inspected after the final build.
