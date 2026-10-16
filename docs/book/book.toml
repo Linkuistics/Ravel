@@ -1,0 +1,16 @@
+[book]
+title = "The Ravel book"
+description = "A guide to using, configuring, understanding, reusing and developing Ravel."
+language = "en-GB"
+src = "src"
+
+[build]
+# Relative to this file. The output is generated, so it lives under the
+# ignored target directory and never in the tree.
+build-dir = "../../target/book"
+# A chapter named in SUMMARY.md that has no file is an error. mdBook's default
+# would create the missing file in the source tree.
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/Linkuistics/Ravel"

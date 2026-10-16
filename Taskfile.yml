@@ -17,10 +17,30 @@ tasks:
     cmds:
       - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/components
 
+  docs:book:
+    desc: Build the book, then serve it on localhost and rebuild on change (needs task setup)
+    vars:
+      PORT: '{{.PORT | default "8775"}}'
+    cmds:
+      - bash scripts/book.sh build
+      - bash scripts/book.sh serve {{.PORT}}
+
+  docs:book:build:
+    desc: Build the book under target/book and fail on any mdBook error or warning (needs task setup)
+    cmds:
+      - bash scripts/book.sh build
+
+  book:integrity:
+    desc: Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
+    silent: true
+    cmds:
+      - bash scripts/book-integrity.test.sh
+
   setup:
-    desc: Fetch and verify the pinned checkout-local Bun, then install worker dependencies
+    desc: Fetch and verify the pinned checkout-local Bun and mdBook, then install worker dependencies
     cmds:
       - bash crates/ravel/scripts/dispatch.sh setup
+      - bash scripts/book.sh setup
       - task: deps
 
   deps:
