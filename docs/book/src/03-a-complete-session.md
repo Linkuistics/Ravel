@@ -1,0 +1,293 @@
+# A complete session, end to end
+
+Run one [session](02-actors-and-words.md#caller-and-owner) with a small
+[owner policy](02-actors-and-words.md#caller-and-owner) and a fake agent, then
+follow the request through selection, launch, publication and cleanup. You
+act as both [owner and caller](02-actors-and-words.md#caller-and-owner): you
+write the routing rule, supply the prompt and choose the result you expect.
+The fake is an ordinary shell program. It needs no model service or agent
+account.
+
+The example returns `finished`. That word is your convention, not a Ravel
+command to continue or stop other work. Ravel returns it only after the
+[managed process](02-actors-and-words.md#the-managed-process-and-its-result)
+has been reaped, its whole process group is gone and cleanup has succeeded.
+The final output write must also succeed for `start-session` to exit with
+status 0.
+
+## Obtain the build used by this chapter
+
+This chapter describes the unreleased source checkout accompanying this book,
+which includes changes after v1.0.0. Use a build from that checkout for the
+example. A v1.0.0 release installation does not contain those later changes,
+even if the checkout's version string still says `1.0.0`.
+
+On a supported macOS or GNU/Linux host, have Rust 1.85 or later with Cargo,
+Bash 4 or later, Task, curl, tar with gzip and bzip2 support, a SHA-256 utility
+(`shasum` or `sha256sum`), and Java 11 or later available. Java is needed
+because the shared setup also prepares the book's figure tools. Run the
+following commands from the root of this checkout. `task setup` fetches the
+pinned build tools and worker dependencies;
+`task install` builds and verifies a matched installation in the named
+prefix. The prefix below stays inside the checkout, and its `bin` directory
+goes first on your shell's `PATH`.
+
+Fragment: build and installation setup; this block omits platform-specific
+installation of the prerequisite tools and their build output.
+
+```sh
+task setup
+task install PREFIX="$PWD/target/book-install"
+export PATH="$PWD/target/book-install/bin:$PATH"
+```
+
+The installation contains both the
+[native front](02-actors-and-words.md#policy-evaluation-and-supervision),
+`bin/ravel`, and its matching
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision),
+`libexec/ravel/ravel-policy`. Keep the pair together: the front locates the
+worker relative to its own real path and refuses a missing or mismatched
+worker. The worker embeds its TypeScript runtime, so using the installation
+needs no host Bun or Node. The Homebrew formula installs the same paired
+layout from release archives; the checkout build here supplies the code this
+chapter describes.
+
+The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
+distinguishes the measured aarch64 macOS and GNU/Linux targets from x86_64
+GNU/Linux, which has only emulated execution evidence. Chapter 12,
+“Delivering Ravel”, covers installation and target details.
+
+## Run the first session
+
+Create an empty directory for the example and enter it in the shell where you
+set `PATH`. Create its `bin` subdirectory, then save the two files below at
+the labelled paths. The command creates private `home` and `tmp` directories
+and makes the fake executable. Its cleared environment and explicit
+`--config` keep your normal owner settings and policy out of this session.
+
+Complete example: pass a prompt through a tiny policy to a fake agent, which
+prints the prompt and publishes `finished`.
+
+**`policy.ts`**
+
+```ts
+import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "first-session",
+  select(request) {
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [request.prompt],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Learn the session protocol without a model service.",
+    };
+  },
+});
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+set -eu
+printf 'fake-agent received: %s\n' "$1"
+ravel end-session -- "finished"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Print this prompt, then call ravel end-session -- "finished".'
+```
+
+**Standard output, without a final newline**
+
+```text
+finished
+```
+
+**Standard error includes**
+
+```text
+ravel: starting provider local, model fake, effort none for kind "demo"
+fake-agent received: Print this prompt, then call ravel end-session -- "finished".
+```
+
+**Exit status**
+
+```text
+0
+```
+
+The standard output is exactly the eight bytes `finished`; Ravel adds no
+newline. In a terminal, your next shell prompt may therefore appear directly
+after it. The standard-error block shows the two stable lines, not a promise
+that the stream contains only those lines. Ravel can also report cleanup
+operations with process-specific details. On macOS, a stop attempt against
+an already-exited group can report `Operation not permitted`; Ravel retains
+that report and permits success only after confirming reap, terminal recovery
+and group absence. A report is not itself proof of either success or failure:
+check the exit status of `start-session`.
+
+The fake's `printf` writes to its own standard output, yet the line appears
+on the caller's standard error. Ravel reserves the caller's standard output
+for the [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
+and redirects managed output to standard error before launch. The fake does
+not interpret the prompt; its script is deliberately written to perform the
+ending action the prompt requests. Ravel neither understands that instruction
+nor inserts it.
+
+The policy selects the fake for every request. `demo` is the caller's
+[kind](02-actors-and-words.md#caller-and-owner), and this policy does not need
+to branch on it. `provider`, `model` and `effort` are descriptive owner labels,
+which you can see in the starting notice. They do not select a model service.
+The actual command is `program` with the strings in `args`; here the unchanged
+prompt becomes one argument. `definePolicy` provides the policy's TypeScript
+shape, while Ravel checks the values when it evaluates the policy.
+
+## Admit the request and evaluate the policy
+
+The native front first reads the settings and command-line inputs and admits
+the policy file. `--config policy.ts` names a file relative to the caller's
+working directory; Ravel resolves its real path and requires a readable
+regular file. It does not search the repository for another policy. Settings
+still come from `HOME/.config/ravel/settings.json`, even with `--config`.
+The example's private `home` is empty, so the defaults apply.
+
+The front locates its matched worker, starts it in a private directory and
+checks the worker's identity before sending the policy request. The worker
+receives a restricted environment and no
+[session-result context](02-actors-and-words.md#three-different-kinds-of-information).
+It moves to `/` before importing owner policy. The request's `cwd` preserves
+the caller's working directory; the worker's directory does not redefine it.
+
+The worker imports `policy.ts` and calls `select`. The literal import
+`ravel/sdk` resolves to the worker's embedded SDK, so this example needs no
+local dependency installation. The policy has no context loader and the
+caller supplied no [policy context](02-actors-and-words.md#three-different-kinds-of-information).
+Selection therefore depends only on the request in this example.
+
+The worker sends its response through a private socket. The native front
+judges the policy metadata and selected command; printed worker output is
+diagnostic text, not a selection. Once the conversation ends, the front
+confirms that the worker has ended and been reaped, and removes its private
+directory. Only then does it resolve the selected executable and admit the
+managed launch. A valid response alone is insufficient if worker cleanup
+fails.
+
+Here, resolving `fake-agent` searches the caller's `PATH`, whose first
+directory is the example's `bin`. The command runs from the caller's working
+directory. Ravel executes the selected program and argument list directly,
+without shell expansion or splitting the prompt into words. The fake's
+shebang makes this particular program a shell script.
+
+## Launch the managed job
+
+After selection, Ravel allocates a fresh
+[result channel](02-actors-and-words.md#the-managed-process-and-its-result):
+a private temporary directory and a path where a result can be published.
+It gives the managed process that path in `RAVEL_EXIT_FILE`. The example's
+`PATH` also lets the fake find the same installed `ravel` for `end-session`.
+
+Ravel's [runner](02-actors-and-words.md#policy-evaluation-and-supervision)
+launches the managed process in a process group of its own. A **process
+group** is an operating-system grouping to which a signal can be sent as a
+unit. Children normally inherit their parent's group, so it lets Ravel stop
+the fake and any descendants that stay in that group together. Ravel remains
+the managed process's parent while supervising it; `start-session` does not
+replace itself with the selected program.
+
+This is still one Ravel session. In this unconfined launch, making a process
+group does not create a new POSIX session or log the process in again. A POSIX
+session is a different operating-system grouping associated with job control;
+the unconfined process remains in the caller's POSIX session. A confined
+launch uses a new POSIX session, a separate case taught later.
+
+If you run from an interactive terminal, another group matters: the
+terminal's **foreground process group**. The controlling terminal associates
+keyboard input and terminal-generated signals with that foreground job. When
+Ravel owns the foreground, it saves the terminal modes and lends the
+foreground to the managed process's group before that process starts its
+program. The selected program can then read from the terminal as a foreground
+job. Ravel does not take the terminal from another job to make this handoff.
+
+On completion, Ravel recovers the foreground and saved modes under its
+terminal-ownership rules. The modes include settings such as whether typed
+characters are echoed; recovery matters when a program changes them. The fake
+does not read input or alter terminal modes. The automated example check runs
+without a terminal, so its transcript demonstrates routing and result delivery,
+not a foreground handoff. Chapter 9, “Jobs, signals and the terminal”, develops
+the terminal rules, signal masks and failure guarantees.
+
+## Publish the result and finish the job
+
+The fake prints its argument and calls `ravel end-session -- "finished"`.
+That invocation reads the inherited `RAVEL_EXIT_FILE` path. It reads no policy
+or settings and needs no session ID. It writes the complete value into a
+temporary file and publishes it without replacing any result already there.
+The first complete publication wins.
+
+Publication asks the native front to finish the session. It does not mean that
+the job has already ended, and `end-session` does not wait for the enclosing
+session's cleanup. In this fake, the script has no further command and exits.
+For a managed process that stays running, the runner gives it a grace period
+after noticing publication, then sends TERM and finally KILL if needed. These
+signals go to the managed group. The detailed timing belongs to chapter 9.
+
+When the managed process has exited, Ravel still has work to do. It stops
+remaining members of the process group before reaping the direct child.
+**Reaping** is the parent collecting a finished child's exit status and
+releasing the operating system's remaining record of that child. Until reap,
+the direct child's identity reserves the group's numeric identity. Sending
+the final group signals first avoids directing them at a number that could
+have been reused after reap.
+
+The runner then recovers the terminal when it lent it, and confirms that the
+process group is gone. The native front validates and reads the published
+result, removes the session's temporary directory, and checks cancellation
+and cleanup outcomes before writing to the caller's standard output. Merely
+seeing a result file does not bypass any of those steps.
+
+Success means that the result reaches the caller only after the managed
+process has been reaped, its whole process group is gone and cleanup has
+succeeded. A successful final write gives `start-session` status 0. If writing
+fails, the caller may have received only a prefix and the invocation fails;
+bytes on standard output alone do not establish success.
+
+That guarantee covers the managed group. A descendant that leaves the group,
+a detached child started by trusted policy, or abrupt uncatchable death of the
+native front lies outside it. The
+[authority limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
+also explain same-user tampering. A successful session establishes completion
+of Ravel's protocol, not the correctness of the work requested in the prompt.
+
+## Recognise the other outcomes
+
+The successful example published a value and completed cleanup. The normal
+alternatives are distinct outcomes a caller needs to recognise.
+
+- A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) occurs
+  before launch when owner policy declines the request or Ravel cannot accept
+  the policy's behaviour, data or admission. Ravel does not try another route.
+- Cancellation can occur during selection or supervision. It suppresses the
+  result even if a value was already published.
+- Natural exit without publication supplies no result, even when the managed
+  process exits with status 0. An explicitly empty result is different: a
+  value was published, and successful cleanup can complete that session.
+- A worker, supervision or cleanup failure prevents success. A failure of the
+  final result write also fails the invocation after cleanup.
+
+Conversely, a managed process can publish a result and later exit nonzero
+without invalidating that result. Ravel judges publication, cancellation and
+cleanup separately from the program's exit status. Chapter 5, “Running
+sessions”, teaches the outcomes and their exit codes with examples.
+
+To write routing rules beyond this single fake, continue with chapter 4,
+“Writing an owner policy”. To invoke Ravel from your own tool, continue with
+chapter 5. Chapter 8, “Following a session through the code”, follows this
+same sequence into the implementation.
