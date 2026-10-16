@@ -79,8 +79,9 @@ avoids that race, with thirty unchanged-input checks matching all seven SVGs
 and the figure controls passing. The original lost selection render's cause
 remains unknown. `docs/evidence/book-figures-k92/README.md` holds the failed
 bytes, source support and bounded observation; neither renderer pins nor
-figure assets changed. The existing whole-document proof remains next and
-this node stays open. Do not infer universal reproducibility or accept a
-future mismatch by blind regeneration or retries.
+figure assets changed. The final whole-document proof found no further
+correction and completed all three required tasks on unchanged inputs,
+completing this chapter's four stages. Do not infer universal reproducibility
+or accept a future mismatch by blind regeneration or retries.
 Native x86-64 qualification and remote/published rendering remain
 the book contract's declared unknowns.

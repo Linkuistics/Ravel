@@ -200,6 +200,24 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+Chapter 5's final proof after the art correction independently inspected all
+three diagrams, their notation and adjacent explanations, and all seven
+page-native tables in locally served mdBook through Chrome on 2026-10-16.
+The light page at the existing chapter width kept labels, arrows, table cells
+and prose legible. The whole chapter and three PlantUML sources were also
+read as raw files. This pass found no further chapter or figure correction.
+
+VS Code exposed its older chapter 2 preview, but Quick Open for chapter 5 left
+that view unchanged, so this proof adds no chapter 5 editor-preview evidence.
+It inspected no other theme, narrower viewport or full-size SVG. GitHub's
+rendering and the published site remain unavailable for the unpublished book.
+These checks add no human-comprehension, real-agent, terminal-interaction or
+platform-qualification evidence; the owner's stand-in read remains later.
+The art correction's retained metadata-only failures and thirty matching
+serial checks support its bounded renderer correction. They do not establish
+the cause of the earlier discarded selection render or universal
+reproducibility; the separate evidence below retains those limits.
+
 Chapter 5's proof independently inspected all three figures and their adjacent
 notation, explanations and prose alternatives at chapter width in the locally
 served mdBook through Chrome on a light page on 2026-10-16. The settlement and

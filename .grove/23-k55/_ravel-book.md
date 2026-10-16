@@ -162,6 +162,20 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Chapter 5 completed all four stages and its bounded art/proof correction
+  run. The final proof re-derived every normal CLI status and found no further
+  chapter change. Seven figures match, all thirteen complete book examples
+  pass (none failed/skipped; six fragments not run), and the book builds
+  without warnings on unchanged inputs. The chapter node's guide-disposition
+  notes remain the fold-in input. `docs/book/figures.md` records this proof's
+  separate Chrome/raw viewing and unavailable editor-preview/remote surfaces.
+  The art correction retains actual metadata-only failing SVGs and thirty
+  matching single-worker checks; the earlier discarded selection render's
+  exact cause remains unknown. Preserve that bounded claim and investigate
+  any future mismatch. Human comprehension, real-agent operation, terminal
+  interaction and native x86-64 qualification remain unestablished by these
+  checks; the owner's stand-in read is still outstanding.
+
 - Chapter 4 completed all four stages. Proof re-enumerated its configuration
   coverage from the SDK, settings, bounds and validators. Its local correction
   adds `message_too_large` for an oversized loader failure report; chapter 6
