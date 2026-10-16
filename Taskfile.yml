@@ -46,6 +46,26 @@ tasks:
     cmds:
       - bash scripts/figures.test.sh
 
+  docs:examples:
+    desc: Build the front and worker, run every complete example under docs/book/src through the CLI test seam and compare output exactly (needs task setup)
+    cmds:
+      - task: build
+      - bash scripts/examples.sh check
+
+  docs:examples:test:
+    desc: Prove the example check passes the fixture pages and fails a changed output, status, stale build, unlabelled block and more (needs task setup)
+    silent: true
+    cmds:
+      - task: build
+      - bash scripts/examples.test.sh
+
+  docs:examples:mutants:
+    desc: Remove one safeguard at a time from a copy of the example checker and show a control fail for each (needs task setup)
+    silent: true
+    cmds:
+      - task: build
+      - bash scripts/examples.test.sh mutants
+
   book:integrity:
     desc: Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
     silent: true

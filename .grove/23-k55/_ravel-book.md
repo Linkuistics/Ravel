@@ -110,10 +110,13 @@ stale, so each chapter verifies a claim against the subject.
   entries are written last; chapter 6 links back to anchors. A reference to a
   chapter 7–12 is plain text with its number and title, and the second half
   turns each into a link when its target exists (see below).
-- **Examples**: every complete example runs through `task docs:examples`; a
-  fragment says what it omits; a cancellation by signal is a fragment where the
-  seam cannot run it deterministically. A route to Claude Code or Codex is a
-  fake executable of the same name.
+- **Examples**: every complete example runs through `task docs:examples`; the
+  convention (labels, the `$` command, the one `<scratch>` normalisation, skips)
+  is `docs/book/examples.md`. A fragment says what it omits and covers one block.
+  A cancellation caused by the fake agent or policy (`kill -INT "$PPID"`) is a
+  complete example claiming `Standard error includes`; only a cancellation that
+  needs a terminal is a fragment. A route to Claude Code or Codex is a fake
+  executable of the same name.
 - **Figures**: the art stage of each unit owns that unit's figures from the
   contract's figure list and may refine, merge or add. The first unit's art
   fixes the visual vocabulary; later units reuse and extend it. No figure

@@ -297,6 +297,9 @@ coverage:
   fake executable of the same name, and records the agent's version and the
   date its flags were checked against that agent's own help.
 - **Fragments are labelled** as fragments, with what they omit.
+- **The convention and the check** (how an example's files, command and
+  expected output are marked in Markdown, the seam's environment, the one
+  normalisation, skips and signals) are in `examples.md` beside this contract.
 - **Source excerpts are exact.** Each walkthrough excerpt names the file it
   comes from, and a Taskfile task checks that the excerpt still appears there
   byte for byte.
