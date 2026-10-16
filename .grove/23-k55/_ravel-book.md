@@ -159,3 +159,15 @@ reduced README.
   half's art output; chapters 7–12 follow them.
 - The first figure for "packages, worker and SDK, in source and in an
   installation" appears in chapter 6; chapters 7 and 12 reuse it.
+
+## Handed forward to the first-half set proof
+
+- The opening unit was drafted before chapters 3–6 existed, so its forward
+  mentions use chapter numbers and titles. Once those targets exist, link the
+  mentions in chapters 1 and 2 as part of `book-first-half`; chapter 6 links
+  stay page-level. Later-half targets follow the existing rule above.
+- Guide fold-in: chapter 1 qualifies `session-cli.md`'s “without database
+  access” as no Ravel-owned persistent store. Trusted owner policy can make
+  direct filesystem/network reads. It also locates unchanged prompt delivery
+  at the caller-to-policy boundary; the policy constructs the selected
+  program's arguments. Preserve these distinctions when reconciling the guide.

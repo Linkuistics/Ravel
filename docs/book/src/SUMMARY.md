@@ -2,8 +2,8 @@
 
 # Part I: Ravel and its session
 
-- [What Ravel is for]()
-- [The actors and their words]()
+- [What Ravel is for](01-what-ravel-is-for.md)
+- [The actors and their words](02-actors-and-words.md)
 - [A complete session, end to end]()
 
 # Part II: Using Ravel

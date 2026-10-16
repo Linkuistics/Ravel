@@ -9,6 +9,10 @@ authority and the meaning a caller gives a result.
 **Caller**: The person or program invoking Ravel and interpreting its returned
 opaque result. Its task conventions and continuation decisions are caller-owned.
 
+**Owner**: The person controlling Ravel's policy and settings for an account.
+The owner and caller can be the same person; their configuration and task
+responsibilities remain distinct.
+
 **Session**: One `start-session` invocation: a **Caller**'s request routed
 through the **Owner policy** to one **Managed process**, supervised until its
 **Opaque result** or failure is settled.
@@ -42,6 +46,13 @@ _Avoid_: rejection, error
 **Policy worker**: The separate process evaluating the owner policy for the
 native front. It is not a managed process and receives no session-result context.
 
+**Native front**: The Rust `ravel` executable. During `start-session` it owns
+policy admission, managed-process supervision and final result settlement.
+
+**Runner**: The Rust library code executing inside the native front that launches
+and supervises the managed job. It is not a separate running service or the
+undelivered **Persistent runner**.
+
 **Managed process**: The direct child selected by the owner policy and supervised
 as a job by the native front. Its process group is the scope of job cleanup.
 
@@ -57,6 +68,14 @@ only for that session's managed process.
 **Opaque result**: The single UTF-8 argument published by `end-session` and
 returned unchanged after successful supervision and cleanup. Only the caller
 assigns it meaning; an explicitly empty result differs from no publication.
+
+**Result channel**: Ravel's private temporary directory and completion file
+carrying the **Opaque result** for one launch. The runner's underlying completion
+channel reports file appearance; Ravel validates and reads the result.
+
+**Confinement**: Optional restrictions on the managed process's filesystem access
+and environment. Confinement does not apply to the **Owner policy** or its
+**Policy worker**.
 
 ## Flagged ambiguities
 

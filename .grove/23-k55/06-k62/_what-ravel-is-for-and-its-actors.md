@@ -50,3 +50,19 @@ authority.
 
 - The reader is the contract's reader. Do not teach shell, Git, JSON, Rust,
   TypeScript or the general OS concepts it assumes.
+
+## Handed forward
+
+- **Art** — supply the contract's system-context figure for chapters 1–2 and
+  process/authority container figure in chapter 2. The text is complete without
+  figure placeholders. The question for the first is where caller, owner, Ravel
+  and selected program meet; the second must show the worker ending before the
+  managed launch, the runner inside the native front, and the separate policy
+  response and result paths. Explain the notation locally and establish the
+  visual vocabulary for later units. Same-user and detached-child limits remain
+  explicit in the text; boxes do not claim authentication or universal containment.
+- **Proof** — chapters 3–6 do not exist at this draft, so their forward mentions
+  are plain chapter numbers/titles. Link them when targets exist during the
+  first-half set proof; chapter 6 remains page-level. The parent already carries
+  the second-half conversion for chapters 7–12. Check every first-use term link
+  against the final wording and figures.
