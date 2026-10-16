@@ -84,7 +84,9 @@ warning-free build, and all 276 chapter links resolved against built HTML.
 The 3,442 source/document/script/manifest subjects remained unchanged through
 validation. This establishes no comprehension, terminal or real-agent
 operation, native x86-64 qualification, or remote viewing. Proof re-enumerates
-against the subject. The already queued copy-edit is next.
+against the subject. Copy-edit (`reference-chapter-k95`) is complete: its
+spellings and checked wording are in its running log, and it found no
+structural or technical defect. Art is queued next.
 
 ## Handed forward
 
