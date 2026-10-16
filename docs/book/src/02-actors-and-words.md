@@ -167,10 +167,15 @@ that the data is trustworthy.
 
 The caller's working directory is the request's `cwd`. It tells the policy
 where the caller is working; it is neither of the two forms of context above.
-The worker runs in a private directory of its own, while the selected program
-runs in the caller's working directory. A policy author uses the request's
-`cwd` when the caller's location matters, rather than assuming the worker's
-current directory is the same.
+The selected program starts in the caller's working directory. A policy author
+uses the request's `cwd` when the caller's location matters, rather than
+assuming the worker's current directory is the same.
+
+The worker starts in a private empty directory, then changes to `/` before
+registering its embedded modules or importing owner policy. Policy code can
+change the worker's working directory itself. The initial private directory
+still belongs to the native front, which removes it during worker cleanup
+before launching the selected program.
 
 Use this comparison to keep selection data and a working location separate
 from the inherited path that directs result publication.

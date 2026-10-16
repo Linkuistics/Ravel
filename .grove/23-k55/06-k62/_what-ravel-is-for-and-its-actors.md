@@ -73,7 +73,3 @@ carry role sentences, notation keys and text alternatives. The existing fit
 and responsibility tables and new result/status/work, nested publication,
 information-kind and platform-evidence tables carry the unit's comparisons.
 
-Art found one earlier-stage defect: chapter 2's statement that the worker runs
-in its private directory contradicts the specification's move to `/` before
-policy import. The first correction run begins with draft and includes
-copy-edit, art and proof, in that order; no extra ordinary proof tail is needed.
