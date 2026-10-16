@@ -58,3 +58,48 @@ Proof `book-first-half-k100` is already queued immediately after this leaf;
 cut no duplicate. The separate whole-book art `ravel-book-k101` later checks
 chapters 1–9, 11 and 12 together, using the shared style established here.
 This new owner requirement is not a second retry of an earlier unit defect.
+
+## Handed from copy-edit `book-first-half-k98`
+
+Copy-edit changed running prose, table cells and headings, and fixed terms in
+the figure key paragraphs, but left everything figure-owned. These still use
+the superseded wording and are this leaf's:
+
+- **Alt text** (the `![…]` lines): chapter 2 `process-authority`; chapter 3
+  `successful-session` and `session-outcomes`; chapter 5
+  `settled-exit-status`, `selection-cancellation` and
+  `supervision-cancellation`; chapter 6 `source-components` and
+  `installed-files`. All say "native front"/"front", and several say
+  "admits", "admission" or "settles"/"settlement".
+- **Caption**: chapter 3, Figure 3.1 ("only successful cleanup and settlement
+  permit the final result write").
+- **Figure sources**: "native front"/"front" labels or participant names in
+  `process-authority`, `installed-files`, `source-components`,
+  `selection-cancellation`, `supervision-cancellation` and
+  `successful-session`; "Admits"/"admitted"/"Admit inputs" and
+  "settles"/"Settle"/"Settling"/"settlement" in `process-authority`,
+  `session-outcomes`, `source-components`, `settled-exit-status` (including
+  its title and "admission refusal" state text), `successful-session`
+  ("Judge response" too) and `system-context`. `docs/book/figures.md`'s
+  current conventions use the same words.
+- **Key paragraphs** still hold the generic notation tutorials the contract
+  now excludes (chapters 1, 2, 3, 5 and the chapter 6 figure blockquotes).
+  Copy-edit only replaced terms in them; removing the tutorial parts is art's.
+
+Wording to carry into those places, so prose and figures agree:
+
+- **Ravel CLI** for the `ravel` program; "the runner runs inside the Ravel
+  CLI's own process".
+- "checks" for admit (inputs, policy file, worker identity, policy response);
+  "allows the managed launch" for admitting the launch; "accepts" for
+  accepting a worker build or entry.
+- "decides the final outcome" for settle/settlement. The chapter 5 link label
+  is now "Open the final-outcome view at full size"; the prose calls that
+  view's subject "the step where Ravel decides the final outcome". Renaming
+  `settled-exit-status.svg` is optional; if renamed, update both links in
+  chapter 5.
+- A refusal is "by the policy, or Ravel's refusal of the policy's file,
+  behaviour or data" (not "admission refusal").
+- Chapter 3's heading is now "Check the request and evaluate the policy"
+  (anchor `#check-the-request-and-evaluate-the-policy`); all inbound links
+  were updated.

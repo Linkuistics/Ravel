@@ -76,12 +76,13 @@ without adding a newline. The managed process's standard output is redirected
 to standard error, where its output and Ravel's diagnostics can be kept apart
 from the result stream. The caller checks whether `start-session` succeeded
 before interpreting that stream. A failure while writing the final result can
-leave only a prefix, so bytes alone do not establish success.
+leave only a prefix, so bytes alone do not prove success.
 
 Several outcomes carry no successful result. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) means no
-program is launched. A managed process that exits without publishing a result
-has not completed the protocol, even if its exit status is zero. Cancellation
+program is launched. If the managed process exits and no result was
+published, the session has no result and fails, even if the exit status is
+zero. Cancellation
 of the session suppresses a result even if it was already published. A
 supervision or cleanup failure also prevents success. Conversely, a published
 result can succeed after cleanup even if the managed process later exits
@@ -92,7 +93,7 @@ program changed; none of the three stands in for another.
 The table keeps the three outputs separate so that an exit status or a changed
 file cannot be mistaken for the result the caller requested.
 
-| What the session produces | What it tells the caller | What it does not establish |
+| What the session produces | What it tells the caller | What it does not prove |
 |---|---|---|
 | Opaque result | The value published with `end-session`, returned after successful supervision and cleanup | That the requested work is correct |
 | Managed process's exit status | How that process ended | That it published a result or that the session succeeded |
@@ -114,12 +115,14 @@ still needs a caller, service or selected program.
 | A result after a program and its job have been cleaned up | Supervise the launch and return the explicit result after successful cleanup | The caller's interpretation and any further work |
 | Task queues, schedules, retries or durable history | Execute a session when invoked | A caller or service that stores and schedules work |
 | Model access, credentials, usage metering or model selection rules | Run the command chosen by policy | The selected program's model integration and the owner's selection rules |
-| A host that continues doing arbitrary work after a launch | The CLI supervises one session and exits | A separate continuing-host contract, which is not delivered here |
+| A host that keeps doing other work after a launch | The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) supervises one session and exits | A separate long-running host, which Ravel does not provide |
 
-Ravel is a **launcher CLI**: one invocation supervises one managed launch,
-settles its result or failure, then exits. A **persistent runner** would be a
-host that keeps running after a launch settles. Ravel does not provide one,
-and its one-session lifetime does not supply the contract such a host needs.
+The Ravel CLI, the `ravel` command-line program, is a **launcher CLI**: one
+invocation supervises one managed launch, reports its result or failure, then
+exits. A **persistent runner** would be a
+host that keeps running after a launch has finished. Ravel does not provide
+one, and a program that exits after one session does not provide what such a
+host would need.
 
 Ravel has no persistent session store or history lookup. Its
 [result channel](02-actors-and-words.md#the-managed-process-and-its-result)
@@ -138,10 +141,10 @@ and the session can succeed while it still runs. Detached children started by po
 are outside the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)'s
 cleanup guarantee. If Ravel is killed abruptly, for example with SIGKILL,
 which it cannot catch, the managed process or temporary files can be left
-behind. Code running as the same user can tamper with files; Ravel's session
-separation does not authenticate that code.
+behind. Code running as the same user can tamper with files, including
+Ravel's; keeping sessions separate is not a security check against that code.
 [Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the
-authority boundaries are useful within those limits.
+separation between these roles is useful within those limits.
 
 ## Choose a reading route
 
@@ -192,7 +195,7 @@ evidence as a measured native target.
 | x86_64 GNU/Linux | Built, linted and run under QEMU user-mode emulation | Rust 1.85.0 | Uses the host's kernel; no x86-64 kernel is qualified |
 
 The book's reader checkpoints use the owner as a labelled stand-in for a
-developer new to Ravel. Those reads can establish the owner's results and
+developer new to Ravel. Those reads can show the owner's results and
 find inaccuracies; whether a new developer can use the book remains unknown.
 The local book can be built and inspected, but GitHub's rendering remains
 unchecked until the branch is pushed, and the published site until the first

@@ -12,8 +12,8 @@ mistaking a policy response for a completed session.
 The **caller** is the person or program invoking Ravel and interpreting its
 returned result. It supplies the prompt, including the ending instructions,
 and decides what to do afterwards. A **session** is one `ravel start-session`
-invocation, from routing the request to settling the selected program's result
-or failure. A Ravel session is neither a POSIX session created by `setsid` nor
+invocation, from routing the request until Ravel reports the selected
+program's result or failure. A Ravel session is neither a POSIX session created by `setsid` nor
 a login session.
 
 The caller supplies a **kind**, an open token naming the sort of session it
@@ -43,41 +43,42 @@ controls routing.
 
 ## Policy evaluation and supervision
 
-The **native front** is the Rust `ravel` executable. During `start-session` it
-keeps the caller's environment, terminal and standard output, evaluates the
-request, and supervises the selected program. Its **runner** is the Rust
-library code that launches and supervises the managed process. The runner
-executes inside the native front; it is not another service running alongside
-it.
+The **Ravel CLI** is the `ravel` command-line program, written in Rust. During
+`start-session` it keeps the caller's environment, terminal and standard
+output, evaluates the request, and supervises the selected program. Its
+**runner** is the Rust library code that launches and supervises the managed
+process. The runner runs inside the Ravel CLI's own process; it is not a
+separate service.
 
 The **policy worker** is a separate process that evaluates the owner policy
-for the native front. Its executable embeds the Bun runtime, so it can run
+for the Ravel CLI. Its executable embeds the Bun runtime, so it can run
 TypeScript policy and the modules that policy imports without a separately
 installed runtime. “Worker” here means a process, not a Bun
 `Worker` thread that policy code might itself create.
 
-This separation lets policy run ordinary TypeScript while the native front
-keeps supervision authority. Ravel gives the worker a size-limited request and
-a restricted environment, with no
-[session-result context](#three-different-kinds-of-information). The native
-front checks the worker's response, then launches the selected program only
-after confirming that the worker has ended and been reaped and that the
-worker's private directory has been removed. Receiving a valid selection alone
-does not authorise launch. Only the native front supervises the
+This separation lets policy run ordinary TypeScript while only the Ravel CLI
+supervises. Ravel gives the worker a size-limited request and a restricted
+environment, with no
+[session-result context](#three-different-kinds-of-information). The Ravel CLI
+checks the worker's response, then launches the selected program only after
+confirming that the worker has ended and been reaped and that the worker's
+private directory has been removed. A valid selection on its own is not
+enough to start the launch. Only the Ravel CLI supervises the
 [managed process](#the-managed-process-and-its-result); policy evaluation is
 finished before that process starts.
 
 A **refusal** is a decision not to launch, made by owner policy, or by Ravel
-when it cannot accept that policy's behaviour, data or admission. Ravel does
-not substitute another route. A failure of the worker or supervision, and a
-selection timeout, are separate outcomes. A caller needs to distinguish “this request was refused” from “the
-mechanism for evaluating or running it failed”.
+when it cannot accept the policy's file, behaviour or data. Ravel does not
+try another route instead. A failure of the worker or of supervision, and a
+selection timeout, are separate outcomes. A caller needs to tell “this request
+was refused” apart from “something failed while Ravel was evaluating or
+running it”.
 
 ## The managed process and its result
 
 The **managed process** is the direct child selected by owner policy and
-supervised by the native front. Its process group defines the job-cleanup
-scope, including descendants that remain in that group. If the selected
+supervised by the Ravel CLI. Cleanup covers its whole process group, including
+descendants that remain in that group. If the selected
 program is an agent working on the prompt, the book calls that program a
 **harness**. That term describes an agent program, not a test harness; Ravel
 supervises it through the same boundary as any other selected program.
@@ -93,7 +94,7 @@ The **result channel** is the private temporary directory and completion file
 through which `end-session` publishes that value. The first complete
 publication wins; a later `end-session` does not replace it. The channel
 carries a request to finish, not evidence that the job has already been
-cleaned up. Before returning success, the native front also requires a
+cleaned up. Before returning success, the Ravel CLI also requires a
 confirmed reap, a process group that no longer exists, and removal of the
 session's temporary files. Cancellation suppresses the value even if it was
 already published.
@@ -103,7 +104,7 @@ Ravel's result handling checks and reads the contents. Neither the file's
 appearance nor the policy worker's selection is itself a successful session.
 
 The figure shows why a policy response cannot complete a session: it reaches
-the native front through a separate path from the managed process's opaque
+the Ravel CLI through a separate path from the managed process's opaque
 result. It uses C4's container level, which shows the processes and the store
 inside the single Ravel box of chapter 1. Here, a container means a running
 unit or a store, not an operating-system container. Boxes name processes or
@@ -120,15 +121,16 @@ the same time.
 
 [Open the process-and-authority figure at full size.](figures/process-authority.svg)
 
-The responsibility table locates final supervision and result settlement in
-the native front, while the caller and owner retain their separate decisions.
+The responsibility table shows that the Ravel CLI supervises the session and
+decides its final outcome, while the caller and owner keep their separate
+decisions.
 
-| Participant | Decides or performs | Authority Ravel gives it |
+| Participant | Decides or performs | What Ravel allows it to do |
 |---|---|---|
-| Caller | Supplies the task and ending instructions; interprets the result | Invocation and the decision about subsequent work |
+| Caller | Supplies the task and ending instructions; interprets the result | Starting the session and deciding what to do next |
 | Owner | Writes routing code and settings | Configuration of which commands requests select |
-| Policy worker | Evaluates the owner policy and sends its response | Bounded request data and permitted environment; no session-result context |
-| Native front, using its runner | Admits, launches, supervises and settles the session | Process supervision, terminal handling and the final result write |
+| Policy worker | Evaluates the owner policy and sends its response | Size-limited request data and a restricted environment; no session-result context |
+| Ravel CLI, using its runner | Checks the request, launches and supervises the program, and decides the outcome | Process supervision, terminal handling and the final result write |
 | Managed process | Performs the selected work and publishes a result | Its own session-result context, inherited by its children |
 
 ## Three different kinds of information
@@ -163,8 +165,8 @@ policy-context loader. It can describe the work and the sources used to inform a
 choice. Reads through Ravel's provided host operations are measured: Ravel
 records each source's canonical name, byte count and the SHA-256 digest of the
 bytes actually read. Direct reads by policy code are possible but are not
-measured. Policy context is data for selection, not session-result authority
-or proof that the data is trustworthy.
+measured. Policy context is data for selection. It gives no permission to
+publish a result, and it is not proof that the data is trustworthy.
 
 The caller's working directory is the request's `cwd`. It tells the policy
 where the caller is working; it is neither of the two forms of context above.
@@ -172,20 +174,20 @@ The selected program starts in the caller's working directory. A policy author
 uses the request's `cwd` when the caller's location matters, rather than
 assuming the worker's current directory is the same.
 
-The native front creates the worker's private directory, which is empty, and
+The Ravel CLI creates the worker's private directory, which is empty, and
 starts the worker there. The worker changes to `/` before it registers its
 embedded modules or imports owner policy, and policy code can change the
 worker's working directory again. During worker cleanup, before it launches
-the selected program, the native front removes the worker's private directory.
+the selected program, the Ravel CLI removes the worker's private directory.
 
 The sequence separates the worker's startup location from the location where
 policy begins executing, while keeping private-directory removal before launch.
 
 | Point in policy evaluation | Working-directory fact |
 |---|---|
-| Worker startup | The native front starts the worker in its empty private directory |
-| Before policy import | The worker changes to `/`; policy code can subsequently change its working directory |
-| Worker cleanup, before the managed launch | The native front removes the worker's private directory after the worker has ended and been reaped |
+| Worker startup | The Ravel CLI starts the worker in its empty private directory |
+| Before policy import | The worker changes to `/`; policy code can then change its working directory |
+| Worker cleanup, before the managed launch | The Ravel CLI removes the worker's private directory after the worker has ended and been reaped |
 
 Use this comparison to keep selection data and a working location separate
 from the inherited path that directs result publication.
@@ -193,7 +195,7 @@ from the inherited path that directs result publication.
 | Information | Form | Purpose |
 |---|---|---|
 | Session-result context | Inherited `RAVEL_EXIT_FILE` path | Directs `end-session` to the enclosing session's result channel |
-| Policy context | Version-1 JSON data | Informs the owner policy's selection; supplies no session-result authority |
+| Policy context | Version-1 JSON data | Informs the owner policy's selection; gives no permission to publish a result |
 | Caller's working directory | Request's `cwd` | Names where the caller is working; the selected program starts there |
 
 ## Trust and confinement
@@ -212,15 +214,15 @@ confinement is requested but cannot be provided, Ravel does not launch the
 process unconfined instead.
 
 Inherited session-result context keeps nested sessions apart while each
-process uses the path it inherited. It does not authenticate code running as
-the same user. Such code can tamper with files or launch unrelated processes.
-Likewise, descendants that move out of the managed process's process group are
-outside its cleanup, and if the native front is
-killed with SIGKILL, which it cannot catch, the managed process can be left
-running without a supervisor. These limits matter when deciding what
-guarantees a caller can rely on: a successful Ravel result confirms the defined
-supervision and cleanup boundary, not that arbitrary same-user code has been
-contained or that the caller's task was done correctly.
+process uses the path it inherited. It is not a security check against code
+running as the same user, which can tamper with files or launch unrelated
+processes. Likewise, descendants that move out of the managed
+process's process group are outside its cleanup, and if the Ravel CLI is killed
+with SIGKILL, which it cannot catch, the managed process can be left running
+without a supervisor. These limits matter when deciding what a caller can rely
+on: a successful Ravel result confirms the supervision and cleanup described in
+this chapter, not that arbitrary same-user code has been contained or that the
+caller's task was done correctly.
 
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md), puts these roles together with a
 small policy and a fake agent. The fake makes the routing, publication and

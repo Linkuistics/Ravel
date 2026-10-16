@@ -27,7 +27,8 @@ Bash 4 or later, Task, curl, tar with gzip and bzip2 support, a SHA-256 utility
 (`shasum` or `sha256sum`), and Java 11 or later available. Java is needed
 because the shared setup also prepares the book's figure tools. Run the
 following commands from the root of this checkout. `task setup` fetches the
-pinned build tools and worker dependencies. `task install` builds the front and
+pinned build tools and worker dependencies. `task install` builds the
+[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) and the
 worker, installs them as a matched pair in the named prefix, and runs a smoke
 test from that installation alone. The prefix below stays inside the checkout,
 and its `bin` directory goes first on your shell's `PATH`.
@@ -41,14 +42,12 @@ task install PREFIX="$PWD/target/book-install"
 export PATH="$PWD/target/book-install/bin:$PATH"
 ```
 
-The installation contains both the
-[native front](02-actors-and-words.md#policy-evaluation-and-supervision),
-`bin/ravel`, and its matching
+The installation contains both the Ravel CLI, `bin/ravel`, and its matching
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision),
-`libexec/ravel/ravel-policy`. Keep the pair together: the front locates the
-worker relative to its own real path and refuses a missing or mismatched
-worker. The worker embeds the Bun runtime, so using the installation needs no
-separately installed Bun or Node. The Homebrew formula installs the same paired
+`libexec/ravel/ravel-policy`. Keep the pair together: the Ravel CLI finds the
+worker relative to its own real path and stops with an error if the worker is
+missing or does not match. The worker embeds the Bun runtime, so using the
+installation needs no separately installed Bun or Node. The Homebrew formula installs the same paired
 layout from release archives; the checkout build here supplies the code this
 chapter describes.
 
@@ -154,16 +153,16 @@ prompt becomes one argument. `definePolicy` returns the policy object
 unchanged and gives it the SDK's TypeScript type, so a type checker can check
 its fields; Ravel checks the values when it evaluates the policy.
 
-## Admit the request and evaluate the policy
+## Check the request and evaluate the policy
 
-The native front first reads the settings and command-line inputs and admits
-the policy file. `--config policy.ts` names a file relative to the caller's
+The Ravel CLI first reads the settings and command-line inputs and checks the
+policy file. `--config policy.ts` names a file relative to the caller's
 working directory; Ravel resolves its real path and requires a readable
 regular file. It does not search the working repository for another policy.
 Settings still come from `$HOME/.config/ravel/settings.json`, even with
 `--config`. The example's private `home` is empty, so the defaults apply.
 
-The front locates its matched worker, starts it in the worker's empty private
+The Ravel CLI finds its matched worker, starts it in the worker's empty private
 directory and checks the worker's identity before sending the policy request.
 The worker receives a restricted environment and no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
@@ -176,13 +175,13 @@ local dependency installation. The policy has no policy-context loader and the
 caller supplied no [policy context](02-actors-and-words.md#three-different-kinds-of-information).
 Selection therefore depends only on the request in this example.
 
-The worker sends its response through a private socket. The native front
-judges the policy metadata and selected command; printed worker output is
-diagnostic text, not a selection. After the response, the front confirms that
-the worker has ended and been reaped, and removes the worker's private
-directory. Only then does it resolve the selected executable and admit the
-managed launch. If worker cleanup fails, a valid response does not authorise
-launch.
+The worker sends its response through a private socket. The Ravel CLI checks
+the policy metadata and the selected command; anything the worker prints is
+diagnostic text, not a selection. After the response, the Ravel CLI confirms
+that the worker has ended and been reaped, and removes the worker's private
+directory. Only then does it resolve the selected executable and allow the
+managed launch. If worker cleanup fails, Ravel does not launch, even after a
+valid response.
 
 Here, resolving `fake-agent` searches the caller's `PATH`, whose first
 directory is the example's `bin`. The selected program starts in the caller's
@@ -233,7 +232,7 @@ changes them. The fake does not read input or alter terminal modes. The
 automated example check runs without a terminal, so its transcript
 demonstrates routing and result delivery, not a foreground handoff. Chapter 9,
 “Jobs, signals and the terminal”, develops the terminal rules, including which
-foreground holder Ravel takes the terminal back from in each case, together
+process group Ravel takes the terminal back from in each case, together
 with signal masks and failure guarantees.
 
 ## Publish the result and finish the job
@@ -244,7 +243,7 @@ or settings and needs no session ID. It writes the complete value into a
 temporary file and publishes it without replacing any result already there.
 The first complete publication wins.
 
-Publication asks the native front to finish the session. It does not mean that
+Publication asks the Ravel CLI to finish the session. It does not mean that
 the job has already ended, and `end-session` does not wait for the enclosing
 session's cleanup. In this fake, the script has no further command and exits.
 For a managed process that stays running, the runner gives it a grace period
@@ -262,7 +261,7 @@ group signals before reap therefore avoids directing them at an ID that an
 unrelated group could have taken.
 
 The runner then recovers the terminal if it lent it, and confirms that the
-process group is gone. The native front validates and reads the published
+process group is gone. The Ravel CLI validates and reads the published
 result, removes the result channel's temporary directory, and checks
 cancellation and cleanup outcomes before writing to the caller's standard
 output. The appearance of a result file does not bypass any of those steps.
@@ -271,15 +270,16 @@ Success means that the result reaches the caller only after the managed
 process has been reaped, its whole process group is gone and cleanup has
 succeeded. A successful final write gives `start-session` status 0. If writing
 fails, the caller may have received only a prefix and the invocation fails;
-bytes on standard output alone do not establish success.
+bytes on standard output alone do not prove success.
 
 That guarantee covers the managed process's group. Three cases lie outside
 it: a descendant that leaves the group, a detached child started by trusted
-policy, and the native front being killed by SIGKILL, which it cannot catch.
+policy, and the Ravel CLI being killed by SIGKILL, which it cannot catch.
 The
-[authority limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
-also explain same-user tampering. A successful session establishes completion
-of Ravel's protocol, not the correctness of the work requested in the prompt.
+[trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
+also explain same-user tampering. A successful session shows that Ravel
+delivered a published result after confirmed cleanup, not that the work
+requested in the prompt is correct.
 
 The sequence below shows the two boundaries a caller relies on: worker
 cleanup precedes the managed launch, and job cleanup precedes result delivery.
@@ -288,14 +288,13 @@ It follows this chapter's unconfined successful path.
 This is a **UML sequence diagram**: read downwards for order, not elapsed time.
 Each named participant has a dashed vertical lifeline, beginning when it is
 introduced. The worker, managed process and result channel appear when the
-front creates them. A solid arrow names an
+Ravel CLI creates them. A solid arrow names an
 action, a dashed arrow a reply, and a bent arrow work inside one participant.
 An X ends the pictured lifetime after reap or removal; it does not mark the
 instant a process exits. The labelled horizontal bars group stages. Blue
 participants are Ravel processes, grey ones are external, and the gold cylinder
 is the temporary result channel. Green arrows carry the opaque result. The
-runner shares the native front's lifeline because it executes inside that
-process.
+runner shares the Ravel CLI's lifeline because it runs inside that process.
 
 ![The caller requests a session. The front admits the request, evaluates policy in its worker and confirms worker cleanup before launching the managed process. The managed process publishes to the temporary result channel. The front stops the group before reaping the direct child, recovers the terminal if lent, confirms group absence, reads the result, removes temporary files and settles outcomes before delivering the result to the caller.](figures/successful-session.svg)
 
@@ -303,14 +302,16 @@ process.
 settlement permit the final result write.*
 [Open the successful-session sequence at full size](figures/successful-session.svg).
 
-In words, the front admits the request, checks the worker's identity, judges
-its policy response, and confirms worker reap and private-directory removal.
+In words, the Ravel CLI checks the request, checks the worker's identity,
+checks its policy response, and confirms worker reap and private-directory
+removal.
 It then resolves the executable, allocates the result channel and launches
 the managed process. Publication puts the value in that channel, without
-returning it to the caller. The front stops the managed process's group before
-reap, recovers a lent terminal and confirms group absence. It reads the value,
-removes the channel's temporary directory and settles cancellation and cleanup
-before writing and flushing the value. Each stage is explained above; the
+returning it to the caller. The Ravel CLI stops the managed process's group
+before reap, recovers a lent terminal and confirms group absence. It reads the
+value, removes the channel's temporary directory and decides the outcome,
+taking account of any cancellation or cleanup problem, before writing and
+flushing the value. Each stage is explained above; the
 figure omits timing and individual system calls.
 
 ## Recognise the other outcomes
@@ -321,7 +322,7 @@ needs to recognise each one.
 
 - A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) occurs
   before launch when owner policy declines the request or Ravel cannot accept
-  the policy's behaviour, data or admission. Ravel does not try another route.
+  the policy's file, behaviour or data. Ravel does not try another route.
 - Cancellation by an INT, TERM or HUP signal can occur during selection or
   supervision. It suppresses the result even if a value was already published.
 - Natural exit without publication supplies no result, even when the managed
@@ -331,7 +332,7 @@ needs to recognise each one.
   final result write also fails the invocation after cleanup.
 
 Conversely, a managed process can publish a result and later exit nonzero
-without invalidating that result. Ravel judges publication, cancellation and
+without invalidating that result. Ravel checks publication, cancellation and
 cleanup separately from the program's exit status. [Chapter 5](05-running-sessions.md#interpret-the-exit-status) teaches the
 outcomes and their exit codes with examples.
 
@@ -343,7 +344,7 @@ A **UML state machine** follows changes of state rather than messages between
 participants. The solid dot is the start; arrows name transitions between
 rounded boxes. Blue boxes here are phases of Ravel's work, not processes.
 Grey boxes are outcomes, with no further transition shown. Square brackets
-state conditions evaluated after settlement. The green route is the only path
+state conditions checked when Ravel decides the final outcome. The green route is the only path
 to successful result delivery. The key states rules that apply to more than
 one transition.
 
@@ -356,18 +357,18 @@ of success; cancellation can suppress a published value.*
 In words, a refusal stops selection before launch, while cancellation and
 failure can stop either selection or supervision. Natural exit without
 publication belongs to supervision, even if the managed process exits 0.
-Every path attempts its required cleanup. Settlement gives cancellation
-precedence; otherwise it retains an original refusal or failure, including
-the missing-result outcome, and reports additional cleanup problems beside
-it. A cleanup failure prevents an otherwise successful result. Only a valid
+Every path attempts its required cleanup. When Ravel then decides the final
+outcome, cancellation comes first. Otherwise Ravel keeps an original refusal
+or failure, including the missing-result outcome, and reports any further
+cleanup problems beside it. A cleanup failure prevents an otherwise successful result. Only a valid
 published value with no cancellation and confirmed reap, group absence and
 cleanup reaches the final write and flush. An empty publication is a value,
 and the managed process's later nonzero exit does not by itself invalidate it.
 
 The machine groups the cleanup operations described above; it does not imply
-that failed cleanup was completed. Its cancellation conditions apply through
-the final settlement decision. A newly arriving signal after that decision
-can still terminate the front during writing, and a failed write may leave
+that failed cleanup was completed. Its cancellation conditions apply up to
+and including the moment Ravel decides the final outcome. A signal that arrives after that decision
+can still terminate the Ravel CLI during writing, and a failed write may leave
 only a prefix on standard output. Chapter 8 develops the full outcome decision.
 
 To write routing rules beyond this single fake, continue with

@@ -21,7 +21,7 @@ The entries describe the [checkout build used by this book](03-a-complete-sessio
 `ravel --help`, `ravel start-session --help` and `ravel end-session --help`.
 `-h` is the short help option on all three command lines.
 
-`ravel --version`, or `ravel -V`, prints the [native front](02-actors-and-words.md#policy-evaluation-and-supervision)'s package version to stdout
+`ravel --version`, or `ravel -V`, prints the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)'s package version to stdout
 and exits 0. The version option belongs to the top-level command, not to
 either verb. Help and version text is informational output, never an opaque
 result. See [the first complete session](03-a-complete-session.md#run-the-first-session)
@@ -34,7 +34,7 @@ value `--help` inside a live session. See [result arguments](#end-session-result
 ### `start-session`
 
 `ravel start-session --kind TEXT` also needs exactly one of `--prompt TEXT`
-and `--prompt-file PATH`. It reads owner settings, admits and evaluates owner
+and `--prompt-file PATH`. It reads owner settings, checks and evaluates owner
 policy, then supervises the selected program. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) launches nothing and
 tries no alternative route. A successful invocation returns the exact
@@ -97,8 +97,8 @@ The entry resolves to a readable regular file; its canonical path is UTF-8
 and contains no `?`. A symlink selects its real file, whose directory supplies
 the base for relative imports.
 
-An empty option value is malformed input, status 2. Failure to admit the
-entry is status 3. Selecting another entry does not move the settings file
+An empty option value is malformed input, status 2. If Ravel cannot accept
+the entry file, the status is 3. Selecting another entry does not move the settings file
 from `$HOME/.config/ravel/settings.json`. See
 [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request)
 and [resolve its imports](04-writing-an-owner-policy.md#resolve-policy-imports).
@@ -124,7 +124,7 @@ sources attached. With a loader, it is input to the loader, which assembles
 the document delivered to `select`. With neither a caller document nor a
 loader, `select` receives `undefined` as its policy-context argument.
 
-An unreadable, invalid or oversized document refuses with status 3; malformed
+Ravel refuses an unreadable, invalid or oversized document with status 3; malformed
 command-line syntax still uses 2. This option supplies policy context, never a
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information). See [supply policy context](04-writing-an-owner-policy.md#supply-policy-context).
 
@@ -138,7 +138,7 @@ syntax or range exits 2.
 Settings are validated before the flag replaces a value. A valid flag does
 not rescue an invalid owner setting.
 
-The deadline begins when the native front spawns the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
+The deadline begins when the Ravel CLI spawns the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
 and covers worker startup, policy import,
 policy-context loading and selection. Expiry stops selection, attempts worker
 teardown and exits 124 with no managed launch. Cleanup time is additional;
@@ -154,7 +154,7 @@ Settings are validated first, so a valid flag cannot rescue an invalid setting.
 
 The budget bounds the caller document and the encoded policy context delivered
 to selection, including measured source records. It also caps a host source
-read. Exceeding a bound refuses instead of truncating; `context_too_large`
+read. Ravel refuses data that exceeds a bound instead of truncating it; `context_too_large`
 uses status 3. See [policy context](04-writing-an-owner-policy.md#supply-policy-context)
 and [bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
@@ -180,9 +180,9 @@ Owner policy and its worker remain outside
 [confinement](02-actors-and-words.md#trust-and-confinement). Ravel tests the
 backend before policy evaluation and never falls back to an unconfined launch.
 
-The canonical working directory and a private run directory are writable. System
-runtime paths, the selected executable and the native front's own canonical
-executable are admitted for reads. Network access is permitted. The confined
+The canonical working directory and a private run directory are writable. The
+confined process can read system runtime paths, the selected executable and
+the Ravel CLI's own real executable file. Network access is permitted. The confined
 process starts a new POSIX session, receives EOF stdin and is not lent the
 caller's controlling terminal. Its [environment](#managed-process-environment)
 is restricted separately from the policy worker's.
@@ -193,8 +193,8 @@ including through symlinks. An unusable backend or input reports
 See [confine the managed process](05-running-sessions.md#confine-the-managed-process)
 for the layout and operational limits.
 
-> **Note:** Native-entry behaviour has been measured on aarch64 macOS and
-> aarch64 GNU/Linux. x86_64 GNU/Linux has been built and run under emulation
+> **Note:** How Ravel handles the signal settings it inherits, cancellation,
+> cleanup and terminal recovery has been measured on aarch64 macOS and aarch64 GNU/Linux. x86_64 GNU/Linux has been built and run under emulation
 > only; native x86-64 qualification remains open. See the
 > [support limits](05-running-sessions.md#understand-the-operational-limits).
 
@@ -291,9 +291,10 @@ API reports signal termination. If propagation fails, Ravel reports the
 failure and uses the numeric status as fallback. A caller using a process API
 handles both. Ignored or blocked entry signals are not automatically cancellation.
 
-> **Note:** SIGKILL or another abrupt death can bypass settlement. A newly
-> arriving signal after the final cancellation decision can interrupt the
-> result write. Neither case certifies cleanup or successful delivery; a final
+> **Note:** SIGKILL or another abrupt death can stop Ravel before it decides
+> the final outcome. A signal that arrives after the final cancellation
+> decision can interrupt the result write. Neither case confirms cleanup or
+> successful delivery; a final
 > write failure can leave a prefix on stdout. See [operational limits](05-running-sessions.md#understand-the-operational-limits).
 
 ## Streams and notices
@@ -321,7 +322,7 @@ instead begin `ravel: end-session:`. See [read notices](05-running-sessions.md#r
 
 The `--json` routing notice is prepared after a successful selection,
 result-output reservation and result-channel allocation. It is printed after the
-supervision attempt, before final settlement. It is not proof of launch, cleanup
+supervision attempt, before Ravel decides the final outcome. It is not proof of launch, cleanup
 or success. Stderr remains a mixed stream, and the managed process can print
 text that resembles a Ravel document. See
 [read notices](05-running-sessions.md#read-notices-without-confusing-them-with-results).
@@ -330,8 +331,8 @@ text that resembles a Ravel document. See
 |---|---|
 | `schemaVersion` | `1`, the notice format version. |
 | `selection` | Object with `provider`, `model`, `effort` and `reason`, all owner-supplied strings. These labels imply no model-provider integration. |
-| `policy` | `path`, the admitted canonical entry, and `version`, the policy's declared version. |
-| `worker` | `path`, `version` (package version), `buildId` and `bunVersion` of the matched compiled policy worker. The native front admits only a worker with its own build identity; this check is not code signing. |
+| `policy` | `path`, the canonical path of the accepted entry, and `version`, the policy's declared version. |
+| `worker` | `path`, `version` (package version), `buildId` and `bunVersion` of the matched compiled policy worker. The Ravel CLI accepts only a worker with its own build identity; this check is not code signing. |
 | `selectionMs` | Elapsed policy evaluation time in milliseconds. |
 | `context` | `null` when there is no delivered policy context; otherwise the report described below. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message` and `diagnostics`. Each has its unit-valued field (`ms`, `bytes` or `sources`) and `from`, identifying `default`, `fixed`, `settings.json` or the overriding flag. |
@@ -343,7 +344,7 @@ text that resembles a Ravel document. See
 
 The non-null `context` report has six fields. They describe the data delivered
 to selection; [chapter 4's policy-context section](04-writing-an-owner-policy.md#supply-policy-context)
-teaches their provenance.
+teaches where they come from.
 
 | Policy-context report field | Meaning |
 |---|---|
@@ -382,26 +383,26 @@ operational reports can appear outside this document. See
 
 The stage says where Ravel detected a problem, not which process ultimately
 caused it. For example, `evaluation` is used for the whole deadline because
-the native front cannot see which policy operation was running at expiry.
+the Ravel CLI cannot see which policy operation was running at expiry.
 
 | Stage | Scope | Teaching |
 |---|---|---|
 | `cli` | Command line and owner settings. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `authority` | Choosing and opening the policy entry or obtaining the caller's working directory. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
-| `worker` | Finding, starting or verifying the compiled worker and its protocol. | [Admit and evaluate](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy) |
+| `worker` | Finding, starting or verifying the compiled worker and its protocol. | [Check and evaluate](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `evaluation` | The worker's evaluation as a whole, including deadline and selection cancellation. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names), [cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `load` | Importing the policy entry. | [Resolve imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `context` | Reading, assembling, validating and measuring policy context. | [Supply policy context](04-writing-an-owner-policy.md#supply-policy-context) |
 | `validation` | Checking the exported policy object. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
-| `selection` | Calling `select` and judging its returned data. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `selection` | Calling `select` and checking its returned data. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `resolution` | Finding the selected program. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `exec` | Preparing, supervising and settling the managed launch, including result-output or result-channel failures before spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `exec` | Preparing and supervising the managed launch and deciding its outcome, including result-output or result-channel failures before spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
 
 ## Environment variables
 
 ### Caller inputs and worker environment
 
-The native front starts the policy worker with a fresh environment: caller
+The Ravel CLI starts the policy worker with a fresh environment: caller
 values for `HOME`, `PATH`, `TMPDIR`, `LANG` and every `LC_*` name that is set,
 plus explicit grants, then `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0`. Other caller
 variables do not reach it without a grant. See
@@ -410,8 +411,8 @@ variables do not reach it without a grant. See
 | Variable or class | Meaning and handling | Teaching |
 |---|---|---|
 | `HOME` | Locates the default policy and settings. The default policy needs an absolute value; with explicit `--config`, absent or relative `HOME` yields no owner settings. Passed to the worker when set. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request), [settings](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
-| `PATH` | The native front resolves a bare selected program using the caller's value. Unset means no search; an empty value is a working-directory entry. Relative entries resolve from the caller's working directory. The worker receives this value too, but it does not select the installed worker. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `TMPDIR` | Feeds the system temporary-directory choice used by the native front for private worker and run directories, and for an unconfined launch's result channel without `--exit-dir`. Its caller value reaches the worker when set. | [Channel placement](05-running-sessions.md#confine-the-managed-process), [worker environment](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
+| `PATH` | The Ravel CLI resolves a bare selected program using the caller's value. Unset means no search; an empty value is a working-directory entry. Relative entries resolve from the caller's working directory. The worker receives this value too, but it does not select the installed worker. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
+| `TMPDIR` | Feeds the system temporary-directory choice used by the Ravel CLI for private worker and run directories, and for an unconfined launch's result channel without `--exit-dir`. Its caller value reaches the worker when set. | [Channel placement](05-running-sessions.md#confine-the-managed-process), [worker environment](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `LANG`, `LC_*` | Caller locale values passed to the worker when set. `LC_*` means every name with that exact case-sensitive prefix. | [Worker base environment](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | Explicitly granted names | `policyEnv` settings plus `--policy-env` flags, with caller values and duplicate names merged. Unset names remain absent. | [Grant names](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `BUN_RUNTIME_TRANSPILER_CACHE_PATH` | Set by Ravel to `0` for the worker, disabling its runtime transpiler cache. Caller values cannot override it through a grant, because `BUN_*` is a reserved grant class. | [Resolve policy imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
@@ -423,7 +424,8 @@ These nine exact names or prefix classes are not accepted in either `policyEnv`
 or `--policy-env`. Matching is case-sensitive. `*` denotes any suffix, including
 an empty suffix; it is not shell expansion. A grant naming one reports
 `excluded_grant` with status 2. The reserved classes are worker-grant rules;
-they do not describe blanket scrubbing of the unconfined managed process. See
+they do not say which names are removed from an unconfined managed process's
+environment; that shorter list follows. See
 [grant environment names](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
 | Name or class | Why the worker does not accept a caller grant |
@@ -441,10 +443,10 @@ they do not describe blanket scrubbing of the unconfined managed process. See
 ### Managed-process environment
 
 An unconfined managed process inherits the caller's environment except for
-the six exact scrubbed names below. Ravel then supplies its fresh
+the six exact names Ravel removes, listed below. Ravel then supplies its fresh
 `RAVEL_EXIT_FILE`. Other names, including arbitrary application credentials
-and names in worker-excluded classes, remain inherited. A worker grant is
-irrelevant to that inheritance. See
+and names in worker-excluded classes, remain inherited. A worker grant has no
+effect on that inheritance. See
 [caller environment](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
 | Name or class | Confined managed process | Teaching |
@@ -454,7 +456,7 @@ irrelevant to that inheritance. See
 | `RAVEL_EXIT_FILE` | Fresh path for this session, supplied after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
 | Every other caller variable | Absent; `--policy-env` grants only the worker and cannot add it here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 
-The scrub set is exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
+The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
 `HARNESS_DISPATCH_EXIT_FILE`, `HARNESS_DISPATCH_RUN_ID` and
 `HARNESS_DISPATCH_STATE_DIR`. The first is replaced with the new result-channel
 path; the other five stay absent. These obsolete identity and storage names
@@ -465,14 +467,14 @@ create no store and select no session. See
 
 `RAVEL_EXIT_FILE` is the inherited
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information):
-the path `end-session` uses to publish to its enclosing session. The native
-front sets it only for the managed launch. The policy worker never receives it.
+the path `end-session` uses to publish to its enclosing session. The Ravel
+CLI sets it only for the managed launch. The policy worker never receives it.
 Nested launches replace it only for their own managed process, leaving the
 outer caller's value unchanged.
 
 An unset, empty or stale path makes `end-session` fail with status 1. Do not use
 it as a persistent result location or a cross-session address. The result
-channel isolates ordinary sessions but does not authenticate against hostile
+channel keeps ordinary sessions apart but is not a defence against hostile
 code running as the same user. See
 [nested sessions](05-running-sessions.md#keep-nested-sessions-separate) and
 [operational limits](05-running-sessions.md#understand-the-operational-limits).
@@ -486,17 +488,17 @@ absolute for this default; `--config PATH` chooses another entry relative to
 the caller's working directory. There is no repository search, environment
 override or fallback policy. The entry must resolve to a readable regular
 file with a UTF-8 canonical path containing no `?`. A symlink uses its real
-file, including that file's directory for relative imports. Admission failure
-exits 3 before owner code runs. See [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request)
+file, including that file's directory for relative imports. If Ravel cannot
+accept the entry file, it exits 3 before owner code runs. See [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request)
 and [resolve imports](04-writing-an-owner-policy.md#resolve-policy-imports).
 
 `policy` is the named export Ravel evaluates. A default export alone is
-insufficient. The export is a plain object, not an array or class instance, with
+not enough. The export is a plain object, not an array or class instance, with
 the [four policy fields](#policy-object) below. Trusted owner code runs outside
-managed-process confinement, in a separate worker without session-result
-authority. After a successful selection, the native front reaps the worker and
-removes its private directory before launch. See
-[policy admission](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy).
+managed-process confinement, in a separate worker that never receives a
+session-result context. After a successful selection, the Ravel CLI reaps the
+worker and removes its private directory before launch. See
+[policy evaluation](03-a-complete-session.md#check-the-request-and-evaluate-the-policy).
 
 ### `settings.json`
 
@@ -513,7 +515,7 @@ policy. See [set bounds and grants](04-writing-an-owner-policy.md#set-bounds-and
 | `contextBytes` | Optional whole-number bytes, 1–8,388,608 inclusive; default 262,144. `--context-bytes` replaces it after validation. Caps the caller document and delivered policy context, and sets the ceiling for a host read. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `policyEnv` | Optional array of environment-variable names; default no extra grants. Names are nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names; duplicates collapse and unset values stay absent. Grants affect the worker, not managed-process inheritance. | [Grant environment names](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 
-Unknown keys, including obsolete `stateDir` and a putative `config` key,
+Unknown keys, including obsolete `stateDir` and a `config` key,
 report `settings_invalid`, status 2. Unreadable or non-regular files, invalid
 JSON, non-object documents and a `policyEnv` other than an array of strings
 use the same code. Invalid numeric bounds or malformed grant names use
@@ -525,9 +527,9 @@ cannot rescue a bad setting. No setting opens persistent storage. See
 ## Bounds
 
 `request.limits` reports six effective bounds. These are frozen values for
-policy to read; the native front and worker enforce their own copies. A policy
-cannot raise them. Overflow refuses selection rather than admitting truncated
-data. The JSON notice names each bound separately and records its origin.
+policy to read; the Ravel CLI and worker enforce their own copies. A policy
+cannot raise them. Ravel refuses data that is too large rather than accepting
+it truncated. The JSON notice names each bound separately and records its origin.
 See [set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
 | Request field / notice name | Default or fixed value | Adjustment and consequence | Teaching |
@@ -549,7 +551,7 @@ numeric field. See [bounds and their inputs](04-writing-an-owner-policy.md#set-b
 
 ### Policy object
 
-`policy` has the following fields. Unknown fields refuse; `definePolicy`
+`policy` has the following fields. Ravel refuses unknown fields; `definePolicy`
 helps TypeScript check the object but does not replace runtime validation.
 See [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request).
 
@@ -557,7 +559,7 @@ See [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the
 |---|---|---|
 | `schemaVersion` | Required literal number `2`. Other whole-number versions report `unsupported_version`; missing or malformed values report `policy_invalid`, status 3. A version-1 policy, which declared `catalog` and `routes` instead of `select`, is not converted automatically. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `version` | Required nonblank owner-maintained string. Reported as the policy version; independent of Ravel's package version. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
-| `select(request, context, host)` | Required function. Returns `Selected` or `Refused`, directly or through a promise. Receives delivered policy context or `undefined`, plus a host with `diagnostic` and `signal`. No fallback runs for absence, malformed output, exceptions or an unsettled promise. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `select(request, context, host)` | Required function. Returns `Selected` or `Refused`, directly or through a promise. Receives delivered policy context or `undefined`, plus a host with `diagnostic` and `signal`. No fallback runs for absence, malformed output, exceptions or a promise that can never resolve or reject. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `loadContext(request, host)` | Optional function. Returns version-1 `Context` or `Refused`, directly or through a promise, before `select`. Its failure prevents selection. Its host supplies measured reads. Omission leaves the caller's document, if any, as the delivered data. | [Supply policy context](04-writing-an-owner-policy.md#supply-policy-context) |
 
 ### `SelectionRequest`
@@ -583,8 +585,8 @@ session-result context. See [read the request](04-writing-an-owner-policy.md#def
 
 ### `Selected`
 
-`Selected` is the command returned by `select`. All seven fields are required;
-unknown fields refuse. Ravel validates shape, then resolves the program. It
+`Selected` is the command returned by `select`. All seven fields are required,
+and Ravel refuses unknown fields. Ravel validates shape, then resolves the program. It
 does not check that the prompt appears in the arguments or that the labels
 describe the actual program. See [select a command](04-writing-an-owner-policy.md#select-a-command-or-refuse).
 
@@ -601,7 +603,7 @@ describe the actual program. See [select a command](04-writing-an-owner-policy.m
 ### `Refused`
 
 `Refused` declines the request from either `select` or `loadContext`. All four
-fields are required and unknown fields refuse. It launches nothing and tries
+fields are required, and Ravel refuses unknown fields. It launches nothing and tries
 no other route. A valid refusal reports Ravel's `policy_refused`, status 3,
 with the owner's code beside it as `policyCode`; the stage is `selection` or
 `context` respectively. See [return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse)
@@ -638,14 +640,14 @@ Read the complete stderr stream. See [interpret notices](05-running-sessions.md#
 | `home_unset` | `authority`; 3 | Default entry has no absolute `HOME`. Set an absolute `HOME` or choose `--config`. | [Policy entry](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `policy_missing` | `authority`; 3 | Chosen entry does not exist. Create it or correct `--config`; no search follows. | [Policy entry](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `policy_unreadable` | `authority`; 3 | Entry is unreadable or non-regular, or its canonical name cannot be imported exactly. Correct the file, permissions or UTF-8 path without `?`. | [Policy entry and imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
-| `worker_missing` | `worker`; 5 | The worker found relative to the native front's canonical path cannot be located or started. Reinstall or rebuild the matched pair and check execution permissions. | [Installed pair](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy) |
-| `worker_identity_mismatch` | `worker`; 5 | Protocol, package version or source identity does not match the native front. Install both binaries from one build; test-only probe builds of the worker are never admitted. | [Installed pair](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy) |
+| `worker_missing` | `worker`; 5 | The worker found relative to the Ravel CLI's canonical path cannot be located or started. Reinstall or rebuild the matched pair and check execution permissions. | [Installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
+| `worker_identity_mismatch` | `worker`; 5 | Protocol, package version or source identity does not match the Ravel CLI. Install both binaries from one build; test-only probe builds of the worker are never accepted. | [Installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `worker_failed` | `worker`; 5 | Worker preparation, execution or required teardown failed. Inspect retained operation details and repair the installation or named resource. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
 | `protocol_error` | `worker`; 5 | Worker conversation is malformed, closed unexpectedly or otherwise invalid. Rebuild or reinstall the matching pair; retain diagnostics if it recurs. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
 | `selection_timeout` | `evaluation`; 124 | Whole worker deadline expired, including startup, import and loading. Fix stalled work or raise the adjustable bound within its range. No managed launch follows. | [Deadline](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `selection_cancelled` | `evaluation`; 129/130/143 | HUP/INT/TERM ended selection. Retain teardown reports; retry only if still intended. Signal termination is the normal process-level result. | [Selection cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `output_limit` | `evaluation`; 3 | Worker stdout and stderr together exceed 262,144 bytes (256 KiB). Print less; the retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
-| `policy_import_failed` | `load`; 3 | The entry or an import throws, rejects or has an unsettled await with no work left to settle it. Fix the import or await and install dependencies explicitly. | [Imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
+| `policy_import_failed` | `load`; 3 | The entry or an import throws, rejects or has an await that can never finish because no work is left to resolve or reject it. Fix the import or await and install dependencies explicitly. | [Imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `policy_invalid` | `validation`; 3 | Named export is missing, not plain, unserialisable or has invalid fields. Return the version-2 policy object with a callable `select`. | [Policy shape](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `unsupported_version` | `validation` or `context`; 3 | Policy schema is not 2 or policy-context schema is not 1. Use the supported shape or a compatible Ravel; a version-1 policy needs rewriting, not only a changed number. | [Policy shape](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request), [policy context](04-writing-an-owner-policy.md#supply-policy-context) |
 | `message_too_large` | `load`, `context` or `selection`; 3 | A policy snapshot, selection result or failure report exceeds the fixed 1 MiB protocol bound. Shorten the corresponding data or report; this includes an oversized loader failure report at `context`. | [Protocol bound](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
@@ -654,30 +656,30 @@ Read the complete stderr stream. See [interpret notices](05-running-sessions.md#
 | `context_too_large` | `context`; 3 | Caller bytes or delivered JSON including measurements exceed the budget. Deliver less or increase `contextBytes`/`--context-bytes` within its range. | [Policy-context budget](04-writing-an-owner-policy.md#supply-policy-context) |
 | `context_loader_failed` | `context`; 3 | Loader throws or rejects. Fix its computation or supply what it requires; `select` will not run without the required data. | [Loader failures](04-writing-an-owner-policy.md#supply-policy-context) |
 | `context_source_unreadable` | `context`; 3 | A host read's missing or unreadable file, bad UTF-8 or bad JSON caused loader failure. Supply or correct that source or change the loader's requirement. | [Host reads](04-writing-an-owner-policy.md#supply-policy-context) |
-| `context_loader_unsettled` | `context`; 3 | Loader promise remains pending with nothing left to settle it. Make every path resolve or reject. Active work that instead exhausts the deadline uses `selection_timeout`. | [Loader failures](04-writing-an-owner-policy.md#supply-policy-context) |
+| `context_loader_unsettled` | `context`; 3 | Loader promise remains pending with nothing left to resolve or reject it. Make every path resolve or reject. Active work that instead exhausts the deadline uses `selection_timeout`. | [Loader failures](04-writing-an-owner-policy.md#supply-policy-context) |
 | `source_too_large` | `context`; 3 | Host source exceeds its read limit, or requested `maxBytes` exceeds the policy-context budget. Read less or choose an allowed limit; catching the breach does not permit selection. | [Host read bounds](04-writing-an-owner-policy.md#supply-policy-context) |
-| `too_many_sources` | `context`; 3 | Measured or attributed source count exceeds 256. Combine sources, or read or attribute fewer. | [Source ledgers](04-writing-an-owner-policy.md#supply-policy-context) |
+| `too_many_sources` | `context`; 3 | Measured or attributed source count exceeds 256. Combine sources, or read or attribute fewer. | [Source limits](04-writing-an-owner-policy.md#supply-policy-context) |
 | `policy_refused` | `selection` or `context`; 3 | `select` or the loader returned a valid refusal. Follow its owner-supplied `policyCode`, message and remedy; no alternative route runs. | [Refusals](04-writing-an-owner-policy.md#select-a-command-or-refuse), [loader refusals](04-writing-an-owner-policy.md#supply-policy-context) |
 | `selection_abstained` | `selection`; 3 | `select` returned `undefined` or `null`. Return a selected command or explicit refusal on every path. | [Selection failures](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `selection_malformed` | `selection`; 3 | Result has the wrong shape, fields, types, NUL or cannot be serialised. Correct the named location to `Selected` or `Refused`. | [Selection shape](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `selection_threw` | `selection`; 3 | `select` threw or rejected. Fix the failure; decline with a `Refused` value when intentional. | [Selection failures](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `selection_unsettled` | `selection`; 3 | Promise remains pending with no work left to settle it. Make every path resolve or reject; active work hitting its deadline instead uses `selection_timeout`. | [Selection failures](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `selection_unsettled` | `selection`; 3 | Promise remains pending with no work left to resolve or reject it. Make every path resolve or reject; active work hitting its deadline instead uses `selection_timeout`. | [Selection failures](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `program_not_found` | `resolution`; 127 | The selected path does not exist, or a bare name is on no entry of the caller's `PATH`. Correct the path or `PATH`. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `program_unexecutable` | `resolution`; 126 | Selected file is not an executable regular file, or the caller's `PATH` cannot be searched for a bare name. Correct permissions, file or `PATH`. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 
 | Code | Stage; status | Meaning and remedy | Teaching |
 |---|---|---|---|
-| `cancellation_unavailable` | `exec`; 5 | Front cannot establish cancellation handling. Inspect the reported OS error and execution environment. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
-| `signal_state_unavailable` | `exec`; 5 | Entry capture or a required signal-state transition failed. Retain all reports and correct the execution environment; no result certifies success. | [Signal and recovery limits](05-running-sessions.md#understand-the-operational-limits) |
+| `cancellation_unavailable` | `exec`; 5 | The Ravel CLI cannot set up cancellation handling. Inspect the reported OS error and execution environment. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `signal_state_unavailable` | `exec`; 5 | Entry capture or a required signal-state transition failed. Retain all reports and correct the execution environment; do not treat any result as success. | [Signal and recovery limits](05-running-sessions.md#understand-the-operational-limits) |
 | `output_unavailable` | `exec`; 5 | Result stdout cannot be reserved or restored. Supply a writable output stream and inspect any restoration error. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_channel_unavailable` | `exec`; 5 | Private result channel cannot be allocated or prepared. Correct temporary storage or `--exit-dir`; inspect partial-cleanup reports. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |
 | `supervision_failed` | `exec`; 127, 126 or 5 | Before start is reported: ENOENT gives 127, other failures 126. After start: 5. Check the executable and interpreter, the execution environment and retained runner and terminal reports. | [Launch and supervision](05-running-sessions.md#interpret-the-exit-status) |
 | `session_result_missing` | `exec`; 1 | Managed process ended without publishing, even if its own status was 0. Arrange an `end-session` call for successful work. | [Publication and absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_result_invalid` | `exec`; 5 | Published result-channel entry or result bytes cannot be accepted, including invalid encoding, type or size. Use `end-session` inside the live session and keep the result within 1 MiB. | [Result validity](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_cleanup_failed` | `exec`; 5 | Required cleanup of the result channel or a private directory failed. Inspect the named path and ownership report before removing any residue; no candidate result is returned. | [Cleanup limits](05-running-sessions.md#understand-the-operational-limits) |
-| `process_group_survived` | `exec`; 5 | Group absence was not established at settlement. Inspect the reported group and cleanup failures before retrying; publication alone is insufficient. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
-| `session_cancelled` | `exec`; 129/130/143 | HUP/INT/TERM wins at final settlement, even after publication. Discard the result and retain original and cleanup errors; retry only if intended. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `result_write_failed` | `exec`; 5 | Final result write or flush failed after settlement. Fix the output destination and discard any prefix already written. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
+| `process_group_survived` | `exec`; 5 | Group absence was not confirmed when Ravel decided the final outcome. Inspect the reported group and cleanup failures before retrying; publication alone is not enough. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
+| `session_cancelled` | `exec`; 129/130/143 | HUP/INT/TERM wins when Ravel decides the final outcome, even after publication. Discard the result and retain original and cleanup errors; retry only if intended. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `result_write_failed` | `exec`; 5 | Final result write or flush failed after Ravel decided the outcome. Fix the output destination and discard any prefix already written. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 
 `end-session` publication failures are plain `ravel: end-session:` messages,
 status 1, rather than entries in the JSON code table. Missing, empty or stale
@@ -690,7 +692,7 @@ an empty result. See [publish and accept results](05-running-sessions.md#accept-
 
 `Context` is version-1 JSON data, supplied by `--context` or returned by
 `loadContext`. Absent optional fields mean unknown, distinct from a known
-empty object, array or string. Unknown top-level fields refuse, including
+empty object, array or string. Ravel refuses unknown top-level fields, including
 `program`, `args`, `argv`, `command`, `select`, `loadContext`, `env`,
 `environment`, `exec`, `shell` and `script`. Those names inside free-form JSON
 facts remain data. See [supply policy context](04-writing-an-owner-policy.md#supply-policy-context).
@@ -700,7 +702,7 @@ facts remain data. See [supply policy context](04-writing-an-owner-policy.md#sup
 | `schemaVersion` | Required number `1`; independent of the version-2 request and policy contract. | [Policy-context shape](04-writing-an-owner-policy.md#supply-policy-context) |
 | `summary` | Optional string, including empty. | [Policy-context shape](04-writing-an-owner-policy.md#supply-policy-context) |
 | `acceptanceCriteria` | Optional array of strings; both array and strings may be empty. | [Policy-context shape](04-writing-an-owner-policy.md#supply-policy-context) |
-| `facts` | Optional object mapping names to JSON values. No executable authority follows from a fact. | [Policy-context shape](04-writing-an-owner-policy.md#supply-policy-context) |
+| `facts` | Optional object mapping names to JSON values. A fact is data; Ravel never runs it as a command. | [Policy-context shape](04-writing-an-owner-policy.md#supply-policy-context) |
 | `assessments` | Optional object mapping names to attributed `{ by, value }` objects. | [Attributed judgements](04-writing-an-owner-policy.md#supply-policy-context) |
 | `sources` | Optional array of at most 256 attributed source records. Separate from measured reads; supplying a record does not read a file. | [Source attribution](04-writing-an-owner-policy.md#supply-policy-context) |
 
@@ -709,32 +711,33 @@ deeply frozen. Neither caller nor loader supplies that field. Without a
 loader, selection receives the caller document plus measurements, or
 `undefined` if there is no document. A loader replaces the document delivered
 to `select`; `request.context` still names the caller's original input and
-there is no automatic merge. A loader returning nothing refuses. See
+there is no automatic merge. Ravel refuses a loader that returns nothing. See
 [caller and delivered documents](04-writing-an-owner-policy.md#supply-policy-context).
 
 `measured` holds successful reads in order: the caller's `--context` document
 first when present, then host reads, including repeat reads of one file.
 Its separate limit is 256 records. The compact encoding of the entire
-delivered document, including this ledger, must fit `contextBytes`. Source
-attribution and measurement authenticate neither an author nor a claim. See
+delivered document, including this list, must fit `contextBytes`. Source
+attribution and measurement prove neither who the author was nor that a claim
+is true. See
 [measurement and its limits](04-writing-an-owner-policy.md#supply-policy-context).
 
 ### Nested data and measured records
 
-`Json` admits null, booleans, finite numbers, strings, arrays and objects of
+`Json` allows null, booleans, finite numbers, strings, arrays and objects of
 JSON values. Cycles and executable or other non-JSON values cannot be delivered.
 An object whose only key is `$ravel` is reserved even inside facts or assessment
-values and refuses as `context_invalid`. See
+values and is refused as `context_invalid`. See
 [JSON policy data](04-writing-an-owner-policy.md#supply-policy-context).
 
 | Type and field | Accepted value or meaning | Teaching |
 |---|---|---|
 | `Assessment.by` | Required nonblank string naming who made the judgement. | [Assessments](04-writing-an-owner-policy.md#supply-policy-context) |
-| `Assessment.value` | Required JSON value; null is valid. Unknown assessment fields refuse. | [Assessments](04-writing-an-owner-policy.md#supply-policy-context) |
+| `Assessment.value` | Required JSON value; null is valid. Ravel refuses unknown assessment fields. | [Assessments](04-writing-an-owner-policy.md#supply-policy-context) |
 | `SourceRecord.name` | Required nonblank name, such as a path, URL or evidence label. Does not cause a read. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `SourceRecord.sha256` | Optional digest, exactly 64 lowercase hexadecimal digits. At least this field or `version` is required. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `SourceRecord.version` | Optional nonblank version string. At least this field or `sha256` is required; both are accepted. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
-| `SourceRecord.bytes` | Optional nonnegative whole-number byte count. Unknown source-record fields refuse. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
+| `SourceRecord.bytes` | Optional nonnegative whole-number byte count. Ravel refuses unknown source-record fields. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `MeasuredSource.name` | Required canonical file path, measured by Ravel. | [Measured sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `MeasuredSource.via` | Required `"--context"`, `"readText"` or `"readJson"`, identifying the read. | [Measured sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `MeasuredSource.bytes` | Required actual bytes read, before any JSON parsing. | [Measured sources](04-writing-an-owner-policy.md#supply-policy-context) |
@@ -753,24 +756,24 @@ remains possible but is not measured by these operations. See [host operations](
 | Member | Behaviour and limits | Teaching |
 |---|---|---|
 | `diagnostic(text)` | Writes a string to worker stderr, adding a final newline if absent. Counts towards combined `diagnosticsBytes`. Accepts no non-string value. | [Selection diagnostics](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
-| `signal` | `AbortSignal` aborted when the native front stops the worker with TERM, including at the selection deadline. Pass it to cancellable work; the worker still has one second to exit after TERM before the native front kills it. | [Selection host](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
+| `signal` | `AbortSignal` aborted when the Ravel CLI stops the worker with TERM, including at the selection deadline. Pass it to cancellable work; the worker still has one second to exit after TERM before the Ravel CLI kills it. | [Selection host](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `readText(path, maxBytes?)` | Synchronous regular-file read, UTF-8 decoded, returning `{ text, source }`. Nonempty path resolves from `request.cwd`, not the policy file or worker directory. | [Read policy sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `readJson(path, maxBytes?)` | Same read and measurement rules, then JSON parsing, returning `{ value, source }`. Policy validates the returned data for its own needs. | [Read policy sources](04-writing-an-owner-policy.md#supply-policy-context) |
 
 `maxBytes` defaults to the smaller of 65,536 and `contextBytes`. An explicit
 value is a positive safe whole number no larger than `contextBytes`.
 Exceeding the read limit, asking above the budget or attempting a read beyond
-the source count records a breach that still refuses if caught. Missing or
+the source count causes a refusal even if the loader catches the exception. Missing or
 unreadable sources, invalid UTF-8 and invalid JSON throw; when that failure
 escapes the loader, `context_source_unreadable` names the source. Only
-successful reads enter the measured ledger. See [read bounds and failures](04-writing-an-owner-policy.md#supply-policy-context).
+successful reads enter the `measured` list. See [read bounds and failures](04-writing-an-owner-policy.md#supply-policy-context).
 
 ## SDK and module resolution
 
 ### `ravel/sdk`
 
 `ravel/sdk` is the exact embedded module specifier. The following declarations
-are exported; type declarations guide typechecking, while the native front
+are exported; type declarations guide typechecking, while the Ravel CLI
 validates runtime values independently. Configure the editor and compiler
 against installed `sdk/index.d.ts`; TypeScript path mappings do not create
 runtime aliases. See
@@ -789,7 +792,7 @@ runtime aliases. See
 | `SelectionResult` | Union of `Selected` and `Refused`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `LoadContext` | Loader function type, returning `Context` or `Refused` synchronously or as a promise-like value. | [Supply policy context](04-writing-an-owner-policy.md#supply-policy-context) |
 | `Context` | Six-field version-1 document; only `schemaVersion` required. | [Supply policy context](04-writing-an-owner-policy.md#supply-policy-context) |
-| `DeliveredContext` | `Context` plus required measured-source ledger. | [Delivered policy context](04-writing-an-owner-policy.md#supply-policy-context) |
+| `DeliveredContext` | `Context` plus the required `measured` list of read records. | [Delivered policy context](04-writing-an-owner-policy.md#supply-policy-context) |
 | `Json` | JSON data type for facts and assessment values. | [Policy-context data](04-writing-an-owner-policy.md#supply-policy-context) |
 | `Assessment` | Attributed judgement with `by` and `value`. | [Assessments](04-writing-an-owner-policy.md#supply-policy-context) |
 | `SourceRecord` | Attributed evidence name with a digest or version and an optional byte count. | [Attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
@@ -808,8 +811,8 @@ helper code in `policyCode`. See [choice-file validation](04-writing-an-owner-po
 
 `directory` is the one directory read; there is no parent search. Pass
 `request.cwd` for a checkout choice. A relative directory resolves from the
-worker's working directory, initially `/`. Policy decides defaults, cardinality
-and the meaning of each offered name. The file introduces no program, argument
+worker's working directory, initially `/`. Policy decides defaults, how many names
+are allowed and the meaning of each offered name. The file introduces no program, argument
 or label; this ordinary SDK filesystem read is not a measured host read, so name
 the applied choice in `reason`. See
 [apply a checkout choice](04-writing-an-owner-policy.md#offer-a-checkout-choice).
@@ -834,9 +837,9 @@ the applied choice in `reason`. See
 
 Owner code can change the worker's working directory or import arbitrary code. A
 Bun `Worker` thread starts another runtime instance; disabled dotenv autoloading
-also prevents that instance from loading ambient dotenv files. The disabled
-autoloading and the initial `/` working directory are startup controls, not
-confinement of trusted policy. See
+also prevents that instance from loading dotenv files it finds. The disabled
+autoloading and the initial `/` working directory control how the worker
+starts; they do not confine trusted policy. See
 [runtime boundaries](04-writing-an-owner-policy.md#resolve-policy-imports).
 
 ## Shipped sample
@@ -899,8 +902,8 @@ See
 
 | Path below `PREFIX` | Purpose and source relationship | Teaching |
 |---|---|---|
-| `bin/ravel` | Native Rust front built from `crates/ravel`, linking the runner library in `crates/keyed-launch`. Owns policy admission, supervision and final result settlement. | [Installed pair](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
-| `libexec/ravel/ravel-policy` | Private compiled TypeScript worker built from `crates/ravel/worker/src`, embedding Bun, SDK and static example. Evaluates policy; never holds session-result authority. | [Policy evaluation](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy) |
+| `bin/ravel` | The Ravel CLI, built in Rust from `crates/ravel` and linking the runner library in `crates/keyed-launch`. Checks the policy, supervises the session, decides the final outcome and writes the result. | [Installed pair](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
+| `libexec/ravel/ravel-policy` | Private compiled TypeScript worker built from `crates/ravel/worker/src`, embedding Bun, SDK and static example. Evaluates policy; never receives a session-result context. | [Policy evaluation](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `libexec/ravel/sdk/index.ts` | Copy of `worker/sdk/index.ts`, for reading or copying. Editing it does not change the embedded SDK. | [SDK and imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `libexec/ravel/sdk/index.d.ts` | Generated public SDK declarations for policy typechecking. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
 | `libexec/ravel/examples/static.ts` | Copy of `worker/examples/static.ts`. Import a local copy by path to use edits. | [Starter table](04-writing-an-owner-policy.md#use-the-starter-route-table) |
@@ -911,25 +914,25 @@ See
 | `README.md` | Additional archive-root entry identifying the project; archive packaging includes it alongside the installed pair and assets. | [Obtain Ravel](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
 | `LICENSE` | Additional archive-root project licence. | [Obtain Ravel](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
 
-`libexec/ravel/ravel-policy` is found relative to the native front's canonical
+`libexec/ravel/ravel-policy` is found relative to the Ravel CLI's canonical
 real path, including when `bin/ravel` is reached through a symlink. `PATH`,
-`argv[0]` and neighbouring prefixes cannot choose another worker. The native
-front checks protocol 1, package version and source build identity before
+`argv[0]` and neighbouring prefixes cannot choose another worker. The Ravel
+CLI checks protocol 1, package version and source build identity before
 sending policy. Missing, stale and mismatched workers, and test-only probe
 builds, fail with status 5. Build identity matches the two binaries of one
 build; it is not code signing. See
-[admit the installed pair](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy).
+[check the installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy).
 
 `crates/keyed-launch` is linked Rust library code, not an installed service
-or third executable. The native front starts the worker for policy evaluation,
+or third executable. The Ravel CLI starts the worker for policy evaluation,
 reaps it before managed launch, then supervises the selected job using that
 library. The worker embeds executable SDK and example modules; the installed
 source and declaration files support editing and typechecking separately.
-See [the session's processes](03-a-complete-session.md#admit-the-request-and-evaluate-the-policy).
+See [the session's processes](03-a-complete-session.md#check-the-request-and-evaluate-the-policy).
 
-> **Figure — Source responsibilities:** The runner and the native front's
-> admission and settlement code execute in one process; the policy worker
-> executes separately. This C4 component view opens the native front's dashed
+> **Figure — Source responsibilities:** The runner and the Ravel CLI's
+> checking and final-outcome code run in one process; the policy worker
+> runs separately. This C4 component view opens the Ravel CLI's dashed
 > boundary to show its internal responsibilities. Its blue component boxes
 > name linked code, while the blue container box names the worker process and
 > the grey box names the selected program. The boundary is software membership,
@@ -943,7 +946,7 @@ See [the session's processes](03-a-complete-session.md#admit-the-request-and-eva
 > See [policy evaluation and supervision](02-actors-and-words.md#policy-evaluation-and-supervision)
 > for the processes' roles.
 
-> **Figure — Installed files:** Keep the native front and worker from one
+> **Figure — Installed files:** Keep the Ravel CLI and worker from one
 > build together; the adjacent editable sources and declarations support
 > policy authoring without replacing the embedded modules. In this UML
 > deployment view, the node is the host and the tabbed outlines group
@@ -961,7 +964,7 @@ See [the session's processes](03-a-complete-session.md#admit-the-request-and-eva
 > for how to use the supporting files.
 
 > **Note:** Chapter 10 remains unwritten until a supported extracted
-> component exists. The installed layout does not establish such a consumer
-> contract. Native x86-64 Linux qualification also remains open; the book's
+> component exists. The installed layout is not a supported
+> interface for another project. Native x86-64 Linux qualification also remains open; the book's
 > [platform and operational limits](05-running-sessions.md#understand-the-operational-limits)
 > distinguish native measurements from emulation.

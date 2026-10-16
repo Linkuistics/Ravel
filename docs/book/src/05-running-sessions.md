@@ -285,7 +285,7 @@ For an automated caller that needs trailing newlines intact, redirect stdout
 to a file and read it only after checking status. Shell command substitution
 is suitable only when the caller's result convention tolerates its removal
 of trailing newlines. A failed final write can leave a prefix in the file;
-bytes alone do not establish success. Ravel has no persistent result store
+bytes alone do not prove success. Ravel has no persistent result store
 from which to recover an unsuccessful delivery.
 
 Fragment: capture the exact result and status; this omits the policy, prompt
@@ -381,11 +381,10 @@ inner|outer
 0
 ```
 
-Each layer's [native front](02-actors-and-words.md#policy-evaluation-and-supervision)
-supervises and cleans up only its own managed
-process's group. An inner front that dies without completing its cleanup can
-therefore leave its managed process's group behind, and the outer front does
-not stop that group.
+Each layer's [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
+supervises and cleans up only its own managed process's group. An inner Ravel
+CLI that dies without completing its cleanup can therefore leave its managed
+process's group behind, and the outer Ravel CLI does not stop that group.
 The [operational limits](#understand-the-operational-limits) apply at every
 layer. The example checks result isolation, not interactive nested job control.
 
@@ -399,14 +398,14 @@ remain outside it; policy is trusted executable configuration.
 
 Ravel uses `/usr/bin/sandbox-exec` on macOS and the system bubblewrap
 executable, `/usr/bin/bwrap` or `/bin/bwrap`, on Linux. It tests whether the
-backend can establish a sandbox before evaluating policy. An unavailable or
+backend can create a sandbox before evaluating policy. An unavailable or
 unusable backend ends the invocation with `confinement_unusable` and status 2;
 Ravel does not fall back to an unconfined launch.
 
 The canonical working directory and a private run directory are writable.
-System runtime paths, the selected executable and the real
-[native front](02-actors-and-words.md#policy-evaluation-and-supervision)
-executable are admitted for reads. `--runtime-read FILE`, repeated for each additional file,
+The confined process can read system runtime paths, the selected executable
+and the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)'s
+own real executable file. `--runtime-read FILE`, repeated for each additional file,
 grants existing regular files read-only and requires `--confine`. It grants
 no directory tree; copy task data into the working directory when the
 managed process needs a whole directory. Read-only runtime grants remain read-only even inside a
@@ -500,12 +499,12 @@ consequences together; neither mode confines the owner policy:
 
 | Property | Unconfined managed process | Confined managed process |
 |---|---|---|
-| Filesystem access | No Ravel confinement | Writable working and private run directories; admitted runtime reads and explicit grants |
+| Filesystem access | No Ravel confinement | Writable working and private run directories; readable runtime paths and explicit grants |
 | Caller environment | Inherited, with the obsolete variables listed above removed | Only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*` retained |
 | Temporary-path variables | Inherited | `TMPDIR`, `TMP` and `TEMP` point to the private run directory |
 | Session-result context | Fresh `RAVEL_EXIT_FILE` | Fresh `RAVEL_EXIT_FILE` |
 | Process grouping | New process group in the caller's POSIX session | New POSIX session |
-| Caller terminal | Lent when Ravel's group owns the foreground | Not lent; noninteractive |
+| Caller terminal | Lent when Ravel's group is the terminal's foreground group | Not lent; noninteractive |
 | Network | No Ravel confinement | Permitted by confinement |
 
 ## Read notices without confusing them with results
@@ -529,7 +528,7 @@ diagnostic stream even with `--json`:
 
 | Output | Destination | Effect of `--json` |
 |---|---|---|
-| Exact opaque result after successful settlement | Caller stdout, without an added newline | None |
+| Exact opaque result after a successful session | Caller stdout, without an added newline | None |
 | Managed process stdout and stderr | Caller stderr | None; arbitrary program text remains |
 | Ravel routing notice and failure document | Caller stderr | JSON documents replace their text form |
 
@@ -541,14 +540,14 @@ diagnostics show environment names and whether they were set, never their
 values. Policy code can still print values itself, so retain its diagnostics
 with the care those values require.
 
-Ravel emits this JSON notice after the supervision attempt, before final
-settlement. When supervision completed and the
+Ravel emits this JSON notice after the supervision attempt, before it decides
+the final outcome. When supervision completed and the
 [runner](02-actors-and-words.md#policy-evaluation-and-supervision) returned
 its account of how the job ended, `operationReports` contains the runner's
 retained operational reports, as an empty array when there are none. If
 supervision failed before the runner returned that account, the field is
 absent. Reports such as
-a failed stop attempt remain visible even when later checks establish
+a failed stop attempt remain visible even when later checks confirm
 successful cleanup. Their presence alone does not decide success, and neither
 does the routing notice itself. Check the final status.
 
@@ -572,8 +571,8 @@ when a caller has already classified the exit status.
 
 ## Interpret the exit status
 
-This table covers Ravel's normal CLI outcomes, enumerated from the executable's
-status constants, launch and settlement branches, and signal handling. A caller
+This table covers Ravel's normal CLI outcomes, listed from the Ravel CLI's
+status constants, its launch and final-outcome code, and its signal handling. A caller
 checks the status of `start-session`, not the managed process's status or the
 earlier status of `end-session`. For a session result, accept stdout only with
 `start-session` status 0. Help and version requests are separate informational
@@ -596,8 +595,8 @@ statuses 129, 130 and 143 under
 | `0` | `start-session` delivered the exact published result after confirmed reap, group absence and required cleanup. An explicitly empty result is valid; the child's later nonzero exit does not invalidate it. `end-session` status 0 means publication succeeded or a first valid result was already present. A help or version request also exits 0. | Interpret a successful session's bytes using the caller's own convention. Wait for `start-session`; `end-session` success alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited 0. `end-session`: publication failed, for example because `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was invalid, or the value exceeded its bound. | Check that the managed program calls the installed `ravel end-session` with one result before exiting, inside its live enclosing session. Retain any cleanup diagnostics too. Do not treat absence as an empty publication. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or unusable or overlapping confinement inputs. Missing a subcommand displays help with status 2. An `end-session` argument-count error also uses 2. | Correct the named input, setting or confinement layout. Rerun only after the diagnostic's remedy applies. |
-| `3` | Refusal by the policy or of its admission: owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. No alternate route is tried. | Read `code`, `stage`, location and remedy. For `policy_refused`, inspect the owner's `policyCode` and explanation. Change the request or policy deliberately; do not silently substitute a program. |
-| `5` | Worker failure, a supervision failure after launch was reported, invalid result data, failure of required cleanup or terminal recovery, a surviving group, or result output that was unavailable or failed. A missing or stale policy worker, or one that does not match the native front, also uses 5. | Retain the full diagnostics. Repair the matched installation, or the process or filesystem problem the diagnostic names. Check reported unresolved processes or temporary directories before retrying; discard any partial result bytes. |
+| `3` | Refusal by the policy, or Ravel's refusal of the policy: owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. No alternate route is tried. | Read `code`, `stage`, location and remedy. For `policy_refused`, inspect the owner's `policyCode` and explanation. Change the request or policy deliberately; do not silently substitute a program. |
+| `5` | Worker failure, a supervision failure after launch was reported, invalid result data, failure of required cleanup or terminal recovery, a surviving group, or result output that was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5. | Retain the full diagnostics. Repair the matched installation, or the process or filesystem problem the diagnostic names. Check reported unresolved processes or temporary directories before retrying; discard any partial result bytes. |
 | `124` | The policy evaluation deadline expired, covering worker startup, policy import, loading policy context and selection. No managed process was launched. | Inspect the policy's work. Adjust `--timeout-ms` or the owner's `timeoutMs` only if that longer selection is intended. This is not a managed-process time limit. |
 | `126` | The selected program could not be executed, or launch failed, for a reason other than ENOENT (no such file), before the runner reported that the program started. | Check execute permissions, format, interpreter, platform and execution environment. A pre-start launch failure can also need terminal recovery; retain those diagnostics. Ravel runs no substitute. |
 | `127` | Program resolution found no executable, or a pre-start launch failed with ENOENT. An executable script can exist while its interpreter is missing. | Check the caller's `PATH`, the selected path and its interpreter. Install or correct the intended program. |
@@ -612,27 +611,29 @@ exit. If signal propagation itself fails, Ravel reports that
 failure and exits with the corresponding number as a fallback. A caller using
 a process API handles both forms.
 
-A signal such as SIGKILL can terminate the front outside this normal
-settlement. Its shell status does not certify cleanup or result delivery.
+A signal such as SIGKILL can terminate the Ravel CLI at any point, outside
+this normal handling. The shell status then does not show that cleanup or
+result delivery happened.
 Likewise, a newly arriving signal after the final cancellation decision can
 interrupt the result write. There is no atomic guarantee covering both signal
 arrival and an arbitrary stdout write.
 
-The following view expands [chapter 3's outcome state machine](03-a-complete-session.md#recognise-the-other-outcomes)
-at settlement: cancellation wins over an original failure, which keeps its
+The following view expands the step of
+[chapter 3's outcome state machine](03-a-complete-session.md#recognise-the-other-outcomes)
+where Ravel decides the final outcome: cancellation wins over an original failure, which keeps its
 status if later cleanup also fails. Only a valid result with confirmed cleanup
 reaches the final write. This is the precedence of outcomes, not the order of
 function calls; applicable cleanup is attempted before reporting any outcome.
 
-This UML state machine starts at the solid dot, entering the settlement detail.
-Blue rounded boxes are conceptual phases of the native front's work, grey
+This UML state machine starts at the solid dot, entering the final-outcome step.
+Blue rounded boxes are conceptual phases of the Ravel CLI's work, grey
 boxes are outcomes, and bracketed arrow labels give transition conditions.
 The green route is successful result delivery. The view covers `start-session`;
 the table also covers `end-session`, help and version invocations.
 
 ![Settlement checks cancellation first, then retains an original failure and its status, then requires confirmed cleanup before writing the result. Cancellation gives 129, 130 or 143; original failures retain 1, 2, 3, 5, 124, 126 or 127. Cleanup or final-write failure gives 5; only a successful write and flush gives 0.](figures/settled-exit-status.svg)
 
-[Open the settlement view at full size](figures/settled-exit-status.svg).
+[Open the final-outcome view at full size](figures/settled-exit-status.svg).
 
 ## Cancel during selection or supervision
 
@@ -643,21 +644,21 @@ publish an enclosing result through the ordinary `end-session` interface.
 
 The selection sequence shows why cancellation can require worker cleanup even
 though no managed process was launched. It follows the example below, where
-the worker sends INT directly to the native front.
+the worker sends INT directly to the Ravel CLI.
 
 In these UML sequences, order runs down the dashed participant lifelines;
 it is not an elapsed-time scale. Solid arrows name actions, bent arrows name
 work within a participant, and the dashed return arrow reports the outcome to
 the caller. Blue boxes are Ravel processes, grey boxes are external participants,
 and labelled bars group steps. No lifetime ends with an X here: teardown is
-attempted, and a failure cannot certify reap or removal.
+attempted, and a failed attempt does not confirm reap or removal.
 
 ![The caller starts selection, the policy worker sends SIGINT to the native front, and the front attempts worker teardown and private-directory cleanup. It retains teardown problems, launches no managed process, and reports cancellation with no result.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
-Complete example: the policy sends SIGINT directly to its parent, the native
-front, then waits indefinitely. This causes selection cancellation without a terminal or
+Complete example: the policy sends SIGINT directly to its parent, the Ravel
+CLI, then waits indefinitely. This causes selection cancellation without a terminal or
 managed process. Create the policy in a fresh directory.
 
 **`policy.ts`**
@@ -709,7 +710,7 @@ does not change cancellation into success; the failure is reported beside it.
 
 The supervision sequence shows that publication does not protect a value from
 cancellation: the green arrow reaches the gold temporary result channel, but
-no result reaches the caller. The runner executes inside the native front;
+no result reaches the caller. The runner runs inside the Ravel CLI;
 the managed process's group includes the descendants that stay in that group.
 The pictured cleanup steps are attempts, with failures retained as diagnostics.
 
@@ -718,7 +719,7 @@ The pictured cleanup steps are attempts, with failures retained as diagnostics.
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 
 Complete example: publish a candidate result, send SIGINT directly to the
-front, then stay alive for the supervisor to stop the job. Create the files
+Ravel CLI, then stay alive for the supervisor to stop the job. Create the files
 in a fresh directory and make `bin/cancel-after-result` executable.
 
 **`policy.ts`**
@@ -776,13 +777,13 @@ ravel: refused (session_cancelled, stage exec): session selected by <scratch>/wo
 130
 ```
 
-Sending a signal to the front is different from typing Ctrl-C. Once Ravel
+Sending a signal to the Ravel CLI is different from typing Ctrl-C. Once Ravel
 lends the terminal, the managed process's group is the terminal's foreground
-group, and Ctrl-C makes the terminal send INT to that group, not to the front.
-If only that group receives INT and exits without publishing, the front
-reports `session_result_missing` with status 1 rather than cancellation 130.
-An interactive program can also handle or ignore the keyboard signal itself.
-Use the front's status and diagnostic instead of inferring an outcome from
+group, and Ctrl-C makes the terminal send INT to that group, not to the Ravel
+CLI. If only that group receives INT and exits without publishing, the Ravel
+CLI reports `session_result_missing` with status 1 rather than cancellation
+130. An interactive program can also handle or ignore the keyboard signal
+itself. Use the Ravel CLI's status and diagnostic instead of inferring an outcome from
 the key pressed. Chapter 9 explains signal inheritance and terminal recovery.
 
 Fragment: run an interactive route and press Ctrl-C at the terminal. This
@@ -801,17 +802,17 @@ to investigate:
 
 | Condition | Consequence |
 |---|---|
-| Code runs as the same user and tampers with the result channel or installation. | Private paths and inherited session-result context isolate ordinary sessions; they do not authenticate against hostile same-user code. The worker identity check confirms that the policy worker matches the native front's build; it does not verify a trusted signer. |
-| The native front dies abruptly, including SIGKILL. | It cannot finish supervision or cleanup. The managed process's group and temporary directories can remain; there is no successful completion or persistent recovery record. |
+| Code runs as the same user and tampers with the result channel or installation. | Private paths and inherited session-result context keep ordinary sessions apart; they are not a defence against hostile same-user code. The worker identity check confirms that the policy worker matches the Ravel CLI's build; it does not check a trusted signature. |
+| The Ravel CLI dies abruptly, including by SIGKILL. | It cannot finish supervision or cleanup. The managed process's group and temporary directories can remain; there is no successful completion or persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside that group's cleanup guarantee. Group absence does not prove that such a detached process is gone. |
 | Trusted owner policy starts a detached child. | Worker teardown does not guarantee cleanup of that child. Managed-process confinement does not contain policy code. |
-| The terminal foreground is changed by another actor during recovery, or a recorded group identity is reused. | Recovery depends on the runner's foreground-authority and identity conditions. A failed handback is reported; do not treat a launch failure as proof that the terminal was restored. Chapter 9 explains the conditions. |
-| The host differs from the measured platforms. | The native-entry checks were measured on aarch64 macOS and aarch64 GNU/Linux. x86_64 GNU/Linux was built and run under emulation only; native x86-64 qualification remains open. These checks do not establish every kernel, libc or compiler combination. |
+| Another process changes the terminal's foreground group during recovery, or a recorded group ID is reused. | Recovery assumes that no other process or thread changes the foreground group between the runner's check and its handback, and that no unrelated group takes the recorded group ID in that time. A failed handback is reported; do not treat a launch failure as proof that the terminal was restored. Chapter 9 explains the conditions. |
+| The host differs from the measured platforms. | How Ravel handles the signal settings it inherits, cancellation, cleanup and terminal recovery was measured on aarch64 macOS and aarch64 GNU/Linux. x86_64 GNU/Linux was built and run under emulation only; native x86-64 qualification remains open. These checks do not cover every kernel, libc or compiler combination. |
 
-Chapter 2 explains the [authority boundary](02-actors-and-words.md#trust-and-confinement).
+Chapter 2 explains these [trust limits](02-actors-and-words.md#trust-and-confinement).
 The native x86-64 qualification is tracked in
 [Ravel issue 1](https://github.com/Linkuistics/Ravel/issues/1).
-The examples here establish their checked routing, byte delivery and status
-behaviour; they do not establish real-agent behaviour, interactive terminal
+The examples here check their routing, byte delivery and status
+behaviour; they do not show real-agent behaviour, interactive terminal
 operation or whether a new reader can use the book. [Chapter 6, “Reference”](06-reference.md),
 provides the lookup entries for the inputs and outputs taught here.
