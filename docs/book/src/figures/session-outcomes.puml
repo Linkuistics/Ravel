@@ -1,0 +1,43 @@
+@startuml
+!pragma layout smetana
+!include _uml-style.puml
+title Session phases and outcomes — UML state machine
+hide empty description
+hide stereotype
+
+state "Selecting" as Selecting
+state "Supervising" as Supervising
+state "Cleaning up and settling" as Settling
+state "Writing the result" as Writing
+state "Cancelled" as Cancelled <<outcome>>
+state "Refused" as Refused <<outcome>>
+state "No result" as Missing <<outcome>>
+state "Failed" as Failed <<outcome>>
+state "Succeeded" as Succeeded <<outcome>>
+
+[*] --> Selecting
+Selecting --> Supervising : worker cleanup confirmed;\ncommand admitted and launched
+Selecting --> Settling : refusal, timeout, failure\nor cancellation before launch
+Supervising --> Settling : publication and job ending,\nnatural exit, failure or cancellation
+Settling --> Cancelled : [cancellation\nselected]
+Settling --> Refused : [refusal\nis primary]
+Settling --> Missing : [missing result\nis primary]
+Settling --> Failed : [other failure\nis primary]
+Settling -[#135E50]-> Writing : [valid result; no cancellation;\nreap, group absence and cleanup confirmed]
+Writing -[#135E50]-> Succeeded : write and flush succeed
+Writing --> Failed : write or flush fails
+
+legend bottom
+  Dot: start. Blue rounded boxes: phases of Ravel's work, not processes.
+  Grey rounded boxes: outcomes; no further transition is shown.
+  Arrows: transitions. Square brackets: conditions after settlement.
+  INT, TERM or HUP can cancel either phase and suppress any published value.
+  Cleanup is attempted on every path; attempts do not imply success.
+  Settling retains one primary outcome and reports other failures beside it.
+  No result means absent publication, even if the managed process exited 0.
+  An empty publication is a value; a later nonzero managed exit does not invalidate it.
+  Green: the only route to delivering a result successfully.
+  A failed write may leave a prefix on stdout.
+  This view groups operations; it is not the full failure-precedence algorithm.
+endlegend
+@enduml

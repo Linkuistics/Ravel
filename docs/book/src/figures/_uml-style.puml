@@ -1,0 +1,31 @@
+' Reuse the book palette and common settings; C4 macros draw no elements here.
+!include <C4/C4_Context>
+!include _style.puml
+skinparam titleFontColor #172B3A
+skinparam noteBackgroundColor #F8FAFC
+skinparam noteBorderColor #64748B
+skinparam noteFontColor #172B3A
+skinparam sequence {
+  ParticipantBackgroundColor #E8EDF2
+  ParticipantBorderColor #64748B
+  ParticipantFontColor #172B3A
+  LifeLineBorderColor #64748B
+  ArrowColor #334155
+  ArrowFontColor #172B3A
+  GroupBackgroundColor #F8FAFC
+  GroupBorderColor #64748B
+  GroupHeaderFontColor #172B3A
+  DividerBackgroundColor #E8EDF2
+  DividerBorderColor #64748B
+  DividerFontColor #172B3A
+}
+skinparam state {
+  BackgroundColor #1E4F78
+  BorderColor #163A59
+  FontColor #FFFFFF
+  AttributeFontColor #FFFFFF
+  BackgroundColor<<outcome>> #E8EDF2
+  BorderColor<<outcome>> #64748B
+  FontColor<<outcome>> #172B3A
+}
+skinparam ArrowFontColor #172B3A

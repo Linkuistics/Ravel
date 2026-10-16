@@ -76,6 +76,27 @@ dark legend text and explicit light legend fill so the SVG is self-contained
 when displayed on a dark page. The chapter's text remains the alternative
 when the image cannot be read.
 
+Chapter 3 extends this vocabulary with UML sequence and state-machine views.
+`_uml-style.puml` reuses `_style.puml` and adds notation-specific settings; its
+C4 include supplies the shared style macros without drawing C4 elements.
+
+| Convention | Meaning |
+|---|---|
+| UML sequence: dashed vertical line | A participant's lifeline, beginning when introduced; the front creates the worker, managed process and result channel where their heads appear. Order runs down the page, without a time scale |
+| UML sequence: solid, dashed or bent arrow | An action, a reply or work within one participant, respectively |
+| UML sequence: X | End of the pictured lifetime after confirmed reap or temporary-directory removal, not the instant of process exit |
+| UML sequence: labelled horizontal bar | A group of related steps, not a process or boundary |
+| UML state machine: solid dot | Start of the session |
+| UML state machine: blue rounded box | A phase of Ravel's work, not a process |
+| UML state machine: grey rounded box | An outcome, with no further transition shown |
+| UML state machine: arrow and square-bracket text | A transition and its condition, respectively |
+| UML state machine: green route | The route to successful opaque-result delivery |
+
+The sequence is `successful-session`; the reusable outcome view is
+`session-outcomes`. Their captions, notation teaching and prose alternatives
+live beside them in chapter 3. Its state machine groups operations and names
+settled outcomes; the full precedence algorithm belongs to chapter 8.
+
 ## What is recorded, and where
 
 | Fact | Recorded in | Kept honest by |
@@ -151,6 +172,22 @@ there is no Smetana limitation to escalate. Whether a larger figure lays out
 legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
+
+Chapter 3's art stage inspected `successful-session` and `session-outcomes`
+in the locally served mdBook through native Chrome on 2026-10-16, with Auto
+displaying a light page and with Navy. Both figures, their notation, captions
+and prose alternatives were legible at the book's chapter width; the sequence
+and the outcome view's first layout were also inspected through their
+full-size SVG links. The outcome view was then simplified to improve its
+chapter-width labels and inspected again in both themes. The raw chapter and
+PlantUML sources were read alongside the rendered book. Chapter 3's editor
+preview, narrower viewports, GitHub rendering and published site were not
+inspected. This is a visual inspection, not a human comprehension result.
+
+An isolated macOS TestAnyware guest loaded the chapter's accessibility tree,
+but its VNC capture was black and its native screen capture failed. It supplied
+no visual evidence and was stopped; the checks above used host Chrome. The
+in-app browser was unavailable.
 
 Opening-unit art inspected both SVGs in the locally served mdBook through
 native Chrome on 2026-10-16, with Auto displaying a light page and with Navy.

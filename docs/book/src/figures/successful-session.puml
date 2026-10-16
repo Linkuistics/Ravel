@@ -1,0 +1,55 @@
+@startuml
+!pragma layout smetana
+!include _uml-style.puml
+title A successful session — UML sequence
+hide footbox
+participant "caller" as Caller
+participant "<color:#FFFFFF>native front\n<color:#FFFFFF>(runner inside)" as Front #1E4F78
+participant "<color:#FFFFFF>policy worker" as Worker #1E4F78
+participant "managed process" as Managed
+database "result channel\n(temporary files)" as Channel #FFF1CF
+
+Caller -> Front : start-session: kind and prompt
+Front -> Front : Admit inputs and policy path
+== Selection ==
+create Worker
+Front -> Worker : Start in empty private directory
+Worker -> Worker : Change to /
+Worker --> Front : Identity; front checks the match
+Front -> Worker : Send policy request (no session-result context)
+Worker -> Worker : Import owner policy; select
+Worker --> Front : Policy response on private socket
+Front -> Front : Judge response; confirm worker reap;\nremove worker's private directory
+destroy Worker
+Front -> Front : Resolve selected executable
+== Launch and publication ==
+create Channel
+Front -> Channel : Allocate fresh result channel
+create Managed
+Front -> Managed : Launch in its own process group;\npass session-result context
+Managed -[#135E50]> Channel : Publish opaque result via end-session
+note over Managed, Channel
+  First complete publication wins.
+  Publication does not wait for cleanup.
+end note
+== Cleanup and delivery ==
+Front -> Managed : Stop the managed process's group\n(grace and escalation if needed)
+Front -> Front : Confirm direct-child reap; recover terminal\nif lent; confirm process-group absence
+destroy Managed
+Front -> Channel : Validate and read published result
+Channel -[#135E50]-> Front : Exact opaque value
+Front -> Channel : Remove result channel's temporary directory
+destroy Channel
+Front -> Front : Settle cancellation and cleanup outcomes
+Front -[#135E50]> Caller : Write and flush opaque result; exit 0
+
+legend bottom
+  Read downwards: message order, not elapsed time. Dashed verticals: lifelines.
+  Solid arrows: actions; dashed arrows: replies. Bent arrows: work within a participant.
+  An X ends the pictured lifetime after reap or removal, not at process exit.
+  Blue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.
+  Green arrows carry the opaque result. Labelled bars group stages, not processes.
+  Successful unconfined path only; terminal recovery applies only if lent.
+  Publication precedes cleanup; only the last arrow delivers the result to the caller.
+endlegend
+@enduml
