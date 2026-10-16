@@ -54,6 +54,33 @@ export const policy = definePolicy({{
 }
 
 #[test]
+fn every_start_session_option_prints_a_description() {
+    let fixture = Fixture::new();
+    let help = fixture
+        .command()
+        .args(["start-session", "--help"])
+        .output()
+        .unwrap();
+    assert!(help.status.success());
+    let text = String::from_utf8(help.stdout).unwrap();
+    let options: Vec<&str> = text
+        .lines()
+        .skip_while(|line| *line != "Options:")
+        .skip(1)
+        .take_while(|line| !line.is_empty())
+        .collect();
+    assert!(options.len() > 10, "no option list found in: {text}");
+    for line in options {
+        // clap pads the flag column with two or more spaces, then the description.
+        let described = line
+            .trim_start()
+            .split_once("  ")
+            .is_some_and(|(_, description)| !description.trim().is_empty());
+        assert!(described, "no description printed for: {line:?}");
+    }
+}
+
+#[test]
 fn two_verbs_help_version_and_no_compatibility_commands() {
     let fixture = Fixture::new();
     let help = fixture.command().arg("--help").output().unwrap();

@@ -278,10 +278,6 @@ coverage:
   rechecks and records the versions it uses.
 - GitHub's rendering is unchecked until the branch is pushed, and the
   published site until the first release that carries the book.
-- `ravel start-session --help` prints no description for `--policy-env`,
-  because its argument definition has no doc comment. Chapter 6 takes its
-  meaning from the session specification, and the gap is a product fix owed
-  separately.
 - Coverage of an inventory shows what the book covers, not that a reader
   understands it.
 

@@ -88,6 +88,7 @@ pub struct SelectionArgs {
     #[arg(long, value_name = "BYTES")]
     pub context_bytes: Option<OsString>,
 
+    /// Let the policy worker, and not the managed process, see this environment variable with the caller's value, beyond its HOME, PATH, TMPDIR, LANG and LC_* base; repeatable, added to the policyEnv owner setting. Names Ravel reserves refuse: BUN_*, NODE_OPTIONS, NODE_PATH, NODE_PRESERVE_SYMLINKS, NODE_CHANNEL_*, LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
     #[arg(long, value_name = "NAME")]
     pub policy_env: Vec<OsString>,
 }

@@ -46,3 +46,29 @@ contract's "owed separately" gap.
 
 - X=0 binds: this is a help-text change only. Nothing about production
   behaviour may move.
+
+## Decisions (running log)
+
+- The flag's meaning was read from `environment.rs` (`Grants::read`,
+  `worker_environment`, `excluded`), `inputs.rs`, `choice.rs` and `settings.rs`,
+  not from the leaf: grants are added to the worker's `HOME`, `PATH`, `TMPDIR`,
+  `LANG`, `LC_*` base with the caller's value, combine with `policyEnv` by union
+  (each name once), and only the worker's environment is built from them. The
+  refusal list in the help is `excluded`'s: `BUN_*`, `NODE_OPTIONS`, `NODE_PATH`,
+  `NODE_PRESERVE_SYMLINKS`, `NODE_CHANNEL_*`, `LD_*`, `DYLD_*`, `RAVEL_*`,
+  `HARNESS_DISPATCH_*`. Diagnostics (`policyEnvironment`) hold name and `set` only.
+- The doc comment is one long paragraph like `--param`, `--timeout-ms` and
+  `--context-bytes`, so `--help` prints it on one line as its neighbours do.
+- Test: `every_start_session_option_prints_a_description` in
+  `crates/ravel/tests/cli.rs` reads the `Options:` block of
+  `start-session --help` and requires a nonempty description after the flag
+  column for every line. Seen to fail against the unmodified `cli.rs`
+  (`no description printed for: "      --policy-env <NAME>      "`), pass after.
+- `docs/book/contract.md`: removed the "Omissions and unknowns" bullet about the
+  empty `--policy-env` description. No "Coverage inventories" clause named the
+  gap (inventory 1 lists environment variables refused as grants, still true).
+  `docs/session-cli.md` and other guides untouched.
+- Verification: `task check` exit 0 (339 passed, 46 skipped); `task
+  test:native-incumbent-controls` exit 0, the guard did not trip on `cli.rs`.
+  The only source change is a doc comment, so no argument, parse, bound or exit
+  status moves.
