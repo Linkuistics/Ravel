@@ -333,9 +333,10 @@ This checks visual consistency, not the reader's knowledge of notation.
 
 - **The book replaces these guides**, each removed once the chapters that
   absorb it land, with every inbound link redirected: the README (reduced to a
-  short entry into the book), the session CLI guide (`docs/session-cli.md`),
-  the owner configuration guide (`docs/owner-configuration.md`, whose handoff
-  record is kept outside the book), the local runner guide
+  short entry into the book), the session CLI guide and the owner
+  configuration guide (both removed: Parts I and II absorbed them, and the
+  owner's dated configuration handoff is kept outside the book in
+  `docs/configuration-handoff-2026-10-12.md`), the local runner guide
   (`docs/local-runner.md`), the result-channel guide
   (`docs/session-channel.md`), the component guide (`docs/components.md`,
   whose editable views under `docs/design/components/` become figure sources),

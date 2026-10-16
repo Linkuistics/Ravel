@@ -157,8 +157,20 @@ reduced README.
 - `docs/authority.md` is reduced, not removed, by the first half: its
   test-isolation guards and legacy-name exceptions belong to chapter 11 and to
   `docs/caller-references.md`, and the file is removed when chapter 11 lands.
-- Contributor sentences from `docs/session-cli.md` that have no other home
-  move into the README's Develop section (kept until chapter 11 absorbs it).
+- Contributor sentences from `docs/session-cli.md` that had no other home are
+  now in the README's Develop section (kept until chapter 11 absorbs it): the
+  `task typecheck` description and list line, what `task test:cli` runs, "focused
+  checks while editing, the full relevant suite at handoff", and that `task
+  check` rebuilds and typechecks the pair. Chapter 11 should take them from
+  there. `book-guide-fold-in-k68` removed both guides and holds the
+  sentence-level classification.
+- The non-`--json` form of an operation report (`ravel: <report>` on stderr,
+  `crates/ravel/src/run.rs`) is in no chapter; chapter 6's stderr row says only
+  "operational reports". The second half's proof decides whether to add it.
+- `docs/book/contract.md`, "Exclusions", bullet "The owner's personal
+  configuration", still says "today's configuration guide" and "when that guide
+  is folded in". Reword it the next time the contract is open for edit; the
+  record is `docs/configuration-handoff-2026-10-12.md`.
 - Contributor and delivery parts of the README stay until chapters 11 and 12.
 - The visual vocabulary and the first figures' conventions are the first
   half's art output; chapters 7–12 follow them.

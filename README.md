@@ -8,7 +8,7 @@ It runs independently from a fresh prefix, directly or through a symlink.
 The agreed public boundary is a process manager and router with two verbs:
 `start-session` and `end-session RESULT`. The caller supplies the prompt and
 ending instructions; Ravel manages the process and returns the opaque supplied
-result. See [the session CLI contract](docs/session-cli.md). Persistence and
+result. See [chapter 1 of the book](docs/book/src/01-what-ravel-is-for.md#from-a-request-to-a-result). Persistence and
 historical migration are outside this scope.
 
 The [component contracts](docs/components.md) explain the logical responsibilities,
@@ -31,6 +31,7 @@ Run from this checkout:
 ```sh
 task setup # fetch the verified Bun 1.4.2 development toolchain and pinned types
 task build
+task typecheck
 task test
 task test:session
 task test:cli
@@ -42,7 +43,11 @@ task smoke
 task install PREFIX=/your/prefix
 ```
 
-`task check` checks formatting, denies Clippy warnings across all targets and
+`task typecheck` checks the worker and SDK source and the generated declarations.
+`task test:cli` runs the command-boundary tests against actual workers, temporary
+policies and fixture processes. Use focused checks while editing and the full
+relevant suite at handoff. `task check` rebuilds and typechecks the pair, checks
+formatting, denies Clippy warnings across all targets and
 runs the complete Rust suite with nextest's reporting visible. Formatting,
 script lint, Clippy and nextest diagnostics are saved under `target/check.*`, with short
 pass/fail summaries and failure details when needed. Checks use the committed
@@ -85,7 +90,7 @@ ravel end-session done
 Put PREFIX/bin (or target/debug in a checkout) on the managed process's PATH, or use its absolute path in
 ending instructions. The caller supplies those instructions in the prompt.
 Only the exact result bytes go to stdout, without an added newline. Session
-output and policy diagnostics go to stderr. See [the CLI contract](docs/session-cli.md).
+output and policy diagnostics go to stderr. See [the reference's standard streams](docs/book/src/06-reference.md#standard-streams).
 The generic SDK, static routing example and editable choice sample are under
 `crates/ravel/worker`; declarations are generated beside the compiled worker and installed under
 PREFIX/libexec/ravel. Copy examples/sample.ts into your owner configuration and
@@ -93,5 +98,5 @@ edit its routes; it launches only the wrapper you supply. See the
 [executable specification](docs/specs/session-execution.md),
 [authority boundary](docs/authority.md), [runtime evidence](docs/runtime-evidence.md)
 and [runtime notices](crates/ravel/notices/NOTICES.md).
-The [owner configuration guide](docs/owner-configuration.md) describes copying,
-typechecking and fake-agent validation of an existing policy without history access.
+The book's chapter on [writing an owner policy](docs/book/src/04-writing-an-owner-policy.md#copy-an-existing-policy)
+describes copying, typechecking and fake-agent validation of an existing policy without history access.

@@ -14,9 +14,10 @@ architecture. The [completion invariant](specs/result-job-completion.md)
 explains the matching-job and settlement obligations behind the boundary
 comparison; its regrouping proposal remains unselected.
 The [session specification](specs/session-execution.md) owns
-behavioural promises; the [CLI](session-cli.md), [configuration](owner-configuration.md),
-[runner](local-runner.md) and [result-channel](session-channel.md) guides own
-their detailed interfaces. The tables here connect those contracts to owners.
+behavioural promises; the book's [running sessions](book/src/05-running-sessions.md),
+[owner policy](book/src/04-writing-an-owner-policy.md) and [reference](book/src/06-reference.md)
+chapters and the [runner](local-runner.md) and [result-channel](session-channel.md)
+guides own their detailed interfaces. The tables here connect those contracts to owners.
 
 ## Responsibilities before packages
 
@@ -111,7 +112,8 @@ to check a promise, not a claim that it was exercised in this investigation.
 
 Detailed bounds and exit-code assignments remain in the
 [specification](specs/session-execution.md#request-context-and-selection) and
-[CLI guide](session-cli.md#inputs-and-exit-behavior). No difference from these
+in the book's reference, under [bounds](book/src/06-reference.md#bounds)
+and [exit statuses](book/src/06-reference.md#exit-statuses). No difference from these
 promises is authorised by the component analysis.
 
 ## Composition and coordination

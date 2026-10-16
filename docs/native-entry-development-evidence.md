@@ -1063,7 +1063,7 @@ the driver was frozen, so it is evidence of this run and not an instrument edit.
 `Ended`, `operationReports` or `EPERM` outside the grove and the archived
 evidence. The completion spec and the transition design already stated both
 amendments. Four documents were silent and were reconciled before the freeze:
-[local runner](local-runner.md), [session CLI](session-cli.md), the component
+[local runner](local-runner.md), session CLI guide (since folded into the book's [running sessions](book/src/05-running-sessions.md) and [reference](book/src/06-reference.md) chapters), the component
 guide's job row and consumer list, and the settlement sequence diagram. The
 remaining documents that name `Ended` either predate the amendment as source
 inventory of the fixed reference (source evidence) or do not list `Ended`'s

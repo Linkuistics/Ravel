@@ -1,7 +1,7 @@
 # Session execution
 
 Ravel is an independent policy router and process supervisor. Its public
-boundary is [start-session and end-session](../session-cli.md). Caller prompts,
+boundary is [start-session and end-session](../book/src/06-reference.md#command-line). Caller prompts,
 result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable, not the retired daemon.
 

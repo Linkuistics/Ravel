@@ -2,7 +2,7 @@
 
 The private `ravel` Rust package contains the session-result transport that the
 policy-routed command front uses. The
-[session CLI contract](session-cli.md) remains the full product boundary.
+[session execution specification](specs/session-execution.md) remains the full product boundary.
 The [component guide](components.md#composition-and-coordination) maps the
 transport's guarantees to runner and front obligations, including cancellation.
 
