@@ -49,3 +49,42 @@ read 1 after their proof. Only the first half is cut here.
   codex-cli 0.162.1 were installed on 2026-10-16.
 - Parts I and II describe the compatibility-protected CLI, configuration and
   session behaviour, so their content does not wait on any component decision.
+
+## Decisions (running log)
+
+- **Scaffold is three impl leaves and one fix, flat under the book node**
+  (`book-toolchain-k58`, `book-figures-k59`, `book-examples-k60`,
+  `policy-env-help-k61`), each independently verifiable and each leaving the
+  product and `task check` unchanged. The source-excerpt check serves chapter 8
+  and waits for the second half. The book's tasks stay out of `task check` so a
+  contributor without Java, PlantUML, d2 or mdBook can still run it; the owner
+  may overrule this default.
+- **`--policy-env` is a small fix leaf placed before drafting**, so chapters 5
+  and 6 quote a real description and the contract's omission is removed rather
+  than hedged around.
+- **Units**: chapters 1–2 one unit (short, 2 defines 1's words, shared
+  context figure); 3 alone (first complete example and sequence/state
+  figures); 4 one document in two draft sessions (anatomy and validation, then
+  context/settings/grants/real routes/copying); 5 alone; 6 one document in two
+  draft sessions along inventories 1 and 2. The two-session splits are cut
+  lazily by part A as its last act, ahead of copy-edit, so the pipeline order is
+  preserved by `leaf-add`'s append position.
+- **A set proof (`book-first-half-k67`) is cut now** after the last unit: a
+  unit's proof reads only its unit, while entry routes, inventories and terms
+  span them. Foreseeable and precisely stated, so a leaf rather than horizon.
+- **Guide migration is two leaves after the set proof and before read 1**:
+  `session-cli.md` and `owner-configuration.md` are removed (fully absorbed by
+  chapters 1–6), the owner's handoff record moves to
+  `docs/configuration-handoff-2026-10-12.md` outside the book; `authority.md`
+  is reduced in place (its test guards belong to chapter 11) and the README
+  reduced to a short entry (it ships in the release archives). Reduce-now for
+  mixed guides is the contract's own "removed or reduced".
+- **Forward links**: page-level to chapter 6, plain text to chapters 7–12 with
+  the second half converting them; chapter file names fixed by the toolchain
+  leaf. Chapters 7–12 are mdBook draft entries until written.
+- **No `review-planning` leaf and no in-session reviewer spent.** The tree was
+  checked against this leaf's Done-when and the contract's chapter, inventory
+  and checkpoint text directly; a reader of the tree can still escalate.
+- Claude Code 2.1.301 and codex-cli 0.162.1 are still the installed versions
+  on 2026-10-16; PlantUML 1.2026.8 and d2 v0.9.0 are installed on this host;
+  mdBook is not installed (the toolchain leaf fetches it).

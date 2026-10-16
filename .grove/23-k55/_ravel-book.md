@@ -66,3 +66,93 @@ book runs before `component-work-scope-k57`, which follows the node at the root.
 - Versions pinned in the contract (mdBook 0.5.4, PlantUML 1.2026.8 with
   C4-PlantUML 2.13.0, d2 0.9.0) were current on 2026-10-16; recheck a dated
   fact before a choice turns on it.
+
+## First half: units and shared conventions
+
+Cut by `ravel-book-first-half-k56`. Positions 02–05 are the scaffold and one
+small product fix, 06–10 the five drafting units, 11 the set proof, 12–13 the
+guide migration and 14 read 1. Chapters are drafted from the code and the
+normative specifications. The guides they replace are sources that may be
+stale, so each chapter verifies a claim against the subject.
+
+- **Scaffold first** (`book-toolchain`, `book-figures`, `book-examples`): each
+  is verified, with controls seen to fail, before any chapter relies on it.
+  `policy-env-help` follows so no chapter hedges the empty description.
+- **Units**, each a document taking draft → copy-edit → art → proof, and each
+  naming `docs/book/contract.md` as its contract. Grouping follows session
+  size and dependency:
+  - chapters 1 and 2 are one unit: both are short, 2 defines the words 1 uses,
+    and the system-context figure belongs to both;
+  - chapter 3 is its own unit: it carries the first complete example and the
+    first sequence and state figures, and everything after it leans on it;
+  - chapter 4 is one document drafted in two sessions, because it runs from
+    writing a first policy to context, settings, grants, real routes and
+    copying a policy: part A the anatomy of a policy and its validation with
+    fake agents, part B context, settings, grants, module resolution, real
+    routes and copying;
+  - chapter 5 is its own unit and needs chapter 3, not chapter 4's part B;
+  - chapter 6 is one document drafted in two sessions along the contract's own
+    inventories: part A the CLI (inventory 1), part B configuration and
+    installed paths (inventory 2). It comes last because its entries link
+    back to where each subject is taught.
+- **One set proof** (`book-first-half`) reads chapters 1–6 as a set after the
+  last unit, because a unit's proof reads only its unit and the entry routes,
+  the inventories and the cross-chapter terms span them.
+- **Guide migration** follows the set proof and precedes read 1, so read 1's
+  entry is the reduced README and what is removed is already proved absorbed.
+- **Chapter file names** (set by `book-toolchain`; the contract's order):
+  `01-what-ravel-is-for.md`, `02-actors-and-words.md`,
+  `03-a-complete-session.md`, `04-writing-an-owner-policy.md`,
+  `05-running-sessions.md`, `06-reference.md`. SUMMARY lists chapters 7–12 as
+  mdBook draft entries until the second half writes them.
+- **Links**: a chapter links back to earlier chapters freely, with anchors. A
+  forward reference to chapter 6 is a page-level link (no anchor), because its
+  entries are written last; chapter 6 links back to anchors. A reference to a
+  chapter 7–12 is plain text with its number and title, and the second half
+  turns each into a link when its target exists (see below).
+- **Examples**: every complete example runs through `task docs:examples`; a
+  fragment says what it omits; a cancellation by signal is a fragment where the
+  seam cannot run it deterministically. A route to Claude Code or Codex is a
+  fake executable of the same name.
+- **Figures**: the art stage of each unit owns that unit's figures from the
+  contract's figure list and may refine, merge or add. The first unit's art
+  fixes the visual vocabulary; later units reuse and extend it. No figure
+  relies on Mermaid.
+- **Term and unknown discipline**: the term risks and the omissions list in
+  the contract are read by every stage. "Context" is never unqualified.
+
+## Guide migration: where content lands
+
+Planned for the first half; the sentence-level classification is done by the
+migration leaves from the proved chapters, not from this table.
+
+| Guide content | Lands in | Disposition |
+|---|---|---|
+| `session-cli.md`: the boundary, the two verbs, the prompt and result meanings, what Ravel has no store for | chapters 1, 2, 3 | file removed by `book-guide-fold-in` |
+| `session-cli.md`: inputs, exit behaviour, `--json` notices, `operationReports`, worker pairing, embedded imports, `readChoice` | chapters 4, 5 and the 6 entries | removed with the file |
+| `session-cli.md`: development checks, task setup/build/typecheck/check | README "Develop" until chapter 11 | any sentence with no other home moves there |
+| `owner-configuration.md`: defaults, settings, bounds, SDK import, copying a policy, fake-agent validation, development typechecking | chapter 4 (parts A and B) and the 6 entries | file removed by `book-guide-fold-in` |
+| `owner-configuration.md`: "Configuration handoff on 2026-10-12" | `docs/configuration-handoff-2026-10-12.md`, outside the book | kept, not deleted |
+| `authority.md`: who holds which authority, trusted policy, worker reaped, same-user and detached-child limits | chapters 2 and 5 | those paragraphs removed by `book-readme-and-authority` |
+| `authority.md`: test-isolation guards, legacy-name exceptions | chapter 11 and `docs/caller-references.md` | file reduced now, removed in the second half |
+| README: what Ravel is, the pair, the runner, the channel, "Use the pair" | chapters 1–3, 5, 6 | reduced to a short entry into the book |
+| README: Develop, release, earlier project, licence | chapters 11 and 12 | kept until those land |
+
+Removal waits for the set proof (`book-first-half`) so that "absorbed" is a
+statement about proved chapters, and precedes read 1 so read 1's entry is the
+reduced README.
+
+## Handed forward to the second half
+
+- Plain-text mentions of chapters 7–12 in chapters 1–6 become links when each
+  target exists (a sweep by the second half's proof).
+- `docs/authority.md` is reduced, not removed, by the first half: its
+  test-isolation guards and legacy-name exceptions belong to chapter 11 and to
+  `docs/caller-references.md`, and the file is removed when chapter 11 lands.
+- Contributor sentences from `docs/session-cli.md` that have no other home
+  move into the README's Develop section (kept until chapter 11 absorbs it).
+- Contributor and delivery parts of the README stay until chapters 11 and 12.
+- The visual vocabulary and the first figures' conventions are the first
+  half's art output; chapters 7–12 follow them.
+- The first figure for "packages, worker and SDK, in source and in an
+  installation" appears in chapter 6; chapters 7 and 12 reuse it.
