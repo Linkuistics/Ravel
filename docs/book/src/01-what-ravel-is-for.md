@@ -133,8 +133,8 @@ kinds and interprets its own ending values. Those conventions belong to Grove.
 Another caller can use different kinds and results without a Ravel adapter.
 
 The supervision guarantee also has limits. A descendant that moves itself out
-of the managed process group is not reached by that group's cleanup, and the
-session can succeed while it still runs. Detached children started by policy
+of the managed process's process group is not reached by that group's cleanup,
+and the session can succeed while it still runs. Detached children started by policy
 are outside the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)'s
 cleanup guarantee. If Ravel is killed abruptly, for example with SIGKILL,
 which it cannot catch, the managed process or temporary files can be left

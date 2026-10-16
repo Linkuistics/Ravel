@@ -39,7 +39,7 @@ data, never authority.
 _Avoid_: context (unqualified), session context
 
 **Refusal**: A decision not to launch, made by the **Owner policy** itself or by
-Ravel when that policy's behaviour, output or admission cannot be accepted. It
+Ravel when that policy's behaviour, data or admission cannot be accepted. It
 is not a failure of the **Policy worker** or of supervision.
 _Avoid_: rejection, error
 

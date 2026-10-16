@@ -21,6 +21,11 @@ agreement plus local HTTP asset delivery. Computer use had no browser endpoint;
 actual mdBook themes and editor previews remain uninspected. Attempt the
 declared viewing environments if available and record limits honestly.
 
+Copy-edit k79 reworded chapter 2's container notation paragraph (the C4
+container-level sentence, "gold the result channel" and the closing sentence on
+what the figure does not show), the nested-publication role sentence, and the
+information table's "starts there". Check these against the figure keys.
+
 Proof k81 already stands after this leaf; do not append another proof leaf.
 A second art rerun is escalation under the editorial procedure.
 
