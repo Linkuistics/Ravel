@@ -173,6 +173,26 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+Chapter 4's art stage uses four page-native tables: the accepted evaluation
+sequence with its stopping conditions, the caller/loader document combinations,
+the policy-worker versus unconfined-managed-process environments, and the
+resolution bases for imports and host reads. Their editable source and rendered
+content are the chapter's Markdown itself; they need no SVG, diagram notation
+or separate regeneration step. `task docs:book:build` renders them, while
+`task docs:figures` continues to check the existing diagrams. Each table has an
+adjacent reader takeaway. The environment comparison links back to chapter 2's
+process-authority view instead of duplicating its process drawing.
+
+Art inspected all four new tables and their adjacent explanations in the
+locally served mdBook through native Chrome on a light page on 2026-10-16.
+The existing selection/refusal, policy-context fields, host-read, settings,
+bounds, excluded-name and agent-argument tables were also visible and legible
+at chapter width. The caller-document heading was shortened after viewing
+and inspected again. The whole chapter was read as raw Markdown. This pass
+did not inspect an editor preview, dark themes, narrower viewports, GitHub or
+the published site, and supplies no human comprehension evidence. The in-app
+browser was unavailable; the earlier guest capture failure was not retried.
+
 Chapter 3's proof independently inspected the example and transcript, both
 figures at chapter width, and their surrounding notation, captions and prose
 alternatives in the locally served mdBook through native Chrome on a light

@@ -171,3 +171,19 @@ session-result context for the inherited `RAVEL_EXIT_FILE` path) and links
 each term-list word at its first use on the page. Every code block and example
 label is unchanged, and the examples check and book build passed afterwards.
 Nothing was handed forward to art or proof beyond the art leaf's own body.
+
+## Art to proof
+
+Art adds four page-native tables: evaluation order and stopping conditions,
+caller/loader document combinations, the two process environments, and import
+versus host-read resolution. Each has an adjacent takeaway; existing table
+introductions now state their role where needed. No new SVG or renderer is
+needed. The evaluation table distinguishes timeout from refusal and keeps
+worker cleanup as a launch condition. The context table preserves replacement
+without automatic merge, and the environment comparison is explicitly
+unconfined and does not imply a policy sandbox.
+
+`docs/book/figures.md` records the local light-page visual inspection and its
+limits. Raw chapter reading and mechanical checks are not human comprehension
+evidence. No earlier-stage defect was identified and no correction run was
+cut. Proof still owns its whole-document, source-inventory and viewing checks.

@@ -23,7 +23,8 @@ helper returns the object unchanged; it gives TypeScript enough information
 to check your fields and infer the parameters of `select`. Runtime validation
 still happens when Ravel evaluates the policy.
 
-The policy has four possible fields:
+Use these four fields to identify the policy interface, label your revision
+and supply the functions Ravel calls:
 
 | Field | Meaning |
 |---|---|
@@ -42,8 +43,8 @@ which can be `undefined`, and a host with `diagnostic(text)` and an `AbortSignal
 lets policy write diagnostic text. It gives `select` no file-read operations;
 those belong to the context loader's host.
 
-The request is frozen data. It contains these fields, whether your policy uses
-them or not:
+The request is frozen data. Use this table to find the caller input your
+decision needs and distinguish it from Ravel's effective bounds:
 
 | Field | Meaning |
 |---|---|
@@ -91,6 +92,9 @@ path, a relative path containing a separator, or a name searched on the caller's
 or word splitting. A shell runs only when the selected command needs one, as
 the fake's shebang does here.
 
+Use the selection fields to separate the command Ravel executes from the
+labels and explanation it reports:
+
 | Selection field | Meaning |
 |---|---|
 | `status` | The literal `"selected"`. |
@@ -104,7 +108,8 @@ program nor an argument can contain a NUL. Ravel validates the selection's
 shape, not whether its command is sensible or whether it passes the prompt.
 Those decisions belong to your policy and its tests.
 
-A refusal gives the caller something they can act on:
+A refusal needs both an identifiable reason and an action the caller can take;
+the fields below carry those parts together:
 
 | Refusal field | Meaning |
 |---|---|
@@ -119,6 +124,25 @@ It does not fall back to another route. Returning nothing, returning malformed
 data or throwing also prevents launch, but does not express your intended
 refusal with its message and remedy. Exceeding the selection deadline has its
 own outcome, `selection_timeout`, distinct from an explicit policy refusal.
+
+Read this table from top to bottom along the accepted path: returning a
+selection does not bypass worker cleanup. Stopped evaluation also requires
+cleanup, but cannot lead to a managed launch.
+
+| Order | Work | What must hold to continue |
+|---|---|---|
+| 1 | Import the owner policy. | The import succeeds and the named `policy` export has the accepted shape. |
+| 2 | Assemble [policy context](#supply-policy-context), calling `loadContext` if present. | Caller data and the delivered document meet their shape and size rules. A loader refusal stops here; `select` is not called. Without a loader or caller document, selection proceeds with `undefined`. |
+| 3 | Call `select` with the request and delivered policy context. | The returned value is a valid selection. An explicit refusal becomes `policy_refused`; malformed data or a thrown error also prevents launch. |
+| 4 | Settle the policy worker before admitting the managed launch. | Ravel confirms worker reap and private-directory removal; a returned selection alone cannot authorise launch after failed cleanup. |
+
+One deadline, `selectionMs`, runs from worker spawn across import, policy-context
+assembly and `select`; it does not restart for each row. Expiry stops evaluation
+with `selection_timeout` (exit 124), distinct from refusal (exit 3), and launches
+nothing. An invalid caller document can refuse before the loader runs. This
+table shows the policy-to-launch order; chapter 3's
+[outcome view](03-a-complete-session.md#recognise-the-other-outcomes) includes
+cancellation and supervision outcomes.
 
 This policy extends chapter 3's fake. It accepts only `demo` and refuses an
 empty prompt for that kind. Empty prompts are legal Ravel input; this policy
@@ -378,7 +402,8 @@ whose name exactly equals the kind, calls that route and adds the selected
 status and a reason naming the route. An unknown kind returns a refusal with
 the policy code `incomplete_mapping`; no other entry acts as a default.
 
-The shipped `routes` table contains these owner conventions:
+Use this mapping to predict the effort argument each shipped route passes;
+these kind names and effort choices are owner conventions:
 
 | Kind | Effort passed to the wrapper |
 |---|---|
@@ -759,6 +784,9 @@ The document carries facts and attributed judgements that your policy can use
 to choose among commands it defines. It does not grant permission to run a
 command named by those facts.
 
+Use these fields to carry facts and attributed judgements while keeping
+executable choices in owner code:
+
 | Field | Accepted data |
 |---|---|
 | `schemaVersion` | Required: the number `1`. |
@@ -785,7 +813,19 @@ loader, `select` receives what the loader returns instead. The loader receives
 Ravel does not merge the two documents for you. The loader can be asynchronous
 and shares the selection deadline with policy import and `select`.
 
-The loader's host offers two synchronous reads:
+Choose the row matching your caller input and policy: a loader replaces the
+document delivered to `select`, unless its own code retains the caller's data.
+These rows assume the documents pass validation and the loader returns a document.
+
+| Caller document? | Policy has `loadContext`? | Policy context delivered to `select` |
+|---|---|---|
+| No | No | `undefined`. |
+| Yes | No | The caller's document, with Ravel's `measured` ledger attached. |
+| No | Yes | The loader's returned document, with `measured` attached. The loader sees no `request.context`. |
+| Yes | Yes | The loader's returned document, with `measured` attached. The loader sees the caller's document at `request.context` and decides what to retain; there is no automatic merge. |
+
+Choose the synchronous host read by the value your loader needs; both return
+a source record identifying the bytes read:
 
 | Operation | Return value |
 |---|---|
@@ -1045,6 +1085,8 @@ These examples exercise the policy's one accepted route and explicit refusal,
 plus representative Ravel refusals. The complete policy-context diagnostic
 vocabulary is below; all these codes exit 3 and launch nothing.
 
+Use the code to locate the input, loader behaviour or bound that needs changing:
+
 | Code | What to correct |
 |---|---|
 | `context_unreadable` | The `--context` path cannot be read as a regular file. |
@@ -1070,6 +1112,9 @@ Owner settings live at `$HOME/.config/ravel/settings.json`, even when
 empty JSON object selects the defaults. If `HOME` is missing or relative, no
 settings file is read; the default policy entry still needs an absolute `HOME`,
 so use an explicit entry in that case.
+
+Use this table to choose an owner default and see whether a caller replaces
+that value or adds to it:
 
 | Key | Value and default | Caller adjustment |
 |---|---|---|
@@ -1142,6 +1187,22 @@ because the managed process uses that credential.
 [Confinement](02-actors-and-words.md#trust-and-confinement) applies its own
 environment rules to the managed process, taught in chapter 5, Running
 sessions.
+
+Compare the columns before granting a name: a credential needed only by an
+unconfined managed process does not need a policy-worker grant.
+
+| Environment rule | Policy worker | Unconfined managed process |
+|---|---|---|
+| Starting values | Only the caller's `HOME`, `PATH`, `TMPDIR`, `LANG` and `LC_*`, when present. | The caller's environment, with Ravel's private and obsolete controls removed. |
+| Additional grants | `policyEnv` and `--policy-env` add permitted names with their caller values; unset names stay unset. The exclusions above apply. | These grants do not filter or add to this environment. |
+| Ravel-supplied values | `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0`; no session-result context. | A fresh session-result context in `RAVEL_EXIT_FILE` for this launch. |
+
+This comparison describes the environments Ravel supplies at launch, not a
+restriction on what trusted policy code can read afterwards. Chapter 2's
+[process-authority view](02-actors-and-words.md#the-managed-process-and-its-result)
+shows why the policy worker and managed process hold different authority.
+Confinement changes the managed-process column's rules; it does not confine
+the policy worker.
 
 The next policy reports only whether two invented grant names are present.
 Its output also shows how a lowered context budget reduces the default read
@@ -1303,6 +1364,18 @@ only those two exact names; `ravel/anything-else` is an ordinary package lookup.
 Editing installed SDK source or a copied static table does not change the
 embedded copies. Import a local copy by its file path when you intend to use it.
 
+Use this mapping to choose the location a name is resolved from; a relative
+import and a relative host read need not refer to the same directory.
+
+| Reference | Resolution base or destination |
+|---|---|
+| Literal `ravel/sdk` or `ravel/examples/static` import | The worker's embedded module, even beside a package with the same name. |
+| Relative import such as `./routes.ts` | The importing file's directory; a symlinked policy uses its real file. |
+| Ordinary package import | Bun's package resolver, starting from the importing file's location. |
+| Package `imports` alias targeting an embedded name | An ordinary package lookup; it does not reach the embedded module. |
+| Import without a file location | The worker's process directory, initially `/` when owner code starts. |
+| Relative `host.readText` or `host.readJson` path | The caller's `request.cwd`. |
+
 Relative imports resolve beside the importing file. If your entry is a symlink,
 its real file determines that location. Keep a helper beside the policy and
 write, for example, `import { route } from "./routes.ts"`. The agent example
@@ -1354,6 +1427,9 @@ The flags below were checked on 2026-10-16 against the installed programs'
 own `--version` and `--help`: Claude Code 2.1.301 and codex-cli 0.163.0.
 Recheck your installed help when changing a route. This check records flag
 support; it is not a real-agent execution test.
+
+Use the argument column to see which agent settings the route actually
+changes; the Ravel labels alone do not set those options.
 
 | Program | Arguments this example uses | Meaning in the checked help |
 |---|---|---|
