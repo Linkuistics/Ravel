@@ -173,6 +173,16 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+Chapter 3's proof independently inspected the example and transcript, both
+figures at chapter width, and their surrounding notation, captions and prose
+alternatives in the locally served mdBook through native Chrome on a light
+page on 2026-10-16. The chapter and editable figure sources were also read raw.
+VS Code's empty window did not respond to file-open or quick-access attempts,
+so proof supplies no editor-preview evidence. It extends neither the art
+stage's theme coverage nor its viewport coverage, and supplies no terminal
+interaction or human comprehension result. GitHub and the published site
+remain unavailable for this unpublished book.
+
 Chapter 3's art stage inspected `successful-session` and `session-outcomes`
 in the locally served mdBook through native Chrome on 2026-10-16, with Auto
 displaying a light page and with Navy. Both figures, their notation, captions

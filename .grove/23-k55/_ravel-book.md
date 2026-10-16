@@ -162,6 +162,15 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Chapter 3 completed its four editorial stages without a proof correction.
+  Its complete example passed (one example; installation remains a labelled
+  fragment). Preserve its distinction between exact stdout/status and the
+  stable stderr excerpt, which permits retained operational reports. Forward
+  chapter mentions remain plain text until their pages exist; link chapters
+  4–6 from chapter 3 in the set proof, with later targets handled by the
+  second half. `docs/book/figures.md` records chapter 3's separate art/proof
+  viewing coverage and limits. Neither supplies terminal-interaction or human
+  comprehension evidence; the owner's stand-in read remains outstanding.
 - Opening-unit proof checked the corrected worker-directory sequence against
   source and found no further chapter correction. `docs/book/figures.md`
   records art and proof's separate local viewing coverage and the remote,
