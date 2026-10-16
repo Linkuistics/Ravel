@@ -50,13 +50,10 @@ It takes no session ID or target argument.
 
 The figure separates the caller's choice of work from the owner's choice of
 program, with Ravel responsible for supervision between request and result.
-It uses C4's system-context level: one box represents Ravel as a whole, while
-the other shapes represent the people or programs it works with. A person
-shape marks the human owner; the caller's box can represent a person or a
-program. Arrowheads show the direction of the labelled action or information.
-Blue identifies Ravel and grey identifies external participants; the labels
-also carry that distinction. Green arrows trace the opaque result. These
-shapes describe responsibilities, not security boundaries.
+The C4 system-context view treats Ravel as one system. Blue identifies Ravel,
+grey the external caller and managed process, and slate the human owner.
+Green arrows trace the opaque result. These shapes describe responsibilities,
+not security boundaries.
 
 ![The owner configures Ravel through owner policy and settings. The caller sends a kind and prompt with start-session. Ravel launches and supervises the managed process, which publishes an opaque result with end-session. Ravel returns that result to the caller on standard output only after successful cleanup.](figures/system-context.svg)
 

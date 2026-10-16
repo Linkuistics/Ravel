@@ -2,12 +2,11 @@
 !pragma layout smetana
 !include <C4/C4_Component>
 !include _style.puml
-UpdateElementStyle("component", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59")
 title Source responsibilities — C4 component view
 
-Container_Boundary(native, "native front — one Rust process (bin/ravel)") {
-  Component(front, "Admission and settlement", "Rust: crates/ravel/src", "Admits owner policy, judges its response and settles the opaque result.")
-  Component(runner, "runner", "Rust: crates/keyed-launch", "Linked library code. Launches and supervises the managed job inside the native front.")
+Container_Boundary(native, "Ravel CLI — one Rust process (bin/ravel)") {
+  Component(front, "Request checks and final outcome", "Rust: crates/ravel/src", "Checks owner policy and its response; decides the final outcome.")
+  Component(runner, "runner", "Rust: crates/keyed-launch", "Linked library code. Launches and supervises the managed job inside the Ravel CLI.")
 }
 Container(worker, "policy worker", "Separate process: ravel-policy", "crates/ravel/worker/src\nCompiled with Bun; embeds worker/sdk and worker/examples/static.ts. Evaluates trusted owner policy.")
 System_Ext(managed, "managed process", "Program selected by owner policy")
@@ -19,13 +18,12 @@ Lay_D(worker, managed)
 
 legend bottom
   Blue: Ravel code or process. Grey: selected program.
-  Dashed outline: components inside the native front, not a sandbox.
+  Dashed outline: components inside the Ravel CLI, not a sandbox.
   The runner has no separate process or installed executable.
   Arrows name use or supervision, not a complete chronology.
   Before managed launch: worker ended and reaped; private directory removed.
   The worker never receives the session-result context.
   Two Rust packages: crates/ravel and crates/keyed-launch.
   Worker paths in its box are relative to crates/ravel.
-  Angle brackets: C4 element types. Square brackets: technology or interface.
 endlegend
 @enduml

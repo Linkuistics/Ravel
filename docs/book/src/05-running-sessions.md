@@ -625,13 +625,12 @@ status if later cleanup also fails. Only a valid result with confirmed cleanup
 reaches the final write. This is the precedence of outcomes, not the order of
 function calls; applicable cleanup is attempted before reporting any outcome.
 
-This UML state machine starts at the solid dot, entering the final-outcome step.
-Blue rounded boxes are conceptual phases of the Ravel CLI's work, grey
-boxes are outcomes, and bracketed arrow labels give transition conditions.
-The green route is successful result delivery. The view covers `start-session`;
-the table also covers `end-session`, help and version invocations.
+In this UML state machine, blue boxes are steps in deciding the outcome and
+grey boxes are outcomes. The green route is successful result delivery. The
+view covers `start-session`; the table also covers `end-session`, help and
+version invocations.
 
-![Settlement checks cancellation first, then retains an original failure and its status, then requires confirmed cleanup before writing the result. Cancellation gives 129, 130 or 143; original failures retain 1, 2, 3, 5, 124, 126 or 127. Cleanup or final-write failure gives 5; only a successful write and flush gives 0.](figures/settled-exit-status.svg)
+![Ravel checks cancellation first, keeps any original failure and its status, then requires confirmed cleanup before writing the result. Cancellation gives 129, 130 or 143; original failures retain 1, 2, 3, 5, 124, 126 or 127. Cleanup or final-write failure gives 5; only a successful write and flush gives 0.](figures/settled-exit-status.svg)
 
 [Open the final-outcome view at full size](figures/settled-exit-status.svg).
 
@@ -646,14 +645,11 @@ The selection sequence shows why cancellation can require worker cleanup even
 though no managed process was launched. It follows the example below, where
 the worker sends INT directly to the Ravel CLI.
 
-In these UML sequences, order runs down the dashed participant lifelines;
-it is not an elapsed-time scale. Solid arrows name actions, bent arrows name
-work within a participant, and the dashed return arrow reports the outcome to
-the caller. Blue boxes are Ravel processes, grey boxes are external participants,
-and labelled bars group steps. No lifetime ends with an X here: teardown is
-attempted, and a failed attempt does not confirm reap or removal.
+In these UML sequences, blue boxes are Ravel processes and grey boxes are
+external participants. No lifetime ends with an X here: cleanup is attempted,
+and a failed attempt does not confirm reap or removal.
 
-![The caller starts selection, the policy worker sends SIGINT to the native front, and the front attempts worker teardown and private-directory cleanup. It retains teardown problems, launches no managed process, and reports cancellation with no result.](figures/selection-cancellation.svg)
+![The caller starts selection, the policy worker sends SIGINT to the Ravel CLI, and the Ravel CLI attempts worker teardown and private-directory cleanup. It retains teardown problems, launches no managed process, and reports cancellation with no result.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
@@ -714,7 +710,7 @@ no result reaches the caller. The runner runs inside the Ravel CLI;
 the managed process's group includes the descendants that stay in that group.
 The pictured cleanup steps are attempts, with failures retained as diagnostics.
 
-![The managed process publishes candidate via end-session, then sends SIGINT to the native front. The front attempts group shutdown, reap, terminal recovery and temporary cleanup, suppresses the published result, and reports cancellation even if cleanup fails.](figures/supervision-cancellation.svg)
+![The managed process publishes candidate via end-session, then sends SIGINT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup, suppresses the published result, and reports cancellation even if cleanup fails.](figures/supervision-cancellation.svg)
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 

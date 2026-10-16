@@ -44,100 +44,63 @@ into the built book, so the editable sources are published beside the SVGs.
 
 ## Visual vocabulary
 
-The opening unit establishes these conventions in `src/figures/_style.puml`.
-Include it after the bundled C4 library. Later units reuse the conventions and
-extend them only for a new reader question; explain each extension beside its
-first figure.
+All diagram types use the palette and scale in `src/figures/_style.puml`.
+Include it after the bundled C4 library. `_uml-style.puml` includes that
+library and the common style, then supplies sequence, state and deployment
+settings. The library supplies style macros without drawing C4 elements in
+UML views. Individual figures select semantic roles; they do not redefine
+fonts, borders or spacing. Page-native tables keep mdBook's normal styling.
 
-| Convention | Meaning |
+| Role | Fill / text / border |
 |---|---|
-| C4 system-context view | Ravel as one system, surrounded by its caller, owner and selected program |
-| C4 container view | Ravel's running units and temporary store; not OS containers or simultaneous process lifetimes |
-| Person shape | A human role; the caller uses a labelled box because it can be a person or a program |
-| Blue box (`#1E4F78`) | Ravel system or process, at the level the view names |
-| Grey box (`#E8EDF2`) | External participant, such as caller or managed process |
-| Gold cylinder (`#FFF1CF`) | Temporary result channel; the cylinder does not imply a database or persistent store |
-| Dashed enclosing outline | Software membership, not authentication, a sandbox or a process-group boundary |
-| Directed arrow | The action or information named on it; it does not imply a function call or chronology |
-| Green arrow (`#135E50`) | Opaque-result path, also identified by its label |
-| Numbered relations | Only the ordering explicitly stated in the key; not a complete sequence diagram |
-| Angle-bracket labels | C4 element types and the `temporary` tag |
-| Square-bracket labels | Technology, interface or data, as the words specify |
+| Ravel system, process, linked component or executable; Ravel work phase in a state view | Blue `#1E4F78` / white `#FFFFFF` / navy `#163A59` |
+| External caller or managed process; supporting installed file; final outcome in a state view | Grey `#E8EDF2` / ink `#172B3A` / slate `#64748B` |
+| Human owner in the context view | Slate `#475569` / white / dark slate `#334155` |
+| Temporary result channel | Gold `#FFF1CF` / brown `#3D321A` / ochre `#8A6B26` |
+| Notes, keys and host enclosure | Pale grey `#F8FAFC` / ink / slate |
+| Ordinary relation and state entry marker | Dark slate `#334155`; relation text is ink |
+| Opaque-result path or successful result-delivery route | Green `#135E50`, also identified by labels |
+| Canvas and installation directories | White; directory labels are ink and borders slate |
 
-The runner is text inside the native front's box: it executes there and has no
-separate process box. The policy response and opaque-result paths have separate
-arrows. Worker completion, reap and private-directory removal precede the
-managed launch; the container view's key states that admission rule explicitly.
-
-Each figure has an adjacent sentence stating what the reader should learn,
-local notation teaching, a key inside the image, meaningful Markdown alt text
-and a full-size SVG link. Colours supplement labels. Keep a white canvas,
-dark legend text and explicit light legend fill so the SVG is self-contained
-when displayed on a dark page. The chapter's text remains the alternative
-when the image cannot be read.
-
-Chapter 3 extends this vocabulary with UML sequence and state-machine views.
-`_uml-style.puml` reuses `_style.puml` and adds notation-specific settings; its
-C4 include supplies the shared style macros without drawing C4 elements.
-
-| Convention | Meaning |
+| Property | Shared choice and notation-specific reason |
 |---|---|
-| UML sequence: dashed vertical line | A participant's lifeline, beginning when introduced; the front creates the worker, managed process and result channel where their heads appear. Order runs down the page, without a time scale |
-| UML sequence: solid, dashed or bent arrow | An action, a reply or work within one participant, respectively |
-| UML sequence: X | End of the pictured lifetime after confirmed reap or temporary-directory removal, not the instant of process exit |
-| UML sequence: labelled horizontal bar | A group of related steps, not a process or boundary |
-| UML state machine: solid dot | Start of the session |
-| UML state machine: blue rounded box | A phase of Ravel's work, not a process |
-| UML state machine: grey rounded box | An outcome, with no further transition shown |
-| UML state machine: arrow and square-bracket text | A transition and its condition, respectively |
-| UML state machine: green route | The route to successful opaque-result delivery |
+| Font family | Pinned DejaVu Sans; DejaVu Sans Mono for explicit code styling. The renderer adds generic browser fallbacks. |
+| Type scale, in SVG units | Body, relations, keys and notes 14; titles, C4/sequence participant heads and deployment enclosure heads 16; C4 type/technology qualifiers 12. C4's heads come from its Creole heading markup. State names remain 14 because they are short work/outcome labels; deployment file listings use the 14-unit body scale. |
+| Main strokes | Entity, boundary, note, key and arrow shafts 1.5. Sequence lifelines are 0.5 to keep them behind messages. The pinned renderer draws arrowhead outlines and some detail at 1, and paired separator rules at 0.75; those are notation glyphs, not competing semantic weights. |
+| Arrow forms | C4's relationship heads, UML transition heads, sequence action/reply heads and the deployment dependency keep their notation's form and dash pattern. Colour and shaft weight are shared. |
+| Spacing | C4/state/deployment layout uses `nodesep 40`, `ranksep 50` and `wrapWidth 220`. Sequence participant spacing is 20, participant padding 7 and message wrapping 55, with explicit line breaks for semantic groups. Titles use padding/margin 5; keys use padding 8 and margin 12. Layout engines interpret these settings differently; figures are checked at their final rendered size. |
+| Canvas | White, with no shadows. Keys have explicit pale fill and dark text, including when the image sits on a dark page. |
 
-The sequence is `successful-session`; the reusable outcome view is
-`session-outcomes`. Their captions, notation teaching and prose alternatives
-live beside them in chapter 3. Its state machine groups operations and names
-settled outcomes; the full precedence algorithm belongs to chapter 8.
+These sizes are source-space units. mdBook scales a wide SVG to the chapter
+column; the full-size link preserves access to its original scale. Do not
+shrink individual text to force a figure into the column.
 
-Chapter 5 adds `selection-cancellation` and `supervision-cancellation`, using
-the same sequence notation. They show attempts that can fail, so neither uses
-an X to claim that reap or removal was confirmed on every pictured path.
-The dashed return arrow reports the cancellation outcome to the caller;
-the supervision view's green publication arrow ends at the result channel.
+Each figure has an adjacent sentence saying what the reader should take from
+it, a book-specific key, meaningful Markdown alt text and a full-size SVG link.
+Explain the book's meanings and limits, not generic diagram notation. Colours
+supplement labels. The surrounding prose supplies an alternative to the image.
 
-`settled-exit-status` refines the settlement portion of `session-outcomes`
-without changing that chapter 3 overview. Its dot enters this detail rather
-than starting a new session. The blue phases express outcome precedence, not
-implementation call order, and its grey outcomes add the status numbers.
-It covers `start-session`; chapter 5's preceding table also covers
-`end-session`, help and version. These local conventions are taught beside
-the figures and repeated in their keys. All three sources use the existing
-PlantUML pin, Smetana layout and `_uml-style.puml`; the update and compare
-tasks below regenerate them alongside the earlier figures.
+### What each view means
 
-Chapter 5 also uses page-native tables for program-path resolution, nested
-session-result authority, confined versus unconfined launches and output-stream
-routing. These need no separate source or SVG; mdBook renders their Markdown.
+| View | Book-specific meaning to preserve |
+|---|---|
+| `system-context` | Ravel as one system between caller and managed process; the owner controls routing. Responsibility boundaries are not security boundaries. |
+| `process-authority` | Processes and temporary files across a session, not simultaneous lifetimes or OS containers. The worker response and opaque result use separate paths. Worker end, reap and private-directory removal precede the managed launch. The runner runs inside the Ravel CLI. |
+| `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. Publication precedes cleanup; only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
+| `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
+| `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
+| `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses publication; HUP/TERM use the same rule. |
+| `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
+| `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
+
+Chapters 1–6 also use page-native tables for responsibilities, result versus
+exit status versus work, platform evidence, nested result authority, worker
+startup, policy evaluation order, policy-context delivery, environment grants,
+confinement, streams, route choices, import resolution and lookup fields.
+Their adjacent sentences state the comparison, mapping or sequence the reader
+can use. They need no separate figure source.
 
 ## What is recorded, and where
-
-Chapter 6 adds `source-components` (C4 component) and `installed-files` (UML
-deployment), reusable in chapters 7 and 12. The component view opens the native
-front to show admission/settlement and the linked runner as blue components;
-the worker stays a separate, unexpanded process. The dashed outline is process
-membership, not confinement. This is a finer level than the earlier container
-view, where the runner remains text within the native front's box.
-
-The deployment view uses a node for the host, tabbed outlines for installation
-directories and file icons for artifacts. Blue icons are executables, grey
-icons supporting files; a labelled file group lists separate files. Its dashed
-arrow is a discovery/pairing dependency, not chronology. Both figures carry
-keys, adjacent reader takeaways, local notation teaching, meaningful alt text
-and full-size links. The chapter's installed table remains the direct lookup.
-Their sources declare Smetana, reuse the shared styles and use the existing
-PlantUML pin and update/compare tasks below.
-
-Chapter 6 also adds a page-native comparison of the sample policy's two
-choices, and explicit reader takeaways for the existing stream-routing and
-import-resolution tables. These render directly from the chapter's Markdown.
 
 | Fact | Recorded in | Kept honest by |
 |---|---|---|
@@ -219,6 +182,45 @@ there is no Smetana limitation to escalate. Whether a larger figure lays out
 legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
+
+The records below are dated evidence of the artifacts each pass inspected.
+They are not current style instructions; the shared conventions above govern
+new and revised figures. Earlier references to notation teaching describe the
+superseded contract.
+
+### First-half style correction, 2026-10-16 (`book-first-half-k99`)
+
+This pass read all nine sources, both shared style files, the bundled
+C4-PlantUML 2.13.0 definitions and PlantUML 1.2026.8's native skin, then
+enumerated the rendered SVG attributes. C4 views use 12/14/16-unit text;
+UML views use 14/16. Visible text uses DejaVu Sans with the script's sans-serif
+fallback. Principal borders and arrow shafts are 1.5; sequence lifelines are
+0.5, paired separator rules 0.75 and arrowhead/detail outlines 1. The black
+sequence rectangles are fully transparent lifetime regions, not a visible
+palette exception. Shared definitions now state these choices where the
+renderer exposes them; notation-specific forms remain intact.
+
+All nine final figures were inspected in locally served mdBook through Chrome
+on macOS, at the light theme's approximately 750-pixel chapter column in a
+1467 × 2048 viewport, and as full-size SVGs. Labels, keys, captions and nearby
+prose were legible. The successful-session and process-authority views are
+the densest at chapter width; their full-size links provide larger detail.
+The process boundary heading was shortened to clear an incoming arrow, with
+its software-boundary meaning kept in the key. The installed-file dependency
+was made horizontal, with its discovery/pairing explanation in the key, to
+clear the directory tab and outline. No labels remain across those outlines.
+
+Raw Markdown, PlantUML and SVG files were read. A Linux testanyware guest
+started and opened Firefox, but screen capture then failed with an early EOF;
+it supplies no usable book-viewing evidence and was stopped. This pass did not
+check editor previews, other themes or viewport widths, GitHub's rendering of
+the unpublished branch, or the unpublished site. These are viewing limits,
+not claims about how those environments render the figures. Earlier
+cross-platform byte comparisons and the retained k92 failures remain evidence
+of their original inputs; this style pass does not extend their scope or
+identify the cause of the lost selection render.
+
+### Earlier viewing records
 
 The first-half set proof independently read all six chapters and the nine
 figure sources with both shared style files on 2026-10-16. In locally served

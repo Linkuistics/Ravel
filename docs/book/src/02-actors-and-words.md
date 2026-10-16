@@ -105,19 +105,15 @@ appearance nor the policy worker's selection is itself a successful session.
 
 The figure shows why a policy response cannot complete a session: it reaches
 the Ravel CLI through a separate path from the managed process's opaque
-result. It uses C4's container level, which shows the processes and the store
-inside the single Ravel box of chapter 1. Here, a container means a running
-unit or a store, not an operating-system container. Boxes name processes or
-the external caller; the cylinder represents temporary files, not a database.
-The enclosing outline groups Ravel's software, not a sandbox. Blue marks
-Ravel's processes, grey external participants and gold the result channel;
-labels identify them without colour. Arrowheads follow the labelled actions
-or data, with green tracing the opaque result. Steps 1 and 2 show ordering:
-the worker is cleaned up before the managed process starts. The figure shows
-every participant across a session; it does not show which processes run at
-the same time.
+result. This C4 container view shows Ravel's processes and temporary store;
+these are not operating-system containers. The gold result channel holds
+temporary files, not a database. Blue marks Ravel's processes and grey the
+external participants. Green arrows trace the opaque result. The enclosing
+outline groups Ravel's software, not a sandbox. Steps 1 and 2 show the
+ordering: the worker is cleaned up before the managed process starts.
+The participants shown do not all run at the same time.
 
-![The native front evaluates the request through a separate policy worker, which evaluates trusted owner policy without session-result context and sends a selection or refusal through a separate socket. Before launching the managed process, the native front confirms that the worker ended and was reaped and its private directory was removed. The runner executes inside the native front and supervises the managed process. That process receives session-result context and uses end-session to publish into the temporary result channel. The native front validates and reads the publication, then writes the opaque result to the caller only after successful cleanup.](figures/process-authority.svg)
+![The Ravel CLI evaluates the request through a separate policy worker, which evaluates trusted owner policy without session-result context and sends a selection or refusal through a separate socket. Before launching the managed process, the Ravel CLI confirms that the worker ended and was reaped and its private directory was removed. The runner executes inside the Ravel CLI and supervises the managed process. That process receives session-result context and uses end-session to publish into the temporary result channel. The Ravel CLI validates and reads the publication, then writes the opaque result to the caller only after successful cleanup.](figures/process-authority.svg)
 
 [Open the process-and-authority figure at full size.](figures/process-authority.svg)
 

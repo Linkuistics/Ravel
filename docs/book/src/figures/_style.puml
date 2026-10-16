@@ -1,16 +1,55 @@
-' Shared book vocabulary; include after the bundled C4 notation.
+' Shared book palette and scale; include after the bundled C4 notation.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
-skinparam ArrowColor #334155
+skinparam defaultFontName DejaVu Sans
+skinparam monospacedFontName DejaVu Sans Mono
+skinparam defaultFontColor #172B3A
 skinparam defaultFontSize 14
+skinparam defaultFontStyle plain
+skinparam titleFontColor #172B3A
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam ArrowColor #334155
+skinparam ArrowFontColor #172B3A
+skinparam ArrowFontSize 14
+skinparam ArrowThickness 1.5
+skinparam defaultTextAlignment center
 skinparam wrapWidth 220
 skinparam maxMessageSize 55
+skinparam nodesep 40
+skinparam ranksep 50
 skinparam legendBackgroundColor #F8FAFC
 skinparam legendBorderColor #64748B
 skinparam legendFontColor #172B3A
-UpdateElementStyle("person", $bgColor="#475569", $fontColor="#FFFFFF", $borderColor="#334155")
-UpdateElementStyle("system", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59")
-UpdateElementStyle("external_system", $bgColor="#E8EDF2", $fontColor="#172B3A", $borderColor="#64748B")
-UpdateElementStyle("container", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59")
-AddElementTag("temporary", $bgColor="#FFF1CF", $fontColor="#3D321A", $borderColor="#8A6B26")
-AddRelTag("result", $textColor="#135E50", $lineColor="#135E50")
+skinparam legendFontSize 14
+skinparam legendBorderThickness 1.5
+skinparam noteBackgroundColor #F8FAFC
+skinparam noteBorderColor #64748B
+skinparam noteFontColor #172B3A
+skinparam noteFontSize 14
+skinparam noteBorderThickness 1.5
+<style>
+document {
+  title {
+    Padding 5
+    Margin 5
+  }
+  legend {
+    Padding 8
+    Margin 12
+  }
+}
+</style>
+' C4 uses 16-unit Creole entity heads and 12-unit technology/type qualifiers.
+!$TECHN_FONT_SIZE = 12
+skinparam rectangleStereotypeFontSize 12
+skinparam databaseStereotypeFontSize 12
+UpdateElementStyle("person", $bgColor="#475569", $fontColor="#FFFFFF", $borderColor="#334155", $borderThickness="1.5")
+UpdateElementStyle("system", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59", $borderThickness="1.5")
+UpdateElementStyle("external_system", $bgColor="#E8EDF2", $fontColor="#172B3A", $borderColor="#64748B", $borderThickness="1.5")
+UpdateElementStyle("container", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59", $borderThickness="1.5")
+UpdateElementStyle("component", $bgColor="#1E4F78", $fontColor="#FFFFFF", $borderColor="#163A59", $borderThickness="1.5")
+UpdateBoundaryStyle($fontColor="#172B3A", $borderColor="#64748B", $borderThickness="1.5")
+UpdateRelStyle($textColor="#172B3A", $lineColor="#334155")
+AddElementTag("temporary", $bgColor="#FFF1CF", $fontColor="#3D321A", $borderColor="#8A6B26", $borderThickness="1.5")
+AddRelTag("result", $textColor="#135E50", $lineColor="#135E50", $lineThickness="1.5")

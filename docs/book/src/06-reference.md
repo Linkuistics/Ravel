@@ -932,15 +932,13 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 
 > **Figure — Source responsibilities:** The runner and the Ravel CLI's
 > checking and final-outcome code run in one process; the policy worker
-> runs separately. This C4 component view opens the Ravel CLI's dashed
-> boundary to show its internal responsibilities. Its blue component boxes
-> name linked code, while the blue container box names the worker process and
-> the grey box names the selected program. The boundary is software membership,
-> not a sandbox. Arrows mean the use or supervision stated on their labels,
-> not a complete timeline. The worker must end and be reaped, and its private
-> directory removed, before the runner launches the managed process.
+> runs separately. In this C4 component view, blue marks Ravel's code and
+> worker process, and grey the selected program. The enclosing boundary groups
+> code inside the Ravel CLI's process; it is not a sandbox. The worker must
+> end and be reaped, and its private directory removed, before the runner
+> launches the managed process.
 
-![C4 component view: crates/ravel supplies admission and settlement inside the native front, which uses the linked runner from crates/keyed-launch. The native front evaluates owner policy in a separate compiled worker from crates/ravel/worker/src, with Bun, the SDK and static example embedded. Only after worker reap and private-directory removal does the runner launch and supervise the selected managed process. The worker has no session-result context.](figures/source-components.svg)
+![C4 component view: crates/ravel supplies request checks and the final outcome decision inside the Ravel CLI, which uses the linked runner from crates/keyed-launch. The Ravel CLI evaluates owner policy in a separate compiled worker from crates/ravel/worker/src, with Bun, the SDK and static example embedded. Only after worker reap and private-directory removal does the runner launch and supervise the selected managed process. The worker has no session-result context.](figures/source-components.svg)
 
 > **Figure link:** [Open the source-responsibility view at full size](figures/source-components.svg).
 > See [policy evaluation and supervision](02-actors-and-words.md#policy-evaluation-and-supervision)
@@ -949,14 +947,13 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > **Figure — Installed files:** Keep the Ravel CLI and worker from one
 > build together; the adjacent editable sources and declarations support
 > policy authoring without replacing the embedded modules. In this UML
-> deployment view, the node is the host and the tabbed outlines group
-> directories. File icons name installed artifacts: blue for executables,
-> grey for supporting files. A “file group” lists separate files, not an
-> archive or process. The dashed arrow states the discovery and pairing
-> dependency; it does not represent concurrent process lifetimes. `PREFIX`
-> is the installation directory, independent of the owner's `HOME`.
+> deployment view, blue marks executables and grey supporting files. Outlines
+> group directories, not runtime boundaries. A “file group” lists separate
+> files, not an archive or process. The dependency shows discovery and pairing,
+> not concurrent process lifetimes. `PREFIX` is the installation directory,
+> independent of the owner's `HOME`.
 
-![UML deployment view: PREFIX contains bin/ravel, including the linked runner, and libexec/ravel/ravel-policy, including Bun and the embedded SDK and static example. The native front finds the worker from its own canonical real path and checks build identity. Beside the worker are SDK source and declarations, static-example source and declarations, the copyable sample policy and two notice files. Editing these sources does not replace embedded modules. Installed execution needs no host Bun, Node.js or source checkout. Release archives also carry README.md and LICENSE at their root.](figures/installed-files.svg)
+![UML deployment view: PREFIX contains bin/ravel, including the linked runner, and libexec/ravel/ravel-policy, including Bun and the embedded SDK and static example. The Ravel CLI finds the worker from its own canonical real path and checks build identity. Beside the worker are SDK source and declarations, static-example source and declarations, the copyable sample policy and two notice files. Editing these sources does not replace embedded modules. Installed execution needs no host Bun, Node.js or source checkout. Release archives also carry README.md and LICENSE at their root.](figures/installed-files.svg)
 
 > **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
 > See [embedded imports and editable copies](04-writing-an-owner-policy.md#resolve-policy-imports)

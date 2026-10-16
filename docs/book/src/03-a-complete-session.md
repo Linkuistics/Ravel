@@ -285,21 +285,16 @@ The sequence below shows the two boundaries a caller relies on: worker
 cleanup precedes the managed launch, and job cleanup precedes result delivery.
 It follows this chapter's unconfined successful path.
 
-This is a **UML sequence diagram**: read downwards for order, not elapsed time.
-Each named participant has a dashed vertical lifeline, beginning when it is
-introduced. The worker, managed process and result channel appear when the
-Ravel CLI creates them. A solid arrow names an
-action, a dashed arrow a reply, and a bent arrow work inside one participant.
-An X ends the pictured lifetime after reap or removal; it does not mark the
-instant a process exits. The labelled horizontal bars group stages. Blue
-participants are Ravel processes, grey ones are external, and the gold cylinder
-is the temporary result channel. Green arrows carry the opaque result. The
-runner shares the Ravel CLI's lifeline because it runs inside that process.
+In this UML sequence, an X ends the pictured lifetime after confirmed reap or
+removal, not at the instant a process exits. Blue participants are Ravel
+processes, grey ones are external, and the gold result channel holds temporary
+files. Green arrows carry the opaque result. The runner shares the Ravel
+CLI's lifeline because it runs inside that process.
 
-![The caller requests a session. The front admits the request, evaluates policy in its worker and confirms worker cleanup before launching the managed process. The managed process publishes to the temporary result channel. The front stops the group before reaping the direct child, recovers the terminal if lent, confirms group absence, reads the result, removes temporary files and settles outcomes before delivering the result to the caller.](figures/successful-session.svg)
+![The caller requests a session. The Ravel CLI checks the request, evaluates policy in its worker and confirms worker cleanup before launching the managed process. The managed process publishes to the temporary result channel. The Ravel CLI stops the group before reaping the direct child, recovers the terminal if lent, confirms group absence, reads the result, removes temporary files and decides the final outcome before delivering the result to the caller.](figures/successful-session.svg)
 
-*Figure 3.1 — Publication requests completion; only successful cleanup and
-settlement permit the final result write.*
+*Figure 3.1 — Publication requests completion; the final result write requires
+successful cleanup and no cancellation.*
 [Open the successful-session sequence at full size](figures/successful-session.svg).
 
 In words, the Ravel CLI checks the request, checks the worker's identity,
@@ -340,15 +335,11 @@ The state machine below shows why a session with a published value can still
 end without a successful result. It distinguishes the phase in which work
 stops from the outcome the caller receives after cleanup attempts.
 
-A **UML state machine** follows changes of state rather than messages between
-participants. The solid dot is the start; arrows name transitions between
-rounded boxes. Blue boxes here are phases of Ravel's work, not processes.
-Grey boxes are outcomes, with no further transition shown. Square brackets
-state conditions checked when Ravel decides the final outcome. The green route is the only path
-to successful result delivery. The key states rules that apply to more than
-one transition.
+In this UML state machine, blue boxes are phases of Ravel's work, not
+processes. Grey boxes are outcomes. The green route is the only path to
+successful result delivery.
 
-![Selection either admits a managed launch or stops before launch. Selection and supervision both lead to cleanup and settlement. Cancellation suppresses a result; otherwise a refusal, natural exit without publication or failure can remain the primary outcome. Only a valid result with confirmed reap, group absence and cleanup reaches the final write. Successful writing and flushing complete the session; a failed write fails it.](figures/session-outcomes.svg)
+![Selection either allows a managed launch or stops before launch. Selection and supervision both lead to cleanup and the final outcome decision. Cancellation suppresses a result; otherwise a refusal, natural exit without publication or failure can remain the primary outcome. Only a valid result with confirmed reap, group absence and cleanup reaches the final write. Successful writing and flushing complete the session; a failed write fails it.](figures/session-outcomes.svg)
 
 *Figure 3.2 — Publication, cleanup and the final write are separate conditions
 of success; cancellation can suppress a published value.*

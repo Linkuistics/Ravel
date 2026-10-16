@@ -4,9 +4,9 @@
 title Cancellation after publication — UML sequence
 hide footbox
 participant "caller" as Caller
-participant "<color:#FFFFFF>native front\n<color:#FFFFFF>(runner inside)" as Front #1E4F78
+participant "Ravel CLI\n(runner inside)" as Front <<ravel>>
 participant "managed process" as Managed
-database "result channel\n(temporary files)" as Channel #FFF1CF
+database "result channel\n(temporary files)" as Channel <<temporary>>
 
 note over Front, Channel
   Selection and launch have succeeded. Worker cleanup was confirmed.
@@ -17,7 +17,7 @@ note over Managed, Channel
   First complete publication wins.
   end-session success does not confirm delivery.
 end note
-== Cancellation reaches the front ==
+== Cancellation reaches the Ravel CLI ==
 Managed -> Front : SIGINT (the example below)
 Front -> Managed : Attempt to stop the managed process's group
 Front -> Front : Attempt reap and terminal recovery if lent;\ncheck whether the group is gone
@@ -31,12 +31,10 @@ Front -> Front : Keep cancellation primary; suppress candidate;\nretain original
 Front --> Caller : Report cancellation; re-raise INT\n(shell status 130); no result bytes
 
 legend bottom
-  Read downwards: grouped order, not elapsed time. Dashed verticals: lifelines.
-  Solid arrows: actions; dashed arrow: reported outcome; bent arrows: local work.
   Blue: Ravel process. Grey: external participants. Gold cylinder: temporary files.
   Green carries a published value, but no green arrow reaches the caller.
   The managed process's group includes descendants that stay in that group.
-  INT goes directly to the front here; terminal Ctrl-C can reach only the group.
+  INT goes directly to the Ravel CLI here; terminal Ctrl-C can reach only the group.
   HUP and TERM use shell statuses 129 and 143; failed propagation uses numeric fallback.
   Cleanup problems cannot turn cancellation into success or permit result delivery.
 endlegend

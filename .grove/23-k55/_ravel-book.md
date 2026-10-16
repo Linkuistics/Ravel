@@ -192,8 +192,11 @@ The owner changed the contract during that proof:
 These requirements are in `docs/book/contract.md`, with the chosen term in
 `CONTEXT.md`. The correction run `book-first-half-k98` (copy-edit),
 `book-first-half-k99` (art) and `book-first-half-k100` (proof) precedes guide
-migration. Art applies the notation decision, the prose terms
-to figures, and the first-half's shared visual style. The later `ravel-book-k101`
+migration. Art has applied the notation decision and plain terms to all nine
+figures and their surrounding text, and made palette, typography, principal
+strokes and spacing explicit in the shared definitions. Its current conventions
+and dated viewing limits are in `docs/book/figures.md`; k100 still owns the
+whole-set proof and clearing this correction handoff. The later `ravel-book-k101`
 art leaf checks the completed book across chapter and diagram boundaries.
 Read 1 and its planning continuation insert the second-half work before that
 whole-book art leaf; read 2 stays after its proof. No parent closes here.
