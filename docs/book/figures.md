@@ -173,6 +173,22 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+Chapter 4's proof independently inspected the selection/refusal and evaluation
+tables, caller/loader cases and host reads, context diagnostic entries, settings
+and all six bounds, environment exclusions and the worker/managed-process
+comparison, import-resolution table and agent-argument table in the locally
+served mdBook through Chrome on a light page on 2026-10-16. Their adjacent
+explanations remained legible at chapter width. The whole chapter was also read
+as raw Markdown. Proof added the missing context-stage `message_too_large`
+entry and clarified that the protocol bound also covers failure reports.
+
+VS Code did not open the requested chapter after Quick Open, so this pass
+provides no editor-preview evidence. It did not inspect other themes, narrower
+viewports, GitHub or the unpublished site. The earlier isolated-guest capture
+failure was not retried. These are visual and source checks, with fake-program
+validation recorded by the proof leaf; they establish no human comprehension,
+real-agent execution, agent permissions or terminal-interaction result.
+
 Chapter 4's art stage uses four page-native tables: the accepted evaluation
 sequence with its stopping conditions, the caller/loader document combinations,
 the policy-worker versus unconfined-managed-process environments, and the

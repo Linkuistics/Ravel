@@ -187,3 +187,21 @@ unconfined and does not imply a policy sandbox.
 limits. Raw chapter reading and mechanical checks are not human comprehension
 evidence. No earlier-stage defect was identified and no correction run was
 cut. Proof still owns its whole-document, source-inventory and viewing checks.
+
+## Handed forward
+
+None. Proof closed the local diagnostic-table omission; no correction run is
+needed.
+
+## Proof closure
+
+The document has completed draft, copy-edit, art and proof. Proof re-enumerated
+configuration from source and added the missing context-stage
+`message_too_large` code, clarifying that failure reports share the protocol
+bound. A temporary throwing loader confirmed that outcome with exit 3 and no
+stdout. All complete examples pass, every chapter policy's explicit route and
+refusal is exercised, four figures match and the book builds without warnings.
+`SUMMARY.md` links the chapter. The guide disposition above remains complete;
+chapter 6's reference inventory and the dated-handoff preservation remain with
+their existing siblings. The book brief receives these surviving obligations
+and the viewing limits before this node closes. No ADR decision changed.

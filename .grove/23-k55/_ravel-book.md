@@ -162,6 +162,19 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Chapter 4 completed all four stages. Proof re-enumerated its configuration
+  coverage from the SDK, settings, bounds and validators. Its local correction
+  adds `message_too_large` for an oversized loader failure report; chapter 6
+  must cover that context-stage use as well as policy snapshots and selection
+  results. A temporary loader confirmed exit 3 and empty stdout. All seven
+  complete book examples pass (six in chapter 4), four figures match and the
+  book builds without warnings. The node's guide-disposition table remains the
+  fold-in input; its dated personal handoff still needs preservation outside
+  the book. `docs/book/figures.md` records proof's separate local Chrome/raw
+  viewing and the unavailable editor preview, remote views and other viewing
+  limits. These checks establish no human comprehension, real-agent operation,
+  agent permissions or terminal interaction. No correction run remains.
+
 - Chapter 4 part B supplies context/settings/grants/imports/agent-route/copying
   teaching. Chapter 6 re-enumerates the SDK exports, configuration shapes and
   full admission/selection/context codes, all six bounds, settings error codes,

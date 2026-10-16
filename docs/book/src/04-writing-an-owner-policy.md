@@ -1094,6 +1094,7 @@ Use the code to locate the input, loader behaviour or bound that needs changing:
 | `unsupported_version` | A nonnegative integer representable as an unsigned 64-bit value names a context schema version other than 1. Negative, fractional or wrong-type versions are `context_invalid`. |
 | `context_loader_failed` | The loader throws or rejects for a reason other than a recognised source-read failure or bound breach. |
 | `context_loader_unsettled` | The loader's promise remains pending after no work is left that could settle it. |
+| `message_too_large` | A loader failure report exceeds the fixed 1 MiB protocol-message bound; shorten the error it reports. |
 | `context_source_unreadable` | A required host read fails, including bad UTF-8 or JSON, and that failure escapes the loader. |
 | `source_too_large` | A host read exceeds its limit or asks for a limit above the context budget. |
 | `too_many_sources` | Either the measured ledger or the document's attributed `sources` exceeds 256 entries. |
@@ -1143,12 +1144,12 @@ running time.
 | `contextBytes` | Caller document and delivered policy-context JSON, including measured records. | `contextBytes`, then a replacing `--context-bytes`; otherwise 262,144 bytes. |
 | `sourceBytes` | Default bytes for one host read. | The smaller of 65,536 and `contextBytes`; a read can set `maxBytes` from 1 through `contextBytes`. |
 | `sources` | Measured records, including the caller document; separately, attributed source records. | Fixed at 256 for each array. |
-| `messageBytes` | A policy snapshot or selection result in the private protocol. | Fixed at 1,048,576 bytes (1 MiB). The context has its own budget. |
+| `messageBytes` | A policy snapshot, selection result or failure report in the private protocol. | Fixed at 1,048,576 bytes (1 MiB). The context document has its own budget. |
 | `diagnosticsBytes` | Worker standard output and standard error combined. | Fixed at 262,144 bytes (256 KiB). |
 
 Overflow refuses rather than truncating data to fit. A context or read overflow
-uses the codes above; a policy snapshot or selection exceeding its protocol
-bound uses `message_too_large`, and excessive worker output uses
+uses the codes above; a policy snapshot, selection result or failure report
+exceeding its protocol bound uses `message_too_large`, and excessive worker output uses
 `output_limit` (both exit 3). For excessive output Ravel retains only the first
 262,144 diagnostic bytes and discards the rest while stopping the worker; this
 does not admit the selection. Exceeding the selection deadline is
