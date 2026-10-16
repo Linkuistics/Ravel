@@ -195,8 +195,15 @@ These requirements are in `docs/book/contract.md`, with the chosen term in
 migration. Art has applied the notation decision and plain terms to all nine
 figures and their surrounding text, and made palette, typography, principal
 strokes and spacing explicit in the shared definitions. Its current conventions
-and dated viewing limits are in `docs/book/figures.md`; k100 still owns the
-whole-set proof and clearing this correction handoff. The later `ravel-book-k101`
+and dated viewing limits are in `docs/book/figures.md`. The whole-set proof
+`book-first-half-k100` has closed this correction handoff: all six chapters,
+the source inventories and the reading routes agree with the amended contract,
+both specifications and the ADRs. Fresh build/serve, 13 complete examples,
+nine figure comparisons and `task check` (339 passing tests) passed on unchanged
+subjects; all 403 local chapter destinations resolve. Its task records the
+independent local viewing sample and the limits of those checks. Parts I and II
+are ready for the already-live guide migration and read 1; no first-half entry
+is handed forward unresolved. The later `ravel-book-k101`
 art leaf checks the completed book across chapter and diagram boundaries.
 Read 1 and its planning continuation insert the second-half work before that
 whole-book art leaf; read 2 stays after its proof. No parent closes here.
