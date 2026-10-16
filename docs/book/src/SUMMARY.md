@@ -8,7 +8,7 @@
 
 # Part II: Using Ravel
 
-- [Writing an owner policy]()
+- [Writing an owner policy](04-writing-an-owner-policy.md)
 - [Running sessions]()
 - [Reference]()
 

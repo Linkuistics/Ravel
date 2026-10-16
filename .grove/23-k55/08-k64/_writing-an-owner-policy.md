@@ -70,3 +70,48 @@ agents. Part B starts from that and cuts nothing out of part A.
   with the bare stem for part B and its scope, then cut copy-edit as the
   family file directs (it lands after part B). Part B's session cuts nothing if
   copy-edit already stands.
+
+## Part A to part B
+
+The chapter's first five sections are drafted. Append part B's sections in this
+order (these headings are deliberately not empty placeholders in the page):
+
+1. `Supply policy context` — version-1 data, loader/host operations and measured
+   sources, with complete examples and their refusals.
+2. `Set bounds and grant environment names` — all settings keys, defaults,
+   ranges, CLI replacements/additions, unknown keys including `stateDir`, and
+   never-grantable names, enumerated from the implementation.
+3. `Resolve policy imports` — embedded names, relative helpers, package lookup
+   and autoloading controls/limits.
+4. `Route to Claude Code and Codex` — date/version/help-checked flags, fake
+   executables of the same names, ending instructions and terminal implications.
+5. `Copy an existing policy` — preserve source and destination edits, reconcile
+   imports/settings/helpers, and validate routes/refusals before real use.
+
+Part A's policies are the chapter 3 fake extended with two explicit refusals,
+the embedded static policy and the sample choice policy (expanded for reading).
+The sample sets every careful route to `high`, including defaults at `xhigh`;
+it is not a minimum-effort operation. The installed-declaration typecheck
+recipe uses the checkout's pinned compiler as a development tool, with all
+embedded-module mappings pointed at the installation. It does not claim an
+installation bundles a compiler. All three policies are checked against both
+declaration sets, and a numeric `program` is rejected by both recipes.
+
+### Owner-configuration guide disposition
+
+This is the current sentence-group classification for the guide fold-in;
+part B completes its own rows, then the fold-in leaf verifies absorption.
+`docs/owner-configuration.md` itself remains unchanged here.
+
+| Guide statements outside the dated handoff | Teaching destination |
+|---|---|
+| Default policy entry; `version` is the owner's label; explicit `readChoice`; caller kinds/labels/arguments | Part A: define/select/checkout-choice sections |
+| Settings keys, absence defaults, all six bounds, CLI overrides and grants | Part B: bounds/grants; chapter 6 supplies lookup entries |
+| Why executable TypeScript and why a separate worker | Chapter 2 already introduces the authority split; chapter 7 owns the architectural rationale (guide's optional-depth pointer) |
+| Preserve both configuration directories, copy missing files, reconcile edits, SDK and relative imports, caller helpers, choices/bounds/grants, `stateDir`, no stored history, old installation independent | Part B: copying/imports/bounds |
+| `start-session` launches; no inspect/init; fake executables, cleared environment, temporary channels, bounded checks, captured arguments/exact result and refusals | Part A: select/validate sections teach the real-launch check and the book's bounded seam; chapter 6 owns the full verb inventory including absence of init |
+| Generated public declarations, temporary absolute-path tsconfig, pinned checker, strict options, no checker needed for installed execution | Part A: typechecking; extends the guide to cover installed declarations and the static module mapping |
+
+The dated personal handoff stays outside the book and is not copied into this
+chapter. Part A establishes no human-comprehension result, real-agent run,
+GitHub rendering or publication evidence. Those limits remain the contract's.
