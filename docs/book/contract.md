@@ -341,7 +341,9 @@ This checks visual consistency, not the reader's knowledge of notation.
   (`docs/session-channel.md`), the component guide (`docs/components.md`,
   whose editable views under `docs/design/components/` become figure sources),
   the release guide (`docs/RELEASING.md`) and the authority note
-  (`docs/authority.md`).
+  (`docs/authority.md`; Parts I and II absorbed its authority statements, so
+  it is reduced to the test-isolation guards and legacy-name exceptions, and
+  removed when chapter 11 absorbs those).
 - **These stay normative**: the session execution specification, the
   result/job completion specification and the decision records. The book
   explains every behaviour and design reason in its own words, so a reader

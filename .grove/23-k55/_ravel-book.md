@@ -154,9 +154,15 @@ reduced README.
 
 - Plain-text mentions of chapters 7–12 in chapters 1–6 become links when each
   target exists (a sweep by the second half's proof).
-- `docs/authority.md` is reduced, not removed, by the first half: its
-  test-isolation guards and legacy-name exceptions belong to chapter 11 and to
-  `docs/caller-references.md`, and the file is removed when chapter 11 lands.
+- `docs/authority.md` is reduced, not removed, by the first half
+  (`book-readme-and-authority-k69` did it): it now states only the
+  test-isolation guards and the legacy-name exceptions, under that title, and
+  points to chapters 2 and 5 for the authority boundaries. Chapter 11 takes
+  those two paragraphs (forced-empty Cargo controls, scrubbing helpers,
+  `env_clear` fixtures, installed smoke's `env -i`, the `GROVE_*` and
+  `HARNESS_DISPATCH_*` extraction-safety exceptions); the file is removed when
+  chapter 11 lands, with its row in `docs/caller-references.md` and the
+  `docs/book/contract.md` "Relation to other documents" clause edited then.
 - Contributor sentences from `docs/session-cli.md` that had no other home are
   now in the README's Develop section (kept until chapter 11 absorbs it): the
   `task typecheck` description and list line, what `task test:cli` runs, "focused
@@ -172,6 +178,18 @@ reduced README.
   is folded in". Reword it the next time the contract is open for edit; the
   record is `docs/configuration-handoff-2026-10-12.md`.
 - Contributor and delivery parts of the README stay until chapters 11 and 12.
+  The README is now an entry (what Ravel is, the two verbs, where the book is
+  and `task docs:book`) plus the untouched "Develop" section, "Earlier
+  project" section (carrying the two release/archive paragraphs and the
+  licence line). Chapter 11 absorbs "Develop" (including the "private session
+  channel" paragraph and the contributor sentences listed above); chapter 12
+  absorbs the two release paragraphs under "Earlier project", whose heading
+  does not describe them; the retired record's pointer stays. The README's
+  short paragraph naming `docs/components.md`, `docs/local-runner.md`, the
+  specification and runtime evidence as references for the unwritten Parts III
+  and IV is to be reworded to point at the chapters when they land. The notices
+  line in that paragraph (checkout path versus installation path) moves to
+  chapter 12.
 - The visual vocabulary and the first figures' conventions are the first
   half's art output; chapters 7–12 follow them.
 - The first figure for "packages, worker and SDK, in source and in an

@@ -1,26 +1,29 @@
 # Ravel
 
-Ravel is a policy router and session process manager. The native front,
-compiled policy worker and local runner build together as one versioned tool.
-The installed pair includes its own runtime, generic SDK, examples and notices.
-It runs independently from a fresh prefix, directly or through a symlink.
+Ravel is a policy router and session process manager. A caller asks for work
+by kind; the owner's TypeScript policy chooses the program that does it; Ravel
+runs that program under supervision and returns the result the program
+publishes. The front, policy worker and local runner are built and versioned
+together as one tool.
 
-The agreed public boundary is a process manager and router with two verbs:
-`start-session` and `end-session RESULT`. The caller supplies the prompt and
-ending instructions; Ravel manages the process and returns the opaque supplied
-result. See [chapter 1 of the book](docs/book/src/01-what-ravel-is-for.md#from-a-request-to-a-result). Persistence and
-historical migration are outside this scope.
+It has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
-The [component contracts](docs/components.md) explain the logical responsibilities,
-why executable owner policy uses TypeScript, what each Rust package owns, and
-how a successful or cancelled session crosses those boundaries. Editable
-[package/process and lifecycle views](docs/design/components/README.md) accompany
-that explanation; run `task docs:components` to view them in a browser.
+The book is the guide to Ravel: what it is for, how to write an owner policy,
+how to run sessions, and the reference. It lives in this repository checkout
+under `docs/book/`; a release archive does not carry it. From a checkout, run
+`task setup` once and then `task docs:book` to build the book and serve it on
+localhost, or read the Markdown in `docs/book/src/`, starting at
+[chapter 1](docs/book/src/01-what-ravel-is-for.md).
 
-The runner starts a caller-supplied program as a supervised job. It owns process
-groups, completion channels, cancellation, reaping, terminal recovery and optional
-filesystem confinement. It selects no harness, reads no policy and opens no
-record store. See [the runner boundary and source provenance](docs/local-runner.md).
+The book's chapters on how Ravel is built, reusing its components, developing
+it and delivering it are not written yet. Until they are, the
+[component contracts](docs/components.md), the
+[runner boundary](docs/local-runner.md), the
+[executable specification](docs/specs/session-execution.md) and
+[runtime evidence](docs/runtime-evidence.md) are the references for that
+ground. The runtime notices are
+[`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a
+checkout and `libexec/ravel/notices/` in an installation.
 
 ## Develop
 
@@ -78,25 +81,3 @@ available through `task release:smoke`, with exact-manifest controls at
 `task release:formula`. See [delivery prerequisites and layout](docs/RELEASING.md).
 
 Licensed under [Apache-2.0](LICENSE).
-
-## Use the pair
-
-```sh
-ravel start-session --kind feature --config ./policy.ts --prompt-file ./prompt.txt
-# From inside its managed process:
-ravel end-session done
-```
-
-Put PREFIX/bin (or target/debug in a checkout) on the managed process's PATH, or use its absolute path in
-ending instructions. The caller supplies those instructions in the prompt.
-Only the exact result bytes go to stdout, without an added newline. Session
-output and policy diagnostics go to stderr. See [the reference's standard streams](docs/book/src/06-reference.md#standard-streams).
-The generic SDK, static routing example and editable choice sample are under
-`crates/ravel/worker`; declarations are generated beside the compiled worker and installed under
-PREFIX/libexec/ravel. Copy examples/sample.ts into your owner configuration and
-edit its routes; it launches only the wrapper you supply. See the
-[executable specification](docs/specs/session-execution.md),
-[authority boundary](docs/authority.md), [runtime evidence](docs/runtime-evidence.md)
-and [runtime notices](crates/ravel/notices/NOTICES.md).
-The book's chapter on [writing an owner policy](docs/book/src/04-writing-an-owner-policy.md#copy-an-existing-policy)
-describes copying, typechecking and fake-agent validation of an existing policy without history access.

@@ -17,7 +17,7 @@ ignored target/k23-all-tokens.tsv and target/k23-caller-lines.txt.
 | ravel tests/cli.rs | Temporary old/current authority sentinels verify exclusion; no real session channel is supplied |
 | installed-smoke.sh | Explicit check that the isolated execution PATH contains no host runtime or source-project executables |
 | docs/local-runner.md and docs/runtime-evidence.md | Exact source-project revision/URLs and historical experiment attribution; no executable dependency |
-| docs/authority.md and this inventory | Explain the guard/provenance exceptions and this bounded sweep |
+| docs/authority.md and this inventory | Explain the test-isolation guards, the legacy-name exceptions and this bounded sweep |
 | docs/configuration-handoff-2026-10-12.md | Dated record of the owner's machine-local configuration handoff and caller-owned routing choices, kept outside the book; no embedded policy or runtime registry |
 | docs/book/contract.md and CONTEXT.md | Name Grove as Ravel's first caller and one labelled illustrative caller, as the provenance of the book contract's method and house style, and in the flagged ambiguity between Ravel's kind and Grove's task kind; the dispatch history appears only as an exclusion; no executable dependency or Ravel convention |
 
