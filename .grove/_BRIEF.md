@@ -260,24 +260,32 @@ test expectations. Correctness repairs precede any later comparative target
 and migration selection; the root's remaining delivery and documentation goals
 still require their own supported work.
 
-`book-structure-k5` is the human structure agreement for the requested book for a
-developer new to this context. If k4 leaves consequential design uncertainty,
-place its precise continuation before that agreement. A supported target can
-inform chapter planning; drafting/examples must use stable interfaces.
+`book-structure-k5` settled the book with the human on 2026-10-16. Its contract
+is `docs/book/contract.md`: the structure brief (reader, outcomes, twelve
+chapters in four parts with their purposes, entry routes, emphasis, exclusions,
+term risks, coverage inventories, examples and figure needs), the prose
+contract, format and media (mdBook, with C4, UML and SysML figures rendered by
+pinned tools), and the reader checkpoints. By the human's choice the book is
+drafted against this workstream's current code before any further component
+work. `ravel-book-k55` holds it, planned lazily in two halves separated by the
+owner's first stand-in read; chapters 1–6 describe the compatibility-protected
+surface. Chapter 10, on using an extracted component, belongs to the work that
+delivers such a component, together with its interface and consumer.
 
-The dependency order after that is a supported target and migration design,
-then independently useful working changes chosen from that design. Each
-implementation increment must retain working configuration and complete
-sessions; an extracted capability and the interface/consumer that makes it
-independently usable belong together. Packaging, additional extractions and
-cleanup become separate increments only where each stopping state is useful
-and verifiable. Cut their groves and detailed leaves when those boundaries are
-known, rather than assigning a crate or language per leaf now.
-
-Documentation structure and editorial work follow the resulting component
-contracts. Apply the upstream editorial guidance to both component documentation
-and the complete tool/configuration/project documentation, with reader outcomes
-and human structure decisions made before drafting.
+`component-work-scope-k57`, after the book node, is the requirements step for
+the remaining component work, informed by where the book's reads found the code
+hard to follow: whether to resume a comparative redesign; which component, if
+any, becomes independently usable, with its interface, consumer, packaging and
+chapter 10; whether any consumer needs a persistent-runner contract; and
+delivery of this workstream's corrected code (merge, release and the book's
+first publication). Each implementation increment it leads to must retain
+working configuration and complete sessions; an extracted capability and the
+interface/consumer that makes it independently usable belong together.
+Packaging, additional extractions and cleanup become separate increments only
+where each stopping state is useful and verifiable, and any component change
+updates the book chapters it touches. Cut their groves and detailed leaves when
+those boundaries are known, rather than assigning a crate or language per leaf
+now.
 
 ## Pointers
 
@@ -303,6 +311,7 @@ and human structure decisions made before drafting.
   Consume its resulting guidance, evidence and declared limits, including
   requirements/structure planning, draft, copy-edit, art, proof and reader testing.
 - Reusable development work uses the existing root `Taskfile.yml`.
+- The book's contract: `docs/book/contract.md`.
 
 ## Agreed acceptance checks
 
@@ -325,7 +334,11 @@ short human read using practical tasks: configure and run a session; explain the
 components and follow one session through the code; use an extracted component.
 Determine the structure, admitted media and viewing environment using the
 upstream guidance. Mechanical document checks support this read rather than
-establishing comprehension by themselves.
+establishing comprehension by themselves. The book contract now fixes these:
+examples run through the CLI/real-policy/fake-program seam, and the human chose
+to hold the read themselves as a labelled stand-in, once after Parts I–II and
+once after Parts III–IV, with the extracted-component task read with chapter
+10. Whether a developer new to Ravel can use the book remains a named unknown.
 
 The human confirmed these acceptance checks and shared understanding of the
 requirements in `plan-k1` before the design and implementation work was cut.
@@ -340,16 +353,17 @@ Do not expand the feature surface merely to justify a generic abstraction.
 The human expects Rust to be capable of implementing the tool and needs the
 purpose and role of the TypeScript component explained. Documentation should
 expose the subject model and reasons for boundaries before asking readers to understand
-language-specific internals. Precise reader profiles and structure are part of
-the later documentation agreement.
+language-specific internals. The reader profile and structure are now in
+`docs/book/contract.md`.
 
 On 2026-10-14, during `component-contracts-k3`, the human specifies the
 documentation deliverable as a book (user guide) for a software developer with
 no background in this context. Teach the problem, vocabulary, actors and session
 lifecycle before configuration and implementation internals. Do not infer Rust,
 TypeScript or diagram proficiency from general development experience. The
-dedicated book-structure agreement settles those assumptions, chapter order,
-learning/direct entry routes, media and viewing environment before drafting.
+book-structure agreement settled those assumptions, chapter order,
+learning/direct entry routes, media and viewing environment on 2026-10-16
+(`docs/book/contract.md`).
 
 On 2026-10-14 the human changed the upstream prerequisite: extract usable
 guidance from the workstreams' current state instead of waiting for completion.
@@ -976,4 +990,6 @@ independent adoption, the comparative questions K4 (reference
 G2 six-month cost, G3 delivery/use beyond entry, G4 unread alternatives, G5
 target execution and R-W runtime/lifecycle debt, and the root's delivery,
 extraction and documentation goals. The standing budget direction in Notes still
-applies; X=0 still binds. No root goal is met by k22.
+applies; X=0 still binds. No root goal is met by k22. `book-structure-k5` has
+since given them live leaves: the documentation goal is `ravel-book-k55`, and
+the rest are `component-work-scope-k57`, which follows the book.

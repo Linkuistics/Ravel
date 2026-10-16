@@ -19,6 +19,7 @@ ignored target/k23-all-tokens.tsv and target/k23-caller-lines.txt.
 | docs/local-runner.md and docs/runtime-evidence.md | Exact source-project revision/URLs and historical experiment attribution; no executable dependency |
 | docs/authority.md and this inventory | Explain the guard/provenance exceptions and this bounded sweep |
 | docs/owner-configuration.md | Machine-local configuration handoff and caller-owned routing choices; no embedded policy or runtime registry |
+| docs/book/contract.md and CONTEXT.md | Name Grove as Ravel's first caller and one labelled illustrative caller, as the provenance of the book contract's method and house style, and in the flagged ambiguity between Ravel's kind and Grove's task kind; the dispatch history appears only as an exclusion; no executable dependency or Ravel convention |
 
 There is no embedded caller adapter, provider-specific policy, task-kind registry,
 review-creator lookup, task-tree walk, teardown interpretation or persistent history
