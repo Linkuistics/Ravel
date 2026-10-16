@@ -5,8 +5,10 @@ implemented and measured per target: aarch64-apple-darwin, aarch64 GNU Linux
 natively at the declared minimum Rust 1.85.0, and x86-64 GNU Linux under
 user-mode emulation, which is recorded as emulated and never as qualification. The
 [evidence note](native-entry-development-evidence.md) states each target's
-measured domain, receipts and limits; a native x86-64 kernel is the open
-`native-entry-x86-64-linux-scope`. The [completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
+measured domain, receipts and limits. Qualification on a native x86-64 kernel
+is deferred, not rejected, and tracked in
+[Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1). The
+[completion contract](specs/result-job-completion.md#one-session-native-launcher-entry)
 owns the required behavior. C1–C4 retain their existing scoped receipts and the
 conditional C4 foreground/group-identity premises. A persistent runner that
 returns to arbitrary host work needs a separate contract.

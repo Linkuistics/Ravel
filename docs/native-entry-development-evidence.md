@@ -1543,11 +1543,14 @@ explained by it.
   container needs four settings (`seccomp=unconfined`, `systempaths=unconfined`,
   `--init`, a non-root user) which are properties of running the product's
   sandbox in a container.
-- **x86_64-unknown-linux-gnu**: built, linted at 1.85.0, and run **under
-  emulation only**. 146 rows reconcile, 7 are limited with reason and control,
-  and 74 protected identities cannot run. Nothing about an x86-64 kernel is
-  established. Native x86-64 is the open choice in
-  `native-entry-x86-64-linux-scope`; the numbers did not move from k50's.
+- **x86_64-unknown-linux-gnu**: built, linted at 1.85.0, and run **under QEMU
+  user-mode emulation only**. 146 rows reconcile, 7 are limited with reason and
+  control, and 74 protected identities cannot run; the numbers did not move from
+  k50's. Nothing about an x86-64 kernel is established. Native qualification is
+  deferred, not rejected, and tracked in
+  [Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1).
+  Native-entry conformance is measured with immutable receipts on
+  aarch64-apple-darwin and aarch64-unknown-linux-gnu only.
 - **Not measured on any target**: other kernels, libc versions and Rust versions
   (only 1.85.0 and 1.99.0 were run), a returning host, independent adoption, and
   the root obligations this campaign never owned.
@@ -1608,8 +1611,9 @@ variants and S counts 8/7/8/7/2 unchanged.
 The frozen native campaign now exists for aarch64-apple-darwin and Rust 1.99
 ([above](#frozen-campaign-and-r01-k43)); the development summaries earlier in
 this note remain development evidence. The support continuation ran the same
-matrix on GNU/Linux and Rust 1.85 (k52, above); a native x86-64 kernel remains
-open.
+matrix on GNU/Linux and Rust 1.85 (k52, above); qualification on a native
+x86-64 kernel is deferred to
+[Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1).
 The source development increment is sealed under k30. K28 remains an open node;
 `native-entry-qualification-k31` carries the complete remaining acceptance work
 after funding and the tree-owned review. Decomposition does not reset the one

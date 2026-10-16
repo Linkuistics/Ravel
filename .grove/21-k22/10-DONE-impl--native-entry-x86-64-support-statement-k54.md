@@ -81,3 +81,42 @@ x86-64 qualification.
   the four steps in the grove's `references/retire.md`. k22's Notes require
   support obligations to be kept explicit; Ravel#1 now carries the x86-64 one.
   Promotion to the root brief comes before book-structure-k5.
+
+## Decisions (running log)
+
+- Swept first, edited second. The handle pattern
+  `native-entry-x86-64-linux-scope`, searched with `rg --hidden --no-ignore`
+  over the whole tree excluding only `.git`, `.jj`, `target` and `.grove`, hit
+  four sites in three shipping documents (spec, design, evidence note x2 as
+  listed) before the edit, and a mutated pattern (`...scopeX`) missed. Rather
+  than a pattern list for the "open choice" wording, every line mentioning
+  x86-64 / x86_64 / amd64 in the docs was enumerated and classified: the other
+  mentions describe what was measured (k50 environment, k52 emulated section,
+  the E04/E07 limit rows, 74 identities) and stay true as written; the fourth
+  open-choice sentence was the evidence note's "Exact remainder" close, which
+  carried no handle.
+- Edited the four sites and nothing else: spec conformance paragraph, design
+  status header, evidence note's x86_64 "Support limits" bullet and the
+  "Exact remainder" close. Each now names the settled limit and links
+  [Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1). The
+  spec and evidence bullet carry the sentence that native-entry conformance is
+  measured with immutable receipts on aarch64-apple-darwin and
+  aarch64-unknown-linux-gnu only. The evidence bullet also now says "QEMU
+  user-mode" where it said only "emulation", matching the k52 receipts. No
+  figure, row, identity or recorded limit changed.
+- `docs/RELEASING.md` is not edited. It makes no native-entry conformance claim
+  (it never mentions the matrix), lists x86_64-unknown-linux-gnu only as a build
+  and smoke target, and already says kernel-version floors are not measured by
+  containers or user-mode emulation. A pointer there would put the support
+  statement in a fourth place in a document whose subject is the release
+  pipeline. What is released is unchanged.
+- Post-edit sweep, same instrument and flags: no pointer to the handle outside
+  `.grove/`; the same command with `.grove` included still hit (the positive
+  control), and the mutated pattern missed. The only remaining "Open" beside an
+  x86-64 sentence is the spec's "Open and unmeasured: any other kernel, libc or
+  Rust version, a returning host and independent adoption", which no longer
+  lists x86-64. `jj diff` shows exactly three files changed; the frozen plan,
+  cases file and everything under `docs/evidence/` are untouched. No check reads
+  the three documents against a stored digest (the campaign driver digests the
+  tree afresh into a new directory each run), so k43's and k52's subject
+  digests describe the tree before this edit, as the notes expected.

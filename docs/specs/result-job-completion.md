@@ -371,9 +371,13 @@ rows and protected identities that need either are accounted for with a reason
 and a control, not reconciled and not dropped. Each target's domain, receipts,
 row-by-row reconciliation and limits are in the
 [evidence note](../native-entry-development-evidence.md); this paragraph claims
-nothing a receipt there does not carry. Open and unmeasured: a native x86-64
-kernel (`native-entry-x86-64-linux-scope`), any other kernel, libc or Rust
-version, a returning host and independent adoption.
+nothing a receipt there does not carry. Native-entry conformance is measured
+with immutable receipts on aarch64-apple-darwin and aarch64-unknown-linux-gnu
+only; nothing about an x86-64 kernel is qualified. Qualification on a native
+x86-64 kernel is deferred, not rejected, and tracked in
+[Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1). Open and
+unmeasured: any other kernel, libc or Rust version, a returning host and
+independent adoption.
 
 ## Test seams for the repair contract
 

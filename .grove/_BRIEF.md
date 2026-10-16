@@ -946,4 +946,34 @@ Charge P<=30/E<=30/RC=0, D=X=0; k50 and k51 recorded no charge, so the cumulativ
 is at least D<=115/RC<=102/P<=540/E<=217/X=0 against historical caps that no
 longer gate required work (k41); remaining D<=20 exclusively phase closure.
 
-No root goal is met by this: native-entry correctness is measured with immutable receipts on aarch64 Darwin and aarch64 Linux at Rust 1.85.0 and only under emulation on x86_64. K53's human deferred native x86-64 qualification out of this grove, not rejected, to [Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1), which depends on [Linkuistics/TestAnyware#1](https://github.com/Linkuistics/TestAnyware/issues/1) (an x86_64 guest under QEMU full-system emulation, binaries cross-built on the host). native-entry-x86-64-support-statement-k54 is live in k22 before book-structure-k5 to carry that statement into the documents. Returning-host, adoption, K4/k6, G2-G5/R-W and the delivery and documentation goals remain live.
+K54 (the last live leaf of k22) carried the human's k53 deferral into the shipping
+documents: the spec's conformance paragraph, the design's status header and the
+evidence note's per-target limit and "Exact remainder" now state that
+x86_64-unknown-linux-gnu is built, linted at Rust 1.85.0 and run only under QEMU
+user-mode emulation (146 of 153 rows reconciled, 7 emulation-limited, 74
+protected identities unable to run), that nothing about an x86-64 kernel is
+qualified, and that native qualification is deferred, not rejected, and tracked in
+[Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1), which
+depends on [Linkuistics/TestAnyware#1](https://github.com/Linkuistics/TestAnyware/issues/1)
+(an x86_64 guest under QEMU full-system emulation, binaries cross-built on the
+host, recorded as a real x86-64 kernel on an emulated CPU). A sweep with a
+positive and a mutated control finds no pointer to the retired handle outside
+`.grove/`. `docs/RELEASING.md`, the frozen plan and cases and `docs/evidence/`
+are unchanged; what is released is unchanged. Documents only, no measurement.
+
+**K22 closes.** Its repair and support continuation are delivered and measured:
+the complete native-entry repair with 153 of 153 rows and 310 of 310 protected
+identities on aarch64-apple-darwin (k43) and, at the declared minimum Rust 1.85.0,
+on aarch64-unknown-linux-gnu (k52), with x86_64 recorded as emulated and its
+native qualification outside this grove. Support limits stay explicit: one
+kernel and one libc per Linux target, no other kernel, libc or Rust version, and
+no x86-64 kernel. This promotes what survives to the book's brief chain. The
+following are *not* delivered by k22, have no live leaf, and are scope questions
+for the next requirements session with the human rather than work k22 left
+undone: a returning host (a different contract from the one-session launcher),
+independent adoption, the comparative questions K4 (reference
+0bdcb1f9ae24db5e9dd499308dd791744e908eb0, one iteration/seven attempts), k6,
+G2 six-month cost, G3 delivery/use beyond entry, G4 unread alternatives, G5
+target execution and R-W runtime/lifecycle debt, and the root's delivery,
+extraction and documentation goals. The standing budget direction in Notes still
+applies; X=0 still binds. No root goal is met by k22.
