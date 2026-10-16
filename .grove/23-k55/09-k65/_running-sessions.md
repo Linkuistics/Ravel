@@ -69,7 +69,13 @@ empty publication and natural exit; nesting; confinement; selection
 cancellation; and cancellation after publication. Two local fragments cover
 caller result capture and physical terminal interaction. The automated seam
 establishes no real-agent behaviour, terminal interaction or human
-comprehension. The proof views and owner's stand-in read remain outstanding;
-art's viewing coverage and limits are in `docs/book/figures.md`.
+comprehension. The first proof's independent views and limits are in
+`docs/book/figures.md`; the owner's stand-in read remains outstanding.
+Proof found an intermittent `selection-cancellation.svg` regeneration mismatch
+after an initial green check. The checked inputs did not change, and subsequent
+retained renders and checks matched, leaving the cause unknown. One art
+correction and another whole-document proof are queued; this node remains open
+until they settle the figure-delivery question. Do not regenerate the committed
+SVG blindly or interpret passing retries as a diagnosed correction.
 Native x86-64 qualification and remote/published rendering remain
 the book contract's declared unknowns.

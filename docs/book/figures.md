@@ -193,6 +193,34 @@ legibly under Smetana is the art stage's to judge on the real figures.
 
 ## Viewing checks
 
+Chapter 5's proof independently inspected all three figures and their adjacent
+notation, explanations and prose alternatives at chapter width in the locally
+served mdBook through Chrome on a light page on 2026-10-16. The settlement and
+supervision-cancellation SVGs were also opened through their full-size links.
+The caller-input, program-resolution, nested-result, confinement-comparison,
+output-routing, exit-status and operational-limits tables were legible there.
+The whole chapter and the three PlantUML sources were read as raw files.
+Proof linked the first use of native front and changed the status table's
+literal numbers from bold to code font; no diagram changed.
+
+The browser extension was available for this pass. VS Code returned no usable
+window (`cgWindowNotFound`), so there is no editor-preview evidence. Other
+themes, narrower viewports, GitHub's rendering of this unpublished branch and
+the unpublished site were not inspected. The earlier isolated-guest capture
+limitation was not retried. These are source and visual checks, not evidence of
+human comprehension, real-agent behaviour or interactive terminal operation.
+
+Proof also found an intermittent regeneration discrepancy: its initial
+`task docs:figures` passed, but a later run reported that
+`selection-cancellation.svg` differed from its source's render. The failed
+check removed its scratch output, so the differing bytes are unavailable.
+The before/after digests of the checked book, script and crate sources and
+workspace manifests were unchanged. Two direct renders retained for comparison
+and six subsequent full checks all matched the committed SVGs. This does not
+explain the failed run or establish reproducibility. An art correction and
+another proof are queued under the chapter's document node; the SVGs and
+renderer pins were left unchanged pending that investigation.
+
 Chapter 5's art stage inspected the three new SVGs and their adjacent
 explanations at chapter width in the locally served mdBook through Chrome on
 a light page on 2026-10-16. The initial renders were also opened through their
