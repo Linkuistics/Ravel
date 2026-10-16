@@ -1,0 +1,4 @@
+' A shared include for the controls: a fragment of settings, not a diagram.
+' The leading underscore keeps it from being rendered on its own.
+skinparam shadowing false
+skinparam ArrowColor #333333

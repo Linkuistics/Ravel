@@ -1,0 +1,16 @@
+@startuml
+!pragma layout smetana
+!include _style.puml
+title Control: a UML sequence – «stereotype», naïve café, 5 s
+participant Caller
+participant "ravel" as Front
+participant "<font:monospaced>agent</font>" as Agent
+Caller -> Front : start-session
+Front -> Agent : launch
+Agent --> Front : exit 0
+Front --> Caller : result
+note over Front
+  **bold**, //italic//, **//both//**, ""mono"" and ""**mono bold**""
+  <code>a code block</code>
+end note
+@enduml

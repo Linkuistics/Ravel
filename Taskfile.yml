@@ -30,6 +30,22 @@ tasks:
     cmds:
       - bash scripts/book.sh build
 
+  docs:figures:
+    desc: Regenerate every book figure into a scratch directory and fail on any difference from the committed SVG (needs task setup and a Java 11+ runtime for PlantUML)
+    cmds:
+      - bash scripts/figures.sh check
+
+  docs:figures:update:
+    desc: Rewrite the committed book figure SVGs from their sources with the pinned renderers (needs task setup and a Java 11+ runtime for PlantUML)
+    cmds:
+      - bash scripts/figures.sh update
+
+  docs:figures:test:
+    desc: Prove the figure check passes unchanged fixtures and fails on a changed source, SVG, layout pin or tool (needs task setup)
+    silent: true
+    cmds:
+      - bash scripts/figures.test.sh
+
   book:integrity:
     desc: Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
     silent: true
@@ -37,10 +53,11 @@ tasks:
       - bash scripts/book-integrity.test.sh
 
   setup:
-    desc: Fetch and verify the pinned checkout-local Bun and mdBook, then install worker dependencies
+    desc: Fetch and verify the pinned checkout-local Bun, mdBook, PlantUML, d2 and figure fonts, then install worker dependencies
     cmds:
       - bash crates/ravel/scripts/dispatch.sh setup
       - bash scripts/book.sh setup
+      - bash scripts/figures.sh setup
       - task: deps
 
   deps:

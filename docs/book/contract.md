@@ -430,7 +430,9 @@ The house style's points, as this book takes them:
   and the regeneration command recorded. A Taskfile task regenerates every
   figure and compares it with the committed SVG. No figure relies on GitHub's
   own Mermaid rendering, whose version GitHub does not state. A figure made
-  only of the page's own text, such as a table, needs no source file.
+  only of the page's own text, such as a table, needs no source file. The
+  layout on disk and the regeneration procedure are in `figures.md` beside
+  this contract.
 - **Dated facts**: the versions above were current on 2026-10-16. A session
   whose choice turns on one of them rechecks it first and records the date.
 

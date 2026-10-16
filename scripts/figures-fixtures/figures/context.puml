@@ -1,0 +1,11 @@
+@startuml
+!pragma layout smetana
+!include _style.puml
+!include <C4/C4_Context>
+title Control: C4 system context
+Person(caller, "Caller", "A script or a person at a terminal")
+System(ravel, "Ravel", "Starts one session and reports how it ended")
+System_Ext(agent, "Agent program", "The program Ravel launches")
+Rel(caller, ravel, "starts a session")
+Rel(ravel, agent, "launches and supervises")
+@enduml
