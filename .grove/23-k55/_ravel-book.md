@@ -162,6 +162,25 @@ reduced README.
 
 ## Handed forward to the first-half set proof
 
+- Chapter 6 completed all four stages and reference-chapter-k66 closes.
+  Its proof re-derived inventories 1 and 2 from the current CLI/source/spec,
+  including 49 diagnostic codes, 19 SDK exports, six bounds and eleven archive
+  paths (nine installed files). No missing entry or conflicting chapter 4/5
+  teaching was found; every lookup entry has a teaching destination. Preserve
+  the context-stage message_too_large loader-failure case, exact-high careful
+  override, settings-before-overrides, worker/managed environment distinctions,
+  notice-before-settlement and conditional operationReports. The two reusable
+  figures, source-components and installed-files, keep linked code, separate
+  processes, embedded modules and editable files distinct for chapters 7/12.
+  Nine figures match, thirteen complete examples pass (zero failed/skipped;
+  six fragments not run), the book builds without warnings and all 289 chapter
+  link/image destinations resolve on 178 unchanged enumerated subjects.
+  docs/book/figures.md records proof's Chrome/raw inspection and its viewing
+  limits. No chapter correction or handed-forward defect remains. Mechanical,
+  source and visual evidence establish no new-reader comprehension, real-agent
+  behaviour, terminal interaction or native x86-64 qualification; the owner's
+  stand-in read, remote views and chapter 10 retain their separate limits.
+
 - Chapter 5 completed all four stages and its bounded art/proof correction
   run. The final proof re-derived every normal CLI status and found no further
   chapter change. Seven figures match, all thirteen complete book examples

@@ -379,6 +379,22 @@ The computer-use browser inventory was empty and the in-app browser unavailable;
 native app access supplied these checks. No human comprehension result follows
 from an art-stage visual inspection.
 
+Chapter 6's proof independently read the whole raw chapter and both PlantUML
+sources on 2026-10-16. In locally served mdBook through Chrome on the existing
+light page, it inspected the installed-path table, both figures and their
+adjacent explanations, both full-size SVG links, the sample-choice comparison,
+and the bounds and policy-field tables. Labels, relations, directory groups
+and keys were legible on those surfaces; no figure correction was needed.
+The first older localhost server returned an empty response; a fresh
+`task docs:book PORT=8778` supplied the inspected build.
+
+VS Code returned no usable window (`cgWindowNotFound`), so this proof supplies
+no editor-preview evidence. Other themes, narrower viewports, GitHub's view of
+the unpublished branch and the unpublished site were not inspected. Visual and
+source checks establish neither human comprehension nor real-agent behaviour,
+interactive terminal operation or native x86-64 qualification. The owner's
+stand-in read remains later.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The

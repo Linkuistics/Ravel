@@ -87,7 +87,7 @@ operation, native x86-64 qualification, or remote viewing. Proof re-enumerates
 against the subject. Copy-edit (`reference-chapter-k95`) is complete: its
 spellings and checked wording are in its running log, and it found no
 structural or technical defect. Art (`reference-chapter-k96`) is complete;
-proof is the remaining stage.
+proof is complete, with its final boundary recorded below.
 
 ## Art boundary
 
@@ -114,3 +114,22 @@ validation. These are bounded source and mechanical checks, not an inventory
 re-enumeration or human-comprehension result. Proof re-enumerates the subject.
 `docs/book/figures.md` records local Chrome/raw viewing and its uninspected
 surfaces; the sample-choice table was also inspected after the final build.
+
+## Proof boundary
+
+Chapter 6 has completed all four editorial stages. Proof reference-chapter-k97
+read the whole chapter and re-enumerated both inventories from the current
+CLI/source/specification, including 49 diagnostic codes, 19 SDK exports and
+all eleven archive paths (nine installed files). No missing item, conflicting
+chapter 4/5 statement or chapter correction was found. No handed-forward
+defect or correction run remains. The chapter is linked from SUMMARY and
+every entry has its teaching destination; this document node's Done when holds.
+
+The nine-figure comparison, thirteen complete examples and warning-free book
+build pass; all 289 chapter link/image destinations resolve. All four inline
+and zoom img elements have meaningful alt text. The 178 enumerated validation
+subjects stay unchanged. The proof leaf records counts, source boundaries,
+controls and the two corrected ad hoc assertions. docs/book/figures.md records
+proof's own Chrome/raw viewing and unavailable editor-preview/remote surfaces.
+These checks establish no human comprehension, real-agent behaviour, terminal
+interaction or native x86-64 qualification. No architectural decision changed.
