@@ -186,19 +186,20 @@ rewrite. The three sequence figures (`successful-session`, `selection-cancellati
 and `supervision-cancellation`, ported by `book-figure-sequences-k111`) and the two
 C4 figures (`system-context` and `process-authority`, ported by
 `book-figure-c4-context-container-k112`) are `.typ` figures with committed
-`.layout.json` records; each port replaces a figure's `.puml` with its `.typ` in
-one commit, and the other four figures follow.
+`.layout.json` records, as are `source-components` (`book-figure-source-components-k113`)
+and `installed-files` (`book-figure-installed-files-k114`); each port replaces a
+figure's `.puml` with its `.typ` in one commit, and the two state views follow.
 
 **On disk.** A `.typ` whose name does not start with `_` is a figure source,
 beside the `.puml` and `.d2` ones, with its SVG of the same name. The
 one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
 `x.puml` and `x.d2` are. A file starting with `_` is a module that figures
 import. It is not a figure and gets no SVG; an SVG for one is refused as an
-orphan. Five modules hold the Typst side. `_style.typ` holds the palette roles,
+orphan. Six modules hold the Typst side. `_style.typ` holds the palette roles,
 text scale, stroke weights, faces and text measuring, and draws nothing.
 `_layout.typ` holds the constructors a layout module builds its record with.
-`_sequence.typ` is the sequence-diagram layout and `_c4.typ` the C4 layout (below):
-each measures its text and returns a layout record. `_draw.typ` turns a record
+`_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout and
+`_deployment.typ` the deployment layout (below): each measures its text and returns a layout record. `_draw.typ` turns a record
 into strokes and is the only module that imports CeTZ; its header documents the
 record's shape and the styles. `_style.typ` and `_sequence.typ` were promoted from
 the k107 trial, which was removed once its findings were recorded here (its
@@ -245,6 +246,30 @@ title. Both came from a scratch sketch of `source-components` (one boundary arou
 two of four entities, with a tag) made to check that the third user fits; the
 port of that figure then needed no further change to the module.
 
+**What the deployment layout covers.** `_deployment.typ` serves `installed-files`,
+and nothing else uses it. A figure source is a tree: `artifact` (a box with a page
+icon, in `ravel` for an executable or `external` for a supporting file, holding
+lines of text), `dir` (a directory: an outline with a tab sized to its name) and
+`node` (the UML node: a box with a top and a right face, its name below the top
+face), each enclosure holding children in a `row` or a `col` with a `gap` and a
+`pad`; and `dep(from, to)`, a dashed arrow between two artifacts. **Placement is
+automatic**, unlike the C4 layout, because an enclosure is a container: the module
+measures every artifact's text, sizes each enclosure from the inside out and
+places the boxes, so no figure source holds a coordinate. A row aligns its
+children on the centre of the first artifact each one holds, which makes the
+dependency from `bin/ravel` to `ravel-policy` a straight line although the worker
+sits inside `libexec/ravel`; where the two centres are further apart than the
+source's side allows, the arrow is a Z. A directory's name is inside its tab and
+the tab is as wide as the name, so no outline crosses a name; the enclosure is
+at least as wide as its tab. An artifact's width is its text plus room for the
+icon, so a long first line never meets the icon. A line wider than an artifact's
+`limit` wraps (the worker's limit is 210, which breaks it after "static", as the
+old figure did). The record uses the shapes `_draw.typ` already had (polygons for
+the enclosures and the icons, a box for an artifact), so the module is the only
+code the figure needed; `fit`, the measured wrapping width, moved from `_c4.typ` to
+`_layout.typ` to be shared, and the other eight records and SVGs came out
+byte-identical.
+
 **Effort and edit cost.** Counted when the figures were ported.
 - `system-context`: 4 entities and 5 relations written; all 5 routes named by
   hand (one relation took the default facing sides, four named a side and offset
@@ -267,6 +292,14 @@ port of that figure then needed no further change to the module.
   and ran into them, and one label ran across the boundary's edge. The second
   render widened the gap (one number, on the two right-hand entities) and wrapped
   three labels. The source is 39 lines, of which 8 are the key.
+- `installed-files`: 5 artifacts, 3 enclosures (a node and two directories) and
+  1 dependency written; 0 coordinates, 0 hand routes and 0 label moves, because
+  the layout is automatic and the one arrow is straight; one wrapping width
+  chosen (the worker's `limit: 210`); 2 renders to settle (the first was
+  structurally right and wrapped "embedded" alone onto the worker's last line).
+  The source is 29 lines, of which 8 are the key, and `_deployment.typ` is the new
+  module (181 lines, 44 of them comments). A scratch copy with a fifth
+  artifact of three long lines rendered with no other edit.
 - The trial's extra container (`audit sink`), added to a scratch copy of
   `process-authority`: one entity (4 lines), one relation (2 lines, a left-to-left
   route given by `jog`) and one name added to the boundary's members; no legend
@@ -298,7 +331,29 @@ in the new layout records and found none missing.
   break.
 - A Typst figure's SVG holds paths and no `<text>`: `process-authority.svg` is
   259 KB, `source-components.svg` 211 KB and `system-context.svg` 161 KB (the
-  nine figures together are 1.32 MB, of which the three PlantUML ones are 64 KB).
+  nine figures together are 1.46 MB, of which the two PlantUML ones are 52 KB).
+
+**Differences from the PlantUML deployment output, with the reason.** Every
+artifact line, enclosure name, the title and the eight key lines are present: a
+script compared each quoted string, the title and each key line of the old source
+with the text in the new layout record and found none missing (and, with one
+string removed from the text it searched, reported exactly that string, so it can
+fail).
+- Enclosures are drawn by the module from the tree, not by a graph layout:
+  the three file groups stack in one column because the column is the source's
+  `col`, which replaces the old source's three hidden links.
+- A directory's name sits in a tab sized to it, so no outline can cross a label
+  (the past art pass fixed a PlantUML label that crowded an outline); the node's
+  name sits below its top face. The page icon is a drawn polygon with a folded
+  corner, in the artifact's colours, rather than PlantUML's.
+- The artifact text is wrapped at a measured width (the worker's at 210 points)
+  and drawn in the same 14-point body face; the title is bold 16pt, as in every
+  Typst figure.
+- The dependency is a dashed arrow in the shared arrowhead and stroke weight,
+  without PlantUML's spline.
+- The figure is drawn sketched at roughness 2 with a crisp key, like every Typst
+  figure, and its SVG holds paths and no `<text>` (160 KB, where the PlantUML one
+  was about 12 KB).
 
 **Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
 item, not text. In the trial it drew the label as a list. Write `2\.` in the
@@ -320,8 +375,8 @@ are maintained Typst source with no `.puml`.
 
 **Single-engine risk.** PlantUML's C4 and UML conventions (standard shapes,
 `legend`, the standard library) exist now only as this directory's hand-written
-primitives; a state or deployment diagram would need new layout code, and any
-d2 diagram has no counterpart.
+primitives; a state diagram would need new layout code, and any d2 diagram has
+no counterpart.
 
 **Layout, then draw.** A figure source builds a record with a layout module and
 passes it to `render` in `_draw.typ`. The record is plain data: positions, roles

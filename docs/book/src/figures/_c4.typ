@@ -101,14 +101,6 @@
   }
 }
 
-// The label's wrapping width for a part of an entity: its own width when that fits
-// the box, else the width that wraps it. Measured, so a one-line part is never
-// drawn in a fixed-width box.
-#let fit(body, face, limit) = {
-  let s = size-of(ctext(label(plain(body)), ..faces.at(face)))
-  if s.w > limit { limit } else { auto }
-}
-
 // ---- layout ---------------------------------------------------------------
 
 // Returns a deferred layout: calling it, inside `render`'s context, gives the

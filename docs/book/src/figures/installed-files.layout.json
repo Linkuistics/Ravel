@@ -1,0 +1,590 @@
+{
+  "w": 633.4072265625,
+  "h": 730.5226562500001,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Installed pair and supporting files — UML deployment view",
+      "x": 316.70361328125,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 532.6953125,
+      "h": 12.15625
+    },
+    {
+      "id": "host",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          6.14990234375,
+          40.15625
+        ],
+        [
+          20.14990234375,
+          26.15625
+        ],
+        [
+          627.25732421875,
+          26.15625
+        ],
+        [
+          627.25732421875,
+          539.5289062500001
+        ],
+        [
+          613.25732421875,
+          553.5289062500001
+        ],
+        [
+          6.14990234375,
+          553.5289062500001
+        ]
+      ]
+    },
+    {
+      "id": "host-front",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          6.14990234375,
+          40.15625
+        ],
+        [
+          613.25732421875,
+          40.15625
+        ],
+        [
+          613.25732421875,
+          553.5289062500001
+        ],
+        [
+          6.14990234375,
+          553.5289062500001
+        ]
+      ]
+    },
+    {
+      "id": "host-edge",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          613.25732421875,
+          40.15625
+        ],
+        [
+          627.25732421875,
+          26.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "host-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Host",
+      "x": 309.70361328125,
+      "y": 54.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 36.4296875,
+      "h": 12.15625
+    },
+    {
+      "id": "prefix",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          24.14990234375,
+          78.3125
+        ],
+        [
+          286.48583984375,
+          78.3125
+        ],
+        [
+          294.48583984375,
+          102.46875
+        ],
+        [
+          595.25732421875,
+          102.46875
+        ],
+        [
+          595.25732421875,
+          535.5289062500001
+        ],
+        [
+          24.14990234375,
+          535.5289062500001
+        ]
+      ]
+    },
+    {
+      "id": "prefix-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "PREFIX (installation directory)",
+      "x": 155.31787109375,
+      "y": 90.390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 238.3359375,
+      "h": 12.15625
+    },
+    {
+      "id": "front",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 42.14990234375,
+      "y0": 171.79335937500002,
+      "x1": 215.25732421875,
+      "y1": 241.10351562500003
+    },
+    {
+      "id": "front-icon",
+      "shape": "polygon",
+      "role": "ravel",
+      "pts": [
+        [
+          196.25732421875,
+          178.79335937500002
+        ],
+        [
+          203.25732421875,
+          178.79335937500002
+        ],
+        [
+          208.25732421875,
+          183.79335937500002
+        ],
+        [
+          208.25732421875,
+          194.79335937500002
+        ],
+        [
+          196.25732421875,
+          194.79335937500002
+        ]
+      ]
+    },
+    {
+      "id": "front-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          203.25732421875,
+          178.79335937500002
+        ],
+        [
+          203.25732421875,
+          183.79335937500002
+        ],
+        [
+          208.25732421875,
+          183.79335937500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "front-text",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "bin/ravel\nRavel CLI\nwith linked runner",
+      "x": 128.70361328125,
+      "y": 206.4484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 127.107421875,
+      "h": 47.31015625
+    },
+    {
+      "id": "libexec",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          285.25732421875,
+          120.46875
+        ],
+        [
+          500.16357421875,
+          120.46875
+        ],
+        [
+          508.16357421875,
+          144.625
+        ],
+        [
+          577.25732421875,
+          144.625
+        ],
+        [
+          577.25732421875,
+          517.5289062500001
+        ],
+        [
+          285.25732421875,
+          517.5289062500001
+        ]
+      ]
+    },
+    {
+      "id": "libexec-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "libexec/ravel (directory)",
+      "x": 392.71044921875,
+      "y": 132.546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 190.90625,
+      "h": 12.15625
+    },
+    {
+      "id": "worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 303.25732421875,
+      "y0": 162.625,
+      "x1": 559.25732421875,
+      "y1": 250.27187500000002
+    },
+    {
+      "id": "worker-icon",
+      "shape": "polygon",
+      "role": "ravel",
+      "pts": [
+        [
+          540.25732421875,
+          169.625
+        ],
+        [
+          547.25732421875,
+          169.625
+        ],
+        [
+          552.25732421875,
+          174.625
+        ],
+        [
+          552.25732421875,
+          185.625
+        ],
+        [
+          540.25732421875,
+          185.625
+        ]
+      ]
+    },
+    {
+      "id": "worker-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          547.25732421875,
+          169.625
+        ],
+        [
+          547.25732421875,
+          174.625
+        ],
+        [
+          552.25732421875,
+          174.625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "worker-text",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "ravel-policy\npolicy worker\nwith Bun, SDK and static example embedded",
+      "x": 431.25732421875,
+      "y": 206.4484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 210.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "sdk",
+      "shape": "box",
+      "role": "external",
+      "x0": 359.31884765625,
+      "y0": 276.271875,
+      "x1": 503.19580078125,
+      "y1": 327.2453125
+    },
+    {
+      "id": "sdk-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          484.19580078125,
+          283.271875
+        ],
+        [
+          491.19580078125,
+          283.271875
+        ],
+        [
+          496.19580078125,
+          288.271875
+        ],
+        [
+          496.19580078125,
+          299.271875
+        ],
+        [
+          484.19580078125,
+          299.271875
+        ]
+      ]
+    },
+    {
+      "id": "sdk-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          491.19580078125,
+          283.271875
+        ],
+        [
+          491.19580078125,
+          288.271875
+        ],
+        [
+          496.19580078125,
+          288.271875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "sdk-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "sdk/index.ts\nsdk/index.d.ts",
+      "x": 431.25732421875,
+      "y": 301.75859375000005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 97.876953125,
+      "h": 28.9734375
+    },
+    {
+      "id": "examples",
+      "shape": "box",
+      "role": "external",
+      "x0": 337.6181640625,
+      "y0": 353.2453125,
+      "x1": 524.896484375,
+      "y1": 422.55546875000005
+    },
+    {
+      "id": "examples-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          505.896484375,
+          360.2453125
+        ],
+        [
+          512.896484375,
+          360.2453125
+        ],
+        [
+          517.896484375,
+          365.2453125
+        ],
+        [
+          517.896484375,
+          376.2453125
+        ],
+        [
+          505.896484375,
+          376.2453125
+        ]
+      ]
+    },
+    {
+      "id": "examples-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          512.896484375,
+          360.2453125
+        ],
+        [
+          512.896484375,
+          365.2453125
+        ],
+        [
+          517.896484375,
+          365.2453125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "examples-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "examples/static.ts\nexamples/static.d.ts\nexamples/sample.ts",
+      "x": 431.25732421875,
+      "y": 387.900390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 141.2783203125,
+      "h": 47.31015625
+    },
+    {
+      "id": "notices",
+      "shape": "box",
+      "role": "external",
+      "x0": 321.98095703125,
+      "y0": 448.55546875000005,
+      "x1": 540.53369140625,
+      "y1": 499.52890625000003
+    },
+    {
+      "id": "notices-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          521.53369140625,
+          455.55546875000005
+        ],
+        [
+          528.53369140625,
+          455.55546875000005
+        ],
+        [
+          533.53369140625,
+          460.55546875000005
+        ],
+        [
+          533.53369140625,
+          471.55546875000005
+        ],
+        [
+          521.53369140625,
+          471.55546875000005
+        ]
+      ]
+    },
+    {
+      "id": "notices-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          528.53369140625,
+          455.55546875000005
+        ],
+        [
+          528.53369140625,
+          460.55546875000005
+        ],
+        [
+          533.53369140625,
+          460.55546875000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "notices-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "notices/NOTICES.md\nnotices/bun-LICENSE.md",
+      "x": 431.25732421875,
+      "y": 474.04218750000007,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 172.552734375,
+      "h": 28.9734375
+    },
+    {
+      "id": "dep-front-worker",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          215.25732421875,
+          206.4484375
+        ],
+        [
+          303.25732421875,
+          206.4484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 6.0,
+      "y0": 571.5289062500001,
+      "x1": 627.4072265625,
+      "y1": 730.5226562500001
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: executables. Grey: supporting files. Outlines group directories.\nA file group lists separate files relative to libexec/ravel.\nDashed arrow: discovery and pairing dependency, not a process timeline.\nThe CLI uses its own canonical real path to find the worker and checks build identity.\nEditing adjacent sources does not replace embedded modules.\nDeclarations support typechecking; sample.ts is copied and edited by the owner.\nNo host Bun, Node.js or source checkout is needed for installed execution.\nRelease archives additionally carry README.md and LICENSE at their root.",
+      "x": 316.70361328125,
+      "y": 651.0257812500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 593.4072265625,
+      "h": 138.99375
+    }
+  ]
+}
