@@ -336,6 +336,15 @@ for cleanup.” and the key line “Publication precedes cleanup…”. In
 and “delivering”. If a label changes, make the alt text agree. This closes
 document node `a-complete-session-k63` again.
 
+Copy-edit `writing-an-owner-policy-k127` converted chapter 4 to STE and
+“send”. It passes `task docs:ste -- --strict`. Its title is “Write an owner
+policy”. Its heading “Copy an existing policy” is now “Copy a policy from
+another configuration” (“existing” is an “-ing” form), and chapter 6's three
+links to it changed. The agent example's prompt now says “When you finish,
+run … as your last action. Then do nothing else.” Chapter 4 has no figures,
+so set art k130 has no work in it. This closes document node
+`writing-an-owner-policy-k64` again.
+
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
 titles, the words that the book does not use and the “-ing” words that it
 keeps), the check `task docs:ste` with its controls `task docs:ste:test`,

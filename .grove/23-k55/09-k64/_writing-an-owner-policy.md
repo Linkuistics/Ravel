@@ -217,3 +217,8 @@ Copy-edit k127 converts chapter 4 to STE, with the word decisions in
 policy”. Chapter 4 has no figures, so set art has no work here.
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
+Copy-edit k127 completed this conversion on 2026-10-18. Chapter 4 passes
+the strict STE check. The heading “Copy an existing policy” is now “Copy a
+policy from another configuration”, and chapter 6's three links use the new
+anchor `#copy-a-policy-from-another-configuration`. Chapter 4 has no
+figures, so set art k130 has no work in it.

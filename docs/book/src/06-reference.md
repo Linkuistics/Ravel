@@ -888,7 +888,7 @@ edit the static table itself, copy `static.ts` too and import that local file;
 importing `ravel/examples/static` continues to use the compiled copy. Validation
 with fake agents checks argument delivery, not real-agent execution or
 permissions. See
-[copy an existing policy](04-writing-an-owner-policy.md#copy-an-existing-policy).
+[copy a policy from another configuration](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration).
 
 ## Installed layout
 
@@ -908,7 +908,7 @@ See
 | `libexec/ravel/sdk/index.d.ts` | Generated public SDK declarations for policy typechecking. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
 | `libexec/ravel/examples/static.ts` | Copy of `worker/examples/static.ts`. Import a local copy by path to use edits. | [Starter table](04-writing-an-owner-policy.md#use-the-starter-route-table) |
 | `libexec/ravel/examples/static.d.ts` | Generated declarations for the static example exports. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
-| `libexec/ravel/examples/sample.ts` | Copy of `worker/sample/policy.ts`, an owner-editable entry using checkout choices. Not automatically copied into `HOME`. | [Copy a policy](04-writing-an-owner-policy.md#copy-an-existing-policy) |
+| `libexec/ravel/examples/sample.ts` | Copy of `worker/sample/policy.ts`, an owner-editable entry using checkout choices. Not automatically copied into `HOME`. | [Copy a policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration) |
 | `libexec/ravel/notices/NOTICES.md` | Runtime third-party notice inventory copied from `crates/ravel/notices`. Keep it with the worker. | [Installation assets](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
 | `libexec/ravel/notices/bun-LICENSE.md` | Bundled Bun licence and notice text copied from `crates/ravel/notices`. | [Installation assets](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
 | `README.md` | Additional archive-root entry identifying the project; archive packaging includes it alongside the installed pair and assets. | [Obtain Ravel](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
@@ -957,7 +957,7 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 
 > **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
 > See [embedded imports and editable copies](04-writing-an-owner-policy.md#resolve-policy-imports)
-> and [copy an owner policy](04-writing-an-owner-policy.md#copy-an-existing-policy)
+> and [copy an owner policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration)
 > for how to use the supporting files.
 
 > **Note:** Chapter 10 remains unwritten until a supported extracted
