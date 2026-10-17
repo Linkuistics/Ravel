@@ -222,9 +222,8 @@ four-line message rendered with no other change. A label's apostrophe is
 written in the source as `'` and drawn as `’` (typographic), as in the trial;
 the old PlantUML figures drew a straight one.
 
-**What the C4 layout covers.** `_c4.typ` serves the system-context and container
-views, and the component view (`source-components`, still a `.puml`) needs nothing
-more: an entity in a semantic role (`ent`: «stereotype», name, [technology] and a
+**What the C4 layout covers.** `_c4.typ` serves the system-context, container and
+component views: an entity in a semantic role (`ent`: «stereotype», name, [technology] and a
 description, in `ravel`, `external`, `owner` or `temporary`, as a box or, with
 `db: true`, the shared cylinder with its text inside), a boundary (`boundary`: a
 dashed outline around named entities, with a name and a `[tag]`), a relation
@@ -244,7 +243,7 @@ are not. A boundary is at least as wide as its own name and tag (centred on its
 members when the name is wider) and the topmost element sits 14 points below the
 title. Both came from a scratch sketch of `source-components` (one boundary around
 two of four entities, with a tag) made to check that the third user fits; the
-port itself is `book-figure-source-components-k113`.
+port of that figure then needed no further change to the module.
 
 **Effort and edit cost.** Counted when the figures were ported.
 - `system-context`: 4 entities and 5 relations written; all 5 routes named by
@@ -259,6 +258,15 @@ port itself is `book-figure-source-components-k113`.
   the boundary's edge, and the worker's technology line wrapped). The first
   render also showed the boundary's dashes drawn as dots, a fix in `_draw.typ`
   (4pt dashes for the `boundary` role) and not in either figure.
+- `source-components`: 4 entities (two inside the boundary, two outside) and 3
+  relations written; no route named by hand (all three took the default facing
+  sides, because every pair of boxes faces across a gap) and no `side`, `dx`,
+  `dy`, `t` or `seg`; label placement chosen for 3 of 3, each a wrapping width; 2
+  renders to settle. The first was structurally right and showed two faults, both
+  placement: the long technology lines were wider than the gap between the boxes
+  and ran into them, and one label ran across the boundary's edge. The second
+  render widened the gap (one number, on the two right-hand entities) and wrapped
+  three labels. The source is 39 lines, of which 8 are the key.
 - The trial's extra container (`audit sink`), added to a scratch copy of
   `process-authority`: one entity (4 lines), one relation (2 lines, a left-to-left
   route given by `jog`) and one name added to the boundary's members; no legend
@@ -267,8 +275,8 @@ port itself is `book-figure-source-components-k113`.
 
 **Differences from the PlantUML C4 output, with the reason.** Every entity, tag,
 technology line, relation label, number and key line is present: a script
-compared each quoted string in the two old sources with the text in the new
-layout records and found none missing.
+compared each quoted string and key line in the three old sources with the text
+in the new layout records and found none missing.
 - Relations are orthogonal polylines, not splines: the route is data a person
   edits, and a spline needs a layout engine.
 - Entity names and the title are bold 16pt (the old output set them in regular
@@ -282,8 +290,15 @@ layout records and found none missing.
   description breaks at different words than before.
 - The figures are drawn sketched at roughness 2 with a crisp key, like every
   Typst figure.
+- The component view's `Lay_D(worker, managed)` hint, which kept the worker above
+  the managed process, is the figure source's two columns: the worker's and the
+  managed process's `cx` are the same. Its boundary header names the
+  boundary in regular weight with `[Container]` beneath, as the other boundaries
+  do, and an embedded line break in the worker's description is kept as a line
+  break.
 - A Typst figure's SVG holds paths and no `<text>`: `process-authority.svg` is
-  259 KB and `system-context.svg` 161 KB (the set is 1.13 MB).
+  259 KB, `source-components.svg` 211 KB and `system-context.svg` 161 KB (the
+  nine figures together are 1.32 MB, of which the three PlantUML ones are 64 KB).
 
 **Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
 item, not text. In the trial it drew the label as a list. Write `2\.` in the

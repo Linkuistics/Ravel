@@ -1,0 +1,481 @@
+{
+  "w": 936.40625,
+  "h": 742.12421875,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Source responsibilities — C4 component view",
+      "x": 421.796875,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 409.8046875,
+      "h": 12.15625
+    },
+    {
+      "id": "native",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          -46.40625,
+          26.15625
+        ],
+        [
+          306.40625,
+          26.15625
+        ],
+        [
+          306.40625,
+          565.13046875
+        ],
+        [
+          -46.40625,
+          565.13046875
+        ],
+        [
+          -46.40625,
+          26.15625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "native-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Ravel CLI — one Rust process (bin/ravel)",
+      "x": 130.0,
+      "y": 46.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 324.8125,
+      "h": 12.15625
+    },
+    {
+      "id": "native-tag",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[Container]",
+      "x": 130.0,
+      "y": 60.87109375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 68.00390625,
+      "h": 9.1171875
+    },
+    {
+      "id": "front",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 0.0,
+      "y0": 91.4296875,
+      "x1": 260.0,
+      "y1": 230.08671875
+    },
+    {
+      "id": "front-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«component»",
+      "x": 130,
+      "y": 106.98828125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 82.5703125,
+      "h": 9.1171875
+    },
+    {
+      "id": "front-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Request checks and final outcome",
+      "x": 130,
+      "y": 132.103125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 236.0,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "front-tech",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "[Rust: crates/ravel/src]",
+      "x": 130,
+      "y": 157.21796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 136.517578125,
+      "h": 9.1171875
+    },
+    {
+      "id": "front-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Checks owner policy and its response; decides the final outcome.",
+      "x": 130,
+      "y": 195.431640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 236.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 590.0,
+      "y0": 92.73945312499998,
+      "x1": 890.0,
+      "y1": 228.776953125
+    },
+    {
+      "id": "worker-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«container»",
+      "x": 740,
+      "y": 108.29804687499998,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "policy worker",
+      "x": 740,
+      "y": 122.93476562499998,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 121.515625,
+      "h": 12.15625
+    },
+    {
+      "id": "worker-tech",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "[Separate process: ravel-policy]",
+      "x": 740,
+      "y": 137.57148437499998,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 191.255859375,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "crates/ravel/worker/src\nCompiled with Bun; embeds worker/sdk and worker/examples/static.ts. Evaluates trusted owner policy.",
+      "x": 740,
+      "y": 184.953515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 276.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "runner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 0.0,
+      "y0": 421.4296875,
+      "x1": 260.0,
+      "y1": 539.13046875
+    },
+    {
+      "id": "runner-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«component»",
+      "x": 130,
+      "y": 436.98828125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 82.5703125,
+      "h": 9.1171875
+    },
+    {
+      "id": "runner-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "runner",
+      "x": 130,
+      "y": 451.625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.8046875,
+      "h": 12.15625
+    },
+    {
+      "id": "runner-tech",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "[Rust: crates/keyed-launch]",
+      "x": 130,
+      "y": 466.26171875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 165.287109375,
+      "h": 9.1171875
+    },
+    {
+      "id": "runner-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Linked library code. Launches and supervises the managed job inside the Ravel CLI.",
+      "x": 130,
+      "y": 504.475390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 236.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 590.0,
+      "y0": 446.325,
+      "x1": 890.0,
+      "y1": 514.23515625
+    },
+    {
+      "id": "managed-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 740,
+      "y": 461.88359375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "managed-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "managed process",
+      "x": 740,
+      "y": 476.5203125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 158.703125,
+      "h": 12.15625
+    },
+    {
+      "id": "managed-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Program selected by owner policy",
+      "x": 740,
+      "y": 497.916796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 237.6103515625,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-front-worker",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          260.0,
+          160.758203125
+        ],
+        [
+          590.0,
+          160.758203125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-front-worker-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Evaluates owner policy",
+      "x": 425.0,
+      "y": 139.32265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 300.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-front-worker-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[private request and response protocol]",
+      "x": 425.0,
+      "y": 152.199609375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 300.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-front-runner",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          130,
+          230.08671875
+        ],
+        [
+          130,
+          421.4296875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-front-runner-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Uses after worker cleanup",
+      "x": 193.0,
+      "y": 311.84101562499995,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 110.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-front-runner-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[Rust library interface]",
+      "x": 193.0,
+      "y": 341.744921875,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 110.0,
+      "h": 24.834374999999998
+    },
+    {
+      "id": "rel-runner-managed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          260.0,
+          480.280078125
+        ],
+        [
+          590.0,
+          480.280078125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-runner-managed-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launches and supervises",
+      "x": 425.0,
+      "y": 458.84453125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 300.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-runner-managed-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[selected program and arguments]",
+      "x": 425.0,
+      "y": 471.721484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 300.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 130.93798828125,
+      "y0": 583.13046875,
+      "x1": 712.65576171875,
+      "y1": 742.12421875
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: worker ended and reaped; private directory removed.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
+      "x": 421.796875,
+      "y": 662.62734375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 553.7177734375,
+      "h": 138.99375
+    }
+  ]
+}
