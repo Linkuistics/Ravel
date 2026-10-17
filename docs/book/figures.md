@@ -434,6 +434,20 @@ The in-app browser was unavailable; native Chrome supplied the visual checks.
 These checks provide no human-comprehension or real-agent execution evidence.
 The accepted Typst/CeTZ trial remains separate from these published figures.
 
+Opening-unit proof on 2026-10-17 independently read the two corrected C4
+sources, keys and alternatives. In a fresh locally served mdBook through
+native Chrome on a light page, it inspected both figures at chapter width,
+the publication/cleanup/return table, the result/status/work and fit tables,
+the managed-process explanation and responsibility table, and the process
+figure at full SVG size. Labels and keys were legible, with the full-size
+process link supplying more detail. VS Code's light Markdown preview in
+Restricted Mode also showed chapter 1's introduction, publication table,
+system-context figure and complete key, and adjacent output teaching legibly.
+Raw files supplied the complete chapter and source read. This proof did not
+inspect chapter 2's editor preview, other themes, narrower viewports or the
+full-size system-context link. GitHub and the published site remain unavailable;
+the check establishes no real-agent execution or human comprehension result.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The
@@ -442,8 +456,8 @@ The accepted Typst/CeTZ trial remains separate from these published figures.
   pinned hosts); other Java runtimes than OpenJDK 21 and 27.
 - A reader's browser without DejaVu Sans: the generic fallback is in the SVG,
   but the rendering in such a browser was not inspected.
-- mdBook's Rust, Coal and Ayu themes, narrower viewports, and chapter 1's editor
-  preview. The checks above cover only the named pages and environments.
+- mdBook's Rust, Coal and Ayu themes and narrower viewports. The checks above
+  cover only the named pages and environments.
 - The published site, which is unavailable before the book's first release.
 
 ## Checking the check

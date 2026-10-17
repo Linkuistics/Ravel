@@ -266,3 +266,18 @@ process-authority view and a sequence, including a longer label and an added
 participant, before any decision to migrate the book's figures. The read then
 resumes and, once its corrections are routed, cuts the second half's planning leaf before
 `ravel-book-k101`.
+
+The opening-unit correction closes with proof `what-ravel-is-for-and-its-actors-k105`
+on 2026-10-17, closing document node `what-ravel-is-for-and-its-actors-k62` again.
+The whole unit agrees with the amended contract: harness sessions are parts
+of a caller's work, `end-session` exists because interactive harnesses wait
+for more input, and result publication requests ending before confirmed cleanup
+and return. Both C4 views, keys, alternatives and tables agree. No further
+correction was needed and the document's handoff list is cleared. Fresh build,
+nine figure comparisons and 13 complete examples passed; 538 rendered/entry
+local destinations resolved, with missing-file/anchor/image controls rejected.
+Local Chrome viewing and chapter 1's VS Code preview supplied independent
+visual checks; GitHub and the published site remain unavailable. This is no
+real-agent execution or new-reader comprehension result. The README alignment,
+accepted Typst/CeTZ trial and resumed owner read remain their existing live
+leaves; the current media contract still governs until a migration is agreed.

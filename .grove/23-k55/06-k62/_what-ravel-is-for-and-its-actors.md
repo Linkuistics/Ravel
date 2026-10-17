@@ -73,18 +73,4 @@ and the chapter 1 publication/stop/cleanup/return table. The two C4 views,
 their text alternatives and the fit/responsibility tables now name the
 orchestrator and LLM harness while preserving the generic process boundary.
 
-## Handed forward
-
-- **Proof k105:** art k104 aligned both C4 views, their role sentences and
-  alt text, and the fit/responsibility tables with the corrected domain.
-  Read the new publication/stop/confirmed-cleanup/return table in chapter 1
-  against the success conditions and chapter 3's more detailed sequence.
-  The process view places the harness to the right to separate publication
-  from result reading; its legend retains worker cleanup before launch.
-  Viewing evidence and limits are in `docs/book/figures.md`. No earlier-stage
-  defect was found. The owner accepted a Typst/CeTZ trial and clarified
-  "Prefer Typst/CeTZ; trial before migration". Prototype `book-figure-renderer-k107`
-  precedes the resumed reader session; it compares two diagrams and tests
-  maintenance edits. The published book's media and figures remain governed by
-  the current contract until that trial supports a migration decision.
 
