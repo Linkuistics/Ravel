@@ -5,7 +5,9 @@
 #
 # Part 1 drives the fetch-and-verify function offline, emulating only `curl`.
 # Part 2 runs the real renderers (needs `task setup`) over the committed
-# fixtures in scripts/figures-fixtures and over mutated copies of them.
+# fixtures in scripts/figures-fixtures and over mutated copies of them, and
+# renders the book's own Typst modules (_style.typ, _sequence.typ) with the
+# pinned Typst.
 # Part 3 builds one page with an embedded figure through mdBook.
 set -euo pipefail
 IFS=$'\n\t'
@@ -23,7 +25,7 @@ die() {
 }
 ok() { printf 'figures-test: ok: %s\n' "$*"; }
 
-[[ -f "$tools/plantuml-1.2026.8.jar" && -x "$tools/d2" ]] || die 'run task setup before the figure controls'
+[[ -f "$tools/plantuml-1.2026.8.jar" && -x "$tools/d2" && -x "$tools/typst" && -d "$tools/typst-packages/preview/cetz" ]] || die 'run task setup before the figure controls'
 [[ -x "$tools/mdbook" ]] || die 'run task setup (mdBook is needed for the page control)'
 
 # ---------------------------------------------------------------- part 1: fetch
@@ -150,10 +152,13 @@ printf 'skinparam backgroundColor red\nskinparam defaultFontSize 30\n' >"$hostil
   cd "$hostile"
   GRAPHVIZ_DOT=/nonexistent D2_LAYOUT=dagre D2_THEME=4 D2_SKETCH=true D2_PAD=0 \
     PLANTUML_LIMIT_SIZE=100 _JAVA_OPTIONS=-Xmx1m JAVA_TOOL_OPTIONS=-Duser.language=tr \
+    TYPST_FONT_PATHS=/nonexistent TYPST_PACKAGE_PATH=/nonexistent TYPST_PACKAGE_CACHE_PATH=/nonexistent \
+    TYPST_ROOT=/nonexistent TYPST_FEATURES=html SOURCE_DATE_EPOCH=1 HTTPS_PROXY=http://127.0.0.1:1 \
+    XDG_DATA_HOME="$hostile" XDG_CACHE_HOME="$hostile" \
     LANG=tr_TR.UTF-8 TZ=Asia/Kolkata FIGURES_DIR="$fixtures" BOOK_TOOLS_DIR="$tools" \
     bash "$script" check
 ) >"$work/out" 2>&1 || die "a hostile environment changed the result: $(cat "$work/out")"
-ok 'D2_*, GRAPHVIZ_DOT, PLANTUML_*, JVM options, locale and a skin file in the working directory change nothing'
+ok 'D2_*, GRAPHVIZ_DOT, PLANTUML_*, TYPST_*, SOURCE_DATE_EPOCH, JVM options, locale and a skin file in the working directory change nothing'
 
 # A changed source, a changed SVG, a missing SVG and an SVG without a source.
 d="$(copy_fixtures source-changed)"
@@ -170,7 +175,7 @@ expect_refused 'a missing SVG fails' 'sequence.svg is missing' check "$d"
 
 d="$(copy_fixtures svg-orphan)"
 cp "$d/flow.svg" "$d/gone.svg"
-expect_refused 'an SVG with no source fails' 'gone.svg has no gone.puml or gone.d2 source' check "$d"
+expect_refused 'an SVG with no source fails' 'gone.svg has no gone.puml, gone.d2 or gone.typ source' check "$d"
 
 # update rewrites what differs, then check passes, then update changes nothing.
 d="$(copy_fixtures update)"
@@ -206,14 +211,16 @@ expect_refused 'an SVG without the generic font fallback fails' 'states.svg diff
 # The font pin is load-bearing: the same source rendered with Java's font path
 # pointing at a directory without the pinned faces gives different bytes.
 mkdir -p "$work/no-fonts"
+d="$(copy_fixtures plantuml-only)"
+rm "$d/layers.typ" "$d/_shapes.typ" "$d/layers.svg" # Typst has its own font control below
 (
-  # shellcheck disable=SC2031 # each subshell sets its own tools directory
+  # shellcheck disable=SC2030,SC2031 # each subshell sets its own tools directory
   export BOOK_TOOLS_DIR="$tools"
   # shellcheck disable=SC1090
   source "$script"
   # shellcheck disable=SC2034 # read by render_all in the sourced script
   fontdir="$work/no-fonts"
-  render_all "$fixtures" "$work/render-nofont"
+  render_all "$d" "$work/render-nofont"
 )
 if cmp -s "$work/render-nofont/context.svg" "$fixtures/context.svg"; then
   die 'rendering without the pinned fonts gave the same bytes, so the font pin proves nothing here'
@@ -252,12 +259,207 @@ expect_refused 'a d2 source without its theme is refused' 'theme-id' check "$d"
 d="$(copy_fixtures duplicate)"
 cp "$d/flow.d2" "$d/context.d2"
 expect_refused 'two sources with one stem are refused' 'would both write context.svg' check "$d"
+d="$(copy_fixtures duplicate-typst)"
+cp "$d/layers.typ" "$d/context.typ"
+expect_refused 'a .puml and a .typ with one stem are refused' 'context.puml and context.typ would both write context.svg' check "$d"
+d="$(copy_fixtures duplicate-typst-d2)"
+cp "$d/layers.typ" "$d/flow.typ"
+expect_refused 'a .d2 and a .typ with one stem are refused' 'flow.d2 and flow.typ would both write flow.svg' check "$d"
+d="$(copy_fixtures module-svg)"
+cp "$d/layers.svg" "$d/_shapes.svg"
+expect_refused 'a _*.typ module gets no SVG: one that has one is refused' '_shapes.svg has no _shapes.puml, _shapes.d2 or _shapes.typ source' check "$d"
 d="$(copy_fixtures stray)"
 printf 'notes\n' >"$d/notes.txt"
-expect_refused 'a file of another kind is refused' 'notes.txt is not a .puml, .d2 or .svg file' check "$d"
+expect_refused 'a file of another kind is refused' 'notes.txt is not a .puml, .d2, .typ or .svg file' check "$d"
 d="$(copy_fixtures subdir)"
 mkdir "$d/nested"
 expect_refused 'a subdirectory is refused' 'nested is a directory' check "$d"
+
+# Typst: a changed source and a changed SVG, in both of the ways a Typst figure
+# can differ. Typst writes no version stamp, so the message names the pinned
+# versions instead.
+d="$(copy_fixtures typst-source)"
+sed -i.bak 's/Ravel runs/Ravel stops/' "$d/layers.typ" && rm "$d/layers.typ.bak"
+expect_refused 'a changed Typst source fails the compare' 'layers.svg differs from what layers.typ renders with the pinned Typst 0.15.1 and CeTZ 0.4.2' check "$d"
+d="$(copy_fixtures typst-module)"
+sed -i.bak 's/#E8EDF2/#E8EDF3/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_refused 'changing a shared Typst module changes the figures that use it' 'layers.svg differs' check "$d"
+d="$(copy_fixtures typst-svg)"
+printf ' ' >>"$d/layers.svg"
+expect_refused 'a changed Typst SVG fails the compare' 'layers.svg differs' check "$d"
+d="$(copy_fixtures typst-update)"
+sed -i.bak 's/Ravel runs/Ravel stops/' "$d/layers.typ" && rm "$d/layers.typ.bak"
+expect_ok 'update rewrites a stale Typst SVG' update "$d"
+grep -Fq 'rewrote layers.svg' "$work/out" || die "update did not report rewriting layers.svg: $(cat "$work/out")"
+expect_ok 'check passes after a Typst update' check "$d"
+
+# Typst: the layout rules that keep a package or a host default out of a figure.
+d="$(copy_fixtures typst-unpinned-version)"
+sed -i.bak 's|@preview/cetz:0.4.2|@preview/cetz:0.4.1|' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_refused 'a Typst module importing another version of a pinned package is refused' '@preview/cetz:0.4.1, which is not a pinned Typst package' check "$d"
+d="$(copy_fixtures typst-unpinned-package)"
+sed -i.bak '1a\
+#import "@preview/oxifmt:0.3.0": strfmt
+' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_refused 'a Typst module importing an unpinned package is refused' '@preview/oxifmt:0.3.0, which is not a pinned Typst package' check "$d"
+d="$(copy_fixtures typst-local-package)"
+sed -i.bak '1a\
+#import "@local/mine:1.0.0": x
+' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_refused 'a Typst module importing a local package is refused' '@local/mine:1.0.0, which is not a pinned Typst package' check "$d"
+d="$(copy_fixtures typst-direct-import)"
+sed -i.bak '1a\
+#import "@preview/cetz:0.4.2"
+' "$d/layers.typ" && rm "$d/layers.typ.bak"
+expect_refused 'a Typst figure source importing a package itself is refused' 'layers.typ imports a package' check "$d"
+d="$(copy_fixtures typst-direct-import-pinned-module)"
+sed -i.bak '1a\
+#import "@preview/cetz:0.4.2"
+' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_ok 'a Typst module may import a pinned package' check "$d"
+
+# Typst: Typst reports an unknown font family as a warning and still renders, so
+# a warning on stderr fails the figure instead of passing with a fallback face.
+d="$(copy_fixtures typst-font)"
+sed -i.bak 's/"DejaVu Sans"/"Nonexistent Sans"/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+expect_refused 'a Typst figure in a font that is not on the font path is refused' 'Typst warned while rendering layers.typ' check "$d"
+
+# Typst: version, package cache and font path are pins like the others.
+t="$work/tools-typst-version"; mkdir -p "$t"
+ln -s "$tools/plantuml-1.2026.8.jar" "$t/plantuml-1.2026.8.jar"
+ln -s "$tools/d2" "$t/d2"
+printf '#!/bin/sh\necho "typst 0.14.2 (0123abcd)"\n' >"$t/typst" && chmod +x "$t/typst"
+expect_refused 'a Typst of another version is refused, naming both' "Typst 0.15.1 is pinned, found 'typst 0.14.2 (0123abcd)'" check "$fixtures" "$t"
+rm "$t/typst"
+expect_refused 'a missing Typst is refused with the remedy' "Typst 0.15.1 is not installed; run 'task setup'" check "$fixtures" "$t"
+
+t="$work/tools-typst-nocache"; mkdir -p "$t"
+ln -s "$tools/plantuml-1.2026.8.jar" "$t/plantuml-1.2026.8.jar"
+ln -s "$tools/d2" "$t/d2"
+ln -s "$tools/typst" "$t/typst"
+expect_refused 'a missing Typst package cache is refused with the remedy' "the Typst package @preview/cetz:0.4.2 is not installed; run 'task setup'" check "$fixtures" "$t"
+mkdir -p "$t/typst-packages"
+expect_refused 'an empty Typst package cache is refused with the remedy' "the Typst package @preview/cetz:0.4.2 is not installed; run 'task setup'" check "$fixtures" "$t"
+if [[ -n "$(ls -A "$t/typst-packages")" ]]; then die 'a refused check wrote into the empty package cache'; fi
+
+t="$work/tools-typst-tampered"; mkdir -p "$t"
+ln -s "$tools/plantuml-1.2026.8.jar" "$t/plantuml-1.2026.8.jar"
+ln -s "$tools/d2" "$t/d2"
+ln -s "$tools/typst" "$t/typst"
+cp -R "$tools/typst-packages" "$t/typst-packages"
+printf '\n' >>"$t/typst-packages/preview/cetz/0.4.2/src/lib.typ"
+expect_refused 'a changed file in a pinned Typst package is refused' 'the Typst package @preview/cetz:0.4.2 has tree digest' check "$fixtures" "$t"
+cp "$tools/typst-packages/preview/cetz/0.4.2/src/lib.typ" "$t/typst-packages/preview/cetz/0.4.2/src/lib.typ"
+printf 'x' >"$t/typst-packages/preview/cetz/0.4.2/extra.typ"
+expect_refused 'an added file in a pinned Typst package is refused' 'the Typst package @preview/cetz:0.4.2 has tree digest' check "$fixtures" "$t"
+rm "$t/typst-packages/preview/cetz/0.4.2/extra.typ"
+ln -s /etc/hosts "$t/typst-packages/preview/cetz/0.4.2/link.typ"
+expect_refused 'a symlink in a pinned Typst package is refused' 'the Typst package @preview/cetz:0.4.2 has tree digest not-a-plain-tree' check "$fixtures" "$t"
+rm "$t/typst-packages/preview/cetz/0.4.2/link.typ"
+mkdir -p "$t/typst-packages/preview/cetz/0.5.2"
+expect_refused 'another version of a pinned Typst package in the cache is refused' 'holds cetz/0.5.2, which is not pinned' check "$fixtures" "$t"
+rmdir "$t/typst-packages/preview/cetz/0.5.2"
+mkdir -p "$t/typst-packages/preview/other/1.0.0"
+expect_refused 'an unpinned Typst package in the cache is refused' 'which is not pinned' check "$fixtures" "$t"
+rm -r "${t:?}/typst-packages/preview/other"
+mkdir -p "$t/typst-packages/local"
+expect_refused 'a namespace other than preview in the package cache is refused' 'holds local, which is not pinned' check "$fixtures" "$t"
+rmdir "$t/typst-packages/local"
+ln -s "$tools/fonts" "$t/fonts"
+expect_ok 'the same tools directory passes once the tamper is undone' check "$fixtures" "$t"
+
+# Typst: a render itself reaches no network, whatever the lint and the cache
+# checks above would have said. These call render_all directly, so the only
+# thing between Typst and the registry is the render's own refusal.
+render_directly() { # DIR PACKAGES: render_all with that package cache, output in $work/out-direct
+  (
+    # shellcheck disable=SC2030,SC2031 # each subshell sets its own tools directory
+    export BOOK_TOOLS_DIR="$tools"
+    # shellcheck disable=SC1090
+    source "$script"
+    # shellcheck disable=SC2034 # read by render_all in the sourced script
+    packages="$2"
+    render_all "$1" "$work/out-direct"
+  )
+}
+mkdir -p "$work/empty-cache"
+if render_directly "$fixtures" "$work/empty-cache" >/dev/null 2>"$work/err"; then die 'a Typst render with an empty package cache succeeded'; fi
+grep -Fq 'failed to download package' "$work/err" || die "a render with an empty package cache failed for the wrong reason: $(cat "$work/err")"
+grep -Fq 'Connection refused' "$work/err" || die "a render with an empty package cache did not stop at the refused connection: $(cat "$work/err")"
+[[ -z "$(ls -A "$work/empty-cache")" ]] || die 'a render with an empty package cache downloaded into it'
+ok 'a Typst render with an empty package cache fails at a refused connection and downloads nothing'
+
+cp -R "$tools/typst-packages" "$work/full-cache"
+d="$(copy_fixtures typst-render-unpinned)"
+sed -i.bak '1a\
+#import "@preview/oxifmt:0.3.0": strfmt
+' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+if render_directly "$d" "$work/full-cache" >/dev/null 2>"$work/err"; then die 'a Typst render importing an unpinned package succeeded'; fi
+grep -Fq 'failed to download package' "$work/err" || die "an unpinned import failed for the wrong reason: $(cat "$work/err")"
+[[ ! -e "$work/full-cache/preview/oxifmt/0.3.0" ]] || die 'a render downloaded an unpinned package'
+ok 'a Typst render importing an unpinned package is not downloaded'
+
+# The font pin for Typst: with no fonts on the path the figure cannot render,
+# rather than falling back to a face of Typst's own. Typst embeds DejaVu Sans
+# Mono, so the figure is set in that face: it renders only if the embedded fonts
+# are not ignored.
+mkdir -p "$work/no-fonts-typst"
+d="$(copy_fixtures typst-embedded-font)"
+sed -i.bak 's/"DejaVu Sans"/"DejaVu Sans Mono"/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+if (
+  # shellcheck disable=SC2031 # each subshell sets its own tools directory
+  export BOOK_TOOLS_DIR="$tools"
+  # shellcheck disable=SC1090
+  source "$script"
+  # shellcheck disable=SC2034 # read by render_all in the sourced script
+  fontdir="$work/no-fonts-typst"
+  render_all "$d" "$work/render-nofont-typst"
+) >/dev/null 2>"$work/err"; then
+  die 'a Typst figure rendered with no pinned fonts on the font path'
+fi
+grep -Fq 'layers.typ' "$work/err" || die "a render without fonts failed for the wrong reason: $(cat "$work/err")"
+ok 'without the pinned fonts a Typst figure does not render, even in a face Typst embeds (the font path and the ignored embedded fonts hold)'
+
+# The book's own Typst modules, with the pinned Typst and CeTZ. No bytes are
+# committed for these: a change to the book's style is a change to every figure,
+# so this checks only that the modules compile, draw every kind of row, keep to
+# the drawing primitives and render the same twice.
+modules="$work/modules"
+mkdir -p "$modules"
+cp "$root/docs/book/src/figures/_style.typ" "$root/docs/book/src/figures/_sequence.typ" "$modules/"
+cat >"$modules/engine.typ" <<'EOF'
+#import "_sequence.typ": *
+#show: figure-page
+
+#sequence(
+  [A fixture sequence],
+  (
+    part("a", [caller]),
+    part("b", [Ravel CLI \ (runner inside)], kind: "ravel"),
+    part("c", [result channel], kind: "temporary", db: true),
+    part("d", [owner policy], kind: "owner"),
+  ),
+  (
+    msg("a", "b", [start-session: kind and prompt]),
+    msg("b", "b", [Check inputs and policy path]),
+    div([Selection]),
+    msg("b", "d", [Start in an empty private directory], create: true),
+    msg("d", "b", [Identity; the CLI checks the match], dashed: true),
+    destroy("d"),
+    msg("b", "c", [Allocate a fresh result channel], create: true),
+    note("b", "c", [First complete publication wins.]),
+    msg("c", "b", [Exact opaque value], color: pal.green, dashed: true),
+    destroy("c"),
+  ),
+  ([A key line.], [Another key line.]),
+)
+EOF
+expect_ok 'the book modules draw a sequence with every kind of row' update "$modules"
+expect_ok 'the book modules render a stable sequence' check "$modules"
+[[ -s "$modules/engine.svg" && "$(head -c 4 "$modules/engine.svg")" == '<svg' ]] || die 'the book modules wrote no SVG'
+[[ ! -e "$modules/_style.svg" && ! -e "$modules/_sequence.svg" ]] || die 'a book module was rendered as a figure'
+{ printf '#import "@preview/cetz:0.4.2"\n'; cat "$modules/engine.typ"; } >"$modules/engine.typ.new" && mv "$modules/engine.typ.new" "$modules/engine.typ"
+expect_refused 'a figure drawing with CeTZ itself, beside the book modules, is refused' 'engine.typ imports a package' check "$modules"
 
 # Tool pins: each is a different renderer, which is a different figure.
 t="$work/tools-empty"; mkdir -p "$t"
@@ -276,6 +478,8 @@ expect_refused 'a d2 of another version is refused' "d2 0.9.0 is pinned, found '
 t="$work/tools-font"; mkdir -p "$t/fonts"
 ln -s "$tools/plantuml-1.2026.8.jar" "$t/plantuml-1.2026.8.jar"
 ln -s "$tools/d2" "$t/d2"
+ln -s "$tools/typst" "$t/typst"
+ln -s "$tools/typst-packages" "$t/typst-packages"
 cp -R "$tools/fonts/dejavu-2.37" "$t/fonts/dejavu-2.37"
 printf 'x' >>"$t/fonts/dejavu-2.37/DejaVuSans.ttf"
 expect_refused 'a tampered pinned font is refused' 'does not match its pinned digest' check "$fixtures" "$t"
@@ -293,7 +497,7 @@ book="$work/book"
 mkdir -p "$book/src/figures"
 cp "$root/docs/book/book.toml" "$book/book.toml"
 sed -i.bak 's|^build-dir = .*|build-dir = "out"|' "$book/book.toml" && rm "$book/book.toml.bak"
-cp "$fixtures"/*.svg "$fixtures"/*.puml "$fixtures"/*.d2 "$book/src/figures/"
+cp "$fixtures"/*.svg "$fixtures"/*.puml "$fixtures"/*.d2 "$fixtures"/*.typ "$book/src/figures/"
 cat >"$book/src/SUMMARY.md" <<'EOF'
 # Summary
 

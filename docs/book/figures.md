@@ -172,6 +172,116 @@ guarantee across every Java runtime):
   directory, so `D2_*`, `GRAPHVIZ_DOT`, `PLANTUML_*`, `_JAVA_OPTIONS`, locale and
   a `plantuml.skin` in the caller's directory cannot reach a figure.
 
+## Typst figures (added beside PlantUML by `book-figure-engine-k109`)
+
+The book is moving its figures from PlantUML to Typst with the CeTZ drawing
+package (decided 2026-10-17, planned in `book-figure-migration-k108`). This
+section describes the Typst side as it now stands in the toolchain. Until the
+last `.puml` is ported, both renderers run, every rule above still holds for a
+`.puml`, and the text above is left for the leaf that retires PlantUML to
+rewrite. No book figure is a `.typ` yet; the first port replaces a figure's
+`.puml` with its `.typ` in one commit.
+
+**On disk.** A `.typ` whose name does not start with `_` is a figure source,
+beside the `.puml` and `.d2` ones, with its SVG of the same name. The
+one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
+`x.puml` and `x.d2` are. A file starting with `_` is a module that figures
+import. It is not a figure and gets no SVG; an SVG for one is refused as an
+orphan. `_style.typ` holds the palette roles, text scale, strokes, arrowhead,
+cylinder, key box and page setup, and the five drawing primitives
+(`draw-line`, `draw-arrow`, `draw-poly`, `draw-box`, `draw-cylinder`, with
+`draw-text` for placing text). `_sequence.typ` is the sequence-diagram layout,
+which measures its text and draws only through those primitives. Both were
+promoted from the k107 trial in `docs/book/trial-typst/`; the sequence figure
+rendered through them is byte-identical to the trial's, for the base and the
+long variant.
+
+**Draw through the primitives.** Every stroke and outline in the book goes
+through the `draw-*` primitives, and only `_style.typ` calls CeTZ, so how all
+lines are drawn can change in one place. The lint refuses a figure source that
+imports a package itself. A module may import a pinned package.
+
+| Tool | Pin | Fetched by `task setup` |
+|---|---|---|
+| Typst | 0.15.1, the host's static release archive (macOS arm64, Linux arm64, Linux amd64) | into `target/tools/typst`, archive SHA-256 checked, version checked before every run |
+| CeTZ | 0.4.2 and its one dependency oxifmt 1.0.0, from the Typst package registry | unpacked into `target/tools/typst-packages/preview`, tarball SHA-256 and unpacked-tree digest checked |
+
+**Why these versions, checked 2026-10-17.** Typst 0.15.1 (published 2026-07-17)
+was the latest release. CeTZ 0.4.2 is what the trial drew with; 0.5.2 exists
+and is not adopted, because moving up means re-trialling the primitives and is
+a decision of its own. The Typst digests equal the ones GitHub lists. The
+registry lists no digests, so the package digests were computed from the
+download, and the unpacked trees matched the copy Typst had fetched itself.
+
+**Fetched, not vendored.** CeTZ is LGPL-3.0-or-later and ships a WebAssembly
+plugin; this repository is Apache-2.0, and nothing else the book needs is
+vendored (PlantUML, d2, mdBook and the fonts are fetched too). Fetching keeps
+the licence text and the binary out of the tree and costs one pin. The SVGs
+carry none of CeTZ's code, only paths and text. This is a recorded engineering
+choice, not legal advice.
+
+**Offline once set up.** A render runs the pinned `target/tools/typst`, never
+one on `PATH`, under `env -i` from a private directory, with
+`--ignore-system-fonts`, `--ignore-embedded-fonts` and `--font-path` set to the
+four pinned DejaVu faces, and `--package-cache-path` set to the pinned cache.
+Before any render, the check verifies the Typst version, every pinned package
+by its tree digest, and that the cache holds nothing else. A missing cache
+fails with `run 'task setup'` instead of starting a download. As a second line,
+a render's proxy points at a refused port, so an import of anything unpinned
+fails with a refused connection and downloads nothing; without that, Typst
+fetches a missing `@preview` package on its own (seen on 2026-10-17). A lint
+refuses any `@namespace/name:version` in a `.typ` that is not a pinned
+package, `@local` included.
+
+**Fonts.** Typst embeds Libertinus Serif, New Computer Modern (and its Math face) and
+DejaVu Sans Mono, and treats a missing family as a warning, not an error: with a family missing it
+rendered with a fallback and exited 0. The render therefore ignores embedded
+fonts, and any output on Typst's stderr fails the figure.
+
+**Stereotype and technology lines are upright.** The PlantUML C4 output set
+them in italics. Pinning DejaVu Oblique was avoided only because Java measured
+the italic face differently per host, and that still holds while PlantUML is
+here, since the faces share one directory that is also Java's font path. Typst
+draws a missing italic upright (no skew in the SVG), and the 12pt step and the
+`«»` and `[]` marks carry the distinction. The retirement leaf may reopen this:
+it is one pinned face and a `style: "italic"` in `_style.typ`.
+
+**Version mismatch.** Typst's SVG carries no version stamp, unlike PlantUML's
+and d2's, and the script does not edit the SVG to add one. A wrong Typst is
+named up front by the version check (`Typst 0.15.1 is pinned, found '...'`).
+Because renders always use the pinned binary, an SVG made by another version
+can only be a committed one, and it surfaces as a difference whose message names
+the pinned Typst and CeTZ. The check cannot tell that cause from a changed
+figure; regenerating is the remedy for both.
+
+**Reproducibility, observed on macOS arm64 (Linux not run).** Two renders, a
+render from another directory, and a render under a hostile environment
+(`TYPST_*`, `SOURCE_DATE_EPOCH`, locale, proxy and `XDG_*` set) are
+byte-identical. Linux arm64 and amd64 archives are pinned and fetched by the
+same code, but this leaf did not run them, and Typst's output on Linux is
+unchecked.
+
+**Text in the SVG.** Typst writes every glyph as a path: the text is not
+selectable or searchable, and the files are 5-7 times larger than PlantUML's.
+The page's alt text, caption and prose are the text alternative. The size
+budget (each SVG at most 300 KB, the set at most 2 MB) is checked by
+`book-figure-viewing-check`.
+
+**Controls.** `task docs:figures:test` adds: a passing `.typ` fixture and its
+byte-identical re-render; a changed source, module and SVG; `update`; a Typst of
+another version; a missing, empty, changed, extended and symlinked package cache
+and an extra package or namespace in it; a `.puml`+`.typ` and a `.d2`+`.typ`
+stem clash; an SVG for a module; an unpinned, other-version and `@local`
+import; a figure importing a package itself; a missing font family; a render
+with an empty package cache or an unpinned import that reaches only a refused
+connection; and a render with no fonts that cannot fall back to an embedded one.
+The book's own `_style.typ` and `_sequence.typ` are rendered through a figure
+with every kind of row, twice, with no bytes committed for them (a style change
+is a change to every figure). Each safeguard was also removed from a copy of
+the script, one at a time, and the control for it failed: the embedded-font
+flag, the proxy, the stderr rule, the lint call, the lint's no-import rule, the
+package check, the version check, the symlink rule and the `.typ` source glob.
+
 ## Diagram kinds checked under Smetana
 
 With no Graphviz on the path (`PATH` without `dot`, `GRAPHVIZ_DOT` pointing

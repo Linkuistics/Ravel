@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# The book's figure toolchain: fetch and verify the pinned renderers, then
-# regenerate every figure under docs/book/src/figures and compare it with the
-# committed SVG. The layout on disk and the reasons for each choice below are
+# The book's figure toolchain: fetch and verify the pinned renderers (PlantUML,
+# d2 and Typst with the CeTZ package), then regenerate every figure under
+# docs/book/src/figures and compare it with the committed SVG. The layout on disk and the reasons for each choice below are
 # in docs/book/figures.md.
 #
 # Like scripts/book.sh this is separate from crates/ravel/scripts/dispatch.sh,
@@ -13,6 +13,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly ROOT
 readonly PLANTUML_VERSION="1.2026.8"
 readonly D2_VERSION="0.9.0"
+readonly TYPST_VERSION="0.15.1"
+readonly CETZ_VERSION="0.4.2"
+readonly OXIFMT_VERSION="1.0.0"
 readonly DEJAVU_VERSION="2.37"
 # The tools directory is the one `task setup` already fills with Bun and mdBook.
 TOOLS="${BOOK_TOOLS_DIR:-$ROOT/target/tools}"
@@ -27,6 +30,9 @@ readonly DEJAVU_SHA256="fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e
 # Only the font directory is a variable, so a control can point a render at a
 # directory without the pinned fonts and see the output change.
 fontdir="$TOOLS/fonts/dejavu-$DEJAVU_VERSION"
+# The Typst package cache that setup fills and renders read; a variable for the
+# same reason as the font directory.
+packages="$TOOLS/typst-packages"
 
 # PlantUML 1.2026.8 (GPL build, the one Homebrew installs) from
 # https://github.com/plantuml/plantuml/releases/tag/v1.2026.8, published
@@ -56,6 +62,49 @@ d2_sha256() {
     linux-arm64) echo "ac2c028697199479acb321db1e3d68caee9f2ba492ed73caa3cd13f3829bf913" ;;
     linux-amd64) echo "5669ddc46b99e942cc96078f4a4e36d5e62103348f4c05179ede27802fdd87a9" ;;
   esac
+}
+
+# Typst 0.15.1 from https://github.com/typst/typst/releases/tag/v0.15.1,
+# published 2026-07-17 and the latest release when checked on 2026-10-17. Each
+# digest equals the one GitHub lists for the asset and was recomputed from the
+# download on 2026-10-17. The Linux builds are static (musl). Only the macOS
+# arm64 archive has been run here; the Linux ones are pinned and not yet run.
+typst_target() {
+  case "$(uname -s)/$(uname -m)" in
+    Darwin/arm64) echo "aarch64-apple-darwin" ;;
+    Linux/aarch64 | Linux/arm64) echo "aarch64-unknown-linux-musl" ;;
+    Linux/x86_64) echo "x86_64-unknown-linux-musl" ;;
+    *) die "no pinned Typst for $(uname -s)/$(uname -m); the pinned hosts are Darwin/arm64, Linux/aarch64 and Linux/x86_64" ;;
+  esac
+}
+
+typst_sha256() {
+  case "$1" in
+    aarch64-apple-darwin) echo "48f62ed034aa3a7978309579ac6ca00045e2ef0da73114e8af27cfd8e74dc05a" ;;
+    aarch64-unknown-linux-musl) echo "5aa8d74a3d906e60ea12a66ac2f37f8eef1b14cbad7182a745e393a10c23dcee" ;;
+    x86_64-unknown-linux-musl) echo "a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c" ;;
+  esac
+}
+
+# CeTZ 0.4.2 (LGPL-3.0-or-later) and its one dependency oxifmt 1.0.0 (MIT OR
+# Apache-2.0) from the Typst package registry, https://packages.typst.org/preview/.
+# 0.4.2 is the version the k107 trial drew with. 0.5.2 was the newest on
+# 2026-10-17 and is not adopted: moving up is a new trial of every drawing
+# primitive, a decision for its own leaf and not a pin. The
+# registry lists no digests, so each tarball digest was computed from the
+# download on 2026-10-17, and the unpacked tree matched the copy Typst itself
+# had fetched. They are fetched and not vendored: CeTZ's licence and its bundled
+# WebAssembly plugin should not be copied into this repository, and the SVGs it
+# draws carry none of its code.
+#
+# One package per line: name, version, tarball digest, tree digest. The tree
+# digest (see tree_digest) is what every render re-checks, because Typst reads
+# the unpacked files and not the tarball.
+packages_pinned() {
+  cat <<EOF
+cetz $CETZ_VERSION e1d2f121b166f1520fc529cad834e2ca5e0b6bcab6816e1d0e07d70836aa0b59 8d159fed15cb54998b1d184b3e028af21ca420218e8985be087253dfa23a4213
+oxifmt $OXIFMT_VERSION 7d17a1fc8ad01740ec3cb2b03c7360a4225ff9318e5710765fa98ea6fd59594f aa4fc11c351ae98bec1ec3783a1b105cb33a88f40cbf6317bc9abf29bbc858d2
+EOF
 }
 
 # DejaVu fonts 2.37, released 2016-07-30 at
@@ -101,12 +150,27 @@ make_scratch() {
   SCRATCH="$(mktemp -d "$WORK/d.XXXXXX")"
 }
 
-digest_of() {
+digest_of() { # FILE, or - for standard input
   if command -v shasum >/dev/null 2>&1; then
     shasum -a 256 "$1" | cut -d' ' -f1
   else
     sha256sum "$1" | cut -d' ' -f1
   fi
+}
+
+# One digest for an unpacked directory: the digest of the sorted list of each
+# file's digest and relative path. A file added, removed, renamed or changed
+# moves it, and so does anything that is not a plain file or directory (a
+# symlink is not followed), which prints a marker no pin can equal.
+tree_digest() {
+  local dir="$1" file
+  if [[ -n "$(find "$dir" -mindepth 1 ! -type f ! -type d)" ]]; then
+    echo "not-a-plain-tree"
+    return 0
+  fi
+  while read -r file; do
+    printf '%s %s\n' "$(digest_of "$dir/$file")" "$file"
+  done < <(cd "$dir" && find . -type f | LC_ALL=C sort) | digest_of -
 }
 
 # Put a verified copy of the release asset NAME in the tools directory and print
@@ -149,6 +213,29 @@ setup_figures() {
   tar -xzf "$d2_copy" -C "$scratch" "d2-v$D2_VERSION/bin/d2" || die "cannot extract d2 from $d2_archive"
   install -m 0755 "$scratch/d2-v$D2_VERSION/bin/d2" "$TOOLS/d2"
 
+  local typst_target typst_archive typst_copy
+  typst_target="$(typst_target)"
+  typst_archive="typst-$typst_target.tar.xz"
+  typst_copy="$(fetch_verified \
+    "https://github.com/typst/typst/releases/download/v$TYPST_VERSION/$typst_archive" \
+    "$typst_archive" "$(typst_sha256 "$typst_target")" "$scratch")"
+  tar -xJf "$typst_copy" -C "$scratch" "typst-$typst_target/typst" || die "cannot extract Typst from $typst_archive (tar needs xz support)"
+  install -m 0755 "$scratch/typst-$typst_target/typst" "$TOOLS/typst"
+
+  local name version tarball_digest tree pkg_copy
+  while IFS=' ' read -r name version tarball_digest tree; do
+    pkg_copy="$(fetch_verified \
+      "https://packages.typst.org/preview/$name-$version.tar.gz" \
+      "$name-$version.tar.gz" "$tarball_digest" "$scratch")"
+    mkdir -p "$scratch/pkg/$name"
+    tar -xzf "$pkg_copy" -C "$scratch/pkg/$name" || die "cannot extract $name-$version.tar.gz"
+    [[ "$(tree_digest "$scratch/pkg/$name")" == "$tree" ]] ||
+      die "the unpacked $name $version does not match its pinned tree digest; refusing to use it"
+    rm -rf "${packages:?}/preview/$name/$version"
+    mkdir -p "$packages/preview/$name"
+    cp -R "$scratch/pkg/$name" "$packages/preview/$name/$version"
+  done < <(packages_pinned)
+
   local font_copy
   font_copy="$(fetch_verified \
     "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_${DEJAVU_VERSION//./_}/$DEJAVU_ARCHIVE" \
@@ -164,7 +251,32 @@ setup_figures() {
     install -m 0644 "$source" "$fontdir/$face"
   done < <(font_files)
   require_tools
-  echo "figures: PlantUML $PLANTUML_VERSION, d2 $D2_VERSION and DejaVu $DEJAVU_VERSION fonts in $TOOLS"
+  echo "figures: PlantUML $PLANTUML_VERSION, d2 $D2_VERSION, Typst $TYPST_VERSION with CeTZ $CETZ_VERSION and DejaVu $DEJAVU_VERSION fonts in $TOOLS"
+}
+
+# The package cache holds exactly the pinned packages, unpacked as pinned. A
+# missing or changed package, or an extra one, is refused here, so a render never
+# needs the network and never imports an unpinned package from a leftover cache.
+require_packages() {
+  local name version tarball_digest tree found dir entry allowed
+  allowed="$(packages_pinned | while IFS=' ' read -r name version _; do printf '%s\n%s/%s\n' "$name" "$name" "$version"; done)"
+  while IFS=' ' read -r name version tarball_digest tree; do
+    dir="$packages/preview/$name/$version"
+    [[ -d "$dir" ]] || die "the Typst package @preview/$name:$version is not installed; run 'task setup'"
+    found="$(tree_digest "$dir")"
+    [[ "$found" == "$tree" ]] ||
+      die "the Typst package @preview/$name:$version has tree digest $found, but $tree is pinned; run 'task setup'"
+  done < <(packages_pinned)
+  # Beside the pinned packages: nothing outside preview/, and nothing in it that
+  # is not a pinned name or a pinned name's pinned version.
+  while read -r entry; do
+    [[ -n "$entry" ]] || continue
+    printf '%s\n' "$allowed" | grep -qxF -- "$entry" ||
+      die "the Typst package cache holds $entry, which is not pinned; run 'task setup'"
+  done < <(
+    cd "$packages" && find . -mindepth 1 -maxdepth 1 ! -name preview | sed 's|^\./||'
+    cd "$packages/preview" && find . -mindepth 1 -maxdepth 2 | sed 's|^\./||'
+  )
 }
 
 # Print the first Java runtime that starts and is at least version 11. The
@@ -197,6 +309,13 @@ require_tools() {
   [[ -x "$TOOLS/d2" ]] || die "d2 $D2_VERSION is not installed; run 'task setup'"
   found="$("$TOOLS/d2" --version 2>&1 || true)"
   [[ "$found" == "v$D2_VERSION" ]] || die "d2 $D2_VERSION is pinned, found '$found'; run 'task setup'"
+  [[ -x "$TOOLS/typst" ]] || die "Typst $TYPST_VERSION is not installed; run 'task setup'"
+  # Typst's SVG carries no version stamp, so this up-front check is the only
+  # place a different Typst is named. Every render below runs this binary, never
+  # one found on PATH.
+  found="$(env -i PATH=/usr/bin:/bin "$TOOLS/typst" --version 2>&1 || true)"
+  [[ "$found" == "typst $TYPST_VERSION "* ]] || die "Typst $TYPST_VERSION is pinned, found '$found'; run 'task setup'"
+  require_packages
   while IFS=' ' read -r face digest; do
     [[ -f "$fontdir/$face" ]] || die "the pinned font $face is not installed; run 'task setup'"
     [[ "$(digest_of "$fontdir/$face")" == "$digest" ]] ||
@@ -212,12 +331,12 @@ require_tools() {
     die "PlantUML needs a Java 11 or later runtime; install one or set FIGURES_JAVA to its java executable"
 }
 
-# Figures are the *.puml and *.d2 files directly in the figures directory whose
-# names do not start with an underscore; an underscore file is a shared include.
-# Print the figure sources, one path per line.
+# Figures are the *.puml, *.d2 and *.typ files directly in the figures directory
+# whose names do not start with an underscore; an underscore file is a shared
+# include or module. Print the figure sources, one path per line.
 figure_sources() {
   local dir="$1" file
-  for file in "$dir"/*.puml "$dir"/*.d2; do
+  for file in "$dir"/*.puml "$dir"/*.d2 "$dir"/*.typ; do
     [[ -f "$file" ]] || continue
     [[ "$(basename "$file")" == _* ]] && continue
     echo "$file"
@@ -238,9 +357,9 @@ lint_layout() {
       continue
     fi
     case "$name" in
-      *.puml | *.d2 | *.svg) ;;
+      *.puml | *.d2 | *.typ | *.svg) ;;
       *)
-        echo "figures: $name is not a .puml, .d2 or .svg file" >&2
+        echo "figures: $name is not a .puml, .d2, .typ or .svg file" >&2
         problems=1
         ;;
     esac
@@ -251,14 +370,15 @@ lint_layout() {
   done)"
   while read -r stem; do
     [[ -n "$stem" ]] || continue
-    echo "figures: $stem.puml and $stem.d2 would both write $stem.svg" >&2
+    # Name the sources that exist, whichever notations they are.
+    echo "figures: $(for ext in puml d2 typ; do [[ -f "$dir/$stem.$ext" ]] && echo "$stem.$ext"; done | paste -sd' ' - | sed 's/ / and /g') would both write $stem.svg" >&2
     problems=1
   done < <(printf '%s\n' "$stems" | sort | uniq -d)
   for file in "$dir"/*.svg; do
     [[ -f "$file" ]] || continue
     stem="$(basename "$file" .svg)"
     if ! printf '%s\n' "$stems" | grep -qxF -- "$stem"; then
-      echo "figures: $stem.svg has no $stem.puml or $stem.d2 source" >&2
+      echo "figures: $stem.svg has no $stem.puml, $stem.d2 or $stem.typ source" >&2
       problems=1
     fi
   done
@@ -306,11 +426,36 @@ lint_source() {
   esac
 }
 
+# The Typst rules, for every .typ in the directory (modules included). A package
+# the render would fetch is a package nobody pinned, so every `@namespace/name:
+# version` spec anywhere in the text must be a pinned one; the cache is the other
+# half of that rule (see require_packages), and the render has no network. And a
+# figure source draws through its `_` modules and imports no package itself, so
+# the one place that touches CeTZ can change how every stroke is drawn.
+lint_typst() {
+  local file="$1" name token pinned problems=0
+  name="$(basename "$file")"
+  pinned="$(packages_pinned | while IFS=' ' read -r pkg version _; do echo "@preview/$pkg:$version"; done)"
+  while read -r token; do
+    [[ -n "$token" ]] || continue
+    printf '%s\n' "$pinned" | grep -qxF -- "$token" || {
+      echo "figures: $name uses $token, which is not a pinned Typst package ($(printf '%s' "$pinned" | paste -sd' ' - | sed 's/ /, /g'))" >&2
+      problems=1
+    }
+  done < <(grep -o -E '@[A-Za-z][A-Za-z0-9_-]*/[A-Za-z0-9_-]+(:[0-9A-Za-z.+-]+)?' "$file" | sort -u || true)
+  if [[ "$name" != _* ]] && grep -q -E 'import[[:space:]]*"@' "$file"; then
+    echo "figures: $name imports a package; a figure source draws through its _*.typ modules" >&2
+    problems=1
+  fi
+  return "$problems"
+}
+
 # Text of the renderer's own version stamp, which every generated SVG carries.
 stamp_of() {
   case "$1" in
     *.puml) echo "<?plantuml $PLANTUML_VERSION?>" ;;
     *.d2) echo "data-d2-version=\"v$D2_VERSION\"" ;;
+    *.typ) echo "" ;; # Typst writes no version into its SVG; require_tools names a wrong Typst
   esac
 }
 
@@ -327,9 +472,10 @@ add_font_fallbacks() {
   mv "$1.tmp" "$1"
 }
 
-# Render every figure source in DIR to OUT/<stem>.svg. Both renderers run under
-# an empty environment, so a developer's D2_* variables, GRAPHVIZ_DOT,
-# PLANTUML_* settings, locale and home directory cannot change a figure, and
+# Render every figure source in DIR to OUT/<stem>.svg. All three renderers run
+# under an empty environment, so a developer's D2_* variables, GRAPHVIZ_DOT,
+# PLANTUML_* settings, TYPST_* variables, locale and home directory cannot change
+# a figure, and
 # from a private working directory, so a plantuml.skin or similar file in the
 # caller's directory is not read.
 render_all() {
@@ -342,6 +488,20 @@ render_all() {
     [[ -n "$file" ]] || continue
     case "$file" in
       *.puml) plantuml+=("$file") ;;
+      *.typ)
+        stem="$(basename "$file" .typ)"
+        # Offline and from the pinned inputs only: no system or embedded fonts, the
+        # package cache that require_tools has verified (the empty environment and
+        # private HOME leave no @local packages), and a proxy that refuses
+        # connections, so anything outside the pins is an error instead of a
+        # download. Typst reports a missing font family as a warning and still
+        # succeeds, so any output on stderr fails the figure.
+        (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
+          "$TOOLS/typst" compile --format svg --root "$dir" --ignore-system-fonts --ignore-embedded-fonts \
+          --font-path "$fontdir" --package-cache-path "$packages" \
+          "$file" "$out/$stem.svg" >/dev/null 2>"$work/typst.err") || die "Typst could not render $(basename "$file"): $(cat "$work/typst.err")"
+        [[ ! -s "$work/typst.err" ]] || die "Typst warned while rendering $(basename "$file"): $(cat "$work/typst.err")"
+        ;;
       *.d2)
         stem="$(basename "$file" .d2)"
         (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" "$TOOLS/d2" "$file" "$out/$stem.svg" >/dev/null 2>"$work/d2.err") ||
@@ -383,6 +543,10 @@ verify_figures() {
     [[ -n "$file" ]] || continue
     lint_source "$file" || problems=1
   done < <(figure_sources "$dir")
+  for file in "$dir"/*.typ; do
+    [[ -f "$file" ]] || continue
+    lint_typst "$file" || problems=1
+  done
   ((problems == 0)) || die "the figure sources do not follow the layout in docs/book/figures.md"
 
   make_scratch
@@ -398,7 +562,7 @@ verify_figures() {
     fresh="$scratch/out/$stem.svg"
     committed="$dir/$stem.svg"
     stamp="$(stamp_of "$file")"
-    if ! grep -qF -- "$stamp" "$fresh"; then
+    if [[ -n "$stamp" ]] && ! grep -qF -- "$stamp" "$fresh"; then
       echo "figures: $name rendered without the expected renderer stamp $stamp" >&2
       problems=1
       continue
@@ -415,8 +579,12 @@ verify_figures() {
       if [[ "$mode" == update ]]; then
         install -m 0644 "$fresh" "$committed"
         echo "figures: rewrote $stem.svg"
-      elif ! grep -qF -- "$stamp" "$committed"; then
+      elif [[ -n "$stamp" ]] && ! grep -qF -- "$stamp" "$committed"; then
         echo "figures: $stem.svg was not made by the pinned renderer (expected $stamp)" >&2
+        problems=1
+      elif [[ -z "$stamp" ]]; then
+        # Typst's SVG has no stamp to tell a different Typst from a changed figure.
+        echo "figures: $stem.svg differs from what $name renders with the pinned Typst $TYPST_VERSION and CeTZ $CETZ_VERSION (an SVG made with another version differs in the same way); run 'task docs:figures:update' if the change is intended" >&2
         problems=1
       else
         echo "figures: $stem.svg differs from what $name renders; run 'task docs:figures:update' if the change is intended" >&2
@@ -425,7 +593,7 @@ verify_figures() {
     fi
   done < <(figure_sources "$dir")
   ((problems == 0)) || die "one or more figures do not match their sources"
-  echo "figures: $count figure(s) $([[ "$mode" == update ]] && echo up to date || echo match their sources) (PlantUML $PLANTUML_VERSION, d2 $D2_VERSION, DejaVu $DEJAVU_VERSION)"
+  echo "figures: $count figure(s) $([[ "$mode" == update ]] && echo up to date || echo match their sources) (PlantUML $PLANTUML_VERSION, d2 $D2_VERSION, Typst $TYPST_VERSION, CeTZ $CETZ_VERSION, DejaVu $DEJAVU_VERSION)"
 }
 
 main() {
