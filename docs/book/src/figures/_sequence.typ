@@ -198,10 +198,10 @@
     } else if it.t == "div" {
       let l = size-of(ctext(label(plain(it.label))))
       let id = "div-" + str(els.len())
-      els.push(line-el(id + "-rule-a", "rule", ((0, it.y - 2), (dw, it.y - 2))))
-      els.push(line-el(id + "-rule-b", "rule", ((0, it.y + 2), (dw, it.y + 2))))
-      els.push(box-el(id, "divider", dw / 2 - l.w / 2 - 10, it.y - l.h / 2 - 3, dw / 2 + l.w / 2 + 10, it.y + l.h / 2 + 3))
-      els.push(text-el(id + "-label", it.label, dw / 2, it.y))
+      els.push(line-el(id + "-rule-a", "rule", ((ox, it.y - 2), (ox + dw, it.y - 2))))
+      els.push(line-el(id + "-rule-b", "rule", ((ox, it.y + 2), (ox + dw, it.y + 2))))
+      els.push(box-el(id, "divider", ox + dw / 2 - l.w / 2 - 10, it.y - l.h / 2 - 3, ox + dw / 2 + l.w / 2 + 10, it.y + l.h / 2 + 3))
+      els.push(text-el(id + "-label", it.label, ox + dw / 2, it.y))
     } else if it.t == "note" {
       // A page with its top-right corner folded over.
       let x0 = ox + it.x0

@@ -1,0 +1,719 @@
+{
+  "w": 1043.9072265625,
+  "h": 713.9765625,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Cancellation after publication — UML sequence",
+      "x": 521.95361328125,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 425.515625,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          38.95703125,
+          50.3125
+        ],
+        [
+          38.95703125,
+          585.65625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          304.7626953125,
+          71.26875000000001
+        ],
+        [
+          304.7626953125,
+          585.65625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-managed",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          680.103515625,
+          50.3125
+        ],
+        [
+          680.103515625,
+          585.65625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-channel",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          959.7314453125,
+          97.26875000000001
+        ],
+        [
+          959.7314453125,
+          585.65625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 71.9140625,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "caller",
+      "x": 38.95703125,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 43.9140625,
+      "h": 12.15625
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 234.5830078125,
+      "y0": 26.156250000000004,
+      "x1": 374.9423828125,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "head",
+      "text": "Ravel CLI\n(runner inside)",
+      "x": 304.7626953125,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.359375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 598.072265625,
+      "y0": 26.15625,
+      "x1": 762.134765625,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-managed-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "managed process",
+      "x": 680.103515625,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 142.0625,
+      "h": 12.15625
+    },
+    {
+      "id": "head-channel",
+      "shape": "cylinder",
+      "role": "temporary",
+      "x0": 881.5556640625,
+      "y0": 26.15625,
+      "x1": 1037.9072265625,
+      "y1": 97.26875000000001,
+      "cap": 9
+    },
+    {
+      "id": "head-channel-label",
+      "shape": "text",
+      "role": "temporary",
+      "face": "head",
+      "text": "result channel\n(temporary files)",
+      "x": 959.7314453125,
+      "y": 68.7125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 134.3515625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "note-13",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          234.5830078125,
+          109.26875000000001
+        ],
+        [
+          1027.9072265625,
+          109.26875000000001
+        ],
+        [
+          1037.9072265625,
+          119.26875000000001
+        ],
+        [
+          1037.9072265625,
+          152.2421875
+        ],
+        [
+          234.5830078125,
+          152.2421875
+        ]
+      ]
+    },
+    {
+      "id": "note-13-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          1027.9072265625,
+          109.26875000000001
+        ],
+        [
+          1027.9072265625,
+          119.26875000000001
+        ],
+        [
+          1037.9072265625,
+          119.26875000000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-13-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Selection and launch have succeeded. Worker cleanup was confirmed.\nThe managed process holds this session’s RAVEL_EXIT_FILE.",
+      "x": 636.2451171875,
+      "y": 130.75546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 783.32421875,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          680.103515625,
+          180.87890625
+        ],
+        [
+          959.7314453125,
+          180.87890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Publish \"candidate\" via end-session",
+      "x": 819.91748046875,
+      "y": 176.87890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 251.6279296875,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-18",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          598.072265625,
+          192.87890625
+        ],
+        [
+          1027.9072265625,
+          192.87890625
+        ],
+        [
+          1037.9072265625,
+          202.87890625
+        ],
+        [
+          1037.9072265625,
+          235.85234375
+        ],
+        [
+          598.072265625,
+          235.85234375
+        ]
+      ]
+    },
+    {
+      "id": "note-18-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          1027.9072265625,
+          192.87890625
+        ],
+        [
+          1027.9072265625,
+          202.87890625
+        ],
+        [
+          1037.9072265625,
+          202.87890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-18-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "First complete publication wins.\nend-session success does not confirm delivery.",
+      "x": 817.98974609375,
+      "y": 214.365625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 419.8349609375,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-21-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          263.85234375
+        ],
+        [
+          1043.9072265625,
+          263.85234375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-21-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          267.85234375
+        ],
+        [
+          1043.9072265625,
+          267.85234375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-21",
+      "shape": "box",
+      "role": "divider",
+      "x0": 390.40380859375,
+      "y0": 257.533984375,
+      "x1": 653.50341796875,
+      "y1": 274.170703125
+    },
+    {
+      "id": "div-21-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cancellation reaches the Ravel CLI",
+      "x": 521.95361328125,
+      "y": 265.85234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 243.099609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          680.103515625,
+          302.4890625
+        ],
+        [
+          304.7626953125,
+          302.4890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "SIGINT (the example below)",
+      "x": 492.43310546875,
+      "y": 298.4890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 197.931640625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          329.12578125
+        ],
+        [
+          680.103515625,
+          329.12578125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt to stop the managed process’s group",
+      "x": 492.43310546875,
+      "y": 325.12578125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 325.162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          348.6125
+        ],
+        [
+          326.7626953125,
+          348.6125
+        ],
+        [
+          326.7626953125,
+          366.6125
+        ],
+        [
+          304.7626953125,
+          366.6125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt reap and terminal recovery if lent;\ncheck whether the group is gone",
+      "x": 332.7626953125,
+      "y": 357.6125,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 303.6494140625,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          398.7359375
+        ],
+        [
+          959.7314453125,
+          398.7359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt result channel cleanup",
+      "x": 632.2470703125,
+      "y": 394.7359375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 222.705078125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          412.7359375
+        ],
+        [
+          326.7626953125,
+          412.7359375
+        ],
+        [
+          326.7626953125,
+          430.7359375
+        ],
+        [
+          304.7626953125,
+          430.7359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt remaining required cleanup",
+      "x": 332.7626953125,
+      "y": 421.7359375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 257.048828125,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-35",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          234.5830078125,
+          442.7359375
+        ],
+        [
+          1027.9072265625,
+          442.7359375
+        ],
+        [
+          1037.9072265625,
+          452.7359375
+        ],
+        [
+          1037.9072265625,
+          485.70937499999997
+        ],
+        [
+          234.5830078125,
+          485.70937499999997
+        ]
+      ]
+    },
+    {
+      "id": "note-35-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          1027.9072265625,
+          442.7359375
+        ],
+        [
+          1027.9072265625,
+          452.7359375
+        ],
+        [
+          1037.9072265625,
+          452.7359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-35-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "A failed attempt is reported, not treated as confirmed cleanup.\nNo X certifies process or directory removal on every path.",
+      "x": 636.2451171875,
+      "y": 464.22265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 783.32421875,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          507.19609375
+        ],
+        [
+          326.7626953125,
+          507.19609375
+        ],
+        [
+          326.7626953125,
+          525.19609375
+        ],
+        [
+          304.7626953125,
+          525.19609375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Keep cancellation primary; suppress candidate;\nretain original failure and cleanup reports",
+      "x": 332.7626953125,
+      "y": 516.19609375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 335.3408203125,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          304.7626953125,
+          575.65625
+        ],
+        [
+          38.95703125,
+          575.65625
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Report cancellation; re-raise INT\n(shell status 130); no result bytes",
+      "x": 171.85986328125,
+      "y": 571.65625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 237.8056640625,
+      "h": 28.9734375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 195.3359375,
+      "y0": 591.65625,
+      "x1": 848.5712890625,
+      "y1": 713.9765625
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel process. Grey: external participants. Gold cylinder: temporary files.\nGreen carries a published value, but no green arrow reaches the caller.\nThe managed process’s group includes descendants that stay in that group.\nINT goes directly to the Ravel CLI here; terminal Ctrl-C can reach only the group.\nHUP and TERM use shell statuses 129 and 143; failed propagation uses numeric fallback.\nCleanup problems cannot turn cancellation into success or permit result delivery.",
+      "x": 521.95361328125,
+      "y": 652.81640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 625.2353515625,
+      "h": 102.3203125
+    }
+  ]
+}

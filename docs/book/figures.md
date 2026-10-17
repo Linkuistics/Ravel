@@ -182,8 +182,10 @@ package (decided 2026-10-17, planned in `book-figure-migration-k108`). This
 section describes the Typst side as it now stands in the toolchain. Until the
 last `.puml` is ported, both renderers run, every rule above still holds for a
 `.puml`, and the text above is left for the leaf that retires PlantUML to
-rewrite. No book figure is a `.typ` yet; the first port replaces a figure's
-`.puml` with its `.typ` in one commit.
+rewrite. The three sequence figures (`successful-session`, `selection-cancellation`
+and `supervision-cancellation`, ported by `book-figure-sequences-k111`) are `.typ`
+figures with committed `.layout.json` records; each port replaces a figure's
+`.puml` with its `.typ` in one commit, and the other six figures follow.
 
 **On disk.** A `.typ` whose name does not start with `_` is a figure source,
 beside the `.puml` and `.d2` ones, with its SVG of the same name. The
@@ -200,6 +202,21 @@ that imports CeTZ; its header documents the record's shape and the styles.
 `docs/book/trial-typst/`; the sequence figure rendered through the modules at
 `--input style=crisp` is byte-identical to the trial's, for the base and the long
 variant.
+
+**What the sequence layout covers.** Messages and dashed replies, a self-call
+(its label may be several lines), `create` (the participant's head drops to the
+creating message and its lifeline starts there), `destroy` (the X), section
+dividers, and notes spanning two or more participants. A participant may be a
+cylinder (`db: true`); a message is `role: "result"` for the arrow that carries
+the session result. Each label wraps at `max-label` points (default 170, a
+parameter of `sequence`); the three book figures pass 300 or 340 so that their
+long labels, with the line breaks written in each source, are not split at a
+hyphen. Column gaps and row heights follow the measured labels, so adding a
+participant or lengthening a label edits no coordinates: a scratch copy of
+`supervision-cancellation.typ` with an `audit sink` participant and a
+four-line message rendered with no other change. A label's apostrophe is
+written in the source as `'` and drawn as `’` (typographic), as in the trial;
+the old PlantUML figures drew a straight one.
 
 **Layout, then draw.** A figure source builds a record with a layout module and
 passes it to `render` in `_draw.typ`. The record is plain data: positions, roles
