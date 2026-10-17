@@ -229,7 +229,7 @@ the result channel reports `session_channel_unavailable` with status 5. See
 version-1 JSON on stderr. It leaves result stdout and the managed process's output
 unchanged. It is off unless supplied and belongs to `start-session`.
 See [streams and notices](#streams-and-notices) for fields and emission order,
-and [read notices](05-running-sessions.md#read-notices-without-confusing-them-with-results)
+and [read notices](05-running-sessions.md#read-notices-separately-from-results)
 for their use.
 
 > **Note:** Once parsing succeeds, a value such as `--prompt '--json'` is
@@ -269,7 +269,7 @@ decide the enclosing session's result. Cancellation takes precedence over an
 original failure; an original failure keeps its status if later cleanup also
 fails. Otherwise required cleanup failure prevents result delivery. All
 applicable cleanup reports remain diagnostics. See
-[outcome precedence](05-running-sessions.md#read-notices-without-confusing-them-with-results).
+[outcome precedence](05-running-sessions.md#read-notices-separately-from-results).
 
 | Status | Meaning and next action | Teaching |
 |---|---|---|
@@ -277,7 +277,7 @@ applicable cleanup reports remain diagnostics. See
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. `end-session` reports failed publication, including missing, empty or stale session-result context or an oversized value. Check that publication occurs inside a live session; absence is not an empty result. | [Publication and absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, or unusable or overlapping confinement inputs. Missing a verb prints help with this status. Correct the named input or setting before retrying. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 | `3` | Policy refusal or unacceptable entry, behaviour, shape, selection result or policy context. No fallback route runs. Read code, stage and remedy; for `policy_refused`, also read `policyCode`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `5` | Worker or supervision failure, invalid result, required cleanup or terminal-recovery failure, surviving group, or result-output failure. Missing, stale or mismatched workers also use 5. Retain diagnostics, repair the installation or named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `5` | Worker or supervision failure, invalid result, required cleanup or terminal-recovery failure, surviving group, or result-output failure. Missing, stale or mismatched workers also use 5. Retain diagnostics, repair the installation or named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-separately-from-results) |
 | `124` | Policy evaluation timed out; no managed process launched. Inspect the policy's work before increasing `timeoutMs` or `--timeout-ms`. The deadline does not limit the managed process. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `126` | The selected program is unexecutable, or launch failed before start was reported for a reason other than ENOENT. Check permissions, format, interpreter and execution environment; retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `127` | The selected program was not found, or pre-start launch failed with ENOENT. An existing script can have a missing interpreter. Check `PATH`, the selected path and interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
@@ -308,7 +308,7 @@ handles both. Ignored or blocked entry signals are not automatically cancellatio
 | Stream | Session behaviour | Teaching |
 |---|---|---|
 | stdout | `start-session` writes only the exact successful result, without an added newline. Empty publication is zero bytes. A failed final write can leave a prefix, so check status. `end-session` writes no stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
-| stderr | Managed stdout and stderr, Ravel notices and failures, captured policy diagnostics and operational reports. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| stderr | Managed stdout and stderr, Ravel notices and failures, captured policy diagnostics and operational reports. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) |
 | stdin | Ravel does not implicitly consume a prompt from stdin. The worker receives null stdin. An unconfined managed process can use caller stdin; a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 
 Text routing notices begin `ravel: starting provider` and name provider,
@@ -316,7 +316,7 @@ model, effort and kind before launch. Captured policy lines have `policy
 stdout:` or `policy stderr:` prefixes. A failure begins `ravel: refused
 (CODE, stage STAGE):`; the word “refused” in this text also covers operational
 failures, distinguished by code and status. `end-session` publication failures
-instead begin `ravel: end-session:`. See [read notices](05-running-sessions.md#read-notices-without-confusing-them-with-results).
+instead begin `ravel: end-session:`. See [read notices](05-running-sessions.md#read-notices-separately-from-results).
 
 ### JSON routing notice
 
@@ -325,7 +325,7 @@ result-output reservation and result-channel allocation. It is printed after the
 supervision attempt, before Ravel decides the final outcome. It is not proof of launch, cleanup
 or success. Stderr remains a mixed stream, and the managed process can print
 text that resembles a Ravel document. See
-[read notices](05-running-sessions.md#read-notices-without-confusing-them-with-results).
+[read notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | Field | Value and meaning |
 |---|---|
@@ -365,7 +365,7 @@ A JSON failure document has `schemaVersion: 1`, an `error` object, and optional
 top-level `diagnostics` containing policy `stdout` and `stderr` strings. Read
 `code` and `stage` together and retain the complete stderr stream: secondary
 operational reports can appear outside this document. See
-[read failure notices](05-running-sessions.md#read-notices-without-confusing-them-with-results).
+[read failure notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | `error` field | Presence and meaning |
 |---|---|
@@ -396,7 +396,7 @@ the Ravel CLI cannot see which policy operation was running at expiry.
 | `validation` | Checking the exported policy object. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `selection` | Calling `select` and checking its returned data. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `resolution` | Finding the selected program. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `exec` | Preparing and supervising the managed launch and deciding its outcome, including result-output or result-channel failures before spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `exec` | Preparing and supervising the managed launch and deciding its outcome, including result-output or result-channel failures before spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-separately-from-results) |
 
 ## Environment variables
 
@@ -624,7 +624,7 @@ code. Cancellation takes precedence over an existing failure; otherwise the
 original error decides the code and status, and later cleanup errors are
 reported beside it. A code
 listed here may therefore appear as retained detail beside another outcome.
-Read the complete stderr stream. See [interpret notices](05-running-sessions.md#read-notices-without-confusing-them-with-results).
+Read the complete stderr stream. See [interpret notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | Code | Stage; status | Meaning and remedy | Teaching |
 |---|---|---|---|
@@ -642,8 +642,8 @@ Read the complete stderr stream. See [interpret notices](05-running-sessions.md#
 | `policy_unreadable` | `authority`; 3 | Entry is unreadable or non-regular, or its canonical name cannot be imported exactly. Correct the file, permissions or UTF-8 path without `?`. | [Policy entry and imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `worker_missing` | `worker`; 5 | The worker found relative to the Ravel CLI's canonical path cannot be located or started. Reinstall or rebuild the matched pair and check execution permissions. | [Installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `worker_identity_mismatch` | `worker`; 5 | Protocol, package version or source identity does not match the Ravel CLI. Install both binaries from one build; test-only probe builds of the worker are never accepted. | [Installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
-| `worker_failed` | `worker`; 5 | Worker preparation, execution or required teardown failed. Inspect retained operation details and repair the installation or named resource. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
-| `protocol_error` | `worker`; 5 | Worker conversation is malformed, closed unexpectedly or otherwise invalid. Rebuild or reinstall the matching pair; retain diagnostics if it recurs. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `worker_failed` | `worker`; 5 | Worker preparation, execution or required teardown failed. Inspect retained operation details and repair the installation or named resource. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
+| `protocol_error` | `worker`; 5 | Worker conversation is malformed, closed unexpectedly or otherwise invalid. Rebuild or reinstall the matching pair; retain diagnostics if it recurs. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
 | `selection_timeout` | `evaluation`; 124 | Whole worker deadline expired, including startup, import and loading. Fix stalled work or raise the adjustable bound within its range. No managed launch follows. | [Deadline](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `selection_cancelled` | `evaluation`; 129/130/143 | HUP/INT/TERM ended selection. Retain teardown reports; retry only if still intended. Signal termination is the normal process-level result. | [Selection cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `output_limit` | `evaluation`; 3 | Worker stdout and stderr together exceed 262,144 bytes (256 KiB). Print less; the retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
@@ -669,7 +669,7 @@ Read the complete stderr stream. See [interpret notices](05-running-sessions.md#
 
 | Code | Stage; status | Meaning and remedy | Teaching |
 |---|---|---|---|
-| `cancellation_unavailable` | `exec`; 5 | The Ravel CLI cannot set up cancellation handling. Inspect the reported OS error and execution environment. | [Operational failures](05-running-sessions.md#read-notices-without-confusing-them-with-results) |
+| `cancellation_unavailable` | `exec`; 5 | The Ravel CLI cannot set up cancellation handling. Inspect the reported OS error and execution environment. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
 | `signal_state_unavailable` | `exec`; 5 | Entry capture or a required signal-state transition failed. Retain all reports and correct the execution environment; do not treat any result as success. | [Signal and recovery limits](05-running-sessions.md#understand-the-operational-limits) |
 | `output_unavailable` | `exec`; 5 | Result stdout cannot be reserved or restored. Supply a writable output stream and inspect any restoration error. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_channel_unavailable` | `exec`; 5 | Private result channel cannot be allocated or prepared. Correct temporary storage or `--exit-dir`; inspect partial-cleanup reports. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |

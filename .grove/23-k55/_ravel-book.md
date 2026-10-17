@@ -345,6 +345,27 @@ run … as your last action. Then do nothing else.” Chapter 4 has no figures,
 so set art k130 has no work in it. This closes document node
 `writing-an-owner-policy-k64` again.
 
+Copy-edit `running-sessions-k128` converted chapter 5 to STE and “send”. It
+passes `task docs:ste -- --strict`. Its title is “Run sessions”. Its heading
+“Read notices without confusing them with results” is now “Read notices
+separately from results” (“confusing” is an “-ing” form). Chapter 6's twelve
+links to it changed, and their link texts did not. For copy-edit k129: keep
+these links when chapter 6 changes. For set art k130: k128 converted the
+three alt texts and the prose before the figures, and kept their facts. R8
+remains in the paragraphs “In this UML state machine…” and “In these UML
+sequences…”, and in the sentence about the green arrow and the gold result
+channel. The figure text still breaks the rules. In `supervision-cancellation`,
+these items use the old words: the title “Cancellation after publication”,
+the message “Publish "candidate" via end-session”, the note “First complete
+publication wins.” and the key line “Green carries a published value”. In
+`settled-exit-status`, these items are affected: “Writing the result”, the key
+lines with “steps in deciding”, “reporting an outcome”, “a published result”
+and “Empty publication”, and one semicolon. `selection-cancellation` has seven
+semicolons and the words “claiming” and “corresponding”.
+`task docs:ste` on the three `.layout.json` files lists each item. If a
+label changes, make the alt text agree. This closes document node
+`running-sessions-k65` again.
+
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
 titles, the words that the book does not use and the “-ing” words that it
 keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
