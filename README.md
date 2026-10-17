@@ -1,10 +1,14 @@
 # Ravel
 
-Ravel is a policy router and session process manager. A caller asks for work
-by kind; the owner's TypeScript policy chooses the program that does it; Ravel
-runs that program under supervision and returns the result the program
-publishes. The front, policy worker and local runner are built and versioned
-together as one tool.
+Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
+supervised parts of another program. A caller, typically an orchestrator, asks
+for work by kind; the owner's TypeScript policy chooses the harness command;
+Ravel runs it under supervision and returns the result the session publishes.
+An interactive harness cannot normally exit itself, so the LLM runs
+`ravel end-session` to publish its result and ask Ravel to end the session.
+That is what lets an interactive harness serve as a sub-component of the
+orchestrator's process. The Ravel CLI, policy worker and local runner are built
+and versioned together as one tool.
 
 It has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
@@ -57,13 +61,13 @@ pass/fail summaries and failure details when needed. Checks use the committed
 Cargo lockfile. On
 macOS, confinement tests exercise `/usr/bin/sandbox-exec`; on Linux they require
 the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. The policy worker builds with the checkout-local Bun 1.4.2 from `task setup`.
-The built front/worker uses no host Bun/Node at run time. No model account or
+The built Ravel CLI and worker use no host Bun/Node at run time. No model account or
 other project checkout is needed for these checks.
 
 The private [session channel](docs/session-channel.md) composes the runner's
 completion signal with atomic opaque-result publication. Real subprocess fixtures
 verify nested inherited context, cancellation, reaping and empty/multiline
-values. The command front composes it with the compiled policy evaluator.
+values. The Ravel CLI composes it with the compiled policy evaluator.
 
 ## Earlier project
 
@@ -73,7 +77,7 @@ in this repository under `retired/actor-daemon-2026-10-12`.
 part of this tree. Its daemon sources, design documents and agent-state files are
 retired history.
 
-Release preparation and publication use the matched front/worker layout.
+Release preparation and publication use the matched Ravel CLI/worker layout.
 
 Unreleased three-target archives and installed glibc/CPU-floor checks are
 available through `task release:smoke`, with exact-manifest controls at
