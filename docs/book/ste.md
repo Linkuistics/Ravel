@@ -136,3 +136,13 @@ running program”.
 | code signing | technical name |
 | learning route | technical name of an entry route (contract) |
 | writing rules | technical name of Part 1 of the STE specification |
+
+## Words for frequent phrases in -ing
+
+These phrases occur in more than one chapter, and the table above does not
+keep them. Use the same words in each chapter:
+
+| Phrase | Use |
+|---|---|
+| ending instructions, ending instruction | the instructions to end the session |
+| routing (a noun for the work of the owner policy), routing code, routing rule | the choice of command, the policy decisions (when refusals and arguments are part of it), the policy code, a rule in the owner policy, or a verb: “the policy selects a command” |

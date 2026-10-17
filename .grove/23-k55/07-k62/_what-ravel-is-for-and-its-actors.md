@@ -86,13 +86,11 @@ this document. Thus, no stage under this node cuts an art or proof leaf.
 
 ## Handed forward
 
-- **Copy-edit k125:** chapters 1 and 2 still need the full STE conversion
-  and the result-word changes outside k124's revised passages. Keep the
-  explicit text-result example, the caller's choice of values and the
-  distinction between command arguments and descriptive labels. K124's
-  revised passages pass the strict STE check in isolation. The existing
-  chapter-title and anchor work remains in k125's body.
-- **Art k130:** R8 remains in the prose before both figures. The figure
-  prose and alt text also retain the earlier result words. K124 changed
-  none of those passages or the figure assets. Apply the shared word
-  decisions with the queued figure pass.
+- **Art k130:** R8 remains: the paragraph before each figure repeats the
+  figure's colour key (chapter 1, “The C4 system-context view…”, chapter 2,
+  “This C4 container view…”). Copy-edit k125 converted those paragraphs
+  and both alt texts to STE and “send”, and kept their content. The figure
+  assets still have the earlier result word: the edge label “Publishes
+  opaque result; asks Ravel to stop” in `system-context` and “Publishes
+  result via end-session” in `process-authority`. The first label also has
+  a semicolon (Rule 8.1). If a label changes, make the alt text agree.

@@ -307,6 +307,20 @@ proof k132. The read then starts again from the beginning. The second half's
 planning leaf is still owed at the end of the read. Chapters 7–12 follow the
 STE writing rules and `docs/book/ste.md`.
 
+Copy-edit `what-ravel-is-for-and-its-actors-k125` converted chapters 1 and 2
+to STE and “send”. Both pass `task docs:ste -- --strict`. Chapter 1's
+heading “Choose a reading route” is now “Choose a route through the book”.
+No link used its anchor. `ste.md` now gives the words for “ending
+instructions” and bare “routing”, which chapters 3–6 also use. For set art
+k130: k125 converted both alt texts and the prose before both figures, and
+kept their content. R8 remains in the paragraphs “The C4 system-context
+view…” (chapter 1) and “This C4 container view…” (chapter 2). The figure
+labels “Publishes opaque result; asks Ravel to stop” (`system-context`, also
+a semicolon) and “Publishes result via end-session” (`process-authority`)
+remain. If a label changes, make the alt text agree. This closes document
+node `what-ravel-is-for-and-its-actors-k62`. Set art k130 and set proof
+k132 in this node complete its third correction run.
+
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
 titles, the words that the book does not use and the “-ing” words that it
 keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
