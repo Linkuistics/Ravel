@@ -281,3 +281,15 @@ visual checks; GitHub and the published site remain unavailable. This is no
 real-agent execution or new-reader comprehension result. The README alignment,
 accepted Typst/CeTZ trial and resumed owner read remain their existing live
 leaves; the current media contract still governs until a migration is agreed.
+
+## Figure migration
+
+The owner decided on 2026-10-17 to move every figure to Typst/CeTZ ("migrate
+full") and later asked for a hand-drawn style. `book-figure-migration-k108`
+planned it as ten leaves ahead of read 1: `book-figure-engine`,
+`book-figure-sketch-style`, the five port leaves, the PlantUML retirement and
+the viewing check. The plan, the decisions (SVG text, one source per figure,
+`_*.typ` modules, pins) and the layout-cost table are in that leaf's `## Plan`.
+Until `book-figure-retire-plantuml-k117` lands, the contract's PlantUML wording
+still governs the figures not yet ported. Chapters 7–12's figures are drawn on
+the new renderer.
