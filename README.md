@@ -2,30 +2,34 @@
 
 Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
 supervised parts of another program. A caller, typically an orchestrator, asks
-for work by kind; the owner's TypeScript policy chooses the harness command;
-Ravel runs it under supervision and returns the result the session publishes.
-An interactive harness cannot normally exit itself, so the LLM runs
-`ravel end-session` to publish its result and ask Ravel to end the session.
-That is what lets an interactive harness serve as a sub-component of the
-orchestrator's process. The Ravel CLI, policy worker and local runner are built
+for work by kind. The TypeScript policy of the owner chooses the harness
+command. Ravel runs that command under supervision. After cleanup succeeds,
+Ravel returns the result that the session sent.
+
+An interactive harness cannot normally exit by itself. Thus, the LLM runs
+`ravel end-session` to send its result and ask Ravel to end the session. This
+lets an interactive harness serve as a sub-component of the process of the
+orchestrator. The Ravel CLI, the policy worker and the local runner are built
 and versioned together as one tool.
 
-It has two verbs: `ravel start-session` and `ravel end-session RESULT`.
+Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
-The book is the guide to Ravel: what it is for, how to write an owner policy,
-how to run sessions, and the reference. It lives in this repository checkout
-under `docs/book/`; a release archive does not carry it. From a checkout, run
-`task setup` once and then `task docs:book` to build the book and serve it on
-localhost, or read the Markdown in `docs/book/src/`, starting at
+The book is the guide to Ravel. It says what Ravel is for, how to write an
+owner policy and how to run sessions. It also has the reference chapters.
+
+The book is in this repository checkout under `docs/book/`. A release archive
+does not have it. To read it from a checkout, run `task setup` one time. Then
+run `task docs:book` to build the book and serve it on localhost. You can also
+read the Markdown in `docs/book/src/`. Start at
 [chapter 1](docs/book/src/01-what-ravel-is-for.md).
 
-The book's chapters on how Ravel is built, reusing its components, developing
-it and delivering it are not written yet. Until they are, the
+The book does not yet have the chapters on four subjects. These are how Ravel
+is built, how to reuse its components, how to develop it and how to deliver it.
+Until these chapters exist, use these references for that subject: the
 [component contracts](docs/components.md), the
 [runner boundary](docs/local-runner.md), the
-[executable specification](docs/specs/session-execution.md) and
-[runtime evidence](docs/runtime-evidence.md) are the references for that
-ground. The runtime notices are
+[executable specification](docs/specs/session-execution.md) and the
+[runtime evidence](docs/runtime-evidence.md). The runtime notices are
 [`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a
 checkout and `libexec/ravel/notices/` in an installation.
 
@@ -33,7 +37,7 @@ checkout and `libexec/ravel/notices/` in an installation.
 
 Use Rust 1.85 or later, curl, tar, [Task](https://taskfile.dev/), ShellCheck and
 [cargo-nextest](https://nexte.st/docs/installation/pre-built-binaries/).
-Run from this checkout:
+Run these tasks from this checkout:
 
 ```sh
 task setup # fetch the verified Bun 1.4.2 development toolchain and pinned types
@@ -51,37 +55,42 @@ task install PREFIX=/your/prefix
 ```
 
 `task typecheck` checks the worker and SDK source and the generated declarations.
-`task test:cli` runs the command-boundary tests against actual workers, temporary
-policies and fixture processes. Use focused checks while editing and the full
-relevant suite at handoff. `task check` rebuilds and typechecks the pair, checks
-formatting, denies Clippy warnings across all targets and
-runs the complete Rust suite with nextest's reporting visible. Formatting,
-script lint, Clippy and nextest diagnostics are saved under `target/check.*`, with short
-pass/fail summaries and failure details when needed. Checks use the committed
-Cargo lockfile. On
-macOS, confinement tests exercise `/usr/bin/sandbox-exec`; on Linux they require
-the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. The policy worker builds with the checkout-local Bun 1.4.2 from `task setup`.
-The built Ravel CLI and worker use no host Bun/Node at run time. No model account or
-other project checkout is needed for these checks.
+`task test:cli` runs the command-boundary tests against actual workers,
+temporary policies and fixture processes. Use focused checks while you change
+the code. Run the full relevant suite at handoff.
 
-The private [session channel](docs/session-channel.md) composes the runner's
-completion signal with atomic opaque-result publication. Real subprocess fixtures
-verify nested inherited context, cancellation, reaping and empty/multiline
-values. The Ravel CLI composes it with the compiled policy evaluator.
+`task check` rebuilds and typechecks the pair. It checks the format of the
+code and denies Clippy warnings in all targets. It also runs the complete Rust
+suite and shows the nextest report. Diagnostics from the format check, the
+script lint, Clippy and nextest are saved under `target/check.*`. They come
+with short pass/fail summaries and, when needed, failure details. The checks
+use the committed Cargo lockfile.
+
+On macOS, the confinement tests use `/usr/bin/sandbox-exec`. On Linux, they
+need the system bubblewrap executable at `/usr/bin/bwrap` or `/bin/bwrap`. The
+policy worker is built with the Bun 1.4.2 in the checkout from `task setup`.
+The built Ravel CLI and worker use no host Bun or Node at run time. The checks
+need no model account and no other project checkout.
+
+The private [session channel](docs/session-channel.md) combines the completion
+signal of the runner with an atomic send of the opaque result. Real subprocess
+fixtures test nested inherited context, cancellation, the end of every process,
+and empty and multiline values. The Ravel CLI uses the channel together with
+the compiled policy evaluator.
 
 ## Earlier project
 
-The former actor-daemon project, including the owner's README edits, is preserved
-in this repository under `retired/actor-daemon-2026-10-12`.
+The former actor-daemon project is preserved in this repository under
+`retired/actor-daemon-2026-10-12`. The preserved project includes the README edits of the owner.
 [Retrieval instructions and the exact revision](docs/retired-project.md) remain
-part of this tree. Its daemon sources, design documents and agent-state files are
-retired history.
+part of this tree. Its daemon sources, design documents and agent-state files
+are retired history.
 
-Release preparation and publication use the matched Ravel CLI/worker layout.
-
-Unreleased three-target archives and installed glibc/CPU-floor checks are
-available through `task release:smoke`, with exact-manifest controls at
-`task release:test` and temporary-prefix formula checks at
-`task release:formula`. See [delivery prerequisites and layout](docs/RELEASING.md).
+Release preparation and delivery use the matched layout of the Ravel CLI and
+the worker. Use `task release:smoke` for the unreleased three-target archives
+and the installed glibc and CPU-floor checks. Use `task release:test` for the
+exact-manifest controls. Use `task release:formula` for the temporary-prefix
+formula checks. Read [delivery prerequisites and layout](docs/RELEASING.md) for
+the details.
 
 Licensed under [Apache-2.0](LICENSE).

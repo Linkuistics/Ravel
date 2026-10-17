@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Reword the `ravel end-session` help text: the LLM sends the result, and Ravel
+  keeps the first result that it receives. The behavior does not change.
+
 ## v1.0.0
 
 - Declare the two-verb public CLI stable: `ravel start-session` and

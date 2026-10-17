@@ -23,9 +23,9 @@ pub enum Command {
         after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, policy refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.ts --param profile=careful --prompt 'Check and end with a result'"
     )]
     StartSession(Box<RunArgs>),
-    /// Publish exactly one opaque result to the enclosing session and request its end
+    /// Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
     #[command(
-        after_help = "Uses inherited RAVEL_EXIT_FILE; no session ID or target argument. The first publication wins. Missing or stale context exits 1. No settings or policy are read.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
+        after_help = "The command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no policy.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
     )]
     EndSession {
         #[arg(value_name = "RESULT")]

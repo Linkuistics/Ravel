@@ -40,3 +40,19 @@ line with the corrected chapter 1, in STE.
 - Cut nothing. Set proof k132 already stands.
 - The other help text stays as it is. Later work that changes it applies
   STE.
+
+## Decisions (running log)
+
+- 2026-10-18: At the start, no test and no book page quoted the old help
+  strings (a search of the checkout outside `.grove/` found them only in
+  `crates/ravel/src/cli.rs`). The changed text needs no test change.
+- 2026-10-18: The `end-session` doc comment is now “Send exactly one opaque
+  result to Ravel and ask Ravel to end the enclosing session”. The `after_help`
+  is rewritten as five short sentences that keep every fact. The top-level
+  `about` and the `start-session` text stay as they are (the leaf notes).
+- 2026-10-18: The README is rewritten in STE with the same sections and links.
+  Where a sentence had a semicolon or an -ing word, it is split or reworded.
+  “Publication” for the release is now “delivery”.
+- 2026-10-18: Control for the “publish/publication” search: the same pattern
+  finds 4 lines in the README and 2 in `cli.rs` at the parent commit, and none
+  after the change.
