@@ -10,8 +10,9 @@ mistaking a policy response for a completed session.
 ## Caller and owner
 
 The **caller** is the person or program invoking Ravel and interpreting its
-returned result. It supplies the prompt, including the ending instructions,
-and decides what to do afterwards. A **session** is one `ravel start-session`
+returned result. An orchestrator that runs LLM sessions as steps of its own
+work is one such caller. The caller supplies the prompt, including the ending
+instructions, and decides what to do afterwards. A **session** is one `ravel start-session`
 invocation, from routing the request until Ravel reports the selected
 program's result or failure. A Ravel session is neither a POSIX session created by `setsid` nor
 a login session.
@@ -78,10 +79,15 @@ running it”.
 
 The **managed process** is the direct child selected by owner policy and
 supervised by the Ravel CLI. Cleanup covers its whole process group, including
-descendants that remain in that group. If the selected
-program is an agent working on the prompt, the book calls that program a
-**harness**. That term describes an agent program, not a test harness; Ravel
-supervises it through the same boundary as any other selected program.
+descendants that remain in that group. A **harness** is the agent program,
+such as Claude Code or Codex, in which an LLM session works on the prompt.
+Owner policy selects its command. An interactive harness waits for more input
+when the LLM finishes, so the caller's ending instructions tell the LLM to
+publish a result with `end-session`. Ravel then stops any remaining processes
+in the harness's group and completes cleanup before returning the result.
+“Harness” here means the agent program, not a test harness. Ravel supervises
+it as it would any other selected program, which lets an ordinary program
+stand in for the harness in the book's examples.
 
 The **opaque result** is the single UTF-8 argument published with
 `ravel end-session`. Ravel returns it unchanged after successful supervision

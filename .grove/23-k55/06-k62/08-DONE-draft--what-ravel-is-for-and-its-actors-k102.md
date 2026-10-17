@@ -122,3 +122,60 @@ Constraints the routing session checked:
 
 - After this run, `book-readme` aligns the README's opening with the
   corrected chapter 1, and then read 1 resumes (`book-read-one-k70`).
+
+## Decisions (running log)
+
+- The structure brief is `docs/book/contract.md`, named by this document's
+  node brief. It states the reader ("a 16-year-old software engineer with no
+  background in Ravel"), the ordered section plan (chapter 1: "say what Ravel
+  solves, including why `end-session` exists"; chapter 2: name the actors and
+  their authority), and emphasis ("What success means", "Who holds which
+  authority") and exclusions (history, agent installation, Grove conventions
+  and undelivered contracts). The draft precondition is met.
+- Lead chapter 1 with LLM sessions in harnesses and use the review example
+  to explain the orchestrator's need to regain control. Keep generic process
+  supervision as the mechanism that allows fake agents to stand in.
+- Put result publication and cleanup together before the system-context
+  figure, naming the result at the start of the completion paragraph. This
+  fixes R2 at the same point that R1 introduces the reason for `end-session`.
+- Keep the existing section headings and figures. The live art k104 owns
+  figure labels, keys, alt text and tables; no later stage is cut again.
+
+## Verification and handoff
+
+Read both complete chapters before and after the changes. The opening now
+teaches the intended domain, the review example explains why an orchestrator
+needs the session to end, and the fit and reading-route prose retain the
+generic mechanism and fake-agent explanation. Chapter 2 defines caller and
+harness consistently with `CONTEXT.md`. R2's sentence now names the result
+published with `end-session` and precedes the figure beside that command.
+
+Technical checks used the amended contract and owner's R1 statement for the
+domain; `docs/specs/session-execution.md` for selection, publication, cleanup,
+results, nesting and trust limits; `docs/specs/result-job-completion.md` for
+failure precedence, result-write limits and the recorded support scope; and
+the three ADRs for supervision, worker ordering and process groups. The
+2026-10-16 help evidence in chapter 4 establishes the named routes' interactive
+mode, not an observed real-agent session. No real agent was launched here.
+Tier 2 graph lookup found `completion.end_session`; its exact source reads the
+inherited path and calls `publish_result`. Coverage checks reported matching
+metadata and no recorded gap for the relied-on paths at generation
+`2026-10-17T00:46:39Z`; this is best-effort evidence, not a completeness proof.
+The document claims were checked against the directly read specifications,
+glossary, contract and ADRs, not inferred from graph edges.
+
+On 2026-10-17, `task docs:book:build` passed without warnings or errors and
+`task docs:examples` passed all 13 complete examples, with zero failures or
+page errors; six labelled fragments were not run. All seven anchors named
+in this leaf resolve in the built HTML; deliberately wrong anchor names
+were rejected by the same membership check. SHA-256 digests of all 3551
+tracked files were identical before and after these checks, including the
+chapters, contract, Taskfile, scripts and product/example sources. The local
+digest receipts are under ignored `target/k102-subjects-{before,after}.json`.
+This verifies build, links and examples, not reader comprehension or real
+harness behaviour. No rendered-figure or remote-site check is claimed.
+
+The document brief hands the existing figure/table alignment to art k104.
+No changed claim requires an edit in another chapter. Copy-edit k103, art
+k104 and proof k105 remain live, so no successor is added and the document
+node stays open. No architectural decision changed; the ADR set stands.

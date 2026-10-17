@@ -70,3 +70,14 @@ information-kind and platform-evidence tables carry the unit's comparisons.
 The correction pass adds the worker-directory sequence table, distinguishing
 startup location, the move before policy import and cleanup before launch.
 
+## Handed forward
+
+- **Art k104:** chapter 1 now leads with an orchestrator using an LLM session
+  in a harness, and explains result publication followed by Ravel stopping
+  remaining group members before cleanup. Align the system-context figure,
+  its introduction and alt text with that account, and check the fit table
+  under "Decide whether Ravel fits" and chapter 2's process-authority figure
+  and responsibility table. The generic labels remain mechanically true but
+  need to carry the document's intended domain. This is the already-queued
+  R1 art correction; draft changed no figure, key, alt text or table.
+
