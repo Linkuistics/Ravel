@@ -1,12 +1,16 @@
 # What Ravel is for
 
-Ravel runs LLM sessions in agent
-[harnesses](02-actors-and-words.md#the-managed-process-and-its-result), such as
-Claude Code and Codex, as supervised parts of another program. An orchestrator
-can ask for a session, wait for its result, then use that result to decide what
-to do next. The person who configures Ravel chooses which harness runs each
-request. Ravel starts it, supervises it, and returns its published result after
-cleanup succeeds.
+Ravel runs
+[LLM sessions in agent harnesses](02-actors-and-words.md#the-managed-process-and-its-result),
+such as Claude Code and Codex, as supervised parts of another program. A
+harness is the program in which an LLM works on a prompt: it passes the prompt
+to the LLM and runs the commands the LLM asks for, such as shell commands. An
+[orchestrator](02-actors-and-words.md#caller-and-owner), a program that runs
+LLM sessions as steps of its own work, can ask Ravel for a
+[session](02-actors-and-words.md#caller-and-owner), wait for its result, then
+use that result to decide what to do next. The person who configures Ravel
+chooses which harness runs each request. Ravel starts it, supervises it, and
+returns its published result after cleanup succeeds.
 
 Consider an orchestrator that asks an LLM to review a code change. The
 orchestrator knows the files to review and what to do with the answer. The
@@ -38,9 +42,10 @@ One `start-session` invocation is a
 [session](02-actors-and-words.md#caller-and-owner). For the length of the
 session, Ravel supervises the program the policy selected, which runs as the
 session's [managed process](02-actors-and-words.md#the-managed-process-and-its-result).
-The harness runs the LLM session that works on the prompt. Ravel supervises
-the harness as it would any other process: an ordinary program that uses
-`end-session` can stand in for it. The book's runnable examples use fake
+The harness runs the LLM session that works on the prompt. That LLM session
+is not the Ravel session: Ravel supervises the harness process, not the LLM's
+conversation inside it. Ravel supervises the harness as it would any other
+process, so an ordinary program that uses `end-session` can stand in for it. The book's runnable examples use fake
 agents in this way.
 
 An interactive harness does not exit when its LLM finishes the task; it waits
@@ -55,14 +60,14 @@ work. `end-session` finds the enclosing session through its inherited
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 It takes no session ID or target argument.
 
-Publishing the result with `end-session` asks Ravel to begin completion; it
-does not prove that cleanup succeeded. Ravel stops the harness and any other
-processes still running in its process group. Before returning a successful
-result, Ravel confirms that the managed process has ended and been reaped,
-that its process group is gone, and that the session's temporary files have
-been removed. Reaping is the parent collecting a finished child's exit status.
-The process group is the operating system's grouping of the managed process
-with its descendants, and Ravel cleans up the whole group.
+Publishing the result with `end-session` is a request to end the session, not
+proof that cleanup succeeded. The managed process's process group is the
+operating system's grouping of that process with its descendants. Ravel stops
+the harness and any other processes still running in that group, and cleans
+up the whole group. Before returning a successful result, Ravel confirms that
+the managed process has ended and been reaped, that its process group is gone,
+and that the session's temporary files have been removed. Reaping is the
+parent collecting a finished child's exit status.
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md#launch-the-managed-job),
 explains those mechanics as a session reaches them.
 
@@ -88,11 +93,10 @@ Several outcomes carry no successful result. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) means no
 program is launched. If the managed process exits and no result was
 published, the session has no result and fails, even if the exit status is
-zero. Cancellation
-of the session suppresses a result even if it was already published. A
-supervision or cleanup failure also prevents success. Conversely, a published
-result can succeed after cleanup even if the managed process later exits
-nonzero. The result is the value the caller's ending instructions asked for,
+zero. Cancellation of the session suppresses a result even if it was already
+published. A supervision or cleanup failure also prevents success. Conversely,
+a session with a published result can succeed after cleanup even if the
+managed process then exits with a nonzero status. The result is the value the caller's ending instructions asked for,
 the exit status reports how the process ended, and the work is whatever the
 program changed; none of the three stands in for another.
 
@@ -108,10 +112,10 @@ file cannot be mistaken for the result the caller requested.
 ## Decide whether Ravel fits
 
 Ravel fits when your program needs to use an LLM session in an interactive
-harness as a step in its own work. It can leave harness selection to the
-account's configuration and use the same completion protocol for each
-selected harness. Ravel supervises that session and returns its explicit
-result after cleanup. Your program still owns the task and the decisions made
+harness as a step in its own work. Your program can leave the choice of
+harness to the account's owner policy and rely on the same ending command,
+`end-session`, whichever harness that policy selects. Ravel supervises the
+session and returns its explicit result after cleanup. Your program still owns the task and the decisions made
 after the session ends.
 
 Use this table to decide which part of your need Ravel meets and which part
@@ -139,8 +143,8 @@ caller needs a lasting record, that caller saves it. Owner policy is executable
 code and can itself use files or network services; the absence of a Ravel store
 does not restrict what that trusted code can do.
 
-Grove, a task-tree driver, is one illustrative caller: it orchestrates LLM
-sessions in harnesses as steps of work on its task tree. It supplies its own
+Grove, a task-tree driver, is one illustrative caller: an orchestrator that
+runs LLM sessions in harnesses as steps of work on its task tree. It supplies its own
 task kinds and interprets its own ending values. Those conventions belong to
 Grove. Another caller can use different kinds and results without a Ravel
 adapter.
@@ -149,7 +153,7 @@ The supervision guarantee also has limits. A descendant that moves itself out
 of the managed process's process group is not reached by that group's cleanup,
 and the session can succeed while it still runs. Detached children started by policy
 are outside the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)'s
-cleanup guarantee. If Ravel is killed abruptly, for example with SIGKILL,
+cleanup guarantee. If the Ravel CLI is killed abruptly, for example with SIGKILL,
 which it cannot catch, the managed process or temporary files can be left
 behind. Code running as the same user can tamper with files, including
 Ravel's; keeping sessions separate is not a security check against that code.
@@ -180,7 +184,7 @@ Ravel's domain and the job-control details its behaviour depends on.
 
 Reading the chapters in order is the learning route. The first practical
 session uses a tiny policy and a fake agent: an ordinary program that publishes
-a result with `end-session` in place of an LLM running in a harness. Learning
+a result with `end-session` in place of a harness running an LLM session. Learning
 the protocol therefore needs no model service or personal agent account.
 Installing and configuring real agents is outside the book's scope.
 

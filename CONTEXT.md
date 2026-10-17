@@ -89,7 +89,8 @@ and environment. Confinement does not apply to the **Owner policy** or its
 ## Flagged ambiguities
 
 - **"Session"** alone means a Ravel **Session**, never a POSIX session
-  (`setsid`) or a login session. An unconfined **Managed process** stays in the
+  (`setsid`), a login session or the LLM session inside a **Harness**; say
+  "LLM session" for that. An unconfined **Managed process** stays in the
   **Caller**'s POSIX session, in a process group of its own; a confined launch
   starts a new POSIX session.
 - **"Context"** alone is ambiguous. Say **Session-result context** for the

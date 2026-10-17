@@ -80,4 +80,9 @@ startup location, the move before policy import and cleanup before launch.
   and responsibility table. The generic labels remain mechanically true but
   need to carry the document's intended domain. This is the already-queued
   R1 art correction; draft changed no figure, key, alt text or table.
+  Copy-edit k103 fixed the prose words art should reuse: "LLM session",
+  "harness" (the program that passes the prompt to the LLM and runs the
+  commands it asks for), "interactive harness" and "orchestrator" (a program
+  that runs LLM sessions as steps of its own work). An LLM session is not the
+  Ravel session. Copy-edit changed no figure, key, alt text or table either.
 
