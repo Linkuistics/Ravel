@@ -160,7 +160,7 @@ result. No `tasks/check.md` file is needed in this example.
 
 Keep the result bytes and the status of `start-session` together. Status 0
 means a valid result was published, the direct child was
-[reaped](03-a-complete-session.md#publish-the-result-and-finish-the-job), the
+[reaped](03-a-complete-session.md#send-the-result-and-finish-the-job), the
 managed process's [process group](03-a-complete-session.md#launch-the-managed-job)
 was confirmed gone, required cleanup succeeded, and the final result write and
 flush succeeded.

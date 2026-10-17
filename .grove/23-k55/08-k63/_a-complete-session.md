@@ -82,3 +82,7 @@ Copy-edit k126 converts chapter 3 to STE, with the word decisions in
 result and finish the job” and changes every link to it.
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
+Copy-edit k126 completed this conversion on 2026-10-18. Chapter 3 passes the
+strict STE check, and chapter 5's link uses the new anchor
+`#send-the-result-and-finish-the-job`. The figure labels that still say
+“publish” are in the parent brief for set art k130.

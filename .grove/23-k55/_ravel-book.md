@@ -321,6 +321,21 @@ remain. If a label changes, make the alt text agree. This closes document
 node `what-ravel-is-for-and-its-actors-k62`. Set art k130 and set proof
 k132 in this node complete its third correction run.
 
+Copy-edit `a-complete-session-k126` converted chapter 3 to STE and “send”.
+It passes `task docs:ste -- --strict`. Its heading “Publish the result and
+finish the job” is now “Send the result and finish the job”, and chapter 5's
+one link to it changed. For set art k130: k126 converted both alt texts and
+both captions, and kept their facts. R8 remains in the paragraphs “In this
+UML sequence…” and “In this UML state machine…”. These labels and key lines
+still use the old words: in `successful-session`, “Publish opaque result via
+end-session”, “Validate and read published result”, “Launch and
+publication”, “First complete publication wins. Publication does not wait
+for cleanup.” and the key line “Publication precedes cleanup…”. In
+`session-outcomes`, “publication and job ending, …” and the key lines with
+“published value”, “absent publication”, “An empty publication is a value”
+and “delivering”. If a label changes, make the alt text agree. This closes
+document node `a-complete-session-k63` again.
+
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
 titles, the words that the book does not use and the “-ing” words that it
 keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
