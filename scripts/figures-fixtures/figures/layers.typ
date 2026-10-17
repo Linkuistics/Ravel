@@ -1,5 +1,5 @@
 // Fixture figure: two boxes and an arrow, drawn through the fixture module.
-#import "_shapes.typ": *
+#import "_draw.typ": *
 #show: setup
 
 #canvas({

@@ -14,7 +14,7 @@ and no layout change, and make the directory rules admit exactly those files.
   (byte-identical across runs on the pinned Typst 0.15.1).
 - No `.typ` figure is committed until `book-figure-sequences-k111`, so this
   leaf's tests run on fixtures under `scripts/figures-fixtures/figures/`
-  (`layers.typ` and `_shapes.typ` are the current Typst fixtures). The first
+  (`layers.typ` and `_draw.typ` are the current Typst fixtures). The first
   real `.layout.json` arrives with k111, which is the leaf that proves the check
   on a real figure.
 - The eval must run under the same isolation as the render in `render_all`

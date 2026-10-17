@@ -18,8 +18,10 @@ sequence engine, and prove the engine covers the notation features they use.
   k121 moved the draw loop out; this leaf proves the record covers the features below, extending the layout side only.
 - Notation facts to preserve: `docs/book/figures.md`, "What each view means"
   (X ends a lifetime only after confirmed removal; cancellation figures use
-  direct INT; no X certifies teardown there). Palette and roughness come from
-  `_style.typ`, including `book-figure-sketch-style`'s decision.
+  direct INT; no X certifies teardown there). Palette and roles come from
+  `_style.typ`; the style (sketch at roughness 2, keys crisp) from `_draw.typ`,
+  per `book-figure-sketch-style`'s decision. A result arrow is
+  `msg(..., role: "result")`, not a colour.
 
 ## Done when
 

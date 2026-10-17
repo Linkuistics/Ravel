@@ -6,8 +6,8 @@
 # Part 1 drives the fetch-and-verify function offline, emulating only `curl`.
 # Part 2 runs the real renderers (needs `task setup`) over the committed
 # fixtures in scripts/figures-fixtures and over mutated copies of them, and
-# renders the book's own Typst modules (_style.typ, _sequence.typ) with the
-# pinned Typst.
+# renders the book's own Typst modules (_style.typ, _layout.typ, _draw.typ,
+# _sequence.typ) with the pinned Typst.
 # Part 3 builds one page with an embedded figure through mdBook.
 set -euo pipefail
 IFS=$'\n\t'
@@ -212,7 +212,7 @@ expect_refused 'an SVG without the generic font fallback fails' 'states.svg diff
 # pointing at a directory without the pinned faces gives different bytes.
 mkdir -p "$work/no-fonts"
 d="$(copy_fixtures plantuml-only)"
-rm "$d/layers.typ" "$d/_shapes.typ" "$d/layers.svg" # Typst has its own font control below
+rm "$d/layers.typ" "$d/_draw.typ" "$d/layers.svg" # Typst has its own font control below
 (
   # shellcheck disable=SC2030,SC2031 # each subshell sets its own tools directory
   export BOOK_TOOLS_DIR="$tools"
@@ -266,8 +266,8 @@ d="$(copy_fixtures duplicate-typst-d2)"
 cp "$d/layers.typ" "$d/flow.typ"
 expect_refused 'a .d2 and a .typ with one stem are refused' 'flow.d2 and flow.typ would both write flow.svg' check "$d"
 d="$(copy_fixtures module-svg)"
-cp "$d/layers.svg" "$d/_shapes.svg"
-expect_refused 'a _*.typ module gets no SVG: one that has one is refused' '_shapes.svg has no _shapes.puml, _shapes.d2 or _shapes.typ source' check "$d"
+cp "$d/layers.svg" "$d/_draw.svg"
+expect_refused 'a _*.typ module gets no SVG: one that has one is refused' '_draw.svg has no _draw.puml, _draw.d2 or _draw.typ source' check "$d"
 d="$(copy_fixtures stray)"
 printf 'notes\n' >"$d/notes.txt"
 expect_refused 'a file of another kind is refused' 'notes.txt is not a .puml, .d2, .typ or .svg file' check "$d"
@@ -282,7 +282,7 @@ d="$(copy_fixtures typst-source)"
 sed -i.bak 's/Ravel runs/Ravel stops/' "$d/layers.typ" && rm "$d/layers.typ.bak"
 expect_refused 'a changed Typst source fails the compare' 'layers.svg differs from what layers.typ renders with the pinned Typst 0.15.1 and CeTZ 0.4.2' check "$d"
 d="$(copy_fixtures typst-module)"
-sed -i.bak 's/#E8EDF2/#E8EDF3/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+sed -i.bak 's/#E8EDF2/#E8EDF3/' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 expect_refused 'changing a shared Typst module changes the figures that use it' 'layers.svg differs' check "$d"
 d="$(copy_fixtures typst-svg)"
 printf ' ' >>"$d/layers.svg"
@@ -295,17 +295,17 @@ expect_ok 'check passes after a Typst update' check "$d"
 
 # Typst: the layout rules that keep a package or a host default out of a figure.
 d="$(copy_fixtures typst-unpinned-version)"
-sed -i.bak 's|@preview/cetz:0.4.2|@preview/cetz:0.4.1|' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+sed -i.bak 's|@preview/cetz:0.4.2|@preview/cetz:0.4.1|' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 expect_refused 'a Typst module importing another version of a pinned package is refused' '@preview/cetz:0.4.1, which is not a pinned Typst package' check "$d"
 d="$(copy_fixtures typst-unpinned-package)"
 sed -i.bak '1a\
 #import "@preview/oxifmt:0.3.0": strfmt
-' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 expect_refused 'a Typst module importing an unpinned package is refused' '@preview/oxifmt:0.3.0, which is not a pinned Typst package' check "$d"
 d="$(copy_fixtures typst-local-package)"
 sed -i.bak '1a\
 #import "@local/mine:1.0.0": x
-' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 expect_refused 'a Typst module importing a local package is refused' '@local/mine:1.0.0, which is not a pinned Typst package' check "$d"
 d="$(copy_fixtures typst-direct-import)"
 sed -i.bak '1a\
@@ -315,13 +315,18 @@ expect_refused 'a Typst figure source importing a package itself is refused' 'la
 d="$(copy_fixtures typst-direct-import-pinned-module)"
 sed -i.bak '1a\
 #import "@preview/cetz:0.4.2"
-' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
-expect_ok 'a Typst module may import a pinned package' check "$d"
+' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
+expect_ok '_draw.typ may import a pinned package' check "$d"
+# Only _draw.typ imports CeTZ, so how every stroke is drawn can change in one
+# place: a layout or style module that imports it is refused, pinned or not.
+d="$(copy_fixtures typst-cetz-in-layout)"
+cp "$root/scripts/figures-fixtures/cetz-in-layout/_layout.typ" "$d/"
+expect_refused 'a Typst module other than _draw.typ importing CeTZ is refused' '_layout.typ imports CeTZ; only _draw.typ draws' check "$d"
 
 # Typst: Typst reports an unknown font family as a warning and still renders, so
 # a warning on stderr fails the figure instead of passing with a fallback face.
 d="$(copy_fixtures typst-font)"
-sed -i.bak 's/"DejaVu Sans"/"Nonexistent Sans"/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+sed -i.bak 's/"DejaVu Sans"/"Nonexistent Sans"/' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 expect_refused 'a Typst figure in a font that is not on the font path is refused' 'Typst warned while rendering layers.typ' check "$d"
 
 # Typst: version, package cache and font path are pins like the others.
@@ -393,7 +398,7 @@ cp -R "$tools/typst-packages" "$work/full-cache"
 d="$(copy_fixtures typst-render-unpinned)"
 sed -i.bak '1a\
 #import "@preview/oxifmt:0.3.0": strfmt
-' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 if render_directly "$d" "$work/full-cache" >/dev/null 2>"$work/err"; then die 'a Typst render importing an unpinned package succeeded'; fi
 grep -Fq 'failed to download package' "$work/err" || die "an unpinned import failed for the wrong reason: $(cat "$work/err")"
 [[ ! -e "$work/full-cache/preview/oxifmt/0.3.0" ]] || die 'a render downloaded an unpinned package'
@@ -405,7 +410,7 @@ ok 'a Typst render importing an unpinned package is not downloaded'
 # are not ignored.
 mkdir -p "$work/no-fonts-typst"
 d="$(copy_fixtures typst-embedded-font)"
-sed -i.bak 's/"DejaVu Sans"/"DejaVu Sans Mono"/' "$d/_shapes.typ" && rm "$d/_shapes.typ.bak"
+sed -i.bak 's/"DejaVu Sans"/"DejaVu Sans Mono"/' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
 if (
   # shellcheck disable=SC2031 # each subshell sets its own tools directory
   export BOOK_TOOLS_DIR="$tools"
@@ -422,16 +427,17 @@ ok 'without the pinned fonts a Typst figure does not render, even in a face Typs
 
 # The book's own Typst modules, with the pinned Typst and CeTZ. No bytes are
 # committed for these: a change to the book's style is a change to every figure,
-# so this checks only that the modules compile, draw every kind of row, keep to
-# the drawing primitives and render the same twice.
+# so this checks that the modules compile, draw every kind of row, keep to the
+# drawing primitives, render the same twice, and ship the sketched style with
+# the key crisp and a seed per figure.
 modules="$work/modules"
 mkdir -p "$modules"
-cp "$root/docs/book/src/figures/_style.typ" "$root/docs/book/src/figures/_sequence.typ" "$modules/"
+cp "$root/docs/book/src/figures"/_{style,layout,draw,sequence}.typ "$modules/"
 cat >"$modules/engine.typ" <<'EOF'
 #import "_sequence.typ": *
-#show: figure-page
+#import "_draw.typ": render
 
-#sequence(
+#render(sequence(
   [A fixture sequence],
   (
     part("a", [caller]),
@@ -448,16 +454,53 @@ cat >"$modules/engine.typ" <<'EOF'
     destroy("d"),
     msg("b", "c", [Allocate a fresh result channel], create: true),
     note("b", "c", [First complete publication wins.]),
-    msg("c", "b", [Exact opaque value], color: pal.green, dashed: true),
+    msg("c", "b", [Exact opaque value], role: "result", dashed: true),
     destroy("c"),
   ),
   ([A key line.], [Another key line.]),
-)
+))
 EOF
 expect_ok 'the book modules draw a sequence with every kind of row' update "$modules"
 expect_ok 'the book modules render a stable sequence' check "$modules"
 [[ -s "$modules/engine.svg" && "$(head -c 4 "$modules/engine.svg")" == '<svg' ]] || die 'the book modules wrote no SVG'
-[[ ! -e "$modules/_style.svg" && ! -e "$modules/_sequence.svg" ]] || die 'a book module was rendered as a figure'
+[[ ! -e "$modules/_style.svg" && ! -e "$modules/_layout.svg" && ! -e "$modules/_draw.svg" && ! -e "$modules/_sequence.svg" ]] || die 'a book module was rendered as a figure'
+
+# The shipped look is compiled in: figures.sh passes only the figure's name, and
+# the SVG it writes equals sketch at roughness 2, not the crisp style.
+direct() { # STEM OUT [INPUT...]: the same Typst call as render_all, with chosen inputs
+  local stem="$1" out="$2" input
+  shift 2
+  local inputs=()
+  for input in "$@"; do inputs+=(--input "$input"); done
+  (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
+    "$tools/typst" compile --format svg --root "$modules" --ignore-system-fonts --ignore-embedded-fonts \
+    --font-path "$tools/fonts/dejavu-2.37" --package-cache-path "$tools/typst-packages" "${inputs[@]}" \
+    "$modules/$stem.typ" "$out") || die "Typst could not render $stem with inputs $*"
+}
+mkdir -p "$work/home"
+direct engine "$work/engine-sketch.svg" figure=engine style=sketch roughness=2
+direct engine "$work/engine-crisp.svg" figure=engine style=crisp
+cmp -s "$modules/engine.svg" "$work/engine-sketch.svg" || die 'the shipped figure is not sketch at roughness 2'
+if cmp -s "$modules/engine.svg" "$work/engine-crisp.svg"; then die 'the shipped figure is the crisp style'; fi
+ok 'a figure rendered by figures.sh is sketch at roughness 2, and differs from the crisp style'
+
+# Keys are never sketched, whatever the roughness: the key box is a pale box drawn
+# as a single filled and outlined path, and a sketched box is its fill with the
+# outline drawn apart. The note is pale too, so the crisp style has two such paths
+# and the shipped style has one: the key.
+count_solid() { grep -o '<path fill="#f8fafc"[^>]*stroke="#64748b"[^>]*>' "$1" | wc -l | tr -d ' '; }
+[[ "$(count_solid "$work/engine-crisp.svg")" == 2 ]] || die "the crisp style should draw the key and the note as solid paths, found $(count_solid "$work/engine-crisp.svg")"
+[[ "$(count_solid "$modules/engine.svg")" == 1 ]] || die "the shipped style should draw only the key as a solid path, found $(count_solid "$modules/engine.svg")"
+ok 'in the shipped style the key box is drawn crisp and the note box is sketched'
+
+# Each figure seeds its own sketch from its name: one source under two names
+# gives two different drawings, and each is stable.
+cp "$modules/engine.typ" "$modules/other.typ"
+expect_ok 'the same source under another name renders' update "$modules"
+if cmp -s "$modules/engine.svg" "$modules/other.svg"; then die 'two figures with one source but different names drew the same sketch: the figure name does not seed it'; fi
+expect_ok 'both named figures are stable' check "$modules"
+rm "$modules/other.typ" "$modules/other.svg"
+ok 'a figure seeds its sketch from its name'
 { printf '#import "@preview/cetz:0.4.2"\n'; cat "$modules/engine.typ"; } >"$modules/engine.typ.new" && mv "$modules/engine.typ.new" "$modules/engine.typ"
 expect_refused 'a figure drawing with CeTZ itself, beside the book modules, is refused' 'engine.typ imports a package' check "$modules"
 

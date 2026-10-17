@@ -1,5 +1,6 @@
 // Fixture module for scripts/figures.test.sh: the smallest stand-in for the
-// book's _style.typ. It is imported by layers.typ and is never rendered.
+// book's _draw.typ, the one module that may import CeTZ. It is imported by
+// layers.typ and is never rendered.
 #import "@preview/cetz:0.4.2"
 
 #let setup(body) = {

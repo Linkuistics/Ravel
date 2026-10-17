@@ -2,30 +2,34 @@
 // module: imported by sequence figures, never rendered. Input: participants and
 // rows. Layout (column gaps, wrapped label heights, row heights) is computed from
 // MEASURED Typst text, so the pinned font's metrics drive the figure and no layout
-// engine or extraction step is needed. It draws only through _style.typ.
-#import "_style.typ": *
+// engine or extraction step is needed. It returns a layout record (shape: the
+// header of _draw.typ) and draws nothing: `render` in _draw.typ draws it.
+#import "_layout.typ": *
 
 #let part(id, label, kind: "external", db: false) = (id: id, label: label, kind: kind, db: db)
-#let msg(from, to, label, color: none, dashed: false, create: false) = (t: "msg", from: from, to: to, label: label, color: color, dashed: dashed, create: create)
+// `role` is "relation" or "result" (the arrow that carries the session result).
+#let msg(from, to, label, role: "relation", dashed: false, create: false) = (t: "msg", from: from, to: to, label: label, role: role, dashed: dashed, create: create)
 #let div(label) = (t: "div", label: label)
 #let destroy(id) = (t: "destroy", id: id)
 #let note(a, b, label) = (t: "note", a: a, b: b, label: label)
 
-#let sequence(title, parts, rows, legend, max-label: 170, min-gap: 14) = context {
+// Returns a deferred layout: calling it, inside `render`'s context, gives the
+// record. Pass it straight to `render`.
+#let sequence(title, parts, rows, legend, max-label: 170, min-gap: 14) = () => {
   let n = parts.len()
   let idx = (:)
   for (i, pt) in parts.enumerate() { idx.insert(pt.id, i) }
 
   // --- head sizes (16pt, measured) -------------------------------------
   let hs = parts.map(pt => {
-    let s = size-of(ctext(pt.label, size: sz.head))
+    let s = size-of(ctext(label(plain(pt.label)), ..faces.head))
     (w: s.w + 22, h: s.h + 12 + if pt.db { 26 } else { 0 })
   })
 
   // --- label measurements -----------------------------------------------
-  let lab(body, w: auto) = size-of(ctext(body), w: w)
+  let lab(body, w: auto) = size-of(ctext(label(plain(body))), w: w)
   let natural(body) = {
-    let s = size-of(ctext(body))
+    let s = size-of(ctext(label(plain(body))))
     calc.min(s.w, max-label) + 2
   }
 
@@ -69,7 +73,7 @@
   let started = range(n).map(i => false)
   let top = ()
   let ends = range(n).map(i => none)
-  let tit = size-of(ctext(title, size: sz.head, weight: "bold"))
+  let tit = size-of(ctext(label(plain(title)), ..faces.title))
   y = tit.h + 14
   let head-h = 0
   for (i, pt) in parts.enumerate() {
@@ -98,7 +102,7 @@
         let loop-h = 18
         let rh = calc.max(l.h, loop-h)
         let ya = y + 4 + (rh - loop-h) / 2
-        items.push((t: "self", x: x.at(a), y: ya, lw: lw, lh: l.h, label: r.label, color: r.color, dashed: r.dashed, loop-h: loop-h))
+        items.push((t: "self", x: x.at(a), y: ya, lw: lw, lh: l.h, label: r.label, role: r.role, dashed: r.dashed, loop-h: loop-h))
         y += rh + 14
       } else {
         let x1 = x.at(a)
@@ -110,7 +114,7 @@
         let l = lab(r.label, w: lw)
         let hh = if r.create { hs.at(b).h / 2 } else { 0 }
         let ya = y + calc.max(l.h + 6, hh)
-        items.push((t: "msg", x1: x1, x2: x2, y: ya, mx: (x1 + x2) / 2, lw: lw, lh: l.h, label: r.label, color: r.color, dashed: r.dashed))
+        items.push((t: "msg", x1: x1, x2: x2, y: ya, mx: (x1 + x2) / 2, lw: lw, lh: l.h, label: r.label, role: r.role, dashed: r.dashed))
         if r.create {
           items.push((t: "head", i: b, cy: ya))
           life-from.at(b) = ya + hs.at(b).h / 2
@@ -144,68 +148,73 @@
     if it.t == "self" { right = calc.max(right, it.x + 28 + it.lw + 4) }
   }
   let dw = right + 6
-  let lg = legend-size(legend)
+  let lg = key-size(legend)
   let W = calc.max(dw, lg.w + 12, tit.w + 12)
   let ox = (W - dw) / 2
 
-  // --- draw ---------------------------------------------------------------
-  canvas({
-    draw-text(W / 2, tit.h / 2, ctext(title, size: sz.head, weight: "bold"))
-    let col(c) = if c == none { pal.rel } else { c }
+  // --- elements, in drawing order -----------------------------------------
+  let els = ()
+  let n-msg = 0
+  els.push(text-el("title", title, W / 2, tit.h / 2, face: "title"))
 
-    // lifelines first, so heads and messages sit above them
-    for i in range(n) {
-      if life-from.at(i) != none {
-        let e = if ends.at(i) != none { ends.at(i) } else { y-end }
-        draw-line((ox + x.at(i), life-from.at(i)), (ox + x.at(i), e),
-          color: pal.slate, weight: w-life, dash: "dashed")
-      }
+  // lifelines first, so heads and messages sit above them
+  for (i, pt) in parts.enumerate() {
+    if life-from.at(i) != none {
+      let e = if ends.at(i) != none { ends.at(i) } else { y-end }
+      els.push(line-el("life-" + pt.id, "lifeline", ((ox + x.at(i), life-from.at(i)), (ox + x.at(i), e)), dashed: true))
     }
-    for it in items {
-      if it.t == "head" {
-        let pt = parts.at(it.i)
-        let k = kinds.at(pt.kind)
-        let h = hs.at(it.i)
-        let cx = ox + x.at(it.i)
-        if pt.db {
-          draw-cylinder(cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2, k)
-          draw-text(cx, it.cy + 7, ctext(pt.label, size: sz.head, fill: k.text))
-        } else {
-          draw-box(cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2, k)
-          draw-text(cx, it.cy, ctext(pt.label, size: sz.head, fill: k.text))
-        }
-      } else if it.t == "msg" {
-        draw-arrow((ox + it.x1, it.y), (ox + it.x2, it.y), color: col(it.color), dashed: it.dashed)
-        draw-text(ox + it.mx, it.y - 4, anchor: "south", ctext(it.label, w: it.lw))
-      } else if it.t == "self" {
-        let x0 = ox + it.x
-        draw-arrow((x0, it.y), (x0 + 22, it.y), (x0 + 22, it.y + it.loop-h), (x0, it.y + it.loop-h),
-          color: col(it.color), dashed: it.dashed)
-        draw-text(x0 + 28, it.y + it.loop-h / 2, anchor: "west", ltext(it.label, w: it.lw))
-      } else if it.t == "x" {
-        let s = 8
-        let x0 = ox + it.x
-        draw-line((x0 - s, it.y - s), (x0 + s, it.y + s))
-        draw-line((x0 - s, it.y + s), (x0 + s, it.y - s))
-      } else if it.t == "div" {
-        let l = size-of(ctext(it.label))
-        draw-line((0, it.y - 2), (dw, it.y - 2), color: pal.slate, weight: w-rule)
-        draw-line((0, it.y + 2), (dw, it.y + 2), color: pal.slate, weight: w-rule)
-        draw-box(dw / 2 - l.w / 2 - 10, it.y - l.h / 2 - 3, dw / 2 + l.w / 2 + 10, it.y + l.h / 2 + 3,
-          kinds.external, radius: 0pt)
-        draw-text(dw / 2, it.y, ctext(it.label))
-      } else if it.t == "note" {
-        // A page with its top-right corner folded over.
-        let x0 = ox + it.x0
-        let x1 = ox + it.x1
-        let y0 = it.y0
-        let y1 = y0 + it.h
-        let f = 10
-        draw-poly((x0, y0), (x1 - f, y0), (x1, y0 + f), (x1, y1), (x0, y1))
-        draw-line((x1 - f, y0), (x1 - f, y0 + f), (x1, y0 + f), color: pal.slate)
-        draw-text((x0 + x1) / 2, (y0 + y1) / 2, ctext(it.label, w: it.lw))
+  }
+  for it in items {
+    if it.t == "head" {
+      let pt = parts.at(it.i)
+      let h = hs.at(it.i)
+      let cx = ox + x.at(it.i)
+      let id = "head-" + pt.id
+      if pt.db {
+        els.push(cylinder-el(id, pt.kind, cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2))
+        els.push(text-el(id + "-label", pt.label, cx, it.cy + 7, role: pt.kind, face: "head"))
+      } else {
+        els.push(box-el(id, pt.kind, cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2))
+        els.push(text-el(id + "-label", pt.label, cx, it.cy, role: pt.kind, face: "head"))
       }
+    } else if it.t == "msg" {
+      n-msg += 1
+      let id = "msg-" + str(n-msg)
+      els.push(line-el(id, it.role, ((ox + it.x1, it.y), (ox + it.x2, it.y)), dashed: it.dashed, arrow: true))
+      els.push(text-el(id + "-label", it.label, ox + it.mx, it.y - 4, anchor: "south", w: it.lw))
+    } else if it.t == "self" {
+      n-msg += 1
+      let id = "msg-" + str(n-msg)
+      let x0 = ox + it.x
+      els.push(line-el(id, it.role, ((x0, it.y), (x0 + 22, it.y), (x0 + 22, it.y + it.loop-h), (x0, it.y + it.loop-h)),
+        dashed: it.dashed, arrow: true))
+      els.push(text-el(id + "-label", it.label, x0 + 28, it.y + it.loop-h / 2, anchor: "west", align: "left", w: it.lw))
+    } else if it.t == "x" {
+      let s = 8
+      let x0 = ox + it.x
+      let id = "end-" + str(els.len())
+      els.push(line-el(id + "-a", "end", ((x0 - s, it.y - s), (x0 + s, it.y + s))))
+      els.push(line-el(id + "-b", "end", ((x0 - s, it.y + s), (x0 + s, it.y - s))))
+    } else if it.t == "div" {
+      let l = size-of(ctext(label(plain(it.label))))
+      let id = "div-" + str(els.len())
+      els.push(line-el(id + "-rule-a", "rule", ((0, it.y - 2), (dw, it.y - 2))))
+      els.push(line-el(id + "-rule-b", "rule", ((0, it.y + 2), (dw, it.y + 2))))
+      els.push(box-el(id, "divider", dw / 2 - l.w / 2 - 10, it.y - l.h / 2 - 3, dw / 2 + l.w / 2 + 10, it.y + l.h / 2 + 3))
+      els.push(text-el(id + "-label", it.label, dw / 2, it.y))
+    } else if it.t == "note" {
+      // A page with its top-right corner folded over.
+      let x0 = ox + it.x0
+      let x1 = ox + it.x1
+      let y0 = it.y0
+      let y1 = y0 + it.h
+      let f = 10
+      let id = "note-" + str(els.len())
+      els.push(poly-el(id, "note", ((x0, y0), (x1 - f, y0), (x1, y0 + f), (x1, y1), (x0, y1))))
+      els.push(line-el(id + "-fold", "fold", ((x1 - f, y0), (x1 - f, y0 + f), (x1, y0 + f))))
+      els.push(text-el(id + "-label", it.label, (x0 + x1) / 2, (y0 + y1) / 2, w: it.lw))
     }
-    legend-block(legend, W / 2, y-end + 6)
-  })
+  }
+  els += key-elements(legend, W / 2, y-end + 6)
+  record(W, y-end + 6 + lg.h, els)
 }

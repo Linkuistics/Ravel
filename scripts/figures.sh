@@ -430,8 +430,9 @@ lint_source() {
 # the render would fetch is a package nobody pinned, so every `@namespace/name:
 # version` spec anywhere in the text must be a pinned one; the cache is the other
 # half of that rule (see require_packages), and the render has no network. And a
-# figure source draws through its `_` modules and imports no package itself, so
-# the one place that touches CeTZ can change how every stroke is drawn.
+# figure source imports no package itself, and no module but _draw.typ imports
+# CeTZ: layout and style modules produce data and _draw.typ alone draws it, so
+# how every stroke is drawn can change in that one file.
 lint_typst() {
   local file="$1" name token pinned problems=0
   name="$(basename "$file")"
@@ -445,6 +446,10 @@ lint_typst() {
   done < <(grep -o -E '@[A-Za-z][A-Za-z0-9_-]*/[A-Za-z0-9_-]+(:[0-9A-Za-z.+-]+)?' "$file" | sort -u || true)
   if [[ "$name" != _* ]] && grep -q -E 'import[[:space:]]*"@' "$file"; then
     echo "figures: $name imports a package; a figure source draws through its _*.typ modules" >&2
+    problems=1
+  fi
+  if [[ "$name" == _* && "$name" != _draw.typ ]] && grep -q -F '@preview/cetz' "$file"; then
+    echo "figures: $name imports CeTZ; only _draw.typ draws" >&2
     problems=1
   fi
   return "$problems"
@@ -495,10 +500,12 @@ render_all() {
         # private HOME leave no @local packages), and a proxy that refuses
         # connections, so anything outside the pins is an error instead of a
         # download. Typst reports a missing font family as a warning and still
-        # succeeds, so any output on stderr fails the figure.
+        # succeeds, so any output on stderr fails the figure. The figure's name is
+        # the one input: _draw.typ seeds each figure's sketch from it, and says
+        # nothing else about the style, so the shipped look is compiled in.
         (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
           "$TOOLS/typst" compile --format svg --root "$dir" --ignore-system-fonts --ignore-embedded-fonts \
-          --font-path "$fontdir" --package-cache-path "$packages" \
+          --font-path "$fontdir" --package-cache-path "$packages" --input "figure=$stem" \
           "$file" "$out/$stem.svg" >/dev/null 2>"$work/typst.err") || die "Typst could not render $(basename "$file"): $(cat "$work/typst.err")"
         [[ ! -s "$work/typst.err" ]] || die "Typst warned while rendering $(basename "$file"): $(cat "$work/typst.err")"
         ;;

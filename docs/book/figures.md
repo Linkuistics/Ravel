@@ -187,19 +187,29 @@ beside the `.puml` and `.d2` ones, with its SVG of the same name. The
 one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
 `x.puml` and `x.d2` are. A file starting with `_` is a module that figures
 import. It is not a figure and gets no SVG; an SVG for one is refused as an
-orphan. `_style.typ` holds the palette roles, text scale, strokes, arrowhead,
-cylinder, key box and page setup, and the five drawing primitives
-(`draw-line`, `draw-arrow`, `draw-poly`, `draw-box`, `draw-cylinder`, with
-`draw-text` for placing text). `_sequence.typ` is the sequence-diagram layout,
-which measures its text and draws only through those primitives. Both were
-promoted from the k107 trial in `docs/book/trial-typst/`; the sequence figure
-rendered through them is byte-identical to the trial's, for the base and the
-long variant.
+orphan. Four modules hold the Typst side. `_style.typ` holds the palette roles,
+text scale, stroke weights, faces and text measuring, and draws nothing.
+`_layout.typ` holds the constructors a layout module builds its record with.
+`_sequence.typ` is the sequence-diagram layout: it measures its text and returns
+a layout record. `_draw.typ` turns a record into strokes and is the only module
+that imports CeTZ; its header documents the record's shape and the styles.
+`_style.typ` and `_sequence.typ` were promoted from the k107 trial in
+`docs/book/trial-typst/`; the sequence figure rendered through the modules at
+`--input style=crisp` is byte-identical to the trial's, for the base and the long
+variant.
 
-**Draw through the primitives.** Every stroke and outline in the book goes
-through the `draw-*` primitives, and only `_style.typ` calls CeTZ, so how all
-lines are drawn can change in one place. The lint refuses a figure source that
-imports a package itself. A module may import a pinned package.
+**Layout, then draw.** A figure source builds a record with a layout module and
+passes it to `render` in `_draw.typ`. The record is plain data: positions, roles
+and measured text, and no colour, weight, font size or roughness, so a restyle
+cannot change it. `render` draws it and attaches it to the page as
+`metadata(record) <layout>`, which `typst eval 'query(<layout>).first().value'
+--in FIG.typ` prints as JSON. The figure is drawn sketched at roughness 2 unless
+`--input style=crisp` (or `--input roughness=N`) says otherwise; key boxes are
+never sketched. `scripts/figures.sh` passes `--input figure=NAME` so each figure
+seeds its own sketch. Only `_draw.typ` calls CeTZ, so how all lines are drawn can
+change in one place: the lint refuses a figure source that imports a package
+itself and any other module that imports CeTZ. A module may import a pinned
+package other than CeTZ.
 
 | Tool | Pin | Fetched by `task setup` |
 |---|---|---|
@@ -275,9 +285,11 @@ stem clash; an SVG for a module; an unpinned, other-version and `@local`
 import; a figure importing a package itself; a missing font family; a render
 with an empty package cache or an unpinned import that reaches only a refused
 connection; and a render with no fonts that cannot fall back to an embedded one.
-The book's own `_style.typ` and `_sequence.typ` are rendered through a figure
-with every kind of row, twice, with no bytes committed for them (a style change
-is a change to every figure). Each safeguard was also removed from a copy of
+The book's own four modules are rendered through a figure with every kind of
+row, twice, with no bytes committed for them (a style change is a change to every
+figure); the control checks that the figure is sketch at roughness 2, that its key
+box is crisp, that two names give two different sketches, and that a module other
+than `_draw.typ` importing CeTZ is refused. Each safeguard was also removed from a copy of
 the script, one at a time, and the control for it failed: the embedded-font
 flag, the proxy, the stderr rule, the lint call, the lint's no-import rule, the
 package check, the version check, the symlink rule and the `.typ` source glob.
