@@ -1,6 +1,6 @@
 {
-  "w": 764.443359375,
-  "h": 622.7984374999999,
+  "w": 780.0771484375,
+  "h": 641.1351562499999,
   "elements": [
     {
       "id": "title",
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "Cancellation during selection — UML sequence",
-      "x": 382.2216796875,
+      "x": 390.03857421875,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -27,7 +27,7 @@
         ],
         [
           38.95703125,
-          512.8148437499999
+          531.1515625
         ]
       ],
       "dashed": true,
@@ -39,12 +39,12 @@
       "role": "lifeline",
       "pts": [
         [
-          304.7626953125,
+          320.5400390625,
           50.3125
         ],
         [
-          304.7626953125,
-          512.8148437499999
+          320.5400390625,
+          531.1515625
         ]
       ],
       "dashed": true,
@@ -56,12 +56,12 @@
       "role": "lifeline",
       "pts": [
         [
-          694.064453125,
+          709.6982421875,
           115.6640625
         ],
         [
-          694.064453125,
-          512.8148437499999
+          709.6982421875,
+          531.1515625
         ]
       ],
       "dashed": true,
@@ -94,9 +94,9 @@
       "id": "head-cli",
       "shape": "box",
       "role": "ravel",
-      "x0": 256.6533203125,
+      "x0": 272.4306640625,
       "y0": 26.15625,
-      "x1": 352.8720703125,
+      "x1": 368.6494140625,
       "y1": 50.3125
     },
     {
@@ -105,7 +105,7 @@
       "role": "ravel",
       "face": "head",
       "text": "Ravel CLI",
-      "x": 304.7626953125,
+      "x": 320.5400390625,
       "y": 38.234375,
       "anchor": "center",
       "align": "center",
@@ -123,7 +123,7 @@
           76.94921875
         ],
         [
-          304.7626953125,
+          320.5400390625,
           76.94921875
         ]
       ],
@@ -136,7 +136,7 @@
       "role": "label",
       "face": "body",
       "text": "start-session",
-      "x": 171.85986328125,
+      "x": 179.74853515625,
       "y": 72.94921875,
       "anchor": "south",
       "align": "center",
@@ -150,11 +150,11 @@
       "role": "relation",
       "pts": [
         [
-          304.7626953125,
+          320.5400390625,
           103.5859375
         ],
         [
-          629.685546875,
+          645.3193359375,
           103.5859375
         ]
       ],
@@ -166,22 +166,22 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Start worker; check identity; send request",
-      "x": 467.22412109375,
+      "text": "Start worker. Check identity. Send request",
+      "x": 482.9296875,
       "y": 99.5859375,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 296.9228515625,
+      "w": 296.779296875,
       "h": 10.63671875
     },
     {
       "id": "head-worker",
       "shape": "box",
       "role": "ravel",
-      "x0": 629.685546875,
+      "x0": 645.3193359375,
       "y0": 91.5078125,
-      "x1": 758.443359375,
+      "x1": 774.0771484375,
       "y1": 115.6640625
     },
     {
@@ -190,7 +190,7 @@
       "role": "ravel",
       "face": "head",
       "text": "policy worker",
-      "x": 694.064453125,
+      "x": 709.6982421875,
       "y": 103.5859375,
       "anchor": "center",
       "align": "center",
@@ -204,23 +204,23 @@
       "role": "note",
       "pts": [
         [
-          256.6533203125,
+          272.4306640625,
           123.6640625
         ],
         [
-          748.443359375,
+          764.0771484375,
           123.6640625
         ],
         [
-          758.443359375,
+          774.0771484375,
           133.6640625
         ],
         [
-          758.443359375,
+          774.0771484375,
           166.6375
         ],
         [
-          256.6533203125,
+          272.4306640625,
           166.6375
         ]
       ]
@@ -231,15 +231,15 @@
       "role": "fold",
       "pts": [
         [
-          748.443359375,
+          764.0771484375,
           123.6640625
         ],
         [
-          748.443359375,
+          764.0771484375,
           133.6640625
         ],
         [
-          758.443359375,
+          774.0771484375,
           133.6640625
         ]
       ],
@@ -252,12 +252,12 @@
       "role": "label",
       "face": "body",
       "text": "The worker evaluates trusted owner policy.\nIt has no session-result context.",
-      "x": 507.54833984375,
+      "x": 523.25390625,
       "y": 145.15078125,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 481.7900390625,
+      "w": 481.646484375,
       "h": 28.9734375
     },
     {
@@ -270,7 +270,7 @@
           194.6375
         ],
         [
-          764.443359375,
+          780.0771484375,
           194.6375
         ]
       ],
@@ -287,7 +287,7 @@
           198.6375
         ],
         [
-          764.443359375,
+          780.0771484375,
           198.6375
         ]
       ],
@@ -298,9 +298,9 @@
       "id": "div-17",
       "shape": "box",
       "role": "divider",
-      "x0": 250.671875,
+      "x0": 258.48876953125,
       "y0": 188.319140625,
-      "x1": 513.771484375,
+      "x1": 521.58837890625,
       "y1": 204.955859375
     },
     {
@@ -309,7 +309,7 @@
       "role": "label",
       "face": "body",
       "text": "Cancellation reaches the Ravel CLI",
-      "x": 382.2216796875,
+      "x": 390.03857421875,
       "y": 196.6375,
       "anchor": "center",
       "align": "center",
@@ -323,11 +323,11 @@
       "role": "relation",
       "pts": [
         [
-          694.064453125,
+          709.6982421875,
           233.27421875
         ],
         [
-          304.7626953125,
+          320.5400390625,
           233.27421875
         ]
       ],
@@ -340,7 +340,7 @@
       "role": "label",
       "face": "body",
       "text": "SIGINT (the example below)",
-      "x": 499.41357421875,
+      "x": 515.119140625,
       "y": 229.27421875,
       "anchor": "south",
       "align": "center",
@@ -354,11 +354,11 @@
       "role": "relation",
       "pts": [
         [
-          304.7626953125,
+          320.5400390625,
           278.24765625
         ],
         [
-          694.064453125,
+          709.6982421875,
           278.24765625
         ]
       ],
@@ -370,8 +370,8 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Close protocol; attempt bounded stop and wait",
-      "x": 499.41357421875,
+      "text": "Close protocol. Attempt bounded stop and wait",
+      "x": 515.119140625,
       "y": 274.24765625,
       "anchor": "south",
       "align": "center",
@@ -385,19 +385,19 @@
       "role": "relation",
       "pts": [
         [
-          304.7626953125,
+          320.5400390625,
           297.734375
         ],
         [
-          326.7626953125,
+          342.5400390625,
           297.734375
         ],
         [
-          326.7626953125,
+          342.5400390625,
           315.734375
         ],
         [
-          304.7626953125,
+          320.5400390625,
           315.734375
         ]
       ],
@@ -409,13 +409,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Drain bounded diagnostics; attempt\nworker private-directory cleanup",
-      "x": 332.7626953125,
+      "text": "Drain bounded diagnostics. Attempt\nworker private-directory cleanup",
+      "x": 348.5400390625,
       "y": 306.734375,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
-      "w": 255.0595703125,
+      "w": 255.544921875,
       "h": 28.9734375
     },
     {
@@ -424,24 +424,24 @@
       "role": "note",
       "pts": [
         [
-          256.6533203125,
+          272.4306640625,
           333.22109374999997
         ],
         [
-          748.443359375,
+          764.0771484375,
           333.22109374999997
         ],
         [
-          758.443359375,
+          774.0771484375,
           343.22109374999997
         ],
         [
-          758.443359375,
-          412.86796875
+          774.0771484375,
+          431.2046875
         ],
         [
-          256.6533203125,
-          412.86796875
+          272.4306640625,
+          431.2046875
         ]
       ]
     },
@@ -451,15 +451,15 @@
       "role": "fold",
       "pts": [
         [
-          748.443359375,
+          764.0771484375,
           333.22109374999997
         ],
         [
-          748.443359375,
+          764.0771484375,
           343.22109374999997
         ],
         [
-          758.443359375,
+          774.0771484375,
           343.22109374999997
         ]
       ],
@@ -471,14 +471,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Reap and removal must be confirmed before claiming them.\nFailed attempts remain diagnostics; no X certifies teardown here.\nNo managed process is launched.\nNo result channel is allocated.",
-      "x": 507.54833984375,
-      "y": 373.04453125,
+      "text": "Ravel confirms reap and removal before it reports them as complete.\nFailed attempts stay as diagnostics. No X certifies teardown here.\nRavel launches no managed process and allocates no result channel.",
+      "x": 523.25390625,
+      "y": 382.212890625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 481.7900390625,
-      "h": 65.64687500000001
+      "w": 481.646484375,
+      "h": 83.98359375
     },
     {
       "id": "msg-6",
@@ -486,20 +486,20 @@
       "role": "relation",
       "pts": [
         [
-          304.7626953125,
-          434.3546875
+          320.5400390625,
+          452.69140625
         ],
         [
-          326.7626953125,
-          434.3546875
+          342.5400390625,
+          452.69140625
         ],
         [
-          326.7626953125,
-          452.3546875
+          342.5400390625,
+          470.69140625
         ],
         [
-          304.7626953125,
-          452.3546875
+          320.5400390625,
+          470.69140625
         ]
       ],
       "dashed": false,
@@ -510,9 +510,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Keep cancellation primary; retain any\noriginal failure and teardown problems",
-      "x": 332.7626953125,
-      "y": 443.3546875,
+      "text": "Keep cancellation primary. Retain any\noriginal failure and teardown problems",
+      "x": 348.5400390625,
+      "y": 461.69140625,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -525,12 +525,12 @@
       "role": "relation",
       "pts": [
         [
-          304.7626953125,
-          502.81484374999997
+          320.5400390625,
+          521.1515625
         ],
         [
           38.95703125,
-          502.81484374999997
+          521.1515625
         ]
       ],
       "dashed": true,
@@ -541,32 +541,32 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Report cancellation; re-raise INT\n(shell status 130); no result bytes",
-      "x": 171.85986328125,
-      "y": 498.81484374999997,
+      "text": "Report cancellation and re-raise INT\n(shell status 130). No result bytes",
+      "x": 179.74853515625,
+      "y": 517.1515625,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 237.8056640625,
+      "w": 253.5830078125,
       "h": 28.9734375
     },
     {
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 74.14306640625,
-      "y0": 518.8148437499999,
-      "x1": 690.30029296875,
-      "y1": 622.7984374999999
+      "x0": 81.9599609375,
+      "y0": 537.1515625,
+      "x1": 698.1171875,
+      "y1": 641.1351562499999
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel processes. Grey: caller.\nThis example sends INT directly to the Ravel CLI; it is not keyboard delivery.\nHUP and TERM give shell statuses 129 and 143 by the same cancellation rule.\nA failed signal propagation uses the corresponding numeric exit as fallback.\nCancellation reports attempted teardown, not a guarantee that cleanup succeeded.",
-      "x": 382.2216796875,
-      "y": 570.8066406249999,
+      "text": "Blue: Ravel processes. Grey: caller.\nThis example sends INT directly to the Ravel CLI. It is not keyboard delivery.\nHUP and TERM give shell statuses 129 and 143 by the same cancellation rule.\nIf signal propagation fails, Ravel exits with the numeric status for that signal.\nCancellation reports attempted teardown, not a guarantee that cleanup succeeded.",
+      "x": 390.03857421875,
+      "y": 589.1433593749999,
       "anchor": "center",
       "align": "center",
       "wrapped": false,

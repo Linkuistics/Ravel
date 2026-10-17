@@ -118,10 +118,8 @@ harness that runs an LLM session. The owner chooses the harness. Ravel
 supervises the harness until cleanup lets the result return. Other callers
 and selected programs use the same boundary.
 
-The C4 system-context view shows Ravel as one system. Blue identifies Ravel,
-grey identifies the external caller and the managed process, and slate
-identifies the human owner. Green arrows trace the opaque result. These
-shapes show responsibilities, not security boundaries.
+The C4 system-context view shows Ravel as one system. These shapes show
+responsibilities, not security boundaries.
 
 ![The owner configures which harness runs the caller's request. An orchestrator or a person sends a kind and a prompt with start-session. Ravel launches and supervises the harness, or another selected program, as the managed process. The LLM tells the harness to run end-session, which sends an opaque result and asks Ravel to stop. Ravel stops the group members that remain. Ravel returns the result to the caller on standard output only after successful cleanup.](figures/system-context.svg)
 

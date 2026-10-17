@@ -1,5 +1,5 @@
 {
-  "w": 840.0205078125,
+  "w": 826.984375,
   "h": 827.98046875,
   "elements": [
     {
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "Session phases and outcomes — UML state machine",
-      "x": 420.01025390625,
+      "x": 413.4921875,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -20,7 +20,7 @@
       "id": "start",
       "shape": "circle",
       "role": "initial",
-      "x": 463.298828125,
+      "x": 450.2626953125,
       "y": 35.15625,
       "r": 9
     },
@@ -28,9 +28,9 @@
       "id": "selecting",
       "shape": "box",
       "role": "phase",
-      "x0": 408.87939453125,
+      "x0": 406.66796875,
       "y0": 100.15625,
-      "x1": 517.71826171875,
+      "x1": 493.857421875,
       "y1": 128.79296875
     },
     {
@@ -38,22 +38,22 @@
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Selecting",
-      "x": 463.298828125,
+      "text": "Select",
+      "x": 450.2626953125,
       "y": 114.474609375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 64.8388671875,
+      "w": 43.189453125,
       "h": 10.63671875
     },
     {
       "id": "supervising",
       "shape": "box",
       "role": "phase",
-      "x0": 400.23193359375,
+      "x0": 393.7138671875,
       "y0": 184.79296875,
-      "x1": 526.36572265625,
+      "x1": 506.8115234375,
       "y1": 213.4296875
     },
     {
@@ -61,22 +61,22 @@
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Supervising",
-      "x": 463.298828125,
+      "text": "Supervise",
+      "x": 450.2626953125,
       "y": 199.111328125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 82.1337890625,
+      "w": 69.09765625,
       "h": 10.63671875
     },
     {
       "id": "settling",
       "shape": "box",
       "role": "phase",
-      "x0": 338.298828125,
+      "x0": 325.2626953125,
       "y0": 269.4296875,
-      "x1": 588.298828125,
+      "x1": 575.2626953125,
       "y1": 316.40312500000005
     },
     {
@@ -84,22 +84,22 @@
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Cleaning up and\ndeciding the outcome",
-      "x": 463.298828125,
+      "text": "Do cleanup and\ndecide the outcome",
+      "x": 450.2626953125,
       "y": 292.91640625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 152.9404296875,
+      "w": 139.904296875,
       "h": 28.9734375
     },
     {
       "id": "cancelled",
       "shape": "box",
       "role": "outcome",
-      "x0": 195.4814453125,
+      "x0": 182.4453125,
       "y0": 372.403125,
-      "x1": 308.298828125,
+      "x1": 295.2626953125,
       "y1": 401.03984375
     },
     {
@@ -108,7 +108,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Cancelled",
-      "x": 251.89013671875,
+      "x": 238.85400390625,
       "y": 386.721484375,
       "anchor": "center",
       "align": "center",
@@ -120,9 +120,9 @@
       "id": "refused",
       "shape": "box",
       "role": "outcome",
-      "x0": 413.14501953125,
+      "x0": 400.10888671875,
       "y0": 372.403125,
-      "x1": 513.45263671875,
+      "x1": 500.41650390625,
       "y1": 401.03984375
     },
     {
@@ -131,7 +131,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Refused",
-      "x": 463.298828125,
+      "x": 450.2626953125,
       "y": 386.721484375,
       "anchor": "center",
       "align": "center",
@@ -143,9 +143,9 @@
       "id": "missing",
       "shape": "box",
       "role": "outcome",
-      "x0": 618.298828125,
+      "x0": 605.2626953125,
       "y0": 372.403125,
-      "x1": 725.39453125,
+      "x1": 712.3583984375,
       "y1": 401.03984375
     },
     {
@@ -154,7 +154,7 @@
       "role": "outcome",
       "face": "body",
       "text": "No result",
-      "x": 671.8466796875,
+      "x": 658.810546875,
       "y": 386.721484375,
       "anchor": "center",
       "align": "center",
@@ -168,7 +168,7 @@
       "role": "phase",
       "x0": 0.0,
       "y0": 501.03984375,
-      "x1": 165.4814453125,
+      "x1": 152.4453125,
       "y1": 529.6765625
     },
     {
@@ -176,22 +176,22 @@
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Writing the result",
-      "x": 82.74072265625,
+      "text": "Write the result",
+      "x": 76.22265625,
       "y": 515.358203125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 121.4814453125,
+      "w": 108.4453125,
       "h": 10.63671875
     },
     {
       "id": "failed",
       "shape": "box",
       "role": "outcome",
-      "x0": 755.39453125,
+      "x0": 742.3583984375,
       "y0": 501.03984375,
-      "x1": 840.0205078125,
+      "x1": 826.984375,
       "y1": 529.6765625
     },
     {
@@ -200,7 +200,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Failed",
-      "x": 797.70751953125,
+      "x": 784.67138671875,
       "y": 515.358203125,
       "anchor": "center",
       "align": "center",
@@ -212,9 +212,9 @@
       "id": "succeeded",
       "shape": "box",
       "role": "outcome",
-      "x0": 22.35693359375,
+      "x0": 15.8388671875,
       "y0": 585.6765625,
-      "x1": 143.12451171875,
+      "x1": 136.6064453125,
       "y1": 614.31328125
     },
     {
@@ -223,7 +223,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Succeeded",
-      "x": 82.74072265625,
+      "x": 76.22265625,
       "y": 599.994921875,
       "anchor": "center",
       "align": "center",
@@ -237,11 +237,11 @@
       "role": "relation",
       "pts": [
         [
-          463.298828125,
+          450.2626953125,
           44.15625
         ],
         [
-          463.298828125,
+          450.2626953125,
           100.15625
         ]
       ],
@@ -254,11 +254,11 @@
       "role": "relation",
       "pts": [
         [
-          463.298828125,
+          450.2626953125,
           128.79296875
         ],
         [
-          463.298828125,
+          450.2626953125,
           184.79296875
         ]
       ],
@@ -270,13 +270,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "worker cleanup confirmed;\ncommand checked and launched",
-      "x": 339.37841796875,
+      "text": "Ravel confirms worker cleanup,\nchecks the command and launches it",
+      "x": 311.36474609375,
       "y": 156.79296875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 231.8408203125,
+      "w": 261.7958984375,
       "h": 28.9734375
     },
     {
@@ -285,15 +285,15 @@
       "role": "relation",
       "pts": [
         [
-          517.71826171875,
+          493.857421875,
           114.474609375
         ],
         [
-          543.298828125,
+          530.2626953125,
           114.474609375
         ],
         [
-          543.298828125,
+          530.2626953125,
           269.4296875
         ]
       ],
@@ -306,7 +306,7 @@
       "role": "label",
       "face": "body",
       "text": "refusal, timeout, failure\nor cancellation before launch",
-      "x": 653.373046875,
+      "x": 640.3369140625,
       "y": 191.9521484375,
       "anchor": "center",
       "align": "center",
@@ -320,11 +320,11 @@
       "role": "relation",
       "pts": [
         [
-          463.298828125,
+          450.2626953125,
           213.4296875
         ],
         [
-          463.298828125,
+          450.2626953125,
           269.4296875
         ]
       ],
@@ -336,8 +336,8 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "publication and job ending,\nnatural exit, failure or cancellation",
-      "x": 334.548828125,
+      "text": "sent result and job termination,\nnatural exit, failure or cancellation",
+      "x": 321.5126953125,
       "y": 241.4296875,
       "anchor": "center",
       "align": "center",
@@ -351,15 +351,15 @@
       "role": "relation",
       "pts": [
         [
-          352.298828125,
+          339.2626953125,
           316.40312500000005
         ],
         [
-          352.298828125,
+          339.2626953125,
           386.721484375
         ],
         [
-          308.298828125,
+          295.2626953125,
           386.721484375
         ]
       ],
@@ -372,7 +372,7 @@
       "role": "label",
       "face": "body",
       "text": "[cancellation\nselected]",
-      "x": 299.25,
+      "x": 286.2138671875,
       "y": 351.56230468750005,
       "anchor": "center",
       "align": "center",
@@ -386,11 +386,11 @@
       "role": "relation",
       "pts": [
         [
-          463.298828125,
+          450.2626953125,
           316.40312500000005
         ],
         [
-          463.298828125,
+          450.2626953125,
           372.403125
         ]
       ],
@@ -403,7 +403,7 @@
       "role": "label",
       "face": "body",
       "text": "[refusal\nis primary]",
-      "x": 509.24169921875,
+      "x": 496.20556640625,
       "y": 344.40312500000005,
       "anchor": "center",
       "align": "center",
@@ -417,15 +417,15 @@
       "role": "relation",
       "pts": [
         [
-          574.298828125,
+          561.2626953125,
           316.40312500000005
         ],
         [
-          574.298828125,
+          561.2626953125,
           386.721484375
         ],
         [
-          618.298828125,
+          605.2626953125,
           386.721484375
         ]
       ],
@@ -438,7 +438,7 @@
       "role": "label",
       "face": "body",
       "text": "[missing result\nis primary]",
-      "x": 633.94091796875,
+      "x": 620.90478515625,
       "y": 351.56230468750005,
       "anchor": "center",
       "align": "center",
@@ -452,15 +452,15 @@
       "role": "result",
       "pts": [
         [
-          338.298828125,
+          325.2626953125,
           292.91640625
         ],
         [
-          82.74072265625,
+          76.22265625,
           292.91640625
         ],
         [
-          82.74072265625,
+          76.22265625,
           501.03984375
         ]
       ],
@@ -472,13 +472,13 @@
       "shape": "text",
       "role": "result",
       "face": "body",
-      "text": "[valid result; no cancellation;\nreap, group absence and cleanup confirmed]",
-      "x": 248.37060546875,
+      "text": "[valid result and no cancellation.\nRavel confirms reap, group absence and cleanup]",
+      "x": 258.3681640625,
       "y": 449.008984375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 315.259765625,
+      "w": 348.291015625,
       "h": 28.9734375
     },
     {
@@ -487,15 +487,15 @@
       "role": "relation",
       "pts": [
         [
-          588.298828125,
+          575.2626953125,
           292.91640625
         ],
         [
-          797.70751953125,
+          784.67138671875,
           292.91640625
         ],
         [
-          797.70751953125,
+          784.67138671875,
           501.03984375
         ]
       ],
@@ -508,7 +508,7 @@
       "role": "label",
       "face": "body",
       "text": "[other failure\nis primary]",
-      "x": 693.003173828125,
+      "x": 679.967041015625,
       "y": 274.4296875,
       "anchor": "center",
       "align": "center",
@@ -522,11 +522,11 @@
       "role": "relation",
       "pts": [
         [
-          165.4814453125,
+          152.4453125,
           515.358203125
         ],
         [
-          755.39453125,
+          742.3583984375,
           515.358203125
         ]
       ],
@@ -539,7 +539,7 @@
       "role": "label",
       "face": "body",
       "text": "write or flush fails",
-      "x": 460.43798828125,
+      "x": 447.40185546875,
       "y": 506.03984375,
       "anchor": "center",
       "align": "center",
@@ -553,11 +553,11 @@
       "role": "result",
       "pts": [
         [
-          82.74072265625,
+          76.22265625,
           529.6765625
         ],
         [
-          82.74072265625,
+          76.22265625,
           585.6765625
         ]
       ],
@@ -570,7 +570,7 @@
       "role": "result",
       "face": "body",
       "text": "write and flush succeed",
-      "x": 173.951171875,
+      "x": 167.43310546875,
       "y": 557.6765625,
       "anchor": "center",
       "align": "center",
@@ -582,9 +582,9 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 108.87255859375,
+      "x0": 97.56591796875,
       "y0": 632.31328125,
-      "x1": 731.14794921875,
+      "x1": 729.41845703125,
       "y1": 827.98046875
     },
     {
@@ -592,13 +592,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: phases of Ravel’s work, not processes.\nGrey rounded boxes: outcomes; no further transition is shown.\nINT, TERM or HUP can cancel either phase and suppress any published value.\nCleanup is attempted on every path; attempts do not imply success.\nRavel keeps one primary outcome and reports other failures beside it.\nNo result means absent publication, even if the managed process exited 0.\nAn empty publication is a value; a later nonzero managed exit does not invalidate it.\nGreen: the only route to delivering a result successfully.\nA failed write may leave a prefix on stdout.\nThis view groups operations; it is not the full failure-precedence algorithm.",
-      "x": 420.01025390625,
+      "text": "Blue: phases of Ravel’s work, not processes.\nGrey rounded boxes: outcomes. The view shows no further transition.\nINT, TERM or HUP can cancel either phase and suppress any sent value.\nRavel attempts cleanup on every path. An attempt does not imply success.\nRavel keeps one primary outcome and reports other failures beside it.\nNo result means that no program sent a result, even if the managed process exited 0.\nAn empty result is a value. A later nonzero managed exit does not invalidate it.\nGreen: the only route to successful result delivery.\nA failed write may leave a prefix on stdout.\nThis view groups operations. It is not the full failure-precedence algorithm.",
+      "x": 413.4921875,
       "y": 730.146875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 594.275390625,
+      "w": 603.8525390625,
       "h": 175.6671875
     }
   ]

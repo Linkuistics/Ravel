@@ -12,16 +12,16 @@
   ent("caller", "external", [caller], [«external_system»], cx: 120, cy-of: "ravel", w: 230,
     desc: [An orchestrator or person: supplies the prompt and interprets the result]),
   ent("managed", "external", [managed process], [«external_system»], cx: 640, top: 405, w: 280,
-    desc: [Harness running an LLM session, or another selected program]),
+    desc: [Harness that runs an LLM session, or another selected program]),
 )
 
 #let rels = (
-  rel("owner", "ravel", [Configures routing], tech: [owner policy and settings]),
+  rel("owner", "ravel", [Configures command selection], tech: [owner policy and settings]),
   rel("caller", "ravel", [Requests a session], tech: [start-session: kind and prompt], out: ("right", -30), into: ("left", -30)),
   rel("ravel", "caller", [Returns opaque result after successful cleanup], tech: [standard output], role: "result",
     out: ("left", 30), into: ("right", 30), side: "below", w: 200),
   rel("ravel", "managed", [Launches and supervises], tech: [selected command], out: ("bottom", -70), into: ("top", -70), side: "left"),
-  rel("managed", "ravel", [Publishes opaque result; asks Ravel to stop], tech: [end-session], role: "result",
+  rel("managed", "ravel", [Sends opaque result and asks Ravel to stop], tech: [end-session], role: "result",
     out: ("top", 70), into: ("bottom", 70), w: 190),
 )
 
@@ -29,6 +29,6 @@
   [Blue: Ravel. Grey: caller and managed process. Slate: human owner.],
   [Green arrows carry the opaque result.],
   [The LLM asks its harness to run end-session when its task is done.],
-  [Ravel stops remaining group members and confirms cleanup before returning.],
+  [Ravel stops the group members that remain and confirms cleanup before it returns.],
   [This view hides Ravel's processes. Boxes are not security boundaries.],
 )))

@@ -663,8 +663,6 @@ fails. Only a valid result with confirmed cleanup gets to the final write.
 The view shows the precedence of outcomes, not the order of function calls.
 Ravel attempts the applicable cleanup before it reports an outcome.
 
-In this UML state machine, blue boxes are steps of the decision and grey
-boxes are outcomes. The green route is a successful delivery of the result.
 The view covers `start-session`. The table also covers `end-session` and the
 help and version invocations.
 
@@ -684,8 +682,7 @@ The selection sequence shows why a cancellation can need worker cleanup,
 although Ravel launched no managed process. It follows the example below,
 where the worker sends INT directly to the Ravel CLI.
 
-In these UML sequences, blue boxes are Ravel processes and grey boxes are
-external participants. No lifetime ends with an X here. Ravel attempts
+In these UML sequences, no lifetime ends with an X. Ravel attempts
 cleanup, and a failed attempt does not confirm a reap or a removal.
 
 ![The caller starts selection. The policy worker sends SIGINT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation with no result.](figures/selection-cancellation.svg)
@@ -747,8 +744,8 @@ already received it. A cleanup failure does not change the cancellation into
 success. Ravel reports the failure together with the cancellation.
 
 The supervision sequence shows that a sent result is not safe from
-cancellation. The green arrow gets to the gold temporary result channel, but
-no result gets to the caller. The runner runs inside the Ravel CLI. The
+cancellation. The result reaches the temporary result channel, but
+no result reaches the caller. The runner runs inside the Ravel CLI. The
 group of the managed process includes the descendants that stay in that
 group. The cleanup steps in the figure are attempts, and Ravel keeps their
 failures as diagnostics.

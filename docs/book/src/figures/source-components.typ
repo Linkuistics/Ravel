@@ -8,15 +8,15 @@
 #let ents = (
   ent("front", "ravel", [Request checks and final outcome], [«component»], cx: 130, top: 0, w: 260,
     tech: [Rust: crates/ravel/src],
-    desc: [Checks owner policy and its response; decides the final outcome.]),
+    desc: [Checks owner policy and its response. Decides the final outcome.]),
   ent("worker", "ravel", [policy worker], [«container»], cx: 740, cy-of: "front", w: 300,
     tech: [Separate process: ravel-policy],
-    desc: [crates/ravel/worker/src \ Compiled with Bun; embeds worker/sdk and worker/examples/static.ts. Evaluates trusted owner policy.]),
+    desc: [crates/ravel/worker/src \ Bun compiles this worker with worker/sdk and worker/examples/static.ts embedded. The worker evaluates trusted owner policy.]),
   ent("runner", "ravel", [runner], [«component»], cx: 130, top: 330, w: 260,
     tech: [Rust: crates/keyed-launch],
     desc: [Linked library code. Launches and supervises the managed job inside the Ravel CLI.]),
   ent("managed", "external", [managed process], [«external_system»], cx: 740, cy-of: "runner", w: 300,
-    desc: [Program selected by owner policy]),
+    desc: [Program that owner policy selects]),
 )
 
 #let bounds = (boundary("native", [Ravel CLI — one Rust process (bin/ravel)], ("front", "runner"), tag: [Container]),)
@@ -32,7 +32,7 @@
   [Dashed outline: components inside the Ravel CLI, not a sandbox.],
   [The runner has no separate process or installed executable.],
   [Arrows name use or supervision, not a complete chronology.],
-  [Before managed launch: worker ended and reaped; private directory removed.],
+  [Before managed launch: the worker ends. Ravel reaps it and removes its private directory.],
   [The worker never receives the session-result context.],
   [Two Rust packages: crates/ravel and crates/keyed-launch.],
   [Worker paths in its box are relative to crates/ravel.],

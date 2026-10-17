@@ -129,7 +129,7 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Checks owner policy and its response; decides the final outcome.",
+      "text": "Checks owner policy and its response. Decides the final outcome.",
       "x": 130,
       "y": 195.431640625,
       "anchor": "center",
@@ -143,9 +143,9 @@
       "shape": "box",
       "role": "ravel",
       "x0": 590.0,
-      "y0": 92.73945312499998,
+      "y0": 83.57109374999999,
       "x1": 890.0,
-      "y1": 228.776953125
+      "y1": 237.9453125
     },
     {
       "id": "worker-stereo",
@@ -154,7 +154,7 @@
       "face": "qual",
       "text": "«container»",
       "x": 740,
-      "y": 108.29804687499998,
+      "y": 99.12968749999999,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -168,7 +168,7 @@
       "face": "name",
       "text": "policy worker",
       "x": 740,
-      "y": 122.93476562499998,
+      "y": 113.76640624999999,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -182,7 +182,7 @@
       "face": "qual",
       "text": "[Separate process: ravel-policy]",
       "x": 740,
-      "y": 137.57148437499998,
+      "y": 128.403125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -194,14 +194,14 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "crates/ravel/worker/src\nCompiled with Bun; embeds worker/sdk and worker/examples/static.ts. Evaluates trusted owner policy.",
+      "text": "crates/ravel/worker/src\nBun compiles this worker with worker/sdk and worker/examples/static.ts embedded. The worker evaluates trusted owner policy.",
       "x": 740,
       "y": 184.953515625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 276.0,
-      "h": 65.64687500000001
+      "h": 83.98359375
     },
     {
       "id": "runner",
@@ -310,13 +310,13 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "Program selected by owner policy",
+      "text": "Program that owner policy selects",
       "x": 740,
       "y": 497.916796875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 237.6103515625,
+      "w": 238.6630859375,
       "h": 10.63671875
     },
     {
@@ -458,9 +458,9 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 130.93798828125,
+      "x0": 90.26416015625,
       "y0": 583.13046875,
-      "x1": 712.65576171875,
+      "x1": 753.32958984375,
       "y1": 742.12421875
     },
     {
@@ -468,13 +468,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: worker ended and reaped; private directory removed.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
+      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
       "x": 421.796875,
       "y": 662.62734375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 553.7177734375,
+      "w": 635.0654296875,
       "h": 138.99375
     }
   ]

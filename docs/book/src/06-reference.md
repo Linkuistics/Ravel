@@ -990,9 +990,8 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 
 > **Figure — Source responsibilities:** The runner and the code of the Ravel
 > CLI that checks the request and decides the final outcome run in one
-> process. The policy worker runs separately. In this C4 component view, blue
-> marks Ravel's code and worker process, and grey marks the selected program.
-> The outer boundary groups the code inside the process of the Ravel CLI, and
+> process. The policy worker runs separately. In this C4 component view, the
+> outer boundary groups the code inside the process of the Ravel CLI, and
 > it is not a sandbox. Before the runner launches the managed process, the
 > worker ends, and Ravel reaps it and removes its private directory.
 
@@ -1005,8 +1004,7 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > **Figure — Installed files:** Keep the Ravel CLI and the worker from one
 > build together. The editable sources and declarations beside them help
 > policy authors, and they do not replace the embedded modules. In this UML
-> deployment view, blue marks executables and grey marks the other files.
-> Outlines group directories, not runtime boundaries, and a “file group” lists
+> deployment view, outlines group directories, not runtime boundaries, and a “file group” lists
 > separate files, not an archive or a process. The dependency shows how the
 > Ravel CLI finds and checks its worker, not concurrent process lifetimes.
 > `PREFIX` is the installation directory, independent of the owner's `HOME`.

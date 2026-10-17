@@ -311,29 +311,14 @@ Copy-edit `what-ravel-is-for-and-its-actors-k125` converted chapters 1 and 2
 to STE and “send”. Both pass `task docs:ste -- --strict`. Chapter 1's
 heading “Choose a reading route” is now “Choose a route through the book”.
 No link used its anchor. `ste.md` now gives the words for “ending
-instructions” and bare “routing”, which chapters 3–6 also use. For set art
-k130: k125 converted both alt texts and the prose before both figures, and
-kept their content. R8 remains in the paragraphs “The C4 system-context
-view…” (chapter 1) and “This C4 container view…” (chapter 2). The figure
-labels “Publishes opaque result; asks Ravel to stop” (`system-context`, also
-a semicolon) and “Publishes result via end-session” (`process-authority`)
-remain. If a label changes, make the alt text agree. This closes document
+instructions” and bare “routing”, which chapters 3–6 also use. Both alt texts and the prose before the figures keep their content. This closes document
 node `what-ravel-is-for-and-its-actors-k62`. Set art k130 and set proof
 k132 in this node complete its third correction run.
 
 Copy-edit `a-complete-session-k126` converted chapter 3 to STE and “send”.
 It passes `task docs:ste -- --strict`. Its heading “Publish the result and
 finish the job” is now “Send the result and finish the job”, and chapter 5's
-one link to it changed. For set art k130: k126 converted both alt texts and
-both captions, and kept their facts. R8 remains in the paragraphs “In this
-UML sequence…” and “In this UML state machine…”. These labels and key lines
-still use the old words: in `successful-session`, “Publish opaque result via
-end-session”, “Validate and read published result”, “Launch and
-publication”, “First complete publication wins. Publication does not wait
-for cleanup.” and the key line “Publication precedes cleanup…”. In
-`session-outcomes`, “publication and job ending, …” and the key lines with
-“published value”, “absent publication”, “An empty publication is a value”
-and “delivering”. If a label changes, make the alt text agree. This closes
+one link to it changed. Both alt texts and captions keep their facts. This closes
 document node `a-complete-session-k63` again.
 
 Copy-edit `writing-an-owner-policy-k127` converted chapter 4 to STE and
@@ -341,46 +326,20 @@ Copy-edit `writing-an-owner-policy-k127` converted chapter 4 to STE and
 policy”. Its heading “Copy an existing policy” is now “Copy a policy from
 another configuration” (“existing” is an “-ing” form), and chapter 6's three
 links to it changed. The agent example's prompt now says “When you finish,
-run … as your last action. Then do nothing else.” Chapter 4 has no figures,
-so set art k130 has no work in it. This closes document node
+run … as your last action. Then do nothing else.” Chapter 4 uses page-native tables and has no separate diagram. This closes document node
 `writing-an-owner-policy-k64` again.
 
 Copy-edit `running-sessions-k128` converted chapter 5 to STE and “send”. It
 passes `task docs:ste -- --strict`. Its title is “Run sessions”. Its heading
 “Read notices without confusing them with results” is now “Read notices
 separately from results” (“confusing” is an “-ing” form). Chapter 6's twelve
-links to it changed, and their link texts did not. For copy-edit k129: keep
-these links when chapter 6 changes. For set art k130: k128 converted the
-three alt texts and the prose before the figures, and kept their facts. R8
-remains in the paragraphs “In this UML state machine…” and “In these UML
-sequences…”, and in the sentence about the green arrow and the gold result
-channel. The figure text still breaks the rules. In `supervision-cancellation`,
-these items use the old words: the title “Cancellation after publication”,
-the message “Publish "candidate" via end-session”, the note “First complete
-publication wins.” and the key line “Green carries a published value”. In
-`settled-exit-status`, these items are affected: “Writing the result”, the key
-lines with “steps in deciding”, “reporting an outcome”, “a published result”
-and “Empty publication”, and one semicolon. `selection-cancellation` has seven
-semicolons and the words “claiming” and “corresponding”.
-`task docs:ste` on the three `.layout.json` files lists each item. If a
-label changes, make the alt text agree. This closes document node
+links to it changed, and their link texts did not. The three alt texts and the prose before the figures keep their facts. This closes document node
 `running-sessions-k65` again.
 
 Copy-edit `reference-chapter-k129` converted chapter 6 to STE and “send”.
 It passes `task docs:ste -- --strict`. No heading or anchor changed. The
 column “Teaching” is now “Taught in”, and the diagnostic-code tables split
-“Stage; status” into two columns. For set art k130: k129 converted the two
-alt texts and the blockquotes before the figures, and kept their facts. R8
-remains in the sentences “In this C4 component view, blue marks…”
-(`source-components`) and “In this UML deployment view, blue marks…”
-(`installed-files`). The prose now says “grey marks the other files”, but
-the figure text says “supporting”. The figure text has no old result words,
-but it still breaks the rules. `source-components` has three semicolons
-(“Checks owner policy and its response; decides the final outcome.”, the
-worker's “Compiled with Bun; embeds…” and “worker ended and reaped; private
-directory removed.”). `installed-files` has one semicolon and the words
-“supporting” (two times), “pairing”, “editing” and “typechecking”. If a
-label changes, make the alt text agree. This closes document node
+“Stage; status” into two columns. Both alt texts and the blockquotes before the figures keep their facts. This closes document node
 `reference-chapter-k66` again.
 
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
@@ -390,6 +349,18 @@ keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
 the run passes the strict check on the files that it owns.
 
 ## Figure migration
+
+Art `book-first-half-k130` corrected all nine figure sources to STE and
+“send”, regenerated their SVGs and layout records, and removed the repeated
+colour descriptions from the chapter prose (R8). Each key retains its colours
+and meaning. No technical fact, notation or renderer pin changed. The strict
+STE check passes on all six chapters and nine layout records. The figure
+comparison, book build and examples pass on unchanged inputs (13 examples,
+zero failures or skips). All nine figures were inspected in the served book
+at chapter width and full size, and a missing-figure control failed. The
+dated record in `docs/book/figures.md` states the inspection limits. The dense
+figures' small text remains with k101. README/help k131 and set proof k132
+remain live. No new leaf is needed.
 
 The owner decided on 2026-10-17 to move every figure to Typst/CeTZ ("migrate
 full") and later asked for a hand-drawn style. `book-figure-migration-k108`

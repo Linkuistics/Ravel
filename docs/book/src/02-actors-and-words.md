@@ -146,9 +146,8 @@ result of the managed process. A harness that runs an LLM session has the
 managed-process role. An ordinary program can take its place.
 
 This C4 container view shows the processes and the temporary store of Ravel.
-These are not operating-system containers. The gold result channel holds
-temporary files, not a database. Blue marks the processes of Ravel, and grey
-marks the external participants. Green arrows trace the opaque result. The
+These are not operating-system containers. The result channel holds
+temporary files, not a database. The
 outline around them groups the software of Ravel, not a sandbox.
 
 Steps 1 and 2 show the order: Ravel completes the cleanup of the worker

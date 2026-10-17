@@ -45,7 +45,7 @@ docs/book/src/figures/
 ## How a page uses a figure
 
 ```markdown
-![A caller starts a session; Ravel launches the agent program](figures/system-context.svg)
+![A caller starts a session. Ravel launches the agent program.](figures/system-context.svg)
 ```
 
 The path is relative to the chapter, which sits in `docs/book/src/`, so it
@@ -66,7 +66,7 @@ Page-native tables keep mdBook's normal styling.
 | Role | Fill / text / border |
 |---|---|
 | Ravel system, process, linked component or executable; Ravel work phase in a state view | Blue `#1E4F78` / white `#FFFFFF` / navy `#163A59` |
-| External caller or managed process; supporting installed file; final outcome in a state view | Grey `#E8EDF2` / ink `#172B3A` / slate `#64748B` |
+| External caller or managed process; other installed file; final outcome in a state view | Grey `#E8EDF2` / ink `#172B3A` / slate `#64748B` |
 | Human owner in the context view | Slate `#475569` / white / dark slate `#334155` |
 | Temporary result channel | Gold `#FFF1CF` / brown `#3D321A` / ochre `#8A6B26` |
 | Notes, keys and host enclosure | Pale grey `#F8FAFC` / ink / slate |
@@ -91,22 +91,25 @@ shrink individual text to force a figure into the column.
 Each figure has an adjacent sentence saying what the reader should take from
 it, a book-specific key, meaningful Markdown alt text and a full-size SVG link.
 Explain the book's meanings and limits, not generic diagram notation. Colours
-supplement labels. The surrounding prose supplies an alternative to the image.
+supplement labels. Keep colour descriptions in the key, without a second copy
+in the adjacent prose. Each key stays with its figure at full size. The
+surrounding prose supplies an alternative to the image. Labels, keys, captions
+and alt text follow `ste.md` and the contract's STE writing rules.
 
 ### What each view means
 
 | View | Book-specific meaning to preserve |
 |---|---|
-| `system-context` | Ravel between a caller, such as an orchestrator, and a harness running an LLM session or another selected program; the owner controls routing. Publication asks Ravel to stop, and return follows confirmed cleanup. Responsibility boundaries are not security boundaries. |
+| `system-context` | Ravel between a caller, such as an orchestrator, and a harness that runs an LLM session or another selected program; the owner controls command selection. The sent result asks Ravel to stop, and return follows confirmed cleanup. Responsibility boundaries are not security boundaries. |
 | `process-authority` | Processes and temporary files across a session, not simultaneous lifetimes or OS containers. The worker response and opaque result use separate paths. Worker end, reap and private-directory removal precede the managed launch. The runner runs inside the Ravel CLI. |
-| `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. Publication precedes cleanup; only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
+| `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. The sent result precedes cleanup. Only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
-| `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses publication; HUP/TERM use the same rule. |
+| `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
 
-Chapters 1–6 also use page-native tables for publication through cleanup and
+Chapters 1–6 also use page-native tables for the sent result through cleanup and
 return, responsibilities, result versus
 exit status versus work, platform evidence, nested result authority, worker
 startup, policy evaluation order, policy-context delivery, environment grants,
@@ -252,8 +255,7 @@ renderer's. The contract never promised selectable figure text; the page's alt
 text, caption and prose are the text alternative, and the SVG is a full-size
 link and never the only place a fact is stated. The size budget (each SVG at
 most 300 KB, the set at most 2 MB) was checked by `book-figure-viewing-check`
-(see "Viewing checks"). The nine figures are 1.80 MB together and the largest is
-259 KB.
+(see "Viewing checks"). The latest size measurement is in the dated viewing record below.
 
 **Controls.** `task docs:figures:test` runs the checks of the check, each made to
 fire against a subject known to be wrong, with its fixtures in
@@ -582,8 +584,41 @@ superseded contract. Every record dated before 2026-10-17 describes figures
 drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 `_style.puml` and `_uml-style.puml` includes it names), which the migration to
 Typst has since replaced. They are kept as history, and none of their
-observations is a statement about the present figures. The first record below,
-`book-figure-viewing-check`, is the check of the migrated figures.
+observations is a statement about the present figures. Each later record names
+the revision and environments that it checked.
+
+### Read 1 text correction, 2026-10-18 (`book-first-half-k130`)
+
+This pass changed the text of all nine figures to the STE writing rules and
+the word decisions in `ste.md`. Result labels now use “send”. The colour
+descriptions stay in each key, and the adjacent prose no longer repeats them.
+The figures keep their facts, relations, lifetime markers and colour roles.
+Their existing alt text and captions still describe them. The pins and shared
+modules did not change.
+
+All nine figures were inspected in the local book through Chrome on macOS,
+on a light page at the 750-pixel chapter width. The viewport was 1227 by
+919 pixels. Each full-size link opened the SVG itself, and screenshots of
+the complete SVG supplied the inspection of figures larger than the viewport.
+The text fits its boxes, and no changed label overlaps another label or a
+relation. The page introductions still state the purpose of each figure.
+
+The three dense figures retain the size issue recorded by k118. At chapter
+width, the 14-unit body text is about 8.0 pixels in `successful-session`,
+9.0 in `process-authority` and 9.8 in `supervision-cancellation`.
+The full-size links give clear text. This issue stays with `ravel-book-k101`.
+This pass does not claim that the chapter-width size issue is resolved.
+
+The nine SVGs total 1,810,122 bytes. The largest is `process-authority`, at
+260,683 bytes. Both remain within the 2 MB set and 300 KB individual budgets.
+The sources, generated layout text and chapter alternatives were read
+directly. No new figure was needed: the existing diagrams, lists and tables
+carry the relations. This is an editorial judgement, not a medium limit.
+
+This pass did not inspect an editor preview, other browsers, other themes
+or narrower viewports. GitHub and the book on GitHub Pages remain unavailable
+for this branch. The inspection supplies visual evidence, not evidence that
+a new reader understands the figures.
 
 ### Migrated figures, 2026-10-17 (`book-figure-viewing-check-k118`)
 

@@ -211,7 +211,7 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "Harness running an LLM session, or another selected program",
+      "text": "Harness that runs an LLM session, or another selected program",
       "x": 640,
       "y": 491.91640625,
       "anchor": "center",
@@ -242,13 +242,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Configures routing",
-      "x": 712.8115234375,
+      "text": "Configures command selection",
+      "x": 756.4248046875,
       "y": 145.72109375,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
-      "w": 129.623046875,
+      "w": 216.849609375,
       "h": 10.63671875
     },
     {
@@ -422,7 +422,7 @@
       "shape": "text",
       "role": "result",
       "face": "body",
-      "text": "Publishes opaque result; asks Ravel to stop",
+      "text": "Sends opaque result and asks Ravel to stop",
       "x": 813.0,
       "y": 357.389453125,
       "anchor": "center",
@@ -449,9 +449,9 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 167.3671875,
+      "x0": 148.3017578125,
       "y0": 535.403125,
-      "x1": 745.6328125,
+      "x1": 764.6982421875,
       "y1": 639.38671875
     },
     {
@@ -459,13 +459,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel. Grey: caller and managed process. Slate: human owner.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session when its task is done.\nRavel stops remaining group members and confirms cleanup before returning.\nThis view hides Ravel’s processes. Boxes are not security boundaries.",
+      "text": "Blue: Ravel. Grey: caller and managed process. Slate: human owner.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session when its task is done.\nRavel stops the group members that remain and confirms cleanup before it returns.\nThis view hides Ravel’s processes. Boxes are not security boundaries.",
       "x": 456.5,
       "y": 587.394921875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 550.265625,
+      "w": 588.396484375,
       "h": 83.98359375
     }
   ]
