@@ -17,14 +17,15 @@ owner's resumed read.
   the record of proof k100. The STE specification is at the contract's path.
   Keep it and every extract out of the repository.
 - Five sessions converted the chapters to STE one at a time. Look for one
-  concept in different words in different chapters, and for words that
-  `ste.md` does not hold.
+  concept in different words in different chapters, and for a shared word
+  decision that `ste.md` does not hold.
 
 ## Done when
 
-- Every chapter, the README, `CONTEXT.md` and the figure text follow STE and
-  `ste.md`. A script-based check of the words against the decisions fails on
-  a planted unapproved word.
+- Every chapter, the README, `CONTEXT.md` and the figure text follow the STE
+  writing rules and `ste.md`. `task docs:ste -- --strict` passes on all of
+  them, and `task docs:ste:test` passes (its controls fail on a planted
+  problem for each rule).
 - R3–R9 are corrected as the read 1 log records. R6 and R9 agree with the
   code and the specifications.
 - No “publish”, “publication”, “submit” or “submission” for the result stays

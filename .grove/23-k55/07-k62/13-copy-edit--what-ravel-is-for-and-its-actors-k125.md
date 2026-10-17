@@ -25,10 +25,14 @@ word decisions in `docs/book/ste.md` and “send” for the result.
 
 ## Done when
 
-- Every sentence in chapters 1 and 2 follows STE: approved words or `ste.md`
-  decisions, the sentence and paragraph limits, the active voice, simple
-  tenses, no “-ing” forms outside technical names, no semicolons, no
-  contractions and no phrasal verbs. British spelling stays.
+- Every sentence in chapters 1 and 2 follows the STE writing rules and the
+  `ste.md` decisions: the sentence and paragraph limits, the active voice,
+  simple tenses, no “-ing” forms outside technical names, no semicolons, no
+  contractions and no phrasal verbs. British spelling stays. The book does
+  not use the STE dictionary (owner, 2026-10-18).
+- `task docs:ste -- --strict docs/book/src/01-what-ravel-is-for.md docs/book/src/02-actors-and-words.md` passes. A word in “-ing” that it
+  reports and that is part of a technical name goes into `ste.md` as a
+  decision, with its reason.
 - No “publish”, “publication”, “submit” or “submission” for the result stays.
   A search with a control seen to fail shows this.
 - Every local link and anchor in both chapters resolves. A control with a

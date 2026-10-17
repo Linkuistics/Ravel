@@ -31,6 +31,9 @@ figure labels. Make labels, keys, captions and alt text follow ASD-STE100.
 
 - No paragraph repeats a figure's key. Each figure's key, caption, labels and
   alt text follow STE and `ste.md`, and use “send” for the result.
+- `task docs:ste -- --strict docs/book/src/figures/*.layout.json` passes
+  (the text in each figure). The book does not use the STE dictionary
+  (owner, 2026-10-18).
 - Each figure keeps its facts, unless a fact was wrong. Record any such
   change.
 - `task docs:figures`, `task docs:book:build` and `task docs:examples` pass

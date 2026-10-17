@@ -73,3 +73,35 @@ new titles.
   classification and `ste.md` as its first child.
 - The specifications, decision records and other guides are outside this
   leaf. Later work that changes them applies STE.
+
+## Decisions (running log)
+
+- 2026-10-18, the owner (during this session): “The skill I am going to adopt
+  does not use the word list, only the rules.” Asked how this leaf changes, the
+  owner chose “Rules only”: the base is the STE writing rules. The dictionary
+  and its approved words do not apply. `docs/book/ste.md` keeps only the shared
+  word decisions that the chapters need. The check script checks only the rules
+  that a script can check. The dictionary classifier is removed. This replaces
+  the first three Done-when items (the dictionary classification, the
+  technical-noun and technical-verb tables, a replacement for each unapproved
+  word). Before this answer, the session had a dictionary classifier and draft
+  decisions for about 1,270 words. These stay out of the repository.
+- The check (`scripts/ste.ts`, `scripts/ste.sh`, `task docs:ste`) examines
+  only what a script can decide: sentence limits (Rule 6.3, and Rule 5.1 for
+  numbered steps), six sentences in a paragraph (Rule 6.6), semicolons,
+  contractions, normative keywords, “-ing” words (Rule 3.5) and the words that
+  the book does not use. Without `--strict` it is a report and exits 0, so the
+  repository stays green while the chapters wait for their copy-edits. Each
+  later stage of the run passes `--strict` on the files that it owns. Their
+  bodies (k125–k132) now say this.
+- The “-ing” decisions came from a list of every “-ing” word in the sources.
+  The kept list holds words that are not verb forms, a few technical nouns,
+  and phrases where the word is part of a technical name. Each other “-ing”
+  word is for the copy-edit to rewrite.
+- An `_Avoid_:` line of `CONTEXT.md` must name the avoided words. Thus, the
+  word decisions do not apply to it. The other rules do.
+- `task docs:ste:test` passes the unchanged `CONTEXT.md` and `SUMMARY.md`,
+  fails a planted problem for each rule, and its mutants show that each
+  removed rule fails a control.
+- Last act: the set art leaf `book-first-half-k130` already stands live after
+  this leaf, so this session cuts nothing.

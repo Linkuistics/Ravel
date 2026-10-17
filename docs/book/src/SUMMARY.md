@@ -6,20 +6,20 @@
 - [The actors and their words](02-actors-and-words.md)
 - [A complete session, end to end](03-a-complete-session.md)
 
-# Part II: Using Ravel
+# Part II: Use Ravel
 
-- [Writing an owner policy](04-writing-an-owner-policy.md)
-- [Running sessions](05-running-sessions.md)
+- [Write an owner policy](04-writing-an-owner-policy.md)
+- [Run sessions](05-running-sessions.md)
 - [Reference](06-reference.md)
 
 # Part III: Inside Ravel
 
 - [How Ravel is built]()
-- [Following a session through the code]()
+- [Follow a session through the code]()
 - [Jobs, signals and the terminal]()
 
-# Part IV: Reusing and developing Ravel
+# Part IV: Reuse and develop Ravel
 
-- [Using Ravel's components in your project]()
-- [Developing Ravel]()
-- [Delivering Ravel]()
+- [Use Ravel's components in your project]()
+- [Develop Ravel]()
+- [Deliver Ravel]()

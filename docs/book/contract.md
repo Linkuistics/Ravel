@@ -390,8 +390,11 @@ This checks visual consistency, not the reader's knowledge of notation.
   labels, captions, keys and alt text. The owner made this decision on
   2026-10-17: “I intend to add a global instruction to use ADE-STE100 for all
   LLM communication (such as when you talk to me here) as well as in all
-  documentation. Apply that rule now.” STE has writing rules and a dictionary
-  of approved words. The points below add to STE. If a point and STE do not
+  documentation. Apply that rule now.” On 2026-10-18 the owner limited the
+  base to the writing rules: “The skill I am going to adopt does not use the
+  word list, only the rules.” Thus, the book uses STE's writing rules (Part 1
+  of the specification) and does not use its dictionary (Part 2). The points
+  below add to STE. If a point and STE do not
   agree, use STE. Before this decision, the base was Grove's house style,
   which follows [Google's developer documentation style
   guide](https://developers.google.com/style) on the points it names. The
@@ -402,23 +405,23 @@ This checks visual consistency, not the reader's knowledge of notation.
   `d1f4ea9e7cd6e46b47aa9057209f99e78c0e9cfc4e27a5b07895b05c1a166431`). ASD
   gives it free, on request, through <https://www.asd-ste100.org>. Its
   copyright notice prohibits unauthorised distribution. Thus, do not commit
-  the PDF or text from it. A note can give the status of one word in a few
-  words, for example “submit (v): not approved, use SEND”. If the file is not
-  at that path, ask the owner for it.
-- **Word decisions**: `docs/book/ste.md` holds the book's STE word decisions.
-  It lists the technical nouns, the technical verbs with their Rule 1.12
-  categories, and the approved words that replace the unapproved words that
-  the book used before. Every stage uses these decisions. A stage that needs a
-  new word adds its decision to that file.
+  the PDF or text from it. A note can give a rule number and its point in
+  its own words, for example “Rule 3.5: ‘-ing’ forms only in technical
+  names”. If the file is not at that path, ask the owner for it.
+- **Word decisions**: `docs/book/ste.md` holds the word decisions that all
+  chapters share. They give the words for the result and the chapter and part
+  titles. They also give the words that the book does not use and the words
+  in “-ing” that it keeps.
+  `task docs:ste` examines the book's text against these decisions and the
+  STE rules that a script can check. Every stage uses these decisions. A
+  stage that needs a new decision adds it to that file.
 - **Spelling**: British (behaviour, authorise, colour). This contract is the
   official directive that STE Rule 1.14 permits. Code identifiers keep their
   own spelling, in code font.
 - **Technical names**: the terms in `CONTEXT.md`, code identifiers, commands,
-  file names, paths and product names are technical nouns (Rules 1.5 to
-  1.11). A word that STE does not approve can be part of a technical noun, for
-  example “opaque result” (Rule 1.6). Use a technical verb only when no
-  approved verb gives the same information (Rule 1.12). Do not use a
-  technical verb as a noun (Rule 1.13).
+  file names, paths and product names are technical names. A word in “-ing”
+  can be part of a technical name, for example “working directory” (Rule
+  3.5).
 - **Normative keywords**: none. The book does not use MUST, SHOULD, MAY or
   their kin. The specifications hold the rules. The book gives behaviour in
   plain indicative sentences.
@@ -427,10 +430,8 @@ This checks visual consistency, not the reader's knowledge of notation.
   Ravel keeps the first result that it receives. Do not use “publish”,
   “publication” or “submit” for this (the owner's decision of 2026-10-17). Do
   not use specialist words such as “admits”, “admission” and unexplained
-  “settlement”. For the actions of the Ravel CLI, use approved words or a
-  technical verb from `docs/book/ste.md`. STE replaces some plain words that
-  this contract gave before, for example “check” and “allow”. Keep code
-  identifiers exact. Explain a technical term when the reader needs the
+  “settlement”. For the actions of the Ravel CLI, use plain verbs such as
+  “checks”, “accepts” and “allows”. Keep code identifiers exact. Explain a technical term when the reader needs the
   concept. Do not use a synonym that hides a different technical meaning.
 - **Simple, self-contained language**: every page can be understood without
   following a link. A link is optional depth, and it names its destination and

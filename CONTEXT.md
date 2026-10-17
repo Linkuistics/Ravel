@@ -1,54 +1,56 @@
 # Ravel language
 
 Ravel runs an LLM session in an agent harness as a supervised part of another
-program: it routes a caller's request through owner configuration, supervises
-the selected process and returns the result that the session sends. These terms
-distinguish configuration authority, session authority and the meaning a
-caller gives a result.
+program. It routes a caller's request through owner configuration and
+supervises the selected process. Then it returns the result that the session
+sends. These terms separate configuration authority, session authority and
+the meaning that a caller gives a result.
 
 ## Language
 
-**Caller**: The person or program invoking Ravel and interpreting its returned
-opaque result, such as an orchestrator that runs **Harness** sessions as steps
-of its own work. Its task conventions and continuation decisions are
-caller-owned.
+**Caller**: The person or program that invokes Ravel and interprets the opaque
+result that Ravel returns. An example is an orchestrator that runs **Harness**
+sessions as steps of its own work. The caller owns its task conventions and
+continuation decisions.
 
-**Owner**: The person controlling Ravel's policy and settings for an account.
-The owner and caller can be the same person; their configuration and task
-responsibilities remain distinct.
+**Owner**: The person who controls Ravel's policy and settings for an account.
+The owner and the caller can be the same person. Their configuration and task
+responsibilities stay distinct.
 
-**Session**: One `start-session` invocation: a **Caller**'s request routed
-through the **Owner policy** to one **Managed process**, supervised until its
-**Opaque result** or failure is reported after required cleanup attempts.
+**Session**: One `start-session` invocation. Ravel routes a **Caller**'s
+request through the **Owner policy** to one **Managed process**. Ravel
+supervises that process until it reports the **Opaque result** or a failure,
+after the required cleanup attempts.
 _Avoid_: run, job, POSIX session
 
-**Kind**: The **Caller**'s open token naming the sort of **Session** it asks
-for. Only the **Owner policy** gives it meaning.
+**Kind**: The **Caller**'s open token that names the sort of **Session** that
+it requests. Only the **Owner policy** gives it meaning.
 _Avoid_: task kind, type
 
 **Launcher CLI**: A one-session, process-lifetime consumer that supervises a
-**Managed process**, reports its **Opaque result** or failure after required cleanup attempts,
-then exits.
+**Managed process**, reports its **Opaque result** or failure after required
+cleanup attempts, then exits.
 
 **Persistent runner**: A separate component whose host lifetime continues after
-a managed launch finishes. Its continuing-host contract is distinct from the
-**Launcher CLI**'s one-session lifetime.
+a managed launch finishes. Its contract for a host that continues is distinct
+from the **Launcher CLI**'s one-session lifetime.
 
-**Owner policy**: The executable TypeScript configuration authorised to select
-a command or refuse the caller's request. Its author controls routing choices.
+**Owner policy**: The executable TypeScript configuration that has the authority
+to select a command or refuse the caller's request. Its author controls how it routes
+requests.
 
-**Policy context**: The version-1 JSON data the **Owner policy**'s selection
-receives: the **Caller**'s context document, or the context the policy's own
-loader assembled, with every source read through the host measured. It is
-data, never authority.
+**Policy context**: The version-1 JSON data that the **Owner policy**'s
+selection receives. It is the **Caller**'s context document, or the context
+that the policy's own loader assembled. Ravel measures each source that the
+loader reads through the host. It is data, never authority.
 _Avoid_: context (unqualified), session context
 
-**Refusal**: A decision not to launch, made by the **Owner policy** itself or by
-Ravel when it cannot accept that policy's file, behaviour or data. It
+**Refusal**: A decision not to launch. The **Owner policy** itself makes it, or
+Ravel makes it when it cannot accept that policy's file, behaviour or data. It
 is not a failure of the **Policy worker** or of supervision.
 _Avoid_: rejection, error
 
-**Policy worker**: The separate process evaluating the owner policy for the
+**Policy worker**: The separate process that evaluates the owner policy for the
 Ravel CLI. It is not a managed process and receives no session-result context.
 
 **Ravel CLI**: The Rust `ravel` command-line program. During
@@ -56,33 +58,35 @@ Ravel CLI. It is not a managed process and receives no session-result context.
 chooses the final result or failure to report.
 _Avoid_: front, native front
 
-**Runner**: The Rust library code executing inside the Ravel CLI that launches
-and supervises the managed job. It is not a separate running service or the
+**Runner**: The Rust library code in the Ravel CLI that launches and supervises
+the managed job. It is not a separate service process. It is not the
 undelivered **Persistent runner**.
 
-**Managed process**: The direct child selected by the owner policy and supervised
-as a job by the Ravel CLI. Its process group is the scope of job cleanup.
+**Managed process**: The direct child that the owner policy selects and that the
+Ravel CLI supervises as a job. Its process group is the scope of job cleanup.
 
 **Harness**: The agent program, such as Claude Code or Codex, in which an LLM
-session works on the **Session**'s prompt; the **Owner policy** selects it. An
-interactive harness does not end itself, which is why the LLM sends the
-**Opaque result** with `end-session`; Ravel treats the harness as any other
-**Managed process**.
+session works on the **Session**'s prompt. The **Owner policy** selects it. An
+interactive harness does not end itself. Thus, the LLM sends the **Opaque
+result** with `end-session`. Ravel treats the harness as any other **Managed
+process**.
 _Avoid_: agent runtime, test harness
 
-**Session-result context**: The inherited `RAVEL_EXIT_FILE` path identifying the
-enclosing session's ephemeral completion channel. A nested session replaces it
-only for that session's managed process.
+**Session-result context**: The inherited `RAVEL_EXIT_FILE` path that
+identifies the ephemeral completion channel of the enclosing session. A nested
+session replaces it only for that session's managed process.
 
-**Opaque result**: The single UTF-8 argument sent with `end-session` and
-returned unchanged after successful supervision and cleanup. Only the caller
-assigns it meaning. An explicitly empty result is not the same as no result.
+**Opaque result**: The single UTF-8 argument that a program in the session
+sends with `end-session`. After successful supervision and cleanup, Ravel
+returns it unchanged. Only the caller assigns it meaning. An explicitly empty
+result is not the same as no result.
 _Avoid_: publish, publication, submit (`end-session` sends the result, and
 Ravel keeps the first result that it receives)
 
 **Result channel**: Ravel's private temporary directory and completion file
-carrying the **Opaque result** for one launch. The runner's underlying completion
-channel reports file appearance; Ravel validates and reads the result.
+that carry the **Opaque result** for one launch. The result channel uses the
+runner's completion channel, which reports only that the file appeared. Ravel
+validates and reads the result.
 
 **Confinement**: Optional restrictions on the managed process's filesystem access
 and environment. Confinement does not apply to the **Owner policy** or its
@@ -90,10 +94,10 @@ and environment. Confinement does not apply to the **Owner policy** or its
 
 ## Flagged ambiguities
 
-- **"Session"** alone means a Ravel **Session**, never a POSIX session
-  (`setsid`), a login session or the LLM session inside a **Harness**; say
-  "LLM session" for that. An unconfined **Managed process** stays in the
-  **Caller**'s POSIX session, in a process group of its own; a confined launch
+- **"Session"** alone means a Ravel **Session**. It never means a POSIX session
+  (`setsid`), a login session or the LLM session in a **Harness**. Say "LLM
+  session" for that. An unconfined **Managed process** stays in the
+  **Caller**'s POSIX session, in a process group of its own. A confined launch
   starts a new POSIX session.
 - **"Context"** alone is ambiguous. Say **Session-result context** for the
   inherited `RAVEL_EXIT_FILE` path, **Policy context** for the data selection
@@ -101,12 +105,12 @@ and environment. Confinement does not apply to the **Owner policy** or its
 - **"Kind"** is the **Caller**'s token. Grove passes its own task kind as the
   **Kind**, but Ravel neither knows nor checks Grove's kinds.
 - **"Channel"**: the result channel is Ravel's private directory and completion
-  file, through which `end-session` sends the result. It is built on the runner's
+  file, through which `end-session` sends the result. It uses the runner's
   completion channel, which only signals that a file appeared.
 - **"Worker"** means the **Policy worker** process, not a Bun `Worker` thread,
   which owner code may itself start.
-- **"Policy"** means the **Owner policy**, never a security or sandbox policy;
-  restricting a **Managed process** is confinement.
+- **"Policy"** means the **Owner policy**, never a security or sandbox policy.
+  A restriction on a **Managed process** is confinement.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
   exit status or the work a **Harness** did.
 
@@ -115,7 +119,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
 Caller author: “If the managed process sends `continue`, will Ravel start
 the next task?”
 
-Ravel maintainer: “Ravel cleans up the managed job and returns those bytes. The
-caller decides whether they mean another task. The owner policy chooses the
-command for each request; the policy worker never receives the session-result
-context.”
+Ravel maintainer: “Ravel completes the cleanup of the managed job and returns
+those bytes. The caller decides whether they mean another task. The owner
+policy chooses the command for each request. The policy worker never receives
+the session-result context.”

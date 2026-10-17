@@ -28,10 +28,14 @@ decisions in `docs/book/ste.md` and “send” for the result.
 
 ## Done when
 
-- Every sentence in chapter 6 follows STE: approved words or `ste.md`
-  decisions, the sentence and paragraph limits, the active voice, simple
-  tenses, no “-ing” forms outside technical names, no semicolons, no
-  contractions and no phrasal verbs. British spelling stays.
+- Every sentence in chapter 6 follows the STE writing rules and the
+  `ste.md` decisions: the sentence and paragraph limits, the active voice,
+  simple tenses, no “-ing” forms outside technical names, no semicolons, no
+  contractions and no phrasal verbs. British spelling stays. The book does
+  not use the STE dictionary (owner, 2026-10-18).
+- `task docs:ste -- --strict docs/book/src/06-reference.md` passes. A word in “-ing” that it
+  reports and that is part of a technical name goes into `ste.md` as a
+  decision, with its reason.
 - No “publish”, “publication”, “submit” or “submission” for the result stays
   in chapter 6. A search with a control seen to fail shows this.
 - Every local link and anchor in chapter 6 resolves. A control with a broken

@@ -66,6 +66,18 @@ tasks:
       - task: build
       - bash scripts/examples.test.sh mutants
 
+  docs:ste:
+    desc: Report where the book's text breaks the STE rules that a script can check and the word decisions in docs/book/ste.md (-- --strict FILE... fails on a problem; needs task setup)
+    cmds:
+      - bash scripts/ste.sh {{.CLI_ARGS}}
+
+  docs:ste:test:
+    desc: Prove the STE check passes CONTEXT.md and SUMMARY.md and fails a planted problem for each rule, and that each removed rule fails a control (needs task setup)
+    silent: true
+    cmds:
+      - bash scripts/ste.test.sh
+      - bash scripts/ste.test.sh mutants
+
   book:integrity:
     desc: Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
     silent: true

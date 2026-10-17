@@ -386,7 +386,9 @@ English (Issue 9) applies to messages to the human and to each document that
 a session writes or changes. The book's contract, section 2, records how the
 rule applies to the book. That record includes British spelling under STE
 Rule 1.14 and the local copy of the specification, which stays out of the
-repository.
+repository. On 2026-10-18, during `book-first-half-k123`, the human said:
+“The skill I am going to adopt does not use the word list, only the rules.”
+Thus, STE means its writing rules. The STE dictionary does not apply.
 
 ## Current upstream guidance
 

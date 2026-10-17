@@ -50,9 +50,10 @@ book runs before `component-work-scope-k57`, which follows the node at the root.
   body names it by path; it carries all three items the draft precondition
   cites.
 - Term list: `CONTEXT.md`, including its flagged ambiguities.
-- STE word decisions: `docs/book/ste.md` (from `book-first-half-k123`). The
-  STE specification is at the path that the contract gives. It stays out of
-  the repository.
+- STE word decisions: `docs/book/ste.md` (from `book-first-half-k123`).
+  `task docs:ste` examines the text against them and the STE rules that a
+  script can check. The STE specification is at the path that the contract
+  gives. It stays out of the repository.
 - Normative sources the book restates: `docs/specs/session-execution.md`,
   `docs/specs/result-job-completion.md` and the three decision records in
   `docs/adr/`.
@@ -290,8 +291,9 @@ owner's choice (“Fix before reading on”, then “Route now”). The owner ga
 findings R3–R9 (the read 1 log) and two decisions for the whole book:
 
 - ASD-STE100 Simplified Technical English, Issue 9, is the prose base for all
-  documentation (contract, section 2). British spelling stays under STE Rule
-  1.14. Six chapter titles and two part titles became commands, because Rule
+  documentation (contract, section 2). On 2026-10-18 the owner limited it to
+  the writing rules: the book does not use the STE dictionary. British
+  spelling stays under STE Rule 1.14. Six chapter titles and two part titles became commands, because Rule
   3.5 permits “-ing” forms only in technical names. The file names stay.
 - “Send” replaces “publish”, “publication” and “submit” for the result, in
   the book, the README, `CONTEXT.md`, the contract and the `end-session` help
@@ -302,8 +304,14 @@ decisions `book-first-half-k123` (`docs/book/ste.md`), the chapters 1–2 draft
 k124, one copy-edit for each unit (k125–k129), set art k130 (R8: the colour
 text that repeats each figure's key), the README and help leaf k131, and set
 proof k132. The read then starts again from the beginning. The second half's
-planning leaf is still owed at the end of the read. Chapters 7–12 follow STE
-and `docs/book/ste.md`.
+planning leaf is still owed at the end of the read. Chapters 7–12 follow the
+STE writing rules and `docs/book/ste.md`.
+
+`book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
+titles, the words that the book does not use and the “-ing” words that it
+keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
+`CONTEXT.md` in STE and the new titles in `SUMMARY.md`. Each later stage of
+the run passes the strict check on the files that it owns.
 
 ## Figure migration
 

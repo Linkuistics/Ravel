@@ -15,8 +15,9 @@ line with the corrected chapter 1, in STE.
   request its end”) and its `after_help` (“… The first publication wins. …”).
   At `5bc411d1`, no test and no book page quoted them. Make sure that this is
   still true before you change them.
-- STE words: `docs/book/ste.md`. For example, the dictionary does not approve
-  “request” (use TELL) or “end” as a verb (use STOP).
+- STE: the writing rules and the word decisions in `docs/book/ste.md`. The
+  book does not use the STE dictionary (owner, 2026-10-18).
+  `task docs:ste -- --strict README.md` examines the README.
 - README: its first paragraph follows chapter 1, as `book-readme-k106` did
   after the last correction. The README is documentation, so all of it
   follows STE. Keep its sections and links. The Develop and Earlier project
