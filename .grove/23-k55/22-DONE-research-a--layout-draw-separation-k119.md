@@ -46,3 +46,27 @@ admitted (`docs/book/figures.md`).
 PlantUML `handwritten` and d2 `sketch: true` each give a sketch look but bundle
 it with their own layout; see the k110 running log. Start from there, and also
 check which of the two can emit layout as data.
+
+## Decisions (running log)
+
+- 2026-10-17: Survey written to `docs/research/layout-draw-separation-a.md`
+  (solo research-a; no research-b cut, one corpus judged enough for a
+  renderer-plumbing question). Neither d2 nor PlantUML emits layout as data from
+  its CLI; d2's Go library does (`d2target`). d2 0.9.0's sketch is a Go port of
+  rough.js 4.6.6, and TALA is now bundled, so `docs/book/figures.md`'s "TALA is
+  a separate proprietary install" is stale (k117 rewrites that section).
+- 2026-10-17: Ran a three-stage feasibility chain on the pinned tools (Typst
+  layout → JSON via `typst eval` → rough.js 4.6.6 on Bun 1.4.2 → Typst `curve`
+  drawing): byte-identical across runs, and the layout JSON was unchanged across
+  roughness 0/1/2. A two-box check of the joins, not a figure port.
+- 2026-10-17: Recommendation: option B (layout record inside Typst, one
+  `_draw.typ`, committed `<figure>.layout.json`), k110's jitter at roughness 2
+  as the sketch style, rough.js (C) in reserve, an external layout engine (E)
+  only if k115 finds hand placement costly. Four owner questions in the survey.
+- 2026-10-17: Asked the owner the four questions, because the next leaf (k111)
+  was cut before this research and would otherwise port under the old shape.
+  Owner chose every recommendation: B; commit and check `<figure>.layout.json`;
+  k110 jitter roughness 2 shipped sketched by default, keys and tables crisp;
+  insert a planning leaf. At the owner's direction (research-a does not
+  otherwise grow the tree), inserted `planning` `book-figure-layout-record-k120`
+  ahead of k111, its body carrying these decisions.
