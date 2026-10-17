@@ -10,6 +10,7 @@ owner can see the effort the remaining unproven views are likely to take.
 - Figure: `source-components`. Size: 3 entities and 1 external system, 3
   relations, one dashed boundary around two components, and an 8-line key. The
   `Lay_D` hint kept the worker above the managed process in PlantUML.
+- Record design (`book-figure-layout-record-k120`, survey option B): `_c4.typ` returns a layout record (plain data, no style) and the figure source passes it to `_draw.typ`'s render; nothing here draws. Each regenerated figure commits `<figure>.layout.json` beside its SVG (`book-figure-layout-json-check-k122`), and it is shipped sketched at roughness 2 with keys crisp (`book-figure-record-and-draw-k121`).
 - It reuses `_c4.typ`. The new feature is a boundary that encloses some entities
   and not others, with a stereotype line; if `_c4.typ` does not support it, extend
   the module.
@@ -19,7 +20,7 @@ owner can see the effort the remaining unproven views are likely to take.
 
 ## Done when
 
-- `source-components.puml` is replaced by a committed `.typ` and regenerated SVG.
+- `source-components.puml` is replaced by a committed `.typ`, regenerated SVG and `.layout.json`.
 - The decision log records the layout cost as numbers: entities, relations placed
   by hand, label moves, renders needed to settle, minutes of work, and anything
   that was clumsy. Compare with the estimate in `book-figure-migration-k108`'s

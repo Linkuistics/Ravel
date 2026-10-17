@@ -14,6 +14,8 @@ sequence engine, and prove the engine covers the notation features they use.
   `database` participant (cylinder head) and multi-line self-calls; check each
   against `_sequence.typ` and extend the engine, not the figure, if one is
   missing.
+- Record design (`book-figure-layout-record-k120`, survey option B): `_sequence.typ` already returns a layout record (plain data, no style) and the figure source passes it to `_draw.typ`'s render; nothing here draws. Each regenerated figure commits `<figure>.layout.json` beside its SVG (`book-figure-layout-json-check-k122`), and it is shipped sketched at roughness 2 with keys crisp (`book-figure-record-and-draw-k121`).
+  k121 moved the draw loop out; this leaf proves the record covers the features below, extending the layout side only.
 - Notation facts to preserve: `docs/book/figures.md`, "What each view means"
   (X ends a lifetime only after confirmed removal; cancellation figures use
   direct INT; no X certifies teardown there). Palette and roughness come from
@@ -22,7 +24,8 @@ sequence engine, and prove the engine covers the notation features they use.
 ## Done when
 
 - Each of the three `.puml` files is replaced by a `.typ` whose regenerated SVG
-  is committed; no `.puml` for them remains. Every label, note, key line, colour
+  and `.layout.json` are committed (the first real ones: the check from k122 is seen
+  to pass on them and to fail on a moved element); no `.puml` for them remains. Every label, note, key line, colour
   role and ordering from the old figure is present; list any difference with its
   reason in the decision log.
 - Adding a participant and lengthening a label in one cancellation figure needs

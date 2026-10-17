@@ -14,6 +14,7 @@ shared C4 module, and remove the trial directory.
   role, boundary, relation with label and technology, key). The component view
   in `book-figure-source-components` is the third user; design for it without
   porting it here.
+- Record design (`book-figure-layout-record-k120`, survey option B): `_c4.typ` returns a layout record (plain data, no style) and the figure source passes it to `_draw.typ`'s render; nothing here draws. Each regenerated figure commits `<figure>.layout.json` beside its SVG (`book-figure-layout-json-check-k122`), and it is shipped sketched at roughness 2 with keys crisp (`book-figure-record-and-draw-k121`).
 - Layout is manual. Edge routes and label positions were the cost in the trial
   (the added container took an entity, an edge, a legend offset and two retunes).
   Record the effort for `system-context` in the decision log with counts: edges
@@ -25,8 +26,9 @@ shared C4 module, and remove the trial directory.
 
 ## Done when
 
-- Both `.puml` files are replaced by `.typ` with committed regenerated SVGs, and
-  `_c4.typ` exists as a reusable module used by both.
+- Both `.puml` files are replaced by `.typ` with committed regenerated SVGs and
+  `.layout.json` records, and `_c4.typ` exists as a reusable module used by both,
+  producing records and drawing only through `_draw.typ`.
 - Differences from the PlantUML output (orthogonal relations instead of splines,
   cylinder label inside) are listed with the reason, and every fact, tag, number
   and key line is present.

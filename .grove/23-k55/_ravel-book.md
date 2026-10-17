@@ -293,3 +293,14 @@ the viewing check. The plan, the decisions (SVG text, one source per figure,
 Until `book-figure-retire-plantuml-k117` lands, the contract's PlantUML wording
 still governs the figures not yet ported. Chapters 7–12's figures are drawn on
 the new renderer.
+
+The owner then chose (2026-10-17, `layout-draw-separation-k119`) to separate layout
+from drawing: each layout module returns a layout record, one `_draw.typ` draws any
+record under a named style, and each figure's record is committed and compared as
+`<figure>.layout.json`. The figures ship sketched at roughness 2 with keys and
+tables crisp. `book-figure-layout-record-k120` re-cut the ports for that:
+`book-figure-record-and-draw-k121` and `book-figure-layout-json-check-k122` build
+the seam ahead of `book-figure-sequences-k111`, and the ports k111–k116 produce
+records through their modules and draw only through `_draw.typ`. Rough.js on Bun
+is held in reserve as a drawing backend at the same seam. Every handoff leaves
+`task docs:figures` green.
