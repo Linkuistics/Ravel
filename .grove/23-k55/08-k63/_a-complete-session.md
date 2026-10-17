@@ -70,3 +70,15 @@ them.
   the parent brief assigns their link conversion to the first-half set proof
   and second-half work. The example check supplies no terminal interaction,
   human comprehension result, GitHub rendering or published-site inspection.
+
+## Read 1 correction run (2026-10-17)
+
+The owner's read 1 (`book-read-one-k70`) made ASD-STE100 the prose base for
+all documentation, chose “send” to replace “publish” for the result, and
+changed six chapter titles to commands. The owner did not read this
+chapter yet, so these changes come from the contract, not from findings.
+Copy-edit k126 converts chapter 3 to STE, with the word decisions in
+`docs/book/ste.md` (from k123). It also renames the heading “Publish the
+result and finish the job” and changes every link to it.
+Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
+this document. Thus, no stage under this node cuts an art or proof leaf.

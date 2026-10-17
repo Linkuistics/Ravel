@@ -85,3 +85,14 @@ completing this chapter's four stages. Do not infer universal reproducibility
 or accept a future mismatch by blind regeneration or retries.
 Native x86-64 qualification and remote/published rendering remain
 the book contract's declared unknowns.
+
+## Read 1 correction run (2026-10-17)
+
+The owner's read 1 (`book-read-one-k70`) made ASD-STE100 the prose base for
+all documentation, chose “send” to replace “publish” for the result, and
+changed six chapter titles to commands. The owner did not read this
+chapter yet, so these changes come from the contract, not from findings.
+Copy-edit k128 converts chapter 5 to STE, with the word decisions in
+`docs/book/ste.md` (from k123), and changes the title to “Run sessions”.
+Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
+this document. Thus, no stage under this node cuts an art or proof leaf.

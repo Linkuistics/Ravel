@@ -174,3 +174,152 @@ half's planning leaf is not cut yet. It belongs to the end of the read, after
 the owner's remaining findings, and is still owed by this leaf's `Done when`.
 The resumed session holds the full read from the start, the four tasks, the
 owner's word on the README and the removed guides, and that planning leaf.
+
+**Mechanical checks before the resumed read (2026-10-17; evidence class:
+mechanical, not the owner's result).** Subject: commit `5bc411d1`
+(`book-figure-viewing-check-k118`) with an empty working copy. All 3,578
+tracked files were digested before and after the checks, unchanged (digest
+list `c150c882…824a`; `docs/book/` `75d98c99…730b`). Since the 2026-10-16
+checks the subject has changed in chapters 1 and 2 (k102–k105), the README
+(k106) and every figure, now drawn by Typst 0.15.1 with CeTZ 0.4.2, sketched
+at roughness 2 (k107–k118). `task docs:book:build` built with no mdBook error
+or warning. `task docs:figures`: 9 of 9 figures match their sources and layout
+records (Typst 0.15.1, CeTZ 0.4.2, DejaVu 2.37). `task docs:examples`: 13
+passed, 0 failed, 0 skipped, 6 fragments not run. `task check`: 339 passed, 46
+skipped. In the book served by `task docs:book` on `127.0.0.1:8775`, a headless
+browser found each of the nine figures on chapters 1, 2, 3, 5 and 6 loaded
+(complete, non-zero natural size, displayed at the 750 px column; chapter 4 has
+none), and a missing figure, the control, came back with width 0 and a load
+error. Each figure's `<img>` still occurs twice because of mdBook's hidden
+click-to-zoom copy. These checks support the read; none stands in for it.
+
+**Owner findings R3–R9, chapter 1 (2026-10-17; evidence class: the owner's
+stand-in read).** The resumed read began at chapter 1 in the locally built
+book; the owner reported these together: “This is just chapter 1.” Lines are
+at `5bc411d1` in `docs/book/src/01-what-ravel-is-for.md`.
+
+- **R3**, in the owner's words: “"In the review scenario ..." add "mentioned
+  above". This makes it clear what we are talking about.” Line 30; the
+  referent is the code-review orchestrator of the opening's second paragraph
+  (line 15). Wording, in the passage R4 and R9 rewrite, so the draft that
+  carries them takes it, as the R1 draft took R2.
+- **R4**: “"Their owner policy is Typescript ..." add a comment that this is a
+  configuration file. That immediately contextualises it.” Lines 34–36. The
+  default entry is `$HOME/.config/ravel/policy.ts` (chapter 6, `policy.ts`).
+  Draft (teaching).
+- **R5**: “"It invokes ravel start-session ..." make that "The owner", because
+  "it" doesn't work if it is a person.” Line 27, with “the sort of work it
+  wants” on line 30; both pronouns stand for the caller, “the person or program
+  making the request”, so “The owner” is put to the owner as a possible slip
+  for “The caller”. Wording, in the passage the draft rewrites.
+- **R6**: “"If the caller chooses "continue" ..." make that 'For example, the
+  caller may choose (the text) `continue` as the return value ...' and later
+  mention that it means something to the caller, but not ravel. The notion of
+  what the RESULT is, is not 100% clear and could do with a simpler more
+  explicit explanation.” Lines 51–61, the `end-session RESULT` paragraph. Draft
+  (teaching): what the result is, who chooses its values, and what Ravel does
+  and does not do with it.
+- **R7**: “"Publishing the result ..." - publishing is a confusing meaning
+  here.” Line 63. This is chapter 1's second stumble on the word (R2 was
+  “Publication is the start of completion”). The publish family runs through
+  chapters 1–6, a chapter 3 heading and its anchor, example kinds and prompts,
+  figure labels, `CONTEXT.md` and the CLI's help (“Publish exactly one opaque
+  result to the enclosing session and request its end”, “The first publication
+  wins”); the runtime diagnostics do not use it. Whether the fix is local or a
+  term change is put to the owner.
+- **R8**: “We repeat the diagram colour description in the para before the
+  diagram, and in the legend.” Lines 88–91 repeat the key of
+  `figures/system-context.typ` (“Blue: Ravel. Grey: caller and managed
+  process. Slate: human owner.”, “Green arrows carry the opaque result.”). The
+  same repetition precedes every figure in chapters 2, 3, 5 and 6 (chapter 2
+  line 122; chapter 3 lines 288 and 337; chapter 5 lines 628, 648 and 708;
+  chapter 6 lines 935 and 950), found by a search for colour words. Art
+  (figures and their text).
+- **R9**: “We should mention that the prompt supplied by the caller probably
+  use the kind as a way of selecting skills, as well as way that ravel selects
+  a harness with model/effort params.” Lines 26–32, where the kind is
+  introduced. The book never mentions skills. Chapter 4 already has a policy
+  passing model and effort arguments chosen by kind (lines 406–418), and the
+  `provider`, `model` and `effort` selection fields are labels for the starting
+  notice (chapter 3, line 148). The owner policy, not Ravel, chooses the
+  harness and its arguments, and using the kind to pick skills is a caller's
+  convention that the book does not present as Ravel's (contract,
+  Exclusions). Draft (teaching and technical truth).
+
+**Owner decisions on R5, R7, the timing and ASD-STE100 (2026-10-17; the
+owner's answers and words).**
+
+- R5: the owner chose “The caller”. The two pronouns on lines 27 and 30
+  become the caller.
+- R7: the owner chose “Replace it, CLI help too”, then the verb “submit”.
+  “Submit” replaces “publish” and “publication” in chapters 1–6, the README,
+  `CONTEXT.md` and the contract. This includes headings, anchors, example
+  kinds and prompts, and figure labels. The two `end-session` help strings in
+  `crates/ravel/src/cli.rs` change too. The specifications and the decision
+  records keep their words.
+- Timing: the owner chose “Fix before reading on”, then “Route now”. The
+  corrections go to their stages now. The read continues after they land.
+  This authorises the third correction run on
+  `what-ravel-is-for-and-its-actors`. A fourth run goes to the owner again.
+- STE, in the owner's words: “I intend to add a global instruction to use
+  ADE-STE100 for all LLM communication (such as when you talk to me here) as
+  well as in all documentation. Apply that rule now.” This session reads
+  “ADE-STE100” as ASD-STE100, Simplified Technical English, Issue 9 (January
+  2025). From this point, the messages to the owner use STE. The book's prose
+  contract takes ASD-STE100 as its base. Rule 1.14 permits another spelling
+  when an official directive gives one, so the contract's British spelling
+  stays. Rule 3.5 permits “-ing” forms only in technical names, so the six
+  chapter titles with “-ing” forms become commands. Their file names stay, so
+  no link breaks. Rule 1.13 does not permit a technical verb as a noun, so the
+  book uses “submit” and “submitted result”, not “submission”. The rule
+  applies to the book, its README, `CONTEXT.md`, the contract text this
+  session writes and the two changed help strings. Other documents get STE
+  when later work changes them.
+
+**R7 verb under STE, and the dictionary (2026-10-17; the owner's answers).**
+The owner downloaded ASD-STE100 Issue 9 (2025-01-15) to
+`~/Downloads/ASD-STE100_ISSUE9.pdf` (434 pages, SHA-256
+`d1f4ea9e7cd6e46b47aa9057209f99e78c0e9cfc4e27a5b07895b05c1a166431`). Its
+copyright notice prohibits unauthorised distribution, so the PDF and text from
+it stay out of the repository. The dictionary does not approve “submit (v)”
+and gives SEND as its alternative. Rule 1.12 permits a technical verb only
+when no approved verb gives the same information. The owner then chose “send”.
+This replaces the earlier “submit” decision above. End-session sends the
+result, and Ravel keeps the first result that it receives. The dictionary also
+gives TELL for “ask” and “request”, STOP for “end” as a verb, and ACCURATE for
+“exact”. “Opaque” is not approved, but Rule 1.6 permits it inside the
+technical noun “opaque result”.
+
+**Contract change and routing, second pause (2026-10-17).** This session
+changed the contract and the glossary. In `docs/book/contract.md`, the prose
+contract's base is ASD-STE100 Issue 9. Section 2 now gives the owner's words,
+the local copy of the specification and its distribution limit, the
+word-decision file `docs/book/ste.md`, British spelling under Rule 1.14,
+technical names, “send” in the plain vocabulary, the STE limits for sentences
+and paragraphs, no semicolons or contractions, and the active voice with
+simple tenses. The section plan has the command-form titles. The domain
+paragraph, the term risks, inventories 3 and 4 and the timing figure question
+use “send”. The “published site” (the book on GitHub Pages) is a different
+concept and stays. `CONTEXT.md` uses “send” and lists “publish”,
+“publication” and “submit” under the opaque result's _Avoid_. K123 converts
+the rest of `CONTEXT.md` to STE.
+
+The run, in walk order:
+
+1. `book-first-half-k123` (copy-edit), inserted before the chapter units:
+   the shared STE word decisions. The insert renumbered 30 siblings, and the
+   verb reported no cross-reference to fix. A search for position-prefixed
+   names, with a control that found both planted forms, found two. Both stay
+   correct after the insert.
+2. Under `what-ravel-is-for-and-its-actors-k62`: draft k124 (R3–R7, R9),
+   then copy-edit k125.
+3. Copy-edits under their unit nodes: k126 (chapter 3), k127 (chapter 4),
+   k128 (chapter 5) and k129 (chapter 6).
+4. Inserted before this leaf: `book-first-half-k130` (art, with R8),
+   `book-readme-and-help-k131` (impl) and `book-first-half-k132` (proof).
+
+Set art and set proof serve all six chapters, so the unit nodes cut no art or
+proof leaf. Each unit brief and the book brief say so. The read stays this
+leaf's work. It starts again from the beginning after k132. The second half's
+planning leaf and the owner's word on the README and the removed guides are
+still owed.

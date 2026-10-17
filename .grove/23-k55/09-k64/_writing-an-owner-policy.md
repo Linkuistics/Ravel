@@ -205,3 +205,15 @@ refusal is exercised, four figures match and the book builds without warnings.
 chapter 6's reference inventory and the dated-handoff preservation remain with
 their existing siblings. The book brief receives these surviving obligations
 and the viewing limits before this node closes. No ADR decision changed.
+
+## Read 1 correction run (2026-10-17)
+
+The owner's read 1 (`book-read-one-k70`) made ASD-STE100 the prose base for
+all documentation, chose “send” to replace “publish” for the result, and
+changed six chapter titles to commands. The owner did not read this
+chapter yet, so these changes come from the contract, not from findings.
+Copy-edit k127 converts chapter 4 to STE, with the word decisions in
+`docs/book/ste.md` (from k123), and changes the title to “Write an owner
+policy”. Chapter 4 has no figures, so set art has no work here.
+Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
+this document. Thus, no stage under this node cuts an art or proof leaf.

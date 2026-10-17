@@ -73,4 +73,13 @@ and the chapter 1 publication/stop/cleanup/return table. The two C4 views,
 their text alternatives and the fit/responsibility tables now name the
 orchestrator and LLM harness while preserving the generic process boundary.
 
+## Read 1 correction run (2026-10-17)
 
+The owner's read 1 (`book-read-one-k70`) found R3–R7 and R9 in chapter 1,
+made ASD-STE100 the prose base for all documentation and chose “send” to
+replace “publish” for the result. The owner authorised this third
+correction run on this document. A fourth run goes to the owner. Draft
+k124 corrects the findings. Copy-edit k125 converts chapters 1 and 2 to
+STE, with the word decisions in `docs/book/ste.md` (from k123).
+Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
+this document. Thus, no stage under this node cuts an art or proof leaf.

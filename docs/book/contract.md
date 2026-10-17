@@ -83,8 +83,8 @@ work, asks for a session of some kind; the **owner's** executable TypeScript
 policy chooses the harness command to run; Ravel launches that command as a
 supervised job. An interactive harness does not exit when its LLM has finished
 the task: it waits for more input. So the caller's prompt tells the LLM to run
-`ravel end-session RESULT`, which publishes one opaque result and asks Ravel
-to end the session. Ravel then stops the harness and the rest of its process
+`ravel end-session RESULT`. This command sends one opaque result to Ravel and
+tells Ravel to stop the session. Ravel then stops the harness and the rest of its process
 group if they are still running and, once the job has been completely cleaned
 up, returns the result or reports why it cannot. That is what lets an
 interactive harness work as one component of a larger program. The book says
@@ -123,18 +123,24 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 1 | What Ravel is for | say what Ravel solves, including why `end-session` exists, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
 | 3 | A complete session, end to end | run a real session with a tiny policy and a fake agent, then describe its stages; the process and terminal ideas are introduced here as the session needs them |
-| **Part II** | **Using Ravel** | |
-| 4 | Writing an owner policy | write, typecheck and validate a policy with fake agents, covering the SDK, refusals, policy context, settings, environment grants, routes to real agent programs and copying an existing policy |
-| 5 | Running sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
+| **Part II** | **Use Ravel** | |
+| 4 | Write an owner policy | write, typecheck and validate a policy with fake agents, covering the SDK, refusals, policy context, settings, environment grants, routes to real agent programs and copying an existing policy |
+| 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
 | 7 | How Ravel is built | explain the Ravel CLI, why policy runs as a separate TypeScript worker that is reaped before anything launches, why the runner is its own Rust package, and how the parts compose |
-| 8 | Following a session through the code | follow one successful session from `main` to the result write, then the refusal and cancellation forks and the error and signal precedence, and find where a change belongs |
+| 8 | Follow a session through the code | follow one successful session from `main` to the result write, then the refusal and cancellation forks and the error and signal precedence, and find where a change belongs |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
-| **Part IV** | **Reusing and developing Ravel** | |
-| 10 | Using Ravel's components in your project | use an extracted component through its interface and meet its obligations, without Ravel's policy or session conventions |
-| 11 | Developing Ravel | set up a checkout, build, use the test seams and `task check`, add a test, and know what the evidence documents are for |
-| 12 | Delivering Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
+| **Part IV** | **Reuse and develop Ravel** | |
+| 10 | Use Ravel's components in your project | use an extracted component through its interface and meet its obligations, without Ravel's policy or session conventions |
+| 11 | Develop Ravel | set up a checkout, build, use the test seams and `task check`, add a test, and know what the evidence documents are for |
+| 12 | Deliver Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
+
+The owner's STE decision of 2026-10-17 changed six chapter titles and two part
+titles to commands, because STE Rule 3.5 permits “-ing” forms only in
+technical names. The chapter file names stay as they are, so links do not
+change. Chapter 7's title uses the passive voice. The planning for Parts III
+and IV examines it against Rule 3.6.
 
 Chapters 1–9, 11 and 12 describe the code as it stands in the workstream that
 wrote this contract. Chapters 1–6 describe the CLI, configuration and session
@@ -222,11 +228,11 @@ matters:
   not Grove's task kind, even when Grove passes its task kind as the session
   kind.
 - **Channel**: the result channel is Ravel's private directory and completion
-  file, through which `end-session` publishes. It is built on the runner's
+  file, through which `end-session` sends the result. It is built on the runner's
   completion `Channel`, which only signals that a file appeared.
 - **Worker**: the policy worker is a separate process. It is not a Bun
   `Worker` thread, which owner code may itself start.
-- **Result**: the opaque bytes published by `end-session`. It is never the
+- **Result**: the opaque bytes that `end-session` sends. It is never the
   managed process's exit status or the agent's work.
 - **Policy**: the owner's routing code. It is not a security or sandbox
   policy; that is confinement.
@@ -260,8 +266,8 @@ gives it a chapter 6 entry.
    SDK's exports and the embedded imports; the module-resolution rules; and
    the shipped sample.
 3. **Lifecycle and failure outcomes**, from the session specification and the
-   result/job completion specification. At this agreement they are: a published
-   result after confirmed cleanup, exact for empty, multiline, Unicode and
+   result/job completion specification. At this agreement they are: a result
+   sent with `end-session` and returned after confirmed cleanup, exact for empty, multiline, Unicode and
    option-looking values, and successful even if the managed process later
    exits nonzero; a repeated `end-session` (the first value wins); a natural
    exit without a result, including status 0; `end-session` with missing,
@@ -270,7 +276,7 @@ gives it a chapter 6 entry.
    mismatched worker and other worker or supervision failures; a selection
    timeout; a selected program that cannot be executed or found; cancellation
    by INT, TERM or HUP during selection and during supervision, including after
-   a result was published; the escalation schedule after publication and the
+   a result was sent; the escalation schedule after Ravel receives the result and the
    cleanup of descendants before reap; a surviving group, a cleanup failure or
    an unwritable result stream; operation reports; nested sessions;
    confinement granted or refused; terminal lending and recovery, noninteractive
@@ -281,7 +287,7 @@ gives it a chapter 6 entry.
    configuration keeps working; policy execution has no session-result
    authority and its worker is reaped before the managed launch; policy output
    is judged without fallback; the selected program runs directly in the
-   caller's context; the first complete publication wins and stays exact;
+   caller's context; Ravel keeps the first complete result that it receives, exactly;
    success requires reap and confirmed group cleanup; cancellation suppresses
    results; the terminal's foreground and modes are recovered; only result
    bytes reach stdout; installed execution uses the matched Ravel CLI and worker.
@@ -346,7 +352,7 @@ This checks visual consistency, not the reader's knowledge of notation.
 | What happens, in order, in a successful session? | UML sequence | chapter 3, then in full in chapter 8 |
 | What changes when cancellation arrives during selection versus during supervision? | UML sequence, one per phase | chapters 5 and 9 |
 | Which states does a session pass through to each outcome? | UML state machine | chapters 3 and 5 |
-| What is the timing after `end-session` publishes (2-second grace, TERM, up to 5 seconds, KILL)? | UML timing | chapter 9 |
+| What is the timing after `end-session` sends the result (2-second grace, TERM, up to 5 seconds, KILL)? | UML timing | chapter 9 |
 | How is the terminal lent to the managed process and recovered? | UML sequence | chapter 9 |
 | How do the packages, the worker and the SDK fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 12 |
 | How is the outcome chosen when failures and signals combine? | UML activity | chapter 8 |
@@ -379,24 +385,53 @@ This checks visual consistency, not the reader's knowledge of notation.
 
 ## 2. Prose contract
 
-- **Base**: Grove's house style, from the documentation-guidance design named
-  above. It follows [Google's developer documentation style
-  guide](https://developers.google.com/style) on the points it names, and on
-  no others. Google's guide is licensed CC BY 4.0; the points below are stated
-  in this file's own words.
-- **Spelling**: British (behaviour, authorise, colour). Code identifiers keep
-  their own spelling, in code font.
+- **Base**: ASD-STE100 Simplified Technical English, Issue 9 (2025-01-15).
+  STE applies to all text in the book: prose, headings, tables, lists, figure
+  labels, captions, keys and alt text. The owner made this decision on
+  2026-10-17: “I intend to add a global instruction to use ADE-STE100 for all
+  LLM communication (such as when you talk to me here) as well as in all
+  documentation. Apply that rule now.” STE has writing rules and a dictionary
+  of approved words. The points below add to STE. If a point and STE do not
+  agree, use STE. Before this decision, the base was Grove's house style,
+  which follows [Google's developer documentation style
+  guide](https://developers.google.com/style) on the points it names. The
+  points that stay are below, in this file's own words. Google's guide is
+  licensed CC BY 4.0.
+- **The STE specification**: the owner's copy is
+  `~/Downloads/ASD-STE100_ISSUE9.pdf` (SHA-256
+  `d1f4ea9e7cd6e46b47aa9057209f99e78c0e9cfc4e27a5b07895b05c1a166431`). ASD
+  gives it free, on request, through <https://www.asd-ste100.org>. Its
+  copyright notice prohibits unauthorised distribution. Thus, do not commit
+  the PDF or text from it. A note can give the status of one word in a few
+  words, for example “submit (v): not approved, use SEND”. If the file is not
+  at that path, ask the owner for it.
+- **Word decisions**: `docs/book/ste.md` holds the book's STE word decisions.
+  It lists the technical nouns, the technical verbs with their Rule 1.12
+  categories, and the approved words that replace the unapproved words that
+  the book used before. Every stage uses these decisions. A stage that needs a
+  new word adds its decision to that file.
+- **Spelling**: British (behaviour, authorise, colour). This contract is the
+  official directive that STE Rule 1.14 permits. Code identifiers keep their
+  own spelling, in code font.
+- **Technical names**: the terms in `CONTEXT.md`, code identifiers, commands,
+  file names, paths and product names are technical nouns (Rules 1.5 to
+  1.11). A word that STE does not approve can be part of a technical noun, for
+  example “opaque result” (Rule 1.6). Use a technical verb only when no
+  approved verb gives the same information (Rule 1.12). Do not use a
+  technical verb as a noun (Rule 1.13).
 - **Normative keywords**: none. The book does not use MUST, SHOULD, MAY or
-  their kin. The specifications hold the rules; the book states behaviour in
+  their kin. The specifications hold the rules. The book gives behaviour in
   plain indicative sentences.
 - **Plain vocabulary**: call the Rust command-line program the “Ravel CLI”,
-  not “front” or “native front”. Say what it does: it checks
-  inputs, accepts a value, allows a launch, starts a program or chooses the
-  final outcome. Avoid specialist substitutes such as “admits”, “admission”
-  and unexplained “settlement”. Keep code identifiers exact. Explain a
-  technical term when the reader needs the concept; do not use a synonym
-  that hides a different technical meaning. Apply this language to figure
-  labels, captions, keys and alt text as well as prose.
+  not “front” or “native front”. `end-session` sends the result to Ravel, and
+  Ravel keeps the first result that it receives. Do not use “publish”,
+  “publication” or “submit” for this (the owner's decision of 2026-10-17). Do
+  not use specialist words such as “admits”, “admission” and unexplained
+  “settlement”. For the actions of the Ravel CLI, use approved words or a
+  technical verb from `docs/book/ste.md`. STE replaces some plain words that
+  this contract gave before, for example “check” and “allow”. Keep code
+  identifiers exact. Explain a technical term when the reader needs the
+  concept. Do not use a synonym that hides a different technical meaning.
 - **Simple, self-contained language**: every page can be understood without
   following a link. A link is optional depth, and it names its destination and
   purpose.
@@ -410,16 +445,24 @@ The house style's points, as this book takes them:
 - **Introducing steps**: a complete sentence introduces a procedure, or nothing
   does when its heading already says what it does. A fragment that the steps
   complete, such as "To install:", does not.
-- **Register**: plain written prose in a conversational rather than formal
-  tone, with no slang, idiom or joke, and no transcribed speech.
-- **Length**: no length target. Explanation is as long as this reader needs.
+- **Register**: plain written prose in STE, with no slang, idiom or joke, and
+  no transcribed speech.
+- **Length**: no length target for a section. STE sets the limits for
+  sentences and paragraphs. An instruction has 20 words or fewer (Rule 5.1). A
+  descriptive sentence has 25 words or fewer (Rule 6.3). A paragraph has one
+  topic and six sentences or fewer (Rules 6.5 and 6.6). Use a vertical list
+  for complex text (Rule 4.3).
+- **Punctuation**: do not use semicolons (Rule 8.1) or contractions (Rule
+  4.2).
 - **Steps**: the location, condition or goal the reader needs first comes
   before the action, and the result after it. A step's first sentence is an
   imperative; running text is indicative.
 - **Demonstratives**: "this" or "these" takes a noun where its referent could
   be unclear.
-- **Voice**: active where the actor matters; passive or stative where the
-  reader does not need the actor, or where a statement concerns an artifact.
+- **Voice and verbs**: use the active voice. In descriptive text, use the
+  passive voice only when the agent is unknown (Rule 3.6). Use only the simple
+  tenses (Rule 3.2). Use “-ing” forms only in technical names (Rule 3.5). Do
+  not use phrasal verbs (Rule 9.3).
 - **Front-loading**: headings, list items and paragraph openings start with
   their information-carrying words.
 - **Terms**: a term from the term list is linked at its first use on each page

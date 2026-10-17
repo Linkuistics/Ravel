@@ -378,6 +378,16 @@ cutting funding-question leaves, and still record actual charges where a
 charter asks. Zero production disruption (X=0) is not a budget and still binds;
 a producer still cannot narrow acceptance, and scope choices remain the human's.
 
+On 2026-10-17, during read 1 (`book-read-one-k70`), the human said verbatim:
+“I intend to add a global instruction to use ADE-STE100 for all LLM
+communication (such as when you talk to me here) as well as in all
+documentation. Apply that rule now.” Thus, ASD-STE100 Simplified Technical
+English (Issue 9) applies to messages to the human and to each document that
+a session writes or changes. The book's contract, section 2, records how the
+rule applies to the book. That record includes British spelling under STE
+Rule 1.14 and the local copy of the specification, which stays out of the
+repository.
+
 ## Current upstream guidance
 
 ### Provenance and standing

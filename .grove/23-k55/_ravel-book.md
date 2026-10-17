@@ -50,6 +50,9 @@ book runs before `component-work-scope-k57`, which follows the node at the root.
   body names it by path; it carries all three items the draft precondition
   cites.
 - Term list: `CONTEXT.md`, including its flagged ambiguities.
+- STE word decisions: `docs/book/ste.md` (from `book-first-half-k123`). The
+  STE specification is at the path that the contract gives. It stays out of
+  the repository.
 - Normative sources the book restates: `docs/specs/session-execution.md`,
   `docs/specs/result-job-completion.md` and the three decision records in
   `docs/adr/`.
@@ -281,6 +284,26 @@ visual checks; GitHub and the published site remain unavailable. This is no
 real-agent execution or new-reader comprehension result. The README alignment,
 accepted Typst/CeTZ trial and resumed owner read remain their existing live
 leaves; the current media contract still governs until a migration is agreed.
+
+The read resumed on 2026-10-17 and paused again after chapter 1, at the
+owner's choice (“Fix before reading on”, then “Route now”). The owner gave
+findings R3–R9 (the read 1 log) and two decisions for the whole book:
+
+- ASD-STE100 Simplified Technical English, Issue 9, is the prose base for all
+  documentation (contract, section 2). British spelling stays under STE Rule
+  1.14. Six chapter titles and two part titles became commands, because Rule
+  3.5 permits “-ing” forms only in technical names. The file names stay.
+- “Send” replaces “publish”, “publication” and “submit” for the result, in
+  the book, the README, `CONTEXT.md`, the contract and the `end-session` help
+  text. The specifications and decision records keep their words.
+
+The correction run comes before the resumed read: the shared STE word
+decisions `book-first-half-k123` (`docs/book/ste.md`), the chapters 1–2 draft
+k124, one copy-edit for each unit (k125–k129), set art k130 (R8: the colour
+text that repeats each figure's key), the README and help leaf k131, and set
+proof k132. The read then starts again from the beginning. The second half's
+planning leaf is still owed at the end of the read. Chapters 7–12 follow STE
+and `docs/book/ste.md`.
 
 ## Figure migration
 

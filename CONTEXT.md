@@ -2,7 +2,7 @@
 
 Ravel runs an LLM session in an agent harness as a supervised part of another
 program: it routes a caller's request through owner configuration, supervises
-the selected process and returns the result the session publishes. These terms
+the selected process and returns the result that the session sends. These terms
 distinguish configuration authority, session authority and the meaning a
 caller gives a result.
 
@@ -65,7 +65,7 @@ as a job by the Ravel CLI. Its process group is the scope of job cleanup.
 
 **Harness**: The agent program, such as Claude Code or Codex, in which an LLM
 session works on the **Session**'s prompt; the **Owner policy** selects it. An
-interactive harness does not end itself, which is why the LLM publishes the
+interactive harness does not end itself, which is why the LLM sends the
 **Opaque result** with `end-session`; Ravel treats the harness as any other
 **Managed process**.
 _Avoid_: agent runtime, test harness
@@ -74,9 +74,11 @@ _Avoid_: agent runtime, test harness
 enclosing session's ephemeral completion channel. A nested session replaces it
 only for that session's managed process.
 
-**Opaque result**: The single UTF-8 argument published by `end-session` and
+**Opaque result**: The single UTF-8 argument sent with `end-session` and
 returned unchanged after successful supervision and cleanup. Only the caller
-assigns it meaning; an explicitly empty result differs from no publication.
+assigns it meaning. An explicitly empty result is not the same as no result.
+_Avoid_: publish, publication, submit (`end-session` sends the result, and
+Ravel keeps the first result that it receives)
 
 **Result channel**: Ravel's private temporary directory and completion file
 carrying the **Opaque result** for one launch. The runner's underlying completion
@@ -99,7 +101,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
 - **"Kind"** is the **Caller**'s token. Grove passes its own task kind as the
   **Kind**, but Ravel neither knows nor checks Grove's kinds.
 - **"Channel"**: the result channel is Ravel's private directory and completion
-  file, through which `end-session` publishes. It is built on the runner's
+  file, through which `end-session` sends the result. It is built on the runner's
   completion channel, which only signals that a file appeared.
 - **"Worker"** means the **Policy worker** process, not a Bun `Worker` thread,
   which owner code may itself start.
@@ -110,7 +112,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
 
 ## Example dialogue
 
-Caller author: “If the managed process publishes `continue`, will Ravel start
+Caller author: “If the managed process sends `continue`, will Ravel start
 the next task?”
 
 Ravel maintainer: “Ravel cleans up the managed job and returns those bytes. The
