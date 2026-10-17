@@ -251,8 +251,9 @@ selectable or searchable, and the files are 5-7 times larger than the former
 renderer's. The contract never promised selectable figure text; the page's alt
 text, caption and prose are the text alternative, and the SVG is a full-size
 link and never the only place a fact is stated. The size budget (each SVG at
-most 300 KB, the set at most 2 MB) is checked by `book-figure-viewing-check`.
-The nine figures are 1.80 MB together and the largest is 259 KB.
+most 300 KB, the set at most 2 MB) was checked by `book-figure-viewing-check`
+(see "Viewing checks"). The nine figures are 1.80 MB together and the largest is
+259 KB.
 
 **Controls.** `task docs:figures:test` runs the checks of the check, each made to
 fire against a subject known to be wrong, with its fixtures in
@@ -581,8 +582,87 @@ superseded contract. Every record dated before 2026-10-17 describes figures
 drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 `_style.puml` and `_uml-style.puml` includes it names), which the migration to
 Typst has since replaced. They are kept as history, and none of their
-observations is a statement about the present figures. The viewing check of the
-migrated figures is `book-figure-viewing-check`.
+observations is a statement about the present figures. The first record below,
+`book-figure-viewing-check`, is the check of the migrated figures.
+
+### Migrated figures, 2026-10-17 (`book-figure-viewing-check-k118`)
+
+All nine Typst figures were opened in the locally served mdBook (`task
+docs:book`, mdBook 0.5.4) through Chrome on macOS, in a 1467-pixel-wide window,
+so that the light page's chapter column is the 750 pixels earlier passes used.
+Each figure was viewed on its page at chapter width in the light theme and again
+in the Navy theme, and was rendered at natural size, unscaled, inside the book's
+own origin. Each page's alt text, caption and key were read against the figure.
+Every "full size" link resolves (HTTP 200, `image/svg+xml`).
+
+*Size.* The nine SVGs total 1,803,456 bytes against the 2 MB budget. The largest
+is `process-authority` at 259,237 bytes against 300 KB; the smallest is
+`installed-files` at 160,152. The budget holds.
+
+*Facts.* Each view's row in "What each view means" was checked against the
+figure, and every item in it is drawn. As an independent test, the words in the
+`<text>` of each former PlantUML SVG (the last one before its port) were looked
+up in the strings of the new layout record: none of the nine is missing a word.
+That comparison compares word sets, not positions or counts, and the record holds
+the text to be drawn, not the pixels. The control was seen to fail: against
+another figure's record, 113 of 143 and 119 of 145 words of two old figures were
+missing, and a record with one word removed named that word. The viewing
+confirms that the drawn text is the record's text. Every alt text, caption and
+key still describes its figure.
+
+*Edges.* Each SVG was rasterised at natural size and the first non-white pixel
+found from each side. The margin is 7 to 8 pixels on all four sides of every
+figure (the 6-point canvas margin), so nothing is clipped, except that
+`system-context` has 35 pixels on its right and `process-authority` 22, a gap of
+about 21 and 11 units that the layout leaves empty.
+
+*Text size at chapter width.* The SVGs state their width in points, so a figure's
+natural pixel width overstates its size. The 14-unit body text is
+14 × min(4/3, 750 ÷ the viewBox width) pixels in the column, and for a PlantUML
+figure 14 × min(1, 750 ÷ its width). Measured from the files, with the image's
+rendered width confirmed as 750:
+
+| Figure | viewBox width | Text now | Text in the PlantUML figure |
+|---|---|---|---|
+| `successful-session` | 1289 | 8.1 px | 10.5 px |
+| `process-authority` | 1162 | 9.0 px | 9.7 px |
+| `supervision-cancellation` | 1056 | 9.9 px | 13.8 px |
+| `source-components` | 950 | 11.0 px | 14.0 px |
+| `system-context` | 916 | 11.4 px | 12.4 px |
+| `session-outcomes` | 852 | 12.3 px | 14.0 px |
+| `selection-cancellation` | 777 | 13.5 px | 14.0 px |
+| `settled-exit-status` | 750 | 14.0 px | 14.0 px |
+| `installed-files` | 635 | 16.5 px | 14.0 px |
+
+The Typst layouts are wider than the PlantUML ones for the same content, so a
+reader sees smaller text, most in the three densest views. All are legible when
+the screen is zoomed, none overlaps, and the full-size link shows each at its
+drawn size. No source was changed. A narrower `successful-session` was tried
+(`max-label` at its default of 170 gives 10.4 px, as the old figure had) and
+reverted: labels written with line breaks then wrap again, "process-group" is
+split at its hyphen, which the porting record gives as the reason these figures
+pass 300 or 340, and the figure grows from 1185 to 1548 units tall. The same
+setting on `selection-cancellation` left words alone on a line and "re-raise"
+split, and on `supervision-cancellation` 240 or 260 gained only 1.1 or 0.8 px.
+Recorded for the whole-book art pass `ravel-book-k101`, which can choose between
+non-breaking hyphens with a smaller `max-label`, shorter label text and accepting
+the size with the full-size link. Three figures have text under 10 px:
+`successful-session`, `process-authority` and `supervision-cancellation`. Also
+for that pass, in `successful-session`
+the "Stop the managed process's group" label sits about 15 pixels below its
+section divider, close but not touching, and the unused right-hand space of
+`system-context` and `process-authority` could go.
+
+*Not reached.* VS Code's Markdown preview: chapter 1 was opened with the `code`
+command, but the window was in Restricted Mode and the editor in Vim normal mode,
+the preview shortcut produced no preview, and the workspace was not trusted
+because that is a security setting. The preview is unchecked, as in earlier
+passes. A raw SVG document could not be captured by the browser extension, so
+"full size" was viewed as the same file rendered unscaled in the page, plus the
+link's resolution. Chrome only; the Rust, Coal and Ayu themes; narrower
+viewports; GitHub's rendering of this unpublished branch; and the published site
+were not viewed. This is visual evidence of the figures, not of how a reader
+understands them: the owner's stand-in read, `book-read-one-k70`, follows.
 
 ### First-half style correction, 2026-10-16 (`book-first-half-k99`)
 
@@ -850,10 +930,11 @@ the check establishes no real-agent execution or human comprehension result.
 - Typst on Linux (arm64 and amd64): both archives are pinned and fetched by the
   same code, and no Linux run has been made. Native x86-64 Linux hardware, and
   any Windows or macOS x86-64 host, are not pinned hosts.
-- The nine migrated figures at chapter width and full size in mdBook, and the
-  size budget: the work of `book-figure-viewing-check`.
-- mdBook's Rust, Coal and Ayu themes and narrower viewports. The records under
-  "Viewing checks" cover only the named pages and environments.
+- VS Code's Markdown preview, which did not open in the 2026-10-17 pass, and any
+  browser but Chrome.
+- mdBook's Rust, Coal and Ayu themes and narrower viewports. The light and Navy
+  themes were viewed for the nine migrated figures; the records under "Viewing
+  checks" cover only the named pages and environments.
 - The published site, which is unavailable before the book's first release.
 
 ## Changing a pin
