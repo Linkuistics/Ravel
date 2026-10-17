@@ -42,3 +42,21 @@ Consult the updated `grove-art` guidance. CeTZ is the shared drawing layer;
 notation-specific Typst libraries may help. Prefer the smallest useful trial
 over building a universal converter. Changes to admitted media, renderer pins
 or regeneration checks belong to the later migration decision.
+
+## Decisions (running log)
+
+2026-10-17 — Trial built and shown to the owner (`docs/book/trial-typst/`, `compare.html`
+at the 750px chapter width). Sequence (`successful-session`) and C4 container
+(`process-authority`) both render from one maintained Typst source each, no second
+editable source; extraction of PlantUML's Smetana SVG was tested (boxes and link
+paths are present, text widths agree with Typst to 0.2 units mean) and not adopted.
+Observed costs: glyph-path SVG (no `<text>`, 5-7x larger), manual routing for the
+container view, CeTZ fetched from the package registry.
+
+2026-10-17 — Owner reaction: "migrate full". Decision: migrate every book figure to
+the shared Typst/CeTZ renderer; cut `book-figure-migration-k108` (planning) ahead
+of `book-read-one-k70`. This leaf authorised no migration itself.
+
+2026-10-17 — Owner asked whether CeTZ has a "hand drawn" style. Answer: not in CeTZ
+0.4.2 (checked the package source: no sketch/wobble mode, only zigzag/wave/coil/brace
+decorations). Recorded in k108's Notes; the owner has not requested building one.
