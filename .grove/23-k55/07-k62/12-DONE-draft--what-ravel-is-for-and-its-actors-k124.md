@@ -71,3 +71,64 @@ all new and changed text in STE, with the word decisions in
 
 - Cut nothing. Copy-edit k125 already stands under this node. Set art k130
   and set proof k132 serve this document too.
+
+## Decisions (running log)
+
+- The structure brief is `docs/book/contract.md`. Its reader is a
+  “16-year-old software engineer with no background in Ravel”. Its section
+  plan puts “What Ravel is for” before “The actors and their words”. Its
+  emphasis includes “What success means” and “Who holds which authority”.
+  Its exclusions include agent installation and Grove's conventions.
+- R9 uses a conditional example for a harness that supports skills. The
+  caller can choose a skill through its prompt. The owner policy chooses
+  the harness command and its model and effort arguments. No particular
+  harness's skill interface or flag syntax is part of this example.
+- R6 explains `RESULT` as text, then gives `continue` a possible caller
+  meaning. Chapter 2 repeats that distinction at the term's definition.
+  Both passages keep successful supervision and cleanup as conditions for
+  the return of the unchanged value.
+
+## Verification
+
+- Read both chapters as one document. Their section order still follows the
+  structure brief. R3 and R5 now identify the earlier review scenario and
+  name the caller. R4 identifies the configuration file and its default
+  path. R6 and R7 explain the text result with `continue` and use “send” in
+  the revised passages. R9 separates the caller's prompt instructions from
+  the policy's choice of harness and arguments.
+- Checked the changed claims against `docs/specs/session-execution.md` and
+  the session and worker ADRs. The source checks cover
+  `authority::personal_default` and `PERSONAL_DEFAULT` in
+  `crates/ravel/src/authority.rs`, `choice::request` in
+  `crates/ravel/src/choice.rs`, the notices, arguments and final write in
+  `crates/ravel/src/run.rs`, and `end_session`, `publish_result` and
+  `SessionChannel::result_after` in `crates/ravel/src/completion.rs`.
+  These checks support the default path, unchanged prompt, command options,
+  descriptive labels, unchanged result, first result and cleanup conditions.
+- Tier 2 graph checks used project
+  `Users-antony-Development-Ravel.simplify-and-componentize`, generation
+  `2026-10-17T17:18:41Z`. Searches had no further pages. The bounded traces
+  covered `end_session` in both directions and `run` outbound. Exact source
+  reads checked the material claims. Coverage reported no recorded issue
+  and matching metadata for all 21 source and document paths used. This
+  result does not prove complete graph coverage.
+- `task docs:book:build` passed without warnings. `task docs:examples`
+  passed all 13 complete examples, with no failures, skips or page errors.
+  Its six labelled fragments did not run. These examples use fake programs.
+- `task docs:ste -- --strict` passed exact temporary extracts of the
+  revised passages in both chapters, with zero reported problems. The
+  manual read also checked voice, tense and the separate topic of each
+  paragraph. Full chapter conformance remains copy-edit k125's task.
+- SHA-256 checks before and after the build and example run matched for
+  all 3,592 tracked files. These include the chapters, contract, scripts,
+  manifests, source and fixtures. The task record and handoff below were
+  added after those checks. No product source, example or figure changed.
+- No real agent ran. This draft does not establish reader comprehension,
+  GitHub presentation or the book's presentation on GitHub Pages.
+
+## Handoff
+
+Copy-edit k125 is already live, so this leaf adds no successor. The document
+brief names the remaining prose and figure work by its owner. No parent
+closes while k125 is live. The ADRs need no change: this draft explains the
+existing contract and changes no design decision.

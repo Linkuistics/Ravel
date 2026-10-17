@@ -83,3 +83,16 @@ k124 corrects the findings. Copy-edit k125 converts chapters 1 and 2 to
 STE, with the word decisions in `docs/book/ste.md` (from k123).
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
+
+## Handed forward
+
+- **Copy-edit k125:** chapters 1 and 2 still need the full STE conversion
+  and the result-word changes outside k124's revised passages. Keep the
+  explicit text-result example, the caller's choice of values and the
+  distinction between command arguments and descriptive labels. K124's
+  revised passages pass the strict STE check in isolation. The existing
+  chapter-title and anchor work remains in k125's body.
+- **Art k130:** R8 remains in the prose before both figures. The figure
+  prose and alt text also retain the earlier result words. K124 changed
+  none of those passages or the figure assets. Apply the shared word
+  decisions with the queued figure pass.

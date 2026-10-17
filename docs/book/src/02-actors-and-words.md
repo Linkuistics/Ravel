@@ -93,21 +93,29 @@ process's process group and completes cleanup before returning the result.
 it as it would any other selected program, which lets an ordinary program
 stand in for the harness in the book's examples.
 
-The **opaque result** is the single UTF-8 argument published with
-`ravel end-session`. Ravel returns it unchanged after successful supervision
-and cleanup. The value is neither the managed
-process's exit status nor the files or other work the program produced. Only
-the caller gives the value meaning. An explicitly empty result is a publication;
-exiting without publishing anything is not.
+The **opaque result** is text that a program in the session sends as one
+UTF-8 argument with `ravel end-session`. The caller specifies the permitted
+values and when to use them in the prompt's instructions for the session's
+end. For example, the caller can choose `continue` to mean that it can start
+its next task. Ravel gives this text no meaning. After successful
+supervision and cleanup, Ravel returns the text unchanged, and the caller
+decides what to do next.
+
+The result is separate from the managed process's exit status and the files
+or other work that the program produced. A program can send an empty
+result. If no program sends a result, the session has no result even when
+the managed process exits with status zero.
 
 The **result channel** is the private temporary directory and completion file
-through which `end-session` publishes that value. The first complete
-publication wins; a later `end-session` does not replace it. The channel
-carries a request to finish, not evidence that the job has already been
-cleaned up. Before returning success, the Ravel CLI also requires a
-confirmed reap, a process group that no longer exists, and removal of the
-session's temporary files. Cancellation suppresses the value even if it was
-already published.
+through which `end-session` sends that value. Ravel keeps the first complete
+result that it receives. A later `end-session` does not replace it. The
+channel carries a request to end the session. That request does not prove
+that cleanup is complete.
+
+Before the Ravel CLI returns success, it confirms the reap, the process
+group's absence and the removal of the session's temporary files.
+Cancellation suppresses the value even if Ravel received it before the
+signal.
 
 The runner's underlying completion channel only reports that a file appeared.
 Ravel's result handling checks and reads the contents. Neither the file's

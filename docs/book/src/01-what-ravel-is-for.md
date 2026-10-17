@@ -23,20 +23,32 @@ session, so the orchestrator can continue after cleanup.
 
 ## From a request to a result
 
-The person or program making the request is the
-[caller](02-actors-and-words.md#caller-and-owner). It invokes
+The person or program that makes the request is the
+[caller](02-actors-and-words.md#caller-and-owner). The caller invokes
 `ravel start-session` with a prompt and a
-[kind](02-actors-and-words.md#caller-and-owner): a token naming the sort of
-work it wants. In the review scenario, the caller might use `review` as the
-kind. That spelling is a convention the caller and configuration agree on;
-Ravel has no built-in review category.
+[kind](02-actors-and-words.md#caller-and-owner): a token that names the sort
+of work the caller wants. In the review scenario mentioned above, the caller
+can use `review` as the kind. The caller and owner policy agree on that
+token. Ravel has no built-in review category.
 
 The [owner](02-actors-and-words.md#caller-and-owner) controls the account's
 configuration. Their [owner policy](02-actors-and-words.md#caller-and-owner)
-is TypeScript code that receives the request and either selects a program
-and its arguments or refuses to launch. Ravel passes the prompt to that policy
-unchanged. The policy decides how to put it into the selected command's
-arguments. Ravel adds no task instructions.
+is a configuration file with TypeScript code. Its default path is
+`$HOME/.config/ravel/policy.ts`. The policy receives the request and either
+selects a program and its arguments or refuses to launch.
+
+The policy can use the kind to choose a harness and arguments that set its
+model and effort level. The selection's `provider`, `model` and `effort`
+fields are labels for Ravel's notice that the session starts. Those labels
+do not configure the harness. The policy puts the actual options in the
+command's arguments.
+
+The caller can also use the kind to choose instructions for the prompt. If
+the harness supports skills, the prompt can tell the LLM which skill to
+load. A skill is a set of instructions for a particular task. This use of
+the kind is a caller convention. Ravel passes the prompt to the policy
+unchanged. The policy decides how to include the prompt in the selected
+command's arguments, and Ravel adds no task instructions.
 
 One `start-session` invocation is a
 [session](02-actors-and-words.md#caller-and-owner). For the length of the
@@ -48,26 +60,37 @@ conversation inside it. Ravel supervises the harness as it would any other
 process, so an ordinary program that uses `end-session` can stand in for it. The book's runnable examples use fake
 agents in this way.
 
-An interactive harness does not exit when its LLM finishes the task; it waits
+An interactive harness does not exit when its LLM finishes the task. It waits
 for more input. The caller's prompt therefore tells the LLM to run
-`ravel end-session RESULT` when it is done, and supplies the result values the
-caller understands. That command
-publishes one [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-and asks Ravel to end the session. “Opaque” means that Ravel carries
-the value without interpreting it. If the caller chooses `continue` as a
-value, Ravel returns those bytes; the caller decides whether to start more
-work. `end-session` finds the enclosing session through its inherited
+`ravel end-session RESULT` when the task is complete. `RESULT` stands for the
+text to send. The caller's prompt specifies the permitted values and when
+the LLM uses each one.
+
+For example, the caller can choose the text `continue` as a return value.
+The prompt can tell the LLM to run `ravel end-session continue` when the
+review is complete. The command sends that text to Ravel and asks Ravel to
+end the session. After successful supervision and cleanup, Ravel returns
+the text unchanged. The caller can interpret `continue` as permission to
+start its next task. Ravel gives `continue` no meaning and starts no next
+task itself.
+
+The book calls this text an
+[opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
+because Ravel does not interpret it. `end-session` finds the enclosing
+session through its inherited
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 It takes no session ID or target argument.
 
-Publishing the result with `end-session` is a request to end the session, not
-proof that cleanup succeeded. The managed process's process group is the
-operating system's grouping of that process with its descendants. Ravel stops
-the harness and any other processes still running in that group, and cleans
-up the whole group. Before returning a successful result, Ravel confirms that
-the managed process has ended and been reaped, that its process group is gone,
-and that the session's temporary files have been removed. Reaping is the
-parent collecting a finished child's exit status.
+When `end-session` sends the result, it requests the session's end. This
+request does not prove that cleanup succeeded. A process group is an
+operating system unit that contains the managed process and its descendants.
+Ravel stops the harness and any other processes that remain in that group.
+It then completes the group's cleanup.
+
+To reap a child process, its parent collects that child's exit status.
+Before Ravel returns a successful result, it confirms that the managed
+process ended and that Ravel reaped it. Ravel also confirms that the
+process group is gone and that it removed the session's temporary files.
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md#launch-the-managed-job),
 explains those mechanics as a session reaches them.
 
