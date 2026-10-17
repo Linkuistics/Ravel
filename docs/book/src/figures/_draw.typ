@@ -34,9 +34,10 @@
 //   "polygon"  note (a kinds role)     pts: ((x, y), ...) closed; filled
 //   "box"      ravel, external, owner, x0, y0, x1, y1
 //              temporary, note, key,
-//              divider
+//              divider, phase, outcome
 //   "cylinder" a kinds role            x0, y0, x1, y1; cap: vertical radius
 //                                      of the elliptical ends
+//   "circle"   a kinds role            x, y: the centre; r: the radius; filled
 //   "text"     a kinds role (colours   text: string, "\n" breaks a line;
 //              the text; result is     face: title | head | name | qual | body;
 //              green) or "label"
@@ -91,7 +92,7 @@
 #let crisp-roles = ("key",)
 
 // Corner radius by box role; any other box is 3pt.
-#let radii = (key: 6pt, divider: 0pt)
+#let radii = (key: 6pt, divider: 0pt, phase: 12pt, outcome: 12pt)
 
 // Integer LCG scramble of (seed, a, b, k) to a number in [-1, 1].
 #let noise(a, b, k) = {
@@ -191,7 +192,33 @@
     rect(flip((x0, y0)), flip((x1, y1)), fill: k.fill, stroke: stroke-of(k.line, weight), radius: radius)
   } else {
     rect(flip((x0, y0)), flip((x1, y1)), fill: k.fill, stroke: none, radius: radius)
-    draw-line((x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0), color: k.line, weight: weight, r: r)
+    if radius > 3pt {
+      // A corner this round shows in the outline, so the wobbly path follows it.
+      let ro = radius / 1pt
+      let corner(cx, cy, a0) = range(1, 4).map(i => {
+        let a = a0 + i * 30deg
+        (cx + ro * calc.cos(a), cy + ro * calc.sin(a))
+      })
+      let pts = ((x0 + ro, y0), (x1 - ro, y0))
+      pts += corner(x1 - ro, y0 + ro, -90deg) + ((x1, y0 + ro), (x1, y1 - ro))
+      pts += corner(x1 - ro, y1 - ro, 0deg) + ((x1 - ro, y1), (x0 + ro, y1))
+      pts += corner(x0 + ro, y1 - ro, 90deg) + ((x0, y1 - ro), (x0, y0 + ro))
+      pts += corner(x0 + ro, y0 + ro, 180deg) + ((x0 + ro, y0),)
+      draw-line(..pts, color: k.line, weight: weight, r: r)
+    } else {
+      draw-line((x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0), color: k.line, weight: weight, r: r)
+    }
+  }
+}
+
+// A filled circle (the initial marker): the role's fill, outlined in its line colour.
+#let draw-circle(cx, cy, rad, k, weight: w-main, r: roughness) = {
+  import cetz.draw: circle, line
+  let st = stroke-of(k.line, weight)
+  if r == 0 {
+    circle(flip((cx, cy)), radius: rad, fill: k.fill, stroke: st)
+  } else {
+    line(..wobble-ellipse(cx, cy, rad, rad, 300, r).map(flip), close: true, fill: k.fill, stroke: st)
   }
 }
 
@@ -238,6 +265,8 @@
     draw-box(el.x0, el.y0, el.x1, el.y1, role-of(kinds, el), radius: radii.at(el.role, default: 3pt), r: r)
   } else if el.shape == "cylinder" {
     draw-cylinder(el.x0, el.y0, el.x1, el.y1, role-of(kinds, el), ry: el.cap, r: r)
+  } else if el.shape == "circle" {
+    draw-circle(el.x, el.y, el.r, role-of(kinds, el), r: r)
   } else if el.shape == "text" {
     let args = faces.at(el.face)
     if el.role != "label" { args += (fill: role-of(kinds, el).text) }

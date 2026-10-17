@@ -187,19 +187,22 @@ and `supervision-cancellation`, ported by `book-figure-sequences-k111`) and the 
 C4 figures (`system-context` and `process-authority`, ported by
 `book-figure-c4-context-container-k112`) are `.typ` figures with committed
 `.layout.json` records, as are `source-components` (`book-figure-source-components-k113`)
-and `installed-files` (`book-figure-installed-files-k114`); each port replaces a
-figure's `.puml` with its `.typ` in one commit, and the two state views follow.
+and `installed-files` (`book-figure-installed-files-k114`) and `session-outcomes`
+(`book-figure-session-outcomes-k115`); each port replaces a figure's `.puml` with
+its `.typ` in one commit, and the second state view follows.
 
 **On disk.** A `.typ` whose name does not start with `_` is a figure source,
 beside the `.puml` and `.d2` ones, with its SVG of the same name. The
 one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
 `x.puml` and `x.d2` are. A file starting with `_` is a module that figures
 import. It is not a figure and gets no SVG; an SVG for one is refused as an
-orphan. Six modules hold the Typst side. `_style.typ` holds the palette roles,
+orphan. Seven modules hold the Typst side. `_style.typ` holds the palette roles,
 text scale, stroke weights, faces and text measuring, and draws nothing.
-`_layout.typ` holds the constructors a layout module builds its record with.
-`_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout and
-`_deployment.typ` the deployment layout (below): each measures its text and returns a layout record. `_draw.typ` turns a record
+`_layout.typ` holds the constructors a layout module builds its record with and
+the orthogonal ports and routes that `_c4.typ` and `_state.typ` share.
+`_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout,
+`_deployment.typ` the deployment layout and `_state.typ` the state-machine
+layout (below): each measures its text and returns a layout record. `_draw.typ` turns a record
 into strokes and is the only module that imports CeTZ; its header documents the
 record's shape and the styles. `_style.typ` and `_sequence.typ` were promoted from
 the k107 trial, which was removed once its findings were recorded here (its
@@ -270,6 +273,32 @@ code the figure needed; `fit`, the measured wrapping width, moved from `_c4.typ`
 `_layout.typ` to be shared, and the other eight records and SVGs came out
 byte-identical.
 
+**What the state layout covers.** `_state.typ` serves the state views, and
+`session-outcomes` is its first user. A figure source is the state list, the
+transition list and the key, handed to `state-machine(...)` and then to `render`.
+A `state` is a rounded box in the `phase` (blue) or the `outcome` (grey) role,
+holding lines of text, and `initial` is the filled marker; a transition (`tr`)
+names two states and carries an optional guard label and a role, `relation` or
+`result` (the green route, with a green label). **Placement is by grid cell.** A
+state has a `col` and a `row`, either of which may be fractional (`2.5` is halfway
+between the centres of columns 2 and 3); each column is as wide as its widest
+whole-cell state and each row as tall as its tallest, with `col-gap` and
+`row-gap` (a number, or one per gap) between them, and a state's `min-w` widens
+it past its text. No figure source holds a coordinate. A transition's route is the
+shared one in `_layout.typ` (the C4 module's ports and routes, moved so both use
+them): it leaves and enters by a side, straight, an L or a Z or U, with `jog` for the
+middle run. The port "align" puts a port level with the other state's centre,
+kept inside its own side, so a fan of transitions leaves one wide state one at a
+time with no offset written. The label sits beside one segment (`seg`, `t`,
+`side`, `dx`, `dy`, `w`, as in the C4 module) and its lines are centred. As in
+the C4 layout, nothing avoids collisions: a label that lands on a line or a box
+is moved in the figure source and rendered again. The record uses the shapes
+`_draw.typ` has; two additions came with this module, a filled `circle` for the
+initial marker, and the roles `phase`, `outcome` and `initial` (`_style.typ`),
+the first two drawn with 12pt corners. A rounded box's sketched outline follows
+the corner (a path through points on the arc), where a 3pt box's stays a
+wobbly rectangle, so the other eight records and SVGs came out byte-identical.
+
 **Effort and edit cost.** Counted when the figures were ported.
 - `system-context`: 4 entities and 5 relations written; all 5 routes named by
   hand (one relation took the default facing sides, four named a side and offset
@@ -300,6 +329,20 @@ byte-identical.
   The source is 29 lines, of which 8 are the key, and `_deployment.typ` is the new
   module (181 lines, 44 of them comments). A scratch copy with a fifth
   artifact of three long lines rendered with no other edit.
+- `session-outcomes`: 9 states and an initial marker, and 11 transitions, written
+  as grid cells (0 coordinates). Sides named by hand on 6 of 11 transitions (the
+  other 5 took the facing sides), 0 `jog`; label placement chosen for 4 of the 10
+  labelled transitions (3 `side: "left"`, and one `seg`, `side` and `t`), 0 `dx`,
+  `dy` or wrapping widths; one row gap and one `min-w` (the cleaning-up state's 250,
+  which spreads the fan so a label clears its neighbour's line); 5 renders to settle.
+  The first was structurally right; the others fixed the rounded states'
+  sketched outline (a change in `_draw.typ`, not in the figure), moved the green
+  guard label (above its line it met the label above the state, below it the
+  label beside the fan, and beside the long vertical it fits), widened one row gap
+  and one state, and restored a line break the old source did not have (found by
+  the comparison script, below). The source is
+  48 lines, of which 10 are the key, and `_state.typ` is the new module (203
+  lines, 56 of them comments).
 - The trial's extra container (`audit sink`), added to a scratch copy of
   `process-authority`: one entity (4 lines), one relation (2 lines, a left-to-left
   route given by `jog`) and one name added to the boundary's members; no legend
@@ -355,6 +398,26 @@ fail).
   figure, and its SVG holds paths and no `<text>` (160 KB, where the PlantUML one
   was about 12 KB).
 
+**Differences from the PlantUML state output, with the reason.** Every state name,
+guard and transition label, the title and the ten key lines are present: a script
+compared each quoted string of the old source with the text in the new layout
+record and found none missing; it reported the string, and the key, when one was
+removed from the text it searched, so it can fail. The two green transitions were
+first missed by the script's own pattern (it did not read `-[#135E50]->`), which
+showed when a green label was removed and nothing was reported; the pattern was
+fixed and the removal then reported it.
+- Transitions are orthogonal polylines, not splines, as in the C4 views, with the
+  three phases in one column, the bypass from selecting to cleanup on the right
+  and the outcomes in a row below, where PlantUML's graph layout curved them.
+- Guards and labels are centred beside a line and wrapped at the line breaks the
+  old source wrote; the long green guard is two lines, as in the source.
+- The initial marker is a filled circle in the relation colour; there is no final
+  marker, as in the old figure ("no further transition is shown").
+- The figure is drawn sketched at roughness 2 with a crisp key, like every Typst
+  figure, with 12pt corners on the states, and its SVG holds paths and no
+  `<text>` (184 KB, where the PlantUML one was 22 KB; the nine figures together
+  are 1.63 MB, of which the one PlantUML figure is 30 KB, under the 2 MB budget).
+
 **Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
 item, not text. In the trial it drew the label as a list. Write `2\.` in the
 figure source (`[2\. Launches]`); the record holds the string `2. Launches`. The
@@ -375,8 +438,8 @@ are maintained Typst source with no `.puml`.
 
 **Single-engine risk.** PlantUML's C4 and UML conventions (standard shapes,
 `legend`, the standard library) exist now only as this directory's hand-written
-primitives; a state diagram would need new layout code, and any d2 diagram has
-no counterpart.
+primitives, and one PlantUML figure is left (`settled-exit-status`); any d2
+diagram has no counterpart.
 
 **Layout, then draw.** A figure source builds a record with a layout module and
 passes it to `render` in `_draw.typ`. The record is plain data: positions, roles

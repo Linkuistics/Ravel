@@ -46,6 +46,12 @@
   key: (fill: pal.pale, text: pal.ink, line: pal.slate),
   divider: (fill: pal.grey, text: pal.ink, line: pal.slate),
   result: (fill: pal.white, text: pal.green, line: pal.green),
+  // State views: `phase` and `outcome` repeat the colours of `ravel` and
+  // `external` and are drawn with rounded corners (see `radii` in _draw.typ);
+  // `initial` is the filled marker of the entry transition.
+  phase: (fill: pal.blue, text: pal.white, line: pal.navy),
+  outcome: (fill: pal.grey, text: pal.ink, line: pal.slate),
+  initial: (fill: pal.rel, text: pal.white, line: pal.rel),
 )
 
 // Text scale. Stereotype and technology lines («container», [Rust]) are the

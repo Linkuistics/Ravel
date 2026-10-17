@@ -38,6 +38,9 @@
   id: id, shape: "cylinder", role: role, x0: x0, y0: y0, x1: x1, y1: y1, cap: cap,
 )
 
+// A filled circle of radius `r` centred on (x, y): the initial marker of a state view.
+#let circle-el(id, role, x, y, r) = (id: id, shape: "circle", role: role, x: x, y: y, r: r)
+
 // A label placed at (x, y); `anchor` names which side of the text sits on the
 // point ("center", "south", "west", as CeTZ does). `w` is the wrapping width, or
 // `auto` for the text's own width; the record always holds the measured width and
@@ -79,3 +82,50 @@
 
 // A finished record: the layout's own extent and its elements, drawn in order.
 #let record(w, h, elements) = (w: w, h: h, elements: elements)
+
+// ---- orthogonal routes (shared by _c4.typ and _state.typ) --------------------
+
+#let horizontal-side(s) = s in ("left", "right")
+
+// The point on side `s` of box `b`, `off` along it from the middle.
+#let port(b, s, off) = {
+  if s == "top" { (b.cx + off, b.y0) }
+  else if s == "bottom" { (b.cx + off, b.y1) }
+  else if s == "left" { (b.x0, b.cy + off) }
+  else if s == "right" { (b.x1, b.cy + off) }
+  else { panic("a side is top, bottom, left or right, not " + repr(s)) }
+}
+
+#let side-and-offset(spec) = if type(spec) == array { spec } else { (spec, 0) }
+
+// The sides that face each other: across the gap the boxes have, vertically when
+// their columns overlap, otherwise horizontally.
+#let facing(a, b) = {
+  if a.x0 < b.x1 and b.x0 < a.x1 {
+    if b.cy > a.cy { ("bottom", "top") } else { ("top", "bottom") }
+  } else {
+    if b.cx > a.cx { ("right", "left") } else { ("left", "right") }
+  }
+}
+
+// The orthogonal polyline from port `p0` (leaving by `s0`) to `p1` (entering by `s1`).
+#let route(p0, s0, p1, s1, jog) = {
+  let same = (v, w) => calc.abs(v - w) < 0.5
+  if horizontal-side(s0) == horizontal-side(s1) {
+    if horizontal-side(s0) {
+      if same(p0.at(1), p1.at(1)) { (p0, p1) } else {
+        let xm = if jog != none { p0.at(0) + jog } else { (p0.at(0) + p1.at(0)) / 2 }
+        (p0, (xm, p0.at(1)), (xm, p1.at(1)), p1)
+      }
+    } else {
+      if same(p0.at(0), p1.at(0)) { (p0, p1) } else {
+        let ym = if jog != none { p0.at(1) + jog } else { (p0.at(1) + p1.at(1)) / 2 }
+        (p0, (p0.at(0), ym), (p1.at(0), ym), p1)
+      }
+    }
+  } else if horizontal-side(s0) {
+    (p0, (p1.at(0), p0.at(1)), p1)
+  } else {
+    (p0, (p0.at(0), p1.at(1)), p1)
+  }
+}
