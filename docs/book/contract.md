@@ -70,14 +70,34 @@ stated prerequisites.
 
 ### The intended domain
 
-Ravel is a generic policy router and session supervisor. A **caller** asks for
-a session of some kind; the **owner's** executable TypeScript policy chooses
-the program to run; Ravel launches that program as a supervised job and,
-once the job has been completely cleaned up, returns one opaque result or
-reports why it cannot. The programs it
-launches are often AI coding agents (harnesses), and its first caller is the
-Grove task-tree driver, but neither defines the domain: Ravel assigns no
-meaning to kinds or results, integrates no model provider, and stores nothing.
+Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
+supervised parts of another program. In the owner's words, from read 1: "We
+should be explicit that the programs we are running are LLM sessions in
+harnesses such as codex or claude code. We should also point out that these
+harnesses typically cannot exit themselves, which is why we have the
+`end-session` command. Thus ravel allows you to use such interactive harness
+as 'sub components' of another process, typically an orchestrator."
+
+A **caller**, such as an orchestrator that runs sessions as steps of its own
+work, asks for a session of some kind; the **owner's** executable TypeScript
+policy chooses the harness command to run; Ravel launches that command as a
+supervised job. An interactive harness does not exit when its LLM has finished
+the task: it waits for more input. So the caller's prompt tells the LLM to run
+`ravel end-session RESULT`, which publishes one opaque result and asks Ravel
+to end the session. Ravel then stops the harness and the rest of its process
+group if they are still running and, once the job has been completely cleaned
+up, returns the result or reports why it cannot. That is what lets an
+interactive harness work as one component of a larger program. The book says
+so where it first describes Ravel, and gives the reason for `end-session`
+where it introduces the command.
+
+The mechanism is generic. Ravel treats the selected program as it would any
+other process, so any program that runs `end-session` can stand where a
+harness stands; that is why every runnable example uses a fake agent. Ravel
+assigns no meaning to kinds or results, integrates no model provider, and
+stores nothing. Its first caller is the Grove task-tree driver, which the book
+shows only as one labelled illustrative caller.
+
 The book keeps these roles apart:
 
 - the **caller**, which invokes Ravel, supplies the prompt and its ending
@@ -85,7 +105,8 @@ The book keeps these roles apart:
 - the **owner**, who writes the policy and settings for their account;
 - **Ravel** itself: the Ravel CLI, the policy worker, the runner and the
   result channel;
-- the **managed process**, the selected program and its descendants;
+- the **managed process**, the selected program and its descendants: a
+  harness running an LLM session, or a program standing in for one;
 - **contributors**, who develop and deliver Ravel;
 - **component consumers**, who reuse an extracted component in another
   project.
@@ -99,7 +120,7 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | # | Chapter | After it, the reader can… |
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
-| 1 | What Ravel is for | say what Ravel solves, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
+| 1 | What Ravel is for | say what Ravel solves, including why `end-session` exists, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
 | 3 | A complete session, end to end | run a real session with a tiny policy and a fake agent, then describe its stages; the process and terminal ideas are introduced here as the session needs them |
 | **Part II** | **Using Ravel** | |
@@ -173,9 +194,9 @@ quotes source excerpts but does not cover the complete source.
   credentials are out of scope, with a pointer to each agent's own
   documentation.
 - **The owner's personal configuration.** The dated handoff record of the
-  owner's routing table in today's configuration guide is not teaching
-  material. It stays outside the book and is kept, not deleted, when that guide
-  is folded in.
+  owner's routing table, `docs/configuration-handoff-2026-10-12.md`, is not
+  teaching material. It stays outside the book; it was kept, not deleted, when
+  the owner configuration guide was folded in and removed.
 - **Grove's conventions.** Grove may appear as one illustrative caller,
   labelled as such. Its task kinds and result values are never presented as
   Ravel's.
@@ -209,7 +230,9 @@ matters:
   managed process's exit status or the agent's work.
 - **Policy**: the owner's routing code. It is not a security or sandbox
   policy; that is confinement.
-- **Harness**: the agent program a policy selects. It is not a test harness.
+- **Harness**: the agent program, such as Claude Code or Codex, in which an
+  LLM session works on the prompt; owner policy selects it. It is not a test
+  harness.
 - **Refusal**: a decision not to launch, made by the owner policy or by Ravel
   checking that policy's file, behaviour or data. It is not a worker or supervision
   failure, nor a selection timeout.
@@ -318,7 +341,7 @@ This checks visual consistency, not the reader's knowledge of notation.
 
 | Reader question | Level and notation | Where |
 |---|---|---|
-| Where does Ravel sit between a caller and the program it launches? | C4 system context | chapters 1–2 |
+| Where does Ravel sit between a caller, such as an orchestrator, and the harness or other program it launches? | C4 system context | chapters 1–2 |
 | Which processes exist during a session, and which holds which authority? | C4 container | chapters 2 and 7 |
 | What happens, in order, in a successful session? | UML sequence | chapter 3, then in full in chapter 8 |
 | What changes when cancellation arrives during selection versus during supervision? | UML sequence, one per phase | chapters 5 and 9 |

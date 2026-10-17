@@ -8,9 +8,9 @@ taken through draft → copy-edit → art → proof. The contract is
 `docs/book/contract.md`: its "The reader", "The intended domain", "The section
 plan", "Emphasis", "Exclusions" and "Term risks" are the structure brief.
 
-After chapter 1 the reader can say what Ravel solves, what it leaves to callers
-(no store, no task meaning, no model integration) and whether it fits their
-need. After chapter 2 the reader can name the caller, owner, owner policy,
+After chapter 1 the reader can say what Ravel solves, including why
+`end-session` exists, what it leaves to callers (no store, no task meaning, no
+model integration) and whether it fits their need. After chapter 2 the reader can name the caller, owner, owner policy,
 policy worker, managed process and opaque result, and say who holds which
 authority.
 
@@ -34,6 +34,14 @@ authority.
   only the native front supervises, each managed process holds only its own
   result context. It also states, plainly, that same-user code can tamper and
   that the context is isolation, not authentication.
+- Read 1 (`book-read-one-k70`) found the account of what Ravel is for too
+  generic: owner findings R1 and R2, quoted in draft k102's body. The
+  contract's "The intended domain" now says that Ravel runs LLM sessions in
+  agent harnesses as supervised parts of another program, and why
+  `end-session` exists. The document's second correction run, draft k102 →
+  copy-edit k103 → art k104 → proof k105, carries it; the owner authorised it
+  on 2026-10-17. Any further send-back against this document goes to the
+  owner.
 
 ## Done when
 

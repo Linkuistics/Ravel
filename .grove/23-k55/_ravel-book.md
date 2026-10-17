@@ -173,10 +173,6 @@ reduced README.
 - The non-`--json` form of an operation report (`ravel: <report>` on stderr,
   `crates/ravel/src/run.rs`) is in no chapter; chapter 6's stderr row says only
   "operational reports". The second half's proof decides whether to add it.
-- `docs/book/contract.md`, "Exclusions", bullet "The owner's personal
-  configuration", still says "today's configuration guide" and "when that guide
-  is folded in". Reword it the next time the contract is open for edit; the
-  record is `docs/configuration-handoff-2026-10-12.md`.
 - Contributor and delivery parts of the README stay until chapters 11 and 12.
   The README is now an entry (what Ravel is, the two verbs, where the book is
   and `task docs:book`) plus the untouched "Develop" section, "Earlier
@@ -252,3 +248,17 @@ obligations) and 5 (contributor workflows) are not yet claimed. GitHub rendering
 the published site, real-agent behaviour, interactive-terminal operation,
 native x86-64 qualification and new-reader comprehension remain separate
 unknowns. Chapter 10 belongs to the future supported-component work.
+
+## Read 1
+
+Read 1 (`book-read-one-k70`) paused on 2026-10-17, after the owner's first two
+findings and at the owner's request, so that the corrections land before a
+full read from the start. The framing finding changed the contract's "The
+intended domain": Ravel runs LLM sessions in agent harnesses, such as Claude
+Code and Codex, as supervised parts of another program, typically an
+orchestrator, and `end-session` exists because an interactive harness does not
+end itself. Chapters 7–12 follow that framing too. The chapters 1–2
+correction run (draft k102 → proof k105) and the README's alignment
+(`book-readme-k106`) run first. The read then resumes and, once its
+corrections are routed, cuts the second half's planning leaf before
+`ravel-book-k101`.

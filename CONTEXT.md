@@ -1,13 +1,17 @@
 # Ravel language
 
-Ravel routes a caller's request through owner configuration and supervises the
-selected process. These terms distinguish configuration authority, session
-authority and the meaning a caller gives a result.
+Ravel runs an LLM session in an agent harness as a supervised part of another
+program: it routes a caller's request through owner configuration, supervises
+the selected process and returns the result the session publishes. These terms
+distinguish configuration authority, session authority and the meaning a
+caller gives a result.
 
 ## Language
 
 **Caller**: The person or program invoking Ravel and interpreting its returned
-opaque result. Its task conventions and continuation decisions are caller-owned.
+opaque result, such as an orchestrator that runs **Harness** sessions as steps
+of its own work. Its task conventions and continuation decisions are
+caller-owned.
 
 **Owner**: The person controlling Ravel's policy and settings for an account.
 The owner and caller can be the same person; their configuration and task
@@ -59,9 +63,11 @@ undelivered **Persistent runner**.
 **Managed process**: The direct child selected by the owner policy and supervised
 as a job by the Ravel CLI. Its process group is the scope of job cleanup.
 
-**Harness**: The agent program an **Owner policy** selects to work on the
-**Session**'s prompt, such as an AI coding agent's command-line tool. Ravel
-treats it as any other **Managed process**.
+**Harness**: The agent program, such as Claude Code or Codex, in which an LLM
+session works on the **Session**'s prompt; the **Owner policy** selects it. An
+interactive harness does not end itself, which is why the LLM publishes the
+**Opaque result** with `end-session`; Ravel treats the harness as any other
+**Managed process**.
 _Avoid_: agent runtime, test harness
 
 **Session-result context**: The inherited `RAVEL_EXIT_FILE` path identifying the
