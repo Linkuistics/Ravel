@@ -71,14 +71,26 @@ parent collecting a finished child's exit status.
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md#launch-the-managed-job),
 explains those mechanics as a session reaches them.
 
-The figure separates the caller's choice of work from the owner's choice of
-program, with Ravel responsible for supervision between request and result.
+The sequence shows why the LLM can finish its task before the caller receives
+a successful result: Ravel still has to stop and clean up the managed job.
+
+| Step after the LLM finishes its task | Who acts and what happens |
+|---|---|
+| Publish | The LLM asks the harness to run `ravel end-session RESULT`, publishing a value and requesting the session's end |
+| Stop | Ravel stops any processes still running in the harness's process group |
+| Confirm cleanup | Ravel confirms that the managed process has been reaped, its group is gone and the session's temporary files have been removed |
+| Return | After successful supervision and cleanup, Ravel returns the result unchanged; the caller interprets it and decides what to do next |
+
+The figure places Ravel between an orchestrator asking for work and a harness
+running an LLM session: the owner chooses the harness, and Ravel supervises it
+until cleanup allows the result to return. Other callers and selected programs
+use the same boundary.
 The C4 system-context view treats Ravel as one system. Blue identifies Ravel,
 grey the external caller and managed process, and slate the human owner.
 Green arrows trace the opaque result. These shapes describe responsibilities,
 not security boundaries.
 
-![The owner configures Ravel through owner policy and settings. The caller sends a kind and prompt with start-session. Ravel launches and supervises the managed process, which publishes an opaque result with end-session. Ravel returns that result to the caller on standard output only after successful cleanup.](figures/system-context.svg)
+![The owner configures which harness runs the caller's request. An orchestrator or person sends a kind and prompt with start-session. Ravel launches and supervises the harness as the managed process; another selected program can occupy that role. The LLM asks the harness to run end-session, publishing an opaque result and asking Ravel to stop. Ravel stops remaining group members and returns the result to the caller on standard output only after successful cleanup.](figures/system-context.svg)
 
 [Open the system-context figure at full size.](figures/system-context.svg)
 
@@ -123,10 +135,10 @@ still needs a caller, service or selected program.
 
 | If you need… | Ravel's part | What remains outside Ravel |
 |---|---|---|
-| Different owners to choose different programs for the same request | Evaluate each owner's policy and run its selected command | The caller's task meaning and the owner's routing choices |
-| A result after a program and its job have been cleaned up | Supervise the launch and return the explicit result after successful cleanup | The caller's interpretation and any further work |
+| Different owners to choose different harnesses for the same LLM task | Evaluate each owner's policy and run its selected command | The caller's task meaning and the owner's routing choices |
+| An interactive harness to finish as a step of your program | Accept its `end-session` publication, stop remaining group members and return the result after successful cleanup | The caller's ending instructions, interpretation and any further work |
 | Task queues, schedules, retries or durable history | Execute a session when invoked | A caller or service that stores and schedules work |
-| Model access, credentials, usage metering or model selection rules | Run the command chosen by policy | The selected program's model integration and the owner's selection rules |
+| Model access, credentials, usage metering or model selection rules | Run the command chosen by policy | The harness's model integration and the owner's selection rules |
 | A host that keeps doing other work after a launch | The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) supervises one session and exits | A separate long-running host, which Ravel does not provide |
 
 The Ravel CLI, the `ravel` command-line program, is a **launcher CLI**: one

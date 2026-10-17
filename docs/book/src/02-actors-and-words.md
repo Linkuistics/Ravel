@@ -41,8 +41,8 @@ chosen program. Ravel runs that command without shell expansion or word
 splitting; a shell is involved only if the policy selects one.
 
 The [system-context figure in chapter 1](01-what-ravel-is-for.md#from-a-request-to-a-result)
-places these roles around Ravel: the caller chooses the work and the owner
-controls routing.
+places these roles around Ravel: an orchestrator can choose the work, the owner
+chooses the harness, and Ravel supervises that harness as the managed process.
 
 ## Policy evaluation and supervision
 
@@ -115,7 +115,9 @@ appearance nor the policy worker's selection is itself a successful session.
 
 The figure shows why a policy response cannot complete a session: it reaches
 the Ravel CLI through a separate path from the managed process's opaque
-result. This C4 container view shows Ravel's processes and temporary store;
+result. A harness running an LLM session occupies the managed-process role;
+an ordinary program can stand in for it. This C4 container view shows Ravel's
+processes and temporary store;
 these are not operating-system containers. The gold result channel holds
 temporary files, not a database. Blue marks Ravel's processes and grey the
 external participants. Green arrows trace the opaque result. The enclosing
@@ -123,7 +125,7 @@ outline groups Ravel's software, not a sandbox. Steps 1 and 2 show the
 ordering: the worker is cleaned up before the managed process starts.
 The participants shown do not all run at the same time.
 
-![The Ravel CLI evaluates the request through a separate policy worker, which evaluates trusted owner policy without session-result context and sends a selection or refusal through a separate socket. Before launching the managed process, the Ravel CLI confirms that the worker ended and was reaped and its private directory was removed. The runner executes inside the Ravel CLI and supervises the managed process. That process receives session-result context and uses end-session to publish into the temporary result channel. The Ravel CLI validates and reads the publication, then writes the opaque result to the caller only after successful cleanup.](figures/process-authority.svg)
+![An orchestrator or person requests a session. The Ravel CLI evaluates the request through a separate policy worker, which evaluates trusted owner policy without session-result context and sends a selection or refusal through a separate socket. Before launching the managed process, the Ravel CLI confirms that the worker ended and was reaped and its private directory was removed. The runner executes inside the Ravel CLI and supervises the selected harness or other program. The LLM asks its harness to run end-session, using inherited session-result context to publish into the temporary result channel. The Ravel CLI validates and reads the publication, stops remaining group members, and writes the opaque result to the caller only after successful cleanup.](figures/process-authority.svg)
 
 [Open the process-and-authority figure at full size.](figures/process-authority.svg)
 
@@ -133,11 +135,11 @@ decisions.
 
 | Participant | Decides or performs | What Ravel allows it to do |
 |---|---|---|
-| Caller | Supplies the task and ending instructions; interprets the result | Starting the session and deciding what to do next |
+| Caller, such as an orchestrator | Supplies the task and ending instructions; interprets the result | Starting the session and deciding what to do next |
 | Owner | Writes routing code and settings | Configuration of which commands requests select |
 | Policy worker | Evaluates the owner policy and sends its response | Size-limited request data and a restricted environment; no session-result context |
 | Ravel CLI, using its runner | Checks the request, launches and supervises the program, and decides the outcome | Process supervision, terminal handling and the final result write |
-| Managed process | Performs the selected work and publishes a result | Its own session-result context, inherited by its children |
+| Managed process, such as a harness | Runs the LLM session and the commands it asks for, including `end-session`; another selected program can stand in for it | Its own session-result context, inherited by its children |
 
 ## Three different kinds of information
 

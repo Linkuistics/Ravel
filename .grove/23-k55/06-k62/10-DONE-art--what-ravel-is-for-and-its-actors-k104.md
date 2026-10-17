@@ -58,3 +58,35 @@ another run.
   reasons.
 - `task docs:figures`, `task docs:book:build` and `task docs:examples` pass.
 - Handoffs show what remains; retire this leaf with proof k105 next.
+
+## Decisions (running log)
+
+- Keep both existing C4 views and their shared style. Name the orchestrator
+  as a caller and the harness running an LLM session as the managed process's
+  intended use, while retaining other selected programs. Align role sentences,
+  keys, alt text and the fit/responsibility tables with those labels.
+- Carry publication → stopping remaining group members → confirmed cleanup →
+  return in a short chapter 1 table. Decline another sequence diagram here as
+  an **editorial judgement**: chapter 3 owns the detailed lifecycle diagram,
+  while this table answers chapter 1's question about why ending is explicit.
+  This is neither a contract prohibition nor a limitation of the medium.
+- Proof k105 is a live later sibling. The ordinary successor is already queued;
+  no extra proof leaf is needed. No architecture decision changes.
+- The full-size process view exposed result-arrow labels crossing the software
+  outline. Move the harness to the right and shorten and wrap those labels;
+  the legend and adjacent text retain inherited session-result context and
+  validation before return.
+- The owner accepted the Typst/CeTZ recommendation and specified a preference
+  with a trial before migration. Prototype `book-figure-renderer-k107` carries
+  the two-diagram comparison and maintenance edits before the resumed read.
+  Their separate request to add this guidance to Grove's art skill and release
+  is handled in the Grove repository, not as a Ravel product change.
+
+## Validation
+
+`task docs:figures` matched all nine figures after the final layout correction.
+`task docs:examples` passed all 13 examples (six declared fragments not run,
+zero page errors). `task docs:book:build` passed. Native Chrome viewing at
+chapter width and the process SVG at full size is recorded with its limits in
+`docs/book/figures.md`. Proof k105 remains live, so this retirement closes no
+parent node.

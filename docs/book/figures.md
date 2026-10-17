@@ -84,7 +84,7 @@ supplement labels. The surrounding prose supplies an alternative to the image.
 
 | View | Book-specific meaning to preserve |
 |---|---|
-| `system-context` | Ravel as one system between caller and managed process; the owner controls routing. Responsibility boundaries are not security boundaries. |
+| `system-context` | Ravel between a caller, such as an orchestrator, and a harness running an LLM session or another selected program; the owner controls routing. Publication asks Ravel to stop, and return follows confirmed cleanup. Responsibility boundaries are not security boundaries. |
 | `process-authority` | Processes and temporary files across a session, not simultaneous lifetimes or OS containers. The worker response and opaque result use separate paths. Worker end, reap and private-directory removal precede the managed launch. The runner runs inside the Ravel CLI. |
 | `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. Publication precedes cleanup; only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
@@ -93,7 +93,8 @@ supplement labels. The surrounding prose supplies an alternative to the image.
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
 
-Chapters 1–6 also use page-native tables for responsibilities, result versus
+Chapters 1–6 also use page-native tables for publication through cleanup and
+return, responsibilities, result versus
 exit status versus work, platform evidence, nested result authority, worker
 startup, policy evaluation order, policy-context delivery, environment grants,
 confinement, streams, route choices, import resolution and lookup fields.
@@ -417,6 +418,21 @@ the unpublished branch and the unpublished site were not inspected. Visual and
 source checks establish neither human comprehension nor real-agent behaviour,
 interactive terminal operation or native x86-64 qualification. The owner's
 stand-in read remains later.
+
+Chapters 1–2's domain-correction art pass inspected both corrected C4 figures,
+their adjacent explanations and the publication/cleanup sequence and
+responsibility tables in locally served mdBook through native Chrome on
+2026-10-17. The light page at chapter width kept the labels and tables legible.
+The process-authority SVG was also inspected at full size. Moving the managed
+process to the right and shortening its result-arrow labels separated result
+publication from result reading; the final layout was rechecked at chapter
+width. Both chapters and the PlantUML sources were read as raw files.
+
+This pass did not inspect an editor preview, other themes, narrower viewports,
+the full-size system-context SVG, GitHub rendering or the unpublished site.
+The in-app browser was unavailable; native Chrome supplied the visual checks.
+These checks provide no human-comprehension or real-agent execution evidence.
+The accepted Typst/CeTZ trial remains separate from these published figures.
 
 ## Not yet verified
 

@@ -259,6 +259,10 @@ Code and Codex, as supervised parts of another program, typically an
 orchestrator, and `end-session` exists because an interactive harness does not
 end itself. Chapters 7–12 follow that framing too. The chapters 1–2
 correction run (draft k102 → proof k105) and the README's alignment
-(`book-readme-k106`) run first. The read then resumes and, once its
-corrections are routed, cuts the second half's planning leaf before
+(`book-readme-k106`) run first. The owner then authorised a two-diagram
+Typst/CeTZ trial, `book-figure-renderer-k107`, before the resumed read, and
+clarified "Prefer Typst/CeTZ; trial before migration". It compares the dense
+process-authority view and a sequence, including a longer label and an added
+participant, before any decision to migrate the book's figures. The read then
+resumes and, once its corrections are routed, cuts the second half's planning leaf before
 `ravel-book-k101`.

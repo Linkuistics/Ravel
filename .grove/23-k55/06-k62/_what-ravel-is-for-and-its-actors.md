@@ -67,22 +67,24 @@ under `docs/book/src/figures/`. The shared `_style.puml` and
 carry role sentences, notation keys and text alternatives. The existing fit
 and responsibility tables and new result/status/work, nested publication,
 information-kind and platform-evidence tables carry the unit's comparisons.
-The correction pass adds the worker-directory sequence table, distinguishing
-startup location, the move before policy import and cleanup before launch.
+The correction passes add the worker-directory sequence table, distinguishing
+startup location, the move before policy import and cleanup before launch,
+and the chapter 1 publication/stop/cleanup/return table. The two C4 views,
+their text alternatives and the fit/responsibility tables now name the
+orchestrator and LLM harness while preserving the generic process boundary.
 
 ## Handed forward
 
-- **Art k104:** chapter 1 now leads with an orchestrator using an LLM session
-  in a harness, and explains result publication followed by Ravel stopping
-  remaining group members before cleanup. Align the system-context figure,
-  its introduction and alt text with that account, and check the fit table
-  under "Decide whether Ravel fits" and chapter 2's process-authority figure
-  and responsibility table. The generic labels remain mechanically true but
-  need to carry the document's intended domain. This is the already-queued
-  R1 art correction; draft changed no figure, key, alt text or table.
-  Copy-edit k103 fixed the prose words art should reuse: "LLM session",
-  "harness" (the program that passes the prompt to the LLM and runs the
-  commands it asks for), "interactive harness" and "orchestrator" (a program
-  that runs LLM sessions as steps of its own work). An LLM session is not the
-  Ravel session. Copy-edit changed no figure, key, alt text or table either.
+- **Proof k105:** art k104 aligned both C4 views, their role sentences and
+  alt text, and the fit/responsibility tables with the corrected domain.
+  Read the new publication/stop/confirmed-cleanup/return table in chapter 1
+  against the success conditions and chapter 3's more detailed sequence.
+  The process view places the harness to the right to separate publication
+  from result reading; its legend retains worker cleanup before launch.
+  Viewing evidence and limits are in `docs/book/figures.md`. No earlier-stage
+  defect was found. The owner accepted a Typst/CeTZ trial and clarified
+  "Prefer Typst/CeTZ; trial before migration". Prototype `book-figure-renderer-k107`
+  precedes the resumed reader session; it compares two diagrams and tests
+  maintenance edits. The published book's media and figures remain governed by
+  the current contract until that trial supports a migration decision.
 
