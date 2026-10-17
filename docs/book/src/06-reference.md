@@ -73,7 +73,7 @@ no prompt input, or with both prompt inputs, also exits 2. Ravel does not
 implicitly read the prompt from stdin, and it refuses a prompt file that is a terminal. See [supply the prompt and caller data](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
 > **Note:** Shell command substitution removes trailing newlines before Ravel
-> receives an argument. Use `--prompt-file` when those bytes are important. An
+> receives an argument. `--prompt-file` preserves those bytes. An
 > operating system can set a smaller argument limit. This limit also applies
 > when the policy puts a prompt from a file into the arguments of the selected
 > command.
@@ -206,8 +206,9 @@ for the layout and the operational limits.
 > **Note:** The project measured how Ravel handles inherited signal
 > settings, cancellation, cleanup and terminal recovery on aarch64 macOS and
 > aarch64 GNU/Linux. For x86_64 GNU/Linux, the project built Ravel and ran it
-> only under emulation. Native x86-64 qualification is still open. See the
-> [support limits](05-running-sessions.md#understand-the-operational-limits).
+> only under emulation. Native x86-64 qualification is still open. The
+> [support limits](05-running-sessions.md#understand-the-operational-limits)
+> give the scope of these measurements.
 
 ### `--runtime-read FILE`
 
@@ -319,7 +320,8 @@ cause a cancellation.
 > the final outcome. A signal that arrives after the final decision about
 > cancellation can interrupt the result write. Neither case confirms cleanup
 > or successful delivery. A failed final write can leave a prefix on stdout.
-> See [operational limits](05-running-sessions.md#understand-the-operational-limits).
+> The [operational limits](05-running-sessions.md#understand-the-operational-limits)
+> describe these cases.
 
 ## Streams and notices
 

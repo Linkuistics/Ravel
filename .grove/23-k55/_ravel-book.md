@@ -360,7 +360,21 @@ zero failures or skips). All nine figures were inspected in the served book
 at chapter width and full size, and a missing-figure control failed. The
 dated record in `docs/book/figures.md` states the inspection limits. The dense
 figures' small text remains with k101. README/help k131 and set proof k132
-remain live. No new leaf is needed.
+are complete. No new leaf is needed.
+
+Set proof `book-first-half-k132` read the six chapters, README, glossary,
+contents and figure text together against the STE writing rules, shared word
+decisions, both specifications and the three ADRs. It corrected three chapter
+6 notes under Rule 5.5: notes give information, not instructions. R3–R9 agree
+across the set and with the source. Fresh strict STE and its controls, book
+build, nine figure comparisons, 13 complete examples and `task check` all
+passed on unchanged digested subjects (339 tests passed, 46 skipped).
+All 429 local source destinations resolve, with broken-anchor/file controls
+rejected. Chrome confirmed every figure loaded at chapter width. The task
+records the source inventories, visual sample and unavailable views.
+No first-half defect is handed forward. The second-half handoffs above keep
+their owners, and the book node stays open. The owner's resumed read k70
+starts from the beginning and remains next.
 
 The owner decided on 2026-10-17 to move every figure to Typst/CeTZ ("migrate
 full") and later asked for a hand-drawn style. `book-figure-migration-k108`
