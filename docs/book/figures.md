@@ -1,36 +1,45 @@
-# Figures: layout, renderers and regeneration
+# Figures: layout, renderer and regeneration
 
-This note settles how a figure sits on disk and how it is regenerated, so the
-art stage and every drafting session use one layout. The contract
-(`contract.md`, "Format and media") owns *which* notations and renderers the
-book uses; this note owns the mechanics. It sits beside the contract and is not
-part of the published book.
+This note settles how a figure sits on disk, how it is drawn and how it is
+regenerated, so the art stage and every drafting session use one layout. The
+contract (`contract.md`, "Format and media") owns *which* notations and which
+renderer the book uses; this note owns the mechanics. It sits beside the
+contract and is not part of the published book.
+
+Every figure is a Typst source drawn with the CeTZ package. The book used
+other, notation-specific tools until the owner's decision of 2026-10-17 to
+migrate every figure. The migration, its effort and what changed for each figure
+are recorded under "Porting record" below, and the rules for the former tools
+went with them; they are named only there, in the viewing records and in the
+evidence directory it links.
 
 ## Layout on disk
 
 ```text
 docs/book/src/figures/
-  system-context.puml      editable source (PlantUML)
-  system-context.svg       what the source renders to, committed
-  session-flow.d2          editable source (d2)
-  session-flow.svg
-  _style.puml              shared include, never rendered on its own
+  system-context.typ          the figure's only editable source
+  system-context.svg          what the source renders to, committed
+  system-context.layout.json  the layout record the source evaluates to, committed
+  _style.typ                  shared modules, never rendered on their own
+  _layout.typ
+  _draw.typ
+  _c4.typ  _sequence.typ  _state.typ  _deployment.typ
 ```
 
-- One diagram per source file, flat in `docs/book/src/figures/`. The SVG has the
-  source's name with `.svg`. A `.puml` and a `.d2` with one name are refused.
+- One diagram per source file, flat in `docs/book/src/figures/`. The SVG and the
+  layout record have the source's name with `.svg` and `.layout.json`. There is
+  exactly one editable source per figure: a second source in any other notation
+  beside a `.typ` is refused.
 - Name a figure for its subject, not its chapter: several chapters reuse one
   figure (the contract's figure list puts the system context in chapters 1 and 2
   and the container view in 2 and 7).
-- A file whose name starts with `_` is a shared include (`!include _style.puml`
-  in PlantUML, `...@_style` in d2). It is not a figure and gets no SVG. This is
-  where the art stage's visual vocabulary lives once it exists.
-- The directory holds `.puml`, `.d2`, `.typ`, `.svg` and `.layout.json` files
-  only. A `.typ` figure also has a `<name>.layout.json`, the layout record it
-  evaluates to, which `check` compares apart from the SVG and `update` rewrites.
-  Anything else, a subdirectory, an SVG with no source, or a `.layout.json` with
-  no `.typ` figure beside it (a `.puml`, a `.d2` or a module does not count) is
-  refused, so the compare covers every file there.
+- A file whose name starts with `_` is a shared module that figures import
+  (`#import "_sequence.typ": *`). It is not a figure and gets no SVG and no
+  layout record. This is where the book's visual vocabulary lives.
+- The directory holds `.typ`, `.svg` and `.layout.json` files only. Anything
+  else, a subdirectory, an SVG with no `.typ` figure, or a `.layout.json` with no
+  `.typ` figure beside it (a module does not count) is refused, so the compare
+  covers every file there.
 - A figure made only of the page's own text, such as a table, needs no file.
 
 ## How a page uses a figure
@@ -42,17 +51,17 @@ docs/book/src/figures/
 The path is relative to the chapter, which sits in `docs/book/src/`, so it
 resolves in the source tree (GitHub's file view, an editor preview) and in the
 mdBook output alike. The alt text is written in the page, not in the SVG, and
-says what the figure shows. mdBook copies every non-Markdown file in `src/`
-into the built book, so the editable sources are published beside the SVGs.
+says what the figure shows: the SVG holds its text as paths (see "Text in the
+SVG"), so the page's alt text, caption and prose are the text alternative.
+mdBook copies every non-Markdown file in `src/` into the built book, so the
+editable sources and layout records are published beside the SVGs.
 
 ## Visual vocabulary
 
-All diagram types use the palette and scale in `src/figures/_style.puml`.
-Include it after the bundled C4 library. `_uml-style.puml` includes that
-library and the common style, then supplies sequence, state and deployment
-settings. The library supplies style macros without drawing C4 elements in
-UML views. Individual figures select semantic roles; they do not redefine
-fonts, borders or spacing. Page-native tables keep mdBook's normal styling.
+All figures use the palette and scale in `src/figures/_style.typ`, and
+`_draw.typ` turns each element's role into strokes with them. Individual figures
+select semantic roles; they do not redefine fonts, borders or spacing.
+Page-native tables keep mdBook's normal styling.
 
 | Role | Fill / text / border |
 |---|---|
@@ -67,12 +76,13 @@ fonts, borders or spacing. Page-native tables keep mdBook's normal styling.
 
 | Property | Shared choice and notation-specific reason |
 |---|---|
-| Font family | Pinned DejaVu Sans; DejaVu Sans Mono for explicit code styling. The renderer adds generic browser fallbacks. |
-| Type scale, in SVG units | Body, relations, keys and notes 14; titles, C4/sequence participant heads and deployment enclosure heads 16; C4 type/technology qualifiers 12. C4's heads come from its Creole heading markup. State names remain 14 because they are short work/outcome labels; deployment file listings use the 14-unit body scale. |
-| Main strokes | Entity, boundary, note, key and arrow shafts 1.5. Sequence lifelines are 0.5 to keep them behind messages. The pinned renderer draws arrowhead outlines and some detail at 1, and paired separator rules at 0.75; those are notation glyphs, not competing semantic weights. |
-| Arrow forms | C4's relationship heads, UML transition heads, sequence action/reply heads and the deployment dependency keep their notation's form and dash pattern. Colour and shaft weight are shared. |
-| Spacing | C4/state/deployment layout uses `nodesep 40`, `ranksep 50` and `wrapWidth 220`. Sequence participant spacing is 20, participant padding 7 and message wrapping 55, with explicit line breaks for semantic groups. Titles use padding/margin 5; keys use padding 8 and margin 12. Layout engines interpret these settings differently; figures are checked at their final rendered size. |
-| Canvas | White, with no shadows. Keys have explicit pale fill and dark text, including when the image sits on a dark page. |
+| Font family | Pinned DejaVu Sans, bold for titles and entity names; DejaVu Sans Mono for explicit code styling. These are the only faces on a render's font path. Typst writes every glyph as a path, so the SVG names no font and a reader's browser needs none. |
+| Type scale, in SVG units | Body, relations, keys and notes 14; titles, participant and entity names and enclosure heads 16; C4 type and technology qualifiers 12. State names stay 14 because they are short work and outcome labels. |
+| Main strokes | Entity, boundary, note, key and arrow shafts 1.5. Sequence lifelines are 0.5 to keep them behind messages, and paired separator rules 0.75. |
+| Arrow forms | One arrowhead (a filled "stealth" head, 9 by 7) is shared by every relation, message and reply, in the line's colour. A reply and the deployment dependency are dashed; a C4 boundary's outline is dashed in longer dashes. Colour and shaft weight are shared. |
+| Spacing | Each layout module measures its text in the pinned font and sizes boxes, columns and rows from it. A figure source names only gaps and widths where it needs them (`col-gap`, `row-gap`, `gap`, `pad`, `limit`, `max-label`, `min-w`); only the C4 layout takes positions (an entity's `cx`, `top` and width). Figures are checked at their final rendered size. |
+| Canvas | White, with a 6-point margin and no shadows. Keys have an explicit pale fill and dark text, including when the image sits on a dark page. |
+| Style | Sketched at roughness 2 (see "Layout, then draw"). Keys are never sketched; text is never moved. |
 
 These sizes are source-space units. mdBook scales a wide SVG to the chapter
 column; the full-size link preserves access to its original scale. Do not
@@ -108,110 +118,186 @@ can use. They need no separate figure source.
 
 | Fact | Recorded in | Kept honest by |
 |---|---|---|
-| Renderer version | `scripts/figures.sh` (one constant and one digest per tool); the contract names the versions | each SVG carries the renderer's own stamp (`<?plantuml 1.2026.8?>`, `data-d2-version="v0.9.0"`), which `task docs:figures` checks on the fresh and the committed file |
-| Layout settings | the source itself | the lint below refuses a source that does not declare them |
-| Regeneration command | here: `task docs:figures:update` rewrites every SVG; `task docs:figures` regenerates into a scratch directory and fails on any difference | the task is the command |
+| Renderer versions | `scripts/figures.sh` (one constant and one digest per tool and package); the contract names the versions | the up-front version check (Typst stamps no version into its SVG, so this is the only place a different Typst is named), the package tree digests and the font digests, all checked before any render |
+| Layout | the figure source and the layout module it calls | `<figure>.layout.json`, the record the source evaluates to, compared apart from the SVG |
+| Style settings | `_style.typ` (palette, scale, weights) and `_draw.typ` (drawing, sketch); the shipped look is compiled in | the SVG compare: a restyle changes the SVG and not the record |
+| Regeneration command | here: `task docs:figures:update` rewrites every SVG and record; `task docs:figures` regenerates into a scratch directory and fails on any difference | the task is the command |
 
-Recording the version once, in the script, and letting each SVG report it avoids
-a per-figure copy that would rot. A figure rendered by another version fails the
-compare and says so by name.
+Recording each version once, in the script, and checking it before every render
+avoids a per-figure copy that would rot.
 
-### Layout settings each source must declare
+## Layout, then draw
 
-- **PlantUML**: exactly one bare `@startuml` ... `@enduml`, and
-  `!pragma layout smetana` on a line of its own. Without it PlantUML uses
-  whichever Graphviz the host has, which changes the output (seen on
-  2026-10-16: the same state diagram differs with and without Graphviz on the
-  path). No `!includeurl` or `!include https://...`: the figure must not depend
-  on the network. `<C4/...>` and other `<...>` standard-library includes are
-  bundled in the jar.
-- **d2**: a `vars: { d2-config: { ... } }` block setting `layout-engine`
-  (`dagre` or `elk`, the two bundled open engines; TALA is a separate
-  proprietary install), `theme-id` and `sketch: false`. d2 lets `D2_*`
-  variables and flags override the file, which is why the renderers run in an
-  empty environment as well.
+A figure source builds a **layout record** with a layout module and passes it to
+`render` in `_draw.typ`. The record is plain data: positions, roles and measured
+text, and no colour, weight, font size or roughness, so a restyle cannot change
+it. Its shape is documented in `_draw.typ`'s header. `render` draws it and
+attaches it to the page as `metadata(record) <layout>`, which `typst eval
+'query(<layout>).first().value' --in FIG.typ` prints as JSON. `scripts/figures.sh`
+writes that print as `<figure>.layout.json`, pretty-printed so a change is a
+readable diff, and compares it apart from the SVG, so a layout change (both
+files change) and a restyle (only the SVG changes) read differently. A record
+holding a colour, a length, a piece of content or a style key is refused, so the
+committed record cannot drift with a restyle.
 
-## Renderers and what makes them reproducible
+`_draw.typ` is the only module that draws and the only one that imports CeTZ, so
+how every stroke is drawn can change in that one place. The lint refuses a
+figure source that imports a package itself and any other module that imports
+CeTZ; a layout or style module may import another pinned package.
+
+**Styles.** `crisp` is roughness 0 and draws the exact geometry. `sketch`
+wobbles every outline, line, arrow shaft and cylinder by up to 0.6, 1.2 or 1.8
+points at roughness 1, 2 or 3. **The shipped default is sketch at roughness 2,
+with keys and page tables crisp**, as the owner decided on 2026-10-17 ("Roughness
+2 is good"; DejaVu stays, with no handwriting face; key boxes crisp). The wobble
+is a pure function of the figure's name and each element's own geometry, never a
+clock or a random source, so two renders are byte-identical, and
+`scripts/figures.sh` passes only `--input figure=NAME`: the look is compiled in.
+`--input style=crisp` or `--input roughness=N` select another for review and
+are not used by the check.
+
+**Held in reserve: rough.js on Bun.** The layout record is also the seam where a
+different drawing backend could be attached. rough.js, run on Bun, which `task
+setup` already fetches, would take the record's shapes and draw them in its own
+hand-drawn style; the survey that proposed it is
+[`docs/research/layout-draw-separation-a.md`](../research/layout-draw-separation-a.md).
+It is not adopted: nothing in a figure needs a look `_draw.typ` cannot give, and
+it would add a second renderer to pin and keep reproducible. The record needs no
+change to allow it.
+
+**Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
+item, not text. In the trial it drew the label as a list. Write `2\.` in the
+figure source (`[2\. Launches]`); the record holds the string `2. Launches`. The
+two numbered relations in `process-authority` need it. Under the layout record
+the mistake is loud: `_layout.typ` accepts only text, spaces and line breaks in a
+label, and the render stops with `a label may hold only text, ... not
+item(number: 2, ...)` (seen by removing the backslash from a scratch copy).
+
+## Fetched, pinned and offline
 
 | Tool | Pin | Fetched by `task setup` |
 |---|---|---|
-| PlantUML | 1.2026.8, the GPL jar `plantuml-1.2026.8.jar`, bundling C4-PlantUML 2.13.0 and Smetana | into `target/tools`, SHA-256 checked |
-| d2 | 0.9.0, the host's release archive (macOS arm64, Linux arm64, Linux amd64) | into `target/tools`, SHA-256 checked |
+| Typst | 0.15.1, the host's static release archive (macOS arm64, Linux arm64, Linux amd64) | into `target/tools/typst`, archive SHA-256 checked, version checked before every run |
+| CeTZ | 0.4.2 and its one dependency oxifmt 1.0.0, from the Typst package registry | unpacked into `target/tools/typst-packages/preview`, tarball SHA-256 and unpacked-tree digest checked |
 | DejaVu fonts | 2.37, upright Sans, Sans Bold, Sans Mono and Sans Mono Bold | into `target/tools/fonts/dejavu-2.37`, archive and each face checked |
-| Java runtime | 11 or later; not fetched | found on PATH, `JAVA_HOME`, `FIGURES_JAVA` or Homebrew's `openjdk` |
 
-Known sources of differing renders, and the controls checked for them
-(seen on 2026-10-16 unless marked otherwise; these observations are not a
-guarantee across every Java runtime):
+Setup needs only the host's `curl`, `tar` (with xz and bzip2 support) and a
+SHA-256 utility; no language runtime is needed to set up, check or update a
+figure.
 
-- **Timestamps and ids**: none. PlantUML's SVG has no date and its element ids
-  are sequential; d2 derives its class hash from the diagram. Two renders on one
-  host are byte-identical, and so is a render from another directory under
-  another file name.
-- **Embedded source**: PlantUML appends an encoded copy of the source unless
-  told not to; `-nometadata` requests its removal. The pinned release can race
-  while initialising shared format options when processing files concurrently,
-  and fresh failed renders contained source metadata despite this flag.
-  `--threads 1` avoids that concurrent initialisation. The exact comparison
-  remains unchanged: the checker neither removes metadata nor retries failures.
-  [The retained failure and bounded verification](../evidence/book-figures-k92/README.md)
-  distinguish observed differing bytes from the source-supported race diagnosis.
-- **Fonts**: PlantUML measures text with the Java runtime's fonts, so the same
-  source gave different widths on macOS and Ubuntu. The renderer is run with
-  Java's font path set to the four pinned DejaVu faces and
-  `defaultFontName`/`monospacedFontName` set to them; with that, macOS arm64
-  (OpenJDK 27), Ubuntu arm64 (OpenJDK 21) and Ubuntu amd64 under QEMU user-mode
-  emulation (OpenJDK 21) rendered byte-identical SVGs from the same sources,
-  with the d2 archive for each host. The amd64 run is emulated, not a native
-  x86-64 kernel. The Oblique
-  faces are deliberately not pinned: with them the two hosts measured one italic
-  label 55.945 and 55.816 wide, and without them Java slants the upright face
-  and both agree. d2 embeds its own font and is unaffected.
-- **Font fallback**: PlantUML names `DejaVu Sans` with no generic family, so a
-  reader's browser without it would fall back to its serif default. The script
-  appends `sans-serif` or `monospace` to those attributes after rendering, the
-  same way for check and update.
-- **Environment**: both renderers run under `env -i` from a private working
-  directory, so `D2_*`, `GRAPHVIZ_DOT`, `PLANTUML_*`, `_JAVA_OPTIONS`, locale and
-  a `plantuml.skin` in the caller's directory cannot reach a figure.
+**Why these versions, checked 2026-10-17.** Typst 0.15.1 (published 2026-07-17)
+was the latest release. CeTZ 0.4.2 is what the trial drew with; 0.5.2 exists
+and is not adopted, because moving up means re-trialling the primitives and is
+a decision of its own. The Typst digests equal the ones GitHub lists. The
+registry lists no digests, so the package digests were computed from the
+download, and the unpacked trees matched the copy Typst had fetched itself. The
+DejaVu release lists no digest either; the archive and face digests were
+computed from the download on 2026-10-16.
 
-## Typst figures (added beside PlantUML by `book-figure-engine-k109`)
+**Fetched, not vendored.** CeTZ is LGPL-3.0-or-later and ships a WebAssembly
+plugin; this repository is Apache-2.0, and nothing else the book needs is
+vendored (mdBook, Bun and the fonts are fetched too). Fetching keeps the licence
+text and the binary out of the tree and costs one pin. The SVGs carry none of
+CeTZ's code, only paths. This is a recorded engineering choice, not legal advice.
 
-The book is moving its figures from PlantUML to Typst with the CeTZ drawing
-package (decided 2026-10-17, planned in `book-figure-migration-k108`). This
-section describes the Typst side as it now stands in the toolchain. Until the
-last `.puml` is ported, both renderers run, every rule above still holds for a
-`.puml`, and the text above is left for the leaf that retires PlantUML to
-rewrite (the last `.puml` was ported by `book-figure-settled-exit-status-k116`). The three sequence figures (`successful-session`, `selection-cancellation`
-and `supervision-cancellation`, ported by `book-figure-sequences-k111`) and the two
-C4 figures (`system-context` and `process-authority`, ported by
-`book-figure-c4-context-container-k112`) are `.typ` figures with committed
-`.layout.json` records, as are `source-components` (`book-figure-source-components-k113`)
-and `installed-files` (`book-figure-installed-files-k114`) and `session-outcomes`
-(`book-figure-session-outcomes-k115`) and `settled-exit-status`
-(`book-figure-settled-exit-status-k116`); each port replaces a figure's `.puml` with
-its `.typ` in one commit. All nine figures are now `.typ`: no `.puml` figure is
-left, and the leaf that retires PlantUML removes the renderer and the text above.
+**Offline once set up.** A render runs the pinned `target/tools/typst`, never
+one on `PATH`, under `env -i` from a private directory, with
+`--ignore-system-fonts`, `--ignore-embedded-fonts` and `--font-path` set to the
+four pinned DejaVu faces, and `--package-cache-path` set to the pinned cache.
+Before any render, the check verifies the Typst version, every pinned package
+by its tree digest, that the cache holds nothing else, and every pinned font by
+digest and that the font directory holds nothing else. A missing cache
+fails with `run 'task setup'` instead of starting a download. As a second line,
+a render's proxy points at a refused port, so an import of anything unpinned
+fails with a refused connection and downloads nothing; without that, Typst
+fetches a missing `@preview` package on its own (seen on 2026-10-17). A lint
+refuses any `@namespace/name:version` in a `.typ` that is not a pinned
+package, `@local` included.
 
-**On disk.** A `.typ` whose name does not start with `_` is a figure source,
-beside the `.puml` and `.d2` ones, with its SVG of the same name. The
-one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
-`x.puml` and `x.d2` are. A file starting with `_` is a module that figures
-import. It is not a figure and gets no SVG; an SVG for one is refused as an
-orphan. Seven modules hold the Typst side. `_style.typ` holds the palette roles,
-text scale, stroke weights, faces and text measuring, and draws nothing.
-`_layout.typ` holds the constructors a layout module builds its record with and
-the orthogonal ports and routes that `_c4.typ` and `_state.typ` share.
-`_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout,
+**Fonts.** Typst embeds Libertinus Serif, New Computer Modern (and its Math face) and
+DejaVu Sans Mono, and treats a missing family as a warning, not an error: with a family missing it
+rendered with a fallback and exited 0. The render therefore ignores embedded
+fonts, and any output on Typst's stderr fails the figure.
+
+**Stereotype and technology lines are upright.** The earlier C4 output set them
+in italics. Typst draws a missing italic face upright (no skew in the
+SVG), no Oblique face is pinned, and the 12-point step and the `«»` and `[]`
+marks carry the distinction. `book-figure-retire-plantuml-k117` considered
+pinning the face: the reason it had been avoided (the former renderer measured
+the italic face differently per host) went with that renderer, so adopting it
+would be one pinned face and a `style: "italic"` in `_style.typ`, but nothing a
+reader asks of a figure turns on it, so it is not adopted.
+
+**Version mismatch.** Typst's SVG carries no version stamp, and the script does
+not edit the SVG to add one. A wrong Typst is named up front by the version
+check (`Typst 0.15.1 is pinned, found '...'`). Because renders always use the
+pinned binary, an SVG made by another version can only be a committed one, and
+it surfaces as a difference whose message names the pinned Typst and CeTZ. The
+check cannot tell that cause from a changed figure; regenerating is the remedy
+for both.
+
+**Reproducibility, observed on macOS arm64 (Linux not run).** Two renders, a
+render from another directory, and a render under a hostile environment
+(`TYPST_*`, `SOURCE_DATE_EPOCH`, locale, proxy and `XDG_*` set) are
+byte-identical. The Linux arm64 and amd64 archives are pinned and fetched by the
+same code, but no Linux run has been made, and Typst's output on Linux is
+unchecked. The findings retained from the former renderer (the host-font
+differences, the embedded-source race and the digests of its inputs) are in
+[`docs/evidence/book-figures-k92/`](../evidence/book-figures-k92/README.md) and
+are not rewritten.
+
+**Text in the SVG.** Typst writes every glyph as a path: the text is not
+selectable or searchable, and the files are 5-7 times larger than the former
+renderer's. The contract never promised selectable figure text; the page's alt
+text, caption and prose are the text alternative, and the SVG is a full-size
+link and never the only place a fact is stated. The size budget (each SVG at
+most 300 KB, the set at most 2 MB) is checked by `book-figure-viewing-check`.
+The nine figures are 1.80 MB together and the largest is 259 KB.
+
+**Controls.** `task docs:figures:test` runs the checks of the check, each made to
+fire against a subject known to be wrong, with its fixtures in
+`scripts/figures-fixtures/` outside the book: the fetch refusals offline (a
+fresh fetch, a corrupt cache, a corrupt download, a wrong pin, a failed
+download); a fixture figure that matches and renders to the same bytes twice, in
+a hostile environment too; a changed source, module, SVG and layout record; a
+missing or orphan SVG and layout record; `update` writing and rewriting and then
+changing nothing; a second editable source, a file of another kind and a
+subdirectory; a restyle that changes the SVG and leaves the record alone, and a
+record holding a colour, a length, a style key or a piece of content; a Typst of
+another version; a missing, empty, changed, extended and symlinked package
+cache and an extra package or namespace in it; an unpinned, other-version and
+`@local` import; a figure importing a package itself; a missing font family; a
+tampered, extra and missing pinned font; a render with an empty package cache or
+an unpinned import that reaches only a refused connection; and a render with no
+fonts that cannot fall back to an embedded one. The book's own four modules are
+rendered through a figure with every kind of row, twice, with no bytes committed
+for them (a style change is a change to every figure); the control checks that
+the figure is sketch at roughness 2, that its key box is crisp, that two names
+give two different sketches, and that a module other than `_draw.typ` importing
+CeTZ is refused. One page with a figure is built through mdBook to confirm the
+relative path and the alt text. When the Typst side was added, each safeguard was
+also removed from a copy of the script, one at a time, and the control for it
+failed: the embedded-font flag, the proxy, the stderr rule, the lint call, the
+lint's no-import rule, the package check, the version check, the symlink rule
+and the `.typ` source glob. `task check` does not run these controls and does not
+need the figure tools.
+
+## The layout modules
+
+**On disk.** A `.typ` whose name does not start with `_` is a figure source, with
+its SVG and layout record of the same name. A file starting with `_` is a module
+that figures import. It is not a figure and gets no SVG; an SVG for one is
+refused as an orphan. Seven modules hold the book's drawing. `_style.typ` holds
+the palette roles, text scale, stroke weights, faces and text measuring, and
+draws nothing. `_layout.typ` holds the constructors a layout module builds its
+record with and the orthogonal ports and routes that `_c4.typ` and `_state.typ`
+share. `_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout,
 `_deployment.typ` the deployment layout and `_state.typ` the state-machine
-layout (below): each measures its text and returns a layout record. `_draw.typ` turns a record
-into strokes and is the only module that imports CeTZ; its header documents the
-record's shape and the styles. `_style.typ` and `_sequence.typ` were promoted from
-the k107 trial, which was removed once its findings were recorded here (its
-sources stay in the history of the commit that added it,
-`book-figure-renderer-k107`); the sequence figure rendered through the modules at
-`--input style=crisp` was byte-identical to the trial's, for the base and the long
-variant.
+layout: each measures its text and returns a layout record. `_draw.typ` turns a
+record into strokes (see "Layout, then draw"). `_style.typ` and `_sequence.typ`
+were promoted from the k107 trial, which was removed once its findings were
+recorded here (its sources stay in the history of the commit that added it,
+`book-figure-renderer-k107`).
 
 **What the sequence layout covers.** Messages and dashed replies, a self-call
 (its label may be several lines), `create` (the participant's head drops to the
@@ -225,8 +311,7 @@ hyphen. Column gaps and row heights follow the measured labels, so adding a
 participant or lengthening a label edits no coordinates: a scratch copy of
 `supervision-cancellation.typ` with an `audit sink` participant and a
 four-line message rendered with no other change. A label's apostrophe is
-written in the source as `'` and drawn as `’` (typographic), as in the trial;
-the old PlantUML figures drew a straight one.
+written in the source as `'` and drawn as `’` (typographic).
 
 **What the C4 layout covers.** `_c4.typ` serves the system-context, container and
 component views: an entity in a semantic role (`ent`: «stereotype», name, [technology] and a
@@ -300,6 +385,18 @@ initial marker, and the roles `phase`, `outcome` and `initial` (`_style.typ`),
 the first two drawn with 12pt corners. A rounded box's sketched outline follows
 the corner (a path through points on the arc), where a 3pt box's stays a
 wobbly rectangle, so the other eight records and SVGs came out byte-identical.
+
+## Porting record
+
+This is the history of the migration from PlantUML to Typst
+(`book-figure-migration-k108`). The ports are `book-figure-sequences-k111`,
+`book-figure-c4-context-container-k112`, `book-figure-source-components-k113`,
+`book-figure-installed-files-k114`, `book-figure-session-outcomes-k115` and
+`book-figure-settled-exit-status-k116`, and `book-figure-retire-plantuml-k117`
+removed the former tools. It records the effort each figure cost and what changed
+against the former output, with the reason. It describes the former renderer and
+is not a rule for any figure. In the former output an apostrophe was straight;
+in the Typst figures a source's `'` is drawn as the typographic `’`.
 
 **Effort and edit cost.** Counted when the figures were ported.
 - `system-context`: 4 entities and 5 relations written; all 5 routes named by
@@ -459,14 +556,6 @@ table and the CLI help for 1; none changed.
   figures together are 1.80 MB, all Typst, under the 2 MB budget, and the largest
   is 259 KB, under the 300 KB limit for one).
 
-**Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
-item, not text. In the trial it drew the label as a list. Write `2\.` in the
-figure source (`[2\. Launches]`); the record holds the string `2. Launches`. The
-two numbered relations in `process-authority` need it. Under the layout record
-the mistake is loud: `_layout.typ` accepts only text, spaces and line breaks in a
-label, and the render stops with `a label may hold only text, ... not
-item(number: 2, ...)` (seen by removing the backslash from a scratch copy).
-
 **Extraction from PlantUML, tested in the trial, not adopted.** PlantUML's Smetana
 SVG exposes node boxes (`rect x/y/width/height`) and link Béziers
 (`<g class="link">` with `M… C…` paths), but the cylinder is path-only, edge-label
@@ -479,121 +568,21 @@ are maintained Typst source with no `.puml`.
 
 **Single-engine risk.** PlantUML's C4 and UML conventions (standard shapes,
 `legend`, the standard library) exist now only as this directory's hand-written
-primitives, and no PlantUML figure is left; any d2
-diagram has no counterpart.
-
-**Layout, then draw.** A figure source builds a record with a layout module and
-passes it to `render` in `_draw.typ`. The record is plain data: positions, roles
-and measured text, and no colour, weight, font size or roughness, so a restyle
-cannot change it. `render` draws it and attaches it to the page as
-`metadata(record) <layout>`, which `typst eval 'query(<layout>).first().value'
---in FIG.typ` prints as JSON. The figure is drawn sketched at roughness 2 unless
-`--input style=crisp` (or `--input roughness=N`) says otherwise; key boxes are
-never sketched. `scripts/figures.sh` passes `--input figure=NAME` so each figure
-seeds its own sketch. Only `_draw.typ` calls CeTZ, so how all lines are drawn can
-change in one place: the lint refuses a figure source that imports a package
-itself and any other module that imports CeTZ. A module may import a pinned
-package other than CeTZ.
-
-| Tool | Pin | Fetched by `task setup` |
-|---|---|---|
-| Typst | 0.15.1, the host's static release archive (macOS arm64, Linux arm64, Linux amd64) | into `target/tools/typst`, archive SHA-256 checked, version checked before every run |
-| CeTZ | 0.4.2 and its one dependency oxifmt 1.0.0, from the Typst package registry | unpacked into `target/tools/typst-packages/preview`, tarball SHA-256 and unpacked-tree digest checked |
-
-**Why these versions, checked 2026-10-17.** Typst 0.15.1 (published 2026-07-17)
-was the latest release. CeTZ 0.4.2 is what the trial drew with; 0.5.2 exists
-and is not adopted, because moving up means re-trialling the primitives and is
-a decision of its own. The Typst digests equal the ones GitHub lists. The
-registry lists no digests, so the package digests were computed from the
-download, and the unpacked trees matched the copy Typst had fetched itself.
-
-**Fetched, not vendored.** CeTZ is LGPL-3.0-or-later and ships a WebAssembly
-plugin; this repository is Apache-2.0, and nothing else the book needs is
-vendored (PlantUML, d2, mdBook and the fonts are fetched too). Fetching keeps
-the licence text and the binary out of the tree and costs one pin. The SVGs
-carry none of CeTZ's code, only paths and text. This is a recorded engineering
-choice, not legal advice.
-
-**Offline once set up.** A render runs the pinned `target/tools/typst`, never
-one on `PATH`, under `env -i` from a private directory, with
-`--ignore-system-fonts`, `--ignore-embedded-fonts` and `--font-path` set to the
-four pinned DejaVu faces, and `--package-cache-path` set to the pinned cache.
-Before any render, the check verifies the Typst version, every pinned package
-by its tree digest, and that the cache holds nothing else. A missing cache
-fails with `run 'task setup'` instead of starting a download. As a second line,
-a render's proxy points at a refused port, so an import of anything unpinned
-fails with a refused connection and downloads nothing; without that, Typst
-fetches a missing `@preview` package on its own (seen on 2026-10-17). A lint
-refuses any `@namespace/name:version` in a `.typ` that is not a pinned
-package, `@local` included.
-
-**Fonts.** Typst embeds Libertinus Serif, New Computer Modern (and its Math face) and
-DejaVu Sans Mono, and treats a missing family as a warning, not an error: with a family missing it
-rendered with a fallback and exited 0. The render therefore ignores embedded
-fonts, and any output on Typst's stderr fails the figure.
-
-**Stereotype and technology lines are upright.** The PlantUML C4 output set
-them in italics. Pinning DejaVu Oblique was avoided only because Java measured
-the italic face differently per host, and that still holds while PlantUML is
-here, since the faces share one directory that is also Java's font path. Typst
-draws a missing italic upright (no skew in the SVG), and the 12pt step and the
-`«»` and `[]` marks carry the distinction. The retirement leaf may reopen this:
-it is one pinned face and a `style: "italic"` in `_style.typ`.
-
-**Version mismatch.** Typst's SVG carries no version stamp, unlike PlantUML's
-and d2's, and the script does not edit the SVG to add one. A wrong Typst is
-named up front by the version check (`Typst 0.15.1 is pinned, found '...'`).
-Because renders always use the pinned binary, an SVG made by another version
-can only be a committed one, and it surfaces as a difference whose message names
-the pinned Typst and CeTZ. The check cannot tell that cause from a changed
-figure; regenerating is the remedy for both.
-
-**Reproducibility, observed on macOS arm64 (Linux not run).** Two renders, a
-render from another directory, and a render under a hostile environment
-(`TYPST_*`, `SOURCE_DATE_EPOCH`, locale, proxy and `XDG_*` set) are
-byte-identical. Linux arm64 and amd64 archives are pinned and fetched by the
-same code, but this leaf did not run them, and Typst's output on Linux is
-unchecked.
-
-**Text in the SVG.** Typst writes every glyph as a path: the text is not
-selectable or searchable, and the files are 5-7 times larger than PlantUML's.
-The page's alt text, caption and prose are the text alternative. The size
-budget (each SVG at most 300 KB, the set at most 2 MB) is checked by
-`book-figure-viewing-check`.
-
-**Controls.** `task docs:figures:test` adds: a passing `.typ` fixture and its
-byte-identical re-render; a changed source, module and SVG; `update`; a Typst of
-another version; a missing, empty, changed, extended and symlinked package cache
-and an extra package or namespace in it; a `.puml`+`.typ` and a `.d2`+`.typ`
-stem clash; an SVG for a module; an unpinned, other-version and `@local`
-import; a figure importing a package itself; a missing font family; a render
-with an empty package cache or an unpinned import that reaches only a refused
-connection; and a render with no fonts that cannot fall back to an embedded one.
-The book's own four modules are rendered through a figure with every kind of
-row, twice, with no bytes committed for them (a style change is a change to every
-figure); the control checks that the figure is sketch at roughness 2, that its key
-box is crisp, that two names give two different sketches, and that a module other
-than `_draw.typ` importing CeTZ is refused. Each safeguard was also removed from a copy of
-the script, one at a time, and the control for it failed: the embedded-font
-flag, the proxy, the stderr rule, the lint call, the lint's no-import rule, the
-package check, the version check, the symlink rule and the `.typ` source glob.
-
-## Diagram kinds checked under Smetana
-
-With no Graphviz on the path (`PATH` without `dot`, `GRAPHVIZ_DOT` pointing
-nowhere), PlantUML 1.2026.8 rendered a C4 context, a C4 container, a C4
-component, a UML state machine, a UML activity, a UML deployment, a UML
-sequence and a UML timing diagram. Sequence and timing diagrams do not use a
-layout engine at all. No kind in the contract's figure list needed Graphviz, so
-there is no Smetana limitation to escalate. Whether a larger figure lays out
-legibly under Smetana is the art stage's to judge on the real figures.
+primitives. The book has no other renderer to fall back on, and rough.js on Bun
+(see "Layout, then draw") is a drawing backend only: it would not lay out a
+figure.
 
 ## Viewing checks
 
 The records below are dated evidence of the artifacts each pass inspected.
 They are not current style instructions; the shared conventions above govern
 new and revised figures. Earlier references to notation teaching describe the
-superseded contract.
+superseded contract. Every record dated before 2026-10-17 describes figures
+drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
+`_style.puml` and `_uml-style.puml` includes it names), which the migration to
+Typst has since replaced. They are kept as history, and none of their
+observations is a statement about the present figures. The viewing check of the
+migrated figures is `book-figure-viewing-check`.
 
 ### First-half style correction, 2026-10-16 (`book-first-half-k99`)
 
@@ -858,27 +847,18 @@ the check establishes no real-agent execution or human comprehension result.
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The
   path was confirmed to resolve beside the page and in the mdBook output.
-- Native x86-64 Linux hardware, and any Windows or macOS x86-64 host (not
-  pinned hosts); other Java runtimes than OpenJDK 21 and 27.
-- A reader's browser without DejaVu Sans: the generic fallback is in the SVG,
-  but the rendering in such a browser was not inspected.
-- mdBook's Rust, Coal and Ayu themes and narrower viewports. The checks above
-  cover only the named pages and environments.
+- Typst on Linux (arm64 and amd64): both archives are pinned and fetched by the
+  same code, and no Linux run has been made. Native x86-64 Linux hardware, and
+  any Windows or macOS x86-64 host, are not pinned hosts.
+- The nine migrated figures at chapter width and full size in mdBook, and the
+  size budget: the work of `book-figure-viewing-check`.
+- mdBook's Rust, Coal and Ayu themes and narrower viewports. The records under
+  "Viewing checks" cover only the named pages and environments.
 - The published site, which is unavailable before the book's first release.
-
-## Checking the check
-
-`task docs:figures:test` runs the controls: the fetch refusals offline, two
-renders compared, a hostile environment, and each of changed source, changed SVG,
-missing SVG, orphan SVG, another renderer version, a changed layout pin, a
-changed shared include, a removed font pin and every lint refusal made to fire
-against a subject known to be wrong. Its fixtures live in
-`scripts/figures-fixtures/`, outside the book. `task check` does not run it and
-does not need PlantUML, d2 or Java.
 
 ## Changing a pin
 
 A renderer or version change is a change to the contract. Re-read the release's
 digests, edit the constants in `scripts/figures.sh`, run `task setup`, then
 `task docs:figures:update` for the fixtures and the book's figures, and read the
-diff of every figure before committing it.
+diff of every figure and layout record before committing it.

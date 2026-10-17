@@ -67,8 +67,8 @@ book runs before `component-work-scope-k57`, which follows the node at the root.
   the contract instead of looking for those files.
 - This workstream's code is 48 commits past the v1.0.0 release and is not on
   GitHub, so GitHub's rendering of the book can be checked only after a push.
-- Versions pinned in the contract (mdBook 0.5.4, PlantUML 1.2026.8 with
-  C4-PlantUML 2.13.0, d2 0.9.0) were current on 2026-10-16; recheck a dated
+- Versions pinned in the contract (mdBook 0.5.4 current on 2026-10-16; Typst
+  0.15.1 and CeTZ 0.4.2 on 2026-10-17) were current when checked; recheck a dated
   fact before a choice turns on it.
 
 ## First half: units and shared conventions
@@ -290,9 +290,12 @@ planned it as ten leaves ahead of read 1: `book-figure-engine`,
 `book-figure-sketch-style`, the five port leaves, the PlantUML retirement and
 the viewing check. The plan, the decisions (SVG text, one source per figure,
 `_*.typ` modules, pins) and the layout-cost table are in that leaf's `## Plan`.
-Until `book-figure-retire-plantuml-k117` lands, the contract's PlantUML wording
-still governs the figures not yet ported. Chapters 7–12's figures are drawn on
-the new renderer.
+`book-figure-retire-plantuml-k117` has landed: the contract and `figures.md` state
+Typst/CeTZ only (pins, one `.typ` source per figure, `_*.typ` modules, SVG text as
+paths with alt text on the page, sketched at roughness 2, the layout record,
+`_draw.typ` and the `.layout.json` check), and the PlantUML and d2 mechanics, the
+Java requirement and the `.puml` fixtures are gone. Chapters 7–12's figures are
+drawn on the new renderer.
 
 The owner then chose (2026-10-17, `layout-draw-separation-k119`) to separate layout
 from drawing: each layout module returns a layout record, one `_draw.typ` draws any

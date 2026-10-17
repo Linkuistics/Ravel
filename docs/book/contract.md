@@ -463,22 +463,47 @@ The house style's points, as this book takes them:
   question better than its UML counterpart; and others where a reader question
   calls for them. Readers are assumed to know these notations or look them up.
   Every book-specific convention a figure uses is identifiable on or beside it;
-  the book does not teach the notation itself.
-- **Figure renderers**: PlantUML 1.2026.8, using its bundled C4-PlantUML 2.13.0
-  library and its built-in Smetana layout so that no separate Graphviz is
-  needed, for the C4, UML and SysML-style diagrams; and d2 0.9.0 for structure
-  and flow diagrams those notations do not fit. A change of renderer or version
-  is a change to this contract.
-- **Figure delivery**: every figure is committed as its editable text source
-  beside the SVG it generates, with the renderer version, the layout settings
-  and the regeneration command recorded. A Taskfile task regenerates every
-  figure and compares it with the committed SVG. No figure relies on GitHub's
-  own Mermaid rendering, whose version GitHub does not state. A figure made
-  only of the page's own text, such as a table, needs no source file. The
-  layout on disk and the regeneration procedure are in `figures.md` beside
-  this contract.
-- **Dated facts**: the versions above were current on 2026-10-16. A session
-  whose choice turns on one of them rechecks it first and records the date.
+  the book does not teach the notation itself. The book's own Typst modules draw
+  each notation's elements (boxes, cylinders, lifelines, orthogonal relations),
+  so a figure follows a notation where its question needs it, and
+  `figures.md` records where a drawing departs from the notation's usual form.
+- **Figure renderer**: Typst 0.15.1 with the CeTZ 0.4.2 package (and its one
+  dependency, oxifmt 1.0.0), for every figure. Text is set in the pinned DejaVu
+  Sans 2.37. `task setup` fetches all of them into `target/tools` with SHA-256
+  checks, and a render runs offline from those pins alone. One renderer draws
+  every notation, replacing the book's earlier notation-specific tools on the
+  owner's decision of 2026-10-17 ("migrate full"; the history is in
+  `figures.md`). A change of renderer or version is a change to this contract.
+- **Figure sources**: one authoritative `.typ` source per figure and no second
+  editable source in any notation. A figure source is data for a layout
+  module (`_sequence.typ`, `_c4.typ`, `_deployment.typ`, `_state.typ`), which
+  measures the figure's text and returns a layout record: positions, roles and
+  measured text, with no colour, weight, font size or roughness. `_draw.typ` is
+  the only module that draws, and draws any record under a named style from
+  `_style.typ`. A file whose name starts with an underscore is such a shared
+  module, not a figure, and has no SVG.
+- **Figure style**: figures are drawn sketched, at roughness 2, in DejaVu Sans
+  (the owner's choice of 2026-10-17: roughness 2, DejaVu, keys and tables crisp).
+  Keys are never sketched, and page tables are the page's own. A crisp style
+  (roughness 0, exact geometry) exists for review and is not shipped. Rough.js
+  running on Bun is held in reserve as a drawing backend at the layout record's
+  seam; it is not adopted.
+- **Figure delivery**: every figure is committed as its `.typ` source beside the
+  SVG it generates and its `<figure>.layout.json`, the layout record the source
+  evaluates to. The renderer versions, the layout and style settings and the
+  regeneration command are recorded in `figures.md` beside this contract. A
+  Taskfile task regenerates every figure and compares both the SVG and the
+  layout record with what is committed. The SVG holds the text as paths, by
+  design: its text is not selectable, so the alternative to a figure is the
+  alt text, caption and prose on the page, and the SVG is a full-size link,
+  never the only place a fact is stated. No figure relies on GitHub's own
+  Mermaid rendering, whose version GitHub does not state. A figure made only of
+  the page's own text, such as a table, needs no source file. The layout on disk
+  and the regeneration procedure are in `figures.md` beside this contract.
+- **Dated facts**: mdBook 0.5.4 was current on 2026-10-16; Typst 0.15.1 was
+  current on 2026-10-17, when CeTZ 0.5.2 also existed and was not adopted
+  (moving up is a new trial of every drawing primitive). A session whose choice
+  turns on one of them rechecks it first and records the date.
 
 ## 4. Reader checkpoints
 

@@ -48,3 +48,49 @@ Typst/CeTZ only, in one coherent change, once no `.puml` remains.
   record, `_draw.typ` and the `.layout.json` check described above.
 - `task setup`, `task docs:figures`, `task docs:figures:test` and `task check`
   pass on a clean `target/tools`.
+
+## Decisions (running log)
+
+2026-10-17 — Removed the PlantUML and d2 mechanics in one change: `scripts/figures.sh`
+(jar, d2, Java discovery, pragma and d2-config lints, font fallback sed, the
+`-nometadata`/`--threads 1` workaround, the renderer stamps) now does Typst only;
+the figures directory accepts `.typ`, `.svg` and `.layout.json` only, so a second
+editable source in any notation is refused as a file of another kind. The fixture set
+is the one Typst figure (`layers`) plus its draw module; the test, its page control
+and its tool-pin controls were rewritten around it, and a missing-pinned-font control
+was added.
+
+2026-10-17 — Italics: stereotype and technology lines stay upright; no Oblique face
+pinned. The Java measuring difference that made the pin costly is gone, but nothing a
+reader asks of a figure turns on italics. Recorded in `figures.md`.
+
+2026-10-17 — Contract rewritten (Figure notations, renderer, sources, style, delivery,
+dated facts) with the owner's "migrate full" and roughness decisions as authority; it
+names no former tool. `figures.md` is restructured around Typst: former-tool history
+is confined to "Porting record" and the dated "Viewing checks", marked as describing
+the former renderer; the TALA line went with the d2 text.
+
+2026-10-17 — Chapter 3's prerequisites lost the Java sentence and gained `xz` in the
+`tar` requirement (Typst's archive is `.tar.xz`; k109 added the fetch without updating
+the chapter).
+
+2026-10-17 — Exception to the search: `docs/research/layout-draw-separation-a.md` is a
+survey of prior art (d2, TALA, Graphviz as other tools' designs), not Ravel's mechanics
+or history, so it is left unchanged and named here rather than in the Done-when list.
+
+## Result
+
+Search (every token of plantuml, smetana, tala, d2, java, jar, jdk, jre, openjdk,
+graphviz, `.puml`, `.d2` over all tracked text files, enumerated then classified):
+hits only in `docs/evidence/book-figures-k92/`, `figures.md` (Porting record, viewing
+records, and two references to this leaf's handle), the research survey above, and
+`.grove/`. Controls: a planted file with five tokens came back dirty with all five;
+`.grove/` (where the words legitimately live) came back dirty in 43 files; no tracked
+file name contains puml, plantuml, `.d2` or java other than this leaf's own.
+On a moved-aside `target/tools`: `task setup` (no Java, jar or d2 fetched),
+`task docs:figures` (9 figures match), `task docs:figures:test` (78 ok lines) and
+`task check` (339 passed, 46 skipped) pass, as do `docs:book:build`, `docs:examples`
+(13 passed), `docs:examples:test`, `docs:examples:mutants` (26 of 26 killed) and
+`book:integrity`. The two new controls (second source refused; missing pinned font
+refused) were seen to fail against mutated copies of `figures.sh`. Not run: Typst on
+Linux (still pinned, unrun); no reviewer spent.

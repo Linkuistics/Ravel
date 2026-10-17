@@ -23,9 +23,8 @@ example. A v1.0.0 release installation does not contain those later changes,
 even if the checkout's version string still says `1.0.0`.
 
 On a macOS or GNU/Linux host, have Rust 1.85 or later with Cargo,
-Bash 4 or later, Task, curl, tar with gzip and bzip2 support, a SHA-256 utility
-(`shasum` or `sha256sum`), and Java 11 or later available. Java is needed
-because the shared setup also prepares the book's figure tools. Run the
+Bash 4 or later, Task, curl, tar with gzip, bzip2 and xz support, and a SHA-256
+utility (`shasum` or `sha256sum`) available. Run the
 following commands from the root of this checkout. `task setup` fetches the
 pinned build tools and worker dependencies. `task install` builds the
 [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) and the

@@ -97,9 +97,9 @@ the next block unlabelled.
 The check **fails closed** for blocks outside an example. A fenced block with no
 language tag is an error, and so is one in any language not on the checker's list
 of languages that are never examples (`text`, `rust`, `toml`, `yaml`, `yml`,
-`markdown`, `md`, `diff`, `ini`, `xml`, `html`, `ruby`, `python`, `plantuml`,
-`d2`; the list is in `scripts/examples-extract.awk`, and a chapter that needs
-another adds it there). The match ignores case. So an unlabelled `sh`, `console`,
+`markdown`, `md`, `diff`, `ini`, `xml`, `html`, `ruby`, `python`; the list is
+in `scripts/examples-extract.awk`, and a chapter that needs another adds it
+there). The match ignores case. So an unlabelled `sh`, `console`,
 `shell-session` or `ts` block is caught, and so is one nobody thought to list.
 Two shapes that Markdown would show but the checker cannot read are errors for
 the same reason: a fence opened on a list-item line (`- ```sh`), and an indented

@@ -57,7 +57,7 @@
 // Text scale. Stereotype and technology lines («container», [Rust]) are the
 // `qual` size and upright: DejaVu Oblique is not a pinned face, and Typst draws
 // a missing italic upright, so the size step and the «» and [] marks carry the
-// distinction that italics did in the PlantUML output.
+// distinction that an italic would.
 #let sz = (body: 14pt, head: 16pt, qual: 12pt)
 #let w-main = 1.5pt // entities, boundaries, notes, keys, arrow shafts
 #let w-life = 0.5pt // sequence lifelines

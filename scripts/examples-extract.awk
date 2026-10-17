@@ -22,7 +22,7 @@ BEGIN {
   # Languages whose blocks are never examples. A block outside an example in any
   # other language, or with no language, is an error: it fails closed, so a
   # transcript tagged shell-session or left bare cannot go unchecked.
-  split("text rust toml yaml yml markdown md diff ini xml html ruby python plantuml d2", names, " ")
+  split("text rust toml yaml yml markdown md diff ini xml html ruby python", names, " ")
   for (i in names) nonrunnable[names[i]] = 1
   known_requirement["confinement"] = 1
   file_open = 0
