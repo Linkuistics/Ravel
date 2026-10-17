@@ -25,9 +25,12 @@ docs/book/src/figures/
 - A file whose name starts with `_` is a shared include (`!include _style.puml`
   in PlantUML, `...@_style` in d2). It is not a figure and gets no SVG. This is
   where the art stage's visual vocabulary lives once it exists.
-- The directory holds `.puml`, `.d2` and `.svg` files only. Anything else, a
-  subdirectory, or an SVG with no source is refused, so the compare covers every
-  file there.
+- The directory holds `.puml`, `.d2`, `.typ`, `.svg` and `.layout.json` files
+  only. A `.typ` figure also has a `<name>.layout.json`, the layout record it
+  evaluates to, which `check` compares apart from the SVG and `update` rewrites.
+  Anything else, a subdirectory, an SVG with no source, or a `.layout.json` with
+  no `.typ` figure beside it (a `.puml`, a `.d2` or a module does not count) is
+  refused, so the compare covers every file there.
 - A figure made only of the page's own text, such as a table, needs no file.
 
 ## How a page uses a figure

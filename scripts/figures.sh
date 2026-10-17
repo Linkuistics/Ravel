@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # The book's figure toolchain: fetch and verify the pinned renderers (PlantUML,
 # d2 and Typst with the CeTZ package), then regenerate every figure under
-# docs/book/src/figures and compare it with the committed SVG. The layout on disk and the reasons for each choice below are
-# in docs/book/figures.md.
+# docs/book/src/figures and compare it with the committed SVG, and each Typst
+# figure's layout record with its committed .layout.json. The layout on disk and
+# the reasons for each choice below are in docs/book/figures.md.
 #
 # Like scripts/book.sh this is separate from crates/ravel/scripts/dispatch.sh,
 # whose bytes decide the compiled worker's identity; the book is not product.
@@ -357,9 +358,9 @@ lint_layout() {
       continue
     fi
     case "$name" in
-      *.puml | *.d2 | *.typ | *.svg) ;;
+      *.puml | *.d2 | *.typ | *.svg | *.layout.json) ;;
       *)
-        echo "figures: $name is not a .puml, .d2, .typ or .svg file" >&2
+        echo "figures: $name is not a .puml, .d2, .typ, .svg or .layout.json file" >&2
         problems=1
         ;;
     esac
@@ -379,6 +380,17 @@ lint_layout() {
     stem="$(basename "$file" .svg)"
     if ! printf '%s\n' "$stems" | grep -qxF -- "$stem"; then
       echo "figures: $stem.svg has no $stem.puml, $stem.d2 or $stem.typ source" >&2
+      problems=1
+    fi
+  done
+  # A layout record is the JSON a Typst figure's layout evaluates to, so only a
+  # .typ figure has one; a module, whose name starts with an underscore, is not a
+  # figure.
+  for file in "$dir"/*.layout.json; do
+    [[ -f "$file" ]] || continue
+    stem="$(basename "$file" .layout.json)"
+    if [[ "$stem" == _* || ! -f "$dir/$stem.typ" ]]; then
+      echo "figures: $stem.layout.json has no $stem.typ source (only a Typst figure has a layout record)" >&2
       problems=1
     fi
   done
@@ -477,7 +489,20 @@ add_font_fallbacks() {
   mv "$1.tmp" "$1"
 }
 
-# Render every figure source in DIR to OUT/<stem>.svg. All three renderers run
+# Run the pinned Typst for one figure: WORK is the private working directory
+# (it holds the empty HOME), ROOT the directory the figure's imports resolve in
+# and STEM the figure's name; the remaining arguments are the subcommand and its
+# own options. Standard output and error are the caller's to redirect.
+typst_isolated() {
+  local work="$1" root="$2" stem="$3" subcommand="$4"
+  shift 4
+  (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
+    "$TOOLS/typst" "$subcommand" --root "$root" --ignore-system-fonts --ignore-embedded-fonts \
+    --font-path "$fontdir" --package-cache-path "$packages" --input "figure=$stem" "$@")
+}
+
+# Render every figure source in DIR to OUT/<stem>.svg (and each Typst figure's
+# layout record to OUT/<stem>.layout.json). All three renderers run
 # under an empty environment, so a developer's D2_* variables, GRAPHVIZ_DOT,
 # PLANTUML_* settings, TYPST_* variables, locale and home directory cannot change
 # a figure, and
@@ -495,6 +520,7 @@ render_all() {
       *.puml) plantuml+=("$file") ;;
       *.typ)
         stem="$(basename "$file" .typ)"
+        # The SVG and the layout record come from one source under one isolation.
         # Offline and from the pinned inputs only: no system or embedded fonts, the
         # package cache that require_tools has verified (the empty environment and
         # private HOME leave no @local packages), and a proxy that refuses
@@ -503,11 +529,15 @@ render_all() {
         # succeeds, so any output on stderr fails the figure. The figure's name is
         # the one input: _draw.typ seeds each figure's sketch from it, and says
         # nothing else about the style, so the shipped look is compiled in.
-        (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
-          "$TOOLS/typst" compile --format svg --root "$dir" --ignore-system-fonts --ignore-embedded-fonts \
-          --font-path "$fontdir" --package-cache-path "$packages" --input "figure=$stem" \
-          "$file" "$out/$stem.svg" >/dev/null 2>"$work/typst.err") || die "Typst could not render $(basename "$file"): $(cat "$work/typst.err")"
+        typst_isolated "$work" "$dir" "$stem" compile --format svg "$file" "$out/$stem.svg" >/dev/null 2>"$work/typst.err" ||
+          die "Typst could not render $(basename "$file"): $(cat "$work/typst.err")"
         [[ ! -s "$work/typst.err" ]] || die "Typst warned while rendering $(basename "$file"): $(cat "$work/typst.err")"
+        # The layout record is whatever Typst prints for the value of the figure's
+        # <layout> metadata, pretty-printed so a change is a readable diff, and
+        # written as printed. A figure that attaches none has no value to print.
+        typst_isolated "$work" "$dir" "$stem" eval --pretty --in "$file" 'query(<layout>).first().value' >"$out/$stem.layout.json" 2>"$work/typst.err" ||
+          die "Typst could not evaluate the layout record of $(basename "$file") (a figure attaches one with _draw.typ's render, as metadata(record) <layout>): $(cat "$work/typst.err")"
+        [[ ! -s "$work/typst.err" ]] || die "Typst warned while evaluating the layout record of $(basename "$file"): $(cat "$work/typst.err")"
         ;;
       *.d2)
         stem="$(basename "$file" .d2)"
@@ -533,6 +563,48 @@ render_all() {
       [[ -f "$out/$stem.svg" ]] || die "PlantUML wrote no $stem.svg for $(basename "$file")"
       add_font_fallbacks "$out/$stem.svg"
     done
+  fi
+}
+
+# A layout record holds positions, roles and measured text and no style, so a
+# restyle cannot change it. Typst prints a colour as the string rgb("#..."), a
+# length as "1.5pt" and content as an object with a "func" key, and none of them
+# is a position or a measurement. Refuse a record with one, or with a key that
+# names a style property, so the committed record cannot drift with a restyle. A
+# label that is exactly a hex colour or a length, with nothing else in it, looks
+# like one and is refused too.
+lint_record() {
+  local json="$1" name="$2" found
+  found="$(grep -n -E '^[[:space:]]*"(fill|stroke|paint|thickness|color|colour|weight|size|font|roughness|radius|opacity|dash|style|func)":' "$json" || true)"
+  found="$found$(grep -n -E '^[[:space:]]*("[^"]*":[[:space:]]*)?"(rgb\(|luma\(|cmyk\(|oklab\(|oklch\(|color\.|#[0-9A-Fa-f]{3,8}"|-?[0-9.]+(pt|mm|cm|in|em|%)")' "$json" || true)"
+  if [[ -n "$found" ]]; then
+    echo "figures: $name's layout record holds a style value, which a restyle would change (line: ${found%%$'\n'*}); styles belong in _draw.typ and _style.typ" >&2
+    return 1
+  fi
+}
+
+# Compare one Typst figure's freshly evaluated record with the committed
+# <stem>.layout.json, or in update mode write it. Prints what it did and returns
+# non-zero for a problem.
+sync_layout_record() {
+  local mode="$1" fresh="$2" committed="$3" stem="$4" name="$5"
+  lint_record "$fresh" "$name" || return 1
+  if [[ ! -f "$committed" ]]; then
+    if [[ "$mode" == update ]]; then
+      install -m 0644 "$fresh" "$committed"
+      echo "figures: wrote $stem.layout.json"
+    else
+      echo "figures: $stem.layout.json is missing; run 'task docs:figures:update'" >&2
+      return 1
+    fi
+  elif ! cmp -s "$fresh" "$committed"; then
+    if [[ "$mode" == update ]]; then
+      install -m 0644 "$fresh" "$committed"
+      echo "figures: rewrote $stem.layout.json"
+    else
+      echo "figures: $stem.layout.json differs from the layout record $name evaluates to; run 'task docs:figures:update' if the change is intended" >&2
+      return 1
+    fi
   fi
 }
 
@@ -568,6 +640,11 @@ verify_figures() {
     stem="${name%.*}"
     fresh="$scratch/out/$stem.svg"
     committed="$dir/$stem.svg"
+    # The record is compared apart from the SVG, so a restyle (the SVG changes, the
+    # record does not) and a layout change (both change) read differently.
+    if [[ "$file" == *.typ ]]; then
+      sync_layout_record "$mode" "$scratch/out/$stem.layout.json" "$dir/$stem.layout.json" "$stem" "$name" || problems=1
+    fi
     stamp="$(stamp_of "$file")"
     if [[ -n "$stamp" ]] && ! grep -qF -- "$stamp" "$fresh"; then
       echo "figures: $name rendered without the expected renderer stamp $stamp" >&2

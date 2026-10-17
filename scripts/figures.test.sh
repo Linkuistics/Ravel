@@ -141,7 +141,12 @@ for svg in "$fixtures"/*.svg; do
   cmp -s "$work/render-1/$name" "$work/render-2/$name" || die "two renders of $name differ: it is not reproducible"
   cmp -s "$work/render-1/$name" "$svg" || die "$name differs from a fresh render"
 done
-ok 'every fixture renders twice to identical bytes, equal to the committed SVG'
+for json in "$fixtures"/*.layout.json; do
+  name="$(basename "$json")"
+  cmp -s "$work/render-1/$name" "$work/render-2/$name" || die "two evaluations of $name differ: the record is not reproducible"
+  cmp -s "$work/render-1/$name" "$json" || die "$name differs from a fresh evaluation"
+done
+ok 'every fixture renders twice to identical bytes, equal to the committed SVG and layout record'
 
 # Nothing about the caller's environment may reach a figure, and the same holds
 # for a stray skin file in the working directory.
@@ -270,7 +275,7 @@ cp "$d/layers.svg" "$d/_draw.svg"
 expect_refused 'a _*.typ module gets no SVG: one that has one is refused' '_draw.svg has no _draw.puml, _draw.d2 or _draw.typ source' check "$d"
 d="$(copy_fixtures stray)"
 printf 'notes\n' >"$d/notes.txt"
-expect_refused 'a file of another kind is refused' 'notes.txt is not a .puml, .d2, .typ or .svg file' check "$d"
+expect_refused 'a file of another kind is refused' 'notes.txt is not a .puml, .d2, .typ, .svg or .layout.json file' check "$d"
 d="$(copy_fixtures subdir)"
 mkdir "$d/nested"
 expect_refused 'a subdirectory is refused' 'nested is a directory' check "$d"
@@ -292,6 +297,68 @@ sed -i.bak 's/Ravel runs/Ravel stops/' "$d/layers.typ" && rm "$d/layers.typ.bak"
 expect_ok 'update rewrites a stale Typst SVG' update "$d"
 grep -Fq 'rewrote layers.svg' "$work/out" || die "update did not report rewriting layers.svg: $(cat "$work/out")"
 expect_ok 'check passes after a Typst update' check "$d"
+
+# Typst: the layout record, committed as <stem>.layout.json beside the SVG and
+# compared apart from it. A moved element changes both; a restyle changes only
+# the SVG, which is the point of keeping the record free of style.
+not_in_output() { # LABEL PATTERN: the last run's output does not mention PATTERN
+  if grep -Fq -- "$2" "$work/out"; then die "$1: output should not mention '$2': $(cat "$work/out")"; fi
+}
+d="$(copy_fixtures record-moved)"
+sed -i.bak 's/x0: 200, y0: 0, x1: 320/x0: 210, y0: 0, x1: 320/' "$d/layers.typ" && rm "$d/layers.typ.bak"
+expect_refused 'a moved element fails the layout record compare' "layers.layout.json differs from the layout record layers.typ evaluates to" check "$d"
+grep -Fq 'layers.svg differs' "$work/out" || die "a moved element did not also fail the SVG compare: $(cat "$work/out")"
+ok 'a moved element fails the SVG compare too'
+d="$(copy_fixtures record-restyle)"
+sed -i.bak 's/#E8EDF2/#E8EDF3/' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
+expect_refused 'a restyle changes the SVG' 'layers.svg differs' check "$d"
+not_in_output 'a restyle leaves the layout record alone' 'layers.layout.json'
+d="$(copy_fixtures record-stale)"
+sed -i.bak 's/"w": 320/"w": 321/' "$d/layers.layout.json" && rm "$d/layers.layout.json.bak"
+expect_refused 'a stale layout record fails the compare' "layers.layout.json differs from the layout record layers.typ evaluates to; run 'task docs:figures:update'" check "$d"
+not_in_output 'a stale layout record leaves the SVG alone' 'layers.svg'
+d="$(copy_fixtures record-missing)"
+rm "$d/layers.layout.json"
+expect_refused 'a Typst figure with no layout record fails check' "layers.layout.json is missing; run 'task docs:figures:update'" check "$d"
+expect_ok 'update writes a missing layout record' update "$d"
+grep -Fq 'wrote layers.layout.json' "$work/out" || die "update did not report writing layers.layout.json: $(cat "$work/out")"
+cmp -s "$d/layers.layout.json" "$fixtures/layers.layout.json" || die 'update wrote a layout record that differs from the committed one'
+expect_ok 'check passes after the record is written' check "$d"
+d="$(copy_fixtures record-update)"
+sed -i.bak 's/"w": 320/"w": 321/' "$d/layers.layout.json" && rm "$d/layers.layout.json.bak"
+expect_ok 'update rewrites a stale layout record' update "$d"
+grep -Fq 'rewrote layers.layout.json' "$work/out" || die "update did not report rewriting layers.layout.json: $(cat "$work/out")"
+cmp -s "$d/layers.layout.json" "$fixtures/layers.layout.json" || die 'update did not restore the layout record'
+d="$(copy_fixtures record-orphan)"
+cp "$fixtures/layers.layout.json" "$d/gone.layout.json"
+expect_refused 'a layout record with no source fails' 'gone.layout.json has no gone.typ source' check "$d"
+d="$(copy_fixtures record-orphan-module)"
+cp "$fixtures/layers.layout.json" "$d/_draw.layout.json"
+expect_refused 'a layout record for a module fails' '_draw.layout.json has no _draw.typ source' check "$d"
+d="$(copy_fixtures record-beside-puml)"
+cp "$fixtures/layers.layout.json" "$d/context.layout.json"
+expect_refused 'a layout record beside a .puml fails' 'context.layout.json has no context.typ source' check "$d"
+d="$(copy_fixtures record-beside-d2)"
+cp "$fixtures/layers.layout.json" "$d/flow.layout.json"
+expect_refused 'a layout record beside a .d2 fails' 'flow.layout.json has no flow.typ source' check "$d"
+d="$(copy_fixtures record-unlabelled)"
+sed -i.bak 's/\[#metadata(record) <layout>\]//' "$d/_draw.typ" && rm "$d/_draw.typ.bak"
+expect_refused 'a Typst figure that attaches no layout record fails, naming the figure' 'Typst could not evaluate the layout record of layers.typ' check "$d"
+
+# A record is positions, roles and measured text. A colour, a length or a style
+# key in one would make a restyle change it. Each shape of leak is refused, and
+# update writes nothing for it.
+leak() { # LABEL SED-EXPRESSION: a record element carrying a style value
+  d="$(copy_fixtures "record-leak-$1")"
+  rm "$d/layers.layout.json"
+  sed -i.bak "s/dashed: false, arrow: true/dashed: false, arrow: true, $2/" "$d/layers.typ" && rm "$d/layers.typ.bak"
+  expect_refused "a layout record holding $3 is refused" "layers.typ's layout record holds a style value" update "$d"
+  [[ ! -e "$d/layers.layout.json" ]] || die "update wrote a layout record holding $3"
+}
+leak colour 'paint: rgb("#334155")' 'a colour'
+leak length 'gap: 1.5pt' 'a length'
+leak key 'stroke: "thin"' 'a style key'
+leak content 'label: [hi]' 'a piece of content'
 
 # Typst: the layout rules that keep a package or a host default out of a figure.
 d="$(copy_fixtures typst-unpinned-version)"
@@ -499,8 +566,35 @@ cp "$modules/engine.typ" "$modules/other.typ"
 expect_ok 'the same source under another name renders' update "$modules"
 if cmp -s "$modules/engine.svg" "$modules/other.svg"; then die 'two figures with one source but different names drew the same sketch: the figure name does not seed it'; fi
 expect_ok 'both named figures are stable' check "$modules"
-rm "$modules/other.typ" "$modules/other.svg"
+rm "$modules/other.typ" "$modules/other.svg" "$modules/other.layout.json"
 ok 'a figure seeds its sketch from its name'
+
+# The book's own modules: the record is the same at every style, and a change to
+# the style tables changes the drawing and not the record.
+direct_record() { # OUT [INPUT...]: engine.typ's record, evaluated as figures.sh does
+  local out="$1" input
+  shift
+  local inputs=()
+  for input in "$@"; do inputs+=(--input "$input"); done
+  (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
+    "$tools/typst" eval --pretty --root "$modules" --ignore-system-fonts --ignore-embedded-fonts \
+    --font-path "$tools/fonts/dejavu-2.37" --package-cache-path "$tools/typst-packages" "${inputs[@]}" \
+    --in "$modules/engine.typ" 'query(<layout>).first().value' >"$out") || die "Typst could not evaluate engine's record with inputs $*"
+}
+direct_record "$work/engine-sketch.layout.json" figure=engine
+direct_record "$work/engine-crisp.layout.json" figure=engine style=crisp
+direct_record "$work/engine-rough3.layout.json" figure=engine roughness=3
+cmp -s "$modules/engine.layout.json" "$work/engine-sketch.layout.json" || die 'the record figures.sh wrote is not what the shipped style evaluates to'
+cmp -s "$work/engine-sketch.layout.json" "$work/engine-crisp.layout.json" || die 'the crisp style changed the layout record'
+cmp -s "$work/engine-sketch.layout.json" "$work/engine-rough3.layout.json" || die 'roughness 3 changed the layout record'
+ok 'the book modules'"'"' record is identical at the shipped style, crisp and roughness 3, while the drawings differ (above)'
+d="$work/modules-restyle"
+rm -rf "$d"
+cp -R "$modules" "$d"
+sed -i.bak 's/grey: rgb("#E8EDF2")/grey: rgb("#E8EDF3")/' "$d/_style.typ" && rm "$d/_style.typ.bak"
+cmp -s "$modules/_style.typ" "$d/_style.typ" && die 'the restyle control did not change _style.typ'
+expect_refused 'a change to the style tables changes the SVG' 'engine.svg differs' check "$d"
+not_in_output 'a change to the style tables leaves the record alone' 'engine.layout.json'
 { printf '#import "@preview/cetz:0.4.2"\n'; cat "$modules/engine.typ"; } >"$modules/engine.typ.new" && mv "$modules/engine.typ.new" "$modules/engine.typ"
 expect_refused 'a figure drawing with CeTZ itself, beside the book modules, is refused' 'engine.typ imports a package' check "$modules"
 
