@@ -182,14 +182,16 @@ package (decided 2026-10-17, planned in `book-figure-migration-k108`). This
 section describes the Typst side as it now stands in the toolchain. Until the
 last `.puml` is ported, both renderers run, every rule above still holds for a
 `.puml`, and the text above is left for the leaf that retires PlantUML to
-rewrite. The three sequence figures (`successful-session`, `selection-cancellation`
+rewrite (the last `.puml` was ported by `book-figure-settled-exit-status-k116`). The three sequence figures (`successful-session`, `selection-cancellation`
 and `supervision-cancellation`, ported by `book-figure-sequences-k111`) and the two
 C4 figures (`system-context` and `process-authority`, ported by
 `book-figure-c4-context-container-k112`) are `.typ` figures with committed
 `.layout.json` records, as are `source-components` (`book-figure-source-components-k113`)
 and `installed-files` (`book-figure-installed-files-k114`) and `session-outcomes`
-(`book-figure-session-outcomes-k115`); each port replaces a figure's `.puml` with
-its `.typ` in one commit, and the second state view follows.
+(`book-figure-session-outcomes-k115`) and `settled-exit-status`
+(`book-figure-settled-exit-status-k116`); each port replaces a figure's `.puml` with
+its `.typ` in one commit. All nine figures are now `.typ`: no `.puml` figure is
+left, and the leaf that retires PlantUML removes the renderer and the text above.
 
 **On disk.** A `.typ` whose name does not start with `_` is a figure source,
 beside the `.puml` and `.d2` ones, with its SVG of the same name. The
@@ -274,7 +276,7 @@ code the figure needed; `fit`, the measured wrapping width, moved from `_c4.typ`
 byte-identical.
 
 **What the state layout covers.** `_state.typ` serves the state views, and
-`session-outcomes` is its first user. A figure source is the state list, the
+`session-outcomes` and `settled-exit-status` are its users. A figure source is the state list, the
 transition list and the key, handed to `state-machine(...)` and then to `render`.
 A `state` is a rounded box in the `phase` (blue) or the `outcome` (grey) role,
 holding lines of text, and `initial` is the filled marker; a transition (`tr`)
@@ -343,6 +345,23 @@ wobbly rectangle, so the other eight records and SVGs came out byte-identical.
   the comparison script, below). The source is
   48 lines, of which 10 are the key, and `_state.typ` is the new module (203
   lines, 56 of them comments).
+- `settled-exit-status`: 9 states and an initial marker, and 9 transitions (8
+  labelled), written as grid cells in two columns (0 coordinates): the four steps
+  and the success outcome in one, the four other outcomes beside their steps.
+  Sides named by hand on 2 of 9 transitions (`out: ("right", "align")` for the two
+  that leave a step level with a tall outcome; the other 7 took the facing
+  sides), 0 `jog`; label placement chosen for 0 of the 8 labels (every label took
+  the default segment, side and position), 0 `dx`, `dy` or wrapping widths. Other
+  numbers chosen: 1 `col-gap` (190, wide enough for the longest guard between a
+  step and its outcome), 1 `row-gap` entry that differs from the rest (72, under
+  the cleanup step, for the two-line green guard), 3 `limit` (320, on the three
+  outcomes whose text is wider than the default 240), 0 `min-w`. The eight-line
+  failure box needed nothing: the row grew to its height and the "align" port put
+  the line level with its centre. 2 renders to settle: the first was structurally
+  right, and the second widened the one row gap. The source is 47 lines, of which
+  10 are the key; no module changed (`_state.typ`, `_layout.typ`, `_draw.typ` and
+  `_style.typ` are as `session-outcomes` left them) and the other eight records and
+  SVGs are byte-identical.
 - The trial's extra container (`audit sink`), added to a scratch copy of
   `process-authority`: one entity (4 lines), one relation (2 lines, a left-to-left
   route given by `jog`) and one name added to the boundary's members; no legend
@@ -415,8 +434,30 @@ fixed and the removal then reported it.
   marker, as in the old figure ("no further transition is shown").
 - The figure is drawn sketched at roughness 2 with a crisp key, like every Typst
   figure, with 12pt corners on the states, and its SVG holds paths and no
-  `<text>` (184 KB, where the PlantUML one was 22 KB; the nine figures together
-  are 1.63 MB, of which the one PlantUML figure is 30 KB, under the 2 MB budget).
+  `<text>` (184 KB, where the PlantUML one was 22 KB).
+
+**Differences from the PlantUML exit-status output, with the reason.** The nine
+state texts (the eight-line failure box and the three-line cancelled box included,
+each line), the title, the eight guards and transition labels and the ten key lines
+are present: the same script (`python3 -I`) compared each quoted string of the old
+source, taken from the previous commit, with the text in the new layout record and
+found none missing, and reported the string when one was removed from a copy of the
+record (a key line, an unbracketed label, a green label, a bracketed guard and an
+exit-code line). Every exit status in the boxes was checked against
+`crates/ravel/src`: the constants in `refusal.rs` for 2, 3, 5, 124, 126 and 127,
+`128 + signal` in `cancellation.rs` for 129, 130 and 143, and chapter 6's status
+table and the CLI help for 1; none changed.
+- The steps run down one column and each outcome sits to its right, level with the
+  step, as the old figure's `-right->` transitions asked; the success outcome is
+  below the last step. The lines are orthogonal, not splines.
+- The tall failure box sets the height of its row, so the row is taller than the
+  others; PlantUML drew the same box and moved the rows to suit.
+- Guards are centred beside a line and wrapped at the breaks the old source wrote.
+  The initial marker is a filled circle, as in `session-outcomes`.
+- The figure is drawn sketched at roughness 2 with a crisp key and its SVG holds
+  paths and no `<text>` (208 KB, where the PlantUML one was 30 KB; the nine
+  figures together are 1.80 MB, all Typst, under the 2 MB budget, and the largest
+  is 259 KB, under the 300 KB limit for one).
 
 **Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
 item, not text. In the trial it drew the label as a list. Write `2\.` in the
@@ -438,7 +479,7 @@ are maintained Typst source with no `.puml`.
 
 **Single-engine risk.** PlantUML's C4 and UML conventions (standard shapes,
 `legend`, the standard library) exist now only as this directory's hand-written
-primitives, and one PlantUML figure is left (`settled-exit-status`); any d2
+primitives, and no PlantUML figure is left; any d2
 diagram has no counterpart.
 
 **Layout, then draw.** A figure source builds a record with a layout module and

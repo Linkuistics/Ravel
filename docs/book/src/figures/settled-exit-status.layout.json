@@ -1,0 +1,523 @@
+{
+  "w": 737.607421875,
+  "h": 898.7109375,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "From the final outcome to exit status — UML state machine",
+      "x": 368.8037109375,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 535.7421875,
+      "h": 12.15625
+    },
+    {
+      "id": "start",
+      "shape": "circle",
+      "role": "initial",
+      "x": 118.58154296875,
+      "y": 35.15625,
+      "r": 9
+    },
+    {
+      "id": "cancellation",
+      "shape": "box",
+      "role": "phase",
+      "x0": 30.50537109375,
+      "y0": 127.66132812500001,
+      "x1": 206.65771484375,
+      "y1": 156.298046875
+    },
+    {
+      "id": "cancellation-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Check cancellation",
+      "x": 118.58154296875,
+      "y": 141.9796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 132.15234375,
+      "h": 10.63671875
+    },
+    {
+      "id": "original",
+      "shape": "box",
+      "role": "phase",
+      "x0": 0.0,
+      "y0": 313.15000000000003,
+      "x1": 237.1630859375,
+      "y1": 341.78671875000003
+    },
+    {
+      "id": "original-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Check the original outcome",
+      "x": 118.58154296875,
+      "y": 327.46835937500003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 193.1630859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "cleanup",
+      "shape": "box",
+      "role": "phase",
+      "x0": 13.5625,
+      "y0": 471.13359375000005,
+      "x1": 223.6005859375,
+      "y1": 499.77031250000005
+    },
+    {
+      "id": "cleanup-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Check required cleanup",
+      "x": 118.58154296875,
+      "y": 485.45195312500005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 166.0380859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "writing",
+      "shape": "box",
+      "role": "phase",
+      "x0": 35.8408203125,
+      "y0": 571.7703125,
+      "x1": 201.322265625,
+      "y1": 600.40703125
+    },
+    {
+      "id": "writing-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Writing the result",
+      "x": 118.58154296875,
+      "y": 586.088671875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 121.4814453125,
+      "h": 10.63671875
+    },
+    {
+      "id": "succeeded",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 11.5185546875,
+      "y0": 656.40703125,
+      "x1": 225.64453125,
+      "y1": 685.04375
+    },
+    {
+      "id": "succeeded-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "0: exact result delivered",
+      "x": 118.58154296875,
+      "y": 670.725390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 170.1259765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "cancelled",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 522.8388671875,
+      "y0": 100.15625,
+      "x1": 641.931640625,
+      "y1": 183.80312500000002
+    },
+    {
+      "id": "cancelled-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Cancelled\n129: HUP\n130: INT\n143: TERM",
+      "x": 582.38525390625,
+      "y": 141.9796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 75.0927734375,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 427.1630859375,
+      "y0": 239.80312500000002,
+      "x1": 737.607421875,
+      "y1": 415.13359375000005
+    },
+    {
+      "id": "failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Original failure retained\n1: no result\n2: invalid inputs or settings\n3: refusal by policy, or of its\nfile, behaviour or data\n5: worker, supervision or result failure\n124: selection deadline\n126: pre-start execution failure\n127: program or interpreter not found",
+      "x": 582.38525390625,
+      "y": 327.46835937500003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 266.4443359375,
+      "h": 157.33046875
+    },
+    {
+      "id": "cleanup-failed",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 432.283203125,
+      "y0": 471.13359375000005,
+      "x1": 732.4873046875,
+      "y1": 499.77031250000005
+    },
+    {
+      "id": "cleanup-failed-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "5: cleanup, recovery or group failure",
+      "x": 582.38525390625,
+      "y": 485.45195312500005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 256.2041015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "write-failed",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 461.5615234375,
+      "y0": 571.7703125,
+      "x1": 703.208984375,
+      "y1": 600.40703125
+    },
+    {
+      "id": "write-failed-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "5: result write or flush failed",
+      "x": 582.38525390625,
+      "y": 586.088671875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 197.6474609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-start-cancellation",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          118.58154296875,
+          44.15625
+        ],
+        [
+          118.58154296875,
+          127.66132812500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-cancellation-cancelled",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          206.65771484375,
+          141.9796875
+        ],
+        [
+          522.8388671875,
+          141.9796875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-cancellation-cancelled-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[cancellation selected]",
+      "x": 364.748291015625,
+      "y": 132.661328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 159.1064453125,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-cancellation-original",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          118.58154296875,
+          156.298046875
+        ],
+        [
+          118.58154296875,
+          313.15000000000003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-cancellation-original-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no cancellation]",
+      "x": 185.3056640625,
+      "y": 234.72402343750002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 117.4482421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-original-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          237.1630859375,
+          327.46835937500003
+        ],
+        [
+          427.1630859375,
+          327.46835937500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-original-failure-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[original failure]",
+      "x": 332.1630859375,
+      "y": 318.15000000000003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 111.9248046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-original-cleanup",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          118.58154296875,
+          341.78671875000003
+        ],
+        [
+          118.58154296875,
+          471.13359375000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-original-cleanup-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[valid candidate result]",
+      "x": 207.8095703125,
+      "y": 406.46015625000007,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 162.4560546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-cleanup-cleanup-failed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          223.6005859375,
+          485.45195312500005
+        ],
+        [
+          432.283203125,
+          485.45195312500005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-cleanup-cleanup-failed-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[required cleanup failed\nor group survives]",
+      "x": 327.94189453125,
+      "y": 466.965234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 167.220703125,
+      "h": 28.9734375
+    },
+    {
+      "id": "tr-cleanup-writing",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          118.58154296875,
+          499.77031250000005
+        ],
+        [
+          118.58154296875,
+          571.7703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-cleanup-writing-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "[reap, group absence and\nrequired cleanup confirmed]",
+      "x": 226.09912109375,
+      "y": 535.7703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 199.03515625,
+      "h": 28.9734375
+    },
+    {
+      "id": "tr-writing-write-failed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.322265625,
+          586.088671875
+        ],
+        [
+          461.5615234375,
+          586.088671875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-writing-write-failed-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "write or flush fails",
+      "x": 331.44189453125,
+      "y": 576.7703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 125.3095703125,
+      "h": 10.63671875
+    },
+    {
+      "id": "tr-writing-succeeded",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          118.58154296875,
+          600.40703125
+        ],
+        [
+          118.58154296875,
+          656.40703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tr-writing-succeeded-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "write and flush succeed",
+      "x": 209.7919921875,
+      "y": 628.40703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 166.4208984375,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 68.97265625,
+      "y0": 703.04375,
+      "x1": 668.634765625,
+      "y1": 898.7109375
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Refinement of chapter 3’s final-outcome step for start-session.\nBlue: steps in deciding the outcome. Grey: outcomes.\nApplicable cleanup is attempted before reporting an outcome.\nThis order expresses precedence, not the implementation’s call order.\nOriginal failures keep their status when later cleanup also fails.\nCancellation suppresses a published result and retains other diagnostics.\nGreen: the only success route. Empty publication is a valid value.\nA later nonzero child exit does not invalidate that value.\nA failed final write can leave a prefix; a late signal can interrupt it.\nend-session, help and version invocations are covered by the table, not this view.",
+      "x": 368.8037109375,
+      "y": 800.87734375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 571.662109375,
+      "h": 175.6671875
+    }
+  ]
+}
