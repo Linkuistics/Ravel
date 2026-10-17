@@ -366,6 +366,23 @@ semicolons and the words “claiming” and “corresponding”.
 label changes, make the alt text agree. This closes document node
 `running-sessions-k65` again.
 
+Copy-edit `reference-chapter-k129` converted chapter 6 to STE and “send”.
+It passes `task docs:ste -- --strict`. No heading or anchor changed. The
+column “Teaching” is now “Taught in”, and the diagnostic-code tables split
+“Stage; status” into two columns. For set art k130: k129 converted the two
+alt texts and the blockquotes before the figures, and kept their facts. R8
+remains in the sentences “In this C4 component view, blue marks…”
+(`source-components`) and “In this UML deployment view, blue marks…”
+(`installed-files`). The prose now says “grey marks the other files”, but
+the figure text says “supporting”. The figure text has no old result words,
+but it still breaks the rules. `source-components` has three semicolons
+(“Checks owner policy and its response; decides the final outcome.”, the
+worker's “Compiled with Bun; embeds…” and “worker ended and reaped; private
+directory removed.”). `installed-files` has one semicolon and the words
+“supporting” (two times), “pairing”, “editing” and “typechecking”. If a
+label changes, make the alt text agree. This closes document node
+`reference-chapter-k66` again.
+
 `book-first-half-k123` wrote `docs/book/ste.md` (the result words, the
 titles, the words that the book does not use and the “-ing” words that it
 keeps), the check `task docs:ste` with its controls `task docs:ste:test`,

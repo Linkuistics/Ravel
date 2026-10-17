@@ -144,3 +144,7 @@ Copy-edit k129 converts chapter 6 to STE, with the word decisions in
 `docs/book/ste.md` (from k123).
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
+Copy-edit k129 is complete: chapter 6 passes the strict STE check and uses
+“send” for the result. Its running log has the word decisions and the
+review classification. The art handoff for set art k130 is in the parent
+brief.
