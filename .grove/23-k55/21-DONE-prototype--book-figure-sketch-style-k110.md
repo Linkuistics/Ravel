@@ -45,3 +45,37 @@ Human-in-the-loop: the reaction is the deliverable. If the owner has not seen
 it, stop and ask rather than choosing a default. Ask with the trade-off named:
 friendliness against ink noise in the densest views (`process-authority`,
 `successful-session`) at chapter width.
+
+## Decisions (running log)
+
+- 2026-10-17: Prototype built. `_style.typ` has a `roughness` switch
+  (`--input roughness=0..3`; 0 is byte-identical to the previous output, checked
+  with `cmp`; two renders are byte-identical; `task docs:figures` and
+  `task docs:figures:test` pass). The two trial figures are ported onto the engine
+  as `docs/book/trial-typst/sk-*.typ` and rendered by `render-sketch.sh`;
+  `compare.html` shows crisp and roughness 1-3 at 750px. Jitter is a pure function
+  of `--input figure=NAME` plus the element's own geometry, not an element index
+  (Typst has no mutable counter inside a canvas).
+- 2026-10-17: Owner, mid-review, redirected the approach: "We should investigate
+  d2, excalidraw and any other libraries that can do pure drawing (without
+  layout), and completely separate the process of text->diagram/layout and the
+  subsequent styling." Cut `layout-draw-separation-k119` (research-a) ahead of
+  the port leaves. The style decision here (roughness, font, key boxes) is still
+  open and may be superseded by that research.
+- 2026-10-17: Owner reaction to the sketch comparison: "Roughness 2 is good.
+  I like DejaVu. [Key boxes crisp:] yes. [Ship the default:] wait." Recorded
+  decision: preferred roughness 2; font stays DejaVu Sans (no handwriting face);
+  key boxes and tables stay crisp. `_style.typ` keeps default roughness 0, so
+  `task docs:figures` is unchanged; the shipped default waits on
+  `layout-draw-separation-k119`, which may replace the in-primitive switch. Note
+  `_style.typ` does not yet keep key boxes crisp under roughness > 0:
+  `legend-block` goes through `draw-box`, so a later leaf must give it a crisp
+  option if the switch survives.
+- 2026-10-17: Owner asked whether an existing tool already does this. Tried
+  both on real figures. PlantUML 1.2026.8 `skinparam handwritten true`
+  (it warns to prefer `!option handwritten true`) wobbles every shape, keeps
+  colours and DejaVu text, but has one fixed roughness, curved edges from its
+  layout, a wobbly key, and needs Java. d2 0.9.0 `sketch: true` gives a heavy,
+  hatched look with d2's own font and layout, not DejaVu; the book sets
+  `sketch: false` on purpose. Neither separates layout from style. Passed to
+  k119.
