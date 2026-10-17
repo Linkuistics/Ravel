@@ -508,7 +508,7 @@ reproduced below so the observations can be repeated.
 | rough.js generator under Bun 1.4.2, seed 42, three runs | output SHA-256 `602cd156…2067` each time |
 | Three-stage chain, roughness 1, run twice | layout JSON `42e321f3…b866`, rough JSON `fbb96ecd…ea8e`, SVG `2634d496…09f7` both times; SVGs `cmp`-identical |
 | Same chain at roughness 0 and 2 | layout JSON unchanged (`42e321f3…b866`); only rough JSON and SVG change |
-| Typst 0.15.1 SVG (`trial-typst/out/process-authority-long.svg`) | text is `<use>` references to glyph outlines held as `<symbol>` paths in `<defs>`; drawn strokes are top-level `<path>`s; the file has no `class` attribute |
+| Typst 0.15.1 SVG (`trial-typst/out/process-authority-long.svg`, a file removed by `book-figure-c4-context-container-k112` and kept in the history of the k107 commit) | text is `<use>` references to glyph outlines held as `<symbol>` paths in `<defs>`; drawn strokes are top-level `<path>`s; the file has no `class` attribute |
 | CeTZ 0.4.2 package cache | no `svg-path`; path primitives `line`, `bezier`, `catmull`, `hobby`, `merge-path` |
 
 **Not established.** The chain ran only on macOS arm64. It drew two boxes and

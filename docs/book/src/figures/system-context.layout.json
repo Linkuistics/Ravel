@@ -1,0 +1,472 @@
+{
+  "w": 903.0,
+  "h": 639.38671875,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Where Ravel sits — C4 system context",
+      "x": 456.5,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 345.9765625,
+      "h": 12.15625
+    },
+    {
+      "id": "owner",
+      "shape": "box",
+      "role": "owner",
+      "x0": 500.0,
+      "y0": 26.15625,
+      "x1": 780.0,
+      "y1": 112.403125
+    },
+    {
+      "id": "owner-stereo",
+      "shape": "text",
+      "role": "owner",
+      "face": "qual",
+      "text": "«person»",
+      "x": 640,
+      "y": 41.71484374999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 55.81640625,
+      "h": 9.1171875
+    },
+    {
+      "id": "owner-name",
+      "shape": "text",
+      "role": "owner",
+      "face": "name",
+      "text": "owner",
+      "x": 640,
+      "y": 56.35156249999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 55.90625,
+      "h": 12.15625
+    },
+    {
+      "id": "owner-desc",
+      "shape": "text",
+      "role": "owner",
+      "face": "body",
+      "text": "Controls the account’s owner policy and settings",
+      "x": 640,
+      "y": 86.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 256.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "ravel",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 490.0,
+      "y0": 191.15625,
+      "x1": 790.0,
+      "y1": 295.73984375
+    },
+    {
+      "id": "ravel-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«system»",
+      "x": 640,
+      "y": 206.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 58.06640625,
+      "h": 9.1171875
+    },
+    {
+      "id": "ravel-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel",
+      "x": 640,
+      "y": 221.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.8828125,
+      "h": 12.15625
+    },
+    {
+      "id": "ravel-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Routes one request, supervises the selected program and decides the final outcome",
+      "x": 640,
+      "y": 261.084765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 276.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 5.0,
+      "y0": 191.15625,
+      "x1": 235.0,
+      "y1": 295.73984375
+    },
+    {
+      "id": "caller-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 120,
+      "y": 206.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "caller-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 120,
+      "y": 221.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "caller-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "An orchestrator or person: supplies the prompt and interprets the result",
+      "x": 120,
+      "y": 261.084765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 206.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 500.0,
+      "y0": 431.15625,
+      "x1": 780.0,
+      "y1": 517.403125
+    },
+    {
+      "id": "managed-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 640,
+      "y": 446.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "managed-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "managed process",
+      "x": 640,
+      "y": 461.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 158.703125,
+      "h": 12.15625
+    },
+    {
+      "id": "managed-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Harness running an LLM session, or another selected program",
+      "x": 640,
+      "y": 491.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 256.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-owner-ravel",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          640,
+          112.403125
+        ],
+        [
+          640,
+          191.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-owner-ravel-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Configures routing",
+      "x": 712.8115234375,
+      "y": 145.72109375,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 129.623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-owner-ravel-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[owner policy and settings]",
+      "x": 729.8203125,
+      "y": 158.598046875,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 163.640625,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-caller-ravel",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          235.0,
+          213.448046875
+        ],
+        [
+          490.0,
+          213.448046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-caller-ravel-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Requests a session",
+      "x": 362.5,
+      "y": 192.0125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 133.46484375,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-caller-ravel-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[start-session: kind and prompt]",
+      "x": 362.5,
+      "y": 204.889453125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 193.271484375,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-ravel-caller",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          490.0,
+          273.448046875
+        ],
+        [
+          235.0,
+          273.448046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-ravel-caller-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Returns opaque result after successful cleanup",
+      "x": 362.5,
+      "y": 291.934765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 200.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-ravel-caller-tech",
+      "shape": "text",
+      "role": "result",
+      "face": "qual",
+      "text": "[standard output]",
+      "x": 362.5,
+      "y": 313.98007812500003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 200.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-ravel-managed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          570,
+          295.73984375
+        ],
+        [
+          570,
+          431.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-ravel-managed-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launches and supervises",
+      "x": 473.6796875,
+      "y": 357.389453125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 176.640625,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-ravel-managed-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[selected command]",
+      "x": 447.22265625,
+      "y": 370.26640625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 123.7265625,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-managed-ravel",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          710,
+          431.15625
+        ],
+        [
+          710,
+          295.73984375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-managed-ravel-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Publishes opaque result; asks Ravel to stop",
+      "x": 813.0,
+      "y": 357.389453125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 190.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-managed-ravel-tech",
+      "shape": "text",
+      "role": "result",
+      "face": "qual",
+      "text": "[end-session]",
+      "x": 813.0,
+      "y": 379.43476562499995,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 190.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 167.3671875,
+      "y0": 535.403125,
+      "x1": 745.6328125,
+      "y1": 639.38671875
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel. Grey: caller and managed process. Slate: human owner.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session when its task is done.\nRavel stops remaining group members and confirms cleanup before returning.\nThis view hides Ravel’s processes. Boxes are not security boundaries.",
+      "x": 456.5,
+      "y": 587.394921875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 550.265625,
+      "h": 83.98359375
+    }
+  ]
+}

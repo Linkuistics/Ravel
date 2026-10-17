@@ -183,24 +183,28 @@ section describes the Typst side as it now stands in the toolchain. Until the
 last `.puml` is ported, both renderers run, every rule above still holds for a
 `.puml`, and the text above is left for the leaf that retires PlantUML to
 rewrite. The three sequence figures (`successful-session`, `selection-cancellation`
-and `supervision-cancellation`, ported by `book-figure-sequences-k111`) are `.typ`
-figures with committed `.layout.json` records; each port replaces a figure's
-`.puml` with its `.typ` in one commit, and the other six figures follow.
+and `supervision-cancellation`, ported by `book-figure-sequences-k111`) and the two
+C4 figures (`system-context` and `process-authority`, ported by
+`book-figure-c4-context-container-k112`) are `.typ` figures with committed
+`.layout.json` records; each port replaces a figure's `.puml` with its `.typ` in
+one commit, and the other four figures follow.
 
 **On disk.** A `.typ` whose name does not start with `_` is a figure source,
 beside the `.puml` and `.d2` ones, with its SVG of the same name. The
 one-source-per-name rule extends to it: `x.puml` and `x.typ` are refused, as
 `x.puml` and `x.d2` are. A file starting with `_` is a module that figures
 import. It is not a figure and gets no SVG; an SVG for one is refused as an
-orphan. Four modules hold the Typst side. `_style.typ` holds the palette roles,
+orphan. Five modules hold the Typst side. `_style.typ` holds the palette roles,
 text scale, stroke weights, faces and text measuring, and draws nothing.
 `_layout.typ` holds the constructors a layout module builds its record with.
-`_sequence.typ` is the sequence-diagram layout: it measures its text and returns
-a layout record. `_draw.typ` turns a record into strokes and is the only module
-that imports CeTZ; its header documents the record's shape and the styles.
-`_style.typ` and `_sequence.typ` were promoted from the k107 trial in
-`docs/book/trial-typst/`; the sequence figure rendered through the modules at
-`--input style=crisp` is byte-identical to the trial's, for the base and the long
+`_sequence.typ` is the sequence-diagram layout and `_c4.typ` the C4 layout (below):
+each measures its text and returns a layout record. `_draw.typ` turns a record
+into strokes and is the only module that imports CeTZ; its header documents the
+record's shape and the styles. `_style.typ` and `_sequence.typ` were promoted from
+the k107 trial, which was removed once its findings were recorded here (its
+sources stay in the history of the commit that added it,
+`book-figure-renderer-k107`); the sequence figure rendered through the modules at
+`--input style=crisp` was byte-identical to the trial's, for the base and the long
 variant.
 
 **What the sequence layout covers.** Messages and dashed replies, a self-call
@@ -217,6 +221,92 @@ participant or lengthening a label edits no coordinates: a scratch copy of
 four-line message rendered with no other change. A label's apostrophe is
 written in the source as `'` and drawn as `’` (typographic), as in the trial;
 the old PlantUML figures drew a straight one.
+
+**What the C4 layout covers.** `_c4.typ` serves the system-context and container
+views, and the component view (`source-components`, still a `.puml`) needs nothing
+more: an entity in a semantic role (`ent`: «stereotype», name, [technology] and a
+description, in `ravel`, `external`, `owner` or `temporary`, as a box or, with
+`db: true`, the shared cylinder with its text inside), a boundary (`boundary`: a
+dashed outline around named entities, with a name and a `[tag]`), a relation
+(`rel`: a label and a technology line beside an orthogonal route, in role
+`relation` or `result`, the green one) and a key. A figure source is the entity
+list, the boundary list, the relation list and the key, handed to `c4(...)` and
+then to `render`. **Placement is manual.** An entity has a centre `cx`, a `top` (or
+`cy-of`, to sit level with another entity) and a width; its height is measured
+from its text. A relation names two entities, the side of each it leaves and
+enters by and an offset along the side; the module draws the straight, L or Z
+route between the two ports and puts the label beside the longest segment (or
+`seg`), at `t` of the way along it, `side` of it, nudged by `dx` and `dy`. It does
+not choose positions or avoid collisions: a label that lands on a line or a
+boundary is moved in the figure source and rendered again. Edge routes and label
+positions were the cost in the trial and remain the cost; entities and the key
+are not. A boundary is at least as wide as its own name and tag (centred on its
+members when the name is wider) and the topmost element sits 14 points below the
+title. Both came from a scratch sketch of `source-components` (one boundary around
+two of four entities, with a tag) made to check that the third user fits; the
+port itself is `book-figure-source-components-k113`.
+
+**Effort and edit cost.** Counted when the figures were ported.
+- `system-context`: 4 entities and 5 relations written; all 5 routes named by
+  hand (one relation took the default facing sides, four named a side and offset
+  so the two pairs run in parallel); label placement chosen for 3 of 5 (`side`
+  for 2, a wrapping width for 2); no `dx`, `dy` or `t`; 2 renders to settle (the
+  first was structurally right and needed only two vertical gaps tightened).
+- `process-authority`: 5 entities, a boundary and 7 relations; 7 routes by hand;
+  label placement chosen for 6 of 7 (2 `t`, 1 `seg`, 1 `dy`, 1 `dx`, 2 `side`, 5
+  wrapping widths); 3 renders to settle (the long green label crossed the
+  boundary, the publish label sat on the wrong segment, the launch label crossed
+  the boundary's edge, and the worker's technology line wrapped). The first
+  render also showed the boundary's dashes drawn as dots, a fix in `_draw.typ`
+  (4pt dashes for the `boundary` role) and not in either figure.
+- The trial's extra container (`audit sink`), added to a scratch copy of
+  `process-authority`: one entity (4 lines), one relation (2 lines, a left-to-left
+  route given by `jog`) and one name added to the boundary's members; no legend
+  offset, no coordinate edit; the first render was usable, where the trial needed
+  an entity, an edge with a hand-chosen route, a legend offset and two retunes.
+
+**Differences from the PlantUML C4 output, with the reason.** Every entity, tag,
+technology line, relation label, number and key line is present: a script
+compared each quoted string in the two old sources with the text in the new
+layout records and found none missing.
+- Relations are orthogonal polylines, not splines: the route is data a person
+  edits, and a spline needs a layout engine.
+- Entity names and the title are bold 16pt (the old output set them in regular
+  weight), matching the sequence figures; stereotype and technology lines are
+  upright 12pt (see below).
+- Apostrophes are typographic (`’`) where the source writes `'`, as in the
+  sequence figures.
+- The owner has no person icon: it was a sprite from the C4 library, and the
+  `«person»` stereotype, the slate role and the key still say who it is.
+- Text wraps at the box width less 24 points, measured in the pinned font, so a
+  description breaks at different words than before.
+- The figures are drawn sketched at roughness 2 with a crisp key, like every
+  Typst figure.
+- A Typst figure's SVG holds paths and no `<text>`: `process-authority.svg` is
+  259 KB and `system-context.svg` 161 KB (the set is 1.13 MB).
+
+**Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
+item, not text. In the trial it drew the label as a list. Write `2\.` in the
+figure source (`[2\. Launches]`); the record holds the string `2. Launches`. The
+two numbered relations in `process-authority` need it. Under the layout record
+the mistake is loud: `_layout.typ` accepts only text, spaces and line breaks in a
+label, and the render stops with `a label may hold only text, ... not
+item(number: 2, ...)` (seen by removing the backslash from a scratch copy).
+
+**Extraction from PlantUML, tested in the trial, not adopted.** PlantUML's Smetana
+SVG exposes node boxes (`rect x/y/width/height`) and link Béziers
+(`<g class="link">` with `M… C…` paths), but the cylinder is path-only, edge-label
+positions and roles were not checked for extractability, and the result would be
+a one-way converter leaving PlantUML as a second editable layer. A PlantUML text
+width agreed with Typst's measured width to a mean of 0.2 units over 240 runs
+(maximum 2.7 on a 570-unit line), so a PlantUML-layout, Typst-final conversion
+would not have moved text noticeably; it was still not built. Both C4 figures
+are maintained Typst source with no `.puml`.
+
+**Single-engine risk.** PlantUML's C4 and UML conventions (standard shapes,
+`legend`, the standard library) exist now only as this directory's hand-written
+primitives; a state or deployment diagram would need new layout code, and any
+d2 diagram has no counterpart.
 
 **Layout, then draw.** A figure source builds a record with a layout module and
 passes it to `render` in `_draw.typ`. The record is plain data: positions, roles

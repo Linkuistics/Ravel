@@ -1,0 +1,703 @@
+{
+  "w": 1149.0,
+  "h": 911.24140625,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Processes and authority — C4 container view",
+      "x": 523.5,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 407.453125,
+      "h": 12.15625
+    },
+    {
+      "id": "ravel",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          -51.0,
+          202.8828125
+        ],
+        [
+          681.0,
+          202.8828125
+        ],
+        [
+          681.0,
+          679.2375
+        ],
+        [
+          -51.0,
+          679.2375
+        ],
+        [
+          -51.0,
+          202.8828125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "ravel-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Ravel software",
+      "x": 315.0,
+      "y": 222.9609375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.125,
+      "h": 12.15625
+    },
+    {
+      "id": "ravel-tag",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[System]",
+      "x": 315.0,
+      "y": 237.59765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 54.111328125,
+      "h": 9.1171875
+    },
+    {
+      "id": "caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 370.0,
+      "y0": 26.15625,
+      "x1": 670.0,
+      "y1": 112.403125
+    },
+    {
+      "id": "caller-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 520,
+      "y": 41.71484374999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "caller-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 520,
+      "y": 56.35156249999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "caller-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "An orchestrator or person: requests work and interprets the opaque result",
+      "x": 520,
+      "y": 86.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 276.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 385.0,
+      "y0": 268.15625,
+      "x1": 655.0,
+      "y1": 404.19375
+    },
+    {
+      "id": "cli-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«container»",
+      "x": 520,
+      "y": 283.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "cli-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI",
+      "x": 520,
+      "y": 298.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 12.15625
+    },
+    {
+      "id": "cli-tech",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "[Rust process: ravel start-session]",
+      "x": 520,
+      "y": 312.98828125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 204.12890625,
+      "h": 9.1171875
+    },
+    {
+      "id": "cli-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Checks the selection and decides the final outcome. The runner executes inside this process and owns launch and supervision.",
+      "x": 520,
+      "y": 360.3703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 246.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": -25.0,
+      "y0": 277.324609375,
+      "x1": 205.0,
+      "y1": 395.025390625
+    },
+    {
+      "id": "worker-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«container»",
+      "x": 90,
+      "y": 292.883203125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "policy worker",
+      "x": 90,
+      "y": 307.519921875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 121.515625,
+      "h": 12.15625
+    },
+    {
+      "id": "worker-tech",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "[Separate process; compiled Bun]",
+      "x": 90,
+      "y": 322.156640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 203.666015625,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Evaluates trusted owner policy. No session-result context.",
+      "x": 90,
+      "y": 360.3703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 206.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 855.0,
+      "y0": 283.883203125,
+      "x1": 1085.0,
+      "y1": 388.466796875
+    },
+    {
+      "id": "managed-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 970,
+      "y": 299.441796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "managed-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "managed process",
+      "x": 970,
+      "y": 314.078515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 158.703125,
+      "h": 12.15625
+    },
+    {
+      "id": "managed-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Selected direct child: a harness running an LLM session, or another program",
+      "x": 970,
+      "y": 353.81171875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 206.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "channel",
+      "shape": "cylinder",
+      "role": "temporary",
+      "x0": 385.0,
+      "y0": 518.15625,
+      "x1": 655.0,
+      "y1": 653.2375,
+      "cap": 9
+    },
+    {
+      "id": "channel-stereo",
+      "shape": "text",
+      "role": "temporary",
+      "face": "qual",
+      "text": "«temporary» «container»",
+      "x": 520,
+      "y": 551.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 152.888671875,
+      "h": 9.1171875
+    },
+    {
+      "id": "channel-name",
+      "shape": "text",
+      "role": "temporary",
+      "face": "name",
+      "text": "result channel",
+      "x": 520,
+      "y": 566.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 129.1484375,
+      "h": 12.15625
+    },
+    {
+      "id": "channel-tech",
+      "shape": "text",
+      "role": "temporary",
+      "face": "qual",
+      "text": "[Temporary directory\nand completion file]",
+      "x": 520,
+      "y": 588.846875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 125.82421875,
+      "h": 24.834374999999998
+    },
+    {
+      "id": "channel-desc",
+      "shape": "text",
+      "role": "temporary",
+      "face": "body",
+      "text": "Carries one opaque result; no persistent history",
+      "x": 520,
+      "y": 625.75078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 246.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-caller-cli",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          450,
+          112.403125
+        ],
+        [
+          450,
+          268.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-caller-cli-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Requests a session",
+      "x": 375.267578125,
+      "y": 153.07046875,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 133.46484375,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-caller-cli-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[kind and prompt]",
+      "x": 362.892578125,
+      "y": 165.947421875,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 108.71484375,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-cli-caller",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          590,
+          268.15625
+        ],
+        [
+          590,
+          112.403125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-caller-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Writes opaque result only after successful cleanup",
+      "x": 683.0,
+      "y": 153.07046875,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 170.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "rel-cli-caller-tech",
+      "shape": "text",
+      "role": "result",
+      "face": "qual",
+      "text": "[standard output]",
+      "x": 683.0,
+      "y": 184.284140625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 170.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-worker-cli",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.0,
+          310.175
+        ],
+        [
+          385.0,
+          310.175
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-worker-cli-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Policy response",
+      "x": 295.0,
+      "y": 273.022265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-worker-cli-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[selection or refusal; separate socket]",
+      "x": 295.0,
+      "y": 293.7578125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 24.834374999999998
+    },
+    {
+      "id": "rel-cli-worker",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          385.0,
+          366.175
+        ],
+        [
+          205.0,
+          366.175
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-worker-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "1. Evaluates request",
+      "x": 295.0,
+      "y": 375.493359375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-cli-worker-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[bounded request; restricted environment]",
+      "x": 295.0,
+      "y": 396.22890625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 24.834374999999998
+    },
+    {
+      "id": "rel-cli-managed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          655.0,
+          336.175
+        ],
+        [
+          855.0,
+          336.175
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-managed-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "2. Launches",
+      "x": 769.0,
+      "y": 299.022265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-cli-managed-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[selected command; session-result context]",
+      "x": 769.0,
+      "y": 319.7578125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 24.834374999999998
+    },
+    {
+      "id": "rel-managed-channel",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          970,
+          388.466796875
+        ],
+        [
+          970,
+          585.696875
+        ],
+        [
+          655.0,
+          585.696875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-managed-channel-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Publishes result via end-session",
+      "x": 1038.0,
+      "y": 467.0818359375,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 120.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-channel-cli",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          520,
+          518.15625
+        ],
+        [
+          520,
+          404.19375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-channel-cli-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Supplies result",
+      "x": 579.638671875,
+      "y": 455.11640625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 103.27734375,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-channel-cli-tech",
+      "shape": "text",
+      "role": "result",
+      "face": "qual",
+      "text": "[validate and read]",
+      "x": 585.38671875,
+      "y": 467.993359375,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 114.7734375,
+      "h": 9.1171875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 235.2763671875,
+      "y0": 697.2375,
+      "x1": 811.7236328125,
+      "y1": 911.24140625
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel processes. Grey: external participants. Gold: temporary channel.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session.\nThe managed process’s children inherit its session-result context.\nPublication asks Ravel to stop; return waits for successful cleanup.\n1 precedes 2: the worker and managed process are not concurrent phases.\nBefore 2: worker ended and reaped; its private directory removed.\nA valid selection alone is insufficient for launch.\nThe runner is library code inside the Ravel CLI, not another process.\nThe enclosing outline is software membership, not a sandbox.\nBoundaries do not authenticate same-user code or contain detached children.",
+      "x": 523.5,
+      "y": 804.239453125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 548.447265625,
+      "h": 194.00390625000003
+    }
+  ]
+}

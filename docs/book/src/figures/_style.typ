@@ -35,6 +35,8 @@
 // Semantic roles for a box, cylinder or polygon: fill / text / border. `key` is
 // the pale key box and `divider` the label on a section rule; both repeat the
 // colours of `note` and `external` so a figure can say what the element is.
+// `result` is for the text of a label on a result relation (green); it is not a
+// box role.
 #let kinds = (
   ravel: (fill: pal.blue, text: pal.white, line: pal.navy),
   external: (fill: pal.grey, text: pal.ink, line: pal.slate),
@@ -43,6 +45,7 @@
   note: (fill: pal.pale, text: pal.ink, line: pal.slate),
   key: (fill: pal.pale, text: pal.ink, line: pal.slate),
   divider: (fill: pal.grey, text: pal.ink, line: pal.slate),
+  result: (fill: pal.white, text: pal.green, line: pal.green),
 )
 
 // Text scale. Stereotype and technology lines («container», [Rust]) are the
@@ -57,7 +60,8 @@
 // Semantic roles for a line: colour and weight. `relation` is a message or
 // relation, `result` the one that carries the session result, `lifeline` a
 // sequence lifeline, `rule` a paired separator rule, `fold` the folded corner of
-// a note and `end` the X that ends a lifetime.
+// a note, `end` the X that ends a lifetime and `boundary` the dashed outline of a
+// C4 boundary.
 #let strokes = (
   relation: (color: pal.rel, weight: w-main),
   result: (color: pal.green, weight: w-main),
@@ -65,13 +69,17 @@
   rule: (color: pal.slate, weight: w-rule),
   fold: (color: pal.slate, weight: w-main),
   end: (color: pal.rel, weight: w-main),
+  boundary: (color: pal.slate, weight: w-main),
 )
 
 // Text faces. A label is plain text in one face; the face is the only way a
-// record says how big or bold it is.
+// record says how big or bold it is. `name` is a C4 entity's name and `qual` its
+// stereotype and technology lines.
 #let faces = (
   title: (size: sz.head, weight: "bold"),
   head: (size: sz.head),
+  name: (size: sz.head, weight: "bold"),
+  qual: (size: sz.qual),
   body: (:),
 )
 

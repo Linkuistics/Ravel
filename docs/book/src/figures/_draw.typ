@@ -30,7 +30,7 @@
 //   ---------  ----------------------  --------------------------------------
 //   "line"     relation, result,       pts: ((x, y), ...) two or more points;
 //              lifeline, rule, fold,   dashed: bool; arrow: bool (the shared
-//              end                     arrowhead on the last point)
+//              end, boundary           arrowhead on the last point)
 //   "polygon"  note (a kinds role)     pts: ((x, y), ...) closed; filled
 //   "box"      ravel, external, owner, x0, y0, x1, y1
 //              temporary, note, key,
@@ -38,7 +38,8 @@
 //   "cylinder" a kinds role            x0, y0, x1, y1; cap: vertical radius
 //                                      of the elliptical ends
 //   "text"     a kinds role (colours   text: string, "\n" breaks a line;
-//              the text) or "label"    face: title | head | body;
+//              the text; result is     face: title | head | name | qual | body;
+//              green) or "label"
 //              (plain ink)             x, y: the point; anchor: center | south
 //                                      | west (the side of the text on the
 //                                      point); align: center | left;
@@ -227,7 +228,9 @@
   let r = if el.role in crisp-roles { 0 } else { roughness }
   if el.shape == "line" {
     let s = role-of(strokes, el)
-    draw-line(..el.pts, color: s.color, weight: s.weight, dash: if el.dashed { "dashed" } else { none }, arrow: el.arrow, r: r)
+    // A boundary's dashes are longer than a lifeline's, which CeTZ's preset draws as dots at its weight.
+    let dash = if not el.dashed { none } else if el.role == "boundary" { (4pt, 4pt) } else { "dashed" }
+    draw-line(..el.pts, color: s.color, weight: s.weight, dash: dash, arrow: el.arrow, r: r)
   } else if el.shape == "polygon" {
     let k = role-of(kinds, el)
     draw-poly(..el.pts, fill: k.fill, color: k.line, r: r)
