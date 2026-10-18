@@ -1,6 +1,6 @@
 {
-  "w": 903.0,
-  "h": 639.38671875,
+  "w": 788.0,
+  "h": 742.7234375,
   "elements": [
     {
       "id": "title",
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "Where Ravel sits — C4 system context",
-      "x": 456.5,
+      "x": 394.0,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -20,9 +20,9 @@
       "id": "owner",
       "shape": "box",
       "role": "owner",
-      "x0": 500.0,
+      "x0": 420.0,
       "y0": 26.15625,
-      "x1": 780.0,
+      "x1": 680.0,
       "y1": 112.403125
     },
     {
@@ -31,7 +31,7 @@
       "role": "owner",
       "face": "qual",
       "text": "«person»",
-      "x": 640,
+      "x": 550,
       "y": 41.71484374999999,
       "anchor": "center",
       "align": "center",
@@ -45,7 +45,7 @@
       "role": "owner",
       "face": "name",
       "text": "owner",
-      "x": 640,
+      "x": 550,
       "y": 56.35156249999999,
       "anchor": "center",
       "align": "center",
@@ -59,22 +59,22 @@
       "role": "owner",
       "face": "body",
       "text": "Controls the account’s owner policy and settings",
-      "x": 640,
+      "x": 550,
       "y": 86.91640625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 256.0,
+      "w": 236.0,
       "h": 28.9734375
     },
     {
       "id": "ravel",
       "shape": "box",
       "role": "ravel",
-      "x0": 490.0,
-      "y0": 191.15625,
-      "x1": 790.0,
-      "y1": 295.73984375
+      "x0": 420.0,
+      "y0": 226.15625,
+      "x1": 680.0,
+      "y1": 330.73984375
     },
     {
       "id": "ravel-stereo",
@@ -82,8 +82,8 @@
       "role": "ravel",
       "face": "qual",
       "text": "«system»",
-      "x": 640,
-      "y": 206.71484375,
+      "x": 550,
+      "y": 241.71484375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -96,8 +96,8 @@
       "role": "ravel",
       "face": "name",
       "text": "Ravel",
-      "x": 640,
-      "y": 221.3515625,
+      "x": 550,
+      "y": 256.3515625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -110,22 +110,22 @@
       "role": "ravel",
       "face": "body",
       "text": "Routes one request, supervises the selected program and decides the final outcome",
-      "x": 640,
-      "y": 261.084765625,
+      "x": 550,
+      "y": 296.084765625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 276.0,
+      "w": 236.0,
       "h": 47.31015625
     },
     {
       "id": "caller",
       "shape": "box",
       "role": "external",
-      "x0": 5.0,
-      "y0": 191.15625,
-      "x1": 235.0,
-      "y1": 295.73984375
+      "x0": 0.0,
+      "y0": 216.98789062499998,
+      "x1": 200.0,
+      "y1": 339.908203125
     },
     {
       "id": "caller-stereo",
@@ -133,8 +133,8 @@
       "role": "external",
       "face": "qual",
       "text": "«external_system»",
-      "x": 120,
-      "y": 206.71484375,
+      "x": 100,
+      "y": 232.54648437499998,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -147,8 +147,8 @@
       "role": "external",
       "face": "name",
       "text": "caller",
-      "x": 120,
-      "y": 221.3515625,
+      "x": 100,
+      "y": 247.18320312499998,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -161,22 +161,22 @@
       "role": "external",
       "face": "body",
       "text": "An orchestrator or person: supplies the prompt and interprets the result",
-      "x": 120,
-      "y": 261.084765625,
+      "x": 100,
+      "y": 296.084765625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 206.0,
-      "h": 47.31015625
+      "w": 176.0,
+      "h": 65.64687500000001
     },
     {
       "id": "managed",
       "shape": "box",
       "role": "external",
-      "x0": 500.0,
-      "y0": 431.15625,
-      "x1": 780.0,
-      "y1": 517.403125
+      "x0": 420.0,
+      "y0": 516.15625,
+      "x1": 680.0,
+      "y1": 620.7398437500001
     },
     {
       "id": "managed-stereo",
@@ -184,8 +184,8 @@
       "role": "external",
       "face": "qual",
       "text": "«external_system»",
-      "x": 640,
-      "y": 446.71484375,
+      "x": 550,
+      "y": 531.71484375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -198,8 +198,8 @@
       "role": "external",
       "face": "name",
       "text": "managed process",
-      "x": 640,
-      "y": 461.3515625,
+      "x": 550,
+      "y": 546.3515625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -212,13 +212,13 @@
       "role": "external",
       "face": "body",
       "text": "Harness that runs an LLM session, or another selected program",
-      "x": 640,
-      "y": 491.91640625,
+      "x": 550,
+      "y": 586.084765625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
-      "w": 256.0,
-      "h": 28.9734375
+      "w": 236.0,
+      "h": 47.31015625
     },
     {
       "id": "rel-owner-ravel",
@@ -226,12 +226,12 @@
       "role": "relation",
       "pts": [
         [
-          640,
+          550,
           112.403125
         ],
         [
-          640,
-          191.15625
+          550,
+          226.15625
         ]
       ],
       "dashed": false,
@@ -243,13 +243,13 @@
       "role": "label",
       "face": "body",
       "text": "Configures command selection",
-      "x": 756.4248046875,
-      "y": 145.72109375,
+      "x": 638.0,
+      "y": 155.36249999999998,
       "anchor": "center",
       "align": "left",
-      "wrapped": false,
-      "w": 216.849609375,
-      "h": 10.63671875
+      "wrapped": true,
+      "w": 160.0,
+      "h": 28.9734375
     },
     {
       "id": "rel-owner-ravel-tech",
@@ -257,13 +257,13 @@
       "role": "label",
       "face": "qual",
       "text": "[owner policy and settings]",
-      "x": 729.8203125,
-      "y": 158.598046875,
+      "x": 638.0,
+      "y": 185.26640625,
       "anchor": "center",
       "align": "left",
-      "wrapped": false,
-      "w": 163.640625,
-      "h": 9.1171875
+      "wrapped": true,
+      "w": 160.0,
+      "h": 24.834374999999998
     },
     {
       "id": "rel-caller-ravel",
@@ -271,12 +271,12 @@
       "role": "relation",
       "pts": [
         [
-          235.0,
-          213.448046875
+          200.0,
+          248.448046875
         ],
         [
-          490.0,
-          213.448046875
+          420.0,
+          248.448046875
         ]
       ],
       "dashed": false,
@@ -288,12 +288,12 @@
       "role": "label",
       "face": "body",
       "text": "Requests a session",
-      "x": 362.5,
-      "y": 192.0125,
+      "x": 310.0,
+      "y": 211.29531249999997,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 133.46484375,
+      "wrapped": true,
+      "w": 190.0,
       "h": 10.63671875
     },
     {
@@ -302,13 +302,13 @@
       "role": "label",
       "face": "qual",
       "text": "[start-session: kind and prompt]",
-      "x": 362.5,
-      "y": 204.889453125,
+      "x": 310.0,
+      "y": 232.03085937499998,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 193.271484375,
-      "h": 9.1171875
+      "wrapped": true,
+      "w": 190.0,
+      "h": 24.834374999999998
     },
     {
       "id": "rel-ravel-caller",
@@ -316,12 +316,12 @@
       "role": "result",
       "pts": [
         [
-          490.0,
-          273.448046875
+          420.0,
+          308.448046875
         ],
         [
-          235.0,
-          273.448046875
+          200.0,
+          308.448046875
         ]
       ],
       "dashed": false,
@@ -333,8 +333,8 @@
       "role": "result",
       "face": "body",
       "text": "Returns opaque result after successful cleanup",
-      "x": 362.5,
-      "y": 291.934765625,
+      "x": 310.0,
+      "y": 326.934765625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -347,8 +347,8 @@
       "role": "result",
       "face": "qual",
       "text": "[standard output]",
-      "x": 362.5,
-      "y": 313.98007812500003,
+      "x": 310.0,
+      "y": 348.980078125,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -361,12 +361,12 @@
       "role": "relation",
       "pts": [
         [
-          570,
-          295.73984375
+          480,
+          330.73984375
         ],
         [
-          570,
-          431.15625
+          480,
+          516.15625
         ]
       ],
       "dashed": false,
@@ -378,8 +378,8 @@
       "role": "label",
       "face": "body",
       "text": "Launches and supervises",
-      "x": 473.6796875,
-      "y": 357.389453125,
+      "x": 383.6796875,
+      "y": 417.38945312500005,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
@@ -392,8 +392,8 @@
       "role": "label",
       "face": "qual",
       "text": "[selected command]",
-      "x": 447.22265625,
-      "y": 370.26640625,
+      "x": 357.22265625,
+      "y": 430.26640625000005,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
@@ -406,12 +406,12 @@
       "role": "result",
       "pts": [
         [
-          710,
-          431.15625
+          620,
+          516.15625
         ],
         [
-          710,
-          295.73984375
+          620,
+          330.73984375
         ]
       ],
       "dashed": false,
@@ -423,12 +423,12 @@
       "role": "result",
       "face": "body",
       "text": "Sends opaque result and asks Ravel to stop",
-      "x": 813.0,
-      "y": 357.389453125,
+      "x": 708.0,
+      "y": 417.38945312500005,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
-      "w": 190.0,
+      "w": 160.0,
       "h": 28.9734375
     },
     {
@@ -437,22 +437,22 @@
       "role": "result",
       "face": "qual",
       "text": "[end-session]",
-      "x": 813.0,
-      "y": 379.43476562499995,
+      "x": 708.0,
+      "y": 439.434765625,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
-      "w": 190.0,
+      "w": 160.0,
       "h": 9.1171875
     },
     {
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 148.3017578125,
-      "y0": 535.403125,
-      "x1": 764.6982421875,
-      "y1": 639.38671875
+      "x0": 85.8017578125,
+      "y0": 638.7398437500001,
+      "x1": 702.1982421875,
+      "y1": 742.7234375
     },
     {
       "id": "key-text",
@@ -460,8 +460,8 @@
       "role": "label",
       "face": "body",
       "text": "Blue: Ravel. Grey: caller and managed process. Slate: human owner.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session when its task is done.\nRavel stops the group members that remain and confirms cleanup before it returns.\nThis view hides Ravel’s processes. Boxes are not security boundaries.",
-      "x": 456.5,
-      "y": 587.394921875,
+      "x": 394.0,
+      "y": 690.7316406250001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,

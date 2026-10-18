@@ -6,17 +6,17 @@
 #import "_draw.typ": render
 
 #let ents = (
-  ent("caller", "external", [caller], [«external_system»], cx: 520, top: 8, w: 300,
+  ent("caller", "external", [caller], [«external_system»], cx: 350, top: 8, w: 300,
     desc: [An orchestrator or person: requests work and interprets the opaque result]),
-  ent("cli", "ravel", [Ravel CLI], [«container»], cx: 520, top: 250, w: 270,
+  ent("cli", "ravel", [Ravel CLI], [«container»], cx: 350, top: 280, w: 270,
     tech: [Rust process: ravel start-session],
     desc: [Checks the selection and decides the final outcome. The runner executes inside this process and owns launch and supervision.]),
-  ent("worker", "ravel", [policy worker], [«container»], cx: 90, cy-of: "cli", w: 230,
+  ent("worker", "ravel", [policy worker], [«container»], cx: 80, top: 600, w: 210,
     tech: [Separate process: compiled Bun],
     desc: [Evaluates trusted owner policy. No session-result context.]),
-  ent("managed", "external", [managed process], [«external_system»], cx: 970, cy-of: "cli", w: 230,
+  ent("managed", "external", [managed process], [«external_system»], cx: 350, top: 950, w: 250,
     desc: [Selected direct child: a harness that runs an LLM session, or another program]),
-  ent("channel", "temporary", [result channel], [«temporary» «container»], cx: 520, top: 500, w: 270,
+  ent("channel", "temporary", [result channel], [«temporary» «container»], cx: 620, top: 600, w: 230,
     tech: [Temporary directory \ and completion file],
     desc: [Carries one opaque result. No persistent history.], db: true),
 )
@@ -28,12 +28,12 @@
   rel("cli", "caller", [Writes opaque result only after successful cleanup], tech: [standard output], role: "result",
     out: ("top", 70), into: ("bottom", 70), w: 170, t: 0.7),
   rel("worker", "cli", [Policy response], tech: [selection or refusal on a separate socket],
-    out: ("right", -26), into: ("left", -26), w: 150),
+    out: ("top", 30), into: ("left", 30), seg: 0, side: "right", w: 150),
   rel("cli", "worker", [1\. Evaluates request], tech: [bounded request and restricted environment],
-    out: ("left", 30), into: ("right", 30), side: "below", w: 150),
-  rel("cli", "managed", [2\. Launches], tech: [selected command and session-result context], w: 150, dx: 14),
-  rel("managed", "channel", [Sends result with end-session], role: "result", out: "bottom", into: "right", seg: 0, w: 120, dy: -20),
-  rel("channel", "cli", [Supplies result], tech: [validate and read], role: "result"),
+    out: ("left", -30), into: ("top", -30), seg: 0, side: "above", w: 150),
+  rel("cli", "managed", [2\. Launches], tech: [selected command and session-result context], out: "bottom", into: "top", w: 120, side: "left"),
+  rel("managed", "channel", [Sends result with end-session], role: "result", out: "right", into: "bottom", seg: 1, w: 120, side: "left"),
+  rel("channel", "cli", [Supplies result], tech: [validate and read], role: "result", out: "top", into: "right", seg: 0, w: 120, side: "left"),
 )
 
 #render(c4([Processes and authority — C4 container view], ents, bounds, rels, (

@@ -88,6 +88,26 @@ These sizes are source-space units. mdBook scales a wide SVG to the chapter
 column; the full-size link preserves access to its original scale. Do not
 shrink individual text to force a figure into the column.
 
+At the 750-pixel chapter width, keep ordinary diagram text at least about
+12 pixels. Measure this as `14 × 750 / viewBox-width` for a full-column
+figure. Narrow layouts can show larger text; do not pad them with empty space
+only to make every image's scale equal. Prefer wrapped participant names,
+shorter columns and bounded keys. A long sequence may grow vertically to
+preserve one continuous order. Inspect every part, not only its opening.
+The 12-unit C4 qualifiers deliberately remain smaller than body text.
+
+Participant and C4 entity names use the same bold face. State, activity and
+timing labels describe work or states rather than named entities, so they
+keep the regular body face; timing row and enclosure heads use regular 16.
+Result messages use green for both text and arrow, as C4 result relations do.
+Dashed replies, lifetime crosses, folded notes, state corners, directory tabs
+and timing lanes retain their notation-specific forms.
+
+Shared keys wrap at 640 units, with 14 units of horizontal padding and 10
+vertically. Text blocks set their top and bottom edges explicitly inside the
+block. CeTZ also applies text-edge settings around drawn content; explicit
+inner settings keep wrapped text equal to the layout's measurement.
+
 Each figure has an adjacent sentence saying what the reader should take from
 it, a book-specific key, meaningful Markdown alt text and a full-size SVG link.
 Explain the book's meanings and limits, not generic diagram notation. Colours
@@ -160,11 +180,9 @@ or roughness control. `--input style=crisp` is optional. A different style
 name fails. `_style.typ` holds the palette, fonts and weights.
 
 The nine layout records stayed byte-for-byte unchanged through that restyle.
-The records also hold the labels. Thus, this pass keeps their short result
-labels, including “exact result”, “No result bytes” and “suppress”. The
-captions, alt text and adjacent prose give their meaning with “unchanged”
-and “return no result to the caller”, as R12 and R13 require.
-Later figure edits use those words in labels too.
+The later whole-book art pass also revised layout and the older short result
+labels. The diagrams now use “unchanged” and “return no result to the caller”,
+as the captions, alternatives and the word decisions in `ste.md` do.
 
 **No reserve sketch backend.** Rough.js on Bun has no use under the crisp
 contract. It is not a dependency or a planned alternative. The earlier
@@ -257,9 +275,11 @@ are not rewritten.
 selectable or searchable, and the files are 5-7 times larger than the former
 renderer's. The contract never promised selectable figure text; the page's alt
 text, caption and prose are the text alternative, and the SVG is a full-size
-link and never the only place a fact is stated. The size budget (each SVG at
-most 300 KB, the set at most 2 MB) was checked by `book-figure-viewing-check`
-(see "Viewing checks"). The latest size measurement is in the dated viewing record below.
+link and never the only place a fact is stated. The first-half benchmarks were
+300 KB per SVG and 2 MB for nine figures. The complete fourteen-figure book
+exceeds both: see the whole-book assessment under "Viewing checks". These
+benchmarks are not passing gates for the current set. Keep measuring growth;
+do not remove explanations or silently change the agreed medium to meet them.
 
 **Controls.** `task docs:figures:test` runs the checks of the check, each made to
 fire against a subject known to be wrong, with its fixtures in
@@ -312,10 +332,14 @@ recorded here (its sources stay in the history of the commit that added it,
 creating message and its lifeline starts there), `destroy` (the X), section
 dividers, and notes spanning two or more participants. A participant may be a
 cylinder (`db: true`); a message is `role: "result"` for the arrow that carries
-the session result. Each label wraps at `max-label` points (default 170, a
-parameter of `sequence`); the three book figures pass 300 or 340 so that their
-long labels, with the line breaks written in each source, are not split at a
-hyphen. Column gaps and row heights follow the measured labels, so adding a
+the session result. `max-label` (default 170) bounds the width that a message
+requests when the layout places columns, and the width of a self-call label.
+Once the columns are placed, other messages can use their actual arrow span.
+Thus a message across several participants wraps less without pushing those
+participants farther apart. The two cancellation figures use 145, the
+successful overview 125 and the six-participant code sequence 90. Participant
+names can include explicit line breaks. Column gaps and row heights follow
+the measured labels, so adding a
 participant or lengthening a label edits no coordinates: a scratch copy of
 `supervision-cancellation.typ` with an `audit sink` participant and a
 four-line message rendered with no other change. A label's apostrophe is
@@ -668,6 +692,91 @@ primitives. The book has no other renderer to fall back on, and rough.js on Bun
 figure.
 
 ## Viewing checks
+
+### Whole-book art, 2026-10-19 (`ravel-book-k101`)
+
+The pass read all delivered chapters (1–9, 11 and 12), SUMMARY, fourteen
+figure sources and nine shared modules. Every diagram has an adjacent
+reader takeaway, an alternative and a full-size link. The page-native tables
+carry the remaining comparisons, mappings and ordered steps. The pass keeps
+those tables. Additional worker, environment, test-seam and installation
+pictures would repeat their tables and linked views; a separate Pages picture
+would repeat the release activity. These are editorial choices. Neither a
+contract prohibition nor a failure of the medium caused them.
+
+The shared key now wraps. Sequence participant names use the bold entity
+face, and result labels share their arrows' green. Narrower sequence columns
+and C4 layouts increase effective text size. A message across several
+participants uses its actual span. The six-participant code sequence stays
+one continuous sequence, with a taller page instead of smaller type. The
+process view puts the managed process below the software boundary and keeps
+worker replies separate from result transport. No participant, relation,
+branch, lifetime mark or key statement was removed. Older result labels and
+the two INT labels now follow the book's word decisions.
+
+A visual check caught a wrapped installed-files key whose text crowded its
+border. Its layout measured 157.33 units of text, while the SVG's text block
+occupied 177.72. CeTZ applies text-edge settings to drawn content. Explicit
+inner text-edge settings in the shared text constructors make both blocks
+157.33 units. The key then has its intended ten-unit vertical padding.
+The same correction applies to wrapped notes throughout the set.
+
+Chrome on macOS displayed every final figure and its complete key in a
+local comparison page at 750 pixels, in a 1212-by-910 content viewport.
+All fourteen images loaded. Screenshots covered every part of the tall
+sequences and activities, and showed no label overlap or clipping. The
+local mdBook supplied the chapter 2 process view with its explanation and
+responsibility table, chapter 8's path table and sequence opening, and
+chapter 9's timing key and adjacent explanation. The chapter 8 full-size
+link opened its SVG, whose opening was inspected at natural scale. The
+chapter column measured 749.98 pixels. Raw Markdown supplied the complete
+chapter, caption and alternative read.
+
+The table measures ordinary 14-unit text at a 750-pixel image width from
+the SVG viewBox. Qualifiers remain 12 units by design. This measurement and
+visual inspection establish legibility on the inspected surface, not reader
+comprehension or a universal minimum for every viewport.
+
+| Figure | Before, px | After, px | SVG bytes |
+|---|---:|---:|---:|
+| `escalation-timing` | 12.2 | 12.9 | 293,514 |
+| `installed-files` | 15.3 | 15.4 | 148,688 |
+| `outcome-precedence` | 13.9 | 13.9 | 203,100 |
+| `process-authority` | 9.0 | 12.7 | 255,613 |
+| `release-delivery` | 13.3 | 13.3 | 302,095 |
+| `selection-cancellation` | 13.3 | 16.7 | 165,819 |
+| `session-code-path` | 8.5 | 12.3 | 291,179 |
+| `session-outcomes` | 12.5 | 12.5 | 174,765 |
+| `settled-exit-status` | 13.3 | 13.1 | 196,012 |
+| `source-components` | 11.1 | 13.8 | 210,931 |
+| `successful-session` | 8.0 | 12.8 | 213,746 |
+| `supervision-cancellation` | 9.8 | 15.3 | 202,477 |
+| `system-context` | 11.5 | 13.1 | 158,392 |
+| `terminal-lending-recovery` | 11.3 | 15.4 | 368,439 |
+
+The fourteen SVGs total **3,184,770 bytes**, down from 3,214,907 before this
+pass. The terminal sequence (368,439 bytes) and release activity (302,095)
+exceed the first-half 300 KB individual benchmark. The set exceeds 2 MB.
+This assessment retains the agreed glyph-path SVG format and all fourteen
+views: the complete book has five more figures and their explanations than
+the original nine-figure set. The earlier benchmarks do not pass, and this
+pass does not redefine them as passed. The useful correction is readable
+layout; removing labels to save bytes would damage the figures' purpose.
+
+Independent gzip compression of the fourteen files totals 405,755 bytes.
+That is a local compression measurement, not an observed HTTP transfer size
+or a promise that a host uses gzip. The SVGs loaded locally; no public
+network timing was measured. The pins and regeneration commands are unchanged.
+A comparison of the old and new layout records retains every element ID,
+shape, arrow flag and dash flag in order. The only non-geometric differences
+are the documented text changes, bold participant face and green result labels.
+
+No fresh editor-preview, other-browser, dark-theme or narrow-viewport view
+was inspected. GitHub's view of this branch and the book on public Pages
+remain uninspected. No new platform, real-agent, terminal-operation or
+reader-comprehension result follows. Whole-book proof and the owner's read 2
+remain separate steps.
+
 
 The records below are dated evidence of the artifacts each pass inspected.
 They are not current style instructions; the shared conventions above govern

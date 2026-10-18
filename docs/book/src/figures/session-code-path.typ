@@ -10,7 +10,7 @@
   part("worker", [policy \ worker], kind: "ravel"),
   part("managed", [managed \ process]),
   part("end", [Ravel CLI \ (end-session)], kind: "ravel"),
-  part("channel", [result channel], kind: "temporary", db: true),
+  part("channel", [result \ channel], kind: "temporary", db: true),
 )
 
 #let rows = (
@@ -74,4 +74,4 @@
   [X: confirmed reap or removal. Second CLI exit/reap omitted.],
   [Unconfined example, without policy context or a terminal.],
   [Early child exit skips the optional region. Later checks still find the result.],
-), max-label: 180))
+), max-label: 90))

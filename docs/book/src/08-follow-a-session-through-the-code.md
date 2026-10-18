@@ -485,7 +485,7 @@ exists. A later signal can also reach the CLI after that check.
 `Handlers::finalise` collects that observation before `settle` decides the
 outcome.
 
-![The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation suppresses candidate even when cleanup fails.](figures/supervision-cancellation.svg)
+![The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation returns no result to the caller, even when cleanup fails.](figures/supervision-cancellation.svg)
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 The figure reuses chapter 5's example. Its cleanup arrows are attempts,

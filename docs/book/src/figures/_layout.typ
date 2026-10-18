@@ -67,8 +67,9 @@
 
 // The pale key box listing semantic lines. Its size is the text's plus a margin.
 #let key-size(lines) = {
-  let s = size-of(ctext(label(lines-of(lines))))
-  (w: s.w + 28, h: s.h + 20)
+  let wrap = fit(lines-of(lines), "body", 640)
+  let s = size-of(ctext(label(lines-of(lines)), w: wrap))
+  (w: s.w + 28, h: s.h + 20, wrap: wrap)
 }
 
 // The key box centred on `cx` with its top at `y0`, then its text.
@@ -76,7 +77,7 @@
   let g = key-size(lines)
   (
     box-el(id, "key", cx - g.w / 2, y0, cx + g.w / 2, y0 + g.h),
-    text-el(id + "-text", lines-of(lines), cx, y0 + g.h / 2),
+    text-el(id + "-text", lines-of(lines), cx, y0 + g.h / 2, w: g.wrap),
   )
 }
 

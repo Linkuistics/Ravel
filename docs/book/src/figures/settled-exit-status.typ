@@ -11,7 +11,7 @@
   state("original", "phase", [Check the original outcome], col: 0, row: 2),
   state("cleanup", "phase", [Check required cleanup], col: 0, row: 3),
   state("writing", "phase", [Write the result], col: 0, row: 4),
-  state("succeeded", "outcome", [0: Ravel delivers the exact result], col: 0, row: 5),
+  state("succeeded", "outcome", [0: Ravel returns the result unchanged], col: 0, row: 5),
   state("cancelled", "outcome", [Cancelled \ 129: HUP \ 130: INT \ 143: TERM], col: 1, row: 1),
   state("failure", "outcome", [Original failure: \ 1: no result. \ 2: invalid inputs or settings. \
     3: refusal by policy, or of its \ file, behaviour or data. \
@@ -39,7 +39,7 @@
   [Ravel attempts applicable cleanup before it reports an outcome.],
   [This order expresses precedence, not the implementation's call order.],
   [Original failures keep their status when later cleanup also fails.],
-  [Cancellation suppresses a sent result and retains other diagnostics.],
+  [Cancellation returns no result to the caller and retains other diagnostics.],
   [Green: the only success route. An empty result is a valid value.],
   [A later nonzero child exit does not invalidate that value.],
   [A failed final write can leave a prefix. A late signal can interrupt it.],

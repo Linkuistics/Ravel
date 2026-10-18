@@ -746,9 +746,6 @@ guides' native-entry status as current fact.
 | `docs/authority.md` guards and exceptions into chapter 11; file removed; caller-references row and contract clause edited | chapter 11 (`develop-ravel-k159`), then `book-contributor-delivery-fold-in-k165` |
 | README “Develop”, the “private session channel” paragraph and the contributor sentences | chapter 11, then `book-contributor-delivery-fold-in-k165` |
 | README reduction, notices-line decision and the “Earlier project” heading; set proof already linked the existing chapters | `book-contributor-delivery-fold-in-k165` (chapter 12 holds the notices line) |
-| The dense figures' small text | `ravel-book-k101` |
-| Chapter 12 art correction k189 adds the book steps to the release activity. Its SVG is 302,385 bytes and the fourteen SVGs total 3,214,907 bytes, above the earlier 300 KB and 2 MB benchmarks. The figure is legible at the 750 px column | `ravel-book-k101`, with the existing size assessment |
-| Chapter 9 art k176 records a 378,003-byte terminal SVG and a thirteen-figure set of 2,912,522 bytes. These exceed the earlier 300 KB per-figure and 2 MB set benchmarks. Its new text is about 11.3 px at the 750-pixel column | `ravel-book-k101`, with the existing size and dense-text assessment |
 | Chapter 5 says “managed program” three times (in “Read notices separately from results” and the exit-status table) where the rest of the book says “managed process”. Copy-edit `the-parts-of-ravel-k167` changed chapter 7 to “managed process” | the whole-book proof that `ravel-book-k101` cuts |
 | Chapters 5 and 6 write one signal two ways (SIGINT and INT, SIGTERM and TERM). Copy-edit `jobs-signals-and-the-terminal-k175` set the short-name rule in `docs/book/ste.md` (“Signal names”) and applied it to chapter 9 | the whole-book proof that `ravel-book-k101` cuts |
 | Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |
@@ -816,7 +813,12 @@ read 2 remain live. The book node does not close.
 
 ## Handed forward
 
-None.
+- **Whole-book proof:** chapter 5's “Read notices separately from results”
+  and exit-status table still use “managed program” where the book uses
+  “managed process”. Reconcile the three prose uses against the contract.
+- **Whole-book proof:** chapters 5 and 6 mix SIGINT/INT and SIGTERM/TERM.
+  Apply `docs/book/ste.md`'s signal-name rule, preserving literal source/API
+  spellings where the rule requires them. Art has reconciled the figure labels.
 
 ## Second-half set proof (k163, 2026-10-19)
 
@@ -875,3 +877,30 @@ Fold-in k164 can resume its guide removal, task deletion and corresponding
 chapter edits. It still owns removal of `docs:components`; that entry remains
 in the chapter until then. K165, whole-book art/proof and read 2 retain their
 work. No ADR changes, new correction run or parent-book close follows.
+
+
+## Whole-book art (k101, 2026-10-19)
+
+All delivered chapters and fourteen figures received the art read. Shared
+key wrapping, sequence text roles and text-edge settings now agree across
+notations. Narrower sequences and C4 layouts bring ordinary text to
+12.3–16.7 pixels at the 750-pixel chapter width. All relations, participants,
+branches, lifetime markers and explanations remain. Figure labels use the
+agreed result wording and short INT name. The detailed visual vocabulary,
+measurements, complete-set size assessment and viewing limits are current
+in `docs/book/figures.md`. The earlier size benchmarks do not pass; the agreed
+medium remains, with the complete set at 3,184,770 SVG bytes.
+
+The existing tables carry the remaining relations, so no extra diagram is
+needed. These are editorial choices, not evidence of a medium limitation.
+Whole-book proof owns the remaining prose consistency points above and an
+independent full-contract, inventory, source and entry-route read. Read 2
+stays after that proof. No reader-comprehension or new runtime/platform
+result follows from art. No ADR change is needed, and this node stays open.
+
+Book build, fourteen figure comparisons, figure controls, fourteen complete
+examples, eight excerpts, strict STE and strict prose-break checks all pass
+on 3,525 unchanged tracked inputs outside `.grove/`. The final Chrome pass
+viewed all fourteen figures completely at 750 pixels; actual chapter views
+and the full-size code-sequence link also work. `docs/book/figures.md` bounds
+this evidence to the inspected surfaces. The full Rust suite was not rerun.

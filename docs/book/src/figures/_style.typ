@@ -107,9 +107,11 @@
 #let label(s) = s.split("\n").map(l => [#l]).join(linebreak())
 
 // Intrinsic-size text blocks; `w` fixes the wrapping width.
+// Set edges inside the block: CeTZ wraps drawn content in its own text style.
+// These explicit edges keep wrapped text identical in measurement and drawing.
 #let len(w) = if type(w) == int or type(w) == float { w * 1pt } else { w }
-#let ctext(body, w: auto, ..args) = box(width: len(w), align(center, text(..args, body)))
-#let ltext(body, w: auto, ..args) = box(width: len(w), align(left, text(..args, body)))
+#let ctext(body, w: auto, ..args) = box(width: len(w), align(center, text(top-edge: "cap-height", bottom-edge: "baseline", ..args, body)))
+#let ltext(body, w: auto, ..args) = box(width: len(w), align(left, text(top-edge: "cap-height", bottom-edge: "baseline", ..args, body)))
 #let fl(x) = x / 1pt
 #let size-of(body, w: auto) = {
   let m = measure(box(width: len(w), body))

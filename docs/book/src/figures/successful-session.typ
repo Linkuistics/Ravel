@@ -7,8 +7,8 @@
 #let parts = (
   part("caller", [caller]),
   part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
-  part("worker", [policy worker], kind: "ravel"),
-  part("managed", [managed process]),
+  part("worker", [policy \ worker], kind: "ravel"),
+  part("managed", [managed \ process]),
   part("channel", [result channel \ (temporary files)], kind: "temporary", db: true),
 )
 
@@ -35,7 +35,7 @@
   msg("cli", "cli", [Confirm direct-child reap. Recover terminal \ if lent. Confirm process-group absence]),
   destroy("managed"),
   msg("cli", "channel", [Validate and read sent result]),
-  msg("channel", "cli", [Exact opaque value], role: "result", dashed: true),
+  msg("channel", "cli", [Unchanged opaque value], role: "result", dashed: true),
   msg("cli", "channel", [Remove result channel's temporary directory]),
   destroy("channel"),
   msg("cli", "cli", [Decide the final outcome from the result, \ cancellation and cleanup]),
@@ -48,4 +48,4 @@
   [Green arrows carry the opaque result.],
   [Successful unconfined path only. Recover the terminal only if Ravel lent it.],
   [The sent result precedes cleanup. Only the last arrow delivers the result to the caller.],
-), max-label: 300))
+), max-label: 125))

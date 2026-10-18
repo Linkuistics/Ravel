@@ -37,7 +37,7 @@
 #render(state-machine([Session phases and outcomes — UML state machine], states, trans, (
   [Blue: phases of Ravel's work, not processes.],
   [Grey rounded boxes: outcomes. The view shows no further transition.],
-  [INT, TERM or HUP can cancel either phase and suppress any sent value.],
+  [INT, TERM or HUP can cancel either phase. Ravel returns no result to the caller.],
   [Ravel attempts cleanup on every path. An attempt does not imply success.],
   [Ravel keeps one primary outcome and reports other failures beside it.],
   [No result means that no program sent a result, even if the managed process exited 0.],

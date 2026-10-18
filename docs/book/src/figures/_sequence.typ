@@ -22,7 +22,7 @@
 
   // --- head sizes (16pt, measured) -------------------------------------
   let hs = parts.map(pt => {
-    let s = size-of(ctext(label(plain(pt.label)), ..faces.head))
+    let s = size-of(ctext(label(plain(pt.label)), ..faces.name))
     (w: s.w + 22, h: s.h + 12 + if pt.db { 26 } else { 0 })
   })
 
@@ -110,7 +110,10 @@
         let dir = if b > a { 1 } else { -1 }
         if r.create { x2 = x2 - dir * hs.at(b).w / 2 }
         let span = calc.abs(x2 - x1)
-        let lw = calc.min(natural(r.label), span - 12)
+        // The gap constraints cap label width to keep adjacent participants
+        // close. Once placed, a message can use the whole span it crosses.
+        // Longer messages then wrap less without widening unrelated columns.
+        let lw = calc.min(lab(r.label).w + 2, span - 12)
         let l = lab(r.label, w: lw)
         let hh = if r.create { hs.at(b).h / 2 } else { 0 }
         let ya = y + calc.max(l.h + 6, hh)
@@ -172,23 +175,25 @@
       let id = "head-" + pt.id
       if pt.db {
         els.push(cylinder-el(id, pt.kind, cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2))
-        els.push(text-el(id + "-label", pt.label, cx, it.cy + 7, role: pt.kind, face: "head"))
+        els.push(text-el(id + "-label", pt.label, cx, it.cy + 7, role: pt.kind, face: "name"))
       } else {
         els.push(box-el(id, pt.kind, cx - h.w / 2, it.cy - h.h / 2, cx + h.w / 2, it.cy + h.h / 2))
-        els.push(text-el(id + "-label", pt.label, cx, it.cy, role: pt.kind, face: "head"))
+        els.push(text-el(id + "-label", pt.label, cx, it.cy, role: pt.kind, face: "name"))
       }
     } else if it.t == "msg" {
       n-msg += 1
       let id = "msg-" + str(n-msg)
       els.push(line-el(id, it.role, ((ox + it.x1, it.y), (ox + it.x2, it.y)), dashed: it.dashed, arrow: true))
-      els.push(text-el(id + "-label", it.label, ox + it.mx, it.y - 4, anchor: "south", w: it.lw))
+      els.push(text-el(id + "-label", it.label, ox + it.mx, it.y - 4, anchor: "south", w: it.lw,
+        role: if it.role == "result" { "result" } else { "label" }))
     } else if it.t == "self" {
       n-msg += 1
       let id = "msg-" + str(n-msg)
       let x0 = ox + it.x
       els.push(line-el(id, it.role, ((x0, it.y), (x0 + 22, it.y), (x0 + 22, it.y + it.loop-h), (x0, it.y + it.loop-h)),
         dashed: it.dashed, arrow: true))
-      els.push(text-el(id + "-label", it.label, x0 + 28, it.y + it.loop-h / 2, anchor: "west", align: "left", w: it.lw))
+      els.push(text-el(id + "-label", it.label, x0 + 28, it.y + it.loop-h / 2, anchor: "west", align: "left", w: it.lw,
+        role: if it.role == "result" { "result" } else { "label" }))
     } else if it.t == "x" {
       let s = 8
       let x0 = ox + it.x

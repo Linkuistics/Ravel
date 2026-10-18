@@ -592,7 +592,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: phases of Ravel’s work, not processes.\nGrey rounded boxes: outcomes. The view shows no further transition.\nINT, TERM or HUP can cancel either phase and suppress any sent value.\nRavel attempts cleanup on every path. An attempt does not imply success.\nRavel keeps one primary outcome and reports other failures beside it.\nNo result means that no program sent a result, even if the managed process exited 0.\nAn empty result is a value. A later nonzero managed exit does not invalidate it.\nGreen: the only route to successful result delivery.\nA failed write may leave a prefix on stdout.\nThis view groups operations. It is not the full failure-precedence algorithm.",
+      "text": "Blue: phases of Ravel’s work, not processes.\nGrey rounded boxes: outcomes. The view shows no further transition.\nINT, TERM or HUP can cancel either phase. Ravel returns no result to the caller.\nRavel attempts cleanup on every path. An attempt does not imply success.\nRavel keeps one primary outcome and reports other failures beside it.\nNo result means that no program sent a result, even if the managed process exited 0.\nAn empty result is a value. A later nonzero managed exit does not invalidate it.\nGreen: the only route to successful result delivery.\nA failed write may leave a prefix on stdout.\nThis view groups operations. It is not the full failure-precedence algorithm.",
       "x": 413.4921875,
       "y": 730.146875,
       "anchor": "center",

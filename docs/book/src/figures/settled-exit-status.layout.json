@@ -1,6 +1,6 @@
 {
-  "w": 779.78515625,
-  "h": 898.7109375,
+  "w": 788.89453125,
+  "h": 917.04765625,
   "elements": [
     {
       "id": "title",
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "From the final outcome to exit status — UML state machine",
-      "x": 389.892578125,
+      "x": 394.447265625,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -20,7 +20,7 @@
       "id": "start",
       "shape": "circle",
       "role": "initial",
-      "x": 137.4453125,
+      "x": 142.0,
       "y": 35.15625,
       "r": 9
     },
@@ -28,9 +28,9 @@
       "id": "cancellation",
       "shape": "box",
       "role": "phase",
-      "x0": 49.369140625,
+      "x0": 53.923828125,
       "y0": 127.66132812500001,
-      "x1": 225.521484375,
+      "x1": 230.076171875,
       "y1": 156.298046875
     },
     {
@@ -39,7 +39,7 @@
       "role": "phase",
       "face": "body",
       "text": "Check cancellation",
-      "x": 137.4453125,
+      "x": 142.0,
       "y": 141.9796875,
       "anchor": "center",
       "align": "center",
@@ -51,9 +51,9 @@
       "id": "original",
       "shape": "box",
       "role": "phase",
-      "x0": 18.86376953125,
+      "x0": 23.41845703125,
       "y0": 313.15000000000003,
-      "x1": 256.02685546875,
+      "x1": 260.58154296875,
       "y1": 341.78671875000003
     },
     {
@@ -62,7 +62,7 @@
       "role": "phase",
       "face": "body",
       "text": "Check the original outcome",
-      "x": 137.4453125,
+      "x": 142.0,
       "y": 327.46835937500003,
       "anchor": "center",
       "align": "center",
@@ -74,9 +74,9 @@
       "id": "cleanup",
       "shape": "box",
       "role": "phase",
-      "x0": 32.42626953125,
+      "x0": 36.98095703125,
       "y0": 471.13359375000005,
-      "x1": 242.46435546875,
+      "x1": 247.01904296875,
       "y1": 499.77031250000005
     },
     {
@@ -85,7 +85,7 @@
       "role": "phase",
       "face": "body",
       "text": "Check required cleanup",
-      "x": 137.4453125,
+      "x": 142.0,
       "y": 485.45195312500005,
       "anchor": "center",
       "align": "center",
@@ -97,9 +97,9 @@
       "id": "writing",
       "shape": "box",
       "role": "phase",
-      "x0": 61.22265625,
+      "x0": 65.77734375,
       "y0": 571.7703125,
-      "x1": 213.66796875,
+      "x1": 218.22265625,
       "y1": 600.40703125
     },
     {
@@ -108,7 +108,7 @@
       "role": "phase",
       "face": "body",
       "text": "Write the result",
-      "x": 137.4453125,
+      "x": 142.0,
       "y": 586.088671875,
       "anchor": "center",
       "align": "center",
@@ -122,30 +122,30 @@
       "role": "outcome",
       "x0": 0.0,
       "y0": 656.40703125,
-      "x1": 274.890625,
-      "y1": 685.04375
+      "x1": 284.0,
+      "y1": 703.3804687500001
     },
     {
       "id": "succeeded-text",
       "shape": "text",
       "role": "outcome",
       "face": "body",
-      "text": "0: Ravel delivers the exact result",
-      "x": 137.4453125,
-      "y": 670.725390625,
+      "text": "0: Ravel returns the result unchanged",
+      "x": 142.0,
+      "y": 679.8937500000001,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 230.890625,
-      "h": 10.63671875
+      "wrapped": true,
+      "w": 240.0,
+      "h": 28.9734375
     },
     {
       "id": "cancelled",
       "shape": "box",
       "role": "outcome",
-      "x0": 562.79150390625,
+      "x0": 571.90087890625,
       "y0": 100.15625,
-      "x1": 681.88427734375,
+      "x1": 690.99365234375,
       "y1": 183.80312500000002
     },
     {
@@ -154,7 +154,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Cancelled\n129: HUP\n130: INT\n143: TERM",
-      "x": 622.337890625,
+      "x": 631.447265625,
       "y": 141.9796875,
       "anchor": "center",
       "align": "center",
@@ -166,9 +166,9 @@
       "id": "failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 464.890625,
+      "x0": 474.0,
       "y0": 239.80312500000002,
-      "x1": 779.78515625,
+      "x1": 788.89453125,
       "y1": 415.13359375000005
     },
     {
@@ -177,7 +177,7 @@
       "role": "outcome",
       "face": "body",
       "text": "Original failure:\n1: no result.\n2: invalid inputs or settings.\n3: refusal by policy, or of its\nfile, behaviour or data.\n5: worker, supervision or result failure.\n124: selection deadline.\n126: pre-start execution failure.\n127: program or interpreter not found.",
-      "x": 622.337890625,
+      "x": 631.447265625,
       "y": 327.46835937500003,
       "anchor": "center",
       "align": "center",
@@ -189,9 +189,9 @@
       "id": "cleanup-failed",
       "shape": "box",
       "role": "outcome",
-      "x0": 472.23583984375,
+      "x0": 481.34521484375,
       "y0": 471.13359375000005,
-      "x1": 772.43994140625,
+      "x1": 781.54931640625,
       "y1": 499.77031250000005
     },
     {
@@ -200,7 +200,7 @@
       "role": "outcome",
       "face": "body",
       "text": "5: cleanup, recovery or group failure",
-      "x": 622.337890625,
+      "x": 631.447265625,
       "y": 485.45195312500005,
       "anchor": "center",
       "align": "center",
@@ -212,9 +212,9 @@
       "id": "write-failed",
       "shape": "box",
       "role": "outcome",
-      "x0": 501.51416015625,
+      "x0": 510.62353515625,
       "y0": 571.7703125,
-      "x1": 743.16162109375,
+      "x1": 752.27099609375,
       "y1": 600.40703125
     },
     {
@@ -223,7 +223,7 @@
       "role": "outcome",
       "face": "body",
       "text": "5: result write or flush failed",
-      "x": 622.337890625,
+      "x": 631.447265625,
       "y": 586.088671875,
       "anchor": "center",
       "align": "center",
@@ -237,11 +237,11 @@
       "role": "relation",
       "pts": [
         [
-          137.4453125,
+          142.0,
           44.15625
         ],
         [
-          137.4453125,
+          142.0,
           127.66132812500001
         ]
       ],
@@ -254,11 +254,11 @@
       "role": "relation",
       "pts": [
         [
-          225.521484375,
+          230.076171875,
           141.9796875
         ],
         [
-          562.79150390625,
+          571.90087890625,
           141.9796875
         ]
       ],
@@ -271,7 +271,7 @@
       "role": "label",
       "face": "body",
       "text": "[cancellation selected]",
-      "x": 394.156494140625,
+      "x": 400.988525390625,
       "y": 132.661328125,
       "anchor": "center",
       "align": "center",
@@ -285,11 +285,11 @@
       "role": "relation",
       "pts": [
         [
-          137.4453125,
+          142.0,
           156.298046875
         ],
         [
-          137.4453125,
+          142.0,
           313.15000000000003
         ]
       ],
@@ -302,7 +302,7 @@
       "role": "label",
       "face": "body",
       "text": "[no cancellation]",
-      "x": 204.16943359375,
+      "x": 208.72412109375,
       "y": 234.72402343750002,
       "anchor": "center",
       "align": "center",
@@ -316,11 +316,11 @@
       "role": "relation",
       "pts": [
         [
-          256.02685546875,
+          260.58154296875,
           327.46835937500003
         ],
         [
-          464.890625,
+          474.0,
           327.46835937500003
         ]
       ],
@@ -333,7 +333,7 @@
       "role": "label",
       "face": "body",
       "text": "[original failure]",
-      "x": 360.458740234375,
+      "x": 367.290771484375,
       "y": 318.15000000000003,
       "anchor": "center",
       "align": "center",
@@ -347,11 +347,11 @@
       "role": "relation",
       "pts": [
         [
-          137.4453125,
+          142.0,
           341.78671875000003
         ],
         [
-          137.4453125,
+          142.0,
           471.13359375000005
         ]
       ],
@@ -364,7 +364,7 @@
       "role": "label",
       "face": "body",
       "text": "[valid candidate result]",
-      "x": 226.67333984375,
+      "x": 231.22802734375,
       "y": 406.46015625000007,
       "anchor": "center",
       "align": "center",
@@ -378,11 +378,11 @@
       "role": "relation",
       "pts": [
         [
-          242.46435546875,
+          247.01904296875,
           485.45195312500005
         ],
         [
-          472.23583984375,
+          481.34521484375,
           485.45195312500005
         ]
       ],
@@ -395,7 +395,7 @@
       "role": "label",
       "face": "body",
       "text": "[required cleanup failed\nor group survives]",
-      "x": 357.35009765625,
+      "x": 364.18212890625,
       "y": 466.965234375,
       "anchor": "center",
       "align": "center",
@@ -409,11 +409,11 @@
       "role": "result",
       "pts": [
         [
-          137.4453125,
+          142.0,
           499.77031250000005
         ],
         [
-          137.4453125,
+          142.0,
           571.7703125
         ]
       ],
@@ -426,7 +426,7 @@
       "role": "result",
       "face": "body",
       "text": "[reap, group absence and\nrequired cleanup confirmed]",
-      "x": 244.962890625,
+      "x": 249.517578125,
       "y": 535.7703125,
       "anchor": "center",
       "align": "center",
@@ -440,11 +440,11 @@
       "role": "relation",
       "pts": [
         [
-          213.66796875,
+          218.22265625,
           586.088671875
         ],
         [
-          501.51416015625,
+          510.62353515625,
           586.088671875
         ]
       ],
@@ -457,7 +457,7 @@
       "role": "label",
       "face": "body",
       "text": "write or flush fails",
-      "x": 357.591064453125,
+      "x": 364.423095703125,
       "y": 576.7703125,
       "anchor": "center",
       "align": "center",
@@ -471,11 +471,11 @@
       "role": "result",
       "pts": [
         [
-          137.4453125,
+          142.0,
           600.40703125
         ],
         [
-          137.4453125,
+          142.0,
           656.40703125
         ]
       ],
@@ -488,7 +488,7 @@
       "role": "result",
       "face": "body",
       "text": "write and flush succeed",
-      "x": 228.65576171875,
+      "x": 233.21044921875,
       "y": 628.40703125,
       "anchor": "center",
       "align": "center",
@@ -500,19 +500,19 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 96.75732421875,
-      "y0": 703.04375,
-      "x1": 683.02783203125,
-      "y1": 898.7109375
+      "x0": 101.31201171875,
+      "y0": 721.3804687500001,
+      "x1": 687.58251953125,
+      "y1": 917.04765625
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Refinement of chapter 3’s final-outcome step for start-session.\nBlue: steps to decide the outcome. Grey: outcomes.\nRavel attempts applicable cleanup before it reports an outcome.\nThis order expresses precedence, not the implementation’s call order.\nOriginal failures keep their status when later cleanup also fails.\nCancellation suppresses a sent result and retains other diagnostics.\nGreen: the only success route. An empty result is a valid value.\nA later nonzero child exit does not invalidate that value.\nA failed final write can leave a prefix. A late signal can interrupt it.\nThe table covers end-session, help and version invocations. This view does not.",
-      "x": 389.892578125,
-      "y": 800.87734375,
+      "text": "Refinement of chapter 3’s final-outcome step for start-session.\nBlue: steps to decide the outcome. Grey: outcomes.\nRavel attempts applicable cleanup before it reports an outcome.\nThis order expresses precedence, not the implementation’s call order.\nOriginal failures keep their status when later cleanup also fails.\nCancellation returns no result to the caller and retains other diagnostics.\nGreen: the only success route. An empty result is a valid value.\nA later nonzero child exit does not invalidate that value.\nA failed final write can leave a prefix. A late signal can interrupt it.\nThe table covers end-session, help and version invocations. This view does not.",
+      "x": 394.447265625,
+      "y": 819.2140625000001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
