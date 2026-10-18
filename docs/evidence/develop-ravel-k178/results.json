@@ -1,0 +1,151 @@
+[
+  {
+    "command": [
+      "task",
+      "install",
+      "PREFIX=/tmp/ravel-k178-checks/install-prefix"
+    ],
+    "status": 0,
+    "seconds": 7.0,
+    "log": "install.log"
+  },
+  {
+    "command": [
+      "task",
+      "smoke"
+    ],
+    "status": 0,
+    "seconds": 6.91,
+    "log": "smoke.log"
+  },
+  {
+    "command": [
+      "task",
+      "probes"
+    ],
+    "status": 0,
+    "seconds": 0.5,
+    "log": "probes.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:book:build"
+    ],
+    "status": 0,
+    "seconds": 0.13,
+    "log": "docs-book-build.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:figures"
+    ],
+    "status": 0,
+    "seconds": 4.52,
+    "log": "docs-figures.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:examples"
+    ],
+    "status": 0,
+    "seconds": 33.17,
+    "log": "docs-examples.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:excerpts"
+    ],
+    "status": 0,
+    "seconds": 0.52,
+    "log": "docs-excerpts.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:ste",
+      "--",
+      "--strict"
+    ],
+    "status": 0,
+    "seconds": 0.07,
+    "log": "docs-ste.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:breaks",
+      "--",
+      "--strict"
+    ],
+    "status": 0,
+    "seconds": 0.05,
+    "log": "docs-breaks.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:figures:test"
+    ],
+    "status": 0,
+    "seconds": 57.66,
+    "log": "docs-figures-test.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:examples:test"
+    ],
+    "status": 0,
+    "seconds": 60.44,
+    "log": "docs-examples-test.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:examples:mutants"
+    ],
+    "status": 0,
+    "seconds": 66.2,
+    "log": "docs-examples-mutants.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:excerpts:test"
+    ],
+    "status": 0,
+    "seconds": 7.87,
+    "log": "docs-excerpts-test.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:ste:test"
+    ],
+    "status": 0,
+    "seconds": 3.04,
+    "log": "docs-ste-test.log"
+  },
+  {
+    "command": [
+      "task",
+      "docs:breaks:test"
+    ],
+    "status": 0,
+    "seconds": 4.46,
+    "log": "docs-breaks-test.log"
+  },
+  {
+    "command": [
+      "task",
+      "book:integrity"
+    ],
+    "status": 0,
+    "seconds": 0.97,
+    "log": "book-integrity.log"
+  }
+]

@@ -1,0 +1,34 @@
+ste-test: ok: unchanged CONTEXT.md and SUMMARY.md pass
+ste-test: ok: long-sentence fails (Rule 6.3)
+ste-test: ok: sentence-at-limit passes
+ste-test: ok: long-step fails (Rule 5.1)
+ste-test: ok: long-paragraph fails (Rule 6.6)
+ste-test: ok: semicolon fails (Rule 8.1)
+ste-test: ok: contraction fails (Rule 4.2)
+ste-test: ok: normative fails (normative keyword)
+ste-test: ok: ing-word fails (Rule 3.5)
+ste-test: ok: decided-word fails (does not use)
+ste-test: ok: kept-phrase-part fails (Rule 3.5)
+ste-test: ok: kept-phrase passes
+ste-test: ok: code-span passes
+ste-test: ok: code-block passes
+ste-test: ok: avoid-line passes
+ste-test: ok: figure keys are not text
+ste-test: ok: figure text fails (Rule 8.1, Rule 3.5, a decided word)
+ste-test: ok: a removed decision row fails CONTEXT.md
+ste-test: ok: a decisions file with no tables is refused
+ste-test: ok: the report run exits 0 and counts the problem
+ste-test: ok: the default run reports a long sentence in chapter 07
+ste-test: ok: the old pattern 0[1-6] does not report chapter 07
+ste-test: ok: mutant no sentence limit: a control fails (long-sentence: the strict run passed)
+ste-test: ok: mutant no paragraph limit: a control fails (long-paragraph: the strict run passed)
+ste-test: ok: mutant no semicolon check: a control fails (semicolon: the strict run passed)
+ste-test: ok: mutant no contraction check: a control fails (contraction: the strict run passed)
+ste-test: ok: mutant no normative check: a control fails (normative: the strict run passed)
+ste-test: ok: mutant no -ing check: a control fails (ing-word: the strict run passed)
+ste-test: ok: mutant no decided words: a control fails (decided-word: the strict run passed)
+ste-test: ok: mutant no kept phrases: a control fails (unchanged CONTEXT.md and SUMMARY.md fail: /Users/antony/Development/Ravel.simpli)
+ste-test: ok: mutant no code removal: a control fails (code-span: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn)
+ste-test: ok: mutant no step limit: a control fails (long-step: the strict run passed)
+ste-test: ok: mutant no fence removal: a control fails (code-block: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000g)
+ste-test: ok: mutant no avoid lines: a control fails (unchanged CONTEXT.md and SUMMARY.md fail: /Users/antony/Development/Ravel.simpli)

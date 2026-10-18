@@ -1,0 +1,17 @@
+COMMAND ['task', 'docs:book:build']
+task: [docs:book:build] bash scripts/book.sh build
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/Ravel.simplify-and-componentize/docs/book/../../target/book`
+COMMAND ['task', 'docs:ste', '--', '--strict', 'docs/book/src/11-develop-ravel.md']
+task: [docs:ste] bash scripts/ste.sh --strict docs/book/src/11-develop-ravel.md
+ste: docs/book/src/11-develop-ravel.md: 0 problems
+ste: 0 problems in 1 files
+COMMAND ['task', 'docs:breaks', '--', '--strict', 'docs/book/src/11-develop-ravel.md']
+task: [docs:breaks] bash scripts/breaks.sh --strict docs/book/src/11-develop-ravel.md
+breaks: docs/book/src/11-develop-ravel.md: 0 runs longer than 450 words
+breaks: 0 runs longer than 450 words in 1 files
+Links: 45 local occurrences resolve. Missing-file and missing-anchor controls rejected.
+Task inventory: 57 names, each exactly once. Removed-name control rejected.
+Part A unchanged byte for byte.
+Final chapter SHA-256 before and after: 9ff9013d0c12e176a9a1f68552b4a242c886172ae01a3ce64a43277fa07cad7a

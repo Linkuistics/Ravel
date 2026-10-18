@@ -1,0 +1,48 @@
+breaks-test: ok: at-limit passes
+breaks-test: ok: over-limit fails
+breaks-test: ok: the report names the file, the lines, the count and the headings
+breaks-test: ok: the report names every heading in the run
+breaks-test: ok: no-break fails
+breaks-test: ok: figure-breaks passes
+breaks-test: ok: table-breaks passes
+breaks-test: ok: code-breaks passes
+breaks-test: ok: tilde-code-breaks passes
+breaks-test: ok: code-words-not-counted passes
+breaks-test: ok: a line in a code block is not a heading
+breaks-test: ok: heading-keeps fails
+breaks-test: ok: list-keeps fails
+breaks-test: ok: numbered-list-keeps fails
+breaks-test: ok: runs-count-apart passes
+breaks-test: ok: list-markers-not-words passes
+breaks-test: ok: numbered-markers-not-words passes
+breaks-test: ok: quote-markers-not-words passes
+breaks-test: ok: heading-text-not-words passes
+breaks-test: ok: list-words-count fails
+breaks-test: ok: quote-words-count fails
+breaks-test: ok: link-target-not-words passes
+breaks-test: ok: reference-definition-not-words passes
+breaks-test: ok: link-text-counts fails
+breaks-test: ok: comment-not-words passes
+breaks-test: ok: comment-lines-not-words passes
+breaks-test: ok: text-beside-comment-counts fails
+breaks-test: ok: a count for each file
+breaks-test: ok: only-headings passes
+breaks-test: ok: the report run exits 0 and names the run
+breaks-test: ok: the default run examines each of the 10 chapters
+breaks-test: ok: mutant no limit: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant limit one more: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant limit one less: a control fails (at-limit: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000)
+breaks-test: ok: mutant figure does not break: a control fails (figure-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2d)
+breaks-test: ok: mutant table does not break: a control fails (table-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw)
+breaks-test: ok: mutant code block does not break: a control fails (code-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0)
+breaks-test: ok: mutant heading breaks: a control fails (two-headings: the strict run passed)
+breaks-test: ok: mutant list breaks: a control fails (list-keeps: the strict run passed)
+breaks-test: ok: mutant blank line breaks: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant list and quote markers counted: a control fails (list-markers-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs)
+breaks-test: ok: mutant heading text counted: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.Jz7tE3NBWa/pos)
+breaks-test: ok: mutant link targets counted: a control fails (link-target-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4)
+breaks-test: ok: mutant reference definitions counted: a control fails (reference-definition-not-words: the strict run failed: /var/folders/z1/nw_wk3)
+breaks-test: ok: mutant comments counted: a control fails (comment-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73x)
+breaks-test: ok: mutant no strict exit: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant no headings in the report: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.vrUveJD8HI/pos)
+breaks-test: ok: mutant no line numbers: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.V8HP7d1Guv/pos)

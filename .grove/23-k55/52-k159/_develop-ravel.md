@@ -138,3 +138,24 @@ It distinguishes generated worker/probe outputs, the main and nested logs,
 temporary PTY receipts and the default nextest selection. Book and release
 checks remain separate. Part B teaches those checks and the isolation guards.
 Part A quotes no Taskfile description, so the old task wording is unchanged.
+
+## Complete draft boundary
+
+Part B (`develop-ravel-k178`) adds the five reserved sections without changes
+to part A. The chapter now teaches temporary-prefix installation, smoke and
+probes, book checks and their controls, isolation guards and evidence families.
+Its final inventory maps all 57 public tasks to a section or chapter 12.
+The draft logs together account for README Develop, both authority paragraphs
+and every evidence family. Guides and Taskfile remain unchanged.
+
+`docs/evidence/develop-ravel-k178/README.md` holds the command and document
+checks. All sixteen recorded tasks passed on unchanged source inputs, with
+fourteen complete examples, eight excerpts and thirteen figure comparisons.
+The final link-only edit passed build and strict prose checks again. All 45
+local chapter links resolve. The note separates local command observations
+from platform qualification and human comprehension.
+
+Copy-edit k179 is already live and reads the complete chapter. There is no
+chapter-local defect handed forward. Chapter 12 release teaching and links,
+later guide removal, whole-book views and the owner's read retain their
+existing owners. This node stays open through copy-edit, art and proof.

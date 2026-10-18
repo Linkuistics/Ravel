@@ -1,0 +1,103 @@
+figures-test: ok: fresh fetch caches once and a verified cache is reused without a fetch
+figures-test: ok: a corrupt cached asset is fetched again once and repaired
+figures-test: ok: a corrupt download is refused for its digest and not cached
+figures-test: ok: a corrupt cache is not trusted as a fallback for a corrupt download
+figures-test: ok: a wrong pinned digest refuses an asset that is otherwise intact
+figures-test: ok: a failed download is reported as one
+figures-test: ok: the committed fixtures match what the pinned renderers produce
+figures-test: ok: every fixture renders twice to identical bytes, equal to the committed SVG and layout record
+figures-test: ok: TYPST_*, SOURCE_DATE_EPOCH, a proxy, XDG_*, locale and time zone change nothing
+figures-test: ok: a changed source fails the compare
+figures-test: ok: a changed SVG fails the compare
+figures-test: ok: a missing SVG fails
+figures-test: ok: an SVG with no source fails
+figures-test: ok: update rewrites a stale layout record and writes a missing SVG
+figures-test: ok: check passes after update
+figures-test: ok: a second update succeeds
+figures-test: ok: update is idempotent
+figures-test: ok: a second editable source beside a figure is refused
+figures-test: ok: a _*.typ module gets no SVG: one that has one is refused
+figures-test: ok: a file of another kind is refused
+figures-test: ok: a subdirectory is refused
+figures-test: ok: a changed Typst source fails the compare
+figures-test: ok: changing a shared Typst module changes the figures that use it
+figures-test: ok: a changed Typst SVG fails the compare
+figures-test: ok: update rewrites a stale Typst SVG
+figures-test: ok: check passes after a Typst update
+figures-test: ok: a moved element fails the layout record compare
+figures-test: ok: a moved element fails the SVG compare too
+figures-test: ok: a restyle changes the SVG
+figures-test: ok: a stale layout record fails the compare
+figures-test: ok: a Typst figure with no layout record fails check
+figures-test: ok: update writes a missing layout record
+figures-test: ok: check passes after the record is written
+figures-test: ok: update rewrites a stale layout record
+figures-test: ok: a layout record with no source fails
+figures-test: ok: a layout record for a module fails
+figures-test: ok: a Typst figure that attaches no layout record fails, naming the figure
+figures-test: ok: a layout record holding a colour is refused
+figures-test: ok: a layout record holding a length is refused
+figures-test: ok: a layout record holding a style key is refused
+figures-test: ok: a layout record holding a piece of content is refused
+figures-test: ok: a Typst module importing another version of a pinned package is refused
+figures-test: ok: a Typst module importing an unpinned package is refused
+figures-test: ok: a Typst module importing a local package is refused
+figures-test: ok: a Typst figure source importing a package itself is refused
+figures-test: ok: _draw.typ may import a pinned package
+figures-test: ok: a Typst module other than _draw.typ importing CeTZ is refused
+figures-test: ok: a Typst figure in a font that is not on the font path is refused
+figures-test: ok: a Typst of another version is refused, naming both
+figures-test: ok: a missing Typst is refused with the remedy
+figures-test: ok: a missing Typst package cache is refused with the remedy
+figures-test: ok: an empty Typst package cache is refused with the remedy
+figures-test: ok: a changed file in a pinned Typst package is refused
+figures-test: ok: an added file in a pinned Typst package is refused
+figures-test: ok: a symlink in a pinned Typst package is refused
+figures-test: ok: another version of a pinned Typst package in the cache is refused
+figures-test: ok: an unpinned Typst package in the cache is refused
+figures-test: ok: a namespace other than preview in the package cache is refused
+figures-test: ok: the same tools directory passes once the tamper is undone
+figures-test: ok: a Typst render with an empty package cache fails at a refused connection and downloads nothing
+figures-test: ok: a Typst render importing an unpinned package is not downloaded
+figures-test: ok: without the pinned fonts a Typst figure does not render, even in a face Typst embeds (the font path and the ignored embedded fonts hold)
+figures-test: ok: the book modules draw a sequence with every kind of row
+figures-test: ok: the book modules render a stable sequence
+figures-test: ok: the shipped style draws both the key and the note with exact outlines
+figures-test: ok: the same source under another name renders
+figures-test: ok: both named figures are stable
+figures-test: ok: a figure name changes neither the drawing nor its record
+figures-test: ok: a change to the style tables changes the SVG
+figures-test: ok: a figure drawing with CeTZ itself, beside the book modules, is refused
+figures-test: ok: the book modules draw an activity with every kind of node
+figures-test: ok: the book modules render a stable activity
+figures-test: ok: the activity module is not rendered as a figure, and its record names its flows
+figures-test: ok: a node added to an activity source fails the layout record compare
+figures-test: ok: an added node fails the SVG compare too
+figures-test: ok: a changed activity label fails the layout record compare
+figures-test: ok: a changed activity label fails the SVG compare too
+figures-test: ok: a missing activity guard fails the layout record compare
+figures-test: ok: a missing guard fails the SVG compare too
+figures-test: ok: a decision exit that does not end the flow, with no merge, is refused
+figures-test: ok: a node after an outcome is refused
+figures-test: ok: two nodes with one id are refused
+figures-test: ok: the book modules draw a timing figure with every kind of element
+figures-test: ok: the book modules render a stable timing figure
+figures-test: ok: the timing module is not rendered as a figure, and its record names its guides
+figures-test: ok: an instant added to a timing source fails the layout record compare
+figures-test: ok: an added instant fails the SVG compare too
+figures-test: ok: a changed timing label fails the layout record compare
+figures-test: ok: a changed timing label fails the SVG compare too
+figures-test: ok: a changed timing bound fails the layout record compare
+figures-test: ok: a changed timing bound fails the SVG compare too
+figures-test: ok: a constraint that names no instant is refused
+figures-test: ok: a state that does not end after the previous one is refused
+figures-test: ok: a signal between rows that are not next to each other is refused
+figures-test: ok: a constraint that runs backward is refused
+figures-test: ok: two instants with one id are refused
+figures-test: ok: a tampered pinned font is refused
+figures-test: ok: an extra font on the font path is refused
+figures-test: ok: a missing pinned font is refused with the remedy
+figures-test: ok: the same tools directory passes once the tamper is undone
+figures-test: ok: one page with a figure builds in mdBook: the SVG is copied byte for byte and the page references it with its alt text
+figures-test: ok: note: mdBook also copies the editable sources beside the SVGs into the built book
+figures-test: fetch refusals, reproducibility, environment isolation, compare and lint controls and the page build passed

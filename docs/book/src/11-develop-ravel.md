@@ -361,3 +361,261 @@ mod tests {
 The parser returns `Command::EndSession` with the unchanged value. This test
 does not call `end-session` or need a result channel. The command-boundary
 tests cover the later effect of that command.
+
+## Install and test the installed pair
+
+`task install` builds a release CLI and its matched worker. It copies the pair,
+SDK files, examples and notices into `PREFIX`, then tests that installation.
+The default prefix is `~/.local`. An explicit prefix lets a contributor test a
+build without replacement of their usual installation.
+
+1. Choose a disposable prefix for the trial.
+2. Run `task install` with that prefix.
+3. Check the command's status and the worker log that it names.
+
+Fragment from this chapter's macOS arm64 trial: these commands omit setup,
+output and removal of the disposable prefix.
+
+```sh
+task install PREFIX=/tmp/ravel-k178-checks/install-prefix
+task smoke
+task probes
+```
+
+The installation puts the CLI at `PREFIX/bin/ravel` and its assets under
+`PREFIX/libexec/ravel/`. It does not add the prefix to `PATH`.
+[Chapter 6](06-reference.md#installed-layout) describes the installed files.
+Chapter 12, “Deliver Ravel”, covers release archives and their target checks.
+
+| Task | What it builds or checks | Files it leaves |
+|---|---|---|
+| `task install PREFIX=…` | Release pair, then installed smoke checks | Installed files at the chosen prefix, plus build outputs and a worker log |
+| `task smoke` | The same install workflow in a fresh prefix whose name contains spaces and Unicode | Build outputs and a worker log. The script removes its temporary prefix on exit |
+| `task probes` | Four test workers with selected runtime safeguards removed | Probe executables under `target/probes/ravel/`, with the default Cargo target directory |
+
+The installed smoke script tests both the direct CLI path and a relative
+symlink from another prefix. It uses the installed SDK and sample policy with
+a fake program. Its checks cover ordinary, empty, multiline and option-like
+results, child output, TypeScript imports,
+[policy context](04-writing-an-owner-policy.md#supply-policy-context), parameters and absent
+session-result context. It also checks the required assets and temporary-file
+cleanup. The private `PATH` has selected system utilities and fixture programs,
+with no host Bun or Node.
+
+The probes let hostile-runtime tests show that their unwanted effect can occur.
+For example, the autoload probe permits dotenv and bunfig autoloading. Other
+probes permit tsconfig autoloading, omit embedded imports or retain the worker's
+initial directory. Their distinct identities prevent their use as installed
+policy workers. After a worker change, rebuild the pair and probes before
+`task test:hostile`.
+
+These three tasks passed on macOS 27.0.1 arm64 in this chapter's trial.
+The [part B check records](../../evidence/develop-ravel-k178/README.md) give its
+scope. This local smoke check does not qualify release archives, Linux floors
+or a different host.
+
+## Check the book
+
+Book checks are separate from `task check`. A source change can make a quoted
+excerpt stale even when every Rust test passes. A documentation change can
+break a command example without a change to product code.
+
+`task docs:book` first builds the book, then serves it at
+`http://127.0.0.1:8775`. The server rebuilds after a source change. `PORT=…`
+selects another port. `task docs:book:build` only builds, under `target/book`.
+Its wrapper fails on an mdBook `ERROR` or `WARN` diagnostic, even if mdBook exits with
+status 0. A successful build does not establish that every link resolves or
+that a figure is legible.
+
+| Change | Check | What the check establishes |
+|---|---|---|
+| Chapter or book configuration | `task docs:book:build` | mdBook builds without an `ERROR` or `WARN` diagnostic |
+| Figure source or shared figure module | `task docs:figures` | Fresh SVGs and layout records match the committed files |
+| Complete command example | `task docs:examples` | The built pair runs each complete example and meets its stated output and status claims |
+| Source excerpt or its source file | `task docs:excerpts` | Each excerpt still occurs as consecutive whole lines in its named tracked file |
+| Prose, table, heading or figure text | `task docs:ste -- --strict` | No violation of the mechanical STE rules or shared word decisions |
+| Chapter layout | `task docs:breaks -- --strict` | No prose run exceeds 450 words under the check's rules |
+
+Figure checks use the pinned Typst tool, packages and fonts from `task setup`.
+They render into a scratch directory. `task docs:figures:update` instead writes
+the SVGs and `.layout.json` files beside their `.typ` sources. After an intended
+figure change, run the update task, inspect the diff and view the built page.
+Then run the comparison again.
+
+The [figure convention](../figures.md) describes
+the shared modules and visual checks. Equality with a fresh render does not
+establish that a diagram explains the right behaviour.
+
+The example check rebuilds the pair. It evaluates real TypeScript policies and
+runs fake programs with a private home, temporary directory and `PATH`. Standard
+input is `/dev/null`. It compares the declared streams and exit status, with
+only the scratch path normalised. A skip remains a skip in its summary.
+
+Fragments do not run. The check also does not compare source excerpts.
+The [example convention](../examples.md) defines labels, output claims and
+platform requirements.
+
+The excerpt check needs no build. Its comparison preserves spaces and
+indentation. It refuses untracked sources, symbolic links and generated paths.
+An exact quotation can still have an incorrect explanation. The
+[excerpt convention](../excerpts.md) describes the label and comparison.
+
+The STE and prose-break tasks report problems without failure unless you pass
+`--strict`. STE checks examine all chapter files, the contents, glossary,
+README and figure layout text by default. The prose-break check examines the
+chapters. A table, figure or code block breaks a prose run. Headings and lists
+do not.
+
+Neither check can establish clear explanations or compliance with every
+STE rule. A human read still checks meaning, order and use of active verbs.
+
+The checkers have their own tests. A **control** gives a checker a known bad
+input and requires it to refuse that input. A **mutant** removes a safeguard
+from a copy of the checker. Its control then needs to fail. These checks help
+show that a clean report has a useful meaning.
+
+| Task | Controls it exercises |
+|---|---|
+| `docs:figures:test` | Unchanged figures and changes to sources, SVGs, records, layout pins, tools and packages |
+| `docs:examples:test` | Good pages and wrong output, status, labels, build identity, environment and other example rules |
+| `docs:examples:mutants` | Example-checker copies with individual safeguards removed |
+| `docs:excerpts:test` | Changed source or quotation, invalid paths and labels, followed by checker mutants |
+| `docs:ste:test` | Planted text violations and default-file selection, followed by rule mutants |
+| `docs:breaks:test` | Prose at and above the limit, each kind of break, and rule mutants |
+| `book:integrity` | Offline mdBook fetch fixtures, cache reuse, corrupt-cache recovery and bad-download refusal |
+
+`book:integrity` needs the archive that `task setup` verified. It substitutes
+the download boundary and uses private tool directories. It does not test
+GitHub availability or the book's content. Run a checker's controls when you
+change that checker. Run the relevant content checks when you change a chapter.
+
+Fragment from this chapter's final validation: these commands omit setup and
+the reports. They check the complete book, not only this chapter.
+
+```sh
+task docs:book:build
+task docs:figures
+task docs:examples
+task docs:excerpts
+task docs:ste -- --strict
+task docs:breaks -- --strict
+```
+
+## Keep tests separate from live sessions
+
+A test can run inside an LLM session that Ravel supervises. If a test inherits
+that session's real completion path, its `end-session` call can stop the
+developer's session. The test boundary therefore removes inherited authority
+before it creates its own fixture inputs.
+
+| Boundary | Guard | Source |
+|---|---|---|
+| Cargo commands | Force the listed session controls to empty values | `.cargo/config.toml` |
+| Runner subprocess helpers | Remove those names from commands, or pass the names as runner scrub controls | `crates/keyed-launch/tests/support/mod.rs` |
+| CLI and hostile-runtime fixtures | Use `env_clear()`, a private `HOME` and `TMPDIR`, and a fixture `PATH` | `crates/ravel/tests/cli.rs` and `crates/ravel/tests/support/` |
+| Installed smoke | Start with `env -i`, then supply only fixture inputs | `crates/ravel/scripts/dispatch.sh` and `installed-smoke.sh` |
+
+The Cargo guards cover these names:
+
+- `GROVE_LAUNCH_DIR`, `GROVE_SIGNAL_FILE` and `GROVE_RUN_SIGNAL_FILE`.
+- `HARNESS_DISPATCH_EXIT_FILE`, `HARNESS_DISPATCH_RUN_ID` and
+  `HARNESS_DISPATCH_STATE_DIR`.
+- `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID` and `RAVEL_STATE_DIR`.
+
+An empty value disables the inherited authority. It does not redirect authority
+to another path. The runner helpers also protect direct subprocess invocations
+that do not pass through Cargo. The CLI fixtures create temporary policies, so
+tests do not need the developer's personal owner policy.
+
+The `GROVE_*` and `HARNESS_DISPATCH_*` names deliberately remain in these guards.
+They protect tests from older enclosing-session controls. They are extraction
+safety exceptions, not product dependencies. Paths in source provenance and
+the retired-project record give historical attribution. Ravel does not load
+those projects or interpret their task trees. The
+[caller-reference inventory](../../caller-references.md) classifies these
+references in source files and dotfiles.
+
+For a new subprocess test, reuse the fixture at the chosen seam. Supply only
+the environment values that the case needs. If the case needs a result channel,
+create that channel inside its temporary fixture. Never supply the enclosing
+session's real completion path.
+
+## Read the evidence for a change
+
+Evidence notes explain what a particular source read or measured run establishes.
+They sit outside the book with their receipts and logs. The tasks produce check
+output. A contributor writes the note that connects that output to a claim and
+states its limits. A task does not rewrite a dated evidence note.
+
+| Question about a change | Evidence to read | Source of its observations |
+|---|---|---|
+| Does a runtime upgrade preserve policy isolation and installed execution? | [Runtime evidence](../../runtime-evidence.md) | `probes`, `test:hostile`, `runtime:integrity` and `smoke` |
+| Does an archive contain and run the required pair? | [Archive evidence](../../archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
+| Did a particular release reach its remote and installed destinations? | [Release and installation record](../../publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
+| Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](../../release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
+| Which resource and failure paths motivated the repair? | [Result/job source evidence](../../result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
+| Which checks distinguish the completion-failure repairs? | [Completion failure evidence](../../completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
+| Why does native entry follow this protocol? | [Native-entry design](../../native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
+| What did the native-entry instruments measure? | [Native-entry evidence](../../native-entry-development-evidence.md) | The development, incumbent, campaign and Linux instruments below |
+| Where are the run records? | [Evidence directory](../../evidence/) | The linked note identifies each receipt set, its command and source revision |
+
+Start with the note's source revision and measured platform. Then read the
+section that matches the claim. Earlier sections can describe work that later
+sections complete. A design proposal is not an observed run, and an old failure
+does not establish that the current source still fails.
+
+The native-entry instruments examine executable entry state and cleanup. The
+**incumbent** is the frozen product before the repair, with private test seams.
+Its observations let a contributor distinguish a prior behaviour from a
+repair. The tables name the instruments so that their records are findable.
+Campaign plans and execution procedures remain in the evidence documents.
+
+| Instrument tasks | Purpose and evidence |
+|---|---|
+| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | Build the private fixture and exercise CLI, runner and Started-check cases. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
+| `native-incumbent:build`, `test:native-incumbent`, `test:native-incumbent-controls` | Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](../../native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
+| `test:native-campaign`, `test:native-campaign-controls` | Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| `native-linux:image`, `test:native-linux` | Build the Linux environment and collect its support measurements. Read the [Linux campaign section](../../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
+| `test:native-r01-controls` | Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+
+The task wrappers call `scripts/native-incumbent.sh`, `native-campaign.sh`,
+`native-linux.sh` and `native-r01.sh` for their respective instrument families.
+The native-entry tasks build and select Rust tests directly. A development
+test pass alone does not establish the complete campaign or a new platform's
+support. The measured support covers aarch64 macOS and aarch64 Linux.
+x86_64 Linux is built and run only under emulation, with native qualification
+still absent.
+
+`task docs:result-job` serves the editable result/job views on localhost port
+8774. `task docs:components` serves the current component views on port 8773.
+Both accept `PORT=…` and need network access for Mermaid. These design views
+are separate from the book's Typst figures and establish no runtime result.
+
+The [retired-project record](../../retired-project.md) identifies the former
+actor-daemon revision for historical attribution only.
+
+## Find a development task
+
+`task --list` shows the public task names and short descriptions in the current
+checkout. The table below accounts for each name at this chapter's draft.
+The sections above explain development tasks. Chapter 12, “Deliver Ravel”,
+owns the release workflow. Its release tasks can cut versions, write remote
+state and replace an installation, so they are not chapter-check commands.
+
+| Task names | Destination |
+|---|---|
+| `setup` | [Prepare a checkout](#prepare-a-checkout) |
+| `build`, `worker`, `typecheck`, `deps` | [Build the matched pair](#build-the-matched-pair) |
+| `test`, `test:session`, `test:cli`, `test:runner`, `test:hostile`, `test:list` | [Choose a test seam](#choose-a-test-seam) |
+| `check`, `runtime:integrity`, `test:terminal-recovery` | [Run the checks before handoff](#run-the-checks-before-handoff) |
+| `install`, `smoke`, `probes` | [Install and test the installed pair](#install-and-test-the-installed-pair) |
+| `docs:book`, `docs:book:build`, `docs:figures`, `docs:figures:update`, `docs:figures:test` | [Check the book](#check-the-book) |
+| `docs:examples`, `docs:examples:test`, `docs:examples:mutants`, `docs:excerpts`, `docs:excerpts:test` | [Check the book](#check-the-book) |
+| `docs:ste`, `docs:ste:test`, `docs:breaks`, `docs:breaks:test`, `book:integrity` | [Check the book](#check-the-book) |
+| `docs:components`, `docs:result-job` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `native-incumbent:build`, `test:native-incumbent`, `test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `test:native-campaign`, `test:native-campaign-controls`, `native-linux:image`, `test:native-linux`, `test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `release:archives`, `release:smoke`, `release:test`, `release:formula` | Chapter 12, “Deliver Ravel”: archive and formula checks |
+| `release:doctor`, `release:notes`, `release:lifecycle:test` | Chapter 12, “Deliver Ravel”: preparation and procedure checks |
+| `release:patch`, `release:minor`, `release:major` | Chapter 12, “Deliver Ravel”: version cut and delivery |

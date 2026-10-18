@@ -1,0 +1,12 @@
+task: [docs:breaks] bash scripts/breaks.sh --strict
+breaks: docs/book/src/01-what-ravel-is-for.md: 0 runs longer than 450 words
+breaks: docs/book/src/02-actors-and-words.md: 0 runs longer than 450 words
+breaks: docs/book/src/03-a-complete-session.md: 0 runs longer than 450 words
+breaks: docs/book/src/04-writing-an-owner-policy.md: 0 runs longer than 450 words
+breaks: docs/book/src/05-running-sessions.md: 0 runs longer than 450 words
+breaks: docs/book/src/06-reference.md: 0 runs longer than 450 words
+breaks: docs/book/src/07-the-parts-of-ravel.md: 0 runs longer than 450 words
+breaks: docs/book/src/08-follow-a-session-through-the-code.md: 0 runs longer than 450 words
+breaks: docs/book/src/09-jobs-signals-and-the-terminal.md: 0 runs longer than 450 words
+breaks: docs/book/src/11-develop-ravel.md: 0 runs longer than 450 words
+breaks: 0 runs longer than 450 words in 10 files

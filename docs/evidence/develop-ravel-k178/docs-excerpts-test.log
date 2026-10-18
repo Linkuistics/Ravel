@@ -1,0 +1,75 @@
+excerpts-test: ok: languages_pass
+excerpts-test: ok: chapters_one_to_six_pass
+excerpts-test: ok: excerpt_byte_changed
+excerpts-test: ok: source_byte_changed
+excerpts-test: ok: source_moved_or_deleted
+excerpts-test: ok: page_crlf
+excerpts-test: ok: trailing_whitespace
+excerpts-test: ok: label_without_block
+excerpts-test: ok: two_blocks_under_one_label
+excerpts-test: ok: path_forms
+excerpts-test: ok: missing_path
+excerpts-test: ok: directory
+excerpts-test: ok: symlink
+excerpts-test: ok: untracked
+excerpts-test: ok: generated_and_grove_paths
+excerpts-test: ok: not_a_git_checkout
+excerpts-test: ok: substring_of_a_line
+excerpts-test: ok: final_newline_and_blank_lines
+excerpts-test: ok: source_has_crlf
+excerpts-test: ok: empty_block
+excerpts-test: ok: malformed_labels
+excerpts-test: ok: fence_shapes
+excerpts-test: ok: one_stale_among_good
+excerpts-test: ok: directory_argument_and_missing_page
+excerpts-test: ok: excerpt_blocks_are_not_examples
+excerpts-test: ok: other_blocks_fail_closed
+excerpts-test: mutant killed: symlink-followed by control symlink
+    control symlink: the checker passed a wrong subject
+excerpts-test: mutant killed: directory-read by control directory
+    control directory: failed, but not for the expected reason (wanted /the path is a directory/):
+excerpts-test: mutant killed: missing-file-read by control missing_path
+    control missing_path: failed, but not for the expected reason (wanted /the file does not exist in the checkout/):
+excerpts-test: mutant killed: untracked-quoted by control untracked
+    control untracked: the checker passed a wrong subject
+excerpts-test: mutant killed: build-output-quoted by control generated_and_grove_paths
+    control generated_target: the checker passed a wrong subject
+excerpts-test: mutant killed: grove-quoted by control generated_and_grove_paths
+    control grove_path: the checker passed a wrong subject
+excerpts-test: mutant killed: git-not-required by control not_a_git_checkout
+    control not_git: failed, but not for the expected reason (wanted /is not a git checkout/):
+excerpts-test: mutant killed: lines-compared-by-substring by control substring_of_a_line
+    control substring_first_line: the checker passed a wrong subject
+excerpts-test: mutant killed: prefix-counts-as-a-match by control source_byte_changed
+    control source_byte_changed: the checker passed a wrong subject
+excerpts-test: mutant killed: final-newline-makes-a-line by control final_newline_and_blank_lines
+    control final_newline_absent: the checker failed a good subject:
+excerpts-test: mutant killed: failures-do-not-fail-the-run by control one_stale_among_good
+    control one_stale: the checker passed a wrong subject
+excerpts-test: mutant killed: page-errors-do-not-fail-the-run by control label_without_block
+    control label_paragraph_between: the checker passed a wrong subject
+excerpts-test: mutant killed: bad-page-target-ignored by control directory_argument_and_missing_page
+    control missing_page: the checker passed a wrong subject
+excerpts-test: mutant killed: excerpt-block-is-an-example by control excerpt_blocks_are_not_examples
+    control excerpt_blocks_are_not_examples: the extractor refused a labelled excerpt:
+excerpts-test: mutant killed: rust-and-toml-allowed-bare by control other_blocks_fail_closed
+    control other_blocks_fail_closed: a bare rust block was accepted
+excerpts-test: mutant killed: second-block-allowed by control two_blocks_under_one_label
+    control two_blocks: the checker passed a wrong subject
+excerpts-test: mutant killed: label-without-block-allowed by control label_without_block
+    control label_paragraph_between: the checker passed a wrong subject
+excerpts-test: mutant killed: empty-block-allowed by control empty_block
+    control empty_block: the checker passed a wrong subject
+excerpts-test: mutant killed: dotdot-allowed by control path_forms
+    control path_form_../etc/passwd: failed, but not for the expected reason (wanted /is not a plain repository-relative path/):
+excerpts-test: mutant killed: dot-part-allowed by control path_forms
+    control path_form_./Cargo.toml: failed, but not for the expected reason (wanted /is not a plain repository-relative path/):
+excerpts-test: mutant killed: absolute-allowed by control path_forms
+    control path_form_/etc/hosts: failed, but not for the expected reason (wanted /is not a plain repository-relative path/):
+excerpts-test: mutant killed: odd-characters-allowed by control path_forms
+    control path_form_a b.rs: failed, but not for the expected reason (wanted /is not a plain repository-relative path/):
+excerpts-test: mutant killed: crlf-page-allowed by control page_crlf
+    control page_crlf: the checker passed a wrong subject
+excerpts-test: mutant killed: malformed-label-allowed by control malformed_labels
+    control label_form_Excerpt `crates/ravel/src/run.rs`: no "from".: failed, but not for the expected reason (wanted /an excerpt label begins: Excerpt from/):
+excerpts-test: 24 of 24 mutants killed

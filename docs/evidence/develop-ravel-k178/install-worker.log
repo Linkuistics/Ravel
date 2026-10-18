@@ -1,0 +1,7 @@
+    Finished `release` profile [optimized] target(s) in 0.03s
+  [10ms]  bundle  5 modules
+  [64ms] compile  /private/tmp/ravel-k178-checks/install-prefix/libexec/ravel/ravel-policy
+ravel: worker 1.0.0 (fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c) in /private/tmp/ravel-k178-checks/install-prefix/libexec/ravel
+installed-smoke: direct sample, exact/empty/multiline/flag results, TypeScript/context/package and stale context passed
+installed-smoke: symlink sample, exact/empty/multiline/flag results, TypeScript/context/package and stale context passed
+ravel: installed ravel 1.0.0 under /private/tmp/ravel-k178-checks/install-prefix

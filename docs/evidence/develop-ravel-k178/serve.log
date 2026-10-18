@@ -1,0 +1,12 @@
+task: [docs:book] bash scripts/book.sh build
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/Ravel.simplify-and-componentize/docs/book/../../target/book`
+task: [docs:book] bash scripts/book.sh serve 18778
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/Ravel.simplify-and-componentize/docs/book/../../target/book`
+ INFO Serving on: http://127.0.0.1:18778
+ INFO Watching for changes...
+task: Signal received: "terminated"
+task: Failed to run task "docs:book": exit status 143

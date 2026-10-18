@@ -1,0 +1,2 @@
+task: [docs:figures:update] bash scripts/figures.sh update
+figures: 13 figure(s) up to date (Typst 0.15.1, CeTZ 0.4.2, DejaVu 2.37)

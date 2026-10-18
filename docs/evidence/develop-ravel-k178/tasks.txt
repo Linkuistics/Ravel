@@ -1,0 +1,58 @@
+task: Available tasks for this project:
+* build:                                Build the matching front, compiled worker and local runner
+* check:                                Check formatting, lint all targets and test the Rust workspace
+* deps:                                 Install the worker's pinned development dependencies (requires Bun 1.4.2)
+* install:                              Install and verify the matched pair and SDK under PREFIX (default ~/.local)
+* probes:                               Build test-only hostile-runtime probes (never installed)
+* setup:                                Fetch and verify the pinned checkout-local Bun, mdBook, Typst with CeTZ and the figure fonts, then install worker dependencies
+* smoke:                                Build, install and smoke-test a fresh temporary prefix, direct and symlinked
+* test:                                 Run the runner and session-runtime suites with nextest
+* typecheck:                            Typecheck the worker, SDK, sample and declaration-consumer fixtures
+* worker:                               Compile the matching policy worker and generic SDK declarations
+* book:integrity:                       Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
+* docs:book:                            Build the book, then serve it on localhost and rebuild on change (needs task setup)
+* docs:book:build:                      Build the book under target/book and fail on any mdBook error or warning (needs task setup)
+* docs:breaks:                          Report each run of prose in a chapter of the book that is longer than 450 words (-- --strict FILE... fails on a long run; needs task setup)
+* docs:breaks:test:                     Prove the prose-break check passes a run at the limit and fails a longer run, that a figure, table or code block breaks a run and a heading or list does not, and that each removed rule fails a control (needs task setup)
+* docs:components:                      Serve the editable current-component views on localhost (Mermaid needs network access)
+* docs:examples:                        Build the front and worker, run every complete example under docs/book/src through the CLI test seam and compare output exactly (-- PAGE-OR-DIR... checks those instead; needs task setup)
+* docs:examples:mutants:                Remove one safeguard at a time from a copy of the example checker and show a control fail for each (needs task setup)
+* docs:examples:test:                   Prove the example check passes the fixture pages and fails a changed output, status, stale build, unlabelled block and more (needs task setup)
+* docs:excerpts:                        Check that every source excerpt in docs/book/src is whole lines that still occur in the tracked file it names (needs no build)
+* docs:excerpts:test:                   Prove the excerpt check passes good excerpts and fails a changed excerpt or source, a bad path, a bad label or block and more, and that each removed safeguard fails a control
+* docs:figures:                         Regenerate every book figure into a scratch directory and fail on any difference from the committed SVG or its layout record (needs task setup)
+* docs:figures:test:                    Prove the figure check passes unchanged fixtures and fails on a changed source, SVG, layout record, layout pin, Typst package or tool (needs task setup)
+* docs:figures:update:                  Rewrite the committed book figure SVGs and their .layout.json records from the Typst sources with the pinned renderer (needs task setup)
+* docs:result-job:                      Serve editable result-job completion and native-entry views on localhost (Mermaid needs network access)
+* docs:ste:                             Report where the book's text breaks the STE rules that a script can check and the word decisions in docs/book/ste.md (-- --strict FILE... fails on a problem; needs task setup)
+* docs:ste:test:                        Prove the STE check passes CONTEXT.md and SUMMARY.md and fails a planted problem for each rule, and that each removed rule fails a control (needs task setup)
+* native-entry:build:                   Build the worker and the private main-thread fixture executable for native checks
+* native-entry:front:                   Run the front's native-entry cases against the built private fixture
+* native-entry:runner:                  Run the runner's native-entry cases (library tests)
+* native-entry:start:                   Run the public Started-check API cases
+* native-incumbent:build:               Build the frozen incumbent subject (the pre-repair product plus private test seams)
+* native-linux:image:                   Build the GNU/Linux subject image for PLATFORM (arm64 native, amd64 emulated)
+* release:archives:                     Build exact unreleased target archives (optional TARGETS), with no version cut
+* release:doctor:                       Check all release prerequisites without cutting or publishing
+* release:formula:                      Render and test an unpublished formula from the three unreleased archives
+* release:lifecycle:test:               Test independent release refusal, order, notes and dry cuts in isolated fixtures
+* release:major:                        Publish and install the next major release
+* release:minor:                        Publish and install the next minor release
+* release:notes:                        Fill empty Unreleased notes from commit descriptions or explicit reviewed Markdown
+* release:patch:                        Publish and install the next patch release
+* release:smoke:                        Rebuild and smoke unreleased archives on every selected target at its floors
+* release:test:                         Exercise exact archive manifest, omission/extra/type/mode controls
+* runtime:integrity:                    Verify pinned-runtime cache recovery and corrupt-download refusal offline
+* test:cli:                             Run command-boundary tests (optional nextest arguments)
+* test:hostile:                         Run hostile-runtime controls through the actual front and worker
+* test:list:                            List nextest cases before selecting a run (optional package/filter arguments)
+* test:native-campaign:                 Freeze subjects, run the finite native cases and reconcile every row (DIR must not exist)
+* test:native-campaign-controls:        Prove the campaign driver rejects drifted digests, duplicate writers and unreconciled rows
+* test:native-entry:                    Build the private main-thread fixture and run native development checks (qualification incomplete)
+* test:native-incumbent:                Run the incumbent's baseline instruments, filing one record per row under DIR (development run)
+* test:native-incumbent-controls:       Prove the incumbent build reproduces, differs from git only by its seams and refuses a drifted tree
+* test:native-linux:                    Run the whole native support measurement on a GNU/Linux target in Docker (OUT must not exist)
+* test:native-r01-controls:             Prove the R01 join rejects a missing identity, a failure line, an empty log and a wrong scope
+* test:runner:                          Run focused local-runner checks (optional nextest arguments)
+* test:session:                         Run focused session-runtime checks (optional nextest arguments)
+* test:terminal-recovery:               Pair private real-PTY recovery receipts with actual front conversion/settlement

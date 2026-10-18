@@ -1,0 +1,62 @@
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.ncBiAa
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+examples-test: mutant killed: status-ignored by control status_changed
+    control status_changed: the checker passed a wrong subject
+examples-test: mutant killed: stdout-ignored by control stdout_changed
+    control stdout_changed: the checker passed a wrong subject
+examples-test: mutant killed: includes-always by control stderr_includes_absent
+    control stderr_includes_absent: the checker passed a wrong subject
+examples-test: mutant killed: stale-front-accepted by control stale_front
+    control stale_front: failed, but not for the expected reason (wanted /stale build: the front/):
+examples-test: mutant killed: stale-source-accepted by control stale_source
+    control stale_source: the checker passed a wrong subject
+examples-test: mutant killed: unlabelled-allowed by control unknown_and_bare_languages
+    control language_shell-session: the checker passed a wrong subject
+examples-test: mutant killed: rust-and-toml-allowed-bare by control unknown_and_bare_languages
+    control language_rust: the checker passed a wrong subject
+examples-test: mutant killed: excerpt-block-is-an-example by control excerpt_blocks_agree
+    control excerpt_page_examples: the checker failed a good subject:
+examples-test: mutant killed: excerpt-label-unlocks-every-block by control excerpt_does_not_unlock_other_blocks
+    control excerpt_then_bare_ts: failed, but not for the expected reason (wanted /a ts block sits outside a labelled example/):
+examples-test: mutant killed: bare-fence-allowed by control unknown_and_bare_languages
+    control language_bare: failed, but not for the expected reason (wanted /a fenced block has no language tag/):
+examples-test: mutant killed: environment-inherited by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: home-removed by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: tmpdir-removed by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: stdin-inherited by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: skip-counted-as-pass by control skip_is_not_a_pass
+    control skip_is_not_a_pass: a skipped example was not reported as skipped with its reason:
+examples-test: mutant killed: no-timeout by control timeout
+    control timeout: the checker passed a wrong subject
+examples-test: mutant killed: page-errors-ignored by control unlabelled_runnable_block
+    control unlabelled_runnable_block: the checker passed a wrong subject
+examples-test: mutant killed: normalisation-disabled by control pass
+    control pass: the checker failed a good subject:
+examples-test: mutant killed: lexical-run-order by control commands_run_in_numeric_order
+    control commands_run_in_numeric_order: the checker failed a good subject:
+examples-test: mutant killed: fragment-covers-every-block by control fragment_covers_one_block
+    control fragment_covers_one_block: the checker passed a wrong subject
+examples-test: mutant killed: prose-keeps-label by control prose_between_label_and_block
+    control prose_between_label_and_block: the checker passed a wrong subject
+examples-test: mutant killed: blockquote-ignored by control shapes_are_read
+    control shapes_are_read: passed, but the summary lacks /^examples: 3 passed, 0 failed, 0 skipped; 1 fragment/:
+examples-test: mutant killed: quote-depth-not-kept by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: tilde-fence-ignored by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: closer-length-ignored by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: list-fence-allowed by control list_item_fences
+    control list_item_fences: failed, but not for the expected reason (wanted /a fence opened on a list-item line/):
+examples-test: mutant killed: duplicate-status-allowed by control duplicate_result_blocks
+    control duplicate_exit_status: the checker passed a wrong subject
+examples-test: mutant killed: crlf-allowed by control crlf_is_refused
+    control crlf_is_refused: the checker passed a wrong subject
+examples-test: mutant killed: label-path-unchecked by control a_label_cannot_run_a_command
+    control a_label_cannot_run_a_command: failed, but not for the expected reason (wanted /is not a plain relative path/):
+examples-test: 29 of 29 mutants killed

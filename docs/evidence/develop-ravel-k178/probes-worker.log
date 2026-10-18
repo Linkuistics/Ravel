@@ -1,0 +1,9 @@
+   [7ms]  bundle  5 modules
+  [54ms] compile  /Users/antony/Development/Ravel.simplify-and-componentize/target/probes/ravel/autoload/ravel-policy
+   [7ms]  bundle  5 modules
+  [60ms] compile  /Users/antony/Development/Ravel.simplify-and-componentize/target/probes/ravel/tsconfig/ravel-policy
+   [8ms]  bundle  5 modules
+  [57ms] compile  /Users/antony/Development/Ravel.simplify-and-componentize/target/probes/ravel/unregistered/ravel-policy
+   [8ms]  bundle  5 modules
+  [60ms] compile  /Users/antony/Development/Ravel.simplify-and-componentize/target/probes/ravel/unmoved/ravel-policy
+ravel: probe builds of worker 1.0.0 (fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c) in /Users/antony/Development/Ravel.simplify-and-componentize/target/probes/ravel; test instruments, never shipped

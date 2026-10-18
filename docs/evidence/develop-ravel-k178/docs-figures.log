@@ -1,0 +1,2 @@
+task: [docs:figures] bash scripts/figures.sh check
+figures: 13 figure(s) match their sources (Typst 0.15.1, CeTZ 0.4.2, DejaVu 2.37)

@@ -1,0 +1,2 @@
+task: [docs:excerpts] bash scripts/excerpts.sh check 
+excerpts: 8 passed, 0 failed; 0 page error(s)

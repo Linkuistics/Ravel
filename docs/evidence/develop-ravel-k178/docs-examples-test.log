@@ -1,0 +1,46 @@
+worker: build passed; complete log: /Users/antony/Development/Ravel.simplify-and-componentize/target/worker-check.eTuxme
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+examples-test: ok: pass
+examples-test: ok: stdout_changed
+examples-test: ok: status_changed
+examples-test: ok: no_expected_output
+examples-test: ok: no_exit_status
+examples-test: ok: missing_fake_program
+examples-test: ok: stale_front
+examples-test: ok: missing_front
+examples-test: ok: unlabelled_runnable_block
+examples-test: ok: unlabelled_block_in_example
+examples-test: ok: unknown_label
+examples-test: ok: stderr_changed
+examples-test: ok: stderr_partial_is_not_exact
+examples-test: ok: stderr_includes_absent
+examples-test: ok: newline_mode
+examples-test: ok: only_the_scratch_root_is_normalised
+examples-test: ok: skip_is_not_a_pass
+examples-test: ok: unknown_requirement
+examples-test: ok: file_after_command
+examples-test: ok: path_escape
+examples-test: ok: duplicate_file
+examples-test: ok: timeout
+examples-test: ok: environment_is_cleared
+examples-test: ok: nothing_personal_is_read
+examples-test: ok: empty_home_and_fakes_only
+examples-test: ok: directory_and_two_pages
+examples-test: ok: a_page_with_no_examples
+examples-test: ok: shapes_are_read
+examples-test: ok: fragment_covers_one_block
+examples-test: ok: prose_between_label_and_block
+examples-test: ok: unknown_and_bare_languages
+examples-test: ok: list_item_fences
+examples-test: ok: crlf_is_refused
+examples-test: ok: duplicate_result_blocks
+examples-test: ok: excerpt_blocks_agree
+examples-test: ok: excerpt_does_not_unlock_other_blocks
+examples-test: ok: empty_includes
+examples-test: ok: commands_run_in_numeric_order
+examples-test: ok: a_label_cannot_run_a_command
+examples-test: ok: stale_source
+examples-test: ok: cancellation_is_deterministic
+examples-test: ok: seam_matches_the_cli_tests
+examples-test: ok: seam_drift_is_noticed

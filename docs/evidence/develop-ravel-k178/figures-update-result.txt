@@ -1,0 +1,1 @@
+Ran task docs:figures:update in the existing /tmp/ravel-k160-checkout scratch workspace. All 26 output files match the primary checkout byte for byte. No primary figure was rewritten.

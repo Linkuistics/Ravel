@@ -1,0 +1,1 @@
+task docs:book PORT=18778: chapter 11 returned HTTP 200 with both part B boundary headings. No visual inspection or change-triggered rebuild trial. Owned server group stopped after request.
