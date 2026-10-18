@@ -1,0 +1,1627 @@
+{
+  "w": 757.7666015625,
+  "h": 2076.734375,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Build, check and deliver a release — UML activity",
+      "x": 378.88330078125,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 444.1484375,
+      "h": 12.15625
+    },
+    {
+      "id": "local",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          94.671875,
+          74.15625
+        ],
+        [
+          757.7666015625,
+          74.15625
+        ],
+        [
+          757.7666015625,
+          1017.9937500000001
+        ],
+        [
+          94.671875,
+          1017.9937500000001
+        ],
+        [
+          94.671875,
+          74.15625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "local-title",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Local work — no push",
+      "x": 110.671875,
+      "y": 88.234375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 175.234375,
+      "h": 12.15625
+    },
+    {
+      "id": "public",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          2.0390625,
+          1047.99375
+        ],
+        [
+          741.9873046875,
+          1047.99375
+        ],
+        [
+          741.9873046875,
+          1529.990625
+        ],
+        [
+          2.0390625,
+          1529.990625
+        ],
+        [
+          2.0390625,
+          1047.99375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "public-title",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Public writes — first push of main",
+      "x": 18.0390625,
+      "y": 1062.071875,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 267.8671875,
+      "h": 12.15625
+    },
+    {
+      "id": "installation",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          0.0,
+          1559.990625
+        ],
+        [
+          682.04296875,
+          1559.990625
+        ],
+        [
+          682.04296875,
+          1866.07734375
+        ],
+        [
+          0.0,
+          1866.07734375
+        ],
+        [
+          0.0,
+          1559.990625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "installation-title",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Local installation and final checks",
+      "x": 16.0,
+      "y": 1574.06875,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 269.90625,
+      "h": 12.15625
+    },
+    {
+      "id": "start",
+      "shape": "circle",
+      "role": "initial",
+      "x": 299.90625,
+      "y": 35.15625,
+      "r": 9
+    },
+    {
+      "id": "lock",
+      "shape": "box",
+      "role": "phase",
+      "x0": 193.71826171875,
+      "y0": 108.3125,
+      "x1": 406.09423828125,
+      "y1": 136.94921875
+    },
+    {
+      "id": "lock-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Acquire the release lock",
+      "x": 299.90625,
+      "y": 122.630859375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 168.3759765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "preflight",
+      "shape": "box",
+      "role": "phase",
+      "x0": 165.291015625,
+      "y0": 166.94921875,
+      "x1": 434.521484375,
+      "y1": 195.5859375
+    },
+    {
+      "id": "preflight-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Run the doctor and tap preflight",
+      "x": 299.90625,
+      "y": 181.267578125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 225.23046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "prepare",
+      "shape": "box",
+      "role": "phase",
+      "x0": 166.51123046875,
+      "y0": 225.5859375,
+      "x1": 433.30126953125,
+      "y1": 254.22265625
+    },
+    {
+      "id": "prepare-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Prepare main and release notes",
+      "x": 299.90625,
+      "y": 239.904296875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 222.7900390625,
+      "h": 10.63671875
+    },
+    {
+      "id": "recheck",
+      "shape": "box",
+      "role": "phase",
+      "x0": 157.90625,
+      "y0": 284.22265625,
+      "x1": 441.90625,
+      "y1": 331.19609375
+    },
+    {
+      "id": "recheck-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Repeat tap preflight, then task check",
+      "x": 299.90625,
+      "y": 307.709375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 240.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "preview",
+      "shape": "box",
+      "role": "phase",
+      "x0": 200.6328125,
+      "y0": 361.19609375,
+      "x1": 399.1796875,
+      "y1": 389.8328125
+    },
+    {
+      "id": "preview-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Preview cargo-release",
+      "x": 299.90625,
+      "y": 375.514453125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 154.546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "ready",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          436.487890625
+        ],
+        [
+          321.90625,
+          452.487890625
+        ],
+        [
+          299.90625,
+          468.487890625
+        ],
+        [
+          277.90625,
+          452.487890625
+        ]
+      ]
+    },
+    {
+      "id": "ready-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Passed?",
+      "x": 269.90625,
+      "y": 452.487890625,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 55.9111328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "before-write",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 475.90625,
+      "y0": 419.8328125,
+      "x1": 696.7998046875,
+      "y1": 485.14296875
+    },
+    {
+      "id": "before-write-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Correct the cause.\nConfirm no version write.\nThen restart the task.",
+      "x": 586.35302734375,
+      "y": 452.487890625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 176.8935546875,
+      "h": 47.31015625
+    },
+    {
+      "id": "cut",
+      "shape": "box",
+      "role": "phase",
+      "x0": 192.48779296875,
+      "y0": 515.14296875,
+      "x1": 407.32470703125,
+      "y1": 562.11640625
+    },
+    {
+      "id": "cut-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Cut the selected version\nwith cargo-release",
+      "x": 299.90625,
+      "y": 538.6296875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 170.8369140625,
+      "h": 28.9734375
+    },
+    {
+      "id": "cut-complete",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          608.771484375
+        ],
+        [
+          321.90625,
+          624.771484375
+        ],
+        [
+          299.90625,
+          640.771484375
+        ],
+        [
+          277.90625,
+          624.771484375
+        ]
+      ]
+    },
+    {
+      "id": "cut-complete-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cut complete?",
+      "x": 269.90625,
+      "y": 624.771484375,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 101.4111328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "partial-cut",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 475.90625,
+      "y0": 592.11640625,
+      "x1": 738.5263671875,
+      "y1": 657.4265625
+    },
+    {
+      "id": "partial-cut-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Complete the selected version.\nInspect each local write.\nCreate only a missing tag.",
+      "x": 607.21630859375,
+      "y": 624.771484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 218.6201171875,
+      "h": 47.31015625
+    },
+    {
+      "id": "book",
+      "shape": "box",
+      "role": "phase",
+      "x0": 175.9345703125,
+      "y0": 687.4265625,
+      "x1": 423.8779296875,
+      "y1": 734.4000000000001
+    },
+    {
+      "id": "book-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Check the tag’s book version\nwith the released guard",
+      "x": 299.90625,
+      "y": 710.9132812500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 203.943359375,
+      "h": 28.9734375
+    },
+    {
+      "id": "build",
+      "shape": "box",
+      "role": "phase",
+      "x0": 157.90625,
+      "y0": 764.4000000000001,
+      "x1": 441.90625,
+      "y1": 829.7101562500001
+    },
+    {
+      "id": "build-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Move main to the release commit.\nBuild archives in target/dist.",
+      "x": 299.90625,
+      "y": 797.0550781250001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 240.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "test",
+      "shape": "box",
+      "role": "phase",
+      "x0": 193.56787109375,
+      "y0": 859.7101562500001,
+      "x1": 406.24462890625,
+      "y1": 906.6835937500001
+    },
+    {
+      "id": "test-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Test the formula, then\nsmoke-test every target",
+      "x": 299.90625,
+      "y": 883.1968750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 168.6767578125,
+      "h": 28.9734375
+    },
+    {
+      "id": "checked",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          953.3386718750002
+        ],
+        [
+          321.90625,
+          969.3386718750002
+        ],
+        [
+          299.90625,
+          985.3386718750002
+        ],
+        [
+          277.90625,
+          969.3386718750002
+        ]
+      ]
+    },
+    {
+      "id": "checked-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "All passed?",
+      "x": 269.90625,
+      "y": 969.3386718750002,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 78.791015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "local-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 475.90625,
+      "y0": 936.6835937500001,
+      "x1": 741.7666015625,
+      "y1": 1001.9937500000001
+    },
+    {
+      "id": "local-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Keep the cut local.\nCorrect the cause.\nCheck the tag, rebuild and test.",
+      "x": 608.83642578125,
+      "y": 969.3386718750002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 221.8603515625,
+      "h": 47.31015625
+    },
+    {
+      "id": "push",
+      "shape": "box",
+      "role": "phase",
+      "x0": 174.5947265625,
+      "y0": 1082.15,
+      "x1": 425.2177734375,
+      "y1": 1110.78671875
+    },
+    {
+      "id": "push-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Push main, then push the tag",
+      "x": 299.90625,
+      "y": 1096.468359375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 206.623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "pushed",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          1148.2734375
+        ],
+        [
+          321.90625,
+          1164.2734375
+        ],
+        [
+          299.90625,
+          1180.2734375
+        ],
+        [
+          277.90625,
+          1164.2734375
+        ]
+      ]
+    },
+    {
+      "id": "pushed-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Both sent?",
+      "x": 269.90625,
+      "y": 1164.2734375,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 74.6826171875,
+      "h": 10.63671875
+    },
+    {
+      "id": "push-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 459.2177734375,
+      "y0": 1140.78671875,
+      "x1": 699.3408203125,
+      "y1": 1187.7601562500001
+    },
+    {
+      "id": "push-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "After build and smoke pass,\nretry only the missing push.",
+      "x": 579.279296875,
+      "y": 1164.2734375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 196.123046875,
+      "h": 28.9734375
+    },
+    {
+      "id": "github",
+      "shape": "box",
+      "role": "phase",
+      "x0": 186.701171875,
+      "y0": 1217.7601562500001,
+      "x1": 413.111328125,
+      "y1": 1264.7335937500002
+    },
+    {
+      "id": "github-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Create the GitHub release\nwith its three archives",
+      "x": 299.90625,
+      "y": 1241.246875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 182.41015625,
+      "h": 28.9734375
+    },
+    {
+      "id": "assets",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          1311.388671875
+        ],
+        [
+          321.90625,
+          1327.388671875
+        ],
+        [
+          299.90625,
+          1343.388671875
+        ],
+        [
+          277.90625,
+          1327.388671875
+        ]
+      ]
+    },
+    {
+      "id": "assets-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Complete?",
+      "x": 269.90625,
+      "y": 1327.388671875,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 74.9013671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "github-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 459.2177734375,
+      "y0": 1294.7335937500002,
+      "x1": 689.0732421875,
+      "y1": 1360.04375
+    },
+    {
+      "id": "github-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Complete this release\nand its three assets.\nThen resume the tap step.",
+      "x": 574.1455078125,
+      "y": 1327.388671875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 185.85546875,
+      "h": 47.31015625
+    },
+    {
+      "id": "tap",
+      "shape": "box",
+      "role": "phase",
+      "x0": 190.21142578125,
+      "y0": 1390.04375,
+      "x1": 409.60107421875,
+      "y1": 1437.0171875
+    },
+    {
+      "id": "tap-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Copy, commit and push\nthe intended tap formula",
+      "x": 299.90625,
+      "y": 1413.5304687500002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 175.3896484375,
+      "h": 28.9734375
+    },
+    {
+      "id": "tap-complete",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          1474.50390625
+        ],
+        [
+          321.90625,
+          1490.50390625
+        ],
+        [
+          299.90625,
+          1506.50390625
+        ],
+        [
+          277.90625,
+          1490.50390625
+        ]
+      ]
+    },
+    {
+      "id": "tap-complete-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Complete?",
+      "x": 269.90625,
+      "y": 1490.50390625,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 74.9013671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "tap-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 459.2177734375,
+      "y0": 1467.0171875,
+      "x1": 725.9873046875,
+      "y1": 1513.990625
+    },
+    {
+      "id": "tap-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Retain local tap work.\nFinish only this formula change.",
+      "x": 592.6025390625,
+      "y": 1490.50390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 222.76953125,
+      "h": 28.9734375
+    },
+    {
+      "id": "update",
+      "shape": "box",
+      "role": "phase",
+      "x0": 192.13916015625,
+      "y0": 1594.146875,
+      "x1": 407.67333984375,
+      "y1": 1641.1203125
+    },
+    {
+      "id": "update-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Run brew update.\nInstall or upgrade Ravel.",
+      "x": 299.90625,
+      "y": 1617.6335937499998,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 171.5341796875,
+      "h": 28.9734375
+    },
+    {
+      "id": "verify",
+      "shape": "box",
+      "role": "phase",
+      "x0": 176.54296875,
+      "y0": 1671.1203125,
+      "x1": 423.26953125,
+      "y1": 1754.7671874999999
+    },
+    {
+      "id": "verify-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Run brew test ravel.\nCheck Ravel’s version\nat the Homebrew prefix.\nCheck GitHub’s three assets.",
+      "x": 299.90625,
+      "y": 1712.94375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 202.7265625,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "installed",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          1801.422265625
+        ],
+        [
+          321.90625,
+          1817.422265625
+        ],
+        [
+          299.90625,
+          1833.422265625
+        ],
+        [
+          277.90625,
+          1817.422265625
+        ]
+      ]
+    },
+    {
+      "id": "installed-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "All passed?",
+      "x": 269.90625,
+      "y": 1817.422265625,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 78.791015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "install-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 457.26953125,
+      "y0": 1784.7671874999999,
+      "x1": 666.04296875,
+      "y1": 1850.07734375
+    },
+    {
+      "id": "install-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Correct the installation.\nRepeat its checks.\nKeep the same version.",
+      "x": 561.65625,
+      "y": 1817.422265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 164.7734375,
+      "h": 47.31015625
+    },
+    {
+      "id": "done",
+      "shape": "circle",
+      "role": "control",
+      "x": 299.90625,
+      "y": 1907.07734375,
+      "r": 11
+    },
+    {
+      "id": "done-core",
+      "shape": "circle",
+      "role": "initial",
+      "x": 299.90625,
+      "y": 1907.07734375,
+      "r": 6
+    },
+    {
+      "id": "flow-start-lock",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          44.15625
+        ],
+        [
+          299.90625,
+          108.3125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-lock-preflight",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          136.94921875
+        ],
+        [
+          299.90625,
+          166.94921875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-preflight-prepare",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          195.5859375
+        ],
+        [
+          299.90625,
+          225.5859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-prepare-recheck",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          254.22265625
+        ],
+        [
+          299.90625,
+          284.22265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-recheck-preview",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          331.19609375
+        ],
+        [
+          299.90625,
+          361.19609375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-preview-ready",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          389.8328125
+        ],
+        [
+          299.90625,
+          436.487890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-ready-before-write",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          452.487890625
+        ],
+        [
+          475.90625,
+          452.487890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "ready-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 448.487890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-ready-cut",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          468.487890625
+        ],
+        [
+          299.90625,
+          515.14296875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-ready-cut-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 491.8154296875,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-cut-cut-complete",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          562.11640625
+        ],
+        [
+          299.90625,
+          608.771484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-cut-complete-partial-cut",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          624.771484375
+        ],
+        [
+          475.90625,
+          624.771484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "cut-complete-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 620.771484375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-cut-complete-book",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          640.771484375
+        ],
+        [
+          299.90625,
+          687.4265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-cut-complete-book-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 664.0990234375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-book-build",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          734.4000000000001
+        ],
+        [
+          299.90625,
+          764.4000000000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-build-test",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          829.7101562500001
+        ],
+        [
+          299.90625,
+          859.7101562500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-test-checked",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          906.6835937500001
+        ],
+        [
+          299.90625,
+          953.3386718750002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-checked-local-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          969.3386718750002
+        ],
+        [
+          475.90625,
+          969.3386718750002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "checked-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 965.3386718750002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-checked-push",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          985.3386718750002
+        ],
+        [
+          299.90625,
+          1082.15
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-checked-push-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 1033.7443359375002,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-push-pushed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1110.78671875
+        ],
+        [
+          299.90625,
+          1148.2734375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-pushed-push-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          1164.2734375
+        ],
+        [
+          459.2177734375,
+          1164.2734375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "pushed-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 390.56201171875,
+      "y": 1160.2734375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-pushed-github",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1180.2734375
+        ],
+        [
+          299.90625,
+          1217.7601562500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-pushed-github-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 1199.0167968750002,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-github-assets",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1264.7335937500002
+        ],
+        [
+          299.90625,
+          1311.388671875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-assets-github-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          1327.388671875
+        ],
+        [
+          459.2177734375,
+          1327.388671875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "assets-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 390.56201171875,
+      "y": 1323.388671875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-assets-tap",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1343.388671875
+        ],
+        [
+          299.90625,
+          1390.04375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-assets-tap-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 1366.7162109375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-tap-tap-complete",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1437.0171875
+        ],
+        [
+          299.90625,
+          1474.50390625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-tap-complete-tap-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          1490.50390625
+        ],
+        [
+          459.2177734375,
+          1490.50390625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "tap-complete-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 390.56201171875,
+      "y": 1486.50390625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-tap-complete-update",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1506.50390625
+        ],
+        [
+          299.90625,
+          1594.146875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-tap-complete-update-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 1550.325390625,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-update-verify",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1641.1203125
+        ],
+        [
+          299.90625,
+          1671.1203125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-verify-installed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1754.7671874999999
+        ],
+        [
+          299.90625,
+          1801.422265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-installed-install-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          1817.422265625
+        ],
+        [
+          457.26953125,
+          1817.422265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "installed-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 389.587890625,
+      "y": 1813.422265625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-installed-done",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          1833.422265625
+        ],
+        [
+          299.90625,
+          1896.07734375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-installed-done-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 1864.7498046874998,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 96.24462890625,
+      "y0": 1936.07734375,
+      "x1": 661.52197265625,
+      "y1": 2076.734375
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: sequential actions. Grey: stop and recover manually.\nA failure stops at its own step. Later actions do not run.\nEach guard covers the actions since the previous decision.\nGrey exits name recovery points in the chapter’s recovery table.\nAfter a version write, keep that version. Do not start another version cut.\nA source/tag mismatch needs a decision. Never move a public tag.\nTask removes its lock on exit. After an abrupt stop, check for a live task first.",
+      "x": 378.88330078125,
+      "y": 2006.4058593749999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 537.27734375,
+      "h": 120.65703125
+    }
+  ]
+}

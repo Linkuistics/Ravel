@@ -115,17 +115,6 @@ out of part A.
 
 ## Handed forward
 
-- Art: chapter 12 links to chapter 6's installed-layout view in “Check the
-  archive contents”. Reuse that figure as the contract requires. Part B supplies
-  the release procedure for the activity figure. The platform table distinguishes
-  four execution routes and their evidence limits.
-- Art: the activity figure answers “Which checks precede the first public
-  change, and where does a failed release resume?” Use the ordered table in
-  “Cut and deliver a release” and the recovery table. Show local cut and book
-  guard, archive/formula construction, every-target smoke, then main/tag,
-  GitHub/tap and installation. A failure after a cut retains that identity.
-  Do not depict Pages deployment as implemented: k184 owns the missing step
-  and routes a later correction through the editorial stages.
 - Proof: k184 precedes the second-half set proof and implements the required
   Pages delivery. This draft describes the current gap rather than an invented
   command. Chapter 3's anticipatory Pages statement remains with that work.

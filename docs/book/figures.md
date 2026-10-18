@@ -107,6 +107,7 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
 | `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
+| `release-delivery` | Sequential release actions, with local checks before the first push of `main`. Each decision summarises the actions since the previous decision. A failure stops at its own step. Seven grey exits name manual recovery points, with no new version cut after a version write. The chapter's recovery table gives the full procedure. The figure has no Pages deployment step. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `escalation-timing` | A and B compare full escalation with early child exit. Both continue at C, the normal cleanup path. Signal arrows are attempts, not confirmed exit. Group stops precede reap. Terminal recovery precedes the signal-0 query, where only ESRCH confirms absence. Poll intervals and retry bounds supply no wall-clock guarantee. The time axis is not to scale. |
@@ -393,7 +394,7 @@ the first two drawn with 12pt corners. The crisp outline follows each exact
 corner radius. The layout record and its rounded-box roles are unchanged.
 
 **What the activity layout covers.** `_activity.typ` serves the activity views,
-and `outcome-precedence` is its user. A figure source is the list of nodes, from
+and `outcome-precedence` and `release-delivery` use it. A figure source is the list of nodes, from
 top to bottom, and the key, handed to `activity(...)` and then to `render`. The
 nodes are `initial` (the filled marker), `action` (a rounded box in the `phase`
 role), `outcome` (a grey box in the `outcome` role that ends a flow), `final`
@@ -1289,6 +1290,36 @@ No editor preview, other theme, narrower viewport, GitHub view or book on
 GitHub Pages was inspected. These checks establish no reader comprehension,
 new runtime result or platform qualification. The dense shared figures and
 the existing figure-set size assessment remain with whole-book art k101.
+
+### Chapter 12 art, 2026-10-18 (`deliver-ravel-k185`)
+
+Art read the whole chapter and added `release-delivery` with the shared activity
+module and crisp style. The figure follows the sequential `release` task.
+`scripts/release-build.sh` confirms that the formula check precedes the smoke
+task. The local region ends before the push of `main`. Seven grey exits map
+to the recovery table. They describe manual recovery, not automatic retries.
+The source and caption state that a failure stops at its own step. The figure
+does not depict the Pages step that k184 has yet to implement.
+
+Chapter 12 keeps its link to chapter 6's installed-layout view and its exact
+manifest table. A second embedded installation view adds no relation. The
+other page tables carry the chapter's comparisons and mappings. These are
+editorial choices, not contract restrictions or failures of the medium.
+
+Chrome showed the new activity at the local light book's 750 px column in a
+1227 × 919 viewport. Art inspected all actions, failure exits, region boundaries
+and the key at that width. The labels and arrows do not overlap. The full-size
+link opened the activity, whose upper region was inspected at that scale.
+The chapter's installation link reached chapter 6, and its full-size installed
+view rendered. The browser reported that both copies of the chapter's new
+image loaded, including mdBook's hidden zoom copy.
+
+The new SVG is 263,202 bytes, below the earlier 300 KB per-figure benchmark.
+The fourteen SVGs total 3,175,724 bytes. The set remains above its earlier
+2 MB benchmark. Whole-book art k101 owns that set assessment and the dense
+shared figures. This pass adds no editor-preview, other-theme, narrow-viewport,
+GitHub or GitHub Pages evidence. It establishes no reader-comprehension or
+new runtime/platform result.
 
 ## Not yet verified
 

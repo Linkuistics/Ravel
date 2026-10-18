@@ -406,6 +406,17 @@ the lock when the task succeeds or fails.
 | Send the release | Push `main`, push the tag, create the GitHub release and update the tap |
 | Check the installation | Update Homebrew, install or upgrade Ravel, run its test, and check its version and GitHub assets |
 
+The activity shows which checks precede the first public write and where each
+failure resumes. After a version write, recovery keeps the selected version.
+
+The grey exits refer to the [recovery table](#recover-a-partial-release-without-another-bump).
+Each decision summarises the checks since the previous decision. A failure
+stops at its own step, before the later actions in that group.
+
+![The local cut, tagged-book guard, archive build, formula test and every-target smoke test precede the push of main. Seven failure exits name manual recovery points. After a version write, none starts another version cut.](figures/release-delivery.svg)
+
+[Open the release activity at full size.](figures/release-delivery.svg)
+
 `release.toml` disables cargo-release pushes and crates.io uploads. Cargo-release
 creates the local version commit and tag through Git. The procedure otherwise
 uses jj. This commit and the tag operations are its Git exceptions. The
