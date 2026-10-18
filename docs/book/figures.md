@@ -1262,6 +1262,34 @@ supplied the whole-document read. No other theme, narrower viewport, other
 browser, GitHub rendering or book on GitHub Pages was inspected. This pass
 establishes no reader comprehension, interactive-terminal or new platform result.
 
+### Chapter 11 art, 2026-10-18 (`develop-ravel-k180`)
+
+Art read the whole raw chapter and the sources of `source-components` and
+`installed-files`. Chapter 11 keeps its directory and guard tables, links
+to chapter 6's source view and installed layout, and adds a page-native table
+for the foreground test. That table separates the parent test, the launcher
+role in another run of the same test binary, and the child. The launcher has
+the linked runner and reports the child's status separately from its own.
+No SVG or layout record changes.
+
+Chrome showed the local light mdBook at a 1227 × 919 viewport with a measured
+750 px main column. Art inspected the source map, guard table and control
+names, the complete evidence and instrument tables, the full task inventory
+and the new foreground-test table. The instrument table groups tasks and
+their evidence by family. Its names and the inventory's native-instrument
+names occupy separate lines and remain intact. The cells and adjacent
+explanations are legible on these surfaces.
+
+The declined embedded source and installation views, full test-seam diagram
+and isolation diagram are editorial choices. Their relations already have
+tables or linked figures. No contract restriction or failure of the medium
+caused these choices. The leaf records each reason.
+
+No editor preview, other theme, narrower viewport, GitHub view or book on
+GitHub Pages was inspected. These checks establish no reader comprehension,
+new runtime result or platform qualification. The dense shared figures and
+the existing figure-set size assessment remain with whole-book art k101.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The

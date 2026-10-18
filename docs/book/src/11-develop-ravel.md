@@ -16,6 +16,7 @@ extracted component writes chapter 10 with that component.
 The checkout needs tools that an installed Ravel does not need. The build uses
 a C linker and Rust 1.85 or later. On macOS, the Command Line Tools supply the
 linker. On Linux, the system development tools supply it.
+The table shows which part of the workflow needs each prerequisite.
 
 | Prerequisite | Purpose |
 |---|---|
@@ -77,6 +78,7 @@ and policy worker need no host Bun or Node at run time.
 Then it runs `cargo build --locked --workspace` for both Rust packages. The
 Cargo lockfile pins the versions of the Rust dependencies. A first build can
 need network access for dependencies that the host Cargo cache does not hold.
+The table maps each build task to a change and its output or check.
 
 | Task | Use it when | Output or check |
 |---|---|---|
@@ -98,6 +100,9 @@ The workspace has two Rust packages. `ravel` holds the CLI and its private
 TypeScript worker. `keyed-launch` holds the
 [runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics).
 The package boundary does not promise an independently supported component.
+The table maps each kind of source or test to its directory.
+The [source-responsibility view in chapter 6](06-reference.md#installed-layout)
+shows which code shares the CLI process and which runs in the separate worker.
 
 | Path from the checkout root | What a contributor finds there |
 |---|---|
@@ -125,13 +130,14 @@ than a test of a parser.
 A **test seam** is the boundary at which a test supplies inputs and observes
 behaviour. The nearest useful seam depends on the behaviour that the change
 affects.
+The table connects each behaviour to a test boundary and a focused command.
 
 | Behaviour to check | Seam and source | Focused task |
 |---|---|---|
 | A local conversion, parser or decision | Rust unit tests beside the CLI code | `task test:session -- --bin ravel` |
 | A result, [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
 | Group cleanup, escalation or child exit status | Runner with real subprocesses under `crates/keyed-launch/tests/` | `task test:runner` |
-| Terminal foreground or modes | Runner process on a private pseudo-terminal in `tests/job.rs` | `task test:runner -- --test job` |
+| Terminal foreground or modes | Linked runner in a fixture process on a private pseudo-terminal in `tests/job.rs` | `task test:runner -- --test job` |
 | Hostile runtime inputs | `crates/ravel/tests/hostile.rs`, with the real pair and controls that expose each unwanted effect | `task test:hostile`, after `task probes` |
 | All tests in the Ravel package | Unit and integration tests, with the command boundary | `task test:session` |
 | Both Rust packages | Workspace tests under nextest | `task test` |
@@ -310,6 +316,14 @@ fn book_normal_exit_restores_foreground() {
 
 The parent checks that the launcher completed its report, then reads the child
 status from that report. The two statuses belong to different processes.
+The table separates those observations in this foreground example.
+
+| Process | Work and observation in this example |
+|---|---|
+| Parent test | Starts the launcher role through `in_pty`. Checks the role's exit status, then reads the report |
+| Launcher role | Runs the same test binary in a separate process on the private PTY. Its linked runner supervises the child. Reports foreground values and child status |
+| Child | Runs the shell script that exits with status 23. The report's `code` field holds this status |
+
 This test checks final foreground ownership. It does not check recovery after
 a mode change. The nearby raw-mode test changes the modes and verifies that
 the change occurred before it checks recovery.
@@ -398,6 +412,8 @@ The installation puts the CLI at `PREFIX/bin/ravel` and its assets under
 `PREFIX/libexec/ravel/`. It does not add the prefix to `PATH`.
 [Chapter 6](06-reference.md#installed-layout) describes the installed files.
 Chapter 12, “Deliver Ravel”, covers release archives and their target checks.
+The table distinguishes the installed files from temporary test files and
+build outputs.
 
 | Task | What it builds or checks | Files it leaves |
 |---|---|---|
@@ -438,6 +454,9 @@ selects another port. `task docs:book:build` only builds, under `target/book`.
 Its script, `scripts/book.sh`, fails on an mdBook `ERROR` or `WARN` diagnostic,
 even if mdBook exits with status 0. A successful build does not establish that
 every link resolves or that a figure is legible.
+
+The table matches each kind of book change to the check that can detect a
+related defect.
 
 | Change | Check | What the check establishes |
 |---|---|---|
@@ -487,6 +506,7 @@ The checkers have their own tests. A **control** gives a checker a known bad
 input and requires it to reject that input. A **mutant** removes a safeguard
 from a copy of the checker. A control then needs to fail against that copy.
 These tests help show that a clean report has a useful meaning.
+The table identifies the controls to run after a change to a checker.
 
 | Task | Controls it exercises |
 |---|---|
@@ -522,6 +542,7 @@ that Ravel supervises. If a test inherits
 that session's real completion path, its `end-session` call can stop the
 developer's session. The test boundary therefore removes inherited authority
 before it creates its own fixture inputs.
+The table maps each test boundary to its guard and the source that applies it.
 
 | Boundary | Guard | Source |
 |---|---|---|
@@ -561,6 +582,7 @@ Evidence notes explain what a particular source read or measured run establishes
 They sit outside the book with their receipts and logs. The tasks produce check
 output. A contributor writes the note that connects that output to a claim and
 states its limits. A task does not rewrite a dated evidence note.
+The table connects each question to a note and the source of its observations.
 
 | Question about a change | Evidence to read | Source of its observations |
 |---|---|---|
@@ -586,13 +608,13 @@ repair. The table below names the instruments so that a contributor can find
 their records.
 Campaign plans and execution procedures remain in the evidence documents.
 
-| Instrument tasks | Purpose and evidence |
+| Instrument | Tasks, purpose and evidence |
 |---|---|
-| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | Build the private fixture and run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
-| `native-incumbent:build`, `test:native-incumbent`, `test:native-incumbent-controls` | Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](../../native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
-| `test:native-campaign`, `test:native-campaign-controls` | Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
-| `native-linux:image`, `test:native-linux` | Build the Linux environment and collect its support measurements. Read the [Linux campaign section](../../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
-| `test:native-r01-controls` | Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
+| Incumbent | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls`<br>Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](../../native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
+| Campaign | `test:native-campaign`<br>`test:native-campaign-controls`<br>Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and collect its support measurements. Read the [Linux campaign section](../../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
+| R01 controls | `test:native-r01-controls`<br>Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
 
 The instrument tasks call `scripts/native-incumbent.sh`, `native-campaign.sh`,
 `native-linux.sh` and `native-r01.sh` for their respective instrument families.
@@ -613,7 +635,7 @@ actor-daemon revision for historical attribution only.
 ## Find a development task
 
 `task --list` shows the public task names and short descriptions in the current
-checkout. The table below accounts for each name at this chapter's draft.
+checkout. The table maps each name at this chapter's draft to its explanation.
 The sections above explain development tasks. Chapter 12, “Deliver Ravel”,
 owns the release workflow. Its release tasks can create a release version, write remote
 state and replace an installation, so they are not chapter-check commands.
@@ -629,9 +651,9 @@ state and replace an installation, so they are not chapter-check commands.
 | `docs:examples`, `docs:examples:test`, `docs:examples:mutants`, `docs:excerpts`, `docs:excerpts:test` | [Check the book](#check-the-book) |
 | `docs:ste`, `docs:ste:test`, `docs:breaks`, `docs:breaks:test`, `book:integrity` | [Check the book](#check-the-book) |
 | `docs:components`, `docs:result-job` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `native-incumbent:build`, `test:native-incumbent`, `test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `test:native-campaign`, `test:native-campaign-controls`, `native-linux:image`, `test:native-linux`, `test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `test:native-campaign`<br>`test:native-campaign-controls`<br>`native-linux:image`<br>`test:native-linux`<br>`test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `release:archives`, `release:smoke`, `release:test`, `release:formula` | Chapter 12, “Deliver Ravel”: archive and formula checks |
 | `release:doctor`, `release:notes`, `release:lifecycle:test` | Chapter 12, “Deliver Ravel”: preparation and procedure checks |
 | `release:patch`, `release:minor`, `release:major` | Chapter 12, “Deliver Ravel”: version cut and delivery |

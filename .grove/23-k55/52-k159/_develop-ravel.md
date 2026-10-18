@@ -170,3 +170,27 @@ STE and strict prose breaks pass, and all 50 local links resolve.
 Art k180 holds the figure questions for this chapter: source layout, the
 installed files, the test seams, the isolation guards and the wide tables. No
 defect is handed forward. This node stays open through art and proof.
+
+## Art boundary
+
+Art k180 reads the whole chapter and records a decision for every figure and
+table question. The source map gains a link to chapter 6's source view. The
+installation section retains its layout link. The seam and guard tables
+remain, with a small table at the foreground example to distinguish the
+parent, separate launcher role and child. The seam row explicitly places the
+linked runner inside a fixture process. Long instrument names have separate
+lines, and the instrument table groups its tasks and evidence by family.
+Table introductions state how to use each mapping or comparison.
+
+All six required checks pass after the final edit: build, thirteen figure
+comparisons, fourteen complete examples, eight excerpts, strict STE and strict
+prose breaks. All nine fenced blocks, fifteen headings and 57 inventory task
+names are preserved. Art's log records the source checks and unchanged input
+digests. It does not replace proof's fresh Taskfile enumeration.
+
+Chrome supplied local light-page views at the measured 750 px column. The
+wide tables, new foreground table, source map, seam table, installation table
+and isolation guards are legible. `docs/book/figures.md` records the viewing
+limits. No new SVG or shared renderer change is needed. No defect is handed
+forward, and no ADR changes. The node stays open through proof. Whole-book art
+k101 retains the existing dense-text and figure-size work.
