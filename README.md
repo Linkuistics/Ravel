@@ -83,7 +83,7 @@ policy worker is built with the Bun 1.4.2 in the checkout from `task setup`.
 The built Ravel CLI and worker use no host Bun or Node at run time. The checks
 need no model account and no other project checkout.
 
-The private [session channel](docs/session-channel.md) combines the completion
+The private [session channel](docs/book/src/07-the-parts-of-ravel.md#the-result-channel-carries-the-value) combines the completion
 signal of the runner with an atomic send of the opaque result. Real subprocess
 fixtures test nested inherited context, cancellation, the end of every process,
 and empty and multiline values. The Ravel CLI uses the channel together with

@@ -5,7 +5,7 @@ boundary is [start-session and end-session](../book/src/06-reference.md#command-
 result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable, not the retired daemon.
 
-The [component contracts](../components.md) explain the current responsibility,
+The [component contracts](../book/src/07-the-parts-of-ravel.md) explain the current responsibility,
 package and process map, with scoped source evidence and session traces. This
 specification remains the behavioural authority for that explanation.
 
@@ -193,7 +193,7 @@ System runtime reads and the real front are admitted. Canonical grants must not
 overlap the policy directory or owner settings. Confined environment keeps HOME,
 USER, LOGNAME, PATH, LANG and LC_*; TMP/TEMP/TMPDIR point into the private run.
 The backend's filesystem contract and platform limits live in
-[the runner documentation](../local-runner.md).
+[the runner documentation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).
 
 ## Verification and scope
 

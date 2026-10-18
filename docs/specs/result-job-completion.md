@@ -16,9 +16,9 @@ and group state. The transport establishes whether publication occurred and vali
 UTF-8 contents through its held directory. The consumer joins these facts with
 explicit resource cleanup and every applicable cancellation observation.
 
-The [current component guide](../components.md#cancellation-and-partial-failure)
+The book's [chapter on following a session through the code](../book/src/08-follow-a-session-through-the-code.md#follow-cancellation)
 explains the participants' different knowledge. Its
-[failure precedence](../components.md#error-and-signal-precedence) is part of
+[failure precedence](../book/src/08-follow-a-session-through-the-code.md#choose-the-final-outcome) is part of
 the completion contract, including diagnostic reporting. Cancellation suppresses
 even a previously published result. Without cancellation, the original result
 failure stays primary; otherwise the first cleanup failure wins, then a surviving
@@ -425,7 +425,7 @@ Public packaging and independent consumer execution remain separate questions.
 ## Evidence and checks
 
 The nominal completion path is source-supported at the fixed implementation
-reference named in the [component evidence](../components.md#source-and-observation-evidence).
+reference named in the [component evidence](../component-evidence.md#source-reference-and-discovery).
 The existing exact-result CLI case, cancellation CLI case and publish-before-
 cancellation process case provide the partial observations recorded there.
 They were not rerun for this design comparison.

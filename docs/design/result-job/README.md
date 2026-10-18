@@ -21,7 +21,7 @@ Unchanged context remains in [one-session ownership](index.html#diagram-native-e
 Mermaid 12.0.0 is loaded by the reused static viewer; rendering needs network
 access. `task docs:result-job` is the presentation recipe; there are no generated
 SVG assets. Existing executable seams and inherited observations are described
-by the [component guide](../../components.md). Rendering is not a preservation
+by the [component evidence](../../component-evidence.md). Rendering is not a preservation
 or comprehension check.
 
 Presentation checks and their viewing limits are recorded in the design task.

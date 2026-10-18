@@ -39,6 +39,6 @@ A descendant that deliberately leaves the group is outside group cleanup.
 Uncatchable supervisor death can orphan the managed job; a caller must not infer
 successful completion from such a death. Real runner process/PTY tests cover
 escalation, descendants, cancellation, foreground and mode recovery. The transferred
-[source observations](../local-runner.md#source-provenance) explain the original
+[source observations](../component-evidence.md#local-runner-source-provenance) explain the original
 terminal experiments; [the active spec](../specs/session-execution.md) sets Ravel's
 result obligation after confirmed cleanup.

@@ -21,4 +21,4 @@ session target was rejected because it turns an enclosing-context action into
 cross-session addressing. A persistent store was rejected by product scope;
 caller provenance remains caller-owned. These constraints bind the
 [executable specification](../specs/session-execution.md) and
-[session channel](../session-channel.md).
+[session channel](../book/src/07-the-parts-of-ravel.md#the-result-channel-carries-the-value).
