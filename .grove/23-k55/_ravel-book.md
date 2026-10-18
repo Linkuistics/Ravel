@@ -555,3 +555,90 @@ the dated view, sizes and limits. Small text in dense figures stays with
 whole-book art k101. Proof k147 is already live. It reads the whole set,
 including the retained label wording and its adjacent explanation. No new
 proof leaf is due, and the book node stays open.
+
+## Second half: units and shared conventions
+
+Cut by `ravel-book-second-half-k148` on 2026-10-18, after read 1's corrections:
+two scaffold increments, five drafting units with two figure modules, a set
+proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
+`book-read-two-k166`. Everything stays inside this node. Chapter 10 is not here.
+
+- **Scaffold first, each seen to fail before any chapter relies on it.**
+  `book-ste-all-chapters-k149` makes the default `task docs:ste` examine chapters
+  7–12 (the default list stopped at `0[1-6]`). `book-source-excerpts-k150` builds
+  the source-excerpt check (`task docs:excerpts`) and its convention. The
+  example check fails closed on an unlabelled `ts` or `sh` block, so the
+  convention must make both checks agree on one page. The excerpt check comes
+  before the draft of chapter 8.
+- **Units**, each a document taking draft → copy-edit → art → proof under
+  `docs/book/contract.md`, in the book's order and with file names taken from
+  the final chapter titles (the first half kept the former names, so these are
+  the new convention for chapters 7–12):
+  - chapter 7, “The parts of Ravel”: `the-parts-of-ravel-k151`, one draft
+    session. The plan's title “How Ravel is built” is passive with a known agent
+    (STE Rule 3.6), so the planning leaf changed it. The draft edits the
+    contract row, `SUMMARY.md`, `docs/book/ste.md` and chapter 1's route table;
+  - chapter 8: `follow-a-session-through-the-code-k154`, two draft sessions (A
+    the successful session; B the forks, the precedence and where a change
+    belongs), method `linkuistics:writing-code-walkthroughs` at orientation
+    depth, source excerpts under the excerpt check;
+  - chapter 9: `jobs-signals-and-the-terminal-k157`, two draft sessions (A the
+    job and its end; B the terminal, the entry state and the guarantees);
+  - chapter 11: `develop-ravel-k159`, two draft sessions (A change code and
+    check it; B the other workflows, the guards and the evidence documents);
+  - chapter 12: `deliver-ravel-k161`, two draft sessions (A versions, archives
+    and the checks before a cut; B the formula, the release tasks, the book's
+    version line and recovery).
+  The two-session split is cut lazily by part A as its last act, as in the first
+  half. Each unit's art stage owns that unit's figures; the figure modules for
+  the two notations the engine lacks come first:
+  `book-figure-activity-k153` (with the outcome-precedence figure, before
+  chapter 8) and `book-figure-timing-k156` (with the escalation timing figure,
+  before chapter 9). The release activity figure of chapter 12 uses the activity
+  module and is drawn by that unit's art stage.
+- **One set proof** (`book-second-half-k163`) reads chapters 7–12 as a set
+  after the last unit, because inventories 4 (component obligations) and 5
+  (contributor workflows), the facts two chapters state, the shared figures and
+  the links from chapters 1–6 span the units. It turns the plain-text mentions
+  of chapters 7–12 in chapters 1–6 into links and decides whether chapter 6
+  gains an entry for the non-`--json` operation report.
+- **Guide migration** follows the set proof and precedes the whole-book art
+  pass, so that “absorbed” is a statement about proved chapters:
+  `book-architecture-fold-in-k164` (the component, local runner and result
+  channel guides and the Mermaid views) and
+  `book-contributor-delivery-fold-in-k165` (the release guide, the authority
+  note, the README reduction, the contract clause and the live script and task
+  references). Frozen evidence receipts that name a removed file are not
+  edited. A sentence with no home goes to the owning chapter by a correction run.
+- **Whole-book art** `ravel-book-k101` follows the migration. Its body tells it
+  to cut the whole-book proof before read 2 with `leaf-insert` at read 2.
+- **Read 2** `book-read-two-k166` is a `requirements` leaf after the whole-book
+  proof, carrying the contract's read 2 tasks.
+- **Source facts the units must not take from the guides.** `docs/RELEASING.md`
+  says that development is 0.0.0 and the first minor release is planned at
+  0.1.0, but the tags `v0.1.0` and `v1.0.0` exist and the workspace is at 1.0.0.
+  The guides use “front”, “admission”, “publication” and “settle”; the book does
+  not. `Taskfile.yml` descriptions still say “front” in places, and chapter 11 may
+  reword them when it quotes them.
+- **Conventions for chapters 7–12** are those of the first half, with read 1's
+  additions: STE writing rules and `docs/book/ste.md`; “Ravel CLI”; “send”;
+  “unchanged” and “return no result to the caller”; runs of prose of 450 words
+  or fewer; the crisp figure style; the reason for a harness and the loose
+  contract. A command listing is a fragment or a complete example. Examples
+  never launch a real agent. A figure follows `docs/book/figures.md`.
+
+### Owners of the second-half handoffs
+
+| Handoff (from “Handed forward to the second half”) | Owner |
+|---|---|
+| Plain-text mentions of chapters 7–12 become links | `book-second-half-k163` |
+| `docs/authority.md` guards and exceptions into chapter 11; file removed; caller-references row and contract clause edited | chapter 11 (`develop-ravel-k159`), then `book-contributor-delivery-fold-in-k165` |
+| README “Develop”, the “private session channel” paragraph and the contributor sentences | chapter 11, then `book-contributor-delivery-fold-in-k165` |
+| Non-`--json` operation report | chapters 8 and 9 teach it if the path meets it; `book-second-half-k163` decides chapter 6 |
+| README reference paragraph reworded to the chapters; the notices line moves to chapter 12; the “Earlier project” heading | `book-contributor-delivery-fold-in-k165` (chapter 12 holds the notices line) |
+| Release version teaching (R17) and the two release paragraphs | chapter 12 (`deliver-ravel-k161`) |
+| The loose contract (R15) in agreement with chapter 1 | chapter 7 (`the-parts-of-ravel-k151`) |
+| The packages, worker and SDK figure reused | chapters 7 and 12 (art stages) |
+| The dense figures' small text | `ravel-book-k101` |
+| Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |
+| Guide `RELEASING.md` | chapter 12, then `book-contributor-delivery-fold-in-k165` |

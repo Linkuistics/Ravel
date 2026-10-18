@@ -19,11 +19,18 @@ all diagram types. Use the `art` producer; no new art-review kind is needed.
 - The first-half copy-edit/art/proof correction is
   `book-first-half-k98` → `book-first-half-k99` → `book-first-half-k100`.
   Read its final shared styles and `docs/book/figures.md` as the baseline.
-- This leaf sits after read 1 only as a sequencing anchor: read 1 cuts the
-  second-half planning **before this leaf**, and that planner inserts all
-  chapter units and relevant guide migration before this leaf. Read 2 stays
-  after the whole-book proof that follows this art pass. Do not bypass missing
-  chapters or treat the current first half as a completed-book sample.
+- This leaf sits after the second half's units and guide migration:
+  `ravel-book-second-half-k148` inserted the chapter units (7, 8, 9, 11, 12),
+  their figure modules, the set proof `book-second-half-k163` and the two
+  fold-in leaves before this leaf, and cut read 2 (`book-read-two-k166`) after
+  it. Read 2 stays after the whole-book proof that follows this art pass. If a
+  unit above is still live when this leaf runs, do not treat the book as
+  complete: stop and say so.
+- The second half added figures: the outcome-precedence activity figure
+  (`book-figure-activity-k153`), the escalation timing figure
+  (`book-figure-timing-k156`), and the figures that the chapter art stages drew
+  with the shared modules. The first half's art left the small text of its dense
+  figures to this pass. Check chapters 7–12 for the same.
 - Chapter 10 is outside this node until a supported extracted component and
   consumer exist. Its later art applies the same shared style.
 
@@ -41,9 +48,11 @@ all diagram types. Use the `art` producer; no new art-review kind is needed.
   and document what was not inspected. Shared convention documentation is
   current and understandable for a later chapter author.
 - Cut the whole-book `proof` successor with the bare stem `ravel-book` before
-  read 2. If read 2 already exists as a later live sibling, use leaf-insert
-  targeting that entry; otherwise append. Its body requires the full amended
-  contract, source coverage, entry routes and visual consistency.
+  read 2. Read 2 exists as the live later sibling `book-read-two-k166`
+  (`ravel-book-second-half-k148` cut it), so use `leaf-insert` targeting that
+  entry. Its body requires the full amended contract, source coverage, entry
+  routes and visual consistency, and the set proof `book-second-half-k163`'s
+  record of inventories 4 and 5.
 
 ## Notes
 
