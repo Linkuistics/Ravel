@@ -146,6 +146,20 @@ The table connects each behaviour to a test boundary and a focused command.
 | All tests in the Ravel package | Unit and integration tests, with the command boundary | `task test:session` |
 | Both Rust packages | Workspace tests under nextest | `task test` |
 
+The private result-transport tests (`task test:session -- --lib`) and runner
+tests (`task test:runner`) need no policy worker. The complete Ravel package
+suite (`task test:session`) includes command tests and needs the built worker,
+as does `task test:cli`. Run `task build` before these suites. The
+hostile-runtime tests need `task probes` too, whether you run
+`task test:hostile`, `task test:session` or `task test`.
+
+The test tasks compile Rust code but do not build the policy worker or probes.
+On a fresh checkout, `task test:session` before `task build` therefore fails
+tests that need the worker. The CLI reports `worker_missing` when a test
+requests policy evaluation without that worker. These runtime tests use the
+checkout's executables and fixtures, with no host Bun or Node, model account
+or installed launcher.
+
 The runner's terminal tests create a pseudo-terminal, or PTY. This private
 terminal lets a test observe foreground ownership and modes without a human
 terminal. The `in_pty` helper in `crates/keyed-launch/tests/job.rs` starts the
