@@ -442,6 +442,17 @@ This handoff from it stays open:
   copy a policy?” (“Copy a policy from another configuration”). They break
   the prose within the limit.
 
+Draft `running-sessions-k140` and copy-edit `running-sessions-k141` complete
+the chapter 5 part of this run. Chapter 5 links to
+`#install-ravel-and-check-its-version` (R17) and names the race of a second
+`end-session` call and the shutdown (R16). It says that Ravel writes the
+result unchanged and does not interpret it (R12). It says that a natural
+exit without a sent result, a cancellation and a failure of required cleanup
+return no result to the caller (R13). It passes the strict STE and
+prose-break checks. No heading, anchor or code block changed. This closes
+document node `running-sessions-k65` again. Its handoffs to set art k144 are
+in that node's brief, under `## Handed forward`.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and

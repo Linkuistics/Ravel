@@ -112,11 +112,6 @@ under a new `## Handed forward` section.
 
 ## Handed forward
 
-- **Copy-edit k141:** apply R12 and R13 across the chapter. The new R16
-  paragraph names the race and the harness shutdown. The example attempts
-  the second call and exit 7, but promises neither. The shutdown waits end
-  early when the direct child exits. Keep these facts and the new install
-  link intact.
 - **Set art k144:** no new diagram is needed for R11. The page tables answer
   “Which filesystem paths can a confined process read or write, and what
   grants access?” under “Confine the managed process”, and “How do code and
@@ -127,5 +122,12 @@ under a new `## Handed forward` section.
   before a managed launch?” `supervision-cancellation.svg` answers “Why can
   cancellation prevent delivery after a result was sent?”
   `settled-exit-status.svg` answers “Which outcome wins when signals and
-  failures combine?” Apply the queued crisp style. Reconcile their text
-  with the copy-edit's R12 and R13 words where necessary.
+  failures combine?” Apply the queued crisp style.
+- **Set art k144:** copy-edit k141 put R12 (“unchanged”) and R13 (“return
+  no result to the caller”) in the chapter prose. The figure text still has
+  the old words. Two alt texts in the chapter: “reports cancellation with no
+  result” (selection) and “It suppresses the sent result” (supervision). In
+  the layout records: “No result bytes” (both sequences), “suppress
+  candidate” (supervision), “0: Ravel delivers the exact result”, “1: no
+  result.” and “Cancellation suppresses a sent result”
+  (`settled-exit-status`). Decide which of these follow the chapter words.
