@@ -113,14 +113,6 @@ out of part A.
   needs Docker, Zig and the cross targets; run it only when the host has them,
   and say which host you used.
 
-## Handed forward
-
-- Proof: k184 precedes the second-half set proof and implements the required
-  Pages delivery. This draft describes the current gap rather than an invented
-  command. Chapter 3's anticipatory Pages statement remains with that work.
-  Chapter-local proof can check this present-state description, but cannot
-  discharge the book node's Pages acceptance requirement.
-
 ## Settled chapter order
 
 Part A writes “Keep the version and pair together”, “Build archives before a

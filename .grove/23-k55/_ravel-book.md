@@ -783,3 +783,32 @@ guides' native-entry status as current fact.
 | Chapters 5 and 6 write one signal two ways (SIGINT and INT, SIGTERM and TERM). Copy-edit `jobs-signals-and-the-terminal-k175` set the short-name rule in `docs/book/ste.md` (“Signal names”) and applied it to chapter 9 | the whole-book proof that `ravel-book-k101` cuts |
 | Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |
 | Guide `RELEASING.md` | chapter 12, then `book-contributor-delivery-fold-in-k165` |
+
+Chapter 12 completes draft, copy-edit, art and proof on 2026-10-18, closing
+`deliver-ravel-k161` with proof `deliver-ravel-k186`. Its fresh inventory
+covers all ten public release tasks. Chapter 11 covers `install` and `smoke`,
+linked from chapter 12's opening. The current matched pair, archives, platform
+checks, formula, version cut, book guards and seven recovery branches agree
+with source. No chapter correction was needed. K182's full guide-statement
+and README destination map remains valid for fold-in k165.
+
+The document node's last proof handoff is cleared here with its owner retained:
+`book-release-pages-k184` still implements release-to-Pages delivery, then
+routes the resulting chapter-12 teaching and figure through a full correction
+run before set proof k163. Chapter 12 accurately states the current gap;
+chapter 3's anticipatory Pages statement remains with k184. Closing the chapter
+node discharges no Pages acceptance requirement or first public delivery.
+
+All six book checks and the isolated release lifecycle suite pass on 219
+unchanged digested source inputs. Fourteen figures match, fourteen complete
+examples and eight excerpts pass, strict STE and prose breaks pass, and all
+33 local chapter-body destinations resolve with broken-target controls rejected.
+Chrome supplied local chapter-width activity and table views plus the full-size
+SVG opening. VS Code supplied a light Restricted Mode preview of the opening
+through archive construction. Raw Markdown supplied the whole-document read.
+GitHub, Pages, other themes and narrower views were not inspected. No new
+runtime/platform or reader-comprehension result follows. No ADR changed.
+
+K163 retains the set proof, k165 the release guide and README fold-in, and
+k101 the existing figure-size/dense-text and whole-book visual work. The book
+node stays open for these leaves, Pages work, whole-book proof and read 2.
