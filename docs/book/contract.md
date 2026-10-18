@@ -521,8 +521,16 @@ The house style's points, as this book takes them:
   diagram or a table to break it up.” A run of prose has about 450 words or
   fewer, one screen at the 750-pixel column. Then a figure, a table or a code
   block breaks it. Headings and lists do not break a run. A break carries
-  information that the reader needs, not decoration. A Taskfile check reports
-  each longer run.
+  information that the reader needs, not decoration. `task docs:breaks`
+  reports each longer run, with its file, its lines, its word count and its
+  headings. The check uses one number: a run is longer when it has more than
+  450 words. The words are those of paragraphs, list items and blockquotes.
+  The text of a heading, a list marker, the `>` of a blockquote, a link target
+  and an HTML comment add no words. A fenced code block, a table row (a line
+  that starts with `|`) and an image (a line that starts with `![`) break a
+  run. `task docs:breaks -- --strict FILE…` stops with status 1 when it finds
+  a longer run. `task docs:breaks:test` shows that the check finds a longer
+  run and that each rule changes the result.
 - **Statements and asides**: in chapter 6, a note, example or summary beside an
   entry's statement is set apart as a Markdown blockquote that opens with its
   label (`> **Note:** …`), with every line marked and a blank line closing it.

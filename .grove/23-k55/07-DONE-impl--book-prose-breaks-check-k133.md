@@ -49,3 +49,28 @@ use it later.
 
 - The word count stands for one screen at the 750-pixel column. The owner
   chose “about 450 words”. The check needs one number, so state it.
+
+## Decisions (running log)
+
+- The check is `task docs:breaks` (`scripts/breaks.sh`, `scripts/breaks.ts`),
+  with `task docs:breaks:test` (`scripts/breaks.test.sh`, its controls and
+  mutants). It follows `docs:ste`. With no file it examines every
+  `docs/book/src/NN-*.md`, so chapters 7–12 join when they exist.
+- The one number is 450. A run is longer when it has more than 450 words. A run
+  of exactly 450 passes, and a control proves it. The contract's “Breaks in
+  prose” names the task, the number and the counting rules.
+- Counting rules, from the contract: words are the white-space-separated pieces
+  of paragraphs, list items and blockquotes, after a link is reduced to its
+  text. A heading's text, a list marker, the `>` of a blockquote, a link target,
+  a reference definition and an HTML comment add no words. A heading and a list
+  do not break a run. A fenced block (``` or ~~~), a table row and an image line
+  break a run.
+- Cross-check at `1ef02398`: the check finds the same ten runs, in the same
+  places. Its counts are lower than the prototype's: ch1 885 and 703 (900, 723),
+  ch2 1,302 (1,329), ch3 1,721 (1,745), ch4 463, 542 and 473 (466, 549 and
+  487), ch5 524 and 487 (529 and 499), ch6 2,118 (2,200). The reason: the
+  prototype counted the `#` and the words of each heading, the `>` of each
+  blockquote and the marker of each list item as words. The contract does not
+  call these words, so the check does not count them. With those three counts
+  restored in a scratch copy, the check gives the prototype's ten numbers
+  exactly. The difference changes no verdict: each run is still longer than 450.

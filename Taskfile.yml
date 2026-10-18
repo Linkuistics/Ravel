@@ -78,6 +78,18 @@ tasks:
       - bash scripts/ste.test.sh
       - bash scripts/ste.test.sh mutants
 
+  docs:breaks:
+    desc: Report each run of prose in a chapter of the book that is longer than 450 words (-- --strict FILE... fails on a long run; needs task setup)
+    cmds:
+      - bash scripts/breaks.sh {{.CLI_ARGS}}
+
+  docs:breaks:test:
+    desc: Prove the prose-break check passes a run at the limit and fails a longer run, that a figure, table or code block breaks a run and a heading or list does not, and that each removed rule fails a control (needs task setup)
+    silent: true
+    cmds:
+      - bash scripts/breaks.test.sh
+      - bash scripts/breaks.test.sh mutants
+
   book:integrity:
     desc: Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline
     silent: true
