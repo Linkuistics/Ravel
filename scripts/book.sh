@@ -93,16 +93,24 @@ require_mdbook() {
 }
 
 # `build` never serves; the output is under target/, set by book.toml.
+# `build-tree` builds another copy of the book source (the release exports the
+# tag's) into a given directory, with the same checks.
 #
 # mdBook 0.5.4 exits 0 after logging an ERROR when a preprocessor fails (a
 # `{{#include}}` of a missing file, seen on 2026-10-16), and logs a WARN for
 # some malformed Markdown it recovers from. A check that read only the exit
 # status would pass a book with a hole in it, so the build fails on either.
-build_book() {
+# `--dest-dir` is documented at
+# https://github.com/rust-lang/mdBook/blob/v0.5.4/guide/src/cli/build.md
+build_tree() {
+  local source="$1" dest="${2:-}" log status=0 args=()
   require_mdbook
-  local log status=0
+  [[ -d "$source" ]] || die "no book source at $source"
+  if [[ -n "$dest" ]]; then
+    args=(--dest-dir "$dest")
+  fi
   log="$(mktemp)"
-  "$TOOLS/mdbook" build "$BOOK_DIR" >"$log" 2>&1 || status=$?
+  "$TOOLS/mdbook" build "$source" ${args[@]+"${args[@]}"} >"$log" 2>&1 || status=$?
   cat "$log"
   if ((status != 0)); then
     rm -f "$log"
@@ -113,6 +121,10 @@ build_book() {
     die "mdBook logged an error or warning; the book is not clean"
   fi
   rm -f "$log"
+}
+
+build_book() {
+  build_tree "$BOOK_DIR"
 }
 
 # Build, then serve on loopback and rebuild on change.
@@ -128,8 +140,13 @@ main() {
   case "$command" in
     setup) setup_mdbook ;;
     build) build_book ;;
+    build-tree)
+      [[ $# == 2 ]] || die "usage: book.sh build-tree SOURCE_DIR DEST_DIR"
+      build_tree "$1" "$2"
+      ;;
+    version) echo "$MDBOOK_VERSION" ;;
     serve) serve_book "$@" ;;
-    *) die "usage: book.sh setup | build | serve [PORT]" ;;
+    *) die "usage: book.sh setup | build | build-tree SOURCE_DIR DEST_DIR | version | serve [PORT]" ;;
   esac
 }
 

@@ -57,6 +57,20 @@ fail() {
 cp "$repo_root/scripts/release-publish.sh" "$repo_root/scripts/release-common.sh" "$scratch/source/scripts/"
 mkdir -p "$scratch/source/scripts/templates"
 cp "$repo_root/scripts/templates/ravel.rb.tmpl" "$scratch/source/scripts/templates/"
+# The book step has its own suite (release-book.test.sh). Here the stub records
+# where it ran: after the GitHub Release exists and before the tap changes.
+export RELEASE_TEST_BOOK_CALLS="$scratch/book-calls"
+cat >"$scratch/source/scripts/release-book.sh" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+release=no
+[[ -e "$RELEASE_TEST_LOG" ]] && release=yes
+tap="$("$RELEASE_TEST_GIT" --git-dir="$RELEASE_TEST_REMOTE" show main:Formula/ravel.rb | head -n 1)"
+printf '%s release=%s tap=%s\n' "$*" "$release" "$tap" >>"$RELEASE_TEST_BOOK_CALLS"
+[[ "${RELEASE_TEST_BOOK_FAIL:-0}" != 1 ]]
+SH
+chmod +x "$scratch/source/scripts/release-book.sh"
+export RELEASE_TEST_REMOTE="$scratch/remote.git"
 printf '## Unreleased\n\n## v1.2.3\n\n- Meaningful release notes.\n' >"$scratch/source/CHANGELOG.md"
 printf "/target/\n" >"$scratch/source/.gitignore"
 "$real_git" init -q "$scratch/source"
@@ -129,8 +143,24 @@ printf 'stale archive\n' >"$scratch/source/target/dist/stray.tar.xz"
 if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'accepted extra archive'; fi
 [[ ! -e "$RELEASE_TEST_LOG" ]]
 rm "$scratch/source/target/dist/stray.tar.xz"
+# A book that cannot be delivered stops the release before the tap changes. The
+# GitHub Release is public by then, and the tap still has the old formula.
+: >"$RELEASE_TEST_BOOK_CALLS"
+if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'continued after a failed book'; fi
+[[ "$(cat "$RELEASE_TEST_LOG")" == 'published' ]]
+[[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]] || fail 'the book did not run after the release and before the tap'
+"$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb | grep -Fxq 'old formula' || fail 'the tap changed after a failed book'
+# --book-only resumes the book alone: no second release, no tap write.
+: >"$RELEASE_TEST_BOOK_CALLS"
+bash "$scratch/source/scripts/release-publish.sh" --book-only
+[[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]]
+[[ "$(cat "$RELEASE_TEST_LOG")" == 'published' ]]
+"$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb | grep -Fxq 'old formula' || fail '--book-only changed the tap'
+rm "$RELEASE_TEST_LOG"
 # A jj tap must publish through jj, update the intended bookmark, and end clean.
+: >"$RELEASE_TEST_BOOK_CALLS"
 bash "$scratch/source/scripts/release-publish.sh"
+[[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]]
 "$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb >"$scratch/remote-formula"
 cmp "$scratch/expected-formula" "$scratch/remote-formula"
 [[ -z "$("$real_git" -C "$scratch/tap" status --porcelain)" ]]
@@ -142,7 +172,12 @@ tap_before="$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)"
 if RELEASE_TEST_DOWNLOAD_CORRUPT=1 bash "$scratch/source/scripts/release-publish.sh" --tap-only >"$scratch/output" 2>&1; then fail 'accepted corrupt published archive'; fi
 grep -Fq 'differs from validated local archive' "$scratch/output"
 [[ "$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)" == "$tap_before" ]]
+# The tap waits for the book on a resume as well.
+if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" --tap-only >"$scratch/output" 2>&1; then fail 'resumed the tap without the book'; fi
+[[ "$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)" == "$tap_before" ]]
+: >"$RELEASE_TEST_BOOK_CALLS"
 bash "$scratch/source/scripts/release-publish.sh" --tap-only
+[[ "$(sed 's/ release=.*//' "$RELEASE_TEST_BOOK_CALLS")" == 'verify v1.2.3' ]]
 [[ "$(cat "$RELEASE_TEST_LOG")" == published ]]
 [[ "$(cat "$scratch/tap/Formula/ravel-lite.rb")" == 'separate command' ]]
 [[ "$(cat "$scratch/tap/local.txt")" == 'local commit' ]]
@@ -191,9 +226,21 @@ for level in patch minor major; do
   if [[ -z "$book" || -z "$cut" ]] || ((book < cut)) || ((build < book)); then
     fail "release:$level does not check the book's version line after the cut and before the build"
   fi
+  # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
+  stage="$(dry_line 'scripts/release-book.sh build "$(git describe --tags --exact-match HEAD)"')"
+  if [[ -z "$stage" ]] || ((stage < book)) || ((stage > build)); then
+    fail "release:$level does not build the book from the tag after its version check and before the archives"
+  fi
   smoke="$(dry_line 'scripts/release-smoke.sh --archives target/dist')"
   if [[ -z "$build" || -z "$smoke" ]] || ((build > smoke)); then
     fail "release:$level does not smoke-test target/dist after scripts/release-build.sh"
+  fi
+  # The Pages site is read last, after the publishing commands and the install checks.
+  # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
+  live="$(dry_line 'scripts/release-book.sh live "$(git describe --tags --exact-match HEAD)"')"
+  publish="$(dry_line scripts/release-publish.sh)"
+  if [[ -z "$live" || -z "$publish" ]] || ((live < publish)); then
+    fail "release:$level does not read the Pages site after publication"
   fi
   # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
   for publishing in 'jj git push -b main' 'git push origin "$(git describe --tags --exact-match HEAD)"' \
@@ -257,6 +304,9 @@ for stage in prepare build book-version; do
   printf '#!/bin/sh\necho %s >>"$RELEASE_TEST_ORDER"\n' "$stage" >"$scratch/task/scripts/release-$stage.sh"
   chmod +x "$scratch/task/scripts/release-$stage.sh"
 done
+# shellcheck disable=SC2016 # evaluated by the fixture script
+printf '#!/bin/sh\necho "book-$1" >>"$RELEASE_TEST_ORDER"\n' >"$scratch/task/scripts/release-book.sh"
+chmod +x "$scratch/task/scripts/release-book.sh"
 printf '#!/bin/sh\nexit 0\n' >"$scratch/task/scripts/check.sh"
 cat >"$scratch/task/scripts/release-publish.sh" <<'SH'
 #!/bin/sh
@@ -274,8 +324,11 @@ for level in patch minor major; do
   grep -Fq 'exit status 74' "$scratch/output"
   grep -Fxq smoke "$RELEASE_TEST_ORDER"
   # The book's version line is checked after the cut, before the build.
-  [[ "$(grep -n -x -e book-version -e build -e smoke "$RELEASE_TEST_ORDER" | cut -d: -f2 | paste -sd' ' -)" == 'book-version build smoke' ]] ||
-    fail "release:$level did not check the book version between the cut and the build"
+  # The book is built from the tag after that check and before the archives.
+  [[ "$(grep -n -x -e book-version -e book-build -e build -e smoke "$RELEASE_TEST_ORDER" | cut -d: -f2 | paste -sd' ' -)" == 'book-version book-build build smoke' ]] ||
+    fail "release:$level did not check the book version, then build the book, between the cut and the archive build"
+  [[ "$(grep -x -e book-check-remote -e prepare "$RELEASE_TEST_ORDER" | head -n 1)" == book-check-remote ]] ||
+    fail "release:$level did not check the Pages remote before the cut"
   if grep -q '^publish-' "$RELEASE_TEST_ORDER"; then fail 'publication preceded successful smoke'; fi
   [[ ! -e "$scratch/task/.jj/release-lock" ]]
   [[ -z "$("$real_git" --git-dir="$scratch/task-remote.git" tag --list)" ]]

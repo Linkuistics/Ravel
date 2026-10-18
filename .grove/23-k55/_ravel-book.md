@@ -568,6 +568,27 @@ until that work lands. The requirement remains unchanged, and the first public
 book release stays outside this node. Neither a local book build nor a passing
 version-line guard establishes Pages delivery.
 
+`book-release-pages-k184` landed on 2026-10-18. The release now builds the book
+from the tag (`scripts/release-book.sh build`), adds it to branch `gh-pages` after
+the GitHub Release and before the tap (`release-publish.sh`), and reads the site
+last (`live`). Each release has an immutable directory at
+`https://linkuistics.github.io/Ravel/vX.Y.Z/`. Isolated fixtures with the pinned
+mdBook, a local bare remote and a loopback server test it, and the real book was
+rehearsed the same way. Nothing was published and no site exists. The correction
+run `deliver-ravel` (draft, copy-edit, art, proof) stands before set proof k163.
+It owns chapter 12, the `release-delivery` figure and any chapter 3 sentence.
+
+Exact first-release setup, which the owner does and the release does not
+(`docs/RELEASING.md`, "Set up Pages for the first release"): the first publish
+creates `gh-pages`; then enable Pages as "Deploy from a branch", `gh-pages`, `/`;
+then run `scripts/release-book.sh live vX.Y.Z`, because the release task ends at
+that step until Pages is enabled. On 2026-10-18 a read-only check showed that the
+repository is public with no Pages site and no `gh-pages` branch. The fixtures
+cannot establish four things: the served address, the create-endpoint call with the
+operator's rights, the Pages delay and GitHub's rendering. The root `.nojekyll`
+rule is not in the official pages that were read. The book claims no deployed site
+before the first release that carries the book.
+
 Cut by `ravel-book-second-half-k148` on 2026-10-18, after read 1's corrections:
 two scaffold increments, five drafting units with two figure modules, a set
 proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2

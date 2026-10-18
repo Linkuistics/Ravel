@@ -353,7 +353,7 @@ tasks:
       - bash scripts/release-notes.sh {{.CLI_ARGS}}
 
   release:lifecycle:test:
-    desc: Test independent release refusal, order, notes and dry cuts in isolated fixtures
+    desc: Test independent release refusal, order, notes, dry cuts and the book's delivery in isolated fixtures (needs task setup)
     silent: true
     cmds:
       - bash scripts/release-check.sh lifecycle
@@ -377,6 +377,7 @@ tasks:
       - defer: rmdir .jj/release-lock
       - scripts/release-doctor.sh
       - scripts/release-publish.sh --check-tap
+      - scripts/release-book.sh check-remote
       - bash scripts/release-prepare.sh
       - scripts/release-publish.sh --check-tap
       - task: check
@@ -386,6 +387,9 @@ tasks:
       # release whose tag does not carry exactly that line before it builds.
       - scripts/release-book-version.sh released "$(git describe --tags --exact-match HEAD)"
       - jj bookmark set main -r "$(git rev-parse HEAD)"
+      # Build the book from the tag's own source and stage it. A failed build
+      # stops here, with the cut still local and nothing pushed.
+      - scripts/release-book.sh build "$(git describe --tags --exact-match HEAD)"
       - scripts/release-build.sh
       # Nothing is published before this passes: each archive in target/dist
       # matches the manifest and runs its installed layout on its target at
@@ -394,6 +398,8 @@ tasks:
       - scripts/release-smoke.sh --archives target/dist
       - jj git push -b main
       - git push origin "$(git describe --tags --exact-match HEAD)"
+      # Publication order: GitHub Release, then the book on the Pages branch,
+      # then the tap. docs/RELEASING.md gives the recovery for each stop.
       - scripts/release-publish.sh
       - brew update
       - |
@@ -412,3 +418,5 @@ tasks:
         test "$("$brew_bin/ravel" --version)" = "ravel $version"
         gh release view "$tag" --repo Linkuistics/Ravel --json url,assets
         test "$(gh release view "$tag" --repo Linkuistics/Ravel --json assets --jq '.assets | length')" = 3
+      # Last, because Pages shows a pushed branch after a delay.
+      - scripts/release-book.sh live "$(git describe --tags --exact-match HEAD)"

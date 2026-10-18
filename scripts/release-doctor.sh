@@ -208,6 +208,40 @@ check_book_version() {
   fi
 }
 
+# The release builds the book with the pinned mdBook that `task setup` fetches,
+# and delivers it to branch gh-pages. Checked here so that a missing tool does
+# not stop a release whose version is already cut.
+check_book_toolchain() {
+  local pinned
+  pinned="$(bash "$REPO_ROOT/scripts/book.sh" version)"
+  if [[ -x "$REPO_ROOT/target/tools/mdbook" && "$("$REPO_ROOT/target/tools/mdbook" --version)" == "mdbook v$pinned" ]]; then
+    mark_pass "checkout-local mdBook: $pinned"
+  else
+    mark_fail "checkout-local mdBook $pinned unavailable"
+    remediation "task setup"
+  fi
+}
+
+# The first release creates branch gh-pages, and Pages must serve it from /.
+# Not enabled yet is the expected state before the first release, so it is a
+# note and not a failure; any other setting would leave the book unserved.
+check_book_pages() {
+  local message status=0
+  message="$("$REPO_ROOT/scripts/release-book.sh" check-pages 2>&1)" || status=$?
+  message="${message#release-book: }"
+  case "$status" in
+    0) mark_pass "book on Pages: $message" ;;
+    3)
+      mark_pass "book on Pages: not enabled yet"
+      note "$message"
+      ;;
+    *)
+      mark_fail "book on Pages: $message"
+      remediation "set Pages to 'Deploy from a branch', branch gh-pages, folder / (docs/RELEASING.md)"
+      ;;
+  esac
+}
+
 check_release_commands() {
   local program
   for program in jj jq brew task curl tar xz shasum shellcheck; do
@@ -244,6 +278,8 @@ main() {
   check_bun
   check_smoke_hosts
   check_book_version
+  check_book_toolchain
+  check_book_pages
   check_release_commands
 
   echo

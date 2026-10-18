@@ -3,9 +3,15 @@
 # Publish the artifacts produced by release-build.sh:
 #   1. Create a GitHub Release on Linkuistics/Ravel for v<ver> and
 #      upload all tarballs from target/dist/.
-#   2. Copy ravel.rb into $RAVEL_TAP_DIR/Formula/, commit, push.
+#   2. Add the staged book to the Pages branch (release-book.sh publish).
+#   3. Copy ravel.rb into $RAVEL_TAP_DIR/Formula/, commit, push.
 #
-# Prerequisite: ./scripts/release-build.sh has just run successfully.
+# The book comes before the tap because the tap is what lets a reader install
+# the release, and the reader then looks for that release's book.
+#
+# Prerequisite: ./scripts/release-build.sh and `release-book.sh build` have
+# just run successfully, and the smoke tests have passed.
+# Resume modes: --book-only (after step 1), --tap-only (after step 2).
 # Env: RAVEL_TAP_DIR (default ~/Development/homebrew-taps).
 #
 set -euo pipefail
@@ -136,14 +142,24 @@ verify_published_archives() {
   rm -rf "$scratch"
 }
 
+# The book for this release is on the Pages branch, whole.
+publish_book() {
+  "$REPO_ROOT/scripts/release-book.sh" publish "v$1"
+}
+
 main() {
   case "${1:-}" in
     --check-tap)
       check_tap
       return
       ;;
+    --book-only)
+      command -v gh >/dev/null || die "gh CLI not on PATH"
+      publish_book "$(read_version)"
+      return
+      ;;
     '' | --tap-only) ;;
-    *) die "usage: scripts/release-publish.sh [--check-tap | --tap-only]" ;;
+    *) die "usage: scripts/release-publish.sh [--check-tap | --book-only | --tap-only]" ;;
   esac
   preflight
   local version
@@ -152,8 +168,11 @@ main() {
 
   if [[ "${1:-}" == --tap-only ]]; then
     verify_published_archives "$version"
+    # The tap never gets ahead of the book, on a resume either.
+    "$REPO_ROOT/scripts/release-book.sh" verify "v$version"
   else
     create_github_release "$version"
+    publish_book "$version"
   fi
   push_formula_to_tap "$version"
 
