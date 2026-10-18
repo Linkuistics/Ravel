@@ -7,8 +7,8 @@ Start with chapter 3's fake agent. Then add decisions that you can test:
 which [kinds](02-actors-and-words.md#caller-and-owner) to accept, which
 arguments to pass, and what to tell a caller when no route applies.
 
-Use the checkout build that you installed in
-[chapter 3](03-a-complete-session.md#obtain-the-build-used-by-this-chapter).
+Use the Ravel that you installed in
+[chapter 3](03-a-complete-session.md#install-ravel-and-check-its-version).
 Put each complete example below in its own empty directory. Create the `bin`
 subdirectory first. Then save the files of the example at the labelled paths.
 
@@ -327,6 +327,12 @@ A typecheck finds misspelt fields, missing fields and wrong return types
 before a session runs. It does not execute the policy. It does not prove that
 each kind has a route. Use it together with the fake-program checks above.
 
+The recipes below need a source checkout as a development tool. The
+installed Ravel alone can run your policy. For the checkout, use Rust 1.85
+or later, curl, tar, Task, ShellCheck and cargo-nextest. Run `task setup` in
+the checkout root to fetch its tools and install its development dependencies.
+Chapter 11, “Develop Ravel”, gives the development workflow.
+
 The checkout generates the public declarations when it builds the worker.
 Use those declarations for your policy. Do not use the implementation modules
 of the worker. In the root of the checkout, run `task worker` to generate the
@@ -335,7 +341,7 @@ absolute path of your policy. The recipe maps the two embedded module names,
 because the later examples also import the starter table.
 
 Fragment: the typecheck in a checkout. Replace the policy path. This block
-omits the policy and the setup of the prerequisites from chapter 3. Run it in
+omits the policy and the development setup described above. Run it in
 the root of the checkout. It runs in a subshell, so its cleanup trap has an
 effect only in that subshell.
 
@@ -920,11 +926,17 @@ The complete delivered JSON, with `measured`, cannot be larger than the
 policy-context budget. Thus, a small input file can give a delivered
 document that is too large when Ravel attaches its measurement.
 
-A `sources` record gives the origin of a claim. The `by` field of an
-assessment gives the author of the assessment. A host measurement identifies
-the bytes that the host read. None of these proves who the author is or that
-the claim is true. Trusted owner code can also read files or the network
-directly, but `measured` does not record those reads.
+These fields distinguish claims about sources from Ravel's own measurements:
+
+| Field | Who supplies it | What it identifies |
+|---|---|---|
+| `sources` | The caller or the loader | The stated origin of a claim, by digest, version or both. |
+| `assessments[name].by` | The caller or the loader | The stated author of an assessment. |
+| `measured` | Ravel | The bytes read from the caller document and through the host, with each path, size, digest and method. |
+
+None of these fields proves who the author is or that the claim is true.
+Trusted owner code can also read files or the network directly, but
+`measured` does not record those reads.
 
 Keep the policy decisions in owner code. Use outside information to choose a
 route that the policy defines. Do not use outside text as a program or as a
@@ -1496,10 +1508,15 @@ package that supplies the same name instead. When you need the embedded
 module, use the literal `ravel/sdk` import. The same rule applies to
 `ravel/examples/static`.
 
-The compiled worker disables dotenv, bunfig and tsconfig autoloading. Thus, a
-path alias in `tsconfig.json` can help your editor, but that alias alone does
-not make a runtime import work. `package.json` autoloading stays enabled for
-the package behaviour above.
+The compiled worker controls which configuration files Bun loads
+automatically. These controls apply at runtime:
+
+| Configuration | Autoloading in the worker | Effect on your policy |
+|---|---|---|
+| dotenv files | Disabled | Bun does not load environment values from these files. |
+| bunfig | Disabled | Bun does not load this configuration automatically. |
+| `tsconfig.json` | Disabled | A path alias can help your editor, but that alias alone does not make a runtime import work. |
+| `package.json` | Enabled | The package behaviour above, with `main` and `exports`, stays available. |
 
 The Ravel CLI clears the runtime-injection variables and disables Bun's
 runtime transpiler cache. Then it starts the worker in a private empty
@@ -1521,9 +1538,19 @@ owner code. The policy is never in a managed-process confinement.
 ## Route to Claude Code and Codex
 
 When the checks with fakes confirm your policy decisions, a route can name an
-installed agent program. Ravel treats that program as an ordinary
-executable. It does not configure an account, and it does not supply a
-convention for the prompt. For installation and sign-in, follow the
+installed agent program. Claude Code and Codex can use subscription access
+instead of paid API access. The
+[Claude Code authentication guide](https://code.claude.com/docs/en/authentication)
+and [Codex authentication guide](https://learn.chatgpt.com/docs/auth)
+describe those options, as checked on 18 October 2026.
+
+Ravel treats the selected program as an ordinary executable. It need not be
+a harness or receive the prompt. A program in the session sends a value
+with `end-session`. These routes choose harnesses and pass the caller's
+prompt to them. Ravel does not configure an account or supply a prompt
+convention.
+
+For installation and sign-in, follow the
 [Claude Code quickstart](https://code.claude.com/docs/en/quickstart) or the
 [Codex CLI documentation](https://learn.chatgpt.com/docs/codex/cli). This
 chapter does not explain agent installation, accounts or credentials.
@@ -1724,6 +1751,16 @@ A copy of a policy is a configuration change. You can validate it before you
 use it for real work. Keep the source and the destination available while
 you reconcile them. Ravel has no init or migration verb, and it imports no
 stored history.
+
+Compare these files before you copy. Each row identifies what the
+destination needs to preserve or change:
+
+| Files | What to reconcile |
+|---|---|
+| Policy entry | Kinds, selected arguments, labels, owner version and refusals. |
+| Relative helpers and dependencies | Imports, file locations and the packages that the helpers need. |
+| `.ravel-choice` in each checkout | The names that the destination policy offers, if it calls `readChoice`. |
+| `settings.json` | Supported bounds and environment grants. Remove obsolete keys such as `stateDir`. |
 
 1. Compare the source directory with `$HOME/.config/ravel`. Keep the two
    directories. Keep all your edits in the destination. Before you copy, identify

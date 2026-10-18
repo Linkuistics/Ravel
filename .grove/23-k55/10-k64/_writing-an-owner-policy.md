@@ -190,9 +190,17 @@ cut. Proof still owns its whole-document, source-inventory and viewing checks.
 
 ## Handed forward
 
-None open. Proof closed the local diagnostic-table omission. Draft k138
-writes each figure need for set art `book-first-half-k144` here, with its
-reader question.
+- **Copy-edit k139:** draft k138 changes the installation pointer and the
+  checkout prerequisites, adds three tables, and aligns the harness route
+  introduction with R14 and R15. Read the whole chapter under your charter.
+  The examples and their dated help evidence stay unchanged.
+- **Set art k144:** no new diagram is requested. The three new page tables
+  answer these reader questions: “Who supplies each source claim or
+  measurement?”, “Which configuration does the worker load automatically?”
+  and “Which files need reconciliation before I copy a policy?”. They are
+  in “Supply policy context”, “Resolve policy imports” and “Copy a policy
+  from another configuration”, respectively. They give meaningful breaks
+  within the prose limit. The chapter still needs no separate figure.
 
 ## Proof closure
 
