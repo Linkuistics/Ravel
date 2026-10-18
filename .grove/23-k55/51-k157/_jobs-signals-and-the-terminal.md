@@ -113,4 +113,13 @@ Part B is the terminal, the signal state at entry and the guarantees.
 
 ## Handed forward
 
-None yet.
+- **art**: part A records the escalation figure participants, states, bounds
+  and placement in `jobs-signals-and-the-terminal-k158`, under “Figure handoff
+  to art”. Verify and integrate the scaffold figure after the escalation
+  table. No figure changed in part A. Reuse chapter 5's two cancellation
+  sequences. Part B supplies the terminal sequence handoff.
+- **copy-edit**: read both draft halves together against the contract and
+  `docs/book/ste.md`. Preserve the distinction between an ordinary CLI launch
+  without a terminal and the separate `run_noninteractive` runner API.
+  Preserve ESRCH-only group absence, the conditional EPERM report and the
+  difference between retry bounds and an exact wall-clock deadline.

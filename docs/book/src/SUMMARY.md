@@ -16,7 +16,7 @@
 
 - [The parts of Ravel](07-the-parts-of-ravel.md)
 - [Follow a session through the code](08-follow-a-session-through-the-code.md)
-- [Jobs, signals and the terminal]()
+- [Jobs, signals and the terminal](09-jobs-signals-and-the-terminal.md)
 
 # Part IV: Reuse and develop Ravel
 
