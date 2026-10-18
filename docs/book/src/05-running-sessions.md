@@ -10,7 +10,7 @@ only after it confirms the cleanup. This chapter shows how to give a request
 and how to run nested or confined sessions. It also shows how to identify
 each outcome that a caller can see.
 
-Use the [checkout build from chapter 3](03-a-complete-session.md#obtain-the-build-used-by-this-chapter).
+Follow chapter 3 to [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
 These examples use real policy evaluation and small local programs. They do
 not need an agent account or a model service. If you came here for an exit
 code, go to the [status table](#interpret-the-exit-status). It gives each
@@ -188,11 +188,18 @@ the work in the prompt was correct.
 it, and put `--` before a value that looks like an option, such as `--help`.
 Empty, multiline and Unicode values keep their exact bytes. The operating
 system can apply a smaller limit for command arguments before `end-session`
-starts. Ravel keeps the first complete result. A repeated valid call
-succeeds, but it does not replace that result.
+starts.
+
+Ravel keeps the first complete result that it receives through the
+[result channel](02-actors-and-words.md#the-managed-process-and-its-result).
+That first `end-session` requests shutdown, which normally ends the harness.
+A second `end-session` races that shutdown. For example, another process
+in the group can send a result before Ravel stops it. Ravel keeps the
+first result, even if the second command succeeds.
 
 Complete example: compare three outcomes. In the first, the program sends a
-result and then exits with status 7. In the second, it sends an empty result.
+result and then tries a second call before it exits with status 7.
+Shutdown can stop the program before that call or exit. In the second, it sends an empty result.
 In the third, it sends no result and exits naturally with status 0. Create these files
 in a new directory and make `bin/outcome` executable.
 
@@ -292,8 +299,10 @@ ravel: refused (session_result_missing, stage exec): the managed process ended w
 `end-session` returns before the enclosing session finishes its cleanup.
 When Ravel detects the sent result, a job that still runs gets 2 seconds to
 finish. Then Ravel sends TERM, waits for up to 5 more seconds and sends KILL
-if necessary. If the direct child exits, Ravel stops the other group members
+if necessary. These waits end early if the direct child exits.
+Ravel then stops the other group members
 before it reaps the child. Those members do not get a new 2-second wait.
+
 Send the result after the work that has to finish, because Ravel can stop
 code that comes after `end-session`.
 
@@ -425,13 +434,14 @@ the backend is not available or not usable, the invocation stops with
 `confinement_unusable` and status 2. Ravel does not then launch the process
 without confinement.
 
-The confined process can write to the canonical working directory and to a
-private run directory. It can read the system runtime paths, the selected
-executable and the real executable file of the
-[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision).
-`--runtime-read FILE` gives read-only access to one regular file that
-exists. Repeat the option for each additional file. The option needs
-`--confine`, and it gives no access to a directory tree.
+These paths have different grants for the confined managed process:
+
+| Path | Access | How the process gets access |
+|---|---|---|
+| Canonical working directory and private run directory | Read and write | Ravel grants them for each confined launch. |
+| System runtime paths, selected executable and real executable file of the Ravel CLI | Read | Ravel grants them for each confined launch. |
+| One additional regular file that exists | Read-only | `--runtime-read FILE`. Repeat it for each file. It requires `--confine` and grants no directory tree. |
+| Parent of the result directory | Read and write | `--exit-dir DIR`. The directory must exist and be writable. |
 
 If the managed process needs a full directory, copy the task data into the
 working directory. A read-only runtime grant stays read-only, even inside a
@@ -590,9 +600,16 @@ A JSON failure has `schemaVersion: 1` and an `error` object with `code`,
 `stage`, `message`, `remedy` and `exit`. It adds the fields that apply, such
 as `input`, `source`, `location`, `policyCode`, `bound` and `signal`, and the
 captured policy `diagnostics` when they are available. Read the code and the
-stage together. For example, `policy_refused` at selection is different from
-`worker_identity_mismatch` before evaluation and from `session_result_missing`
-after launch. The text form also uses “refused” in its heading for failures.
+stage together. These examples distinguish a policy decision from failures
+before and after launch:
+
+| Code | Stage | Meaning |
+|---|---|---|
+| `policy_refused` | `selection` | The owner policy declined the request. |
+| `worker_identity_mismatch` | `worker` | The policy worker does not match the Ravel CLI. Ravel stops before policy evaluation. |
+| `session_result_missing` | `exec` | The managed process ended without a sent result. |
+
+The text form also uses “refused” in its heading for failures.
 The code and the status show the difference between a policy
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) and an
 operational failure.

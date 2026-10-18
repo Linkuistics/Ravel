@@ -109,3 +109,23 @@ second copy-edit re-run. The owner authorised both on 2026-10-18. Set art
 `book-first-half-k147` serve this document. Thus, no stage under this node
 cuts an art or proof leaf. Draft k140 writes each figure need in this brief,
 under a new `## Handed forward` section.
+
+## Handed forward
+
+- **Copy-edit k141:** apply R12 and R13 across the chapter. The new R16
+  paragraph names the race and the harness shutdown. The example attempts
+  the second call and exit 7, but promises neither. The shutdown waits end
+  early when the direct child exits. Keep these facts and the new install
+  link intact.
+- **Set art k144:** no new diagram is needed for R11. The page tables answer
+  “Which filesystem paths can a confined process read or write, and what
+  grants access?” under “Confine the managed process”, and “How do code and
+  stage distinguish these failures?” under “Read notices separately from
+  results”. They replace prose and keep every run within 450 words.
+- **Set art k144:** keep the three existing figure questions and positions.
+  `selection-cancellation.svg` answers “What cleanup does cancellation need
+  before a managed launch?” `supervision-cancellation.svg` answers “Why can
+  cancellation prevent delivery after a result was sent?”
+  `settled-exit-status.svg` answers “Which outcome wins when signals and
+  failures combine?” Apply the queued crisp style. Reconcile their text
+  with the copy-edit's R12 and R13 words where necessary.
