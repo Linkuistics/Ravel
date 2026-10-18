@@ -629,6 +629,26 @@ proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
 
 ### Owners of the second-half handoffs
 
+Chapter 7 completes draft, copy-edit, art and proof on 2026-10-18, closing
+`the-parts-of-ravel-k151` with proof `the-parts-of-ravel-k169`. The chapter
+explains the CLI, separate TypeScript worker, SDK, private Rust runner and
+result channel, with the loose program contract and matched installed pair.
+Proof rechecked source and corrected the worker environment to include the
+CLI's explicit Bun cache control. O1, O2 and O10 are covered here; k152's
+complete obligation, R1–R8 and guide sentence-group destinations still hold.
+Chapters 8–9 retain the detailed O3–O9 work, chapter 11 the test/isolation
+material, and k164 the architecture guide fold-in after set proof.
+
+All six required book checks pass, including nine figure comparisons and
+13 complete examples, with unchanged digested subjects. All 31 chapter-body
+links resolve. Chrome showed the eight tables legibly on a light page at
+chapter width; raw Markdown supplied the whole-file read. Editor preview
+could not be reached, and other themes, narrower views, GitHub and GitHub
+Pages were not inspected. No reader-comprehension or new runtime/platform
+claim follows. No defect is handed forward from this node. Dense shared
+figure text remains with k101, and the set/whole-book proofs retain their
+existing cross-chapter work. No ADR changes or correction run are needed.
+
 Chapter 7's draft (`the-parts-of-ravel-k152`) records the complete O1–O10 and
 R1–R8 destination tables and the sentence groups of both architecture guides
 in its task log. Chapters 8 and 9 take their detailed obligations from that

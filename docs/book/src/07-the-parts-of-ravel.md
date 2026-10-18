@@ -89,7 +89,8 @@ a cleared environment, null standard input and a private socket at file
 descriptor 3. The worker's standard output and standard error carry bounded
 diagnostics. Length-prefixed JSON messages on the socket carry the protocol.
 
-The CLI supplies only the base environment and permitted grants.
+The CLI supplies the base environment and permitted grants.
+It also sets `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0` to disable Bun's runtime transpiler cache.
 `environment.rs` excludes `RAVEL_*` from grants, so a nested caller cannot
 pass its `RAVEL_EXIT_FILE` to the worker through this path. The CLI allocates
 the new session's result channel only after policy evaluation succeeds.
