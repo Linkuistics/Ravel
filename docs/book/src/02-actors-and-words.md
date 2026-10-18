@@ -145,6 +145,9 @@ normally ends the harness. A second `end-session` races that shutdown.
 For example, another process in the group can send a result before Ravel
 stops it. Ravel keeps the first result, even if the second command succeeds.
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 The table shows the short interval in which another process can still send
 a result. These waits end early if the managed process exits.
 
@@ -290,9 +293,9 @@ The inherited session-result context keeps nested sessions separate while
 each process uses the path that it inherited. It is not a security check
 against code that runs as the same user. That code can tamper with files or
 launch unrelated processes. Also, descendants that leave the process group of
-the managed process are outside its cleanup. If SIGKILL stops the Ravel CLI,
+the managed process are outside its cleanup. If KILL stops the Ravel CLI,
 the managed process can continue to run without a supervisor. The Ravel CLI
-cannot catch SIGKILL.
+cannot catch KILL.
 
 These limits are important when you decide what a caller can trust. A
 successful Ravel result confirms the supervision and cleanup that this

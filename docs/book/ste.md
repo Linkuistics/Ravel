@@ -106,8 +106,10 @@ chapter title uses the new title.
 Write INT, TERM, HUP and KILL without the prefix SIG, as the shell `trap`
 command and the escalation figure do. Write the other signals with their full
 names, for example SIGCHLD and SIGTTOU. A chapter that uses the short names
-says this rule one time, before their first use. Chapter 9 made this decision
-on 2026-10-18. Chapters 5 and 6 still use both forms for one signal.
+says this rule one time, before their first use. Literal code identifiers, API
+values and diagnostic transcripts keep their exact spellings, such as `SIGINT`.
+Chapter 9 made this decision on 2026-10-18. Whole-book proof applied it across
+the delivered chapters on 2026-10-19.
 
 ## Words that the book does not use
 

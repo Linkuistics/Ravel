@@ -1,0 +1,610 @@
+[
+  {
+    "project": "Users-antony-Development-Ravel.simplify-and-componentize",
+    "signal": "best_effort",
+    "indexed_at": "2026-10-18T14:23:07Z",
+    "metadata": {
+      "generation": "2026-10-18T14:23:07Z",
+      "index_mode": "full",
+      "recorded_at": "2026-10-18T14:27:19Z",
+      "recording_status": "complete",
+      "ignored_files_stored": 20,
+      "ignored_files_total": 20,
+      "hash_records_complete": true,
+      "coverage_version": 3,
+      "generation_matches": true
+    },
+    "paths": [
+      {
+        "requested_path": "crates/ravel/src/cli.rs",
+        "path": "crates/ravel/src/cli.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/run.rs",
+        "path": "crates/ravel/src/run.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/main.rs",
+        "path": "crates/ravel/src/main.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/cancellation.rs",
+        "path": "crates/ravel/src/cancellation.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/worker.rs",
+        "path": "crates/ravel/src/worker.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/choice.rs",
+        "path": "crates/ravel/src/choice.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/completion.rs",
+        "path": "crates/ravel/src/completion.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/private_directory.rs",
+        "path": "crates/ravel/src/private_directory.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/settings.rs",
+        "path": "crates/ravel/src/settings.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/inputs.rs",
+        "path": "crates/ravel/src/inputs.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/environment.rs",
+        "path": "crates/ravel/src/environment.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/policy.rs",
+        "path": "crates/ravel/src/policy.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/context.rs",
+        "path": "crates/ravel/src/context.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/confinement.rs",
+        "path": "crates/ravel/src/confinement.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/signal_state.rs",
+        "path": "crates/ravel/src/signal_state.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/worker/sdk/index.ts",
+        "path": "crates/ravel/worker/sdk/index.ts",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/worker/examples/static.ts",
+        "path": "crates/ravel/worker/examples/static.ts",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/worker/sample/policy.ts",
+        "path": "crates/ravel/worker/sample/policy.ts",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/worker/src/main.ts",
+        "path": "crates/ravel/worker/src/main.ts",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/build.rs",
+        "path": "crates/ravel/build.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/keyed-launch/src/run.rs",
+        "path": "crates/keyed-launch/src/run.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "Taskfile.yml",
+        "path": "Taskfile.yml",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "README.md",
+        "path": "README.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "CONTEXT.md",
+        "path": "CONTEXT.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      }
+    ],
+    "scopes": [
+      {
+        "requested_scope": "docs/book",
+        "scope": "docs/book",
+        "total": 14,
+        "has_more": false,
+        "entries": [
+          {
+            "path": "docs/book/src/figures/escalation-timing.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/installed-files.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/outcome-precedence.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/process-authority.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/release-delivery.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/selection-cancellation.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/session-code-path.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/session-outcomes.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/settled-exit-status.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/source-components.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/successful-session.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/supervision-cancellation.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/system-context.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          },
+          {
+            "path": "docs/book/src/figures/terminal-lending-recovery.svg",
+            "kind": "not_indexed_file",
+            "detail": "ignored-suffix"
+          }
+        ],
+        "status": "known_gaps"
+      },
+      {
+        "requested_scope": "docs/adr",
+        "scope": "docs/adr",
+        "total": 0,
+        "has_more": false,
+        "entries": [],
+        "status": "no_recorded_issue"
+      },
+      {
+        "requested_scope": "docs/specs",
+        "scope": "docs/specs",
+        "total": 0,
+        "has_more": false,
+        "entries": [],
+        "status": "no_recorded_issue"
+      }
+    ],
+    "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+  },
+  {
+    "project": "Users-antony-Development-Ravel.simplify-and-componentize",
+    "signal": "best_effort",
+    "indexed_at": "2026-10-18T14:23:07Z",
+    "metadata": {
+      "generation": "2026-10-18T14:23:07Z",
+      "index_mode": "full",
+      "recorded_at": "2026-10-18T14:32:24Z",
+      "recording_status": "complete",
+      "ignored_files_stored": 20,
+      "ignored_files_total": 20,
+      "hash_records_complete": true,
+      "coverage_version": 3,
+      "generation_matches": true
+    },
+    "paths": [
+      {
+        "requested_path": "docs/book/examples.md",
+        "path": "docs/book/examples.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/figures.md",
+        "path": "docs/book/figures.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/contract.md",
+        "path": "docs/book/contract.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/excerpts.md",
+        "path": "docs/book/excerpts.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/ste.md",
+        "path": "docs/book/ste.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/06-reference.md",
+        "path": "docs/book/src/06-reference.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/03-a-complete-session.md",
+        "path": "docs/book/src/03-a-complete-session.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/SUMMARY.md",
+        "path": "docs/book/src/SUMMARY.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/02-actors-and-words.md",
+        "path": "docs/book/src/02-actors-and-words.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/04-writing-an-owner-policy.md",
+        "path": "docs/book/src/04-writing-an-owner-policy.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/12-deliver-ravel.md",
+        "path": "docs/book/src/12-deliver-ravel.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/07-the-parts-of-ravel.md",
+        "path": "docs/book/src/07-the-parts-of-ravel.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/09-jobs-signals-and-the-terminal.md",
+        "path": "docs/book/src/09-jobs-signals-and-the-terminal.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/08-follow-a-session-through-the-code.md",
+        "path": "docs/book/src/08-follow-a-session-through-the-code.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/05-running-sessions.md",
+        "path": "docs/book/src/05-running-sessions.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/11-develop-ravel.md",
+        "path": "docs/book/src/11-develop-ravel.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/src/01-what-ravel-is-for.md",
+        "path": "docs/book/src/01-what-ravel-is-for.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/adr/ravel-supervises-the-session.md",
+        "path": "docs/adr/ravel-supervises-the-session.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/adr/the-launched-child-is-a-job.md",
+        "path": "docs/adr/the-launched-child-is-a-job.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/adr/policy-evaluation-precedes-the-launch.md",
+        "path": "docs/adr/policy-evaluation-precedes-the-launch.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/specs/result-job-completion.md",
+        "path": "docs/specs/result-job-completion.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/specs/session-execution.md",
+        "path": "docs/specs/session-execution.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/limits.rs",
+        "path": "crates/ravel/src/limits.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/refusal.rs",
+        "path": "crates/ravel/src/refusal.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/authority.rs",
+        "path": "crates/ravel/src/authority.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/src/program.rs",
+        "path": "crates/ravel/src/program.rs",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/check.sh",
+        "path": "scripts/check.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/release-book.sh",
+        "path": "scripts/release-book.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/release-publish.sh",
+        "path": "scripts/release-publish.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/release-build.sh",
+        "path": "scripts/release-build.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/release-common.sh",
+        "path": "scripts/release-common.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "scripts/release-prepare.sh",
+        "path": "scripts/release-prepare.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "crates/ravel/scripts/dispatch.sh",
+        "path": "crates/ravel/scripts/dispatch.sh",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "release.toml",
+        "path": "release.toml",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/book/book.toml",
+        "path": "docs/book/book.toml",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      }
+    ],
+    "scopes": [],
+    "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+  }
+]

@@ -260,6 +260,9 @@ A [confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
 POSIX session. [Chapter 5, “Run sessions”](05-running-sessions.md#confine-the-managed-process),
 teaches that separate case.
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 If you start Ravel from an interactive terminal, one more group is important: the
 **foreground process group** of the terminal. The controlling terminal sends
 keyboard input to that group. It also sends the signals that the terminal
@@ -336,7 +339,7 @@ include these three cases:
 
 - a descendant that leaves the group
 - a detached child that trusted policy starts
-- a SIGKILL that stops the Ravel CLI (the Ravel CLI cannot catch SIGKILL)
+- a KILL that stops the Ravel CLI (the Ravel CLI cannot catch KILL)
 
 The [trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
 also explain why code that runs as the same user can change files or

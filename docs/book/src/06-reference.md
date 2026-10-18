@@ -12,6 +12,9 @@ Each entry links to the chapter that teaches its use.
 The entries describe the version that this book names, installed with
 [Homebrew](03-a-complete-session.md#install-ravel-and-check-its-version).
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 ## Command line
 
 ### `ravel`, help and version
@@ -348,9 +351,9 @@ reports stay as diagnostics. See
 | `124` | Policy evaluation timed out, and no managed process started. Examine the work of the policy before you increase `timeoutMs` or `--timeout-ms`. The deadline does not limit the managed process. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `126` | The selected program is not executable, or the launch failed before the runner reported the start, for a reason other than ENOENT. Check the permissions, the format, the interpreter and the execution environment. Retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `127` | Ravel did not find the selected program, or the launch failed with ENOENT before the start. A script that exists can have a missing interpreter. Check `PATH`, the selected path and the interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `129` | Cancellation by SIGHUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `130` | Cancellation by SIGINT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `143` | Cancellation by SIGTERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `130` | Cancellation by INT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `143` | Cancellation by TERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 
 The three signal statuses in the table follow the shell convention: 128 plus
 the signal number. Ravel attempts the cleanup and then raises the same signal
@@ -360,7 +363,7 @@ its place. A caller that uses a process API handles both cases. If a signal
 is ignored or blocked when Ravel starts, that signal does not automatically
 cause a cancellation.
 
-> **Note:** SIGKILL or another abrupt death can stop Ravel before it decides
+> **Note:** KILL or another abrupt death can stop Ravel before it decides
 > the final outcome. A signal that arrives after the final decision about
 > cancellation can interrupt the result write. Neither case confirms the
 > cleanup or that the caller received the complete result. A failed final write can leave a prefix on stdout.

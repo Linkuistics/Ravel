@@ -316,8 +316,8 @@ group of bubblewrap's monitor process. Thus, ordinary descendants remain within
 the cleanup scope.
 
 [Chapter 5's confinement example](05-running-sessions.md#confine-the-managed-process)
-shows the writable roots, a read-only grant and the errors that stop a launch
-through the CLI.
+demonstrates a minimal confined result send. That section also explains
+writable roots, read-only grants and errors that stop a launch through the CLI.
 The runner tests add direct process checks:
 
 | Test source under `crates/keyed-launch/tests/` | What it checks |

@@ -1,0 +1,8 @@
+docs:book:build 0
+docs:figures 0
+docs:figures:test 0
+docs:examples 0
+docs:excerpts 0
+docs:ste -- --strict 0
+docs:breaks -- --strict 0
+check 0

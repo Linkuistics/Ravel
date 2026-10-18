@@ -746,8 +746,6 @@ guides' native-entry status as current fact.
 | `docs/authority.md` guards and exceptions into chapter 11; file removed; caller-references row and contract clause edited | chapter 11 (`develop-ravel-k159`), then `book-contributor-delivery-fold-in-k165` |
 | README “Develop”, the “private session channel” paragraph and the contributor sentences | chapter 11, then `book-contributor-delivery-fold-in-k165` |
 | README reduction, notices-line decision and the “Earlier project” heading; set proof already linked the existing chapters | `book-contributor-delivery-fold-in-k165` (chapter 12 holds the notices line) |
-| Chapter 5 says “managed program” three times (in “Read notices separately from results” and the exit-status table) where the rest of the book says “managed process”. Copy-edit `the-parts-of-ravel-k167` changed chapter 7 to “managed process” | the whole-book proof that `ravel-book-k101` cuts |
-| Chapters 5 and 6 write one signal two ways (SIGINT and INT, SIGTERM and TERM). Copy-edit `jobs-signals-and-the-terminal-k175` set the short-name rule in `docs/book/ste.md` (“Signal names”) and applied it to chapter 9 | the whole-book proof that `ravel-book-k101` cuts |
 | Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |
 | Guide `RELEASING.md` | chapter 12, then `book-contributor-delivery-fold-in-k165` |
 
@@ -813,12 +811,7 @@ read 2 remain live. The book node does not close.
 
 ## Handed forward
 
-- **Whole-book proof:** chapter 5's “Read notices separately from results”
-  and exit-status table still use “managed program” where the book uses
-  “managed process”. Reconcile the three prose uses against the contract.
-- **Whole-book proof:** chapters 5 and 6 mix SIGINT/INT and SIGTERM/TERM.
-  Apply `docs/book/ste.md`'s signal-name rule, preserving literal source/API
-  spellings where the rule requires them. Art has reconciled the figure labels.
+None. Whole-book proof k195 closed both prose consistency entries.
 
 ## Second-half set proof (k163, 2026-10-19)
 
@@ -904,3 +897,38 @@ on 3,525 unchanged tracked inputs outside `.grove/`. The final Chrome pass
 viewed all fourteen figures completely at 750 pixels; actual chapter views
 and the full-size code-sequence link also work. `docs/book/figures.md` bounds
 this evidence to the inspected surfaces. The full Rust suite was not rerun.
+
+
+## Whole-book proof (k195, 2026-10-19)
+
+Proof read every delivered chapter against the full contract and reconciled all
+five inventories with current subjects. The current Taskfile has 56 public
+tasks, all with chapter destinations. All ten component obligations remain
+taught after the guide fold-ins. Chapter 10 stays outside this node.
+
+Proof reconciled chapter 5's managed-process wording and the prose signal names
+across chapters 1–3, 5, 6 and 8. Literal code, JSON values and diagnostic
+transcripts keep their spellings. Each affected chapter states the convention
+before first use. Chapter 9 now accurately describes what chapter 5's confinement
+example demonstrates. No code fence, figure asset or architectural decision
+changed. The handed-forward list is clear, with no correction run needed.
+
+All eight required gates pass on 3,525 unchanged tracked inputs outside `.grove/`:
+build, fourteen figure comparisons, figure controls, fourteen complete examples,
+eight excerpts, strict STE, strict prose breaks and `task check` (339 passed,
+46 skipped). The final link check resolves 1,833 built local destinations and
+590 raw chapter/README destinations, with missing-file, anchor and image controls.
+All 22 GitHub source links have checkout paths and anchors. Receipts and the
+input manifest are in `docs/evidence/ravel-book-k195/`; the task records the
+inventories, graph generation, source checks and exact limits.
+
+Chrome supplied complete views of all fourteen SVGs at 750 pixels in temporary
+local pages, including all lower regions and keys. The current mdBook's chapter
+1 rendered body was also read. Later browser and native-editor attempts failed,
+so no fresh editor, other-theme, narrow-view or full-size-link visual result is
+claimed. GitHub returned 404 for the book on `main` and for Pages. These checks
+establish no public delivery, new-reader comprehension, real-agent operation
+or new platform qualification. The earlier figure-size benchmarks remain failed.
+
+The node stays open for the already-live owner's stand-in read 2,
+`book-read-two-k166`. Proof adds no ordinary successor.

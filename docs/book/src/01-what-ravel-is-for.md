@@ -221,6 +221,9 @@ supplies its own task kinds and interprets its own result values. These
 conventions belong to Grove. Another caller can use different kinds and
 results without a Ravel adapter.
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 The supervision guarantee has limits. This table shows the consequence of
 each limit for the caller.
 
@@ -228,7 +231,7 @@ each limit for the caller.
 |---|---|
 | A descendant leaves the process group of the managed process | Group cleanup does not reach it. The session can succeed while that descendant continues to run. |
 | Policy starts detached children | The cleanup guarantee of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) does not cover them. |
-| The Ravel CLI stops abruptly, for example because of SIGKILL | The managed process or temporary files can remain. The Ravel CLI cannot catch SIGKILL. |
+| The Ravel CLI stops abruptly, for example because of KILL | The managed process or temporary files can remain. The Ravel CLI cannot catch KILL. |
 | Other code runs as the same user as Ravel | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
 
 [Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the

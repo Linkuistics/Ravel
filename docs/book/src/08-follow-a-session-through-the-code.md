@@ -46,6 +46,9 @@ Paths below are relative to the checkout root.
 | Complete cleanup and decide | `run`, `Handlers::finalise`, `settle` | A result that can reach the final write |
 | Return the result | `run`, then `main` | Unchanged output, then status 0 if the write and flush succeed |
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 The sequence shows why the sent result reaches the caller only after worker
 cleanup, managed-job cleanup and the final outcome decision.
 

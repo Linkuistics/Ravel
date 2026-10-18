@@ -300,6 +300,9 @@ ravel: refused (session_result_missing, stage exec): the managed process ended w
 1
 ```
 
+This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.
+
 `end-session` returns before the enclosing session finishes its cleanup.
 When Ravel detects the sent result, a job that still runs gets 2 seconds to
 finish. Then Ravel sends TERM, waits for up to 5 more seconds and sends KILL
@@ -566,9 +569,9 @@ These labels are owner text, not integrations with model providers.
 
 `--json` changes the routing notice and the failure document of Ravel into
 JSON on stderr. It does not change the result into JSON, and it does not
-change other stderr output. The managed program can still write any text
+change other stderr output. The managed process can still write any text
 there. Keep stderr as a diagnostic stream, and do not parse the full stream
-as one JSON document. The managed program can write a line that looks like a
+as one JSON document. The managed process can write a line that looks like a
 Ravel notice. Thus, the form of a line does not prove that Ravel wrote it.
 
 Read stdout only as the result of a successful session. Keep stderr as a
@@ -653,16 +656,16 @@ These sections teach the subject of each row:
 | Status | Meaning | What the caller does |
 |---|---|---|
 | `0` | `start-session` wrote the sent result unchanged to stdout after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
-| `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed program calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
+| `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
 | `3` | A refusal by the policy, or Ravel's refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the policy deliberately. Do not silently substitute a program. |
 | `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5. | Keep the full diagnostics. Repair the matched installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. |
 | `124` | The deadline for policy evaluation expired. The deadline covers the worker startup, the policy import, the load of policy context and the selection. Ravel launched no managed process. | Examine the work of the policy. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer selection. This is not a time limit for the managed process. |
 | `126` | Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file). | Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute. |
 | `127` | Program resolution found no executable, or a launch failed with ENOENT before the start. An executable script can exist while its interpreter is missing. | Check the caller's `PATH`, the selected path and its interpreter. Install or correct the program that you intended. |
-| `129` | Cancellation by SIGHUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work. |
-| `130` | Cancellation by SIGINT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Distinguish a signal to Ravel from a terminal signal to only the group of the managed process. [Cancel during selection or supervision](#cancel-during-selection-or-supervision) explains the difference. |
-| `143` | Cancellation by SIGTERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the termination was not intended. |
+| `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work. |
+| `130` | Cancellation by INT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Distinguish a signal to Ravel from a terminal signal to only the group of the managed process. [Cancel during selection or supervision](#cancel-during-selection-or-supervision) explains the difference. |
+| `143` | Cancellation by TERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the termination was not intended. |
 
 The last three numbers follow the shell convention: 128 plus the signal
 number. Ravel reports the cancellation, attempts the cleanup and then raises
@@ -671,7 +674,7 @@ not a numeric exit. If the propagation of the signal fails, Ravel reports
 that failure and exits with the same number as a fallback. A caller that
 uses a process API handles both forms.
 
-A signal such as SIGKILL can stop the Ravel CLI at any point. The normal
+A signal such as KILL can stop the Ravel CLI at any point. The normal
 procedure of Ravel does not apply to such a signal. Then the shell status
 does not show that cleanup or result delivery occurred. Also, a new signal
 that arrives after the final cancellation decision can interrupt the result
@@ -708,11 +711,11 @@ where the worker sends INT directly to the Ravel CLI.
 In these UML sequences, no lifetime ends with an X. Ravel attempts
 cleanup, and a failed attempt does not confirm a reap or a removal.
 
-![The caller starts selection. The policy worker sends SIGINT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller.](figures/selection-cancellation.svg)
+![The caller starts selection. The policy worker sends INT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
-Complete example: the policy sends SIGINT directly to its parent, the Ravel
+Complete example: the policy sends INT directly to its parent, the Ravel
 CLI. Then it waits indefinitely. This example causes a cancellation during
 selection without a terminal or a managed process. Create the policy in a
 new directory.
@@ -774,11 +777,11 @@ runs inside the Ravel CLI. The group of the managed process includes the
 descendants that stay in that group. The cleanup steps in the figure are
 attempts, and Ravel keeps their failures as diagnostics.
 
-![The managed process sends candidate through end-session. Then it sends SIGINT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It returns no result to the caller and reports cancellation, even if cleanup fails.](figures/supervision-cancellation.svg)
+![The managed process sends candidate through end-session. Then it sends INT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It returns no result to the caller and reports cancellation, even if cleanup fails.](figures/supervision-cancellation.svg)
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 
-Complete example: the program sends a candidate result and sends SIGINT
+Complete example: the program sends a candidate result and sends INT
 directly to the Ravel CLI. Then it stays alive until the supervisor stops the
 job. Create the files in a new directory and make `bin/cancel-after-result`
 executable.
@@ -868,7 +871,7 @@ caller to examine:
 | Condition | Consequence |
 |---|---|
 | Code that runs as the same user makes unauthorised changes to the result channel or the installation. | Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the policy worker matches the build of the Ravel CLI. It does not check a trusted signature. |
-| The Ravel CLI dies abruptly, for example from SIGKILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
+| The Ravel CLI dies abruptly, for example from KILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone. |
 | Trusted owner policy starts a detached child. | Worker teardown does not guarantee the cleanup of that child. The confinement of the managed process does not contain policy code. |
 | Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal) explains the conditions. |
