@@ -29,11 +29,10 @@ them.
   process as its own group, the terminal's foreground group and its lending,
   reaping. Defer escalation detail, signal masks and failure guarantees to
   chapter 9, and say so in text.
-- How the reader obtains `ravel`: state what is true now for the code this
-  book is drafted against. The workstream is past the v1.0.0 release and not
-  yet released, so check `docs/RELEASING.md`, `task install` and the formula,
-  and say plainly which build the examples assume. Do not teach installing an
-  agent; the example uses no agent.
+- The reader installs `ravel` with Homebrew and checks its version against
+  the line that the release writes. The book has a placeholder until then,
+  under the owner's R17 decision below. The examples check uses the build of
+  this checkout. Do not teach agent installation; the example uses a fake.
 - Figures from the contract: a UML sequence for the successful session (it
   returns in full in chapter 8) and a UML state machine for the outcomes (it
   returns in chapter 5).
@@ -63,9 +62,9 @@ them.
   `supervise_reported` explicitly retains such reports after confirmed
   reap/recovery/group absence. The chapter explains this limitation instead
   of hiding reports or inventing an exact cross-platform stderr transcript.
-- The install fragment uses a private prefix built from this checkout. The
-  worker and front keep their paired layout. Do not replace it with a v1.0.0
-  release-install instruction while the book describes this unreleased tree.
+- The install fragment uses Homebrew under the owner's R17 decision. The
+  Ravel CLI and worker keep their paired layout. The version placeholder
+  identifies this book as unreleased until the release writes its version.
 - Forward chapter mentions are plain text while those pages do not exist;
   the parent brief assigns their link conversion to the first-half set proof
   and second-half work. The example check supplies no terminal interaction,
@@ -100,3 +99,26 @@ draft re-run and the second copy-edit re-run. The owner authorised both on
 cuts an art or proof leaf. Draft k136 writes the new anchor, the exact form
 of the placeholder and each figure need in this brief, under a new
 `## Handed forward` section.
+
+## Handed forward
+
+- **Copy-edit k137 and release implementation k145:** the sole version line
+  in `docs/book/src/03-a-complete-session.md` is exactly
+  `ravel @RAVEL_BOOK_VERSION@`, in a `text` fence. Keep this line intact in
+  copy-edit. K145 replaces it with `ravel <release-version>` and checks it.
+  The prose explains what the placeholder means and asks the reader to use
+  the book for the installed release if the versions differ.
+- **Chapter drafts k138, k140 and k142:** replace links to
+  `03-a-complete-session.md#obtain-the-build-used-by-this-chapter` with
+  `03-a-complete-session.md#install-ravel-and-check-its-version`. The heading
+  is “Install Ravel and check its version”. Links in chapters 4, 5 and 6
+  remain for those drafts to change, as their leaf bodies require.
+- **Set art k144:** no new figure is needed. Four page tables compare
+  selected fields, worker and managed-process roles, session terms and
+  shutdown stages. The existing successful-session sequence still answers
+  “What happens, in order, in a successful session?” The existing outcome
+  state machine still answers “Which states lead to each outcome?” Their
+  positions, captions and alt text stay. Apply the agreed crisp style.
+- **Set proof k147:** check the Homebrew/version route after k145 writes the
+  release mechanism, and check the updated inbound anchors. The example
+  check still uses the checkout pair and a fake agent, with no terminal.

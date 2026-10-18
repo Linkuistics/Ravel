@@ -14,50 +14,41 @@ reaps the [managed process](02-actors-and-words.md#the-managed-process-and-its-r
 the whole process group is gone and cleanup succeeds. `start-session` exits
 with status 0 only if its final write to standard output also succeeds.
 
-## Obtain the build used by this chapter
+## Install Ravel and check its version
 
-This chapter describes the unreleased source checkout that contains this
-book. That checkout includes changes after v1.0.0. Use a build from that
-checkout for the example. A v1.0.0 release installation does not contain those
-later changes. This is true even if the version string of the checkout still
-says `1.0.0`.
+Use a macOS or GNU/Linux host with Homebrew. The formula installs release
+archives for aarch64 macOS, aarch64 GNU/Linux and x86_64 GNU/Linux.
+Install Ravel, then check its version.
 
-Use a macOS or GNU/Linux host that has these tools:
-
-- Rust 1.85 or later, with Cargo
-- Bash 4 or later
-- Task
-- curl
-- tar with support for gzip, bzip2 and xz
-- a SHA-256 utility (`shasum` or `sha256sum`)
-
-Run the following commands from the root of this checkout. `task setup`
-fetches the pinned build tools and the worker dependencies. `task install`
-builds the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
-and the worker. It installs them as a matched pair in the named prefix. Then
-it runs a smoke test from that installation alone. The prefix below is inside
-the checkout, and its `bin` directory goes first on the `PATH` of your shell.
-
-Fragment: build and installation setup. This block omits the installation of
-the prerequisite tools for each platform. It also omits the output of the
-build.
+Fragment: installation and version check. This block omits Homebrew setup
+and the installation output.
 
 ```sh
-task setup
-task install PREFIX="$PWD/target/book-install"
-export PATH="$PWD/target/book-install/bin:$PATH"
+brew install linkuistics/taps/ravel
+ravel --version
 ```
 
-The installation contains the Ravel CLI, `bin/ravel`, and the
+The version output must match this book's version line:
+
+```text
+ravel @RAVEL_BOOK_VERSION@
+```
+
+The release procedure writes its version into that line. A placeholder in
+the line means that this copy of the book is unreleased. If the versions
+differ, use the book on GitHub Pages that accompanies your installed release.
+Each release puts its book there. Check the version line before
+you use its examples.
+
+The installation contains the
+[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`, and the
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
 that matches it, `libexec/ravel/ravel-policy`. Keep the two files together.
 The Ravel CLI finds the worker relative to its own real path. If the worker
 is missing or does not match, the Ravel CLI stops with an error.
 
 The worker contains the Bun runtime. Thus, the installation needs no
-separate installation of Bun or Node. The Homebrew formula installs the same
-paired layout from release archives. This chapter uses the checkout build,
-because that build has the code that the chapter describes.
+separate installation of Bun or Node.
 
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
 separates the measured aarch64 macOS and aarch64 GNU/Linux targets from
@@ -67,8 +58,8 @@ details.
 
 ## Run the first session
 
-Create an empty directory for the example. In the shell where you set
-`PATH`, make it the current directory. Create its `bin` subdirectory, then
+Create an empty directory for the example, then make it the current directory.
+Use the shell where `ravel --version` succeeded. Create its `bin` subdirectory, then
 save the two files below at the labelled paths. The command creates private
 `home` and `tmp` directories and makes the fake executable. The command
 clears the environment (`env -i`) and gives an explicit `--config`. Thus,
@@ -156,15 +147,21 @@ prompt requests. Ravel does not understand that instruction and does not add it.
 
 The policy selects the fake for every request. `demo` is the caller's
 [kind](02-actors-and-words.md#caller-and-owner), and this policy does not need
-to examine it. `provider`, `model` and `effort` are descriptive labels of the
-owner. You can see them in the routing notice, the `ravel: starting` line on
-standard error. They do not select a model service.
+to examine it. These fields describe the selected command:
 
-The actual command is `program` with the strings in `args`. Here, the
-unchanged prompt becomes one argument. `definePolicy` returns the policy
-object unchanged and gives it the TypeScript type of the SDK. Thus, a type
-checker can check its fields. Ravel checks the values when it evaluates the
-policy.
+| Field | Value in this example | Effect |
+|---|---|---|
+| `program` | `fake-agent` | Names the program to execute |
+| `args` | `[request.prompt]` | Passes the unchanged prompt as one argument |
+| `provider` | `local` | Describes the provider in the routing notice |
+| `model` | `fake` | Describes the model in the routing notice |
+| `effort` | `none` | Describes the effort in the routing notice |
+
+The routing notice is the `ravel: starting` line on standard error. The
+owner's labels do not select a model service. `definePolicy` returns the
+policy object unchanged and gives it the TypeScript type of the SDK. Thus, a
+type checker can check its fields. Ravel checks the values when it evaluates
+the policy.
 
 ## Check the request and evaluate the policy
 
@@ -194,6 +191,15 @@ In this example, the selection therefore depends only on the request.
 The worker sends its response through a private socket. The Ravel CLI checks
 the policy metadata and the selected command. Anything that the worker prints
 is diagnostic text, not a selection.
+
+The worker and the managed process have different roles in this example:
+
+| Property | Policy worker | Managed process |
+|---|---|---|
+| Purpose | Evaluate the owner policy | Execute the selected command |
+| Working directory | Starts in a private directory, then changes to `/` before the policy import | Starts in the caller's working directory |
+| Session-result context | None | Receives its own `RAVEL_EXIT_FILE` path |
+| Response to Ravel | Policy response through a private socket | Opaque result through the [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
 
 After the response, the Ravel CLI confirms that the worker ended and that the
 Ravel CLI reaped it. It also removes the private directory of the worker. Only
@@ -230,11 +236,16 @@ program controls as one unit. Ravel stays the parent of the managed process
 while it supervises the process. `start-session` does not replace itself with
 the selected program.
 
-This is still one Ravel session. In this unconfined launch, the new process
-group does not make a new POSIX session, and it is not a new login. A POSIX
-session is a different operating-system unit that job control uses. The
-unconfined process stays in the caller's POSIX session. A
-[confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
+The new process group does not make a new Ravel session or a new login.
+These three terms name different units:
+
+| Unit | What it means | In this unconfined example |
+|---|---|---|
+| Ravel session | One `start-session` invocation | Covers selection, the managed job and cleanup |
+| Process group | Processes that can receive a signal as one group | The managed process leads a new group |
+| POSIX session | An operating-system unit that job control uses | The managed process stays in the caller's POSIX session |
+
+A [confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
 POSIX session. [Chapter 5, “Run sessions”](05-running-sessions.md#confine-the-managed-process),
 teaches that separate case.
 
@@ -277,11 +288,14 @@ session. This request does not mean that the job already ended. Also,
 `end-session` does not wait for the cleanup of the enclosing session. In this
 fake, the script has no more commands, so it exits.
 
-A managed process can continue to run after it sends the result. For such a
-process, the runner gives a grace period that starts when the runner detects
-the result. After the grace period, the runner sends TERM, and then KILL if
-necessary. These signals go to the process group of the managed process.
-Chapter 9 gives the exact times.
+A managed process can continue to run after it sends the result. The runner
+then uses these stages. Chapter 9 gives the exact times.
+
+| Stage | When it starts | Runner action |
+|---|---|---|
+| Grace period | The runner detects the sent result | Allows time for the managed process to exit |
+| TERM | The process remains after the grace period | Sends TERM to the process group, then allows time for exit |
+| KILL | The process remains after the TERM grace period | Sends KILL to the process group |
 
 The exit of the managed process does not complete the cleanup. Before it
 reaps the direct child, Ravel stops the members of the process group that
