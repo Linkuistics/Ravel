@@ -194,3 +194,11 @@ and isolation guards are legible. `docs/book/figures.md` records the viewing
 limits. No new SVG or shared renderer change is needed. No defect is handed
 forward, and no ADR changes. The node stays open through proof. Whole-book art
 k101 retains the existing dense-text and figure-size work.
+
+## Correction run boundary
+
+Draft k192 added two paragraphs after the seam table. They say which test
+tasks need the built worker and the probe workers. Copy-edit k193 changed
+their words only. It also names `task test` in the worker sentence, because
+that task includes the command-boundary tests. Proof k194 checks the passage
+against the source and the Taskfile.

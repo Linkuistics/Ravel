@@ -146,19 +146,21 @@ The table connects each behaviour to a test boundary and a focused command.
 | All tests in the Ravel package | Unit and integration tests, with the command boundary | `task test:session` |
 | Both Rust packages | Workspace tests under nextest | `task test` |
 
-The private result-transport tests (`task test:session -- --lib`) and runner
-tests (`task test:runner`) need no policy worker. The complete Ravel package
-suite (`task test:session`) includes command tests and needs the built worker,
-as does `task test:cli`. Run `task build` before these suites. The
-hostile-runtime tests need `task probes` too, whether you run
-`task test:hostile`, `task test:session` or `task test`.
+The private result-transport tests (`task test:session -- --lib`) and the
+runner tests (`task test:runner`) need no policy worker. The complete Ravel
+package suite (`task test:session`) includes the command-boundary tests and
+needs the built worker. `task test:cli` and `task test` also need it. Run
+`task build` before these tasks. The hostile-runtime tests also need the probe
+workers from `task probes`. `task test:hostile`, `task test:session` and
+`task test` include these tests.
 
-The test tasks compile Rust code but do not build the policy worker or probes.
-On a fresh checkout, `task test:session` before `task build` therefore fails
-tests that need the worker. The CLI reports `worker_missing` when a test
-requests policy evaluation without that worker. These runtime tests use the
-checkout's executables and fixtures, with no host Bun or Node, model account
-or installed launcher.
+The test tasks compile Rust code, but they do not build the policy worker or
+the probe workers. On a fresh checkout, if you run `task test:session` before
+`task build`, the tests that need the worker fail. When a test requests policy
+evaluation without the worker, the CLI reports the
+[diagnostic code](06-reference.md#diagnostic-codes) `worker_missing`. All of
+these test tasks use the executables and fixtures of the checkout. They need
+no host Bun or Node, no model account and no installed Ravel.
 
 The runner's terminal tests create a pseudo-terminal, or PTY. This private
 terminal lets a test observe foreground ownership and modes without a human
