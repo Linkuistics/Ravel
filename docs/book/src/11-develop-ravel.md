@@ -26,7 +26,7 @@ linker. On Linux, the system development tools supply it.
 | ShellCheck | Check shell scripts during `task check` |
 | cargo-nextest | List and run Rust tests |
 | Git | Obtain the checkout and support scripts that inspect tracked files |
-| `/usr/bin/sandbox-exec` on macOS | Run the confinement tests |
+| `/usr/bin/sandbox-exec` on macOS | Run the [confinement](02-actors-and-words.md#trust-and-confinement) tests |
 | `/usr/bin/bwrap` or `/bin/bwrap` on Linux | Run the confinement tests where the host permits user namespaces |
 
 1. Obtain a checkout of the Ravel repository.
@@ -43,7 +43,8 @@ task typecheck
 ```
 
 Setup needs network access on its first run. It downloads the tools below into
-`target/tools`, then installs the worker's development dependencies. It does
+`target/tools`, then installs the development dependencies of the
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). It does
 not install Rust, Task, ShellCheck or nextest.
 
 Setup has tool pins for macOS arm64, Linux aarch64 and Linux x86_64. Native
@@ -67,16 +68,15 @@ under `crates/ravel/worker`. These dependencies go into that directory's
 `node_modules`.
 
 The checkout-local Bun takes precedence over a host Bun during worker builds.
-The built [Ravel CLI](02-actors-and-words.md) and
-[policy worker](07-the-parts-of-ravel.md#the-worker-executes-typescript-before-the-launch)
-need no host Bun or Node at run time.
+The built [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
+and policy worker need no host Bun or Node at run time.
 
 ## Build the matched pair
 
 `task build` first compiles the policy worker and generates the SDK declarations.
 Then it runs `cargo build --locked --workspace` for both Rust packages. The
-Cargo lockfile fixes the Rust dependency choices. A first build can need network
-access for dependencies that the host Cargo cache does not hold.
+Cargo lockfile pins the versions of the Rust dependencies. A first build can
+need network access for dependencies that the host Cargo cache does not hold.
 
 | Task | Use it when | Output or check |
 |---|---|---|
@@ -101,7 +101,7 @@ The package boundary does not promise an independently supported component.
 
 | Path from the checkout root | What a contributor finds there |
 |---|---|
-| `crates/ravel/src/` | CLI arguments, policy evaluation, result transport and final outcome choice |
+| `crates/ravel/src/` | CLI arguments, policy evaluation, [result](02-actors-and-words.md#the-managed-process-and-its-result) transport and final outcome choice |
 | `crates/ravel/worker/src/` | TypeScript worker implementation |
 | `crates/ravel/worker/sdk/` | Policy interface and helpers |
 | `crates/ravel/worker/examples/` and `crates/ravel/worker/sample/` | Example modules and the sample policy |
@@ -112,22 +112,24 @@ The package boundary does not promise an independently supported component.
 | `scripts/` and `Taskfile.yml` | Reusable checks, documentation tools and delivery recipes |
 
 The private [result channel](07-the-parts-of-ravel.md#the-result-channel-carries-the-value)
-combines the runner's completion signal with an atomic send of the result.
-The CLI uses it with the compiled policy evaluator. Subprocess fixtures check
-nested [session-result context](02-actors-and-words.md), cancellation, process
+combines the runner's completion signal with the contents of the result.
+`end-session` sends the result, and the complete result file appears in one
+atomic step. The CLI uses the result channel with the compiled policy
+evaluator. Subprocess fixtures check
+nested [session-result context](02-actors-and-words.md#three-different-kinds-of-information), cancellation, process
 cleanup, and empty and multiline results. A change to this boundary needs more
 than a test of a parser.
 
 ## Choose a test seam
 
 A **test seam** is the boundary at which a test supplies inputs and observes
-behaviour. The nearest useful seam depends on the promise that the change
+behaviour. The nearest useful seam depends on the behaviour that the change
 affects.
 
 | Behaviour to check | Seam and source | Focused task |
 |---|---|---|
 | A local conversion, parser or decision | Rust unit tests beside the CLI code | `task test:session -- --bin ravel` |
-| A result, refusal or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
+| A result, [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
 | Group cleanup, escalation or child exit status | Runner with real subprocesses under `crates/keyed-launch/tests/` | `task test:runner` |
 | Terminal foreground or modes | Runner process on a private pseudo-terminal in `tests/job.rs` | `task test:runner -- --test job` |
 | Hostile runtime inputs | `crates/ravel/tests/hostile.rs`, with the real pair and controls that expose each unwanted effect | `task test:hostile`, after `task probes` |
@@ -136,14 +138,15 @@ affects.
 
 The runner's terminal tests create a pseudo-terminal, or PTY. This private
 terminal lets a test observe foreground ownership and modes without a human
-terminal. The `in_pty` helper in `crates/keyed-launch/tests/job.rs` starts a
-separate session leader and drains its output. Its deadline bounds the wait
-for that leader.
+terminal. The `in_pty` helper in `crates/keyed-launch/tests/job.rs` starts the
+command as the leader of a new POSIX session. It reads the terminal output
+throughout, so a full terminal buffer cannot stop the leader. At its deadline,
+it kills the leader's process group and fails the test.
 
 Tests that change process-wide signal state use a separate process. The job
-tests run their own binary in an ignored fixture role. A parent test invokes
-that role with its required environment. The ignored role alone is not a
-standalone check. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal)
+tests run their own binary in a fixture role, a test function marked
+`#[ignore]`. A parent test invokes that role with its required environment.
+The fixture role is not a check when it runs alone. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal)
 explains the terminal behaviour that these tests observe.
 
 `task test:list` lists the cases before a run. The focused tasks pass arguments
@@ -161,9 +164,12 @@ task test:session -- --bin ravel -E 'test(book_)'
 ```
 
 The `book_` cases are the additions below. They exist only after you add them.
-A narrow filter can exclude related cases, so the nextest summary needs
-attention: passed and skipped counts describe different sets. While you edit,
-run the focused checks. Before handoff, run the full relevant suite.
+A narrow filter can exclude related cases. Read both counts in the nextest
+summary. The passed count gives the cases that ran and passed. The skipped
+count includes the cases that an `-E` filter excluded.
+
+While you edit, run the focused checks. Before handoff, run the full relevant
+suite.
 
 ## Run the checks before handoff
 
@@ -175,24 +181,26 @@ earlier stages run in this order:
 |---|---|
 | `formatting` | `cargo fmt --all --check` checks Rust format without changes |
 | `scripts` | ShellCheck checks shell scripts under `scripts/` and `crates/ravel/scripts/` |
-| `worker-build` | Rebuild the worker and generated SDK assets |
-| `worker-probes` | Build test-only workers with individual runtime controls removed |
-| `runtime-integrity` | Check runtime-cache recovery and corrupt-download refusal with offline fixtures |
-| `worker-types` | Typecheck the TypeScript source and consumers of generated declarations |
+| `worker-build` | Rebuilds the worker and generated SDK assets |
+| `worker-probes` | Builds test-only workers with individual runtime controls removed |
+| `runtime-integrity` | Checks runtime-cache recovery and the rejection of a corrupt download, with offline fixtures |
+| `worker-types` | Typechecks the TypeScript source and consumers of generated declarations |
 | `lint` | Clippy checks the workspace and all targets with the committed lockfile |
 | `terminal-recovery` | Runner tests produce real-PTY receipts, then a CLI unit test consumes them |
 
 `task runtime:integrity` and `task test:terminal-recovery` run those two checks
 separately.
 
-The workspace configuration denies Clippy's `all` lint group. Each stage prints
-a short result. On failure, the wrapper shows the last 60 lines of its log.
-Worker build, probe and typecheck wrappers also name their own complete logs.
+The workspace configuration sets Clippy's `all` lint group to `deny`, so a
+Clippy report from that group fails the `lint` stage. Each stage prints a short
+result. On failure, `scripts/check.sh` names its log and shows the last 60
+lines. For the three worker stages, `scripts/worker-check.sh` also names its
+own complete log.
 
 `task check` creates a fresh `target/check.*` file for each run. It saves the
-earlier stages' output and appends the nextest report. Worker wrappers write
-`target/worker-check.*`. Builds also update worker assets, probes and Cargo
-artifacts under `target/`. The terminal-recovery check creates temporary
+earlier stages' output and appends the nextest report. `scripts/worker-check.sh`
+writes `target/worker-check.*`. Builds also update worker assets, probes and
+Cargo artifacts under `target/`. The terminal-recovery check creates temporary
 receipts and removes them when its script exits. The format stage does not
 rewrite source files.
 
@@ -237,14 +245,18 @@ on macOS arm64. They demonstrate current behaviour and do not change the
 product.
 
 For a defect, first add an assertion that fails because of that defect. Then
-change the code and run the same test again. A test that passes before the fix
+change the code and run the same test again. A test that passes before the repair
 does not distinguish the old behaviour from the new behaviour.
 
 ### Test a real child process
 
-In `crates/keyed-launch/tests/launch.rs`, `Harness` writes a shell script in a
-temporary directory. The `launch` helper builds the runner request.
-`support::controls()` removes inherited session controls from the child.
+In `crates/keyed-launch/tests/launch.rs`, the test type `Harness` writes a
+shell script in a temporary directory. This type is not an agent harness. The
+`launch` helper builds the runner request. `support::controls()` gives the
+names of the inherited enclosing-session controls, and the runner removes
+them from the child.
+[Keep tests separate from live sessions](#keep-tests-separate-from-live-sessions)
+lists these controls.
 
 Fragment from the scratch copy of `crates/keyed-launch/tests/launch.rs`: this
 test omits the file's imports and helper definitions.
@@ -366,8 +378,8 @@ tests cover the later effect of that command.
 
 `task install` builds a release CLI and its matched worker. It copies the pair,
 SDK files, examples and notices into `PREFIX`, then tests that installation.
-The default prefix is `~/.local`. An explicit prefix lets a contributor test a
-build without replacement of their usual installation.
+The default prefix is `~/.local`. With an explicit prefix, a contributor can
+test a build and keep their usual installation.
 
 1. Choose a disposable prefix for the trial.
 2. Run `task install` with that prefix.
@@ -405,9 +417,9 @@ with no host Bun or Node.
 The probes let hostile-runtime tests show that their unwanted effect can occur.
 For example, the autoload probe permits dotenv and bunfig autoloading. Other
 probes permit tsconfig autoloading, omit embedded imports or retain the worker's
-initial directory. Their distinct identities prevent their use as installed
-policy workers. After a worker change, rebuild the pair and probes before
-`task test:hostile`.
+initial directory. Each probe has a distinct identity, so no Ravel CLI
+accepts a probe as its policy worker. After a worker change, rebuild the pair
+and probes before `task test:hostile`.
 
 These three tasks passed on macOS 27.0.1 arm64 in this chapter's trial.
 The [part B check records](../../evidence/develop-ravel-k178/README.md) give its
@@ -423,9 +435,9 @@ break a command example without a change to product code.
 `task docs:book` first builds the book, then serves it at
 `http://127.0.0.1:8775`. The server rebuilds after a source change. `PORT=…`
 selects another port. `task docs:book:build` only builds, under `target/book`.
-Its wrapper fails on an mdBook `ERROR` or `WARN` diagnostic, even if mdBook exits with
-status 0. A successful build does not establish that every link resolves or
-that a figure is legible.
+Its script, `scripts/book.sh`, fails on an mdBook `ERROR` or `WARN` diagnostic,
+even if mdBook exits with status 0. A successful build does not establish that
+every link resolves or that a figure is legible.
 
 | Change | Check | What the check establishes |
 |---|---|---|
@@ -449,20 +461,22 @@ establish that a diagram explains the right behaviour.
 The example check rebuilds the pair. It evaluates real TypeScript policies and
 runs fake programs with a private home, temporary directory and `PATH`. Standard
 input is `/dev/null`. It compares the declared streams and exit status, with
-only the scratch path normalised. A skip remains a skip in its summary.
+only the scratch path normalised. Its summary reports a skipped example as a
+skip, not as a pass.
 
 Fragments do not run. The check also does not compare source excerpts.
 The [example convention](../examples.md) defines labels, output claims and
 platform requirements.
 
 The excerpt check needs no build. Its comparison preserves spaces and
-indentation. It refuses untracked sources, symbolic links and generated paths.
+indentation. It rejects untracked sources, symbolic links and generated paths.
 An exact quotation can still have an incorrect explanation. The
 [excerpt convention](../excerpts.md) describes the label and comparison.
 
 The STE and prose-break tasks report problems without failure unless you pass
-`--strict`. STE checks examine all chapter files, the contents, glossary,
-README and figure layout text by default. The prose-break check examines the
+`--strict`. By default, the STE check examines all chapter files,
+`SUMMARY.md`, `CONTEXT.md`, `README.md` and the text of each figure layout
+record. The prose-break check examines the
 chapters. A table, figure or code block breaks a prose run. Headings and lists
 do not.
 
@@ -470,9 +484,9 @@ Neither check can establish clear explanations or compliance with every
 STE rule. A human read still checks meaning, order and use of active verbs.
 
 The checkers have their own tests. A **control** gives a checker a known bad
-input and requires it to refuse that input. A **mutant** removes a safeguard
-from a copy of the checker. Its control then needs to fail. These checks help
-show that a clean report has a useful meaning.
+input and requires it to reject that input. A **mutant** removes a safeguard
+from a copy of the checker. A control then needs to fail against that copy.
+These tests help show that a clean report has a useful meaning.
 
 | Task | Controls it exercises |
 |---|---|
@@ -482,7 +496,7 @@ show that a clean report has a useful meaning.
 | `docs:excerpts:test` | Changed source or quotation, invalid paths and labels, followed by checker mutants |
 | `docs:ste:test` | Planted text violations and default-file selection, followed by rule mutants |
 | `docs:breaks:test` | Prose at and above the limit, each kind of break, and rule mutants |
-| `book:integrity` | Offline mdBook fetch fixtures, cache reuse, corrupt-cache recovery and bad-download refusal |
+| `book:integrity` | Offline mdBook download fixtures, cache reuse, corrupt-cache recovery and bad-download rejection |
 
 `book:integrity` needs the archive that `task setup` verified. It substitutes
 the download boundary and uses private tool directories. It does not test
@@ -503,7 +517,8 @@ task docs:breaks -- --strict
 
 ## Keep tests separate from live sessions
 
-A test can run inside an LLM session that Ravel supervises. If a test inherits
+A test can run inside an LLM [session](02-actors-and-words.md#caller-and-owner)
+that Ravel supervises. If a test inherits
 that session's real completion path, its `end-session` call can stop the
 developer's session. The test boundary therefore removes inherited authority
 before it creates its own fixture inputs.
@@ -527,13 +542,13 @@ to another path. The runner helpers also protect direct subprocess invocations
 that do not pass through Cargo. The CLI fixtures create temporary policies, so
 tests do not need the developer's personal owner policy.
 
-The `GROVE_*` and `HARNESS_DISPATCH_*` names deliberately remain in these guards.
-They protect tests from older enclosing-session controls. They are extraction
-safety exceptions, not product dependencies. Paths in source provenance and
-the retired-project record give historical attribution. Ravel does not load
-those projects or interpret their task trees. The
-[caller-reference inventory](../../caller-references.md) classifies these
-references in source files and dotfiles.
+The `GROVE_*` and `HARNESS_DISPATCH_*` names deliberately remain in these
+guards. They protect tests from older enclosing-session controls. They are
+safety exceptions that remain from the extraction of Ravel, not product
+dependencies. Paths in source provenance and the retired-project record give
+historical attribution. Ravel does not load those projects or interpret their
+task trees. The [caller-reference inventory](../../caller-references.md)
+classifies these references in source files and dotfiles.
 
 For a new subprocess test, reuse the fixture at the chosen seam. Supply only
 the environment values that the case needs. If the case needs a result channel,
@@ -553,7 +568,7 @@ states its limits. A task does not rewrite a dated evidence note.
 | Does an archive contain and run the required pair? | [Archive evidence](../../archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
 | Did a particular release reach its remote and installed destinations? | [Release and installation record](../../publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
 | Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](../../release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
-| Which resource and failure paths motivated the repair? | [Result/job source evidence](../../result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
+| Which resource and failure paths motivated the later repairs? | [Result/job source evidence](../../result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
 | Which checks distinguish the completion-failure repairs? | [Completion failure evidence](../../completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
 | Why does native entry follow this protocol? | [Native-entry design](../../native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
 | What did the native-entry instruments measure? | [Native-entry evidence](../../native-entry-development-evidence.md) | The development, incumbent, campaign and Linux instruments below |
@@ -567,18 +582,19 @@ does not establish that the current source still fails.
 The native-entry instruments examine executable entry state and cleanup. The
 **incumbent** is the frozen product before the repair, with private test seams.
 Its observations let a contributor distinguish a prior behaviour from a
-repair. The tables name the instruments so that their records are findable.
+repair. The table below names the instruments so that a contributor can find
+their records.
 Campaign plans and execution procedures remain in the evidence documents.
 
 | Instrument tasks | Purpose and evidence |
 |---|---|
-| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | Build the private fixture and exercise CLI, runner and Started-check cases. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
+| `native-entry:build`, `native-entry:front`, `native-entry:runner`, `native-entry:start`, `test:native-entry` | Build the private fixture and run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
 | `native-incumbent:build`, `test:native-incumbent`, `test:native-incumbent-controls` | Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](../../native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
 | `test:native-campaign`, `test:native-campaign-controls` | Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
 | `native-linux:image`, `test:native-linux` | Build the Linux environment and collect its support measurements. Read the [Linux campaign section](../../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
 | `test:native-r01-controls` | Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
 
-The task wrappers call `scripts/native-incumbent.sh`, `native-campaign.sh`,
+The instrument tasks call `scripts/native-incumbent.sh`, `native-campaign.sh`,
 `native-linux.sh` and `native-r01.sh` for their respective instrument families.
 The native-entry tasks build and select Rust tests directly. A development
 test pass alone does not establish the complete campaign or a new platform's
@@ -599,7 +615,7 @@ actor-daemon revision for historical attribution only.
 `task --list` shows the public task names and short descriptions in the current
 checkout. The table below accounts for each name at this chapter's draft.
 The sections above explain development tasks. Chapter 12, “Deliver Ravel”,
-owns the release workflow. Its release tasks can cut versions, write remote
+owns the release workflow. Its release tasks can create a release version, write remote
 state and replace an installation, so they are not chapter-check commands.
 
 | Task names | Destination |

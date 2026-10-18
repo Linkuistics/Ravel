@@ -155,7 +155,18 @@ The final link-only edit passed build and strict prose checks again. All 45
 local chapter links resolve. The note separates local command observations
 from platform qualification and human comprehension.
 
-Copy-edit k179 is already live and reads the complete chapter. There is no
-chapter-local defect handed forward. Chapter 12 release teaching and links,
-later guide removal, whole-book views and the owner's read retain their
-existing owners. This node stays open through copy-edit, art and proof.
+Chapter 12 release teaching and links, later guide removal, whole-book views
+and the owner's read retain their existing owners.
+
+## Copy-edit boundary
+
+Copy-edit k179 read the whole chapter and changed words, links and table
+wording only. The section plan, fragments, task inventory and dated
+observations are unchanged. Each mechanism that replaced a figure of speech
+was checked against source, and one fresh reviewer checked every hunk. Its
+log records the classification. Build, figures, examples, excerpts, strict
+STE and strict prose breaks pass, and all 50 local links resolve.
+
+Art k180 holds the figure questions for this chapter: source layout, the
+installed files, the test seams, the isolation guards and the wide tables. No
+defect is handed forward. This node stays open through art and proof.
