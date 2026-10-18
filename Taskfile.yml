@@ -10,13 +10,6 @@ tasks:
     cmds:
       - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/result-job
 
-  docs:components:
-    desc: Serve the editable current-component views on localhost (Mermaid needs network access)
-    vars:
-      PORT: '{{.PORT | default "8773"}}'
-    cmds:
-      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/components
-
   docs:book:
     desc: Build the book, then serve it on localhost and rebuild on change (needs task setup)
     vars:

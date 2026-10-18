@@ -646,9 +646,9 @@ x86_64 Linux is built and run only under emulation, with native qualification
 still absent.
 
 `task docs:result-job` serves the editable result/job views on localhost port
-8774. `task docs:components` serves the current component views on port 8773.
-Both accept `PORT=…` and need network access for Mermaid. These design views
-are separate from the book's Typst figures and establish no runtime result.
+8774. It accepts `PORT=…` and needs network access for Mermaid. These design
+views are separate from the book's Typst figures and establish no runtime
+result.
 
 The [retired-project record](https://github.com/Linkuistics/Ravel/blob/main/docs/retired-project.md) identifies the former
 actor-daemon revision for historical attribution only.
@@ -671,7 +671,7 @@ state and replace an installation, so they are not chapter-check commands.
 | `docs:book`, `docs:book:build`, `docs:figures`, `docs:figures:update`, `docs:figures:test` | [Check the book](#check-the-book) |
 | `docs:examples`, `docs:examples:test`, `docs:examples:mutants`, `docs:excerpts`, `docs:excerpts:test` | [Check the book](#check-the-book) |
 | `docs:ste`, `docs:ste:test`, `docs:breaks`, `docs:breaks:test`, `book:integrity` | [Check the book](#check-the-book) |
-| `docs:components`, `docs:result-job` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `docs:result-job` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `test:native-campaign`<br>`test:native-campaign-controls`<br>`native-linux:image`<br>`test:native-linux`<br>`test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |

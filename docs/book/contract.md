@@ -311,7 +311,7 @@ gives it a chapter 6 entry.
    isolation, and recovery after a failed exec; and the accepted limits named
    under Emphasis.
 4. **Component obligations**: the ten obligations the session specification
-   authorises and the component guide tabulates today. Existing owner
+   authorises and the component guide tabulated before its removal. Existing owner
    configuration keeps working; policy execution has no session-result
    authority and its worker is reaped before the managed launch; policy output
    is judged without fallback; the selected program runs directly in the
@@ -401,11 +401,12 @@ This checks visual consistency, not the reader's knowledge of notation.
   short entry into the book), the session CLI guide and the owner
   configuration guide (both removed: Parts I and II absorbed them, and the
   owner's dated configuration handoff is kept outside the book in
-  `docs/configuration-handoff-2026-10-12.md`), the local runner guide
-  (`docs/local-runner.md`), the result-channel guide
-  (`docs/session-channel.md`), the component guide (`docs/components.md`,
-  whose editable views under `docs/design/components/` become figure sources),
-  the release guide (`docs/RELEASING.md`) and the authority note
+  `docs/configuration-handoff-2026-10-12.md`), the local runner guide,
+  the result-channel guide and the component guide (all three removed:
+  chapters 7, 8 and 9 absorbed them, and their editable views under
+  `docs/design/components/` were removed with them; the source and observation
+  evidence of the guides is kept outside the book in
+  `docs/component-evidence.md`), the release guide (`docs/RELEASING.md`) and the authority note
   (`docs/authority.md`; Parts I and II absorbed its authority statements, so
   it is reduced to the test-isolation guards and legacy-name exceptions, and
   removed when chapter 11 absorbs those).

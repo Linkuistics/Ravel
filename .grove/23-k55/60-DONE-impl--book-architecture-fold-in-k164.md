@@ -119,7 +119,7 @@ chapters.
 - The k68 method was followed: the sentence-level classification, the table in
   the log, the link sweep with controls.
 
-## State left by this run, and what the next run does
+## State left by the first run, and the plan of the second run (done: see "Second run")
 
 Done and kept (in the working tree of this commit):
 
@@ -162,7 +162,71 @@ Still to do when this leaf runs again, after `develop-ravel-k194`:
    remaining mentions, and the caller-references instrument with controls
    (below), then the gates in "Done when".
 
-## Verification so far
+## Second run (after `develop-ravel-k194`)
+
+Decisions:
+
+- Row 64–67 is now disposition A (table above). No sentence group of the three
+  guides lacks a home, so nothing is sent back and the guides are removed.
+- Removed `docs/components.md`, `docs/local-runner.md`, `docs/session-channel.md`,
+  `docs/design/components/` (6 files) and the `docs:components` task. `task --list`
+  shows 56 tasks (57 before) and none for components.
+- Chapter 11: removed the sentence on `task docs:components` and its table entry;
+  no other change. Contract: the "Relation to other documents" bullet and line 314,
+  as step 4 said. `native-entry-development-evidence.md` line 1066: link replaced
+  by plain text naming chapter 9, and the component guide's job row marked
+  "since folded into the book's chapters 7 to 9".
+- Statements of the guides that survive: the A rows above (chapters 7 to 9 and
+  11), the E rows (`docs/component-evidence.md`) and the D rows (specification,
+  ADRs and source comments). Deleted with a reason: the X rows (links to removed
+  guides, the stale conformance status, the C1–C4 repair history, analysis
+  method notes, the plan of the first comparison, the O and R labels).
+- Frozen receipts: 31 files under `docs/evidence/` and `docs/*-checks.txt` name the
+  removed files (broad pattern `components\.md|local-runner|session-channel|design/components`;
+  the first run counted 32 with its own pattern, which the log does not keep).
+  They are digests and paths of files as they were, so the names are the evidence.
+  The only readers of the file names `subjects-before/after.json` are
+  `scripts/native-campaign.sh` and `scripts/native-r01.sh`, and these write them to
+  a fresh output directory. Their subject list does not name a removed file. No
+  match for the removed names in `scripts/`, `crates/`, `.cargo/` or `Taskfile.yml`.
+
+Verification:
+
+- **Link sweep** (rebuilt; same method as above): 49 Markdown files, 977 links:
+  234 to a file, 571 to a file and anchor, 172 external, 0 broken. **Control seen to
+  fail:** a planted `docs/zz-control.md` with links to `components.md`,
+  `session-channel.md#x`, `local-runner.md` and a misspelt anchor of the evidence
+  document was reported as broken (exit 1) while its good anchor resolved; the
+  file was removed and the clean reading returned.
+- **Remaining mentions** (enumerated with `rg -n -i -e`, then classified): the
+  `test:runner` description in `Taskfile.yml`, the evidence document's history
+  sentences, the three link targets and the sentences edited in this run, and
+  `docs/book/figures.md` line 325 (the C4 figure kind). Controls: the mutated
+  pattern `componentz\.md|locol-runner` finds 0; the same pattern finds the
+  names in 31 receipt files; the wrong flag `-E` errors "unknown encoding".
+- **Caller-reference instrument, re-run** over 457 enumerated active files
+  (`rg --hidden --no-ignore -n -i -e 'grove|harness[-_]dispatch'`): 403 lines in 102
+  files. Positive controls: 6 lines of `.cargo/config.toml` and the 2 source URLs in
+  `docs/component-evidence.md`. The mutated expression found neither (its one
+  match is this log describing the mutation). Cross-tree: the real expression
+  finds Grove references in the source project's crates and the mutated one finds
+  none. Fixture: clean text exit 1, `GROVE_X` exit 0. Against the parent revision
+  the match set differs only in the one "Grove continuation" line of
+  `components.md` and the two source URLs of `local-runner.md`, which now sit in
+  `docs/component-evidence.md`, the file the inventory row names.
+- **Gates:** `task docs:book:build`, `task docs:figures`, `task docs:examples`
+  (14 passed), `task docs:excerpts` (8 passed) and `task check` (339 passed) pass.
+  Strict `task docs:ste` and `task docs:breaks` pass on chapter 11 and the
+  evidence document. `docs/book/contract.md` is outside the strict set: it has 179
+  problems both at the parent revision and now, so the edit adds none.
+  **Digests:** the tracked tree outside `.grove/` (3,527 files) has the same
+  sha-256 list before and after the gates (digest of the list `19ff6533…c649d`).
+  The edits of this run were finished before the first digest. This log is the
+  only file written afterwards.
+- The evidence document is linked from chapter 11's "Read the evidence for a
+  change" table (line 613).
+
+## Verification so far (first run)
 
 - **Link sweep (enumerated, not pattern-listed).** Every Markdown link, image and
   reference definition in the tracked tree except `docs/evidence/`, the checks
@@ -268,7 +332,7 @@ ch8 = `08-follow-a-session-through-the-code.md`, ch9 =
 | 42–48 | Held-descriptor read; symlink, FIFO, non-regular; `close()`; Drop; identity check; allocation failure settles with cause and cleanup context; explicit attempt disarms Drop; unknown identity | A | ch8 `#read-the-result`, `#complete-cleanup-and-write-the-result`, `#follow-a-refusal-or-launch-failure`. The clause that the returned allocation error keeps the original cause plus the cleanup text is in `completion.rs` (`allocate`, lines 74–80) and ch6's `message` row ("original and secondary operational details") |
 | 49–56 | C3 checks; snapshot comparison; moved directory needs manual cleanup; same-user limit; killed process leaves files; no store | A, E | ch8 `#complete-cleanup-and-write-the-result`; ch1 and ch5 abrupt-death rows; C3 link → CE "Related evidence documents" |
 | 58–62 | `task test:session`, `--lib`, fixture scrub, ignored roles | A | ch11 `#choose-a-test-seam` |
-| 64–67 | `task check`; transport tests need no worker; package suite needs the built worker; no host Bun, model or installed launcher | **not placed** (partly) | ch11 `#run-the-checks-before-handoff` and the seam table say `cli.rs` uses real workers and that a worker change needs `task build`; the opening says no model account. No chapter says which seams need the built worker and which do not. Sent back: correction run `develop-ravel-k192`/`k193`/`k194` |
+| 64–67 | `task check`; transport tests need no worker; package suite needs the built worker; no host Bun, model or installed launcher | A (second run) | ch11 `#choose-a-test-seam`: the private result-transport tests and the runner tests need no policy worker; `task test:session`, `task test:cli` and `task test` need the built worker (`task build` first); the hostile tests also need `task probes`; no host Bun or Node, no model account, no installed Ravel. Placed by `develop-ravel-k192`/`k193`/`k194`; first run sent it back |
 
 ### Fresh reviewer's findings (the leaf's one allowance)
 
@@ -313,7 +377,7 @@ README, `Taskfile.yml`). The classes:
 | `docs/book/figures.md` line 325 ("component views") | unrelated | unchanged: it describes the C4 figure kind |
 | Receipts: 32 files, 30 under `docs/evidence/` (`subjects-*.json`, `*-source-*.json`, `source-paths.txt`, `inventory.txt`, `tasks.txt`) and two `*-checks.txt` logs in `docs/` | **frozen receipt** | not edited |
 
-Status of the Action column: done in this run are the README, both specifications,
+Status of the Action column (first run): done were the README, both specifications,
 both ADRs, the result-job README and the caller-references row. The contract, chapter 11,
 `Taskfile.yml` and `native-entry-development-evidence.md` rows are the next run's
 (steps 2 to 5 above), because they presuppose the removal.
