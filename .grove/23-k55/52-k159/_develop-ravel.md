@@ -116,3 +116,25 @@ add a test. Part B starts from that and cuts nothing out of part A.
 ## Handed forward
 
 None yet.
+
+## Part A boundary
+
+`develop-ravel-k160` writes the six part A sections and links the chapter from
+SUMMARY. Its log reserves part B's headings and maps all 57 public tasks and
+each README Develop statement. Part B appends its five sections in that order
+and supplies the complete reader-facing task inventory. No empty headings
+stand in the chapter.
+
+The four test fragments were added only to a scratch checkout. They compile and
+pass, with their exact additions preserved in
+`docs/evidence/develop-ravel-k160/scratch-tests.patch`. The evidence note records
+the host, elapsed times and disk use. The first full check hit a hostile-worker
+fixture timeout, then the unchanged isolated case and full check passed. Its
+cause is unknown. Both full logs remain. Do not erase that failed observation
+or describe the rerun as a product repair.
+
+The chapter's stage table explains `task check` beyond its short description.
+It distinguishes generated worker/probe outputs, the main and nested logs,
+temporary PTY receipts and the default nextest selection. Book and release
+checks remain separate. Part B teaches those checks and the isolation guards.
+Part A quotes no Taskfile description, so the old task wording is unchanged.

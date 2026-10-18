@@ -1,0 +1,11 @@
+task: [test:hostile] cargo nextest run --locked -p ravel --test hostile -E 'test(a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe)'
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+────────────
+ Nextest run ID a547d3d3-2e05-4c99-9b87-5e81450f1fbc with nextest profile: default
+    Starting 1 test across 1 binary (14 tests skipped)
+        PASS [   7.227s] (1/1) ravel::hostile a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+────────────
+     Summary [   7.233s] 1 test run: 1 passed, 14 skipped
+real 7.57
+user 0.19
+sys 0.23

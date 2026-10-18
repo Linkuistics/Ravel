@@ -1,0 +1,12 @@
+task: [test:session] cargo nextest run --locked -p ravel --bin ravel -E 'test(book_)'
+   Compiling ravel v1.0.0 (/private/tmp/ravel-k160-checkout/crates/ravel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.67s
+────────────
+ Nextest run ID f940641d-e903-44b3-a21d-70df28313dda with nextest profile: default
+    Starting 1 test across 1 binary (224 tests skipped)
+        PASS [   0.007s] (1/1) ravel::bin/ravel cli::tests::book_result_after_separator_is_data
+────────────
+     Summary [   0.007s] 1 test run: 1 passed, 224 skipped
+real 1.20
+user 0.86
+sys 0.89

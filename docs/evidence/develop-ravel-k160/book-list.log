@@ -1,0 +1,9 @@
+task: [test:list] cargo nextest list --locked --workspace -E 'test(book_)'
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+keyed-launch::job book_normal_exit_restores_foreground
+keyed-launch::launch book_child_exit_keeps_its_status
+ravel::cli book_result_keeps_spaces
+ravel::bin/ravel cli::tests::book_result_after_separator_is_data
+real 0.20
+user 0.21
+sys 0.13

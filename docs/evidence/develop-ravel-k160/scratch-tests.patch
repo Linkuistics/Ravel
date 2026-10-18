@@ -1,0 +1,106 @@
+diff --git a/crates/keyed-launch/tests/job.rs b/crates/keyed-launch/tests/job.rs
+index 328b7de165..7216fb572a 100644
+--- a/crates/keyed-launch/tests/job.rs
++++ b/crates/keyed-launch/tests/job.rs
+@@ -13,6 +13,25 @@ mod support;
+ 
+ mod support;
+ 
++#[test]
++fn book_normal_exit_restores_foreground() {
++    let scratch = Scratch::new();
++    let child = scratch.script("exit 23\n");
++    let (status, output) = in_pty(
++        role_command(
++            "launcher",
++            &[("JOB_CHILD", &child), ("JOB_REPORT", &scratch.os("report"))],
++        ),
++        Duration::from_secs(20),
++        |_| {},
++    );
++    assert!(status.success(), "{status:?}\n{output}");
++    let report = report(&scratch.path("report"));
++    assert_eq!(report["code"], "23");
++    assert_eq!(report["before_foreground"], report["group"]);
++    assert_eq!(report["after_foreground"], report["group"]);
++}
++
+ use std::collections::HashMap;
+ use std::ffi::OsString;
+ use std::fs;
+diff --git a/crates/keyed-launch/tests/launch.rs b/crates/keyed-launch/tests/launch.rs
+index 8de3586b35..ef718e01f1 100644
+--- a/crates/keyed-launch/tests/launch.rs
++++ b/crates/keyed-launch/tests/launch.rs
+@@ -8,6 +8,20 @@ mod support;
+ 
+ mod support;
+ 
++#[test]
++fn book_child_exit_keeps_its_status() {
++    let harness = Harness::new();
++    let script = harness.script("exit 23\n");
++    let argv = harness.argv(&script);
++    let channel = Channel::allocate(&harness.control()).unwrap();
++
++    let ended = run(launch(&argv, &channel, support::controls(), None)).unwrap();
++
++    assert_eq!(ended.status.code(), Some(23));
++    assert_eq!(ended.end, End::Exited);
++    assert!(!ended.signalled);
++}
++
+ use std::ffi::{OsStr, OsString};
+ use std::fs;
+ use std::os::unix::process::ExitStatusExt as _;
+diff --git a/crates/ravel/src/cli.rs b/crates/ravel/src/cli.rs
+index f66794b273..4b898eb4b6 100644
+--- a/crates/ravel/src/cli.rs
++++ b/crates/ravel/src/cli.rs
+@@ -4,6 +4,20 @@ mod tests {
+ use std::ffi::OsString;
+ use std::path::PathBuf;
+ 
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn book_result_after_separator_is_data() {
++        let cli = Cli::try_parse_from(["ravel", "end-session", "--", "--help"]).unwrap();
++        let Command::EndSession { result } = cli.command else {
++            panic!("expected end-session");
++        };
++        assert_eq!(result, "--help");
++    }
++}
++
+ #[derive(Debug, Parser)]
+ #[command(
+     name = "ravel",
+diff --git a/crates/ravel/tests/cli.rs b/crates/ravel/tests/cli.rs
+index 07a971ff20..fccb9b8e57 100644
+--- a/crates/ravel/tests/cli.rs
++++ b/crates/ravel/tests/cli.rs
+@@ -7,6 +7,21 @@ struct Fixture {
+     _dir: tempfile::TempDir,
+     root: PathBuf,
+ }
++
++#[test]
++fn book_result_keeps_spaces() {
++    let fixture = Fixture::new();
++    let policy = fixture.selecting(r#""$1" end-session -- "$2""#, "  done  ");
++    let output = fixture.start(&policy, "Check spaces.");
++
++    assert!(
++        output.status.success(),
++        "{}",
++        String::from_utf8_lossy(&output.stderr)
++    );
++    assert_eq!(output.stdout, b"  done  ");
++    assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
++}
+ impl Fixture {
+     fn new() -> Self {
+         let dir = tempfile::tempdir().unwrap();

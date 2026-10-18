@@ -1,0 +1,219 @@
+check: formatting passed
+check: scripts passed
+check: worker-build passed
+check: worker-probes passed
+check: runtime-integrity passed
+check: worker-types passed
+check: lint passed
+check: terminal-recovery passed
+check: complete log: /private/tmp/ravel-k160-checkout/target/check.eUNSEp
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+────────────
+ Nextest run ID f320e0bd-fee8-4f05-953e-94f1dc2793ed with nextest profile: default
+    Starting 343 tests across 14 binaries (46 tests skipped)
+        PASS [   0.008s] (  1/343) keyed-launch channel::tests::an_allocated_channel_names_a_path_that_does_not_yet_exist
+        PASS [   0.009s] (  2/343) keyed-launch channel::tests::successive_allocations_in_one_directory_never_collide
+        PASS [   0.011s] (  3/343) keyed-launch channel::tests::abandoned_cleanup_removes_channels_and_leaves_every_other_entry_alone
+        PASS [   0.011s] (  4/343) keyed-launch channel::tests::signalling_creates_an_empty_file
+        PASS [   0.011s] (  5/343) keyed-launch channel::tests::abandoned_cleanup_names_the_directory_when_it_cannot_be_listed
+        PASS [   0.012s] (  6/343) keyed-launch channel::tests::discarding_removes_the_file_and_succeeds_when_there_was_none
+        PASS [   0.013s] (  7/343) keyed-launch channel::tests::allocation_names_a_missing_directory_and_says_what_to_do
+        PASS [   0.013s] (  8/343) keyed-launch channel::tests::appearance_does_not_follow_links_or_read_large_files_or_fifos
+        PASS [   0.013s] (  9/343) keyed-launch channel::tests::anything_at_the_channel_name_has_appeared_and_nothing_else_has
+        PASS [   0.014s] ( 10/343) keyed-launch channel::tests::completion_stays_in_its_original_directory
+        PASS [   0.008s] ( 11/343) keyed-launch run::native_tests::native_row_record_refuses_names_that_could_leave_the_directory
+        PASS [   0.010s] ( 12/343) keyed-launch run::native_tests::native_row_record_is_write_once_read_only_and_names_its_verdict
+        PASS [   0.048s] ( 13/343) keyed-launch run::native_faults::native_queued_term_stays_pending_through_a_failed_started_or_spawn
+        PASS [   0.084s] ( 14/343) keyed-launch run::native_faults::native_paired_started_restore_and_child_action_keep_the_recovery_report
+        PASS [   0.071s] ( 15/343) keyed-launch run::terminal_tests::native_s04_foreground_own
+        PASS [   0.073s] ( 16/343) keyed-launch run::terminal_tests::native_s04_foreground_query_eio
+        PASS [   0.076s] ( 17/343) keyed-launch run::terminal_tests::native_s04_foreground_child
+        PASS [   0.072s] ( 18/343) keyed-launch run::terminal_tests::native_s04_handback_eio
+        PASS [   0.015s] ( 19/343) keyed-launch run::terminal_tests::terminal_recovery_failed_exec_restores_foreground
+        PASS [   0.006s] ( 20/343) keyed-launch run::terminal_tests::terminal_recovery_record_validation_is_bounded
+        PASS [   0.073s] ( 21/343) keyed-launch run::terminal_tests::native_s04_modes_eio
+        PASS [   0.035s] ( 22/343) keyed-launch run::terminal_tests::native_unknown_status_preserves_foreign_foreground_and_reports_uncertainty
+        PASS [   0.105s] ( 23/343) keyed-launch run::terminal_tests::native_s04_foreground_unrelated
+        PASS [   0.006s] ( 24/343) keyed-launch run::terminal_tests::terminal_recovery_retains_lending_query_failure
+        PASS [   0.006s] ( 25/343) keyed-launch run::wait_events::a_signal_after_the_reap_does_not_cancel_the_reaped_launch
+        PASS [   0.010s] ( 26/343) keyed-launch run::terminal_tests::terminal_recovery_without_terminal_has_no_lease
+        PASS [   0.006s] ( 27/343) keyed-launch run::wait_events::a_surviving_group_is_reported_beside_the_childs_status
+        PASS [   0.006s] ( 28/343) keyed-launch run::wait_events::cancellation_survives_final_reap_failure
+        PASS [   0.006s] ( 29/343) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_confirmed_reap
+        PASS [   0.006s] ( 30/343) keyed-launch run::wait_events::cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separate
+        PASS [   0.006s] ( 31/343) keyed-launch run::wait_events::cancellation_survives_observation_failure_with_failed_reap
+        PASS [   0.069s] ( 32/343) keyed-launch run::terminal_tests::native_s04_sigttou_restore_eio
+        PASS [   0.071s] ( 33/343) keyed-launch run::terminal_tests::native_s05_terminal_hup_then_term_keeps_the_first_signal_and_the_mode_report
+        PASS [   0.006s] ( 34/343) keyed-launch run::wait_events::error_annotations_preserve_first_cancellation_primary_errno_and_diagnostics
+        PASS [   0.006s] ( 35/343) keyed-launch run::wait_events::the_first_consumed_signal_survives_a_second_handler_call
+        PASS [   0.006s] ( 36/343) keyed-launch run::wait_events::the_reap_sample_drains_a_second_cancellation
+        PASS [   0.006s] ( 37/343) keyed-launch run::watching_tests::default_with_no_child_wait_is_repaired_independently_of_ignore
+        PASS [   0.007s] ( 38/343) keyed-launch::authority direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs
+        PASS [   0.042s] ( 39/343) keyed-launch run::wait_events::cancellation_forwards_or_kills_by_mode
+        PASS [   0.006s] ( 40/343) keyed-launch::confinement a_confined_program_that_is_not_an_absolute_path_refuses
+        PASS [   0.389s] ( 41/343) keyed-launch run::native_tests::native_s01_retains_each_stop_report_and_distinguishes_physical_operations
+        PASS [   0.316s] ( 42/343) keyed-launch run::wait_events::duration_stops_at_the_reap_before_observation_and_recovery
+        PASS [   0.536s] ( 43/343) keyed-launch::confinement confined_child_and_descendants_cannot_read_or_write_outside_the_invocation
+        PASS [   0.537s] ( 44/343) keyed-launch::confinement explicit_runtime_file_grant_allows_reads_but_denies_writes
+        PASS [   0.541s] ( 45/343) keyed-launch::job a_child_that_exits_normally_leaves_the_foreground_with_another_group
+        PASS [   0.548s] ( 46/343) keyed-launch::job a_launcher_started_in_the_background_takes_no_foreground
+        PASS [   1.048s] ( 47/343) keyed-launch run::native_tests::native_e04_managed_default_no_child_wait_is_repaired_and_ignore_only_fails
+        PASS [   1.139s] ( 48/343) keyed-launch run::terminal_tests::terminal_recovery_controls_detect_discarded_reports
+        PASS [   0.539s] ( 49/343) keyed-launch::job a_launcher_with_hup_ignored_at_entry_installs_no_hup_handler
+        PASS [   0.539s] ( 50/343) keyed-launch::job a_launcher_with_sigchld_ignored_still_supervises_its_child_to_an_end
+        PASS [   1.577s] ( 51/343) keyed-launch run::native_faults::native_f02_managed_watching_faults_refuse_before_any_child
+        PASS [   1.594s] ( 52/343) keyed-launch::interrupt an_interrupt_is_reported_against_the_launch_it_arrives_in_and_no_other
+        PASS [   0.544s] ( 53/343) keyed-launch::job after_a_death_by_signal_the_launcher_takes_the_terminal_from_another_group
+        PASS [   0.549s] ( 54/343) keyed-launch::job book_normal_exit_restores_foreground
+        PASS [   1.074s] ( 55/343) keyed-launch::job a_transparent_launcher_hands_its_child_the_entry_state_it_was_given
+        PASS [   1.047s] ( 56/343) keyed-launch::job a_transparent_launcher_with_a_terminal_is_cancelled_by_int
+        PASS [   0.532s] ( 57/343) keyed-launch::launch a_caller_built_argv_is_spawned_whole_and_directly
+        PASS [   2.043s] ( 58/343) keyed-launch run::wait_events::confirmed_reap_precedes_recovery_on_every_wait_path
+        PASS [   0.008s] ( 59/343) keyed-launch::launch a_program_that_does_not_exist_names_itself_and_says_what_to_check
+        PASS [   0.534s] ( 60/343) keyed-launch::launch a_channel_appearance_does_not_emit_reaped_before_the_child_exits
+        PASS [   0.534s] ( 61/343) keyed-launch::launch a_child_signals_through_the_published_path
+        PASS [   1.069s] ( 62/343) keyed-launch::job int_cancels_a_launch_with_no_terminal
+        PASS [   2.238s] ( 63/343) keyed-launch run::terminal_tests::terminal_recovery_reports_and_controls
+        PASS [   0.531s] ( 64/343) keyed-launch::launch a_child_that_never_signals_ends_unsignalled
+        PASS [   0.531s] ( 65/343) keyed-launch::launch a_grant_replaces_a_scrubbed_value_and_cannot_replace_the_channel
+        PASS [   2.684s] ( 66/343) keyed-launch run::native_faults::native_f04_runner_handler_faults_fail_admission_with_the_partial_subset_owned
+        PASS [   2.688s] ( 67/343) keyed-launch run::native_tests::native_e05_direct_and_terminal_int_before_and_after_handoff
+        PASS [   0.531s] ( 68/343) keyed-launch::launch a_scrubbed_variable_is_removed_from_an_inherited_environment
+        PASS [   0.539s] ( 69/343) keyed-launch::launch an_ignored_sigint_in_the_launcher_does_not_reach_the_child
+        PASS [   0.534s] ( 70/343) keyed-launch::launch book_child_exit_keeps_its_status
+        PASS [   0.532s] ( 71/343) keyed-launch::launch granting_the_channel_survives_a_scrub_list_that_names_it
+        PASS [   0.532s] ( 72/343) keyed-launch::launch observed_immediate_exit_and_failed_spawn_have_exact_events
+        PASS [   3.259s] ( 73/343) keyed-launch run::native_faults::native_f06_child_restoration_faults_fail_the_spawn_and_recover_the_terminal
+        PASS [   1.061s] ( 74/343) keyed-launch::launch an_empty_channel_signals
+        PASS [   2.571s] ( 75/343) keyed-launch::job a_raw_mode_child_killed_by_the_escalation_leaves_the_terminal_restored
+        PASS [   0.011s] ( 76/343) keyed-launch::noninteractive a_plainly_launched_child_consumes_callers_stdin_and_shares_its_session_and_descriptors
+        PASS [   1.538s] ( 77/343) keyed-launch::launch a_child_that_signals_and_exits_inside_the_grace_is_never_touched
+        PASS [   1.038s] ( 78/343) keyed-launch::launch an_unsignalled_child_runs_to_its_own_exit_untouched
+        PASS [   0.536s] ( 79/343) keyed-launch::launch the_channel_path_is_published_under_the_callers_chosen_variable_name
+        PASS [   0.535s] ( 80/343) keyed-launch::launch the_child_sees_its_arg0_while_its_program_is_what_runs
+        PASS [   0.535s] ( 81/343) keyed-launch::launch the_child_starts_in_the_given_directory
+        PASS [   0.008s] ( 82/343) keyed-launch::reraise a_reraised_signal_reaches_the_parent_as_a_wait_status
+        PASS [   0.007s] ( 83/343) keyed-launch::start_check failed_spawn_never_calls_either_start_callback
+        PASS [   0.029s] ( 84/343) keyed-launch::start_check failed_start_check_retains_io_source_and_confirms_real_reap
+        PASS [   0.007s] ( 85/343) ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.007s] ( 86/343) ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.010s] ( 87/343) ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.007s] ( 88/343) ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.007s] ( 89/343) ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.008s] ( 90/343) ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.007s] ( 91/343) ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.009s] ( 92/343) ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.006s] ( 93/343) ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.548s] ( 94/343) keyed-launch::noninteractive a_confined_child_is_killed_at_once_on_cancellation
+        PASS [   4.022s] ( 95/343) keyed-launch run::native_tests::native_s05_runner_hup_then_term_with_always_running_keeps_the_first_and_the_report
+        PASS [   1.064s] ( 96/343) keyed-launch::launch successive_launches_get_independent_channels
+        PASS [   0.541s] ( 97/343) keyed-launch::noninteractive standalone_child_has_a_new_session_and_cannot_consume_callers_stdin
+        PASS [   0.014s] ( 98/343) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.690s] ( 99/343) keyed-launch::noninteractive leader_exit_stops_a_group_helper_before_runner_returns
+        PASS [   0.009s] (100/343) ravel::cli every_start_session_option_prints_a_description
+        PASS [   2.549s] (101/343) keyed-launch::launch a_child_that_ignores_sigterm_is_killed_after_the_kill_grace
+        PASS [   2.043s] (102/343) keyed-launch::launch a_signalled_child_that_keeps_waiting_is_terminated_after_the_grace
+        PASS [   2.045s] (103/343) keyed-launch::launch a_stopped_child_is_neither_reaped_nor_killed
+        PASS [   4.409s] (104/343) keyed-launch run::native_tests::native_e07_first_consumed_cancellation_survives_every_later_delivery
+        PASS [   0.277s] (105/343) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   0.023s] (106/343) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   0.247s] (107/343) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   0.048s] (108/343) ravel::cli unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure
+        PASS [   0.047s] (109/343) ravel::cli worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup
+        PASS [   1.046s] (110/343) keyed-launch::noninteractive sigint_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.042s] (111/343) keyed-launch::noninteractive sigterm_cancellation_is_forwarded_to_a_noninteractive_child
+        PASS [   1.565s] (112/343) keyed-launch::noninteractive a_stubborn_noninteractive_child_is_killed_after_the_kill_grace
+        PASS [   1.233s] (113/343) ravel::cli book_result_keeps_spaces
+        PASS [   0.924s] (114/343) ravel::cli context_reads_params_choice_and_environment_grants_reach_policy
+        PASS [   1.126s] (115/343) ravel::cli confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy
+        PASS [   0.848s] (116/343) ravel::cli refused_policy_never_launches_and_unreported_exit_is_failure
+        PASS [   2.072s] (117/343) keyed-launch::launch the_escalation_reaps_the_childs_descendants
+        PASS [   3.103s] (118/343) keyed-launch::launch a_term_ignoring_descendant_is_gone_before_the_launch_returns
+        PASS [   1.329s] (119/343) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.381s] (120/343) ravel::cli selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses
+        PASS [   1.780s] (121/343) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   0.618s] (122/343) ravel::hostile diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses
+        PASS [   1.470s] (123/343) ravel::hostile a_package_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   1.179s] (124/343) ravel::hostile an_imports_alias_to_a_registered_specifier_is_a_package_lookup_and_never_the_embedded_module
+        PASS [   1.189s] (125/343) ravel::hostile bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   0.013s] (126/343) ravel::session_process end_session_refuses_missing_empty_and_stale_inherited_context
+        PASS [   1.757s] (127/343) ravel::hostile a_cwd_dotenv_and_bunfig_preload_stay_inert_and_fire_under_the_autoload_probe
+        PASS [   1.755s] (128/343) ravel::hostile a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autoload_probe
+        PASS [   0.006s] (129/343) ravel::bin/ravel authority::tests::only_a_path_the_worker_imports_exactly_is_a_specifier
+        PASS [   0.041s] (130/343) ravel::bin/ravel cancellation::propagation_tests::native_f07_checks_each_exit_transition_and_real_signal_death
+        PASS [   0.006s] (131/343) ravel::bin/ravel cancellation::tests::a_handled_signal_pending_behind_the_block_cancels
+        PASS [   0.624s] (132/343) ravel::hostile tsconfig_paths_beside_an_admitted_entry_stay_inert_and_fire_under_the_tsconfig_probe
+        PASS [   0.538s] (133/343) ravel::session_process a_child_that_exits_without_signalling_has_no_opaque_result
+        PASS [   0.006s] (134/343) ravel::bin/ravel cancellation::tests::an_unknown_pending_set_keeps_the_mask_blocked_through_the_reports
+        PASS [   0.006s] (135/343) ravel::bin/ravel cancellation::tests::an_unknown_pending_set_never_confirms_absence
+        PASS [   0.006s] (136/343) ravel::bin/ravel cancellation::tests::final_block_failure_retains_handlers_even_after_a_previous_block
+        PASS [   0.006s] (137/343) ravel::bin/ravel choice::tests::the_request_carries_the_prompt_and_every_parameter_beside_the_caller_data
+        PASS [   0.007s] (138/343) ravel::bin/ravel cli::tests::book_result_after_separator_is_data
+        PASS [   0.008s] (139/343) ravel::bin/ravel completion::tests::a_result_requires_the_corresponding_reaped_non_cancelled_launch
+        PASS [   0.008s] (140/343) ravel::bin/ravel completion::tests::cleanup_reports_a_replaced_directory_without_deleting_its_contents
+        PASS [   0.012s] (141/343) ravel::bin/ravel completion::tests::complete_opaque_values_are_published_once_without_changing_the_first_result
+        PASS [   0.007s] (142/343) ravel::bin/ravel completion::tests::dropping_a_replaced_directory_leaves_unrelated_contents_untouched
+        PASS [   0.008s] (143/343) ravel::bin/ravel completion::tests::invalid_or_oversized_results_refuse_without_publishing
+        PASS [   0.009s] (144/343) ravel::bin/ravel completion::tests::nonregular_channels_never_follow_a_link_or_block_on_a_fifo
+        PASS [   0.007s] (145/343) ravel::bin/ravel completion::tests::reading_remains_in_the_original_directory_when_the_path_is_replaced
+        PASS [   0.009s] (146/343) ravel::bin/ravel completion::tests::simultaneous_publications_never_mix_or_replace_result_bytes
+        PASS [   0.007s] (147/343) ravel::bin/ravel completion::tests::stale_context_cannot_end_a_later_session
+        PASS [   0.006s] (148/343) ravel::bin/ravel context::tests::a_later_version_is_unsupported_and_an_executable_field_says_why
+        PASS [   0.006s] (149/343) ravel::bin/ravel context::tests::a_marker_is_named_for_what_it_marks_only_in_a_loaders_result
+        PASS [   0.006s] (150/343) ravel::bin/ravel context::tests::delivery_attaches_the_measured_sources_and_measures_the_sorted_encoding
+        PASS [   0.006s] (151/343) ravel::bin/ravel context::tests::each_malformed_shape_is_refused_at_its_location
+        PASS [   0.006s] (152/343) ravel::bin/ravel context::tests::every_field_of_a_version_1_context_is_accepted_and_nothing_is_required_but_the_version
+        PASS [   1.219s] (153/343) ravel::hostile node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly
+        PASS [   0.007s] (154/343) ravel::bin/ravel context::tests::more_source_records_than_the_bound_refuse_by_name
+        PASS [   0.006s] (155/343) ravel::bin/ravel environment::tests::a_flag_adds_to_the_names_the_owner_settings_grant
+        PASS [   0.006s] (156/343) ravel::bin/ravel environment::tests::a_grant_is_one_name_and_duplicates_are_one_grant
+        PASS [   0.006s] (157/343) ravel::bin/ravel environment::tests::exclusion_is_by_class_and_leaves_its_near_misses_grantable
+        PASS [   0.006s] (158/343) ravel::bin/ravel frame::tests::a_frame_round_trips_with_a_big_endian_length
+        PASS [   0.006s] (159/343) ravel::bin/ravel frame::tests::a_truncated_frame_reads_as_closed_and_an_oversized_one_is_refused
+        PASS [   0.006s] (160/343) ravel::bin/ravel limits::tests::a_bound_outside_its_range_or_not_plain_digits_is_malformed
+        PASS [   0.006s] (161/343) ravel::bin/ravel limits::tests::a_context_budget_below_the_read_default_caps_each_read
+        PASS [   0.005s] (162/343) ravel::bin/ravel limits::tests::a_flag_replaces_a_setting_which_replaces_the_default
+        PASS [   0.006s] (163/343) ravel::bin/ravel limits::tests::the_defaults_and_their_origins
+        PASS [   0.006s] (164/343) ravel::bin/ravel limits::tests::the_selection_bound_is_one_second_to_ten_minutes
+        PASS [   0.533s] (165/343) ravel::bin/ravel cancellation::tests::a_runner_signal_between_the_entry_restore_and_the_final_block_cancels
+        PASS [   1.800s] (166/343) ravel::hostile classes_with_no_known_firing_configuration_are_reported_not_counted
+        PASS [   2.099s] (167/343) ravel::hostile a_package_json_above_the_workers_start_directory_stays_inert_and_fires_under_the_unmoved_probe
+        PASS [   0.537s] (168/343) ravel::bin/ravel cancellation::tests::a_runner_signal_survives_a_failed_final_block
+        PASS [   1.039s] (169/343) ravel::session_process cancellation_reaps_the_child_and_discards_an_already_published_result
+        PASS [   3.039s] (170/343) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+        PASS [   1.744s] (171/343) ravel::hostile the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly
+        PASS [   3.144s] (172/343) ravel::hostile a_cwd_package_json_stays_inert_and_fires_for_an_entry_admitted_there
+        PASS [   2.741s] (173/343) ravel::hostile a_probe_build_is_never_accepted_as_an_installations_worker
+        PASS [   2.821s] (174/343) ravel::hostile every_documented_specifier_resolves_to_its_embedded_module_beside_a_package_shadow
+        PASS [   3.046s] (175/343) ravel::session_process nested_session_signals_only_its_own_inherited_context
+        PASS [   6.167s] (176/343) ravel::session_process opaque_results_return_after_the_signalling_process_is_reaped
+        FAIL [  12.019s] (177/343) ravel::hostile a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+  stdout ───
+
+    running 1 test
+    test a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe ... FAILED
+
+    failures:
+
+    failures:
+        a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 12.01s
+
+  stderr ───
+
+    thread 'a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe' (55781086) panicked at crates/ravel/tests/hostile.rs:1315:5:
+    the shipped worker stalled as well
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 1 test still running
+        PASS [  17.202s] (178/343) keyed-launch run::native_tests::native_s02_wait_uncertainty_never_invents_reap_and_releases_ownership
+────────────
+     Summary [  17.216s] 178/343 tests run: 177 passed, 1 failed, 46 skipped
+        FAIL [  12.019s] (177/343) ravel::hostile a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe
+warning: 165/343 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+task: Failed to run task "check": exit status 100
+real 29.33
+user 15.88
+sys 5.83

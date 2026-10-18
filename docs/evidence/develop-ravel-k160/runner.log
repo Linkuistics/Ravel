@@ -1,0 +1,13 @@
+task: [test:runner] cargo nextest run --locked -p keyed-launch -E 'test(book_)'
+   Compiling keyed-launch v1.0.0 (/private/tmp/ravel-k160-checkout/crates/keyed-launch)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+────────────
+ Nextest run ID e7e3a3df-302c-4f4e-9f4e-431ef2c5405e with nextest profile: default
+    Starting 2 tests across 9 binaries (114 tests skipped)
+        PASS [   0.531s] (1/2) keyed-launch::launch book_child_exit_keeps_its_status
+        PASS [   0.542s] (2/2) keyed-launch::job book_normal_exit_restores_foreground
+────────────
+     Summary [   0.542s] 2 tests run: 2 passed, 114 skipped
+real 1.27
+user 0.65
+sys 0.90

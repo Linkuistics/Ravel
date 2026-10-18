@@ -1,0 +1,16 @@
+task: [setup] bash crates/ravel/scripts/dispatch.sh setup
+ravel: Bun 1.4.2 development runtime in /private/tmp/ravel-k160-checkout/crates/ravel/../../target/tools
+task: [setup] bash scripts/book.sh setup
+book: mdBook 0.5.4 development tool in /private/tmp/ravel-k160-checkout/target/tools
+task: [setup] bash scripts/figures.sh setup
+figures: Typst 0.15.1 with CeTZ 0.4.2 and DejaVu 2.37 fonts in /private/tmp/ravel-k160-checkout/target/tools
+task: [deps] bash crates/ravel/scripts/dispatch.sh deps
+bun install v1.4.2 (744846f84)
+
++ @types/bun@1.4.2
++ typescript@7.0.2
+
+6 packages installed [25.00ms]
+real 12.11
+user 2.16
+sys 0.88

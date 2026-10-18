@@ -21,5 +21,5 @@
 # Part IV: Reuse and develop Ravel
 
 - [Use Ravel's components in your project]()
-- [Develop Ravel]()
+- [Develop Ravel](11-develop-ravel.md)
 - [Deliver Ravel]()
