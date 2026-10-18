@@ -1,14 +1,14 @@
 # Jobs, signals and the terminal
 
-A result requests the end of a job. It does not prove that the job has ended.
+A [result](02-actors-and-words.md#the-managed-process-and-its-result) requests the end of a job. It does not prove that the job has ended.
 The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) stays alive to supervise that end
 before it returns the result to the [caller](02-actors-and-words.md#caller-and-owner).
 The [runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
 inside the CLI supplies the process and terminal operations.
 
 [Chapter 3](03-a-complete-session.md#send-the-result-and-finish-the-job)
-introduced a job and its reap through one session. This chapter explains
-why the order matters, how Ravel ends a process that does not exit, and what confinement
+introduced a job and its reap through one [session](02-actors-and-words.md#caller-and-owner). This chapter explains
+why the order matters, how Ravel ends a process that does not exit, and what [confinement](02-actors-and-words.md#trust-and-confinement)
 changes. It also explains terminal recovery, entry signals and the limits of
 these guarantees. [Chapter 8](08-follow-a-session-through-the-code.md#finish-the-managed-job)
 shows where these operations occur in the code.
@@ -224,7 +224,7 @@ The CLI also checks signals around supervision and final cleanup.
 
 | Where cancellation occurs | Process action | Result |
 |---|---|---|
-| During policy selection | Stop and wait for the policy worker. Do not start the managed process | Return no result to the caller |
+| During policy selection | Stop and wait for the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
 | During unconfined supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
 | During confined supervision | Attempt KILL immediately on the group and the direct child | Complete cleanup attempts, report cancellation, and return no result |
 

@@ -1240,6 +1240,28 @@ supplied the viewing checks. No other theme, narrower viewport, GitHub view
 or book on GitHub Pages was inspected. The branch and book remain unpublished.
 These checks establish no reader comprehension or new runtime/platform result.
 
+### Chapter 9 proof, 2026-10-18 (`jobs-signals-and-the-terminal-k177`)
+
+Proof read the whole chapter, both editable sources, their keys, captions and
+text alternatives. The terminal sequence now suppresses SIGTTOU before the
+attempted-group write, in the order of `run_with_output`. The shared layout,
+style and renderer are unchanged. All thirteen figure comparisons pass.
+
+Chrome on macOS showed the two complete figures and keys at the local book's
+chapter width, with their adjacent tables and the guarantee table. The light
+page had a column of about 750 pixels in a 1212-by-910-pixel content area.
+No label overlap or missing image was visible. Both full-size SVG links opened;
+their opening regions were inspected at that scale. The terminal text remains
+dense at chapter width. Its SVG stays at 378,003 bytes, and the figure set
+stays at 2,912,522 bytes. Whole-book art k101 owns the existing size and
+dense-text assessment. These figures do not pass the earlier size benchmarks.
+
+VS Code's light Markdown preview in Restricted Mode showed the introduction,
+process-group comparison, escalation table and timing opening. Raw files
+supplied the whole-document read. No other theme, narrower viewport, other
+browser, GitHub rendering or book on GitHub Pages was inspected. This pass
+establishes no reader comprehension, interactive-terminal or new platform result.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The

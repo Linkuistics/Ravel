@@ -629,6 +629,46 @@ proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
 
 ### Owners of the second-half handoffs
 
+Chapter 9 completes draft, copy-edit, art and proof on 2026-10-18, closing
+`jobs-signals-and-the-terminal-k157` with proof k177. The chapter teaches O6
+(matching reap and confirmed group absence), O8 (conditional foreground/mode
+recovery) and the process and entry-state side of O7. It distinguishes child
+signal death from CLI cancellation, detached execution from confinement, and
+spawn-reported success from confirmed exec. Proof corrected the terminal
+figure's SIGTTOU suppression/write order and added four first-use term links.
+
+All six required checks pass: thirteen figure comparisons, fourteen complete
+examples, eight excerpts, build, strict STE and prose breaks. All forty local
+chapter-body link/image occurrences resolve, with missing-file/anchor controls
+rejected. The measured subjects stayed unchanged during each finished run.
+
+Fold-in k164 retains the full guide sentence-group destinations in draft
+k158 and k174, reconciled by proof k177. `local-runner.md` Boundary maps to
+chapters 7–8's interfaces and chapter 9's escalation, modes, confinement and
+reports. Native entry and return maps to chapter 9's terminal, signal-state
+and guarantee sections. Chapter 8 retains observers, result association and
+failure priority; chapter 11 retains test commands and authority guards.
+Provenance stays outside the book. `components.md` O4/O6/O7/O8, R5/R7,
+successful operation, cancellation, C4 and native-entry limits have the same
+chapter 9 destinations. Old entirely-unmeasured native-entry claims are
+replaced by the qualified existing aarch64 support statement. No guide is
+removed by the chapter proof, and no independent-use contract is inferred.
+
+Chrome supplied complete chapter-width views of both figures and keys, plus
+their adjacent tables and the guarantee table. Both SVGs opened at full size,
+with opening regions inspected. VS Code supplied a light Restricted Mode
+preview of the opening, group comparison, escalation table and timing opening.
+Raw files supplied the whole-document read. Other themes, narrower views,
+GitHub and GitHub Pages were not inspected. The external POSIX exec link
+returned HTTP 403 to the web reader and was not revalidated. No new runtime,
+platform or reader-comprehension result follows.
+
+No chapter-local defect is handed forward. Dense figure text and the existing
+378,003-byte terminal SVG / 2,912,522-byte set assessment remain whole-book art
+k101's work. The earlier size benchmarks are not claimed to pass. The book
+node remains open for its later units, set proof, migration, whole-book art
+and proof, and read 2. No ADR changes or correction run are needed.
+
 Chapter 8 completes draft, copy-edit, art and proof on 2026-10-18, closing
 `follow-a-session-through-the-code-k154` with proof k173. Its successful code
 path, refusal/cancellation forks, five-source signal priority and final
