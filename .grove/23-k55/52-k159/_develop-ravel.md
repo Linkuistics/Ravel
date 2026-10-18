@@ -200,5 +200,15 @@ k101 retains the existing dense-text and figure-size work.
 Draft k192 added two paragraphs after the seam table. They say which test
 tasks need the built worker and the probe workers. Copy-edit k193 changed
 their words only. It also names `task test` in the worker sentence, because
-that task includes the command-boundary tests. Proof k194 checks the passage
+that task includes the command-boundary tests. Proof k194 checked the passage
 against the source and the Taskfile.
+
+Proof k194 completes the correction run and closes this document node again.
+The whole chapter needs no further edit. Fresh source checks support the worker,
+probe and fresh-checkout statements. All 57 public task names have exactly one
+inventory destination, including the retained `docs:components` entry. All seven
+required gates pass, including 339 workspace tests with 46 skipped, on 3,536
+unchanged tracked inputs outside `.grove/`. The rendered chapter's 46 local
+link occurrences resolve. The task log records the measured scope and browser
+policy limit. No handoff entry, correction run or ADR change remains. Fold-in
+k164 now owns the guide removal and its task/evidence-table changes.

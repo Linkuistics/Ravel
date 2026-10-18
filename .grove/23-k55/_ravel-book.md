@@ -849,3 +849,29 @@ release result.
 
 The remaining work list and owners table retain the fold-ins, whole-book
 art/proof and owner read. The book node remains open.
+
+## Chapter 11 worker-prerequisite correction (k194, 2026-10-19)
+
+The draft k192 → copy-edit k193 → proof k194 run closes
+`develop-ravel-k159` again. Chapter 11 now states which test tasks need the
+built policy worker and separate probe workers, which seams need neither,
+and what happens when worker-dependent tests run before the first build.
+Proof read the whole chapter and verified the added facts against the Taskfile,
+Cargo build script, worker lookup and checkout fixtures. No further edit was
+needed. All 57 public task names have one inventory destination, with no
+omissions, extras or duplicates. The prior README/authority guide map remains
+valid, and the handoff list is clear.
+
+All seven gates pass on 3,536 unchanged tracked inputs outside `.grove/`:
+book build, fourteen figure comparisons, fourteen complete examples, eight
+excerpts, strict STE, strict prose breaks and `task check` (339 passed,
+46 skipped). All 46 local rendered link occurrences resolve. Raw Markdown
+and built HTML supplied the current read and link checks. No fresh visual
+view was obtained: the in-app browser was unavailable and Chrome's policy
+rejected the local file URL. The task log states the other uninspected views.
+This establishes no new reader-comprehension or platform result.
+
+Fold-in k164 can resume its guide removal, task deletion and corresponding
+chapter edits. It still owns removal of `docs:components`; that entry remains
+in the chapter until then. K165, whole-book art/proof and read 2 retain their
+work. No ADR changes, new correction run or parent-book close follows.
