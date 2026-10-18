@@ -696,7 +696,7 @@ scripts/release-publish.sh --tap-only
 `--book-only` resumes the book step without a second GitHub release or a tap
 edit. If the stage is missing, first run `scripts/release-book.sh build vX.Y.Z`.
 If the push fails, the branch on the remote stays unchanged.
-A retry with the same bytes completes and adds no commit to the branch.
+A retry sends the same staged bytes and adds no commit if the branch already holds them.
 Different bytes in the same release directory fail.
 Never replace that directory by hand to hide a mismatch.
 

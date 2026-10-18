@@ -585,9 +585,11 @@ then run `scripts/release-book.sh live vX.Y.Z`, because the release task ends at
 that step until Pages is enabled. On 2026-10-18 a read-only check showed that the
 repository is public with no Pages site and no `gh-pages` branch. The fixtures
 cannot establish four things: the served address, the create-endpoint call with the
-operator's rights, the Pages delay and GitHub's rendering. The root `.nojekyll`
-rule is not in the official pages that were read. The book claims no deployed site
-before the first release that carries the book.
+operator's rights, the Pages delay and GitHub's rendering. The official
+source-settings page explicitly describes `.nojekyll` for prebuilt content
+and GitHub's own deployment workflow. Draft k187 added that source, and proof
+k190 rechecked it. No custom workflow file is needed. The book claims no
+deployed site before the first release that carries the book.
 
 Cut by `ravel-book-second-half-k148` on 2026-10-18, after read 1's corrections:
 two scaffold increments, five drafting units with two figure modules, a set
@@ -834,8 +836,37 @@ K163 retains the set proof, k165 the release guide and README fold-in, and
 k101 the existing figure-size/dense-text and whole-book visual work. The book
 node stays open for these leaves, Pages work, whole-book proof and read 2.
 
+The Pages correction completes all four stages with proof
+`deliver-ravel-k190` on 2026-10-19. Whole-chapter reads of chapters 12 and 3
+agree with the release scripts, Taskfile and version guard. Proof clarified
+that a retry adds no branch commit only when the branch already holds the
+same book. All ten public release tasks have teaching destinations. The
+activity, its alternative, four book modes and eight recovery rows agree.
+K187's added guide-statement map remains valid for fold-in k165, including
+the guide's older doctor/export/workflow claims that the chapter corrects.
+
+All six required book checks and the isolated release lifecycle suite pass
+on 222 unchanged digested inputs. Fourteen figures match, fourteen complete
+examples and eight excerpts pass, strict STE reports zero problems, and
+strict prose breaks reports no long run. All 26 local link/image occurrences
+in chapter 3 and 21 in chapter 12 resolve against built files and HTML IDs.
+The link check rejects missing-file and missing-anchor controls. Chapter 3
+retains its single version line and installation anchor.
+
+Chrome supplied light-page views at the measured 750-pixel column: chapter
+3's installation entry, chapter 12's release and mode tables, the complete
+release activity and key, first-release setup and the recovery-table opening.
+The full-size SVG opening was inspected. Raw files supplied both whole-chapter
+reads. Editor preview, other themes, narrower views, GitHub and public Pages
+were not inspected. The public address, administrator's create call, Pages
+delay and GitHub rendering remain unobserved. No public delivery, new platform
+qualification or reader-comprehension result follows.
+
+No chapter-local defect remains, and no correction run or ADR change is
+needed. The figure-size assessment remains with whole-book art k101 in the
+owners table. Set proof k163, fold-ins k164/k165, whole-book art/proof and
+read 2 remain live. The book node does not close.
+
 ## Handed forward
 
-No chapter-local art defect remains from the Pages correction. Proof k190
-already stands after art k189. Whole-book art k101 retains the figure-size
-assessment above.
+None.
