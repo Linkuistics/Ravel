@@ -40,7 +40,7 @@ Paths below are relative to the checkout root.
 | Check inputs and policy path | `crates/ravel/src/choice.rs`, `prepare` | `Prepared`, with inputs and the policy entry |
 | Evaluate and check the policy | `choice::choose_prepared`, `worker::evaluate` | A checked command after worker cleanup |
 | Find the program | `crates/ravel/src/program.rs`, `resolve` | The executable path and original program name |
-| Prepare output and channel | `crates/ravel/src/run.rs`, `run` | A `Launch` with arguments and its own result channel |
+| Prepare output and channel | `crates/ravel/src/run.rs`, `run` | A `Launch` with arguments and its own [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
 | Launch and supervise | `crates/keyed-launch/src/run.rs` | `Ended`, after reap and terminal recovery, with group state |
 | Check the result | `crates/ravel/src/completion.rs`, `result_after` | The result from that launch |
 | Complete cleanup and decide | `run`, `Handlers::finalise`, `settle` | A result that can reach the final write |

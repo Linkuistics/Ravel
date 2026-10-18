@@ -1119,6 +1119,25 @@ read, but its served page was not re-inspected because neither shared figure
 changed. The checks establish no human-comprehension, real-agent or interactive
 terminal result.
 
+### Chapter 8 proof, 2026-10-18 (`follow-a-session-through-the-code-k173`)
+
+Proof read the whole raw chapter and all four figure sources. Chrome showed
+the opening path table, the failure tables, the cancellation-carrier table,
+all four figures and their adjacent text in the locally served light mdBook.
+The chapter column was about 750 px. The sequence and activity also opened
+as full-size SVGs, with their opening regions inspected at that scale.
+No overlap or missing figure was visible on these surfaces. The full sequence
+remains dense at chapter width; whole-book art k101 owns that issue and the
+complete figure-set size assessment already recorded above.
+
+VS Code's light Markdown preview in Restricted Mode showed chapter 8's
+introduction, complete path table, new term link and the opening of the full
+sequence. This supplies editor-preview evidence for those regions only.
+The browser's DOM evaluation timed out; native accessibility and screenshots
+supplied the viewing checks. No other theme, narrower viewport, GitHub view
+or book on GitHub Pages was inspected. The branch and book remain unpublished.
+These checks establish no reader comprehension or new runtime/platform result.
+
 ## Not yet verified
 
 - GitHub's own rendering of a relative SVG link: the book is not on GitHub. The

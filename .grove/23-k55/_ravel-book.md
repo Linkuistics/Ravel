@@ -629,6 +629,34 @@ proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
 
 ### Owners of the second-half handoffs
 
+Chapter 8 completes draft, copy-edit, art and proof on 2026-10-18, closing
+`follow-a-session-through-the-code-k154` with proof k173. Its successful code
+path, refusal/cancellation forks, five-source signal priority and final
+failure priority are checked against production source. The full sequence
+keeps the runner inside the CLI and shows the second result-sender CLI.
+Proof added the missing first-use result-channel link in the opening table.
+All six required checks pass: eleven figure comparisons, eight excerpts,
+thirteen complete examples, build, strict STE and prose breaks. All 32 local
+link occurrences resolve, with missing-file/anchor controls rejected.
+
+K155/k170 retain the guide-statement destinations for fold-in k164. Proof
+k173 re-enumerates all ten obligations and reconciles their final destinations.
+K170's former “Clean up and write the result” heading is now “Complete cleanup
+and write the result”. O3/O4/O5/O7/O9 are taught here; chapter 9 retains O6/O8
+detail, terminal/backend mechanics and resource-recovery limits, and chapter 11
+retains test commands and the independent process fixture. The set proof still
+decides chapter 6's non-JSON operation-report entry and cross-chapter links.
+
+Chrome supplied light-page views of all four figures and the key tables at
+chapter width; VS Code supplied a light Restricted Mode preview of the opening,
+path table and sequence opening. Full-size sequence/activity opening regions
+were inspected. Raw files supplied the whole-document read. Other themes,
+narrower views, GitHub and GitHub Pages were not inspected. No reader result
+or new runtime/platform qualification follows. No chapter-local defect remains
+unowned. Dense figure text and the eleven-figure set's size remain with k101.
+The book node remains open for its later chapters, set proof, migration, whole-
+book art/proof and read 2. No architectural decision changed.
+
 Chapter 7 completes draft, copy-edit, art and proof on 2026-10-18, closing
 `the-parts-of-ravel-k151` with proof `the-parts-of-ravel-k169`. The chapter
 explains the CLI, separate TypeScript worker, SDK, private Rust runner and
