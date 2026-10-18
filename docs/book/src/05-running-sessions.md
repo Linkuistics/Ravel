@@ -535,8 +535,8 @@ does not [lend](03-a-complete-session.md#launch-the-managed-job) it the
 caller's controlling terminal. An unconfined launch uses a new process group
 in the caller's POSIX session. Ravel lends it the terminal if Ravel's own
 process group is the foreground group of the terminal. This difference is
-important for an interactive program. Chapter 9, “Jobs, signals and the
-terminal”, teaches the mechanism.
+important for an interactive program. [Chapter 9, “Jobs, signals and the
+terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal), teaches the mechanism.
 
 Confinement is separate from the permission flags of an agent program.
 Neither the unconfined mode nor the confined mode confines the owner policy.
@@ -847,8 +847,8 @@ with status 1. It does not report cancellation with status 130.
 
 An interactive program can also handle or ignore the keyboard signal itself.
 Use the status and the diagnostic of the Ravel CLI. Do not infer the outcome
-from the key that you pressed. Chapter 9 explains signal inheritance and
-terminal recovery.
+from the key that you pressed. [Chapter 9](09-jobs-signals-and-the-terminal.md#preserve-the-entry-signal-state) explains signal inheritance and
+[terminal recovery](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal).
 
 Fragment: run an interactive route and press Ctrl-C at the terminal. This
 fragment omits the policy, the interactive program and the physical
@@ -871,7 +871,7 @@ caller to examine:
 | The Ravel CLI dies abruptly, for example from SIGKILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone. |
 | Trusted owner policy starts a detached child. | Worker teardown does not guarantee the cleanup of that child. The confinement of the managed process does not contain policy code. |
-| Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. Chapter 9 explains the conditions. |
+| Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal) explains the conditions. |
 | The host is different from the measured platforms. | The project measured how Ravel handles inherited signal settings, cancellation, cleanup and terminal recovery. It measured them on aarch64 macOS and aarch64 GNU/Linux. The project built Ravel for x86_64 GNU/Linux and ran it only under emulation. Native x86-64 qualification is not complete. These checks do not cover all combinations of kernel, libc and compiler. |
 
 Chapter 2 explains these [trust limits](02-actors-and-words.md#trust-and-confinement).

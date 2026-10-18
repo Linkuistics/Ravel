@@ -34,13 +34,13 @@ run `task docs:book` to build the book and serve it on localhost. You can also
 read the Markdown in `docs/book/src/`. Start at
 [chapter 1](docs/book/src/01-what-ravel-is-for.md).
 
-The book does not yet have the chapters on four subjects. These are how Ravel
-is built, how to reuse its components, how to develop it and how to deliver it.
-Until these chapters exist, use these references for that subject: the
-[component contracts](docs/components.md), the
-[runner boundary](docs/local-runner.md), the
-[executable specification](docs/specs/session-execution.md) and the
-[runtime evidence](docs/runtime-evidence.md). The runtime notices are
+The book explains [the parts of Ravel](docs/book/src/07-the-parts-of-ravel.md),
+[the code path of a session](docs/book/src/08-follow-a-session-through-the-code.md)
+and [jobs, signals and the terminal](docs/book/src/09-jobs-signals-and-the-terminal.md).
+It also teaches how to [develop](docs/book/src/11-develop-ravel.md) and
+[deliver Ravel](docs/book/src/12-deliver-ravel.md).
+Chapter 10 stays unwritten until a supported extracted component and its
+consumer exist. The runtime notices are
 [`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a
 checkout and `libexec/ravel/notices/` in an installation.
 

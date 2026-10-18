@@ -378,7 +378,7 @@ cause a cancellation.
 | Stream | Session behaviour | Taught in |
 |---|---|---|
 | stdout | `start-session` writes only the result of a successful session, unchanged and with no added newline. Ravel does not interpret it. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
-| stderr | The stdout and stderr of the managed process, Ravel notices and failures, captured policy diagnostics and operational reports. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) |
+| stderr | The stdout and stderr of the managed process, Ravel notices and failures, captured policy diagnostics and operational reports. Without `--json`, each runner operation report has the form `ravel: <report>`. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) and [runner operation reports](08-follow-a-session-through-the-code.md#complete-cleanup-and-write-the-result) |
 | stdin | Ravel does not implicitly read a prompt from stdin. The worker receives null stdin. An unconfined managed process can use the caller's stdin, and a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 
 A text routing notice starts with `ravel: starting provider` and names the

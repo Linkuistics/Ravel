@@ -155,80 +155,32 @@ Removal waits for the set proof (`book-first-half`) so that "absorbed" is a
 statement about proved chapters, and precedes read 1 so read 1's entry is the
 reduced README.
 
-## Handed forward to the second half
+## Remaining second-half work
 
-- Plain-text mentions of chapters 7–12 in chapters 1–6 become links when each
-  target exists (a sweep by the second half's proof).
-- `docs/authority.md` is reduced, not removed, by the first half
-  (`book-readme-and-authority-k69` did it): it now states only the
-  test-isolation guards and the legacy-name exceptions, under that title, and
-  points to chapters 2 and 5 for the authority boundaries. Chapter 11 takes
-  those two paragraphs (forced-empty Cargo controls, scrubbing helpers,
-  `env_clear` fixtures, installed smoke's `env -i`, the `GROVE_*` and
-  `HARNESS_DISPATCH_*` extraction-safety exceptions); the file is removed when
-  chapter 11 lands, with its row in `docs/caller-references.md` and the
-  `docs/book/contract.md` "Relation to other documents" clause edited then.
-- Contributor sentences from `docs/session-cli.md` that had no other home are
-  now in the README's Develop section (kept until chapter 11 absorbs it): the
-  `task typecheck` description and list line, what `task test:cli` runs, "focused
-  checks while editing, the full relevant suite at handoff", and that `task
-  check` rebuilds and typechecks the pair. Chapter 11 should take them from
-  there. `book-guide-fold-in-k68` removed both guides and holds the
-  sentence-level classification.
-- The non-`--json` form of an operation report (`ravel: <report>` on stderr,
-  `crates/ravel/src/run.rs`) is in no chapter; chapter 6's stderr row says only
-  "operational reports". The second half's proof decides whether to add it.
-- Contributor and delivery parts of the README stay until chapters 11 and 12.
-  The README is now an entry (what Ravel is, the two verbs, where the book is
-  and `task docs:book`) plus the untouched "Develop" section, "Earlier
-  project" section (carrying the two release/archive paragraphs and the
-  licence line). Chapter 11 absorbs "Develop" (including the "private session
-  channel" paragraph and the contributor sentences listed above); chapter 12
-  absorbs the two release paragraphs under "Earlier project", whose heading
-  does not describe them; the retired record's pointer stays. The README's
-  short paragraph naming `docs/components.md`, `docs/local-runner.md`, the
-  specification and runtime evidence as references for the unwritten Parts III
-  and IV is to be reworded to point at the chapters when they land. The notices
-  line in that paragraph (checkout path versus installation path) moves to
-  chapter 12.
-- The visual vocabulary and the first figures' conventions are the first
-  half's art output; chapters 7–12 follow them.
-- The first figure for "packages, worker and SDK, in source and in an
-  installation" appears in chapter 6; chapters 7 and 12 reuse it.
-- Read 1's rules apply to chapters 7–12: the crisp figure style (R10) and
-  the limit on runs of prose, with the check from
-  `book-prose-breaks-check-k133` (R11).
-- Chapter 7 explains the parts of Ravel. It states the loose contract
-  between the Ravel CLI and the configuration (R15) in agreement with
-  chapter 1.
-- Chapter 12 teaches the release tasks. It includes how the release writes
-  its version into chapter 3 and checks it (R17).
-  `book-release-version-k145` adds the details here. What chapter 12 must say
-  about the mechanism (done 2026-10-18):
-  - The book has one version line, `ravel @RAVEL_BOOK_VERSION@` in a `text`
-    fence in `docs/book/src/03-a-complete-session.md`. A checkout between
-    releases shows the placeholder or the last release's version, and the
-    reader of chapter 3 compares it with `ravel --version`.
-  - `release.toml` has a second `pre-release-replacements` entry beside the
-    changelog one. Its pattern matches the whole line with the placeholder or
-    any `X.Y.Z`, and `exactly = 1`. So the next cut finds the line again.
-    `cargo release` writes the version into the line in the same release commit
-    as the manifests, and the tag carries it. The path is relative to the
-    package directory, `../../docs/book/src/03-a-complete-session.md`, as the
-    changelog path is. The book uses no include that only mdBook understands,
-    so GitHub and raw views show the same text.
-  - Two guards in `scripts/release-book-version.sh`. `ready` (run by `task
-    release:doctor`) refuses a book without exactly one such line. `released
-    vX.Y.Z` (run by the release task after the cut and before the build) reads
-    the page at the tag and refuses a line that is not `ravel X.Y.Z`, or any
-    surviving placeholder. A refusal leaves the cut local with nothing pushed;
-    the recovery is "Recover a partial release without another bump" in
-    `docs/RELEASING.md`.
-  - `scripts/release-book-version.test.sh` (part of `task release:lifecycle:test`)
-    runs the real cargo-release 1.1.2 in an isolated repository: a dry run
-    that shows the replacement, two cuts, and the controls that fail. The
-    published book for each release is on GitHub Pages, and the placeholder
-    text in chapter 3 tells the reader to use it when versions differ.
+Set proof `book-second-half-k163` clears the first-half teaching handoffs.
+The proved chapters cover the authority guards, contributor workflows, loose
+program contract, shared figures and release/version teaching. Chapters 1–6
+now link their existing second-half destinations, and chapter 6 states the
+plain runner-report format. The README points at the existing chapters.
+The task's inventories and guide-map audit identify every destination and the
+two previously unplaced details that proof added to chapter 8.
+
+- `book-architecture-fold-in-k164` removes the component, local-runner and
+  result-channel guides and the component Mermaid views, redirects live
+  references and preserves their evidence/provenance outside the book.
+- `book-contributor-delivery-fold-in-k165` removes the release and authority
+  guides, completes the README reduction and notices decision, and updates
+  live references, the contract clause and caller-reference inventory.
+- Whole-book art `ravel-book-k101` owns the existing dense-text/figure-size
+  assessment, then cuts whole-book proof before read 2. That proof owns the
+  existing chapter-5 “managed program” and chapters-5/6 signal-name consistency
+  findings in the owners table below.
+- `book-read-two-k166` holds the owner's stand-in read after whole-book proof.
+  Chapter 10 still belongs to later supported component work.
+
+No unresolved teaching defect is handed forward by set proof. Guide removal
+waits until its successful validation, so “absorbed” means the chapters as
+proved here. The fold-in tasks retain their independent sentence-group checks.
 
 ## First-half set proof and owner amendments
 
@@ -789,16 +741,11 @@ runner-test and isolation material. The architecture fold-in uses these
 destinations after the unit stages and set proof, without treating the old
 guides' native-entry status as current fact.
 
-| Handoff (from “Handed forward to the second half”) | Owner |
+| Remaining work | Owner |
 |---|---|
-| Plain-text mentions of chapters 7–12 become links | `book-second-half-k163` |
 | `docs/authority.md` guards and exceptions into chapter 11; file removed; caller-references row and contract clause edited | chapter 11 (`develop-ravel-k159`), then `book-contributor-delivery-fold-in-k165` |
 | README “Develop”, the “private session channel” paragraph and the contributor sentences | chapter 11, then `book-contributor-delivery-fold-in-k165` |
-| Non-`--json` operation report | chapters 8 and 9 teach it if the path meets it; `book-second-half-k163` decides chapter 6 |
-| README reference paragraph reworded to the chapters; the notices line moves to chapter 12; the “Earlier project” heading | `book-contributor-delivery-fold-in-k165` (chapter 12 holds the notices line) |
-| Release version teaching (R17) and the two release paragraphs | chapter 12 (`deliver-ravel-k161`) |
-| The loose contract (R15) in agreement with chapter 1 | chapter 7 (`the-parts-of-ravel-k151`) |
-| The packages, worker and SDK figure reused | chapters 7 and 12 (art stages) |
+| README reduction, notices-line decision and the “Earlier project” heading; set proof already linked the existing chapters | `book-contributor-delivery-fold-in-k165` (chapter 12 holds the notices line) |
 | The dense figures' small text | `ravel-book-k101` |
 | Chapter 12 art correction k189 adds the book steps to the release activity. Its SVG is 302,385 bytes and the fourteen SVGs total 3,214,907 bytes, above the earlier 300 KB and 2 MB benchmarks. The figure is legible at the 750 px column | `ravel-book-k101`, with the existing size assessment |
 | Chapter 9 art k176 records a 378,003-byte terminal SVG and a thirteen-figure set of 2,912,522 bytes. These exceed the earlier 300 KB per-figure and 2 MB set benchmarks. Its new text is about 11.3 px at the 750-pixel column | `ravel-book-k101`, with the existing size and dense-text assessment |
@@ -870,3 +817,35 @@ read 2 remain live. The book node does not close.
 ## Handed forward
 
 None.
+
+## Second-half set proof (k163, 2026-10-19)
+
+Chapters 7–9, 11 and 12 were read together against the contract and current
+sources. All ten component obligations and 57 public task names have
+teaching or evidence destinations, with no missing inventory item.
+The guide-map audit found two assigned details absent from the chapters:
+runner callback requirements and explicit cleanup retry/identity behaviour.
+Proof added both to chapter 8. Its task log supplies their precise homes,
+the current inventories and the source checks for the fold-in leaves.
+
+First-half forward references now link their targets, including abbreviated
+chapter numbers in the route table. The three absent chapter-10 notices
+remain plain text. Chapter 6 gives `ravel: <report>` for plain runner reports
+and points to chapter 8. The README's obsolete draft paragraph now links the
+existing chapters. No guide was removed, and no correction run or ADR change
+was needed. The ordinary final `## Handed forward` list remains empty.
+
+All eight required checks passed on 3,535 unchanged tracked inputs: book build,
+fourteen figure comparisons, figure controls, fourteen complete examples,
+eight excerpts, strict STE, strict prose breaks and `task check` (339 tests
+passed, 46 skipped). The rendered book's 1,831 local destinations and 22 entry
+links resolve; missing-file/anchor/image controls fail. Chrome loaded all
+fourteen unique figures and supplied light-page views at a 750-pixel column.
+VS Code supplied a Restricted Mode preview of chapter 12's opening through
+archive construction. Raw files supplied the whole set read. GitHub/public
+Pages, other themes and narrower views were not inspected. This is no
+new-reader comprehension, real-agent, platform qualification or public
+release result.
+
+The remaining work list and owners table retain the fold-ins, whole-book
+art/proof and owner read. The book node remains open.

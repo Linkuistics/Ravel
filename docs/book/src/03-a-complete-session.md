@@ -58,7 +58,7 @@ Node.
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
 separates the measured aarch64 macOS and aarch64 GNU/Linux targets from
 x86_64 GNU/Linux. For x86_64 GNU/Linux, the only execution evidence comes from
-emulation. Chapter 12, “Deliver Ravel”, gives the installation and target
+emulation. [Chapter 12, “Deliver Ravel”](12-deliver-ravel.md), gives the installation and target
 details.
 
 ## Run the first session
@@ -281,9 +281,9 @@ terminal modes. The automatic example check runs without a terminal. Thus,
 its transcript shows the choice of command and the delivery of the result,
 not a change of the foreground group.
 
-Chapter 9, “Jobs, signals and the terminal”, gives the terminal rules. These
+[Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal), gives the terminal rules. These
 rules include, for each case, the process group from which Ravel recovers the
-terminal. Chapter 9 also gives signal masks and failure guarantees.
+terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#preserve-the-entry-signal-state) also gives signal masks and [failure guarantees](09-jobs-signals-and-the-terminal.md#know-the-guarantees-and-their-limits).
 
 ## Send the result and finish the job
 
@@ -300,7 +300,7 @@ session. This request does not mean that the job already ended. Also,
 fake, the script has no more commands, so it exits.
 
 A managed process can continue to run after it sends the result. The runner
-then uses these stages. Chapter 9 gives the exact times.
+then uses these stages. [Chapter 9](09-jobs-signals-and-the-terminal.md#follow-the-escalation-after-a-result) gives the exact times.
 
 | Stage | When it starts | Runner action |
 |---|---|---|
@@ -433,12 +433,12 @@ that a failed cleanup completed. Its cancellation conditions apply until
 Ravel decides the final outcome, and also at that decision. A signal that
 arrives after that decision can still stop the Ravel CLI while it writes the
 result. A failed write can leave only the start of the result on standard
-output. Chapter 8
+output. [Chapter 8](08-follow-a-session-through-the-code.md#choose-the-final-outcome)
 gives the full outcome decision.
 
 To write rules in the owner policy beyond this single fake, continue with
 [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md).
 To invoke Ravel from your own tool, continue with
 [chapter 5, “Run sessions”](05-running-sessions.md).
-Chapter 8, “Follow a session through the code”, follows this
+[Chapter 8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), follows this
 same sequence into the implementation.

@@ -331,7 +331,7 @@ The recipes below need a source checkout as a development tool. The
 installed Ravel alone can run your policy. For the checkout, use Rust 1.85
 or later, curl, tar, Task, ShellCheck and cargo-nextest. Run `task setup` in
 the checkout root to fetch its tools and install its development dependencies.
-Chapter 11, “Develop Ravel”, gives the development workflow.
+[Chapter 11, “Develop Ravel”](11-develop-ravel.md), gives the development workflow.
 
 The checkout generates the public declarations when it builds the worker.
 Use those declarations for your policy. Do not use the implementation modules
@@ -1594,7 +1594,7 @@ changes the display of Codex. It does not change the need for a terminal.
 
 `--no-daemon` makes this example's Codex invocation run without a shared
 background server. Do not assume that Ravel supervises a process that leaves
-the managed process's group. Chapter 9, “Jobs, signals and the terminal”,
+the managed process's group. [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md),
 explains how Ravel lends and recovers the terminal, and the process-group
 boundary.
 

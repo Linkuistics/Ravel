@@ -248,8 +248,8 @@ and the chapters for further detail.
 |---|---|---|
 | Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
-| Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), 8, “Follow a session through the code”, and 11, “Develop Ravel” | Chapter 9, “Jobs, signals and the terminal”, and chapter 12, “Deliver Ravel” |
-| Reuse a component | Chapters 1 and 2, then chapter 10, “Use Ravel's components in your project”, when it exists | Chapters 7 and 9 for background |
+| Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), [8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), and [11, “Develop Ravel”](11-develop-ravel.md) | [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md), and [chapter 12, “Deliver Ravel”](12-deliver-ravel.md) |
+| Reuse a component | Chapters 1 and 2, then chapter 10, “Use Ravel's components in your project”, when it exists | [Chapters 7](07-the-parts-of-ravel.md) and [9](09-jobs-signals-and-the-terminal.md) for background |
 
 Chapter 10 has no text until a supported extracted component and its consumer
 exist. The internal package boundaries of Ravel alone are not a supported
@@ -276,7 +276,7 @@ programs to run on the kernel of the host. Thus, no x86-64 kernel takes part.
 No x86-64 kernel is qualified.
 
 These facts are limits of the evidence. The three targets do not have the
-same evidence. Chapter 12 explains the limits of delivery and of the platforms
+same evidence. [Chapter 12](12-deliver-ravel.md#read-the-platform-checks-correctly) explains the limits of delivery and of the platforms
 in detail.
 
 The table shows why a built or emulated target does not have the same

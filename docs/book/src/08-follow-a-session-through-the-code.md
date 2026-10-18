@@ -239,6 +239,11 @@ those actions.
 
 `supervise_started` calls `supervise_reported`, which calls `watch`.
 These functions are in `crates/keyed-launch/src/run.rs`.
+
+The runner calls its observer synchronously at successful spawn and confirmed
+reap. The observer needs to return promptly without a panic.
+The start-check callback has the same requirement, but can return an error.
+
 `watch` checks cancellation, the child's state and channel appearance.
 If the child continues after the result appears, `watch` applies the grace,
 TERM and KILL stages from [chapter 3](03-a-complete-session.md#send-the-result-and-finish-the-job).
@@ -320,9 +325,13 @@ An operation report does not alone decide success, as the
 
 The example has no confined workspace, so that cleanup contributes success
 without a removal. The other operations still run.
+
 Channel cleanup checks the directory's recorded identity before removal.
 It does not delete a replacement directory. This pathname check is not an
 atomic defence against concurrent changes by same-user code.
+An unknown directory identity also prevents removal.
+An explicit cleanup attempt disables the destructor's later retry, even on
+failure. A moved owned directory can need manual cleanup.
 
 `settle` is the step that decides the end of supervision from the collected
 result, cleanup outcomes, group state and cancellation.
