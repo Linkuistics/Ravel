@@ -23,7 +23,7 @@ docs/book/src/figures/
   _style.typ                  shared modules, never rendered on their own
   _layout.typ
   _draw.typ
-  _c4.typ  _sequence.typ  _state.typ  _deployment.typ  _activity.typ
+  _c4.typ  _sequence.typ  _state.typ  _deployment.typ  _activity.typ  _timing.typ
 ```
 
 - One diagram per source file, flat in `docs/book/src/figures/`. The SVG and the
@@ -109,6 +109,7 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
+| `escalation-timing` | What Ravel does, and when, after `end-session` sends the result. Panel A is the full schedule: the runner sees the result, waits the grace period, sends TERM, waits the second grace period and sends KILL. Panel B is a process that exits inside the grace period and is never signalled. Signals go to the process and to the rest of its process group. The runner stops the rest of the group before it reaps the process, on every path. The time axis is not to scale. The runner looks twice each second, so a step can start up to 0.5 second late. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
 
 Chapters 1–6 also use page-native tables for the sent result through cleanup and
@@ -292,13 +293,13 @@ need the figure tools.
 **On disk.** A `.typ` whose name does not start with `_` is a figure source, with
 its SVG and layout record of the same name. A file starting with `_` is a module
 that figures import. It is not a figure and gets no SVG; an SVG for one is
-refused as an orphan. Eight modules hold the book's drawing. `_style.typ` holds
+refused as an orphan. Nine modules hold the book's drawing. `_style.typ` holds
 the palette roles, text scale, stroke weights, faces and text measuring, and
 draws nothing. `_layout.typ` holds the constructors a layout module builds its
 record with and the orthogonal ports and routes that `_c4.typ` and `_state.typ`
 share. `_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout,
 `_deployment.typ` the deployment layout, `_state.typ` the state-machine
-layout and `_activity.typ` the activity layout: each measures its text and returns a layout record. `_draw.typ` turns a
+layout and `_activity.typ` the activity layout and `_timing.typ` the timing layout: each measures its text and returns a layout record. `_draw.typ` turns a
 record into strokes (see "Layout, then draw"). `_style.typ` and `_sequence.typ`
 were promoted from the k107 trial, which was removed once its findings were
 recorded here (its sources stay in the history of the commit that added it,
@@ -438,6 +439,43 @@ a failed check, two forks and joins with three columns each, a labelled flow, a
 note and a final node. It rendered with no change to the module. The chapter 12
 art stage draws and commits the real figure. It must check each step against the
 release scripts, because the scratch figure follows the guide and no script.
+
+**What the timing layout covers.** `_timing.typ` serves the timing views, and
+`escalation-timing` is its user. A figure source is a list of panels and the key,
+handed to `timing(...)` and then to `render`. A `panel` has its `instant`s (the
+named points of the time axis, in order, each with a label above the panel on a
+dashed guide), its `lifeline`s (one row each, top to bottom, in a box role), its
+`msg`s (a signal at an instant between two rows that are next to each other) and
+its `bound`s (a duration constraint: a labelled double arrow under the last row,
+between two instants). A lifeline is a list of `state`s. A state is a box that
+runs from the end of the previous one to the instant named by `to`, and `"end"`
+is the right-hand end of the panel. A state can take another role: the pale
+`note` role marks a part that has ended. `destroy: true` puts an X after the
+last state. The rows are the UML general value lifeline, a band with the name of
+the state inside, and not a line that steps between levels.
+
+**Placement in the timing layout is automatic.** The module measures each label
+in the pinned font and spaces the instants from what must fit between them: a
+state's text, an instant's label and its neighbour's, a signal's label and a
+constraint's label with room for its arrows. The distance between two instants is
+therefore what the labels need. **The time axis is not to scale**, and the key of
+every timing figure says so. A row is as tall as its tallest state or its name,
+and the space between two rows is as tall as the labels of the signals between
+them. A figure source holds no coordinate. The module refuses two instants with
+one id, a state that does not end after the previous one, a constraint that does
+not run forward, an unknown instant or lifeline, and a signal between two rows
+that are not next to each other.
+
+**Departures from the usual form of the notation (timing).** The module draws the
+value lifeline only, with the states in the book's roles. A signal is a vertical
+arrow between the edges of two rows and has no sequence number. A constraint
+carries its bound as text, such as “up to 5 seconds”, and has no tick marks.
+There are no stepped state lifelines, no hatched bands for an unknown state and no
+interaction occurrences. One axis shows one course of events. A figure that must
+show a second course, as `escalation-timing` does for the early exit, draws a
+second panel, because a second course on the same axis would put an exit after a
+later step. The module does not teach the notation: the key of the figure says
+what is specific to it.
 
 ## Porting record
 
@@ -637,6 +675,33 @@ drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 Typst has since replaced. They are kept as history, and none of their
 observations is a statement about the present figures. Each later record names
 the revision and environments that it checked.
+
+### Timing figure, 2026-10-18 (`book-figure-timing-k156`)
+
+This pass added `_timing.typ` and the figure `escalation-timing`. No chapter
+refers to the figure yet, so no page shows it. The eleven earlier SVGs and
+layout records are byte-for-byte unchanged, and `task docs:figures` passes for
+the twelve figures. `task docs:ste -- --strict` passes for the new layout
+record, after `ste.md` gained the technical name “UML timing” in its table of
+words in “-ing”.
+
+The browser that the Playwright tool launches on macOS displayed the committed
+SVG in a scratch page outside the book. Its version was not recorded. The page
+had a 1227-by-919-pixel viewport, a 750-pixel column and a CSS width of 750
+pixels for the image, as the book's column gives. The SVG is 974 by 889 units at
+its own size, so the view scales it to 0.77. It is 750 by 684 pixels in the
+column, text of 14 units shows at about 11 pixels, and the page has no sideways
+scroll. A first view found one fault, which the pass corrected before the
+committed render: the name “Rest of the process group” was taller than its row,
+and the row now grows to its name. The final view showed no label that touches
+another, no label outside its box and no arrow that crosses a label.
+
+This view did not use the book's mdBook theme or a chapter page, because the
+pass edits no chapter. It did not inspect the dark themes, a narrower viewport,
+another browser, an editor preview, GitHub or the full-size link target. It does
+not establish that a reader understands the figure. Its labels and its seven key
+lines may change when chapter 9 is drafted, and that change belongs to the
+chapter 9 art stage.
 
 ### Activity figure, 2026-10-18 (`book-figure-activity-k153`)
 

@@ -553,6 +553,95 @@ expect_refused 'a node after an outcome is refused' 'follows a node that ends th
 d="$(mutate_act same-id 's/action("go2"/action("go"/')"
 expect_refused 'two nodes with one id are refused' 'share the id go' check "$d"
 
+# The timing module (_timing.typ) spaces the instants of a shared time axis from
+# the labels that must fit between them, so a figure source holds no coordinate.
+# This fixture has a panel with three lifelines in three roles, states that end at
+# named instants, an X, two signals (one up, one down) and a duration constraint.
+# Each mutated copy below must be refused for its own reason, and the fixture
+# itself passes first, so a refusal is the mutation's and not the fixture's.
+tim="$work/timing"
+mkdir -p "$tim"
+cp "$root/docs/book/src/figures"/_{style,layout,draw,timing}.typ "$tim/"
+cat >"$tim/clock.typ" <<'EOF'
+#import "_timing.typ": *
+#import "_draw.typ": render
+
+#render(timing(
+  [A fixture timing],
+  (panel(
+    [A panel],
+    (
+      instant("go", label: [Go]),
+      instant("stop", label: [Stop \ here]),
+      instant("done", label: [Done]),
+    ),
+    (
+      lifeline("a", [First], "external", (
+        state([Runs], to: "stop"),
+        state([Ended], to: "done", role: "note"),
+      ), destroy: true),
+      lifeline("b", [Second], "ravel", (
+        state([Waits], to: "stop"),
+        state([Stops the group], to: "done"),
+        state([Done]),
+      )),
+      lifeline("c", [Third], "external", (
+        state([Runs], to: "stop"),
+        state([Ended], role: "note"),
+      )),
+    ),
+    msgs: (
+      msg("b", "a", "stop", [Signal]),
+      msg("b", "c", "stop", [Signal]),
+    ),
+    bounds: (bound("go", "stop", [2 seconds]),),
+  ),),
+  ([A key line.],),
+))
+EOF
+expect_ok 'the book modules draw a timing figure with every kind of element' update "$tim"
+expect_ok 'the book modules render a stable timing figure' check "$tim"
+[[ -s "$tim/clock.svg" && "$(head -c 4 "$tim/clock.svg")" == '<svg' ]] || die 'the timing fixture wrote no SVG'
+[[ ! -e "$tim/_timing.svg" ]] || die '_timing.typ was rendered as a figure'
+grep -Fq '"p1-guide-stop"' "$tim/clock.layout.json" || die 'the timing record names no guide for an instant'
+ok 'the timing module is not rendered as a figure, and its record names its guides'
+
+# mutate_tim NAME SED-EXPRESSION: a private copy of the timing fixture with one
+# edit to its source. The edit must change the source, or the control below
+# would pass for a reason that is not the edit.
+mutate_tim() {
+  local d="$work/timing-$1"
+  rm -rf "$d"
+  cp -R "$tim" "$d"
+  sed -i.bak "$2" "$d/clock.typ" && rm "$d/clock.typ.bak"
+  cmp -s "$tim/clock.typ" "$d/clock.typ" && die "the timing control '$1' did not change the source"
+  echo "$d"
+}
+d="$(mutate_tim source 's/instant("done", label: \[Done\])/instant("extra", label: [Extra]), instant("done", label: [Done])/')"
+expect_refused 'an instant added to a timing source fails the layout record compare' 'clock.layout.json differs from the layout record clock.typ evaluates to' check "$d"
+grep -Fq 'clock.svg differs' "$work/out" || die "an added instant did not also fail the SVG compare: $(cat "$work/out")"
+ok 'an added instant fails the SVG compare too'
+d="$(mutate_tim label 's/\[Waits\]/[Waits longer]/')"
+expect_refused 'a changed timing label fails the layout record compare' 'clock.layout.json differs from the layout record clock.typ evaluates to' check "$d"
+grep -Fq 'clock.svg differs' "$work/out" || die "a changed label did not also fail the SVG compare: $(cat "$work/out")"
+ok 'a changed timing label fails the SVG compare too'
+d="$(mutate_tim bound 's/\[2 seconds\]/[3 seconds]/')"
+expect_refused 'a changed timing bound fails the layout record compare' 'clock.layout.json differs from the layout record clock.typ evaluates to' check "$d"
+grep -Fq 'clock.svg differs' "$work/out" || die "a changed bound did not also fail the SVG compare: $(cat "$work/out")"
+ok 'a changed timing bound fails the SVG compare too'
+
+# The module refuses a timing it cannot draw, and says why.
+d="$(mutate_tim unknown 's/bound("go", "stop"/bound("go", "nowhere"/')"
+expect_refused 'a constraint that names no instant is refused' 'no instant has the id' check "$d"
+d="$(mutate_tim backward 's/state(\[Stops the group\], to: "done")/state([Stops the group], to: "go")/')"
+expect_refused 'a state that does not end after the previous one is refused' 'which is not after the previous state' check "$d"
+d="$(mutate_tim distant 's/msg("b", "c", "stop"/msg("a", "c", "stop"/')"
+expect_refused 'a signal between rows that are not next to each other is refused' 'next to each other' check "$d"
+d="$(mutate_tim reversed 's/bound("go", "stop"/bound("stop", "go"/')"
+expect_refused 'a constraint that runs backward is refused' 'must run forward' check "$d"
+d="$(mutate_tim same-id 's/instant("stop"/instant("go"/')"
+expect_refused 'two instants with one id are refused' 'share the id go' check "$d"
+
 # Font pins: the faces are the only ones a render can use.
 t="$work/tools-font"; mkdir -p "$t/fonts"
 ln -s "$tools/typst" "$t/typst"

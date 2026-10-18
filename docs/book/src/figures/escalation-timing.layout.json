@@ -1,0 +1,1340 @@
+{
+  "w": 962.3125,
+  "h": 875.46953125,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "After end-session sends the result — UML timing",
+      "x": 481.15625,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 441.015625,
+      "h": 12.15625
+    },
+    {
+      "id": "p1-heading",
+      "shape": "text",
+      "role": "label",
+      "face": "name",
+      "text": "A. The process still runs after the grace period",
+      "x": 0.0,
+      "y": 32.234375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 422.65625,
+      "h": 12.15625
+    },
+    {
+      "id": "p1-guide-result",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          217.36865234375,
+          85.2859375
+        ],
+        [
+          217.36865234375,
+          320.484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p1-when-result",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "end-session sends\nthe result",
+      "x": 217.36865234375,
+      "y": 81.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 128.6591796875,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-guide-seen",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          340.8740234375,
+          85.2859375
+        ],
+        [
+          340.8740234375,
+          354.484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p1-when-seen",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner sees\nthe result",
+      "x": 340.8740234375,
+      "y": 81.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 86.3515625,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-guide-term",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          479.18359375,
+          85.2859375
+        ],
+        [
+          479.18359375,
+          354.484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p1-when-term",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner\nsends TERM",
+      "x": 479.18359375,
+      "y": 81.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 84.615234375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-guide-kill",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          648.453125,
+          85.2859375
+        ],
+        [
+          648.453125,
+          354.484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p1-when-kill",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner\nsends KILL",
+      "x": 648.453125,
+      "y": 81.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 74.3203125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-guide-reap",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          813.2041015625,
+          85.2859375
+        ],
+        [
+          813.2041015625,
+          320.484375
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p1-when-reap",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner reaps\nthe process",
+      "x": 813.2041015625,
+      "y": 81.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 93.3583984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-name-process",
+      "shape": "box",
+      "role": "external",
+      "x0": 0.0,
+      "y0": 95.2859375,
+      "x1": 135.0390625,
+      "y1": 144.3984375
+    },
+    {
+      "id": "p1-name-process-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "Managed\nprocess",
+      "x": 67.51953125,
+      "y": 119.84218750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 73.7109375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "p1-process-1",
+      "shape": "box",
+      "role": "external",
+      "x0": 149.0390625,
+      "y0": 95.2859375,
+      "x1": 479.18359375,
+      "y1": 144.3984375
+    },
+    {
+      "id": "p1-process-1-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs",
+      "x": 314.111328125,
+      "y": 119.84218750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 34.138671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-process-2",
+      "shape": "box",
+      "role": "external",
+      "x0": 479.18359375,
+      "y0": 95.2859375,
+      "x1": 648.453125,
+      "y1": 144.3984375
+    },
+    {
+      "id": "p1-process-2-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs.\nIgnores TERM",
+      "x": 563.818359375,
+      "y": 119.84218750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 95.4638671875,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-process-3",
+      "shape": "box",
+      "role": "note",
+      "x0": 648.453125,
+      "y0": 95.2859375,
+      "x1": 813.2041015625,
+      "y1": 144.3984375
+    },
+    {
+      "id": "p1-process-3-label",
+      "shape": "text",
+      "role": "note",
+      "face": "body",
+      "text": "Ended, not\nreaped",
+      "x": 730.82861328125,
+      "y": 119.84218750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 75.93359375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-process-end-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          817.2041015625,
+          111.84218750000001
+        ],
+        [
+          833.2041015625,
+          127.84218750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "p1-process-end-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          817.2041015625,
+          127.84218750000001
+        ],
+        [
+          833.2041015625,
+          111.84218750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "p1-name-runner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 0.0,
+      "y0": 184.3984375,
+      "x1": 135.0390625,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-name-runner-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "head",
+      "text": "Runner",
+      "x": 67.51953125,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 57.2421875,
+      "h": 12.15625
+    },
+    {
+      "id": "p1-runner-1",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 149.0390625,
+      "y0": 184.3984375,
+      "x1": 340.8740234375,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-runner-1-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Waits for\nthe result",
+      "x": 244.95654296875,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 67.033203125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-runner-2",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 340.8740234375,
+      "y0": 184.3984375,
+      "x1": 479.18359375,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-runner-2-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Grace period:\nwaits for the exit",
+      "x": 410.02880859375,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.3095703125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-runner-3",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 479.18359375,
+      "y0": 184.3984375,
+      "x1": 648.453125,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-runner-3-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Second grace period:\nwaits for the exit",
+      "x": 563.818359375,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 149.26953125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-runner-4",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 648.453125,
+      "y0": 184.3984375,
+      "x1": 813.2041015625,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-runner-4-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Sees the exit. Stops\nthe rest of the group",
+      "x": 730.82861328125,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 144.7509765625,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-runner-5",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 813.2041015625,
+      "y0": 184.3984375,
+      "x1": 956.3125,
+      "y1": 231.371875
+    },
+    {
+      "id": "p1-runner-5-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Confirms that\nthe group is gone",
+      "x": 884.75830078125,
+      "y": 207.88515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 123.1083984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-name-group",
+      "shape": "box",
+      "role": "external",
+      "x0": 0.0,
+      "y0": 271.371875,
+      "x1": 135.0390625,
+      "y1": 320.484375
+    },
+    {
+      "id": "p1-name-group-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "Rest of the\nprocess group",
+      "x": 67.51953125,
+      "y": 295.92812499999997,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.0390625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "p1-group-1",
+      "shape": "box",
+      "role": "external",
+      "x0": 149.0390625,
+      "y0": 271.371875,
+      "x1": 479.18359375,
+      "y1": 320.484375
+    },
+    {
+      "id": "p1-group-1-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs",
+      "x": 314.111328125,
+      "y": 295.92812499999997,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 34.138671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-group-2",
+      "shape": "box",
+      "role": "external",
+      "x0": 479.18359375,
+      "y0": 271.371875,
+      "x1": 648.453125,
+      "y1": 320.484375
+    },
+    {
+      "id": "p1-group-2-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs.\nIgnores TERM",
+      "x": 563.818359375,
+      "y": 295.92812499999997,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 95.4638671875,
+      "h": 28.9734375
+    },
+    {
+      "id": "p1-group-3",
+      "shape": "box",
+      "role": "note",
+      "x0": 648.453125,
+      "y0": 271.371875,
+      "x1": 956.3125,
+      "y1": 320.484375
+    },
+    {
+      "id": "p1-group-3-label",
+      "shape": "text",
+      "role": "note",
+      "face": "body",
+      "text": "Ended",
+      "x": 802.3828125,
+      "y": 295.92812499999997,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 44.10546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          479.18359375,
+          184.3984375
+        ],
+        [
+          479.18359375,
+          144.3984375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "TERM",
+      "x": 486.18359375,
+      "y": 164.3984375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 39.2041015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          479.18359375,
+          231.371875
+        ],
+        [
+          479.18359375,
+          271.371875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "TERM",
+      "x": 486.18359375,
+      "y": 251.371875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 39.2041015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          648.453125,
+          184.3984375
+        ],
+        [
+          648.453125,
+          144.3984375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "KILL",
+      "x": 655.453125,
+      "y": 164.3984375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 28.9091796875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          648.453125,
+          231.371875
+        ],
+        [
+          648.453125,
+          271.371875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "KILL",
+      "x": 655.453125,
+      "y": 251.371875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 28.9091796875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-bound-1-a",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          368.73828125,
+          348.484375
+        ],
+        [
+          340.8740234375,
+          348.484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-bound-1-b",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          451.3193359375,
+          348.484375
+        ],
+        [
+          479.18359375,
+          348.484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-bound-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "2 seconds",
+      "x": 410.02880859375,
+      "y": 348.484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 70.5810546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p1-bound-2-a",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          502.17041015625,
+          348.484375
+        ],
+        [
+          479.18359375,
+          348.484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-bound-2-b",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          625.46630859375,
+          348.484375
+        ],
+        [
+          648.453125,
+          348.484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p1-bound-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "up to 5 seconds",
+      "x": 563.818359375,
+      "y": 348.484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 111.2958984375,
+      "h": 10.63671875
+    },
+    {
+      "id": "sep-1",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0,
+          373.484375
+        ],
+        [
+          962.3125,
+          373.484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "p2-heading",
+      "shape": "text",
+      "role": "label",
+      "face": "name",
+      "text": "B. The process exits inside the grace period",
+      "x": 0.0,
+      "y": 392.5625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 396.6484375,
+      "h": 12.15625
+    },
+    {
+      "id": "p2-guide-result",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          217.36865234375,
+          445.6140625
+        ],
+        [
+          217.36865234375,
+          680.8125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p2-when-result",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "end-session sends\nthe result",
+      "x": 217.36865234375,
+      "y": 441.6140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 128.6591796875,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-guide-seen",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          340.8740234375,
+          445.6140625
+        ],
+        [
+          340.8740234375,
+          714.8125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p2-when-seen",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner sees\nthe result",
+      "x": 340.8740234375,
+      "y": 441.6140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 86.3515625,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-guide-exit",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          426.60400390625,
+          445.6140625
+        ],
+        [
+          426.60400390625,
+          680.8125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p2-when-exit",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Process\nexits",
+      "x": 426.60400390625,
+      "y": 441.6140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 53.1083984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-guide-noticed",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          552.63525390625,
+          445.6140625
+        ],
+        [
+          552.63525390625,
+          714.8125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p2-when-noticed",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner sees the exit.\nSends KILL to the group",
+      "x": 552.63525390625,
+      "y": 441.6140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 166.9541015625,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-guide-reap",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          698.79150390625,
+          445.6140625
+        ],
+        [
+          698.79150390625,
+          680.8125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "p2-when-reap",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner reaps\nthe process",
+      "x": 698.79150390625,
+      "y": 441.6140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 93.3583984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-name-process",
+      "shape": "box",
+      "role": "external",
+      "x0": 0.0,
+      "y0": 455.6140625,
+      "x1": 135.0390625,
+      "y1": 504.7265625
+    },
+    {
+      "id": "p2-name-process-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "Managed\nprocess",
+      "x": 67.51953125,
+      "y": 480.1703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 73.7109375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "p2-process-1",
+      "shape": "box",
+      "role": "external",
+      "x0": 149.0390625,
+      "y0": 455.6140625,
+      "x1": 426.60400390625,
+      "y1": 504.7265625
+    },
+    {
+      "id": "p2-process-1-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs",
+      "x": 287.821533203125,
+      "y": 480.1703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 34.138671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p2-process-2",
+      "shape": "box",
+      "role": "note",
+      "x0": 426.60400390625,
+      "y0": 455.6140625,
+      "x1": 698.79150390625,
+      "y1": 504.7265625
+    },
+    {
+      "id": "p2-process-2-label",
+      "shape": "text",
+      "role": "note",
+      "face": "body",
+      "text": "Ended, not\nreaped",
+      "x": 562.69775390625,
+      "y": 480.1703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 75.93359375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-process-end-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          702.79150390625,
+          472.1703125
+        ],
+        [
+          718.79150390625,
+          488.1703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "p2-process-end-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          702.79150390625,
+          488.1703125
+        ],
+        [
+          718.79150390625,
+          472.1703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "p2-name-runner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 0.0,
+      "y0": 544.7265625,
+      "x1": 135.0390625,
+      "y1": 591.7
+    },
+    {
+      "id": "p2-name-runner-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "head",
+      "text": "Runner",
+      "x": 67.51953125,
+      "y": 568.21328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 57.2421875,
+      "h": 12.15625
+    },
+    {
+      "id": "p2-runner-1",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 149.0390625,
+      "y0": 544.7265625,
+      "x1": 340.8740234375,
+      "y1": 591.7
+    },
+    {
+      "id": "p2-runner-1-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Waits for\nthe result",
+      "x": 244.95654296875,
+      "y": 568.21328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 67.033203125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-runner-2",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 340.8740234375,
+      "y0": 544.7265625,
+      "x1": 552.63525390625,
+      "y1": 591.7
+    },
+    {
+      "id": "p2-runner-2-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Grace period:\nwaits for the exit",
+      "x": 446.754638671875,
+      "y": 568.21328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.3095703125,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-runner-3",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 552.63525390625,
+      "y0": 544.7265625,
+      "x1": 698.79150390625,
+      "y1": 591.7
+    },
+    {
+      "id": "p2-runner-3-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Stops the rest\nof the group",
+      "x": 625.71337890625,
+      "y": 568.21328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 97.8427734375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-runner-4",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 698.79150390625,
+      "y0": 544.7265625,
+      "x1": 841.89990234375,
+      "y1": 591.7
+    },
+    {
+      "id": "p2-runner-4-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Confirms that\nthe group is gone",
+      "x": 770.345703125,
+      "y": 568.21328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 123.1083984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "p2-name-group",
+      "shape": "box",
+      "role": "external",
+      "x0": 0.0,
+      "y0": 631.7,
+      "x1": 135.0390625,
+      "y1": 680.8125
+    },
+    {
+      "id": "p2-name-group-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "Rest of the\nprocess group",
+      "x": 67.51953125,
+      "y": 656.2562499999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.0390625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "p2-group-1",
+      "shape": "box",
+      "role": "external",
+      "x0": 149.0390625,
+      "y0": 631.7,
+      "x1": 552.63525390625,
+      "y1": 680.8125
+    },
+    {
+      "id": "p2-group-1-label",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Runs",
+      "x": 350.837158203125,
+      "y": 656.2562499999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 34.138671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p2-group-2",
+      "shape": "box",
+      "role": "note",
+      "x0": 552.63525390625,
+      "y0": 631.7,
+      "x1": 841.89990234375,
+      "y1": 680.8125
+    },
+    {
+      "id": "p2-group-2-label",
+      "shape": "text",
+      "role": "note",
+      "face": "body",
+      "text": "Ended",
+      "x": 697.267578125,
+      "y": 656.2562499999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 44.10546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p2-msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          552.63525390625,
+          591.7
+        ],
+        [
+          552.63525390625,
+          631.7
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p2-msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "KILL",
+      "x": 559.63525390625,
+      "y": 611.7,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": false,
+      "w": 28.9091796875,
+      "h": 10.63671875
+    },
+    {
+      "id": "p2-bound-1-a",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          371.561279296875,
+          708.8125
+        ],
+        [
+          340.8740234375,
+          708.8125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p2-bound-1-b",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          521.947998046875,
+          708.8125
+        ],
+        [
+          552.63525390625,
+          708.8125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "p2-bound-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "less than 2 seconds",
+      "x": 446.754638671875,
+      "y": 708.8125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 138.38671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 171.4130859375,
+      "y0": 734.8125,
+      "x1": 790.8994140625,
+      "y1": 875.46953125
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Time goes from left to right. The distances are not to scale.\nBlue: the runner. Grey: the managed process and the rest of its process group.\nPale: that part has ended. An X marks the reap of the process.\nEach signal goes to the process and to the rest of its group.\nA wait ends when the process exits. Then the runner sends no signal to the process.\nThe runner looks twice each second. A step can start up to 0.5 second late.\nThe runner stops the rest of the process group before it reaps the process.",
+      "x": 481.15625,
+      "y": 805.141015625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 591.486328125,
+      "h": 120.65703125
+    }
+  ]
+}

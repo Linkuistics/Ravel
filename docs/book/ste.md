@@ -151,6 +151,7 @@ running program”.
 | code signing | technical name |
 | learning route | technical name of an entry route (contract) |
 | writing rules | technical name of Part 1 of the STE specification |
+| UML timing | technical name of a UML diagram type, in the title of a timing figure |
 
 ## Words for frequent phrases in -ing
 
