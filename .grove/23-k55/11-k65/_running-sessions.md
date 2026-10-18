@@ -96,3 +96,16 @@ Copy-edit k128 converts chapter 5 to STE, with the word decisions in
 `docs/book/ste.md` (from k123), and changes the title to “Run sessions”.
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
+
+## Read 1 correction run (2026-10-18)
+
+The owner's full read 1 (`book-read-one-k70`) found R10–R17. Four reach this
+document: the race of a second `end-session` (R16), the link to the
+installation in chapter 3 (R17), runs of prose that are longer than the new
+limit (R11) and the word “unchanged” for the result (R12). Draft k140 and
+copy-edit k141 run under this node. They are the first draft re-run and the
+second copy-edit re-run. The owner authorised both on 2026-10-18. Set art
+`book-first-half-k144` (the crisp figure style, R10) and set proof
+`book-first-half-k147` serve this document. Thus, no stage under this node
+cuts an art or proof leaf. Draft k140 writes each figure need in this brief,
+under a new `## Handed forward` section.

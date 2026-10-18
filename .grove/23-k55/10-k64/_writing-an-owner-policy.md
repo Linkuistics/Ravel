@@ -190,8 +190,9 @@ cut. Proof still owns its whole-document, source-inventory and viewing checks.
 
 ## Handed forward
 
-None. Proof closed the local diagnostic-table omission; no correction run is
-needed.
+None open. Proof closed the local diagnostic-table omission. Draft k138
+writes each figure need for set art `book-first-half-k144` here, with its
+reader question.
 
 ## Proof closure
 
@@ -222,3 +223,14 @@ the strict STE check. The heading “Copy an existing policy” is now “Copy a
 policy from another configuration”, and chapter 6's three links use the new
 anchor `#copy-a-policy-from-another-configuration`. Chapter 4 has no
 figures, so set art k130 has no work in it.
+
+## Read 1 correction run (2026-10-18)
+
+The owner's full read 1 (`book-read-one-k70`) found R10–R17. Two reach this
+document: its link to the installation in chapter 3 (R17) and runs of prose
+that are longer than the new limit (R11). Draft k138 and copy-edit k139 run
+under this node. They are the first draft re-run and the second copy-edit
+re-run. The owner authorised both on 2026-10-18. Chapter 4 has no figures.
+Set art `book-first-half-k144` draws a figure here only if draft k138 asks
+for one. Set proof `book-first-half-k147` serves this document. Thus, no
+stage under this node cuts an art or proof leaf.

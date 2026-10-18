@@ -17,7 +17,8 @@ owner settled the contract in `book-structure-k5` on 2026-10-16.
   conventions need explanations.
 - The book's Taskfile tasks exist and pass: the mdBook build and local serve,
   the figure regenerate-and-compare check, the complete-example check through
-  the CLI/real-policy/fake-program seam, and the source-excerpt check. `task
+  the CLI/real-policy/fake-program seam, the source-excerpt check, the STE
+  check and the check for runs of prose longer than the limit. `task
   setup` fetches the pinned mdBook. Publishing the built book to GitHub Pages is
   part of the release procedure; the first publication happens with the next
   release, outside this node.
@@ -194,6 +195,15 @@ reduced README.
   half's art output; chapters 7–12 follow them.
 - The first figure for "packages, worker and SDK, in source and in an
   installation" appears in chapter 6; chapters 7 and 12 reuse it.
+- Read 1's rules apply to chapters 7–12: the crisp figure style (R10) and
+  the limit on runs of prose, with the check from
+  `book-prose-breaks-check-k133` (R11).
+- Chapter 7 explains the parts of Ravel. It states the loose contract
+  between the Ravel CLI and the configuration (R15) in agreement with
+  chapter 1.
+- Chapter 12 teaches the release tasks. It includes how the release writes
+  its version into chapter 3 and checks it (R17).
+  `book-release-version-k145` adds the details here.
 
 ## First-half set proof and owner amendments
 
@@ -348,6 +358,35 @@ keeps), the check `task docs:ste` with its controls `task docs:ste:test`,
 `CONTEXT.md` in STE and the new titles in `SUMMARY.md`. Each later stage of
 the run passes the strict check on the files that it owns.
 
+## Read 1 outcome and its correction run (2026-10-18)
+
+Read 1 is held. The owner read Part I completely and skimmed Part II, in the
+book that `task docs:book` serves: “Both look correct excepting the above
+issues.” The owner did not report the four tasks. The owner's words for
+findings R10–R17, the decisions and the mechanical checks are in
+`book-read-one-k70`'s log. The owner said that the reduced README and the
+removal of the two guides read correctly. The contract and
+`docs/book/ste.md` record the decisions in place:
+
+| Finding | Decision | Where it lands |
+|---|---|---|
+| R10 | Crisp figures, not sketched | set art k144 |
+| R11 | About 450 words of prose, then a figure, a table or a code block | check k133, then every unit draft |
+| R12, R13 | “unchanged”, and “return no result to the caller” | unit copy-edits |
+| R14 | A harness lets a caller use a subscription instead of paid API access | draft k134, README k146 |
+| R15 | The contract with the configuration is loose | draft k134, README k146 |
+| R16 | A second `end-session` is a race | drafts k134, k140, k142 |
+| R17 | Homebrew install, and a version that the release writes | draft k136, impl k145, links in k138, k140, k142 |
+
+The owner authorised the correction run on 2026-10-18. Each stage in it is
+a re-run that the editorial rules make an escalation. In walk order, it is:
+the prose check `book-prose-breaks-check-k133`, then a draft and a copy-edit
+in each unit node (k134–k143), then set art `book-first-half-k144`,
+`book-release-version-k145`, `book-readme-k146`, set proof
+`book-first-half-k147` and the second half's planning
+`ravel-book-second-half-k148`. The planning leaf comes before whole-book art
+`ravel-book-k101`. Another send-back on a unit goes to the owner.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and
@@ -374,7 +413,7 @@ rejected. Chrome confirmed every figure loaded at chapter width. The task
 records the source inventories, visual sample and unavailable views.
 No first-half defect is handed forward. The second-half handoffs above keep
 their owners, and the book node stays open. The owner's resumed read k70
-starts from the beginning and remains next.
+then held read 1 from the beginning (see “Read 1 outcome” below).
 
 The owner decided on 2026-10-17 to move every figure to Typst/CeTZ ("migrate
 full") and later asked for a hand-drawn style. `book-figure-migration-k108`
@@ -384,7 +423,7 @@ the viewing check. The plan, the decisions (SVG text, one source per figure,
 `_*.typ` modules, pins) and the layout-cost table are in that leaf's `## Plan`.
 `book-figure-retire-plantuml-k117` has landed: the contract and `figures.md` state
 Typst/CeTZ only (pins, one `.typ` source per figure, `_*.typ` modules, SVG text as
-paths with alt text on the page, sketched at roughness 2, the layout record,
+paths with alt text on the page, the drawing style, the layout record,
 `_draw.typ` and the `.layout.json` check), and the PlantUML and d2 mechanics, the
 Java requirement and the `.puml` fixtures are gone. Chapters 7–12's figures are
 drawn on the new renderer.
@@ -392,10 +431,13 @@ drawn on the new renderer.
 The owner then chose (2026-10-17, `layout-draw-separation-k119`) to separate layout
 from drawing: each layout module returns a layout record, one `_draw.typ` draws any
 record under a named style, and each figure's record is committed and compared as
-`<figure>.layout.json`. The figures ship sketched at roughness 2 with keys and
-tables crisp. `book-figure-layout-record-k120` re-cut the ports for that:
+`<figure>.layout.json`. On 2026-10-18, in read 1 (R10), the owner replaced the
+sketched style (roughness 2) with the crisp style (roughness 0), after a view
+of all nine figures in both styles. Set art `book-first-half-k144` applies
+it. The layout records do not change. `book-figure-layout-record-k120` re-cut
+the ports for that:
 `book-figure-record-and-draw-k121` and `book-figure-layout-json-check-k122` build
 the seam ahead of `book-figure-sequences-k111`, and the ports k111–k116 produce
-records through their modules and draw only through `_draw.typ`. Rough.js on Bun
-is held in reserve as a drawing backend at the same seam. Every handoff leaves
-`task docs:figures` green.
+records through their modules and draw only through `_draw.typ`. The reserve
+sketch backend, Rough.js on Bun, has no use with the crisp style. Every
+handoff leaves `task docs:figures` green.

@@ -323,3 +323,168 @@ proof leaf. Each unit brief and the book brief say so. The read stays this
 leaf's work. It starts again from the beginning after k132. The second half's
 planning leaf and the owner's word on the README and the removed guides are
 still owed.
+
+**Mechanical checks before the second resumed read (2026-10-18; evidence
+class: mechanical, not the owner's result).** The subject is commit `1ef02398`
+(`book-first-half-k132`) with an empty working copy. A SHA-256 manifest in
+k132's scope has 3,519 subjects: the root files, `docs/`, `crates/` without
+`node_modules`, `scripts/` and `target/tools/`. It is equal to k132's final
+record. The same comparison against k132's first record found one difference,
+`docs/book/src/06-reference.md`, which k132 changed. Thus, the comparison can
+find a change. The manifest did not change during the checks. The results:
+
+- `task docs:book:build`: no mdBook error or warning.
+- `task docs:figures`: 9 of 9 figures match their sources and layout records
+  (Typst 0.15.1, CeTZ 0.4.2, DejaVu 2.37).
+- `task docs:examples`: 13 passed, 0 failed, 0 skipped. Six fragments did not
+  run. There were zero page errors.
+- `task docs:ste -- --strict`: zero problems in 18 files. In
+  `task docs:ste:test`, each control fails as it must.
+- `task check`: 339 tests passed, 46 skipped.
+- The book that `task docs:book` serves on `127.0.0.1:8775`, in a Playwright
+  browser at 1280 by 900 pixels: each of the nine figures in chapters 1, 2, 3,
+  5 and 6 is complete, has a nonzero natural size and shows at the 750-pixel
+  column. Chapter 4 has no figure. mdBook adds a hidden zoom copy of each
+  image. A control image with no file gave a load error and a 0×0 size. The
+  only console error is the 404 of that control.
+
+The first STE run failed because of the instrument, not the book: zsh gave
+`docs:ste -- --strict` to `task` as one word. The direct run above replaced
+it. These checks support the read. None of them stands in for it.
+
+**Owner findings R10–R17, the full read (2026-10-18; evidence class: the
+owner's stand-in read).** The owner read in the book that `task docs:book`
+serves. In the owner's words: “I have read part one completely and part two
+I have skimmed. Both look correct excepting the above issues.” The owner did
+not report the four tasks of read 1. Lines are at `1ef02398`.
+
+- **R10**, in the owner's words: “I've changed my mind about the hand-drawn
+  look. I don't think it looks friendly, I think it just looks wobbly, so I'd
+  like to change that.” This applies to all nine figures (chapters 1, 2, 3, 5
+  and 6), the contract's “Figure style”, `docs/book/figures.md` and the
+  shipped style of `_draw.typ`. Art, with a contract change.
+- **R11**: “I also want to make sure that we don't have too long expanses of
+  prose without a diagram or a table to break it up.” A measurement of each
+  chapter found these longest runs of prose between figures and tables: 900
+  words in chapter 1 (lines 1–107), 1,329 in chapter 2 (lines 1–155), 2,305
+  in chapter 3 (lines 1–330), 862 in chapter 4 (lines 164–443), 793 in
+  chapter 5 (lines 74–333) and 2,200 in chapter 6 (lines 1–295). If code
+  blocks also count as breaks, chapters 4 and 5 fall to 549 and 529 words.
+  The others do not change. Draft (tables and structure) and art (figures),
+  with a contract change.
+- **R12**: “Rather than saying writes the exact bytes of the result to
+  standard output, we should say something like writes the result unchanged
+  to standard output. It does no interpretation of this result.” Chapter 1,
+  line 128. Chapter 5, line 189, says that values “keep their exact bytes”.
+  The `start-session --help` text says “Only the exact result is written to
+  stdout”. Copy-edit (wording).
+- **R13**: “Rather than saying these outcomes give no result, we should say
+  some outcomes return no result to the caller.” Chapter 1, line 138: “These
+  outcomes give no successful result:”. Copy-edit (wording).
+- **R14**: “We should make it obvious that the reason we want to use an LLM
+  harness is because it allows us to use a subscription rather than an API
+  session which is much cheaper.” Chapter 1, lines 1–30, introduce the
+  harness without this reason. No chapter says “subscription”. The contract's
+  “The intended domain” and the README's first paragraph also lack it. Draft
+  (teaching), with a contract change.
+- **R15**: “We should emphasize that the fact that the configuration runs a
+  harness is not fully required. The contract interface between the Revel
+  CLI and the configuration is that it runs something and returns a value.
+  Now it is the case that the Revel CLI specifically talks about prompts and
+  we expect that it will be a harness that it runs, but this is a very loose
+  contract.” Chapter 1, lines 60–63, say this in two sentences. The
+  `start-session --help` text calls `--prompt` “The harness prompt”. Draft
+  (teaching), with a contract change.
+- **R16**: “When we say that a later end session does not replace the first
+  result value, we should make it clear that this is a form of race condition
+  and in fact end session should terminate the harness execution.” Chapter
+  2, line 128, chapter 5, line 192, and chapter 6, line 266. The help text
+  gives the schedule after `end-session`: 2 seconds, TERM, up to 5 seconds,
+  then KILL and the reap of the group. Draft (technical truth).
+- **R17**: “In chapter 3 where we say obtain the build by used by this
+  chapter we should instead simply refer them to installing Ravel using
+  Homebrew and then checking that the version is the same as the book
+  describes.” Chapter 3, lines 17–66 (“Obtain the build used by this
+  chapter”). Chapter 4 (line 11), chapter 5 (line 13) and chapter 6 (lines
+  12, 960 and the installed-layout table) link to it. The formula
+  `linkuistics/taps/ravel` installs 1.0.0 for aarch64 macOS, aarch64 Linux and
+  x86_64 Linux. The workspace version is still `1.0.0`. Version 1.0.0 does
+  not have the `operationReports` notice field or the reworded `end-session`
+  help. Draft (teaching and technical truth), with an owner decision on the
+  version.
+
+Crisp copies of all nine figures were rendered for the owner with the pinned
+Typst (`--input style=crisp`) outside the repository. They use the same
+layout records.
+
+**Owner decisions on R10, R11 and R17 (2026-10-18; the owner's answers).**
+
+- R10: the owner chose “Crisp”, after a side-by-side view of all nine
+  figures. The figures use the crisp style of `_draw.typ` (roughness 0,
+  exact geometry). The layout, colours, fonts and keys do not change. This
+  replaces the sketched style of 2026-10-17.
+- R11: the owner chose “One screen, code counts”. A run of prose has about
+  450 words or fewer (one screen at the 750-pixel column) before a figure, a
+  table or a code block breaks it. A break carries information that the
+  reader needs. It is not decoration. A Taskfile check reports each longer
+  run, in chapters 1–6 and in chapters 7–12. At `1ef02398`, ten runs are
+  longer: two in chapter 1, one each in chapters 2, 3 and 6, three in
+  chapter 4 and two in chapter 5.
+- R17: the owner chose “Set at release time”. Chapter 3 tells the reader to
+  install Ravel with Homebrew and to run `ravel --version`. The book names
+  the version in one place. The release writes its own version there and
+  checks it. Until that release, the book shows a placeholder. The release
+  machinery comes now, before the version is known.
+
+**Owner decisions on the correction run and the README (2026-10-18; the
+owner's answers).**
+
+- The owner chose “Authorise the run”. Every unit had a re-run of the stages
+  that it now needs, so the editorial rules make this run an escalation. Its
+  cause is the reader checkpoint, not stages that send work back and forth.
+  Another send-back on a unit after this run goes to the owner again. The
+  approved plan, in walk order: an impl leaf for the prose check, then a
+  draft and a copy-edit for each unit, then set art, an impl leaf for the
+  release version, an impl leaf for the README, set proof and the planning
+  leaf for Parts III and IV. The book names no price or plan for a harness
+  subscription. Each harness's own documentation covers its plans and
+  terms. The `start-session --help` text keeps “Only the exact result is
+  written to stdout”.
+- README and removed guides: the owner chose “Yes, they read correctly”. This
+  is the owner's word on the reduced README and on the removal of
+  `docs/session-cli.md` and `docs/owner-configuration.md`. R14 and R15 still
+  reach the README's opening through the README leaf.
+
+**Contract changes and routing (2026-10-18).** This session wrote the
+owner's decisions into `docs/book/contract.md` in place: “The intended
+domain” (R14 and R15, with the owner's words), “Emphasis”, the section plan
+rows for chapters 1 and 3, “The reader's Ravel” in the examples policy
+(R17), “Breaks in prose” in the prose contract (R11) and “Figure style”
+(R10). `docs/book/ste.md` has R12 and R13 under “The result”. The STE check
+does not find their old words yet, so that the check stays green until the
+copy-edits land. The root brief has a note on R14 and R15 for the later
+component work.
+
+The run, in walk order, with each body carrying its defects and locations:
+
+1. `book-prose-breaks-check-k133` (impl), inserted before the unit nodes.
+   The insert moved 33 siblings. A search for references by position, with
+   a control that found both planted forms, found two. Both stay correct.
+2. A draft and a copy-edit in each unit node: k134 and k135
+   (`what-ravel-is-for-and-its-actors-k62`), k136 and k137
+   (`a-complete-session-k63`), k138 and k139 (`writing-an-owner-policy-k64`),
+   k140 and k141 (`running-sessions-k65`), k142 and k143
+   (`reference-chapter-k66`).
+3. Inserted before `ravel-book-k101`: set art `book-first-half-k144`,
+   `book-release-version-k145` (impl), `book-readme-k146` (impl), set proof
+   `book-first-half-k147` and `ravel-book-second-half-k148` (planning).
+
+Set art and set proof serve all six chapters, as in the run of 2026-10-17.
+Each unit brief and the book brief say so. The chapters 1–2 brief also lost
+two stale statements: the R8 entry that set art k130 closed, and the
+PlantUML file names. After these edits, `task docs:ste -- --strict` (zero
+problems in 18 files), `task docs:ste:test` and `task docs:book:build`
+passed. The four Done-when items of this leaf hold: the read is recorded
+with its evidence class, each correction has its stage, the planning leaf
+precedes whole-book art, and the owner's word on the README and the removed
+guides is recorded.

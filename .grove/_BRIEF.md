@@ -390,6 +390,14 @@ repository. On 2026-10-18, during `book-first-half-k123`, the human said:
 “The skill I am going to adopt does not use the word list, only the rules.”
 Thus, STE means its writing rules. The STE dictionary does not apply.
 
+On 2026-10-18, at the end of read 1, the owner gave two statements about
+Ravel's purpose (findings R14 and R15, in the owner's words in
+`docs/book/contract.md`, “The intended domain”). Ravel runs LLM harnesses
+because a harness lets a caller use a subscription instead of paid API
+access. The contract between the Ravel CLI and the configuration is loose:
+the policy selects a program, Ravel runs it, and a program sends one value
+with `end-session`. Later component work keeps both statements true.
+
 ## Current upstream guidance
 
 ### Provenance and standing

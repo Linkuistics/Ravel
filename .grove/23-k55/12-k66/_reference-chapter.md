@@ -148,3 +148,16 @@ Copy-edit k129 is complete: chapter 6 passes the strict STE check and uses
 “send” for the result. Its running log has the word decisions and the
 review classification. The art handoff for set art k130 is in the parent
 brief.
+
+## Read 1 correction run (2026-10-18)
+
+The owner's full read 1 (`book-read-one-k70`) found R10–R17. Three reach this
+document: the race of a second `end-session` (R16), the installation in
+chapter 3 that the entries now describe (R17), and the run of 2,200 words
+of command-line entries, which is longer than the new limit (R11). Draft
+k142 and copy-edit k143 run under this node. They are the first draft re-run
+and the second copy-edit re-run. The owner authorised both on 2026-10-18.
+Set art `book-first-half-k144` (the crisp figure style, R10) and set proof
+`book-first-half-k147` serve this document. Thus, no stage under this node
+cuts an art or proof leaf. Draft k142 writes each figure need in this brief,
+under a new `## Handed forward` section.

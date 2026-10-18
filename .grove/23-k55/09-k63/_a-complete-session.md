@@ -86,3 +86,17 @@ Copy-edit k126 completed this conversion on 2026-10-18. Chapter 3 passes the
 strict STE check, and chapter 5's link uses the new anchor
 `#send-the-result-and-finish-the-job`. The figure labels that still say
 “publish” are in the parent brief for set art k130.
+
+## Read 1 correction run (2026-10-18)
+
+The owner's full read 1 (`book-read-one-k70`) found R10–R17. Two reach this
+document. The reader installs Ravel with Homebrew and checks its version
+against a placeholder that the release writes (R17, the owner's choice “Set
+at release time”). Runs of prose must not be longer than the new limit
+(R11). Draft k136 and copy-edit k137 run under this node. They are the first
+draft re-run and the second copy-edit re-run. The owner authorised both on
+2026-10-18. Set art `book-first-half-k144` and set proof
+`book-first-half-k147` serve this document. Thus, no stage under this node
+cuts an art or proof leaf. Draft k136 writes the new anchor, the exact form
+of the placeholder and each figure need in this brief, under a new
+`## Handed forward` section.

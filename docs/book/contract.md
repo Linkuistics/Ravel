@@ -78,6 +78,15 @@ harnesses typically cannot exit themselves, which is why we have the
 `end-session` command. Thus ravel allows you to use such interactive harness
 as 'sub components' of another process, typically an orchestrator."
 
+The reason for a harness, in the owner's words from read 1 on 2026-10-18:
+"We should make it obvious that the reason we want to use an LLM harness is
+because it allows us to use a subscription rather than an API session which
+is much cheaper." A harness such as Claude Code or Codex can run under the
+subscription of its user. Thus, a caller that runs LLM work through Ravel can
+use that subscription instead of paid API access. The book says so where it
+first describes Ravel. It names no price or plan. Each harness's own
+documentation covers its plans and terms.
+
 A **caller**, such as an orchestrator that runs sessions as steps of its own
 work, asks for a session of some kind; the **owner's** executable TypeScript
 policy chooses the harness command to run; Ravel launches that command as a
@@ -91,12 +100,25 @@ interactive harness work as one component of a larger program. The book says
 so where it first describes Ravel, and gives the reason for `end-session`
 where it introduces the command.
 
-The mechanism is generic. Ravel treats the selected program as it would any
-other process, so any program that runs `end-session` can stand where a
-harness stands; that is why every runnable example uses a fake agent. Ravel
-assigns no meaning to kinds or results, integrates no model provider, and
-stores nothing. Its first caller is the Grove task-tree driver, which the book
-shows only as one labelled illustrative caller.
+The mechanism is generic, and its contract is loose. In the owner's words
+from read 1 on 2026-10-18: "We should emphasize that the fact that the
+configuration runs a harness is not fully required. The contract interface
+between the Revel CLI and the configuration is that it runs something and
+returns a value. Now it is the case that the Revel CLI specifically talks
+about prompts and we expect that it will be a harness that it runs, but this
+is a very loose contract."
+
+The policy selects a program, and Ravel runs it. A program in the session
+then sends one value with `end-session`. Ravel needs nothing more from the
+selected program. `start-session` takes a prompt, and the book expects a
+harness to receive it. But the policy decides which program runs and whether
+that program receives the prompt. Thus, any program that runs `end-session`
+can stand where a harness stands.
+
+For this reason, every runnable example uses a fake agent. Ravel assigns no
+meaning to kinds or results, integrates no model provider, and stores
+nothing. Its first caller is the Grove task-tree driver, which the book shows
+only as one labelled illustrative caller.
 
 The book keeps these roles apart:
 
@@ -120,9 +142,9 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | # | Chapter | After it, the reader can… |
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
-| 1 | What Ravel is for | say what Ravel solves, including why `end-session` exists, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
+| 1 | What Ravel is for | say what Ravel solves, why it runs harnesses (a subscription instead of paid API access), why `end-session` exists, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
-| 3 | A complete session, end to end | run a real session with a tiny policy and a fake agent, then describe its stages; the process and terminal ideas are introduced here as the session needs them |
+| 3 | A complete session, end to end | install Ravel with Homebrew and check its version, run a real session with a tiny policy and a fake agent, then describe its stages; the process and terminal ideas are introduced here as the session needs them |
 | **Part II** | **Use Ravel** | |
 | 4 | Write an owner policy | write, typecheck and validate a policy with fake agents, covering the SDK, refusals, policy context, settings, environment grants, routes to real agent programs and copying an existing policy |
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
@@ -170,6 +192,11 @@ quotes source excerpts but does not cover the complete source.
 
 ### Emphasis
 
+- **Why a harness, and how loose the contract is.** A harness lets a caller
+  use a subscription instead of paid API access. The policy can select any
+  program, and Ravel needs only one value sent with `end-session`. A harness
+  that receives the prompt is the expected use, not a requirement (the
+  owner's findings R14 and R15 of 2026-10-18).
 - **What success means.** A result reaches the caller only after the managed
   process has been reaped, its whole process group is gone, and cleanup has
   succeeded. Refusal, cancellation, natural exit without a result and cleanup
@@ -324,6 +351,13 @@ coverage:
   policy or account. A route to a real agent program is validated through a
   fake executable of the same name, and records the agent's version and the
   date its flags were checked against that agent's own help.
+- **The reader's Ravel**: chapter 3 tells the reader to install Ravel with
+  Homebrew (`linkuistics/taps/ravel`) and to check that `ravel --version`
+  prints the version that the book names. The book names that version in one
+  place. The release writes its own version there and checks it. Until that
+  release, the book shows a placeholder. The owner chose this on 2026-10-18
+  (“Set at release time”), in place of a build from the checkout. The
+  examples check still runs the build of the checkout through the seam.
 - **Fragments are labelled** as fragments, with what they omit.
 - **The convention and the check** (how an example's files, command and
   expected output are marked in Markdown, the seam's environment, the one
@@ -482,6 +516,13 @@ The house style's points, as this book takes them:
   paragraph carries one idea. Parallel items form a list, and items compared on
   the same attributes form a table. Bold marks only a run-in label or a term at
   its definition. Nothing is added for decoration.
+- **Breaks in prose**: the owner made this decision on 2026-10-18: “I also
+  want to make sure that we don't have too long expanses of prose without a
+  diagram or a table to break it up.” A run of prose has about 450 words or
+  fewer, one screen at the 750-pixel column. Then a figure, a table or a code
+  block breaks it. Headings and lists do not break a run. A break carries
+  information that the reader needs, not decoration. A Taskfile check reports
+  each longer run.
 - **Statements and asides**: in chapter 6, a note, example or summary beside an
   entry's statement is set apart as a Markdown blockquote that opens with its
   label (`> **Note:** …`), with every line marked and a blank line closing it.
@@ -526,12 +567,13 @@ The house style's points, as this book takes them:
   the only module that draws, and draws any record under a named style from
   `_style.typ`. A file whose name starts with an underscore is such a shared
   module, not a figure, and has no SVG.
-- **Figure style**: figures are drawn sketched, at roughness 2, in DejaVu Sans
-  (the owner's choice of 2026-10-17: roughness 2, DejaVu, keys and tables crisp).
-  Keys are never sketched, and page tables are the page's own. A crisp style
-  (roughness 0, exact geometry) exists for review and is not shipped. Rough.js
-  running on Bun is held in reserve as a drawing backend at the layout record's
-  seam; it is not adopted.
+- **Figure style**: the figures use the crisp style, with exact geometry
+  (roughness 0), in DejaVu Sans. Page tables are the page's own. The owner
+  chose this on 2026-10-18, after a view of all nine figures in both styles:
+  “I've changed my mind about the hand-drawn look. I don't think it looks
+  friendly, I think it just looks wobbly, so I'd like to change that.” It
+  replaces the sketched style (roughness 2) of 2026-10-17. Thus, the reserve
+  sketch backend (Rough.js on Bun) has no use.
 - **Figure delivery**: every figure is committed as its `.typ` source beside the
   SVG it generates and its `<figure>.layout.json`, the layout record the source
   evaluates to. The renderer versions, the layout and style settings and the

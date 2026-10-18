@@ -1,0 +1,36 @@
+# book-release-version-k145
+
+## Goal
+
+Make the release write its own version into the version placeholder of the
+book in chapter 3, and check it. This is the owner's decision “Set at release
+time” for R17 (2026-10-18).
+
+## Context
+
+- The contract's examples policy, “The reader's Ravel”, and R17 in
+  `book-read-one-k70`'s log. Draft `a-complete-session-k136` names the
+  version in one place as a placeholder. The brief of node
+  `a-complete-session-k63` gives its exact form.
+- `release.toml` uses the `pre-release-replacements` of cargo-release 1.1.2
+  for `CHANGELOG.md`. The same mechanism can write `{{version}}` into
+  chapter 3. After a release, the line holds that version. Make the next
+  release find the line again, for example with a pattern that matches the
+  placeholder or any version.
+- `task release:doctor` checks the release prerequisites. Make a release stop
+  when the version in the book is not the release version after the
+  replacement.
+- GitHub and raw-file views show the Markdown as it is. Thus, do not use an
+  include that only mdBook understands.
+- Chapter 12, in the second half, teaches the release tasks. Write what it
+  must say about this mechanism in the book node's brief, under “Handed
+  forward to the second half”.
+
+## Done when
+
+- A dry run in an isolated cargo-release fixture shows the placeholder
+  replaced by the release version.
+- The check refuses a version that does not agree. A control shows it fail.
+- `task check`, `task docs:book:build` and `task docs:examples` pass.
+
+## Notes

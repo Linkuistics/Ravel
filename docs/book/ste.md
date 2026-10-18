@@ -54,9 +54,17 @@ the first result that it receives. Use these words for the concept:
 - the verb **keep**: “Ravel keeps the first result. A second `end-session`
   does not replace it.”
 - the noun phrase **the sent result** where a noun is necessary.
+- the word **unchanged** for what Ravel writes: “Ravel writes the result
+  unchanged to standard output. Ravel does not interpret the result.” Do not
+  write “the exact bytes of the result”.
+- the phrase **return no result to the caller** for the outcomes without a
+  result: “Some outcomes return no result to the caller.” Do not write
+  “give no result”.
 
 Do not use “publish”, “publication”, “submit” or “submission” for the result
-(the owner's decision of 2026-10-17).
+(the owner's decision of 2026-10-17). The owner made the decisions for
+“unchanged” and “return no result to the caller” on 2026-10-18, in read 1
+(findings R12 and R13). The check does not find their old words yet.
 
 The book on GitHub Pages is a different concept. Write “the book on GitHub
 Pages”, not “the published site”. The release procedure puts the book on

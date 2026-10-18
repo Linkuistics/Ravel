@@ -61,9 +61,9 @@ authority.
 
 ## Figures delivered
 
-`system-context.puml` and `process-authority.puml`, with generated SVGs, are
-under `docs/book/src/figures/`. The shared `_style.puml` and
-`docs/book/figures.md` record the visual vocabulary for later units. Chapters
+`system-context.typ` and `process-authority.typ`, with their generated SVGs
+and layout records, are under `docs/book/src/figures/`. The shared `_*.typ`
+modules and `docs/book/figures.md` record the visual vocabulary. Chapters
 carry role sentences, notation keys and text alternatives. The existing fit
 and responsibility tables and new result/status/work, nested publication,
 information-kind and platform-evidence tables carry the unit's comparisons.
@@ -84,13 +84,21 @@ STE, with the word decisions in `docs/book/ste.md` (from k123).
 Set art `book-first-half-k130` and set proof `book-first-half-k132` serve
 this document. Thus, no stage under this node cuts an art or proof leaf.
 
+## Read 1 correction run (2026-10-18)
+
+The owner's full read 1 (`book-read-one-k70`) found R10–R17. Four reach this
+document: the reason for a harness (R14), the loose contract (R15), the race
+of a second `end-session` (R16) and runs of prose that are longer than the
+new limit (R11). Two wording decisions (R12 and R13) are in
+`docs/book/ste.md`. The owner authorised this fourth correction run on
+2026-10-18. Another send-back on this document goes to the owner. Draft
+k134 and copy-edit k135 run under this node. Set art `book-first-half-k144`
+(the crisp figure style, R10) and set proof `book-first-half-k147` serve this
+document. Thus, no stage under this node cuts an art or proof leaf.
+
 ## Handed forward
 
-- **Art k130:** R8 remains: the paragraph before each figure repeats the
-  figure's colour key (chapter 1, “The C4 system-context view…”, chapter 2,
-  “This C4 container view…”). Copy-edit k125 converted those paragraphs
-  and both alt texts to STE and “send”, and kept their content. The figure
-  assets still have the earlier result word: the edge label “Publishes
-  opaque result; asks Ravel to stop” in `system-context` and “Publishes
-  result via end-session” in `process-authority`. The first label also has
-  a semicolon (Rule 8.1). If a label changes, make the alt text agree.
+None open. Set art k130 closed the earlier R8 entry: no paragraph before a
+figure repeats its colour key, and no figure label says “publish”. Draft
+k134 writes the race wording for chapters 5 and 6 here, and each figure need
+for set art k144, with its reader question.
