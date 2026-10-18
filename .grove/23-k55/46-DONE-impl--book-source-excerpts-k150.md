@@ -80,3 +80,46 @@ start before this check exists and has been seen to fail.
   Say so in the note.
 - Scripts follow the existing style (`set -euo pipefail`, ShellCheck clean).
   `task check` runs the script lint, so run it before the leaf ends.
+
+## Decisions (running log)
+
+- **One extractor reads both conventions.** `scripts/examples-extract.awk` now
+  also recognises an excerpt label (a paragraph whose first word is `Excerpt` or
+  `Excerpts`, emphasis marks ignored). The block directly after it is covered
+  like a fragment's block, so no language joins the never-an-example list, and
+  it is written to `xc-NNNN/` for `scripts/excerpts.sh`. A bare `ts`, `sh` or
+  untagged block still fails closed. This is how both checks agree on one page.
+- **Label grammar.** First line is exactly ``Excerpt from `PATH` `` (path in code
+  marks, no emphasis around the paragraph); the rest of the paragraph is free
+  text for what comes before or after. A malformed label, a label with no block
+  (paragraph, heading or page end between), an empty or blank block and a second
+  block under one label are errors reported by `docs:excerpts`.
+- **Byte for byte = whole lines.** The block's lines must equal consecutive lines
+  of the file (a line ends at LF or end of file; a final LF is not a line). The
+  fence end is not a claim about the file's final newline. CRLF page refused; a
+  source line that holds CR cannot match. A run that occurs twice passes.
+- **Path rules.** Plain relative path (the file-label alphabet, no `.`/`..`/empty
+  part, not absolute). Refused: absent, directory, non-regular file, symbolic
+  link (path or any parent), untracked by `git ls-files`, a `target` or
+  `node_modules` component (even if force-added), and `.grove/` (deleted by the
+  finish cycle). Not a git checkout is an error.
+- **Bare `rust` and `toml` blocks are errors on every page**, not only chapters
+  7–12: they left the never-an-example list. Reason: the book describes Ravel's
+  own source (Rust, TOML), so a bare block is either an unchecked quotation or
+  invented code that reads as one; a page-number scope would also go stale.
+  Chapters 1–6 hold none. `shapes.md` fixture used a bare `rust` block as its
+  "never an example" case and now uses `text`. Other listed languages (ruby,
+  yaml, …) stay; a chapter that quotes one uses an excerpt label.
+- **Mutant fix.** The example check's existing `label-path-unchecked` mutant
+  matched the first occurrence of the path rule, which moved into the new
+  excerpt code; its `FROM` now includes the file-label context. 29 of 29 killed.
+- **`docs:examples` takes `-- PAGE-OR-DIR...`** (CLI_ARGS) so the Done-when scratch
+  page can be run through the task. `docs:excerpts:test` runs controls and then
+  mutants (the `docs:ste:test` pattern), which keeps two new tasks in the list.
+- **Evidence.** `task docs:excerpts:test`: all controls ok, 24 of 24 mutants
+  killed. `task docs:examples:test` ok and `docs:examples:mutants` 29 of 29.
+  Scratch page (example, fragment, TS excerpt, Rust excerpt of real files):
+  `docs:examples` 3 passed, `docs:excerpts` 2 passed. Chapters 1–6: both pass.
+  `task docs:ste -- --strict docs/book/excerpts.md` 0 problems. `task check`
+  green (one earlier red run was `worker_reap_admission_*` timing flakiness under
+  load; three isolated reruns passed and no Rust file changed).

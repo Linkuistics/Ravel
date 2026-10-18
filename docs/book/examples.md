@@ -94,13 +94,23 @@ omits, directly followed by one block. It is not run, and it covers that block
 only: a second block, or any paragraph between the label and its block, leaves
 the next block unlabelled.
 
+An **excerpt** is a paragraph beginning `Excerpt from` and a file path, directly
+followed by one block that quotes lines of that file. The same extractor reads
+it, and it covers that block only, as a fragment does. This checker does not run
+it and does not compare it; `task docs:excerpts` does. `excerpts.md` owns the
+convention.
+
 The check **fails closed** for blocks outside an example. A fenced block with no
 language tag is an error, and so is one in any language not on the checker's list
-of languages that are never examples (`text`, `rust`, `toml`, `yaml`, `yml`,
-`markdown`, `md`, `diff`, `ini`, `xml`, `html`, `ruby`, `python`; the list is
-in `scripts/examples-extract.awk`, and a chapter that needs another adds it
+of languages that are never examples (`text`, `yaml`, `yml`, `markdown`, `md`,
+`diff`, `ini`, `xml`, `html`, `ruby`, `python`; the list is in
+`scripts/examples-extract.awk`, and a chapter that needs another adds it
 there). The match ignores case. So an unlabelled `sh`, `console`,
 `shell-session` or `ts` block is caught, and so is one nobody thought to list.
+`rust` and `toml` are not on the list: a block of either is a fragment, a
+complete example or an excerpt, because the book describes Ravel's own source
+and a bare block could be a quotation that nothing checks (`excerpts.md` gives
+the reason).
 Two shapes that Markdown would show but the checker cannot read are errors for
 the same reason: a fence opened on a list-item line (`- ```sh`), and an indented
 code block that begins `$ `. A fence indented four or more spaces is an error too;
@@ -234,7 +244,7 @@ Each is seen to fire, and the first line of the failure it names is the reason:
   the worker's TypeScript; the modification-time check covers a front built before
   a Rust edit. Touching a source file makes the check refuse, which is the safe
   direction;
-- a runnable, unknown-language or untagged block outside any example, an
+- a runnable, unknown-language, Rust, TOML or untagged block outside any example, an
   indented transcript, a fence on a list-item line, a CRLF page, a block with no
   label inside an example, prose between a label and its block, a fragment label
   followed by two blocks, an unknown label, a repeated result block, an empty
@@ -247,6 +257,9 @@ Each is seen to fire, and the first line of the failure it names is the reason:
   (exact means the whole stream), an `includes` claim the stream does not
   contain, a newline claim that is wrong for the stream, a raw path where the
   page should have written `<scratch>`;
+- a scratch page with an example, a fragment and a TypeScript excerpt of a real
+  file, which this checker and `task docs:excerpts` both pass, and a bare `ts`
+  or `sh` block after an excerpt, which this checker still refuses;
 - a skipped example counted as skipped and not passed, an unknown requirement, a
   file after a command, a path that escapes the directory, a path given twice, a
   command that runs past the timeout;

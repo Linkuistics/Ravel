@@ -76,6 +76,6 @@ import { definePolicy } from "ravel/sdk";
 
 A block in a language that is never an example needs no label.
 
-```rust
+```text
 fn main() {}
 ```

@@ -422,7 +422,7 @@ Some prose between the label and its block.
 
 control_unknown_and_bare_languages() {
   local lang page
-  for lang in shell-session Bash fish ''; do
+  for lang in shell-session Bash fish rust toml ts ''; do
     page="$WORK/lang-$lang.md"
     printf '# T\n\nProse.\n\n```%s\nravel start-session\n```\n' "$lang" >"$page"
     if [[ -z "$lang" ]]; then
@@ -434,6 +434,48 @@ control_unknown_and_bare_languages() {
   page="$WORK/indented-transcript.md"
   printf '# T\n\nRun it:\n\n    $ ravel start-session --kind check\n' >"$page"
   expect_fail indented_transcript 'an indented code block starting with "\$ "' "$page"
+}
+
+# The excerpt convention (docs/book/excerpts.md) shares this extractor: a block
+# under an excerpt label is read by scripts/excerpts.sh and is not an example,
+# so it needs no language on the never-an-example list. A scratch page holds an
+# example, a fragment and a TypeScript excerpt of a real file; both checks pass
+# it. It is built from the file as it is now, so it cannot go stale.
+excerpt_page() {
+  local out="$WORK/excerpt-page.md" source=crates/ravel/worker/sdk/index.ts
+  cp "$PAGES/pass.md" "$out"
+  {
+    printf '\n## A source excerpt\n\nExcerpt from `%s`: the first lines of the file.\n\n```ts\n' "$source"
+    sed -n '2,9p' "$ROOT/$source"
+    printf '```\n'
+  } >>"$out"
+  echo "$out"
+}
+
+control_excerpt_blocks_agree() {
+  local page output status=0
+  page="$(excerpt_page)"
+  expect_pass excerpt_page_examples '^examples: 3 passed, 0 failed, 0 skipped; 1 fragment\(s\) not run; 0 page error\(s\)$' "$page" || return 1
+  output="$(bash "$ROOT/scripts/excerpts.sh" check "$page" 2>&1)" || status=$?
+  if ((status != 0)) || ! grep -qE '^excerpts: 1 passed, 0 failed; 0 page error\(s\)$' <<<"$output"; then
+    echo "control excerpt_blocks_agree: the excerpt check does not pass the page:" >&2
+    printf '%s\n' "$output" | indent >&2
+    return 1
+  fi
+}
+
+control_excerpt_does_not_unlock_other_blocks() {
+  local page="$WORK/excerpt-then-bare.md"
+  {
+    cat "$(excerpt_page)"
+    printf '\nA paragraph, so the next block has no label.\n\n```ts\nconst bare = 1;\n```\n'
+  } >"$page"
+  expect_fail excerpt_then_bare_ts 'a ts block sits outside a labelled example' "$page" || return 1
+  {
+    cat "$(excerpt_page)"
+    printf '\n```sh\nravel --version\n```\n'
+  } >"$page"
+  expect_fail excerpt_then_second_block 'a sh block sits outside a labelled example' "$page"
 }
 
 control_list_item_fences() {
@@ -607,6 +649,7 @@ CONTROLS=(
   a_page_with_no_examples shapes_are_read fragment_covers_one_block
   prose_between_label_and_block unknown_and_bare_languages list_item_fences
   crlf_is_refused duplicate_result_blocks
+  excerpt_blocks_agree excerpt_does_not_unlock_other_blocks
   empty_includes commands_run_in_numeric_order
   a_label_cannot_run_a_command stale_source
   cancellation_is_deterministic seam_matches_the_cli_tests seam_drift_is_noticed
@@ -647,7 +690,8 @@ mutants() {
     unknown_and_bare_languages environment_is_cleared skip_is_not_a_pass timeout
     unlabelled_runnable_block pass commands_run_in_numeric_order fragment_covers_one_block
     prose_between_label_and_block shapes_are_read
-    list_item_fences duplicate_result_blocks crlf_is_refused a_label_cannot_run_a_command)
+    list_item_fences duplicate_result_blocks crlf_is_refused a_label_cannot_run_a_command
+    excerpt_blocks_agree excerpt_does_not_unlock_other_blocks)
   run_controls "${baseline[@]}" >/dev/null 2>&1 || die "a control fails against the unmutated checker; run the controls first"
 
   # try_mutant NAME FILE FROM TO CONTROL
@@ -679,6 +723,12 @@ mutants() {
     '[[ -z "$newer" ]] ||' 'true ||' stale_source
   try_mutant unlabelled-allowed examples-extract.awk \
     'else if (!(lang in nonrunnable))' 'else if (0)' unknown_and_bare_languages
+  try_mutant rust-and-toml-allowed-bare examples-extract.awk \
+    'split("text yaml yml' 'split("text rust toml yaml yml' unknown_and_bare_languages
+  try_mutant excerpt-block-is-an-example examples-extract.awk \
+    $'  if (fence_x) {\n    record_excerpt(text)' $'  if (fence_x && 0) {\n    record_excerpt(text)' excerpt_blocks_agree
+  try_mutant excerpt-label-unlocks-every-block examples-extract.awk \
+    $'    if (x_pending) {\n      fence_x = 1' $'    if (1) {\n      fence_x = 1' excerpt_does_not_unlock_other_blocks
   try_mutant bare-fence-allowed examples-extract.awk \
     $'    if (lang == "")\n' $'    if (0)\n' unknown_and_bare_languages
   try_mutant environment-inherited examples.sh \
@@ -719,7 +769,7 @@ mutants() {
   try_mutant crlf-allowed examples-extract.awk \
     'if (!crlf_reported) {' 'if (0) {' crlf_is_refused
   try_mutant label-path-unchecked examples-extract.awk \
-    '|| path !~ /^[A-Za-z0-9._\/-]+$/' '|| 0' a_label_cannot_run_a_command
+    $'|| path !~ /^[A-Za-z0-9._\\/-]+$/) {\n      fail(start, "file label' $'|| 0) {\n      fail(start, "file label' a_label_cannot_run_a_command
 
   printf 'examples-test: %d of %d mutants killed\n' "$killed" "$total"
   ((killed == total))

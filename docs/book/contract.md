@@ -364,7 +364,8 @@ coverage:
   normalisation, skips and signals) are in `examples.md` beside this contract.
 - **Source excerpts are exact.** Each walkthrough excerpt names the file it
   comes from, and a Taskfile task checks that the excerpt still appears there
-  byte for byte.
+  byte for byte. The convention and the check (`task docs:excerpts`) are in
+  `excerpts.md` beside this contract.
 
 ### Figure needs
 

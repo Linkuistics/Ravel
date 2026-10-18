@@ -1,13 +1,20 @@
-# Extract the book's complete examples from Markdown pages into a staging
-# directory, and report every page-structure error. Used only by
-# scripts/examples.sh; the convention it reads is written in
-# docs/book/examples.md.
+# Extract the book's complete examples and source excerpts from Markdown pages
+# into a staging directory, and report every page-structure error. Used by
+# scripts/examples.sh (examples) and scripts/excerpts.sh (excerpts); the
+# conventions it reads are written in docs/book/examples.md and
+# docs/book/excerpts.md. One extractor reads both, so the two checks cannot
+# disagree about which block is which.
 #
 #   awk -v out=STAGE -f examples-extract.awk PAGE...
 #
 # Output under STAGE:
 #   errors                 one "PAGE:LINE: message" per line (absent when clean)
 #   counts                 "fragments N"
+#   excerpt-errors         one "PAGE:LINE: message" per excerpt-convention error
+#   xc-NNNN/where          PAGE:LINE of the excerpt's label paragraph
+#   xc-NNNN/label          the first line of the label paragraph
+#   xc-NNNN/path           the repository-relative path the label names
+#   xc-NNNN/text           the excerpt block: its lines, each ending in LF
 #   ex-NNNN/where          PAGE:LINE of the example's label paragraph
 #   ex-NNNN/requires       one required platform feature per line (may be absent)
 #   ex-NNNN/files/PATH     a file block's bytes; ex-NNNN/executable lists bin/ paths
@@ -22,15 +29,26 @@ BEGIN {
   # Languages whose blocks are never examples. A block outside an example in any
   # other language, or with no language, is an error: it fails closed, so a
   # transcript tagged shell-session or left bare cannot go unchecked.
-  split("text rust toml yaml yml markdown md diff ini xml html ruby python", names, " ")
+  # Rust and TOML are not on the list: Ravel's own source is written in them,
+  # so a block of either is a fragment, an example or an excerpt, never bare.
+  split("text yaml yml markdown md diff ini xml html ruby python", names, " ")
   for (i in names) nonrunnable[names[i]] = 1
   known_requirement["confinement"] = 1
   file_open = 0
+  nexcerpts = 0
+  x_pending = 0
+  x_after_block = 0
+  fence_x = 0
 }
 
 function fail(line, message) {
   print page ":" line ": " message >> (out "/errors")
   close(out "/errors")
+}
+
+function xfail(line, message) {
+  print page ":" line ": " message >> (out "/excerpt-errors")
+  close(out "/excerpt-errors")
 }
 
 function write_file(path, text) {
@@ -58,8 +76,10 @@ function unquote_n(s, n,   i) {
 
 function begin_page(name) {
   if (infence) fail(fence_line, "a fenced block is never closed")
+  if (infence && fence_x) xfail(fence_x_line, "the excerpt block is never closed")
   finish_paragraph()
   end_example()
+  end_excerpt("the page ends")
   ctx = ""
   infence = 0
   para = ""
@@ -67,7 +87,51 @@ function begin_page(name) {
   pending = ""
   fragment_pending = 0
   crlf_reported = 0
+  crlf_x_reported = 0
+  fence_x = 0
   page = name
+}
+
+# An excerpt label governs the one block directly after it. Anything else that
+# comes first (a paragraph, a heading, the end of the page) leaves the label
+# with no block. A second block with no paragraph between the two is an error
+# too: a label governs one block.
+function end_excerpt(reason) {
+  if (x_pending) xfail(x_line, "the excerpt label has no block: " reason)
+  x_pending = 0
+  x_after_block = 0
+}
+
+# The path in an excerpt label, or "" with x_bad set to the reason it is not one.
+function start_excerpt(line, first,   path) {
+  x_pending = 1
+  x_line = line
+  x_label = first
+  x_path = ""
+  x_bad = ""
+  if (!match(first, /^Excerpt from `[^`]*`/)) {
+    x_bad = "an excerpt label begins: Excerpt from `PATH`, with the path in code marks and no emphasis around the paragraph"
+    return
+  }
+  path = substr(first, 15, RLENGTH - 15)
+  if (path == "" || path ~ /^\// || path ~ /(^|\/)\.\.(\/|$)/ || path ~ /(^|\/)\.(\/|$)/ || path ~ /\/\// || path ~ /\/$/ || path !~ /^[A-Za-z0-9._\/-]+$/) {
+    x_bad = "excerpt path `" path "` is not a plain repository-relative path (letters, digits, . _ - and / only, no empty, . or .. part, not absolute)"
+    return
+  }
+  x_path = path
+}
+
+function record_excerpt(text,   dir) {
+  x_after_block = 1
+  if (fence_x_bad != "") { xfail(fence_x_line, fence_x_bad); return }
+  if (text ~ /^[ \t\n]*$/) { xfail(fence_x_line, "the excerpt block holds no code"); return }
+  nexcerpts++
+  dir = sprintf("%s/xc-%04d", out, nexcerpts)
+  system("mkdir -p '" dir "'")
+  write_file(dir "/where", page ":" fence_x_line "\n")
+  write_file(dir "/label", fence_x_label "\n")
+  write_file(dir "/path", fence_x_path "\n")
+  write_file(dir "/text", text "\n")
 }
 
 # --- paragraph and example state -------------------------------------------
@@ -106,12 +170,21 @@ function end_example(   k, ok) {
 function finish_paragraph(   first, rest, label, lines) {
   if (para == "") return
   fragment_pending = 0
+  end_excerpt("a paragraph comes between the label and its block")
   first = para
   sub(/\n.*/, "", first)
   rest = first
   sub(/^[*_]+/, "", rest)
   if (rest ~ /^Complete example/) {
     start_example(para_line)
+  } else if (rest ~ /^Excerpts?([^A-Za-z]|$)/) {
+    # An excerpt label covers the one block directly after it; the block is
+    # compared with its source file by scripts/excerpts.sh, not run here.
+    end_example()
+    start_excerpt(para_line, first)
+    para = ""
+    para_line = 0
+    return
   } else if (rest ~ /^Fragment/) {
     # A fragment label covers the one block directly after it.
     end_example()
@@ -137,6 +210,10 @@ function finish_paragraph(   first, rest, label, lines) {
 
 function handle_block(lang, start, text, nlines,   label, path, k, body) {
   lang = tolower(lang)
+  if (fence_x) {
+    record_excerpt(text)
+    return
+  }
   if (ctx == "") {
     if (fragment_pending) { fragment_pending = 0; return }
     if (lang == "")
@@ -262,6 +339,10 @@ FNR == 1 { begin_page(FILENAME) }
       fail(FNR, "the page has CRLF line endings; convert it to LF, because a claimed stream is compared byte for byte")
       crlf_reported = 1
     }
+    if (!crlf_x_reported) {
+      xfail(FNR, "the page has CRLF line endings; convert it to LF, because an excerpt is compared byte for byte")
+      crlf_x_reported = 1
+    }
     sub(/\r$/, "", raw)
   }
   line = unquote(raw)
@@ -295,6 +376,17 @@ infence {
     sub(/^[ \t]+/, "", info)
     fence_lang = info
     sub(/[ \t,{].*$/, "", fence_lang)
+    fence_x = 0
+    if (x_after_block)
+      xfail(FNR, "a second fenced block follows the excerpt with no paragraph between; an excerpt label governs one block, so give the second block its own label")
+    if (x_pending) {
+      fence_x = 1
+      fence_x_line = x_line
+      fence_x_label = x_label
+      fence_x_path = x_path
+      fence_x_bad = x_bad
+      x_pending = 0
+    }
     infence = 1
     fence_line = FNR
     fence_qdepth = qdepth
@@ -325,6 +417,7 @@ infence {
   if (line ~ /^#+[ \t]/) {
     finish_paragraph()
     end_example()
+    end_excerpt("a heading comes between the label and its block")
     next
   }
   if (para == "") para_line = FNR
@@ -333,7 +426,9 @@ infence {
 
 END {
   if (infence) fail(fence_line, "a fenced block is never closed")
+  if (infence && fence_x) xfail(fence_x_line, "the excerpt block is never closed")
   finish_paragraph()
   end_example()
+  end_excerpt("the page ends")
   write_file(out "/counts", "fragments " nfragments "\n")
 }

@@ -47,10 +47,10 @@ tasks:
       - bash scripts/figures.test.sh
 
   docs:examples:
-    desc: Build the front and worker, run every complete example under docs/book/src through the CLI test seam and compare output exactly (needs task setup)
+    desc: Build the front and worker, run every complete example under docs/book/src through the CLI test seam and compare output exactly (-- PAGE-OR-DIR... checks those instead; needs task setup)
     cmds:
       - task: build
-      - bash scripts/examples.sh check
+      - bash scripts/examples.sh check {{.CLI_ARGS}}
 
   docs:examples:test:
     desc: Prove the example check passes the fixture pages and fails a changed output, status, stale build, unlabelled block and more (needs task setup)
@@ -65,6 +65,18 @@ tasks:
     cmds:
       - task: build
       - bash scripts/examples.test.sh mutants
+
+  docs:excerpts:
+    desc: Check that every source excerpt in docs/book/src is whole lines that still occur in the tracked file it names (needs no build)
+    cmds:
+      - bash scripts/excerpts.sh check {{.CLI_ARGS}}
+
+  docs:excerpts:test:
+    desc: Prove the excerpt check passes good excerpts and fails a changed excerpt or source, a bad path, a bad label or block and more, and that each removed safeguard fails a control
+    silent: true
+    cmds:
+      - bash scripts/excerpts.test.sh
+      - bash scripts/excerpts.test.sh mutants
 
   docs:ste:
     desc: Report where the book's text breaks the STE rules that a script can check and the word decisions in docs/book/ste.md (-- --strict FILE... fails on a problem; needs task setup)
