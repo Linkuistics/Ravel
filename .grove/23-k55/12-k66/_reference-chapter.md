@@ -161,3 +161,37 @@ Set art `book-first-half-k144` (the crisp figure style, R10) and set proof
 `book-first-half-k147` serve this document. Thus, no stage under this node
 cuts an art or proof leaf. Draft k142 writes each figure need in this brief,
 under a new `## Handed forward` section.
+
+## Draft correction boundary (k142)
+
+Chapter 6 now states that a second `end-session` races shutdown. It keeps
+the first result even if a second sender succeeds. A second sender can
+also fail or stop during shutdown. Success of the send is separate from
+successful cleanup and return to the caller.
+
+The chapter describes the version named in chapter 3, installed with
+Homebrew. All seven installation links use
+`#install-ravel-and-check-its-version`. `PREFIX` is the Ravel installation
+root that `brew --prefix ravel` gives. The contributor install task stays
+only as a note in the installed-layout entry. All eleven archive paths
+retain entries.
+
+Nine page tables break the command-line prose. All 50 entry headings stay
+unchanged, as do the status, stream, environment, configuration and sample
+sections. The strict prose and STE checks, the warning-free book build and
+all thirteen complete examples pass. All 341 rendered links and images
+resolve. The draft leaf records the source inventory and controls. No
+architecture or product behaviour changes. Copy-edit k143 remains live.
+
+## Handed forward
+
+- **Copy-edit k143:** read the nine new command-line tables, the result
+  race and the Homebrew layout text under the STE writing rules. Apply R12
+  and R13 to the chapter's other result statements as your body directs.
+  Notes give information, not instructions. All headings stay unchanged.
+- **Set art k144:** no new figure is needed in chapter 6. The nine new page
+  tables answer lookup questions about help/version, prompt sources, task
+  fields, parameters, timeout values, grants, confined access, channel
+  parents and result inputs. Keep the questions and positions of
+  `source-components` and `installed-files`; the Homebrew formula retains
+  the same paths below `PREFIX`. Apply the crisp style under the set leaf.

@@ -9,22 +9,24 @@ Only the caller gives meaning to the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result).
 Each entry links to the chapter that teaches its use.
 
-The entries describe the [checkout build that this book uses](03-a-complete-session.md#obtain-the-build-used-by-this-chapter).
+The entries describe the version that this book names, installed with
+[Homebrew](03-a-complete-session.md#install-ravel-and-check-its-version).
 
 ## Command line
 
 ### `ravel`, help and version
 
 `ravel` takes one of two verbs: `start-session` or `end-session`. It has no
-`help` subcommand. Without a verb, it prints help to stderr and exits 2. An
-explicit help request prints help to stdout and exits 0. These requests are
-`ravel --help`, `ravel start-session --help` and `ravel end-session --help`.
-`-h` is the short help option on all three command lines.
+`help` subcommand. The table gives the help and version requests.
 
-`ravel --version`, or `ravel -V`, prints the package version of the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) to stdout
-and exits 0. The version option belongs to the top-level command, not to
-a verb. Help and version text is informational output, never an opaque
-result. See [the first complete session](03-a-complete-session.md#run-the-first-session)
+| Request | Output | Status |
+|---|---|---|
+| `ravel` without a verb | Help on stderr. | `2` |
+| `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on stdout. `-h` is the short option on all three command lines. | `0` |
+| `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) on stdout. The version option belongs only to the top-level command. | `0` |
+
+Help and version text is informational output, never an opaque result.
+See [the first complete session](03-a-complete-session.md#run-the-first-session)
 for the two verbs in use.
 
 After `--`, Ravel reads no more options. For `end-session`, put `--` before a
@@ -58,9 +60,12 @@ file. Ravel gives the token no meaning. An absent or empty kind exits 2. See
 
 ### `--prompt TEXT` and `--prompt-file PATH`
 
-`--prompt` supplies the text directly, and it accepts a value that starts
-with `-`. `--prompt-file` reads the text one time from a path relative to the caller's working directory. Exactly one of
-the two is required.
+Exactly one of these two prompt inputs is required.
+
+| Option | Source of `request.prompt` |
+|---|---|
+| `--prompt TEXT` | The argument text, also when it starts with `-`. |
+| `--prompt-file PATH` | One read of the file, relative to the caller's working directory. |
 
 The prompt can be empty. It contains no NUL, is valid UTF-8 and has a maximum
 of 1,048,576 bytes (1 MiB). Ravel puts its bytes unchanged in
@@ -80,14 +85,14 @@ implicitly read the prompt from stdin, and it refuses a prompt file that is a te
 
 ### `--task-file PATH` and `--task-id ID`
 
-`--task-file` supplies the optional `request.taskFile`. Ravel joins the
-caller's working directory and the given path to make an absolute UTF-8 path.
-Ravel does not canonicalise or read the path, and the file does not have to
-exist. The path supplies no kind or task identity.
+These optional fields carry caller data. Invalid input exits 2.
 
-`--task-id` supplies the optional `request.taskId`. Its value is nonempty
-opaque UTF-8 with a maximum of 1,024 bytes, and it can start with `-`. Ravel
-does not search for a task record. Invalid input exits 2. See
+| Option | Request field | Value and effect |
+|---|---|---|
+| `--task-file PATH` | `request.taskFile` | Ravel joins the caller's working directory and the given path to make an absolute UTF-8 path. It does not canonicalise or read the path. The file does not have to exist, and the path supplies no kind or task identity. |
+| `--task-id ID` | `request.taskId` | Nonempty opaque UTF-8 with a maximum of 1,024 bytes. It can start with `-`. Ravel does not search for a task record. |
+
+See
 [caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) for
 both fields.
 
@@ -109,12 +114,17 @@ and [resolve its imports](04-writing-an-owner-policy.md#resolve-policy-imports).
 ### `--param NAME=VALUE`
 
 `--param` adds a string to `request.params`, and it is repeatable with
-different names. The first `=` separates the name from the value. A name is
-nonempty and contains no `=`. The value can be empty or contain more `=`
-characters. The whole argument is UTF-8 and can start with `-`.
+different names. The table gives the parts of each argument and their limit.
 
-All names and values together have a limit of 65,536 bytes, and the
-separators do not count. A repeated name, a missing separator, invalid
+| Part | Rule |
+|---|---|
+| Name | Nonempty UTF-8 without `=`. Each name occurs only once. |
+| Separator | The first `=` separates the name from the value. |
+| Value | UTF-8, possibly empty or with more `=` characters. |
+| Whole argument | Can start with `-`. |
+| Combined size | All names and values together have a limit of 65,536 bytes. The separators do not count. |
+
+A repeated name, a missing separator, invalid
 encoding or a total above the limit exits 2. Ravel gives names and values no
 meaning. See
 [caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data).
@@ -137,9 +147,13 @@ policy context, never a
 ### `--timeout-ms MS`
 
 `--timeout-ms` replaces the owner's `timeoutMs` setting for this invocation.
-It takes decimal digits in the inclusive range 1,000–600,000 milliseconds.
-With no flag and no setting, the value is 30,000 milliseconds. Invalid
-syntax or range exits 2.
+The table gives its syntax and values. Invalid syntax or range exits 2.
+
+| Property | Value |
+|---|---|
+| Input syntax | Decimal digits. |
+| Inclusive range | 1,000–600,000 milliseconds. |
+| Default, with no flag or setting | 30,000 milliseconds. |
 
 Ravel validates the settings before the flag replaces a value. Thus, an
 invalid owner setting fails even with a valid flag.
@@ -168,11 +182,14 @@ and [bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-name
 ### `--policy-env NAME`
 
 `--policy-env` grants the policy worker one caller environment variable in
-addition to its base set. Repeat it to grant more names. The flags add to the
-owner's `policyEnv` array. Ravel merges duplicate names into one grant, in
-the order of their first occurrence. A grant carries the caller's current
-value, and an unset variable stays absent. This option does not grant a
-variable to the managed process.
+addition to its base set. Repeat it to grant more names.
+
+| Grant property | Behaviour |
+|---|---|
+| Owner settings | The flags add to the owner's `policyEnv` array. |
+| Duplicate names | Ravel merges them into one grant, in the order of their first occurrence. |
+| Value | A grant carries the caller's current value. An unset variable stays absent. |
+| Recipient | The policy worker. This option does not grant a variable to the managed process. |
 
 A name is nonempty UTF-8 and contains no `=`. It cannot match a
 [reserved grant class](#reserved-worker-grants). A malformed name reports
@@ -189,13 +206,15 @@ stay outside [confinement](02-actors-and-words.md#trust-and-confinement).
 Ravel tests the backend before policy evaluation. It never uses an
 unconfined launch in place of a confined launch.
 
-The canonical working directory and a private run directory are writable. The
-confined process can read the system runtime paths, the selected executable
-and the real executable file of the Ravel CLI. Confinement permits network
-access. The confined process starts a new POSIX session and receives EOF on
-stdin. Ravel does not lend it the caller's controlling terminal. Ravel
-restricts its [environment](#managed-process-environment) separately from the
-environment of the policy worker.
+The table gives the access of the confined managed process.
+
+| Resource | Access |
+|---|---|
+| Canonical working directory and private run directory | Writable. |
+| System runtime paths, selected executable and real executable file of the Ravel CLI | Readable. |
+| Network | Permitted. |
+| POSIX session and terminal | A new POSIX session, with EOF on stdin. Ravel does not lend the caller's controlling terminal. |
+| Environment | Ravel restricts the [managed-process environment](#managed-process-environment) separately from the environment of the policy worker. |
 
 Filesystem grants cannot overlap the policy directory or the owner settings,
 and this rule also applies through symlinks. An unusable backend or input
@@ -226,9 +245,12 @@ unusable, or that has an overlap, exits 2 before policy evaluation. See
 `--exit-dir` gives the parent directory of the private
 [result channel](02-actors-and-words.md#the-managed-process-and-its-result).
 The parent is a writable directory that exists. Ravel resolves it from the caller's
-working directory. The option works with or without confinement. Without the
-flag, an unconfined launch uses the system temporary directory, and a confined
-launch uses its private run directory.
+working directory. The table shows the parent for each form of launch.
+
+| Launch | Without `--exit-dir` | With `--exit-dir DIR` |
+|---|---|---|
+| Unconfined | The system temporary directory. | `DIR`. |
+| Confined | The private run directory. | `DIR`, also as a writable grant. |
 
 With confinement, the parent directory is also a writable grant. The option
 chooses a parent, not a result filename or a persistent store. An invalid
@@ -260,14 +282,27 @@ accepts no session ID, target or settings option, and it reads no policy or
 settings. `-h` and `--help` show the help of this verb. `--` permits a result
 that looks like an option.
 
-`RESULT` can be empty, multiline or Unicode, and it has a maximum of
-1,048,576 bytes (1 MiB). Quote it so that it stays one argument. Ravel keeps the
-first complete result that it receives. A repeated valid call succeeds, but
-it does not replace that result.
+The table gives the inputs of `end-session`. Quote `RESULT` so that it
+stays one argument.
 
-Success exits 0 and prints nothing. It means only that the result channel
-accepted the sent result. It does not mean
-that the job ended or that the result reached the caller.
+| Input | Value or effect |
+|---|---|
+| `RESULT` | One UTF-8 argument. It can be empty, multiline or Unicode, with a maximum of 1,048,576 bytes (1 MiB). |
+| `RAVEL_EXIT_FILE` | The inherited path of the live session's private result channel. |
+| `--` | Ends the options, so a value that looks like an option can follow as `RESULT`. |
+| `-h`, `--help` | Shows help, without a send. |
+
+Ravel keeps the first complete result that it receives. That first
+`end-session` requests shutdown, which normally ends the harness. A second
+`end-session` races that shutdown. For example, another process in the
+group can send a result before Ravel stops it. Ravel keeps the first result,
+even if the second command succeeds. Shutdown can stop the second command,
+or removal of the result channel can make it fail.
+
+Success exits 0 and prints nothing. It means only that the channel accepted
+the result, or that a valid first result was already present. It does not
+mean that the job ended or that the result reached the caller. Cancellation
+and failure of required cleanup still prevent a successful session result.
 
 `end-session` exits 1, with a text diagnostic on stderr, if the [session-result context](02-actors-and-words.md#three-different-kinds-of-information)
 is missing, empty, stale or invalid. It also exits 1 for an oversized value
@@ -951,27 +986,32 @@ not the execution or permissions of a real agent. See
 
 ## Installed layout
 
-`PREFIX` below is the installation root, independent of the owner's `HOME`.
-`task install PREFIX=/path` builds the release pair, installs its assets and
-checks the installation. It installs the first nine paths in the table. A
-release archive also carries `README.md` and `LICENSE` at its root. An
+`PREFIX` below is Ravel's installation root, independent of the owner's
+`HOME`. For Homebrew, `brew --prefix ravel` gives this path.
+Homebrew installs the Ravel CLI under `bin` and the worker and its
+assets under `libexec/ravel`. These are the first nine paths in the table.
+
+A release archive also carries `README.md` and `LICENSE` at its root. An
 installed Ravel runs without Bun, Node.js or the source checkout on the host.
-See
-[obtain the build](03-a-complete-session.md#obtain-the-build-used-by-this-chapter).
+See [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
+
+> **Note:** The contributor command `task install PREFIX=/path` builds the
+> release pair from a checkout, installs the same nine paths and checks the
+> installation. It is separate from the Homebrew installation in chapter 3.
 
 | Path below `PREFIX` | Purpose and source relationship | Taught in |
 |---|---|---|
-| `bin/ravel` | The Ravel CLI, built in Rust from `crates/ravel`. It links the runner library in `crates/keyed-launch`. It checks the policy, supervises the session, decides the final outcome and writes the result. | [Installed pair](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
+| `bin/ravel` | The Ravel CLI, built in Rust from `crates/ravel`. It links the runner library in `crates/keyed-launch`. It checks the policy, supervises the session, decides the final outcome and writes the result. | [Installed pair](03-a-complete-session.md#install-ravel-and-check-its-version) |
 | `libexec/ravel/ravel-policy` | The private compiled TypeScript worker, built from `crates/ravel/worker/src`. It embeds Bun, the SDK and the static example. It evaluates the policy and never receives a session-result context. | [Policy evaluation](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `libexec/ravel/sdk/index.ts` | A copy of `worker/sdk/index.ts`, to read or copy. An edit to it does not change the embedded SDK. | [SDK and imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `libexec/ravel/sdk/index.d.ts` | Generated public SDK declarations for the typecheck of a policy. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
 | `libexec/ravel/examples/static.ts` | A copy of `worker/examples/static.ts`. To use edits, import a local copy by its path. | [Starter table](04-writing-an-owner-policy.md#use-the-starter-route-table) |
 | `libexec/ravel/examples/static.d.ts` | Generated declarations for the exports of the static example. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
 | `libexec/ravel/examples/sample.ts` | A copy of `worker/sample/policy.ts`. It is an owner entry that you can edit, and it uses checkout choices. Ravel does not copy it into `HOME` automatically. | [Copy a policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration) |
-| `libexec/ravel/notices/NOTICES.md` | The inventory of runtime third-party notices, copied from `crates/ravel/notices`. Keep it with the worker. | [Installation assets](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
-| `libexec/ravel/notices/bun-LICENSE.md` | The bundled Bun licence and notice text, copied from `crates/ravel/notices`. | [Installation assets](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
-| `README.md` | An additional entry at the archive root that identifies the project. The release archive includes it beside the installed pair and assets. | [Obtain Ravel](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
-| `LICENSE` | The additional project licence at the archive root. | [Obtain Ravel](03-a-complete-session.md#obtain-the-build-used-by-this-chapter) |
+| `libexec/ravel/notices/NOTICES.md` | The inventory of runtime third-party notices, copied from `crates/ravel/notices`. Keep it with the worker. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |
+| `libexec/ravel/notices/bun-LICENSE.md` | The bundled Bun licence and notice text, copied from `crates/ravel/notices`. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |
+| `README.md` | An additional entry at the archive root that identifies the project. The release archive includes it beside the installed pair and assets. | [Obtain Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
+| `LICENSE` | The additional project licence at the archive root. | [Obtain Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
 
 Ravel finds `libexec/ravel/ravel-policy` relative to the canonical real path
 of the Ravel CLI, also when the caller reaches `bin/ravel` through a symlink.
