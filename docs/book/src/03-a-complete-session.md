@@ -37,13 +37,13 @@ ravel @RAVEL_BOOK_VERSION@
 
 The release procedure writes the version of the release into that line. If
 the line has a placeholder, this copy of the book is not from a release. If
-the two versions are different, select your installed version from
-[the book on GitHub Pages](https://linkuistics.github.io/Ravel/).
+the two versions are different, open the book for your installed version from
+[the release list on GitHub Pages](https://linkuistics.github.io/Ravel/).
 The release procedure keeps each release's book in its own directory there.
 
 No release carries the book yet. Until the first one does, use the checkout's
 Markdown or local build. [Chapter 12](12-deliver-ravel.md#keep-the-book-with-its-release)
-explains this limit and the release address.
+explains this limit and the address of each release's book.
 
 The directory that `brew --prefix ravel` prints contains the
 [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`, and the

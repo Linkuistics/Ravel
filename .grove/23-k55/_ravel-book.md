@@ -846,4 +846,7 @@ node stays open for these leaves, Pages work, whole-book proof and read 2.
   retried. The chapter's ordered table and eight-row recovery table are current;
   the SVG and `figures.md` still show the earlier seven-exit path. Reconcile
   the caption, alternative, key and figure entry, regenerate, and inspect at
-  column width. K187's log has the exact handoff. Clear this entry when fixed.
+  column width. K187's log has the exact handoff. After the redraw, also update
+  the `docs:figures` row of chapter 12's third dated check set. Copy-edit k188
+  wrote it as "The release activity does not show the book steps yet". Clear
+  this entry when fixed.
