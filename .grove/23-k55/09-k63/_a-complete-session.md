@@ -96,10 +96,11 @@ at release time”). Runs of prose must not be longer than the new limit
 draft re-run and the second copy-edit re-run. The owner authorised both on
 2026-10-18. Set art `book-first-half-k144` and set proof
 `book-first-half-k147` serve this document. Thus, no stage under this node
-cuts an art or proof leaf. Draft k136 writes the new anchor, the exact form
-of the placeholder and each figure need in this brief, under a new
-`## Handed forward
+cuts an art or proof leaf. The book brief carries the installation, version
+and figure handoffs from draft k136.
+
+## Handed forward
 
 None. Copy-edit k137 kept the version line intact and closed this node on
-2026-10-18. The open handoffs for k138, k140, k142, k144, k145 and k147 are
-in the book brief, under “Read 1 outcome and its correction run”.
+2026-10-18. Set art k144 and set proof k147 closed its first-half handoffs.
+The book brief retains chapter 12’s release-version teaching with its owner.

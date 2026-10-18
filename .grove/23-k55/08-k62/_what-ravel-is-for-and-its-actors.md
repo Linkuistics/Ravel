@@ -99,19 +99,6 @@ document. Thus, no stage under this node cuts an art or proof leaf.
 
 ## Handed forward
 
-- Drafts k140 and k142, chapters 5 and 6, R16: use this wording, with the
-  local explanation of the result channel:
-
-  > Ravel keeps the first complete result that it receives. That first
-  > `end-session` requests shutdown, which normally ends the harness. A
-  > second `end-session` races that shutdown. For example, another process
-  > in the group can send a result before Ravel stops it. Ravel keeps the
-  > first result, even if the second command succeeds.
-
-  State the schedule where the page needs it: after Ravel detects the result,
-  it gives the managed process 2 seconds to exit. If it still runs, Ravel
-  sends TERM and waits up to 5 seconds, then sends KILL if necessary. These
-  waits end early if the managed process exits. Ravel stops any group
-  members that remain before it reaps the managed process. A result requests
-  shutdown, not proof that cleanup succeeded. Cancellation and cleanup failure
-  still prevent a successful result.
+None. Set proof k147 checked R16 in chapters 2, 5 and 6 on 2026-10-18.
+All three give the first-result rule, the race with shutdown and the same
+shutdown schedule. No first-half correction remains.

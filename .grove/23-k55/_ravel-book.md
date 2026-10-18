@@ -428,20 +428,12 @@ Homebrew under the heading “Install Ravel and check its version” (anchor
 the result unchanged (R12) and that refusal, cancellation and a natural exit
 without a sent result return no result to the caller (R13). It passes the
 strict STE and prose-break checks. This closes document node
-`a-complete-session-k63` again. These handoffs from it stay open:
-
-- **Release implementation k145:** the sole version line in
-  `docs/book/src/03-a-complete-session.md` is exactly
-  `ravel @RAVEL_BOOK_VERSION@`, in a `text` fence. No other line in the
-  repository has the token. K145 replaces it with `ravel <release-version>`
-  and checks it. The prose explains a placeholder and sends the reader to the
-  book for the installed release when the versions are different.
-- **Chapter drafts k138, k140 and k142:** replace links to
-  `03-a-complete-session.md#obtain-the-build-used-by-this-chapter` with
-  `03-a-complete-session.md#install-ravel-and-check-its-version`.
-- **Set proof k147:** check the Homebrew and version route after k145, and
-  the updated inbound anchors. The example check uses the checkout pair and
-  a fake agent, with no terminal.
+`a-complete-session-k63` again. Set proof k147 closed its installation and
+version handoffs on 2026-10-18. Chapter 3 has one version line with the
+placeholder, and the release replacement and guards agree with it. The
+inbound installation links use `#install-ravel-and-check-its-version` and
+resolve. K144 closed the figure handoffs. The example check still uses the
+checkout pair and fake agents, without a terminal.
 
 Draft `writing-an-owner-policy-k138` and copy-edit
 `writing-an-owner-policy-k139` complete the chapter 4 part of this run.
@@ -474,6 +466,22 @@ statuses return no result to the caller (R13). Nine page tables break the
 command-line prose (R11). It passes the strict STE and prose-break checks.
 No heading changed. This closes document node `reference-chapter-k66`
 again. Set art k144 closed its figure handoff.
+
+Set proof `book-first-half-k147` completes this correction run. It read all
+six chapters, their tables and figure text together against R10–R17, the
+contract, shared word decisions, glossary, specifications and ADRs. No
+chapter correction was needed. It cleared the opening unit's stale R16
+handoff and repaired a broken sentence in the chapter 3 brief. All required
+checks passed on unchanged inputs, including 339 project tests, 13 complete
+examples and nine figure comparisons. All 429 local destinations resolve,
+and all nine figures load in Chrome. The task records the controls, digest,
+source inventories and viewing limits.
+
+No first-half defect is handed forward. The second-half handoffs above
+retain their owners: k148 plans that half, k101 checks the completed book's
+visual style and dense figure text, and the later proof checks the finished
+book. Chapter 12 owns the release-version teaching. This proof closes no
+parent node and cuts no correction run. No ADR decision changed.
 
 ## Figure migration
 
