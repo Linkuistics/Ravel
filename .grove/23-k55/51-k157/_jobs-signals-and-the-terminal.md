@@ -117,9 +117,59 @@ Part B is the terminal, the signal state at entry and the guarantees.
   and placement in `jobs-signals-and-the-terminal-k158`, under “Figure handoff
   to art”. Verify and integrate the scaffold figure after the escalation
   table. No figure changed in part A. Reuse chapter 5's two cancellation
-  sequences. Part B supplies the terminal sequence handoff.
+  sequences. Part B's terminal sequence handoff is below.
 - **copy-edit**: read both draft halves together against the contract and
   `docs/book/ste.md`. Preserve the distinction between an ordinary CLI launch
   without a terminal and the separate `run_noninteractive` runner API.
   Preserve ESRCH-only group absence, the conditional EPERM report and the
   difference between retry bounds and an exact wall-clock deadline.
+- **copy-edit**: part B is complete. Preserve the normal/signal/unknown-status
+  holder distinctions, the session-leader exception and the exclusive-authority
+  and no-unrelated-ID-reuse conditions. Keep child `EntrySignals` separate from
+  the CLI's saved handled dispositions and the runner's persistent SIGCHLD
+  repair. The POSIX SIGCHLD exception is deliberate. The draft adds no new
+  runnable example or terminal fragment. Read the k174 source/inventory and
+  guide-destination record alongside k158.
+
+### Terminal sequence handoff to art
+
+Place the terminal lending/recovery sequence in “Lend and recover the terminal”,
+near the ordinary foreground-launch table. The existing tables carry the facts
+independently of the figure. Art owns the source, caption and alternative text.
+
+- Reader question: how does the terminal pass from the launcher to the managed
+  group and back, including when exec fails after handoff?
+- Participants: caller/shell when useful for initial ownership, the Ravel CLI
+  with its runner inside it, the controlling terminal, the child/managed group,
+  and a delegated foreground group in the alternate outcome. The private
+  attempted-group pipe is data passed from child to parent, not another process.
+- Initial condition: ordinary unconfined mode, `/dev/tty` available, CLI group
+  foreground. Query ownership and save `termios` modes before handoff. No
+  terminal or detached mode means no lease. A background launcher lends only
+  after it actually gains foreground, possibly at a later poll.
+- Child sequence: create group, record its ID through the private pipe before
+  `tcsetpgrp`, suppress SIGTTOU for handoff, restore child entry dispositions
+  then mask, exec. Record and pipe are not an exec acknowledgement. Pipe
+  descriptors close across exec.
+- Successful-spawn path: Started means spawn-reported success, not proven exec.
+  The checked parent-mask transition precedes normal supervision. The normal
+  path observes exit without reap, stops the group while identity is reserved,
+  reaps, recovers terminal, then checks group absence. A failed Started check
+  performs bounded cleanup without another lend.
+- Recovery branches for a held lease: own foreground restores modes; normal
+  exit reclaims child's foreground but preserves another holder and its modes;
+  known signal death permits reclaim from another positive holder except the
+  CLI's group or the POSIX session leader's group. Explain that this can remove
+  a nested shell's foreground. Restore modes only with confirmed CLI ownership.
+- Failed-spawn/unknown-status branch: reclaim only the recorded child's
+  foreground, or restore modes if already own. Preserve an unrelated holder
+  and report recovery uncertainty. No record means no invented ownership.
+  An attempted group never authorises numeric signalling after failed spawn.
+- Conditions visible beside that branch: exclusive foreground authority and
+  no unrelated group-ID reuse through recovery. Query and handback are not
+  atomic; CLI lifetime proves neither condition.
+- Recovery calls check foreground queries, `tcsetpgrp`, `tcsetattr` and temporary
+  SIGTTOU restoration. Retain original spawn cause and secondary reports;
+  cancellation can override the outcome. A recovery error never permits result
+  success. No figure should suggest unconditional terminal takeover or proven
+  reap on an error path with unknown status.

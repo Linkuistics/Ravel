@@ -9,7 +9,8 @@ inside the CLI supplies the process and terminal operations.
 [Chapter 3](03-a-complete-session.md#send-the-result-and-finish-the-job)
 introduced a job and its reap through one session. This chapter explains
 why the order matters, how Ravel ends a stubborn process, and what confinement
-changes. [Chapter 8](08-follow-a-session-through-the-code.md#finish-the-managed-job)
+changes. It also explains terminal recovery, entry signals and the limits of
+these guarantees. [Chapter 8](08-follow-a-session-through-the-code.md#finish-the-managed-job)
 shows where these operations occur in the code.
 
 ## The managed process leads a job
@@ -311,3 +312,226 @@ on 18 October 2026. A macOS run does not execute the Linux bubblewrap backend.
 The tests check named operations and process shapes. They do not establish
 containment against every same-user attack or cleanup of a descendant that
 leaves the job's group. They also do not qualify a native x86-64 Linux host.
+
+## Lend and recover the terminal
+
+A **controlling terminal** belongs to a POSIX session. It has one
+**foreground process group** at a time. That group can read terminal input.
+With the usual terminal modes, Ctrl-C sends SIGINT to that group.
+A background group's attempt to read can instead stop it with SIGTTIN.
+
+The runner opens `/dev/tty`, which names its controlling terminal.
+Redirected standard input does not remove that relationship. If the open
+fails, the runner proceeds without terminal job control. Detached modes do
+not open the terminal at all.
+
+An open terminal alone permits no handoff. The runner queries its foreground
+group with `tcgetpgrp` and lends it only when the runner's own group holds it.
+A launcher that starts in the background takes no foreground for itself.
+If a shell later brings that launcher forward, a subsequent supervision poll
+can lend the terminal to the managed group.
+
+Before the first handoff, the runner saves the terminal attributes with
+`tcgetattr`. These **terminal modes** control such behaviour as character
+echo, line input and keyboard signals. An interactive program can change them
+to receive individual characters without echo. If KILL ends that program,
+the program cannot restore the modes itself.
+
+The ordinary foreground launch follows these steps:
+
+| Step | Owner and operation | Purpose |
+|---|---|---|
+| Save | The runner retains a terminal descriptor, foreground ownership and the current modes in a terminal lease | Keep the recovery information alive through spawn and supervision |
+| Record | The child enters its new group and writes that group ID to a private pipe | Tell the parent which group can take the terminal, even if exec fails |
+| Lend | Before exec, the child calls `tcsetpgrp` to make its group foreground | Complete the handoff before the program's first terminal read |
+| Supervise | The runner observes the child and performs any required group stops before reap | Retain the group identity for those signals |
+| Recover | After reap, the runner applies the holder rules below and checks the terminal again | Restore saved modes only when the runner's group owns foreground |
+
+A background group can receive SIGTTOU when it changes terminal foreground.
+The runner therefore temporarily ignores SIGTTOU for handback and mode
+restoration, then restores its previous disposition. It checks both the
+terminal operation and that restoration. The child also suppresses SIGTTOU
+for its handoff before it restores its entry signal state.
+
+The lease remembers whether this launch ever held foreground. If it never
+did, the runner takes no foreground and restores no modes.
+For a lease that did hold foreground, the child's outcome changes the rule:
+
+| Outcome and current holder | Foreground and mode action |
+|---|---|
+| The runner's group already holds foreground | Restore the saved modes |
+| Normal child exit, with the child's group still foreground | Take foreground back, confirm it, then restore the modes |
+| Normal child exit, with another group foreground | Preserve that holder and its modes |
+| Known child death by signal | Reclaim from a positive foreground group other than the runner's group or the POSIX session leader's group. Restore modes only after confirmed ownership |
+| Failed spawn or unknown child status, with the recorded child's group foreground | Attempt the conditional handback described below, then restore modes after confirmed ownership |
+| Failed spawn or unknown child status, with an unrelated group foreground | Preserve it and report unconfirmed foreground and mode recovery |
+
+The wider signal-death rule covers a managed supervisor that gives foreground
+to another group, then dies without cleanup. Otherwise, that delegated group
+could retain a raw terminal and continue to read input. The accepted cost is
+that a nested job-control shell can lose its foreground after such a death.
+Unknown child status does not permit this wider takeover.
+The POSIX session leader is the process that created that POSIX session.
+
+Exec can fail after the child takes foreground. The parent therefore retains
+the lease across a spawn error. The private pipe closes across exec and
+provides an attempted-group record, not proof of exec or a live group.
+If the record is missing or invalid, recovery is unconfirmed and Ravel reports it.
+The runner never signals that recorded number after failed spawn.
+
+Failed-spawn handback requires two conditions through recovery: no other
+process or thread changes foreground, and no unrelated group reuses the
+recorded ID. These conditions also apply to recovery from unknown status.
+The foreground query and handback are separate operations. A one-session
+CLI lifetime does not make them atomic or establish those conditions.
+
+Ravel reports failures of foreground queries, handback, mode restoration and
+temporary SIGTTOU restoration. A recovery failure prevents result success.
+After failed spawn, the original spawn error stays primary unless cancellation
+overrides it. Recovery reports remain visible beside that outcome.
+
+The tests use a **pseudo-terminal**, or **PTY**, to observe these operations
+without a human terminal. A PTY has two ends. The fixture uses one as its
+controlling terminal, while the test controls input and reads output through
+the other. Separate fixture processes keep terminal and signal changes out of
+the test runner itself.
+
+| Test source | Observed distinction |
+|---|---|
+| `crates/keyed-launch/tests/job.rs` | A raw-mode child really changes the modes before KILL. The runner then recovers foreground and saved modes |
+| `crates/keyed-launch/tests/job.rs` | The same other foreground holder remains after normal exit but loses foreground after signal death |
+| `crates/keyed-launch/src/run/terminal_tests.rs` | Failed exec retains the lease. Unknown status preserves an unrelated holder. Recovery failures remain in the error |
+
+These tests check named process arrangements and failure reports. They do not
+prove exclusive terminal authority in every caller environment.
+The book's complete examples have no terminal, so they do not check these
+handoff branches.
+
+## Preserve the entry signal state
+
+A signal's **disposition** is the process-wide choice to use its default
+action, ignore it, or call a handler. A thread's **signal mask** names signals
+whose delivery that thread blocks. A blocked signal can remain queued until
+the thread permits delivery. An ignored signal and a blocked signal are
+different states.
+
+Exec replaces the program but preserves the thread's signal mask.
+It resets caught handlers to default actions and generally preserves ignored
+dispositions. In particular, portable code cannot assume that an ignored
+SIGCHLD survives exec unchanged. The [POSIX exec specification](https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html)
+states that exception. Ravel explicitly restores its recorded
+ignore/default values before exec on its supported targets.
+
+Ravel aims to give the managed program the signal state from the CLI's
+executable entry, before Rust startup changes it. For example, Rust startup
+ignores SIGPIPE. A capture in `main` would see that new ignore instead of the
+state that Ravel inherited.
+
+The CLI's initializer in `signal_state.rs` records the ignored set and the
+initial thread's mask before those runtime changes. It keeps that record
+separate from later launcher repairs. If a required query fails, the CLI
+refuses launch. It does not accept a partial record. The runner receives the values through
+`EntrySignals` and `Launch.transparent`. It does not capture them itself.
+
+| State | Child behaviour in a transparent launch |
+|---|---|
+| Recorded ignore | Set the signal to ignored before exec |
+| Other recorded disposition | Set the signal to its default action. Do not copy a host handler |
+| Recorded mask | Apply the mask after the dispositions, so delivery uses the restored actions |
+| SIGKILL and SIGSTOP | Leave these unchangeable dispositions alone |
+| Unsupported or runtime-reserved signal numbers | Exclude the platform's specified numbers. A failure for another required number remains an error |
+
+The launcher also needs signal state of its own. An ignored SIGCHLD or the
+`SA_NOCLDWAIT` flag can let the system discard child status without a parent
+reap. That would remove both the wait result and the identity reservation
+needed for group cleanup. The CLI checks and repairs this state before the
+policy worker starts. The runner checks it before its managed child starts.
+These repairs do not alter the immutable child entry values.
+
+The runner installs handlers for nonignored TERM and HUP. It also handles
+nonignored INT when no terminal exists or the launch is transparent.
+Ravel uses a transparent launch, so a nonignored INT sent directly to the CLI
+can cancel it even while the managed group owns foreground.
+The runner leaves ignored cancellation signals ignored.
+
+Terminal INT follows foreground ownership. Before handoff, it can reach the
+CLI's group. After handoff, it reaches the managed group. The child's death
+from that signal is not itself a cancellation observation by the CLI.
+A result can still succeed after child signal death if the CLI observes no
+cancellation and all required cleanup succeeds.
+
+The runner's handlers and SIGCHLD repair persist after its call returns,
+on success or failure. A synchronous return does not restore a host's prior
+state. The distinction is explicit:
+
+| Boundary | Restoration responsibility |
+|---|---|
+| `EntrySignals` | Supply the child's ignore/default state and mask. It restores no host state |
+| Runner return | Report the child outcome and recovery failures. Retain installed cancellation handlers and any SIGCHLD repair |
+| Ravel CLI final cleanup | Check temporary masks and restore the saved INT/TERM/HUP dispositions under the conditions below |
+| A host that resumes other work | Needs its own signal lifetime, late-cancellation policy and restoration contract. The current runner supplies no such guarantee |
+
+The CLI blocks its handled signals across the spawn transition.
+After spawn reports success, its checked `Started` transition restores the
+parent's entry mask. Failure enters bounded child teardown and terminal
+recovery. It does not return early with an abandoned child.
+
+`Started` means spawn-reported success, not confirmed exec. A child can die
+before exec and still produce that event. Only an actual wait produces
+`Reaped`.
+
+Policy-output reader threads retain a mask that blocks INT, TERM and HUP
+until those threads exit. A block on only the main thread would leave another
+thread able to consume a signal during handoff. A bounded output drain can
+leave a shielded reader alive until CLI exit.
+
+On both success and failure, final cleanup keeps handlers installed while
+the CLI restores its entry mask and collects cancellation observations.
+It then blocks the handled signals, reads queued signal state and consumes the
+runner's late signal. Under that block, it restores its saved handled
+dispositions. A failed block keeps the handlers. Unknown queued signal state never
+means that cancellation is absent.
+
+| Final condition | CLI action |
+|---|---|
+| Known state, successful disposition restoration, no cancellation | Restore the entry mask. Other cleanup checks still precede result output |
+| Cancellation selected | Report it and cleanup failures, then check the default action, unblock and raise the selected signal. Use a numeric fallback if propagation cannot succeed |
+| Queued signal query failed while signals remain blocked, with no selected cancellation | Keep them blocked through diagnostics. Return failure without a result |
+| Required mask or disposition operation failed | Retain the failure report and prevent result success |
+
+An entry-blocked signal does not become cancellation merely because it is
+queued. The managed child receives that entry block too.
+The CLI's final signal decision follows the priority in
+[chapter 8](08-follow-a-session-through-the-code.md#choose-the-final-outcome).
+Its cleanup restores the saved handled dispositions and temporary masks.
+It does not undo the SIGCHLD repair or restore every runtime signal change
+for a host that continues after the call.
+
+## Know the guarantees and their limits
+
+Each guarantee below includes the boundary within which it holds.
+The successful result is evidence of the required checks, not proof that
+every descendant or hostile same-user process is absent.
+
+| Guarantee | Limit |
+|---|---|
+| Ravel returns a result only after that launch's child reap, confirmed group absence and successful required cleanup | Group membership defines the cleanup scope. A descendant that leaves the group lies outside it |
+| Ravel supervises shutdown while the CLI remains alive | Abrupt CLI death, such as SIGKILL, can orphan the managed job. Such death is not successful completion |
+| Ravel keeps the first complete result through a private inherited channel and rejects invalid result files | The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic |
+| Ravel verifies and reaps the policy worker before the managed launch | Owner policy remains trusted executable code. Detached policy children lie outside worker cleanup |
+| Ravel checks terminal recovery under the holder rules above | Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller |
+| Ravel retains failure reports and attempts required cleanup | A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result |
+| Cancellation observed by the final decision suppresses the result | A new signal can arrive after that decision. There is no atomic operation across signal delivery and the final output write |
+| Successful cleanup permits the final result write | The write can still fail after a prefix reaches stdout. Ravel cannot retract that prefix. Failed stderr writes can also prevent delivery of diagnostics |
+| The CLI owns one launch and then exits | Process-wide handlers, signal latches and terminal authority do not support concurrent host calls or a fully restored host that continues work |
+
+Native-entry behaviour has measured support on aarch64 macOS and aarch64
+GNU/Linux. Each measurement covers its named kernel, libc and compiler,
+not every combination. The GNU/Linux measurement used Rust 1.85.0.
+Native x86-64 Linux remains unqualified: builds, lint checks and QEMU
+user-mode execution do not qualify an x86-64 kernel.
+
+The current runner is a private package within Ravel. Neither that package
+boundary nor these checks deliver a persistent runner for an arbitrary host.
+Chapter 10 belongs to a supported extracted component with its own consumer
+contract. It does not exist yet.
