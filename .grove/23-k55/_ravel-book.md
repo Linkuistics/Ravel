@@ -798,7 +798,7 @@ guides' native-entry status as current fact.
 | The loose contract (R15) in agreement with chapter 1 | chapter 7 (`the-parts-of-ravel-k151`) |
 | The packages, worker and SDK figure reused | chapters 7 and 12 (art stages) |
 | The dense figures' small text | `ravel-book-k101` |
-| Chapter 12 art k185 adds the 263,202-byte release activity. The fourteen SVGs now total 3,175,724 bytes, above the earlier 2 MB set benchmark. The new figure is legible at the 750 px column and stays below 300 KB | `ravel-book-k101`, with the existing set-size assessment |
+| Chapter 12 art correction k189 adds the book steps to the release activity. Its SVG is 302,385 bytes and the fourteen SVGs total 3,214,907 bytes, above the earlier 300 KB and 2 MB benchmarks. The figure is legible at the 750 px column | `ravel-book-k101`, with the existing size assessment |
 | Chapter 9 art k176 records a 378,003-byte terminal SVG and a thirteen-figure set of 2,912,522 bytes. These exceed the earlier 300 KB per-figure and 2 MB set benchmarks. Its new text is about 11.3 px at the 750-pixel column | `ravel-book-k101`, with the existing size and dense-text assessment |
 | Chapter 5 says “managed program” three times (in “Read notices separately from results” and the exit-status table) where the rest of the book says “managed process”. Copy-edit `the-parts-of-ravel-k167` changed chapter 7 to “managed process” | the whole-book proof that `ravel-book-k101` cuts |
 | Chapters 5 and 6 write one signal two ways (SIGINT and INT, SIGTERM and TERM). Copy-edit `jobs-signals-and-the-terminal-k175` set the short-name rule in `docs/book/ste.md` (“Signal names”) and applied it to chapter 9 | the whole-book proof that `ravel-book-k101` cuts |
@@ -836,17 +836,6 @@ node stays open for these leaves, Pages work, whole-book proof and read 2.
 
 ## Handed forward
 
-- **Art `deliver-ravel-k189`** owns the release activity correction after draft
-  k187. In `release-delivery.typ`, add the Pages remote preflight, the tagged
-  book build before archives, the Pages branch push and `verify` between the
-  GitHub Release and tap, and the final `live` action after installation.
-  A failed book build joins local-cut recovery. A failed book push joins
-  GitHub/book recovery (`--book-only`, then `--tap-only`). Add the eighth grey
-  exit for served Pages failure, with branch/source checks and only `live`
-  retried. The chapter's ordered table and eight-row recovery table are current;
-  the SVG and `figures.md` still show the earlier seven-exit path. Reconcile
-  the caption, alternative, key and figure entry, regenerate, and inspect at
-  column width. K187's log has the exact handoff. After the redraw, also update
-  the `docs:figures` row of chapter 12's third dated check set. Copy-edit k188
-  wrote it as "The release activity does not show the book steps yet". Clear
-  this entry when fixed.
+No chapter-local art defect remains from the Pages correction. Proof k190
+already stands after art k189. Whole-book art k101 retains the figure-size
+assessment above.

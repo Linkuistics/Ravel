@@ -424,11 +424,13 @@ the lock when the task succeeds or fails.
 The activity shows which checks precede the first public write and where each
 failure resumes. After a version write, recovery keeps the selected version.
 
-The grey exits refer to the [recovery table](#recover-a-partial-release-without-another-bump).
+The eight grey exits refer to the [recovery table](#recover-a-partial-release-without-another-bump).
 Each decision summarises the checks since the previous decision. A failure
 stops at its own step, before the later actions in that group.
+The book build stays local. The Pages branch check precedes the tap update.
+The served-site check comes last.
 
-![The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut.](figures/release-delivery.svg)
+![The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut.](figures/release-delivery.svg)
 
 [Open the release activity at full size.](figures/release-delivery.svg)
 
@@ -791,7 +793,7 @@ same host on 2026-10-18:
 | `release:doctor` | Prerequisites, pinned mdBook and the book version line passed. Pages was disabled, which produced a note |
 | `release:lifecycle:test` | Release order, recovery, book builds, local branch delivery and loopback site checks passed in isolated fixtures |
 | `docs:examples` and `docs:excerpts` | Fourteen complete examples and eight source excerpts passed |
-| `docs:figures` | Fourteen figures matched their sources. The release activity does not show the book steps yet |
+| `docs:figures` | Fourteen figures matched their sources. The corrected release activity includes the book steps and eight recovery exits |
 
 The third set ran no project version cut, push, tag, tap edit, permanent
 installation or GitHub Pages deployment. It repeated no archive or formula check.

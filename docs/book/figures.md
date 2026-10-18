@@ -107,7 +107,7 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
 | `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
-| `release-delivery` | Sequential release actions, with local checks before the first push of `main`. Each decision summarises the actions since the previous decision. A failure stops at its own step. Seven grey exits name manual recovery points, with no new version cut after a version write. The chapter's recovery table gives the full procedure. The figure has no Pages deployment step. |
+| `release-delivery` | Sequential release actions, with local checks and the tagged book build before the first push of `main`. The GitHub release precedes the Pages branch push and `verify`, which precede the tap. The served-site check, `live`, comes last. Each decision summarises the actions since the previous decision. A failure stops at its own step. Eight grey exits name manual recovery points, with no new version cut after a version write. The chapter's recovery table gives the full procedure. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `escalation-timing` | A and B compare full escalation with early child exit. Both continue at C, the normal cleanup path. Signal arrows are attempts, not confirmed exit. Group stops precede reap. Terminal recovery precedes the signal-0 query, where only ESRCH confirms absence. Poll intervals and retry bounds supply no wall-clock guarantee. The time axis is not to scale. |
@@ -1320,6 +1320,34 @@ The fourteen SVGs total 3,175,724 bytes. The set remains above its earlier
 shared figures. This pass adds no editor-preview, other-theme, narrow-viewport,
 GitHub or GitHub Pages evidence. It establishes no reader-comprehension or
 new runtime/platform result.
+
+### Chapter 12 art correction, 2026-10-18 (`deliver-ravel-k189`)
+
+The release activity now includes the Pages remote preflight, the tagged book
+build before archives, the Pages branch push and `verify` before the tap, and
+`live` last. Eight grey exits agree with the chapter's recovery table. Book
+build failure keeps the cut local. GitHub/book failure resumes with
+`--book-only`, then `--tap-only`. The last exit checks the branch and Pages
+setting, enables Pages if needed, and repeats only `live`.
+
+The caption, alternative and key agree with that order. The page's other
+tables still carry its comparisons and mappings. A separate Pages diagram
+and a second installation diagram would repeat those relations. These are
+editorial choices, not restrictions of the contract or limits of the medium.
+
+Chrome showed the complete activity on the local light mdBook page at a
+measured 750 px column, in a 1227 × 919 viewport. The actions, eight exits,
+boundaries and key are legible, with no label or arrow overlap. The body
+text is about 13.3 px at that width. The full-size SVG opened by direct
+navigation, and its upper region was inspected. A link-click attempt timed
+out without navigation. Both page image copies loaded, including the hidden
+zoom copy. Raw Markdown supplied the whole-chapter read.
+
+The SVG is 302,385 bytes. The fourteen SVGs total 3,214,907 bytes. These
+exceed the earlier 300 KB per-figure and 2 MB set benchmarks. Whole-book art
+k101 retains the size and dense-text assessment. This pass adds no editor
+preview, other-theme, narrow-viewport, GitHub or GitHub Pages evidence. It
+establishes no reader-comprehension or new runtime/platform result.
 
 ## Not yet verified
 
