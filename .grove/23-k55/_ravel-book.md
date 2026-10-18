@@ -648,5 +648,6 @@ guides' native-entry status as current fact.
 | The loose contract (R15) in agreement with chapter 1 | chapter 7 (`the-parts-of-ravel-k151`) |
 | The packages, worker and SDK figure reused | chapters 7 and 12 (art stages) |
 | The dense figures' small text | `ravel-book-k101` |
+| Chapter 5 says “managed program” three times (in “Read notices separately from results” and the exit-status table) where the rest of the book says “managed process”. Copy-edit `the-parts-of-ravel-k167` changed chapter 7 to “managed process” | the whole-book proof that `ravel-book-k101` cuts |
 | Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |
 | Guide `RELEASING.md` | chapter 12, then `book-contributor-delivery-fold-in-k165` |

@@ -8,14 +8,14 @@ The [caller](02-actors-and-words.md#caller-and-owner) interprets the result.
 A [session](02-actors-and-words.md#caller-and-owner) is one
 `start-session` invocation, from the request to the reported outcome.
 
-This chapter explains the source boundaries behind those roles. After it, you
+This chapter explains the parts of the source that hold those roles. After it, you
 can locate each part and explain why Ravel uses TypeScript and two Rust
 packages. Chapter 8 follows one session through the functions. Chapter 9
 explains the process and terminal mechanics.
 
 The workspace contains two Rust packages: `ravel` and `keyed-launch`.
 The policy worker is a separate TypeScript build within `crates/ravel`.
-The table separates these source boundaries from the processes that run.
+The table gives the source location of each part and the process in which it runs.
 
 | Part | Source location | Where it runs | Responsibility |
 |---|---|---|---|
@@ -34,16 +34,17 @@ not a request to a persistent daemon.
 
 ## The Ravel CLI coordinates the session
 
-The CLI owns the connection between selection and supervision. Its
+The CLI connects the policy's selection to the supervision of the job. Its
 `choice.rs` prepares the request and obtains a checked policy response.
 Its `run.rs` creates a fresh result channel and gives that channel to the
 runner with the selected command. After supervision, the CLI combines the
 result, cancellation and cleanup reports before it writes to standard output.
 
-The executable keeps the caller's environment and terminal authority while
-policy code runs elsewhere. It also reserves standard output for the result.
-The managed program's standard output and Ravel's diagnostics go to standard
-error. A policy response cannot write the session's final result.
+The `ravel` process keeps the caller's environment and the authority over the
+terminal while policy code runs in the worker. It also reserves standard output
+for the result. The standard output of the
+[managed process](02-actors-and-words.md#the-managed-process-and-its-result)
+and Ravel's diagnostics go to standard error. A policy response cannot write the session's final result.
 
 The package has a library target as well as an executable target. The
 library exports `SessionChannel`, `publish_result` and `end_session`, with
@@ -59,7 +60,7 @@ in the CLI's coordination code.
 
 | Decision | Owner | What the other parts receive |
 |---|---|---|
-| Which program to select | Owner policy | A command or a refusal |
+| Which program to select | Owner policy | A command or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) |
 | Whether the policy response is valid | Ravel CLI | A checked command, or no launch |
 | How to launch and stop the job | Runner | Launch options from the CLI |
 | Whether to return the result | Ravel CLI | Job observations and cleanup reports |
@@ -76,7 +77,7 @@ The build compiles the worker and its Bun runtime into `ravel-policy`.
 An installed Ravel therefore needs no separate Bun or Node.js installation.
 Rust owns supervision, while TypeScript supplies the policy execution
 environment. This choice costs a second build tool, a larger executable,
-runtime notices and checks on each delivery target.
+the licence notices of the Bun runtime and checks on each delivery target.
 
 The worker is a separate process so owner code does not execute inside the
 process that supervises the session. In `worker.rs`, the CLI starts it with
@@ -91,38 +92,40 @@ the new session's result channel only after policy evaluation succeeds.
 Thus, the worker receives neither session's
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 
-The worker has a distinct lifetime. A valid response does not let it
-continue beside the managed program. The CLI closes the protocol socket,
-ends the worker and confirms its reap. To reap a child, its parent collects
-that child's exit status. The CLI also removes the worker's private directory.
+The worker stops before the managed process starts. A valid response does
+not let it continue beside the managed process. The CLI closes the protocol
+socket, ends the worker and confirms its reap. A parent reaps a child when it
+collects the exit status of that child. The CLI also removes the worker's
+private directory.
 
 | Condition at the worker boundary | Source that enforces it | Consequence |
 |---|---|---|
-| Identity agrees before the policy request | `worker.rs`: `converse`, `verify_hello` | An incompatible worker receives no policy request |
+| The worker's identity matches before the policy request | `worker.rs`: `converse`, `verify_hello` | An incompatible worker receives no policy request |
 | Response passes the checks | `choice.rs`: `judge` | Invalid data does not become a command |
 | Worker reap and directory removal succeed, with no failed stop operation | `worker.rs`: `evaluate` | Failed required cleanup prevents a managed launch |
-| Evaluation succeeds before executable resolution and launch | `choice.rs`: `evaluate_and_resolve`, then `run.rs`: `run` | The worker and managed program do not overlap on this path |
+| Evaluation succeeds before executable resolution and launch | `choice.rs`: `evaluate_and_resolve`, then `run.rs`: `run` | The worker and the managed process do not run at the same time on this path |
 
-This order closes the policy phase before the job phase starts. It prevents
-any overlap of the worker's protocol and diagnostic activity with the
-managed launch. It also lets the CLI reject a selection when worker cleanup
+This order closes the policy phase before the job phase starts. Thus the
+worker's protocol messages and diagnostics cannot occur during the managed
+launch. The order also lets the CLI stop the session when worker cleanup
 fails, before the selected program can act.
 
 The separate process is not a sandbox for hostile owner code. Policy is
 trusted code. It can start detached children, which the worker cleanup
 guarantee does not cover. Same-user code can also tamper with files.
-The [trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
-explain the distinction between these controls and confinement of a managed
-program.
+Chapter 2 explains how these controls differ from the
+[confinement of a managed process](02-actors-and-words.md#trust-and-confinement).
 
-Startup controls span three places. The CLI filters environment variables
-before the worker starts. The worker build disables dotenv, bunfig and
+Three parts of Ravel control the worker's startup. The CLI filters
+environment variables before the worker starts. The worker build disables dotenv, bunfig and
 tsconfig autoloading. The worker starts in a private empty directory, then
 changes to `/` before it registers embedded imports or loads owner policy.
-These controls limit ambient inputs that could affect policy evaluation.
+These controls limit the files and variables that can change policy
+evaluation without a request from the policy.
 
-Package imports still need Bun's resolver. The build keeps package.json
-autoloading enabled, and root-level package files remain relevant.
+Package imports still need Bun's resolver. The build keeps package
+autoloading enabled. `/package.json` and `/node_modules` stay reachable
+inputs for the resolver.
 The [module-resolution reference](06-reference.md#import-resolution)
 gives the supported import rules and their limits. A runtime replacement
 needs to preserve those rules as well as TypeScript syntax.
@@ -140,7 +143,7 @@ socket at runtime.
 | SDK surface | Purpose | Limit |
 |---|---|---|
 | `Policy`, `SelectionRequest`, `Selected`, `Refused` | Describe selection inputs and outputs | Types do not replace runtime checks |
-| Context and host types | Describe policy data and the host operations | Policy context grants no result authority |
+| Policy context and host types | Describe policy data and the host operations | Policy context grants no result authority |
 | `definePolicy` | Check a policy object's TypeScript shape | It does not execute the policy |
 | `readChoice` | Read names that the policy offers from `.ravel-choice` | The policy gives those names their command meanings |
 
@@ -154,7 +157,8 @@ settings and policy discovery. The CLI still uses the default policy path
 or an explicit `--config` path. Settings stay at their account path when
 the explicit policy path changes. The
 [policy chapter](04-writing-an-owner-policy.md) teaches this interface.
-Internal rearrangement does not justify a new configuration format.
+A change to Ravel's internal structure does not justify a new configuration
+format.
 
 A new command choice usually belongs in owner policy alone. A new SDK
 field crosses more boundaries: its TypeScript declaration, worker messages
@@ -163,13 +167,13 @@ with Ravel's developers.
 
 ## The runner owns the local job mechanics
 
-`keyed-launch` hides process-group setup, escalation, reap and terminal
-recovery behind Rust launch types. It forwards cancellation signals to the job.
-`Argv` holds a program and its arguments as separate words.
-`Launch` adds the working directory,
-environment removals and grants, an optional completion channel, signal state
-and escalation durations. The runner spawns the command directly.
-A shell participates only when the command selects one.
+`keyed-launch` contains the process-group setup, escalation, reap and
+terminal recovery, with Rust launch types as their interface. It forwards
+cancellation signals to the job. `Argv` holds a program and its arguments as
+separate words. `Launch` adds the working directory, environment removals
+and grants, an optional completion channel, signal state and escalation
+durations. The runner spawns the command directly. A shell participates only
+when the command selects one.
 
 The runner does not choose a policy or interpret provider and model labels.
 It also does not read the Ravel result. Its completion channel tells it only
@@ -187,17 +191,21 @@ that the caller receives.
 | `Ended` | Report child status, the cause of its end, channel appearance, group state and retained operation reports |
 
 The separate Rust package lets developers exercise job mechanics without
-the TypeScript worker or Ravel's policy conventions. Its sole production
+the TypeScript worker or Ravel's policy conventions. Its only production
 dependency is `libc`, which supplies operating-system calls. A correction to
 terminal recovery can stay inside the runner while the policy interface
 stays unchanged. Chapter 9 explains those mechanics and their limits.
 
-The consumer still supplies the environment rules, completion channel and
-escalation durations. It checks `Ended.group` before it acts on completion
-and retains operation reports. The runner can change process-wide signal
-state. Its return does not promise to restore a host for unrelated future
-work. Chapter 10 has no text yet: these private packages do not establish a
-supported component for another project or a persistent runner contract.
+The code that calls the runner is its consumer. In Ravel, the Ravel CLI is
+the consumer. It supplies the environment rules, completion channel and
+escalation durations. It checks `Ended.group` before it acts on completion,
+and it keeps the operation reports that `Ended` carries. The runner can
+change process-wide signal state, and its return does not restore a host
+for unrelated future work.
+
+Chapter 10 has no text yet. These private packages do not establish a
+supported component for another project or a contract for a
+[persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits).
 
 ## The result channel carries the value
 
@@ -220,16 +228,17 @@ result. An absent file is no result.
 | `SessionChannel` | File contents and the supplied `Ended` | Whether that `Ended` belongs to its own launch |
 | Ravel CLI | Which channel belongs to the launch, plus the other cleanup and signal reports | What the result means to the caller |
 
-The consumer pairs the channel with the launch. The Rust type of
+The Ravel CLI pairs the channel with the launch. The Rust type of
 `SessionChannel::result_after` accepts an `Ended` from any launch.
 `run.rs` passes the outcome of the launch that received that channel.
 It then explicitly closes the channel and checks the other cleanup results.
 A readable file alone cannot establish success.
 
-A change to result storage therefore reaches the result channel, the
+A change to result storage therefore affects the result channel, the
 runner's observation and the CLI's coordination. It does not require a new
-policy choice. A private file representation helps, but it does
-not remove the need to join these observations in the right order.
+policy choice. The result channel keeps its file format private, so owner
+policy and callers do not depend on it. But the CLI still needs to combine
+these observations in the correct order.
 Chapter 8 follows that order and the failure paths.
 
 ## The program contract stays loose
