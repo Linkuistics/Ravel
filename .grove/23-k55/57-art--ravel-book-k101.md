@@ -33,6 +33,13 @@ all diagram types. Use the `art` producer; no new art-review kind is needed.
   figures to this pass. Check chapters 7–12 for the same.
 - Chapter 10 is outside this node until a supported extracted component and
   consumer exist. Its later art applies the same shared style.
+- Chapter 8 art k172 added the six-participant `session-code-path` sequence.
+  Its body text is about 8.4 px at the 750 px chapter width, with a full-size
+  link for detail. Include it in the dense-text correction. Its SVG is
+  299,179 bytes; the eleven-figure set is 2,240,789 bytes, above the first-half
+  2 MB benchmark in `docs/book/figures.md`. Assess the complete set's size
+  alongside its legibility. This is not a claim that the earlier set budget
+  passes or that the agreed medium must change.
 
 ## Done when
 

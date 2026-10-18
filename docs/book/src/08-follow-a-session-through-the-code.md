@@ -46,6 +46,16 @@ Paths below are relative to the checkout root.
 | Complete cleanup and decide | `run`, `Handlers::finalise`, `settle` | A result that can reach the final write |
 | Return the result | `run`, then `main` | Unchanged output, then status 0 if the write and flush succeed |
 
+The sequence shows why the sent result reaches the caller only after worker
+cleanup, managed-job cleanup and the final outcome decision.
+
+![The CLI checks and reaps the policy worker before it launches the managed process. A second CLI sends finished through the result channel. The runner stops the group before reap and checks the channel again after cleanup. Only successful cleanup and the final decision permit unchanged output.](figures/session-code-path.svg)
+
+[Open the full session sequence at full size](figures/session-code-path.svg).
+The optional region applies when `watch` sees the result before child exit.
+The later appearance check also finds the result when the child exits first.
+Terminal actions are conditional. The checked example has no terminal.
+
 During supervision, the
 [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
 starts a second `ravel` process for `end-session`. That process sends the
@@ -355,7 +365,7 @@ result channel or launches the fake.
 Ravel does not substitute another policy or command when selection fails.
 
 The table locates the other forks. Its statuses describe isolated failures
-without cancellation. The paragraphs after the table explain combined worker failures.
+without cancellation. A second table explains combined worker failures.
 The [exit-status table](06-reference.md#exit-statuses) gives their meaning to
 the caller.
 
@@ -377,12 +387,14 @@ decision to refuse. A valid policy answer also cannot override an unconfirmed
 worker reap or failed required cleanup. The evaluator retains the original
 failure, worker operation reports and separately captured policy output.
 
-`worker::evaluate` also decides between combined failures.
-A diagnostic-output overflow takes priority over the conversation failure,
-which remains in the report. Otherwise, a conversation failure keeps its
-classification when teardown fails too. For example, a policy refusal keeps
-3, and a timeout keeps 124. Teardown alone changes a successful conversation
-to worker failure, status 5.
+Without cancellation, `worker::evaluate` uses this priority when failures
+combine. The table separates the primary failure from the reports that remain.
+
+| First applicable condition | Primary failure | Other reports |
+|---|---|---|
+| Diagnostic output exceeds its bound | Output-limit refusal | Conversation failure and teardown problems remain |
+| Conversation fails | That failure keeps its classification, such as 3 for policy refusal or 124 for timeout | Teardown problems remain |
+| Conversation succeeds, but required teardown fails | Worker failure, status 5 | Teardown problems remain |
 
 The executable check does not guarantee that a later spawn succeeds.
 For example, a script can pass the file checks but name a missing interpreter.
@@ -526,9 +538,12 @@ When cancellation overrides an original failure, it reports that failure too.
 ![After cleanup attempts, Ravel combines signal observations and reports failures. Cancellation wins, then an original failure, then a cleanup error, then a group that survives. Only success permits the result write and flush.](figures/outcome-precedence.svg)
 
 [Open the outcome-precedence activity at full size](figures/outcome-precedence.svg).
-The figure shows the order of decisions after required cleanup attempts.
-The source excerpt and table above expand its signal step, with the
-second CLI latch read.
+The figure separates report order from outcome priority after required
+cleanup attempts. Under cancellation, `settle` reports an original failure
+first, then cleanup errors, then a group that survives.
+Its signal step gives source priority, not arrival order. The earlier
+`look(true)` snapshot supplies the last fallback, after another CLI latch read.
+The excerpt and table above give the precise expression.
 
 The primary outcome follows this order:
 

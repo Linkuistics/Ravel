@@ -103,9 +103,10 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `system-context` | Ravel between a caller, such as an orchestrator, and a harness that runs an LLM session or another selected program; the owner controls command selection. The sent result asks Ravel to stop, and return follows confirmed cleanup. Responsibility boundaries are not security boundaries. |
 | `process-authority` | Processes and temporary files across a session, not simultaneous lifetimes or OS containers. The worker response and opaque result use separate paths. Worker end, reap and private-directory removal precede the managed launch. The runner runs inside the Ravel CLI. |
 | `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. The sent result precedes cleanup. Only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
+| `session-code-path` | Chapter 8's full successful path, with the runner inside the original CLI and a second CLI for `end-session`. Worker cleanup precedes launch. The optional region covers result-triggered grace and escalation. A later appearance check also finds a result after early child exit. Group stop precedes reap. X marks confirmed reap or channel removal. The second CLI's exit and reap are omitted. |
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
-| `outcome-precedence` | Which outcome Ravel chooses when failures and signals combine, in the order of `settle` in `run.rs`: every cleanup step is attempted first, then the first signal found is taken, then each decision gives the outcome in precedence order, and only a pass of every decision reaches the final write. The flow shows precedence, not the order of calls. It shows the same rule as `settled-exit-status` as a flow of decisions. |
+| `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
@@ -155,11 +156,12 @@ styles. `_draw.typ` draws each shape directly. It has no sketch code, seed
 or roughness control. `--input style=crisp` is optional. A different style
 name fails. `_style.typ` holds the palette, fonts and weights.
 
-The nine layout records stay byte-for-byte unchanged through this restyle.
+The nine layout records stayed byte-for-byte unchanged through that restyle.
 The records also hold the labels. Thus, this pass keeps their short result
 labels, including “exact result”, “No result bytes” and “suppress”. The
 captions, alt text and adjacent prose give their meaning with “unchanged”
 and “return no result to the caller”, as R12 and R13 require.
+Later figure edits use those words in labels too.
 
 **No reserve sketch backend.** Rough.js on Bun has no use under the crisp
 contract. It is not a dependency or a planned alternative. The earlier
@@ -1095,6 +1097,27 @@ Raw files supplied the complete chapter and source read. This proof did not
 inspect chapter 2's editor preview, other themes, narrower viewports or the
 full-size system-context link. GitHub and the published site remain unavailable;
 the check establishes no real-agent execution or human comprehension result.
+
+Chapter 8's art pass inspected all four embedded figures and their adjacent
+explanations in locally served mdBook through native Chrome on 2026-10-18.
+The light page used a 1227 × 919 viewport and a 750 px content column. The new
+full session sequence and revised outcome activity were also inspected at
+full SVG size. Their labels, arrows and keys do not overlap. The combined
+worker-failure table was legible at chapter width. All four chapter images
+loaded. A scratch page's deliberately absent SVG failed the same image-load
+check, while its present SVG passed.
+
+The full sequence's body text is about 8.4 px at chapter width. Its full-size
+link supplies detail, but dense text remains with whole-book art `ravel-book-k101`.
+The new SVG is 299,179 bytes. The eleven-figure set totals 2,240,789 bytes,
+above the first-half 2 MB benchmark. That set-wide size assessment also belongs
+to k101. This pass does not claim that the earlier set budget passes.
+
+This pass inspected no editor preview, other theme, narrower viewport, GitHub
+rendering or published site. Chapter 5 and the shared cancellation sources were
+read, but its served page was not re-inspected because neither shared figure
+changed. The checks establish no human-comprehension, real-agent or interactive
+terminal result.
 
 ## Not yet verified
 
