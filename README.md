@@ -1,16 +1,27 @@
 # Ravel
 
 Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
-supervised parts of another program. A caller, typically an orchestrator, asks
-for work by kind. The TypeScript policy of the owner chooses the harness
-command. Ravel runs that command under supervision. After cleanup succeeds,
-Ravel returns the result that the session sent.
+supervised parts of another program. A caller, such as an orchestrator, asks
+for work by kind. The TypeScript policy of the owner chooses the command to
+run, which is normally a harness. Ravel runs that command under supervision.
+After cleanup succeeds, Ravel returns the result that the session sent.
 
-An interactive harness cannot normally exit by itself. Thus, the LLM runs
-`ravel end-session` to send its result and ask Ravel to end the session. This
-lets an interactive harness serve as a sub-component of the process of the
-orchestrator. The Ravel CLI, the policy worker and the local runner are built
-and versioned together as one tool.
+A harness can run under the subscription of its user. Thus, a caller can use
+that subscription for LLM work instead of paid API access. The cost can be much
+lower for work that the subscription covers.
+
+An interactive harness waits for more input when the LLM completes its task.
+Thus, the LLM runs `ravel end-session` to send its result and ask Ravel to end
+the session. This lets an interactive harness serve as a sub-component of the
+process of the orchestrator.
+
+The contract is loose. The policy selects a program, Ravel runs it, and a
+program in the session sends one value with `end-session`. Ravel needs nothing
+more. The book expects a harness, but any program that runs `end-session` can
+stand where a harness stands.
+
+The Ravel CLI, the policy worker and the local runner are built and versioned
+together as one tool.
 
 Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
