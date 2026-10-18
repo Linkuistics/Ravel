@@ -629,6 +629,37 @@ proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
 
 ### Owners of the second-half handoffs
 
+Chapter 11 completes all four stages with proof `develop-ravel-k181`, closing
+`develop-ravel-k159`. The fresh inventory has all 57 public task names once,
+with no omissions, extras or duplicates. Development teaching is complete.
+Chapter 12 still owns the ten release tasks and their teaching. The proof log
+maps every README Develop statement, the private-channel paragraph and both
+authority-note paragraphs for fold-in k165. All nine evidence families and the
+instrument families have destinations. The guides stay until the planned fold-in.
+
+Proof corrected 21 links outside the book source directory. mdBook rewrites
+relative links to those files into absent HTML pages. The chapter now uses
+repository source URLs on `main`, with a checkout instruction before the change
+reaches `main`. Future link checks must examine rendered paths as well as source
+paths. All thirty local chapter destinations resolve against built HTML IDs.
+The repository paths and anchors exist in the checkout. Their remote content
+and GitHub rendering remain unchecked until push and integration.
+
+All six required checks pass on unchanged digested inputs: build, thirteen
+figure comparisons, fourteen complete examples, eight excerpts, strict STE and
+strict prose breaks. The nine fences retain their content and the four Rust
+fragments match the preserved scratch patch. The earlier timeout and unchanged
+passing rerun remain dated observations with an unknown cause.
+
+Chrome supplied local light-page views at the 750-pixel column, including the
+evidence and task tables. VS Code supplied a light Restricted Mode preview of
+the opening through the build table. Raw files supplied the whole-document
+read. Other themes, narrower views, GitHub and GitHub Pages were not inspected.
+No reader-comprehension or platform qualification follows. No chapter-local
+defect is handed forward and no ADR changes. The later set proof, fold-in,
+whole-book art/proof and read 2 keep their existing owners.
+
+
 Chapter 9 completes draft, copy-edit, art and proof on 2026-10-18, closing
 `jobs-signals-and-the-terminal-k157` with proof k177. The chapter teaches O6
 (matching reap and confirmed group absence), O8 (conditional foreground/mode

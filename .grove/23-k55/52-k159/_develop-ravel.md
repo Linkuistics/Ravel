@@ -115,7 +115,7 @@ add a test. Part B starts from that and cuts nothing out of part A.
 
 ## Handed forward
 
-None yet.
+None.
 
 ## Part A boundary
 

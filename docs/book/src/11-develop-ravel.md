@@ -11,6 +11,10 @@ test. [Chapter 7](07-the-parts-of-ravel.md) explains the reasons for the parts.
 traces the code that a change can affect. A contributor who adds a supported
 extracted component writes chapter 10 with that component.
 
+Links to files outside the book open repository sources on GitHub.
+Before a change reaches `main`, read its evidence and convention files from the
+checkout.
+
 ## Prepare a checkout
 
 The checkout needs tools that an installed Ravel does not need. The build uses
@@ -238,7 +242,7 @@ one machine, not a performance limit.
 | Unchanged `task check` rerun | 109.29 seconds | 343 tests passed, 46 skipped |
 
 The failed case passed alone before the full rerun. Its cause remains unknown.
-The [checkout trial records](../../evidence/develop-ravel-k160/README.md) retain both
+The [checkout trial records](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k160/README.md) retain both
 runs. After the checks, `target/` occupied about 920 MiB and worker dependencies
 about 37 MiB. Allow additional space for the checkout, host caches and temporary
 build files. Setup needs network access for missing downloads.
@@ -438,7 +442,7 @@ accepts a probe as its policy worker. After a worker change, rebuild the pair
 and probes before `task test:hostile`.
 
 These three tasks passed on macOS 27.0.1 arm64 in this chapter's trial.
-The [part B check records](../../evidence/develop-ravel-k178/README.md) give its
+The [part B check records](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k178/README.md) give its
 scope. This local smoke check does not qualify release archives, Linux floors
 or a different host.
 
@@ -473,7 +477,7 @@ the SVGs and `.layout.json` files beside their `.typ` sources. After an intended
 figure change, run the update task, inspect the diff and view the built page.
 Then run the comparison again.
 
-The [figure convention](../figures.md) describes
+The [figure convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/figures.md) describes
 the shared modules and visual checks. Equality with a fresh render does not
 establish that a diagram explains the right behaviour.
 
@@ -484,13 +488,13 @@ only the scratch path normalised. Its summary reports a skipped example as a
 skip, not as a pass.
 
 Fragments do not run. The check also does not compare source excerpts.
-The [example convention](../examples.md) defines labels, output claims and
+The [example convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/examples.md) defines labels, output claims and
 platform requirements.
 
 The excerpt check needs no build. Its comparison preserves spaces and
 indentation. It rejects untracked sources, symbolic links and generated paths.
 An exact quotation can still have an incorrect explanation. The
-[excerpt convention](../excerpts.md) describes the label and comparison.
+[excerpt convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/excerpts.md) describes the label and comparison.
 
 The STE and prose-break tasks report problems without failure unless you pass
 `--strict`. By default, the STE check examines all chapter files,
@@ -568,7 +572,7 @@ guards. They protect tests from older enclosing-session controls. They are
 safety exceptions that remain from the extraction of Ravel, not product
 dependencies. Paths in source provenance and the retired-project record give
 historical attribution. Ravel does not load those projects or interpret their
-task trees. The [caller-reference inventory](../../caller-references.md)
+task trees. The [caller-reference inventory](https://github.com/Linkuistics/Ravel/blob/main/docs/caller-references.md)
 classifies these references in source files and dotfiles.
 
 For a new subprocess test, reuse the fixture at the chosen seam. Supply only
@@ -586,15 +590,15 @@ The table connects each question to a note and the source of its observations.
 
 | Question about a change | Evidence to read | Source of its observations |
 |---|---|---|
-| Does a runtime upgrade preserve policy isolation and installed execution? | [Runtime evidence](../../runtime-evidence.md) | `probes`, `test:hostile`, `runtime:integrity` and `smoke` |
-| Does an archive contain and run the required pair? | [Archive evidence](../../archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
-| Did a particular release reach its remote and installed destinations? | [Release and installation record](../../publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
-| Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](../../release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
-| Which resource and failure paths motivated the later repairs? | [Result/job source evidence](../../result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
-| Which checks distinguish the completion-failure repairs? | [Completion failure evidence](../../completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
-| Why does native entry follow this protocol? | [Native-entry design](../../native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
-| What did the native-entry instruments measure? | [Native-entry evidence](../../native-entry-development-evidence.md) | The development, incumbent, campaign and Linux instruments below |
-| Where are the run records? | [Evidence directory](../../evidence/) | The linked note identifies each receipt set, its command and source revision |
+| Does a runtime upgrade preserve policy isolation and installed execution? | [Runtime evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/runtime-evidence.md) | `probes`, `test:hostile`, `runtime:integrity` and `smoke` |
+| Does an archive contain and run the required pair? | [Archive evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
+| Did a particular release reach its remote and installed destinations? | [Release and installation record](https://github.com/Linkuistics/Ravel/blob/main/docs/publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
+| Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
+| Which resource and failure paths motivated the later repairs? | [Result/job source evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
+| Which checks distinguish the completion-failure repairs? | [Completion failure evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
+| Why does native entry follow this protocol? | [Native-entry design](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
+| What did the native-entry instruments measure? | [Native-entry evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) | The development, incumbent, campaign and Linux instruments below |
+| Where are the run records? | [Evidence directory](https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/) | The linked note identifies each receipt set, its command and source revision |
 
 Start with the note's source revision and measured platform. Then read the
 section that matches the claim. Earlier sections can describe work that later
@@ -610,11 +614,11 @@ Campaign plans and execution procedures remain in the evidence documents.
 
 | Instrument | Tasks, purpose and evidence |
 |---|---|
-| Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](../../native-entry-development-evidence.md) |
-| Incumbent | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls`<br>Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](../../native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
-| Campaign | `test:native-campaign`<br>`test:native-campaign-controls`<br>Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
-| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and collect its support measurements. Read the [Linux campaign section](../../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
-| R01 controls | `test:native-r01-controls`<br>Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](../../native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) |
+| Incumbent | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls`<br>Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
+| Campaign | `test:native-campaign`<br>`test:native-campaign-controls`<br>Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and collect its support measurements. Read the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
+| R01 controls | `test:native-r01-controls`<br>Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
 
 The instrument tasks call `scripts/native-incumbent.sh`, `native-campaign.sh`,
 `native-linux.sh` and `native-r01.sh` for their respective instrument families.
@@ -629,7 +633,7 @@ still absent.
 Both accept `PORT=…` and need network access for Mermaid. These design views
 are separate from the book's Typst figures and establish no runtime result.
 
-The [retired-project record](../../retired-project.md) identifies the former
+The [retired-project record](https://github.com/Linkuistics/Ravel/blob/main/docs/retired-project.md) identifies the former
 actor-daemon revision for historical attribution only.
 
 ## Find a development task
