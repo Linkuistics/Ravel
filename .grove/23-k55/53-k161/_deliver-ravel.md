@@ -115,4 +115,18 @@ out of part A.
 
 ## Handed forward
 
-None yet.
+- Art: chapter 12 links to chapter 6's installed-layout view in “Check the
+  archive contents”. Reuse that figure as the contract requires. Part B supplies
+  the release procedure for the activity figure. The platform table distinguishes
+  four execution routes and their evidence limits.
+
+## Settled chapter order
+
+Part A writes “Keep the version and pair together”, “Build archives before a
+release”, “Check the archive contents”, “Test the installed archive”, and
+“Read the platform checks correctly”. Part B then adds “Prepare and test the
+Homebrew formula”, “Prepare a version cut”, “Cut and deliver a release”,
+“Keep the book with its release”, and “Recover a partial release without
+another bump”. “Checks made for this chapter” stays last and takes both parts'
+dated results. Part B preserves part A's support statement and extends its
+teaching without a duplicate support section.

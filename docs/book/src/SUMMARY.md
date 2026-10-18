@@ -22,4 +22,4 @@
 
 - [Use Ravel's components in your project]()
 - [Develop Ravel](11-develop-ravel.md)
-- [Deliver Ravel]()
+- [Deliver Ravel](12-deliver-ravel.md)
