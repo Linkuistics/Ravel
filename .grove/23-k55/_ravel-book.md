@@ -396,6 +396,35 @@ prose-break checks. No heading or anchor changed. This closes document node
 `what-ravel-is-for-and-its-actors-k62` again. Set art k144 and set proof k147
 complete its fourth correction run.
 
+Draft `a-complete-session-k136` and copy-edit `a-complete-session-k137`
+complete the chapter 3 part of this run. The reader installs Ravel with
+Homebrew under the heading “Install Ravel and check its version” (anchor
+`#install-ravel-and-check-its-version`). Chapter 3 now says that Ravel writes
+the result unchanged (R12) and that refusal, cancellation and a natural exit
+without a sent result return no result to the caller (R13). It passes the
+strict STE and prose-break checks. This closes document node
+`a-complete-session-k63` again. These handoffs from it stay open:
+
+- **Release implementation k145:** the sole version line in
+  `docs/book/src/03-a-complete-session.md` is exactly
+  `ravel @RAVEL_BOOK_VERSION@`, in a `text` fence. No other line in the
+  repository has the token. K145 replaces it with `ravel <release-version>`
+  and checks it. The prose explains a placeholder and sends the reader to the
+  book for the installed release when the versions are different.
+- **Chapter drafts k138, k140 and k142:** replace links to
+  `03-a-complete-session.md#obtain-the-build-used-by-this-chapter` with
+  `03-a-complete-session.md#install-ravel-and-check-its-version`.
+- **Set art k144:** chapter 3 needs no new figure. Four page tables compare
+  the selected fields, the worker and managed-process roles, the session
+  terms and the shutdown stages. The successful-session sequence and the
+  outcome state machine keep their questions, positions, captions and alt
+  text. Their text still says “suppress” for cancellation. The chapter prose
+  now says “return no result to the caller” (R13). Decide whether the figure
+  text follows it. Apply the crisp style.
+- **Set proof k147:** check the Homebrew and version route after k145, and
+  the updated inbound anchors. The example check uses the checkout pair and
+  a fake agent, with no terminal.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and

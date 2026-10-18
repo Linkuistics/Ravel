@@ -16,9 +16,9 @@ with status 0 only if its final write to standard output also succeeds.
 
 ## Install Ravel and check its version
 
-Use a macOS or GNU/Linux host with Homebrew. The formula installs release
-archives for aarch64 macOS, aarch64 GNU/Linux and x86_64 GNU/Linux.
-Install Ravel, then check its version.
+Use a macOS or GNU/Linux host with Homebrew. The Homebrew formula
+`linkuistics/taps/ravel` installs release archives for aarch64 macOS,
+aarch64 GNU/Linux and x86_64 GNU/Linux.
 
 Fragment: installation and version check. This block omits Homebrew setup
 and the installation output.
@@ -28,27 +28,27 @@ brew install linkuistics/taps/ravel
 ravel --version
 ```
 
-The version output must match this book's version line:
+Before you use the examples of this book, compare the version output with
+this version line:
 
 ```text
 ravel @RAVEL_BOOK_VERSION@
 ```
 
-The release procedure writes its version into that line. A placeholder in
-the line means that this copy of the book is unreleased. If the versions
-differ, use the book on GitHub Pages that accompanies your installed release.
-Each release puts its book there. Check the version line before
-you use its examples.
+The release procedure writes the version of the release into that line. If
+the line has a placeholder, this copy of the book is not from a release. If
+the two versions are different, use the book for your installed release on
+GitHub Pages. Each release puts its own book there.
 
-The installation contains the
+The directory that `brew --prefix ravel` prints contains the
 [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`, and the
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
 that matches it, `libexec/ravel/ravel-policy`. Keep the two files together.
 The Ravel CLI finds the worker relative to its own real path. If the worker
 is missing or does not match, the Ravel CLI stops with an error.
 
-The worker contains the Bun runtime. Thus, the installation needs no
-separate installation of Bun or Node.
+The worker contains the Bun runtime. Thus, you do not need to install Bun or
+Node.
 
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
 separates the measured aarch64 macOS and aarch64 GNU/Linux targets from
@@ -58,12 +58,14 @@ details.
 
 ## Run the first session
 
-Create an empty directory for the example, then make it the current directory.
-Use the shell where `ravel --version` succeeded. Create its `bin` subdirectory, then
-save the two files below at the labelled paths. The command creates private
-`home` and `tmp` directories and makes the fake executable. The command
-clears the environment (`env -i`) and gives an explicit `--config`. Thus,
-this session does not use your usual owner settings or policy.
+Use the shell where `ravel --version` succeeded. Create an empty directory
+for the example, then make it the current directory. Create a `bin`
+subdirectory in it. Then save the two files below at the labelled paths.
+
+The command below creates private `home` and `tmp` directories and makes
+the fake executable. The command clears the environment (`env -i`) and gives
+an explicit `--config`. Thus, this session does not use your usual owner
+settings or policy.
 
 Complete example: pass a prompt through a small policy to a fake agent. The
 fake prints the prompt and sends `finished`.
@@ -124,22 +126,24 @@ fake-agent received: Print this prompt, then call ravel end-session -- "finished
 0
 ```
 
-The standard output is exactly the eight bytes `finished`. Ravel adds no
+Ravel writes the result unchanged to standard output. Here, the output is
+the eight bytes `finished`. Ravel does not interpret the result and adds no
 newline. Thus, in an interactive shell, the next prompt starts on the same
-line, unless the shell itself marks or supplies the missing newline. The
-standard-error block shows the two stable lines. It does not promise that the
-stream contains only those lines. Ravel can also report cleanup operations
+line, unless the shell itself marks or supplies the missing newline.
+
+The standard-error block shows the two stable lines. It does not promise
+that the stream contains only those lines. Ravel can also report cleanup operations
 with details, such as process IDs, that are different in each run.
 
-On macOS, an attempt to stop a group that already exited can report
-`Operation not permitted`. Ravel keeps that report on standard error. It
+On macOS, an attempt to stop a group whose members already exited can report
+`Operation not permitted`. Ravel writes that report to standard error. It
 allows success only after it confirms the reap, the terminal recovery and the
 absence of the group. A report alone does not prove success or failure. Check
 the exit status of `start-session`.
 
 The fake's `printf` writes to its own standard output, but the line appears
-on the caller's standard error. Ravel keeps the caller's standard output for
-the [opaque result](02-actors-and-words.md#the-managed-process-and-its-result).
+on the caller's standard error. Ravel uses the caller's standard output only
+for the [opaque result](02-actors-and-words.md#the-managed-process-and-its-result).
 Before the launch, Ravel redirects the standard output of the managed process
 to the caller's standard error. The fake does not interpret the prompt. Its
 author wrote the script to run `end-session`, which is the action that the
@@ -147,7 +151,8 @@ prompt requests. Ravel does not understand that instruction and does not add it.
 
 The policy selects the fake for every request. `demo` is the caller's
 [kind](02-actors-and-words.md#caller-and-owner), and this policy does not need
-to examine it. These fields describe the selected command:
+to examine it. The routing notice is the `ravel: starting` line on standard
+error. The policy returns these fields:
 
 | Field | Value in this example | Effect |
 |---|---|---|
@@ -157,8 +162,8 @@ to examine it. These fields describe the selected command:
 | `model` | `fake` | Describes the model in the routing notice |
 | `effort` | `none` | Describes the effort in the routing notice |
 
-The routing notice is the `ravel: starting` line on standard error. The
-owner's labels do not select a model service. `definePolicy` returns the
+The `provider`, `model` and `effort` labels do not select a model service.
+`definePolicy` returns the
 policy object unchanged and gives it the TypeScript type of the SDK. Thus, a
 type checker can check its fields. Ravel checks the values when it evaluates
 the policy.
@@ -173,7 +178,7 @@ policy. Settings still come from `$HOME/.config/ravel/settings.json`, even
 when `--config` is present. The private `home` of the example is empty, so the
 defaults apply.
 
-The Ravel CLI finds its matched worker and starts it in the empty private
+The Ravel CLI finds the worker that matches it and starts it in the empty private
 directory of the worker. It checks the identity of the worker before it sends
 the policy request. The worker receives a restricted environment and no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
@@ -210,8 +215,9 @@ Here, Ravel searches the caller's `PATH` for `fake-agent`. The first directory
 in that `PATH` is the `bin` directory of the example. The selected program
 starts in the caller's working directory. Ravel executes the selected program
 and argument list directly. It does not use shell expansion, and it does not
-split the prompt into words. The shebang line of the fake makes this program a
-shell script.
+split the prompt into words. The fake still runs in a shell, because its
+first line, `#!/bin/sh`, tells the operating system to run the file with
+`/bin/sh`.
 
 ## Launch the managed job
 
@@ -227,8 +233,8 @@ The [runner](02-actors-and-words.md#policy-evaluation-and-supervision) in
 Ravel launches the managed process in a process group of its own. A
 **process group** is a set of processes. A program can send one signal to all
 processes in the group. A child usually inherits the group of its parent.
-Thus, with the group, Ravel can stop the fake and each descendant that stays
-in that group, all together.
+Thus, with one signal to the group, Ravel can stop the fake and each
+descendant that stays in that group.
 
 The managed process and the members of its group form the **job** that Ravel
 supervises. Here, “job” has its job-control meaning: a process group that a
@@ -249,7 +255,7 @@ A [confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
 POSIX session. [Chapter 5, “Run sessions”](05-running-sessions.md#confine-the-managed-process),
 teaches that separate case.
 
-If you run from an interactive terminal, one more group is important: the
+If you start Ravel from an interactive terminal, one more group is important: the
 **foreground process group** of the terminal. The controlling terminal sends
 keyboard input to that group. It also sends the signals that the terminal
 makes, such as INT from Ctrl-C, to that group.
@@ -294,8 +300,8 @@ then uses these stages. Chapter 9 gives the exact times.
 | Stage | When it starts | Runner action |
 |---|---|---|
 | Grace period | The runner detects the sent result | Allows time for the managed process to exit |
-| TERM | The process remains after the grace period | Sends TERM to the process group, then allows time for exit |
-| KILL | The process remains after the TERM grace period | Sends KILL to the process group |
+| TERM | The managed process still runs after the grace period | Sends TERM to the process group, then allows a second grace period |
+| KILL | The managed process still runs after the second grace period | Sends KILL to the process group |
 
 The exit of the managed process does not complete the cleanup. Before it
 reaps the direct child, Ravel stops the members of the process group that
@@ -311,14 +317,14 @@ Then, if the runner lent the terminal, it recovers the terminal. It also
 confirms that the process group is gone. The Ravel CLI checks and reads the
 sent result. It removes the temporary directory of the result channel. Then,
 before it writes to the caller's standard output, it checks the outcomes of
-cancellation and cleanup. When the result file appears, Ravel still does all
-of these steps.
+cancellation and cleanup. The appearance of the result file does not remove
+any of these steps.
 
 Success means that the result reaches the caller only after Ravel reaps the
 managed process, the whole process group is gone and cleanup succeeds.
 `start-session` exits with status 0 only if the final write also succeeds. If
-the write fails, the caller can receive only a prefix, and the invocation
-fails. Thus, bytes on standard output alone do not prove success.
+the write fails, the caller can receive only the start of the result, and
+the invocation fails. Thus, bytes on standard output alone do not prove success.
 
 That guarantee is for the process group of the managed process. It does not
 include these three cases:
@@ -328,13 +334,13 @@ include these three cases:
 - a SIGKILL that stops the Ravel CLI (the Ravel CLI cannot catch SIGKILL)
 
 The [trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
-also explain why code that runs as the same user can tamper with files or
+also explain why code that runs as the same user can change files or
 launch unrelated processes. A
 successful session shows that Ravel delivered a sent result after it confirmed
 the cleanup. It does not show that the work that the prompt requests is
 correct.
 
-The sequence below shows the two boundaries that a caller can trust. Worker
+The sequence below shows two orders that Ravel guarantees. Worker
 cleanup comes before the managed launch, and job cleanup comes before the
 delivery of the result. The figure follows the successful path of this
 chapter, without confinement.
@@ -352,14 +358,14 @@ result requires successful cleanup and no cancellation.*
 In words, the Ravel CLI checks the request, the identity of the worker and
 the policy response. Then it confirms the reap of the worker and the removal
 of the private directory of the worker. It resolves the executable, makes
-the result channel and launches the managed process. `end-session` puts the
-value in that channel. It does not return the value to the caller.
+the result channel and launches the managed process. `end-session` sends the
+value into that channel. It does not return the value to the caller.
 
 The Ravel CLI stops the group of the managed process before the reap. It
 recovers a lent terminal and confirms that the group is gone. It reads the
 value and removes the temporary directory of the channel. Then it decides the
-outcome. That decision uses any cancellation or cleanup problem. Then it writes and flushes
-the value.
+outcome. That decision uses any cancellation or cleanup problem. Then it
+writes the value unchanged to standard output and flushes it.
 
 The text above explains each stage. The figure does not show times or
 individual system calls.
@@ -372,15 +378,15 @@ others. A caller needs to recognise each one.
 
 - A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) occurs
   before the launch. It occurs when the owner policy declines the request, or
-  when Ravel cannot accept the file, behaviour or data of the policy. Ravel does not try a
-  different route.
+  when Ravel cannot accept the file, behaviour or data of the policy. Ravel
+  does not try a different route and returns no result to the caller.
 - Cancellation by an INT, TERM or HUP signal can occur during selection or
-  supervision. It suppresses the result, even if a program already sent a
-  value.
-- A natural exit without a sent result supplies no result, even when the
-  managed process exits with status 0. An explicitly empty result is
-  different. A program sent a value, and successful cleanup can complete that
-  session.
+  supervision. The session then returns no result to the caller, even if a
+  program already sent a value.
+- A natural exit without a sent result also returns no result to the caller,
+  even when the managed process exits with status 0. An empty sent result is
+  different. A program sent an empty value, and the session can succeed after
+  cleanup.
 - A failure of the worker, of supervision or of cleanup prevents success. A
   failure of the final write of the result also makes the invocation fail
   after cleanup.
@@ -406,9 +412,9 @@ failure can stop selection or supervision. A natural exit without a sent
 result is part of supervision, even if the managed process exits with status
 0. On each path, Ravel attempts the necessary cleanup.
 
-Then Ravel decides the final outcome, and cancellation comes first. If no
-cancellation occurred, Ravel keeps an original refusal or failure. A missing
-result is one of these failures. Ravel reports any further cleanup problems
+Then Ravel decides the final outcome, and cancellation has priority. If no
+cancellation occurred, the outcome is the original refusal or failure. A
+missing result is one of these failures. Ravel reports any further cleanup problems
 next to that outcome. A cleanup failure
 prevents success, even when everything else succeeds.
 
@@ -418,10 +424,11 @@ empty sent result is a value. A later nonzero exit of the managed process
 does not, by itself, make the value invalid.
 
 The machine shows the cleanup operations above as a group. It does not mean
-that a failed cleanup completed. Its cancellation conditions apply until the
-moment when Ravel decides the final outcome, and at that moment. A signal that
+that a failed cleanup completed. Its cancellation conditions apply until
+Ravel decides the final outcome, and also at that decision. A signal that
 arrives after that decision can still stop the Ravel CLI while it writes the
-result. A failed write can leave only a prefix on standard output. Chapter 8
+result. A failed write can leave only the start of the result on standard
+output. Chapter 8
 gives the full outcome decision.
 
 To write rules in the owner policy beyond this single fake, continue with

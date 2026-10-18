@@ -98,27 +98,8 @@ draft re-run and the second copy-edit re-run. The owner authorised both on
 `book-first-half-k147` serve this document. Thus, no stage under this node
 cuts an art or proof leaf. Draft k136 writes the new anchor, the exact form
 of the placeholder and each figure need in this brief, under a new
-`## Handed forward` section.
+`## Handed forward
 
-## Handed forward
-
-- **Copy-edit k137 and release implementation k145:** the sole version line
-  in `docs/book/src/03-a-complete-session.md` is exactly
-  `ravel @RAVEL_BOOK_VERSION@`, in a `text` fence. Keep this line intact in
-  copy-edit. K145 replaces it with `ravel <release-version>` and checks it.
-  The prose explains what the placeholder means and asks the reader to use
-  the book for the installed release if the versions differ.
-- **Chapter drafts k138, k140 and k142:** replace links to
-  `03-a-complete-session.md#obtain-the-build-used-by-this-chapter` with
-  `03-a-complete-session.md#install-ravel-and-check-its-version`. The heading
-  is “Install Ravel and check its version”. Links in chapters 4, 5 and 6
-  remain for those drafts to change, as their leaf bodies require.
-- **Set art k144:** no new figure is needed. Four page tables compare
-  selected fields, worker and managed-process roles, session terms and
-  shutdown stages. The existing successful-session sequence still answers
-  “What happens, in order, in a successful session?” The existing outcome
-  state machine still answers “Which states lead to each outcome?” Their
-  positions, captions and alt text stay. Apply the agreed crisp style.
-- **Set proof k147:** check the Homebrew/version route after k145 writes the
-  release mechanism, and check the updated inbound anchors. The example
-  check still uses the checkout pair and a fake agent, with no terminal.
+None. Copy-edit k137 kept the version line intact and closed this node on
+2026-10-18. The open handoffs for k138, k140, k142, k144, k145 and k147 are
+in the book brief, under “Read 1 outcome and its correction run”.
