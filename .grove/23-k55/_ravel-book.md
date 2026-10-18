@@ -425,6 +425,23 @@ strict STE and prose-break checks. This closes document node
   the updated inbound anchors. The example check uses the checkout pair and
   a fake agent, with no terminal.
 
+Draft `writing-an-owner-policy-k138` and copy-edit
+`writing-an-owner-policy-k139` complete the chapter 4 part of this run.
+Chapter 4 links to `#install-ravel-and-check-its-version` (R17) and gives
+the checkout prerequisites for its typecheck recipes. It says that Ravel
+writes the result unchanged (R12) and that refusals and an agent exit
+without a sent result return no result to the caller (R13). It passes the
+strict STE and prose-break checks. No heading, anchor or code block
+changed. This closes document node `writing-an-owner-policy-k64` again.
+This handoff from it stays open:
+
+- **Set art k144:** chapter 4 needs no new figure. Three page tables answer
+  “Who supplies each source claim or measurement?” (“Supply policy
+  context”), “Which configuration does the worker load automatically?”
+  (“Resolve policy imports”) and “Which files need reconciliation before I
+  copy a policy?” (“Copy a policy from another configuration”). They break
+  the prose within the limit.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and

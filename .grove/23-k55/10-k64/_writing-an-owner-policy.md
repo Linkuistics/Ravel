@@ -190,17 +190,8 @@ cut. Proof still owns its whole-document, source-inventory and viewing checks.
 
 ## Handed forward
 
-- **Copy-edit k139:** draft k138 changes the installation pointer and the
-  checkout prerequisites, adds three tables, and aligns the harness route
-  introduction with R14 and R15. Read the whole chapter under your charter.
-  The examples and their dated help evidence stay unchanged.
-- **Set art k144:** no new diagram is requested. The three new page tables
-  answer these reader questions: “Who supplies each source claim or
-  measurement?”, “Which configuration does the worker load automatically?”
-  and “Which files need reconciliation before I copy a policy?”. They are
-  in “Supply policy context”, “Resolve policy imports” and “Copy a policy
-  from another configuration”, respectively. They give meaningful breaks
-  within the prose limit. The chapter still needs no separate figure.
+None. Copy-edit k139 closed this node on 2026-10-18. Its handoff to set art
+k144 is now in the book brief.
 
 ## Proof closure
 
@@ -242,3 +233,9 @@ re-run. The owner authorised both on 2026-10-18. Chapter 4 has no figures.
 Set art `book-first-half-k144` draws a figure here only if draft k138 asks
 for one. Set proof `book-first-half-k147` serves this document. Thus, no
 stage under this node cuts an art or proof leaf.
+
+Copy-edit k139 completed this run's node part on 2026-10-18. Chapter 4 now
+says that Ravel writes the result unchanged (R12) and that refusals and an
+agent exit without a sent result return no result to the caller (R13). It
+passes the strict STE and prose-break checks. No heading, anchor or code
+block changed.

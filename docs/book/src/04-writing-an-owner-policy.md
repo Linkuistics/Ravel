@@ -21,8 +21,8 @@ your usual owner configuration.
 
 The entry file exports a plain object with the name `policy`. Import
 `definePolicy` from the literal module name `ravel/sdk`. Give that object to
-`definePolicy` as its argument. The helper returns the object without a
-change. It gives TypeScript sufficient information to check your fields and
+`definePolicy` as its argument. The helper returns the object unchanged. It
+gives TypeScript sufficient information to check your fields and
 to find the parameter types of `select`. Ravel still validates the policy at
 runtime, when it evaluates the policy.
 
@@ -57,7 +57,7 @@ holds Ravel's effective bounds:
 |---|---|
 | `schemaVersion` | The literal number `2`. |
 | `kind` | The caller's nonempty token. Only your policy defines which tokens it accepts. |
-| `prompt` | The prompt without a change, also when it is an empty string or contains newlines. Ravel adds no instructions to end the [session](02-actors-and-words.md#caller-and-owner). |
+| `prompt` | The unchanged prompt, also when it is an empty string or contains newlines. Ravel adds no instructions to end the [session](02-actors-and-words.md#caller-and-owner). |
 | `cwd` | The caller's working directory, not the directory of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). |
 | `params` | The caller's `--param NAME=VALUE` pairs, as strings by name. It is an empty object when the caller supplied no pair. |
 | `taskFile` | An optional absolute path from `--task-file`. Ravel does not read the file for you. |
@@ -302,18 +302,18 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 3
 ```
 
-The successful command returns the
+For the successful command, Ravel writes the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-`finished`, with no final newline. The fake's output goes to the caller's
-standard error. Thus, standard output stays free for the result. Each refusal
-returns no result. The standard-error excerpts check stable diagnostic lines.
+`finished` unchanged to standard output, with no final newline. The fake's
+output goes to the caller's standard error. Thus, standard output contains
+only the result. Each refusal returns no result to the caller. The standard-error excerpts check stable diagnostic lines.
 Other operational reports can also occur on standard error.
 
 When you edit the policy, keep a test case for each route and each refusal.
 A fake can record the full argument vector and send a known value as the
 result. Thus, you can check the choice of command, and you do not pay for a
-model. Also, no agent acts on the prompt. `start-session` really launches the
-selected command. Ravel has no verb that examines a policy without a launch,
+model. Also, no agent acts on the prompt. `start-session` launches the selected
+command. Ravel has no verb that examines a policy without a launch,
 so this validation is necessary.
 
 `task docs:examples` runs the examples in this book. It uses a private `PATH`
@@ -341,7 +341,7 @@ absolute path of your policy. The recipe maps the two embedded module names,
 because the later examples also import the starter table.
 
 Fragment: the typecheck in a checkout. Replace the policy path. This block
-omits the policy and the development setup described above. Run it in
+omits the policy and the development setup above. Run it in
 the root of the checkout. It runs in a subshell, so its cleanup trap has an
 effect only in that subshell.
 
@@ -379,13 +379,14 @@ the strict options of the repository. `typeRoots` finds the checkout's Bun
 declarations, although the configuration is in a different directory. A
 successful check prints no TypeScript diagnostics and exits with status 0.
 
-An installation also contains `libexec/ravel/sdk/index.d.ts` and
-`libexec/ravel/examples/static.d.ts`, together with TypeScript sources that
-you can edit. It does not contain a development type checker. You can check
+The directory that `brew --prefix ravel` prints also contains
+`libexec/ravel/sdk/index.d.ts` and `libexec/ravel/examples/static.d.ts`,
+together with TypeScript sources that you can edit. The installation does not
+contain a development type checker. You can check
 a policy against that installed interface with a separate TypeScript
 installation. The following recipe uses the checkout's pinned checker only as
 that development tool. Its module mappings point to the installed
-declarations. In usual operation, an installation needs neither that checker
+declarations. To run a policy, an installation needs neither that checker
 nor a separate installation of Bun.
 
 Fragment: the typecheck against the installed declarations, with the
@@ -428,7 +429,7 @@ install the development dependencies of the checkout.
 )
 ```
 
-The policies until this point in the chapter need no global types for Bun.
+The policies in the sections above need no global types for Bun.
 Thus, the standalone configuration uses `types: []`. A policy that uses the
 APIs of a specific runtime also needs the development declarations for that
 runtime. A typecheck does not replace validation at runtime. The installed
@@ -440,8 +441,8 @@ The embedded module `ravel/examples/static` supplies an example that you can
 copy and edit. The module's `Route` type is a function from a request
 to a `Command`. A
 `Command` is a selection without `status` and `reason`.
-`selectRoute(table, request)` finds an own entry whose name is exactly the
-kind. It calls that route and adds the selected status and a reason that
+`selectRoute(table, request)` finds the table's own entry, not an inherited
+property, whose name is exactly the kind. It calls that route and adds the selected status and a reason that
 names the route. For an unknown kind, it returns a refusal with the policy
 code `incomplete_mapping`, and no other entry is a default.
 
@@ -462,9 +463,10 @@ The unchanged prompt follows them as one argument. The provider label of the
 command is `your-provider`. These names are placeholders. They are not
 integrations with installed agents.
 
-The module's exported `policy` is a complete policy around this table. To try
-the table, re-export that `policy` from your own entry file. Then, to edit
-your own table, copy `examples/static.ts` from `libexec/ravel`. A change to
+The module's exported `policy` is a complete policy that uses this table. To
+try the table, re-export that `policy` from your own entry file. Then, to edit
+your own table, copy `examples/static.ts` from the installation's
+`libexec/ravel` directory. A change to
 your local copy does not change the embedded import.
 
 The fake below sends the arguments that it receives as a multiline result.
@@ -842,8 +844,8 @@ version-2 interface. The document holds facts and attributed judgements. Your
 policy can use them to choose from the commands that it defines. The document
 does not give permission to run a command that its facts name.
 
-The document has the fields in the table below. They hold facts and
-attributed judgements. The choice of the executable stays in owner code.
+The document has the fields in the table below. The choice of the executable
+stays in owner code.
 
 | Field | Accepted data |
 |---|---|
@@ -909,7 +911,7 @@ that the read throws:
 - a read that asks for a limit larger than the budget
 - a read that makes the number of measured sources larger than its limit
 
-A missing file, bad UTF-8 or invalid JSON causes an exception. If the loader
+A missing file, invalid UTF-8 or invalid JSON causes an exception. If the loader
 does not catch that exception, the refusal identifies the source of the read
 that failed. A loader that needs valid content can return its own
 refusal, as `select` can. Then Ravel does not call `select`.
@@ -1181,14 +1183,15 @@ to find the input, the loader behaviour or the bound that needs a change:
 | `context_loader_failed` | The loader throws an exception or rejects its promise. The cause is not a known source-read failure or a breach of a bound. |
 | `context_loader_unsettled` | The loader's promise stays unsettled, and no work that can resolve or reject it remains. |
 | `message_too_large` | A failure report of the loader is larger than the fixed 1 MiB protocol-message bound. Make the error that it reports shorter. |
-| `context_source_unreadable` | A required host read fails, also for bad UTF-8 or bad JSON, and the loader does not catch the failure. |
+| `context_source_unreadable` | A required host read fails, also for invalid UTF-8 or invalid JSON, and the loader does not catch the failure. |
 | `source_too_large` | A host read is larger than its limit, or it asks for a limit above the policy-context budget. |
 | `too_many_sources` | The `measured` list or the document's attributed `sources` has more than 256 entries. |
 | `context_too_large` | The caller document or the delivered document is larger than the policy-context budget. |
 | `policy_refused` | The loader returns a well-formed refusal. Its own code, message and remedy explain the requirement. |
 
-If a promise keeps work alive until the deadline, the outcome is
-`selection_timeout`, not `context_loader_unsettled`. Invalid host arguments can cause a loader failure. If
+If the loader's promise is unsettled and work that can settle it continues
+until the deadline, the outcome is `selection_timeout`, not `context_loader_unsettled`.
+Invalid host arguments can cause a loader failure. If
 the loader returns a malformed refusal, Ravel treats it as invalid policy
 context. [Chapter 6, “Reference”](06-reference.md), gives the complete
 lookup entries. They include the failures that also occur in policy
@@ -1249,7 +1252,7 @@ Ravel refuses data that is too large. It does not truncate the data to make
 it fit. An overflow of policy context or of a host read gives the codes
 above. A policy snapshot, a selection result or a failure report that is
 larger than its protocol bound gives `message_too_large` (exit status 3). Too
-much worker output gives `output_limit` (exit status 3). Ravel then keeps
+much worker output gives `output_limit` (exit status 3). Ravel then captures
 only the first 262,144 diagnostic bytes, discards the remainder while it
 stops the worker and does not accept the selection.
 
@@ -1314,8 +1317,7 @@ does not confine the policy worker.
 
 The next policy reports only whether two invented grant names are present.
 Its output also shows how a lower policy-context budget decreases the
-default read limit. The fake sends that report as the result, without a
-change.
+default read limit. The fake sends that report unchanged as the result.
 
 Complete example: observe the settings, the CLI replacements and the
 additional grants. Then observe the refusals of an obsolete key and of a
@@ -1524,8 +1526,9 @@ directory. Before the worker imports owner code, it changes its directory to
 `/`. File imports still resolve from their files. Imports without a file
 location, such as a virtual module, resolve from that process directory.
 
-Because the worker changes to `/`, the lookups for imports without a file
-location do not search the parent directories of the temporary directory. But the resolver can
+The worker changes its directory to `/`. Thus, the lookups for imports
+without a file location do not search the parent directories of the
+temporary directory. But the resolver can
 still find `/package.json` and `/node_modules`. Owner code can change its
 directory or import arbitrary code itself.
 
@@ -1538,16 +1541,18 @@ owner code. The policy is never in a managed-process confinement.
 ## Route to Claude Code and Codex
 
 When the checks with fakes confirm your policy decisions, a route can name an
-installed agent program. Claude Code and Codex can use subscription access
-instead of paid API access. The
+installed agent program. Claude Code and Codex can run under the
+subscription of their user, instead of with paid API access. The
 [Claude Code authentication guide](https://code.claude.com/docs/en/authentication)
 and [Codex authentication guide](https://learn.chatgpt.com/docs/auth)
 describe those options, as checked on 18 October 2026.
 
-Ravel treats the selected program as an ordinary executable. It need not be
-a harness or receive the prompt. A program in the session sends a value
-with `end-session`. These routes choose harnesses and pass the caller's
-prompt to them. Ravel does not configure an account or supply a prompt
+Ravel treats the selected program as an ordinary executable. The program
+does not have to be a
+[harness](02-actors-and-words.md#the-managed-process-and-its-result), and it
+does not have to receive the prompt. Any program in the session can send the
+result with `end-session`. These routes select harnesses and pass the
+caller's prompt to them. Ravel does not configure an account or supply a prompt
 convention.
 
 For installation and sign-in, follow the
@@ -1582,7 +1587,9 @@ configuration.
 
 The two routes start interactive agents for attended work, and each agent
 needs a terminal. Run a real interactive agent from a foreground terminal.
-Ravel can then lend the terminal to its managed process. `--no-alt-screen`
+Ravel can then
+[lend the terminal](03-a-complete-session.md#launch-the-managed-job) to its
+managed process. `--no-alt-screen`
 changes the display of Codex. It does not change the need for a terminal.
 
 `--no-daemon` makes this example's Codex invocation run without a shared
@@ -1594,13 +1601,13 @@ boundary.
 The automated example below uses fake programs without a terminal. It checks
 only that the arguments arrive.
 
-The caller's prompt carries the instructions to end the session. They give
+The caller's prompt contains the instructions to end the session. They give
 the `ravel end-session` command and the exact opaque result to send. The
 real agent needs permission to execute that command. It also needs
 permission to write the path in its inherited session-result context. The
 agent's own sandbox and approval settings are independent of Ravel's
-settings. If the agent exits before it sends a result, Ravel reports no
-result, also when the exit status is 0.
+settings. If the agent exits before it sends a result, the session returns
+no result to the caller, also when the exit status is 0.
 
 Put `ravel` on the agent's `PATH`, or write the installed absolute path of
 `ravel` in the instructions to end the session. Ravel adds none of these
@@ -1740,7 +1747,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 
 The fakes intentionally send their arguments as the result. They do not act
 on the prompt. The transcript checks that the caller's instructions to end
-the session arrive without a change. It does not show that an agent obeys
+the session arrive unchanged. It does not show that an agent obeys
 them, or that its sandbox lets it complete the session. Before real use,
 check that the agent can run the Ravel CLI and write the result path with
 the permissions that you chose. Keep checks with fakes for each new route.
