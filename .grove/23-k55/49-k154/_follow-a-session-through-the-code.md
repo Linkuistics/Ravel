@@ -127,3 +127,18 @@ of part A.
   a separate runner process. Keep an optional grace/escalation region: the
   example may exit before the runner observes the result. The final channel
   appearance check still finds it. Art owns the figure and adjacent prose.
+- **Art — part B figures.** Chapter 8 now reuses `selection-cancellation`
+  and `supervision-cancellation` beside their code paths and embeds
+  `outcome-precedence` in “Choose the final outcome”. The two sequences retain
+  chapter 5's direct-signal examples and attempted-cleanup limits. The activity
+  figure's signal step compresses the production expression in
+  `Handlers::finalise`: early CLI latch, runner outcome, late runner latch,
+  another CLI latch read, then `look(true)`'s earlier snapshot (CLI latch or
+  eligible queued signal). Its label currently omits the second CLI read.
+  The chapter's excerpt/table state the full order. Reconcile the figure and
+  adjacent prose without suggesting arrival-time ordering. Also assess the
+  figure's report-before-decision abstraction: `settle` reports an original
+  failure under cancellation before cleanup/group reports. Preserve every
+  diagnostic and the distinction between attempts and confirmed cleanup.
+  The success label's “exact result” should follow the shared “unchanged”
+  wording. No new figure or renderer is requested by part B.

@@ -329,3 +329,263 @@ A failed final write can leave only the start of the value on standard
 output. The invocation then fails, so output bytes alone do not prove success.
 Signals that arrive after the final cancellation decision can still stop
 the Ravel CLI during output. The write is not atomic with that decision.
+
+## Follow a refusal or launch failure
+
+A failed choice prevents the call to the runner. The function that detects
+the problem supplies its classification. The Rust type `Refusal` also carries
+worker failures and timeouts, so its name alone does not identify a policy
+refusal.
+
+Suppose the example's policy returns `status: "refused"` instead of a command.
+`choice::judge` passes that value to `policy::selected` in
+`crates/ravel/src/policy.rs`. That function checks the refusal fields and
+returns `policy_refused`, with the policy's own code beside it.
+`worker::evaluate` then attempts worker teardown and private-directory cleanup.
+It returns the failure to `choose_prepared`, so `run` never allocates the
+result channel or launches the fake.
+Ravel does not substitute another policy or command when selection fails.
+
+The table locates the other forks. Its statuses describe isolated failures
+without cancellation. The paragraph below explains combined worker failures.
+The [exit-status table](06-reference.md#exit-statuses) gives their meaning to
+the caller.
+
+| Problem | Decision in the code | Status and point of failure |
+|---|---|---|
+| Missing or unreadable policy file | `authority::resolve` | 3, before worker evaluation |
+| Policy import, shape or context fails | `choice::judge`, `Validator::validate`, `choice::deliver` | 3, before executable lookup |
+| Policy refuses, throws, abstains or returns malformed selection data | `policy::selected` | 3, before executable lookup |
+| Policy data or diagnostic output exceeds a bound | Policy/context validators or `worker::evaluate` | 3, before executable lookup |
+| Selection deadline expires | `worker::expired` | 124, before executable lookup |
+| Worker cannot start, has the wrong identity, or fails its protocol | Worker coordinator in `crates/ravel/src/worker.rs` | 5, before managed launch |
+| Worker conversation succeeds, but required teardown fails | `worker::evaluate` | 5, before managed launch |
+| Selected program is absent | `program::resolve` | 127, before runner invocation |
+| Selected file cannot execute, with no usable PATH candidate | `program::resolve` | 126, before runner invocation |
+
+The deadline covers worker startup and the policy exchange. A timeout can
+therefore occur before the worker receives the policy. It is not the policy's
+decision to refuse. A valid policy answer also cannot override an unconfirmed
+worker reap or failed required cleanup. The evaluator retains the original
+failure, worker operation reports and separately captured policy output.
+
+`worker::evaluate` also decides between combined failures.
+A diagnostic-output overflow takes priority over the conversation failure,
+which remains in the report. Otherwise, a conversation failure keeps its
+classification when teardown fails too. For example, a policy refusal keeps
+3, and a timeout keeps 124. Teardown alone changes a successful conversation
+to worker failure, status 5.
+
+The executable check does not guarantee that a later spawn succeeds.
+For example, a script can pass the file checks but name a missing interpreter.
+`run::supervision_failure` classifies the runner error from `started` and the
+OS error number. The `Started` event sets `started`.
+
+Excerpt from `crates/ravel/src/run.rs`: `supervision_failure` chooses a
+status before it constructs the diagnostic.
+
+```rust
+    let exit = if started {
+        EXIT_WORKER
+    } else if errno == Some(libc::ENOENT) {
+        127
+    } else {
+        126
+    };
+```
+
+`EXIT_WORKER` is 5. After `Started`, a supervision error keeps that status.
+Before `Started`, `ENOENT` gives 127 and another launch error gives 126.
+The event records spawn success, so it does not prove that exec succeeded.
+The conversion also retains a signal that the runner consumed, for the final
+cancellation decision.
+
+Requested [confinement](05-running-sessions.md#confine-the-managed-process)
+has its own preparation in `Confined::prepare`, before selection.
+An unavailable backend or invalid grant stops that path.
+After successful preparation, `run` calls the confined runner entry.
+It does not retry a failed confined launch without confinement.
+
+These failures leave the main closure in `run`, then reach its common cleanup
+and final decision. An allocator that fails partway through directory setup
+attempts its own cleanup before it returns the error.
+`run` handles resources that the allocator successfully returned.
+Thus, even a failure without an `Ended` value has cleanup work to complete.
+
+## Follow cancellation
+
+Cancellation can reach the Ravel CLI during selection, supervision or final
+cleanup. The cancellation handlers retain INT, TERM and HUP observations.
+A *latch* is the saved signal number. It lets ordinary code attempt cleanup
+before the CLI propagates the signal.
+
+During selection, the worker coordinator observes the CLI latch and attempts
+to stop and reap the worker. It collects diagnostics and attempts directory
+cleanup before it returns. `choose_prepared` checks the latch again before
+it returns a successful `Selected`. Its error path uses `overruled` to retain
+an earlier failure when cancellation takes priority.
+
+![During selection, the policy worker sends INT to the Ravel CLI. The CLI attempts worker teardown and directory cleanup, reports problems, and propagates cancellation without a managed launch.](figures/selection-cancellation.svg)
+
+[Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
+This is the direct-signal example from
+[chapter 5](05-running-sessions.md#cancel-during-selection-or-supervision).
+It does not represent terminal Ctrl-C delivery.
+
+The next check sits immediately before the managed launch.
+`run` calls `handlers.try_block_and_check()` after output reservation and
+channel allocation. A signal found here prevents the runner call.
+The common cleanup still closes the channel and restores output.
+
+During supervision, runner `watch` checks its own latch before it accepts
+even an already-exited child. For an unconfined job, it forwards the signal
+to the managed group, then escalates if needed. For a confined job, it
+attempts KILL immediately. It retains the first signal it consumes through
+subsequent wait, reap and recovery operations.
+
+Two runner outcomes carry cancellation to `run`:
+
+| Runner returns | Where `run` obtains the signal | What the value does not establish |
+|---|---|---|
+| `Ended` with `End::Interrupted` | The `signal` field of that end | Permission to return a result |
+| `LaunchError` | `consumed_signal()`, through `supervision_failure` | Confirmed reap, group absence or an `Ended` value |
+
+A result sent before cancellation remains only a candidate.
+`SessionChannel::result_after` rejects an interrupted end, even when the file
+exists. A later signal can also reach the CLI after that check.
+`Handlers::finalise` collects that observation before `settle` decides the
+outcome.
+
+![The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation suppresses candidate even when cleanup fails.](figures/supervision-cancellation.svg)
+
+[Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
+The figure reuses chapter 5's example. Its cleanup arrows are attempts,
+not confirmation that every operation succeeds.
+
+After the final decision, `main::report_failure` reports cancellation and
+calls `cancellation::reraise`. That function restores the selected signal's
+default action, unblocks it and raises it. If propagation fails, it reports
+the problem and exits with the numeric signal status.
+The shell statuses are 130 for INT, 143 for TERM and 129 for HUP.
+Chapter 9 explains entry masks, terminal delivery and the limits of cleanup.
+
+## Choose the final outcome
+
+`Handlers::finalise` and `run::settle` make different decisions.
+The first selects the cancellation observation and completes signal
+transitions. The second chooses whether cancellation, a failure or a result
+reaches the caller.
+
+`finalise` restores the entry mask while handlers still protect the
+transition. It then attempts to block the handled signals and inspect those
+that are queued. Only after that block attempt does it consume the late
+runner latch. Otherwise a signal could reach that latch between a read and
+the block, and neither read would find it.
+
+Excerpt from `crates/ravel/src/cancellation.rs`: `Handlers::finalise`
+chooses the first available observation in this expression.
+
+```rust
+        let signal = front.or(outcome).or(late).or(received()).or(pending);
+```
+
+This is an order of sources, not a comparison of signal arrival times.
+The variables have these meanings:
+
+| Expression | Observation |
+|---|---|
+| `front` | CLI latch before and immediately after entry-mask restoration |
+| `outcome` | Signal retained by the runner's end or error |
+| `late` | Runner latch consumed after the final block attempt |
+| `received()` | Another read of the CLI latch |
+| `pending` | Observation from `look(true)`: CLI latch first, then an eligible queued signal |
+
+For queued signals, `look` excludes signals blocked or ignored at entry.
+It checks INT, TERM, then HUP. Signal-operation failures become reports,
+not an invented cancellation or proof that no signal exists.
+`finalise` returns the selected signal and those reports to `run`.
+The helper named `join_cancellation` in `run.rs` is test-only.
+It is not the production decision shown above.
+
+`run` supplies `settle` with the candidate result or original failure,
+the optional `Ended`, all cleanup outcomes and the selected signal.
+It orders cleanup outcomes as mask restoration, channel removal, confined
+directory removal, output restoration, then final signal-operation reports.
+`settle` reports every supplied cleanup error and any group that survives.
+When cancellation overrides an original failure, it reports that failure too.
+
+![After cleanup attempts, Ravel combines signal observations and reports failures. Cancellation wins, then an original failure, then a cleanup error, then a group that survives. Only success permits the result write and flush.](figures/outcome-precedence.svg)
+
+[Open the outcome-precedence activity at full size](figures/outcome-precedence.svg).
+The figure shows the order of decisions after required cleanup attempts.
+The source excerpt and table above expand its signal step, with the
+second CLI latch read.
+
+The primary outcome follows this order:
+
+| First applicable condition | Decision |
+|---|---|
+| Cancellation observation exists | `session_cancelled`, no result, selected signal |
+| Original operation failed | Keep that failure and its status |
+| Otherwise, a cleanup failed | First cleanup error, status 5 |
+| Otherwise, an `Ended` reports a group that survives | `process_group_survived`, status 5 |
+| None of these conditions applies | Return the candidate result to `run` for output |
+
+Excerpt from `crates/ravel/src/run.rs`: after its cancellation branch,
+`settle` preserves an original error before it selects a cleanup error.
+
+```rust
+    let result = result?;
+    if let Some(error) = cleanups.into_iter().find_map(Result::err) {
+        return Err(error.into());
+    }
+```
+
+For example, `session_result_missing` plus a channel cleanup error keeps
+status 1 and reports the cleanup problem. If INT also reaches the final
+decision, cancellation wins and both failures remain diagnostics.
+A group that survives normally makes `result_after` fail first, so the original
+failure can already be `session_result_invalid`.
+The final group branch in `settle` still prevents success independently.
+
+Only a successful `settle` reaches the result write. A write or flush failure
+then gives `result_write_failed`, status 5. A later signal can still stop
+the CLI during output, and a failed write can leave a partial value.
+The [caller accepts a result only after success](05-running-sessions.md#accept-a-result-only-after-success).
+The final decision and the output write are not one atomic operation.
+
+## Find where a change belongs
+
+Suppose you change how Ravel stores a sent result, while the CLI behaviour
+stays the same. Start with `crates/ravel/src/completion.rs`.
+It owns allocation, the first complete value, validated reads and explicit
+channel removal. A change there also needs checks at its two consumers.
+
+| Boundary to inspect | Property the change preserves |
+|---|---|
+| `publish_result` and `SessionChannel` in `completion.rs` | First complete value wins, empty differs from absent, UTF-8 remains unchanged |
+| `Channel::appeared` in `crates/keyed-launch/src/channel.rs` | Appearance alone tells the runner when to start completion, without a content read |
+| `Launch.channel` and `Ended` in the runner | The launch uses its own channel and reports job state separately from appearance |
+| `run` in `crates/ravel/src/run.rs` | Fresh nested context, channel and end from the same launch, explicit cleanup and final precedence |
+
+The completion name currently appears only after the complete write.
+A replacement mechanism that exposes a partly written value would break
+that agreement with the runner. Empty results also need a positive completion
+event, since zero bytes do not mean that no result exists.
+
+`SessionChannel::result_after` accepts an `Ended` reference.
+Its type cannot establish that this end belongs to this channel.
+`run` establishes the association: it passes its allocated channel to the
+runner, then passes that runner's end to `result_after`.
+A storage change preserves this association as well as file contents.
+
+For this change, exercise the transport with empty, multiline and Unicode
+values, repeated sends, invalid files and nested sessions.
+Then exercise cancellation after a sent result, result failure plus cleanup
+failure, and cancellation plus cleanup failure. A status check alone cannot
+show that the original failure and every cleanup report survived.
+
+The owner policy's choice of program does not depend on the result's storage
+representation. Its behaviour can stay unchanged for this scenario.
+The source boundaries above explain where to inspect and test a change.
+They do not establish a supported public component interface.
