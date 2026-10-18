@@ -306,7 +306,7 @@ live() {
     n=$((n + 1))
     ((n >= tries)) || sleep "$interval"
   done
-  die "$url did not serve 'ravel $version' after $tries tries. If Pages is not enabled for branch $BRANCH, enable it once (see docs/RELEASING.md), then run 'scripts/release-book.sh live $tag' again"
+  die "$url did not serve 'ravel $version' after $tries tries. If Pages is not enabled for branch $BRANCH, enable it once (chapter 12, \"Set up Pages for the first release\": docs/book/src/12-deliver-ravel.md, #set-up-pages-for-the-first-release), then run 'scripts/release-book.sh live $tag' again"
 }
 
 check_remote() {
@@ -322,7 +322,7 @@ check_pages() {
   local repo="${RAVEL_BOOK_REPO:-Linkuistics/Ravel}" reply
   if ! reply="$(gh api "repos/$repo/pages" 2>&1)"; then
     if grep -Eq 'Not Found|HTTP 404' <<<"$reply"; then
-      echo "release-book: Pages is not enabled for $repo; the first release needs the one-time setup in docs/RELEASING.md"
+      echo "release-book: Pages is not enabled for $repo; the first release needs the one-time setup in chapter 12, \"Set up Pages for the first release\" (docs/book/src/12-deliver-ravel.md, #set-up-pages-for-the-first-release)"
       return 3
     fi
     die "cannot read the Pages configuration of $repo: ${reply%%$'\n'*}"

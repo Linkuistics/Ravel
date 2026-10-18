@@ -47,7 +47,7 @@ natively. Linux targets run in pinned glibc 2.17 userlands, with floor/above-flo
 symbol probes and QEMU models for Nehalem and Cortex-A53. Above-floor CPU
 instructions must fail with SIGILL at the floor and run under `-cpu max`.
 The same direct/symlink installed seam runs on every target. Containers/QEMU
-do not measure a kernel floor. [Delivery instructions](../RELEASING.md) own
+do not measure a kernel floor. [Delivery instructions](../book/src/12-deliver-ravel.md) own
 the complete prerequisites, manifest/formula controls and evidence rules.
 
 The formula installs the same bin/libexec layout and uses no Grove dependency.

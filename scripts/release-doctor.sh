@@ -237,7 +237,7 @@ check_book_pages() {
       ;;
     *)
       mark_fail "book on Pages: $message"
-      remediation "set Pages to 'Deploy from a branch', branch gh-pages, folder / (docs/RELEASING.md)"
+      remediation "set Pages to 'Deploy from a branch', branch gh-pages, folder / (chapter 12, \"Set up Pages for the first release\": docs/book/src/12-deliver-ravel.md, #set-up-pages-for-the-first-release)"
       ;;
   esac
 }

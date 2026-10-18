@@ -56,7 +56,7 @@ The leaf's single adversarial reader found three actionable P2 issues: Bash
 admission after cut, incomplete GitHub records counted as completed publication,
 and wildcard publication of extras. Each was fixed and covered by executable
 fixture controls. There were no unresolved findings or additional review pass.
-The release guide documents individual recovery boundaries without another bump.
+Chapter 12 of the book documents individual recovery boundaries without another bump.
 
 ## Rebuilt archives and installed checks
 

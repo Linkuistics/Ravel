@@ -406,10 +406,11 @@ This checks visual consistency, not the reader's knowledge of notation.
   chapters 7, 8 and 9 absorbed them, and their editable views under
   `docs/design/components/` were removed with them; the source and observation
   evidence of the guides is kept outside the book in
-  `docs/component-evidence.md`), the release guide (`docs/RELEASING.md`) and the authority note
-  (`docs/authority.md`; Parts I and II absorbed its authority statements, so
-  it is reduced to the test-isolation guards and legacy-name exceptions, and
-  removed when chapter 11 absorbs those).
+  `docs/component-evidence.md`), the release guide and the authority note
+  (both removed: chapter 12 absorbed the release guide, and Parts I and II and
+  chapter 11 absorbed the authority note, whose test-isolation guards and
+  legacy-name exceptions are now in chapter 11, “Keep tests separate from
+  live sessions”).
 - **These stay normative**: the session execution specification, the
   result/job completion specification and the decision records. The book
   explains every behaviour and design reason in its own words, so a reader

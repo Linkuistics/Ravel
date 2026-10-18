@@ -386,13 +386,14 @@ tasks:
       - scripts/release-build.sh
       # Nothing is published before this passes: each archive in target/dist
       # matches the manifest and runs its installed layout on its target at
-      # the floors. A failure leaves the cut local; docs/RELEASING.md,
-      # "If the installed smoke test fails", gives the recovery.
+      # the floors. A failure leaves the cut local; chapter 12 of the book,
+      # "Recover a partial release without another bump"
+      # (docs/book/src/12-deliver-ravel.md), gives the recovery.
       - scripts/release-smoke.sh --archives target/dist
       - jj git push -b main
       - git push origin "$(git describe --tags --exact-match HEAD)"
       # Publication order: GitHub Release, then the book on the Pages branch,
-      # then the tap. docs/RELEASING.md gives the recovery for each stop.
+      # then the tap. The same chapter 12 section gives the recovery for each stop.
       - scripts/release-publish.sh
       - brew update
       - |

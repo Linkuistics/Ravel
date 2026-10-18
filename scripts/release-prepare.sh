@@ -49,7 +49,7 @@ main() {
   if [[ "$version" == 0.0.0 && -z "$local_tag" && -z "$version_tags" && -z "$(git tag --list 'v[0-9]*')" ]]; then
     echo 'release-prepare: first release, no v0.0.0 baseline; planned minor is 0.1.0'
   else
-    [[ -n "$local_tag" && -n "$remote_tag" ]] || die "partial cut or missing baseline $tag; resume using docs/RELEASING.md, never bump again"
+    [[ -n "$local_tag" && -n "$remote_tag" ]] || die "partial cut or missing baseline $tag; resume using the chapter 12 section \"Recover a partial release without another bump\" (docs/book/src/12-deliver-ravel.md, #recover-a-partial-release-without-another-bump), never bump again"
     [[ "$(git ls-remote --tags origin "refs/tags/$tag^{}" | cut -f1)" == "$local_tag" || "$(git ls-remote --tags origin "refs/tags/$tag" | cut -f1)" == "$local_tag" ]] ||
       die "remote $tag differs; inspect and resume the unfinished release"
     git merge-base --is-ancestor "$local_tag" HEAD || die "$tag is not an ancestor of main"
@@ -65,7 +65,7 @@ main() {
     fi
     grep -Fxq "  version \"$version\"" <<<"$tap_formula" || die "tap $tag is unfinished; resume formula publication before another bump"
     changes="$(jj log --no-graph -r "$tag..main" -T commit_id)"
-    [[ -n "$changes" ]] || die "No changes since $tag; resume any unfinished release using docs/RELEASING.md"
+    [[ -n "$changes" ]] || die "No changes since $tag; resume any unfinished release using the chapter 12 section \"Recover a partial release without another bump\" (docs/book/src/12-deliver-ravel.md, #recover-a-partial-release-without-another-bump)"
   fi
   awk '/^## Unreleased$/ { n++ } END { exit n != 1 }' CHANGELOG.md ||
     die "CHANGELOG.md must contain exactly one Unreleased heading"

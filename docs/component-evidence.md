@@ -50,7 +50,7 @@ functions that the read used. Line ranges are in parentheses.
 
 The [runtime evidence](runtime-evidence.md) owns the results of the resolver and
 startup probes, and the limits for an upgrade. The read did not run those probes
-again. The specification and the [delivery guide](RELEASING.md) document the
+again. The specification and the [delivery chapter of the book](book/src/12-deliver-ravel.md) document the
 install and archive contracts. The two Rust packages, `ravel` and `keyed-launch`,
 both set `publish = false` in their manifests.
 

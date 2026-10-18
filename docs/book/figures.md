@@ -434,8 +434,9 @@ does not teach the notation: the key of the figure says what is specific to it,
 which for `outcome-precedence` is the square-bracket guard and the two colours.
 
 **The release flow as a scratch figure.** To check the module against the
-chapter 12 need, a scratch figure of the release flow in `docs/RELEASING.md`
-("Version cuts and publication") was drawn and not committed: three partitions
+chapter 12 need, a scratch figure of the release flow in the release guide
+(`docs/RELEASING.md`, “Version cuts and publication”, now folded into
+chapter 12) was drawn and not committed: three partitions
 (the local checkout, the build and the publication), a decision with an exit for
 a failed check, two forks and joins with three columns each, a labelled flow, a
 note and a final node. It rendered with no change to the module. The chapter 12
