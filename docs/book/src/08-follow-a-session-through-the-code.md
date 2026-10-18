@@ -8,9 +8,11 @@ evaluates the [owner policy](02-actors-and-words.md#caller-and-owner).
 The [runner](02-actors-and-words.md#policy-evaluation-and-supervision)
 controls the managed job inside the Ravel CLI process.
 
-This is an orientation to one path, not complete source coverage.
-It omits the full policy-context protocol, confinement backends, platform
-system calls, test instruments and delivery code.
+This chapter is an orientation to one path. It does not cover the complete
+source. It omits the full
+[policy-context](02-actors-and-words.md#three-different-kinds-of-information)
+protocol, [confinement](02-actors-and-words.md#trust-and-confinement)
+backends, platform system calls, test instruments and delivery code.
 [Chapter 7](07-the-parts-of-ravel.md) explains the component boundaries.
 Chapter 9, “Jobs, signals and the terminal”, explains the job-control details.
 
@@ -19,14 +21,14 @@ Chapter 9, “Jobs, signals and the terminal”, explains the job-control detail
 The [first session in chapter 3](03-a-complete-session.md#run-the-first-session)
 supplies `--kind demo`, `--config policy.ts` and a prompt argument.
 The policy chooses `fake-agent` and passes the prompt as one argument.
-The fake prints the prompt, calls `ravel end-session -- "finished"`, then exits.
+The fake agent prints the prompt, calls `ravel end-session -- "finished"`, then exits.
 No policy-context loader or confinement participates in this path.
 
 The [caller](02-actors-and-words.md#caller-and-owner) receives `finished`
 without a newline on standard output and status 0.
 The fake's printed line and Ravel's diagnostics appear on standard error.
-The example check runs the checkout build in scratch with private directories
-and a cleared environment. It has no terminal, so it does not demonstrate
+The example check runs the checkout build in a scratch directory, with private
+directories and a cleared environment. It has no terminal, so it does not demonstrate
 terminal handover or recovery.
 
 The table gives the whole path before the individual decisions.
@@ -44,8 +46,9 @@ Paths below are relative to the checkout root.
 | Complete cleanup and decide | `run`, `Handlers::finalise`, `settle` | A result that can reach the final write |
 | Return the result | `run`, then `main` | Unchanged output, then status 0 if the write and flush succeed |
 
-The managed process calls a second `ravel` process for `end-session` during
-supervision. That process sends the
+During supervision, the
+[managed process](02-actors-and-words.md#the-managed-process-and-its-result)
+starts a second `ravel` process for `end-session`. That process sends the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
 through the [result channel](02-actors-and-words.md#the-managed-process-and-its-result).
 It does not return the result to the original caller or wait for job cleanup.
@@ -58,7 +61,8 @@ It does not return the result to the original caller or wait for job cleanup.
 For `start-session`, `main` calls `run::run`. For `end-session`, it calls
 `completion::end_session` directly, without policy evaluation.
 
-`run` checks the saved entry signal state and begins cancellation handlers.
+`run` checks the saved entry signal state and installs the cancellation
+handlers with `handlers.begin()`.
 These handlers retain a signal that arrives during selection.
 Next, `choice::prepare` reads the settings, prepares the inputs and resolves
 the policy path. The order matters: settings supply defaults that input
@@ -81,7 +85,8 @@ a real path that the worker can import exactly.
 It does not search for another policy when this path fails.
 
 The prompt remains caller data. The request that `choice::request` constructs
-contains the unchanged prompt, the kind, the working directory, parameters
+contains the unchanged prompt, the
+[kind](02-actors-and-words.md#caller-and-owner), the working directory, parameters
 and effective limits. Ravel does not append instructions to end the session.
 The example's policy chooses to pass the prompt to the fake.
 
@@ -90,20 +95,22 @@ The example's policy chooses to pass the prompt to the fake.
 `choice::choose_prepared` locates the worker that matches the CLI, then calls
 `evaluate_and_resolve`. That function calls `worker::evaluate` with the
 request and a callback, `choice::judge`, that checks the worker's responses.
-The Rust coordinator owns the checks. TypeScript executes the policy.
+The Rust code of the Ravel CLI owns the checks. The TypeScript worker executes
+the policy.
 
-`worker::evaluate` in `crates/ravel/src/worker.rs` creates the worker's
+The code in `crates/ravel/src/worker.rs` is the worker coordinator.
+Its function `worker::evaluate` creates the worker's
 private directory and socket. It starts the worker with a restricted
 environment, null standard input and separate pipes for diagnostics.
 The worker receives no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
-Its standard output is not the selection protocol.
+The selection protocol does not use its standard output.
 
 The exchange has these steps in the example:
 
 | Order | Actor and function | Action |
 |---|---|---|
-| 1 | Worker, `crates/ravel/worker/src/main.ts` | Changes to `/`, registers embedded modules and sends `hello` |
+| 1 | Worker, `crates/ravel/worker/src/main.ts` | Changes its working directory to `/`, registers embedded modules and sends `hello` |
 | 2 | Rust, `worker::converse` | Checks the worker identity, then sends the policy path and request |
 | 3 | Worker, `converse` via `load` | Imports the policy and sends its description |
 | 4 | Rust, `choice::judge` | Checks that description, then requests selection |
@@ -112,7 +119,7 @@ The exchange has these steps in the example:
 | 7 | Rust, `worker::evaluate` | Closes the socket, ends and reaps the worker, collects diagnostics and removes its private directory |
 
 The example has no [policy context](02-actors-and-words.md#three-different-kinds-of-information).
-Thus, `judge` skips the optional context exchange.
+Thus, `judge` skips the optional policy-context exchange.
 The worker supplies `undefined` as the policy's context argument.
 The policy returns `fake-agent` with the prompt in its argument array.
 
@@ -122,17 +129,17 @@ The runner cannot enforce this order because it has no worker to inspect.
 The Ravel CLI enforces it before the runner call.
 
 After that return, `evaluate_and_resolve` checks cancellation and calls
-`program::resolve`. Here, it searches the caller's `PATH` for `fake-agent`.
+`program::resolve`. In the example, it searches the caller's `PATH` for `fake-agent`.
 The example's `bin` directory supplies that executable.
 The `Choice` retains both the selected command and the executable
-path. The command's labels supply the routing notice, not a model integration.
+path. The command's labels supply text for the routing notice. Ravel does not
+use them to integrate with a model.
 
 ## Prepare the managed launch
 
 `run` first calls `ResultOutput::reserve`. This function checks that standard
 output is writable, saves its descriptor, then redirects standard output to
-standard error. The saved descriptor does not pass through exec to the
-[managed process](02-actors-and-words.md#the-managed-process-and-its-result).
+standard error. The saved descriptor does not pass through exec to the managed process.
 This arrangement keeps the fake's diagnostics separate from the result.
 
 Next, `SessionChannel::allocate` creates a fresh temporary directory and
@@ -140,8 +147,8 @@ channel path. It retains an open directory descriptor for the later read.
 Allocation creates no result file. The channel belongs to this launch alone.
 
 `run` builds the argument vector from the checked command.
-The excerpt preserves the difference between the executable path and the
-original program name used as argument zero.
+The excerpt shows the difference between the executable path and the
+original program name, which becomes argument zero.
 
 Excerpt from `crates/ravel/src/run.rs`: the argument vector uses the
 resolved path and each argument that the policy supplied.
@@ -162,8 +169,8 @@ The `Launch` holds this argument vector, the channel, environment changes,
 entry signal state and escalation times.
 For this unconfined path, `run` calls
 `keyed_launch::run_observed_with_start_check`.
-The runner removes old result-context variables, applies grants, then sets
-the new `RAVEL_EXIT_FILE` last.
+The runner removes the inherited variables that name a result destination,
+applies the environment grants, then sets the new `RAVEL_EXIT_FILE` last.
 Thus, a nested session gives its own child a fresh destination.
 The unconfined child otherwise inherits the caller's environment and working
 directory.
@@ -200,8 +207,9 @@ the complete value before the completion name exists.
 ```
 
 The next operation, `fs::hard_link`, adds a name for that file.
-It does not replace a name that already exists. This is the first-result rule.
-The runner can observe a complete file, rather than a partly written value.
+It does not replace a name that already exists. This behaviour is the
+first-result rule. Thus, the runner can observe only a complete file, never a
+partly written value.
 
 | Channel state | Effect of `end-session` |
 |---|---|
@@ -229,7 +237,7 @@ The example can exit before `watch` observes the file.
 That path needs no result-triggered escalation.
 `supervise_reported` checks channel appearance again when it constructs
 `Ended`, after the job cleanup steps.
-Thus, a rapid child exit does not by itself lose the result.
+Thus, Ravel does not lose the result when the child exits quickly.
 
 The final group stop precedes reap on the normal path through `watch`.
 
@@ -249,8 +257,8 @@ confirms whether the group is gone. It returns an `Ended` with separate
 fields for the child status, cancellation, channel appearance and group state.
 
 The Ravel CLI needs those separate facts. A later nonzero child status does
-not invalidate a sent result. A group that remains or failed required recovery
-prevents success. Descendants that leave the group remain outside this
+not invalidate a sent result. A group that remains, or a failed required
+recovery, prevents success. Descendants that leave the group remain outside this
 cleanup guarantee.
 
 ## Read the result
@@ -262,7 +270,7 @@ alone does not prove that an arbitrary `Ended` belongs to this channel.
 `result_after` first checks the group and cancellation, then channel
 appearance. It reads the contents only after those checks.
 
-| Observation | Result of the transport check |
+| Observation | Result of `result_after` |
 |---|---|
 | Group remains present | Error |
 | Runner reports cancellation | Error |
@@ -278,12 +286,12 @@ UTF-8. These checks matter because the managed process can change files.
 
 In the example, the value is `Some("finished")`.
 `run` converts `None` to `session_result_missing`, even if the child's exit
-status is zero. The transport returns candidate text to `run`, not to the
+status is zero. `result_after` returns candidate text to `run`, not to the
 caller. Resource cleanup and the final cancellation decision still follow.
 
-## Clean up and write the result
+## Complete cleanup and write the result
 
-After the runner returns, `run` reports its operation reports.
+After the runner returns, `run` writes the runner's operation reports.
 Without `--json`, each report has the form `ravel: <report>` on standard
 error. With `--json`, `operationReports` belongs to the selection notice.
 An operation report does not alone decide success, as the
@@ -335,7 +343,7 @@ the Ravel CLI during output. The write is not atomic with that decision.
 A failed choice prevents the call to the runner. The function that detects
 the problem supplies its classification. The Rust type `Refusal` also carries
 worker failures and timeouts, so its name alone does not identify a policy
-refusal.
+[refusal](02-actors-and-words.md#policy-evaluation-and-supervision).
 
 Suppose the example's policy returns `status: "refused"` instead of a command.
 `choice::judge` passes that value to `policy::selected` in
@@ -347,16 +355,16 @@ result channel or launches the fake.
 Ravel does not substitute another policy or command when selection fails.
 
 The table locates the other forks. Its statuses describe isolated failures
-without cancellation. The paragraph below explains combined worker failures.
+without cancellation. The paragraphs after the table explain combined worker failures.
 The [exit-status table](06-reference.md#exit-statuses) gives their meaning to
 the caller.
 
 | Problem | Decision in the code | Status and point of failure |
 |---|---|---|
 | Missing or unreadable policy file | `authority::resolve` | 3, before worker evaluation |
-| Policy import, shape or context fails | `choice::judge`, `Validator::validate`, `choice::deliver` | 3, before executable lookup |
+| Policy import, shape or policy context fails | `choice::judge`, `Validator::validate`, `choice::deliver` | 3, before executable lookup |
 | Policy refuses, throws, abstains or returns malformed selection data | `policy::selected` | 3, before executable lookup |
-| Policy data or diagnostic output exceeds a bound | Policy/context validators or `worker::evaluate` | 3, before executable lookup |
+| Policy data or diagnostic output exceeds a bound | Policy and policy-context validators, or `worker::evaluate` | 3, before executable lookup |
 | Selection deadline expires | `worker::expired` | 124, before executable lookup |
 | Worker cannot start, has the wrong identity, or fails its protocol | Worker coordinator in `crates/ravel/src/worker.rs` | 5, before managed launch |
 | Worker conversation succeeds, but required teardown fails | `worker::evaluate` | 5, before managed launch |
@@ -416,7 +424,7 @@ Thus, even a failure without an `Ended` value has cleanup work to complete.
 
 Cancellation can reach the Ravel CLI during selection, supervision or final
 cleanup. The cancellation handlers retain INT, TERM and HUP observations.
-A *latch* is the saved signal number. It lets ordinary code attempt cleanup
+A **latch** is the saved signal number. It lets ordinary code attempt cleanup
 before the CLI propagates the signal.
 
 During selection, the worker coordinator observes the CLI latch and attempts
@@ -440,8 +448,8 @@ The common cleanup still closes the channel and restores output.
 During supervision, runner `watch` checks its own latch before it accepts
 even an already-exited child. For an unconfined job, it forwards the signal
 to the managed group, then escalates if needed. For a confined job, it
-attempts KILL immediately. It retains the first signal it consumes through
-subsequent wait, reap and recovery operations.
+attempts KILL immediately. It retains the first signal that it consumes through the wait, reap and
+recovery operations that follow.
 
 Two runner outcomes carry cancellation to `run`:
 
@@ -489,7 +497,8 @@ chooses the first available observation in this expression.
         let signal = front.or(outcome).or(late).or(received()).or(pending);
 ```
 
-This is an order of sources, not a comparison of signal arrival times.
+This expression gives an order of sources. It does not compare signal
+arrival times.
 The variables have these meanings:
 
 | Expression | Observation |
@@ -544,8 +553,8 @@ Excerpt from `crates/ravel/src/run.rs`: after its cancellation branch,
 For example, `session_result_missing` plus a channel cleanup error keeps
 status 1 and reports the cleanup problem. If INT also reaches the final
 decision, cancellation wins and both failures remain diagnostics.
-A group that survives normally makes `result_after` fail first, so the original
-failure can already be `session_result_invalid`.
+When an `Ended` reports a group that survives, `result_after` fails first.
+Thus, the original failure is already `session_result_invalid`.
 The final group branch in `settle` still prevents success independently.
 
 Only a successful `settle` reaches the result write. A write or flush failure
@@ -559,19 +568,19 @@ The final decision and the output write are not one atomic operation.
 Suppose you change how Ravel stores a sent result, while the CLI behaviour
 stays the same. Start with `crates/ravel/src/completion.rs`.
 It owns allocation, the first complete value, validated reads and explicit
-channel removal. A change there also needs checks at its two consumers.
+channel removal. A change there also needs checks at its two consumers, the runner and `run`.
 
 | Boundary to inspect | Property the change preserves |
 |---|---|
-| `publish_result` and `SessionChannel` in `completion.rs` | First complete value wins, empty differs from absent, UTF-8 remains unchanged |
+| `publish_result` and `SessionChannel` in `completion.rs` | Ravel keeps the first complete value, empty differs from absent, and UTF-8 text stays unchanged |
 | `Channel::appeared` in `crates/keyed-launch/src/channel.rs` | Appearance alone tells the runner when to start completion, without a content read |
 | `Launch.channel` and `Ended` in the runner | The launch uses its own channel and reports job state separately from appearance |
-| `run` in `crates/ravel/src/run.rs` | Fresh nested context, channel and end from the same launch, explicit cleanup and final precedence |
+| `run` in `crates/ravel/src/run.rs` | A fresh session-result context for each launch, a channel and an `Ended` from the same launch, explicit cleanup and the final precedence |
 
 The completion name currently appears only after the complete write.
 A replacement mechanism that exposes a partly written value would break
 that agreement with the runner. Empty results also need a positive completion
-event, since zero bytes do not mean that no result exists.
+event, because zero bytes do not mean that no result exists.
 
 `SessionChannel::result_after` accepts an `Ended` reference.
 Its type cannot establish that this end belongs to this channel.
@@ -579,7 +588,7 @@ Its type cannot establish that this end belongs to this channel.
 runner, then passes that runner's end to `result_after`.
 A storage change preserves this association as well as file contents.
 
-For this change, exercise the transport with empty, multiline and Unicode
+For this change, exercise the result channel with empty, multiline and Unicode
 values, repeated sends, invalid files and nested sessions.
 Then exercise cancellation after a sent result, result failure plus cleanup
 failure, and cancellation plus cleanup failure. A status check alone cannot

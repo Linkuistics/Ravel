@@ -113,12 +113,6 @@ of part A.
 
 ## Handed forward
 
-- **Copy-edit — first-use term links.** In part A, “managed process” first
-  appears in “Trace the example”, but its glossary link occurs later in
-  “Prepare the managed launch”. Move that link to the first use when you
-  read the complete chapter under the prose contract. Also assess “Clean up”
-  in the final part A heading against STE's phrasal-verb rule; preserve the
-  section's function and reconcile any changed anchor in the chapter.
 - **Art — full successful sequence, chapter 8.** Insert after “Trace the
   example”, using its table as the low-resolution map. Show caller,
   Ravel CLI (with runner calls inside the same process), policy worker,
