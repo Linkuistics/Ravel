@@ -23,7 +23,7 @@ docs/book/src/figures/
   _style.typ                  shared modules, never rendered on their own
   _layout.typ
   _draw.typ
-  _c4.typ  _sequence.typ  _state.typ  _deployment.typ
+  _c4.typ  _sequence.typ  _state.typ  _deployment.typ  _activity.typ
 ```
 
 - One diagram per source file, flat in `docs/book/src/figures/`. The SVG and the
@@ -105,6 +105,7 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `successful-session` | The unconfined successful path. An X ends a pictured lifetime only after confirmed reap or directory removal, not process exit. The sent result precedes cleanup. Only the last result arrow delivers to the caller. Terminal recovery applies only when the terminal was lent. |
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Cleanup is attempted before reporting. An original failure keeps its status if later cleanup fails. The filename is retained for stable links. |
+| `outcome-precedence` | Which outcome Ravel chooses when failures and signals combine, in the order of `settle` in `run.rs`: every cleanup step is attempted first, then the first signal found is taken, then each decision gives the outcome in precedence order, and only a pass of every decision reaches the final write. The flow shows precedence, not the order of calls. It shows the same rule as `settled-exit-status` as a flow of decisions. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
@@ -289,13 +290,13 @@ need the figure tools.
 **On disk.** A `.typ` whose name does not start with `_` is a figure source, with
 its SVG and layout record of the same name. A file starting with `_` is a module
 that figures import. It is not a figure and gets no SVG; an SVG for one is
-refused as an orphan. Seven modules hold the book's drawing. `_style.typ` holds
+refused as an orphan. Eight modules hold the book's drawing. `_style.typ` holds
 the palette roles, text scale, stroke weights, faces and text measuring, and
 draws nothing. `_layout.typ` holds the constructors a layout module builds its
 record with and the orthogonal ports and routes that `_c4.typ` and `_state.typ`
 share. `_sequence.typ` is the sequence-diagram layout, `_c4.typ` the C4 layout,
-`_deployment.typ` the deployment layout and `_state.typ` the state-machine
-layout: each measures its text and returns a layout record. `_draw.typ` turns a
+`_deployment.typ` the deployment layout, `_state.typ` the state-machine
+layout and `_activity.typ` the activity layout: each measures its text and returns a layout record. `_draw.typ` turns a
 record into strokes (see "Layout, then draw"). `_style.typ` and `_sequence.typ`
 were promoted from the k107 trial, which was removed once its findings were
 recorded here (its sources stay in the history of the commit that added it,
@@ -386,6 +387,55 @@ is moved in the figure source and rendered again. The record uses the shapes
 initial marker, and the roles `phase`, `outcome` and `initial` (`_style.typ`),
 the first two drawn with 12pt corners. The crisp outline follows each exact
 corner radius. The layout record and its rounded-box roles are unchanged.
+
+**What the activity layout covers.** `_activity.typ` serves the activity views,
+and `outcome-precedence` is its user. A figure source is the list of nodes, from
+top to bottom, and the key, handed to `activity(...)` and then to `render`. The
+nodes are `initial` (the filled marker), `action` (a rounded box in the `phase`
+role), `outcome` (a grey box in the `outcome` role that ends a flow), `final`
+(the ring with a filled core), `decision` (a diamond), `fork` (a bar, one column
+for each branch and a join bar) and `partition` (a dashed outline with a title
+around a list of nodes). A node can carry `via`, the label of the flow that
+enters it, and an `action` or an `outcome` can carry a `note` on a dashed
+connector. The module adds two roles in `_style.typ`: `control` for the diamonds
+and the ring of a final node, and `bar` for the fork and join bars. Both take the
+relation colour. The record uses the shapes `_draw.typ` already had (a polygon, a
+box, a circle and a line), so the only change there is a square corner for `bar`.
+
+**Placement in the activity layout is automatic.** The module measures each
+node's text in the pinned font and stacks the nodes on one spine, so a figure
+source holds no coordinate. A new node or a longer label moves what is below it
+and edits nothing else. A decision has two flows. `down` continues on the spine.
+`right` leaves by the right vertex to a branch beside the diamond, and the first
+node of that branch is level with the diamond. The side branches of one list
+start at one distance from the spine, so they form a column. A decision with
+`merge: true` ends in a merge diamond that the branches which continue rejoin.
+Without `merge`, the right branch must end in an `outcome` or a `final`, and the
+`down` branch is the rest of the list. A side flow is as long as its guard needs
+and a spine flow is as tall as its label needs. A guard of `none` draws no guard,
+so a deleted guard fails the compare and not the render. As in the other layouts,
+nothing avoids a collision that the measured sizes do not prevent. The module
+refuses a node after an `outcome` or a `final`, a right branch that does not end
+the flow and has no merge, and two nodes or flows with one id.
+
+**Departures from the usual form of the notation.** An `outcome` is a grey box
+with text and not the bare final ring, because the exit status and the result are
+what the reader needs, as in the state views. `final` is the usual ring. The
+question of a decision is drawn to the left of a small diamond and not inside it.
+A decision has two outgoing flows. A `partition` is a titled outline around
+consecutive nodes, as in PlantUML, and not a lane across the whole figure.
+There are no object nodes, pins, signals or interruptible regions. The module
+does not teach the notation: the key of the figure says what is specific to it,
+which for `outcome-precedence` is the square-bracket guard and the two colours.
+
+**The release flow as a scratch figure.** To check the module against the
+chapter 12 need, a scratch figure of the release flow in `docs/RELEASING.md`
+("Version cuts and publication") was drawn and not committed: three partitions
+(the local checkout, the build and the publication), a decision with an exit for
+a failed check, two forks and joins with three columns each, a labelled flow, a
+note and a final node. It rendered with no change to the module. The chapter 12
+art stage draws and commits the real figure. It must check each step against the
+release scripts, because the scratch figure follows the guide and no script.
 
 ## Porting record
 
@@ -585,6 +635,29 @@ drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 Typst has since replaced. They are kept as history, and none of their
 observations is a statement about the present figures. Each later record names
 the revision and environments that it checked.
+
+### Activity figure, 2026-10-18 (`book-figure-activity-k153`)
+
+This pass added `_activity.typ` and the figure `outcome-precedence`. No chapter
+refers to the figure yet, so no page shows it. The nine earlier SVGs and layout
+records are byte-for-byte unchanged, and `task docs:figures` passes for the ten
+figures. `task docs:ste -- --strict` passes for the new layout record.
+
+The browser that the Playwright tool launches on macOS displayed the committed
+SVG in a scratch page outside the book. Its version was not recorded. The page had a 1227-by-919-pixel viewport, a
+750-pixel column and a CSS width of 750 pixels for the image, as the book's
+column gives. The SVG is 1002 by 1288 pixels at its own size, so the view scales
+it to 0.75. It is 750 by 964 pixels in the column and the page has no sideways
+scroll. Text of 14 units shows at 14 pixels. A first view found three faults that
+the pass then corrected before the committed render: an action that wrapped one
+word onto a line, a note whose text touched its folded corner, and spine guards
+that crowded the guard of the next decision. The final view showed none of them.
+
+This view did not use the book's mdBook theme or a chapter page, because the
+pass edits no chapter. It did not inspect the dark themes, a narrower viewport,
+another browser, an editor preview, GitHub or the full-size link target. It does
+not establish that a reader understands the figure. The labels may change when
+chapter 8 is proved, and that change belongs to the chapter 8 art stage.
 
 ### Chapter 7 tables, 2026-10-18 (`the-parts-of-ravel-k168`)
 

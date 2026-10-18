@@ -31,10 +31,11 @@
 //   "line"     relation, result,       pts: ((x, y), ...) two or more points;
 //              lifeline, rule, fold,   dashed: bool; arrow: bool (the shared
 //              end, boundary           arrowhead on the last point)
-//   "polygon"  note (a kinds role)     pts: ((x, y), ...) closed; filled
+//   "polygon"  note, control           pts: ((x, y), ...) closed; filled
 //   "box"      ravel, external, owner, x0, y0, x1, y1
 //              temporary, note, key,
-//              divider, phase, outcome
+//              divider, phase, outcome,
+//              bar
 //   "cylinder" a kinds role            x0, y0, x1, y1; cap: vertical radius
 //                                      of the elliptical ends
 //   "circle"   a kinds role            x, y: the centre; r: the radius; filled
@@ -43,7 +44,8 @@
 //              green) or "label"
 //              (plain ink)             x, y: the point; anchor: center | south
 //                                      | west (the side of the text on the
-//                                      point); align: center | left;
+//                                      point; east is also accepted);
+//                                      align: center | left;
 //                                      wrapped: bool, w: the wrapping width
 //                                      if wrapped, else the text's own width;
 //                                      h: wrapped height; w and h are measured
@@ -73,7 +75,7 @@
 #assert(style == "crisp", message: "--input style must be crisp, not " + style)
 
 // Corner radius by box role; any other box is 3pt.
-#let radii = (key: 6pt, divider: 0pt, phase: 12pt, outcome: 12pt)
+#let radii = (key: 6pt, divider: 0pt, phase: 12pt, outcome: 12pt, bar: 0pt)
 
 // ---- drawing primitives -----------------------------------------------------
 // Coordinates are (x, y) pairs written y-down. Colours are `pal` values.

@@ -52,6 +52,10 @@
   phase: (fill: pal.blue, text: pal.white, line: pal.navy),
   outcome: (fill: pal.grey, text: pal.ink, line: pal.slate),
   initial: (fill: pal.rel, text: pal.white, line: pal.rel),
+  // Activity views: `control` is a decision or merge diamond and the ring of a
+  // final node; `bar` is the fork or join bar. Both take the relation colour.
+  control: (fill: pal.white, text: pal.ink, line: pal.rel),
+  bar: (fill: pal.rel, text: pal.white, line: pal.rel),
 )
 
 // Text scale. Stereotype and technology lines («container», [Rust]) are the

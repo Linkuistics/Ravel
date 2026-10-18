@@ -474,6 +474,85 @@ not_in_output 'a change to the style tables leaves the record alone' 'engine.lay
 { printf '#import "@preview/cetz:0.4.2"\n'; cat "$modules/engine.typ"; } >"$modules/engine.typ.new" && mv "$modules/engine.typ.new" "$modules/engine.typ"
 expect_refused 'a figure drawing with CeTZ itself, beside the book modules, is refused' 'engine.typ imports a package' check "$modules"
 
+# The activity module (_activity.typ) places every node itself, so a figure source
+# holds no coordinate. This fixture has every kind of node and flow: an initial and
+# a final node, an action with a note, a decision with a merge (both branches
+# live) and one whose guard sits on an empty branch, a decision with an exit, a
+# fork and join with a branch of two nodes, a partition, and a labelled flow.
+# Each mutated copy below must be refused for its own reason, and the fixture
+# itself passes first, so a refusal is the mutation's and not the fixture's.
+act="$work/activity"
+mkdir -p "$act"
+cp "$root/docs/book/src/figures"/_{style,layout,draw,activity}.typ "$act/"
+cat >"$act/flow.typ" <<'EOF'
+#import "_activity.typ": *
+#import "_draw.typ": render
+
+#render(activity(
+  [A fixture activity],
+  (
+    initial("start"),
+    action("first", [First step], note: [A note beside a step.]),
+    decision("ready", [Ready?],
+      down: branch([[no]], action("wait", [Wait])),
+      right: branch([[yes]], action("go", [Go ahead]), action("go2", [Then a second step])),
+      merge: true),
+    decision("optional", [Optional?],
+      down: branch([[skip]]),
+      right: branch([[do it]], action("opt", [Do the optional step])),
+      merge: true, via: [after the merge]),
+    partition("part", [A partition],
+      decision("done", [Done?],
+        right: branch([[failed]], outcome("bad", [Failed])),
+        down: branch([[succeeded]],
+          fork("split", "joined", (
+            (action("one", [Branch one]),),
+            (action("two", [Branch two]), action("three", [Branch two, step two])),
+          ))))),
+    final("end"),
+  ),
+  ([A key line.],),
+))
+EOF
+expect_ok 'the book modules draw an activity with every kind of node' update "$act"
+expect_ok 'the book modules render a stable activity' check "$act"
+[[ -s "$act/flow.svg" && "$(head -c 4 "$act/flow.svg")" == '<svg' ]] || die 'the activity fixture wrote no SVG'
+[[ ! -e "$act/_activity.svg" ]] || die '_activity.typ was rendered as a figure'
+grep -Fq '"flow-ready-go"' "$act/flow.layout.json" || die 'the activity record names no flow between its nodes'
+ok 'the activity module is not rendered as a figure, and its record names its flows'
+
+# copy_act NAME SED-EXPRESSION: a private copy of the activity fixture with one
+# edit to its source. The edit must change the source, or the control below
+# would pass for a reason that is not the edit.
+mutate_act() {
+  local d="$work/activity-$1"
+  rm -rf "$d"
+  cp -R "$act" "$d"
+  sed -i.bak "$2" "$d/flow.typ" && rm "$d/flow.typ.bak"
+  cmp -s "$act/flow.typ" "$d/flow.typ" && die "the activity control '$1' did not change the source"
+  echo "$d"
+}
+d="$(mutate_act node 's/final("end")/action("extra", [An extra step]), final("end")/')"
+expect_refused 'a node added to an activity source fails the layout record compare' 'flow.layout.json differs from the layout record flow.typ evaluates to' check "$d"
+grep -Fq 'flow.svg differs' "$work/out" || die "an added node did not also fail the SVG compare: $(cat "$work/out")"
+ok 'an added node fails the SVG compare too'
+d="$(mutate_act label 's/\[Wait\]/[Wait longer]/')"
+expect_refused 'a changed activity label fails the layout record compare' 'flow.layout.json differs from the layout record flow.typ evaluates to' check "$d"
+grep -Fq 'flow.svg differs' "$work/out" || die "a changed label did not also fail the SVG compare: $(cat "$work/out")"
+ok 'a changed activity label fails the SVG compare too'
+d="$(mutate_act guard 's/branch(\[\[no\]\], /branch(none, /')"
+expect_refused 'a missing activity guard fails the layout record compare' 'flow.layout.json differs from the layout record flow.typ evaluates to' check "$d"
+grep -Fq 'flow.svg differs' "$work/out" || die "a missing guard did not also fail the SVG compare: $(cat "$work/out")"
+ok 'a missing guard fails the SVG compare too'
+
+# The module refuses a flow that its notation cannot draw, and says why.
+d="$(mutate_act dangling 's/outcome("bad", \[Failed\])/action("bad", [Failed])/')"
+expect_refused 'a decision exit that does not end the flow, with no merge, is refused' 'must end the flow' check "$d"
+d="$(mutate_act after-outcome 's/outcome("bad", \[Failed\])/outcome("bad", [Failed]), action("after", [After])/')"
+expect_refused 'a node after an outcome is refused' 'follows a node that ends the flow' check "$d"
+d="$(mutate_act same-id 's/action("go2"/action("go"/')"
+expect_refused 'two nodes with one id are refused' 'share the id go' check "$d"
+
 # Font pins: the faces are the only ones a render can use.
 t="$work/tools-font"; mkdir -p "$t/fonts"
 ln -s "$tools/typst" "$t/typst"
