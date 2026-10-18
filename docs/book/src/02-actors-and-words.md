@@ -28,7 +28,7 @@ the harness process, not the conversation of the LLM.
 
 The caller supplies a **kind**. A kind is an open token that names the sort of
 session that the caller wants. Ravel checks that the token is not empty and
-gives it no meaning. The [owner](#caller-and-owner)'s policy code
+gives it no meaning. The policy code of the [owner](#caller-and-owner)
 interprets it. For example, a caller can request `review`. But Ravel has no
 registry of task kinds and does not know what a review includes.
 
@@ -47,12 +47,13 @@ both roles.
 | Owner | The policy that selects a command or refuses a request | The caller's task and next step |
 
 By default, Ravel uses the account's policy file,
-`~/.config/ravel/policy.ts`. `--config PATH` names a different policy file. Ravel resolves that
-path relative to the working directory of the caller. Ravel does not search
+`$HOME/.config/ravel/policy.ts`. `--config PATH` names a different policy
+file. Ravel resolves that path relative to the working directory of the
+caller. Ravel does not search
 the repository of the caller for a policy.
 
-A selection contains a program, arguments and descriptive labels such as
-provider, model and effort. These labels are text from the owner, not
+A selection contains a program, arguments and descriptive labels in the
+`provider`, `model` and `effort` fields. These labels are text from the owner, not
 built-in model integrations. The policy selects the actual command that
 starts the chosen program. Ravel runs that command without shell expansion or
 word splitting. A shell runs only if the policy selects one.
@@ -115,7 +116,7 @@ program.
 
 The policy decides whether to pass the prompt to that program.
 Ravel does not require an LLM or a program that understands prompts. An
-ordinary program can take the harness's place and send a value with
+ordinary program can take the place of the harness and send a value with
 `end-session`, as the examples do.
 
 An interactive harness waits for more input when the LLM completes its task.
@@ -126,10 +127,9 @@ completes the cleanup before it returns the result.
 
 The **opaque result** is text that a program in the session sends as one
 UTF-8 argument with `ravel end-session`. In the prompt's instructions to end
-the session, the caller gives the permitted values and tells when to use each
-value. For
-example, the caller can choose `continue` to mean that it can start its next
-task. Ravel gives this text no meaning. After successful supervision and
+the session, the caller gives the permitted values and tells when to use
+each value. For example, the caller can choose `continue` to mean that it can
+start its next task. Ravel gives this text no meaning. After successful supervision and
 cleanup, Ravel returns the text unchanged. Then the caller decides its next
 step.
 
@@ -161,13 +161,13 @@ not prove that cleanup is complete.
 
 Before the Ravel CLI returns success, it confirms the reap, the absence of the
 process group and the removal of the session's temporary files.
-Cancellation suppresses the value, even if Ravel received it before the
-signal.
+Cancellation suppresses the result, even if Ravel received it before the
+cancellation.
 
 The result channel uses the completion channel of the runner. That completion
 channel only reports that a file appeared. Ravel's code for the result
-channel checks and reads the contents. The appearance of the file is not a successful
-session. The selection from the policy worker is also not a successful
+channel checks and reads the contents. The appearance of the file is not a
+successful session. The selection from the policy worker is also not a successful
 session.
 
 The figure shows why a policy response cannot complete a session. The
@@ -214,11 +214,11 @@ place of that path.
 In a nested launch, the outer managed process invokes a new `start-session`
 as a caller. Ravel gives a new path to the inner managed process. This path
 replaces the outer path only in the environment of that child. The outer
-managed process keeps its own session-result context. Thus, normal
-inheritance sends each completion command to its enclosing session, not to a
+managed process keeps its own session-result context. Thus, with normal
+inheritance, each `end-session` goes to its enclosing session, not to a
 session that an ID selects.
 
-The table shows why a completion command with the inner path ends the inner
+The table shows why an `end-session` with the inner path ends the inner
 session. The outer process keeps its own path for the result.
 
 | Process that runs `end-session` | Inherited session-result context | The result goes to |

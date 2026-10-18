@@ -92,7 +92,8 @@ of a second `end-session` (R16) and runs of prose that are longer than the
 new limit (R11). Two wording decisions (R12 and R13) are in
 `docs/book/ste.md`. The owner authorised this fourth correction run on
 2026-10-18. Another send-back on this document goes to the owner. Draft
-k134 and copy-edit k135 run under this node. Set art `book-first-half-k144`
+k134 and copy-edit k135 run under this node. Copy-edit k135 applied R12 and R13 in
+chapter 1 and kept R14's conditional cost and R15's prompt distinction. Set art `book-first-half-k144`
 (the crisp figure style, R10) and set proof `book-first-half-k147` serve this
 document. Thus, no stage under this node cuts an art or proof leaf.
 
@@ -121,8 +122,3 @@ document. Thus, no stage under this node cuts an art or proof leaf.
   precedes launch, and when a second sender can race shutdown. The existing
   C4 figures keep their questions and content. Apply the queued crisp style.
   R8 stays closed: the prose does not repeat the figure colour keys.
-- Copy-edit k135: R14's conditional cost statement expresses the purpose of
-  subscription access, not a measured comparison or a universal saving.
-  The linked official authentication pages confirm the access options as of
-  18 October 2026. Preserve the distinction between a required caller prompt
-  and the policy's choice to pass it to the selected program (R15).

@@ -9,13 +9,13 @@ commands. The person who configures Ravel chooses which harness runs each
 request. Ravel starts that harness and supervises it. After cleanup succeeds,
 Ravel returns the result that the session sent.
 
-A harness such as Claude Code or Codex can use its user's subscription.
-Thus, a caller can use that subscription for LLM work instead of paid API
-access. The cost can be much lower for work that the subscription covers.
+A harness such as Claude Code or Codex can run under the subscription of its
+user. Thus, a caller can use that subscription for LLM work instead of paid
+API access. The cost can be much lower for work that the subscription covers.
 The [Claude Code documentation](https://code.claude.com/docs/en/authentication)
 and [Codex documentation](https://learn.chatgpt.com/docs/auth) explain their
-access options and link to their plans and terms. We checked these access
-options on 18 October 2026.
+access options and link to their plans and terms. This paragraph agrees with
+those pages as they were on 18 October 2026.
 
 An [orchestrator](02-actors-and-words.md#caller-and-owner) is a program that
 runs LLM sessions as steps of its own work. It can request a
@@ -43,8 +43,8 @@ The person or program that makes the request is the
 [caller](02-actors-and-words.md#caller-and-owner). The caller invokes
 `ravel start-session` with a prompt and a
 [kind](02-actors-and-words.md#caller-and-owner). A kind is a token that names
-the sort of work that the caller wants. In the review scenario mentioned
-above, the caller can use `review` as the kind. The caller and the owner
+the sort of work that the caller wants. In the review example above,
+the caller can use `review` as the kind. The caller and the owner
 policy agree on that token. Ravel has no built-in review category.
 
 The [owner](02-actors-and-words.md#caller-and-owner) controls the
@@ -64,8 +64,8 @@ The caller can also use the kind to choose instructions for the prompt. If
 the harness supports skills, the prompt can tell the LLM which skill to load.
 A skill is a set of instructions for a particular task. This use of the kind
 is a caller convention. Ravel gives the prompt to the policy unchanged and
-adds no task instructions. The policy decides how to include the prompt in
-the arguments of the selected command.
+adds no task instructions. The policy decides whether and how to include the
+prompt in the arguments of the selected command.
 
 One `start-session` invocation is a
 [session](02-actors-and-words.md#caller-and-owner). During the session, Ravel
@@ -77,8 +77,8 @@ process, not the conversation of the LLM in that process.
 
 The contract with the selected program is loose. The policy selects a
 program, Ravel runs it, and a program in the session sends one value with
-`end-session`. Ravel needs no further harness-specific behaviour. The
-selected program need not use an LLM or understand a prompt.
+`end-session`. Ravel needs nothing more from the program. The selected
+program does not have to use an LLM or understand a prompt.
 
 The table separates what Ravel needs from the harness use that this book
 teaches. The runnable examples use ordinary programs as fake agents.
@@ -86,16 +86,16 @@ teaches. The runnable examples use ordinary programs as fake agents.
 | Part of a session | What Ravel needs | What this book expects from a harness |
 |---|---|---|
 | Selected command | The policy selects a program and its arguments | The program runs an LLM session |
-| Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel gives that text to the policy unchanged. | The policy passes the prompt to the harness. The policy decides whether the program receives it. |
+| Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel gives that text to the policy unchanged. The policy decides whether the program receives it. | The policy passes the prompt to the harness |
 | Result | A program in the session sends one value with `end-session` | The LLM follows the caller's instructions and tells the harness to run that command |
 
 An interactive harness does not exit when its LLM completes the task. It
 waits for more input. Thus, the caller's prompt tells the LLM to run
-`ravel end-session RESULT` when the task is complete. `RESULT` is a placeholder
-for the text to send. The caller's prompt gives the permitted values and tells the LLM when
-to use each value.
+`ravel end-session RESULT` when the task is complete. `RESULT` is a
+placeholder for the text to send. The caller's prompt gives the permitted
+values and tells the LLM when to use each value.
 
-For example, the caller can choose the text `continue` as a return value. The
+For example, the caller can choose the text `continue` as a result value. The
 prompt can tell the LLM to run `ravel end-session continue` when the review is
 complete. The command sends that text to Ravel and asks Ravel to end the
 session. After successful supervision and cleanup, Ravel returns the text
@@ -111,7 +111,7 @@ It takes no session ID or target argument.
 
 When `end-session` sends the result, it requests the end of the session. This
 request does not prove that cleanup succeeded. A process group is an
-operating system unit that contains the managed process and its descendants.
+operating-system unit that contains the managed process and its descendants.
 Ravel stops the harness and each other process that remains in that group.
 Then it completes the cleanup of the group.
 
@@ -123,8 +123,8 @@ group is gone and that it removed the temporary files of the session.
 explains these mechanics at the point where a session needs them.
 
 The table shows the steps after the LLM completes its task. The caller
-receives a successful result only after Ravel stops the managed job and
-completes its cleanup.
+receives a successful result only after Ravel stops the managed process and
+its process group and completes the cleanup.
 
 | Step after the LLM completes its task | Who acts and what happens |
 |---|---|
@@ -145,17 +145,18 @@ responsibilities, not security boundaries.
 
 [Open the system-context figure at full size.](figures/system-context.svg)
 
-A successful `start-session` writes the exact bytes of the result to standard
-output. It adds no newline. Ravel redirects the standard output of the
+After a successful session, Ravel writes the result unchanged to standard
+output. Ravel does not interpret the result and adds no newline. Ravel redirects the standard output of the
 managed process to standard error. Thus, the caller can keep the output of
 the managed process and the diagnostics of Ravel separate from the result
 stream.
 
 The caller checks whether `start-session` succeeded before it interprets that
-stream. A failure during the write of the final result can leave only a prefix. Thus,
-the bytes alone do not prove success.
+stream. A failure during the write of the final result can leave only the
+start of the result on standard output. Thus, the output alone does not prove
+success.
 
-These outcomes give no successful result:
+Some outcomes return no result to the caller:
 
 - A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) means
   that Ravel launches no program.
@@ -167,8 +168,8 @@ These outcomes give no successful result:
 
 But a session with a sent result can succeed after cleanup, even if the
 managed process then exits with a nonzero status. The result is the value
-that the caller's instructions to end the session asked for. The exit status tells how the
-process ended. The work is what the program changed. None of these three
+that the caller's instructions to end the session asked for. The exit status
+tells how the process ended. The work is what the program changed. None of these three
 outputs can replace another.
 
 The table keeps the three outputs separate. Thus, you do not confuse an exit
@@ -182,8 +183,8 @@ status or a changed file with the result that the caller requested.
 
 ## Decide whether Ravel fits
 
-Ravel fits when your program needs to use an LLM session in an interactive harness
-as a step of its own work. Your program can let the owner policy of the
+Ravel fits when your program needs to use an LLM session in an interactive
+harness as a step of its own work. Your program can let the owner policy of the
 account choose the harness. In each harness that the policy selects, the LLM
 uses the same command, `end-session`, to send the result. Ravel supervises the
 session and returns its explicit result after cleanup. Your program still owns
@@ -211,7 +212,8 @@ Ravel has no persistent session store and no history lookup. Its
 uses temporary files for one session. It is not a record of past work. If a
 caller needs a permanent record, that caller saves it. Owner policy is
 executable code and can itself use files or network services. Ravel has no
-store, but this does not restrict what that trusted code can do.
+store, but the absence of a store does not restrict what that trusted code
+can do.
 
 Grove, a task-tree driver, is one illustrative caller. It is an orchestrator
 that runs LLM sessions in harnesses as steps of the work on its task tree. It
@@ -227,7 +229,7 @@ each limit for the caller.
 | A descendant leaves the process group of the managed process | Group cleanup does not reach it. The session can succeed while that descendant continues to run. |
 | Policy starts detached children | The cleanup guarantee of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) does not cover them. |
 | The Ravel CLI stops abruptly, for example because of SIGKILL | The managed process or temporary files can remain. The Ravel CLI cannot catch SIGKILL. |
-| Code runs as the same user | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
+| Other code runs as the same user as Ravel | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
 
 [Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the
 separation of these roles is useful within these limits.
@@ -245,7 +247,7 @@ and the chapters for further detail.
 | Your task | Read in this order | Further detail |
 |---|---|---|
 | Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
-| Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6](06-reference.md) for lookup |
+| Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Change Ravel | Chapters 1–3, then 7, “How Ravel is built”, 8, “Follow a session through the code”, and 11, “Develop Ravel” | Chapter 9, “Jobs, signals and the terminal”, and chapter 12, “Deliver Ravel” |
 | Reuse a component | Chapters 1 and 2, then chapter 10, “Use Ravel's components in your project”, when it exists | Chapters 7 and 9 for background |
 
@@ -254,7 +256,7 @@ exist. The internal package boundaries of Ravel alone are not a supported
 interface for another project.
 
 The learning route is to read the chapters in order. The first practical
-session uses a tiny policy and a fake agent. A fake agent is an ordinary
+session uses a small policy and a fake agent. A fake agent is an ordinary
 program that sends a result with `end-session`. It takes the place of a
 harness that runs an LLM session. Thus, you can learn the protocol without a
 model service or a personal agent account. The installation and the
@@ -273,8 +275,8 @@ ran it only under QEMU user-mode emulation. This emulation translates x86-64
 programs to run on the kernel of the host. Thus, no x86-64 kernel takes part.
 No x86-64 kernel is qualified.
 
-These are limits of the evidence. The three targets do not have equal support
-measurements. Chapter 12 explains the limits of delivery and of the platforms
+These facts are limits of the evidence. The three targets do not have the
+same evidence. Chapter 12 explains the limits of delivery and of the platforms
 in detail.
 
 The table shows why a built or emulated target does not have the same
@@ -288,7 +290,7 @@ evidence as a measured native target.
 
 The reader checkpoints of the book use the owner as a labelled stand-in for a
 developer new to Ravel. These reads can show the owner's findings, for
-example errors in the book. They cannot show whether a new developer can use the book. You
-can build and examine the local book. Nobody can check how GitHub shows the
+example errors in the book. They cannot show whether a new developer can use
+the book. You can build and examine the local book. Nobody can check how GitHub shows the
 book until the project pushes the branch. The book on GitHub Pages stays
 unchecked until the first release that contains the book.

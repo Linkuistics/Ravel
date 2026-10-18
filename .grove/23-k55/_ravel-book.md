@@ -387,6 +387,15 @@ in each unit node (k134–k143), then set art `book-first-half-k144`,
 `ravel-book-second-half-k148`. The planning leaf comes before whole-book art
 `ravel-book-k101`. Another send-back on a unit goes to the owner.
 
+Draft `what-ravel-is-for-and-its-actors-k134` and copy-edit
+`what-ravel-is-for-and-its-actors-k135` complete the chapters 1–2 part of
+this run. Chapter 1 now says that Ravel writes the result unchanged to
+standard output and does not interpret it (R12), and that some outcomes
+return no result to the caller (R13). Both chapters pass the strict STE and
+prose-break checks. No heading or anchor changed. This closes document node
+`what-ravel-is-for-and-its-actors-k62` again. Set art k144 and set proof k147
+complete its fourth correction run.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and
