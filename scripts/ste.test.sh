@@ -2,7 +2,8 @@
 # Controls for scripts/ste.sh. The unchanged CONTEXT.md and SUMMARY.md are the
 # one pass. Each other case puts one problem into a test copy and must fail
 # the strict run with that rule's name: a check that never failed would read
-# the same as a check that cannot.
+# the same as a check that cannot. The default file list has its own control:
+# a scratch chapter 07 with a planted long sentence, in a copy of the tree.
 # With "mutants", it removes one rule at a time from a copy of scripts/ste.ts
 # and shows that a control then fails.
 set -euo pipefail
@@ -94,6 +95,38 @@ controls() {
   bash "$root/scripts/ste.sh" "$work/report.md" >"$work/out" 2>&1 || die "report: the run without --strict failed"
   grep -qF "1 problems" "$work/out" || die "report: $(cat "$work/out")"
   ok "the report run exits 0 and counts the problem"
+
+  default_list
+}
+
+# default_list: with no file arguments the run examines every chapter, not
+# only chapters 1-6. The scratch tree holds the files that the default list
+# reads and a chapter 07 with a long sentence. The second half of the control
+# runs a copy of ste.sh that keeps the old pattern: it must miss chapter 07.
+default_list() {
+  local tree="$work/tree" w26 old
+  w26="$(printf 'word %.0s' {1..25})end."
+  mkdir -p "$tree/scripts" "$tree/docs/book"
+  cp "$root/scripts/ste.sh" "$root/scripts/ste.ts" "$tree/scripts/"
+  cp -R "$root/docs/book/src" "$tree/docs/book/src"
+  cp "$root/docs/book/ste.md" "$tree/docs/book/"
+  cp "$root/CONTEXT.md" "$root/README.md" "$tree/"
+  printf '# Scratch\n\n%s\n' "$w26" >"$tree/docs/book/src/07-scratch.md"
+  export BOOK_TOOLS_DIR="${BOOK_TOOLS_DIR:-$root/target/tools}" # the copy has no target/tools
+
+  bash "$tree/scripts/ste.sh" >"$work/out" 2>&1 || die "default-list: the report run failed: $(cat "$work/out")"
+  grep -qF "07-scratch.md: 1 problems" "$work/out" || die "default-list: the default run does not report chapter 07: $(cat "$work/out")"
+  grep -qF "Rule 6.3" "$work/out" || die "default-list: the report does not name Rule 6.3: $(cat "$work/out")"
+  ok "the default run reports a long sentence in chapter 07"
+
+  old="$work/ste-old.sh"
+  sed 's/\[0-9\]\[0-9\]-\*\.md/0[1-6]-*.md/' "$tree/scripts/ste.sh" >"$old"
+  cmp -s "$old" "$tree/scripts/ste.sh" && die "default-list: the old pattern changed nothing"
+  cp "$old" "$tree/scripts/ste.sh"
+  bash "$tree/scripts/ste.sh" >"$work/out" 2>&1 || die "default-list: the old-pattern run failed: $(cat "$work/out")"
+  if grep -qF "07-scratch.md" "$work/out"; then die "default-list: the old pattern reports chapter 07: $(cat "$work/out")"; fi
+  ok "the old pattern 0[1-6] does not report chapter 07"
+  rm -rf "$tree"
 }
 
 mutants() {

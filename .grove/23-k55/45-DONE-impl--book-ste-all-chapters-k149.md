@@ -49,3 +49,13 @@ pass and the whole-book proof read the default.
 - Keep the change to the file list and its tests. The book's tasks stay out of
   `task check`.
 - Use the STE writing rules for every sentence you write in `ste.md`.
+
+## Decisions (running log)
+
+- `scripts/ste.sh` now lists `docs/book/src/[0-9][0-9]-*.md`, the pattern of `scripts/breaks.sh`. It has no `nullglob`: an unmatched glob passes the literal name and the run fails on it, as before. A missing chapter 10 is not an error, because the same glob matches chapters 1–9 and 11–12.
+- Control in `scripts/ste.test.sh` (`default_list`): a copy of the tree holds `ste.sh`, `ste.ts`, `ste.md`, `CONTEXT.md`, `README.md` and a copy of `docs/book/src/`, with a scratch `07-scratch.md` that holds a 25-word sentence. The default run reports it (Rule 6.3). A copy of `ste.sh` with the old `0[1-6]` pattern does not. I also watched the real control fail (exit 1, "does not report chapter 07") when `scripts/ste.sh` in the repository had the old pattern, then restored the new pattern.
+- `task docs:ste:test` and its mutants pass (12 mutants, each still fails a control). The `default_list` control also fails under the sentence-limit mutant, as it must.
+- The report on chapters 1–6 is unchanged: `diff` of the before and after reports is empty (0 problems in 18 files), and `--strict` passes on each of chapters 1–6.
+- `docs/book/ste.md` ("The check") states the new list, the missing-chapter rule and the new control.
+- `task docs:breaks` needs no change. Its list is already `[0-9][0-9]-*.md`. Positive control in a scratch tree: a planted `07-scratch.md` with a 600-word run is reported (`1 runs longer than 450 words in 7 files`, against `0 … in 6 files` before). Negative half: the same text in `7-scratch.md` is not examined, so the pattern does discriminate.
+- `task docs:examples` needs no change. It finds every `.md` page under `docs/book/src` with `find`. Positive control (`EXAMPLES_ROOT` set to a scratch tree with `crates` linked): a planted `07-scratch.md` with `Complete example:` and no Command block gives "the complete example has no Command block" and `1 page error(s)`; without the page, 13 passed and 0 page errors.

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Examine the book's text against the STE writing rules that a script can
 # decide and the word decisions in docs/book/ste.md (scripts/ste.ts does the
-# work). With no file arguments it examines the book's text: chapters 1-6,
+# work). With no file arguments it examines the book's text: every chapter
+# under docs/book/src/ (so chapters 7-12 are examined when they exist),
 # SUMMARY.md, CONTEXT.md, README.md and each figure's .layout.json record.
 # --strict makes a problem fail the run; without it the run is a report.
 set -euo pipefail
@@ -23,7 +24,7 @@ for a in "$@"; do
 done
 if ((${#files[@]} == 0)); then
   cd "$root"
-  files=(docs/book/src/0[1-6]-*.md docs/book/src/SUMMARY.md CONTEXT.md README.md docs/book/src/figures/*.layout.json)
+  files=(docs/book/src/[0-9][0-9]-*.md docs/book/src/SUMMARY.md CONTEXT.md README.md docs/book/src/figures/*.layout.json)
 fi
 
 exec "$bun" "${STE_TS:-$root/scripts/ste.ts}" "$decisions" "${args[@]+"${args[@]}"}" "${files[@]}"

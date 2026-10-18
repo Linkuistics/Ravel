@@ -14,10 +14,13 @@ file.
 
 ## The check
 
-`task docs:ste` examines the book's text: chapters 1–6, `SUMMARY.md`,
+`task docs:ste` examines the book's text. This is every chapter file in
+`docs/book/src/` (a name that matches `[0-9][0-9]-*.md`), `SUMMARY.md`,
 `CONTEXT.md`, `README.md` and the text of each figure (its `.layout.json`
-record). It removes code blocks and code spans first. The script is
-`scripts/ste.ts`. It finds these problems:
+record). Thus it examines chapters 7–12 when they exist. A chapter that does
+not exist, such as chapter 10 before its text is written, is not an error.
+The script is `scripts/ste.ts`. It removes code blocks and code spans first,
+then it finds these problems:
 
 - **Long sentences**: a sentence of more than 25 words (Rule 6.3). A step of
   a numbered list has 20 words or fewer (Rule 5.1). The script cannot find an
@@ -41,7 +44,8 @@ Do not use phrasal verbs (Rule 9.3). Give each paragraph one topic (Rule
 `task docs:ste -- --strict FILE…` to make it stop with status 1 when it finds
 a problem. A copy-edit that completes a chapter runs the strict form on that
 chapter. `task docs:ste:test` shows that the check finds a problem that is
-put into a test copy of a file.
+put into a test copy of a file. It also shows that a run with no file
+arguments examines a chapter 7 that is put into a test copy of the book.
 
 ## The result
 
