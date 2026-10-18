@@ -195,6 +195,19 @@ check_smoke_hosts() {
   fi
 }
 
+# The cut replaces one line of the book with the release version
+# (release.toml). Checked here so that a missing line does not stop a release
+# whose version is already cut.
+check_book_version() {
+  local message
+  if message="$("$REPO_ROOT/scripts/release-book-version.sh" ready 2>&1)"; then
+    mark_pass "book version line: ${message#release-book-version: }"
+  else
+    mark_fail "book version line: ${message#release-book-version: }"
+    remediation "restore the one line 'ravel @RAVEL_BOOK_VERSION@' (or the last release's 'ravel X.Y.Z') in docs/book/src/03-a-complete-session.md"
+  fi
+}
+
 check_release_commands() {
   local program
   for program in jj jq brew task curl tar xz shasum shellcheck; do
@@ -230,6 +243,7 @@ main() {
   check_gh_auth
   check_bun
   check_smoke_hosts
+  check_book_version
   check_release_commands
 
   echo

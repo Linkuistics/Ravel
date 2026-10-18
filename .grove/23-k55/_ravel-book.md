@@ -203,7 +203,32 @@ reduced README.
   chapter 1.
 - Chapter 12 teaches the release tasks. It includes how the release writes
   its version into chapter 3 and checks it (R17).
-  `book-release-version-k145` adds the details here.
+  `book-release-version-k145` adds the details here. What chapter 12 must say
+  about the mechanism (done 2026-10-18):
+  - The book has one version line, `ravel @RAVEL_BOOK_VERSION@` in a `text`
+    fence in `docs/book/src/03-a-complete-session.md`. A checkout between
+    releases shows the placeholder or the last release's version, and the
+    reader of chapter 3 compares it with `ravel --version`.
+  - `release.toml` has a second `pre-release-replacements` entry beside the
+    changelog one. Its pattern matches the whole line with the placeholder or
+    any `X.Y.Z`, and `exactly = 1`. So the next cut finds the line again.
+    `cargo release` writes the version into the line in the same release commit
+    as the manifests, and the tag carries it. The path is relative to the
+    package directory, `../../docs/book/src/03-a-complete-session.md`, as the
+    changelog path is. The book uses no include that only mdBook understands,
+    so GitHub and raw views show the same text.
+  - Two guards in `scripts/release-book-version.sh`. `ready` (run by `task
+    release:doctor`) refuses a book without exactly one such line. `released
+    vX.Y.Z` (run by the release task after the cut and before the build) reads
+    the page at the tag and refuses a line that is not `ravel X.Y.Z`, or any
+    surviving placeholder. A refusal leaves the cut local with nothing pushed;
+    the recovery is "Recover a partial release without another bump" in
+    `docs/RELEASING.md`.
+  - `scripts/release-book-version.test.sh` (part of `task release:lifecycle:test`)
+    runs the real cargo-release 1.1.2 in an isolated repository: a dry run
+    that shows the replacement, two cuts, and the controls that fail. The
+    published book for each release is on GitHub Pages, and the placeholder
+    text in chapter 3 tells the reader to use it when versions differ.
 
 ## First-half set proof and owner amendments
 

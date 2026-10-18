@@ -370,6 +370,9 @@ tasks:
       - task: check
       - cargo release {{.LEVEL}}
       - cargo release {{.LEVEL}} --execute --no-confirm
+      # The cut wrote the version into the book's version line. Refuse a
+      # release whose tag does not carry exactly that line before it builds.
+      - scripts/release-book-version.sh released "$(git describe --tags --exact-match HEAD)"
       - jj bookmark set main -r "$(git rev-parse HEAD)"
       - scripts/release-build.sh
       # Nothing is published before this passes: each archive in target/dist

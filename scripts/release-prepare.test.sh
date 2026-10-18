@@ -32,6 +32,10 @@ printf '[package]\nname="keyed-launch"\nversion.workspace=true\nedition.workspac
 printf 'fn main() {}\n' >"$scratch/repo/crates/ravel/src/main.rs"
 printf 'pub fn runner() {}\n' >"$scratch/repo/crates/keyed-launch/src/lib.rs"
 printf '# Changelog\n\n## Unreleased\n\n' >"$scratch/repo/CHANGELOG.md"
+# The production release.toml also replaces the book's version line.
+book_page=docs/book/src/03-a-complete-session.md
+mkdir -p "$scratch/repo/$(dirname "$book_page")"
+cp "$root/$book_page" "$scratch/repo/$book_page"
 cargo generate-lockfile --manifest-path "$scratch/repo/Cargo.toml" --offline
 jj -R "$scratch/repo" describe -m 'Introduce independent sessions' >/dev/null
 jj -R "$scratch/repo" git remote add origin "$scratch/remote.git"
@@ -108,6 +112,7 @@ for level in patch minor major; do
   cmp "$scratch/pre-dry" "$scratch/repo/CHANGELOG.md"
 done
 grep -Fq '0.1.0' "$scratch/dry-minor"
+grep -Fxq -- '+ravel 0.1.0' "$scratch/dry-minor"
 # Empty standing notes still preview a correctly reseeded version heading.
 printf '# Changelog\n\n## Unreleased\n' >"$scratch/repo/CHANGELOG.md"
 jj -R "$scratch/repo" describe -m 'empty changelog fixture' >/dev/null

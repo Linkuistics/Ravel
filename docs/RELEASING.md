@@ -153,6 +153,18 @@ The anchored replacement requires exactly one `## Unreleased` heading, closes
 it under `## v<VERSION>` and seeds a fresh empty standing heading. Config and
 replacement controls are tested with the actual 1.1.2 tool in isolated repos.
 
+The same cut writes the release version into the one version line of the book,
+`ravel @RAVEL_BOOK_VERSION@` in `docs/book/src/03-a-complete-session.md`
+(`release.toml`). The line holds the placeholder until the first release, and
+the previous version after it, so the next cut finds it again.
+`task release:doctor` refuses a book that does not have exactly one such line.
+After the cut, and before the build, the task runs
+`scripts/release-book-version.sh released vX.Y.Z`. It reads the page at the tag
+and stops the release if the line is not `ravel X.Y.Z`. Then the cut is local
+and nothing is pushed. Recover as "Recover a partial release without another
+bump" says. `scripts/release-book-version.test.sh` runs the real cargo-release
+in an isolated repository: a dry run, two cuts and the controls that must fail.
+
 The task imports the release commit onto main, builds all three clean-tagged
 archives into freshly cleared `target/dist`, and renders/tests their formula
 through the real Homebrew API in private prefixes. It then smokes **every target

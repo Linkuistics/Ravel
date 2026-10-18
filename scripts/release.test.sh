@@ -185,6 +185,12 @@ for level in patch minor major; do
   task --dir "$scratch/task" --dry "release:$level" >"$scratch/dry" 2>&1
   grep -Fq "cargo release $level --execute --no-confirm" "$scratch/dry"
   build="$(dry_line scripts/release-build.sh)"
+  # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
+  book="$(dry_line 'scripts/release-book-version.sh released "$(git describe --tags --exact-match HEAD)"')"
+  cut="$(dry_line "cargo release $level --execute --no-confirm")"
+  if [[ -z "$book" || -z "$cut" ]] || ((book < cut)) || ((build < book)); then
+    fail "release:$level does not check the book's version line after the cut and before the build"
+  fi
   smoke="$(dry_line 'scripts/release-smoke.sh --archives target/dist')"
   if [[ -z "$build" || -z "$smoke" ]] || ((build > smoke)); then
     fail "release:$level does not smoke-test target/dist after scripts/release-build.sh"
@@ -244,7 +250,9 @@ fi
 exec "$RELEASE_TEST_JJ" "$@"
 SH
 chmod +x "$scratch/bin/cargo" "$scratch/bin/jj"
-for stage in prepare build; do
+# The stub stands for the real guard, which release-book-version.test.sh runs
+# against the real cargo-release; here only its place in the order matters.
+for stage in prepare build book-version; do
   # shellcheck disable=SC2016 # evaluated by the fixture script
   printf '#!/bin/sh\necho %s >>"$RELEASE_TEST_ORDER"\n' "$stage" >"$scratch/task/scripts/release-$stage.sh"
   chmod +x "$scratch/task/scripts/release-$stage.sh"
@@ -265,6 +273,9 @@ for level in patch minor major; do
   if task --dir "$scratch/task" "release:$level" >"$scratch/output" 2>&1; then fail 'continued after failed smoke'; fi
   grep -Fq 'exit status 74' "$scratch/output"
   grep -Fxq smoke "$RELEASE_TEST_ORDER"
+  # The book's version line is checked after the cut, before the build.
+  [[ "$(grep -n -x -e book-version -e build -e smoke "$RELEASE_TEST_ORDER" | cut -d: -f2 | paste -sd' ' -)" == 'book-version build smoke' ]] ||
+    fail "release:$level did not check the book version between the cut and the build"
   if grep -q '^publish-' "$RELEASE_TEST_ORDER"; then fail 'publication preceded successful smoke'; fi
   [[ ! -e "$scratch/task/.jj/release-lock" ]]
   [[ -z "$("$real_git" --git-dir="$scratch/task-remote.git" tag --list)" ]]
