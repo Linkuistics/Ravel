@@ -248,7 +248,7 @@ and the chapters for further detail.
 |---|---|---|
 | Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
-| Change Ravel | Chapters 1–3, then 7, “How Ravel is built”, 8, “Follow a session through the code”, and 11, “Develop Ravel” | Chapter 9, “Jobs, signals and the terminal”, and chapter 12, “Deliver Ravel” |
+| Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), 8, “Follow a session through the code”, and 11, “Develop Ravel” | Chapter 9, “Jobs, signals and the terminal”, and chapter 12, “Deliver Ravel” |
 | Reuse a component | Chapters 1 and 2, then chapter 10, “Use Ravel's components in your project”, when it exists | Chapters 7 and 9 for background |
 
 Chapter 10 has no text until a supported extracted component and its consumer

@@ -150,7 +150,7 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
-| 7 | How Ravel is built | explain the Ravel CLI, why policy runs as a separate TypeScript worker that is reaped before anything launches, why the runner is its own Rust package, and how the parts compose |
+| 7 | The parts of Ravel | explain the Ravel CLI, why policy runs as a separate TypeScript worker that Ravel reaps before the managed launch, why the runner is its own Rust package, and how the parts compose |
 | 8 | Follow a session through the code | follow one successful session from `main` to the result write, then the refusal and cancellation forks and the error and signal precedence, and find where a change belongs |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
 | **Part IV** | **Reuse and develop Ravel** | |
@@ -161,8 +161,9 @@ every other page. Each chapter's purpose is what the reader can do after it.
 The owner's STE decision of 2026-10-17 changed six chapter titles and two part
 titles to commands, because STE Rule 3.5 permits “-ing” forms only in
 technical names. The chapter file names stay as they are, so links do not
-change. Chapter 7's title uses the passive voice. The planning for Parts III
-and IV examines it against Rule 3.6.
+change. The planning for Parts III and IV changed chapter 7's title to
+“The parts of Ravel” on 2026-10-18. This noun phrase avoids passive voice
+with a known agent (Rule 3.6). Its file is `07-the-parts-of-ravel.md`.
 
 Chapters 1–9, 11 and 12 describe the code as it stands in the workstream that
 wrote this contract. Chapters 1–6 describe the CLI, configuration and session

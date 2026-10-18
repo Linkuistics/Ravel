@@ -629,6 +629,14 @@ proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
 
 ### Owners of the second-half handoffs
 
+Chapter 7's draft (`the-parts-of-ravel-k152`) records the complete O1–O10 and
+R1–R8 destination tables and the sentence groups of both architecture guides
+in its task log. Chapters 8 and 9 take their detailed obligations from that
+map and verify them against current source. The map also names chapter 11's
+runner-test and isolation material. The architecture fold-in uses these
+destinations after the unit stages and set proof, without treating the old
+guides' native-entry status as current fact.
+
 | Handoff (from “Handed forward to the second half”) | Owner |
 |---|---|
 | Plain-text mentions of chapters 7–12 become links | `book-second-half-k163` |

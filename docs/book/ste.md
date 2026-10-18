@@ -80,23 +80,26 @@ The technical names of the book are the terms in `CONTEXT.md`, code
 identifiers, commands, file names, paths and product names. Rule 3.5 lets a
 word in “-ing” be part of a technical name, for example “working directory”.
 
-The chapter and part titles are commands, because Rule 3.5 permits “-ing”
-forms only in technical names. These titles replace the earlier titles:
+The titles below use commands where they name tasks. Rule 3.5 permits
+“-ing” forms only in technical names. Chapter 7 uses a noun phrase.
+These titles replace the earlier titles:
 
 | Earlier title | Title |
 |---|---|
 | Part II: Using Ravel | Use Ravel |
 | Writing an owner policy | Write an owner policy |
 | Running sessions | Run sessions |
+| How Ravel is built | The parts of Ravel |
 | Following a session through the code | Follow a session through the code |
 | Part IV: Reusing and developing Ravel | Reuse and develop Ravel |
 | Using Ravel's components in your project | Use Ravel's components in your project |
 | Developing Ravel | Develop Ravel |
 | Delivering Ravel | Deliver Ravel |
 
-The chapter file names do not change. Thus, links to the chapters do not
-change. A link text or a sentence that gives a chapter title uses the new
-title.
+The file names for chapters 1–6 do not change. Chapter 7 uses
+`07-the-parts-of-ravel.md`. Its title is a noun phrase, which avoids passive
+voice with a known agent (Rule 3.6). A link text or a sentence that gives a
+chapter title uses the new title.
 
 ## Words that the book does not use
 

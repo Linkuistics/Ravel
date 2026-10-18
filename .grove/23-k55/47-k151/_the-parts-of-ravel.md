@@ -97,4 +97,7 @@ the code is chapter 8, and jobs, signals and the terminal are chapter 9.
 
 ## Handed forward
 
-None yet.
+- **Art:** Chapter 7 links to the proved process-authority figure in chapter
+  2 and the source and installed views in chapter 6. Decide whether to repeat
+  the relevant figures on this page. Its tables supply the facts without a
+  new diagram. No figure source or caption changed during draft.

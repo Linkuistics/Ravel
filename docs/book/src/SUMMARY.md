@@ -14,7 +14,7 @@
 
 # Part III: Inside Ravel
 
-- [How Ravel is built]()
+- [The parts of Ravel](07-the-parts-of-ravel.md)
 - [Follow a session through the code]()
 - [Jobs, signals and the terminal]()
 
