@@ -67,3 +67,62 @@ reuse chapter 5's two cancellation sequences where this chapter needs them.
 
 Dense small figure text across the book stays with whole-book art k101. This
 leaf does not claim a reader result or a new runtime measurement.
+
+## Decisions (running log)
+
+- Use the agreed Typst/CeTZ renderer and existing timing and sequence modules.
+  The chapter and node handoff already settle the design and authorise this art
+  work. No renderer, runtime or document-structure decision is reopened.
+- Separate the timing figure into escalation, early exit and common cleanup
+  panels. The scaffold equates KILL with exit and promises a maximum poll delay.
+  Replace those claims with attempts, observed exit and nominal poll intervals.
+  Show both final group KILL attempts before reap and the later signal-0 query.
+- Keep chapter 5's cancellation sequences linked. This is an editorial judgement:
+  chapter 9's table supplies the phase comparison and immediate confined KILL,
+  while the linked figures give the examples' sequence. Repeating them here
+  adds no relation and could suggest that they cover confined cancellation.
+  No medium limitation or contract prohibition caused this choice.
+- Draw terminal acquisition and the two recovery paths in one sequence, with
+  the runner inside the CLI. Explicit conditions and alternative section labels
+  keep successful spawn, normal recovery and uncertain status distinct.
+- The one fresh-context reviewer found one actionable qualification: the first
+  terminal key made exec a predecessor of every failed spawn. Add an explicit
+  early-failure entry to B before the setup steps, and correct the key. This
+  changes no recovery rule or diagram machinery and needs no second review.
+  The reviewer found no escalation or caption defect. This is a bounded read
+  against the chapter, not a new runtime observation.
+- Strict STE found “Scheduling” in the timing key. Replace it with “The
+  scheduler”; do not extend the shared word list for a figure sentence.
+- The complete chapter read found that its existing tables carry the other
+  comparisons, mappings and operation order. Retain them with their adjacent
+  explanations. No runtime or earlier-stage prose correction is required.
+- Preserve the terminal sequence's conditions and key despite its SVG size.
+  It exceeds the earlier per-figure benchmark. The book brief hands the exact
+  size to the existing whole-book art k101, beside its set-size and dense-text
+  work. No claim of compliance with those size benchmarks follows.
+
+## Validation
+
+- `task docs:figures`: thirteen figures match their sources and layout records.
+- `task docs:book:build`: passed without warnings.
+- Strict `docs:ste` on chapter 9 and both changed figure layout records:
+  zero problems. Strict `docs:breaks` on chapter 9: no run over 450 words.
+- `task docs:examples`: fourteen passed, none failed or skipped, six labelled
+  fragments not run, no page errors. `task docs:excerpts`: eight passed,
+  none failed, no page errors.
+- SHA-256 lists before and after the checks match for 3,484 tracked files
+  outside `.grove/`. This covers the chapters, figures, modules, scripts,
+  source, fixtures and manifests. Scratch lists are under `target/art-k176/`.
+  The subsequent changes are the viewing note and Grove handoff records.
+- Chrome displayed both complete figures and their adjacent tables at the
+  750-pixel column. Full-size views were also inspected. `docs/book/figures.md`
+  gives dimensions, sizes and viewing limits. No reader or runtime result follows.
+- Graph project `Users-antony-Development-Ravel.simplify-and-componentize`
+  was ready at bootstrap. Tier 2 coverage reported no issue for the document
+  and Typst paths, with matching metadata. The Typst symbol search returned
+  no rows, so both existing modules and figure sources were read directly.
+  SVGs are excluded by design; direct renders and browser views supplied their
+  checks. No graph completeness or runtime claim follows.
+
+The art handoffs in node k157 are cleared. The proof successor keeps the node
+open. No ADR decision changed and no parent cascade is due.

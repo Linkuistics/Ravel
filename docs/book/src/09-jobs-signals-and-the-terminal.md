@@ -71,6 +71,13 @@ schedule starts at observation, not at the instant the sender calls `end-session
 | KILL | The child still runs after the kill grace | Send KILL to the group and the child. Check for exit at 10-millisecond intervals |
 | Final cleanup | The runner observes the child's exit | Stop the other group members before the reap, then recover the terminal and confirm group absence |
 
+The figure separates the grace periods from final cleanup. Both exit paths
+reach the group stops before reap, then the terminal recovery and group query.
+
+![A child that outlasts both grace periods receives TERM and KILL attempts. Early exit skips later escalation. Final group stops precede reap.](figures/escalation-timing.svg)
+
+[Open the escalation figure at full size.](figures/escalation-timing.svg)
+
 TERM lets the program handle its own shutdown. A program can ignore TERM.
 It cannot catch or ignore KILL. If the child exits during either grace period,
 Ravel proceeds to final cleanup without the later escalation stages.
@@ -231,6 +238,7 @@ an outer supervisor's grace.
 
 The two [cancellation sequences in chapter 5](05-running-sessions.md#cancel-during-selection-or-supervision)
 show the selection and supervision cases, with complete fake-program examples.
+They do not show confined cancellation, which attempts KILL immediately.
 [Chapter 8](08-follow-a-session-through-the-code.md#choose-the-final-outcome)
 explains which signal and diagnostic Ravel reports when failures overlap.
 A cleanup failure stays visible beside cancellation. It does not permit a
@@ -359,6 +367,13 @@ The ordinary foreground launch follows these steps:
 | Lend | Before exec, the child calls `tcsetpgrp` to make its group foreground | Complete the handoff before the program's first terminal read |
 | Supervise | The runner observes the child and performs any required group stops before reap | Retain the group identity for those signals |
 | Recover | After reap, the runner applies the holder rules below and checks the terminal again | Restore saved modes only when the runner's group owns foreground |
+
+The sequence shows why the terminal lease survives the exec attempt.
+Its recovery branches depend on the child outcome and the current foreground holder.
+
+![The child records its group before the terminal handoff. After normal supervision or a failed exec, Ravel applies the conditional recovery rules.](figures/terminal-lending-recovery.svg)
+
+[Open the terminal sequence at full size.](figures/terminal-lending-recovery.svg)
 
 A background group can receive SIGTTOU when it changes terminal foreground.
 The runner therefore temporarily ignores SIGTTOU for the **handback** (the

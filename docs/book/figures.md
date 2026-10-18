@@ -109,7 +109,8 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
 | `selection-cancellation`, `supervision-cancellation` | Direct INT delivery to the Ravel CLI in the examples, not keyboard delivery. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
 | `source-components` | The Ravel CLI's checking/final-outcome code and linked runner share one process; the worker is separate. The enclosing boundary means process membership, not confinement. No third runner executable is installed. |
-| `escalation-timing` | What Ravel does, and when, after `end-session` sends the result. Panel A is the full schedule: the runner sees the result, waits the grace period, sends TERM, waits the second grace period and sends KILL. Panel B is a process that exits inside the grace period and is never signalled. Signals go to the process and to the rest of its process group. The runner stops the rest of the group before it reaps the process, on every path. The time axis is not to scale. The runner looks twice each second, so a step can start up to 0.5 second late. |
+| `escalation-timing` | A and B compare full escalation with early child exit. Both continue at C, the normal cleanup path. Signal arrows are attempts, not confirmed exit. Group stops precede reap. Terminal recovery precedes the signal-0 query, where only ESRCH confirms absence. Poll intervals and retry bounds supply no wall-clock guarantee. The time axis is not to scale. |
+| `terminal-lending-recovery` | The terminal lease spans the exec attempt. A shows spawn-reported success, normal supervision and outcome-dependent recovery. B shows failed spawn or unknown status, with conditional handback and no promised reap. The runner stays inside the CLI. A1 and A2 are alternative holder rules, not consecutive takeovers. The X certifies only A's child reap. The private pipe carries a group record, not proof of exec. |
 | `installed-files` | Keep the CLI and worker from one build together. Outlines group installation directories; a file group lists separate files. Adjacent source edits do not replace embedded modules. Archive-only README and licence remain identified. |
 
 Chapters 1–6 also use page-native tables for the sent result through cleanup and
@@ -675,6 +676,42 @@ drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 Typst has since replaced. They are kept as history, and none of their
 observations is a statement about the present figures. Each later record names
 the revision and environments that it checked.
+
+### Chapter 9 art, 2026-10-18 (`jobs-signals-and-the-terminal-k176`)
+
+Chapter 9 embeds the revised `escalation-timing` and new
+`terminal-lending-recovery` beside their tables. The timing figure separates
+full escalation, early exit and normal cleanup. The terminal sequence uses
+labelled dividers for alternative paths, rather than UML combined-fragment
+frames. Its key states which sections are alternatives. No layout module,
+drawing module, style or renderer pin changed.
+
+Chrome on macOS showed both complete figures, keys, captions and adjacent
+tables in the locally served light mdBook. The content column was 750 pixels
+wide in the 1227-by-919-pixel browser content area. Labels stayed inside their
+boxes, and arrows did not cross labels. Both SVGs also opened at full size.
+The timing panels and key, and the terminal acquisition and recovery sections,
+were inspected there. The whole chapter and editable figure sources were read
+as raw files. Native accessibility and screenshots supplied the views after
+the browser DOM connection failed.
+
+The timing SVG measures about 860 by 1293 source units. The terminal SVG
+measures about 927 by 1720. At the chapter column, their 14-unit text is about
+12.2 and 11.3 pixels respectively. Full-size links retain the larger view.
+The timing SVG is 293,730 bytes and the terminal SVG is 378,003 bytes.
+The thirteen-figure set totals 2,912,522 bytes. The terminal SVG exceeds the
+earlier 300 KB per-figure benchmark, and the set exceeds 2 MB. Whole-book art
+k101 owns that size assessment and dense text. This pass does not claim those
+budgets pass.
+
+Chapter 5's cancellation figures stay linked and unchanged. Chapter 9's
+table carries the cancellation comparison, including immediate confined KILL,
+which those figures do not show. This is an editorial choice against duplicate
+figures, not a medium limitation or a contract prohibition.
+
+No editor preview, other theme, narrower viewport, other browser, GitHub view
+or book on GitHub Pages was inspected. These checks establish no reader
+comprehension, real-agent execution or new terminal/platform result.
 
 ### Timing figure, 2026-10-18 (`book-figure-timing-k156`)
 

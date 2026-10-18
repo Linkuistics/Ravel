@@ -696,6 +696,7 @@ guides' native-entry status as current fact.
 | The loose contract (R15) in agreement with chapter 1 | chapter 7 (`the-parts-of-ravel-k151`) |
 | The packages, worker and SDK figure reused | chapters 7 and 12 (art stages) |
 | The dense figures' small text | `ravel-book-k101` |
+| Chapter 9 art k176 records a 378,003-byte terminal SVG and a thirteen-figure set of 2,912,522 bytes. These exceed the earlier 300 KB per-figure and 2 MB set benchmarks. Its new text is about 11.3 px at the 750-pixel column | `ravel-book-k101`, with the existing size and dense-text assessment |
 | Chapter 5 says “managed program” three times (in “Read notices separately from results” and the exit-status table) where the rest of the book says “managed process”. Copy-edit `the-parts-of-ravel-k167` changed chapter 7 to “managed process” | the whole-book proof that `ravel-book-k101` cuts |
 | Chapters 5 and 6 write one signal two ways (SIGINT and INT, SIGTERM and TERM). Copy-edit `jobs-signals-and-the-terminal-k175` set the short-name rule in `docs/book/ste.md` (“Signal names”) and applied it to chapter 9 | the whole-book proof that `ravel-book-k101` cuts |
 | Guides `components.md`, `local-runner.md`, `session-channel.md` and `design/components/` | chapters 7–9, then `book-architecture-fold-in-k164` |

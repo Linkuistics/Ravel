@@ -1,0 +1,1558 @@
+{
+  "w": 927.27734375,
+  "h": 1706.4375000000007,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Lend and recover the terminal — UML sequence",
+      "x": 463.638671875,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 431.9296875,
+      "h": 12.15625
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          238.57958984375,
+          71.26875000000001
+        ],
+        [
+          238.57958984375,
+          1541.4437500000006
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-child",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          474.33740234375,
+          303.63828125
+        ],
+        [
+          474.33740234375,
+          840.39921875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-tty",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          705.55322265625,
+          71.26875000000001
+        ],
+        [
+          705.55322265625,
+          1541.4437500000006
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 168.39990234375,
+      "y0": 26.156250000000004,
+      "x1": 308.75927734375,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "head",
+      "text": "Ravel CLI\n(runner inside)",
+      "x": 238.57958984375,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.359375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-tty",
+      "shape": "box",
+      "role": "external",
+      "x0": 652.22900390625,
+      "y0": 26.156250000000004,
+      "x1": 758.87744140625,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-tty-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "controlling\nterminal",
+      "x": 705.55322265625,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 84.6484375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "note-8",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          83.26875000000001
+        ],
+        [
+          748.87744140625,
+          83.26875000000001
+        ],
+        [
+          758.87744140625,
+          93.26875000000001
+        ],
+        [
+          758.87744140625,
+          144.57890625000002
+        ],
+        [
+          168.39990234375,
+          144.57890625000002
+        ]
+      ]
+    },
+    {
+      "id": "note-8-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          83.26875000000001
+        ],
+        [
+          748.87744140625,
+          93.26875000000001
+        ],
+        [
+          758.87744140625,
+          93.26875000000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Ordinary unconfined launch. /dev/tty is available. The CLI group holds foreground.\nWithout a terminal, or in detached mode, there is no lease.",
+      "x": 463.638671875,
+      "y": 113.92382812500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "note-11",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          158.57890625000002
+        ],
+        [
+          748.87744140625,
+          158.57890625000002
+        ],
+        [
+          758.87744140625,
+          168.57890625000002
+        ],
+        [
+          758.87744140625,
+          201.55234375000003
+        ],
+        [
+          168.39990234375,
+          201.55234375000003
+        ]
+      ]
+    },
+    {
+      "id": "note-11-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          158.57890625000002
+        ],
+        [
+          748.87744140625,
+          168.57890625000002
+        ],
+        [
+          758.87744140625,
+          168.57890625000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "An early setup failure enters B before the later setup steps complete.\nIt need not reach the group record, terminal handoff or exec attempt.",
+      "x": 463.638671875,
+      "y": 180.065625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          248.52578125000002
+        ],
+        [
+          705.55322265625,
+          248.52578125000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Query foreground.\nSave terminal modes",
+      "x": 472.06640625,
+      "y": 244.52578125000002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.7431640625,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          281.08203125
+        ],
+        [
+          399.81396484375,
+          281.08203125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Spawn child",
+      "x": 319.19677734375,
+      "y": 277.08203125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 86.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "head-child",
+      "shape": "box",
+      "role": "external",
+      "x0": 399.81396484375,
+      "y0": 258.52578125,
+      "x1": 548.86083984375,
+      "y1": 303.63828125
+    },
+    {
+      "id": "head-child-label",
+      "shape": "text",
+      "role": "external",
+      "face": "head",
+      "text": "child /\nmanaged group",
+      "x": 474.33740234375,
+      "y": 281.08203125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 127.046875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          474.33740234375,
+          313.63828125
+        ],
+        [
+          496.33740234375,
+          313.63828125
+        ],
+        [
+          496.33740234375,
+          331.63828125
+        ],
+        [
+          474.33740234375,
+          331.63828125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Create process group",
+      "x": 502.33740234375,
+      "y": 322.63828125,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 151.8779296875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          474.33740234375,
+          376.61171874999997
+        ],
+        [
+          238.57958984375,
+          376.61171874999997
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Write attempted group ID\nthrough private pipe",
+      "x": 356.45849609375,
+      "y": 372.61171874999997,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 181.56640625,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          474.33740234375,
+          390.61171874999997
+        ],
+        [
+          496.33740234375,
+          390.61171874999997
+        ],
+        [
+          496.33740234375,
+          408.61171874999997
+        ],
+        [
+          474.33740234375,
+          408.61171874999997
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Suppress SIGTTOU",
+      "x": 502.33740234375,
+      "y": 399.61171874999997,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.1220703125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          474.33740234375,
+          453.58515624999995
+        ],
+        [
+          705.55322265625,
+          453.58515624999995
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Make child group foreground\nwith tcsetpgrp",
+      "x": 589.9453125,
+      "y": 449.58515624999995,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 203.2158203125,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          474.33740234375,
+          473.071875
+        ],
+        [
+          496.33740234375,
+          473.071875
+        ],
+        [
+          496.33740234375,
+          491.071875
+        ],
+        [
+          474.33740234375,
+          491.071875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Restore entry dispositions,\nthen mask. Attempt exec",
+      "x": 502.33740234375,
+      "y": 482.071875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 188.306640625,
+      "h": 28.9734375
+    },
+    {
+      "id": "note-30",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          508.55859374999994
+        ],
+        [
+          748.87744140625,
+          508.55859374999994
+        ],
+        [
+          758.87744140625,
+          518.55859375
+        ],
+        [
+          758.87744140625,
+          569.86875
+        ],
+        [
+          168.39990234375,
+          569.86875
+        ]
+      ]
+    },
+    {
+      "id": "note-30-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          508.55859374999994
+        ],
+        [
+          748.87744140625,
+          518.55859375
+        ],
+        [
+          758.87744140625,
+          518.55859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-30-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "The pipe carries data, not an exec acknowledgement. Its descriptors close across exec.\nA background CLI lends only after it gains foreground, possibly at a later poll.",
+      "x": 463.638671875,
+      "y": 539.2136718749999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "div-33-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          597.86875
+        ],
+        [
+          764.87744140625,
+          597.86875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-33-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          601.86875
+        ],
+        [
+          764.87744140625,
+          601.86875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-33",
+      "shape": "box",
+      "role": "divider",
+      "x0": 364.3271484375,
+      "y0": 591.550390625,
+      "x1": 562.9501953125,
+      "y1": 608.187109375
+    },
+    {
+      "id": "div-33-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "A. Spawn reports success",
+      "x": 463.638671875,
+      "y": 599.86875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 178.623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          629.35546875
+        ],
+        [
+          260.57958984375,
+          629.35546875
+        ],
+        [
+          260.57958984375,
+          647.35546875
+        ],
+        [
+          238.57958984375,
+          647.35546875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Check Started. Restore\nthe parent entry mask",
+      "x": 266.57958984375,
+      "y": 638.35546875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 163.2392578125,
+      "h": 28.9734375
+    },
+    {
+      "id": "note-39",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          664.8421875
+        ],
+        [
+          748.87744140625,
+          664.8421875
+        ],
+        [
+          758.87744140625,
+          674.8421875
+        ],
+        [
+          758.87744140625,
+          726.15234375
+        ],
+        [
+          168.39990234375,
+          726.15234375
+        ]
+      ]
+    },
+    {
+      "id": "note-39-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          664.8421875
+        ],
+        [
+          748.87744140625,
+          674.8421875
+        ],
+        [
+          758.87744140625,
+          674.8421875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-39-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Started does not prove exec. A failed Started check takes bounded cleanup with no new lend.\nThe steps below show the normal supervision path.",
+      "x": 463.638671875,
+      "y": 695.497265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          754.7890625
+        ],
+        [
+          474.33740234375,
+          754.7890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Observe exit without reap",
+      "x": 356.45849609375,
+      "y": 750.7890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 184.0068359375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-10",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          799.7625
+        ],
+        [
+          474.33740234375,
+          799.7625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt final group stops\nwhile identity is reserved",
+      "x": 356.45849609375,
+      "y": 795.7625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 180.63671875,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-11",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          826.39921875
+        ],
+        [
+          474.33740234375,
+          826.39921875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Reap the child",
+      "x": 356.45849609375,
+      "y": 822.39921875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 102.2900390625,
+      "h": 10.63671875
+    },
+    {
+      "id": "end-48-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          466.33740234375,
+          832.39921875
+        ],
+        [
+          482.33740234375,
+          848.39921875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-48-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          466.33740234375,
+          848.39921875
+        ],
+        [
+          482.33740234375,
+          832.39921875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-12",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          875.0359375
+        ],
+        [
+          705.55322265625,
+          875.0359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-12-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Query foreground for recovery",
+      "x": 472.06640625,
+      "y": 871.0359375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 215.5,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-52",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          887.0359375
+        ],
+        [
+          748.87744140625,
+          887.0359375
+        ],
+        [
+          758.87744140625,
+          897.0359375
+        ],
+        [
+          758.87744140625,
+          930.0093750000001
+        ],
+        [
+          168.39990234375,
+          930.0093750000001
+        ]
+      ]
+    },
+    {
+      "id": "note-52-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          887.0359375
+        ],
+        [
+          748.87744140625,
+          897.0359375
+        ],
+        [
+          758.87744140625,
+          897.0359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-52-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Recovery requires a lease that held foreground. Otherwise, take no foreground and restore no modes.",
+      "x": 463.638671875,
+      "y": 908.5226562500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-55-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          958.0093750000001
+        ],
+        [
+          764.87744140625,
+          958.0093750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-55-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          962.0093750000001
+        ],
+        [
+          764.87744140625,
+          962.0093750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-55",
+      "shape": "box",
+      "role": "divider",
+      "x0": 307.185546875,
+      "y0": 951.6910156250001,
+      "x1": 620.091796875,
+      "y1": 968.3277343750001
+    },
+    {
+      "id": "div-55-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "A1. Normal exit: choose by current holder",
+      "x": 463.638671875,
+      "y": 960.0093750000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 292.90625,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-59",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          982.0093750000001
+        ],
+        [
+          748.87744140625,
+          982.0093750000001
+        ],
+        [
+          758.87744140625,
+          992.0093750000001
+        ],
+        [
+          758.87744140625,
+          1024.9828125000001
+        ],
+        [
+          168.39990234375,
+          1024.9828125000001
+        ]
+      ]
+    },
+    {
+      "id": "note-59-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          982.0093750000001
+        ],
+        [
+          748.87744140625,
+          992.0093750000001
+        ],
+        [
+          758.87744140625,
+          992.0093750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-59-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Child group: reclaim foreground. CLI group: keep it.\nAnother group: preserve that holder and its modes.",
+      "x": 463.638671875,
+      "y": 1003.4960937500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-62-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          1052.9828125000001
+        ],
+        [
+          764.87744140625,
+          1052.9828125000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-62-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          1056.9828125000001
+        ],
+        [
+          764.87744140625,
+          1056.9828125000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-62",
+      "shape": "box",
+      "role": "divider",
+      "x0": 303.80517578125,
+      "y0": 1046.6644531250001,
+      "x1": 623.47216796875,
+      "y1": 1063.3011718750001
+    },
+    {
+      "id": "div-62-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "A2. Signal death: choose by current holder",
+      "x": 463.638671875,
+      "y": 1054.9828125000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 299.6669921875,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-66",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          1076.9828125000001
+        ],
+        [
+          748.87744140625,
+          1076.9828125000001
+        ],
+        [
+          758.87744140625,
+          1086.9828125000001
+        ],
+        [
+          758.87744140625,
+          1138.2929687500002
+        ],
+        [
+          168.39990234375,
+          1138.2929687500002
+        ]
+      ]
+    },
+    {
+      "id": "note-66-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          1076.9828125000001
+        ],
+        [
+          748.87744140625,
+          1086.9828125000001
+        ],
+        [
+          758.87744140625,
+          1086.9828125000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-66-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Reclaim from another positive holder except the POSIX session leader’s group.\nKeep the CLI’s own foreground. A nested shell can lose foreground under this rule.",
+      "x": 463.638671875,
+      "y": 1107.6378906250002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-13",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          1185.2664062500003
+        ],
+        [
+          705.55322265625,
+          1185.2664062500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-13-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "If CLI ownership is confirmed,\nrestore saved modes",
+      "x": 472.06640625,
+      "y": 1181.2664062500003,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 208.9990234375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-14",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          1204.7531250000002
+        ],
+        [
+          260.57958984375,
+          1204.7531250000002
+        ],
+        [
+          260.57958984375,
+          1222.7531250000002
+        ],
+        [
+          238.57958984375,
+          1222.7531250000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-14-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "After recovery, query group\nabsence with signal 0",
+      "x": 266.57958984375,
+      "y": 1213.7531250000002,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 195.7578125,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-73-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          1254.2398437500003
+        ],
+        [
+          764.87744140625,
+          1254.2398437500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-73-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          162.39990234375,
+          1258.2398437500003
+        ],
+        [
+          764.87744140625,
+          1258.2398437500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-73",
+      "shape": "box",
+      "role": "divider",
+      "x0": 283.71435546875,
+      "y0": 1247.9214843750003,
+      "x1": 643.56298828125,
+      "y1": 1264.5582031250003
+    },
+    {
+      "id": "div-73-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "B. Instead: failed spawn or unknown child status",
+      "x": 463.638671875,
+      "y": 1256.2398437500003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 339.8486328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-77",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          1278.2398437500003
+        ],
+        [
+          748.87744140625,
+          1278.2398437500003
+        ],
+        [
+          758.87744140625,
+          1288.2398437500003
+        ],
+        [
+          758.87744140625,
+          1339.5500000000004
+        ],
+        [
+          168.39990234375,
+          1339.5500000000004
+        ]
+      ]
+    },
+    {
+      "id": "note-77-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          1278.2398437500003
+        ],
+        [
+          748.87744140625,
+          1288.2398437500003
+        ],
+        [
+          758.87744140625,
+          1288.2398437500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-77-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "No reap is promised here. Recovery requires a lease that held foreground.\nHandback requires exclusive foreground authority and no unrelated group-ID reuse through recovery.",
+      "x": 463.638671875,
+      "y": 1308.8949218750004,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-15",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          1368.1867187500004
+        ],
+        [
+          705.55322265625,
+          1368.1867187500004
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-15-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Query foreground for recovery",
+      "x": 472.06640625,
+      "y": 1364.1867187500004,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 215.5,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-82",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          168.39990234375,
+          1380.1867187500004
+        ],
+        [
+          748.87744140625,
+          1380.1867187500004
+        ],
+        [
+          758.87744140625,
+          1390.1867187500004
+        ],
+        [
+          758.87744140625,
+          1441.4968750000005
+        ],
+        [
+          168.39990234375,
+          1441.4968750000005
+        ]
+      ]
+    },
+    {
+      "id": "note-82-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          748.87744140625,
+          1380.1867187500004
+        ],
+        [
+          748.87744140625,
+          1390.1867187500004
+        ],
+        [
+          758.87744140625,
+          1390.1867187500004
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-82-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Recorded child group: attempt handback. CLI group: keep it.\nUnrelated holder: preserve it and report recovery uncertainty.\nNo valid record supplies no authority over another group.",
+      "x": 463.638671875,
+      "y": 1410.8417968750005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 570.4775390625,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-16",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          1488.4703125000005
+        ],
+        [
+          705.55322265625,
+          1488.4703125000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-16-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "If CLI ownership is confirmed,\nrestore saved modes",
+      "x": 472.06640625,
+      "y": 1484.4703125000005,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 208.9990234375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-17",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          238.57958984375,
+          1507.9570312500005
+        ],
+        [
+          260.57958984375,
+          1507.9570312500005
+        ],
+        [
+          260.57958984375,
+          1525.9570312500005
+        ],
+        [
+          238.57958984375,
+          1525.9570312500005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-17-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Keep original failure and\nrecovery reports",
+      "x": 266.57958984375,
+      "y": 1516.9570312500005,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 172.8369140625,
+      "h": 28.9734375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 6.0,
+      "y0": 1547.4437500000006,
+      "x1": 921.27734375,
+      "y1": 1706.4375000000007
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: the Ravel CLI, with its runner inside. Grey: child group and terminal.\nA and B are alternative outcomes. B can begin before exec. A1 and A2 are alternative recovery rules within A.\nThe X belongs only to A: confirmed child reap. It does not mark the group’s disappearance or a reap in B.\nAnother group can hold delegated foreground. The holder notes show when Ravel preserves it or reclaims it.\nHandback and mode restoration temporarily ignore SIGTTOU, then restore its prior disposition. Ravel checks these operations.\nForeground query and handback are not atomic. CLI lifetime establishes neither of B’s two conditions.\nAfter failed spawn, the attempted group ID never authorises numeric signals. Unknown status does not permit wider takeover.\nRecovery errors return no result to the caller. Cancellation can override the original failure, but keeps recovery reports.",
+      "x": 463.638671875,
+      "y": 1626.9406250000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 887.27734375,
+      "h": 138.99375
+    }
+  ]
+}
