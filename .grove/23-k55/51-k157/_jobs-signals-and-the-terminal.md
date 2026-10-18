@@ -118,18 +118,6 @@ Part B is the terminal, the signal state at entry and the guarantees.
   to art”. Verify and integrate the scaffold figure after the escalation
   table. No figure changed in part A. Reuse chapter 5's two cancellation
   sequences. Part B's terminal sequence handoff is below.
-- **copy-edit**: read both draft halves together against the contract and
-  `docs/book/ste.md`. Preserve the distinction between an ordinary CLI launch
-  without a terminal and the separate `run_noninteractive` runner API.
-  Preserve ESRCH-only group absence, the conditional EPERM report and the
-  difference between retry bounds and an exact wall-clock deadline.
-- **copy-edit**: part B is complete. Preserve the normal/signal/unknown-status
-  holder distinctions, the session-leader exception and the exclusive-authority
-  and no-unrelated-ID-reuse conditions. Keep child `EntrySignals` separate from
-  the CLI's saved handled dispositions and the runner's persistent SIGCHLD
-  repair. The POSIX SIGCHLD exception is deliberate. The draft adds no new
-  runnable example or terminal fragment. Read the k174 source/inventory and
-  guide-destination record alongside k158.
 
 ### Terminal sequence handoff to art
 

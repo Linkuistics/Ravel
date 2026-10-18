@@ -101,6 +101,14 @@ The file names for chapters 1–6 do not change. Chapter 7 uses
 voice with a known agent (Rule 3.6). A link text or a sentence that gives a
 chapter title uses the new title.
 
+## Signal names
+
+Write INT, TERM, HUP and KILL without the prefix SIG, as the shell `trap`
+command and the escalation figure do. Write the other signals with their full
+names, for example SIGCHLD and SIGTTOU. A chapter that uses the short names
+says this rule one time, before their first use. Chapter 9 made this decision
+on 2026-10-18. Chapters 5 and 6 still use both forms for one signal.
+
 ## Words that the book does not use
 
 Each row gives a word and the words to use in its place. The check finds

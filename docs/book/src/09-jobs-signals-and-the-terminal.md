@@ -2,13 +2,13 @@
 
 A result requests the end of a job. It does not prove that the job has ended.
 The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) stays alive to supervise that end
-before it returns the result to the caller.
+before it returns the result to the [caller](02-actors-and-words.md#caller-and-owner).
 The [runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
 inside the CLI supplies the process and terminal operations.
 
 [Chapter 3](03-a-complete-session.md#send-the-result-and-finish-the-job)
 introduced a job and its reap through one session. This chapter explains
-why the order matters, how Ravel ends a stubborn process, and what confinement
+why the order matters, how Ravel ends a process that does not exit, and what confinement
 changes. It also explains terminal recovery, entry signals and the limits of
 these guarantees. [Chapter 8](08-follow-a-session-through-the-code.md#finish-the-managed-job)
 shows where these operations occur in the code.
@@ -24,7 +24,7 @@ group form the **job**.
 
 A signal to a process group can reach its members together. A signal to the
 child's PID reaches only that child. If Ravel stopped only the child, a helper
-could retain a file lock or continue to change the caller's files.
+could keep a file lock or continue to change the caller's files.
 The group gives Ravel a scope for shutdown that includes ordinary descendants.
 
 A **POSIX session** can contain several process groups and can have a
@@ -42,32 +42,38 @@ signals from the keyboard.
 A descendant can leave the job's group, for example through its own
 `setsid` call. Group cleanup does not cover that descendant. Ravel does not
 promise to track every process descended from the managed process.
-A new process group also creates no new Ravel session: that term means one
+A new process group also creates no new Ravel
+[session](02-actors-and-words.md#caller-and-owner): that term means one
 `start-session` invocation.
 
 ## Follow the escalation after a result
 
-An interactive harness can finish its work and then wait for another prompt.
+An interactive [harness](02-actors-and-words.md#the-managed-process-and-its-result)
+can finish its work and then wait for another prompt.
 The caller therefore tells it to send an
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
 with `end-session`. The command creates the completion file in the
 [result channel](07-the-parts-of-ravel.md#the-result-channel-carries-the-value).
 The runner observes that file's presence. Ravel checks its contents separately.
 
-The runner normally checks the child and channel at 500-millisecond intervals.
-Its first observation of the file starts the grace period. Thus, the schedule
-starts at observation, not at the instant the sender calls `end-session`.
+A signal name such as SIGTERM has the prefix SIG. This chapter writes INT, TERM,
+HUP and KILL without that prefix, as the shell `trap` command does. Other signals
+keep their full names.
+
+Until it sends KILL, the runner checks the child and channel at 500-millisecond
+intervals. Its first observation of the file starts the grace period. Thus, the
+schedule starts at observation, not at the instant the sender calls `end-session`.
 
 | Stage | Condition | Action and wait |
 |---|---|---|
 | Grace | The runner observes the completion file while the child still runs | Allow 2 seconds for the child to exit |
-| TERM | The child still runs after the grace | Send SIGTERM to the group and the child. Allow up to 5 seconds for the child to exit |
-| KILL | The child still runs after the kill grace | Send SIGKILL to the group and the child. Check for exit at 10-millisecond intervals |
+| TERM | The child still runs after the grace | Send TERM to the group and the child. Allow up to 5 seconds for the child to exit |
+| KILL | The child still runs after the kill grace | Send KILL to the group and the child. Check for exit at 10-millisecond intervals |
 | Final cleanup | The runner observes the child's exit | Stop the other group members before the reap, then recover the terminal and confirm group absence |
 
-SIGTERM gives the program a chance to handle shutdown. A program can ignore
-SIGTERM. It cannot catch or ignore SIGKILL. If the child exits during either
-grace period, Ravel proceeds to final cleanup without the later escalation stage.
+TERM lets the program handle its own shutdown. A program can ignore TERM.
+It cannot catch or ignore KILL. If the child exits during either grace period,
+Ravel proceeds to final cleanup without the later escalation stages.
 Descendants receive no separate grace period after the child exits.
 
 The 2-second and 5-second values belong to the Ravel CLI. The runner accepts
@@ -78,7 +84,8 @@ managed process.
 
 After the escalation's first KILL attempt, the runner uses a two-second bound
 for its exit checks and reap attempts. It does not restart that bound after
-an error. Expiry reports unresolved ownership and prevents result success.
+an error. If the bound expires, the runner reports unresolved ownership, and
+Ravel returns no result to the caller.
 This bound limits retries. It cannot guarantee a wall-clock deadline when the
 scheduler or a kernel operation stalls.
 
@@ -89,8 +96,8 @@ Use the Ravel installation from
 Create an empty directory, make it the current directory, and create `bin`
 inside it. Save these files at the labelled paths.
 
-The fake installs its TERM ignore before it sends the result. It then stays
-alive. Ravel has to reach KILL to end it. The command uses an empty private
+The fake ignores TERM before it sends the result. It then stays alive.
+Ravel's escalation must reach KILL to end it. The command uses an empty private
 HOME, an explicit policy and a cleared environment.
 
 Complete example: a fake sends a result and then ignores TERM.
@@ -147,7 +154,7 @@ finished
 0
 ```
 
-The example returns `finished` only after the shutdown. The child's death
+Ravel returns `finished` only after the job ends. The child's death
 from KILL does not invalidate its result. This transcript claims the result
 bytes and exit status, not an exact duration or a fixed standard-error stream.
 The automatic example check has no terminal and uses no real harness.
@@ -164,7 +171,7 @@ for that purpose. The unreaped child reserves its PID, which is also the
 job's group ID. Ravel uses that reservation for the last group signals.
 
 If Ravel reaped first, the system could reuse the ID for an unrelated group.
-A later KILL to that number could then hit the wrong job.
+A later KILL to that number could then reach that unrelated group.
 The normal cleanup path therefore has this order:
 
 | Step | Operation | What it establishes |
@@ -188,16 +195,18 @@ that reuses the ID also prevents confirmation. Ravel does not signal that
 number after the reap.
 
 On macOS, a group with only zombies can reject KILL with `EPERM`, or
-`Operation not permitted`. Ravel can retain this stop report without a session failure, but only after confirmed reap, successful terminal recovery and
-an `ESRCH` absence check. The report alone never confirms cleanup.
+`Operation not permitted`. Ravel can retain this stop report without a
+session failure, but only after confirmed reap, successful terminal recovery
+and an `ESRCH` absence check. The report alone never confirms cleanup.
 Ravel writes retained reports as `ravel:` lines on standard error, or in
 `operationReports` with `--json`.
 
-If the group still answers after the confirmation wait, Ravel reports it and
+If the group still answers the query with success or `EPERM` after the confirmation wait, Ravel reports it and
 returns no result to the caller. A query error also prevents success.
 On an observation or reap error, Ravel attempts bounded cleanup and reports
 what it cannot confirm. Once it loses or releases the child identity, it
-stops all numeric signal attempts. It never invents a reap on timeout.
+stops all numeric signal attempts. After a timeout, it never reports a reap
+that did not occur.
 
 ## Handle cancellation
 
@@ -209,13 +218,14 @@ The CLI also checks signals around supervision and final cleanup.
 | Where cancellation occurs | Process action | Result |
 |---|---|---|
 | During policy selection | Stop and wait for the policy worker. Do not start the managed process | Return no result to the caller |
-| During unconfined supervision | Forward the signal to the group and the direct child. If necessary, use KILL after the kill grace | Complete cleanup attempts, report cancellation, and return no result |
+| During unconfined supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
 | During confined supervision | Attempt KILL immediately on the group and the direct child | Complete cleanup attempts, report cancellation, and return no result |
 
 For unconfined supervision, cancellation skips the result's initial grace.
 If the kill grace has already begun, cancellation does not restart it.
-A noninteractive runner child can itself supervise another process. The
-forwarded signal and kill grace let that supervisor attempt its own cleanup.
+A child of the runner's `run_noninteractive` interface, described in the next
+section, can itself supervise another process. The forwarded signal and kill
+grace let that supervisor attempt its own cleanup.
 A confined job receives KILL immediately so that its shutdown can fit within
 an outer supervisor's grace.
 
@@ -229,14 +239,14 @@ previously sent result to reach standard output.
 ## Separate noninteractive execution from confinement
 
 The runner has a separate `run_noninteractive` interface. It starts a new
-POSIX session, supplies end-of-file on standard input, and closes inherited
+POSIX session, supplies end-of-file (EOF) on standard input, and closes inherited
 descriptors above standard error at exec. Both output streams go to a regular
 file that its caller supplies. It has no completion channel, so only child
 exit or cancellation ends the launch.
 
 This interface isolates process control. It does not restrict filesystem
 access. It is also different from an ordinary `start-session` invocation
-that happens to have no terminal.
+that runs without a terminal.
 
 | Mode | POSIX session and input | Output and completion |
 |---|---|---|
@@ -245,7 +255,7 @@ that happens to have no terminal.
 | Confined `start-session` | A new POSIX session with the same input and descriptor isolation | Managed output goes to standard error. The private result channel remains available |
 
 A new POSIX session removes the inherited controlling terminal relationship.
-It does not itself restrict files or prevent a descendant from a move to another
+It does not restrict file access, and a descendant can still move to another
 group. The confinement backend supplies filesystem restrictions separately.
 These distinctions explain why the runner hides process mechanics behind
 separate launch interfaces, while the CLI owns policy and result decisions.
@@ -257,7 +267,8 @@ process and its descendants. It does not restrict the trusted
 [owner policy](02-actors-and-words.md#caller-and-owner) or its
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
 The CLI checks the grants and probes the backend before policy selection.
-If the backend is absent or cannot establish its restrictions, Ravel refuses.
+If the backend is absent or cannot establish its restrictions, the invocation
+stops with `confinement_unusable` and status 2.
 There is no unconfined fallback.
 
 | Resource | Access for a confined managed process |
@@ -292,11 +303,13 @@ network access.
 
 The runner calls `setsid` before the backend executes. The confined launch
 needs no terminal handoff, and its new POSIX session avoids the caller's
-controlling terminal. On Linux, the payload stays in the backend monitor's
-group so that ordinary descendants remain within its cleanup scope.
+controlling terminal. On Linux, the selected program stays in the process
+group of bubblewrap's monitor process. Thus, ordinary descendants remain within
+the cleanup scope.
 
 [Chapter 5's confinement example](05-running-sessions.md#confine-the-managed-process)
-shows the writable roots, a read-only grant and refusal cases through the CLI.
+shows the writable roots, a read-only grant and the errors that stop a launch
+through the CLI.
 The runner tests add direct process checks:
 
 | Test source under `crates/keyed-launch/tests/` | What it checks |
@@ -307,8 +320,8 @@ The runner tests add direct process checks:
 | `confinement.rs` | Denied file reads and writes through a child and descendant, denied symlink access, and read-only runtime files |
 | `job.rs` | Terminal foreground and mode behaviour through pseudo-terminals |
 
-The selected process, isolation and Seatbelt tests passed on aarch64 macOS
-on 18 October 2026. A macOS run does not execute the Linux bubblewrap backend.
+A selection of these process, isolation and Seatbelt tests passed on
+aarch64 macOS on 18 October 2026. A macOS run does not execute the Linux bubblewrap backend.
 The tests check named operations and process shapes. They do not establish
 containment against every same-user attack or cleanup of a descendant that
 leaves the job's group. They also do not qualify a native x86-64 Linux host.
@@ -317,7 +330,7 @@ leaves the job's group. They also do not qualify a native x86-64 Linux host.
 
 A **controlling terminal** belongs to a POSIX session. It has one
 **foreground process group** at a time. That group can read terminal input.
-With the usual terminal modes, Ctrl-C sends SIGINT to that group.
+With the default terminal modes, Ctrl-C sends INT to that group.
 A background group's attempt to read can instead stop it with SIGTTIN.
 
 The runner opens `/dev/tty`, which names its controlling terminal.
@@ -327,9 +340,9 @@ not open the terminal at all.
 
 An open terminal alone permits no handoff. The runner queries its foreground
 group with `tcgetpgrp` and lends it only when the runner's own group holds it.
-A launcher that starts in the background takes no foreground for itself.
-If a shell later brings that launcher forward, a subsequent supervision poll
-can lend the terminal to the managed group.
+A Ravel CLI that starts in the background takes no foreground for itself.
+A shell can later give the foreground to the CLI's group, for example with
+`fg`. Then a later supervision poll can lend the terminal to the managed group.
 
 Before the first handoff, the runner saves the terminal attributes with
 `tcgetattr`. These **terminal modes** control such behaviour as character
@@ -348,8 +361,9 @@ The ordinary foreground launch follows these steps:
 | Recover | After reap, the runner applies the holder rules below and checks the terminal again | Restore saved modes only when the runner's group owns foreground |
 
 A background group can receive SIGTTOU when it changes terminal foreground.
-The runner therefore temporarily ignores SIGTTOU for handback and mode
-restoration, then restores its previous disposition. It checks both the
+The runner therefore temporarily ignores SIGTTOU for the **handback** (the
+return of foreground to the runner's group) and for mode restoration. Then it
+restores its previous disposition. It checks both the
 terminal operation and that restoration. The child also suppresses SIGTTOU
 for its handoff before it restores its entry signal state.
 
@@ -371,7 +385,8 @@ to another group, then dies without cleanup. Otherwise, that delegated group
 could retain a raw terminal and continue to read input. The accepted cost is
 that a nested job-control shell can lose its foreground after such a death.
 Unknown child status does not permit this wider takeover.
-The POSIX session leader is the process that created that POSIX session.
+The POSIX session leader is the process that created the terminal's POSIX
+session.
 
 Exec can fail after the child takes foreground. The parent therefore retains
 the lease across a spawn error. The private pipe closes across exec and
@@ -386,7 +401,8 @@ The foreground query and handback are separate operations. A one-session
 CLI lifetime does not make them atomic or establish those conditions.
 
 Ravel reports failures of foreground queries, handback, mode restoration and
-temporary SIGTTOU restoration. A recovery failure prevents result success.
+temporary SIGTTOU restoration. After a recovery failure, Ravel returns no
+result to the caller.
 After failed spawn, the original spawn error stays primary unless cancellation
 overrides it. Recovery reports remain visible beside that outcome.
 
@@ -398,7 +414,7 @@ the test runner itself.
 
 | Test source | Observed distinction |
 |---|---|
-| `crates/keyed-launch/tests/job.rs` | A raw-mode child really changes the modes before KILL. The runner then recovers foreground and saved modes |
+| `crates/keyed-launch/tests/job.rs` | A raw-mode child actually changes the modes before KILL. The runner then recovers foreground and saved modes |
 | `crates/keyed-launch/tests/job.rs` | The same other foreground holder remains after normal exit but loses foreground after signal death |
 | `crates/keyed-launch/src/run/terminal_tests.rs` | Failed exec retains the lease. Unknown status preserves an unrelated holder. Recovery failures remain in the error |
 
@@ -416,21 +432,22 @@ the thread permits delivery. An ignored signal and a blocked signal are
 different states.
 
 Exec replaces the program but preserves the thread's signal mask.
-It resets caught handlers to default actions and generally preserves ignored
-dispositions. In particular, portable code cannot assume that an ignored
-SIGCHLD survives exec unchanged. The [POSIX exec specification](https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html)
+It resets caught handlers to default actions. It preserves ignored
+dispositions with one exception: portable code cannot assume that an ignored
+SIGCHLD stays ignored after exec. The [POSIX exec specification](https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html)
 states that exception. Ravel explicitly restores its recorded
 ignore/default values before exec on its supported targets.
 
-Ravel aims to give the managed program the signal state from the CLI's
-executable entry, before Rust startup changes it. For example, Rust startup
-ignores SIGPIPE. A capture in `main` would see that new ignore instead of the
+On its supported targets, Ravel gives the managed process the signal state
+from the CLI's executable entry, before Rust startup changes it. The table
+below gives the exclusions.
+For example, Rust startup ignores SIGPIPE. A capture in `main` would see that new ignore instead of the
 state that Ravel inherited.
 
-The CLI's initializer in `signal_state.rs` records the ignored set and the
+The CLI's initialiser in `signal_state.rs` records the ignored set and the
 initial thread's mask before those runtime changes. It keeps that record
-separate from later launcher repairs. If a required query fails, the CLI
-refuses launch. It does not accept a partial record. The runner receives the values through
+separate from later repairs by the CLI and the runner. If a required query
+fails, the CLI refuses the launch. It does not accept a partial record. The runner receives the values through
 `EntrySignals` and `Launch.transparent`. It does not capture them itself.
 
 | State | Child behaviour in a transparent launch |
@@ -438,10 +455,10 @@ refuses launch. It does not accept a partial record. The runner receives the val
 | Recorded ignore | Set the signal to ignored before exec |
 | Other recorded disposition | Set the signal to its default action. Do not copy a host handler |
 | Recorded mask | Apply the mask after the dispositions, so delivery uses the restored actions |
-| SIGKILL and SIGSTOP | Leave these unchangeable dispositions alone |
+| KILL and SIGSTOP | Leave these unchangeable dispositions alone |
 | Unsupported or runtime-reserved signal numbers | Exclude the platform's specified numbers. A failure for another required number remains an error |
 
-The launcher also needs signal state of its own. An ignored SIGCHLD or the
+The CLI and the runner also need signal state of their own. An ignored SIGCHLD or the
 `SA_NOCLDWAIT` flag can let the system discard child status without a parent
 reap. That would remove both the wait result and the identity reservation
 needed for group cleanup. The CLI checks and repairs this state before the
@@ -457,12 +474,12 @@ The runner leaves ignored cancellation signals ignored.
 Terminal INT follows foreground ownership. Before handoff, it can reach the
 CLI's group. After handoff, it reaches the managed group. The child's death
 from that signal is not itself a cancellation observation by the CLI.
-A result can still succeed after child signal death if the CLI observes no
+Ravel can still return a result after child signal death if the CLI observes no
 cancellation and all required cleanup succeeds.
 
 The runner's handlers and SIGCHLD repair persist after its call returns,
 on success or failure. A synchronous return does not restore a host's prior
-state. The distinction is explicit:
+state. The table gives the restoration responsibility at each boundary:
 
 | Boundary | Restoration responsibility |
 |---|---|
@@ -483,7 +500,7 @@ before exec and still produce that event. Only an actual wait produces
 Policy-output reader threads retain a mask that blocks INT, TERM and HUP
 until those threads exit. A block on only the main thread would leave another
 thread able to consume a signal during handoff. A bounded output drain can
-leave a shielded reader alive until CLI exit.
+leave such a reader thread alive until CLI exit.
 
 On both success and failure, final cleanup keeps handlers installed while
 the CLI restores its entry mask and collects cancellation observations.
@@ -497,7 +514,7 @@ means that cancellation is absent.
 | Known state, successful disposition restoration, no cancellation | Restore the entry mask. Other cleanup checks still precede result output |
 | Cancellation selected | Report it and cleanup failures, then check the default action, unblock and raise the selected signal. Use a numeric fallback if propagation cannot succeed |
 | Queued signal query failed while signals remain blocked, with no selected cancellation | Keep them blocked through diagnostics. Return failure without a result |
-| Required mask or disposition operation failed | Retain the failure report and prevent result success |
+| Required mask or disposition operation failed | Retain the failure report and return no result |
 
 An entry-blocked signal does not become cancellation merely because it is
 queued. The managed child receives that entry block too.
@@ -516,13 +533,13 @@ every descendant or hostile same-user process is absent.
 | Guarantee | Limit |
 |---|---|
 | Ravel returns a result only after that launch's child reap, confirmed group absence and successful required cleanup | Group membership defines the cleanup scope. A descendant that leaves the group lies outside it |
-| Ravel supervises shutdown while the CLI remains alive | Abrupt CLI death, such as SIGKILL, can orphan the managed job. Such death is not successful completion |
+| Ravel supervises shutdown while the CLI remains alive | Abrupt death of the CLI, for example from KILL, can orphan the managed job. Such death is not successful completion |
 | Ravel keeps the first complete result through a private inherited channel and rejects invalid result files | The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic |
 | Ravel verifies and reaps the policy worker before the managed launch | Owner policy remains trusted executable code. Detached policy children lie outside worker cleanup |
 | Ravel checks terminal recovery under the holder rules above | Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller |
 | Ravel retains failure reports and attempts required cleanup | A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result |
 | Cancellation observed by the final decision suppresses the result | A new signal can arrive after that decision. There is no atomic operation across signal delivery and the final output write |
-| Successful cleanup permits the final result write | The write can still fail after a prefix reaches stdout. Ravel cannot retract that prefix. Failed stderr writes can also prevent delivery of diagnostics |
+| Successful cleanup permits the final result write | The write can still fail after a prefix reaches standard output. Ravel cannot retract that prefix. A failed write to standard error can also prevent the delivery of diagnostics |
 | The CLI owns one launch and then exits | Process-wide handlers, signal latches and terminal authority do not support concurrent host calls or a fully restored host that continues work |
 
 Native-entry behaviour has measured support on aarch64 macOS and aarch64
@@ -532,6 +549,7 @@ Native x86-64 Linux remains unqualified: builds, lint checks and QEMU
 user-mode execution do not qualify an x86-64 kernel.
 
 The current runner is a private package within Ravel. Neither that package
-boundary nor these checks deliver a persistent runner for an arbitrary host.
-Chapter 10 belongs to a supported extracted component with its own consumer
-contract. It does not exist yet.
+boundary nor these checks deliver a
+[persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits) for an
+arbitrary host. Chapter 10 belongs to a supported extracted component with its
+own consumer contract. That chapter does not exist yet.
