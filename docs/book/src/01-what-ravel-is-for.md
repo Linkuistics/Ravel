@@ -9,6 +9,14 @@ commands. The person who configures Ravel chooses which harness runs each
 request. Ravel starts that harness and supervises it. After cleanup succeeds,
 Ravel returns the result that the session sent.
 
+A harness such as Claude Code or Codex can use its user's subscription.
+Thus, a caller can use that subscription for LLM work instead of paid API
+access. The cost can be much lower for work that the subscription covers.
+The [Claude Code documentation](https://code.claude.com/docs/en/authentication)
+and [Codex documentation](https://learn.chatgpt.com/docs/auth) explain their
+access options and link to their plans and terms. We checked these access
+options on 18 October 2026.
+
 An [orchestrator](02-actors-and-words.md#caller-and-owner) is a program that
 runs LLM sessions as steps of its own work. It can request a
 [session](02-actors-and-words.md#caller-and-owner) from Ravel and wait for
@@ -17,11 +25,13 @@ its result. Then it uses that result to decide its next step.
 For example, an orchestrator can ask an LLM to review a code change. The
 orchestrator knows the files to review and what to do with the answer. The
 person who operates the orchestrator wants to choose the harness for their
-account. Ravel keeps these decisions separate:
+account. Each participant has a different responsibility in that review:
 
-- The orchestrator requests a review.
-- The configuration of that person selects a harness command.
-- Ravel runs that command.
+| Participant | Responsibility in the review |
+|---|---|
+| Orchestrator | Choose the work to review and interpret the result |
+| Person who configures Ravel | Choose the harness command through their policy |
+| Ravel | Run the selected command and supervise it until cleanup completes |
 
 An interactive harness waits for more input when the LLM completes its task.
 Ravel's `end-session` command lets the LLM send a result and ask Ravel to
@@ -65,9 +75,19 @@ of the session. The harness runs the LLM session that works on the prompt.
 That LLM session is not the Ravel session. Ravel supervises the harness
 process, not the conversation of the LLM in that process.
 
-Ravel supervises the harness as it supervises any other process. Thus, an
-ordinary program that uses `end-session` can take the place of a harness.
-The runnable examples in this book use fake agents in this way.
+The contract with the selected program is loose. The policy selects a
+program, Ravel runs it, and a program in the session sends one value with
+`end-session`. Ravel needs no further harness-specific behaviour. The
+selected program need not use an LLM or understand a prompt.
+
+The table separates what Ravel needs from the harness use that this book
+teaches. The runnable examples use ordinary programs as fake agents.
+
+| Part of a session | What Ravel needs | What this book expects from a harness |
+|---|---|---|
+| Selected command | The policy selects a program and its arguments | The program runs an LLM session |
+| Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel gives that text to the policy unchanged. | The policy passes the prompt to the harness. The policy decides whether the program receives it. |
+| Result | A program in the session sends one value with `end-session` | The LLM follows the caller's instructions and tells the harness to run that command |
 
 An interactive harness does not exit when its LLM completes the task. It
 waits for more input. Thus, the caller's prompt tells the LLM to run
@@ -199,19 +219,15 @@ supplies its own task kinds and interprets its own result values. These
 conventions belong to Grove. Another caller can use different kinds and
 results without a Ravel adapter.
 
-The supervision guarantee also has limits:
+The supervision guarantee has limits. This table shows the consequence of
+each limit for the caller.
 
-- If a descendant leaves the process group of the managed process, the
-  cleanup of that group does not reach it. The session can succeed while that
-  descendant continues to run.
-- Detached children that policy starts are outside the cleanup guarantee of
-  the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
-- If the Ravel CLI stops abruptly, for example because of SIGKILL, the
-  managed process or temporary files can remain. The Ravel CLI cannot catch
-  SIGKILL.
-- Code that runs as the same user can tamper with files, and Ravel's files
-  are not an exception. The separation of sessions is not a security check
-  against that code.
+| Condition | Limit of the guarantee |
+|---|---|
+| A descendant leaves the process group of the managed process | Group cleanup does not reach it. The session can succeed while that descendant continues to run. |
+| Policy starts detached children | The cleanup guarantee of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) does not cover them. |
+| The Ravel CLI stops abruptly, for example because of SIGKILL | The managed process or temporary files can remain. The Ravel CLI cannot catch SIGKILL. |
+| Code runs as the same user | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
 
 [Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the
 separation of these roles is useful within these limits.
@@ -223,20 +239,19 @@ TypeScript and Rust, and general operating-system knowledge. It teaches the
 domain of Ravel and the job-control details that the behaviour of Ravel
 depends on.
 
-- To call Ravel from your own tool, read chapters 1–3, then
-  [chapter 5, “Run sessions”](05-running-sessions.md).
-  [Chapter 6, “Reference”](06-reference.md), is the lookup chapter.
-- To write an owner policy, read chapters 1–3, then
-  [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md).
-  Use [chapter 6](06-reference.md) for lookup.
-- To change Ravel, read chapters 1–3 and chapter 7, “How Ravel is built”.
-  Then read chapter 8, “Follow a session through the code”, and chapter 11,
-  “Develop Ravel”. Chapter 9, “Jobs, signals and the terminal”, and chapter
-  12, “Deliver Ravel”, give the details of the mechanics and of delivery.
-- To reuse a component, read chapters 1 and 2, then chapter 10, “Use Ravel's
-  components in your project”. Chapters 7 and 9 give background. Chapter 10
-  has no text until a supported extracted component and its consumer exist. The internal package boundaries of Ravel alone are not a supported
-  interface for another project.
+Choose the route that serves your task. The table gives the chapter order
+and the chapters for further detail.
+
+| Your task | Read in this order | Further detail |
+|---|---|---|
+| Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
+| Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6](06-reference.md) for lookup |
+| Change Ravel | Chapters 1–3, then 7, “How Ravel is built”, 8, “Follow a session through the code”, and 11, “Develop Ravel” | Chapter 9, “Jobs, signals and the terminal”, and chapter 12, “Deliver Ravel” |
+| Reuse a component | Chapters 1 and 2, then chapter 10, “Use Ravel's components in your project”, when it exists | Chapters 7 and 9 for background |
+
+Chapter 10 has no text until a supported extracted component and its consumer
+exist. The internal package boundaries of Ravel alone are not a supported
+interface for another project.
 
 The learning route is to read the chapters in order. The first practical
 session uses a tiny policy and a fake agent. A fake agent is an ordinary

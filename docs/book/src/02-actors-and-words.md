@@ -38,6 +38,14 @@ selects a program and its arguments, or it refuses the request. The caller
 and the owner can be the same person, but their roles stay different. The
 choice of the work does not set the rules that select a command.
 
+The table shows which decisions stay separate, even when one person has
+both roles.
+
+| Role | Decides | Leaves to the other role |
+|---|---|---|
+| Caller | The requested work and the meaning of the result | Which command the owner policy selects |
+| Owner | The policy that selects a command or refuses a request | The caller's task and next step |
+
 By default, Ravel uses the account's policy file,
 `~/.config/ravel/policy.ts`. `--config PATH` names a different policy file. Ravel resolves that
 path relative to the working directory of the caller. Ravel does not search
@@ -73,13 +81,7 @@ This separation lets policy run ordinary TypeScript, while only the Ravel CLI
 supervises. Ravel gives the worker a request with a size limit and a
 restricted environment. The worker gets no
 [session-result context](#three-different-kinds-of-information). The Ravel
-CLI checks the response of the worker. Then it launches the selected program,
-but only after it confirms these conditions:
-
-- The worker ended, and the Ravel CLI reaped it.
-- The Ravel CLI removed the private directory of the worker.
-
-A valid selection alone is not sufficient to start the launch. Only the Ravel
+CLI checks the response of the worker. Only the Ravel
 CLI supervises the [managed process](#the-managed-process-and-its-result).
 Policy evaluation is complete before that process starts.
 
@@ -88,6 +90,15 @@ makes it when it cannot accept the file, behaviour or data of the policy.
 Ravel does not try a different route. A failure of the worker, a failure of
 supervision and a selection timeout are different outcomes. A caller needs to
 tell a refusal from a failure during evaluation or supervision.
+
+A valid selection alone is not sufficient to start the launch. Ravel also
+confirms both cleanup conditions in this table before it launches the
+selected program.
+
+| Condition before launch | What the Ravel CLI confirms |
+|---|---|
+| Worker exit and reap | The worker ended, and the Ravel CLI collected its exit status |
+| Removal of the private directory | The Ravel CLI removed the worker's private directory |
 
 ## The managed process and its result
 
@@ -100,8 +111,12 @@ LLM session works on the prompt. The harness gives the prompt to the LLM and
 runs the commands that the LLM requests, for example shell commands. Owner
 policy selects the harness command. Here, “harness” means the agent program,
 not a test harness. Ravel supervises it as it supervises any other selected
-program. Thus, an ordinary program can take the place of the harness in the
-examples of this book.
+program.
+
+The policy decides whether to pass the prompt to that program.
+Ravel does not require an LLM or a program that understands prompts. An
+ordinary program can take the harness's place and send a value with
+`end-session`, as the examples do.
 
 An interactive harness waits for more input when the LLM completes its task.
 Thus, the caller's instructions to end the session tell the LLM to run
@@ -125,9 +140,24 @@ has no result, even when the managed process exits with status zero.
 
 The **result channel** is the private temporary directory and completion file
 through which `end-session` sends that value. Ravel keeps the first complete
-result that it receives. A later `end-session` does not replace it. The
-channel carries a request to end the session. That request does not prove
-that cleanup is complete.
+result that it receives. That first `end-session` requests shutdown, which
+normally ends the harness. A second `end-session` races that shutdown.
+For example, another process in the group can send a result before Ravel
+stops it. Ravel keeps the first result, even if the second command succeeds.
+
+The table shows the short interval in which another process can still send
+a result. These waits end early if the managed process exits.
+
+| Point after Ravel detects the result | What Ravel does |
+|---|---|
+| First 2 seconds | Gives the managed process time to exit |
+| After 2 seconds, if the managed process still runs | Sends TERM |
+| Up to 5 seconds after TERM | Waits for the managed process to exit |
+| After that wait, if the managed process still runs | Sends KILL |
+| After the managed process exits | Stops any group members that remain, then reaps the managed process |
+
+The result channel carries a request to end the session. That request does
+not prove that cleanup is complete.
 
 Before the Ravel CLI returns success, it confirms the reap, the absence of the
 process group and the removal of the session's temporary files.

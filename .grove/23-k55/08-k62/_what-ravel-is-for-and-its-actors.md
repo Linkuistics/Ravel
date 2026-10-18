@@ -98,7 +98,31 @@ document. Thus, no stage under this node cuts an art or proof leaf.
 
 ## Handed forward
 
-None open. Set art k130 closed the earlier R8 entry: no paragraph before a
-figure repeats its colour key, and no figure label says “publish”. Draft
-k134 writes the race wording for chapters 5 and 6 here, and each figure need
-for set art k144, with its reader question.
+- Drafts k140 and k142, chapters 5 and 6, R16: use this wording, with the
+  local explanation of the result channel:
+
+  > Ravel keeps the first complete result that it receives. That first
+  > `end-session` requests shutdown, which normally ends the harness. A
+  > second `end-session` races that shutdown. For example, another process
+  > in the group can send a result before Ravel stops it. Ravel keeps the
+  > first result, even if the second command succeeds.
+
+  State the schedule where the page needs it: after Ravel detects the result,
+  it gives the managed process 2 seconds to exit. If it still runs, Ravel
+  sends TERM and waits up to 5 seconds, then sends KILL if necessary. These
+  waits end early if the managed process exits. Ravel stops any group
+  members that remain before it reaps the managed process. A result requests
+  shutdown, not proof that cleanup succeeded. Cancellation and cleanup failure
+  still prevent a successful result.
+- Set art k144: no new figure is needed for R11 in chapters 1 and 2. The
+  tables answer these questions: who chooses what in a review, what the
+  selected program needs to do, which guarantees have limits, which chapter
+  route serves each reader, what caller and owner decide, what cleanup
+  precedes launch, and when a second sender can race shutdown. The existing
+  C4 figures keep their questions and content. Apply the queued crisp style.
+  R8 stays closed: the prose does not repeat the figure colour keys.
+- Copy-edit k135: R14's conditional cost statement expresses the purpose of
+  subscription access, not a measured comparison or a universal saving.
+  The linked official authentication pages confirm the access options as of
+  18 October 2026. Preserve the distinction between a required caller prompt
+  and the policy's choice to pass it to the selected program (R15).
