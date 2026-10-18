@@ -689,7 +689,7 @@ Ravel attempts the applicable cleanup before it reports an outcome.
 The view covers `start-session`. The table also covers `end-session` and the
 help and version invocations.
 
-![Ravel checks cancellation first and keeps any original failure with its status. Then it requires confirmed cleanup before it writes the result. Cancellation gives 129, 130 or 143. Original failures keep 1, 2, 3, 5, 124, 126 or 127. A cleanup or final-write failure gives 5. Only a successful write and flush gives 0.](figures/settled-exit-status.svg)
+![Ravel checks cancellation first and keeps any original failure with its status. Then it requires confirmed cleanup before it writes the result unchanged. Cancellation gives 129, 130 or 143 and returns no result to the caller. Original failures keep 1, 2, 3, 5, 124, 126 or 127. A cleanup or final-write failure gives 5. Only a successful write and flush gives 0.](figures/settled-exit-status.svg)
 
 [Open the final-outcome view at full size](figures/settled-exit-status.svg).
 
@@ -708,7 +708,7 @@ where the worker sends INT directly to the Ravel CLI.
 In these UML sequences, no lifetime ends with an X. Ravel attempts
 cleanup, and a failed attempt does not confirm a reap or a removal.
 
-![The caller starts selection. The policy worker sends SIGINT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation with no result.](figures/selection-cancellation.svg)
+![The caller starts selection. The policy worker sends SIGINT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
@@ -774,7 +774,7 @@ runs inside the Ravel CLI. The group of the managed process includes the
 descendants that stay in that group. The cleanup steps in the figure are
 attempts, and Ravel keeps their failures as diagnostics.
 
-![The managed process sends candidate through end-session. Then it sends SIGINT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It suppresses the sent result and reports cancellation, even if cleanup fails.](figures/supervision-cancellation.svg)
+![The managed process sends candidate through end-session. Then it sends SIGINT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It returns no result to the caller and reports cancellation, even if cleanup fails.](figures/supervision-cancellation.svg)
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 

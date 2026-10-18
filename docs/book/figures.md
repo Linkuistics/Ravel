@@ -82,7 +82,7 @@ Page-native tables keep mdBook's normal styling.
 | Arrow forms | One arrowhead (a filled "stealth" head, 9 by 7) is shared by every relation, message and reply, in the line's colour. A reply and the deployment dependency are dashed; a C4 boundary's outline is dashed in longer dashes. Colour and shaft weight are shared. |
 | Spacing | Each layout module measures its text in the pinned font and sizes boxes, columns and rows from it. A figure source names only gaps and widths where it needs them (`col-gap`, `row-gap`, `gap`, `pad`, `limit`, `max-label`, `min-w`); only the C4 layout takes positions (an entity's `cx`, `top` and width). Figures are checked at their final rendered size. |
 | Canvas | White, with a 6-point margin and no shadows. Keys have an explicit pale fill and dark text, including when the image sits on a dark page. |
-| Style | Sketched at roughness 2 (see "Layout, then draw"). Keys are never sketched; text is never moved. |
+| Style | Crisp, with exact geometry and no roughness. Text stays at its measured position. |
 
 These sizes are source-space units. mdBook scales a wide SVG to the chapter
 column; the full-size link preserves access to its original scale. Do not
@@ -123,7 +123,7 @@ can use. They need no separate figure source.
 |---|---|---|
 | Renderer versions | `scripts/figures.sh` (one constant and one digest per tool and package); the contract names the versions | the up-front version check (Typst stamps no version into its SVG, so this is the only place a different Typst is named), the package tree digests and the font digests, all checked before any render |
 | Layout | the figure source and the layout module it calls | `<figure>.layout.json`, the record the source evaluates to, compared apart from the SVG |
-| Style settings | `_style.typ` (palette, scale, weights) and `_draw.typ` (drawing, sketch); the shipped look is compiled in | the SVG compare: a restyle changes the SVG and not the record |
+| Style settings | `_style.typ` (palette, scale, weights) and `_draw.typ` (exact shapes); the shipped look is compiled in | the SVG compare: a restyle changes the SVG and not the record |
 | Regeneration command | here: `task docs:figures:update` rewrites every SVG and record; `task docs:figures` regenerates into a scratch directory and fails on any difference | the task is the command |
 
 Recording each version once, in the script, and checking it before every render
@@ -148,25 +148,23 @@ how every stroke is drawn can change in that one place. The lint refuses a
 figure source that imports a package itself and any other module that imports
 CeTZ; a layout or style module may import another pinned package.
 
-**Styles.** `crisp` is roughness 0 and draws the exact geometry. `sketch`
-wobbles every outline, line, arrow shaft and cylinder by up to 0.6, 1.2 or 1.8
-points at roughness 1, 2 or 3. **The shipped default is sketch at roughness 2,
-with keys and page tables crisp**, as the owner decided on 2026-10-17 ("Roughness
-2 is good"; DejaVu stays, with no handwriting face; key boxes crisp). The wobble
-is a pure function of the figure's name and each element's own geometry, never a
-clock or a random source, so two renders are byte-identical, and
-`scripts/figures.sh` passes only `--input figure=NAME`: the look is compiled in.
-`--input style=crisp` or `--input roughness=N` select another for review and
-are not used by the check.
+**Style.** The shipped style is `crisp`: exact geometry, with no roughness.
+The owner chose it on 2026-10-18 after a view of all nine figures in both
+styles. `_draw.typ` draws each shape directly. It has no sketch code, seed
+or roughness control. `--input style=crisp` is optional. A different style
+name fails. `_style.typ` holds the palette, fonts and weights.
 
-**Held in reserve: rough.js on Bun.** The layout record is also the seam where a
-different drawing backend could be attached. rough.js, run on Bun, which `task
-setup` already fetches, would take the record's shapes and draw them in its own
-hand-drawn style; the survey that proposed it is
-[`docs/research/layout-draw-separation-a.md`](../research/layout-draw-separation-a.md).
-It is not adopted: nothing in a figure needs a look `_draw.typ` cannot give, and
-it would add a second renderer to pin and keep reproducible. The record needs no
-change to allow it.
+The nine layout records stay byte-for-byte unchanged through this restyle.
+The records also hold the labels. Thus, this pass keeps their short result
+labels, including “exact result”, “No result bytes” and “suppress”. The
+captions, alt text and adjacent prose give their meaning with “unchanged”
+and “return no result to the caller”, as R12 and R13 require.
+
+**No reserve sketch backend.** Rough.js on Bun has no use under the crisp
+contract. It is not a dependency or a planned alternative. The earlier
+[survey](../research/layout-draw-separation-a.md) records that proposal. The
+layout record still separates geometry from drawing, without a second
+editable source for a figure.
 
 **Typst's markup trap.** A label that starts `2. ` is parsed as a numbered list
 item, not text. In the trial it drew the label as a list. Write `2\.` in the
@@ -275,9 +273,10 @@ an unpinned import that reaches only a refused connection; and a render with no
 fonts that cannot fall back to an embedded one. The book's own four modules are
 rendered through a figure with every kind of row, twice, with no bytes committed
 for them (a style change is a change to every figure); the control checks that
-the figure is sketch at roughness 2, that its key box is crisp, that two names
-give two different sketches, and that a module other than `_draw.typ` importing
-CeTZ is refused. One page with a figure is built through mdBook to confirm the
+both the note and the key have exact outlines, and that a file name changes
+neither the SVG nor its layout record. A palette change changes the SVG but
+leaves the record unchanged. The old sketch renderer fails the exact-outline
+control. A module other than `_draw.typ` that imports CeTZ is refused. One page with a figure is built through mdBook to confirm the
 relative path and the alt text. When the Typst side was added, each safeguard was
 also removed from a copy of the script, one at a time, and the control for it
 failed: the embedded-font flag, the proxy, the stderr rule, the lint call, the
@@ -385,9 +384,8 @@ the C4 layout, nothing avoids collisions: a label that lands on a line or a box
 is moved in the figure source and rendered again. The record uses the shapes
 `_draw.typ` has; two additions came with this module, a filled `circle` for the
 initial marker, and the roles `phase`, `outcome` and `initial` (`_style.typ`),
-the first two drawn with 12pt corners. A rounded box's sketched outline follows
-the corner (a path through points on the arc), where a 3pt box's stays a
-wobbly rectangle, so the other eight records and SVGs came out byte-identical.
+the first two drawn with 12pt corners. The crisp outline follows each exact
+corner radius. The layout record and its rounded-box roles are unchanged.
 
 ## Porting record
 
@@ -397,8 +395,9 @@ This is the history of the migration from PlantUML to Typst
 `book-figure-installed-files-k114`, `book-figure-session-outcomes-k115` and
 `book-figure-settled-exit-status-k116`, and `book-figure-retire-plantuml-k117`
 removed the former tools. It records the effort each figure cost and what changed
-against the former output, with the reason. It describes the former renderer and
-is not a rule for any figure. In the former output an apostrophe was straight;
+against the former output, with the reason. It describes the former renderer and the sketch style at the time of each
+port. It is not a rule for any figure. The crisp style above replaces that
+sketch style. In the former output an apostrophe was straight;
 in the Typst figures a source's `'` is drawn as the typographic `’`.
 
 **Effort and edit cost.** Counted when the figures were ported.
@@ -586,6 +585,42 @@ drawn by the former renderer (PlantUML, with the `.puml` sources and the shared
 Typst has since replaced. They are kept as history, and none of their
 observations is a statement about the present figures. Each later record names
 the revision and environments that it checked.
+
+### Crisp figures, 2026-10-18 (`book-first-half-k144`)
+
+All nine figures now use exact geometry. Before removal of the sketch code,
+this pass saved each figure with `--input style=crisp`. Each shipped SVG
+matches that saved render byte-for-byte. All nine layout records retain
+their earlier SHA-256 digests. The fonts, palette, weights, labels and
+positions did not change.
+
+The whole six-chapter read found no new diagram need. The R11 tables carry
+the requested comparisons and sequences, and their adjacent text states
+their role. This is an editorial judgement, not a limit of the medium.
+The unchanged-record requirement prevents changes to the diagram labels.
+Chapter 3 and chapter 5 now use R12 and R13 in the figure captions and alt
+text. Their prose explains the short labels that remain in the diagrams.
+
+Chrome on macOS loaded all nine figures in the book that `task docs:book`
+served. The viewport was 1227 by 919 pixels, with a 750-pixel chapter
+column and a light page. Screenshots supplied the visual check at that
+width. The successful-session SVG also opened at full size. The exact
+outlines preserve the arrows, boundaries, lifetime marks and keys.
+The dense figures still have small text at chapter width. That issue stays
+with whole-book art `ravel-book-k101`.
+
+A separate control page served one real image and one absent image. The
+real image loaded. The absent image had zero natural width and failed the
+same load check. All nine real figures retained nonempty alt text. The SVGs
+total 1,738,336 bytes. The largest, `process-authority`, is 255,845 bytes.
+Both totals stay within the existing size budgets.
+
+The figure comparison, figure controls, strict STE and prose-break checks,
+book build and ShellCheck passed. The exact-outline control first failed
+on the old sketch renderer. The palette control still changes the SVG and
+leaves its record unchanged. No editor preview, other browser, dark theme
+or narrow viewport was inspected in this pass. GitHub and GitHub Pages
+remain unchecked. These checks do not establish new-reader comprehension.
 
 ### Read 1 text correction, 2026-10-18 (`book-first-half-k130`)
 

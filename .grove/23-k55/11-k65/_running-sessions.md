@@ -112,22 +112,4 @@ under a new `## Handed forward` section.
 
 ## Handed forward
 
-- **Set art k144:** no new diagram is needed for R11. The page tables answer
-  “Which filesystem paths can a confined process read or write, and what
-  grants access?” under “Confine the managed process”, and “How do code and
-  stage distinguish these failures?” under “Read notices separately from
-  results”. They replace prose and keep every run within 450 words.
-- **Set art k144:** keep the three existing figure questions and positions.
-  `selection-cancellation.svg` answers “What cleanup does cancellation need
-  before a managed launch?” `supervision-cancellation.svg` answers “Why can
-  cancellation prevent delivery after a result was sent?”
-  `settled-exit-status.svg` answers “Which outcome wins when signals and
-  failures combine?” Apply the queued crisp style.
-- **Set art k144:** copy-edit k141 put R12 (“unchanged”) and R13 (“return
-  no result to the caller”) in the chapter prose. The figure text still has
-  the old words. Two alt texts in the chapter: “reports cancellation with no
-  result” (selection) and “It suppresses the sent result” (supervision). In
-  the layout records: “No result bytes” (both sequences), “suppress
-  candidate” (supervision), “0: Ravel delivers the exact result”, “1: no
-  result.” and “Cancellation suppresses a sent result”
-  (`settled-exit-status`). Decide which of these follow the chapter words.
+None. Set art k144 closed the figure handoffs on 2026-10-18.

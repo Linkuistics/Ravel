@@ -414,13 +414,6 @@ strict STE and prose-break checks. This closes document node
 - **Chapter drafts k138, k140 and k142:** replace links to
   `03-a-complete-session.md#obtain-the-build-used-by-this-chapter` with
   `03-a-complete-session.md#install-ravel-and-check-its-version`.
-- **Set art k144:** chapter 3 needs no new figure. Four page tables compare
-  the selected fields, the worker and managed-process roles, the session
-  terms and the shutdown stages. The successful-session sequence and the
-  outcome state machine keep their questions, positions, captions and alt
-  text. Their text still says “suppress” for cancellation. The chapter prose
-  now says “return no result to the caller” (R13). Decide whether the figure
-  text follows it. Apply the crisp style.
 - **Set proof k147:** check the Homebrew and version route after k145, and
   the updated inbound anchors. The example check uses the checkout pair and
   a fake agent, with no terminal.
@@ -433,14 +426,7 @@ writes the result unchanged (R12) and that refusals and an agent exit
 without a sent result return no result to the caller (R13). It passes the
 strict STE and prose-break checks. No heading, anchor or code block
 changed. This closes document node `writing-an-owner-policy-k64` again.
-This handoff from it stays open:
-
-- **Set art k144:** chapter 4 needs no new figure. Three page tables answer
-  “Who supplies each source claim or measurement?” (“Supply policy
-  context”), “Which configuration does the worker load automatically?”
-  (“Resolve policy imports”) and “Which files need reconciliation before I
-  copy a policy?” (“Copy a policy from another configuration”). They break
-  the prose within the limit.
+Set art k144 found the three new tables sufficient for the reader questions.
 
 Draft `running-sessions-k140` and copy-edit `running-sessions-k141` complete
 the chapter 5 part of this run. Chapter 5 links to
@@ -450,8 +436,7 @@ result unchanged and does not interpret it (R12). It says that a natural
 exit without a sent result, a cancellation and a failure of required cleanup
 return no result to the caller (R13). It passes the strict STE and
 prose-break checks. No heading, anchor or code block changed. This closes
-document node `running-sessions-k65` again. Its handoffs to set art k144 are
-in that node's brief, under `## Handed forward`.
+document node `running-sessions-k65` again. Set art k144 closed its figure handoffs.
 
 Draft `reference-chapter-k142` and copy-edit `reference-chapter-k143`
 complete the chapter 6 part of this run. All seven installation links in
@@ -463,8 +448,7 @@ It says that cancellation, a failure of required cleanup and the signal
 statuses return no result to the caller (R13). Nine page tables break the
 command-line prose (R11). It passes the strict STE and prose-break checks.
 No heading changed. This closes document node `reference-chapter-k66`
-again. Its handoff to set art k144 is in that node's brief, under
-`## Handed forward`.
+again. Set art k144 closed its figure handoff.
 
 ## Figure migration
 
@@ -512,11 +496,29 @@ from drawing: each layout module returns a layout record, one `_draw.typ` draws 
 record under a named style, and each figure's record is committed and compared as
 `<figure>.layout.json`. On 2026-10-18, in read 1 (R10), the owner replaced the
 sketched style (roughness 2) with the crisp style (roughness 0), after a view
-of all nine figures in both styles. Set art `book-first-half-k144` applies
-it. The layout records do not change. `book-figure-layout-record-k120` re-cut
+of all nine figures in both styles. Set art `book-first-half-k144` applied
+it. The nine layout records did not change. `book-figure-layout-record-k120` re-cut
 the ports for that:
 `book-figure-record-and-draw-k121` and `book-figure-layout-json-check-k122` build
 the seam ahead of `book-figure-sequences-k111`, and the ports k111–k116 produce
 records through their modules and draw only through `_draw.typ`. The reserve
 sketch backend, Rough.js on Bun, has no use with the crisp style. Every
 handoff leaves `task docs:figures` green.
+
+## Crisp art boundary (k144)
+
+All nine figures in chapters 1–6 use the crisp style. The sketch code and
+its controls are gone. Each SVG matches the former renderer's explicit
+crisp output, and the nine layout records remain byte-for-byte unchanged.
+The five units request no new diagram: their R11 tables carry the named
+relations and have adjacent role text. Art read all six chapters and closed
+its handoffs. The figure captions and alt text in chapters 3 and 5 use R12
+and R13. The unchanged records retain their short diagram labels.
+
+The figure comparison and controls, strict STE and prose-break checks, book
+build and ShellCheck pass. Chrome loaded every figure at the 750-pixel
+column, and an absent-image control failed. `docs/book/figures.md` records
+the dated view, sizes and limits. Small text in dense figures stays with
+whole-book art k101. Proof k147 is already live. It reads the whole set,
+including the retained label wording and its adjacent explanation. No new
+proof leaf is due, and the book node stays open.

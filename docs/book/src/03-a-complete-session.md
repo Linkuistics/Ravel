@@ -349,7 +349,7 @@ In this UML sequence, an X ends the pictured lifetime after confirmed reap or
 removal, not at the instant a process exits. The runner shares the Ravel
 CLI's lifeline because it runs inside that process.
 
-![The caller requests a session. The Ravel CLI checks the request, evaluates the policy in its worker and confirms the cleanup of the worker. Then it launches the managed process, which sends the result to the temporary result channel. The Ravel CLI stops the group before it reaps the direct child, and recovers the terminal if it lent it. It confirms that the group is gone, reads the result, removes the temporary files and decides the final outcome. Then it delivers the result to the caller.](figures/successful-session.svg)
+![The caller requests a session. The Ravel CLI checks the request, evaluates the policy in its worker and confirms the cleanup of the worker. Then it launches the managed process, which sends the result to the temporary result channel. The Ravel CLI stops the group before it reaps the direct child, and recovers the terminal if it lent it. It confirms that the group is gone, reads the result, removes the temporary files and decides the final outcome. Then it returns the result unchanged to the caller.](figures/successful-session.svg)
 
 *Figure 3.1 — The sent result requests completion. The final write of the
 result requires successful cleanup and no cancellation.*
@@ -401,10 +401,10 @@ The state machine below shows why a session with a sent value can end
 without a successful result. It separates the phase in which work stops from
 the outcome that the caller receives after the cleanup attempts.
 
-![Selection allows a managed launch or stops before the launch. After selection or supervision, Ravel does the cleanup and decides the final outcome. Cancellation suppresses a result. Otherwise, a refusal, a natural exit without a sent result or a failure can stay the primary outcome. Only a valid result with a confirmed reap, the absence of the group and cleanup reaches the final write. A successful write and flush complete the session, and a failed write makes the session fail.](figures/session-outcomes.svg)
+![Selection allows a managed launch or stops before the launch. After selection or supervision, Ravel does the cleanup and decides the final outcome. Cancellation returns no result to the caller. Otherwise, a refusal, a natural exit without a sent result or a failure can stay the primary outcome. Only a valid result with a confirmed reap, the absence of the group and cleanup reaches the final write. A successful write and flush complete the session, and a failed write makes the session fail.](figures/session-outcomes.svg)
 
 *Figure 3.2 — The sent result, cleanup and the final write are separate
-conditions of success. Cancellation can suppress a sent value.*
+conditions of success. Cancellation returns no result to the caller, even after a program sends a value.*
 [Open the outcome state machine at full size](figures/session-outcomes.svg).
 
 In words, a refusal stops selection before the launch. Cancellation and

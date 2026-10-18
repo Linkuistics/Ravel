@@ -115,10 +115,3 @@ document. Thus, no stage under this node cuts an art or proof leaf.
   members that remain before it reaps the managed process. A result requests
   shutdown, not proof that cleanup succeeded. Cancellation and cleanup failure
   still prevent a successful result.
-- Set art k144: no new figure is needed for R11 in chapters 1 and 2. The
-  tables answer these questions: who chooses what in a review, what the
-  selected program needs to do, which guarantees have limits, which chapter
-  route serves each reader, what caller and owner decide, what cleanup
-  precedes launch, and when a second sender can race shutdown. The existing
-  C4 figures keep their questions and content. Apply the queued crisp style.
-  R8 stays closed: the prose does not repeat the figure colour keys.

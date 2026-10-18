@@ -409,8 +409,8 @@ ok 'without the pinned fonts a Typst figure does not render, even in a face Typs
 # The book's own Typst modules, with the pinned Typst and CeTZ. No bytes are
 # committed for these: a change to the book's style is a change to every figure,
 # so this checks that the modules compile, draw every kind of row, keep to the
-# drawing primitives, render the same twice, and ship the sketched style with
-# the key crisp and a seed per figure.
+# drawing primitives, render the same twice, and ship exact geometry for both
+# the note and the key.
 modules="$work/modules"
 mkdir -p "$modules"
 cp "$root/docs/book/src/figures"/_{style,layout,draw,sequence}.typ "$modules/"
@@ -446,62 +446,24 @@ expect_ok 'the book modules render a stable sequence' check "$modules"
 [[ -s "$modules/engine.svg" && "$(head -c 4 "$modules/engine.svg")" == '<svg' ]] || die 'the book modules wrote no SVG'
 [[ ! -e "$modules/_style.svg" && ! -e "$modules/_layout.svg" && ! -e "$modules/_draw.svg" && ! -e "$modules/_sequence.svg" ]] || die 'a book module was rendered as a figure'
 
-# The shipped look is compiled in: figures.sh passes only the figure's name, and
-# the SVG it writes equals sketch at roughness 2, not the crisp style.
-direct() { # STEM OUT [INPUT...]: the same Typst call as render_all, with chosen inputs
-  local stem="$1" out="$2" input
-  shift 2
-  local inputs=()
-  for input in "$@"; do inputs+=(--input "$input"); done
-  (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
-    "$tools/typst" compile --format svg --root "$modules" --ignore-system-fonts --ignore-embedded-fonts \
-    --font-path "$tools/fonts/dejavu-2.37" --package-cache-path "$tools/typst-packages" "${inputs[@]}" \
-    "$modules/$stem.typ" "$out") || die "Typst could not render $stem with inputs $*"
-}
-mkdir -p "$work/home"
-direct engine "$work/engine-sketch.svg" figure=engine style=sketch roughness=2
-direct engine "$work/engine-crisp.svg" figure=engine style=crisp
-cmp -s "$modules/engine.svg" "$work/engine-sketch.svg" || die 'the shipped figure is not sketch at roughness 2'
-if cmp -s "$modules/engine.svg" "$work/engine-crisp.svg"; then die 'the shipped figure is the crisp style'; fi
-ok 'a figure rendered by figures.sh is sketch at roughness 2, and differs from the crisp style'
-
-# Keys are never sketched, whatever the roughness: the key box is a pale box drawn
-# as a single filled and outlined path, and a sketched box is its fill with the
-# outline drawn apart. The note is pale too, so the crisp style has two such paths
-# and the shipped style has one: the key.
+# Both pale shapes have exact outlines: each fill and stroke share one path.
+# The former sketch renderer drew the note outline apart from its fill, so this
+# check fails against that renderer even when its SVG and record agree.
 count_solid() { grep -o '<path fill="#f8fafc"[^>]*stroke="#64748b"[^>]*>' "$1" | wc -l | tr -d ' '; }
-[[ "$(count_solid "$work/engine-crisp.svg")" == 2 ]] || die "the crisp style should draw the key and the note as solid paths, found $(count_solid "$work/engine-crisp.svg")"
-[[ "$(count_solid "$modules/engine.svg")" == 1 ]] || die "the shipped style should draw only the key as a solid path, found $(count_solid "$modules/engine.svg")"
-ok 'in the shipped style the key box is drawn crisp and the note box is sketched'
+[[ "$(count_solid "$modules/engine.svg")" == 2 ]] || die "the crisp style should draw the key and the note as solid paths, found $(count_solid "$modules/engine.svg")"
+ok 'the shipped style draws both the key and the note with exact outlines'
 
-# Each figure seeds its own sketch from its name: one source under two names
-# gives two different drawings, and each is stable.
+# A file name does not change geometry or strokes.
 cp "$modules/engine.typ" "$modules/other.typ"
 expect_ok 'the same source under another name renders' update "$modules"
-if cmp -s "$modules/engine.svg" "$modules/other.svg"; then die 'two figures with one source but different names drew the same sketch: the figure name does not seed it'; fi
+cmp -s "$modules/engine.svg" "$modules/other.svg" || die 'the figure name changed the crisp drawing'
+cmp -s "$modules/engine.layout.json" "$modules/other.layout.json" || die 'the figure name changed the layout record'
 expect_ok 'both named figures are stable' check "$modules"
 rm "$modules/other.typ" "$modules/other.svg" "$modules/other.layout.json"
-ok 'a figure seeds its sketch from its name'
+ok 'a figure name changes neither the drawing nor its record'
 
-# The book's own modules: the record is the same at every style, and a change to
-# the style tables changes the drawing and not the record.
-direct_record() { # OUT [INPUT...]: engine.typ's record, evaluated as figures.sh does
-  local out="$1" input
-  shift
-  local inputs=()
-  for input in "$@"; do inputs+=(--input "$input"); done
-  (cd "$work" && env -i PATH=/usr/bin:/bin HOME="$work/home" HTTP_PROXY=http://127.0.0.1:9 HTTPS_PROXY=http://127.0.0.1:9 \
-    "$tools/typst" eval --pretty --root "$modules" --ignore-system-fonts --ignore-embedded-fonts \
-    --font-path "$tools/fonts/dejavu-2.37" --package-cache-path "$tools/typst-packages" "${inputs[@]}" \
-    --in "$modules/engine.typ" 'query(<layout>).first().value' >"$out") || die "Typst could not evaluate engine's record with inputs $*"
-}
-direct_record "$work/engine-sketch.layout.json" figure=engine
-direct_record "$work/engine-crisp.layout.json" figure=engine style=crisp
-direct_record "$work/engine-rough3.layout.json" figure=engine roughness=3
-cmp -s "$modules/engine.layout.json" "$work/engine-sketch.layout.json" || die 'the record figures.sh wrote is not what the shipped style evaluates to'
-cmp -s "$work/engine-sketch.layout.json" "$work/engine-crisp.layout.json" || die 'the crisp style changed the layout record'
-cmp -s "$work/engine-sketch.layout.json" "$work/engine-rough3.layout.json" || die 'roughness 3 changed the layout record'
-ok 'the book modules'"'"' record is identical at the shipped style, crisp and roughness 3, while the drawings differ (above)'
+# A palette change changes the drawing and not the record. This is a real
+# restyle, so the layout/draw separation control cannot pass by doing nothing.
 d="$work/modules-restyle"
 rm -rf "$d"
 cp -R "$modules" "$d"

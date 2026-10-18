@@ -34,3 +34,9 @@ findings R10–R17.
 - No defect in the first half goes forward without an owner.
 
 ## Notes
+
+Art k144 keeps the nine layout records unchanged, as its mandate requires.
+This also keeps short labels such as “exact result”, “No result bytes” and
+“suppress”. The chapter 3 and 5 captions and alt text now use “unchanged”
+and “return no result to the caller”. Read the labels with those alternatives.
+The figure mechanics and dated view are in `docs/book/figures.md`.

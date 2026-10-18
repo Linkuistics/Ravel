@@ -364,9 +364,8 @@ typst_isolated() {
 # private HOME leave no @local packages), and a proxy that refuses connections,
 # so anything outside the pins is an error instead of a download. Typst reports a
 # missing font family as a warning and still succeeds, so any output on stderr
-# fails the figure. The figure's name is the one input: _draw.typ seeds each
-# figure's sketch from it, and says nothing else about the style, so the shipped
-# look is compiled in.
+# fails the figure. The figure name remains available as input data, but it
+# changes no strokes. The shipped crisp style is compiled into _draw.typ.
 render_all() {
   local dir="$1" out="$2" file work stem
   make_scratch

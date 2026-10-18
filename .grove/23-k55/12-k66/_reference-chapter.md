@@ -200,9 +200,4 @@ its second correction run.
 
 ## Handed forward
 
-- **Set art k144:** no new figure is needed in chapter 6. The nine new page
-  tables answer lookup questions about help/version, prompt sources, task
-  fields, parameters, timeout values, grants, confined access, channel
-  parents and result inputs. Keep the questions and positions of
-  `source-components` and `installed-files`; the Homebrew formula retains
-  the same paths below `PREFIX`. Apply the crisp style under the set leaf.
+None. Set art k144 closed the figure handoffs on 2026-10-18.
