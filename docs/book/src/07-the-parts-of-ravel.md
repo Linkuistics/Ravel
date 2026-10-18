@@ -15,7 +15,8 @@ explains the process and terminal mechanics.
 
 The workspace contains two Rust packages: `ravel` and `keyed-launch`.
 The policy worker is a separate TypeScript build within `crates/ravel`.
-The table gives the source location of each part and the process in which it runs.
+The table separates source locations from process boundaries: a package or
+library does not always correspond to a separate process.
 
 | Part | Source location | Where it runs | Responsibility |
 |---|---|---|---|
@@ -58,7 +59,10 @@ runner can report a reaped child while the CLI still owes temporary-file
 cleanup. A change to final output or failure precedence therefore belongs
 in the CLI's coordination code.
 
-| Decision | Owner | What the other parts receive |
+The table separates command choice, job supervision and result interpretation,
+so each decision has one owner.
+
+| Decision | Owner | Information at the boundary |
 |---|---|---|
 | Which program to select | Owner policy | A command or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) |
 | Whether the policy response is valid | Ravel CLI | A checked command, or no launch |
@@ -97,6 +101,9 @@ not let it continue beside the managed process. The CLI closes the protocol
 socket, ends the worker and confirms its reap. A parent reaps a child when it
 collects the exit status of that child. The CLI also removes the worker's
 private directory.
+
+The table connects each worker check to the code that prevents a managed
+launch after an invalid response or failed cleanup.
 
 | Condition at the worker boundary | Source that enforces it | Consequence |
 |---|---|---|
@@ -140,6 +147,9 @@ Its purpose is to let the TypeScript checker check a policy object and infer
 the parameter types. The CLI still checks the data that crosses the worker
 socket at runtime.
 
+The table pairs each SDK facility with its limit, so a policy author can
+distinguish type support from runtime checks and authority.
+
 | SDK surface | Purpose | Limit |
 |---|---|---|
 | `Policy`, `SelectionRequest`, `Selected`, `Refused` | Describe selection inputs and outputs | Types do not replace runtime checks |
@@ -181,6 +191,9 @@ that a file appeared. Its Rust result is `Ended` or `LaunchError`, not the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
 that the caller receives.
 
+The table locates the runner interfaces through which a consumer supplies
+launch controls and receives job observations.
+
 | Runner interface | Information or action |
 |---|---|
 | `Channel` | A fresh completion path whose file appearance requests shutdown |
@@ -221,6 +234,9 @@ the contents and rejects invalid files. Its `result_after` checks the group
 state and cancellation in the supplied `Ended`. An empty string is a sent
 result. An absent file is no result.
 
+The table shows why a successful send or a runner observation alone cannot
+establish a successful Ravel session.
+
 | Part | What it knows | What it cannot establish alone |
 |---|---|---|
 | `end-session` | The inherited destination and whether the send succeeded | Whether supervision and cleanup succeeded |
@@ -255,6 +271,9 @@ the selected executable and argument words. The runner adds no prompt
 argument. `end_session` accepts text and uses the inherited path.
 The final CLI write returns that text unchanged after successful cleanup.
 
+The table shows which program, prompt and result decisions can change while
+the interfaces between the parts stay unchanged.
+
 | Change | Part that owns the decision | Boundary that stays unchanged |
 |---|---|---|
 | Select a different harness or ordinary program | Owner policy | The runner still receives a program and argument words |
@@ -279,6 +298,9 @@ package version and source identity. The source identity is a SHA-256 digest
 that both builds derive from the same worker sources and build inputs.
 A missing or incompatible worker stops selection. This check pairs builds.
 It does not authenticate files against the owner of the installation.
+
+The table shows how shared build inputs and identity checks keep the pair
+together, while the compiled runtime removes a host dependency.
 
 | Build input or output | How the parts stay together |
 |---|---|

@@ -586,6 +586,36 @@ Typst has since replaced. They are kept as history, and none of their
 observations is a statement about the present figures. Each later record names
 the revision and environments that it checked.
 
+### Chapter 7 tables, 2026-10-18 (`the-parts-of-ravel-k168`)
+
+Chapter 7 keeps its eight page-native tables. They compare parts and process
+locations, decision owners, worker conditions, SDK limits, runner interfaces,
+result knowledge, independent changes and installed-pair inputs. Each now has
+an adjacent sentence that states its takeaway. The decision table's last
+heading is “Information at the boundary”, because its cells include both
+received and sent information.
+
+The chapter links to `process-authority` in chapter 2 and `source-components`
+and `installed-files` in chapter 6. Repeated copies would answer the same
+questions as the local tables and their prose. A separate worker sequence
+would repeat the worker table's before-launch relation. These are editorial
+judgements, not contract prohibitions or evidence of a limit of the medium.
+No diagram source, SVG, layout record, renderer or style changes.
+
+Chrome on macOS displayed all eight tables and their adjacent explanations
+in the local book served by `task docs:book`. The light page had a
+1227-by-919-pixel viewport and a 750-pixel chapter column. Screenshots showed
+legible cells, including the long source paths and runner identifiers.
+Every table fit the column. The revised decision heading and final takeaway
+were inspected again after their last edit. The whole chapter was also read
+as raw Markdown.
+
+This pass did not inspect an editor preview, another browser, other themes,
+narrower viewports, GitHub or the book on GitHub Pages. It does not extend
+the earlier visual evidence for the linked diagrams or establish reader
+comprehension. The dense shared diagrams' small text stays with whole-book
+art `ravel-book-k101`.
+
 ### Crisp figures, 2026-10-18 (`book-first-half-k144`)
 
 All nine figures now use exact geometry. Before removal of the sketch code,

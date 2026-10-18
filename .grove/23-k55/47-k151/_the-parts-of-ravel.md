@@ -95,9 +95,8 @@ the code is chapter 8, and jobs, signals and the terminal are chapter 9.
 - Each stage records in its own log the guide sentences it covers. The stages
   after it clear the handoffs that they close, as in the first half.
 
-## Handed forward
-
-- **Art:** Chapter 7 links to the proved process-authority figure in chapter
-  2 and the source and installed views in chapter 6. Decide whether to repeat
-  the relevant figures on this page. Its tables supply the facts without a
-  new diagram. No figure source or caption changed during draft.
+Art k168 keeps the shared figures as links. The chapter's eight tables carry
+its comparisons and mappings, with an adjacent takeaway for each. The task
+records each declined diagram as an editorial judgement. No separate figure
+source, SVG or layout record changes. Proof reads those tables and their
+takeaways as direct entries, as well as the whole chapter.
