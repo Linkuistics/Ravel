@@ -1,8 +1,12 @@
 # Deliver Ravel
 
-A release carries a matched [Ravel CLI and policy worker](07-the-parts-of-ravel.md#the-installed-pair-stays-together).
-An archive check first establishes that this pair has the right files and can
-run outside the checkout. A version number alone establishes neither fact.
+A release carries a matched pair: the
+[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) and its
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+[Chapter 7](07-the-parts-of-ravel.md#the-installed-pair-stays-together)
+explains why the pair stays together. An archive check establishes that this
+pair has the right files and can run outside the checkout. A version number
+alone establishes neither fact.
 
 Start with [chapter 11's install and smoke tasks](11-develop-ravel.md#install-and-test-the-installed-pair).
 Those tasks test a local installation. This chapter extends that check to
@@ -15,13 +19,14 @@ The workspace has one Ravel version, independent of the version of any
 `Cargo.toml` supplies it to both Rust packages, and the worker build reads the
 Ravel package version. The checkout used for this chapter has version 1.0.0.
 Its local tags include `v0.1.0` and `v1.0.0`, and `CHANGELOG.md` describes both.
-The development version is no longer 0.0.0.
 
 An unreleased archive uses the checkout's version even when its source differs
 from that version's release tag. Thus, a local archive named with `v1.0.0`
 can contain later changes. Its name does not make it the released artifact.
 
-The CLI checks three worker values before it sends the policy for evaluation:
+Before the Ravel CLI sends the
+[owner policy](02-actors-and-words.md#caller-and-owner) for evaluation, it
+checks three worker values:
 
 | Value | What it establishes |
 |---|---|
@@ -35,13 +40,15 @@ both worker tsconfigs, and `scripts/dispatch.sh`.
 Both builds sort those paths, hash each file, then hash the
 same list of paths and digests.
 
-This identity pairs builds. It does not authenticate an installation or cover
-every Rust source file. A worker with a different protocol, version or identity
-causes `worker_identity_mismatch`, with exit status 5, before policy evaluation.
-A test probe also has a different identity. Rebuild and install the pair
-together to correct a mismatch.
+The source identity shows that two builds belong together. It does not
+authenticate an installation or cover every Rust source file. A worker with a
+different protocol, version or identity causes `worker_identity_mismatch`, with
+exit status 5, before policy evaluation. A probe worker that the tests build
+also has a different identity, and causes the same failure. To correct a
+mismatch, rebuild and install the pair together.
 
-The CLI finds `libexec/ravel/ravel-policy` relative to its own canonical path.
+The CLI finds `libexec/ravel/ravel-policy` relative to its own canonical path,
+which is its path with all symlinks resolved.
 A symlink to the CLI therefore still reaches that CLI's worker. Another worker
 on `PATH` cannot replace it. The worker contains Bun 1.4.2, so an installation
 needs no separate Bun or Node runtime.
@@ -57,18 +64,26 @@ needs no separate Bun or Node runtime.
 | `aarch64-unknown-linux-gnu` | Arm64 GNU/Linux |
 | `x86_64-unknown-linux-gnu` | x86-64 GNU/Linux |
 
-Run the tasks from the checkout. The full workflow needs an Apple silicon Mac,
-Bash 4 or later, Task, rustup with Rust 1.85 or later, curl, tar/xz and ShellCheck.
-The Linux builds also need Zig, cargo-zigbuild and both Linux Rust target libraries.
-The Linux smoke tests need an available `linux/arm64` Docker daemon with kernel
-6.7 or later. That kernel requirement belongs to the test environment's private
-emulator registration, not Ravel's minimum kernel.
+The target names spell arm64 as `aarch64` and x86-64 as `x86_64`. This chapter
+uses the target spelling only in target names and in the support statement.
+
+Run the release tasks from the checkout. The full workflow needs an Apple
+silicon Mac, Bash 4 or later, Task, rustup with Rust 1.85 or later, curl,
+tar/xz and ShellCheck. The Linux builds also need Zig, cargo-zigbuild and both
+Linux Rust target libraries. The Linux smoke tests need an available
+`linux/arm64` Docker daemon with kernel 6.7 or later.
+
+The kernel requirement comes from the emulated routes. They register QEMU in a
+private `binfmt_misc` instance, which Linux 6.7 and later gives each user
+namespace. Thus, the registration does not change the Docker host's own. The
+requirement applies to the test environment. It is not Ravel's minimum kernel.
 
 `task setup` supplies the checkout's pinned Bun and development dependencies.
 The release build prefers rustup's tools on `PATH` when its shims exist.
-An explicit `RUSTC` override can still select another compiler. The release
-doctor checks the compiler that the build will use and its target libraries.
-The worker build verifies each target's Bun
+An explicit `RUSTC` override can still select another compiler.
+[The release doctor](#prepare-a-version-cut) checks the compiler that the build
+will use and its target libraries.
+The worker build checks each target's Bun
 runtime against a committed SHA-256 digest before compilation. It also generates
 the SDK declarations.
 
@@ -83,9 +98,10 @@ task release:archives
 
 The build writes `target/archives/ravel-v<VERSION>-<TARGET>.tar.xz`.
 It clears `target/archives` before each build, even for one target.
-A previous archive therefore cannot fill a gap in a failed build. Each archive
-first has a temporary filename. The build exposes its final filename only
-after the manifest check passes, then prints its SHA-256 digest.
+Thus, an archive from an earlier build cannot stand in for a target that failed.
+Each archive first has a temporary filename. The build gives the archive its
+final filename only after the manifest check passes, then prints its SHA-256
+digest.
 
 For a local macOS check, select only the native target. This selection replaces
 the archive directory's contents and does not check Linux.
@@ -121,29 +137,31 @@ how the CLI, worker, SDK and examples fit together. In the checkout, the runtime
 notices are under `crates/ravel/notices/`. In an installation, they are under
 `PREFIX/libexec/ravel/notices/`.
 
-The manifest rejects extra files and directories, missing files, symlinks in
-place of files, and executables without execute permission. Caller programs,
+The manifest check rejects extra files and directories, missing files,
+symlinks in place of files, and executables without execute permission. Caller programs,
 caller adapters, owner configuration, choice files, development dependencies
 and probe directories do not belong in an archive. The pack step also excludes
 macOS extended attributes and their AppleDouble metadata files.
 
-`task release:test` tests this validator. It compares the manifest with a fresh
-production worker build, then uses deliberately incorrect archives. Each omitted
-file causes a failure. Other controls add unwanted assets, change types or
-permissions, and add macOS metadata. The task needs no Docker, but its metadata
-controls use macOS tools.
+`task release:test` tests the manifest check. It compares the manifest with a
+fresh production worker build, then uses deliberately incorrect archives. Each
+omitted file causes a failure. Other controls add unwanted assets, change types
+or permissions, and add macOS metadata. The task needs no Docker, but its
+metadata controls use macOS tools.
 
-Fragment: test the archive validator. This recipe omits setup and output.
+Fragment: test the manifest check. This recipe omits setup and output.
 
 ```sh
 task release:test
 ```
 
-A manifest checks layout, types and execute permission. It does not prove that
-the file at the worker path is the right program. The installed smoke test checks
-the pair through a real policy. The hostile-runtime suite separately substitutes
-probe workers at that path and checks for identity refusal. Those tests need
-`task probes`, which `task check` builds.
+The manifest check examines layout, types and execute permission. It does not
+prove that the file at the worker path is the right program.
+
+The installed smoke test checks the pair through a real policy. The
+hostile-runtime suite separately puts probe workers at the worker path. It checks that each probe causes
+`worker_identity_mismatch`. Those tests need the probe workers that
+`task probes` builds. `task check` runs that build too.
 
 ## Test the installed archive
 
@@ -164,7 +182,10 @@ That script tests both the direct CLI path and a relative symlink from another
 prefix. Its private utility `PATH` has no Bun, Node or Grove. It supplies a
 fresh home and temporary directory through a cleared environment.
 
-The test uses a shell fake agent, a real policy worker and installed assets:
+The test uses a shell fake agent, a real policy worker and installed assets.
+Each [session](02-actors-and-words.md#caller-and-owner) returns the
+[opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
+that the fake agent sends with `end-session`:
 
 | Check | What the test compares |
 |---|---|
@@ -172,12 +193,11 @@ The test uses a shell fake agent, a real policy worker and installed assets:
 | Result values | Ordinary, empty, multiline and option-like values return unchanged |
 | Child output | Child standard output goes to diagnostics, separate from the result |
 | TypeScript imports | A relative helper and a declared package load from the test policy |
-| Policy inputs | Measured context and command parameters reach the policy |
-| Missing session-result context | `end-session` refuses and writes no result |
+| Policy inputs | Measured policy context and `--param` values reach the policy |
+| Missing [session-result context](02-actors-and-words.md#three-different-kinds-of-information) | `end-session` fails and writes no result |
 | Temporary resources | The sample sessions leave no resources in their temporary directory |
 
-The result is the [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-that the fake agent sends with `end-session`. No model or personal policy runs.
+No model or personal policy runs.
 The test does not exercise an interactive terminal or all lifecycle failures.
 [Chapter 9](09-jobs-signals-and-the-terminal.md) explains those separate obligations.
 
@@ -195,18 +215,20 @@ Bun runtime. Both executables then run in the same archive smoke test.
 | Linux x86-64, CPU floor | CentOS 7.9 under QEMU 10.2.3 with the Nehalem model |
 
 Each Linux route checks that the userland reports glibc 2.17. A probe built for
-that floor runs. A second probe needs `GLIBC_2.25`, and the userland refuses it.
-The pair shows that the environment both runs valid programs and rejects a
-newer library requirement.
+that floor runs. A second probe needs `GLIBC_2.25`, and the userland rejects it.
+The two probes show that the environment both runs valid programs and rejects
+a newer library requirement.
 
 The CPU controls use an instruction above each floor: an Armv8.1 LSE atomic
 operation for arm64, and AVX2 for x86-64. At the floor, the instruction causes
 SIGILL. The same probe runs under the same emulator with `-cpu max`. Thus, the
-failure at the floor does not come from an invalid probe alone.
+failure at the floor comes from the CPU model, not from a defective probe.
 
-The emulated routes check every archive ELF executable against their emulator
-registration. This check covers the CLI and worker. They also check guest address bounds
-and the presence of the vDSO, a kernel-supplied interface mapped into a process.
+Each emulated route checks that every ELF executable in the archive, the CLI
+and the worker included, matches its emulator registration. Thus, those
+executables run through QEMU, not directly on the host CPU. The routes also
+check guest address bounds and the presence of the vDSO, a kernel-supplied
+interface mapped into a process.
 The test programs run without network access, as an unprivileged user, with
 read-only test inputs.
 
@@ -226,8 +248,9 @@ An archive smoke pass does not change that support statement.
 
 [Chapter 11's evidence map](11-develop-ravel.md#read-the-evidence-for-a-change)
 locates the separate runtime, archive and native-entry records. Those records
-name their source revisions and measured environments. Rebuild and repeat the
-relevant checks after a source or runtime change.
+name their source revisions and measured environments. After a source or
+runtime change, run `task release:smoke` again. It rebuilds the archives
+before it tests them.
 
 ## Prepare and test the Homebrew formula
 
@@ -237,11 +260,11 @@ and how to test the installation. Ravel's template is
 and installs its `bin` and `libexec` directories. It has no Grove dependency.
 
 `task release:formula` requires all three current-version archives in
-`target/archives`. It builds the four native probe workers, validates each
-archive manifest, and fills the template with the version and archive digests.
-An unexpanded placeholder fails the task.
+`target/archives`. It builds the four native probe workers, checks each
+archive against the manifest, and fills the template with the version and
+archive digests. An unexpanded placeholder fails the task.
 
-Fragment: test the formula after the full archive smoke task. This recipe
+Fragment: after the full archive smoke task, test the formula. This recipe
 omits setup, archive construction and output.
 
 ```sh
@@ -302,11 +325,18 @@ In addition to the archive tools, delivery needs jj, Git, jq, Homebrew and
 cargo-release 1.1.2. It also needs authenticated `gh` access to
 `Linkuistics/Ravel` and a clean, synchronised clone of `linkuistics/taps`.
 The tap path defaults to `~/Development/homebrew-taps`.
-Set `RAVEL_TAP_DIR` when the clone is elsewhere.
+If the clone is elsewhere, set `RAVEL_TAP_DIR` to its path.
 Put Homebrew's Bash before `/bin` on `PATH`, so the scripts use Bash 4 or later.
 
-Run the cut from Ravel's default colocated jj workspace. Describe the intended
-changes and integrate them into local `main` first. Preparation saves the
+The release procedure uses jj (Jujutsu), a version-control tool that can share
+a repository with Git. In jj, each change has a stable change ID and a
+description, which `jj describe` sets. A bookmark, such as `main`, is jj's
+name for a branch. A colocated workspace has both `.jj` and `.git` in one
+directory.
+
+Run the cut from Ravel's default colocated jj workspace. The release task
+refuses other directories. First, give each intended change a description and
+put it on local `main`. The preparation step of the release task saves the
 current change ID, then creates a clean child of `main`. Unrelated work stays
 at the saved ID. Later, `jj edit SAVED_CHANGE_ID` returns to that work.
 
@@ -354,30 +384,35 @@ preserves versioned sections and refuses missing, empty or invalid input.
 
 It also refuses missing or duplicate Unreleased headings, an ambiguous revision,
 or a changelog that differs from the selected revision. Commit reviewed notes
-through jj before the cut. This procedure launches no harness or model.
+through jj before the cut. This procedure runs no
+[harness](02-actors-and-words.md#the-managed-process-and-its-result) or model.
 
 ## Cut and deliver a release
 
-The release task runs each step in order. Its `.jj/release-lock` directory
-blocks a second task. Task removes its lock on
-normal success or failure.
+Each version-cut task calls the internal `release` task, which runs the steps
+below in order. The task first creates the `.jj/release-lock` directory. While
+it exists, a second release task stops. A `defer` command in the task removes
+the lock when the task succeeds or fails.
 
 | Step | What it changes or checks |
 |---|---|
 | Check prerequisites | Run the doctor and tap preflight |
 | Prepare `main` | Preserve unrelated work, check the prior release and prepare notes |
 | Recheck the tap and source | Repeat tap preflight, then run `task check` |
-| Preview and cut | Run cargo-release first without execution, then with `--execute --no-confirm` |
+| Preview and cut | Run cargo-release first as a preview without `--execute`, then with `--execute --no-confirm` |
 | Check the tagged book | Require the tag's chapter 3 version line to match the cut |
 | Record and build | Move `main` to the release commit and build all archives into a fresh `target/dist` |
-| Test the formula and archives | Test the formula in temporary prefixes, then smoke every target at its floors |
+| Test the formula and archives | Test the formula in temporary prefixes, then run the smoke test for every target at its floors |
 | Send the release | Push `main`, push the tag, create the GitHub release and update the tap |
 | Check the installation | Update Homebrew, install or upgrade Ravel, run its test, and check its version and GitHub assets |
 
 `release.toml` disables cargo-release pushes and crates.io uploads. Cargo-release
-creates the local version commit and tag through Git. This is a specific Git
-mutation in the jj release procedure. The private runner package has releases
-disabled. Ravel alone owns the changelog replacement.
+creates the local version commit and tag through Git. The procedure otherwise
+uses jj. This commit and the tag operations are its Git exceptions. The
+[runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
+package, `keyed-launch`, sets `release = false`, so cargo-release does not
+release it separately. Only the `ravel` package's configuration holds the
+changelog replacement.
 
 The changelog replacement requires exactly one whole-line Unreleased heading.
 It inserts the version heading below a fresh Unreleased heading. The notes
@@ -386,8 +421,8 @@ manifests, lockfile and book version line.
 
 The archive build checks the clean source, exact release tag and workspace
 version before it clears `target/dist`. It builds all three targets, their
-probe controls and the formula. The next step smokes every target from that
-directory. A failed build, formula test or smoke test stops before any push.
+probe controls and the formula. The next step runs the smoke test for every
+target from that directory. A failed build, formula test or smoke test stops before any push.
 
 Before it creates the GitHub release, `scripts/release-publish.sh` rechecks
 the tap, archive manifests and rendered formula. It requires exactly three
@@ -407,7 +442,8 @@ archive's SHA-256 digest, each target route and control, and any missing
 prerequisite. The check wrapper prints a summary and the full log path under
 `target/release-archives.*`, `target/release-formula.*` or
 `target/release-lifecycle.*`. Save the build and floor-smoke output too.
-These records distinguish an actual target result from a test of the procedure.
+These records show whether a result comes from a real target run or from a
+test of the procedure.
 
 ## Keep the book with its release
 
@@ -416,7 +452,9 @@ lets a reader compare the book with `ravel --version`. A checkout between
 releases can show the placeholder or the last release's version.
 Its other text can contain later changes.
 
-The second replacement in `release.toml` finds the whole version line in
+The version line is `ravel @RAVEL_BOOK_VERSION@` until the first release that
+carries the book. After it, the line is `ravel X.Y.Z`. The second replacement
+in `release.toml` finds this whole line in
 `docs/book/src/03-a-complete-session.md`. It accepts the placeholder or an
 `X.Y.Z` version and requires exactly one match. Cargo-release writes the new
 version into the same commit and tag as the product. The line is ordinary
@@ -424,37 +462,45 @@ Markdown text, so raw-file, GitHub and mdBook views use the same value.
 
 | Guard | What it reads and refuses |
 |---|---|
-| `scripts/release-book-version.sh ready` | Read the checkout page. Refuse a missing page or anything other than one version line that matches the pattern |
+| `scripts/release-book-version.sh ready` | Read the checkout page. Refuse a missing page, or any count other than one line of the form `ravel <version or placeholder>` |
 | `scripts/release-book-version.sh released vX.Y.Z` | Read the page at the tag. Refuse an unreadable tag/page, a different version, duplicate or absent lines, or a placeholder anywhere in the page |
 
 The doctor runs `ready` before the cut. The task runs `released` after the
 cut and before the archive build. `ready` checks that replacement is possible.
 It does not require the current line to agree with the workspace version.
-The second guard checks what the tag actually carries. A refusal there leaves
-the cut local, with nothing pushed by the task.
+The second guard checks what the tag actually carries. If it refuses, the cut
+stays local, and the task pushes nothing.
+
+If `ready` refuses, edit chapter 3 until it has exactly one version line. Then
+run `task release:doctor` again. If `released` refuses, the local tag exists already.
+Use the local-cut rows of
+[the recovery table](#recover-a-partial-release-without-another-bump), and do
+not start another version cut.
 
 The delivery contract requires the book on GitHub Pages to match each release.
-The checkout checked here does not yet implement that step. The release task
+This checkout does not yet implement that step. The release task
 checks the book version but does not build or deploy the book. The local
 `docs:book:build` task writes `target/book`, and `docs:book` serves it locally.
-Neither command sends those files to GitHub Pages.
+Neither command sends those files to GitHub Pages. The release needs the
+Pages delivery step before it can meet that contract.
 
-The first release that carries the book still lies ahead. Before that release,
-there is no book on GitHub Pages to use. Read the checkout's Markdown or local
-build, and check its version line. A version-line pass alone does not establish
-a deployed book. The release needs the Pages delivery step before it can meet
-that contract. Chapter 10 remains absent until a supported extracted component
-and its consumer exist.
+No release carries the book yet. For example, tag `v1.0.0` has no
+`docs/book` directory. Until a release carries it, there is no book on
+GitHub Pages to use. Read the checkout's Markdown or local build, and check
+its version line. A version-line pass alone does not establish a deployed book.
+
+The book that a release carries has no chapter 10. The work that delivers a
+supported extracted component and its consumer writes that chapter.
 
 ## Recover a partial release without another bump
 
 After any cut step partly succeeds, do not repeat `release:patch`,
-`release:minor` or `release:major`. First inspect the source, local and remote
-tags, GitHub assets and tap. A new cut can hide an unfinished release under
-another version.
+`release:minor` or `release:major`. Another version cut, a bump, selects a new
+version and leaves the unfinished release incomplete under the old one. First
+inspect the source, local and remote tags, GitHub assets and tap.
 
 Fragment: inspect a partial release. Replace `vX.Y.Z` with its selected tag.
-This recipe omits the tap inspection and every repair.
+This recipe omits the tap inspection and every correction.
 
 ```sh
 jj st
@@ -465,30 +511,32 @@ git ls-remote --tags origin
 gh release view vX.Y.Z --repo Linkuistics/Ravel --json isDraft,assets
 ```
 
-If Task died abruptly, its lock can remain. Confirm that no release process
-remains before you remove `.jj/release-lock` with `rmdir`. Preserve the saved
-jj change and each partial release write. Choose the row that matches
-the last completed boundary.
+If Task stopped abruptly, its lock can remain. Before you remove
+`.jj/release-lock` with `rmdir`, check that no release process remains.
+Preserve the saved jj change and each partial release write. Choose the row
+for the last step that completed.
 
 | Failure point | Next action |
 |---|---|
-| Before any version write | Correct prerequisites, notes or synchronisation. Confirm that manifests and tags remain uncut before you restart the task |
-| During the local cut | Complete the already selected version as described below. Do not repeat the bump |
-| Tagged cut, but build, formula or smoke failed | Correct the environment, then rebuild and smoke the same release source |
-| Main or tag push failed | Retry only the missing push after the build and smoke checks pass |
+| Before any version write | Correct prerequisites, notes or synchronisation. Before you start the task again, check that manifests and tags have no new version |
+| During the local cut | Complete the already selected version as described below. Do not start another version cut |
+| Tagged cut, but build, formula or smoke failed | Correct the environment, then rebuild and test the same release source |
+| Main or tag push failed | After the build and smoke checks pass, retry only the missing push |
 | GitHub release or asset upload failed | Complete that release and its three assets, then resume the tap step |
 | Tap copy, commit or push failed | Retain local tap work and finish only the intended formula change |
-| Local installation or final check failed | Repair the installation and repeat its checks, with no new version |
+| Local installation or final check failed | Correct the installation and repeat its checks, with no new version |
 
 For a partial local cut, inspect the cargo-release preview and log. Reconcile
 the workspace manifests and `Cargo.lock` to the selected version. If its
 changelog heading is absent and Unreleased still holds its notes, run
 `cargo release replace --execute --no-confirm` once. Do not repeat that
-replacement after the version heading exists. If only the book line needs
-repair, correct that line without another changelog replacement.
+replacement after the version heading exists. If only the book line needs a
+correction, correct that line without another changelog replacement.
 
-Check the coherent source before you describe the release change in jj.
-Move `main` to that commit and create its empty successor. Create only a missing
+When the manifests and lockfile agree, check them. Then describe the release
+change in jj. Move `main` to that commit and create its empty successor.
+
+Create only a missing
 local tag at the intended commit. The release procedure uses an annotated Git
 tag for this operation. Inspect any tag that already exists. Never overwrite
 a tag to hide a source mismatch.
@@ -497,8 +545,9 @@ For a failed build or smoke test, return to a clean child of the release commit
 with `jj new RELEASE_COMMIT`. If the cut did not move `main`, set it to that
 commit with `jj bookmark set main -r RELEASE_COMMIT`.
 
-Fragment: verify the tag's book line, rebuild and smoke the release archives.
-Replace `vX.Y.Z` with the selected tag. This recipe omits source repair and pushes.
+Fragment: check the tag's book line, then rebuild and test the release
+archives. Replace `vX.Y.Z` with the selected tag. This recipe omits source
+corrections and pushes.
 
 ```sh
 scripts/release-book-version.sh released vX.Y.Z
@@ -506,21 +555,22 @@ scripts/release-build.sh
 scripts/release-smoke.sh --archives target/dist
 ```
 
-A source correction needs its own described change and an explicitly resolved
-release identity. Do not silently move an already public tag. A correction in
-the checkout alone cannot repair the book page that `released` reads at
-the tag. Stop at that identity decision if source and tag disagree.
+If the release source itself needs a correction, give the correction its own
+described change. Then decide which version and tag carry it. Do not move a
+tag that is already public. A correction in the checkout alone cannot correct
+the book page that `released` reads at the tag. If the source and the tag
+disagree, stop until that decision is made.
 
 After all smoke routes pass, retry only a missing `jj git push -b main` or
-`git push origin vX.Y.Z`. Check that the remote tag resolves to the release
-commit before you continue. Do not force a public tag.
+`git push origin vX.Y.Z`. Before you continue, check that the remote tag
+resolves to the release commit. Do not force a public tag.
 
 If GitHub has no release for the tag, run `scripts/release-publish.sh` after
-the validated smoke. If the release exists, upload only missing current
+the smoke test passes. If the release exists, upload only missing current
 archives with `gh release upload`. Inspect assets that already exist.
-Do not overwrite them. After all three are complete, remove an intended draft's
-draft status with `gh release edit`. Both commands take the selected tag and
-`--repo Linkuistics/Ravel`.
+Do not overwrite them. If the release is a draft, remove its draft status with
+`gh release edit` after all three assets are complete. Both commands take the
+selected tag and `--repo Linkuistics/Ravel`.
 
 Fragment: resume only the tap step after the GitHub assets are complete.
 This recipe omits asset inspection and the earlier smoke checks.
@@ -530,20 +580,27 @@ scripts/release-publish.sh --tap-only
 ```
 
 This mode requires a non-draft GitHub release with exactly the three nonempty
-assets. It downloads them and compares each with the local validated archive.
-A mismatch stops before a tap edit. It creates no second GitHub release.
-The script does not run smoke itself, so the earlier smoke pass still matters.
+assets. It downloads them and compares each with the local archive that the
+smoke test checked. A mismatch stops before a tap edit. It creates no second
+GitHub release. The script does not run the smoke test. Thus, use this mode
+only after the smoke test passes for the same archives.
 
-If the tap copy already occurred, preserve that work. Do not run the publisher
-against a dirty tap. In a jj tap, describe the intended formula
-change, move `main` to it, create an empty successor, and push `main`.
+If the tap copy already occurred, preserve that work. Do not run
+`scripts/release-publish.sh` against a tap with uncommitted changes. In a jj
+tap, finish the formula change with these steps:
+
+1. Describe the intended formula change.
+2. Move `main` to that change.
+3. Create an empty successor.
+4. Push `main`.
+
 If the commit already exists, retry only its push. A Git-only tap uses its
 normal commit and push procedure. Check the remote `Formula/ravel.rb` and
 retain every unrelated formula.
 
-If only local installation failed, repeat `brew update`, then install
-`linkuistics/taps/ravel` or upgrade `ravel`, as appropriate. Run `brew test ravel`
-and the Homebrew-prefix binary's version check. Inspect the matched worker
+If only local installation failed, run `brew update` again. If Ravel is not
+installed, install `linkuistics/taps/ravel`. Otherwise, upgrade `ravel`. Run
+`brew test ravel` and the Homebrew-prefix binary's version check. Inspect the matched worker
 layout and GitHub's three assets. A missing local installation needs no new cut.
 
 The lifecycle suite tests these procedure boundaries in isolated repositories
@@ -554,12 +611,12 @@ observed during that recovery determine its next step.
 
 ## Checks made for this chapter
 
-The draft checks use macOS 27.0.1 arm64, Bash 5.3.20 and rustup rustc 1.93.1.
-All three Rust target libraries are present. Zig 0.17.0, cargo-zigbuild and
-Docker 29.8.1 are available. Docker reports `linux/arm64` with kernel
-7.0.14-linuxkit. No archive-test prerequisite is missing.
+The checks for this chapter used macOS 27.0.1 arm64, Bash 5.3.20 and rustup rustc 1.93.1.
+All three Rust target libraries were present. Zig 0.17.0, cargo-zigbuild and
+Docker 29.8.1 were available. Docker reports `linux/arm64` with kernel
+7.0.14-linuxkit. No archive-test prerequisite was missing.
 
-The following checks passed on 2026-10-18:
+The first set of checks passed on 2026-10-18:
 
 | Task | Observed result |
 |---|---|
@@ -570,10 +627,10 @@ The following checks passed on 2026-10-18:
 
 The smoke task ran `release:archives` as its build step. Both Linux CPU controls
 failed at their floor and passed with `-cpu max`. Every Linux route passed the
-glibc probe and refused the probe that needs glibc 2.25. No target was skipped.
+glibc probe and rejected the probe that needs glibc 2.25. No target was skipped.
 The source and script digests stayed unchanged through these checks.
 
-Part B also passed the following checks on 2026-10-18, on the same host:
+A second set of checks passed later on 2026-10-18, on the same host:
 
 | Task | Observed result |
 |---|---|
@@ -581,18 +638,18 @@ Part B also passed the following checks on 2026-10-18, on the same host:
 | `release:formula` | Real Homebrew install/test methods and all four worker-identity controls passed in a temporary prefix |
 | `release:lifecycle:test` | Release order, refusal, recovery, notes and book-version controls passed in isolated fixtures |
 
-Formula preparation used part A's three archives. Their digests and the tracked
-source inputs stayed unchanged through part B's checks. The formula's four
+Formula preparation used the three archives from the first set. Their digests
+and the tracked source inputs stayed unchanged through the second set. The formula's four
 result sessions succeeded and reported stop-attempt permission errors on stderr.
 Those operation reports remained separate from the returned results.
 
-This draft did not change the project's release notes or run its
-`release:patch`, `release:minor` or `release:major` tasks. Those tasks change
+Neither set changed the project's release notes or ran its `release:patch`,
+`release:minor` or `release:major` tasks. Those tasks change
 public release state and the local installation. The lifecycle suite exercised
 notes, previews and cuts only in its fixtures. No project push, tag, tap edit,
 permanent installation or GitHub Pages deployment ran.
 
-The draft did not repeat `install` or `smoke`. Chapter 11 records those checks,
-and this draft exercised the same installed test through fresh archives.
+Neither set repeated `install` or `smoke`. Chapter 11 records those checks.
+The smoke task here ran the same installed test through fresh archives.
 These observations establish no new native x86-64, interactive-terminal,
 real-agent or reader-comprehension result.
