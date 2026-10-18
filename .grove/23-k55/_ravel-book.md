@@ -558,6 +558,16 @@ proof leaf is due, and the book node stays open.
 
 ## Second half: units and shared conventions
 
+Draft `deliver-ravel-k182` found that the required release-to-Pages path is
+absent from the current release task. Its book-version guard is implemented,
+but the task does not build or deploy the book. `book-release-pages-k184`,
+before set proof k163, owns the missing implementation and its isolated
+controls. It then routes the chapter-12 teaching through a complete editorial
+correction run before set proof. Chapter 3's Pages statement is anticipatory
+until that work lands. The requirement remains unchanged, and the first public
+book release stays outside this node. Neither a local book build nor a passing
+version-line guard establishes Pages delivery.
+
 Cut by `ravel-book-second-half-k148` on 2026-10-18, after read 1's corrections:
 two scaffold increments, five drafting units with two figure modules, a set
 proof, two guide fold-in leaves, whole-book art `ravel-book-k101` and read 2
