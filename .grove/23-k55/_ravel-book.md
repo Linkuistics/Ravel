@@ -453,6 +453,19 @@ prose-break checks. No heading, anchor or code block changed. This closes
 document node `running-sessions-k65` again. Its handoffs to set art k144 are
 in that node's brief, under `## Handed forward`.
 
+Draft `reference-chapter-k142` and copy-edit `reference-chapter-k143`
+complete the chapter 6 part of this run. All seven installation links in
+chapter 6 use `#install-ravel-and-check-its-version` (R17), and the
+installed layout gives the Homebrew `PREFIX`. The `end-session` entry
+names the race of a second call and the shutdown (R16). Chapter 6 says
+that Ravel writes the result unchanged and does not interpret it (R12).
+It says that cancellation, a failure of required cleanup and the signal
+statuses return no result to the caller (R13). Nine page tables break the
+command-line prose (R11). It passes the strict STE and prose-break checks.
+No heading changed. This closes document node `reference-chapter-k66`
+again. Its handoff to set art k144 is in that node's brief, under
+`## Handed forward`.
+
 ## Figure migration
 
 Art `book-first-half-k130` corrected all nine figure sources to STE and

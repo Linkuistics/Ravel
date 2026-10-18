@@ -40,9 +40,12 @@ result that looks like an option. Inside a live session,
 and `--prompt-file PATH`. It reads the owner settings, checks and evaluates
 the owner policy, then supervises the selected program. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) launches nothing, and Ravel
-tries no alternative route. A successful invocation returns the exact sent
-result, but only after the reap, the confirmed absence of the process group
-and the required cleanup. See [run a complete session](03-a-complete-session.md#run-the-first-session)
+tries no alternative route.
+
+A successful invocation writes the sent result unchanged to stdout. This write occurs only after the reap, the confirmed
+absence of the process group and the required cleanup. Ravel does not
+interpret the result.
+See [run a complete session](03-a-complete-session.md#run-the-first-session)
 and [interpret the outcome](05-running-sessions.md#interpret-the-exit-status).
 
 All fifteen options below belong after `start-session`. Only `--param`,
@@ -55,7 +58,8 @@ repeated single-value option or switch is a command-line error. `-h` and
 `--kind` is required and supplies `request.kind` unchanged. Its value is
 nonempty UTF-8. Ravel has no catalogue of
 [kinds](02-actors-and-words.md#caller-and-owner) and gets no kind from a task
-file. Ravel gives the token no meaning. An absent or empty kind exits 2. See
+file. Ravel gives the token no meaning. An absent or empty kind gives
+status 2. See
 [supply the prompt and caller data](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
 ### `--prompt TEXT` and `--prompt-file PATH`
@@ -73,7 +77,7 @@ of 1,048,576 bytes (1 MiB). Ravel puts its bytes unchanged in
 the session. The policy decides how to give that text to its selected program.
 
 An unreadable prompt file reports `prompt_unreadable`. Invalid encoding, a
-NUL or too many bytes reports `prompt_invalid`. Both exit 2. A command with
+NUL or too many bytes reports `prompt_invalid`. Both give status 2. A command with
 no prompt input, or with both prompt inputs, also exits 2. Ravel does not
 implicitly read the prompt from stdin, and it refuses a prompt file that is a terminal. See [supply the prompt and caller data](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
@@ -85,7 +89,7 @@ implicitly read the prompt from stdin, and it refuses a prompt file that is a te
 
 ### `--task-file PATH` and `--task-id ID`
 
-These optional fields carry caller data. Invalid input exits 2.
+These optional fields carry caller data. Invalid input gives status 2.
 
 | Option | Request field | Value and effect |
 |---|---|---|
@@ -125,7 +129,7 @@ different names. The table gives the parts of each argument and their limit.
 | Combined size | All names and values together have a limit of 65,536 bytes. The separators do not count. |
 
 A repeated name, a missing separator, invalid
-encoding or a total above the limit exits 2. Ravel gives names and values no
+encoding or a total above the limit gives status 2. Ravel gives names and values no
 meaning. See
 [caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
@@ -147,7 +151,8 @@ policy context, never a
 ### `--timeout-ms MS`
 
 `--timeout-ms` replaces the owner's `timeoutMs` setting for this invocation.
-The table gives its syntax and values. Invalid syntax or range exits 2.
+The table gives its syntax and values. Invalid syntax or range gives
+status 2.
 
 | Property | Value |
 |---|---|
@@ -170,7 +175,7 @@ works. See
 
 `--context-bytes` replaces the owner's `contextBytes` setting. It takes decimal
 digits in the inclusive range 1–8,388,608 bytes. With no flag and no setting,
-the budget is 262,144 bytes. Invalid syntax or range exits 2. Ravel validates
+the budget is 262,144 bytes. Invalid syntax or range gives status 2. Ravel validates
 the settings first. Thus, an invalid setting fails even with a valid flag.
 
 The budget limits the caller document and the encoded policy context that
@@ -193,7 +198,8 @@ addition to its base set. Repeat it to grant more names.
 
 A name is nonempty UTF-8 and contains no `=`. It cannot match a
 [reserved grant class](#reserved-worker-grants). A malformed name reports
-`malformed_input`, and a reserved name reports `excluded_grant`. Both exit 2.
+`malformed_input`, and a reserved name reports `excluded_grant`. Both give
+status 2.
 Grant diagnostics show each name and whether it is set, never its value.
 See [grant environment names](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
@@ -219,7 +225,7 @@ The table gives the access of the confined managed process.
 Filesystem grants cannot overlap the policy directory or the owner settings,
 and this rule also applies through symlinks. An unusable backend or input
 reports `confinement_unusable`, and an overlap reports `confinement_overlap`.
-Both exit 2. See [confine the managed process](05-running-sessions.md#confine-the-managed-process)
+Both give status 2. See [confine the managed process](05-running-sessions.md#confine-the-managed-process)
 for the layout and the operational limits.
 
 > **Note:** The project measured how Ravel handles inherited signal
@@ -236,8 +242,9 @@ is repeatable. It needs `--confine`. Without that switch, the command exits 2.
 The path resolves from the caller's working directory to a regular file that
 exists, and its canonical name is UTF-8. The option grants no directory tree.
 
-Read-only grants stay read-only inside writable directories. A grant that is
-unusable, or that has an overlap, exits 2 before policy evaluation. See
+Read-only grants stay read-only inside writable directories. If a grant is
+unusable or has an overlap, Ravel stops with status 2 before policy
+evaluation. See
 [confinement grants](05-running-sessions.md#confine-the-managed-process).
 
 ### `--exit-dir DIR`
@@ -252,8 +259,7 @@ working directory. The table shows the parent for each form of launch.
 | Unconfined | The system temporary directory. | `DIR`. |
 | Confined | The private run directory. | `DIR`, also as a writable grant. |
 
-With confinement, the parent directory is also a writable grant. The option
-chooses a parent, not a result filename or a persistent store. An invalid
+The option chooses a parent, not a result filename or a persistent store. An invalid
 parent can report `exit_dir_unusable` with status 2. If Ravel later cannot
 allocate the result channel, it reports `session_channel_unavailable` with
 status 5. See
@@ -292,17 +298,20 @@ stays one argument.
 | `--` | Ends the options, so a value that looks like an option can follow as `RESULT`. |
 | `-h`, `--help` | Shows help, without a send. |
 
-Ravel keeps the first complete result that it receives. That first
-`end-session` requests shutdown, which normally ends the harness. A second
-`end-session` races that shutdown. For example, another process in the
-group can send a result before Ravel stops it. Ravel keeps the first result,
-even if the second command succeeds. Shutdown can stop the second command,
-or removal of the result channel can make it fail.
+Ravel keeps the first complete result that it receives. When that result
+arrives, Ravel starts to stop the
+[harness](02-actors-and-words.md#the-managed-process-and-its-result). Thus,
+a second `end-session` and that shutdown are in a race: either can occur
+first. For example, another process in the group can send a result before
+Ravel stops that process. Ravel keeps the first result, even if the second
+command succeeds. The shutdown can stop the second command, or the removal
+of the result channel can make it fail.
 
-Success exits 0 and prints nothing. It means only that the channel accepted
+A successful `end-session` exits 0 and prints nothing. It means only that the channel accepted
 the result, or that a valid first result was already present. It does not
-mean that the job ended or that the result reached the caller. Cancellation
-and failure of required cleanup still prevent a successful session result.
+mean that the job ended or that the result reached the caller. A
+cancellation or a failure of required cleanup still returns no result to
+the caller.
 
 `end-session` exits 1, with a text diagnostic on stderr, if the [session-result context](02-actors-and-words.md#three-different-kinds-of-information)
 is missing, empty, stale or invalid. It also exits 1 for an oversized value
@@ -324,14 +333,14 @@ is 0. Neither the exit status of the managed process nor an earlier
 successful `end-session` decides the result of the enclosing session.
 
 Cancellation has precedence over an original failure. An original failure
-keeps its status if a later cleanup also fails. Otherwise, a failure of the
-required cleanup stops the delivery of the result. All applicable cleanup
+keeps its status if a later cleanup also fails. Otherwise, if the required
+cleanup fails, Ravel returns no result to the caller. All applicable cleanup
 reports stay as diagnostics. See
 [outcome precedence](05-running-sessions.md#read-notices-separately-from-results).
 
 | Status | Meaning and next action | Taught in |
 |---|---|---|
-| `0` | `start-session` delivered a valid result after the reap, the confirmed absence of the group, the required cleanup and a successful write and flush. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Interpret the bytes with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also exits 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
+| `0` | `start-session` wrote the sent result unchanged to stdout and flushed it. This occurs after the reap, the confirmed absence of the group and the required cleanup. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Ravel does not interpret the result. Interpret it with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also gives status 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. For `end-session`, status 1 means that it could not send the result. For example, the session-result context was missing, empty or stale, or the value was too large. Check that the call occurs inside a live session. A missing result is not an empty result. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, or confinement inputs that are unusable or overlap. Without a verb, `ravel` prints help with this status. Correct the named input or setting before you try again. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 | `3` | The policy refused, or Ravel could not accept the entry, behaviour, shape, selection result or policy context. No fallback route runs. Read the code, the stage and the remedy. For `policy_refused`, also read `policyCode`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
@@ -339,9 +348,9 @@ reports stay as diagnostics. See
 | `124` | Policy evaluation timed out, and no managed process started. Examine the work of the policy before you increase `timeoutMs` or `--timeout-ms`. The deadline does not limit the managed process. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `126` | The selected program is not executable, or the launch failed before the runner reported the start, for a reason other than ENOENT. Check the permissions, the format, the interpreter and the execution environment. Retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `127` | Ravel did not find the selected program, or the launch failed with ENOENT before the start. A script that exists can have a missing interpreter. Check `PATH`, the selected path and the interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `129` | Cancellation by SIGHUP (signal 1), during selection or supervision. Ravel accepts no result. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `130` | Cancellation by SIGINT (signal 2), during selection or supervision. Ravel accepts no result. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `143` | Cancellation by SIGTERM (signal 15), during selection or supervision. Ravel accepts no result. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `129` | Cancellation by SIGHUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `130` | Cancellation by SIGINT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `143` | Cancellation by SIGTERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 
 The three signal statuses in the table follow the shell convention: 128 plus
 the signal number. Ravel attempts the cleanup and then raises the same signal
@@ -353,8 +362,8 @@ cause a cancellation.
 
 > **Note:** SIGKILL or another abrupt death can stop Ravel before it decides
 > the final outcome. A signal that arrives after the final decision about
-> cancellation can interrupt the result write. Neither case confirms cleanup
-> or successful delivery. A failed final write can leave a prefix on stdout.
+> cancellation can interrupt the result write. Neither case confirms the
+> cleanup or that the caller received the complete result. A failed final write can leave a prefix on stdout.
 > The [operational limits](05-running-sessions.md#understand-the-operational-limits)
 > describe these cases.
 
@@ -362,13 +371,13 @@ cause a cancellation.
 
 ### Standard streams
 
-> **Table — Streams:** Do not mix the result on stdout with stderr. Stderr
-> combines the managed output and the diagnostics. Stdin serves the managed
+> **Table — Streams:** Stdout carries only the result. Stderr combines the
+> managed output and the diagnostics. Stdin serves the managed
 > process and does not implicitly supply a prompt.
 
 | Stream | Session behaviour | Taught in |
 |---|---|---|
-| stdout | `start-session` writes only the exact successful result, with no added newline. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
+| stdout | `start-session` writes only the result of a successful session, unchanged and with no added newline. Ravel does not interpret it. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | stderr | The stdout and stderr of the managed process, Ravel notices and failures, captured policy diagnostics and operational reports. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) |
 | stdin | Ravel does not implicitly read a prompt from stdin. The worker receives null stdin. An unconfined managed process can use the caller's stdin, and a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 
@@ -465,7 +474,7 @@ CLI cannot see which policy operation ran at expiry.
 
 ### Caller inputs and worker environment
 
-The Ravel CLI starts the policy worker with a fresh environment. It contains
+The Ravel CLI starts the policy worker with a new environment. It contains
 each of `HOME`, `PATH`, `TMPDIR`, `LANG` and the `LC_*` names that the caller
 has set, with the caller's value. The explicit grants come next, and
 `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0` comes last. Other caller variables do
@@ -510,7 +519,7 @@ The next section gives that shorter list. See
 
 An unconfined managed process inherits the caller's environment, except for
 six exact names that Ravel removes. The list of these names is below. Ravel
-then supplies its fresh `RAVEL_EXIT_FILE`. Other names stay inherited, for
+then supplies its new `RAVEL_EXIT_FILE`. Other names stay inherited, for
 example any application credentials and the names in the classes that the
 worker does not accept. A worker grant has no effect on that inheritance. See
 [caller environment](05-running-sessions.md#supply-the-prompt-and-caller-data).
@@ -519,7 +528,7 @@ worker does not accept. A worker grant has no effect on that inheritance. See
 |---|---|---|
 | `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG`, `LC_*` | Ravel retains the caller values when they are present. A retained `HOME` gives no filesystem access to that directory. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `TMPDIR`, `TMP`, `TEMP` | Ravel sets all three to the temporary directory of the private run. They replace the caller values. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
-| `RAVEL_EXIT_FILE` | A fresh path for this session. Ravel supplies it after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
+| `RAVEL_EXIT_FILE` | A new path for this session. Ravel supplies it after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
 | Every other caller variable | Absent. `--policy-env` grants only the worker and cannot add the variable here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 
 The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
@@ -753,9 +762,9 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `supervision_failed` | `exec` | 127, 126 or 5 | Before the runner reports the start, ENOENT gives 127, and other failures give 126. After the start, the status is 5. Check the executable and the interpreter, the execution environment and the retained reports of the runner and the terminal. | [Launch and supervision](05-running-sessions.md#interpret-the-exit-status) |
 | `session_result_missing` | `exec` | 1 | The managed process ended and sent no result, even if its own status was 0. Make the managed process call `end-session` when its work succeeds. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_result_invalid` | `exec` | 5 | Ravel cannot accept the sent entry in the result channel or the result bytes, for example because of an invalid encoding, type or size. Use `end-session` inside the live session, and send a result of 1 MiB or less. | [Result validity](05-running-sessions.md#accept-a-result-only-after-success) |
-| `session_cleanup_failed` | `exec` | 5 | The required cleanup of the result channel or of a private directory failed. Examine the named path and the ownership report before you remove any residue. Ravel returns no candidate result. | [Cleanup limits](05-running-sessions.md#understand-the-operational-limits) |
+| `session_cleanup_failed` | `exec` | 5 | The required cleanup of the result channel or of a private directory failed. Examine the named path and the ownership report before you remove any residue. Ravel returns no result to the caller. | [Cleanup limits](05-running-sessions.md#understand-the-operational-limits) |
 | `process_group_survived` | `exec` | 5 | Ravel did not confirm the absence of the group when it decided the final outcome. Examine the reported group and the cleanup failures before you try again. The sent result alone is not sufficient. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
-| `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM wins when Ravel decides the final outcome, even after Ravel received the result. Discard the result, and retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM wins when Ravel decides the final outcome, even after Ravel received the result. Ravel returns no result to the caller. Retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `result_write_failed` | `exec` | 5 | The final write or flush of the result failed after Ravel decided the outcome. Correct the output destination, and discard any prefix that Ravel already wrote. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 
 An `end-session` failure is a plain `ravel: end-session:` message with
@@ -912,9 +921,8 @@ filesystem read, not a measured host read. Thus, name the applied choice in
 
 > **Table — Resolution bases:** The exact embedded specifiers select compiled
 > modules. A file import resolves from the file that contains it, and other
-> bare names use Bun's package lookup. Find the row for an import. It tells
-> which copy the import loads and which directory is the base of the
-> resolution.
+> bare names use Bun's package lookup. Each row gives the copy that an
+> import loads and the directory that is the base of the resolution.
 
 | Name or input | Resolution and consequence | Taught in |
 |---|---|---|
@@ -1010,14 +1018,14 @@ See [install Ravel and check its version](03-a-complete-session.md#install-ravel
 | `libexec/ravel/examples/sample.ts` | A copy of `worker/sample/policy.ts`. It is an owner entry that you can edit, and it uses checkout choices. Ravel does not copy it into `HOME` automatically. | [Copy a policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration) |
 | `libexec/ravel/notices/NOTICES.md` | The inventory of runtime third-party notices, copied from `crates/ravel/notices`. Keep it with the worker. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |
 | `libexec/ravel/notices/bun-LICENSE.md` | The bundled Bun licence and notice text, copied from `crates/ravel/notices`. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |
-| `README.md` | An additional entry at the archive root that identifies the project. The release archive includes it beside the installed pair and assets. | [Obtain Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
-| `LICENSE` | The additional project licence at the archive root. | [Obtain Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
+| `README.md` | An additional entry at the archive root that identifies the project. The release archive includes it beside the installed pair and assets. | [Install Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
+| `LICENSE` | The additional project licence at the archive root. | [Install Ravel](03-a-complete-session.md#install-ravel-and-check-its-version) |
 
 Ravel finds `libexec/ravel/ravel-policy` relative to the canonical real path
 of the Ravel CLI, also when the caller reaches `bin/ravel` through a symlink.
 `PATH`, `argv[0]` and adjacent prefixes cannot choose a different worker. The
 Ravel CLI checks protocol 1, the package version and the source build
-identity before it sends the policy. Missing, stale and mismatched workers,
+identity before it asks the worker to evaluate the policy. Missing, stale and mismatched workers,
 and test-only probe builds, fail with status 5. The build identity matches
 the two binaries of one build, and it is not code signing. See
 [check the installed pair](03-a-complete-session.md#check-the-request-and-evaluate-the-policy).

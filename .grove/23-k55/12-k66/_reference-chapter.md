@@ -181,14 +181,25 @@ unchanged, as do the status, stream, environment, configuration and sample
 sections. The strict prose and STE checks, the warning-free book build and
 all thirteen complete examples pass. All 341 rendered links and images
 resolve. The draft leaf records the source inventory and controls. No
-architecture or product behaviour changes. Copy-edit k143 remains live.
+architecture or product behaviour changes.
+
+## Copy-edit correction boundary (k143)
+
+Chapter 6 says that Ravel writes the sent result unchanged and does not
+interpret it (R12), in the `start-session` entry, status 0 and the stdout
+row. Cancellation, a failure of required cleanup, statuses 129, 130 and
+143, `session_cleanup_failed` and `session_cancelled` return no result to
+the caller (R13). The race entry gives the mechanism, as chapter 5 does,
+and links “harness” to chapter 2. An input now “gives status 2”, and only
+a command “exits”. The two table summaries give information. All 50
+headings stay unchanged. The strict STE and prose-break checks, the
+warning-free build and all thirteen complete examples pass. The leaf
+records the words and their sources. This closes document node
+`reference-chapter-k66` again. Set art k144 and set proof k147 complete
+its second correction run.
 
 ## Handed forward
 
-- **Copy-edit k143:** read the nine new command-line tables, the result
-  race and the Homebrew layout text under the STE writing rules. Apply R12
-  and R13 to the chapter's other result statements as your body directs.
-  Notes give information, not instructions. All headings stay unchanged.
 - **Set art k144:** no new figure is needed in chapter 6. The nine new page
   tables answer lookup questions about help/version, prompt sources, task
   fields, parameters, timeout values, grants, confined access, channel
