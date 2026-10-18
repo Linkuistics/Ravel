@@ -833,3 +833,17 @@ runtime/platform or reader-comprehension result follows. No ADR changed.
 K163 retains the set proof, k165 the release guide and README fold-in, and
 k101 the existing figure-size/dense-text and whole-book visual work. The book
 node stays open for these leaves, Pages work, whole-book proof and read 2.
+
+## Handed forward
+
+- **Art `deliver-ravel-k189`** owns the release activity correction after draft
+  k187. In `release-delivery.typ`, add the Pages remote preflight, the tagged
+  book build before archives, the Pages branch push and `verify` between the
+  GitHub Release and tap, and the final `live` action after installation.
+  A failed book build joins local-cut recovery. A failed book push joins
+  GitHub/book recovery (`--book-only`, then `--tap-only`). Add the eighth grey
+  exit for served Pages failure, with branch/source checks and only `live`
+  retried. The chapter's ordered table and eight-row recovery table are current;
+  the SVG and `figures.md` still show the earlier seven-exit path. Reconcile
+  the caption, alternative, key and figure entry, regenerate, and inspect at
+  column width. K187's log has the exact handoff. Clear this entry when fixed.

@@ -310,20 +310,24 @@ releases, and incompatible changes require a major release.
 
 | Task | Effect |
 |---|---|
-| `release:doctor` | Check tools, target libraries, host, GitHub authentication and the book version line |
+| `release:doctor` | Check tools, target libraries, host, GitHub authentication, the book version line and the Pages setting |
 | `release:notes` | Fill empty Unreleased notes, or replace them with an explicit reviewed body |
-| `release:lifecycle:test` | Test release order, refusals, notes and recovery in isolated repositories |
+| `release:lifecycle:test` | Test release order, refusals, notes, book delivery and recovery in isolated repositories |
 | `release:patch` | Cut, deliver and install the next patch release |
 | `release:minor` | Cut, deliver and install the next minor release |
 | `release:major` | Cut, deliver and install the next major release |
 
 The three version-cut tasks have public effects. They push source and a tag,
-create a GitHub release, update the tap, and install or upgrade local Ravel.
+create a GitHub release, put the book on the Pages branch and update the tap.
+They also install or upgrade local Ravel.
 Choose one task for the intended change. Do not run them as a sequence.
 
 In addition to the archive tools, delivery needs jj, Git, jq, Homebrew and
 cargo-release 1.1.2. It also needs authenticated `gh` access to
 `Linkuistics/Ravel` and a clean, synchronised clone of `linkuistics/taps`.
+
+`task setup` supplies the pinned mdBook 0.5.4 as well as Bun.
+The lifecycle suite needs that setup because it builds books in its fixtures.
 The tap path defaults to `~/Development/homebrew-taps`.
 If the clone is elsewhere, set `RAVEL_TAP_DIR` to its path.
 Put Homebrew's Bash before `/bin` on `PATH`, so the scripts use Bash 4 or later.
@@ -346,12 +350,19 @@ installation, notes review and the version cut. The tap check fetches its remote
 ```sh
 task release:doctor
 scripts/release-publish.sh --check-tap
+scripts/release-book.sh check-remote
 git ls-remote --tags origin
 task release:lifecycle:test
 ```
 
-The doctor reports missing prerequisites and their remedies. It does not test
-tap synchronisation or prove that a prior release is complete. Preparation
+The doctor reports missing prerequisites and their remedies. It checks the
+pinned mdBook and reads the repository's Pages setting. Disabled Pages produces
+a note, because the owner enables it after the first book reaches the branch.
+A different branch, folder or deployment mode fails the check.
+
+The separate `check-remote` command checks that the Pages remote answers.
+Neither check changes the remote. The doctor does not test tap synchronisation
+or prove that a prior release is complete. Preparation
 performs those separate checks. It fetches origin and refuses conflicts,
 divergence from origin, undescribed new changes on `main`, and version work
 outside `main`.
@@ -396,15 +407,18 @@ the lock when the task succeeds or fails.
 
 | Step | What it changes or checks |
 |---|---|
-| Check prerequisites | Run the doctor and tap preflight |
+| Check prerequisites | Run the doctor, tap preflight and Pages remote check |
 | Prepare `main` | Preserve unrelated work, check the prior release and prepare notes |
 | Recheck the tap and source | Repeat tap preflight, then run `task check` |
 | Preview and cut | Run cargo-release first as a preview without `--execute`, then with `--execute --no-confirm` |
 | Check the tagged book | Require the tag's chapter 3 version line to match the cut |
-| Record and build | Move `main` to the release commit and build all archives into a fresh `target/dist` |
+| Record and build the book | Move `main` to the release commit, then build the tag's book into `target/book-release/vX.Y.Z/` |
+| Build the archives | Build all archives into a fresh `target/dist` |
 | Test the formula and archives | Test the formula in temporary prefixes, then run the smoke test for every target at its floors |
-| Send the release | Push `main`, push the tag, create the GitHub release and update the tap |
+| Send the source and release | Push `main`, push the tag and create the GitHub release |
+| Deliver the book and formula | Add the book to the Pages branch, verify it, then update the tap |
 | Check the installation | Update Homebrew, install or upgrade Ravel, run its test, and check its version and GitHub assets |
+| Check the book on the site | Run `scripts/release-book.sh live vX.Y.Z` against the served pages |
 
 The activity shows which checks precede the first public write and where each
 failure resumes. After a version write, recovery keeps the selected version.
@@ -413,7 +427,7 @@ The grey exits refer to the [recovery table](#recover-a-partial-release-without-
 Each decision summarises the checks since the previous decision. A failure
 stops at its own step, before the later actions in that group.
 
-![The local cut, tagged-book guard, archive build, formula test and every-target smoke test precede the push of main. Seven failure exits name manual recovery points. After a version write, none starts another version cut.](figures/release-delivery.svg)
+![The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut.](figures/release-delivery.svg)
 
 [Open the release activity at full size.](figures/release-delivery.svg)
 
@@ -488,17 +502,98 @@ Use the local-cut rows of
 [the recovery table](#recover-a-partial-release-without-another-bump), and do
 not start another version cut.
 
-The delivery contract requires the book on GitHub Pages to match each release.
-This checkout does not yet implement that step. The release task
-checks the book version but does not build or deploy the book. The local
-`docs:book:build` task writes `target/book`, and `docs:book` serves it locally.
-Neither command sends those files to GitHub Pages. The release needs the
-Pages delivery step before it can meet that contract.
+### Build and deliver the tagged book
+
+The release procedure puts each book at
+`https://linkuistics.github.io/Ravel/vX.Y.Z/`, where `X.Y.Z` is the installed
+Ravel version. The root page lists releases, newest first. The address is the
+script's default. The first public delivery still needs to confirm it.
+
+The `gh-pages` branch holds one `vX.Y.Z/` directory per release, a root
+`index.html` and an empty `.nojekyll` file. A release directory is final.
+The script refuses different bytes at an address that already holds a book.
+The same bytes permit a retry without a new commit when the site already agrees.
+
+This branch preserves earlier books when a new release adds its directory.
+A custom workflow would need to preserve them in its site artifact too.
+An artifact with only the newest book would lose those earlier books.
+Ravel needs no custom workflow file. GitHub still uses its own deployment
+workflow for the branch and recognises `.nojekyll` for prebuilt content.
+[GitHub's source settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+explain this branch mode.
+
+`scripts/release-book.sh` separates the work into four modes:
+
+| Mode | Work and refusals |
+|---|---|
+| `build vX.Y.Z` | Export the tag's book and build it with pinned mdBook. Refuse an absent tag, a wrong source version or export file count, and mdBook `ERROR` or `WARN` output. Refuse missing output pages, a wrong rendered version, a chapter 3 placeholder, or symlinks in the output |
+| `publish vX.Y.Z` | Add the staged book to `gh-pages`. Refuse an absent stage, a changed tag commit or changed staged files. Require the same tag commit on the remote and a complete non-draft GitHub Release. Refuse different bytes in an earlier release directory or a site at the script's size threshold |
+| `verify vX.Y.Z` | Check the remote branch against the stage. Refuse an absent or changed stage, an absent branch, root `.nojekyll` or release directory, different book contents, or an index that omits the release |
+| `live vX.Y.Z` | Read the served chapter 3 and root page. Refuse a wrong version code block or an absent release link after retries |
+
+`build` uses `git archive` on the tag's commit. Changes to the checkout's
+book text cannot enter that export. After the tag and version checks pass,
+the build removes the old stage before it exports and builds the book again.
+The stage is `target/book-release/vX.Y.Z/`. Beside it,
+`vX.Y.Z.identity` records the commit, mdBook version and a digest of the tree.
+The identity file does not go to Pages.
+
+`publish` uses a temporary clone and a push without force. It does not edit
+the checkout or its jj state. Before the push, the script requires a GitHub
+Release with exactly the three expected, nonempty archive assets.
+`verify` then checks branch contents, not what the website serves.
+`live` makes up to 30 attempts by default, with ten seconds between attempts.
+
+`release-publish.sh` sends the book to the Pages branch after the GitHub Release.
+Only after the book's `verify` step does it update the tap.
+This order gives an installed release its book before the tap offers it.
+Pages can still take time to serve the new files, so the task checks the served
+pages last.
+
+The [Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)
+include a 1 GB site maximum, with soft limits of 100 GB per month and ten builds per hour.
+The script refuses a total site size of 1,000,000 KB or more, as reported by `du`.
+The local rehearsal added about 7 MB for one book. Later releases add their
+own directories, so the site grows.
+
+The book stays outside the product archives and the worker source identity.
+The local `docs:book:build` task writes `target/book`, and `docs:book` serves
+it locally. Neither task sends files to Pages.
+
+### Set up Pages for the first release
+
+The repository owner enables Pages once, with administrator rights.
+The release script creates the branch but does not change the Pages setting.
+
+1. Let the first release's `publish` step create `gh-pages`.
+2. In the repository's Settings → Pages, select “Deploy from a branch”, `gh-pages`, and `/ (root)`, then save.
+3. After Pages is enabled, run `scripts/release-book.sh live vX.Y.Z` for the selected release.
+
+The branch must exist before step 2. If Pages is still disabled, the release
+task stops at its final `live` check. Earlier successful release steps stay
+complete. After the owner enables Pages, only `live` needs to run again.
+
+The owner can use the [Pages REST endpoint](https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site)
+instead of the settings page. The endpoint requires suitable repository rights.
+
+Fragment: enable Pages after the first branch push. This recipe omits the
+release and the final `live` check.
+
+```sh
+gh api -X POST repos/Linkuistics/Ravel/pages \
+  -f build_type=legacy -f 'source[branch]=gh-pages' -f 'source[path]=/'
+```
 
 No release carries the book yet. For example, tag `v1.0.0` has no
 `docs/book` directory. Until a release carries it, there is no book on
 GitHub Pages to use. Read the checkout's Markdown or local build, and check
 its version line. A version-line pass alone does not establish a deployed book.
+
+The isolated fixtures build books with pinned mdBook and use a local bare
+remote, substituted GitHub responses and a loopback web server.
+They cannot establish the served public address, the owner's create-endpoint
+call, the Pages delay or GitHub's view of the book.
+An organisation domain setting can change the address.
 
 The book that a release carries has no chapter 10. The work that delivers a
 supported extracted component and its consumer writes that chapter.
@@ -524,18 +619,19 @@ gh release view vX.Y.Z --repo Linkuistics/Ravel --json isDraft,assets
 
 If Task stopped abruptly, its lock can remain. Before you remove
 `.jj/release-lock` with `rmdir`, check that no release process remains.
-Preserve the saved jj change and each partial release write. Choose the row
-for the last step that completed.
+Preserve the saved jj change and each partial release write. The table has
+eight recovery branches. Choose the row for the last step that completed.
 
 | Failure point | Next action |
 |---|---|
 | Before any version write | Correct prerequisites, notes or synchronisation. Before you start the task again, check that manifests and tags have no new version |
 | During the local cut | Complete the already selected version as described below. Do not start another version cut |
-| Tagged cut, but build, formula or smoke failed | Correct the environment, then rebuild and test the same release source |
+| Tagged cut, but book build, archive build, formula or smoke failed | Correct the environment, then rebuild the book and test the same release source |
 | Main or tag push failed | After the build and smoke checks pass, retry only the missing push |
-| GitHub release or asset upload failed | Complete that release and its three assets, then resume the tap step |
+| GitHub release, asset upload or book delivery failed | Complete that release and its three assets, then resume the book and tap steps |
 | Tap copy, commit or push failed | Retain local tap work and finish only the intended formula change |
 | Local installation or final check failed | Correct the installation and repeat its checks, with no new version |
+| Pages does not show the book | Check the branch and Pages setting, then repeat only `live` |
 
 For a partial local cut, inspect the cargo-release preview and log. Reconcile
 the workspace manifests and `Cargo.lock` to the selected version. If its
@@ -556,12 +652,13 @@ For a failed build or smoke test, return to a clean child of the release commit
 with `jj new RELEASE_COMMIT`. If the cut did not move `main`, set it to that
 commit with `jj bookmark set main -r RELEASE_COMMIT`.
 
-Fragment: check the tag's book line, then rebuild and test the release
-archives. Replace `vX.Y.Z` with the selected tag. This recipe omits source
+Fragment: check the tag's book line, build its book, then rebuild and test the
+release archives. Replace `vX.Y.Z` with the selected tag. This recipe omits source
 corrections and pushes.
 
 ```sh
 scripts/release-book-version.sh released vX.Y.Z
+scripts/release-book.sh build vX.Y.Z
 scripts/release-build.sh
 scripts/release-smoke.sh --archives target/dist
 ```
@@ -583,17 +680,28 @@ Do not overwrite them. If the release is a draft, remove its draft status with
 `gh release edit` after all three assets are complete. Both commands take the
 selected tag and `--repo Linkuistics/Ravel`.
 
-Fragment: resume only the tap step after the GitHub assets are complete.
-This recipe omits asset inspection and the earlier smoke checks.
+Fragment: resume the book and tap steps after the GitHub assets are complete.
+This recipe omits asset inspection, the book build and the earlier smoke checks.
 
 ```sh
+scripts/release-publish.sh --book-only
 scripts/release-publish.sh --tap-only
 ```
 
-This mode requires a non-draft GitHub release with exactly the three nonempty
+`--book-only` resumes the book step without a second GitHub Release or a tap
+edit. If the stage is gone, first run `scripts/release-book.sh build vX.Y.Z`.
+An interrupted push does not leave half a book on the branch.
+A retry with the same bytes completes without another site commit when the
+branch already agrees. Different bytes under the same release directory fail.
+Never replace that directory by hand to hide a mismatch.
+
+`--tap-only` requires a non-draft GitHub release with exactly the three nonempty
 assets. It downloads them and compares each with the local archive that the
-smoke test checked. A mismatch stops before a tap edit. It creates no second
-GitHub release. The script does not run the smoke test. Thus, use this mode
+smoke test checked. A mismatch stops before a tap edit. It also runs the
+book's `verify` mode before it changes the tap. It creates no second
+GitHub release.
+
+The script does not run the smoke test. Thus, use this mode
 only after the smoke test passes for the same archives.
 
 If the tap copy already occurred, preserve that work. Do not run
@@ -614,10 +722,17 @@ installed, install `linkuistics/taps/ravel`. Otherwise, upgrade `ravel`. Run
 `brew test ravel` and the Homebrew-prefix binary's version check. Inspect the matched worker
 layout and GitHub's three assets. A missing local installation needs no new cut.
 
+If only the Pages site check failed, keep the release and tap unchanged.
+Check the branch with `scripts/release-book.sh verify vX.Y.Z`.
+Then check the Pages source with `scripts/release-book.sh check-pages`.
+If Pages is disabled, complete [the first-release setup](#set-up-pages-for-the-first-release).
+After the setting is correct, repeat only `scripts/release-book.sh live vX.Y.Z`.
+
 The lifecycle suite tests these procedure boundaries in isolated repositories
 with local remotes and substituted service responses. It also runs real
-cargo-release previews and book-version cuts there. Those results do not prove
-that a particular public recovery succeeded. The source, tags, assets and tap
+cargo-release previews, book-version cuts and book delivery there.
+Those results do not prove that a particular public recovery succeeded.
+The source, tags, assets and tap
 observed during that recovery determine its next step.
 
 ## Checks made for this chapter
@@ -664,3 +779,17 @@ Neither set repeated `install` or `smoke`. Chapter 11 records those checks.
 The smoke task here ran the same installed test through fresh archives.
 These observations establish no new native x86-64, interactive-terminal,
 real-agent or reader-comprehension result.
+
+The Pages correction used the same host on 2026-10-18:
+
+| Check | Observed result |
+|---|---|
+| `release:doctor` | Prerequisites, pinned mdBook and the book version line passed. Pages was disabled, which produced a note |
+| `release:lifecycle:test` | Release order, recovery, book builds, local branch delivery and loopback site checks passed in isolated fixtures |
+| `docs:examples` and `docs:excerpts` | Fourteen complete examples and eight source excerpts passed |
+| `docs:figures` | Fourteen figures matched their sources. The queued art stage still owns the release activity correction |
+
+The correction ran no project version cut, push, tag, tap edit, permanent
+installation or Pages deployment. It repeated no archive or formula check.
+The fixtures establish neither the public address nor the owner's Pages-create
+call, the Pages delay or GitHub's view of the book.
