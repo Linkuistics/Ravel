@@ -460,6 +460,16 @@ with the owner. Its log holds the owner's answers and their evidence:
 With no extracted component, the root's “Done when” items about extracted
 components and their use ask for no further work.
 
+The book correction node `ravel-book-without-chapter-ten-k196` closes after
+proof `ravel-book-k206`. The eleven-chapter book teaches the CLI interface
+and explains why Ravel supports no separate component. The correction run
+resolves both earlier proof findings. All eight required checks pass.
+
+The workspace check uses four concurrent tests: 339 passed and 46 skipped.
+The proof log keeps the earlier default-schedule failures and their limits.
+It adds no platform or new-reader evidence. Release notes remain live in
+`release-notes-k198`. The root stays open.
+
 The contract `docs/book/contract.md` and the `task docs:*` checks govern each
 later change to a chapter. Some book work waits for the delivery of this
 workstream:

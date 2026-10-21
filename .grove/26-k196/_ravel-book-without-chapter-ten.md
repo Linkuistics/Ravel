@@ -84,6 +84,4 @@ Ravel offers no separate component.
 
 ## Handed forward
 
-None. The correction run `ravel-book-k203` through `ravel-book-k206` owns
-the chapter 11 placement and recorded agent-version corrections from proof
-`ravel-book-k202`. The node stays open for that run.
+None. Proof `ravel-book-k206` closes both correction findings.
