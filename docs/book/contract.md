@@ -383,8 +383,8 @@ The book also states them wherever they matter:
   internal obligations, not a library interface for another project.
 - Native x86-64 Linux is unqualified. The project built it, linted it at
   Rust 1.85.0 and ran it only under emulation.
-- Real agents' flags are known only as of their recorded check. The installed
-  versions on 2026-10-16 were Claude Code 2.1.301 and codex-cli 0.162.1.
+- Real agents' flags are known only as of their recorded check. The final
+  check on 2026-10-16 recorded Claude Code 2.1.301 and codex-cli 0.163.0.
   Drafting rechecks and records the versions it uses.
 - GitHub's rendering is unchecked until the branch is pushed.
   The site is unchecked until the first release that carries the book.

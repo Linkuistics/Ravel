@@ -8,6 +8,13 @@ explains why the pair stays together. An archive check establishes that this
 pair has the right files and can run outside the checkout. A version number
 alone establishes neither fact.
 
+The book that a release carries teaches one delivered tool. Ravel supports
+no separate component. The private runner serves the Ravel CLI, which
+supervises one session and then exits. The runner's return does not restore
+process-wide signal state. Thus, another program invokes the Ravel CLI as a
+child process. The book explains that interface and the limits of the
+private package.
+
 Start with [chapter 10's install and smoke tasks](10-develop-ravel.md#install-and-test-the-installed-pair).
 Those tasks test a local installation. This chapter extends that check to
 archives and the environments where their programs run.
@@ -600,13 +607,6 @@ remote, substituted GitHub responses and a loopback web server.
 They cannot establish the served public address, an administrator's call to the
 create endpoint, the Pages delay or GitHub's view of the book.
 An organisation domain setting can change the address.
-
-The book that a release carries teaches one delivered tool. Ravel supports
-no separate component. The private runner serves the Ravel CLI, which
-supervises one session and then exits. The runner's return does not restore
-process-wide signal state. Thus, another program invokes the Ravel CLI as a
-child process. The book explains that interface and the limits of the
-private package.
 
 ## Recover a partial release without another bump
 
