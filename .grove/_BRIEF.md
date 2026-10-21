@@ -1,5 +1,7 @@
 # Ravel.simplify-and-componentize — brief
 
+<!-- tc: pending because this brief predates the writing rules and is too large to convert in one session -->
+
 ## Goal
 
 Make Ravel easier to understand and maintain by reassessing its component
@@ -343,20 +345,22 @@ once after Parts III–IV, with the extracted-component task read with chapter
 The human confirmed these acceptance checks and shared understanding of the
 requirements in `plan-k1` before the design and implementation work was cut.
 
+<!-- tc: on -->
+
 ## Notes
 
 The primary problem is comprehensibility, not a shortage of features. TypeScript
-removal, merging the Rust crates, additional crate splitting and extraction are
-design possibilities to evaluate against the contract; none is preselected.
-Do not expand the feature surface merely to justify a generic abstraction.
+removal, a merge of the Rust crates, more crate splits and extraction are design
+possibilities to evaluate against the contract. None of them is preselected. Do
+not expand the feature surface merely to justify a generic abstraction.
 
-The human expects Rust to be capable of implementing the tool and needs the
-purpose and role of the TypeScript component explained. Documentation should
-expose the subject model and reasons for boundaries before asking readers to understand
-language-specific internals. The reader profile and structure are now in
-`docs/book/contract.md`.
+The human expects that Rust can implement the tool. The human needs the purpose
+and role of the TypeScript component explained. Documentation should expose the
+subject model and the reasons for boundaries before it asks readers to
+understand language-specific internals. The reader profile and structure are now
+in `docs/book/contract.md`.
 
-On 2026-10-14, during `component-contracts-k3`, the human specifies the
+On 2026-10-14, during `component-contracts-k3`, the human specified the
 documentation deliverable as a book (user guide) for a software developer with
 no background in this context. Teach the problem, vocabulary, actors and session
 lifecycle before configuration and implementation internals. Do not infer Rust,
@@ -365,38 +369,48 @@ book-structure agreement settled those assumptions, chapter order,
 learning/direct entry routes, media and viewing environment on 2026-10-16
 (`docs/book/contract.md`).
 
-On 2026-10-14 the human changed the upstream prerequisite: extract usable
-guidance from the workstreams' current state instead of waiting for completion.
-The intake below supersedes the wait requirement from `plan-k1`; the existing
-configuration, session and acceptance constraints remain in force.
+On 2026-10-14, the human changed the upstream prerequisite: extract usable
+guidance from the current state of the workstreams, and do not wait for their
+completion. The intake below supersedes the wait requirement from `plan-k1`. The
+existing configuration, session and acceptance constraints remain in force.
 
-On 2026-10-15, answering `native-entry-campaign-funding-k41`, the human said
-verbatim “I'm not actually concerned about the budget - just do what is
-required.” Budget caps, allocations and reserves (D/RC/P/E) therefore no longer
-gate required work: sessions do what the agreed contract requires without
-cutting funding-question leaves, and still record actual charges where a
-charter asks. Zero production disruption (X=0) is not a budget and still binds;
-a producer still cannot narrow acceptance, and scope choices remain the human's.
+On 2026-10-15, in the answer to `native-entry-campaign-funding-k41`, the human
+said verbatim “I'm not actually concerned about the budget - just do what is
+required.” Thus, budget caps, allocations and reserves (D/RC/P/E) no longer gate
+required work. Sessions do what the agreed contract requires, and they cut no
+funding-question leaves. They still record actual charges where a charter asks.
+Zero production disruption (X=0) is not a budget, and it still binds. A producer
+still cannot narrow acceptance, and scope choices remain the human's.
 
 On 2026-10-17, during read 1 (`book-read-one-k70`), the human said verbatim:
-“I intend to add a global instruction to use ADE-STE100 for all LLM
-communication (such as when you talk to me here) as well as in all
-documentation. Apply that rule now.” Thus, ASD-STE100 Simplified Technical
-English (Issue 9) applies to messages to the human and to each document that
-a session writes or changes. The book's contract, section 2, records how the
-rule applies to the book. That record includes British spelling under STE
-Rule 1.14 and the local copy of the specification, which stays out of the
-repository. On 2026-10-18, during `book-first-half-k123`, the human said:
-“The skill I am going to adopt does not use the word list, only the rules.”
-Thus, STE means its writing rules. The STE dictionary does not apply.
+
+<!-- tc: off because the human's words are a quotation -->
+
+> “I intend to add a global instruction to use ADE-STE100 for all LLM
+> communication (such as when you talk to me here) as well as in all
+> documentation. Apply that rule now.”
+
+<!-- tc: on -->
+
+Thus, ASD-STE100 Simplified Technical English (Issue 9) applies to messages to
+the human and to each document that a session writes or changes. The book's
+contract, section 2, records how the rule applies to the book. That record
+includes British spelling under STE Rule 1.14 and the local copy of the
+specification, which stays out of the repository.
+
+On 2026-10-18, during `book-first-half-k123`, the human said: “The skill I am
+going to adopt does not use the word list, only the rules.” Thus, STE means its
+writing rules. The STE dictionary does not apply.
 
 On 2026-10-18, at the end of read 1, the owner gave two statements about
 Ravel's purpose (findings R14 and R15, in the owner's words in
 `docs/book/contract.md`, “The intended domain”). Ravel runs LLM harnesses
 because a harness lets a caller use a subscription instead of paid API
-access. The contract between the Ravel CLI and the configuration is loose:
-the policy selects a program, Ravel runs it, and a program sends one value
+access. The contract between the Ravel CLI and the configuration is loose.
+The policy selects a program, Ravel runs it, and a program sends one value
 with `end-session`. Later component work keeps both statements true.
+
+<!-- tc: pending because this brief predates the writing rules and is too large to convert in one session -->
 
 ## Current upstream guidance
 
