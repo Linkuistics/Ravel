@@ -16,7 +16,9 @@ exercise that behavior on the measured host. Failed-spawn handback requires
 exclusive foreground authority and no unrelated reuse of the recorded group ID
 through handback; the record never authorises signalling that ID after reap.
 CLI lifetime alone supplies neither premise. This conditional policy does not
-establish an atomic query/handback or complete native-entry conformance.
+establish an atomic query/handback. Native-entry conformance is measured on
+aarch64 macOS and aarch64 GNU/Linux only; nothing about a native x86-64 Linux
+kernel is qualified ([receipts](../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52)).
 
 A new session (setsid) was rejected for interactive children: it loses the caller's
 controlling terminal and cannot receive a foreground handoff. A process group is

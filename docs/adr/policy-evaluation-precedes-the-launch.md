@@ -14,8 +14,13 @@ now gates successful admission on confirmed worker reap and checked private-
 directory removal; [C2 evidence](../completion-failure-design-evidence.md#c2-checked-observations)
 records the private reported-failure controls and real-policy regressions.
 [C3 evidence](../completion-failure-design-evidence.md#c3-checked-observations)
-now records checked partial acquisition and identity cleanup; native waitability
-remains separate conformance work.
+records checked partial acquisition and identity cleanup. Entry waitability of
+the worker and the managed child is part of the agreed, implemented
+[native-entry contract](../specs/result-job-completion.md#checked-native-entry-transitions).
+It is measured on aarch64 macOS and aarch64 GNU/Linux, each for the kernel, libc
+and compiler it names. Native x86-64 Linux is not measured. The
+[per-target receipts](../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52)
+state the limits.
 
 Bun supplies TypeScript, imports and ordinary filesystem/network computation
 without Ravel maintaining a language runtime. Compilation removes a separately
