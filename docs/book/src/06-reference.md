@@ -1074,8 +1074,8 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > for how to use the editable sources and declarations.
 
 > **Note:** Ravel supports no separate component. Its private runner serves
-> the Ravel CLI, which supervises one session. The runner's return does not
-> restore process-wide signal state. Another program invokes the Ravel CLI as
+> the Ravel CLI, which supervises one session and then exits. The runner's
+> return does not restore process-wide signal state. Another program invokes the Ravel CLI as
 > a child process. The installed layout is not a supported library interface
 > for another project. [Chapter 1](01-what-ravel-is-for.md#choose-a-route-through-the-book)
 > explains this choice.

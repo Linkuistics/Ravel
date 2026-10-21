@@ -8,12 +8,13 @@ explains why the pair stays together. An archive check establishes that this
 pair has the right files and can run outside the checkout. A version number
 alone establishes neither fact.
 
-The book that a release carries teaches one delivered tool. Ravel supports
-no separate component. The private runner serves the Ravel CLI, which
-supervises one session and then exits. The runner's return does not restore
-process-wide signal state. Thus, another program invokes the Ravel CLI as a
-child process. The book explains that interface and the limits of the
-private package.
+The book that a release carries teaches this pair as one delivered tool.
+Ravel supports no separate component. The private
+[runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
+serves the Ravel CLI, which supervises one session and then exits. The
+runner's return does not restore process-wide signal state. Thus, another
+program invokes the Ravel CLI as a child process. The book explains that
+interface and the limits of the private package.
 
 Start with [chapter 10's install and smoke tasks](10-develop-ravel.md#install-and-test-the-installed-pair).
 Those tasks test a local installation. This chapter extends that check to

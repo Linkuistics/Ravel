@@ -379,8 +379,9 @@ The book also states them wherever they matter:
 - Whether a developer new to Ravel can use the book is unknown.
   The reader checkpoints are the owner's stand-in reads (part 4).
 - Ravel supports no separate component. The private runner serves the Ravel
-  CLI, which supervises one session. The component inventory describes
-  internal obligations, not a library interface for another project.
+  CLI, which supervises one session and then exits. The component
+  inventory describes internal obligations, not a library interface for
+  another project.
 - Native x86-64 Linux is unqualified. The project built it, linted it at
   Rust 1.85.0 and ran it only under emulation.
 - Real agents' flags are known only as of their recorded check. The final

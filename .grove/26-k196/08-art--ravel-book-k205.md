@@ -27,3 +27,7 @@ the fourteen-figure inspection and the internal-component clarification.
 
 This is a correction run. The k202 log records the workspace-check scheduling
 limit. No new platform or public-site evidence follows from a local view.
+
+Copy-edit `ravel-book-k204` changed words only, in chapters 6, 7, 9, 10
+and 11 and the contract. Chapter 11's second paragraph now links “runner”
+at its first use. No figure, caption, key or alt text changed.

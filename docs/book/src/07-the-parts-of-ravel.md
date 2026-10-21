@@ -194,7 +194,7 @@ that a file appeared. Its Rust result is `Ended` or `LaunchError`, not the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
 that the caller receives.
 
-The table locates the runner interfaces through which a consumer supplies
+The table locates the runner interfaces through which the Ravel CLI supplies
 launch controls and receives job observations.
 
 | Runner interface | Information or action |
@@ -220,7 +220,7 @@ change process-wide signal state, and its return does not restore a host
 for unrelated future work.
 
 Ravel supports no separate component. Its runner serves the Ravel CLI, which
-exits after the session. Another program invokes the Ravel CLI as a child
+supervises one session and then exits. Another program invokes the Ravel CLI as a child
 process and leaves supervision to it. These private packages do not
 establish a contract for a
 [persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits).

@@ -11,10 +11,10 @@ test. [Chapter 7](07-the-parts-of-ravel.md) explains the reasons for the parts.
 traces the code that a change can affect.
 
 Ravel supports no separate component. Its private runner serves the Ravel
-CLI, which supervises one session. The runner's return does not restore
-process-wide signal state. A program that needs supervised harness sessions
-invokes the Ravel CLI as a child process. This chapter teaches changes to
-Ravel itself.
+CLI, which supervises one session and then exits. The runner's return does
+not restore process-wide signal state. A program that needs supervised
+harness sessions invokes the Ravel CLI as a child process. This chapter
+teaches changes to Ravel itself.
 
 Links to files outside the book open repository sources on GitHub.
 Before a change reaches `main`, read its evidence and convention files from the

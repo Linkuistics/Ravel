@@ -571,7 +571,7 @@ boundary nor these checks deliver a
 arbitrary host.
 
 Ravel supports no separate component. The runner serves the Ravel CLI, which
-exits after one session. The runner's return does not
+supervises one session and then exits. The runner's return does not
 restore process-wide signal state. Another program invokes the Ravel CLI as
 a child process. Thus, the signal state that the runner changes stays in that
 child process and ends when it exits.
