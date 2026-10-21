@@ -29,7 +29,7 @@ ordinary text for a reader. Nothing in an excerpt is hidden.
 
 ## The grammar
 
-- **The label** is a paragraph. Its first line begins with `Excerpt from` and
+- **The label** is a paragraph. Its first line starts with `Excerpt from` and
   then a path in code marks. No emphasis marks surround the paragraph. The
   rest of the paragraph is free text. Use it to say in words what comes before
   or after the lines.
@@ -64,12 +64,12 @@ examined. The check then does this with the file:
 
 | The path is | The check |
 |---|---|
-| absent (moved, deleted or misspelt) | fails and says that the file does not exist |
+| absent (moved, removed or misspelt) | fails and says that the file does not exist |
 | a directory | fails. Name a file. |
 | a symbolic link, or inside a linked directory | fails. Name the file that the link points to. |
 | not tracked by git | fails. A reader finds only tracked files in a clone. |
 | inside a `target` or `node_modules` directory | fails, even if someone adds the file to git by force |
-| inside `.grove` | fails. The finish cycle deletes that directory. |
+| inside `.grove` | fails. The finish cycle removes that directory. |
 | a regular tracked file | is compared |
 
 A generated file is untracked. The `.gitignore` of the repository ignores
@@ -156,7 +156,7 @@ Each control is made to fire against a wrong subject. A control that changes a
 source file does it in a scratch repository, never in the checkout:
 
 - a changed byte in the excerpt, and a changed byte in the source
-- a moved source file, and a deleted source file
+- a moved source file, and a removed source file
 - a CRLF page, and spaces at the end of a line
 - a label with no block (a paragraph, a heading or the end of the page comes
   between them)
