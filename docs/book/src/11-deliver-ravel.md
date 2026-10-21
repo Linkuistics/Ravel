@@ -8,7 +8,7 @@ explains why the pair stays together. An archive check establishes that this
 pair has the right files and can run outside the checkout. A version number
 alone establishes neither fact.
 
-Start with [chapter 11's install and smoke tasks](11-develop-ravel.md#install-and-test-the-installed-pair).
+Start with [chapter 10's install and smoke tasks](10-develop-ravel.md#install-and-test-the-installed-pair).
 Those tasks test a local installation. This chapter extends that check to
 archives and the environments where their programs run.
 
@@ -246,7 +246,7 @@ x86_64 Linux is built and run only under emulation. Native x86-64 Linux remains
 unqualified, with qualification tracked in [Linkuistics/Ravel#1](https://github.com/Linkuistics/Ravel/issues/1).
 An archive smoke pass does not change that support statement.
 
-[Chapter 11's evidence map](11-develop-ravel.md#read-the-evidence-for-a-change)
+[Chapter 10's evidence map](10-develop-ravel.md#read-the-evidence-for-a-change)
 locates the separate runtime, archive and native-entry records. Those records
 name their source revisions and measured environments. After a source or
 runtime change, run `task release:smoke` again. It rebuilds the archives
@@ -601,8 +601,10 @@ They cannot establish the served public address, an administrator's call to the
 create endpoint, the Pages delay or GitHub's view of the book.
 An organisation domain setting can change the address.
 
-The book that a release carries has no chapter 10. The work that delivers a
-supported extracted component and its consumer writes that chapter.
+Ravel delivers one tool and supports no separate component. The private
+runner serves the one-session CLI. Its return does not restore process-wide
+signal state, so another program uses the `ravel` CLI as a child process.
+The book explains that interface and the private package's limits.
 
 ## Recover a partial release without another bump
 
@@ -781,7 +783,7 @@ public release state and the local installation. The lifecycle suite exercised
 notes, previews and cuts only in its fixtures. No project push, tag, tap edit,
 permanent installation or GitHub Pages deployment ran.
 
-Neither set repeated `install` or `smoke`. Chapter 11 records those checks.
+Neither set repeated `install` or `smoke`. Chapter 10 records those checks.
 The smoke task here ran the same installed test through fresh archives.
 These observations establish no new native x86-64, interactive-terminal,
 real-agent or reader-comprehension result.

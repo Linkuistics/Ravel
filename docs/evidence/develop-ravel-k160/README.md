@@ -1,7 +1,7 @@
 # Chapter 11 checkout trial
 
 These records support the development commands and test fragments in
-[chapter 11](../../book/src/11-develop-ravel.md). They describe one checkout
+[chapter 11](../../book/src/10-develop-ravel.md). They describe one checkout
 trial on 18 October 2026. They establish no new platform qualification or
 reader-comprehension result.
 

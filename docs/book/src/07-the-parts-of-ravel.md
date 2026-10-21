@@ -219,8 +219,10 @@ and it keeps the operation reports that `Ended` carries. The runner can
 change process-wide signal state, and its return does not restore a host
 for unrelated future work.
 
-Chapter 10 has no text yet. These private packages do not establish a
-supported component for another project or a contract for a
+Ravel supports no separate component. Its runner serves the one-session CLI,
+which exits after the session. Another program starts the `ravel` CLI as a
+child process and leaves supervision to it. These private packages do not
+establish a contract for a
 [persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits).
 
 ## The result channel carries the value
@@ -314,7 +316,7 @@ together, while the compiled runtime removes a host dependency.
 
 This arrangement keeps an installed Ravel independent of another project's
 installation. It also means that a worker-source change needs a rebuilt
-pair. Chapter 12 explains delivery. The
+pair. Chapter 11 explains delivery. The
 [installed layout in chapter 6](06-reference.md#installed-layout)
 lists the files and shows their deployment figure.
 

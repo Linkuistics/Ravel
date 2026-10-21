@@ -131,7 +131,7 @@ or an excerpt. The book describes Ravel's own source, and that source is Rust
 and TOML. A bare block can be a quotation that nothing checks, or code that the
 author invented and a reader takes for a quotation.
 
-This rule holds for every page. It is not limited to chapters 7–12, because a
+This rule holds for every page. It is not limited to chapters 7–11, because a
 page number goes stale, and chapters 1–6 hold no such block. The other
 languages on the list stay as they are. A chapter that quotes one of them, for
 example the Homebrew formula, uses an excerpt label to get the check.

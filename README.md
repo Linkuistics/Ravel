@@ -40,11 +40,14 @@ These chapters explain Ravel from the inside, and how to change and release it:
 - [Chapter 7, The parts of Ravel](docs/book/src/07-the-parts-of-ravel.md)
 - [Chapter 8, Follow a session through the code](docs/book/src/08-follow-a-session-through-the-code.md)
 - [Chapter 9, Jobs, signals and the terminal](docs/book/src/09-jobs-signals-and-the-terminal.md)
-- [Chapter 11, Develop Ravel](docs/book/src/11-develop-ravel.md)
-- [Chapter 12, Deliver Ravel](docs/book/src/12-deliver-ravel.md)
+- [Chapter 10, Develop Ravel](docs/book/src/10-develop-ravel.md)
+- [Chapter 11, Deliver Ravel](docs/book/src/11-deliver-ravel.md)
 
-Chapter 10 stays unwritten until a supported extracted component and its
-consumer exist.
+Ravel supports no separate component. Its runner, `keyed-launch`, is a private
+package for a launcher that exits after one session. The runner can change
+process-wide signal state, and its return does not restore that state.
+A program that needs supervised harness sessions starts the `ravel` CLI as a
+child process.
 
 The runtime notices are
 [`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a

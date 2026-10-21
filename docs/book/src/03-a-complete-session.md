@@ -42,7 +42,7 @@ the two versions are different, open the book for your installed version from
 The release procedure keeps each release's book in its own directory there.
 
 No release carries the book yet. Until the first one does, use the checkout's
-Markdown or local build. [Chapter 12](12-deliver-ravel.md#keep-the-book-with-its-release)
+Markdown or local build. [Chapter 11](11-deliver-ravel.md#keep-the-book-with-its-release)
 explains this limit and the address of each release's book.
 
 The directory that `brew --prefix ravel` prints contains the
@@ -58,7 +58,7 @@ Node.
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
 separates the measured aarch64 macOS and aarch64 GNU/Linux targets from
 x86_64 GNU/Linux. For x86_64 GNU/Linux, the only execution evidence comes from
-emulation. [Chapter 12, “Deliver Ravel”](12-deliver-ravel.md), gives the installation and target
+emulation. [Chapter 11, “Deliver Ravel”](11-deliver-ravel.md), gives the installation and target
 details.
 
 ## Run the first session

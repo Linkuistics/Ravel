@@ -1072,8 +1072,10 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > and [copy an owner policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration)
 > for how to use the editable sources and declarations.
 
-> **Note:** Chapter 10 stays unwritten until a supported extracted component
-> exists. The installed layout is not a supported interface for another
+> **Note:** Ravel supports no separate component. Its private runner serves
+> the one-session CLI, and its return does not restore process-wide signal
+> state. A program uses the `ravel` CLI as a child process.
+> The installed layout is not a supported library interface for another
 > project. Native x86-64 Linux qualification is also still open. The book's
 > [platform and operational limits](05-running-sessions.md#understand-the-operational-limits)
 > distinguish native measurements from emulation.

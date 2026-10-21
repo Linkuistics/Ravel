@@ -1,6 +1,6 @@
 [book]
 title = "The Ravel book"
-description = "A guide to using, configuring, understanding, reusing and developing Ravel."
+description = "A guide to Ravel: its use, configuration, internals, development and delivery."
 language = "en-GB"
 src = "src"
 

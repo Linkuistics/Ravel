@@ -15,6 +15,9 @@ Make the release scripts and the Taskfile name the renumbered chapters. After
   - `scripts/release-prepare.sh`, lines 52 and 68
   - `scripts/release-book.sh`, lines 309 and 325
   - `Taskfile.yml`, lines 389 and 396
+- The draft's wider search also found old chapter ranges in the opening
+  comments of `scripts/ste.sh` and `scripts/breaks.sh`. Update these comments.
+  Both scripts discover chapters by file name, without a fixed count.
 - At that commit, no test asserts these messages. A search of the test
   scripts for “chapter 1[0-2]” found nothing.
 

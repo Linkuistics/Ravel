@@ -464,12 +464,12 @@ The contract `docs/book/contract.md` and the `task docs:*` checks govern each
 later change to a chapter. Some book work waits for the delivery of this
 workstream:
 
-- Chapter 11 has 22 links to repository files on `main`. They show the files
+- Chapter 10 has 22 links to repository files on `main`. They show the files
   of this workstream only after its merge to `main`.
 - No session has checked GitHub's view of the book. No book is on GitHub
   Pages yet.
 - The first release that carries the book needs a one-time setup of GitHub
-  Pages by the owner. Chapter 12, “Set up Pages for the first release”, gives
+  Pages by the owner. Chapter 11, “Set up Pages for the first release”, gives
   the steps.
 
 <!-- tc: pending because this brief predates the writing rules and is too large to convert in one session -->

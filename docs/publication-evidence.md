@@ -97,4 +97,4 @@ Records are under Ravel's `target/`:
   `k11-installed-evidence.json`: individual file hashes and installed layout.
 
 The first release is complete. Retain the existing tag, archives and formula;
-another bump is not a recovery step. See [release recovery](book/src/12-deliver-ravel.md#recover-a-partial-release-without-another-bump).
+another bump is not a recovery step. See [release recovery](book/src/11-deliver-ravel.md#recover-a-partial-release-without-another-bump).

@@ -8,8 +8,12 @@ or other project checkout.
 This chapter starts with a checkout, then shows where to change code and add a
 test. [Chapter 7](07-the-parts-of-ravel.md) explains the reasons for the parts.
 [Chapter 8](08-follow-a-session-through-the-code.md#find-where-a-change-belongs)
-traces the code that a change can affect. A contributor who adds a supported
-extracted component writes chapter 10 with that component.
+traces the code that a change can affect.
+
+Ravel supports no separate component. Its private runner serves the
+one-session CLI and does not restore process-wide signal state when it
+returns. A program that needs supervised harness sessions starts the `ravel`
+CLI as a child process. This chapter teaches changes to Ravel itself.
 
 Links to files outside the book open repository sources on GitHub.
 Before a change reaches `main`, read its evidence and convention files from the
@@ -431,7 +435,7 @@ task probes
 The installation puts the CLI at `PREFIX/bin/ravel` and its assets under
 `PREFIX/libexec/ravel/`. It does not add the prefix to `PATH`.
 [Chapter 6](06-reference.md#installed-layout) describes the installed files.
-Chapter 12, “Deliver Ravel”, covers release archives and their target checks.
+Chapter 11, “Deliver Ravel”, covers release archives and their target checks.
 The table distinguishes the installed files from temporary test files and
 build outputs.
 
@@ -657,7 +661,7 @@ actor-daemon revision for historical attribution only.
 
 `task --list` shows the public task names and short descriptions in the current
 checkout. The table maps each name at this chapter's draft to its explanation.
-The sections above explain development tasks. Chapter 12, “Deliver Ravel”,
+The sections above explain development tasks. Chapter 11, “Deliver Ravel”,
 owns the release workflow. Its release tasks can create a release version, write remote
 state and replace an installation, so they are not chapter-check commands.
 
@@ -675,6 +679,6 @@ state and replace an installation, so they are not chapter-check commands.
 | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `test:native-campaign`<br>`test:native-campaign-controls`<br>`native-linux:image`<br>`test:native-linux`<br>`test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `release:archives`, `release:smoke`, `release:test`, `release:formula` | Chapter 12, “Deliver Ravel”: archive and formula checks |
-| `release:doctor`, `release:notes`, `release:lifecycle:test` | Chapter 12, “Deliver Ravel”: preparation and procedure checks |
-| `release:patch`, `release:minor`, `release:major` | Chapter 12, “Deliver Ravel”: version cut and delivery |
+| `release:archives`, `release:smoke`, `release:test`, `release:formula` | Chapter 11, “Deliver Ravel”: archive and formula checks |
+| `release:doctor`, `release:notes`, `release:lifecycle:test` | Chapter 11, “Deliver Ravel”: preparation and procedure checks |
+| `release:patch`, `release:minor`, `release:major` | Chapter 11, “Deliver Ravel”: version cut and delivery |

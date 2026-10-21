@@ -18,8 +18,7 @@
 - [Follow a session through the code](08-follow-a-session-through-the-code.md)
 - [Jobs, signals and the terminal](09-jobs-signals-and-the-terminal.md)
 
-# Part IV: Reuse and develop Ravel
+# Part IV: Develop and deliver Ravel
 
-- [Use Ravel's components in your project]()
-- [Develop Ravel](11-develop-ravel.md)
-- [Deliver Ravel](12-deliver-ravel.md)
+- [Develop Ravel](10-develop-ravel.md)
+- [Deliver Ravel](11-deliver-ravel.md)

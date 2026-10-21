@@ -66,8 +66,8 @@ stated prerequisites.
   and what each part owns.
 - Follow successful, refused and cancelled sessions through the code.
   Find where a change belongs.
-- Use a supported extracted component through its interface, once chapter 10
-  exists.
+- Use the `ravel` CLI as a child process from another program. Explain why
+  Ravel supports no separate component.
 - Build, test and deliver the project.
 - Look up any CLI input, setting, bound, data shape, environment variable or
   installed path in chapter 6.
@@ -154,8 +154,6 @@ The book keeps these roles apart:
 - the **managed process**, the selected program and its descendants: a
   harness running an LLM session, or a program standing in for one.
 - **contributors**, who develop and deliver Ravel.
-- **component consumers**, who reuse an extracted component in another
-  project.
 
 ### The section plan
 
@@ -177,39 +175,47 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 7 | The parts of Ravel | Explain the Ravel CLI and its separate TypeScript worker. Explain why Ravel reaps the worker before the managed launch. Explain the separate runner package and how the parts compose. |
 | 8 | Follow a session through the code | Follow a successful session from `main` to the result write, then the refusal and cancellation paths. Explain error and signal precedence. Find where a change belongs. |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
-| **Part IV** | **Reuse and develop Ravel** | |
-| 10 | Use Ravel's components in your project | use an extracted component through its interface and meet its obligations, without Ravel's policy or session conventions |
-| 11 | Develop Ravel | Prepare a checkout and build Ravel. Use the test seams and `task check`. Add a test and explain the evidence documents. |
-| 12 | Deliver Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
+| **Part IV** | **Develop and deliver Ravel** | |
+| 10 | Develop Ravel | Prepare a checkout and build Ravel. Use the test seams and `task check`. Add a test and explain the evidence documents. |
+| 11 | Deliver Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
 
 The owner's STE decision of 2026-10-17 changed six chapter titles and two part
-titles to commands. STE Rule 3.5 permits “-ing” forms only in technical names. The chapter file names stay as they are, so links do not
-change. The planning for Parts III and IV changed chapter 7's title to
+titles to commands. STE Rule 3.5 permits “-ing” forms only in technical names. That title change kept the chapter file names unchanged. The planning for Parts III and IV changed chapter 7's title to
 “The parts of Ravel” on 2026-10-18. This noun phrase avoids passive voice
 with a known agent (Rule 3.6). Its file is `07-the-parts-of-ravel.md`.
 
-Chapters 1–9, 11 and 12 describe the code as it stands in the workstream that
-wrote this contract. Chapters 1–6 describe the CLI, configuration and session
-behaviour that Ravel's compatibility promise keeps unchanged. Chapters 7–9, 11
-and 12 describe structure, packages and delivery. Later component work may
-change these subjects. That work updates the chapters it touches as part of
-its own change.
-Chapter 10 is written by the work that delivers a supported extracted
-component, together with that component's interface and consumer, and not
-before.
+The owner removed the planned component chapter on 2026-10-21.
+“Develop Ravel” and “Deliver Ravel” now form Part IV, as chapters 10 and 11.
+Their files are `10-develop-ravel.md` and `11-deliver-ravel.md`.
+
+Ravel supports no separate component. Its runner, `keyed-launch`, stays a
+private package for a launcher that exits after one session. The runner can
+change process-wide signal state, and its return does not restore that state.
+A program that needs supervised harness sessions invokes the `ravel` CLI as a
+child process. The book teaches that caller interface.
+
+Chapters 1–11 describe the current code. Chapters 1–6 describe the CLI,
+configuration and session behaviour that Ravel's compatibility promise keeps
+unchanged. Chapters 7–11 describe structure, packages and delivery.
+A later change updates each chapter it affects.
+
+Extraction can be reconsidered
+when a project needs the runner without Ravel's CLI. Such work would add its
+own chapter and renumber the book. This is a condition, not planned work.
 
 Chapter 8 is an orientation that follows one session through the code. It
 quotes source excerpts but does not cover the complete source.
 
 ### Entry routes
 
-- **The learning route** reads chapters 1 to 12 in order.
+- **The learning route** reads chapters 1 to 11 in order.
 - **Running sessions from your own tool:** chapters 1–3, then 5, with 6 for
   lookup.
 - **Writing a policy:** chapters 1–3, then 4, with 6 for lookup.
-- **Reusing a component:** chapters 1 and 2, then 10, with 7 and 9 as
-  background.
-- **Changing Ravel:** chapters 1–3, 7 and 8, then 11, with 9 and 12 as needed.
+- **Reuse from another program:** chapter 1 explains why no separate
+  component is supported. Chapters 2, 3 and 5 teach the CLI caller interface.
+  Chapters 7 and 9 explain the private runner and its limits.
+- **Changing Ravel:** chapters 1–3, 7 and 8, then 10, with 9 and 11 as needed.
 - **Direct entries:** readers may arrive at any chapter 6 entry, exit code,
   error message or figure without the preceding chapters. Each carries the local context it needs and
   links back to where its subject is taught.
@@ -372,7 +378,9 @@ The book also states them wherever they matter:
 
 - Whether a developer new to Ravel can use the book is unknown.
   The reader checkpoints are the owner's stand-in reads (part 4).
-- Chapter 10 is unwritten until a supported extracted component exists.
+- Ravel supports no separate component. The private runner serves the
+  one-session CLI. The component inventory describes internal obligations,
+  not a library interface for another project.
 - Native x86-64 Linux is unqualified. The project built it, linted it at
   Rust 1.85.0 and ran it only under emulation.
 - Real agents' flags are known only as of their recorded check. The installed
@@ -435,9 +443,9 @@ This checks visual consistency, not the reader's knowledge of notation.
 | Which states does a session pass through to each outcome? | UML state machine | chapters 3 and 5 |
 | What is the timing after `end-session` sends the result (2-second grace, TERM, up to 5 seconds, KILL)? | UML timing | chapter 9 |
 | How is the terminal lent to the managed process and recovered? | UML sequence | chapter 9 |
-| How do the packages, the worker and the SDK fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 12 |
+| How do the packages, the worker and the SDK fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 11 |
 | How is the outcome chosen when failures and signals combine? | UML activity | chapter 8 |
-| How is a release built and checked? | UML activity | chapter 12 |
+| How is a release built and checked? | UML activity | chapter 11 |
 
 ### Relation to other documents
 
@@ -449,8 +457,8 @@ absorb it land. Every inbound link changes to its replacement:
 | README | A short entry into the book |
 | Session CLI and owner configuration guides | Parts I and II absorbed both guides. The dated owner handoff stays in `docs/configuration-handoff-2026-10-12.md` |
 | Local runner, result-channel and component guides | Chapters 7–9 absorbed the guides. Their editable views under `docs/design/components/` left with them. Source and observation evidence stays in `docs/component-evidence.md` |
-| Release guide | Chapter 12 absorbed the guide |
-| Authority note | Parts I and II and chapter 11 absorbed it. Chapter 11, “Keep tests separate from live sessions”, holds the test-isolation guards and legacy-name exceptions |
+| Release guide | Chapter 11 absorbed the guide |
+| Authority note | Parts I and II and chapter 10 absorbed it. Chapter 10, “Keep tests separate from live sessions”, holds the test-isolation guards and legacy-name exceptions |
 
 **Normative documents.** The session execution specification, result/job
 completion specification and decision records keep their authority.
@@ -664,8 +672,6 @@ The house style's points, as this book takes them:
   has a TypeScript worker and two Rust packages. The reader follows a session
   through the code to its final cancellation decision, then builds and tests
   Ravel from a checkout.
-- **Chapter 10's read** follows that chapter's proof. The task is to use the
-  extracted component through its interface.
 - **Every read** opens at chapter 1 or its stated entry in the locally built
   book. Figures must load there before the read. The record keeps the reader's
   words, progress, reported locations and places they did not reach.

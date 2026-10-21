@@ -17,8 +17,8 @@ file.
 `task docs:ste` examines the book's text. This is every chapter file in
 `docs/book/src/` (a name that matches `[0-9][0-9]-*.md`), `SUMMARY.md`,
 `CONTEXT.md`, `README.md` and the text of each figure (its `.layout.json`
-record). Thus it examines chapters 7–12 when they exist. A chapter that does
-not exist, such as chapter 10 before its text is written, is not an error.
+record). Thus it examines all eleven chapters. The script finds chapter
+files by name, so it does not require a fixed chapter count.
 The script is `scripts/ste.ts`. It removes code blocks and code spans first,
 then it finds these problems:
 
@@ -91,8 +91,7 @@ These titles replace the earlier titles:
 | Running sessions | Run sessions |
 | How Ravel is built | The parts of Ravel |
 | Following a session through the code | Follow a session through the code |
-| Part IV: Reusing and developing Ravel | Reuse and develop Ravel |
-| Using Ravel's components in your project | Use Ravel's components in your project |
+| Part IV: Reusing and developing Ravel | Develop and deliver Ravel |
 | Developing Ravel | Develop Ravel |
 | Delivering Ravel | Deliver Ravel |
 
