@@ -1754,9 +1754,9 @@ on the prompt. The transcript checks that the caller's instructions to end
 the session arrive unchanged. It does not show that an agent obeys
 them, or that its sandbox lets it complete the session.
 
-Before real use,
-check that the agent can run the Ravel CLI with your chosen permissions.
-Also check that it can write the result path. Keep checks with fakes for each new route.
+Before real use, check that the agent can run the Ravel CLI with your chosen
+permissions. Also check that it can write the result path. Keep checks with
+fakes for each new route.
 
 ## Copy a policy from another configuration
 

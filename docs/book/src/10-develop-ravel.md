@@ -10,10 +10,11 @@ test. [Chapter 7](07-the-parts-of-ravel.md) explains the reasons for the parts.
 [Chapter 8](08-follow-a-session-through-the-code.md#find-where-a-change-belongs)
 traces the code that a change can affect.
 
-Ravel supports no separate component. Its private runner serves the
-one-session CLI and does not restore process-wide signal state when it
-returns. A program that needs supervised harness sessions starts the `ravel`
-CLI as a child process. This chapter teaches changes to Ravel itself.
+Ravel supports no separate component. Its private runner serves the Ravel
+CLI, which supervises one session. The runner's return does not restore
+process-wide signal state. A program that needs supervised harness sessions
+invokes the Ravel CLI as a child process. This chapter teaches changes to
+Ravel itself.
 
 Links to files outside the book open repository sources on GitHub.
 Before a change reaches `main`, read its evidence and convention files from the
@@ -435,7 +436,8 @@ task probes
 The installation puts the CLI at `PREFIX/bin/ravel` and its assets under
 `PREFIX/libexec/ravel/`. It does not add the prefix to `PATH`.
 [Chapter 6](06-reference.md#installed-layout) describes the installed files.
-Chapter 11, “Deliver Ravel”, covers release archives and their target checks.
+[Chapter 11, “Deliver Ravel”](11-deliver-ravel.md), covers release archives
+and their target checks.
 The table distinguishes the installed files from temporary test files and
 build outputs.
 
@@ -614,7 +616,7 @@ The table connects each question to a note and the source of its observations.
 | Does an archive contain and run the required pair? | [Archive evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
 | Did a particular release reach its remote and installed destinations? | [Release and installation record](https://github.com/Linkuistics/Ravel/blob/main/docs/publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
 | Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
-| Which source anchors and observed runs support the component descriptions in chapters 7 to 9? | [Component evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/component-evidence.md) | A source read at the revision named in the note, and three named test cases that it ran |
+| Which source anchors and observed runs support the descriptions of the parts in chapters 7 to 9? | [Component evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/component-evidence.md) | A source read at the revision named in the note, and three named test cases that it ran |
 | Which resource and failure paths motivated the later repairs? | [Result/job source evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
 | Which checks distinguish the completion-failure repairs? | [Completion failure evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
 | Why does native entry follow this protocol? | [Native-entry design](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
@@ -661,8 +663,8 @@ actor-daemon revision for historical attribution only.
 
 `task --list` shows the public task names and short descriptions in the current
 checkout. The table maps each name at this chapter's draft to its explanation.
-The sections above explain development tasks. Chapter 11, “Deliver Ravel”,
-owns the release workflow. Its release tasks can create a release version, write remote
+The sections above explain development tasks.
+[Chapter 11, “Deliver Ravel”](11-deliver-ravel.md), owns the release workflow. Its release tasks can create a release version, write remote
 state and replace an installation, so they are not chapter-check commands.
 
 | Task names | Destination |

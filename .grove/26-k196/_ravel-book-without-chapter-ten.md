@@ -81,3 +81,12 @@ Ravel offers no separate component.
   outside link uses the old chapter names yet.
 - `Linkuistics/Ravel#2`, Rhai and Rig in place of TypeScript policy, is a
   separate workstream after 1.1.0. The book does not mention it.
+
+## Handed forward
+
+- **proof**, chapter 11, end of “Set up Pages for the first release”: the
+  paragraph that says Ravel supports no separate component sits under the
+  Pages setup heading. The draft put it where the earlier chapter-10
+  sentence was. The copy-edit tied its first sentence to the book that a
+  release carries, and did not move it. Judge whether the reader finds it
+  there. A move is a structure change for a draft re-run.

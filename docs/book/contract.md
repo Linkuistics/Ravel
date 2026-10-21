@@ -66,7 +66,7 @@ stated prerequisites.
   and what each part owns.
 - Follow successful, refused and cancelled sessions through the code.
   Find where a change belongs.
-- Use the `ravel` CLI as a child process from another program. Explain why
+- Invoke the Ravel CLI as a child process from another program. Explain why
   Ravel supports no separate component.
 - Build, test and deliver the project.
 - Look up any CLI input, setting, bound, data shape, environment variable or
@@ -189,10 +189,10 @@ The owner removed the planned component chapter on 2026-10-21.
 Their files are `10-develop-ravel.md` and `11-deliver-ravel.md`.
 
 Ravel supports no separate component. Its runner, `keyed-launch`, stays a
-private package for a launcher that exits after one session. The runner can
-change process-wide signal state, and its return does not restore that state.
-A program that needs supervised harness sessions invokes the `ravel` CLI as a
-child process. The book teaches that caller interface.
+private package of the Ravel CLI, which supervises one session and then exits.
+The runner can change process-wide signal state, and its return does not
+restore that state. A program that needs supervised harness sessions invokes
+the Ravel CLI as a child process. The book teaches that caller interface.
 
 Chapters 1–11 describe the current code. Chapters 1–6 describe the CLI,
 configuration and session behaviour that Ravel's compatibility promise keeps
@@ -378,9 +378,9 @@ The book also states them wherever they matter:
 
 - Whether a developer new to Ravel can use the book is unknown.
   The reader checkpoints are the owner's stand-in reads (part 4).
-- Ravel supports no separate component. The private runner serves the
-  one-session CLI. The component inventory describes internal obligations,
-  not a library interface for another project.
+- Ravel supports no separate component. The private runner serves the Ravel
+  CLI, which supervises one session. The component inventory describes
+  internal obligations, not a library interface for another project.
 - Native x86-64 Linux is unqualified. The project built it, linted it at
   Rust 1.85.0 and ran it only under emulation.
 - Real agents' flags are known only as of their recorded check. The installed

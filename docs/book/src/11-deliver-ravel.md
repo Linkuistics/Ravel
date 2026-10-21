@@ -601,10 +601,12 @@ They cannot establish the served public address, an administrator's call to the
 create endpoint, the Pages delay or GitHub's view of the book.
 An organisation domain setting can change the address.
 
-Ravel delivers one tool and supports no separate component. The private
-runner serves the one-session CLI. Its return does not restore process-wide
-signal state, so another program uses the `ravel` CLI as a child process.
-The book explains that interface and the private package's limits.
+The book that a release carries teaches one delivered tool. Ravel supports
+no separate component. The private runner serves the Ravel CLI, which
+supervises one session and then exits. The runner's return does not restore
+process-wide signal state. Thus, another program invokes the Ravel CLI as a
+child process. The book explains that interface and the limits of the
+private package.
 
 ## Recover a partial release without another bump
 

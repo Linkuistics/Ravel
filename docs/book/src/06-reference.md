@@ -235,8 +235,8 @@ Both give status 2. See [confine the managed process](05-running-sessions.md#con
 for the layout and the operational limits.
 
 > **Note:** The project measured inherited signal settings, cancellation,
-> cleanup and terminal recovery on aarch64 macOS and aarch64 GNU/Linux. For x86_64 GNU/Linux, the project built Ravel and ran it
-> only under emulation. Native x86-64 qualification is still open. The
+> cleanup and terminal recovery on aarch64 macOS and aarch64 GNU/Linux. For
+> x86_64 GNU/Linux, the project built Ravel and ran it only under emulation. Native x86-64 qualification is still open. The
 > [support limits](05-running-sessions.md#understand-the-operational-limits)
 > give the scope of these measurements.
 
@@ -1073,9 +1073,12 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > for how to use the editable sources and declarations.
 
 > **Note:** Ravel supports no separate component. Its private runner serves
-> the one-session CLI, and its return does not restore process-wide signal
-> state. A program uses the `ravel` CLI as a child process.
-> The installed layout is not a supported library interface for another
-> project. Native x86-64 Linux qualification is also still open. The book's
+> the Ravel CLI, which supervises one session. The runner's return does not
+> restore process-wide signal state. Another program invokes the Ravel CLI as
+> a child process. The installed layout is not a supported library interface
+> for another project. [Chapter 1](01-what-ravel-is-for.md#choose-a-route-through-the-book)
+> explains this choice.
+
+> **Note:** Native x86-64 Linux qualification is still open. The book's
 > [platform and operational limits](05-running-sessions.md#understand-the-operational-limits)
 > distinguish native measurements from emulation.

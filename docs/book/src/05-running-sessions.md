@@ -10,6 +10,7 @@ only after it confirms the cleanup. This chapter shows how to give a request
 and how to run nested or confined sessions. It also shows how to identify
 each outcome that a caller can see.
 
+<!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
 Follow chapter 3 to [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
 These examples use real policy evaluation and small local programs. They do
 not need an agent account or a model service. If you came here for an exit
@@ -50,7 +51,7 @@ or to give the task a meaning:
 | `--param profile=careful` | `request.params.profile` with the string `careful`. Each name is not empty, contains no `=` and occurs one time. The value can be empty or contain more `=` characters. The limit for all names and values together is 65,536 UTF-8 bytes. |
 | `--task-file tasks/check.md` | An absolute UTF-8 `request.taskFile`. Ravel makes it from the given path and the caller's working directory. Ravel does not read that file, and the file does not have to exist. Ravel gets no kind or identity from it. |
 | `--task-id example-17` | An opaque `request.taskId`. It is UTF-8, is not empty and has a maximum of 1,024 bytes. Ravel does not search for a stored task. |
-| `--context caller-context.json` | A version-1 JSON document that Ravel measures and validates. If the policy has no loader, the document becomes the second argument to `select`. A loader can make a different document for the policy. |
+| `--context caller-context.json` | A version-1 JSON document that Ravel measures and validates. If the policy has no loader, the document becomes the second argument to `select`. A loader can make a different document for the policy. <!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup --> |
 
 That last document is [policy context](02-actors-and-words.md#three-different-kinds-of-information),
 which is data that the policy uses to choose the route. It is different from
@@ -434,6 +435,7 @@ filesystem access and the environment of the managed process. Add
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
 stay outside the confinement. Policy is trusted executable configuration.
 
+<!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
 On macOS, Ravel uses `/usr/bin/sandbox-exec`. On Linux, it uses the system
 bubblewrap executable, `/usr/bin/bwrap` or `/bin/bwrap`. Before Ravel
 evaluates the policy, it tests whether the backend can make a sandbox. If
@@ -659,7 +661,7 @@ These sections teach the subject of each row:
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
 | `3` | A refusal by the policy, or Ravel's refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the policy deliberately. Do not silently substitute a program. |
-| `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5. | Keep the full diagnostics. Repair the matched installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. |
+| `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5. | Keep the full diagnostics. Repair the matched installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
 | `124` | The deadline for policy evaluation expired. The deadline covers the worker startup, the policy import, the load of policy context and the selection. Ravel launched no managed process. | Examine the work of the policy. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer selection. This is not a time limit for the managed process. |
 | `126` | Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file). | Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute. |
 | `127` | Program resolution found no executable, or a launch failed with ENOENT before the start. An executable script can exist while its interpreter is missing. | Check the caller's `PATH`, the selected path and its interpreter. Install or correct the program that you intended. |

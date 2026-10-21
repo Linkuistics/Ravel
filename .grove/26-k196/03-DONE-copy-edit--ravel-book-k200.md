@@ -51,3 +51,22 @@ change. Keep the draft's structure and technical meaning.
 - The k191 log found no chapter 9 defect to hand to proof.
 - Local build and link checks establish no visual-rendering result or new
   platform qualification. Retain the book's existing evidence limits.
+
+## Decisions (running log)
+
+- One verb names how another program uses Ravel: “invokes the Ravel CLI as
+  a child process”. `CONTEXT.md` says that a caller invokes Ravel. The draft
+  used “call”, “start”, “use” and “invoke” for this one action.
+- One name for the CLI in the new passages: the glossary term “Ravel CLI”,
+  with the property “which supervises one session and then exits”. This
+  replaces “the one-session CLI” and “a launcher that exits after one
+  session”.
+- Chapter 9's “so the launcher owns that lifetime” becomes its mechanism:
+  the changed signal state stays in the child process and ends with it.
+- “Component” for an internal part becomes “part” in chapter 8, chapter 10
+  and the README. The book now uses “component” only for the separate
+  component that Ravel does not support.
+- Chapter 11's paragraph about no separate component sits under the Pages
+  setup heading. The copy-edit ties its first sentence to the book that a
+  release carries, and does not move it. Moving it is a structure change,
+  and the draft placed the earlier chapter-10 sentence at the same location.

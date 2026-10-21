@@ -568,7 +568,10 @@ user-mode execution do not qualify an x86-64 kernel.
 The current runner is a private package within Ravel. Neither that package
 boundary nor these checks deliver a
 [persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits) for an
-arbitrary host. Ravel supports no separate component. The runner serves a
-launcher that exits after one session, and its return does not restore
-process-wide signal state. Another program starts the `ravel` CLI as a child
-process, so the launcher owns that lifetime.
+arbitrary host.
+
+Ravel supports no separate component. The runner serves the Ravel CLI, which
+exits after one session. The runner's return does not
+restore process-wide signal state. Another program invokes the Ravel CLI as
+a child process. Thus, the signal state that the runner changes stays in that
+child process and ends when it exits.

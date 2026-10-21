@@ -13,7 +13,7 @@ source. It omits the full
 [policy-context](02-actors-and-words.md#three-different-kinds-of-information)
 protocol, [confinement](02-actors-and-words.md#trust-and-confinement)
 backends, platform system calls, test instruments and delivery code.
-[Chapter 7](07-the-parts-of-ravel.md) explains the component boundaries.
+[Chapter 7](07-the-parts-of-ravel.md) explains the parts and their boundaries.
 Chapter 9, “Jobs, signals and the terminal”, explains the job-control details.
 
 ## Trace the example
@@ -59,6 +59,7 @@ The optional region applies when `watch` sees the result before child exit.
 The later appearance check also finds the result when the child exits first.
 Terminal actions are conditional. The checked example has no terminal.
 
+<!-- tc: depart synonym-rotation because launch names the runner's managed launch, while start names other process creation -->
 During supervision, the
 [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
 starts a second `ravel` process for `end-session`. That process sends the
@@ -136,6 +137,7 @@ Thus, `judge` skips the optional policy-context exchange.
 The worker supplies `undefined` as the policy's context argument.
 The policy returns `fake-agent` with the prompt in its argument array.
 
+<!-- tc: depart synonym-rotation because confirmation establishes a completed reap, while checks also cover input validation -->
 `worker::evaluate` returns success only after confirmed worker reap and
 successful required cleanup. A valid command alone does not permit launch.
 The runner cannot enforce this order because it has no worker to inspect.
@@ -330,7 +332,7 @@ The example has no confined workspace, so that cleanup contributes success
 without a removal. The other operations still run.
 
 Channel cleanup checks the directory's recorded identity before removal.
-It does not delete a replacement directory. This pathname check is not an
+It does not remove a replacement directory. This pathname check is not an
 atomic defence against concurrent changes by same-user code.
 An unknown directory identity also prevents removal.
 An explicit cleanup attempt disables the destructor's later retry, even on
@@ -594,7 +596,7 @@ The final decision and the output write are not one atomic operation.
 
 Suppose you change how Ravel stores a sent result, while the CLI behaviour
 stays the same. Start with `crates/ravel/src/completion.rs`.
-It owns allocation, the first complete value, validated reads and explicit
+It owns allocation, the first complete value, checked reads and explicit
 channel removal. A change there also needs checks at its two consumers, the runner and `run`.
 
 | Boundary to inspect | Property the change preserves |

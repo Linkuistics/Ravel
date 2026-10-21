@@ -219,9 +219,9 @@ and it keeps the operation reports that `Ended` carries. The runner can
 change process-wide signal state, and its return does not restore a host
 for unrelated future work.
 
-Ravel supports no separate component. Its runner serves the one-session CLI,
-which exits after the session. Another program starts the `ravel` CLI as a
-child process and leaves supervision to it. These private packages do not
+Ravel supports no separate component. Its runner serves the Ravel CLI, which
+exits after the session. Another program invokes the Ravel CLI as a child
+process and leaves supervision to it. These private packages do not
 establish a contract for a
 [persistent runner](01-what-ravel-is-for.md#decide-whether-ravel-fits).
 

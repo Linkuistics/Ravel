@@ -254,12 +254,12 @@ and the chapters for further detail.
 | Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Write an owner policy | Chapters 1–3, then [chapter 4, “Write an owner policy”](04-writing-an-owner-policy.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), [8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), and [10, “Develop Ravel”](10-develop-ravel.md) | [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md), and [chapter 11, “Deliver Ravel”](11-deliver-ravel.md) |
-| Reuse a component | Ravel supports no separate component. Call the `ravel` CLI as a child process. Chapters 2, 3 and [5](05-running-sessions.md) teach that interface | [Chapters 7](07-the-parts-of-ravel.md) and [9](09-jobs-signals-and-the-terminal.md) explain the private runner and its limits |
+| Reuse Ravel from another program | Ravel supports no separate component. Invoke the Ravel CLI as a child process. Chapters 2, 3 and [5](05-running-sessions.md) teach that interface. | [Chapters 7](07-the-parts-of-ravel.md) and [9](09-jobs-signals-and-the-terminal.md) explain the private runner and its limits |
 
-Ravel's runner, `keyed-launch`, is a private package for the one-session CLI.
-The runner can change process-wide signal state, and its return does not
-restore that state. A program that needs supervised harness sessions starts
-`ravel` as a child process. Ravel supervises one session and then exits.
+Ravel's runner, `keyed-launch`, is a private package of the Ravel CLI. The
+runner can change process-wide signal state, and its return does not restore
+that state. A program that needs supervised harness sessions invokes the Ravel
+CLI as a child process. The Ravel CLI supervises one session and then exits.
 
 The learning route is to read the chapters in order. The first practical
 session uses a small policy and a fake agent. A fake agent is an ordinary

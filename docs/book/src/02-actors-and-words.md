@@ -65,6 +65,7 @@ process.
 
 ## Policy evaluation and supervision
 
+<!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
 The **Ravel CLI** is the `ravel` command-line program, written in Rust. During
 `start-session`, it keeps the environment, the terminal and the standard
 output of the caller. It evaluates the request and supervises the selected
@@ -92,6 +93,7 @@ Ravel does not try a different route. A failure of the worker, a failure of
 supervision and a selection timeout are different outcomes. A caller needs to
 tell a refusal from a failure during evaluation or supervision.
 
+<!-- tc: depart synonym-rotation because confirmation establishes completed cleanup, while checks also cover input validation -->
 A valid selection alone is not sufficient to start the launch. Ravel also
 confirms both cleanup conditions in this table before it launches the
 selected program.

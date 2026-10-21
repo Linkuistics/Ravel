@@ -12,8 +12,8 @@ lower for work that the subscription covers.
 
 An interactive harness waits for more input when the LLM completes its task.
 Thus, the LLM runs `ravel end-session` to send its result and ask Ravel to end
-the session. This lets an interactive harness serve as a sub-component of the
-process of the orchestrator.
+the session. This lets an interactive harness work as one part of the process
+of the orchestrator.
 
 The contract is loose. The policy selects a program, Ravel runs it, and a
 program in the session sends one value with `end-session`. Ravel needs nothing
@@ -44,10 +44,10 @@ These chapters explain Ravel from the inside, and how to change and release it:
 - [Chapter 11, Deliver Ravel](docs/book/src/11-deliver-ravel.md)
 
 Ravel supports no separate component. Its runner, `keyed-launch`, is a private
-package for a launcher that exits after one session. The runner can change
-process-wide signal state, and its return does not restore that state.
-A program that needs supervised harness sessions starts the `ravel` CLI as a
-child process.
+package of the Ravel CLI, which supervises one session and then exits. The
+runner can change process-wide signal state, and its return does not restore
+that state. A program that needs supervised harness sessions invokes the Ravel
+CLI as a child process.
 
 The runtime notices are
 [`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a
