@@ -2,7 +2,7 @@
 # Examine the book's text against the STE writing rules that a script can
 # decide and the word decisions in docs/book/ste.md (scripts/ste.ts does the
 # work). With no file arguments it examines the book's text: every chapter
-# under docs/book/src/ (so chapters 7-12 are examined when they exist),
+# under docs/book/src/ (so chapters 7-11 are examined when they exist),
 # SUMMARY.md, CONTEXT.md, README.md and each figure's .layout.json record.
 # --strict makes a problem fail the run; without it the run is a report.
 set -euo pipefail

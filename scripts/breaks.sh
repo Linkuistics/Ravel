@@ -2,7 +2,7 @@
 # Report each run of prose in the book that is longer than the limit of
 # docs/book/contract.md, section 2, "Breaks in prose" (scripts/breaks.ts does
 # the work). With no file arguments it examines every chapter under
-# docs/book/src/, so chapters 7-12 are examined when they exist.
+# docs/book/src/, so chapters 7-11 are examined when they exist.
 # --strict makes a long run fail the run; without it the run is a report.
 set -euo pipefail
 IFS=$'\n\t'

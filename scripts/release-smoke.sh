@@ -425,7 +425,7 @@ main() {
   done
   for target in "${targets[@]}"; do
     [[ "$target" == *-linux-gnu ]] || continue
-    command -v zig >/dev/null 2>&1 || die "zig is required for the glibc control's probes; see the chapter 12 section \"Build archives before a release\" (docs/book/src/12-deliver-ravel.md, #build-archives-before-a-release)"
+    command -v zig >/dev/null 2>&1 || die "zig is required for the glibc control's probes; see the chapter 11 section \"Build archives before a release\" (docs/book/src/11-deliver-ravel.md, #build-archives-before-a-release)"
     docker info >/dev/null 2>&1 || die "Docker is required for the Linux targets, and is not running"
     DOCKER_PLATFORM="$(docker version --format '{{.Server.Os}}/{{.Server.Arch}}')"
     [[ "$DOCKER_PLATFORM" == linux/arm64 ]] ||
