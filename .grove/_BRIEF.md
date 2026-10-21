@@ -436,11 +436,33 @@ work.” The owner did not name the chapters that they read, and did no task.
 Thus, read 2 found no place where a reader got lost, but it does not show that
 no such place exists.
 
-For `component-work-scope-k57`, the reader evidence is in the logs of
-`book-read-one-k70` and `book-read-two-k166`. Read 2 has no finding, and read
-1 has findings R1–R17. The contract `docs/book/contract.md` and the
-`task docs:*` checks govern chapter 10 and each later change to a chapter.
-Some book work waits for the delivery of this workstream:
+On 2026-10-21, `component-work-scope-k57` settled the remaining component work
+with the owner. Its log holds the owner's answers and their evidence:
+
+- No comparative redesign starts again. K4's comparison closes as “not
+  pursued, by the owner's decision”. No session owes its G1, G2, G4 and G5
+  items or the R-W debt.
+- Ravel extracts no component, and `keyed-launch` stays a private package.
+  Grove drops its own copy of the runner and starts `ravel` as an ordinary
+  child process (`Linkuistics/grove#22`).
+- No consumer needs a persistent runner.
+- The book drops chapter 10. The node `ravel-book-without-chapter-ten-k196`
+  renumbers chapters 11 and 12 to 10 and 11.
+- Delivery comes at the end, in release 1.1.0. After the finish session,
+  `main` takes the workstream by a fast-forward. Then `task release:minor`
+  delivers the corrections and the book. Before the finish,
+  `release-notes-k198` writes the notes. `Linkuistics/Ravel#3` holds the
+  steps after the finish.
+- `Linkuistics/Ravel#2`, Rhai and Rig in place of TypeScript policy, is a
+  separate workstream after 1.1.0. Here, owner configuration still stays
+  unchanged.
+
+With no extracted component, the root's “Done when” items about extracted
+components and their use ask for no further work.
+
+The contract `docs/book/contract.md` and the `task docs:*` checks govern each
+later change to a chapter. Some book work waits for the delivery of this
+workstream:
 
 - Chapter 11 has 22 links to repository files on `main`. They show the files
   of this workstream only after its merge to `main`.
