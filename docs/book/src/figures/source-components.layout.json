@@ -1,6 +1,6 @@
 {
   "w": 751.0,
-  "h": 763.08046875,
+  "h": 781.4171875000001,
   "elements": [
     {
       "id": "title",
@@ -461,21 +461,21 @@
       "x0": 17.96728515625,
       "y0": 604.08671875,
       "x1": 681.03271484375,
-      "y1": 763.08046875
+      "y1": 781.4171875000001
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
+      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nC4 components here are internal code. Ravel supports no separate component.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
       "x": 349.5,
-      "y": 683.5835937500001,
+      "y": 692.751953125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 635.0654296875,
-      "h": 138.99375
+      "h": 157.33046875
     }
   ]
 }

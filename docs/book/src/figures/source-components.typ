@@ -30,6 +30,7 @@
 #render(c4([Source responsibilities — C4 component view], ents, bounds, rels, (
   [Blue: Ravel code or process. Grey: selected program.],
   [Dashed outline: components inside the Ravel CLI, not a sandbox.],
+  [C4 components here are internal code. Ravel supports no separate component.],
   [The runner has no separate process or installed executable.],
   [Arrows name use or supervision, not a complete chronology.],
   [Before managed launch: the worker ends. Ravel reaps it and removes its private directory.],

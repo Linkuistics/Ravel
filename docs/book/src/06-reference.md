@@ -1050,8 +1050,9 @@ See [the session's processes](03-a-complete-session.md#check-the-request-and-eva
 > outer boundary groups the code inside the process of the Ravel CLI, and
 > it is not a sandbox. Before the runner launches the managed process, the
 > worker ends, and Ravel reaps it and removes its private directory.
+> C4 components here are internal code. Ravel supports no separate component.
 
-![C4 component view: crates/ravel supplies the request checks and the decision about the final outcome inside the Ravel CLI. The Ravel CLI uses the linked runner from crates/keyed-launch. The Ravel CLI evaluates owner policy in a separate compiled worker from crates/ravel/worker/src, with Bun, the SDK and the static example embedded. Only after the reap of the worker and the removal of its private directory does the runner launch and supervise the selected managed process. The worker has no session-result context.](figures/source-components.svg)
+![C4 component view: crates/ravel supplies the request checks and the decision about the final outcome inside the Ravel CLI. The Ravel CLI uses the linked runner from crates/keyed-launch. The Ravel CLI evaluates owner policy in a separate compiled worker from crates/ravel/worker/src, with Bun, the SDK and the static example embedded. Only after the reap of the worker and the removal of its private directory does the runner launch and supervise the selected managed process. The worker has no session-result context. C4 components here are internal code, and Ravel supports no separate component.](figures/source-components.svg)
 
 > **Figure link:** [Open the source-responsibility view at full size](figures/source-components.svg).
 > See [policy evaluation and supervision](02-actors-and-words.md#policy-evaluation-and-supervision)
