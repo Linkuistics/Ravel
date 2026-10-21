@@ -84,9 +84,6 @@ Ravel offers no separate component.
 
 ## Handed forward
 
-- **proof**, chapter 11, end of “Set up Pages for the first release”: the
-  paragraph that says Ravel supports no separate component sits under the
-  Pages setup heading. The draft put it where the earlier chapter-10
-  sentence was. The copy-edit tied its first sentence to the book that a
-  release carries, and did not move it. Judge whether the reader finds it
-  there. A move is a structure change for a draft re-run.
+None. The correction run `ravel-book-k203` through `ravel-book-k206` owns
+the chapter 11 placement and recorded agent-version corrections from proof
+`ravel-book-k202`. The node stays open for that run.
