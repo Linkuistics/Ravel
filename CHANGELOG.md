@@ -2,8 +2,29 @@
 
 ## Unreleased
 
-- Reword the `ravel end-session` help text: the LLM sends the result, and Ravel
-  keeps the first result that it receives. The behavior does not change.
+- Correct five failure paths. Only the behaviour after a failure changes. The
+  command-line arguments, the owner configuration and the results of a
+  successful session stay the same.
+  - Ravel keeps a cancellation when the wait for the managed process fails.
+    It also keeps the cancellation when the reap of that process fails.
+  - If Ravel cannot check that it reaped the policy worker, the session stops
+    before the managed process starts.
+  - After Ravel acquires only some of the resources for a session, it reports
+    each failure of the cleanup that follows.
+  - The terminal recovers after the exec of the managed process fails.
+  - When its process starts, Ravel checks each signal and terminal
+    transition.
+- Add the field `operationReports` to the JSON notice that `--json` prints. The
+  field is an array of the reports that Ravel kept while it supervised the
+  managed process. The array is empty when Ravel kept no report.
+- Reword the help text of `ravel end-session`. The LLM sends the result, and
+  Ravel keeps the first result that it receives. The behaviour does not change.
+- Describe `--policy-env` in the help text of `ravel start-session`.
+- Add the book, a user guide for Ravel. Each release publishes it on GitHub
+  Pages.
+- Measure Ravel on aarch64 macOS and aarch64 GNU/Linux. The x86-64 GNU/Linux
+  target runs only under emulation. The measurements of that target come from
+  the emulation.
 
 ## v1.0.0
 

@@ -46,3 +46,28 @@ release.
   `Linkuistics/Ravel#3` describes.
 - Do not run `release:patch`, `release:minor` or `release:major`. They have
   public effects, and the delivery follows the finish session.
+
+## Decisions (running log)
+
+- The notes of 1.1.0 stand under the single `## Unreleased` heading of
+  `CHANGELOG.md`. They replace the earlier help-rewording bullet and cover the
+  five failure-path corrections, `operationReports`, the `end-session` help,
+  the `--policy-env` description, the book and the measured targets. They name
+  no task handle. The entries from `## v1.0.0` down stay unchanged: the diff
+  against tag `v1.0.0` has no removed line.
+- `operationReports` is described as the book's reference chapter describes
+  it: an array, empty when Ravel kept no report, present when the runner
+  returned its account of how the job ended.
+- `ste-lint.py` passes the new notes: 0 hard findings in 216 words. A mutated
+  copy with a semicolon and an American spelling failed with 2 hard findings,
+  so the check can fail. The editor hook still reports 3 findings, all in the
+  released `v0.1.0` and `v1.0.0` entries. They stay, as the brief requires.
+- `task release:doctor` passed with every prerequisite met. No prerequisite is
+  missing, so no remedy is due. It reports the disabled Pages setting as a
+  note: Pages is not enabled for `Linkuistics/Ravel`, and the first release
+  needs the one-time setup in chapter 11, "Set up Pages for the first
+  release".
+- `task release:lifecycle:test` passed (exit 0). Its log is
+  `target/release-lifecycle.MWV2lS`.
+- `release:patch`, `release:minor` and `release:major` did not run. The owner
+  reads the notes before `task release:minor` runs.
