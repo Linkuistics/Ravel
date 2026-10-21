@@ -347,6 +347,24 @@ requirements in `plan-k1` before the design and implementation work was cut.
 
 <!-- tc: on -->
 
+## On the horizon
+
+At read 2 on 2026-10-21, the owner wrote these words about the book to the
+model that held the read:
+
+<!-- tc: off because the owner's words are a quotation -->
+
+> “I read enough to know that this is good enough for now - we will iterate on
+> the details later as we codify all your learnings into grove's
+> communications/writing skills”
+
+<!-- tc: on -->
+
+The owner named no detail and no time. Thus, no session can state this work
+precisely yet, and it has no leaf. Grove's skills are outside this repository.
+When the owner names the details of the book, add that work with `leaf-add`
+and its `--kind`. Then remove this note.
+
 ## Notes
 
 The primary problem is comprehensibility, not a shortage of features. TypeScript
@@ -409,6 +427,28 @@ because a harness lets a caller use a subscription instead of paid API
 access. The contract between the Ravel CLI and the configuration is loose.
 The policy selects a program, Ravel runs it, and a program sends one value
 with `end-session`. Later component work keeps both statements true.
+
+On 2026-10-21, `book-read-two-k166` held read 2, and the book node
+`ravel-book-k55` closed. The book has chapters 1–9, 11 and 12. Whole-book
+proof `ravel-book-k195` proved them at commit `23ef3928`, and no chapter
+changed after it. The owner read in an editor preview and said: “This is good
+work.” The owner did not name the chapters that they read, and did no task.
+Thus, read 2 found no place where a reader got lost, but it does not show that
+no such place exists.
+
+For `component-work-scope-k57`, the reader evidence is in the logs of
+`book-read-one-k70` and `book-read-two-k166`. Read 2 has no finding, and read
+1 has findings R1–R17. The contract `docs/book/contract.md` and the
+`task docs:*` checks govern chapter 10 and each later change to a chapter.
+Some book work waits for the delivery of this workstream:
+
+- Chapter 11 has 22 links to repository files on `main`. They show the files
+  of this workstream only after its merge to `main`.
+- No session has checked GitHub's view of the book. No book is on GitHub
+  Pages yet.
+- The first release that carries the book needs a one-time setup of GitHub
+  Pages by the owner. Chapter 12, “Set up Pages for the first release”, gives
+  the steps.
 
 <!-- tc: pending because this brief predates the writing rules and is too large to convert in one session -->
 
