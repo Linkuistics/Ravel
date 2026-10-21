@@ -19,6 +19,7 @@ your usual owner configuration.
 
 ## Define a policy and read the request
 
+<!-- tc: depart synonym-rotation because TypeScript field checks and runtime policy validation occur at different boundaries -->
 The entry file exports a plain object with the name `policy`. Import
 `definePolicy` from the literal module name `ravel/sdk`. Give that object to
 `definePolicy` as its argument. The helper returns the object unchanged. It
@@ -141,6 +142,7 @@ caller can take. It has these fields:
 | `message` | A nonblank explanation of the problem. |
 | `remedy` | A nonblank action that the caller or the owner can take. |
 
+<!-- tc: depart synonym-rotation because launch refers to a process, while start also names the beginning of a deadline -->
 Ravel reports your refusal as `policy_refused`, together with your code
 (`policyCode` in JSON diagnostics). Then it exits with status 3 and launches
 nothing. It does not try a different route. If `select` returns nothing,
@@ -159,7 +161,7 @@ managed launch can follow.
 | 1 | Ravel imports the owner policy. | The import succeeds, and the named `policy` export has the accepted shape. |
 | 2 | Ravel assembles the [policy context](#supply-policy-context). It calls `loadContext` if it exists. | The caller data and the delivered document obey their shape and size rules. If the loader refuses, evaluation stops here, and Ravel does not call `select`. Without a loader or a caller document, selection continues with `undefined`. |
 | 3 | Ravel calls `select` with the request and the delivered policy context. | The returned value is a valid selection. An explicit refusal becomes `policy_refused`. Malformed data or a thrown error also prevents the launch. |
-| 4 | Ravel reaps the policy worker and removes its private directory before the managed launch. | Ravel confirms the reap and the removal. If the cleanup fails, a returned selection is not sufficient for a launch. |
+| 4 | Ravel reaps the policy worker and removes its private directory before the managed launch. | Ravel confirms the reap and the removal. If the cleanup fails, a returned selection is not sufficient for a launch. <!-- tc: depart synonym-rotation because confirmation establishes completed reap and removal rather than merely attempting a check --> |
 
 One deadline, `selectionMs`, starts when Ravel spawns the worker. It covers
 the import, the assembly of the policy context and `select`. It does not
@@ -327,6 +329,7 @@ A typecheck finds misspelt fields, missing fields and wrong return types
 before a session runs. It does not execute the policy. It does not prove that
 each kind has a route. Use it together with the fake-program checks above.
 
+<!-- tc: depart synonym-rotation because fetch refers to tool downloads, while get also describes receiving policy data -->
 The recipes below need a source checkout as a development tool. The
 installed Ravel alone can run your policy. For the checkout, use Rust 1.85
 or later, curl, tar, Task, ShellCheck and cargo-nextest. Run `task setup` in
@@ -1182,7 +1185,7 @@ to find the input, the loader behaviour or the bound that needs a change:
 | `unsupported_version` | A nonnegative integer that fits in an unsigned 64-bit value names a policy-context schema version other than 1. A negative, fractional or wrong-type version gives `context_invalid`. |
 | `context_loader_failed` | The loader throws an exception or rejects its promise. The cause is not a known source-read failure or a breach of a bound. |
 | `context_loader_unsettled` | The loader's promise stays unsettled, and no work that can resolve or reject it remains. |
-| `message_too_large` | A failure report of the loader is larger than the fixed 1 MiB protocol-message bound. Make the error that it reports shorter. |
+| `message_too_large` | A failure report of the loader is larger than the fixed 1 MiB protocol-message bound. Make the error that it reports shorter. <!-- tc: depart synonym-rotation because fixed describes an immutable bound and does not mean correcting an error --> |
 | `context_source_unreadable` | A required host read fails, also for invalid UTF-8 or invalid JSON, and the loader does not catch the failure. |
 | `source_too_large` | A host read is larger than its limit, or it asks for a limit above the policy-context budget. |
 | `too_many_sources` | The `measured` list or the document's attributed `sources` has more than 256 entries. |
@@ -1585,6 +1588,7 @@ Ravel's `effort` label does not set the effort of the agent. The Claude route
 passes a real flag. The Codex route uses the effort that Codex has in its
 configuration.
 
+<!-- tc: depart synonym-rotation because display is the terminal presentation, not a verb for showing evidence -->
 The two routes start interactive agents for attended work, and each agent
 needs a terminal. Run a real interactive agent from a foreground terminal.
 Ravel can then
@@ -1748,9 +1752,11 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 The fakes intentionally send their arguments as the result. They do not act
 on the prompt. The transcript checks that the caller's instructions to end
 the session arrive unchanged. It does not show that an agent obeys
-them, or that its sandbox lets it complete the session. Before real use,
-check that the agent can run the Ravel CLI and write the result path with
-the permissions that you chose. Keep checks with fakes for each new route.
+them, or that its sandbox lets it complete the session.
+
+Before real use,
+check that the agent can run the Ravel CLI with your chosen permissions.
+Also check that it can write the result path. Keep checks with fakes for each new route.
 
 ## Copy a policy from another configuration
 

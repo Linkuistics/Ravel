@@ -39,12 +39,14 @@ result that looks like an option. Inside a live session,
 
 ### `start-session`
 
+<!-- tc: depart synonym-rotation because launch refers to process creation, while start also denotes the beginning of a deadline -->
 `ravel start-session --kind TEXT` also needs exactly one of `--prompt TEXT`
 and `--prompt-file PATH`. It reads the owner settings, checks and evaluates
 the owner policy, then supervises the selected program. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) launches nothing, and Ravel
 tries no alternative route.
 
+<!-- tc: depart synonym-rotation because confirmed absence is a successful cleanup observation, not just an input check -->
 A successful invocation writes the sent result unchanged to stdout. This write occurs only after the reap, the confirmed
 absence of the process group and the required cleanup. Ravel does not
 interpret the result.
@@ -138,6 +140,7 @@ meaning. See
 
 ### `--context PATH`
 
+<!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup -->
 `--context` reads a regular file, relative to the caller's working directory,
 as version-1 JSON [policy context](02-actors-and-words.md#three-different-kinds-of-information).
 Ravel validates it and records its canonical name, byte count and SHA-256.
@@ -231,9 +234,8 @@ reports `confinement_unusable`, and an overlap reports `confinement_overlap`.
 Both give status 2. See [confine the managed process](05-running-sessions.md#confine-the-managed-process)
 for the layout and the operational limits.
 
-> **Note:** The project measured how Ravel handles inherited signal
-> settings, cancellation, cleanup and terminal recovery on aarch64 macOS and
-> aarch64 GNU/Linux. For x86_64 GNU/Linux, the project built Ravel and ran it
+> **Note:** The project measured inherited signal settings, cancellation,
+> cleanup and terminal recovery on aarch64 macOS and aarch64 GNU/Linux. For x86_64 GNU/Linux, the project built Ravel and ran it
 > only under emulation. Native x86-64 qualification is still open. The
 > [support limits](05-running-sessions.md#understand-the-operational-limits)
 > give the scope of these measurements.
@@ -277,6 +279,7 @@ output of the managed process. It is off when it is absent, and it belongs to
 and [read notices](05-running-sessions.md#read-notices-separately-from-results)
 for their use.
 
+<!-- tc: depart synonym-rotation because display format names presentation, not an action to show data -->
 > **Note:** After a successful parse of the command line, a value such as
 > `--prompt '--json'` is caller data, not a switch. If the parse fails, Ravel
 > searches the argument words for an exact `--json` to choose the error
@@ -326,7 +329,7 @@ See [accept a result only after success](05-running-sessions.md#accept-a-result-
 > **Note:** After Ravel detects the sent result, it gives a job that still
 > runs 2 seconds. Then it sends TERM, waits up to 5 more seconds and uses KILL
 > if necessary. If the direct child exits, Ravel stops the other group members
-> before the reap, with no new grace period. Ravel can terminate code that
+> before the reap, with no new grace period. Ravel can stop code that
 > runs after `end-session`.
 
 ## Exit statuses
@@ -347,7 +350,7 @@ reports stay as diagnostics. See
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. For `end-session`, status 1 means that it could not send the result. For example, the session-result context was missing, empty or stale, or the value was too large. Check that the call occurs inside a live session. A missing result is not an empty result. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, or confinement inputs that are unusable or overlap. Without a verb, `ravel` prints help with this status. Correct the named input or setting before you try again. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 | `3` | The policy refused, or Ravel could not accept the entry, behaviour, shape, selection result or policy context. No fallback route runs. Read the code, the stage and the remedy. For `policy_refused`, also read `policyCode`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `5` | A worker or supervision failed, or the result was invalid. Required cleanup or terminal recovery failed, a group survived, or the result output failed. A missing, stale or mismatched worker also gives 5. Retain the diagnostics, repair the installation or the named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-separately-from-results) |
+| `5` | A worker or supervision failed, or the result was invalid. Required cleanup or terminal recovery failed, a group survived, or the result output failed. A missing, stale or mismatched worker also gives 5. Retain the diagnostics, repair the installation or the named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-separately-from-results) <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
 | `124` | Policy evaluation timed out, and no managed process started. Examine the work of the policy before you increase `timeoutMs` or `--timeout-ms`. The deadline does not limit the managed process. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `126` | The selected program is not executable, or the launch failed before the runner reported the start, for a reason other than ENOENT. Check the permissions, the format, the interpreter and the execution environment. Retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `127` | Ravel did not find the selected program, or the launch failed with ENOENT before the start. A script that exists can have a missing interpreter. Check `PATH`, the selected path and the interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
@@ -618,7 +621,7 @@ does not truncate that data. The JSON notice names each bound separately and
 records its origin.
 See [set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
-| Request field / notice name | Default or fixed value | Adjustment and consequence | Taught in |
+| Request field / notice name | Default or fixed value | Adjustment and consequence | Taught in <!-- tc: depart synonym-rotation because fixed describes an immutable bound, not an action to correct an error --> |
 |---|---:|---|---|
 | `selectionMs` / `selection` | 30,000 ms | `timeoutMs`, then `--timeout-ms`, within 1,000–600,000. Ravel measures it from the worker spawn through the startup, the import, the loader and the selection. Expiry is `selection_timeout`, status 124. The teardown time is additional. | [Selection deadline](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `contextBytes` / `context` | 262,144 bytes | `contextBytes`, then `--context-bytes`, within 1–8,388,608. The caller file and the compact delivered JSON with `measured` must both fit. If one does not fit, the code is `context_too_large`, status 3. | [Policy-context budget](04-writing-an-owner-policy.md#supply-policy-context) |

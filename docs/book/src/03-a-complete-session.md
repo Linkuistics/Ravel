@@ -131,6 +131,7 @@ fake-agent received: Print this prompt, then call ravel end-session -- "finished
 0
 ```
 
+<!-- tc: depart synonym-rotation because the start of a shell prompt is a text position, not a process launch -->
 Ravel writes the result unchanged to standard output. Here, the output is
 the eight bytes `finished`. Ravel does not interpret the result and adds no
 newline. Thus, in an interactive shell, the next prompt starts on the same
@@ -140,6 +141,7 @@ The standard-error block shows the two stable lines. It does not promise
 that the stream contains only those lines. Ravel can also report cleanup operations
 with details, such as process IDs, that are different in each run.
 
+<!-- tc: depart synonym-rotation because confirmation establishes completed cleanup, while the caller checks an exit status -->
 On macOS, an attempt to stop a group whose members already exited can report
 `Operation not permitted`. Ravel writes that report to standard error. It
 allows success only after it confirms the reap, the terminal recovery and the

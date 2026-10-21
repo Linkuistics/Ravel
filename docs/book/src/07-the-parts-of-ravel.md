@@ -83,6 +83,7 @@ Rust owns supervision, while TypeScript supplies the policy execution
 environment. This choice costs a second build tool, a larger executable,
 the licence notices of the Bun runtime and checks on each delivery target.
 
+<!-- tc: depart synonym-rotation because start here creates a worker, while managed launch names a separate lifecycle phase -->
 The worker is a separate process so owner code does not execute inside the
 process that supervises the session. In `worker.rs`, the CLI starts it with
 a cleared environment, null standard input and a private socket at file
@@ -97,6 +98,7 @@ the new session's result channel only after policy evaluation succeeds.
 Thus, the worker receives neither session's
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 
+<!-- tc: depart synonym-rotation because confirmation establishes a successful reap, while checks also cover input validation -->
 The worker stops before the managed process starts. A valid response does
 not let it continue beside the managed process. The CLI closes the protocol
 socket, ends the worker and confirms its reap. A parent reaps a child when it

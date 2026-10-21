@@ -507,6 +507,7 @@ not start another version cut.
 
 ### Build and deliver the tagged book
 
+<!-- tc: depart synonym-rotation because confirmation requires public delivery, while local checks cannot establish that result -->
 The release procedure puts each book at
 `https://linkuistics.github.io/Ravel/vX.Y.Z/`, where `X.Y.Z` is the release
 version. The root page lists releases, newest first. The address is the

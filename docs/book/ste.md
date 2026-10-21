@@ -171,4 +171,4 @@ keep them. Use the same words in each chapter:
 | Phrase | Use |
 |---|---|
 | ending instructions, ending instruction | the instructions to end the session |
-| routing (a noun for the work of the owner policy), routing code, routing rule | the choice of command, the policy decisions (when refusals and arguments are part of it), the policy code, a rule in the owner policy, or a verb: “the policy selects a command” |
+| routing (a noun for the work of the owner policy), routing code, routing rule | The choice of command, the policy decisions (with refusals and arguments), the policy code, or a rule in the owner policy. As a verb: “the policy selects a command” |

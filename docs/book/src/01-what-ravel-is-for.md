@@ -47,6 +47,7 @@ the sort of work that the caller wants. In the review example above,
 the caller can use `review` as the kind. The caller and the owner
 policy agree on that token. Ravel has no built-in review category.
 
+<!-- tc: depart synonym-rotation because launch names process creation, while start also names the beginning of output -->
 The [owner](02-actors-and-words.md#caller-and-owner) controls the
 configuration of the account. Their
 [owner policy](02-actors-and-words.md#caller-and-owner) is a configuration
@@ -151,6 +152,7 @@ managed process to standard error. Thus, the caller can keep the output of
 the managed process and the diagnostics of Ravel separate from the result
 stream.
 
+<!-- tc: depart synonym-rotation because checking an exit status and confirming completed cleanup are different operations -->
 The caller checks whether `start-session` succeeded before it interprets that
 stream. A failure during the write of the final result can leave only the
 start of the result on standard output. Thus, the output alone does not prove

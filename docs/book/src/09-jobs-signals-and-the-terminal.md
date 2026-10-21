@@ -15,6 +15,7 @@ shows where these operations occur in the code.
 
 ## The managed process leads a job
 
+<!-- tc: depart synonym-rotation because launch is a noun for one invocation, not a second verb for start -->
 The [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
 is the direct child that Ravel starts from the selected command.
 For an ordinary unconfined launch, Ravel creates a new **process group** for
@@ -69,7 +70,7 @@ schedule starts at observation, not at the instant the sender calls `end-session
 | Grace | The runner observes the completion file while the child still runs | Allow 2 seconds for the child to exit |
 | TERM | The child still runs after the grace | Send TERM to the group and the child. Allow up to 5 seconds for the child to exit |
 | KILL | The child still runs after the kill grace | Send KILL to the group and the child. Check for exit at 10-millisecond intervals |
-| Final cleanup | The runner observes the child's exit | Stop the other group members before the reap, then recover the terminal and confirm group absence |
+| Final cleanup | The runner observes the child's exit | Stop the other group members before the reap, then recover the terminal and confirm group absence <!-- tc: depart synonym-rotation because confirmation establishes group absence, while exit checks can find a live child --> |
 
 The figure separates the grace periods from final cleanup. Both exit paths
 reach the group stops before reap, then the terminal recovery and group query.
@@ -459,6 +460,7 @@ below gives the exclusions.
 For example, Rust startup ignores SIGPIPE. A capture in `main` would see that new ignore instead of the
 state that Ravel inherited.
 
+<!-- tc: depart synonym-rotation because repair names a signal-state correction, while fixed describes a constant bound -->
 The CLI's initialiser in `signal_state.rs` records the ignored set and the
 initial thread's mask before those runtime changes. It keeps that record
 separate from later repairs by the CLI and the runner. If a required query
@@ -478,7 +480,7 @@ The CLI and the runner also need signal state of their own. An ignored SIGCHLD o
 reap. That would remove both the wait result and the identity reservation
 needed for group cleanup. The CLI checks and repairs this state before the
 policy worker starts. The runner checks it before its managed child starts.
-These repairs do not alter the immutable child entry values.
+These repairs do not change the immutable child entry values.
 
 The runner installs handlers for nonignored TERM and HUP. It also handles
 nonignored INT when no terminal exists or the launch is transparent.

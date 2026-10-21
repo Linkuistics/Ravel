@@ -1,3 +1,5 @@
+<!-- tc: pending because this large contract is converted by the sections each edit touches -->
+
 # The Ravel book: document contract
 
 This contract is the agreement the book is written to. It has four parts: the
@@ -53,15 +55,17 @@ stated prerequisites.
 - **Never taught:** TypeScript or Rust language features, shell, Git, JSON,
   general programming, diagram notation, or the general OS concepts above.
 
+<!-- tc: on -->
+
 ### What the reader can do afterwards
 
-- Configure and run a session: write, typecheck and validate an owner policy
-  with fake agents, route kinds to real agent programs, run sessions, and
-  interpret every outcome and exit code.
-- Explain why Ravel has a TypeScript policy worker and two Rust packages, and
-  what each part owns.
-- Follow a successful, a refused and a cancelled session through the code, and
-  find where a change belongs.
+- Configure and run a session. Write, typecheck and validate an owner policy
+  with fake agents. Route kinds to real agent programs. Interpret every
+  outcome and exit code.
+- Explain why Ravel has a TypeScript policy worker and two Rust packages,
+  and what each part owns.
+- Follow successful, refused and cancelled sessions through the code.
+  Find where a change belongs.
 - Use a supported extracted component through its interface, once chapter 10
   exists.
 - Build, test and deliver the project.
@@ -71,42 +75,62 @@ stated prerequisites.
 ### The intended domain
 
 Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
-supervised parts of another program. In the owner's words, from read 1: "We
+supervised parts of another program.
+
+<!-- tc: off because these are the owner's quoted words -->
+
+In the owner's words, from read 1: "We
 should be explicit that the programs we are running are LLM sessions in
 harnesses such as codex or claude code. We should also point out that these
 harnesses typically cannot exit themselves, which is why we have the
 `end-session` command. Thus ravel allows you to use such interactive harness
 as 'sub components' of another process, typically an orchestrator."
 
+<!-- tc: on -->
+
+<!-- tc: off because these are the owner's quoted words -->
+
 The reason for a harness, in the owner's words from read 1 on 2026-10-18:
 "We should make it obvious that the reason we want to use an LLM harness is
 because it allows us to use a subscription rather than an API session which
-is much cheaper." A harness such as Claude Code or Codex can run under the
+is much cheaper."
+
+<!-- tc: on -->
+
+A harness such as Claude Code or Codex can run under the
 subscription of its user. Thus, a caller that runs LLM work through Ravel can
 use that subscription instead of paid API access. The book says so where it
 first describes Ravel. It names no price or plan. Each harness's own
 documentation covers its plans and terms.
 
-A **caller**, such as an orchestrator that runs sessions as steps of its own
-work, asks for a session of some kind; the **owner's** executable TypeScript
-policy chooses the harness command to run; Ravel launches that command as a
-supervised job. An interactive harness does not exit when its LLM has finished
-the task: it waits for more input. So the caller's prompt tells the LLM to run
-`ravel end-session RESULT`. This command sends one opaque result to Ravel and
-tells Ravel to stop the session. Ravel then stops the harness and the rest of its process
-group if they are still running and, once the job has been completely cleaned
-up, returns the result or reports why it cannot. That is what lets an
-interactive harness work as one component of a larger program. The book says
-so where it first describes Ravel, and gives the reason for `end-session`
-where it introduces the command.
+A **caller**, such as an orchestrator, asks for a session of some kind.
+The **owner's** executable TypeScript policy chooses the harness command.
+Ravel launches that command as a supervised job. An interactive harness
+waits for more input when its LLM finishes the task.
 
-The mechanism is generic, and its contract is loose. In the owner's words
+The caller's prompt tells the LLM to run `ravel end-session RESULT`.
+This command sends one opaque result to Ravel and tells Ravel to stop the
+session. Ravel stops the harness and the rest of its process group if they
+still run. After complete job cleanup, Ravel returns the result or reports
+why it cannot.
+
+This lets an interactive harness work as one component of a larger program.
+The book states this purpose where it first describes Ravel. It gives the
+reason for `end-session` where it introduces the command.
+
+The mechanism is generic, and its contract is loose.
+
+<!-- tc: off because these are the owner's quoted words -->
+
+In the owner's words
 from read 1 on 2026-10-18: "We should emphasize that the fact that the
 configuration runs a harness is not fully required. The contract interface
 between the Revel CLI and the configuration is that it runs something and
 returns a value. Now it is the case that the Revel CLI specifically talks
 about prompts and we expect that it will be a harness that it runs, but this
 is a very loose contract."
+
+<!-- tc: on -->
 
 The policy selects a program, and Ravel runs it. A program in the session
 then sends one value with `end-session`. Ravel needs nothing more from the
@@ -123,13 +147,13 @@ only as one labelled illustrative caller.
 The book keeps these roles apart:
 
 - the **caller**, which invokes Ravel, supplies the prompt and its ending
-  instructions, and interprets the result;
-- the **owner**, who writes the policy and settings for their account;
+  instructions, and interprets the result.
+- the **owner**, who writes the policy and settings for their account.
 - **Ravel** itself: the Ravel CLI, the policy worker, the runner and the
-  result channel;
+  result channel.
 - the **managed process**, the selected program and its descendants: a
-  harness running an LLM session, or a program standing in for one;
-- **contributors**, who develop and deliver Ravel;
+  harness running an LLM session, or a program standing in for one.
+- **contributors**, who develop and deliver Ravel.
 - **component consumers**, who reuse an extracted component in another
   project.
 
@@ -142,25 +166,24 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | # | Chapter | After it, the reader can… |
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
-| 1 | What Ravel is for | say what Ravel solves, why it runs harnesses (a subscription instead of paid API access), why `end-session` exists, what it leaves to callers (no store, no task meaning, no model integration), and whether it fits their need |
+| 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. |
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
-| 3 | A complete session, end to end | install Ravel with Homebrew and check its version, run a real session with a tiny policy and a fake agent, then describe its stages; the process and terminal ideas are introduced here as the session needs them |
+| 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and policy validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny policy and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
-| 4 | Write an owner policy | write, typecheck and validate a policy with fake agents, covering the SDK, refusals, policy context, settings, environment grants, routes to real agent programs and copying an existing policy |
+| 4 | Write an owner policy | Write, typecheck and validate a policy with fake agents. Use the SDK, refusals, policy context, settings and environment grants. Route to real agents and copy an existing policy. |
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
-| 7 | The parts of Ravel | explain the Ravel CLI, why policy runs as a separate TypeScript worker that Ravel reaps before the managed launch, why the runner is its own Rust package, and how the parts compose |
-| 8 | Follow a session through the code | follow one successful session from `main` to the result write, then the refusal and cancellation forks and the error and signal precedence, and find where a change belongs |
+| 7 | The parts of Ravel | Explain the Ravel CLI and its separate TypeScript worker. Explain why Ravel reaps the worker before the managed launch. Explain the separate runner package and how the parts compose. |
+| 8 | Follow a session through the code | Follow a successful session from `main` to the result write, then the refusal and cancellation paths. Explain error and signal precedence. Find where a change belongs. |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
 | **Part IV** | **Reuse and develop Ravel** | |
 | 10 | Use Ravel's components in your project | use an extracted component through its interface and meet its obligations, without Ravel's policy or session conventions |
-| 11 | Develop Ravel | set up a checkout, build, use the test seams and `task check`, add a test, and know what the evidence documents are for |
+| 11 | Develop Ravel | Prepare a checkout and build Ravel. Use the test seams and `task check`. Add a test and explain the evidence documents. |
 | 12 | Deliver Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
 
 The owner's STE decision of 2026-10-17 changed six chapter titles and two part
-titles to commands, because STE Rule 3.5 permits “-ing” forms only in
-technical names. The chapter file names stay as they are, so links do not
+titles to commands. STE Rule 3.5 permits “-ing” forms only in technical names. The chapter file names stay as they are, so links do not
 change. The planning for Parts III and IV changed chapter 7's title to
 “The parts of Ravel” on 2026-10-18. This noun phrase avoids passive voice
 with a known agent (Rule 3.6). Its file is `07-the-parts-of-ravel.md`.
@@ -168,8 +191,9 @@ with a known agent (Rule 3.6). Its file is `07-the-parts-of-ravel.md`.
 Chapters 1–9, 11 and 12 describe the code as it stands in the workstream that
 wrote this contract. Chapters 1–6 describe the CLI, configuration and session
 behaviour that Ravel's compatibility promise keeps unchanged. Chapters 7–9, 11
-and 12 describe structure, packages and delivery that later component work may
-change; such work updates the chapters it touches as part of its own change.
+and 12 describe structure, packages and delivery. Later component work may
+change these subjects. That work updates the chapters it touches as part of
+its own change.
 Chapter 10 is written by the work that delivers a supported extracted
 component, together with that component's interface and consumer, and not
 before.
@@ -186,10 +210,11 @@ quotes source excerpts but does not cover the complete source.
 - **Reusing a component:** chapters 1 and 2, then 10, with 7 and 9 as
   background.
 - **Changing Ravel:** chapters 1–3, 7 and 8, then 11, with 9 and 12 as needed.
-- **Direct entries:** every chapter 6 entry, every exit code, every error
-  message the book explains, and every figure is a place a reader may arrive
-  without reading what comes before. Each carries the local context it needs and
+- **Direct entries:** readers may arrive at any chapter 6 entry, exit code,
+  error message or figure without the preceding chapters. Each carries the local context it needs and
   links back to where its subject is taught.
+
+<!-- tc: pending because this large contract is converted by the sections each edit touches -->
 
 ### Emphasis
 
@@ -271,75 +296,93 @@ matters:
   checking that policy's file, behaviour or data. It is not a worker or supervision
   failure, nor a selection timeout.
 
+<!-- tc: on -->
+
 ### Coverage inventories
 
-The book claims complete coverage of five inventories. Each is enumerated
-from the subject at drafting time and again at proof, not from this file or
-from memory: a session derives the list from its source, checks the book
-against it, and reports what is missing. An item is covered when the book
-teaches it where a task needs it and, for the first two inventories, also
-gives it a chapter 6 entry.
+The book claims complete coverage of five inventories. Draft and proof each
+derive these inventories from the subject. Each stage checks the book against
+its list and reports omissions. Memory and this contract do not replace the
+source inventory. The book teaches each item where a task needs it. The first
+two inventories also have entries in chapter 6.
 
-1. **CLI inputs and outputs**, from `ravel --help`, `ravel start-session
-   --help`, `ravel end-session --help` and the CLI's argument definitions in
-   the source: every verb, option and argument; every exit status, including
-   the signal statuses of INT, TERM and HUP; the stdout and stderr contract and
-   the `--json` notices; and every environment variable Ravel reads, sets,
-   passes on or refuses to grant.
-2. **Configuration inputs**, from the session specification, the SDK's
-   exported declarations and the settings reader: the policy entry and how it
-   is found and checked; every settings key and the refusal of unknown keys;
-   every bound; the policy object's fields; the request, selection and refusal
-   fields; the policy context document's fields and the host operations; the
-   SDK's exports and the embedded imports; the module-resolution rules; and
-   the shipped sample.
-3. **Lifecycle and failure outcomes**, from the session specification and the
-   result/job completion specification. At this agreement they are: a result
-   sent with `end-session` and returned after confirmed cleanup, exact for empty, multiline, Unicode and
-   option-looking values, and successful even if the managed process later
-   exits nonzero; a repeated `end-session` (the first value wins); a natural
-   exit without a result, including status 0; `end-session` with missing,
-   empty or stale context; malformed CLI input or settings; a refusal by the
-   policy or of the policy's file, behaviour or data; a missing, stale or
-   mismatched worker and other worker or supervision failures; a selection
-   timeout; a selected program that cannot be executed or found; cancellation
-   by INT, TERM or HUP during selection and during supervision, including after
-   a result was sent; the escalation schedule after Ravel receives the result and the
-   cleanup of descendants before reap; a surviving group, a cleanup failure or
-   an unwritable result stream; operation reports; nested sessions;
-   confinement granted or refused; terminal lending and recovery, noninteractive
-   isolation, and recovery after a failed exec; and the accepted limits named
-   under Emphasis.
-4. **Component obligations**: the ten obligations the session specification
-   authorises and the component guide tabulated before its removal. Existing owner
-   configuration keeps working; policy execution has no session-result
-   authority and its worker is reaped before the managed launch; policy output
-   is judged without fallback; the selected program runs directly in the
-   caller's context; Ravel keeps the first complete result that it receives, exactly;
-   success requires reap and confirmed group cleanup; cancellation suppresses
-   results; the terminal's foreground and modes are recovered; only result
-   bytes reach stdout; installed execution uses the matched Ravel CLI and worker.
-5. **Contributor workflows**, from `task --list`: setup, build, the test and
-   check tasks, install and smoke, the release tasks, and the book's own tasks.
-   The native-entry, incumbent and Linux measurement tasks are evidence
-   instruments: the book names them and points to the evidence they produce,
-   without teaching them.
+**CLI inputs and outputs.** Sources are the CLI argument definitions and the
+help for `ravel`, `ravel start-session` and `ravel end-session`. Coverage includes:
 
-**Omissions and unknowns**, stated wherever they matter and in every report of
-coverage:
+- Every verb, option and argument.
+- Every exit status, including the signal statuses of INT, TERM and HUP.
+- The stdout and stderr contract and the `--json` notices.
+- Every environment variable that Ravel reads, sets, passes on or refuses to grant.
 
-- Whether a developer new to Ravel can use the book is unknown, because the
-  reader checkpoints are the owner's stand-in reads (part 4).
+**Configuration inputs.** Sources are the session specification, the SDK's
+exported declarations and the settings reader. Coverage includes:
+
+- The policy entry, its discovery and its checks.
+- Every settings key, the refusal of unknown keys and every bound.
+- The policy object's fields and the request, selection and refusal fields.
+- The policy context document's fields and the host operations.
+- The SDK's exports, embedded imports, module-resolution rules and shipped sample.
+
+**Lifecycle and failure outcomes.** Sources are the session specification
+and the result/job completion specification. At this agreement, coverage includes:
+
+<!-- tc: depart synonym-rotation because cleanup confirmation establishes an outcome rather than validating input data -->
+- A result sent with `end-session` and returned unchanged after confirmed cleanup.
+  Values include empty, multiline, Unicode and option-looking strings.
+  Success remains possible if the managed process later exits nonzero.
+- A repeated `end-session`, where the first value wins.
+- A natural exit without a result, including status 0.
+- `end-session` with missing, empty or stale context.
+- Malformed CLI input or settings.
+- A refusal by the policy or of the policy's file, behaviour or data.
+- A missing, stale or mismatched worker and other worker or supervision failures.
+- A selection timeout.
+- A selected program that Ravel cannot execute or find.
+- Cancellation by INT, TERM or HUP during selection and supervision,
+  including after the session sends a result.
+- Escalation after Ravel receives the result, and descendant cleanup before reap.
+- A surviving group, a cleanup failure or an unwritable result stream.
+- Operation reports and nested sessions.
+- Confinement granted or refused.
+- Terminal lending and recovery, noninteractive isolation, and recovery after a failed exec.
+- The accepted limits under Emphasis.
+
+**Component obligations.** The session specification authorises these ten
+obligations. The component guide tabulated them before its removal:
+
+- Existing owner configuration keeps working.
+- Policy execution has no session-result authority. Ravel reaps its worker
+  before the managed launch.
+- Ravel judges policy output without fallback.
+- The selected program runs directly in the caller's context.
+- Ravel keeps the first complete result that it receives, unchanged.
+- Success requires reap and confirmed group cleanup.
+- Cancellation suppresses results.
+- Ravel recovers the terminal's foreground and modes.
+- Only result bytes reach stdout.
+- Installed execution uses the matched Ravel CLI and worker.
+
+**Contributor workflows.** The source is `task --list`. Coverage includes
+setup, build, tests, checks, install, smoke, release tasks and the book's tasks.
+The native-entry, incumbent and Linux measurement tasks are evidence instruments.
+The book names them and points to their evidence without teaching their use.
+
+**Omissions and unknowns.** Each coverage report states these limits.
+The book also states them wherever they matter:
+
+- Whether a developer new to Ravel can use the book is unknown.
+  The reader checkpoints are the owner's stand-in reads (part 4).
 - Chapter 10 is unwritten until a supported extracted component exists.
-- Native x86-64 Linux is unqualified (built, linted at Rust 1.85.0 and run only
-  under emulation).
-- The real agents' flags are known only as of their recorded check. Claude
-  Code 2.1.301 and codex-cli 0.162.1 were installed on 2026-10-16; drafting
-  rechecks and records the versions it uses.
-- GitHub's rendering is unchecked until the branch is pushed, and the
-  published site until the first release that carries the book.
-- Coverage of an inventory shows what the book covers, not that a reader
-  understands it.
+- Native x86-64 Linux is unqualified. The project built it, linted it at
+  Rust 1.85.0 and ran it only under emulation.
+- Real agents' flags are known only as of their recorded check. The installed
+  versions on 2026-10-16 were Claude Code 2.1.301 and codex-cli 0.162.1.
+  Drafting rechecks and records the versions it uses.
+- GitHub's rendering is unchecked until the branch is pushed.
+  The site is unchecked until the first release that carries the book.
+- Inventory coverage shows what the book covers, not whether a reader understands it.
+
+<!-- tc: pending because this large contract is converted by the sections each edit touches -->
 
 ### Examples policy
 
@@ -368,16 +411,18 @@ coverage:
   byte for byte. The convention and the check (`task docs:excerpts`) are in
   `excerpts.md` beside this contract.
 
+<!-- tc: on -->
+
 ### Figure needs
 
 Each figure answers a reader question at a stated level. The art stage may
-refine, merge or add to this list; it keeps one visual vocabulary across the
+refine, merge or add to this list. It keeps one visual vocabulary across the
 book and adds a diagram kind only when the question changes.
 
 The book also has one visual style across diagram types: a shared colour
 palette, fonts and type sizes, line weights, arrow styling and spacing
-conventions. Shared style definitions carry these choices; a notation-specific
-difference has an explicit reason. Art checks these properties across the
+conventions. Shared style definitions carry these choices. A difference for
+one notation has an explicit reason. Art checks these properties across the
 whole book after the chapter units exist, before the final whole-book proof.
 This checks visual consistency, not the reader's knowledge of notation.
 
@@ -396,30 +441,29 @@ This checks visual consistency, not the reader's knowledge of notation.
 
 ### Relation to other documents
 
-- **The book replaces these guides**, each removed once the chapters that
-  absorb it land, with every inbound link redirected: the README (reduced to a
-  short entry into the book), the session CLI guide and the owner
-  configuration guide (both removed: Parts I and II absorbed them, and the
-  owner's dated configuration handoff is kept outside the book in
-  `docs/configuration-handoff-2026-10-12.md`), the local runner guide,
-  the result-channel guide and the component guide (all three removed:
-  chapters 7, 8 and 9 absorbed them, and their editable views under
-  `docs/design/components/` were removed with them; the source and observation
-  evidence of the guides is kept outside the book in
-  `docs/component-evidence.md`), the release guide and the authority note
-  (both removed: chapter 12 absorbed the release guide, and Parts I and II and
-  chapter 11 absorbed the authority note, whose test-isolation guards and
-  legacy-name exceptions are now in chapter 11, “Keep tests separate from
-  live sessions”).
-- **These stay normative**: the session execution specification, the
-  result/job completion specification and the decision records. The book
-  explains every behaviour and design reason in its own words, so a reader
-  never has to follow a link to them. Links to them are optional depth, kept
-  out of the way of the teaching, and proof checks each behaviour the book
-  restates against its rule.
-- **These stay outside the book**: the evidence documents and their receipts,
-  check logs and campaign files, the caller-reference inventory and the
-  retired-project record.
+**Guide replacements.** Each guide leaves the tree when the chapters that
+absorb it land. Every inbound link changes to its replacement:
+
+| Earlier document | Replacement and retained material |
+|---|---|
+| README | A short entry into the book |
+| Session CLI and owner configuration guides | Parts I and II absorbed both guides. The dated owner handoff stays in `docs/configuration-handoff-2026-10-12.md` |
+| Local runner, result-channel and component guides | Chapters 7–9 absorbed the guides. Their editable views under `docs/design/components/` left with them. Source and observation evidence stays in `docs/component-evidence.md` |
+| Release guide | Chapter 12 absorbed the guide |
+| Authority note | Parts I and II and chapter 11 absorbed it. Chapter 11, “Keep tests separate from live sessions”, holds the test-isolation guards and legacy-name exceptions |
+
+**Normative documents.** The session execution specification, result/job
+completion specification and decision records keep their authority.
+The book explains every behaviour and design reason in its own words.
+A reader need not follow links to these documents to understand the book.
+Links offer optional depth outside the teaching. Proof checks each restated
+behaviour against its rule.
+
+**Documents outside the book.** Evidence documents, receipts, check logs and
+campaign files stay separate. So do the caller-reference inventory and the
+retired-project record.
+
+<!-- tc: pending because this large contract is converted by the sections each edit touches -->
 
 ## 2. Prose contract
 
@@ -603,28 +647,31 @@ The house style's points, as this book takes them:
   (moving up is a new trial of every drawing primitive). A session whose choice
   turns on one of them rechecks it first and records the date.
 
+<!-- tc: on -->
+
 ## 4. Reader checkpoints
 
-- **The reader** is the owner, reading as a labelled stand-in for the intended
-  reader. Every result is recorded as the owner's stand-in read. It can
-  establish accuracy, coverage and the owner's own results, not whether a
-  developer new to Ravel can find, understand and use the book.
-- **Read 1** follows proof of Parts I and II. Tasks: write a policy that routes
-  to a fake agent, run a session, and interpret a refusal and a cancellation;
-  and arrive at one direct entry, such as an exit code or an error message,
-  without reading what precedes it. Its corrections land before Parts III and
-  IV are drafted.
-- **Read 2** follows proof of Parts III and IV. Tasks: explain why Ravel has a
-  TypeScript worker and two Rust packages; follow one session through the code
-  to where its final cancellation outcome is chosen; and build and test Ravel from a checkout.
-- **Chapter 10's read** follows that chapter's proof. Task: use the extracted
-  component through its interface.
-- **Every read** begins at chapter 1 or at its stated entry, in the locally
-  built book, with the figures confirmed to load there first. It records the
-  reader's own words, how far they got, the locations they report and what they
-  did not reach. An early comprehension failure stops the read, and its
-  correction goes to the stage that owns it before dependent drafting
-  continues. The owner's results, task performance, mechanical checks and any
-  model-proxy results are reported separately, and none stands in for another.
-- **Placement**: each read is a `requirements` session placed after the proof
-  it follows, outside draft → copy-edit → art → proof.
+- **The reader** is the owner, as a labelled stand-in for the intended reader.
+  Each result records that limit. A read can establish accuracy, coverage and
+  the owner's own results. It cannot establish whether a developer new to
+  Ravel can find, understand and use the book.
+- **Read 1** follows proof of Parts I and II. The tasks are to write a policy
+  for a fake agent and run a session. The reader interprets a refusal and a
+  cancellation. The reader also uses one direct entry, such as an exit code
+  or error message, without the preceding text. Corrections land before the
+  draft of Parts III and IV.
+- **Read 2** follows proof of Parts III and IV. The reader explains why Ravel
+  has a TypeScript worker and two Rust packages. The reader follows a session
+  through the code to its final cancellation decision, then builds and tests
+  Ravel from a checkout.
+- **Chapter 10's read** follows that chapter's proof. The task is to use the
+  extracted component through its interface.
+- **Every read** opens at chapter 1 or its stated entry in the locally built
+  book. Figures must load there before the read. The record keeps the reader's
+  words, progress, reported locations and places they did not reach.
+  An early comprehension failure stops the read. The stage that owns the
+  correction fixes it before dependent drafting continues. Reports separate
+  the owner's results, task performance, mechanical checks and model-proxy
+  results. No result stands in for another.
+- **Placement:** each read is a `requirements` session after its proof,
+  outside draft → copy-edit → art → proof.
