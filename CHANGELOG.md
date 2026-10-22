@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.1.0
+
 - Correct five failure paths. Only the behaviour after a failure changes. The
   command-line arguments, the owner configuration and the results of a
   successful session stay the same.
