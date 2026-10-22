@@ -1,0 +1,77 @@
+// The chapter 3 example through the code — one authoritative sequence source.
+// Runner actions stay on the original CLI lifeline. Conditional section labels
+// carry the optional escalation region without adding a new layout primitive.
+#import "_sequence.typ": *
+#import "_draw.typ": render
+
+#let parts = (
+  part("caller", [caller]),
+  part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
+  part("worker", [policy \ worker], kind: "ravel"),
+  part("managed", [managed \ process]),
+  part("end", [Ravel CLI \ (end-session)], kind: "ravel"),
+  part("channel", [result \ channel], kind: "temporary", db: true),
+)
+
+#let rows = (
+  msg("caller", "cli", [start-session \ kind and prompt]),
+  msg("cli", "cli", [main → run \ Check inputs and policy path]),
+  div([Policy evaluation]),
+  msg("cli", "worker", [Start in private directory], create: true),
+  msg("worker", "worker", [Change to / \ Register embedded modules]),
+  msg("worker", "cli", [hello: worker identity], dashed: true),
+  msg("cli", "cli", [Check worker identity]),
+  msg("cli", "worker", [evaluate: policy path \ and request]),
+  msg("worker", "worker", [Import owner policy]),
+  msg("worker", "cli", [Policy description], dashed: true),
+  msg("cli", "cli", [judge: check description]),
+  msg("cli", "worker", [select: request command]),
+  msg("worker", "worker", [Call policy select]),
+  msg("worker", "cli", [Selected command], dashed: true),
+  msg("cli", "cli", [judge: check command]),
+  msg("cli", "worker", [Close socket. End and reap]),
+  destroy("worker"),
+  msg("cli", "cli", [Collect diagnostics \ Remove worker directory \ Resolve fake-agent]),
+  div([Managed launch]),
+  msg("cli", "cli", [Reserve stdout \ Redirect stdout to stderr]),
+  msg("cli", "channel", [Allocate channel directory], create: true),
+  msg("cli", "cli", [Check cancellation \ Prepare argv and environment]),
+  msg("cli", "managed", [Runner: spawn in own group \ Set new RAVEL_EXIT_FILE], create: true),
+  note("cli", "managed", [Before exec: child takes terminal if Ravel owns foreground.]),
+  msg("cli", "cli", [Started: start check \ restores mask \ Then watch]),
+  note("cli", "managed", [Inside watch: parent lends terminal if Ravel owns foreground.]),
+  div([Send the result]),
+  msg("managed", "caller", [Print prompt to caller stderr]),
+  msg("managed", "end", [end-session finished], create: true),
+  msg("end", "end", [Read RAVEL_EXIT_FILE]),
+  msg("end", "channel", [Check directory \ Write and flush temporary file], role: "result"),
+  msg("end", "channel", [Hard link adds completion name]),
+  note("managed", "channel", [First result wins. No wait for job cleanup.]),
+  div([Optional: result observed before child exit]),
+  msg("cli", "channel", [Appearance starts grace]),
+  msg("cli", "managed", [If alive: TERM after 2 s \ If still alive: KILL 5 s later]),
+  div([After child exit]),
+  msg("cli", "cli", [watch: observe exit \ Retain identity until reap]),
+  msg("cli", "managed", [Stop the group before reap]),
+  msg("cli", "cli", [Reap direct child]),
+  destroy("managed"),
+  msg("cli", "cli", [Recover terminal if lent \ Confirm group absent]),
+  msg("cli", "channel", [supervise_reported: recheck appearance]),
+  msg("cli", "cli", [Return Ended to run \ result_after: check job facts]),
+  msg("cli", "channel", [Validate and read through held directory]),
+  msg("channel", "cli", [finished], dashed: true, role: "result"),
+  div([Cleanup and output]),
+  msg("cli", "cli", [Report operations \ Restore entry mask]),
+  msg("cli", "channel", [Close: remove channel directory]),
+  destroy("channel"),
+  msg("cli", "cli", [Restore stdout \ finalise: signal checks]),
+  msg("cli", "cli", [settle: require success]),
+  msg("cli", "caller", [Write and flush finished \ unchanged. Exit 0], role: "result"),
+)
+
+#render(sequence([The session code path — UML sequence], parts, rows, (
+  [Blue: Ravel. Grey: external processes. Gold: files. Green: result.],
+  [X: confirmed reap or removal. Second CLI exit/reap omitted.],
+  [Unconfined example, without policy context or a terminal.],
+  [Early child exit skips the optional region. Later checks still find the result.],
+), max-label: 90))

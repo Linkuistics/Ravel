@@ -1,0 +1,534 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>What Ravel is for - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-2c91c537.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-23b29db2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="what-ravel-is-for"><a class="header" href="#what-ravel-is-for">What Ravel is for</a></h1>
+<p>Ravel runs
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">LLM sessions in agent harnesses</a>,
+such as Claude Code and Codex, as supervised parts of another program. A
+harness is the program in which an LLM works on a prompt. It gives the prompt
+to the LLM and runs the commands that the LLM requests, for example shell
+commands. The person who configures Ravel chooses which harness runs each
+request. Ravel starts that harness and supervises it. After cleanup succeeds,
+Ravel returns the result that the session sent.</p>
+<p>A harness such as Claude Code or Codex can run under the subscription of its
+user. Thus, a caller can use that subscription for LLM work instead of paid
+API access. The cost can be much lower for work that the subscription covers.
+The <a href="https://code.claude.com/docs/en/authentication">Claude Code documentation</a>
+and <a href="https://learn.chatgpt.com/docs/auth">Codex documentation</a> explain their
+access options and link to their plans and terms. This paragraph agrees with
+those pages as they were on 18 October 2026.</p>
+<p>An <a href="02-actors-and-words.html#caller-and-owner">orchestrator</a> is a program that
+runs LLM sessions as steps of its own work. It can request a
+<a href="02-actors-and-words.html#caller-and-owner">session</a> from Ravel and wait for
+its result. Then it uses that result to decide its next step.</p>
+<p>For example, an orchestrator can ask an LLM to review a code change. The
+orchestrator knows the files to review and what to do with the answer. The
+person who operates the orchestrator wants to choose the harness for their
+account. Each participant has a different responsibility in that review:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Participant</th><th>Responsibility in the review</th></tr>
+</thead>
+<tbody>
+<tr><td>Orchestrator</td><td>Choose the work to review and interpret the result</td></tr>
+<tr><td>Person who configures Ravel</td><td>Choose the harness command through their policy</td></tr>
+<tr><td>Ravel</td><td>Run the selected command and supervise it until cleanup completes</td></tr>
+</tbody>
+</table>
+</div>
+<p>An interactive harness waits for more input when the LLM completes its task.
+Ravel’s <code>end-session</code> command lets the LLM send a result and ask Ravel to
+stop the session. Thus, the orchestrator can continue after cleanup.</p>
+<h2 id="from-a-request-to-a-result"><a class="header" href="#from-a-request-to-a-result">From a request to a result</a></h2>
+<p>The person or program that makes the request is the
+<a href="02-actors-and-words.html#caller-and-owner">caller</a>. The caller invokes
+<code>ravel start-session</code> with a prompt and a
+<a href="02-actors-and-words.html#caller-and-owner">kind</a>. A kind is a token that names
+the sort of work that the caller wants. In the review example above,
+the caller can use <code>review</code> as the kind. The caller and the owner
+policy agree on that token. Ravel has no built-in review category.</p>
+<!-- tc: depart synonym-rotation because launch names process creation, while start also names the beginning of output -->
+<p>The <a href="02-actors-and-words.html#caller-and-owner">owner</a> controls the
+configuration of the account. Their
+<a href="02-actors-and-words.html#caller-and-owner">owner policy</a> is a configuration
+file with TypeScript code. Its default path is
+<code>$HOME/.config/ravel/policy.ts</code>. The policy receives the request. Then it
+selects a program and its arguments, or it refuses to launch a program.</p>
+<p>The policy can use the kind to choose a harness and the arguments that set
+the model and the effort level of that harness. The <code>provider</code>,
+<code>model</code> and <code>effort</code> fields of a selection are labels for the notice that
+Ravel writes when the session starts. These labels do not configure the
+harness. The policy puts the actual options in the arguments of the command.</p>
+<p>The caller can also use the kind to choose instructions for the prompt. If
+the harness supports skills, the prompt can tell the LLM which skill to load.
+A skill is a set of instructions for a particular task. This use of the kind
+is a caller convention. Ravel gives the prompt to the policy unchanged and
+adds no task instructions. The policy decides whether and how to include the
+prompt in the arguments of the selected command.</p>
+<p>One <code>start-session</code> invocation is a
+<a href="02-actors-and-words.html#caller-and-owner">session</a>. During the session, Ravel
+supervises the program that the policy selected. This program is the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">managed process</a>
+of the session. The harness runs the LLM session that works on the prompt.
+That LLM session is not the Ravel session. Ravel supervises the harness
+process, not the conversation of the LLM in that process.</p>
+<p>The contract with the selected program is loose. The policy selects a
+program, Ravel runs it, and a program in the session sends one value with
+<code>end-session</code>. Ravel needs nothing more from the program. The selected
+program does not have to use an LLM or understand a prompt.</p>
+<p>The table separates what Ravel needs from the harness use that this book
+teaches. The runnable examples use ordinary programs as fake agents.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Part of a session</th><th>What Ravel needs</th><th>What this book expects from a harness</th></tr>
+</thead>
+<tbody>
+<tr><td>Selected command</td><td>The policy selects a program and its arguments</td><td>The program runs an LLM session</td></tr>
+<tr><td>Prompt</td><td>The caller supplies <code>--prompt</code> or <code>--prompt-file</code>. Ravel gives that text to the policy unchanged. The policy decides whether the program receives it.</td><td>The policy passes the prompt to the harness</td></tr>
+<tr><td>Result</td><td>A program in the session sends one value with <code>end-session</code></td><td>The LLM follows the caller’s instructions and tells the harness to run that command</td></tr>
+</tbody>
+</table>
+</div>
+<p>An interactive harness does not exit when its LLM completes the task. It
+waits for more input. Thus, the caller’s prompt tells the LLM to run
+<code>ravel end-session RESULT</code> when the task is complete. <code>RESULT</code> is a
+placeholder for the text to send. The caller’s prompt gives the permitted
+values and tells the LLM when to use each value.</p>
+<p>For example, the caller can choose the text <code>continue</code> as a result value. The
+prompt can tell the LLM to run <code>ravel end-session continue</code> when the review is
+complete. The command sends that text to Ravel and asks Ravel to end the
+session. After successful supervision and cleanup, Ravel returns the text
+unchanged. The caller can interpret <code>continue</code> as permission to start its
+next task. Ravel gives <code>continue</code> no meaning and does not start a next task.</p>
+<p>The book calls this text an
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>,
+because Ravel does not interpret it. <code>end-session</code> finds the enclosing session
+through its inherited
+<a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a>.
+It takes no session ID or target argument.</p>
+<p>When <code>end-session</code> sends the result, it requests the end of the session. This
+request does not prove that cleanup succeeded. A process group is an
+operating-system unit that contains the managed process and its descendants.
+Ravel stops the harness and each other process that remains in that group.
+Then it completes the cleanup of the group.</p>
+<p>To reap a child process, its parent collects the exit status of that child.
+Before Ravel returns a successful result, it confirms that the managed
+process ended and that Ravel reaped it. Ravel also confirms that the process
+group is gone and that it removed the temporary files of the session.
+<a href="03-a-complete-session.html#launch-the-managed-job">Chapter 3, “A complete session, end to end”</a>,
+explains these mechanics at the point where a session needs them.</p>
+<p>The table shows the steps after the LLM completes its task. The caller
+receives a successful result only after Ravel stops the managed process and
+its process group and completes the cleanup.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step after the LLM completes its task</th><th>Who acts and what happens</th></tr>
+</thead>
+<tbody>
+<tr><td>Send</td><td>The LLM tells the harness to run <code>ravel end-session RESULT</code>. This command sends a value and requests the end of the session.</td></tr>
+<tr><td>Stop</td><td>Ravel stops all processes that still run in the process group of the harness.</td></tr>
+<tr><td>Confirm cleanup</td><td>Ravel confirms that it reaped the managed process, that the group is gone and that it removed the temporary files of the session.</td></tr>
+<tr><td>Return</td><td>After successful supervision and cleanup, Ravel returns the result unchanged. The caller interprets the result and decides its next step.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The figure shows Ravel between an orchestrator that requests work and a
+harness that runs an LLM session. The owner chooses the harness. Ravel
+supervises the harness until cleanup lets the result return. Other callers
+and selected programs use the same boundary.</p>
+<p>The C4 system-context view shows Ravel as one system. These shapes show
+responsibilities, not security boundaries.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/system-context.svg" alt="The owner configures which harness runs the caller’s request. An orchestrator or a person sends a kind and a prompt with start-session. Ravel launches and supervises the harness, or another selected program, as the managed process. The LLM tells the harness to run end-session, which sends an opaque result and asks Ravel to stop. Ravel stops the group members that remain. Ravel returns the result to the caller on standard output only after successful cleanup."><span class="img-wrapper"><img src="figures/system-context.svg" alt="The owner configures which harness runs the caller’s request. An orchestrator or a person sends a kind and a prompt with start-session. Ravel launches and supervises the harness, or another selected program, as the managed process. The LLM tells the harness to run end-session, which sends an opaque result and asks Ravel to stop. Ravel stops the group members that remain. Ravel returns the result to the caller on standard output only after successful cleanup."></span></label></p>
+<p><a href="figures/system-context.svg">Open the system-context figure at full size.</a></p>
+<p>After a successful session, Ravel writes the result unchanged to standard
+output. Ravel does not interpret the result and adds no newline. Ravel redirects the standard output of the
+managed process to standard error. Thus, the caller can keep the output of
+the managed process and the diagnostics of Ravel separate from the result
+stream.</p>
+<!-- tc: depart synonym-rotation because checking an exit status and confirming completed cleanup are different operations -->
+<p>The caller checks whether <code>start-session</code> succeeded before it interprets that
+stream. A failure during the write of the final result can leave only the
+start of the result on standard output. Thus, the output alone does not prove
+success.</p>
+<p>Some outcomes return no result to the caller:</p>
+<ul>
+<li>A <a href="02-actors-and-words.html#policy-evaluation-and-supervision">refusal</a> means
+that Ravel launches no program.</li>
+<li>If the managed process exits and no program sent a result, the session has
+no result and fails. This is also true when the exit status is zero.</li>
+<li>Cancellation of the session suppresses the result, even if a program sent
+the result before the cancellation.</li>
+<li>A supervision failure or a cleanup failure also prevents success.</li>
+</ul>
+<p>But a session with a sent result can succeed after cleanup, even if the
+managed process then exits with a nonzero status. The result is the value
+that the caller’s instructions to end the session asked for. The exit status
+tells how the process ended. The work is what the program changed. None of these three
+outputs can replace another.</p>
+<p>The table keeps the three outputs separate. Thus, you do not confuse an exit
+status or a changed file with the result that the caller requested.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>What the session produces</th><th>What it tells the caller</th><th>What it does not prove</th></tr>
+</thead>
+<tbody>
+<tr><td>Opaque result</td><td>The value sent with <code>end-session</code>, returned after successful supervision and cleanup</td><td>That the requested work is correct</td></tr>
+<tr><td>Managed process’s exit status</td><td>How that process ended</td><td>That it sent a result or that the session succeeded</td></tr>
+<tr><td>Work, such as changed files</td><td>What the selected program changed</td><td>That it sent a result or that the cleanup completed</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="decide-whether-ravel-fits"><a class="header" href="#decide-whether-ravel-fits">Decide whether Ravel fits</a></h2>
+<p>Ravel fits when your program needs to use an LLM session in an interactive
+harness as a step of its own work. Your program can let the owner policy of the
+account choose the harness. In each harness that the policy selects, the LLM
+uses the same command, <code>end-session</code>, to send the result. Ravel supervises the
+session and returns its explicit result after cleanup. Your program still owns
+the task and the decisions after the session ends.</p>
+<p>Use this table to find which part of your need Ravel meets. The other parts
+need a caller, a service or a selected program.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>If you need…</th><th>Ravel’s part</th><th>What stays outside Ravel</th></tr>
+</thead>
+<tbody>
+<tr><td>Different owners to choose different harnesses for the same LLM task</td><td>Evaluate the policy of each owner and run the command that it selects</td><td>The caller’s task meaning and the owner’s policy decisions</td></tr>
+<tr><td>An interactive harness to finish as a step of your program</td><td>Accept the result that <code>end-session</code> sends, stop the group members that remain and return the result after successful cleanup</td><td>The caller’s instructions to end the session, the interpretation of the result and all further work</td></tr>
+<tr><td>Task queues, schedules, retries or durable history</td><td>Run a session when a caller invokes Ravel</td><td>A caller or service that stores and schedules work</td></tr>
+<tr><td>Model access, credentials, usage measurement or rules for model selection</td><td>Run the command that the policy chose</td><td>The harness’s model integration and the owner’s selection rules</td></tr>
+<tr><td>A host that continues to do other work after a launch</td><td>The <a href="02-actors-and-words.html#policy-evaluation-and-supervision">Ravel CLI</a> supervises one session and then exits</td><td>A separate host that continues to run after each launch, which Ravel does not provide</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Ravel CLI, the <code>ravel</code> command-line program, is a <strong>launcher CLI</strong>. One
+invocation supervises one managed launch, reports its result or failure, and
+then exits. A <strong>persistent runner</strong> is a host that continues to run after a
+launch is complete. Ravel does not provide one. A program that exits after one
+session does not give what such a host needs.</p>
+<p>Ravel has no persistent session store and no history lookup. Its
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">result channel</a>
+uses temporary files for one session. It is not a record of past work. If a
+caller needs a permanent record, that caller saves it. Owner policy is
+executable code and can itself use files or network services. Ravel has no
+store, but the absence of a store does not restrict what that trusted code
+can do.</p>
+<p>Grove, a task-tree driver, is one illustrative caller. It is an orchestrator
+that runs LLM sessions in harnesses as steps of the work on its task tree. It
+supplies its own task kinds and interprets its own result values. These
+conventions belong to Grove. Another caller can use different kinds and
+results without a Ravel adapter.</p>
+<p>This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.</p>
+<p>The supervision guarantee has limits. This table shows the consequence of
+each limit for the caller.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Condition</th><th>Limit of the guarantee</th></tr>
+</thead>
+<tbody>
+<tr><td>A descendant leaves the process group of the managed process</td><td>Group cleanup does not reach it. The session can succeed while that descendant continues to run.</td></tr>
+<tr><td>Policy starts detached children</td><td>The cleanup guarantee of the <a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a> does not cover them.</td></tr>
+<tr><td>The Ravel CLI stops abruptly, for example because of KILL</td><td>The managed process or temporary files can remain. The Ravel CLI cannot catch KILL.</td></tr>
+<tr><td>Other code runs as the same user as Ravel</td><td>That code can tamper with Ravel’s files. The separation of sessions is not a security check against that code.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="02-actors-and-words.html#trust-and-confinement">Chapter 2</a> explains why the
+separation of these roles is useful within these limits.</p>
+<h2 id="choose-a-route-through-the-book"><a class="header" href="#choose-a-route-through-the-book">Choose a route through the book</a></h2>
+<p>The book assumes everyday use of shell, Git and JSON, the ability to read
+TypeScript and Rust, and general operating-system knowledge. It teaches the
+domain of Ravel and the job-control details that the behaviour of Ravel
+depends on.</p>
+<p>Choose the route that serves your task. The table gives the chapter order
+and the chapters for further detail.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Your task</th><th>Read in this order</th><th>Further detail</th></tr>
+</thead>
+<tbody>
+<tr><td>Call Ravel from your own tool</td><td>Chapters 1–3, then <a href="05-running-sessions.html">chapter 5, “Run sessions”</a></td><td><a href="06-reference.html">Chapter 6, “Reference”</a>, for lookup</td></tr>
+<tr><td>Write an owner policy</td><td>Chapters 1–3, then <a href="04-writing-an-owner-policy.html">chapter 4, “Write an owner policy”</a></td><td><a href="06-reference.html">Chapter 6, “Reference”</a>, for lookup</td></tr>
+<tr><td>Change Ravel</td><td>Chapters 1–3, then <a href="07-the-parts-of-ravel.html">chapter 7, “The parts of Ravel”</a>, <a href="08-follow-a-session-through-the-code.html">8, “Follow a session through the code”</a>, and <a href="10-develop-ravel.html">10, “Develop Ravel”</a></td><td><a href="09-jobs-signals-and-the-terminal.html">Chapter 9, “Jobs, signals and the terminal”</a>, and <a href="11-deliver-ravel.html">chapter 11, “Deliver Ravel”</a></td></tr>
+<tr><td>Reuse Ravel from another program</td><td>Ravel supports no separate component. Invoke the Ravel CLI as a child process. Chapters 2, 3 and <a href="05-running-sessions.html">5</a> teach that interface.</td><td><a href="07-the-parts-of-ravel.html">Chapters 7</a> and <a href="09-jobs-signals-and-the-terminal.html">9</a> explain the private runner and its limits</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel’s runner, <code>keyed-launch</code>, is a private package of the Ravel CLI. The
+runner can change process-wide signal state, and its return does not restore
+that state. A program that needs supervised harness sessions invokes the Ravel
+CLI as a child process. The Ravel CLI supervises one session and then exits.</p>
+<p>The learning route is to read the chapters in order. The first practical
+session uses a small policy and a fake agent. A fake agent is an ordinary
+program that sends a result with <code>end-session</code>. It takes the place of a
+harness that runs an LLM session. Thus, you can learn the protocol without a
+model service or a personal agent account. The installation and the
+configuration of real agents are outside the scope of the book.</p>
+<h2 id="understand-the-evidence-limits"><a class="header" href="#understand-the-evidence-limits">Understand the evidence limits</a></h2>
+<p>Recorded measurements checked how Ravel starts a session and completes its
+cleanup on two platforms. One platform is aarch64 macOS with Rust 1.99. The
+other platform is native aarch64 GNU/Linux with Rust 1.85.0, the declared
+minimum. Each measurement applies only to the platform, kernel, C library and
+compiler that it records.</p>
+<p>The project built the x86_64 GNU/Linux target, linted it at Rust 1.85.0 and
+ran it only under QEMU user-mode emulation. This emulation translates x86-64
+programs to run on the kernel of the host. Thus, no x86-64 kernel takes part.
+No x86-64 kernel is qualified.</p>
+<p>These facts are limits of the evidence. The three targets do not have the
+same evidence. <a href="11-deliver-ravel.html#read-the-platform-checks-correctly">Chapter 11</a> explains the limits of delivery and of the platforms
+in detail.</p>
+<p>The table shows why a built or emulated target does not have the same
+evidence as a measured native target.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Target</th><th>Recorded execution</th><th>Compiler</th><th>Limit</th></tr>
+</thead>
+<tbody>
+<tr><td>aarch64 macOS</td><td>Native measurements</td><td>Rust 1.99</td><td>Only the recorded platform and compiler</td></tr>
+<tr><td>aarch64 GNU/Linux</td><td>Native measurements</td><td>Rust 1.85.0, the declared minimum</td><td>Only the recorded kernel, C library and compiler</td></tr>
+<tr><td>x86_64 GNU/Linux</td><td>Built, linted and run under QEMU user-mode emulation</td><td>Rust 1.85.0</td><td>Uses the kernel of the host. No x86-64 kernel is qualified.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The reader checkpoints of the book use the owner as a labelled stand-in for a
+developer new to Ravel. These reads can show the owner’s findings, for
+example errors in the book. They cannot show whether a new developer can use
+the book. You can build and examine the local book. Nobody can check how GitHub shows the
+book until the project pushes the branch. The book on GitHub Pages stays
+unchecked until the first release that contains the book.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+                            <a rel="next prefetch" href="02-actors-and-words.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+                    <a rel="next prefetch" href="02-actors-and-words.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

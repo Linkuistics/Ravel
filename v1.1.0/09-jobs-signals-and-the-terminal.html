@@ -1,0 +1,801 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Jobs, signals and the terminal - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-2c91c537.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-23b29db2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="jobs-signals-and-the-terminal"><a class="header" href="#jobs-signals-and-the-terminal">Jobs, signals and the terminal</a></h1>
+<p>A <a href="02-actors-and-words.html#the-managed-process-and-its-result">result</a> requests the end of a job. It does not prove that the job has ended.
+The <a href="02-actors-and-words.html#policy-evaluation-and-supervision">Ravel CLI</a> stays alive to supervise that end
+before it returns the result to the <a href="02-actors-and-words.html#caller-and-owner">caller</a>.
+The <a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">runner</a>
+inside the CLI supplies the process and terminal operations.</p>
+<p><a href="03-a-complete-session.html#send-the-result-and-finish-the-job">Chapter 3</a>
+introduced a job and its reap through one <a href="02-actors-and-words.html#caller-and-owner">session</a>. This chapter explains
+why the order matters, how Ravel ends a process that does not exit, and what <a href="02-actors-and-words.html#trust-and-confinement">confinement</a>
+changes. It also explains terminal recovery, entry signals and the limits of
+these guarantees. <a href="08-follow-a-session-through-the-code.html#finish-the-managed-job">Chapter 8</a>
+shows where these operations occur in the code.</p>
+<h2 id="the-managed-process-leads-a-job"><a class="header" href="#the-managed-process-leads-a-job">The managed process leads a job</a></h2>
+<!-- tc: depart synonym-rotation because launch is a noun for one invocation, not a second verb for start -->
+<p>The <a href="02-actors-and-words.html#the-managed-process-and-its-result">managed process</a>
+is the direct child that Ravel starts from the selected command.
+For an ordinary unconfined launch, Ravel creates a new <strong>process group</strong> for
+that child. The group’s ID is the child’s PID. Descendants inherit this group
+unless they explicitly change it. The managed process and the members of its
+group form the <strong>job</strong>.</p>
+<p>A signal to a process group can reach its members together. A signal to the
+child’s PID reaches only that child. If Ravel stopped only the child, a helper
+could keep a file lock or continue to change the caller’s files.
+The group gives Ravel a scope for shutdown that includes ordinary descendants.</p>
+<p>A <strong>POSIX session</strong> can contain several process groups and can have a
+controlling terminal. An ordinary unconfined launch keeps the caller’s POSIX
+session. Thus, Ravel can give the terminal’s foreground to the new group.
+The terminal rules select which group can read terminal input and receive
+signals from the keyboard.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Choice for the managed launch</th><th>Consequence</th></tr>
+</thead>
+<tbody>
+<tr><td>A new process group in the caller’s POSIX session</td><td>Ravel can signal the job together and can lend the caller’s terminal</td></tr>
+<tr><td>A new POSIX session through <code>setsid</code></td><td>The child starts without the caller’s controlling terminal. This suits the detached modes below</td></tr>
+<tr><td>Only the child’s PID as the shutdown target</td><td>Descendants can survive their parent. This does not meet Ravel’s cleanup contract</td></tr>
+</tbody>
+</table>
+</div>
+<p>A descendant can leave the job’s group, for example through its own
+<code>setsid</code> call. Group cleanup does not cover that descendant. Ravel does not
+promise to track every process descended from the managed process.
+A new process group also creates no new Ravel
+<a href="02-actors-and-words.html#caller-and-owner">session</a>: that term means one
+<code>start-session</code> invocation.</p>
+<h2 id="follow-the-escalation-after-a-result"><a class="header" href="#follow-the-escalation-after-a-result">Follow the escalation after a result</a></h2>
+<p>An interactive <a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a>
+can finish its work and then wait for another prompt.
+The caller therefore tells it to send an
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+with <code>end-session</code>. The command creates the completion file in the
+<a href="07-the-parts-of-ravel.html#the-result-channel-carries-the-value">result channel</a>.
+The runner observes that file’s presence. Ravel checks its contents separately.</p>
+<p>A signal name such as SIGTERM has the prefix SIG. This chapter writes INT, TERM,
+HUP and KILL without that prefix, as the shell <code>trap</code> command does. Other signals
+keep their full names.</p>
+<p>Until it sends KILL, the runner checks the child and channel at 500-millisecond
+intervals. Its first observation of the file starts the grace period. Thus, the
+schedule starts at observation, not at the instant the sender calls <code>end-session</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Stage</th><th>Condition</th><th>Action and wait</th></tr>
+</thead>
+<tbody>
+<tr><td>Grace</td><td>The runner observes the completion file while the child still runs</td><td>Allow 2 seconds for the child to exit</td></tr>
+<tr><td>TERM</td><td>The child still runs after the grace</td><td>Send TERM to the group and the child. Allow up to 5 seconds for the child to exit</td></tr>
+<tr><td>KILL</td><td>The child still runs after the kill grace</td><td>Send KILL to the group and the child. Check for exit at 10-millisecond intervals</td></tr>
+<tr><td>Final cleanup</td><td>The runner observes the child’s exit</td><td>Stop the other group members before the reap, then recover the terminal and confirm group absence <!-- tc: depart synonym-rotation because confirmation establishes group absence, while exit checks can find a live child --></td></tr>
+</tbody>
+</table>
+</div>
+<p>The figure separates the grace periods from final cleanup. Both exit paths
+reach the group stops before reap, then the terminal recovery and group query.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/escalation-timing.svg" alt="A child that outlasts both grace periods receives TERM and KILL attempts. Early exit skips later escalation. Final group stops precede reap."><span class="img-wrapper"><img src="figures/escalation-timing.svg" alt="A child that outlasts both grace periods receives TERM and KILL attempts. Early exit skips later escalation. Final group stops precede reap."></span></label></p>
+<p><a href="figures/escalation-timing.svg">Open the escalation figure at full size.</a></p>
+<p>TERM lets the program handle its own shutdown. A program can ignore TERM.
+It cannot catch or ignore KILL. If the child exits during either grace period,
+Ravel proceeds to final cleanup without the later escalation stages.
+Descendants receive no separate grace period after the child exits.</p>
+<p>The 2-second and 5-second values belong to the Ravel CLI. The runner accepts
+its caller’s durations. These values are not a seven-second deadline for
+<code>start-session</code>: selection, observation delays and final cleanup also take time.
+Without a result or cancellation, this escalation places no time limit on the
+managed process.</p>
+<p>After the escalation’s first KILL attempt, the runner uses a two-second bound
+for its exit checks and reap attempts. It does not restart that bound after
+an error. If the bound expires, the runner reports unresolved ownership, and
+Ravel returns no result to the caller.
+This bound limits retries. It cannot guarantee a wall-clock deadline when the
+scheduler or a kernel operation stalls.</p>
+<h2 id="run-a-fake-that-ignores-term"><a class="header" href="#run-a-fake-that-ignores-term">Run a fake that ignores TERM</a></h2>
+<p>Use the Ravel installation from
+<a href="03-a-complete-session.html#install-ravel-and-check-its-version">chapter 3</a>.
+Create an empty directory, make it the current directory, and create <code>bin</code>
+inside it. Save these files at the labelled paths.</p>
+<p>The fake ignores TERM before it sends the result. It then stays alive.
+Ravel’s escalation must reach KILL to end it. The command uses an empty private
+HOME, an explicit policy and a cleared environment.</p>
+<p>Complete example: a fake sends a result and then ignores TERM.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "job-escalation",
+  select() {
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Observe the end of a job without a model service.",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+trap '' TERM
+ravel end-session -- "finished"
+while :; do
+  sleep 0.05
+done
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/fake-agent &amp;&amp; env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Send finished, then wait.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">finished
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>Ravel returns <code>finished</code> only after the job ends. The child’s death
+from KILL does not invalidate its result. This transcript claims the result
+bytes and exit status, not an exact duration or a fixed standard-error stream.
+The automatic example check has no terminal and uses no real harness.</p>
+<h2 id="stop-the-group-before-the-reap"><a class="header" href="#stop-the-group-before-the-reap">Stop the group before the reap</a></h2>
+<p>A process can exit before its parent collects its status. Until that
+collection, it remains a <strong>zombie</strong>: the system retains its identity and exit
+status, although it executes no more code. To <strong>reap</strong> the child, the parent
+collects that status and releases the retained process identity.</p>
+<p>Ravel first observes exit without a reap. Its <code>waitid</code> call uses <code>WNOWAIT</code>
+for that purpose. The unreaped child reserves its PID, which is also the
+job’s group ID. Ravel uses that reservation for the last group signals.</p>
+<p>If Ravel reaped first, the system could reuse the ID for an unrelated group.
+A later KILL to that number could then reach that unrelated group.
+The normal cleanup path therefore has this order:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Operation</th><th>What it establishes</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Observe the child’s exit with <code>waitid</code> and <code>WNOWAIT</code></td><td>The child has exited, but still reserves its identity. A stop is not an exit</td></tr>
+<tr><td>2</td><td>Send KILL to its group twice, with a 20-millisecond pause</td><td>Attempt to stop the other members while the identity remains reserved</td></tr>
+<tr><td>3</td><td>Reap the direct child with <code>waitpid</code></td><td>Confirm the child’s status and release its identity</td></tr>
+<tr><td>4</td><td>Recover the terminal if Ravel lent it</td><td>Check foreground recovery and restore the saved modes</td></tr>
+<tr><td>5</td><td>Query the group without a signal, for up to one second</td><td>Confirm absence only when the system returns <code>ESRCH</code>, meaning no such process group</td></tr>
+</tbody>
+</table>
+</div>
+<p>The second KILL addresses a macOS case where a fork overlaps the first group
+signal and leaves a new member. Both attempts precede the reap.
+They do not change the direct child’s status: it has already exited.
+Ravel reaps its direct child. Other descendants’ parents, or the system,
+reap those descendants.</p>
+<p>A successful signal operation does not prove that the group is gone.
+The final query uses <code>kill</code> with signal 0, which sends no signal.
+Success or <code>EPERM</code> means that absence remains unconfirmed. An unrelated group
+that reuses the ID also prevents confirmation. Ravel does not signal that
+number after the reap.</p>
+<p>On macOS, a group with only zombies can reject KILL with <code>EPERM</code>, or
+<code>Operation not permitted</code>. Ravel can retain this stop report without a
+session failure, but only after confirmed reap, successful terminal recovery
+and an <code>ESRCH</code> absence check. The report alone never confirms cleanup.
+Ravel writes retained reports as <code>ravel:</code> lines on standard error, or in
+<code>operationReports</code> with <code>--json</code>.</p>
+<p>If the group still answers the query with success or <code>EPERM</code> after the confirmation wait, Ravel reports it and
+returns no result to the caller. A query error also prevents success.
+On an observation or reap error, Ravel attempts bounded cleanup and reports
+what it cannot confirm. Once it loses or releases the child identity, it
+stops all numeric signal attempts. After a timeout, it never reports a reap
+that did not occur.</p>
+<h2 id="handle-cancellation"><a class="header" href="#handle-cancellation">Handle cancellation</a></h2>
+<p>Cancellation differs from a sent result. INT, TERM or HUP received by the
+Ravel CLI suppresses the result, even if the managed process already sent it.
+The runner checks for cancellation before it accepts an observed child exit.
+The CLI also checks signals around supervision and final cleanup.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Where cancellation occurs</th><th>Process action</th><th>Result</th></tr>
+</thead>
+<tbody>
+<tr><td>During policy selection</td><td>Stop and wait for the <a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a>. Do not start the managed process</td><td>Return no result to the caller</td></tr>
+<tr><td>During unconfined supervision</td><td>Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL</td><td>Complete cleanup attempts, report cancellation, and return no result</td></tr>
+<tr><td>During confined supervision</td><td>Attempt KILL immediately on the group and the direct child</td><td>Complete cleanup attempts, report cancellation, and return no result</td></tr>
+</tbody>
+</table>
+</div>
+<p>For unconfined supervision, cancellation skips the result’s initial grace.
+If the kill grace has already begun, cancellation does not restart it.
+A child of the runner’s <code>run_noninteractive</code> interface, described in the next
+section, can itself supervise another process. The forwarded signal and kill
+grace let that supervisor attempt its own cleanup.
+A confined job receives KILL immediately so that its shutdown can fit within
+an outer supervisor’s grace.</p>
+<p>The two <a href="05-running-sessions.html#cancel-during-selection-or-supervision">cancellation sequences in chapter 5</a>
+show the selection and supervision cases, with complete fake-program examples.
+They do not show confined cancellation, which attempts KILL immediately.
+<a href="08-follow-a-session-through-the-code.html#choose-the-final-outcome">Chapter 8</a>
+explains which signal and diagnostic Ravel reports when failures overlap.
+A cleanup failure stays visible beside cancellation. It does not permit a
+previously sent result to reach standard output.</p>
+<h2 id="separate-noninteractive-execution-from-confinement"><a class="header" href="#separate-noninteractive-execution-from-confinement">Separate noninteractive execution from confinement</a></h2>
+<p>The runner has a separate <code>run_noninteractive</code> interface. It starts a new
+POSIX session, supplies end-of-file (EOF) on standard input, and closes inherited
+descriptors above standard error at exec. Both output streams go to a regular
+file that its caller supplies. It has no completion channel, so only child
+exit or cancellation ends the launch.</p>
+<p>This interface isolates process control. It does not restrict filesystem
+access. It is also different from an ordinary <code>start-session</code> invocation
+that runs without a terminal.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>POSIX session and input</th><th>Output and completion</th></tr>
+</thead>
+<tbody>
+<tr><td>Ordinary unconfined <code>start-session</code></td><td>A new process group in the caller’s POSIX session. Inherited input, with terminal access when available</td><td>Managed output goes to the caller’s standard error. A result can request shutdown</td></tr>
+<tr><td>Runner <code>run_noninteractive</code></td><td>A new POSIX session, no inherited controlling terminal, EOF input, no inherited descriptors above 2 after exec</td><td>Both streams go to the supplied regular file. No completion channel</td></tr>
+<tr><td>Confined <code>start-session</code></td><td>A new POSIX session with the same input and descriptor isolation</td><td>Managed output goes to standard error. The private result channel remains available</td></tr>
+</tbody>
+</table>
+</div>
+<p>A new POSIX session removes the inherited controlling terminal relationship.
+It does not restrict file access, and a descendant can still move to another
+group. The confinement backend supplies filesystem restrictions separately.
+These distinctions explain why the runner hides process mechanics behind
+separate launch interfaces, while the CLI owns policy and result decisions.</p>
+<h2 id="apply-filesystem-confinement"><a class="header" href="#apply-filesystem-confinement">Apply filesystem confinement</a></h2>
+<p><a href="02-actors-and-words.html#trust-and-confinement">Confinement</a> restricts the managed
+process and its descendants. It does not restrict the trusted
+<a href="02-actors-and-words.html#caller-and-owner">owner policy</a> or its
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a>.
+The CLI checks the grants and probes the backend before policy selection.
+If the backend is absent or cannot establish its restrictions, the invocation
+stops with <code>confinement_unusable</code> and status 2.
+There is no unconfined fallback.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Resource</th><th>Access for a confined managed process</th></tr>
+</thead>
+<tbody>
+<tr><td>Canonical working directory and private run directory</td><td>Read and write</td></tr>
+<tr><td>An explicit <code>--exit-dir</code></td><td>Read and write to that channel parent directory</td></tr>
+<tr><td>Selected executable and the real Ravel executable</td><td>Read and execute</td></tr>
+<tr><td>Each regular file named with <code>--runtime-read</code></td><td>Read only, even under a writable directory</td></tr>
+<tr><td>System runtime resources</td><td>Reads from the backend’s platform list, such as system programs, libraries and certificate files</td></tr>
+<tr><td>Other file contents</td><td>No grant. File metadata can remain visible on macOS</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel rejects canonical grants that overlap the policy directory or owner
+settings. A runtime grant names one regular file, not a directory.
+The environment starts empty. Ravel adds HOME, USER, LOGNAME, PATH, LANG and
+LC_* values, private temporary-directory values, and this launch’s result path.
+HOME’s presence does not grant access to all files under it.</p>
+<p>On macOS, <code>/usr/bin/sandbox-exec</code> applies a Seatbelt profile. Descendants
+inherit the restrictions. The profile allows the declared writable roots,
+read-only runtime files and system reads. It also allows network access.
+The system reads include <code>/opt/homebrew/Cellar</code>, so confinement is not a claim
+that only explicitly named runtime files are readable.</p>
+<p>On Linux, bubblewrap starts from an empty mount namespace: a filesystem view
+with only the mounts the backend supplies. Ravel adds system read-only mounts,
+writable roots and explicit read-only file mounts. It supplies private <code>/proc</code>
+and <code>/dev</code> views and makes their mounts read-only.
+Bubblewrap also uses user, PID, IPC and UTS namespaces. These separate user
+identity, process IDs, interprocess communication and hostname state.
+Ravel does not request a network namespace, so confinement does not disable
+network access.</p>
+<p>The runner calls <code>setsid</code> before the backend executes. The confined launch
+needs no terminal handoff, and its new POSIX session avoids the caller’s
+controlling terminal. On Linux, the selected program stays in the process
+group of bubblewrap’s monitor process. Thus, ordinary descendants remain within
+the cleanup scope.</p>
+<p><a href="05-running-sessions.html#confine-the-managed-process">Chapter 5’s confinement example</a>
+demonstrates a minimal confined result send. That section also explains
+writable roots, read-only grants and errors that stop a launch through the CLI.
+The runner tests add direct process checks:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test source under <code>crates/keyed-launch/tests/</code></th><th>What it checks</th></tr>
+</thead>
+<tbody>
+<tr><td><code>launch.rs</code></td><td>Grace and KILL branches, ordinary descendants gone on return, and an unrelated process left untouched</td></tr>
+<tr><td><code>internal/wait_events.rs</code></td><td>Cleanup order, a reported survivor, and cancellation across wait failures through a private process substitute</td></tr>
+<tr><td><code>noninteractive.rs</code></td><td>EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and immediate confined cancellation</td></tr>
+<tr><td><code>confinement.rs</code></td><td>Denied file reads and writes through a child and descendant, denied symlink access, and read-only runtime files</td></tr>
+<tr><td><code>job.rs</code></td><td>Terminal foreground and mode behaviour through pseudo-terminals</td></tr>
+</tbody>
+</table>
+</div>
+<p>A selection of these process, isolation and Seatbelt tests passed on
+aarch64 macOS on 18 October 2026. A macOS run does not execute the Linux bubblewrap backend.
+The tests check named operations and process shapes. They do not establish
+containment against every same-user attack or cleanup of a descendant that
+leaves the job’s group. They also do not qualify a native x86-64 Linux host.</p>
+<h2 id="lend-and-recover-the-terminal"><a class="header" href="#lend-and-recover-the-terminal">Lend and recover the terminal</a></h2>
+<p>A <strong>controlling terminal</strong> belongs to a POSIX session. It has one
+<strong>foreground process group</strong> at a time. That group can read terminal input.
+With the default terminal modes, Ctrl-C sends INT to that group.
+A background group’s attempt to read can instead stop it with SIGTTIN.</p>
+<p>The runner opens <code>/dev/tty</code>, which names its controlling terminal.
+Redirected standard input does not remove that relationship. If the open
+fails, the runner proceeds without terminal job control. Detached modes do
+not open the terminal at all.</p>
+<p>An open terminal alone permits no handoff. The runner queries its foreground
+group with <code>tcgetpgrp</code> and lends it only when the runner’s own group holds it.
+A Ravel CLI that starts in the background takes no foreground for itself.
+A shell can later give the foreground to the CLI’s group, for example with
+<code>fg</code>. Then a later supervision poll can lend the terminal to the managed group.</p>
+<p>Before the first handoff, the runner saves the terminal attributes with
+<code>tcgetattr</code>. These <strong>terminal modes</strong> control such behaviour as character
+echo, line input and keyboard signals. An interactive program can change them
+to receive individual characters without echo. If KILL ends that program,
+the program cannot restore the modes itself.</p>
+<p>The ordinary foreground launch follows these steps:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Owner and operation</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>Save</td><td>The runner retains a terminal descriptor, foreground ownership and the current modes in a terminal lease</td><td>Keep the recovery information alive through spawn and supervision</td></tr>
+<tr><td>Record</td><td>The child enters its new group and writes that group ID to a private pipe</td><td>Tell the parent which group can take the terminal, even if exec fails</td></tr>
+<tr><td>Lend</td><td>Before exec, the child calls <code>tcsetpgrp</code> to make its group foreground</td><td>Complete the handoff before the program’s first terminal read</td></tr>
+<tr><td>Supervise</td><td>The runner observes the child and performs any required group stops before reap</td><td>Retain the group identity for those signals</td></tr>
+<tr><td>Recover</td><td>After reap, the runner applies the holder rules below and checks the terminal again</td><td>Restore saved modes only when the runner’s group owns foreground</td></tr>
+</tbody>
+</table>
+</div>
+<p>The sequence shows why the terminal lease survives the exec attempt.
+Its recovery branches depend on the child outcome and the current foreground holder.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/terminal-lending-recovery.svg" alt="The child records its group before the terminal handoff. After normal supervision or a failed exec, Ravel applies the conditional recovery rules."><span class="img-wrapper"><img src="figures/terminal-lending-recovery.svg" alt="The child records its group before the terminal handoff. After normal supervision or a failed exec, Ravel applies the conditional recovery rules."></span></label></p>
+<p><a href="figures/terminal-lending-recovery.svg">Open the terminal sequence at full size.</a></p>
+<p>A background group can receive SIGTTOU when it changes terminal foreground.
+The runner therefore temporarily ignores SIGTTOU for the <strong>handback</strong> (the
+return of foreground to the runner’s group) and for mode restoration. Then it
+restores its previous disposition. It checks both the
+terminal operation and that restoration. The child also suppresses SIGTTOU
+for its handoff before it restores its entry signal state.</p>
+<p>The lease remembers whether this launch ever held foreground. If it never
+did, the runner takes no foreground and restores no modes.
+For a lease that did hold foreground, the child’s outcome changes the rule:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Outcome and current holder</th><th>Foreground and mode action</th></tr>
+</thead>
+<tbody>
+<tr><td>The runner’s group already holds foreground</td><td>Restore the saved modes</td></tr>
+<tr><td>Normal child exit, with the child’s group still foreground</td><td>Take foreground back, confirm it, then restore the modes</td></tr>
+<tr><td>Normal child exit, with another group foreground</td><td>Preserve that holder and its modes</td></tr>
+<tr><td>Known child death by signal</td><td>Reclaim from a positive foreground group other than the runner’s group or the POSIX session leader’s group. Restore modes only after confirmed ownership</td></tr>
+<tr><td>Failed spawn or unknown child status, with the recorded child’s group foreground</td><td>Attempt the conditional handback described below, then restore modes after confirmed ownership</td></tr>
+<tr><td>Failed spawn or unknown child status, with an unrelated group foreground</td><td>Preserve it and report unconfirmed foreground and mode recovery</td></tr>
+</tbody>
+</table>
+</div>
+<p>The wider signal-death rule covers a managed supervisor that gives foreground
+to another group, then dies without cleanup. Otherwise, that delegated group
+could retain a raw terminal and continue to read input. The accepted cost is
+that a nested job-control shell can lose its foreground after such a death.
+Unknown child status does not permit this wider takeover.
+The POSIX session leader is the process that created the terminal’s POSIX
+session.</p>
+<p>Exec can fail after the child takes foreground. The parent therefore retains
+the lease across a spawn error. The private pipe closes across exec and
+provides an attempted-group record, not proof of exec or a live group.
+If the record is missing or invalid, recovery is unconfirmed and Ravel reports it.
+The runner never signals that recorded number after failed spawn.</p>
+<p>Failed-spawn handback requires two conditions through recovery: no other
+process or thread changes foreground, and no unrelated group reuses the
+recorded ID. These conditions also apply to recovery from unknown status.
+The foreground query and handback are separate operations. A one-session
+CLI lifetime does not make them atomic or establish those conditions.</p>
+<p>Ravel reports failures of foreground queries, handback, mode restoration and
+temporary SIGTTOU restoration. After a recovery failure, Ravel returns no
+result to the caller.
+After failed spawn, the original spawn error stays primary unless cancellation
+overrides it. Recovery reports remain visible beside that outcome.</p>
+<p>The tests use a <strong>pseudo-terminal</strong>, or <strong>PTY</strong>, to observe these operations
+without a human terminal. A PTY has two ends. The fixture uses one as its
+controlling terminal, while the test controls input and reads output through
+the other. Separate fixture processes keep terminal and signal changes out of
+the test runner itself.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test source</th><th>Observed distinction</th></tr>
+</thead>
+<tbody>
+<tr><td><code>crates/keyed-launch/tests/job.rs</code></td><td>A raw-mode child actually changes the modes before KILL. The runner then recovers foreground and saved modes</td></tr>
+<tr><td><code>crates/keyed-launch/tests/job.rs</code></td><td>The same other foreground holder remains after normal exit but loses foreground after signal death</td></tr>
+<tr><td><code>crates/keyed-launch/src/run/terminal_tests.rs</code></td><td>Failed exec retains the lease. Unknown status preserves an unrelated holder. Recovery failures remain in the error</td></tr>
+</tbody>
+</table>
+</div>
+<p>These tests check named process arrangements and failure reports. They do not
+prove exclusive terminal authority in every caller environment.
+The book’s complete examples have no terminal, so they do not check these
+handoff branches.</p>
+<h2 id="preserve-the-entry-signal-state"><a class="header" href="#preserve-the-entry-signal-state">Preserve the entry signal state</a></h2>
+<p>A signal’s <strong>disposition</strong> is the process-wide choice to use its default
+action, ignore it, or call a handler. A thread’s <strong>signal mask</strong> names signals
+whose delivery that thread blocks. A blocked signal can remain queued until
+the thread permits delivery. An ignored signal and a blocked signal are
+different states.</p>
+<p>Exec replaces the program but preserves the thread’s signal mask.
+It resets caught handlers to default actions. It preserves ignored
+dispositions with one exception: portable code cannot assume that an ignored
+SIGCHLD stays ignored after exec. The <a href="https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html">POSIX exec specification</a>
+states that exception. Ravel explicitly restores its recorded
+ignore/default values before exec on its supported targets.</p>
+<p>On its supported targets, Ravel gives the managed process the signal state
+from the CLI’s executable entry, before Rust startup changes it. The table
+below gives the exclusions.
+For example, Rust startup ignores SIGPIPE. A capture in <code>main</code> would see that new ignore instead of the
+state that Ravel inherited.</p>
+<!-- tc: depart synonym-rotation because repair names a signal-state correction, while fixed describes a constant bound -->
+<p>The CLI’s initialiser in <code>signal_state.rs</code> records the ignored set and the
+initial thread’s mask before those runtime changes. It keeps that record
+separate from later repairs by the CLI and the runner. If a required query
+fails, the CLI refuses the launch. It does not accept a partial record. The runner receives the values through
+<code>EntrySignals</code> and <code>Launch.transparent</code>. It does not capture them itself.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>State</th><th>Child behaviour in a transparent launch</th></tr>
+</thead>
+<tbody>
+<tr><td>Recorded ignore</td><td>Set the signal to ignored before exec</td></tr>
+<tr><td>Other recorded disposition</td><td>Set the signal to its default action. Do not copy a host handler</td></tr>
+<tr><td>Recorded mask</td><td>Apply the mask after the dispositions, so delivery uses the restored actions</td></tr>
+<tr><td>KILL and SIGSTOP</td><td>Leave these unchangeable dispositions alone</td></tr>
+<tr><td>Unsupported or runtime-reserved signal numbers</td><td>Exclude the platform’s specified numbers. A failure for another required number remains an error</td></tr>
+</tbody>
+</table>
+</div>
+<p>The CLI and the runner also need signal state of their own. An ignored SIGCHLD or the
+<code>SA_NOCLDWAIT</code> flag can let the system discard child status without a parent
+reap. That would remove both the wait result and the identity reservation
+needed for group cleanup. The CLI checks and repairs this state before the
+policy worker starts. The runner checks it before its managed child starts.
+These repairs do not change the immutable child entry values.</p>
+<p>The runner installs handlers for nonignored TERM and HUP. It also handles
+nonignored INT when no terminal exists or the launch is transparent.
+Ravel uses a transparent launch, so a nonignored INT sent directly to the CLI
+can cancel it even while the managed group owns foreground.
+The runner leaves ignored cancellation signals ignored.</p>
+<p>Terminal INT follows foreground ownership. Before handoff, it can reach the
+CLI’s group. After handoff, it reaches the managed group. The child’s death
+from that signal is not itself a cancellation observation by the CLI.
+Ravel can still return a result after child signal death if the CLI observes no
+cancellation and all required cleanup succeeds.</p>
+<p>The runner’s handlers and SIGCHLD repair persist after its call returns,
+on success or failure. A synchronous return does not restore a host’s prior
+state. The table gives the restoration responsibility at each boundary:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Boundary</th><th>Restoration responsibility</th></tr>
+</thead>
+<tbody>
+<tr><td><code>EntrySignals</code></td><td>Supply the child’s ignore/default state and mask. It restores no host state</td></tr>
+<tr><td>Runner return</td><td>Report the child outcome and recovery failures. Retain installed cancellation handlers and any SIGCHLD repair</td></tr>
+<tr><td>Ravel CLI final cleanup</td><td>Check temporary masks and restore the saved INT/TERM/HUP dispositions under the conditions below</td></tr>
+<tr><td>A host that resumes other work</td><td>Needs its own signal lifetime, late-cancellation policy and restoration contract. The current runner supplies no such guarantee</td></tr>
+</tbody>
+</table>
+</div>
+<p>The CLI blocks its handled signals across the spawn transition.
+After spawn reports success, its checked <code>Started</code> transition restores the
+parent’s entry mask. Failure enters bounded child teardown and terminal
+recovery. It does not return early with an abandoned child.</p>
+<p><code>Started</code> means spawn-reported success, not confirmed exec. A child can die
+before exec and still produce that event. Only an actual wait produces
+<code>Reaped</code>.</p>
+<p>Policy-output reader threads retain a mask that blocks INT, TERM and HUP
+until those threads exit. A block on only the main thread would leave another
+thread able to consume a signal during handoff. A bounded output drain can
+leave such a reader thread alive until CLI exit.</p>
+<p>On both success and failure, final cleanup keeps handlers installed while
+the CLI restores its entry mask and collects cancellation observations.
+It then blocks the handled signals, reads queued signal state and consumes the
+runner’s late signal. Under that block, it restores its saved handled
+dispositions. A failed block keeps the handlers. Unknown queued signal state never
+means that cancellation is absent.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Final condition</th><th>CLI action</th></tr>
+</thead>
+<tbody>
+<tr><td>Known state, successful disposition restoration, no cancellation</td><td>Restore the entry mask. Other cleanup checks still precede result output</td></tr>
+<tr><td>Cancellation selected</td><td>Report it and cleanup failures, then check the default action, unblock and raise the selected signal. Use a numeric fallback if propagation cannot succeed</td></tr>
+<tr><td>Queued signal query failed while signals remain blocked, with no selected cancellation</td><td>Keep them blocked through diagnostics. Return failure without a result</td></tr>
+<tr><td>Required mask or disposition operation failed</td><td>Retain the failure report and return no result</td></tr>
+</tbody>
+</table>
+</div>
+<p>An entry-blocked signal does not become cancellation merely because it is
+queued. The managed child receives that entry block too.
+The CLI’s final signal decision follows the priority in
+<a href="08-follow-a-session-through-the-code.html#choose-the-final-outcome">chapter 8</a>.
+Its cleanup restores the saved handled dispositions and temporary masks.
+It does not undo the SIGCHLD repair or restore every runtime signal change
+for a host that continues after the call.</p>
+<h2 id="know-the-guarantees-and-their-limits"><a class="header" href="#know-the-guarantees-and-their-limits">Know the guarantees and their limits</a></h2>
+<p>Each guarantee below includes the boundary within which it holds.
+The successful result is evidence of the required checks, not proof that
+every descendant or hostile same-user process is absent.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Guarantee</th><th>Limit</th></tr>
+</thead>
+<tbody>
+<tr><td>Ravel returns a result only after that launch’s child reap, confirmed group absence and successful required cleanup</td><td>Group membership defines the cleanup scope. A descendant that leaves the group lies outside it</td></tr>
+<tr><td>Ravel supervises shutdown while the CLI remains alive</td><td>Abrupt death of the CLI, for example from KILL, can orphan the managed job. Such death is not successful completion</td></tr>
+<tr><td>Ravel keeps the first complete result through a private inherited channel and rejects invalid result files</td><td>The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic</td></tr>
+<tr><td>Ravel verifies and reaps the policy worker before the managed launch</td><td>Owner policy remains trusted executable code. Detached policy children lie outside worker cleanup</td></tr>
+<tr><td>Ravel checks terminal recovery under the holder rules above</td><td>Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller</td></tr>
+<tr><td>Ravel retains failure reports and attempts required cleanup</td><td>A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result</td></tr>
+<tr><td>Cancellation observed by the final decision suppresses the result</td><td>A new signal can arrive after that decision. There is no atomic operation across signal delivery and the final output write</td></tr>
+<tr><td>Successful cleanup permits the final result write</td><td>The write can still fail after a prefix reaches standard output. Ravel cannot retract that prefix. A failed write to standard error can also prevent the delivery of diagnostics</td></tr>
+<tr><td>The CLI owns one launch and then exits</td><td>Process-wide handlers, signal latches and terminal authority do not support concurrent host calls or a fully restored host that continues work</td></tr>
+</tbody>
+</table>
+</div>
+<p>Native-entry behaviour has measured support on aarch64 macOS and aarch64
+GNU/Linux. Each measurement covers its named kernel, libc and compiler,
+not every combination. The GNU/Linux measurement used Rust 1.85.0.
+Native x86-64 Linux remains unqualified: builds, lint checks and QEMU
+user-mode execution do not qualify an x86-64 kernel.</p>
+<p>The current runner is a private package within Ravel. Neither that package
+boundary nor these checks deliver a
+<a href="01-what-ravel-is-for.html#decide-whether-ravel-fits">persistent runner</a> for an
+arbitrary host.</p>
+<p>Ravel supports no separate component. The runner serves the Ravel CLI, which
+supervises one session and then exits. The runner’s return does not
+restore process-wide signal state. Another program invokes the Ravel CLI as
+a child process. Thus, the signal state that the runner changes stays in that
+child process and ends when it exits.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="08-follow-a-session-through-the-code.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="10-develop-ravel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="08-follow-a-session-through-the-code.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="10-develop-ravel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

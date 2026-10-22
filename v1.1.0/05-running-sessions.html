@@ -1,0 +1,974 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Run sessions - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-2c91c537.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-23b29db2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="run-sessions"><a class="header" href="#run-sessions">Run sessions</a></h1>
+<p>A <a href="02-actors-and-words.html#caller-and-owner">caller</a> starts a
+<a href="02-actors-and-words.html#caller-and-owner">session</a>, gives its instructions
+and interprets its result. The <a href="02-actors-and-words.html#caller-and-owner">owner policy</a>
+chooses the program. Ravel supervises that
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">managed process</a>
+and returns an <a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+only after it confirms the cleanup. This chapter shows how to give a request
+and how to run nested or confined sessions. It also shows how to identify
+each outcome that a caller can see.</p>
+<!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
+<p>Follow chapter 3 to <a href="03-a-complete-session.html#install-ravel-and-check-its-version">install Ravel and check its version</a>.
+These examples use real policy evaluation and small local programs. They do
+not need an agent account or a model service. If you came here for an exit
+code, go to the <a href="#interpret-the-exit-status">status table</a>. It gives each
+normal status of the CLI and the three cancellation signals that Ravel
+handles, with an action for each.</p>
+<h2 id="supply-the-prompt-and-caller-data"><a class="header" href="#supply-the-prompt-and-caller-data">Supply the prompt and caller data</a></h2>
+<p>Pass exactly one of <code>--prompt TEXT</code> and <code>--prompt-file PATH</code>. Ravel gives the
+text to the policy unchanged, also when it is an empty string or ends with
+newlines. Ravel adds no instructions to end the session. It never
+reads a prompt from terminal stdin. A prompt is UTF-8, contains no NUL and
+has a maximum size of 1 MiB. Ravel does not truncate input that is not
+valid, but stops the invocation with status 2.</p>
+<p>The argument limits of the operating system can be smaller than 1 MiB. These
+limits also apply when the policy puts a prompt from a file into the
+arguments of the selected program.</p>
+<p>Use a file when the exact text is important. Shell command substitution
+removes trailing newlines. Thus, <code>--prompt "$(cat prompt.txt)"</code> can change
+the text before Ravel receives it. <code>--prompt-file prompt.txt</code> reads the file
+directly, relative to the caller’s working directory. Ravel changes no text
+before the policy receives it. Then the policy makes the arguments of the
+selected command and decides how to give the prompt to that program.</p>
+<p>The <a href="02-actors-and-words.html#caller-and-owner">kind</a> is a required caller
+token that is not empty. Ravel has no catalogue of kinds and does not get a
+kind from a file name. A policy can route <code>review</code>, refuse it or treat it as
+any other kind. The caller and the policy author agree on these tokens.</p>
+<p>These inputs give data to the policy. They do not tell Ravel to read a task
+or to give the task a meaning:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>What the policy receives</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--param profile=careful</code></td><td><code>request.params.profile</code> with the string <code>careful</code>. Each name is not empty, contains no <code>=</code> and occurs one time. The value can be empty or contain more <code>=</code> characters. The limit for all names and values together is 65,536 UTF-8 bytes.</td></tr>
+<tr><td><code>--task-file tasks/check.md</code></td><td>An absolute UTF-8 <code>request.taskFile</code>. Ravel makes it from the given path and the caller’s working directory. Ravel does not read that file, and the file does not have to exist. Ravel gets no kind or identity from it.</td></tr>
+<tr><td><code>--task-id example-17</code></td><td>An opaque <code>request.taskId</code>. It is UTF-8, is not empty and has a maximum of 1,024 bytes. Ravel does not search for a stored task.</td></tr>
+<tr><td><code>--context caller-context.json</code></td><td>A version-1 JSON document that Ravel measures and validates. If the policy has no loader, the document becomes the second argument to <code>select</code>. A loader can make a different document for the policy. <!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup --></td></tr>
+</tbody>
+</table>
+</div>
+<p>That last document is <a href="02-actors-and-words.html#three-different-kinds-of-information">policy context</a>,
+which is data that the policy uses to choose the route. It is different from
+the working directory of the request, <code>cwd</code>. It is also different from the
+<a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a>,
+which later lets the managed process send a result. Chapter 4 teaches
+<a href="04-writing-an-owner-policy.html#supply-policy-context">policy context and loaders</a>
+and <a href="04-writing-an-owner-policy.html#set-bounds-and-grant-environment-names">bounds and environment grants</a>.
+The <code>--timeout-ms</code> bound applies to policy evaluation, not to the time that
+the managed process works.</p>
+<p>The selected program runs in the caller’s working directory. The form of its
+program path sets the base that Ravel uses to find the program:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Selected program</th><th>Resolution base</th></tr>
+</thead>
+<tbody>
+<tr><td>Absolute path</td><td>The path itself</td></tr>
+<tr><td>Relative path that contains <code>/</code></td><td>The caller’s working directory</td></tr>
+<tr><td>Bare program name</td><td>The caller’s <code>PATH</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel gives the argument strings directly to the program, without shell word
+splitting or expansion. An unconfined managed process inherits the caller’s
+environment, with two changes. Ravel removes <code>RAVEL_RUN_ID</code>,
+<code>RAVEL_STATE_DIR</code>, <code>HARNESS_DISPATCH_EXIT_FILE</code>, <code>HARNESS_DISPATCH_RUN_ID</code>
+and <code>HARNESS_DISPATCH_STATE_DIR</code>, and it replaces <code>RAVEL_EXIT_FILE</code> for the
+new session. Put the installed <code>ravel</code> on the <code>PATH</code> of the managed process.
+As an alternative, write the absolute path of <code>ravel</code> in the prompt’s
+instructions to end the session. A confined managed process gets a smaller
+environment, which <a href="#confine-the-managed-process">Confine the managed process</a>
+describes.</p>
+<p>Complete example: pass a prompt from a file, with its final newline, and
+caller data. The policy uses <code>profile</code> as an argument. It does not use the
+task fields or the policy context. The fake agent sends the prompt itself as
+the result, so the result shows what the agent received. Create the
+labelled files in a new directory. Make <code>bin/echo-prompt</code> executable before
+you run the command.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "prompt-demo",
+  select(request) {
+    return {
+      status: "selected",
+      program: "echo-prompt",
+      args: [request.prompt, request.params.profile ?? "default"],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Show the caller's prompt unchanged",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/echo-prompt</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+printf 'profile=%s\n' "$2"
+ravel end-session -- "$1"
+</code></pre>
+<p><strong><code>prompt.txt</code></strong></p>
+<pre><code class="language-text">Review the public behaviour.
+When you finish, send the agreed result.
+</code></pre>
+<p><strong><code>caller-context.json</code></strong></p>
+<pre><code class="language-json">{"schemaVersion":1,"summary":"Check the public interface."}
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.ts --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">Review the public behaviour.
+When you finish, send the agreed result.
+</code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">profile=careful
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>The final newline came from <code>prompt.txt</code>. Ravel added no newline. The
+<code>printf</code> output of the fake agent goes to the caller’s stderr, because Ravel
+uses stdout only for the result. This example does not need a <code>tasks/check.md</code>
+file.</p>
+<h2 id="accept-a-result-only-after-success"><a class="header" href="#accept-a-result-only-after-success">Accept a result only after success</a></h2>
+<p>Keep the result bytes and the status of <code>start-session</code> together. Status 0
+means that all of these conditions are true:</p>
+<ul>
+<li>A program in the session sent a valid result.</li>
+<li>Ravel <a href="03-a-complete-session.html#send-the-result-and-finish-the-job">reaped</a>
+the direct child.</li>
+<li>Ravel confirmed that the
+<a href="03-a-complete-session.html#launch-the-managed-job">process group</a> of the
+managed process is gone.</li>
+<li>The required cleanup succeeded.</li>
+<li>The final write and flush of the result succeeded.</li>
+</ul>
+<p>An empty sent result is a successful result with zero bytes. If a managed
+process exits with status 0 and sends no result, the status is 1. Ravel then
+returns no result to the caller. But if a program sends a result and the child
+then exits with a nonzero status, <code>start-session</code> can still give status 0.
+Ravel’s status shows whether Ravel delivered a sent result after cleanup. It
+does not show whether the work in the prompt was correct.</p>
+<p><code>end-session</code> takes one UTF-8 argument with a maximum size of 1 MiB. Quote
+it, and put <code>--</code> before a value that looks like an option, such as <code>--help</code>.
+Ravel writes an empty, multiline or Unicode value unchanged to standard
+output and does not interpret it. The operating
+system can apply a smaller limit for command arguments before <code>end-session</code>
+starts.</p>
+<p>Ravel keeps the first complete result that it receives through the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">result channel</a>.
+When that first result arrives, Ravel starts to stop the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a>. Thus, a
+second <code>end-session</code> call and the shutdown are in a race: either can occur
+first. For example, another process in the group can send a result before
+Ravel stops that process. Ravel keeps the first result, even if the second
+command succeeds.</p>
+<p>Complete example: compare three outcomes. In the first, the program sends a
+result and then tries a second call before it exits with status 7. The
+shutdown can stop the program before that call or that exit. In the second,
+the program sends an empty result. In the third, it sends no result and exits
+naturally with status 0. Create these files in a new directory and make
+<code>bin/outcome</code> executable.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "outcome-demo",
+  select(request) {
+    return {
+      status: "selected",
+      program: "outcome",
+      args: [request.kind, request.prompt],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Compare a sent result with natural exit",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/outcome</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+if [ "$1" = natural ]; then
+  exit 0
+fi
+ravel end-session -- "$2"
+ravel end-session -- "ignored second value"
+exit 7
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --prompt '--help'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">--help
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --prompt ''
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind natural --config policy.ts --prompt ''
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (session_result_missing, stage exec): the managed process ended without a result (exit status: 0)
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">1
+</code></pre>
+<p>This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.</p>
+<p><code>end-session</code> returns before the enclosing session finishes its cleanup.
+When Ravel detects the sent result, a job that still runs gets 2 seconds to
+finish. Then Ravel sends TERM, waits for up to 5 more seconds and sends KILL
+if necessary. These waits end early if the direct child exits. Ravel then
+stops the other group members before it reaps the child. Those members do not
+get a new 2-second wait.</p>
+<p>Send the result after the work that has to finish, because Ravel can stop
+code that comes after <code>end-session</code>.</p>
+<p>For an automated caller that needs trailing newlines intact, redirect stdout
+to a file. Read the file only after you check the status. Shell command
+substitution removes trailing newlines. Use it only when the caller’s result
+convention accepts this change. A failed final write can leave only the first
+part of the result in the file, so the bytes alone do not prove success.
+Ravel has no persistent store for results, so it cannot recover a result
+after a failed delivery.</p>
+<p>Fragment: capture the unchanged result and the status. This fragment omits the
+policy, the prompt file and how the caller handles each successful value or
+failure.</p>
+<pre><code class="language-sh">if ravel start-session --kind review --config policy.ts --prompt-file prompt.txt &gt;result.txt; then
+  status=0
+else
+  status=$?
+fi
+</code></pre>
+<h2 id="keep-nested-sessions-separate"><a class="header" href="#keep-nested-sessions-separate">Keep nested sessions separate</a></h2>
+<p>A managed process can be the caller of another <code>start-session</code>. The inner
+session allocates its own
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">result channel</a>.
+It replaces <code>RAVEL_EXIT_FILE</code> only for its own managed process. The outer
+process keeps the value of its enclosing session. When the inner invocation returns, the
+outer process decides what to send for the outer session. When the inner
+process sends its result, the outer session does not finish, and
+<code>end-session</code> accepts no session ID or target argument.</p>
+<p>Each process uses the session-result context that it inherited to send a
+result. Ravel does not change the inner result into an outer result. The
+outer process does this itself:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Process</th><th>Session-result context</th><th>What its <code>end-session</code> call sends</th></tr>
+</thead>
+<tbody>
+<tr><td>Outer managed process, also the inner caller</td><td>Keeps the <code>RAVEL_EXIT_FILE</code> of the outer session</td><td>The result of the outer session</td></tr>
+<tr><td>Inner managed process</td><td>Gets a new inner <code>RAVEL_EXIT_FILE</code></td><td>The result of the inner session. Ravel returns it to the outer process after the inner cleanup.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Complete example: the inner program sends <code>inner</code>, and the outer program
+uses that result in <code>inner|outer</code>. Create these files in a new directory and
+make both files under <code>bin/</code> executable. These values have no trailing
+newlines, so command substitution keeps them unchanged.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "nested-demo",
+  select(request) {
+    return {
+      status: "selected",
+      program: request.kind === "outer" ? "outer" : "inner",
+      args: [`${request.cwd}/policy.ts`],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Give each nested session its own result",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/inner</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+ravel end-session -- "inner"
+</code></pre>
+<p><strong><code>bin/outer</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+enclosing=$RAVEL_EXIT_FILE
+result=$(ravel start-session --kind inner --config "$1" --prompt "Send inner.")
+[ "$RAVEL_EXIT_FILE" = "$enclosing" ]
+ravel end-session -- "$result|outer"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config policy.ts --prompt 'Run the inner session. Then add |outer to its result and send it.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">inner|outer
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>Each layer’s <a href="02-actors-and-words.html#policy-evaluation-and-supervision">Ravel CLI</a>
+supervises only the group of its own managed process, and it does the
+cleanup only for that group. Thus, if an inner Ravel CLI dies before it
+completes its cleanup, the group of its managed process can remain. The
+outer Ravel CLI does not stop that group. The
+<a href="#understand-the-operational-limits">operational limits</a> apply at each layer.
+The example checks that the results stay separate. It does not check
+interactive job control for nested sessions.</p>
+<h2 id="confine-the-managed-process"><a class="header" href="#confine-the-managed-process">Confine the managed process</a></h2>
+<p><a href="02-actors-and-words.html#trust-and-confinement">Confinement</a> restricts the
+filesystem access and the environment of the managed process. Add
+<code>--confine</code> when you want that restriction. The owner policy and its
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a>
+stay outside the confinement. Policy is trusted executable configuration.</p>
+<!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
+<p>On macOS, Ravel uses <code>/usr/bin/sandbox-exec</code>. On Linux, it uses the system
+bubblewrap executable, <code>/usr/bin/bwrap</code> or <code>/bin/bwrap</code>. Before Ravel
+evaluates the policy, it tests whether the backend can make a sandbox. If
+the backend is not available or not usable, the invocation stops with
+<code>confinement_unusable</code> and status 2. Ravel does not then launch the process
+without confinement.</p>
+<p>These paths have different grants for the confined managed process:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path</th><th>Access</th><th>How the process gets access</th></tr>
+</thead>
+<tbody>
+<tr><td>Canonical working directory and private run directory</td><td>Read and write</td><td>Ravel grants them for each confined launch.</td></tr>
+<tr><td>System runtime paths, selected executable and real executable file of the Ravel CLI</td><td>Read-only</td><td>Ravel grants them for each confined launch.</td></tr>
+<tr><td>One additional regular file that exists</td><td>Read-only</td><td><code>--runtime-read FILE</code>. Repeat it for each file. It requires <code>--confine</code> and grants no directory tree.</td></tr>
+<tr><td>Parent of the result directory</td><td>Read and write</td><td><code>--exit-dir DIR</code>. The directory must exist and be writable.</td></tr>
+</tbody>
+</table>
+</div>
+<p>If the managed process needs a full directory, copy the task data into the
+working directory. A read-only runtime grant stays read-only, even inside a
+writable directory. Confinement permits network access. It is not an offline
+mode.</p>
+<p><code>--exit-dir DIR</code> puts the private result directory of the session in a
+writable directory that exists. It works with or without confinement. With
+confinement, it also gives write access to that parent directory. Thus, do
+not choose a parent directory that contains files that the managed process
+must not change. Without the option, an unconfined session uses the system
+temporary directory. A confined session puts the result channel in its
+private run directory.</p>
+<p>Keep the policy directory and the owner settings outside every filesystem
+grant. Ravel makes each path canonical. If paths overlap, Ravel stops with
+an error before it evaluates the policy. This check also finds overlaps
+through symlinks or through the system runtime grants. For example, if you
+run <code>--confine --config ./policy.ts</code> from the directory that contains that
+policy, the policy overlaps the writable working directory. Put the policy in
+a separate owner directory, and invoke Ravel from the project directory.</p>
+<p><code>confinement_overlap</code> reports the paths that overlap. <code>confinement_unusable</code>
+reports a resource or a backend that Ravel cannot use. Both use status 2.
+Before selection, an <code>--exit-dir</code> that is not valid can also give
+<code>exit_dir_unusable</code>. Later failures of allocation or cleanup have their own
+diagnostics.</p>
+<p>Complete example: select <code>ravel end-session</code> itself as a minimal confined
+program. This example checks confinement and result delivery without another
+agent. Create the labelled policy, then run the command from the directory
+that contains <code>owner</code>. The command makes a separate project directory and
+makes it the current directory. Thus, the writable directory does not
+contain the policy.</p>
+<!-- example: requires confinement -->
+<p><strong><code>owner/policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "confined-demo",
+  select() {
+    return {
+      status: "selected",
+      program: "ravel",
+      args: ["end-session", "--", "confined"],
+      provider: "local",
+      model: "sender",
+      effort: "none",
+      reason: "Check a confined sent result",
+    };
+  },
+});
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p project &amp;&amp; cd project &amp;&amp; ravel start-session --kind check --config ../owner/policy.ts --confine --prompt 'Send confined.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">confined
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>The confined environment keeps <code>HOME</code>, <code>USER</code>, <code>LOGNAME</code>, <code>PATH</code>, <code>LANG</code> and
+<code>LC_*</code>. Ravel sets <code>TMPDIR</code>, <code>TMP</code> and <code>TEMP</code> to the private run directory and
+gives the managed process a new <code>RAVEL_EXIT_FILE</code>. The <code>HOME</code> variable does
+not give access to the directory that it names. The other caller variables are
+not in the environment. This also applies to <code>--policy-env</code>. It grants a
+variable to the policy worker, not to this managed process.</p>
+<p>A confined launch starts a new POSIX session and is not interactive. Ravel
+does not <a href="03-a-complete-session.html#launch-the-managed-job">lend</a> it the
+caller’s controlling terminal. An unconfined launch uses a new process group
+in the caller’s POSIX session. Ravel lends it the terminal if Ravel’s own
+process group is the foreground group of the terminal. This difference is
+important for an interactive program. <a href="09-jobs-signals-and-the-terminal.html#lend-and-recover-the-terminal">Chapter 9, “Jobs, signals and the
+terminal”</a>, teaches the mechanism.</p>
+<p>Confinement is separate from the permission flags of an agent program.
+Neither the unconfined mode nor the confined mode confines the owner policy.
+Use this comparison to choose
+confinement together with its effects on the environment and the terminal:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Unconfined managed process</th><th>Confined managed process</th></tr>
+</thead>
+<tbody>
+<tr><td>Filesystem access</td><td>No Ravel confinement</td><td>Write access to the working directory and the private run directory. Read access to the runtime paths and the explicit grants.</td></tr>
+<tr><td>Caller environment</td><td>Inherited, without the five variables that Ravel removes</td><td>Only <code>HOME</code>, <code>USER</code>, <code>LOGNAME</code>, <code>PATH</code>, <code>LANG</code> and <code>LC_*</code></td></tr>
+<tr><td>Temporary-path variables</td><td>Inherited</td><td><code>TMPDIR</code>, <code>TMP</code> and <code>TEMP</code> set to the private run directory</td></tr>
+<tr><td>Session-result context</td><td>New <code>RAVEL_EXIT_FILE</code></td><td>New <code>RAVEL_EXIT_FILE</code></td></tr>
+<tr><td>Process group</td><td>New process group in the caller’s POSIX session</td><td>New POSIX session</td></tr>
+<tr><td>Caller terminal</td><td>Lent when Ravel’s group is the foreground group of the terminal</td><td>Not lent. Not interactive.</td></tr>
+<tr><td>Network</td><td>No Ravel confinement</td><td>Confinement permits it</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="read-notices-separately-from-results"><a class="header" href="#read-notices-separately-from-results">Read notices separately from results</a></h2>
+<p>For <code>start-session</code>, stdout contains only the result. Ravel writes the result
+unchanged, with no added newline, and does not interpret it. The stdout of the
+managed process goes to the caller’s stderr, together with its stderr, Ravel’s
+diagnostics and the routing notice. In text form, the routing notice is one
+line that Ravel writes before the launch. The line starts with
+<code>ravel: starting provider</code> and gives the selected provider, model, effort and
+kind.
+These labels are owner text, not integrations with model providers.</p>
+<p><code>--json</code> changes the routing notice and the failure document of Ravel into
+JSON on stderr. It does not change the result into JSON, and it does not
+change other stderr output. The managed process can still write any text
+there. Keep stderr as a diagnostic stream, and do not parse the full stream
+as one JSON document. The managed process can write a line that looks like a
+Ravel notice. Thus, the form of a line does not prove that Ravel wrote it.</p>
+<p>Read stdout only as the result of a successful session. Keep stderr as a
+mixed diagnostic stream, even with <code>--json</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Output</th><th>Destination</th><th>Effect of <code>--json</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Unchanged opaque result after a successful session</td><td>Caller stdout, with no added newline</td><td>None</td></tr>
+<tr><td>Stdout and stderr of the managed process</td><td>Caller stderr</td><td>None. Any program text stays.</td></tr>
+<tr><td>Routing notice and failure document of Ravel</td><td>Caller stderr</td><td>JSON documents replace their text form</td></tr>
+</tbody>
+</table>
+</div>
+<p>The version-1 routing notice gives <code>selection</code>, <code>policy</code>, <code>worker</code>,
+<code>selectionMs</code>, the delivered <code>context</code>, the effective <code>bounds</code>,
+<code>policyEnvironment</code>, <code>resolution</code>, <code>promptSource</code> and the captured policy
+<code>diagnostics</code>. The field <code>context</code> is policy context, not the result
+channel. Grant diagnostics show the name of each environment variable and
+whether it is set. They never show its value. Policy code can still write
+values itself. Thus, keep its diagnostics with the care that those values
+need.</p>
+<p>Ravel writes this JSON notice after the supervision attempt and before it
+decides the final outcome. If the
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">runner</a> completed
+supervision and returned its record of how the job ended,
+<code>operationReports</code> holds the operational reports that the runner kept. The
+array is empty if there are no reports. If supervision failed before the
+runner returned that record, the notice has no such field.</p>
+<p>Some reports, such as a failed stop attempt, stay visible even when later
+checks confirm successful cleanup. A report alone does not decide success,
+and the routing notice also does not. Check the final status.</p>
+<p>A JSON failure has <code>schemaVersion: 1</code> and an <code>error</code> object with <code>code</code>,
+<code>stage</code>, <code>message</code>, <code>remedy</code> and <code>exit</code>. It adds the fields that apply, such
+as <code>input</code>, <code>source</code>, <code>location</code>, <code>policyCode</code>, <code>bound</code> and <code>signal</code>, and the
+captured policy <code>diagnostics</code> when they are available. Read the code and the
+stage together. These examples distinguish a policy decision from failures
+before and after launch:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Code</th><th>Stage</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>policy_refused</code></td><td><code>selection</code></td><td>The owner policy declined the request.</td></tr>
+<tr><td><code>worker_identity_mismatch</code></td><td><code>worker</code></td><td>The policy worker does not match the Ravel CLI. Ravel stops before policy evaluation.</td></tr>
+<tr><td><code>session_result_missing</code></td><td><code>exec</code></td><td>The managed process ended without a sent result.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The text form of each failure starts with <code>ravel: refused</code>, also when no
+policy refused the request. The code and the status show the difference
+between a policy
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">refusal</a> and an
+operational failure.</p>
+<p>If later cleanup also fails, an original failure keeps its code and status.
+Ravel reports the cleanup problems together with the original failure.
+Cancellation has precedence over both. Ravel then sets the cancellation
+status, keeps the original and cleanup diagnostics and returns no result to
+the caller. If required cleanup fails, Ravel also returns no result to the
+caller, even when everything else succeeds. Thus, keep the complete stderr
+stream, even after the caller classifies the exit status.</p>
+<h2 id="interpret-the-exit-status"><a class="header" href="#interpret-the-exit-status">Interpret the exit status</a></h2>
+<p>This table gives the normal outcomes of the Ravel CLI. It comes from the
+status constants of the Ravel CLI, its launch and final-outcome code and its
+code for signals. A caller checks the status of <code>start-session</code>. It does not
+use the status of the managed process or the earlier status of
+<code>end-session</code>. For a session result, accept stdout only with status 0 from
+<code>start-session</code>. A help or version request is a separate invocation for
+information, and it sends no result.</p>
+<p>These sections teach the subject of each row:</p>
+<ul>
+<li>statuses 0 and 1: <a href="#accept-a-result-only-after-success">Accept a result only after success</a></li>
+<li>status 2: <a href="#supply-the-prompt-and-caller-data">Supply the prompt and caller data</a>
+and <a href="#confine-the-managed-process">Confine the managed process</a></li>
+<li>status 3: chapter 4’s <a href="04-writing-an-owner-policy.html#select-a-command-or-refuse">Select a command or refuse</a></li>
+<li>status 5: <a href="#read-notices-separately-from-results">Read notices separately from results</a></li>
+<li>status 124: chapter 4’s <a href="04-writing-an-owner-policy.html#set-bounds-and-grant-environment-names">bounds</a></li>
+<li>statuses 126 and 127: program resolution, in
+<a href="#supply-the-prompt-and-caller-data">Supply the prompt and caller data</a></li>
+<li>statuses 129, 130 and 143: <a href="#cancel-during-selection-or-supervision">Cancel during selection or supervision</a></li>
+</ul>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Status</th><th>Meaning</th><th>What the caller does</th></tr>
+</thead>
+<tbody>
+<tr><td><code>0</code></td><td><code>start-session</code> wrote the sent result unchanged to stdout after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For <code>end-session</code>, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0.</td><td>Interpret the result of a successful session with the caller’s own convention. Ravel does not interpret it. Wait for <code>start-session</code>. The success of <code>end-session</code> alone does not confirm cleanup.</td></tr>
+<tr><td><code>1</code></td><td><code>start-session</code>: <code>session_result_missing</code>, even if the child exited with status 0. <code>end-session</code>: it could not send the result. For example, <code>RAVEL_EXIT_FILE</code> was missing, empty or stale, the result channel was not valid, or the value was larger than its limit.</td><td>Check that the managed process calls the installed <code>ravel end-session</code> with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result.</td></tr>
+<tr><td><code>2</code></td><td>Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of <code>end-session</code> also uses 2.</td><td>Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic.</td></tr>
+<tr><td><code>3</code></td><td>A refusal by the policy, or Ravel’s refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Ravel tries no other route.</td><td>Read <code>code</code>, <code>stage</code>, the location and the remedy. For <code>policy_refused</code>, examine the owner’s <code>policyCode</code> and explanation. Change the request or the policy deliberately. Do not silently substitute a program.</td></tr>
+<tr><td><code>5</code></td><td>A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5.</td><td>Keep the full diagnostics. Repair the matched installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --></td></tr>
+<tr><td><code>124</code></td><td>The deadline for policy evaluation expired. The deadline covers the worker startup, the policy import, the load of policy context and the selection. Ravel launched no managed process.</td><td>Examine the work of the policy. Change <code>--timeout-ms</code> or the owner’s <code>timeoutMs</code> only if you want that longer selection. This is not a time limit for the managed process.</td></tr>
+<tr><td><code>126</code></td><td>Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file).</td><td>Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute.</td></tr>
+<tr><td><code>127</code></td><td>Program resolution found no executable, or a launch failed with ENOENT before the start. An executable script can exist while its interpreter is missing.</td><td>Check the caller’s <code>PATH</code>, the selected path and its interpreter. Install or correct the program that you intended.</td></tr>
+<tr><td><code>129</code></td><td>Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one.</td><td>Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work.</td></tr>
+<tr><td><code>130</code></td><td>Cancellation by INT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one.</td><td>Treat the invocation as cancelled. Distinguish a signal to Ravel from a terminal signal to only the group of the managed process. <a href="#cancel-during-selection-or-supervision">Cancel during selection or supervision</a> explains the difference.</td></tr>
+<tr><td><code>143</code></td><td>Cancellation by TERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one.</td><td>Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the termination was not intended.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The last three numbers follow the shell convention: 128 plus the signal
+number. Ravel reports the cancellation, attempts the cleanup and then raises
+the signal again. Thus, a process API reports termination by that signal,
+not a numeric exit. If the propagation of the signal fails, Ravel reports
+that failure and exits with the same number as a fallback. A caller that
+uses a process API handles both forms.</p>
+<p>A signal such as KILL can stop the Ravel CLI at any point. The normal
+procedure of Ravel does not apply to such a signal. Then the shell status
+does not show that cleanup or result delivery occurred. Also, a new signal
+that arrives after the final cancellation decision can interrupt the result
+write. No atomic guarantee covers both the arrival of a signal and an
+arbitrary write to stdout.</p>
+<p>The following view expands one step of
+<a href="03-a-complete-session.html#recognise-the-other-outcomes">chapter 3’s outcome state machine</a>:
+the step where Ravel decides the final outcome. Cancellation wins over an
+original failure. An original failure keeps its status if later cleanup also
+fails. Only a valid result with confirmed cleanup gets to the final write.
+The view shows the precedence of outcomes, not the order of function calls.
+Ravel attempts the applicable cleanup before it reports an outcome.</p>
+<p>The view covers <code>start-session</code>. The table also covers <code>end-session</code> and the
+help and version invocations.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/settled-exit-status.svg" alt="Ravel checks cancellation first and keeps any original failure with its status. Then it requires confirmed cleanup before it writes the result unchanged. Cancellation gives 129, 130 or 143 and returns no result to the caller. Original failures keep 1, 2, 3, 5, 124, 126 or 127. A cleanup or final-write failure gives 5. Only a successful write and flush gives 0."><span class="img-wrapper"><img src="figures/settled-exit-status.svg" alt="Ravel checks cancellation first and keeps any original failure with its status. Then it requires confirmed cleanup before it writes the result unchanged. Cancellation gives 129, 130 or 143 and returns no result to the caller. Original failures keep 1, 2, 3, 5, 124, 126 or 127. A cleanup or final-write failure gives 5. Only a successful write and flush gives 0."></span></label></p>
+<p><a href="figures/settled-exit-status.svg">Open the final-outcome view at full size</a>.</p>
+<h2 id="cancel-during-selection-or-supervision"><a class="header" href="#cancel-during-selection-or-supervision">Cancel during selection or supervision</a></h2>
+<p>A cancellation during selection stops the policy worker and prevents the
+managed launch. Ravel attempts the worker teardown and reports the
+cancellation with any teardown problems. The worker has no session-result
+context. Thus, it cannot send a result for an enclosing session through the
+usual <code>end-session</code> interface.</p>
+<p>The selection sequence shows why a cancellation can need worker cleanup,
+although Ravel launched no managed process. It follows the example below,
+where the worker sends INT directly to the Ravel CLI.</p>
+<p>In these UML sequences, no lifetime ends with an X. Ravel attempts
+cleanup, and a failed attempt does not confirm a reap or a removal.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/selection-cancellation.svg" alt="The caller starts selection. The policy worker sends INT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller."><span class="img-wrapper"><img src="figures/selection-cancellation.svg" alt="The caller starts selection. The policy worker sends INT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller."></span></label></p>
+<p><a href="figures/selection-cancellation.svg">Open the selection cancellation sequence at full size</a>.</p>
+<p>Complete example: the policy sends INT directly to its parent, the Ravel
+CLI. Then it waits indefinitely. This example causes a cancellation during
+selection without a terminal or a managed process. Create the policy in a
+new directory.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "cancel-selection",
+  async select() {
+    process.kill(process.ppid, "SIGINT");
+    return await new Promise&lt;never&gt;(() =&gt; {});
+  },
+});
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ ravel start-session --kind check --config policy.ts --prompt 'No program should launch.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (selection_cancelled, stage evaluation): selection with the policy &lt;scratch&gt;/work/policy.ts was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">130
+</code></pre>
+<p>Here <code>&lt;scratch&gt;</code> is the temporary directory that the example checker of the
+book uses. A manual run shows the actual absolute path of your policy. The
+details of worker teardown can change from run to run. Thus, the transcript
+claims only the stable diagnostic line.</p>
+<p>During supervision, a cancellation stops the group of the managed process.
+Ravel attempts the reap, the terminal recovery and the temporary cleanup
+before it reports the signal. Ravel returns no result to the caller, even when
+it already received a result. A cleanup failure does not change the
+cancellation into success. Ravel reports the failure together with the
+cancellation.</p>
+<p>The supervision sequence shows why a cancellation returns no result to the
+caller, even after the managed process sent a result. The result reaches the
+temporary result channel, but Ravel does not write it to stdout. The runner
+runs inside the Ravel CLI. The group of the managed process includes the
+descendants that stay in that group. The cleanup steps in the figure are
+attempts, and Ravel keeps their failures as diagnostics.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate through end-session. Then it sends INT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It returns no result to the caller and reports cancellation, even if cleanup fails."><span class="img-wrapper"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate through end-session. Then it sends INT to the Ravel CLI. The Ravel CLI attempts group shutdown, reap, terminal recovery and temporary cleanup. It returns no result to the caller and reports cancellation, even if cleanup fails."></span></label></p>
+<p><a href="figures/supervision-cancellation.svg">Open the supervision cancellation sequence at full size</a>.</p>
+<p>Complete example: the program sends a candidate result and sends INT
+directly to the Ravel CLI. Then it stays alive until the supervisor stops the
+job. Create the files in a new directory and make <code>bin/cancel-after-result</code>
+executable.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "cancel-session",
+  select() {
+    return {
+      status: "selected",
+      program: "cancel-after-result",
+      args: [],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Cancel after a sent result",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/cancel-after-result</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+ravel end-session -- "candidate"
+kill -INT "$PPID"
+while :; do sleep 1; done
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --prompt 'Show cancellation after a sent result.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (session_cancelled, stage exec): session selected by &lt;scratch&gt;/work/policy.ts was cancelled by SIGINT
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">130
+</code></pre>
+<p>A signal that you send to the Ravel CLI is different from Ctrl-C at the
+terminal. After Ravel lends the terminal, the group of the managed process is
+the foreground group of the terminal. Ctrl-C then makes the terminal send INT
+to that group, not to the Ravel CLI. If only that group receives INT and
+exits with no sent result, the Ravel CLI reports <code>session_result_missing</code>
+with status 1. It does not report cancellation with status 130.</p>
+<p>An interactive program can also handle or ignore the keyboard signal itself.
+Use the status and the diagnostic of the Ravel CLI. Do not infer the outcome
+from the key that you pressed. <a href="09-jobs-signals-and-the-terminal.html#preserve-the-entry-signal-state">Chapter 9</a> explains signal inheritance and
+<a href="09-jobs-signals-and-the-terminal.html#lend-and-recover-the-terminal">terminal recovery</a>.</p>
+<p>Fragment: run an interactive route and press Ctrl-C at the terminal. This
+fragment omits the policy, the interactive program and the physical
+interaction with the terminal. The automated examples do not test keyboard
+delivery or foreground recovery.</p>
+<pre><code class="language-sh">ravel start-session --kind interactive --config policy.ts --prompt-file prompt.txt
+</code></pre>
+<h2 id="understand-the-operational-limits"><a class="header" href="#understand-the-operational-limits">Understand the operational limits</a></h2>
+<p>Ravel’s cleanup guarantee does not apply under the conditions in this table.
+Use the table to decide what an unsuccessful invocation can leave for the
+caller to examine:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Condition</th><th>Consequence</th></tr>
+</thead>
+<tbody>
+<tr><td>Code that runs as the same user makes unauthorised changes to the result channel or the installation.</td><td>Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the policy worker matches the build of the Ravel CLI. It does not check a trusted signature.</td></tr>
+<tr><td>The Ravel CLI dies abruptly, for example from KILL.</td><td>It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record.</td></tr>
+<tr><td>A managed descendant deliberately leaves its process group.</td><td>It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone.</td></tr>
+<tr><td>Trusted owner policy starts a detached child.</td><td>Worker teardown does not guarantee the cleanup of that child. The confinement of the managed process does not contain policy code.</td></tr>
+<tr><td>Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group.</td><td>Recovery assumes two conditions between the runner’s check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. <a href="09-jobs-signals-and-the-terminal.html#lend-and-recover-the-terminal">Chapter 9</a> explains the conditions.</td></tr>
+<tr><td>The host is different from the measured platforms.</td><td>The project measured how Ravel handles inherited signal settings, cancellation, cleanup and terminal recovery. It measured them on aarch64 macOS and aarch64 GNU/Linux. The project built Ravel for x86_64 GNU/Linux and ran it only under emulation. Native x86-64 qualification is not complete. These checks do not cover all combinations of kernel, libc and compiler.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Chapter 2 explains these <a href="02-actors-and-words.html#trust-and-confinement">trust limits</a>.
+<a href="https://github.com/Linkuistics/Ravel/issues/1">Ravel issue 1</a> tracks the
+native x86-64 qualification. The examples in this chapter check the choice
+of command, the delivery of the result and the status. They do not show the
+behaviour of real agents, interactive terminal operation or whether a new
+reader can use the book. <a href="06-reference.html">Chapter 6, “Reference”</a>, gives the
+reference entries for the inputs and outputs that this chapter teaches.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="04-writing-an-owner-policy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="06-reference.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="04-writing-an-owner-policy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="06-reference.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

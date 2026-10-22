@@ -1,0 +1,980 @@
+{
+  "w": 744.57470703125,
+  "h": 1084.5843750000001,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "How the outcome is chosen — UML activity",
+      "x": 372.287353515625,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 387.234375,
+      "h": 12.15625
+    },
+    {
+      "id": "start",
+      "shape": "circle",
+      "role": "initial",
+      "x": 205.615234375,
+      "y": 35.15625,
+      "r": 9
+    },
+    {
+      "id": "cleanup",
+      "shape": "box",
+      "role": "phase",
+      "x0": 83.62255859375,
+      "y0": 74.15625,
+      "x1": 327.60791015625,
+      "y1": 121.1296875
+    },
+    {
+      "id": "cleanup-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Attempt every cleanup step,\nwhatever happened before",
+      "x": 205.615234375,
+      "y": 97.64296875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 199.9853515625,
+      "h": 28.9734375
+    },
+    {
+      "id": "signals",
+      "shape": "box",
+      "role": "phase",
+      "x0": 40.63818359375,
+      "y0": 151.1296875,
+      "x1": 370.59228515625,
+      "y1": 234.7765625
+    },
+    {
+      "id": "signals-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Take the first available source:\nearly CLI latch, runner outcome,\nlate runner latch, another CLI latch read,\nthen the earlier look(true) snapshot",
+      "x": 205.615234375,
+      "y": 192.953125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 285.9541015625,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "original-report",
+      "shape": "box",
+      "role": "phase",
+      "x0": 91.92138671875,
+      "y0": 264.7765625,
+      "x1": 319.30908203125,
+      "y1": 311.75
+    },
+    {
+      "id": "original-report-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Under cancellation: report\nany original failure first",
+      "x": 205.615234375,
+      "y": 288.26328125000003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 183.3876953125,
+      "h": 28.9734375
+    },
+    {
+      "id": "report",
+      "shape": "box",
+      "role": "phase",
+      "x0": 64.44091796875,
+      "y0": 341.75,
+      "x1": 346.78955078125,
+      "y1": 388.7234375
+    },
+    {
+      "id": "report-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Report every cleanup error\nand a process group that survives",
+      "x": 205.615234375,
+      "y": 365.23671875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 238.3486328125,
+      "h": 28.9734375
+    },
+    {
+      "id": "signal",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          205.615234375,
+          444.546875
+        ],
+        [
+          227.615234375,
+          460.546875
+        ],
+        [
+          205.615234375,
+          476.546875
+        ],
+        [
+          183.615234375,
+          460.546875
+        ]
+      ]
+    },
+    {
+      "id": "signal-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Signal found?",
+      "x": 175.615234375,
+      "y": 460.546875,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 95.0126953125,
+      "h": 10.63671875
+    },
+    {
+      "id": "cancelled",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 404.59228515625,
+      "y0": 418.7234375,
+      "x1": 523.68505859375,
+      "y1": 502.3703125
+    },
+    {
+      "id": "cancelled-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Cancelled\n129: HUP\n130: INT\n143: TERM",
+      "x": 464.138671875,
+      "y": 460.546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 75.0927734375,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "cancelled-note",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          551.68505859375,
+          424.891796875
+        ],
+        [
+          734.57470703125,
+          424.891796875
+        ],
+        [
+          744.57470703125,
+          434.891796875
+        ],
+        [
+          744.57470703125,
+          496.201953125
+        ],
+        [
+          551.68505859375,
+          496.201953125
+        ]
+      ]
+    },
+    {
+      "id": "cancelled-note-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          734.57470703125,
+          424.891796875
+        ],
+        [
+          734.57470703125,
+          434.891796875
+        ],
+        [
+          744.57470703125,
+          434.891796875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "cancelled-note-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Ravel returns no result\nto the caller. Cleanup\nfailures stay as reports.",
+      "x": 648.1298828125,
+      "y": 460.546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 164.8896484375,
+      "h": 47.31015625
+    },
+    {
+      "id": "failure",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          205.615234375,
+          539.85703125
+        ],
+        [
+          227.615234375,
+          555.85703125
+        ],
+        [
+          205.615234375,
+          571.85703125
+        ],
+        [
+          183.615234375,
+          555.85703125
+        ]
+      ]
+    },
+    {
+      "id": "failure-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Original failure?",
+      "x": 175.615234375,
+      "y": 555.85703125,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 110.8857421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "original",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 404.59228515625,
+      "y0": 532.3703125,
+      "x1": 622.02001953125,
+      "y1": 579.34375
+    },
+    {
+      "id": "original-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Original failure\nkeeps its own exit status",
+      "x": 513.30615234375,
+      "y": 555.85703125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 173.427734375,
+      "h": 28.9734375
+    },
+    {
+      "id": "cleanup-error",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          205.615234375,
+          609.34375
+        ],
+        [
+          227.615234375,
+          625.34375
+        ],
+        [
+          205.615234375,
+          641.34375
+        ],
+        [
+          183.615234375,
+          625.34375
+        ]
+      ]
+    },
+    {
+      "id": "cleanup-error-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cleanup step failed?",
+      "x": 175.615234375,
+      "y": 625.34375,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 142.8916015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "cleanup-failed",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 404.59228515625,
+      "y0": 611.025390625,
+      "x1": 592.22900390625,
+      "y1": 639.662109375
+    },
+    {
+      "id": "cleanup-failed-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "5: first cleanup error",
+      "x": 498.41064453125,
+      "y": 625.34375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 143.63671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "group",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          205.615234375,
+          671.34375
+        ],
+        [
+          227.615234375,
+          687.34375
+        ],
+        [
+          205.615234375,
+          703.34375
+        ],
+        [
+          183.615234375,
+          687.34375
+        ]
+      ]
+    },
+    {
+      "id": "group-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Process group survived?",
+      "x": 175.615234375,
+      "y": 687.34375,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 169.982421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "group-survived",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 404.59228515625,
+      "y0": 673.025390625,
+      "x1": 629.90869140625,
+      "y1": 701.662109375
+    },
+    {
+      "id": "group-survived-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "5: process group survived",
+      "x": 517.25048828125,
+      "y": 687.34375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 181.31640625,
+      "h": 10.63671875
+    },
+    {
+      "id": "write",
+      "shape": "box",
+      "role": "phase",
+      "x0": 94.84375,
+      "y0": 733.34375,
+      "x1": 316.38671875,
+      "y1": 761.98046875
+    },
+    {
+      "id": "write-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Write the result and flush",
+      "x": 205.615234375,
+      "y": 747.662109375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 177.54296875,
+      "h": 10.63671875
+    },
+    {
+      "id": "written",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          205.615234375,
+          791.98046875
+        ],
+        [
+          227.615234375,
+          807.98046875
+        ],
+        [
+          205.615234375,
+          823.98046875
+        ],
+        [
+          183.615234375,
+          807.98046875
+        ]
+      ]
+    },
+    {
+      "id": "written-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Write and flush succeed?",
+      "x": 175.615234375,
+      "y": 807.98046875,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 175.615234375,
+      "h": 10.63671875
+    },
+    {
+      "id": "write-failed",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 404.59228515625,
+      "y0": 793.662109375,
+      "x1": 589.15966796875,
+      "y1": 822.298828125
+    },
+    {
+      "id": "write-failed-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "5: result write failed",
+      "x": 496.8759765625,
+      "y": 807.98046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 140.5673828125,
+      "h": 10.63671875
+    },
+    {
+      "id": "succeeded",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 63.615234375,
+      "y0": 860.6171875,
+      "x1": 347.615234375,
+      "y1": 907.590625
+    },
+    {
+      "id": "succeeded-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "0: Ravel returns the result unchanged",
+      "x": 205.615234375,
+      "y": 884.10390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 240.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "flow-start-cleanup",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          44.15625
+        ],
+        [
+          205.615234375,
+          74.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-cleanup-signals",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          121.1296875
+        ],
+        [
+          205.615234375,
+          151.1296875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-signals-original-report",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          234.7765625
+        ],
+        [
+          205.615234375,
+          264.7765625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-original-report-report",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          311.75
+        ],
+        [
+          205.615234375,
+          341.75
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-report-signal",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          388.7234375
+        ],
+        [
+          205.615234375,
+          444.546875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-signal-cancelled",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          227.615234375,
+          460.546875
+        ],
+        [
+          404.59228515625,
+          460.546875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "signal-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[signal found]",
+      "x": 316.103759765625,
+      "y": 456.546875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 96.9130859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "cancelled-note-link",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          523.68505859375,
+          460.546875
+        ],
+        [
+          551.68505859375,
+          460.546875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "flow-signal-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          476.546875
+        ],
+        [
+          205.615234375,
+          539.85703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-signal-failure-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no signal]",
+      "x": 213.615234375,
+      "y": 508.201953125,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 74.224609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-failure-original",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          227.615234375,
+          555.85703125
+        ],
+        [
+          404.59228515625,
+          555.85703125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "failure-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[original failure]",
+      "x": 316.103759765625,
+      "y": 551.85703125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 111.9248046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-failure-cleanup-error",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          571.85703125
+        ],
+        [
+          205.615234375,
+          609.34375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-failure-cleanup-error-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no failure]",
+      "x": 213.615234375,
+      "y": 590.600390625,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 77.0341796875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-cleanup-error-cleanup-failed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          227.615234375,
+          625.34375
+        ],
+        [
+          404.59228515625,
+          625.34375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "cleanup-error-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[cleanup error]",
+      "x": 316.103759765625,
+      "y": 621.34375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 104.6787109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-cleanup-error-group",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          641.34375
+        ],
+        [
+          205.615234375,
+          671.34375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-cleanup-error-group-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no cleanup error]",
+      "x": 213.615234375,
+      "y": 656.34375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 126.5673828125,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-group-group-survived",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          227.615234375,
+          687.34375
+        ],
+        [
+          404.59228515625,
+          687.34375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "group-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[group survived]",
+      "x": 316.103759765625,
+      "y": 683.34375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 115.9169921875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-group-write",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          703.34375
+        ],
+        [
+          205.615234375,
+          733.34375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-group-write-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[group absent]",
+      "x": 213.615234375,
+      "y": 718.34375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 103.76953125,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-write-written",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          761.98046875
+        ],
+        [
+          205.615234375,
+          791.98046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-written-write-failed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          227.615234375,
+          807.98046875
+        ],
+        [
+          404.59228515625,
+          807.98046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "written-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[write or flush fails]",
+      "x": 316.103759765625,
+      "y": 803.98046875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 136.2333984375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-written-succeeded",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          205.615234375,
+          823.98046875
+        ],
+        [
+          205.615234375,
+          860.6171875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "written-guard-down",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[succeed]",
+      "x": 213.615234375,
+      "y": 842.298828125,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 68.5986328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 78.741943359375,
+      "y0": 925.590625,
+      "x1": 665.832763671875,
+      "y1": 1084.5843750000001
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: steps. Grey: outcomes. A diamond is a decision.\nThe label in square brackets is the guard of a flow.\nRavel attempts all cleanup steps before it chooses an outcome.\nSignal sources have priority, not an order of arrival.\nThe look(true) snapshot uses the CLI latch, then an eligible queued signal.\nThe decisions run in precedence order: the first that applies gives the outcome.\nCancellation wins over every failure. An original failure keeps its own status.\nThe write happens only when every earlier decision passes.",
+      "x": 372.287353515625,
+      "y": 1005.0875000000001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 559.0908203125,
+      "h": 138.99375
+    }
+  ]
+}

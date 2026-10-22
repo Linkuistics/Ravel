@@ -1,0 +1,1723 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Write an owner policy - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-2c91c537.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-23b29db2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="write-an-owner-policy"><a class="header" href="#write-an-owner-policy">Write an owner policy</a></h1>
+<p>An <a href="02-actors-and-words.html#caller-and-owner">owner policy</a> receives a request
+from a <a href="02-actors-and-words.html#caller-and-owner">caller</a> and returns a command
+or a <a href="02-actors-and-words.html#policy-evaluation-and-supervision">refusal</a>.
+Start with chapter 3’s fake agent. Then add decisions that you can test:
+which <a href="02-actors-and-words.html#caller-and-owner">kinds</a> to accept, which
+arguments to pass, and what to tell a caller when no route applies.</p>
+<p>Use the Ravel that you installed in
+<a href="03-a-complete-session.html#install-ravel-and-check-its-version">chapter 3</a>.
+Put each complete example below in its own empty directory. Create the <code>bin</code>
+subdirectory first. Then save the files of the example at the labelled paths.</p>
+<p>The examples create private <code>home</code> and <code>tmp</code> directories. They clear the
+environment of the subprocess and put the fake programs first on <code>PATH</code>. They
+use real policy evaluation. They do not connect to a model service or read
+your usual owner configuration.</p>
+<h2 id="define-a-policy-and-read-the-request"><a class="header" href="#define-a-policy-and-read-the-request">Define a policy and read the request</a></h2>
+<!-- tc: depart synonym-rotation because TypeScript field checks and runtime policy validation occur at different boundaries -->
+<p>The entry file exports a plain object with the name <code>policy</code>. Import
+<code>definePolicy</code> from the literal module name <code>ravel/sdk</code>. Give that object to
+<code>definePolicy</code> as its argument. The helper returns the object unchanged. It
+gives TypeScript sufficient information to check your fields and
+to find the parameter types of <code>select</code>. Ravel still validates the policy at
+runtime, when it evaluates the policy.</p>
+<p>The policy object can have these four fields. They identify the policy
+interface, give a label to your revision and supply the functions that Ravel
+calls:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>The literal number <code>2</code>. It identifies the policy shape.</td></tr>
+<tr><td><code>version</code></td><td>A nonblank label that you maintain, such as <code>book-routing-1</code>. It is independent of Ravel’s own version.</td></tr>
+<tr><td><code>select</code></td><td>A function that returns a selection or a refusal, directly or through a promise.</td></tr>
+<tr><td><code>loadContext</code></td><td>An optional function that assembles the <a href="02-actors-and-words.html#three-different-kinds-of-information">policy context</a> before selection. <a href="#supply-policy-context">Supply policy context</a> describes it.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel refuses a policy object that has an unknown field. It reads only the
+named export <code>policy</code>. If an entry has only a default export, Ravel refuses
+it as an invalid policy.</p>
+<p>The simplest <code>select</code> uses only its first parameter, <code>request</code>. Ravel also
+gives <code>select</code> the delivered policy context, which can be <code>undefined</code>, and a
+host. The host has <code>diagnostic(text)</code> and an
+<code>AbortSignal</code> at <code>signal</code>. With the host, asynchronous work can monitor the
+selection deadline, and the policy can write diagnostic text. The host of
+<code>select</code> has no operations that read files. Only the host of the
+policy-context loader has them.</p>
+<p>The request is frozen data. This table gives its fields. Most fields are
+caller input. <code>schemaVersion</code> identifies the request shape, and <code>limits</code>
+holds Ravel’s effective bounds:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>The literal number <code>2</code>.</td></tr>
+<tr><td><code>kind</code></td><td>The caller’s nonempty token. Only your policy defines which tokens it accepts.</td></tr>
+<tr><td><code>prompt</code></td><td>The unchanged prompt, also when it is an empty string or contains newlines. Ravel adds no instructions to end the <a href="02-actors-and-words.html#caller-and-owner">session</a>.</td></tr>
+<tr><td><code>cwd</code></td><td>The caller’s working directory, not the directory of the <a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a>.</td></tr>
+<tr><td><code>params</code></td><td>The caller’s <code>--param NAME=VALUE</code> pairs, as strings by name. It is an empty object when the caller supplied no pair.</td></tr>
+<tr><td><code>taskFile</code></td><td>An optional absolute path from <code>--task-file</code>. Ravel does not read the file for you.</td></tr>
+<tr><td><code>taskId</code></td><td>An optional caller identifier from <code>--task-id</code>.</td></tr>
+<tr><td><code>context</code></td><td>An optional validated version-1 document from <code>--context</code>.</td></tr>
+<tr><td><code>limits</code></td><td>The effective bounds for this invocation.</td></tr>
+</tbody>
+</table>
+</div>
+<p>If an optional field is absent, the caller did not supply it. <code>limits</code> has
+these six fields:</p>
+<ul>
+<li><code>selectionMs</code>: the maximum time for the whole selection</li>
+<li><code>contextBytes</code>: the maximum bytes of the delivered policy context</li>
+<li><code>sourceBytes</code>: the default maximum bytes for one host read</li>
+<li><code>sources</code>: the maximum number of measured sources</li>
+<li><code>messageBytes</code>: the maximum bytes of one protocol message</li>
+<li><code>diagnosticsBytes</code>: the maximum bytes of all worker output together</li>
+</ul>
+<p>Your policy can read these values. If the policy changes a value, the bound
+that Ravel enforces does not increase.
+<a href="#set-bounds-and-grant-environment-names">Set bounds and grant environment names</a>
+gives the settings and their ranges.</p>
+<p>Fragment: only the signature of the <code>select</code> method. This block omits the
+policy object and the policy code in the method.</p>
+<pre><code class="language-ts">select(request, context, host) {
+  host.diagnostic(`Selecting a command for ${JSON.stringify(request.kind)}`);
+  // Return a selected command or a refusal here.
+}
+</code></pre>
+<p>To use a private test file, pass <code>--config policy.ts</code>. Ravel resolves that
+path against the caller’s working directory. It follows the path to a
+readable regular file and imports the real path. Put relative helpers beside
+that real file.</p>
+<p>Without <code>--config</code>, the entry is <code>$HOME/.config/ravel/policy.ts</code>. Ravel does
+not search a repository for a policy. With each of the two entries, the
+settings come from <code>$HOME/.config/ravel/settings.json</code>. Thus, the examples
+supply an empty private <code>HOME</code> and also <code>--config</code>.</p>
+<h2 id="select-a-command-or-refuse"><a class="header" href="#select-a-command-or-refuse">Select a command or refuse</a></h2>
+<p>A selection describes the process that Ravel starts. <code>program</code> is one of
+these:</p>
+<ul>
+<li>an absolute path</li>
+<li>a relative path that contains a separator, which Ravel resolves against the
+caller’s working directory</li>
+<li>a name that Ravel finds on the caller’s <code>PATH</code></li>
+</ul>
+<p>Each string in <code>args</code> becomes one argument after the program. Ravel does no
+shell expansion or word splitting. A shell runs only when the selected
+command needs one. The fake in this section needs one: its shebang line names
+<code>/bin/sh</code>.</p>
+<p>A selection has these fields. Some give the command that Ravel executes. The
+others give the labels and the explanation that Ravel reports:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Selection field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>status</code></td><td>The literal <code>"selected"</code>.</td></tr>
+<tr><td><code>program</code></td><td>The path or the name of the executable.</td></tr>
+<tr><td><code>args</code></td><td>The argument strings, in order. The array and its strings can be empty.</td></tr>
+<tr><td><code>provider</code>, <code>model</code>, <code>effort</code></td><td>Owner labels that the routing diagnostics report. They do not configure a service or change the arguments.</td></tr>
+<tr><td><code>reason</code></td><td>Your explanation of this decision. The routing diagnostics report it verbatim.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each string field is nonblank, except the entries in <code>args</code>. The program and
+the arguments cannot contain a NUL. Ravel validates the shape of the
+selection. It does not examine whether the command is sensible or whether it
+passes the prompt. Your policy and its tests own those decisions.</p>
+<p>A refusal gives a reason that the caller can identify and an action that the
+caller can take. It has these fields:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Refusal field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>status</code></td><td>The literal <code>"refused"</code>.</td></tr>
+<tr><td><code>code</code></td><td>Your nonblank code that identifies the reason.</td></tr>
+<tr><td><code>message</code></td><td>A nonblank explanation of the problem.</td></tr>
+<tr><td><code>remedy</code></td><td>A nonblank action that the caller or the owner can take.</td></tr>
+</tbody>
+</table>
+</div>
+<!-- tc: depart synonym-rotation because launch refers to a process, while start also names the beginning of a deadline -->
+<p>Ravel reports your refusal as <code>policy_refused</code>, together with your code
+(<code>policyCode</code> in JSON diagnostics). Then it exits with status 3 and launches
+nothing. It does not try a different route. If <code>select</code> returns nothing,
+returns malformed data or throws an error, Ravel also launches nothing. But
+then the caller does not get the message and the remedy of your refusal. If
+evaluation does not finish before the selection deadline, the outcome is
+<code>selection_timeout</code>, which is different from an explicit policy refusal.</p>
+<p>The table below gives the steps of evaluation, in order, on the path to a
+launch. A returned selection does not let Ravel skip the worker cleanup. If
+evaluation stops at an earlier step, it also needs worker cleanup, but no
+managed launch can follow.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Work</th><th>Condition to continue</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Ravel imports the owner policy.</td><td>The import succeeds, and the named <code>policy</code> export has the accepted shape.</td></tr>
+<tr><td>2</td><td>Ravel assembles the <a href="#supply-policy-context">policy context</a>. It calls <code>loadContext</code> if it exists.</td><td>The caller data and the delivered document obey their shape and size rules. If the loader refuses, evaluation stops here, and Ravel does not call <code>select</code>. Without a loader or a caller document, selection continues with <code>undefined</code>.</td></tr>
+<tr><td>3</td><td>Ravel calls <code>select</code> with the request and the delivered policy context.</td><td>The returned value is a valid selection. An explicit refusal becomes <code>policy_refused</code>. Malformed data or a thrown error also prevents the launch.</td></tr>
+<tr><td>4</td><td>Ravel reaps the policy worker and removes its private directory before the managed launch.</td><td>Ravel confirms the reap and the removal. If the cleanup fails, a returned selection is not sufficient for a launch. <!-- tc: depart synonym-rotation because confirmation establishes completed reap and removal rather than merely attempting a check --></td></tr>
+</tbody>
+</table>
+</div>
+<p>One deadline, <code>selectionMs</code>, starts when Ravel spawns the worker. It covers
+the import, the assembly of the policy context and <code>select</code>. It does not
+start again for each step. When it expires, evaluation stops with
+<code>selection_timeout</code> (exit status 124), and Ravel launches nothing. A refusal
+has exit status 3. Ravel can refuse an invalid caller document before the
+loader runs.</p>
+<p>The evaluation table above gives only the order from the policy to the
+launch. Chapter 3’s
+<a href="03-a-complete-session.html#recognise-the-other-outcomes">outcome view</a> also
+gives the outcomes of cancellation and supervision.</p>
+<p>The policy below extends the example of chapter 3. It accepts only the kind
+<code>demo</code>, and it refuses an empty prompt for that kind. Ravel accepts an empty
+prompt, but this policy requires a prompt. The order of the two checks is
+intentional: the policy refuses an unsupported kind before it examines the
+prompt.</p>
+<p>Complete example: validate the accepted route and the two explicit refusals
+of one small policy.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-routing-1",
+  select(request) {
+    if (request.kind !== "demo") {
+      return {
+        status: "refused",
+        code: "unsupported_kind",
+        message: "This policy accepts only demo.",
+        remedy: "Pass --kind demo or add a route in policy.ts.",
+      };
+    }
+    if (request.prompt === "") {
+      return {
+        status: "refused",
+        code: "prompt_required",
+        message: "The demo route needs a prompt.",
+        remedy: "Supply a nonempty --prompt or --prompt-file.",
+      };
+    }
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [request.prompt],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "The demo route uses the local fake.",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+printf 'fake-agent received: %s\n' "$1"
+ravel end-session -- "finished"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/fake-agent &amp;&amp; env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Print this prompt, then call ravel end-session -- "finished".'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">finished
+</code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: starting provider local, model fake, effort none for kind "demo"
+fake-agent received: Print this prompt, then call ravel end-session -- "finished".
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: unsupported_kind
+  remedy: Pass --kind demo or add a route in policy.ts.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt ''
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: prompt_required
+  remedy: Supply a nonempty --prompt or --prompt-file.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>For the successful command, Ravel writes the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+<code>finished</code> unchanged to standard output, with no final newline. The fake’s
+output goes to the caller’s standard error. Thus, standard output contains
+only the result. Each refusal returns no result to the caller. The standard-error excerpts check stable diagnostic lines.
+Other operational reports can also occur on standard error.</p>
+<p>When you edit the policy, keep a test case for each route and each refusal.
+A fake can record the full argument vector and send a known value as the
+result. Thus, you can check the choice of command, and you do not pay for a
+model. Also, no agent acts on the prompt. <code>start-session</code> launches the selected
+command. Ravel has no verb that examines a policy without a launch,
+so this validation is necessary.</p>
+<p><code>task docs:examples</code> runs the examples in this book. It uses a private <code>PATH</code>
+that contains only the fakes of the example, the built Ravel and the system
+utilities. It also clears the environment, uses a temporary <code>HOME</code> and
+<code>TMPDIR</code>, and gives each command a limit of 60 seconds.</p>
+<h2 id="typecheck-against-the-public-declarations"><a class="header" href="#typecheck-against-the-public-declarations">Typecheck against the public declarations</a></h2>
+<p>A typecheck finds misspelt fields, missing fields and wrong return types
+before a session runs. It does not execute the policy. It does not prove that
+each kind has a route. Use it together with the fake-program checks above.</p>
+<!-- tc: depart synonym-rotation because fetch refers to tool downloads, while get also describes receiving policy data -->
+<p>The recipes below need a source checkout as a development tool. The
+installed Ravel alone can run your policy. For the checkout, use Rust 1.85
+or later, curl, tar, Task, ShellCheck and cargo-nextest. Run <code>task setup</code> in
+the checkout root to fetch its tools and install its development dependencies.
+<a href="10-develop-ravel.html">Chapter 10, “Develop Ravel”</a>, gives the development workflow.</p>
+<p>The checkout generates the public declarations when it builds the worker.
+Use those declarations for your policy. Do not use the implementation modules
+of the worker. In the root of the checkout, run <code>task worker</code> to generate the
+declarations. Then create a temporary configuration that includes the
+absolute path of your policy. The recipe maps the two embedded module names,
+because the later examples also import the starter table.</p>
+<p>Fragment: the typecheck in a checkout. Replace the policy path. This block
+omits the policy and the development setup above. Run it in
+the root of the checkout. It runs in a subshell, so its cleanup trap has an
+effect only in that subshell.</p>
+<pre><code class="language-sh">(
+  set -eu
+  task worker
+  export RAVEL_BOOK_ROOT="$PWD"
+  export RAVEL_BOOK_POLICY="/absolute/path/to/policy.ts"
+  check_dir=$(mktemp -d)
+  trap 'rm -rf "$check_dir"' EXIT
+  target/tools/bun -e '
+    const root = process.env.RAVEL_BOOK_ROOT;
+    console.log(JSON.stringify({
+      extends: `${root}/crates/ravel/worker/tsconfig.json`,
+      compilerOptions: {
+        types: ["bun"],
+        typeRoots: [`${root}/crates/ravel/worker/node_modules/@types`],
+        paths: {
+          "ravel/sdk": [`${root}/target/libexec/ravel/sdk/index.d.ts`],
+          "ravel/examples/*": [`${root}/target/libexec/ravel/examples/*.d.ts`]
+        }
+      },
+      include: [process.env.RAVEL_BOOK_POLICY]
+    }, null, 2));
+  ' &gt; "$check_dir/tsconfig.json"
+  target/tools/bun crates/ravel/worker/node_modules/typescript/bin/tsc \
+    -p "$check_dir/tsconfig.json"
+)
+</code></pre>
+<p>The recipe uses <code>JSON.stringify</code> to write the file. Thus, spaces and other
+characters in the paths stay correct. Through <code>extends</code>, the checker uses
+the strict options of the repository. <code>typeRoots</code> finds the checkout’s Bun
+declarations, although the configuration is in a different directory. A
+successful check prints no TypeScript diagnostics and exits with status 0.</p>
+<p>The directory that <code>brew --prefix ravel</code> prints also contains
+<code>libexec/ravel/sdk/index.d.ts</code> and <code>libexec/ravel/examples/static.d.ts</code>,
+together with TypeScript sources that you can edit. The installation does not
+contain a development type checker. You can check
+a policy against that installed interface with a separate TypeScript
+installation. The following recipe uses the checkout’s pinned checker only as
+that development tool. Its module mappings point to the installed
+declarations. To run a policy, an installation needs neither that checker
+nor a separate installation of Bun.</p>
+<p>Fragment: the typecheck against the installed declarations, with the
+checkout’s checker. Replace the two absolute paths. This block omits the
+installation and the policy. Run it in the root of the checkout, after you
+install the development dependencies of the checkout.</p>
+<pre><code class="language-sh">(
+  set -eu
+  export RAVEL_BOOK_PREFIX="/absolute/path/to/installation"
+  export RAVEL_BOOK_POLICY="/absolute/path/to/policy.ts"
+  check_dir=$(mktemp -d)
+  trap 'rm -rf "$check_dir"' EXIT
+  target/tools/bun -e '
+    const prefix = process.env.RAVEL_BOOK_PREFIX;
+    console.log(JSON.stringify({
+      compilerOptions: {
+        strict: true,
+        noEmit: true,
+        target: "esnext",
+        module: "preserve",
+        moduleResolution: "bundler",
+        allowImportingTsExtensions: true,
+        verbatimModuleSyntax: true,
+        noUncheckedIndexedAccess: true,
+        noImplicitOverride: true,
+        exactOptionalPropertyTypes: true,
+        types: [],
+        paths: {
+          "ravel/sdk": [`${prefix}/libexec/ravel/sdk/index.d.ts`],
+          "ravel/examples/*": [`${prefix}/libexec/ravel/examples/*.d.ts`]
+        }
+      },
+      include: [process.env.RAVEL_BOOK_POLICY]
+    }, null, 2));
+  ' &gt; "$check_dir/tsconfig.json"
+  target/tools/bun crates/ravel/worker/node_modules/typescript/bin/tsc \
+    -p "$check_dir/tsconfig.json"
+)
+</code></pre>
+<p>The policies in the sections above need no global types for Bun.
+Thus, the standalone configuration uses <code>types: []</code>. A policy that uses the
+APIs of a specific runtime also needs the development declarations for that
+runtime. A typecheck does not replace validation at runtime. The installed
+worker still checks the object and the selection that it actually receives.</p>
+<h2 id="use-the-starter-route-table"><a class="header" href="#use-the-starter-route-table">Use the starter route table</a></h2>
+<p>The embedded module <code>ravel/examples/static</code> supplies an example that you can
+copy and edit. The module’s <code>Route</code> type is a function from a request
+to a <code>Command</code>. A
+<code>Command</code> is a selection without <code>status</code> and <code>reason</code>.
+<code>selectRoute(table, request)</code> finds the table’s own entry, not an inherited
+property, whose name is exactly the kind. It calls that route and adds the selected status and a reason that
+names the route. For an unknown kind, it returns a refusal with the policy
+code <code>incomplete_mapping</code>, and no other entry is a default.</p>
+<p>This table gives the effort argument that each route of the module passes.
+These kind names and effort values are owner conventions:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Kind</th><th>Effort passed to the wrapper</th></tr>
+</thead>
+<tbody>
+<tr><td><code>question</code></td><td><code>low</code></td></tr>
+<tr><td><code>bugfix</code></td><td><code>medium</code></td></tr>
+<tr><td><code>feature</code></td><td><code>high</code></td></tr>
+<tr><td><code>migration</code></td><td><code>xhigh</code></td></tr>
+<tr><td><code>architecture</code></td><td><code>xhigh</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Each entry calls <code>agent(effort)</code>. This function makes a command that runs
+<code>my-agent-wrapper</code> with the arguments <code>--model your-model --effort EFFORT</code>.
+The unchanged prompt follows them as one argument. The provider label of the
+command is <code>your-provider</code>. These names are placeholders. They are not
+integrations with installed agents.</p>
+<p>The module’s exported <code>policy</code> is a complete policy that uses this table. To
+try the table, re-export that <code>policy</code> from your own entry file. Then, to edit
+your own table, copy <code>examples/static.ts</code> from the installation’s
+<code>libexec/ravel</code> directory. A change to
+your local copy does not change the embedded import.</p>
+<p>The fake below sends the arguments that it receives as a multiline result.
+Thus, the transcript shows the order of the arguments, the labels that are
+arguments and the prompt as one argument. The loop checks the status of each
+session before it starts the next session.</p>
+<p>Complete example: test each entry of the supplied table, and its refusal of
+an unknown kind, through a fake wrapper.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">export { policy } from "ravel/examples/static";
+</code></pre>
+<p><strong><code>bin/my-agent-wrapper</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+result=$(printf '&lt;%s&gt;\n' "$@")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/my-agent-wrapper
+$ for kind in question bugfix feature migration architecture; do
+    printf '%s\n' "$kind"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Report the arguments, then call ravel end-session with that report.' || exit "$?"
+    printf '\n'
+  done
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">question
+&lt;--model&gt;
+&lt;your-model&gt;
+&lt;--effort&gt;
+&lt;low&gt;
+&lt;Report the arguments, then call ravel end-session with that report.&gt;
+bugfix
+&lt;--model&gt;
+&lt;your-model&gt;
+&lt;--effort&gt;
+&lt;medium&gt;
+&lt;Report the arguments, then call ravel end-session with that report.&gt;
+feature
+&lt;--model&gt;
+&lt;your-model&gt;
+&lt;--effort&gt;
+&lt;high&gt;
+&lt;Report the arguments, then call ravel end-session with that report.&gt;
+migration
+&lt;--model&gt;
+&lt;your-model&gt;
+&lt;--effort&gt;
+&lt;xhigh&gt;
+&lt;Report the arguments, then call ravel end-session with that report.&gt;
+architecture
+&lt;--model&gt;
+&lt;your-model&gt;
+&lt;--effort&gt;
+&lt;xhigh&gt;
+&lt;Report the arguments, then call ravel end-session with that report.&gt;
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: incomplete_mapping
+  remedy: add a route for this kind in your copy of the policy
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<h2 id="offer-a-checkout-choice"><a class="header" href="#offer-a-checkout-choice">Offer a checkout choice</a></h2>
+<p>A policy can let a checkout choose from arrangements that the owner wrote
+before. The SDK’s <code>readChoice(request.cwd, offered)</code> reads <code>.ravel-choice</code> in
+that directory. It splits the contents of the file at whitespace and returns
+the names as an array. If the file does not exist, it returns <code>undefined</code>,
+so the policy supplies the default. It does not search parent directories. For an empty file, it returns an empty array, not <code>undefined</code>.</p>
+<p>The helper accepts a regular UTF-8 file of 4 KiB or less. For a file that
+exists but that the helper does not accept, it returns a refusal with the
+code <code>choice_unreadable</code>:</p>
+<ul>
+<li>a file that it cannot read</li>
+<li>a file that is too large</li>
+<li>a file that is not valid UTF-8</li>
+<li>a file that is not a regular file</li>
+</ul>
+<p>For a name that is not in <code>offered</code>, it returns a refusal with the code
+<code>choice_unoffered</code>. Return each refusal of <code>readChoice</code> from <code>select</code>.</p>
+<p>The exported constant <code>CHOICE_FILE</code> holds the file name. The helper does an
+ordinary filesystem read, not a measured read of policy context. If the
+selection must explain the choice, put the applied choice in its <code>reason</code>.</p>
+<p>Nothing reads this file unless your policy calls the helper. The file can
+choose offered names, but it cannot add a program or arguments. Your code
+decides how many names the policy accepts and what each name means.</p>
+<p>The sample that you can edit is <code>crates/ravel/worker/sample/policy.ts</code> in the
+checkout, and <code>libexec/ravel/examples/sample.ts</code> in an installation. The
+example below uses the decisions of the sample:</p>
+<ul>
+<li>Without a choice file, the choice is <code>default</code>.</li>
+<li>The policy accepts exactly one name.</li>
+<li><code>careful</code> sets the selected effort and its argument to <code>high</code>.</li>
+</ul>
+<p>The <code>careful</code> value replaces the effort of each route. It is not a minimum.
+Thus, it also replaces the table’s <code>xhigh</code> for <code>migration</code> and
+<code>architecture</code>. If you want a different arrangement, edit the names and the
+behaviour together.</p>
+<p>Complete example: validate the two arrangements of the sample on all five
+routes. Then validate its four refusals: an unknown kind, the wrong number of
+names, a name that it does not offer and an unreadable file.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy, readChoice } from "ravel/sdk";
+import { selectRoute, routes } from "ravel/examples/static";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "owner-choice-1",
+  select(request) {
+    const choice = readChoice(request.cwd, ["default", "careful"]);
+    if (choice !== undefined &amp;&amp; "status" in choice) return choice;
+    const names = choice ?? ["default"];
+    if (names.length !== 1) {
+      return {
+        status: "refused",
+        code: "one_choice",
+        message: "choose one arrangement",
+        remedy: "write default or careful in .ravel-choice",
+      };
+    }
+    const selected = selectRoute(routes, request);
+    if (selected.status === "refused" || names[0] !== "careful") return selected;
+    return {
+      ...selected,
+      effort: "high",
+      args: ["--model", selected.model, "--effort", "high", request.prompt],
+      reason: "careful choice",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/my-agent-wrapper</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+[ "$#" -eq 5 ]
+[ "$1" = '--model' ]
+[ "$2" = 'your-model' ]
+[ "$3" = '--effort' ]
+[ "$5" = 'Report the effort, then call ravel end-session with that effort.' ]
+ravel end-session -- "$4"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/my-agent-wrapper
+$ for choice in absent default careful; do
+    if [ "$choice" = absent ]; then
+      rm -f .ravel-choice
+    else
+      printf '%s\n' "$choice" &gt; .ravel-choice
+    fi
+    for kind in question bugfix feature migration architecture; do
+      printf '%s %s: ' "$choice" "$kind"
+      env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Report the effort, then call ravel end-session with that effort.' || exit "$?"
+      printf '\n'
+    done
+  done
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">absent question: low
+absent bugfix: medium
+absent feature: high
+absent migration: xhigh
+absent architecture: xhigh
+default question: low
+default bugfix: medium
+default feature: high
+default migration: xhigh
+default architecture: xhigh
+careful question: high
+careful bugfix: high
+careful feature: high
+careful migration: high
+careful architecture: high
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: incomplete_mapping
+  remedy: add a route for this kind in your copy of the policy
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf 'default careful\n' &gt; .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: one_choice
+  remedy: write default or careful in .ravel-choice
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '' &gt; .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: one_choice
+  remedy: write default or careful in .ravel-choice
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf 'turbo\n' &gt; .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: choice_unoffered
+  remedy: write names from default, careful in &lt;scratch&gt;/work/.ravel-choice, separated by whitespace, or delete it
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ rm .ravel-choice &amp;&amp; mkdir .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: choice_unreadable
+  remedy: write names from default, careful in &lt;scratch&gt;/work/.ravel-choice, separated by whitespace, or delete it
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>The prefix <code>&lt;scratch&gt;/work</code> stands for the temporary working directory that
+the book’s checker uses. Your diagnostic gives your example directory. The last
+case makes <code>.ravel-choice</code> a directory. Thus, it tests the refusal of a file
+that is not a regular file, and the test does not depend on permissions.
+Remove that directory with <code>rmdir</code> before you write a choice file again. The
+other conditions for an unreadable file also give <code>choice_unreadable</code>, but
+this example does not show each filesystem failure that can cause that code.</p>
+<h2 id="supply-policy-context"><a class="header" href="#supply-policy-context">Supply policy context</a></h2>
+<p>A caller can supply a JSON document with <code>--context PATH</code>. The path is
+relative to the caller’s working directory, and it names a readable regular
+file. The document’s <code>schemaVersion</code> is <code>1</code>, independently of the policy’s
+version-2 interface. The document holds facts and attributed judgements. Your
+policy can use them to choose from the commands that it defines. The document
+does not give permission to run a command that its facts name.</p>
+<p>The document has the fields in the table below. The choice of the executable
+stays in owner code.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Accepted data</th></tr>
+</thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>Required: the number <code>1</code>.</td></tr>
+<tr><td><code>summary</code></td><td>An optional string. It can be empty.</td></tr>
+<tr><td><code>acceptanceCriteria</code></td><td>An optional array of strings.</td></tr>
+<tr><td><code>facts</code></td><td>An optional object with JSON data as its values.</td></tr>
+<tr><td><code>assessments</code></td><td>An optional object with values of the form <code>{ by, value }</code>: a nonblank author name and JSON data.</td></tr>
+<tr><td><code>sources</code></td><td>An optional array of 256 source records or fewer. Each record has a nonblank <code>name</code>. It identifies the source with <code>sha256</code>, with a nonblank <code>version</code>, or with both. An optional <code>bytes</code> is a nonnegative whole number. A digest is 64 lowercase hexadecimal digits.</td></tr>
+</tbody>
+</table>
+</div>
+<p>An absent field means that the value is unknown. For example, an absent
+<code>facts</code> is different from a known empty object. Ravel refuses each unknown
+top-level field, for example <code>program</code>, <code>args</code>, <code>argv</code>, <code>command</code>, <code>select</code>,
+<code>loadContext</code>, <code>env</code>, <code>environment</code>, <code>exec</code>, <code>shell</code> and <code>script</code>. Nested JSON facts stay data, also when a key has one of those
+names. The caller and the loader do not supply the <code>measured</code> field. Ravel
+adds it.</p>
+<p>Ravel reserves one JSON object shape, also in facts and in assessment values:
+an object whose only key is <code>$ravel</code>. Ravel uses that shape to mark values
+that JSON cannot hold. It refuses that shape as <code>context_invalid</code>. Use a
+different key for your own data.</p>
+<p>Without <code>loadContext</code>, <code>select</code> receives the caller’s document with Ravel’s
+<code>measured</code> field attached. If the caller supplied no document, <code>select</code> receives
+<code>undefined</code>. With a loader, <code>select</code> receives the return value of the loader
+instead. The loader receives <code>request.context</code>. Thus, it can explicitly keep
+or replace the caller’s data. Ravel does not merge the two documents for you.</p>
+<p>The loader can be asynchronous. It shares the selection deadline with the
+policy import and <code>select</code>.</p>
+<p>Find the row for your caller input and your policy. A loader replaces the
+document that <code>select</code> receives, unless the code of the loader keeps the
+caller’s data. Each row assumes that the documents are valid and that the
+loader, if the policy has one, returns a document:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Caller document?</th><th>Policy has <code>loadContext</code>?</th><th>Policy context that <code>select</code> receives</th></tr>
+</thead>
+<tbody>
+<tr><td>No</td><td>No</td><td><code>undefined</code>.</td></tr>
+<tr><td>Yes</td><td>No</td><td>The caller’s document, with Ravel’s <code>measured</code> list attached.</td></tr>
+<tr><td>No</td><td>Yes</td><td>The document that the loader returns, with <code>measured</code> attached. The loader receives no <code>request.context</code>.</td></tr>
+<tr><td>Yes</td><td>Yes</td><td>The document that the loader returns, with <code>measured</code> attached. The loader receives the caller’s document at <code>request.context</code>, and it decides what to keep. Ravel does not merge the two documents automatically.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Choose a synchronous host read for the value that your loader needs. Each
+read returns a source record that identifies the bytes that it read:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operation</th><th>Return value</th></tr>
+</thead>
+<tbody>
+<tr><td><code>host.readText(path, maxBytes?)</code></td><td><code>{ text, source }</code>. It decodes the file as UTF-8.</td></tr>
+<tr><td><code>host.readJson(path, maxBytes?)</code></td><td><code>{ value, source }</code>. It decodes the file as UTF-8 and parses the JSON. Validate that JSON value for the needs of your policy.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The two reads resolve relative paths against <code>request.cwd</code>. They accept only
+a regular file. They return a <code>source</code> with the canonical <code>name</code>, the actual
+<code>bytes</code> and the <code>sha256</code> of the file. The default read limit is 65,536 bytes,
+or the policy-context budget if the budget is smaller. A positive whole
+number in <code>maxBytes</code> sets the limit of one read. That limit can be as large
+as the policy-context budget.</p>
+<p>These read problems cause a refusal, even if the loader catches the exception
+that the read throws:</p>
+<ul>
+<li>a read that is larger than its limit</li>
+<li>a read that asks for a limit larger than the budget</li>
+<li>a read that makes the number of measured sources larger than its limit</li>
+</ul>
+<p>A missing file, invalid UTF-8 or invalid JSON causes an exception. If the loader
+does not catch that exception, the refusal identifies the source of the read
+that failed. A loader that needs valid content can return its own
+refusal, as <code>select</code> can. Then Ravel does not call <code>select</code>.</p>
+<p>Ravel attaches a <code>measured</code> array to the frozen document that it delivers.
+Its records have <code>name</code>, <code>bytes</code>, <code>sha256</code> and <code>via</code> (<code>"--context"</code>,
+<code>"readText"</code> or <code>"readJson"</code>). The caller’s document comes first. The
+successful host reads follow, in order, and each repeated read of a file
+makes its own record. The limit is 256 measured records, and the record of
+the caller’s document, if there is one, counts toward it. The document’s
+own <code>sources</code> array has a separate limit of 256 records.</p>
+<p>The complete delivered JSON, with <code>measured</code>, cannot be larger than the
+policy-context budget. Thus, a small input file can give a delivered
+document that is too large when Ravel attaches its measurement.</p>
+<p>These fields distinguish claims about sources from Ravel’s own measurements:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Who supplies it</th><th>What it identifies</th></tr>
+</thead>
+<tbody>
+<tr><td><code>sources</code></td><td>The caller or the loader</td><td>The stated origin of a claim, by digest, version or both.</td></tr>
+<tr><td><code>assessments[name].by</code></td><td>The caller or the loader</td><td>The stated author of an assessment.</td></tr>
+<tr><td><code>measured</code></td><td>Ravel</td><td>The bytes read from the caller document and through the host, with each path, size, digest and method.</td></tr>
+</tbody>
+</table>
+</div>
+<p>None of these fields proves who the author is or that the claim is true.
+Trusted owner code can also read files or the network directly, but
+<code>measured</code> does not record those reads.</p>
+<p>Keep the policy decisions in owner code. Use outside information to choose a
+route that the policy defines. Do not use outside text as a program or as a
+template of arguments to execute.</p>
+<p>The example below keeps the caller’s data and adds a local readiness fact and
+a summary. The loader checks the JSON readiness file before it reads the text
+file. The fake reports the summary and the measurement methods. Thus, the two
+successful commands show the change when the caller supplies a document.</p>
+<p>Complete example: assemble the policy context and validate its necessary
+fact. Then test the refusals for invalid caller data, for a source that the
+loader cannot read and for a read that is too large.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-context-1",
+  loadContext(request, host) {
+    const readiness = host.readJson("ready.json");
+    const value = readiness.value;
+    if (value === null || typeof value !== "object" || Array.isArray(value)
+        || !("ready" in value) || value.ready !== true) {
+      return {
+        status: "refused",
+        code: "not_ready",
+        message: "The local readiness file does not say ready: true.",
+        remedy: "Set ready to true in ready.json when the work is ready.",
+      };
+    }
+    const brief = host.readText("brief.txt", 128);
+    return {
+      ...request.context,
+      schemaVersion: 1,
+      summary: brief.text.trim(),
+      facts: { ...request.context?.facts, ready: true },
+      sources: [...(request.context?.sources ?? []), readiness.source, brief.source],
+    };
+  },
+  select(request, context) {
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [context?.summary ?? "", context?.measured.map((s) =&gt; s.via).join(",") ?? ""],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: `Local readiness accepted for ${request.kind}.`,
+    };
+  },
+});
+</code></pre>
+<p><strong><code>caller.json</code></strong></p>
+<pre><code class="language-json">{
+  "schemaVersion": 1,
+  "acceptanceCriteria": ["Keep the public interface unchanged."],
+  "assessments": { "scope": { "by": "caller", "value": "small" } },
+  "sources": [{ "name": "work-brief", "version": "revision-1" }]
+}
+</code></pre>
+<p><strong><code>ready.json</code></strong></p>
+<pre><code class="language-json">{"ready": true}
+</code></pre>
+<p><strong><code>brief.txt</code></strong></p>
+<pre><code class="language-text">Check the interface.
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+[ "$#" -eq 2 ]
+result=$(printf '%s\n%s' "$1" "$2")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/fake-agent &amp;&amp; env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Report the supplied summary and source methods.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">Check the interface.
+readJson,readText
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Report the supplied summary and source methods.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">Check the interface.
+--context,readJson,readText
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '{"ready":false}\n' &gt; ready.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: not_ready
+  remedy: Set ready to true in ready.json when the work is ready.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '{"ready":true}\n' &gt; ready.json &amp;&amp; rm brief.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  source: &lt;scratch&gt;/work/brief.txt
+  location: policy.loadContext
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '%129s' x &gt; brief.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (source_too_large, stage context): loadContext in &lt;scratch&gt;/work/policy.ts read &lt;scratch&gt;/work/brief.txt, which holds more than its limit of 128 bytes (129 bytes or more)
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '{"schemaVersion":1,"program":"fake-agent"}\n' &gt; caller.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (context_invalid, stage context): `program` would be an executable field, and a context is data: it supplies no program, argument, environment or policy
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>In the last command, Ravel refuses the caller’s invalid document before the
+loader runs. Thus, the loader does not read the text file that is larger
+than its limit, from the command before it. These examples test the one
+accepted route of the policy, its explicit refusal and some typical Ravel
+refusals.</p>
+<p>The table below gives all the diagnostic codes for policy context. With each
+of these codes, Ravel exits with status 3 and launches nothing. Use the code
+to find the input, the loader behaviour or the bound that needs a change:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Code</th><th>What to correct</th></tr>
+</thead>
+<tbody>
+<tr><td><code>context_unreadable</code></td><td>Ravel cannot read the <code>--context</code> path as a regular file.</td></tr>
+<tr><td><code>context_invalid</code></td><td>The document is not valid JSON or has the wrong shape. The same code applies when the loader returns invalid or unserialisable data or no document, or supplies <code>measured</code> itself.</td></tr>
+<tr><td><code>unsupported_version</code></td><td>A nonnegative integer that fits in an unsigned 64-bit value names a policy-context schema version other than 1. A negative, fractional or wrong-type version gives <code>context_invalid</code>.</td></tr>
+<tr><td><code>context_loader_failed</code></td><td>The loader throws an exception or rejects its promise. The cause is not a known source-read failure or a breach of a bound.</td></tr>
+<tr><td><code>context_loader_unsettled</code></td><td>The loader’s promise stays unsettled, and no work that can resolve or reject it remains.</td></tr>
+<tr><td><code>message_too_large</code></td><td>A failure report of the loader is larger than the fixed 1 MiB protocol-message bound. Make the error that it reports shorter. <!-- tc: depart synonym-rotation because fixed describes an immutable bound and does not mean correcting an error --></td></tr>
+<tr><td><code>context_source_unreadable</code></td><td>A required host read fails, also for invalid UTF-8 or invalid JSON, and the loader does not catch the failure.</td></tr>
+<tr><td><code>source_too_large</code></td><td>A host read is larger than its limit, or it asks for a limit above the policy-context budget.</td></tr>
+<tr><td><code>too_many_sources</code></td><td>The <code>measured</code> list or the document’s attributed <code>sources</code> has more than 256 entries.</td></tr>
+<tr><td><code>context_too_large</code></td><td>The caller document or the delivered document is larger than the policy-context budget.</td></tr>
+<tr><td><code>policy_refused</code></td><td>The loader returns a well-formed refusal. Its own code, message and remedy explain the requirement.</td></tr>
+</tbody>
+</table>
+</div>
+<p>If the loader’s promise is unsettled and work that can settle it continues
+until the deadline, the outcome is <code>selection_timeout</code>, not <code>context_loader_unsettled</code>.
+Invalid host arguments can cause a loader failure. If
+the loader returns a malformed refusal, Ravel treats it as invalid policy
+context. <a href="06-reference.html">Chapter 6, “Reference”</a>, gives the complete
+lookup entries. They include the failures that also occur in policy
+selection.</p>
+<h2 id="set-bounds-and-grant-environment-names"><a class="header" href="#set-bounds-and-grant-environment-names">Set bounds and grant environment names</a></h2>
+<p>The owner settings are in <code>$HOME/.config/ravel/settings.json</code>, also when
+<code>--config</code> chooses a different policy. The file is optional. If the file is
+absent or holds an empty JSON object, Ravel uses the defaults. If <code>HOME</code> is
+missing or relative, Ravel reads no settings file. The default policy entry
+still needs an absolute <code>HOME</code>. Thus, in that case, give an explicit entry
+with <code>--config</code>.</p>
+<p>Use this table to choose an owner default. It also shows whether a caller
+replaces that value or adds to it:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Value and default</th><th>Caller adjustment</th></tr>
+</thead>
+<tbody>
+<tr><td><code>timeoutMs</code></td><td>Whole-number milliseconds, 1,000–600,000 inclusive. The default is 30,000.</td><td><code>--timeout-ms</code> replaces it.</td></tr>
+<tr><td><code>contextBytes</code></td><td>Whole-number bytes, 1–8,388,608 inclusive. The default is 262,144 (256 KiB).</td><td><code>--context-bytes</code> replaces it.</td></tr>
+<tr><td><code>policyEnv</code></td><td>An array of environment-variable names. The default has no extra grants.</td><td>Each <code>--policy-env NAME</code> adds one name.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel checks all the settings before it applies the CLI values. A valid CLI
+replacement does not correct an invalid setting. These problems give
+<code>settings_invalid</code> (exit status 2):</p>
+<ul>
+<li>a settings file that Ravel cannot read, or that is not a regular file</li>
+<li>invalid JSON</li>
+<li>a document that is not an object</li>
+<li>a <code>policyEnv</code> value that is not an array of strings</li>
+<li>an unknown key</li>
+</ul>
+<p>An invalid numeric bound or a malformed grant name gives <code>malformed_input</code>
+(exit status 2).</p>
+<p>The obsolete key <code>stateDir</code> is an unknown key. Remove it. Do not point it to
+an old store. Ravel opens no storage.</p>
+<p>A numeric CLI bound accepts only plain decimal digits in the range, with no
+sign, fraction, exponent or whitespace. Ravel never clamps a value.</p>
+<p>The request gives six effective limits. The first two settings change the
+other limits only as this table shows. They do not limit the time for which
+the <a href="02-actors-and-words.html#the-managed-process-and-its-result">managed process</a>
+runs.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Request field</th><th>Effective bound</th><th>Source of the value</th></tr>
+</thead>
+<tbody>
+<tr><td><code>selectionMs</code></td><td>The policy import, the loader and the selection together, from the worker spawn.</td><td><code>timeoutMs</code>, then a <code>--timeout-ms</code> that replaces it. Otherwise 30,000 ms.</td></tr>
+<tr><td><code>contextBytes</code></td><td>The caller document and the delivered policy-context JSON, with the measured records.</td><td><code>contextBytes</code>, then a <code>--context-bytes</code> that replaces it. Otherwise 262,144 bytes.</td></tr>
+<tr><td><code>sourceBytes</code></td><td>The default bytes for one host read.</td><td>The smaller of 65,536 and <code>contextBytes</code>. A read can set <code>maxBytes</code> from 1 through <code>contextBytes</code>.</td></tr>
+<tr><td><code>sources</code></td><td>The measured records, with the caller document. Separately, the attributed source records.</td><td>Always 256 for each array.</td></tr>
+<tr><td><code>messageBytes</code></td><td>A policy snapshot, a selection result or a failure report in the private protocol.</td><td>Always 1,048,576 bytes (1 MiB). The policy-context document has its own budget.</td></tr>
+<tr><td><code>diagnosticsBytes</code></td><td>The worker’s standard output and standard error together.</td><td>Always 262,144 bytes (256 KiB).</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel refuses data that is too large. It does not truncate the data to make
+it fit. An overflow of policy context or of a host read gives the codes
+above. A policy snapshot, a selection result or a failure report that is
+larger than its protocol bound gives <code>message_too_large</code> (exit status 3). Too
+much worker output gives <code>output_limit</code> (exit status 3). Ravel then captures
+only the first 262,144 diagnostic bytes, discards the remainder while it
+stops the worker and does not accept the selection.</p>
+<p>If the selection deadline expires, the outcome is <code>selection_timeout</code> (exit
+status 124). A caller can increase an adjustable bound only in its hard
+range. The policy cannot increase a bound with a change to the request data.</p>
+<p>The policy worker receives the caller’s <code>HOME</code>, <code>PATH</code>, <code>TMPDIR</code>, <code>LANG</code> and
+<code>LC_*</code> variables, if they are present. Grant more names only when the policy
+code needs their values. An example is a network request while the policy
+chooses a route. A grant is a name, never <code>NAME=value</code>. Its value comes from
+the environment of the
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">Ravel CLI</a>.
+Repeated grants of one name give one grant.</p>
+<p>A name that is not set stays unset in the worker. Grant diagnostics report
+the names and whether each name is set. They never report values. But your
+own policy can disclose a value if it prints that value.</p>
+<p>The following exclusions are case-sensitive. They apply to settings and to
+CLI grants. An excluded name gives <code>excluded_grant</code> (exit status 2).</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Name or prefix pattern</th><th>Reason for the exclusion</th></tr>
+</thead>
+<tbody>
+<tr><td><code>BUN_*</code></td><td>Runtime startup and options, for example preloads and runtime mode.</td></tr>
+<tr><td><code>NODE_OPTIONS</code>, <code>NODE_PATH</code>, <code>NODE_PRESERVE_SYMLINKS</code></td><td>Runtime startup and module resolution.</td></tr>
+<tr><td><code>NODE_CHANNEL_*</code></td><td>Runtime IPC descriptors and channel options.</td></tr>
+<tr><td><code>LD_*</code>, <code>DYLD_*</code></td><td>Dynamic-loader inputs.</td></tr>
+<tr><td><code>RAVEL_*</code></td><td>Ravel’s own controls. The <a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a> is one of them.</td></tr>
+<tr><td><code>HARNESS_DISPATCH_*</code></td><td>Legacy dispatch controls.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel itself sets <code>BUN_RUNTIME_TRANSPILER_CACHE_PATH=0</code> in the worker. An
+owner grant cannot replace it. The exclusions match these exact names and
+prefixes, not each name that starts with <code>NODE</code> or <code>BUN</code>. A grant name is
+nonempty UTF-8 and contains no <code>=</code>.</p>
+<p>The policy worker’s environment is different from the managed process’s
+environment. An unconfined managed process inherits the caller’s
+environment. Ravel removes Ravel’s own private and obsolete controls from
+that environment and supplies the session-result context. The worker does not
+need a grant of a credential only because the managed process uses that
+credential. <a href="02-actors-and-words.html#trust-and-confinement">Confinement</a>
+applies its own environment rules to the managed process.
+<a href="05-running-sessions.html#confine-the-managed-process">Chapter 5, “Run sessions”</a>,
+describes these rules.</p>
+<p>Compare the columns before you grant a name. A credential that only an
+unconfined managed process uses does not need a grant to the policy worker:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Environment rule</th><th>Policy worker</th><th>Unconfined managed process</th></tr>
+</thead>
+<tbody>
+<tr><td>Initial values</td><td>Only the caller’s <code>HOME</code>, <code>PATH</code>, <code>TMPDIR</code>, <code>LANG</code> and <code>LC_*</code>, if they are present.</td><td>The caller’s environment, without Ravel’s private and obsolete controls.</td></tr>
+<tr><td>Additional grants</td><td><code>policyEnv</code> and <code>--policy-env</code> add permitted names with their values from the caller. Unset names stay unset. The exclusions above apply.</td><td>These grants do not filter or add to this environment.</td></tr>
+<tr><td>Values that Ravel supplies</td><td><code>BUN_RUNTIME_TRANSPILER_CACHE_PATH=0</code>. No session-result context.</td><td>A new session-result context in <code>RAVEL_EXIT_FILE</code> for this launch.</td></tr>
+</tbody>
+</table>
+</div>
+<p>This comparison gives the environments that Ravel supplies at launch. It
+does not limit what trusted policy code can read after the launch. Chapter
+2’s <a href="02-actors-and-words.html#the-managed-process-and-its-result">process-authority view</a>
+shows why the policy worker and the managed process have different
+permissions. Confinement changes the rules in the managed-process column. It
+does not confine the policy worker.</p>
+<p>The next policy reports only whether two invented grant names are present.
+Its output also shows how a lower policy-context budget decreases the
+default read limit. The fake sends that report unchanged as the result.</p>
+<p>Complete example: observe the settings, the CLI replacements and the
+additional grants. Then observe the refusals of an obsolete key and of a
+forbidden grant.</p>
+<p><strong><code>home/.config/ravel/settings.json</code></strong></p>
+<pre><code class="language-json">{"timeoutMs": 5000, "contextBytes": 1024, "policyEnv": ["BOOK_FIRST"]}
+</code></pre>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-settings-1",
+  select(request) {
+    const limits = request.limits;
+    const report = [limits.selectionMs, limits.contextBytes, limits.sourceBytes,
+      limits.sources, limits.messageBytes, limits.diagnosticsBytes,
+      process.env.BOOK_FIRST !== undefined, process.env.BOOK_SECOND !== undefined];
+    return {
+      status: "selected",
+      program: "fake-agent",
+      args: [JSON.stringify(report)],
+      provider: "local",
+      model: "fake",
+      effort: "none",
+      reason: "Report effective bounds and grant presence.",
+    };
+  },
+});
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+[ "$#" -eq 1 ]
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p tmp &amp;&amp; chmod +x bin/fake-agent &amp;&amp; env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">[5000,1024,1024,256,1048576,262144,true,false]
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --timeout-ms 6000 --context-bytes 2048 --policy-env BOOK_SECOND --prompt 'Report effective bounds and grant presence.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">[6000,2048,2048,256,1048576,262144,true,true]
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ rm home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">[30000,262144,65536,256,1048576,262144,false,false]
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf '{"stateDir":"old-store"}\n' &gt; home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (settings_invalid, stage cli): the owner settings file &lt;scratch&gt;/work/home/.config/ravel/settings.json holds the unknown key "stateDir"
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">2
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ rm home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --policy-env NODE_OPTIONS --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (excluded_grant, stage cli): --policy-env NODE_OPTIONS is never granted to the policy worker: NODE_OPTIONS, NODE_PATH and NODE_PRESERVE_SYMLINKS change what code loads, and from where
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">2
+</code></pre>
+<h2 id="resolve-policy-imports"><a class="header" href="#resolve-policy-imports">Resolve policy imports</a></h2>
+<p>Use the literal import names <code>ravel/sdk</code> and <code>ravel/examples/static</code> for the
+embedded modules. They resolve to the worker’s embedded copies, also when a
+package beside your policy supplies the same names. Ravel reserves only those
+two exact names. <code>ravel/anything-else</code> is an ordinary package lookup. A
+change to the installed SDK source or to a copy of the static table does not
+change the embedded copies. To use a local copy, import it by its file path.</p>
+<p>This table gives the location from which each reference resolves. A relative
+import and a relative host read do not always refer to the same directory:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Reference</th><th>Resolution base or destination</th></tr>
+</thead>
+<tbody>
+<tr><td>Literal <code>ravel/sdk</code> or <code>ravel/examples/static</code> import</td><td>The worker’s embedded module, also beside a package with the same name.</td></tr>
+<tr><td>Relative import such as <code>./routes.ts</code></td><td>The directory of the file that contains the import. For a symlinked policy, the directory of its real file.</td></tr>
+<tr><td>Ordinary package import</td><td>Bun’s package resolver, from the location of the file that contains the import.</td></tr>
+<tr><td>Package <code>imports</code> alias with an embedded name as its target</td><td>An ordinary package lookup. It does not reach the embedded module.</td></tr>
+<tr><td>Import without a file location</td><td>The worker’s process directory. That directory is <code>/</code> when owner code starts.</td></tr>
+<tr><td>Relative <code>host.readText</code> or <code>host.readJson</code> path</td><td>The caller’s <code>request.cwd</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>A relative import resolves in the directory of the file that contains it. If
+your entry is a symlink, the location of its real file applies. Keep a
+helper beside the policy. Import it with a relative path, for example
+<code>import { route } from "./routes.ts"</code>. The agent example below uses that
+layout. A relative host read is different: it resolves against the caller’s
+<code>request.cwd</code>, as the policy-context example showed.</p>
+<p>Bun’s package resolver resolves ordinary dependencies from the location of
+the file that imports them. The nearest <code>package.json</code> that Bun can read as a
+package supplies the <code>imports</code> map, the package’s own name and its <code>exports</code>.
+Bun skips a <code>package.json</code> file that it cannot parse or that is not a
+package. Resolution
+through the <code>main</code> and <code>exports</code> fields of a package stays enabled. Install
+the dependencies yourself, because the standalone worker does not install a
+missing dependency automatically.</p>
+<p>An alias in a package’s <code>imports</code> map with the target <code>ravel/sdk</code> is still a
+package lookup. It never reaches the embedded module. Thus, it can load a
+package that supplies the same name instead. When you need the embedded
+module, use the literal <code>ravel/sdk</code> import. The same rule applies to
+<code>ravel/examples/static</code>.</p>
+<p>The compiled worker controls which configuration files Bun loads
+automatically. These controls apply at runtime:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Configuration</th><th>Autoloading in the worker</th><th>Effect on your policy</th></tr>
+</thead>
+<tbody>
+<tr><td>dotenv files</td><td>Disabled</td><td>Bun does not load environment values from these files.</td></tr>
+<tr><td>bunfig</td><td>Disabled</td><td>Bun does not load this configuration automatically.</td></tr>
+<tr><td><code>tsconfig.json</code></td><td>Disabled</td><td>A path alias can help your editor, but that alias alone does not make a runtime import work.</td></tr>
+<tr><td><code>package.json</code></td><td>Enabled</td><td>The package behaviour above, with <code>main</code> and <code>exports</code>, stays available.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Ravel CLI clears the runtime-injection variables and disables Bun’s
+runtime transpiler cache. Then it starts the worker in a private empty
+directory. Before the worker imports owner code, it changes its directory to
+<code>/</code>. File imports still resolve from their files. Imports without a file
+location, such as a virtual module, resolve from that process directory.</p>
+<p>The worker changes its directory to <code>/</code>. Thus, the lookups for imports
+without a file location do not search the parent directories of the
+temporary directory. But the resolver can
+still find <code>/package.json</code> and <code>/node_modules</code>. Owner code can change its
+directory or import arbitrary code itself.</p>
+<p>If policy code creates a native Bun <code>Worker</code>, that <code>Worker</code> starts a
+different runtime instance. The worker disables dotenv autoloading. Thus,
+that instance does not load the dotenv files that it finds. The controls in
+this section change how the worker starts and resolves modules. They do not confine trusted
+owner code. The policy is never in a managed-process confinement.</p>
+<h2 id="route-to-claude-code-and-codex"><a class="header" href="#route-to-claude-code-and-codex">Route to Claude Code and Codex</a></h2>
+<p>When the checks with fakes confirm your policy decisions, a route can name an
+installed agent program. Claude Code and Codex can run under the
+subscription of their user, instead of with paid API access. The
+<a href="https://code.claude.com/docs/en/authentication">Claude Code authentication guide</a>
+and <a href="https://learn.chatgpt.com/docs/auth">Codex authentication guide</a>
+describe those options, as checked on 18 October 2026.</p>
+<p>Ravel treats the selected program as an ordinary executable. The program
+does not have to be a
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a>, and it
+does not have to receive the prompt. Any program in the session can send the
+result with <code>end-session</code>. These routes select harnesses and pass the
+caller’s prompt to them. Ravel does not configure an account or supply a prompt
+convention.</p>
+<p>For installation and sign-in, follow the
+<a href="https://code.claude.com/docs/en/quickstart">Claude Code quickstart</a> or the
+<a href="https://learn.chatgpt.com/docs/codex/cli">Codex CLI documentation</a>. This
+chapter does not explain agent installation, accounts or credentials.</p>
+<p>On 2026-10-16, the flags below agreed with the <code>--version</code> and <code>--help</code>
+output of the installed programs. The programs were Claude Code 2.1.301 and
+codex-cli 0.163.0. When you change a route, check the help of your installed
+program again. The check of 2026-10-16 records which flags the programs
+support. It is not a test that runs a real agent.</p>
+<p>The argument column shows which agent settings the route actually changes.
+The Ravel labels alone do not set those options:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Program</th><th>Arguments this example uses</th><th>Meaning in the checked help</th></tr>
+</thead>
+<tbody>
+<tr><td><code>claude</code></td><td><code>--effort medium</code>, then the prompt after <code>--</code></td><td>Sets the effort and supplies the initial prompt. The usual CLI is interactive. <code>-p</code>/<code>--print</code> selects noninteractive output instead.</td></tr>
+<tr><td><code>codex</code></td><td><code>--no-daemon --no-alt-screen --sandbox workspace-write --ask-for-approval on-request</code>, then the prompt after <code>--</code></td><td>Runs without the shared background server and keeps the terminal scrollback. Selects the workspace-write sandbox and lets the agent request approvals. Without a subcommand, the interactive CLI starts.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>--</code> separator causes the agent to read the prompt as a positional
+argument, also when the prompt looks like an option. These routes use the
+configured model defaults of the agents. The Ravel label <code>configured-default</code>
+describes that decision. It does not claim a specific
+resolved model. Put an explicit model choice in the agent’s arguments, and
+also in each Ravel label that reports it.</p>
+<p>Ravel’s <code>effort</code> label does not set the effort of the agent. The Claude route
+passes a real flag. The Codex route uses the effort that Codex has in its
+configuration.</p>
+<!-- tc: depart synonym-rotation because display is the terminal presentation, not a verb for showing evidence -->
+<p>The two routes start interactive agents for attended work, and each agent
+needs a terminal. Run a real interactive agent from a foreground terminal.
+Ravel can then
+<a href="03-a-complete-session.html#launch-the-managed-job">lend the terminal</a> to its
+managed process. <code>--no-alt-screen</code>
+changes the display of Codex. It does not change the need for a terminal.</p>
+<p><code>--no-daemon</code> makes this example’s Codex invocation run without a shared
+background server. Do not assume that Ravel supervises a process that leaves
+the managed process’s group. <a href="09-jobs-signals-and-the-terminal.html">Chapter 9, “Jobs, signals and the terminal”</a>,
+explains how Ravel lends and recovers the terminal, and the process-group
+boundary.</p>
+<p>The automated example below uses fake programs without a terminal. It checks
+only that the arguments arrive.</p>
+<p>The caller’s prompt contains the instructions to end the session. They give
+the <code>ravel end-session</code> command and the exact opaque result to send. The
+real agent needs permission to execute that command. It also needs
+permission to write the path in its inherited session-result context. The
+agent’s own sandbox and approval settings are independent of Ravel’s
+settings. If the agent exits before it sends a result, the session returns
+no result to the caller, also when the exit status is 0.</p>
+<p>Put <code>ravel</code> on the agent’s <code>PATH</code>, or write the installed absolute path of
+<code>ravel</code> in the instructions to end the session. Ravel adds none of these
+instructions itself.</p>
+<p>Complete example: validate the two agent routes and the refusal of an
+unknown kind. Fake executables return the argument vector that they receive.</p>
+<p><strong><code>policy.ts</code></strong></p>
+<pre><code class="language-ts">import { definePolicy } from "ravel/sdk";
+import { route } from "./routes.ts";
+
+export const policy = definePolicy({
+  schemaVersion: 2,
+  version: "book-agents-1",
+  select: route,
+});
+</code></pre>
+<p><strong><code>routes.ts</code></strong></p>
+<pre><code class="language-ts">import type { SelectionRequest, SelectionResult } from "ravel/sdk";
+
+export function route(request: SelectionRequest): SelectionResult {
+  if (request.kind === "claude-demo") {
+    return {
+      status: "selected",
+      program: "claude",
+      args: ["--effort", "medium", "--", request.prompt],
+      provider: "agent-configured",
+      model: "configured-default",
+      effort: "medium",
+      reason: "Use the attended Claude Code route.",
+    };
+  }
+  if (request.kind === "codex-demo") {
+    return {
+      status: "selected",
+      program: "codex",
+      args: ["--no-daemon", "--no-alt-screen", "--sandbox", "workspace-write",
+        "--ask-for-approval", "on-request", "--", request.prompt],
+      provider: "agent-configured",
+      model: "configured-default",
+      effort: "configured-default",
+      reason: "Use the attended Codex route.",
+    };
+  }
+  return {
+    status: "refused",
+    code: "unsupported_kind",
+    message: "No agent route matches this kind.",
+    remedy: "Use claude-demo or codex-demo, or add an owner route.",
+  };
+}
+</code></pre>
+<p><strong><code>bin/claude</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+result=$(printf '&lt;%s&gt;\n' "$@")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong><code>bin/codex</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+result=$(printf '&lt;%s&gt;\n' "$@")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/claude bin/codex
+$ for kind in claude-demo codex-demo; do
+    printf '%s\n' "$kind"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.' || exit "$?"
+    printf '\n'
+  done
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">claude-demo
+&lt;--effort&gt;
+&lt;medium&gt;
+&lt;--&gt;
+&lt;Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.&gt;
+codex-demo
+&lt;--no-daemon&gt;
+&lt;--no-alt-screen&gt;
+&lt;--sandbox&gt;
+&lt;workspace-write&gt;
+&lt;--ask-for-approval&gt;
+&lt;on-request&gt;
+&lt;--&gt;
+&lt;Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.&gt;
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">  policy code: unsupported_kind
+  remedy: Use claude-demo or codex-demo, or add an owner route.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>The fakes intentionally send their arguments as the result. They do not act
+on the prompt. The transcript checks that the caller’s instructions to end
+the session arrive unchanged. It does not show that an agent obeys
+them, or that its sandbox lets it complete the session.</p>
+<p>Before real use, check that the agent can run the Ravel CLI with your chosen
+permissions. Also check that it can write the result path. Keep checks with
+fakes for each new route.</p>
+<h2 id="copy-a-policy-from-another-configuration"><a class="header" href="#copy-a-policy-from-another-configuration">Copy a policy from another configuration</a></h2>
+<p>A copy of a policy is a configuration change. You can validate it before you
+use it for real work. Keep the source and the destination available while
+you reconcile them. Ravel has no init or migration verb, and it imports no
+stored history.</p>
+<p>Compare these files before you copy. Each row identifies what the
+destination needs to preserve or change:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Files</th><th>What to reconcile</th></tr>
+</thead>
+<tbody>
+<tr><td>Policy entry</td><td>Kinds, selected arguments, labels, owner version and refusals.</td></tr>
+<tr><td>Relative helpers and dependencies</td><td>Imports, file locations and the packages that the helpers need.</td></tr>
+<tr><td><code>.ravel-choice</code> in each checkout</td><td>The names that the destination policy offers, if it calls <code>readChoice</code>.</td></tr>
+<tr><td><code>settings.json</code></td><td>Supported bounds and environment grants. Remove obsolete keys such as <code>stateDir</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<ol>
+<li>Compare the source directory with <code>$HOME/.config/ravel</code>. Keep the two
+directories. Keep all your edits in the destination. Before you copy, identify
+the entry, the relative helpers, the dependencies and the settings. A
+policy can need more than one file.</li>
+<li>Copy only the missing files. Do not overwrite a file that already exists
+in the destination. Reconcile each file that is different in the source
+and the destination. Do this in the destination. Do not change the
+source. The older installation
+and its configuration can stay installed, independently of the
+destination.</li>
+<li>Change the SDK imports to the literal <code>ravel/sdk</code>. Keep each relative
+helper beside the file that imports it. Install the dependencies of the
+helpers where the resolver can find them. Caller-specific helpers stay
+files that the caller owns, because Ravel embeds no caller adapter.
+Reconcile the imports of each helper too.</li>
+<li>Keep the intended kind mappings, selected arguments, labels, owner version
+and refusals. If the policy uses <code>readChoice</code>, reconcile the offered
+arrangements with the <code>.ravel-choice</code> of each checkout. A copy of the
+helper does not make Ravel read that file automatically.</li>
+<li>Reconcile <code>timeoutMs</code>, <code>contextBytes</code> and <code>policyEnv</code> with the
+destination’s settings. Keep the supported bounds and grants. Remove
+obsolete storage settings, such as <code>stateDir</code>. Do not copy records,
+databases, snapshots or history. None of them is an input to this
+configuration.</li>
+<li>Typecheck the destination against its installed declarations with the
+recipe above. Then validate each route and each refusal with fakes. Use a
+private <code>PATH</code>, a cleared environment, a temporary <code>HOME</code> and <code>TMPDIR</code>,
+and a time limit. Put the intended settings in
+<code>.config/ravel/settings.json</code> under that temporary <code>HOME</code>. <code>--config</code>
+alone does not move the settings beside your test policy. In a test copy,
+use fake paths for absolute selected programs, because a private <code>PATH</code>
+cannot intercept them.</li>
+<li>Compare the captured argument vectors and the exact results with the
+intended policy decisions. Check the loader refusals and the choice
+combinations, and also the unknown kinds. When those checks pass, use the
+reconciled destination for real sessions. Give those sessions the caller’s
+instructions to end the session and the chosen agent’s own permissions.</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="03-a-complete-session.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="05-running-sessions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="03-a-complete-session.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="05-running-sessions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

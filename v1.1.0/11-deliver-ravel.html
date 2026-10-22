@@ -1,0 +1,976 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Deliver Ravel - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-2c91c537.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-23b29db2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="deliver-ravel"><a class="header" href="#deliver-ravel">Deliver Ravel</a></h1>
+<p>A release carries a matched pair: the
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">Ravel CLI</a> and its
+<a href="02-actors-and-words.html#policy-evaluation-and-supervision">policy worker</a>.
+<a href="07-the-parts-of-ravel.html#the-installed-pair-stays-together">Chapter 7</a>
+explains why the pair stays together. An archive check establishes that this
+pair has the right files and can run outside the checkout. A version number
+alone establishes neither fact.</p>
+<p>The book that a release carries teaches this pair as one delivered tool.
+Ravel supports no separate component. The private
+<a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">runner</a>
+serves the Ravel CLI, which supervises one session and then exits. The
+runner’s return does not restore process-wide signal state. Thus, another
+program invokes the Ravel CLI as a child process. The book explains that
+interface and the limits of the private package.</p>
+<p>Start with <a href="10-develop-ravel.html#install-and-test-the-installed-pair">chapter 10’s install and smoke tasks</a>.
+Those tasks test a local installation. This chapter extends that check to
+archives and the environments where their programs run.</p>
+<h2 id="keep-the-version-and-pair-together"><a class="header" href="#keep-the-version-and-pair-together">Keep the version and pair together</a></h2>
+<p>The workspace has one Ravel version, independent of the version of any
+<a href="02-actors-and-words.html#caller-and-owner">caller</a>.
+<code>Cargo.toml</code> supplies it to both Rust packages, and the worker build reads the
+Ravel package version. The checkout used for this chapter has version 1.0.0.
+Its local tags include <code>v0.1.0</code> and <code>v1.0.0</code>, and <code>CHANGELOG.md</code> describes both.</p>
+<p>An unreleased archive uses the checkout’s version even when its source differs
+from that version’s release tag. Thus, a local archive named with <code>v1.0.0</code>
+can contain later changes. Its name does not make it the released artifact.</p>
+<p>Before the Ravel CLI sends the
+<a href="02-actors-and-words.html#caller-and-owner">owner policy</a> for evaluation, it
+checks three worker values:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Value</th><th>What it establishes</th></tr>
+</thead>
+<tbody>
+<tr><td>Protocol number</td><td>Both programs use protocol 1</td></tr>
+<tr><td>Package version</td><td>Both programs report the same Ravel version</td></tr>
+<tr><td>Source identity</td><td>Both builds used the same worker source inputs</td></tr>
+</tbody>
+</table>
+</div>
+<p>The source identity is a SHA-256 digest. Relative to <code>crates/ravel</code>, its inputs
+are the TypeScript files under <code>worker/src</code>, <code>worker/sdk</code> and <code>worker/examples</code>,
+both worker tsconfigs, and <code>scripts/dispatch.sh</code>.
+Both builds sort those paths, hash each file, then hash the
+same list of paths and digests.</p>
+<p>The source identity shows that two builds belong together. It does not
+authenticate an installation or cover every Rust source file. A worker with a
+different protocol, version or identity causes <code>worker_identity_mismatch</code>, with
+exit status 5, before policy evaluation. A probe worker that the tests build
+also has a different identity, and causes the same failure. To correct a
+mismatch, rebuild and install the pair together.</p>
+<p>The CLI finds <code>libexec/ravel/ravel-policy</code> relative to its own canonical path,
+which is its path with all symlinks resolved.
+A symlink to the CLI therefore still reaches that CLI’s worker. Another worker
+on <code>PATH</code> cannot replace it. The worker contains Bun 1.4.2, so an installation
+needs no separate Bun or Node runtime.</p>
+<h2 id="build-archives-before-a-release"><a class="header" href="#build-archives-before-a-release">Build archives before a release</a></h2>
+<p><code>task release:archives</code> builds local archives without a version cut. With no
+<code>TARGETS</code> argument, it builds these targets:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Target</th><th>Archive contents run on</th></tr>
+</thead>
+<tbody>
+<tr><td><code>aarch64-apple-darwin</code></td><td>Apple silicon macOS</td></tr>
+<tr><td><code>aarch64-unknown-linux-gnu</code></td><td>Arm64 GNU/Linux</td></tr>
+<tr><td><code>x86_64-unknown-linux-gnu</code></td><td>x86-64 GNU/Linux</td></tr>
+</tbody>
+</table>
+</div>
+<p>The target names spell arm64 as <code>aarch64</code> and x86-64 as <code>x86_64</code>. This chapter
+uses the target spelling only in target names and in the support statement.</p>
+<p>Run the release tasks from the checkout. The full workflow needs an Apple
+silicon Mac, Bash 4 or later, Task, rustup with Rust 1.85 or later, curl,
+tar/xz and ShellCheck. The Linux builds also need Zig, cargo-zigbuild and both
+Linux Rust target libraries. The Linux smoke tests need an available
+<code>linux/arm64</code> Docker daemon with kernel 6.7 or later.</p>
+<p>The kernel requirement comes from the emulated routes. They register QEMU in a
+private <code>binfmt_misc</code> instance, which Linux 6.7 and later gives each user
+namespace. Thus, the registration does not change the Docker host’s own. The
+requirement applies to the test environment. It is not Ravel’s minimum kernel.</p>
+<p><code>task setup</code> supplies the checkout’s pinned Bun and development dependencies.
+The release build prefers rustup’s tools on <code>PATH</code> when its shims exist.
+An explicit <code>RUSTC</code> override can still select another compiler.
+<a href="#prepare-a-version-cut">The release doctor</a> checks the compiler that the build
+will use and its target libraries.
+The worker build checks each target’s Bun
+runtime against a committed SHA-256 digest before compilation. It also generates
+the SDK declarations.</p>
+<p>Fragment: prepare the target libraries and build local archives. This recipe
+omits tool installation and the command output.</p>
+<pre><code class="language-sh">rustup target add aarch64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu
+task setup
+task release:archives
+</code></pre>
+<p>The build writes <code>target/archives/ravel-v&lt;VERSION&gt;-&lt;TARGET&gt;.tar.xz</code>.
+It clears <code>target/archives</code> before each build, even for one target.
+Thus, an archive from an earlier build cannot stand in for a target that failed.
+Each archive first has a temporary filename. The build gives the archive its
+final filename only after the manifest check passes, then prints its SHA-256
+digest.</p>
+<p>For a local macOS check, select only the native target. This selection replaces
+the archive directory’s contents and does not check Linux.</p>
+<p>Fragment: build only the macOS archive. This recipe omits setup and output.</p>
+<pre><code class="language-sh">task release:archives TARGETS=aarch64-apple-darwin
+</code></pre>
+<p>If an unreleased build fails, correct the reported cause and repeat the task.
+It creates no release tag or remote release. The later release procedure builds
+fresh artifacts from the release tag into <code>target/dist</code>.</p>
+<h2 id="check-the-archive-contents"><a class="header" href="#check-the-archive-contents">Check the archive contents</a></h2>
+<p>An archive has one top directory, <code>ravel-v&lt;VERSION&gt;-&lt;TARGET&gt;/</code>. That directory
+is an installation prefix. The manifest in <code>scripts/release-common.sh</code> permits
+exactly these files and their directories:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path below the prefix</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>bin/ravel</code></td><td>Ravel CLI executable</td></tr>
+<tr><td><code>libexec/ravel/ravel-policy</code></td><td>Matched policy worker executable</td></tr>
+<tr><td><code>libexec/ravel/sdk/index.ts</code>, <code>sdk/index.d.ts</code></td><td>SDK source and declarations, both under <code>libexec/ravel</code></td></tr>
+<tr><td><code>libexec/ravel/examples/static.ts</code>, <code>examples/static.d.ts</code></td><td>Static example source and declarations, both under <code>libexec/ravel</code></td></tr>
+<tr><td><code>libexec/ravel/examples/sample.ts</code></td><td>Sample that an owner can copy and edit</td></tr>
+<tr><td><code>libexec/ravel/notices/NOTICES.md</code>, <code>notices/bun-LICENSE.md</code></td><td>Runtime notices, both under <code>libexec/ravel</code></td></tr>
+<tr><td><code>README.md</code>, <code>LICENSE</code></td><td>Project entry and licence</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="06-reference.html#installed-layout">Chapter 6’s installed-layout view</a> shows
+how the CLI, worker, SDK and examples fit together. In the checkout, the runtime
+notices are under <code>crates/ravel/notices/</code>. In an installation, they are under
+<code>PREFIX/libexec/ravel/notices/</code>.</p>
+<p>The manifest check rejects extra files and directories, missing files,
+symlinks in place of files, and executables without execute permission. Caller programs,
+caller adapters, owner configuration, choice files, development dependencies
+and probe directories do not belong in an archive. The pack step also excludes
+macOS extended attributes and their AppleDouble metadata files.</p>
+<p><code>task release:test</code> tests the manifest check. It compares the manifest with a
+fresh production worker build, then uses deliberately incorrect archives. Each
+omitted file causes a failure. Other controls add unwanted assets, change types
+or permissions, and add macOS metadata. The task needs no Docker, but its
+metadata controls use macOS tools.</p>
+<p>Fragment: test the manifest check. This recipe omits setup and output.</p>
+<pre><code class="language-sh">task release:test
+</code></pre>
+<p>The manifest check examines layout, types and execute permission. It does not
+prove that the file at the worker path is the right program.</p>
+<p>The installed smoke test checks the pair through a real policy. The
+hostile-runtime suite separately puts probe workers at the worker path. It checks that each probe causes
+<code>worker_identity_mismatch</code>. Those tests need the probe workers that
+<code>task probes</code> builds. <code>task check</code> runs that build too.</p>
+<h2 id="test-the-installed-archive"><a class="header" href="#test-the-installed-archive">Test the installed archive</a></h2>
+<p><code>task release:smoke</code> rebuilds the selected archives, then tests them. With no
+selection, every target runs. A missing tool, failed target or unrun selected
+target fails the task. There is no successful skip path.</p>
+<p>Fragment: rebuild and test all target archives. This recipe omits setup and
+per-target output.</p>
+<pre><code class="language-sh">task release:smoke
+</code></pre>
+<p>Each environment extracts its archive with its own tar into a fresh prefix.
+It checks the CLI version and runs <code>crates/ravel/scripts/installed-smoke.sh</code>.
+That script tests both the direct CLI path and a relative symlink from another
+prefix. Its private utility <code>PATH</code> has no Bun, Node or Grove. It supplies a
+fresh home and temporary directory through a cleared environment.</p>
+<p>The test uses a shell fake agent, a real policy worker and installed assets.
+Each <a href="02-actors-and-words.html#caller-and-owner">session</a> returns the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+that the fake agent sends with <code>end-session</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Check</th><th>What the test compares</th></tr>
+</thead>
+<tbody>
+<tr><td>SDK, static example and copied sample</td><td>The sample uses the selected choice and starts the fake agent</td></tr>
+<tr><td>Result values</td><td>Ordinary, empty, multiline and option-like values return unchanged</td></tr>
+<tr><td>Child output</td><td>Child standard output goes to diagnostics, separate from the result</td></tr>
+<tr><td>TypeScript imports</td><td>A relative helper and a declared package load from the test policy</td></tr>
+<tr><td>Policy inputs</td><td>Measured policy context and <code>--param</code> values reach the policy</td></tr>
+<tr><td>Missing <a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a></td><td><code>end-session</code> fails and writes no result</td></tr>
+<tr><td>Temporary resources</td><td>The sample sessions leave no resources in their temporary directory</td></tr>
+</tbody>
+</table>
+</div>
+<p>No model or personal policy runs.
+The test does not exercise an interactive terminal or all lifecycle failures.
+<a href="09-jobs-signals-and-the-terminal.html">Chapter 9</a> explains those separate obligations.</p>
+<h2 id="read-the-platform-checks-correctly"><a class="header" href="#read-the-platform-checks-correctly">Read the platform checks correctly</a></h2>
+<p>A platform floor is the oldest library or CPU capability that a check exercises.
+The Linux CLI builds against glibc 2.17 through Zig. The worker uses its pinned
+Bun runtime. Both executables then run in the same archive smoke test.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Route</th><th>Environment and check</th></tr>
+</thead>
+<tbody>
+<tr><td>macOS arm64</td><td>Native execution on the Mac that runs the task</td></tr>
+<tr><td>Linux arm64, native CPU</td><td>Pinned CentOS 7.9 userland in arm64 Docker, with glibc 2.17</td></tr>
+<tr><td>Linux arm64, CPU floor</td><td>The same userland under QEMU 10.2.2 with the Cortex-A53 model</td></tr>
+<tr><td>Linux x86-64, CPU floor</td><td>CentOS 7.9 under QEMU 10.2.3 with the Nehalem model</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each Linux route checks that the userland reports glibc 2.17. A probe built for
+that floor runs. A second probe needs <code>GLIBC_2.25</code>, and the userland rejects it.
+The two probes show that the environment both runs valid programs and rejects
+a newer library requirement.</p>
+<p>The CPU controls use an instruction above each floor: an Armv8.1 LSE atomic
+operation for arm64, and AVX2 for x86-64. At the floor, the instruction causes
+SIGILL. The same probe runs under the same emulator with <code>-cpu max</code>. Thus, the
+failure at the floor comes from the CPU model, not from a defective probe.</p>
+<p>Each emulated route checks that every ELF executable in the archive, the CLI
+and the worker included, matches its emulator registration. Thus, those
+executables run through QEMU, not directly on the host CPU. The routes also
+check guest address bounds and the presence of the vDSO, a kernel-supplied
+interface mapped into a process.
+The test programs run without network access, as an unprivileged user, with
+read-only test inputs.</p>
+<p>These checks establish different limits:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Observation</th><th>Limit</th></tr>
+</thead>
+<tbody>
+<tr><td>Native macOS smoke passed</td><td>It checks the host macOS version, not an older macOS floor</td></tr>
+<tr><td>glibc and CPU controls passed</td><td>They check these userlands and CPU models, not every distribution or processor</td></tr>
+<tr><td>Linux container or user-mode QEMU passed</td><td>It uses the host kernel and does not measure a minimum kernel version</td></tr>
+<tr><td>Archive smoke passed</td><td>It checks the installed workflow, not the full process and terminal campaign</td></tr>
+</tbody>
+</table>
+</div>
+<p>The native-entry campaign measured aarch64 macOS and aarch64 Linux.
+x86_64 Linux is built and run only under emulation. Native x86-64 Linux remains
+unqualified, with qualification tracked in <a href="https://github.com/Linkuistics/Ravel/issues/1">Linkuistics/Ravel#1</a>.
+An archive smoke pass does not change that support statement.</p>
+<p><a href="10-develop-ravel.html#read-the-evidence-for-a-change">Chapter 10’s evidence map</a>
+locates the separate runtime, archive and native-entry records. Those records
+name their source revisions and measured environments. After a source or
+runtime change, run <code>task release:smoke</code> again. It rebuilds the archives
+before it tests them.</p>
+<h2 id="prepare-and-test-the-homebrew-formula"><a class="header" href="#prepare-and-test-the-homebrew-formula">Prepare and test the Homebrew formula</a></h2>
+<p>A Homebrew formula tells Homebrew which archive to fetch, how to install it,
+and how to test the installation. Ravel’s template is
+<code>scripts/templates/ravel.rb.tmpl</code>. It selects one of the three target archives
+and installs its <code>bin</code> and <code>libexec</code> directories. It has no Grove dependency.</p>
+<p><code>task release:formula</code> requires all three current-version archives in
+<code>target/archives</code>. It builds the four native probe workers, checks each
+archive against the manifest, and fills the template with the version and
+archive digests. An unexpanded placeholder fails the task.</p>
+<p>Fragment: after the full archive smoke task, test the formula. This recipe
+omits setup, archive construction and output.</p>
+<pre><code class="language-sh">task release:formula
+</code></pre>
+<p>The task needs Homebrew on Apple silicon macOS. It loads the rendered formula
+through Homebrew’s Ruby library and calls its actual install and test methods.
+Only the installation prefix and test directory change to private temporary
+directories. The task creates no Homebrew keg and edits no tap. A keg is
+Homebrew’s directory for one installed version.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Formula check</th><th>What it establishes</th></tr>
+</thead>
+<tbody>
+<tr><td>Installed paths</td><td>The temporary prefix has exactly the archive’s <code>bin</code> and <code>libexec</code> contents</td></tr>
+<tr><td>Real policy and shell fake agent</td><td>The SDK and static example work through a symlink to the installed CLI</td></tr>
+<tr><td>Result comparisons</td><td>Ordinary, empty, multiline and option-like results return unchanged</td></tr>
+<tr><td>Cleared environment</td><td>The session uses private home and temporary directories, with no host TypeScript runtime</td></tr>
+<tr><td>Temporary resources</td><td>The formula’s sessions leave their temporary directory empty</td></tr>
+<tr><td>Four substituted workers</td><td>Each probe causes <code>worker_identity_mismatch</code>, with exit status 5</td></tr>
+</tbody>
+</table>
+</div>
+<p>The normal formula test first checks the matched production worker. Then the
+identity controls substitute <code>autoload</code>, <code>tsconfig</code>, <code>unregistered</code> and
+<code>unmoved</code> probe workers at that worker’s path. After the controls pass, the
+test restores the production worker. All these operations stay in the temporary
+prefix, and no model runs.</p>
+<p>The output, <code>target/archives/ravel.rb</code>, is preparation material. Its URLs use
+the checkout’s version, but its digests describe the local archives. Those bytes
+can differ from the assets at the release URLs, even when the version agrees.
+Do not copy this formula into a tap or upload these archives as a release.
+The version-cut task builds fresh archives from the tag and tests their formula.</p>
+<p>The final installation uses <code>linkuistics/taps/ravel</code>. Its <code>brew test ravel</code>
+checks the real installed keg. The temporary-prefix check above does not replace
+that final check.</p>
+<h2 id="prepare-a-version-cut"><a class="header" href="#prepare-a-version-cut">Prepare a version cut</a></h2>
+<p>A version cut selects the next version and creates its source commit and tag.
+Ravel’s stable CLI uses semantic versions: compatible changes use patch or minor
+releases, and incompatible changes require a major release.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>release:doctor</code></td><td>Check tools, target libraries, host, GitHub authentication, the book version line and the Pages setting</td></tr>
+<tr><td><code>release:notes</code></td><td>Fill empty Unreleased notes, or replace them with an explicit reviewed body</td></tr>
+<tr><td><code>release:lifecycle:test</code></td><td>Test release order, refusals, notes, book delivery and recovery in isolated repositories</td></tr>
+<tr><td><code>release:patch</code></td><td>Cut, deliver and install the next patch release</td></tr>
+<tr><td><code>release:minor</code></td><td>Cut, deliver and install the next minor release</td></tr>
+<tr><td><code>release:major</code></td><td>Cut, deliver and install the next major release</td></tr>
+</tbody>
+</table>
+</div>
+<p>The three version-cut tasks have public effects. They push source and a tag,
+create a GitHub release, put the book on the Pages branch and update the tap.
+They also install or upgrade local Ravel.
+Choose one task for the intended change. Do not run them as a sequence.</p>
+<p>In addition to the archive tools, delivery needs jj, Git, jq, Homebrew and
+cargo-release 1.1.2. It also needs authenticated <code>gh</code> access to
+<code>Linkuistics/Ravel</code> and a clean, synchronised clone of <code>linkuistics/taps</code>.</p>
+<p><code>task setup</code> supplies the pinned mdBook 0.5.4 as well as Bun.
+The lifecycle suite needs that setup because it builds books in its fixtures.
+The tap path defaults to <code>~/Development/homebrew-taps</code>.
+If the clone is elsewhere, set <code>RAVEL_TAP_DIR</code> to its path.
+Put Homebrew’s Bash before <code>/bin</code> on <code>PATH</code>, so the scripts use Bash 4 or later.</p>
+<p>The release procedure uses jj (Jujutsu), a version-control tool that can share
+a repository with Git. In jj, each change has a stable change ID and a
+description, which <code>jj describe</code> sets. A bookmark, such as <code>main</code>, is jj’s
+name for a branch. A colocated workspace has both <code>.jj</code> and <code>.git</code> in one
+directory.</p>
+<p>Run the cut from Ravel’s default colocated jj workspace. The release task
+refuses other directories. First, give each intended change a description and
+put it on local <code>main</code>. The preparation step of the release task saves the
+current change ID, then creates a clean child of <code>main</code>. Unrelated work stays
+at the saved ID. Later, <code>jj edit SAVED_CHANGE_ID</code> returns to that work.</p>
+<p>Fragment: check release prerequisites and remote tags. This recipe omits tool
+installation, notes review and the version cut. The tap check fetches its remote.</p>
+<pre><code class="language-sh">task release:doctor
+scripts/release-publish.sh --check-tap
+scripts/release-book.sh check-remote
+git ls-remote --tags origin
+task release:lifecycle:test
+</code></pre>
+<p>The doctor reports missing prerequisites and their remedies. It checks the
+pinned mdBook and reads the repository’s Pages setting. Disabled Pages produces
+a note, because an administrator enables it after the first book reaches the branch.
+A different branch, folder or deployment mode fails the check.</p>
+<p>The separate <code>check-remote</code> command checks that Git can read <code>origin</code>, the
+remote that holds the Pages branch. Neither check changes the remote.</p>
+<p>The doctor does not test tap synchronisation or prove that a prior release is
+complete. Preparation makes those separate checks. It fetches origin and refuses conflicts,
+divergence from origin, undescribed new changes on <code>main</code>, and version work
+outside <code>main</code>.</p>
+<p>For the current version, preparation requires local and remote tags that agree,
+a complete non-draft GitHub release, and the remote tap’s version line.
+It also requires new commits after the baseline tag. An incomplete prior release
+therefore leads to recovery, not another version cut. The special absent-tag
+case applies only to version 0.0.0 with no local or remote version tags.
+The historical <code>structured-plan-migration</code> tag is not a release baseline.</p>
+<p>Write meaningful release notes under the single <code>## Unreleased</code> heading in
+<code>CHANGELOG.md</code>. Preparation preserves a nonempty body byte for byte. For an
+empty body, it uses first lines from nonempty, described commits since the
+current version tag, then commits those notes to <code>main</code> through jj.
+Only the initial 0.0.0 case uses repository history without a baseline tag.
+Review generated notes because commit descriptions can contain internal details.</p>
+<p>Fragment: replace the notes with reviewed prose. This recipe omits creation of
+the input file and the later jj commit. The changelog must match <code>main</code> first.</p>
+<pre><code class="language-sh">task release:notes -- --to main --from-file /absolute/path/reviewed-body.md
+</code></pre>
+<p>Without arguments, <code>release:notes</code> uses the current jj revision and fills only
+an empty body. <code>--from-file</code> deliberately replaces a nonempty body too.
+The input contains a section body, with no level-two heading. The script
+preserves versioned sections and refuses missing, empty or invalid input.</p>
+<p>It also refuses missing or duplicate Unreleased headings, an ambiguous revision,
+or a changelog that differs from the selected revision. Commit reviewed notes
+through jj before the cut. This procedure runs no
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a> or model.</p>
+<h2 id="cut-and-deliver-a-release"><a class="header" href="#cut-and-deliver-a-release">Cut and deliver a release</a></h2>
+<p>Each version-cut task calls the internal <code>release</code> task, which runs the steps
+below in order. The task first creates the <code>.jj/release-lock</code> directory. While
+it exists, a second release task stops. A <code>defer</code> command in the task removes
+the lock when the task succeeds or fails.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>What it changes or checks</th></tr>
+</thead>
+<tbody>
+<tr><td>Check prerequisites</td><td>Run the doctor, tap preflight and Pages remote check</td></tr>
+<tr><td>Prepare <code>main</code></td><td>Preserve unrelated work, check the prior release and prepare notes</td></tr>
+<tr><td>Recheck the tap and source</td><td>Repeat tap preflight, then run <code>task check</code></td></tr>
+<tr><td>Preview and cut</td><td>Run cargo-release first as a preview without <code>--execute</code>, then with <code>--execute --no-confirm</code></td></tr>
+<tr><td>Check the tagged book</td><td>Require the tag’s chapter 3 version line to match the cut</td></tr>
+<tr><td>Record and build the book</td><td>Move <code>main</code> to the release commit, then build the tag’s book into <code>target/book-release/vX.Y.Z/</code></td></tr>
+<tr><td>Build the archives</td><td>Build all archives into a fresh <code>target/dist</code></td></tr>
+<tr><td>Test the formula and archives</td><td>Test the formula in temporary prefixes, then run the smoke test for every target at its floors</td></tr>
+<tr><td>Send the source and release</td><td>Push <code>main</code>, push the tag and create the GitHub release</td></tr>
+<tr><td>Deliver the book and formula</td><td>Put the book on the Pages branch, check it with <code>verify</code>, then update the tap</td></tr>
+<tr><td>Check the installation</td><td>Update Homebrew, install or upgrade Ravel, run its test, and check its version and GitHub assets</td></tr>
+<tr><td>Check the book on the site</td><td>Run <code>scripts/release-book.sh live vX.Y.Z</code> against the served pages</td></tr>
+</tbody>
+</table>
+</div>
+<p>The activity shows which checks precede the first public write and where each
+failure resumes. After a version write, recovery keeps the selected version.</p>
+<p>The eight grey exits refer to the <a href="#recover-a-partial-release-without-another-bump">recovery table</a>.
+Each decision summarises the checks since the previous decision. A failure
+stops at its own step, before the later actions in that group.
+The book build stays local. The Pages branch check precedes the tap update.
+The served-site check comes last.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/release-delivery.svg" alt="The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut."><span class="img-wrapper"><img src="figures/release-delivery.svg" alt="The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut."></span></label></p>
+<p><a href="figures/release-delivery.svg">Open the release activity at full size.</a></p>
+<p><code>release.toml</code> disables cargo-release pushes and crates.io uploads. Cargo-release
+creates the local version commit and tag through Git. The procedure otherwise
+uses jj. This commit and the tag operations are its Git exceptions. The
+<a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">runner</a>
+package, <code>keyed-launch</code>, sets <code>release = false</code>, so cargo-release does not
+release it separately. Only the <code>ravel</code> package’s configuration holds the
+changelog replacement.</p>
+<p>The changelog replacement requires exactly one whole-line Unreleased heading.
+It inserts the version heading below a fresh Unreleased heading. The notes
+therefore become that version’s notes. The same release commit updates the
+manifests, lockfile and book version line.</p>
+<p>The archive build checks the clean source, exact release tag and workspace
+version before it clears <code>target/dist</code>. It builds all three targets, their
+probe controls and the formula. The next step runs the smoke test for every
+target from that directory. A failed build, formula test or smoke test stops before any push.</p>
+<p>Before it creates the GitHub release, <code>scripts/release-publish.sh</code> rechecks
+the tap, archive manifests and rendered formula. It requires exactly three
+archives and a formula that matches their version and digests. The GitHub
+release takes its notes from that version’s changelog section.
+The tap update changes only <code>Formula/ravel.rb</code>. It retains <code>ravel-lite.rb</code>,
+which supplies a separate command, and every unrelated formula.</p>
+<p>The final version check uses the binary under <code>brew --prefix</code>, not the first
+<code>ravel</code> on <code>PATH</code>. A local <code>task install</code> can put another copy earlier on
+<code>PATH</code>. The task also inspects GitHub’s assets and checks their count.
+This release procedure installs Ravel alone. It does not replace Grove or
+the legacy harness-dispatch installation.</p>
+<p>Keep a delivery record outside the book. Record the source revision, each
+archive’s SHA-256 digest, each target route and control, and any missing
+prerequisite. The check wrapper prints a summary and the full log path under
+<code>target/release-archives.*</code>, <code>target/release-formula.*</code> or
+<code>target/release-lifecycle.*</code>. Save the build and floor-smoke output too.
+These records show whether a result comes from a real target run or from a
+test of the procedure.</p>
+<h2 id="keep-the-book-with-its-release"><a class="header" href="#keep-the-book-with-its-release">Keep the book with its release</a></h2>
+<p><a href="03-a-complete-session.html#install-ravel-and-check-its-version">Chapter 3’s version line</a>
+lets a reader compare the book with <code>ravel --version</code>. A checkout between
+releases can show the placeholder or the last release’s version.
+Its other text can contain later changes.</p>
+<p>The version line is <code>ravel @RAVEL_BOOK_VERSION@</code> until the first release that
+carries the book. After it, the line is <code>ravel X.Y.Z</code>. The second replacement
+in <code>release.toml</code> finds this whole line in
+<code>docs/book/src/03-a-complete-session.md</code>. It accepts the placeholder or an
+<code>X.Y.Z</code> version and requires exactly one match. Cargo-release writes the new
+version into the same commit and tag as the product. The line is ordinary
+Markdown text, so raw-file, GitHub and mdBook views use the same value.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Guard</th><th>What it reads and refuses</th></tr>
+</thead>
+<tbody>
+<tr><td><code>scripts/release-book-version.sh ready</code></td><td>Read the checkout page. Refuse a missing page, or any count other than one line of the form <code>ravel &lt;version or placeholder&gt;</code></td></tr>
+<tr><td><code>scripts/release-book-version.sh released vX.Y.Z</code></td><td>Read the page at the tag. Refuse an unreadable tag/page, a different version, duplicate or absent lines, or a placeholder anywhere in the page</td></tr>
+</tbody>
+</table>
+</div>
+<p>The doctor runs <code>ready</code> before the cut. The task runs <code>released</code> after the
+cut and before the archive build. <code>ready</code> checks that replacement is possible.
+It does not require the current line to agree with the workspace version.
+The second guard checks what the tag actually carries. If it refuses, the cut
+stays local, and the task pushes nothing.</p>
+<p>If <code>ready</code> refuses, edit chapter 3 until it has exactly one version line. Then
+run <code>task release:doctor</code> again. If <code>released</code> refuses, the local tag exists already.
+Use the local-cut rows of
+<a href="#recover-a-partial-release-without-another-bump">the recovery table</a>, and do
+not start another version cut.</p>
+<h3 id="build-and-deliver-the-tagged-book"><a class="header" href="#build-and-deliver-the-tagged-book">Build and deliver the tagged book</a></h3>
+<!-- tc: depart synonym-rotation because confirmation requires public delivery, while local checks cannot establish that result -->
+<p>The release procedure puts each book at
+<code>https://linkuistics.github.io/Ravel/vX.Y.Z/</code>, where <code>X.Y.Z</code> is the release
+version. The root page lists releases, newest first. The address is the
+script’s default. No public delivery has confirmed it yet.</p>
+<p>The Pages branch, <code>gh-pages</code>, holds one <code>vX.Y.Z/</code> directory per release, a root
+<code>index.html</code> and an empty <code>.nojekyll</code> file. A release directory is final.
+The script refuses different bytes in a release directory that already holds a book.
+A retry with the same bytes adds no commit to the branch.</p>
+<p>This branch preserves earlier books when a new release adds its directory.
+A custom workflow would need to preserve them in its site artifact too.
+An artifact with only the newest book would lose those earlier books.
+Ravel needs no custom workflow file. GitHub still uses its own deployment
+workflow for the branch and recognises <code>.nojekyll</code> for prebuilt content.
+<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">GitHub’s source settings</a>
+explain this branch mode.</p>
+<p><code>scripts/release-book.sh</code> separates the work into four modes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Work and refusals</th></tr>
+</thead>
+<tbody>
+<tr><td><code>build vX.Y.Z</code></td><td>Export the tag’s book and build it into the stage with pinned mdBook. Refuse an absent tag, a wrong source version or export file count, and mdBook <code>ERROR</code> or <code>WARN</code> output. Refuse missing output pages, a wrong rendered version, a chapter 3 placeholder, or symlinks in the output</td></tr>
+<tr><td><code>publish vX.Y.Z</code></td><td>Put the staged book on <code>gh-pages</code>. Refuse an absent stage, a changed tag commit or changed staged files. Require the same tag commit on the remote and a complete non-draft GitHub release. Refuse a release directory that already holds different bytes, or a site at the script’s size threshold</td></tr>
+<tr><td><code>verify vX.Y.Z</code></td><td>Check the remote branch against the stage. Refuse an absent or changed stage, an absent branch, root <code>.nojekyll</code> or release directory, different book contents, or an index that omits the release</td></tr>
+<tr><td><code>live vX.Y.Z</code></td><td>Read the served chapter 3 and root page. Refuse a wrong version code block or an absent release link after the last attempt</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>build</code> uses <code>git archive</code> on the tag’s commit. Changes to the checkout’s
+book text cannot enter that export. After the tag and version checks pass,
+the build removes the old stage before it exports and builds the book again.
+The stage is <code>target/book-release/vX.Y.Z/</code>. Beside it,
+<code>vX.Y.Z.identity</code> records the commit, mdBook version and a digest of the staged files.
+The identity file does not go to Pages.</p>
+<p><code>publish</code> uses a temporary clone and a push without force. It does not edit
+the checkout or its jj state. Before the push, the script requires a GitHub
+release with exactly the three expected, nonempty archive assets.
+<code>verify</code> then checks branch contents, not the pages that the site serves.
+<code>live</code> makes up to 30 attempts by default, with ten seconds between attempts.</p>
+<p><code>release-publish.sh</code> puts the book on the Pages branch after the GitHub release.
+It updates the tap only after the book’s <code>verify</code> step passes.
+Thus, the Pages branch holds a release’s book before the tap offers that release.
+Pages can still take time to serve the new files, so the task checks the served
+pages last.</p>
+<p>The <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits">Pages limits</a>
+include a 1 GB site maximum, with soft limits of 100 GB per month and ten builds per hour.
+The script refuses a total site size of 1,000,000 KB or more, as reported by <code>du</code>.
+A local build of the current book in <code>target/book</code> uses about 7 MB. Later releases add their
+own directories, so the site grows.</p>
+<p>The book stays outside the product archives and the worker source identity.
+The local <code>docs:book:build</code> task writes <code>target/book</code>, and <code>docs:book</code> serves
+it locally. Neither task sends files to Pages.</p>
+<h3 id="set-up-pages-for-the-first-release"><a class="header" href="#set-up-pages-for-the-first-release">Set up Pages for the first release</a></h3>
+<p>A repository administrator enables Pages one time.
+The release script creates the branch but does not change the Pages setting.</p>
+<ol>
+<li>Run the first version cut. Its <code>publish</code> step creates <code>gh-pages</code>.</li>
+<li>In the repository’s Settings → Pages, select “Deploy from a branch”.</li>
+<li>Select the <code>gh-pages</code> branch and the <code>/ (root)</code> folder.</li>
+<li>Save the setting.</li>
+<li>After Pages is enabled, run <code>scripts/release-book.sh live vX.Y.Z</code> for that release.</li>
+</ol>
+<p>The branch must exist before step 2. If Pages is disabled during the first
+release, the release task stops at its final <code>live</code> check. Earlier successful
+release steps stay complete. After an administrator enables Pages, repeat only <code>live</code>.</p>
+<p>An administrator can use the <a href="https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site">Pages REST endpoint</a>
+instead of the settings page. The endpoint requires suitable repository rights.</p>
+<p>Fragment: enable Pages after the first branch push. This recipe omits the
+release and the final <code>live</code> check.</p>
+<pre><code class="language-sh">gh api -X POST repos/Linkuistics/Ravel/pages \
+  -f build_type=legacy -f 'source[branch]=gh-pages' -f 'source[path]=/'
+</code></pre>
+<p>No release carries the book yet. The newest release tag, <code>v1.0.0</code>, has no
+<code>docs/book</code> directory. Until a release carries it, there is no book on
+GitHub Pages to use. Read the checkout’s Markdown or local build. Check
+its version line. A pass of the version-line guards does not show a book on GitHub Pages.</p>
+<p>The lifecycle suite’s fixtures build books with pinned mdBook and use a local bare
+remote, substituted GitHub responses and a loopback web server.
+They cannot establish the served public address, an administrator’s call to the
+create endpoint, the Pages delay or GitHub’s view of the book.
+An organisation domain setting can change the address.</p>
+<h2 id="recover-a-partial-release-without-another-bump"><a class="header" href="#recover-a-partial-release-without-another-bump">Recover a partial release without another bump</a></h2>
+<p>After any cut step partly succeeds, do not repeat <code>release:patch</code>,
+<code>release:minor</code> or <code>release:major</code>. Another version cut, a bump, selects a new
+version and leaves the unfinished release incomplete under the old one. First
+inspect the source, local and remote tags, GitHub assets and tap.</p>
+<p>Fragment: inspect a partial release. Replace <code>vX.Y.Z</code> with its selected tag.
+This recipe omits the tap inspection and every correction.</p>
+<pre><code class="language-sh">jj st
+jj log --no-pager
+git status --short
+git tag --list 'v*'
+git ls-remote --tags origin
+gh release view vX.Y.Z --repo Linkuistics/Ravel --json isDraft,assets
+</code></pre>
+<p>If Task stopped abruptly, its lock can remain. Before you remove
+<code>.jj/release-lock</code> with <code>rmdir</code>, check that no release process remains.
+Preserve the saved jj change and each partial release write. The table has
+eight recovery branches. Choose the row for the last step that completed.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Failure point</th><th>Next action</th></tr>
+</thead>
+<tbody>
+<tr><td>Before any version write</td><td>Correct prerequisites, notes or synchronisation. Before you start the task again, check that manifests and tags have no new version</td></tr>
+<tr><td>During the local cut</td><td>Complete the already selected version as described below. Do not start another version cut</td></tr>
+<tr><td>Tagged cut, but book build, archive build, formula or smoke failed</td><td>Correct the environment, then rebuild the book and test the same release source</td></tr>
+<tr><td>Main or tag push failed</td><td>After the build and smoke checks pass, retry only the missing push</td></tr>
+<tr><td>GitHub release, asset upload or book step failed</td><td>Complete that release and its three assets, then resume the book and tap steps</td></tr>
+<tr><td>Tap copy, commit or push failed</td><td>Retain local tap work and finish only the intended formula change</td></tr>
+<tr><td>Local installation or final check failed</td><td>Correct the installation and repeat its checks, with no new version</td></tr>
+<tr><td>Pages does not show the book</td><td>Check the branch and Pages setting, then repeat only <code>live</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>For a partial local cut, inspect the cargo-release preview and log. Reconcile
+the workspace manifests and <code>Cargo.lock</code> to the selected version. If its
+changelog heading is absent and Unreleased still holds its notes, run
+<code>cargo release replace --execute --no-confirm</code> once. Do not repeat that
+replacement after the version heading exists. If only the book line needs a
+correction, correct that line without another changelog replacement.</p>
+<p>When the manifests and lockfile agree, check them. Then describe the release
+change in jj. Move <code>main</code> to that commit and create its empty successor.</p>
+<p>Create only a missing
+local tag at the intended commit. The release procedure uses an annotated Git
+tag for this operation. Inspect any tag that already exists. Never overwrite
+a tag to hide a source mismatch.</p>
+<p>For a failed build or smoke test, return to a clean child of the release commit
+with <code>jj new RELEASE_COMMIT</code>. If the cut did not move <code>main</code>, set it to that
+commit with <code>jj bookmark set main -r RELEASE_COMMIT</code>.</p>
+<p>Fragment: check the tag’s book line, build its book, then rebuild and test the
+release archives. Replace <code>vX.Y.Z</code> with the selected tag. This recipe omits source
+corrections and pushes.</p>
+<pre><code class="language-sh">scripts/release-book-version.sh released vX.Y.Z
+scripts/release-book.sh build vX.Y.Z
+scripts/release-build.sh
+scripts/release-smoke.sh --archives target/dist
+</code></pre>
+<p>If the release source itself needs a correction, give the correction its own
+described change. Then decide which version and tag carry it. Do not move a
+tag that is already public. A correction in the checkout alone cannot correct
+the book page that <code>released</code> reads at the tag. If the source and the tag
+disagree, stop until that decision is made.</p>
+<p>After all smoke routes pass, retry only a missing <code>jj git push -b main</code> or
+<code>git push origin vX.Y.Z</code>. Before you continue, check that the remote tag
+resolves to the release commit. Do not force a public tag.</p>
+<p>If GitHub has no release for the tag, run <code>scripts/release-publish.sh</code> after
+the smoke test passes. If the release exists, upload only missing current
+archives with <code>gh release upload</code>. Inspect assets that already exist.
+Do not overwrite them. If the release is a draft, remove its draft status with
+<code>gh release edit</code> after all three assets are complete. Both commands take the
+selected tag and <code>--repo Linkuistics/Ravel</code>.</p>
+<p>Fragment: resume the book and tap steps after the GitHub assets are complete.
+This recipe omits asset inspection, the book build and the earlier smoke checks.</p>
+<pre><code class="language-sh">scripts/release-publish.sh --book-only
+scripts/release-publish.sh --tap-only
+</code></pre>
+<p><code>--book-only</code> resumes the book step without a second GitHub release or a tap
+edit. If the stage is missing, first run <code>scripts/release-book.sh build vX.Y.Z</code>.
+If the push fails, the branch on the remote stays unchanged.
+A retry sends the same staged bytes and adds no commit if the branch already holds them.
+Different bytes in the same release directory fail.
+Never replace that directory by hand to hide a mismatch.</p>
+<p><code>--tap-only</code> requires a non-draft GitHub release with exactly the three nonempty
+assets. It downloads them and compares each with the local archive that the
+smoke test checked. A mismatch stops before a tap edit. <code>--tap-only</code> also runs
+the book’s <code>verify</code> mode before it changes the tap. It creates no second
+GitHub release.</p>
+<p>The script does not run the smoke test. Thus, use this mode
+only after the smoke test passes for the same archives.</p>
+<p>If the tap copy already occurred, preserve that work. Do not run
+<code>scripts/release-publish.sh</code> against a tap with uncommitted changes. In a jj
+tap, finish the formula change with these steps:</p>
+<ol>
+<li>Describe the intended formula change.</li>
+<li>Move <code>main</code> to that change.</li>
+<li>Create an empty successor.</li>
+<li>Push <code>main</code>.</li>
+</ol>
+<p>If the commit already exists, retry only its push. A Git-only tap uses its
+normal commit and push procedure. Check the remote <code>Formula/ravel.rb</code> and
+retain every unrelated formula.</p>
+<p>If only local installation failed, run <code>brew update</code> again. If Ravel is not
+installed, install <code>linkuistics/taps/ravel</code>. Otherwise, upgrade <code>ravel</code>. Run
+<code>brew test ravel</code> and the Homebrew-prefix binary’s version check. Inspect the matched worker
+layout and GitHub’s three assets. A missing local installation needs no new cut.</p>
+<p>If only the <code>live</code> check failed, keep the release and tap unchanged.
+Check the branch with <code>scripts/release-book.sh verify vX.Y.Z</code>.
+Then check the Pages setting with <code>scripts/release-book.sh check-pages</code>.
+If Pages is disabled, complete <a href="#set-up-pages-for-the-first-release">the first-release setup</a>.
+After the setting is correct, repeat only <code>scripts/release-book.sh live vX.Y.Z</code>.</p>
+<p>The lifecycle suite tests these procedure boundaries in isolated repositories
+with local remotes and substituted service responses. It also runs real
+cargo-release previews, book-version cuts and book delivery there.
+Those results do not prove that a particular public recovery succeeded.
+The source, tags, assets and tap
+observed during that recovery determine its next step.</p>
+<h2 id="checks-made-for-this-chapter"><a class="header" href="#checks-made-for-this-chapter">Checks made for this chapter</a></h2>
+<p>The checks for this chapter used macOS 27.0.1 arm64, Bash 5.3.20 and rustup rustc 1.93.1.
+All three Rust target libraries were present. Zig 0.17.0, cargo-zigbuild and
+Docker 29.8.1 were available. Docker reports <code>linux/arm64</code> with kernel
+7.0.14-linuxkit. No archive-test prerequisite was missing.</p>
+<p>The first set of checks passed on 2026-10-18:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Observed result</th></tr>
+</thead>
+<tbody>
+<tr><td><code>release:doctor</code></td><td>All reported prerequisites passed</td></tr>
+<tr><td><code>release:test</code></td><td>Manifest and deliberately incorrect archive controls passed</td></tr>
+<tr><td><code>release:smoke</code></td><td>Fresh archives passed all four routes above, direct and through a symlink</td></tr>
+<tr><td><code>release:lifecycle:test</code></td><td>Release procedure, recovery, notes and book-version controls passed in isolated fixtures</td></tr>
+</tbody>
+</table>
+</div>
+<p>The smoke task ran <code>release:archives</code> as its build step. Both Linux CPU controls
+failed at their floor and passed with <code>-cpu max</code>. Every Linux route passed the
+glibc probe and rejected the probe that needs glibc 2.25. No target was skipped.
+The source and script digests stayed unchanged through these checks.</p>
+<p>A second set of checks passed later on 2026-10-18, on the same host:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Observed result</th></tr>
+</thead>
+<tbody>
+<tr><td><code>release:doctor</code></td><td>All reported prerequisites and the book version line passed</td></tr>
+<tr><td><code>release:formula</code></td><td>Real Homebrew install/test methods and all four worker-identity controls passed in a temporary prefix</td></tr>
+<tr><td><code>release:lifecycle:test</code></td><td>Release order, refusal, recovery, notes and book-version controls passed in isolated fixtures</td></tr>
+</tbody>
+</table>
+</div>
+<p>Formula preparation used the three archives from the first set. Their digests
+and the tracked source inputs stayed unchanged through the second set. The formula’s four
+result sessions succeeded and reported stop-attempt permission errors on stderr.
+Those operation reports remained separate from the returned results.</p>
+<p>Neither set changed the project’s release notes or ran its <code>release:patch</code>,
+<code>release:minor</code> or <code>release:major</code> tasks. Those tasks change
+public release state and the local installation. The lifecycle suite exercised
+notes, previews and cuts only in its fixtures. No project push, tag, tap edit,
+permanent installation or GitHub Pages deployment ran.</p>
+<p>Neither set repeated <code>install</code> or <code>smoke</code>. Chapter 10 records those checks.
+The smoke task here ran the same installed test through fresh archives.
+These observations establish no new native x86-64, interactive-terminal,
+real-agent or reader-comprehension result.</p>
+<p>A third set of checks, after the release gained the book steps, passed on the
+same host on 2026-10-18:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Check</th><th>Observed result</th></tr>
+</thead>
+<tbody>
+<tr><td><code>release:doctor</code></td><td>Prerequisites, pinned mdBook and the book version line passed. Pages was disabled, which produced a note</td></tr>
+<tr><td><code>release:lifecycle:test</code></td><td>Release order, recovery, book builds, local branch delivery and loopback site checks passed in isolated fixtures</td></tr>
+<tr><td><code>docs:examples</code> and <code>docs:excerpts</code></td><td>Fourteen complete examples and eight source excerpts passed</td></tr>
+<tr><td><code>docs:figures</code></td><td>Fourteen figures matched their sources. The corrected release activity includes the book steps and eight recovery exits</td></tr>
+</tbody>
+</table>
+</div>
+<p>The third set ran no project version cut, push, tag, tap edit, permanent
+installation or GitHub Pages deployment. It repeated no archive or formula check.
+The fixtures do not establish the public address, an administrator’s call to
+the create endpoint, the Pages delay or GitHub’s view of the book.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="10-develop-ravel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="10-develop-ravel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

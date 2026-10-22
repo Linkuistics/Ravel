@@ -1,0 +1,2337 @@
+{
+  "w": 841.93359375,
+  "h": 3044.9828125000013,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "The session code path — UML sequence",
+      "x": 420.966796875,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 358.84375,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          41.99609375,
+          50.3125
+        ],
+        [
+          41.99609375,
+          2953.3359375000014
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          170.5859375,
+          71.26875000000001
+        ],
+        [
+          170.5859375,
+          2953.3359375000014
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          332.89453125,
+          301.41875
+        ],
+        [
+          332.89453125,
+          839.1000000000003
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-managed",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          464.89453125,
+          1360.3664062500004
+        ],
+        [
+          464.89453125,
+          2233.897656250001
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-end",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          657.01953125,
+          1700.4632812500006
+        ],
+        [
+          657.01953125,
+          2953.3359375000014
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-channel",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          789.5390625,
+          1198.8531250000003
+        ],
+        [
+          789.5390625,
+          2694.395312500001
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 77.9921875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 41.99609375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 91.9921875,
+      "y0": 26.156250000000004,
+      "x1": 249.1796875,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI\n(runner inside)",
+      "x": 170.5859375,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 135.1875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          41.99609375,
+          116.24218750000001
+        ],
+        [
+          170.5859375,
+          116.24218750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "start-session\nkind and prompt",
+      "x": 106.291015625,
+      "y": 112.24218750000001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 116.58984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          154.065625
+        ],
+        [
+          192.5859375,
+          154.065625
+        ],
+        [
+          192.5859375,
+          172.065625
+        ],
+        [
+          170.5859375,
+          172.065625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "main → run\nCheck inputs and policy path",
+      "x": 198.5859375,
+      "y": 163.065625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "div-15-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          221.88906250000002
+        ],
+        [
+          841.93359375,
+          221.88906250000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-15-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          225.88906250000002
+        ],
+        [
+          841.93359375,
+          225.88906250000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-15",
+      "shape": "box",
+      "role": "divider",
+      "x0": 351.7880859375,
+      "y0": 215.57070312500002,
+      "x1": 490.1455078125,
+      "y1": 232.20742187500002
+    },
+    {
+      "id": "div-15-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Policy evaluation",
+      "x": 420.966796875,
+      "y": 223.88906250000002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 118.357421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          278.8625
+        ],
+        [
+          290.5859375,
+          278.8625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Start in private directory",
+      "x": 230.5859375,
+      "y": 274.8625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 108.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 290.5859375,
+      "y0": 256.30625000000003,
+      "x1": 375.203125,
+      "y1": 301.41875
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "policy\nworker",
+      "x": 332.89453125,
+      "y": 278.8625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 62.6171875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          335.2421875
+        ],
+        [
+          354.89453125,
+          335.2421875
+        ],
+        [
+          354.89453125,
+          353.2421875
+        ],
+        [
+          332.89453125,
+          353.2421875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Change to /\nRegister embedded modules",
+      "x": 360.89453125,
+      "y": 344.2421875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          403.70234375
+        ],
+        [
+          170.5859375,
+          403.70234375
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "hello: worker identity",
+      "x": 251.740234375,
+      "y": 399.70234375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.30859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          432.357421875
+        ],
+        [
+          192.5859375,
+          432.357421875
+        ],
+        [
+          192.5859375,
+          450.357421875
+        ],
+        [
+          170.5859375,
+          450.357421875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Check worker identity",
+      "x": 198.5859375,
+      "y": 441.357421875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          509.9859375
+        ],
+        [
+          332.89453125,
+          509.9859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "evaluate: policy path\nand request",
+      "x": 251.740234375,
+      "y": 505.9859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 149.5810546875,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          529.47265625
+        ],
+        [
+          354.89453125,
+          529.47265625
+        ],
+        [
+          354.89453125,
+          547.47265625
+        ],
+        [
+          332.89453125,
+          547.47265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Import owner policy",
+      "x": 360.89453125,
+      "y": 538.47265625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          579.59609375
+        ],
+        [
+          170.5859375,
+          579.59609375
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Policy description",
+      "x": 251.740234375,
+      "y": 575.59609375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 124.5615234375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-10",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          599.0828125
+        ],
+        [
+          192.5859375,
+          599.0828125
+        ],
+        [
+          192.5859375,
+          617.0828125
+        ],
+        [
+          170.5859375,
+          617.0828125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "judge: check description",
+      "x": 198.5859375,
+      "y": 608.0828125,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-11",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          667.5429687500001
+        ],
+        [
+          332.89453125,
+          667.5429687500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "select: request command",
+      "x": 251.740234375,
+      "y": 663.5429687500001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.30859375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-12",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          687.0296875000001
+        ],
+        [
+          354.89453125,
+          687.0296875000001
+        ],
+        [
+          354.89453125,
+          705.0296875000001
+        ],
+        [
+          332.89453125,
+          705.0296875000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-12-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Call policy select",
+      "x": 360.89453125,
+      "y": 696.0296875000001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-13",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          332.89453125,
+          737.1531250000002
+        ],
+        [
+          170.5859375,
+          737.1531250000002
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-13-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Selected command",
+      "x": 251.740234375,
+      "y": 733.1531250000002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 137.0166015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-14",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          756.6398437500002
+        ],
+        [
+          192.5859375,
+          756.6398437500002
+        ],
+        [
+          192.5859375,
+          774.6398437500002
+        ],
+        [
+          170.5859375,
+          774.6398437500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-14-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "judge: check command",
+      "x": 198.5859375,
+      "y": 765.6398437500002,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-15",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          825.1000000000003
+        ],
+        [
+          332.89453125,
+          825.1000000000003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-15-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Close socket. End and reap",
+      "x": 251.740234375,
+      "y": 821.1000000000003,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.30859375,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-47-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          324.89453125,
+          831.1000000000003
+        ],
+        [
+          340.89453125,
+          847.1000000000003
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-47-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          324.89453125,
+          847.1000000000003
+        ],
+        [
+          340.89453125,
+          831.1000000000003
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-16",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          912.4285156250003
+        ],
+        [
+          192.5859375,
+          912.4285156250003
+        ],
+        [
+          192.5859375,
+          930.4285156250003
+        ],
+        [
+          170.5859375,
+          930.4285156250003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-16-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Collect diagnostics\nRemove worker directory\nResolve fake-agent",
+      "x": 198.5859375,
+      "y": 921.4285156250003,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 120.65703125
+    },
+    {
+      "id": "div-51-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1007.7570312500002
+        ],
+        [
+          841.93359375,
+          1007.7570312500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-51-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1011.7570312500002
+        ],
+        [
+          841.93359375,
+          1011.7570312500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-51",
+      "shape": "box",
+      "role": "divider",
+      "x0": 353.1005859375,
+      "y0": 1001.4386718750002,
+      "x1": 488.8330078125,
+      "y1": 1018.0753906250002
+    },
+    {
+      "id": "div-51-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Managed launch",
+      "x": 420.966796875,
+      "y": 1009.7570312500002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 115.732421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-17",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1066.7488281250003
+        ],
+        [
+          192.5859375,
+          1066.7488281250003
+        ],
+        [
+          192.5859375,
+          1084.7488281250003
+        ],
+        [
+          170.5859375,
+          1084.7488281250003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-17-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Reserve stdout\nRedirect stdout to stderr",
+      "x": 198.5859375,
+      "y": 1075.7488281250003,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-18",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1163.2968750000002
+        ],
+        [
+          743.14453125,
+          1163.2968750000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-18-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Allocate channel directory",
+      "x": 456.865234375,
+      "y": 1159.2968750000002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 185.23046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "head-channel",
+      "shape": "cylinder",
+      "role": "temporary",
+      "x0": 743.14453125,
+      "y0": 1127.7406250000001,
+      "x1": 835.93359375,
+      "y1": 1198.8531250000003,
+      "cap": 9
+    },
+    {
+      "id": "head-channel-label",
+      "shape": "text",
+      "role": "temporary",
+      "face": "name",
+      "text": "result\nchannel",
+      "x": 789.5390625,
+      "y": 1170.2968750000002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 70.7890625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-19",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1241.8449218750004
+        ],
+        [
+          192.5859375,
+          1241.8449218750004
+        ],
+        [
+          192.5859375,
+          1259.8449218750004
+        ],
+        [
+          170.5859375,
+          1259.8449218750004
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-19-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Check cancellation\nPrepare argv and environment",
+      "x": 198.5859375,
+      "y": 1250.8449218750004,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-20",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1337.8101562500003
+        ],
+        [
+          412.1875,
+          1337.8101562500003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-20-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runner: spawn in own group\nSet new RAVEL_EXIT_FILE",
+      "x": 291.38671875,
+      "y": 1333.8101562500003,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 201.7529296875,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 412.1875,
+      "y0": 1315.2539062500002,
+      "x1": 517.6015625,
+      "y1": 1360.3664062500004
+    },
+    {
+      "id": "head-managed-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "managed\nprocess",
+      "x": 464.89453125,
+      "y": 1337.8101562500003,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.4140625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "note-67",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          91.9921875,
+          1368.3664062500004
+        ],
+        [
+          507.6015625,
+          1368.3664062500004
+        ],
+        [
+          517.6015625,
+          1378.3664062500004
+        ],
+        [
+          517.6015625,
+          1411.3398437500005
+        ],
+        [
+          91.9921875,
+          1411.3398437500005
+        ]
+      ]
+    },
+    {
+      "id": "note-67-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          507.6015625,
+          1368.3664062500004
+        ],
+        [
+          507.6015625,
+          1378.3664062500004
+        ],
+        [
+          517.6015625,
+          1378.3664062500004
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-67-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Before exec: child takes terminal if Ravel owns foreground.",
+      "x": 304.796875,
+      "y": 1389.8531250000005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 405.609375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-21",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1460.3316406250005
+        ],
+        [
+          192.5859375,
+          1460.3316406250005
+        ],
+        [
+          192.5859375,
+          1478.3316406250005
+        ],
+        [
+          170.5859375,
+          1478.3316406250005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-21-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Started: start check\nrestores mask\nThen watch",
+      "x": 198.5859375,
+      "y": 1469.3316406250005,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "note-72",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          91.9921875,
+          1523.3234375000004
+        ],
+        [
+          507.6015625,
+          1523.3234375000004
+        ],
+        [
+          517.6015625,
+          1533.3234375000004
+        ],
+        [
+          517.6015625,
+          1566.2968750000005
+        ],
+        [
+          91.9921875,
+          1566.2968750000005
+        ]
+      ]
+    },
+    {
+      "id": "note-72-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          507.6015625,
+          1523.3234375000004
+        ],
+        [
+          507.6015625,
+          1533.3234375000004
+        ],
+        [
+          517.6015625,
+          1533.3234375000004
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-72-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Inside watch: parent lends terminal if Ravel owns foreground.",
+      "x": 304.796875,
+      "y": 1544.8101562500005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 405.609375,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-75-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1594.2968750000005
+        ],
+        [
+          841.93359375,
+          1594.2968750000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-75-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1598.2968750000005
+        ],
+        [
+          841.93359375,
+          1598.2968750000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-75",
+      "shape": "box",
+      "role": "divider",
+      "x0": 357.59521484375,
+      "y0": 1587.9785156250005,
+      "x1": 484.33837890625,
+      "y1": 1604.6152343750005
+    },
+    {
+      "id": "div-75-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Send the result",
+      "x": 420.966796875,
+      "y": 1596.2968750000005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 106.7431640625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-22",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          464.89453125,
+          1632.9335937500005
+        ],
+        [
+          41.99609375,
+          1632.9335937500005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-22-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Print prompt to caller stderr",
+      "x": 253.4453125,
+      "y": 1628.9335937500005,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 196.947265625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-23",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          464.89453125,
+          1677.9070312500005
+        ],
+        [
+          584.89453125,
+          1677.9070312500005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-23-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "end-session finished",
+      "x": 524.89453125,
+      "y": 1673.9070312500005,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 108.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-end",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 584.89453125,
+      "y0": 1655.3507812500004,
+      "x1": 729.14453125,
+      "y1": 1700.4632812500006
+    },
+    {
+      "id": "head-end-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI\n(end-session)",
+      "x": 657.01953125,
+      "y": 1677.9070312500005,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 122.25,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-24",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          657.01953125,
+          1715.9500000000005
+        ],
+        [
+          679.01953125,
+          1715.9500000000005
+        ],
+        [
+          679.01953125,
+          1733.9500000000005
+        ],
+        [
+          657.01953125,
+          1733.9500000000005
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-24-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Read RAVEL_EXIT_FILE",
+      "x": 685.01953125,
+      "y": 1724.9500000000005,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-25",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          657.01953125,
+          1802.7468750000007
+        ],
+        [
+          789.5390625,
+          1802.7468750000007
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-25-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Check directory\nWrite and flush temporary file",
+      "x": 723.279296875,
+      "y": 1798.7468750000007,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 120.51953125,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-26",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          657.01953125,
+          1866.0570312500008
+        ],
+        [
+          789.5390625,
+          1866.0570312500008
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-26-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Hard link adds completion name",
+      "x": 723.279296875,
+      "y": 1862.0570312500008,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 120.51953125,
+      "h": 47.31015625
+    },
+    {
+      "id": "note-91",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          412.1875,
+          1878.0570312500008
+        ],
+        [
+          825.93359375,
+          1878.0570312500008
+        ],
+        [
+          835.93359375,
+          1888.0570312500008
+        ],
+        [
+          835.93359375,
+          1902.6937500000008
+        ],
+        [
+          412.1875,
+          1902.6937500000008
+        ]
+      ]
+    },
+    {
+      "id": "note-91-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          825.93359375,
+          1878.0570312500008
+        ],
+        [
+          825.93359375,
+          1888.0570312500008
+        ],
+        [
+          835.93359375,
+          1888.0570312500008
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-91-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "First result wins. No wait for job cleanup.",
+      "x": 624.060546875,
+      "y": 1890.3753906250008,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 403.74609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "div-94-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1930.6937500000008
+        ],
+        [
+          841.93359375,
+          1930.6937500000008
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-94-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          1934.6937500000008
+        ],
+        [
+          841.93359375,
+          1934.6937500000008
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-94",
+      "shape": "box",
+      "role": "divider",
+      "x0": 263.47119140625,
+      "y0": 1924.3753906250008,
+      "x1": 578.46240234375,
+      "y1": 1941.0121093750008
+    },
+    {
+      "id": "div-94-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Optional: result observed before child exit",
+      "x": 420.966796875,
+      "y": 1932.6937500000008,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 294.9912109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-27",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          1969.3304687500008
+        ],
+        [
+          789.5390625,
+          1969.3304687500008
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-27-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Appearance starts grace",
+      "x": 480.0625,
+      "y": 1965.3304687500008,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 174.3955078125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-28",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2014.3039062500009
+        ],
+        [
+          464.89453125,
+          2014.3039062500009
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-28-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "If alive: TERM after 2 s\nIf still alive: KILL 5 s later",
+      "x": 317.740234375,
+      "y": 2010.3039062500009,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 177.6220703125,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-102-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          2040.3039062500009
+        ],
+        [
+          841.93359375,
+          2040.3039062500009
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-102-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          2044.3039062500009
+        ],
+        [
+          841.93359375,
+          2044.3039062500009
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-102",
+      "shape": "box",
+      "role": "divider",
+      "x0": 360.0732421875,
+      "y0": 2033.9855468750009,
+      "x1": 481.8603515625,
+      "y1": 2050.622265625001
+    },
+    {
+      "id": "div-102-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "After child exit",
+      "x": 420.966796875,
+      "y": 2042.3039062500009,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 101.787109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-29",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2099.295703125001
+        ],
+        [
+          192.5859375,
+          2099.295703125001
+        ],
+        [
+          192.5859375,
+          2117.295703125001
+        ],
+        [
+          170.5859375,
+          2117.295703125001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-29-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "watch: observe exit\nRetain identity until reap",
+      "x": 198.5859375,
+      "y": 2108.295703125001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-30",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2176.9242187500013
+        ],
+        [
+          464.89453125,
+          2176.9242187500013
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-30-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Stop the group before reap",
+      "x": 317.740234375,
+      "y": 2172.9242187500013,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 191.84765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-31",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2196.410937500001
+        ],
+        [
+          192.5859375,
+          2196.410937500001
+        ],
+        [
+          192.5859375,
+          2214.410937500001
+        ],
+        [
+          170.5859375,
+          2214.410937500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-31-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Reap direct child",
+      "x": 198.5859375,
+      "y": 2205.410937500001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-112-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          456.89453125,
+          2225.897656250001
+        ],
+        [
+          472.89453125,
+          2241.897656250001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-112-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          456.89453125,
+          2241.897656250001
+        ],
+        [
+          472.89453125,
+          2225.897656250001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-32",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2298.057812500001
+        ],
+        [
+          192.5859375,
+          2298.057812500001
+        ],
+        [
+          192.5859375,
+          2316.057812500001
+        ],
+        [
+          170.5859375,
+          2316.057812500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-32-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Recover terminal if lent\nConfirm group absent",
+      "x": 198.5859375,
+      "y": 2307.057812500001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 102.3203125
+    },
+    {
+      "id": "msg-33",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2384.854687500001
+        ],
+        [
+          789.5390625,
+          2384.854687500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-33-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "supervise_reported: recheck appearance",
+      "x": 480.0625,
+      "y": 2380.854687500001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 288.494140625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-34",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2431.846484375001
+        ],
+        [
+          192.5859375,
+          2431.846484375001
+        ],
+        [
+          192.5859375,
+          2449.846484375001
+        ],
+        [
+          170.5859375,
+          2449.846484375001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-34-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Return Ended to run\nresult_after: check job facts",
+      "x": 198.5859375,
+      "y": 2440.846484375001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-35",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2509.4750000000013
+        ],
+        [
+          789.5390625,
+          2509.4750000000013
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-35-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Validate and read through held directory",
+      "x": 480.0625,
+      "y": 2505.4750000000013,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 286.4365234375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-36",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          789.5390625,
+          2536.1117187500013
+        ],
+        [
+          170.5859375,
+          2536.1117187500013
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-36-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "finished",
+      "x": 480.0625,
+      "y": 2532.1117187500013,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 57.248046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "div-124-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          2562.1117187500013
+        ],
+        [
+          841.93359375,
+          2562.1117187500013
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-124-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          2566.1117187500013
+        ],
+        [
+          841.93359375,
+          2566.1117187500013
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-124",
+      "shape": "box",
+      "role": "divider",
+      "x0": 341.513671875,
+      "y0": 2555.7933593750013,
+      "x1": 500.419921875,
+      "y1": 2572.4300781250013
+    },
+    {
+      "id": "div-124-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cleanup and output",
+      "x": 420.966796875,
+      "y": 2564.1117187500013,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 138.90625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-37",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2611.9351562500015
+        ],
+        [
+          192.5859375,
+          2611.9351562500015
+        ],
+        [
+          192.5859375,
+          2629.9351562500015
+        ],
+        [
+          170.5859375,
+          2629.9351562500015
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-37-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Report operations\nRestore entry mask",
+      "x": 198.5859375,
+      "y": 2620.9351562500015,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "msg-38",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2680.395312500001
+        ],
+        [
+          789.5390625,
+          2680.395312500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-38-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Close: remove channel directory",
+      "x": 480.0625,
+      "y": 2676.395312500001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 229.3974609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "end-132-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          781.5390625,
+          2686.395312500001
+        ],
+        [
+          797.5390625,
+          2702.395312500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-132-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          781.5390625,
+          2702.395312500001
+        ],
+        [
+          797.5390625,
+          2686.395312500001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-39",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2749.3871093750013
+        ],
+        [
+          192.5859375,
+          2749.3871093750013
+        ],
+        [
+          192.5859375,
+          2767.3871093750013
+        ],
+        [
+          170.5859375,
+          2767.3871093750013
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-39-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Restore stdout\nfinalise: signal checks",
+      "x": 198.5859375,
+      "y": 2758.3871093750013,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-40",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          170.5859375,
+          2829.033984375001
+        ],
+        [
+          192.5859375,
+          2829.033984375001
+        ],
+        [
+          192.5859375,
+          2847.033984375001
+        ],
+        [
+          170.5859375,
+          2847.033984375001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-40-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "settle: require success",
+      "x": 198.5859375,
+      "y": 2838.033984375001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 92.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-41",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          170.5859375,
+          2943.3359375000014
+        ],
+        [
+          41.99609375,
+          2943.3359375000014
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-41-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Write and flush finished\nunchanged. Exit 0",
+      "x": 106.291015625,
+      "y": 2939.3359375000014,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 116.58984375,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 149.70654296875,
+      "y0": 2959.3359375000014,
+      "x1": 692.22705078125,
+      "y1": 3044.9828125000013
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel. Grey: external processes. Gold: files. Green: result.\nX: confirmed reap or removal. Second CLI exit/reap omitted.\nUnconfined example, without policy context or a terminal.\nEarly child exit skips the optional region. Later checks still find the result.",
+      "x": 420.966796875,
+      "y": 3002.1593750000015,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 514.5205078125,
+      "h": 65.64687500000001
+    }
+  ]
+}
