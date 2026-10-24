@@ -86,7 +86,7 @@ Ravel keeps the first result that it receives)
 **Result channel**: Ravel's private temporary directory and completion file
 that carry the **Opaque result** for one launch. The result channel uses the
 runner's completion channel, which reports only that the file appeared. Ravel
-validates and reads the result.
+checks and reads the result.
 
 **Confinement**: Optional restrictions on the managed process's filesystem access
 and environment. Confinement does not apply to the **Owner policy** or its
@@ -98,7 +98,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
   (`setsid`), a login session or the LLM session in a **Harness**. Say "LLM
   session" for that. An unconfined **Managed process** stays in the
   **Caller**'s POSIX session, in a process group of its own. A confined launch
-  starts a new POSIX session.
+  creates a new POSIX session.
 - **"Context"** alone is ambiguous. Say **Session-result context** for the
   inherited `RAVEL_EXIT_FILE` path, **Policy context** for the data selection
   receives, and working directory for the request's `cwd`.
@@ -108,7 +108,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
   file, through which `end-session` sends the result. It uses the runner's
   completion channel, which only signals that a file appeared.
 - **"Worker"** means the **Policy worker** process, not a Bun `Worker` thread,
-  which owner code may itself start.
+  which owner code may itself create.
 - **"Policy"** means the **Owner policy**, never a security or sandbox policy.
   A restriction on a **Managed process** is confinement.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
@@ -116,7 +116,7 @@ and environment. Confinement does not apply to the **Owner policy** or its
 
 ## Example dialogue
 
-Caller author: “If the managed process sends `continue`, will Ravel start
+Caller author: “If the managed process sends `continue`, will Ravel run
 the next task?”
 
 Ravel maintainer: “Ravel completes the cleanup of the managed job and returns

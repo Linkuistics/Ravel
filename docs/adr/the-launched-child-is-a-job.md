@@ -1,46 +1,59 @@
 # The launched child is a job
 
 The local runner puts its direct child in a new process group in the caller's
-session, and supervises the whole group. It gives the child the controlling
-terminal only when the caller owns that terminal's foreground; after termination
-it owes recovery of foreground ownership and saved modes. Entry signal masks/dispositions
-are restored for the child, including ignores inherited by a transparent wrapper.
-Ravel uses this runner for the selected process, separately from policy evaluation.
+POSIX session. It supervises the whole group. It gives the child the
+controlling terminal only when the caller owns the foreground of that terminal.
+After termination, the runner owes recovery of foreground ownership and saved
+modes. The runner restores the entry signal masks and dispositions for the
+child, including ignores that a transparent wrapper inherited. Ravel uses this
+runner for the selected process, separately from policy evaluation.
 
 The [acquisition evidence](../result-job-source-evidence.md#c4-interactive-pre-exec-handoff-followed-by-exec-failure)
 identifies the original failed-exec path after foreground handoff. The runner
-now retains the lease and a private attempted-group record through spawn,
-checks foreground/mode recovery and retains every recovery failure beside the
-original errno or cancellation. [C4 checks](../completion-failure-design-evidence.md#c4-checked-observations)
-exercise that behavior on the measured host. Failed-spawn handback requires
-exclusive foreground authority and no unrelated reuse of the recorded group ID
-through handback; the record never authorises signalling that ID after reap.
-CLI lifetime alone supplies neither premise. This conditional policy does not
-establish an atomic query/handback. Native-entry conformance is measured on
-aarch64 macOS and aarch64 GNU/Linux only; nothing about a native x86-64 Linux
-kernel is qualified ([receipts](../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52)).
+now retains the lease and a private record of the attempted group through the
+spawn. It checks the recovery of foreground and modes. It retains every
+recovery failure beside the original errno or cancellation.
+[C4 checks](../completion-failure-design-evidence.md#c4-checked-observations)
+exercise that behaviour on the measured host.
 
-A new session (setsid) was rejected for interactive children: it loses the caller's
-controlling terminal and cannot receive a foreground handoff. A process group is
-all escalation needs, while retaining terminal access. Reconsider setsid only for
-noninteractive detached processes whose terminal ownership is deliberately absent.
-Signalling only the child's PID was rejected because descendants could survive
-completion. Waiting a second grace for descendants after the child exits was
-rejected: descendants receive time during their parent's shutdown, then surviving
-group members are terminated before the direct child is reaped, preventing group-ID
-reuse from redirecting that signal.
+Failed-spawn handback requires exclusive foreground authority. It also requires
+that no unrelated process reuses the recorded group ID through the handback.
+The record never authorises a signal to that ID after the reap. The lifetime of
+the CLI alone supplies neither premise. This conditional policy does not
+establish an atomic query and handback.
 
-The runner normally reclaims from its direct child's group. When the child died
-by a signal, it may reclaim a delegated foreground group too: a supervisor killed
-without cleanup can otherwise leave a raw-mode orphan reading the terminal.
-The accepted residue is that a nested job-controlling shell can lose that terminal
-after such a death. Job control activates from observed terminal ownership, not
-an owner flag. Noninteractive launches instead isolate terminal/stdin/descriptors.
+The native-entry campaigns measured conformance on aarch64 macOS and aarch64
+GNU/Linux only. Nothing qualifies a native x86-64 Linux kernel
+([receipts](../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52)).
 
-A descendant that deliberately leaves the group is outside group cleanup.
-Uncatchable supervisor death can orphan the managed job; a caller must not infer
-successful completion from such a death. Real runner process/PTY tests cover
-escalation, descendants, cancellation, foreground and mode recovery. The transferred
-[source observations](../component-evidence.md#local-runner-source-provenance) explain the original
-terminal experiments; [the active spec](../specs/session-execution.md) sets Ravel's
-result obligation after confirmed cleanup.
+The design rejected a new POSIX session (`setsid`) for interactive children.
+Such a child loses the controlling terminal of the caller, and it cannot
+receive a foreground handoff. A process group is all that escalation needs, and
+the child keeps terminal access. Reconsider `setsid` only for noninteractive
+detached processes that deliberately have no terminal ownership. The design
+rejected a signal to the PID of the child alone, because descendants could
+survive completion.
+
+The design also rejected a second grace for descendants after the child exits.
+Descendants receive time during the shutdown of their parent. Then the runner
+terminates the surviving group members before it reaps the direct child. This
+order prevents a reuse of the group ID from redirecting that signal.
+
+The runner normally reclaims the terminal from the group of its direct child.
+When a signal killed the child, the runner may also reclaim a delegated
+foreground group. Otherwise a supervisor killed without cleanup can leave a
+raw-mode orphan that reads the terminal. The accepted residue is that a nested
+job-control shell can lose that terminal after such a death. Job control
+activates from observed terminal ownership, not from an owner flag.
+Noninteractive launches instead isolate the terminal, stdin and descriptors.
+
+<!-- tc: depart synonym-rotation because confirmed cleanup is the spec's term for an observed outcome, while checks names an examination -->
+A descendant that deliberately leaves the group is outside group cleanup. An
+uncatchable death of the supervisor can orphan the managed job. A caller must
+not infer successful completion from such a death. Real runner tests with
+processes and PTYs cover escalation, descendants, cancellation, and foreground
+and mode recovery. The transferred
+[source observations](../component-evidence.md#local-runner-source-provenance)
+explain the original terminal experiments.
+[The active spec](../specs/session-execution.md) sets the result obligation of
+Ravel after confirmed cleanup.
