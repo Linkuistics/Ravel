@@ -36,11 +36,16 @@ design needs the settled requirements.
 - GitHub issue 2 states the work in the owner's words.
 - The running log of `plan-k1` holds the settled requirements. Find its file
   with `grove-llm resolve plan-k1`.
-- ADRs in play: `policy-evaluation-precedes-the-launch`,
-  `ravel-supervises-the-session` and `the-launched-child-is-a-job`.
-- Specs in play: `session-execution` and `result-job-completion`.
-- Glossary terms in play: Owner policy, Policy worker, Policy context, Harness,
-  Refusal, Caller and Owner. See `CONTEXT.md`.
+- ADRs in play: `owner-policy-is-a-rhai-script`,
+  `policy-evaluation-precedes-the-launch`,
+  `owner-settings-name-the-llm-endpoints`, `ravel-supervises-the-session` and
+  `the-launched-child-is-a-job`.
+- Specs in play: `policy-evaluation`, which is the 2.0.0 design, and
+  `session-execution` and `result-job-completion`.
+- Glossary terms in play: Owner policy, Policy worker, Host capability, LLM
+  endpoint, LLM call and Provider. Also Harness run, Evaluation budget, Policy
+  context, Harness, Refusal, Caller and Owner. See `CONTEXT.md`.
+- `task docs:rhai-policy` serves the design views in `docs/design/rhai-policy/`.
 - The test seam: the real `ravel start-session` against a sandbox home. Fake
   harness scripts and a local fake provider endpoint stand behind it.
 

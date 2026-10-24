@@ -1,0 +1,24 @@
+sequenceDiagram
+  autonumber
+  participant C as Caller
+  participant R as Ravel CLI
+  participant W as Policy worker
+  participant E as LLM endpoint
+  C->>R: start-session --kind KIND --prompt TEXT
+  R->>R: read settings, resolve policy.rhai
+  R->>W: re-execute own binary (empty environment, fd 3)
+  W->>R: hello with build identity
+  R->>W: request map and entry source
+  W->>R: module request for "routes"
+  R->>W: module source (measured)
+  W->>W: run the top level, then select(request, context)
+  W->>R: host call ravel::llm(request)
+  R->>E: completion request with the credential header
+  E-->>R: answer
+  R-->>W: response map (status ok, text, usage)
+  W->>W: interpret the answer, build the selection
+  W->>R: result: a Selected map
+  R->>R: check the selection, reap the worker, remove its directory
+  R->>R: resolve the program, allocate the session's result channel
+  Note over R: the runner launches the managed process
+  R-->>C: the opaque result on stdout, after cleanup

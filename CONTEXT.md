@@ -35,14 +35,14 @@ cleanup attempts, then exits.
 a managed launch finishes. Its contract for a host that continues is distinct
 from the **Launcher CLI**'s one-session lifetime.
 
-**Owner policy**: The executable TypeScript configuration that has the authority
-to select a command or refuse the caller's request. Its author controls how it routes
-requests.
+**Owner policy**: The owner's executable script that has the authority to
+select a command or refuse the caller's request. Its author controls how it
+routes requests.
 
 **Policy context**: The version-1 JSON data that the **Owner policy**'s
 selection receives. It is the **Caller**'s context document, or the context
 that the policy's own loader assembled. Ravel measures each source that the
-loader reads through the host. It is data, never authority.
+loader reads through a **Host capability**. It is data, never authority.
 _Avoid_: context (unqualified), session context
 
 **Refusal**: A decision not to launch. The **Owner policy** itself makes it, or
@@ -50,8 +50,33 @@ Ravel makes it when it cannot accept that policy's file, behaviour or data. It
 is not a failure of the **Policy worker** or of supervision.
 _Avoid_: rejection, error
 
-**Policy worker**: The separate process that evaluates the owner policy for the
-Ravel CLI. It is not a managed process and receives no session-result context.
+**Policy worker**: The separate process that evaluates the **Owner policy** for
+the **Ravel CLI**. It only computes, and it asks the Ravel CLI for each **Host
+capability**. It is not a managed process and receives no session-result
+context.
+
+**Host capability**: An operation that the **Owner policy** asks the **Ravel
+CLI** to perform during evaluation. Examples are a measured read, an **LLM
+call** and a **Harness run**. The Ravel CLI performs it and returns data to the
+policy.
+_Avoid_: host binding, SDK function
+
+**LLM endpoint**: An owner-configured connection to an LLM service, with a
+name, an API type, a base URL and the source of its credential. The **Owner
+policy** names it in an **LLM call** and never sees the credential.
+_Avoid_: provider, model service, backend
+
+**LLM call**: One request that the **Owner policy** sends to a model through an
+**LLM endpoint**, and the response to it. It runs no **Harness**.
+
+**Provider**: The owner's label for the origin of the model that a selection
+runs, such as `anthropic`. Ravel reports it unchanged and never connects to it.
+_Avoid_: LLM endpoint, vendor
+
+**Evaluation budget**: A limit that the **Owner** sets for one **Session** on
+**Host capabilities**, such as the number of **LLM calls** or **Harness runs**.
+The **Owner policy** cannot raise it or catch its exhaustion.
+_Avoid_: quota
 
 **Ravel CLI**: The Rust `ravel` command-line program. During
 `start-session` it checks the policy, supervises the managed process and
@@ -72,6 +97,12 @@ result** with `end-session`. Ravel treats the harness as any other **Managed
 process**.
 _Avoid_: agent runtime, test harness
 
+**Harness run**: One execution of an owner-configured **Harness** that the
+**Owner policy** requests during evaluation. The **Runner** supervises it as a
+job with its own **Result channel**. It is not a **Session** and selects
+nothing.
+_Avoid_: nested session, sub-session
+
 **Session-result context**: The inherited `RAVEL_EXIT_FILE` path that
 identifies the ephemeral completion channel of the enclosing session. A nested
 session replaces it only for that session's managed process.
@@ -88,9 +119,9 @@ that carry the **Opaque result** for one launch. The result channel uses the
 runner's completion channel, which reports only that the file appeared. Ravel
 checks and reads the result.
 
-**Confinement**: Optional restrictions on the managed process's filesystem access
-and environment. Confinement does not apply to the **Owner policy** or its
-**Policy worker**.
+**Confinement**: Optional restrictions on the filesystem access and environment
+of a **Managed process** or a **Harness run**. Confinement does not apply to
+the **Owner policy** or its **Policy worker**.
 
 ## Flagged ambiguities
 
@@ -107,8 +138,12 @@ and environment. Confinement does not apply to the **Owner policy** or its
 - **"Channel"**: the result channel is Ravel's private directory and completion
   file, through which `end-session` sends the result. It uses the runner's
   completion channel, which only signals that a file appeared.
-- **"Worker"** means the **Policy worker** process, not a Bun `Worker` thread,
-  which owner code may itself create.
+- **"Worker"** means the **Policy worker** process, never a thread.
+- **"Provider"** means only the owner's model-origin label in a selection. Rig
+  calls the LLM service a provider. In Ravel, that service is an **LLM
+  endpoint**.
+- **"Endpoint"** alone means an **LLM endpoint**, never one HTTP path of that
+  service.
 - **"Policy"** means the **Owner policy**, never a security or sandbox policy.
   A restriction on a **Managed process** is confinement.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
@@ -123,3 +158,10 @@ Ravel maintainer: “Ravel completes the cleanup of the managed job and returns
 those bytes. The caller decides whether they mean another task. The owner
 policy chooses the command for each request. The policy worker never receives
 the session-result context.”
+
+Owner: “Can my policy ask a model which harness to use for a task?”
+
+Ravel maintainer: “Yes. The policy makes an LLM call through an LLM endpoint
+that your settings name, and it reads the answer as data. The policy worker
+never sees the credential. The provider in the selection stays your own
+label.”

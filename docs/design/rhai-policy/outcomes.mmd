@@ -1,0 +1,23 @@
+flowchart TD
+  start["Start here: the script calls a ravel:: host function"]
+  wellformed{"Is the request well formed?"}
+  bound{"Would the call pass a bound?<br/>budget · deadline · source · heap"}
+  run["The Ravel CLI performs the call"]
+  ok["Reply as data<br/>status ok or exited"]
+  fail["Reply as data<br/>status failed · unavailable · timed_out · output_limit"]
+  endeval["End the evaluation<br/>uncatchable error, and a host latch refuses"]
+  script["The script interprets the reply<br/>retry · fall back · select · refuse"]
+  start --> wellformed
+  wellformed -->|"no: host_request_invalid"| endeval
+  wellformed -->|yes| bound
+  bound -->|"yes: llm_budget_exhausted · selection_timeout · source_too_large"| endeval
+  bound -->|no| run
+  run --> ok
+  run --> fail
+  run -->|"cancellation · harness_cleanup_failed"| endeval
+  ok --> script
+  fail --> script
+  classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
+  classDef stop fill:#fbe3e1,color:#5a1d17,stroke:#b4473b
+  class start start
+  class endeval stop

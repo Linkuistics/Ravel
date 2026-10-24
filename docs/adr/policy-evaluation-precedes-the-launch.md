@@ -1,49 +1,37 @@
 # Policy evaluation precedes the launch
 
-Ravel uses a native Rust front and a matching installed Bun-compiled worker.
-The front retains caller environment, terminal and supervision authority, gives
-the worker a bounded request without completion authority, and requires its reap
-before the selected process starts. Owner policy never executes inside the process
-that supervises the session. The [specification](../specs/session-execution.md)
-owns the protocol and [runtime evidence](../runtime-evidence.md) owns the observations.
+Ravel evaluates the owner policy in a policy worker: a separate process that
+Ravel reaps before the selected process launches. The worker is Ravel's own
+binary in an internal role, and it runs the Rhai script. It only computes. The
+Ravel CLI performs every host capability for it: measured reads, the
+environment, LLM calls through Rig and harness runs through the runner. Owner
+policy never executes inside the process that supervises the session.
 
-That worker-before-job ordering remains required. The
-[acquisition evidence](../result-job-source-evidence.md#c2-worker-wait-error-does-not-gate-selection-success)
-records the original unchecked-wait path at its fixed reference. The evaluator
-now gates successful admission on confirmed worker reap and checked private-
-directory removal; [C2 evidence](../completion-failure-design-evidence.md#c2-checked-observations)
-records the private reported-failure controls and real-policy regressions.
-[C3 evidence](../completion-failure-design-evidence.md#c3-checked-observations)
-records checked partial acquisition and identity cleanup. Entry waitability of
-the worker and the managed child is part of the agreed, implemented
+The [policy evaluation specification](../specs/policy-evaluation.md) owns the
+protocol, the capabilities and the bounds. The ordering of worker and job stays
+required. The Ravel CLI admits a selection only after it reaped the worker and
+removed its private directory, as the
+[C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
+record. Every harness run and every Rig request of the evaluation also ends
+before the launch. The waitability of the worker and the managed child at entry
+is part of the agreed
 [native-entry contract](../specs/result-job-completion.md#checked-native-entry-transitions).
-It is measured on aarch64 macOS and aarch64 GNU/Linux, each for the kernel, libc
-and compiler it names. Native x86-64 Linux is not measured. The
-[per-target receipts](../native-entry-development-evidence.md#gnulinux-immutable-campaign-k52)
-state the limits.
 
-Bun supplies TypeScript, imports and ordinary filesystem/network computation
-without Ravel maintaining a language runtime. Compilation removes a separately
-installed runtime from the execution contract. Costs are installation size,
-a second build tool, runtime notices and target execution checks. A single Bun
-supervisor was rejected because startup hooks run before application scrubbing
-and policy would share completion authority. Reopen only for a verified equivalent
-native startup/signal/supervision boundary. Embedding a smaller engine was rejected
-because it makes Ravel own TypeScript/module/host support; reconsider if delivery
-cost or supported-target compatibility outweighs those obligations.
+The trade-off is a hard stop against a cheaper bridge. The owner rejected a Rhai
+thread inside the Ravel CLI. A thread cannot stop a native call that does not
+yield. The Rhai 1.27.0 source has two: `sleep`, and `pad` with an empty padding
+string. Rhai bounds each value but not the heap, and on a thread a memory
+exhaustion or a stack overflow aborts the supervisor without cleanup.
 
-Bun's ambient startup/resolver inputs require controls before policy evaluation.
-The front scrubs runtime options and disables the runtime transpiler cache before
-startup. The worker disables dotenv/bunfig/tsconfig autoloading, starts in a private
-empty directory, then moves to `/` before registering exact embedded imports or
-loading owner code. package.json autoloading stays on to admit declared main/exports.
-The move prevents ancestors of TMPDIR taking part in no-file module resolution.
-`/package.json` and /node_modules remain; owner code can choose another cwd itself.
+A process lets the Ravel CLI kill the worker at the deadline, whatever the
+script runs. It confines a memory bound, a stack overflow or an abort to the
+worker. The price is a request and reply protocol for every host call, and the
+worker lifecycle code that 1.x already carries. Reopen the thread design only
+when Rhai can interrupt every native call and Ravel can bound the heap of one
+thread.
 
-The move leaves the dotenv switch as the only control for a native Worker started
-later: each new VM can load dotenv from the process's current directory. That
-trade-off is accepted to remove ambient TMPDIR reach. An imports alias whose target
-is an embedded specifier remains a package lookup; owning Bun's full resolver to
-intercept it was rejected. Use the literal embedded import when that identity is
-required. The shadow/autoload/cache/resolver probes make those limits executable,
-with source-pinned upgrade instructions in the evidence document.
+The design also rejected two other shapes. A second binary under `libexec`
+needs a pairing check and a second installed file, and its isolation is no
+better than re-execution. Host capabilities inside the worker would let a kill
+of the worker orphan harness jobs and HTTP requests. The worker would also hold
+the credentials.

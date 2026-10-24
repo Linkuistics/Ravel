@@ -1,0 +1,19 @@
+stateDiagram-v2
+  [*] --> Authority
+  Authority --> Refused: policy_reentry_refused · policy_format_retired · policy_missing · settings_invalid
+  Authority --> WorkerLaunch: entry and settings accepted
+  WorkerLaunch --> Refused: worker_missing · worker_identity_mismatch
+  WorkerLaunch --> Evaluating: hello accepted
+  state Evaluating {
+    [*] --> Script
+    Script --> HostCall: a host function call
+    HostCall --> Script: reply as data, failures included
+  }
+  Evaluating --> Judging: worker sends its result
+  Evaluating --> Stopping: deadline · signal · breach of a bound · worker died
+  Stopping --> Refused: host work stopped, worker reaped
+  Judging --> Refused: policy_refused · selection_malformed · selection_abstained
+  Judging --> Reaped: selection checked
+  Reaped --> Launch: worker reaped, runtime shut down
+  Launch --> [*]
+  Refused --> [*]

@@ -1,0 +1,109 @@
+{
+  "title": "Rhai policy evaluation for Ravel 2.0.0",
+  "intro": "How Ravel 2.0.0 evaluates a Rhai owner policy: a separate policy worker computes, and the Ravel CLI performs every host capability. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. Sequences start at their first message, and the state view starts at its initial pseudo-state. The specification docs/specs/policy-evaluation.md is the authority for every rule drawn here.",
+  "groups": [
+    {
+      "id": "processes",
+      "title": "Processes and authority",
+      "description": "Which process holds credentials, files and jobs, and which only computes?"
+    },
+    {
+      "id": "evaluation",
+      "title": "Evaluation",
+      "description": "What happens between start-session and the launch, and what a host call returns."
+    },
+    {
+      "id": "stopping",
+      "title": "Stopping an evaluation",
+      "description": "What a deadline or a signal stops, and in which order."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration and migration",
+      "description": "Which policy file Ravel evaluates, and when it refuses."
+    }
+  ],
+  "discussion": {
+    "title": "Rhai policy evaluation design",
+    "status": "Proposed. The owner chose the separate worker, the meaning of provider and the harness-run default",
+    "summary": "The policy worker is Ravel's own binary and only computes. The Ravel CLI serves reads, LLM calls through Rig and harness runs through the runner. Outcomes of a host call are data, and breaches of a bound end the evaluation. Rhai 1.27.0, Rig 0.45.0 and Rust 1.99.1 are pinned.",
+    "diagramIds": [
+      "processes",
+      "evaluation-sequence",
+      "evaluation-states",
+      "outcomes",
+      "stopping-sequence",
+      "entry-precedence"
+    ],
+    "updatedDiagrams": [
+      {
+        "id": "processes",
+        "summary": "Added the process and authority view: the CLI holds credentials, reads and jobs, and the worker only computes."
+      },
+      {
+        "id": "evaluation-sequence",
+        "summary": "Added the sequence from start-session through one LLM call to the launch."
+      },
+      {
+        "id": "evaluation-states",
+        "summary": "Added the evaluation states, with every path to a refusal and the reap before the launch."
+      },
+      {
+        "id": "outcomes",
+        "summary": "Added the rule that call outcomes are data and that breaches of a bound end the evaluation."
+      },
+      {
+        "id": "stopping-sequence",
+        "summary": "Added the order in which a deadline or a signal stops the Rig request, the harness run and the worker."
+      },
+      {
+        "id": "entry-precedence",
+        "summary": "Added the choice between policy.rhai and policy.ts, and the re-entry refusal."
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "processes",
+      "group": "processes",
+      "title": "The CLI acts and the worker computes",
+      "source": "processes.mmd",
+      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment, holds credentials, sends HTTP requests and launches jobs. The worker runs the Rhai script and asks for each host capability over fd 3. The launch after the reap is in the sequence view."
+    },
+    {
+      "id": "evaluation-sequence",
+      "group": "evaluation",
+      "title": "One LLM-assisted selection",
+      "source": "evaluation-sequence.mmd",
+      "caption": "A policy imports one module, asks a model one question and selects from the answer. The worker is reaped before the managed process launches."
+    },
+    {
+      "id": "evaluation-states",
+      "group": "evaluation",
+      "title": "Evaluation states",
+      "source": "evaluation-states.mmd",
+      "caption": "Every refusal happens before the launch. A host call returns to the script as data, including its failures. A rendered state view is not a model check."
+    },
+    {
+      "id": "outcomes",
+      "group": "evaluation",
+      "title": "Data or the end of the evaluation",
+      "source": "outcomes.mmd",
+      "caption": "The script decides about every operational outcome. The host alone decides about bounds, and the script cannot catch that decision."
+    },
+    {
+      "id": "stopping-sequence",
+      "group": "stopping",
+      "title": "A deadline or a signal stops everything",
+      "source": "stopping-sequence.mmd",
+      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. A remote provider may still finish a request that it accepted."
+    },
+    {
+      "id": "entry-precedence",
+      "group": "configuration",
+      "title": "Which policy file Ravel evaluates",
+      "source": "entry-precedence.mmd",
+      "caption": "policy.rhai wins when both files exist, so a 1.1.0 session can keep policy.ts during the local upgrade. A lone policy.ts refuses with the migration remedy."
+    }
+  ]
+}

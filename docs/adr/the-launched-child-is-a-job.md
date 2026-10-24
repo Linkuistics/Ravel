@@ -5,8 +5,12 @@ POSIX session. It supervises the whole group. It gives the child the
 controlling terminal only when the caller owns the foreground of that terminal.
 After termination, the runner owes recovery of foreground ownership and saved
 modes. The runner restores the entry signal masks and dispositions for the
-child, including ignores that a transparent wrapper inherited. Ravel uses this
-runner for the selected process, separately from policy evaluation.
+child, including ignores that a transparent wrapper inherited.
+
+Ravel uses this runner for the selected process and for each harness run that
+a policy requests. A harness run is noninteractive, so the runner gives it a new
+POSIX session with no terminal. The policy worker itself is not a job of the
+runner.
 
 The [acquisition evidence](../result-job-source-evidence.md#c4-interactive-pre-exec-handoff-followed-by-exec-failure)
 identifies the original failed-exec path after foreground handoff. The runner
