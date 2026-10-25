@@ -14,6 +14,7 @@ Remove the Bun worker, the TypeScript SDK and their build and release machinery.
 - Find where the book tools fetch their Bun. The scripts `ste.sh`, `breaks.sh` and `book.sh` need it. Keep that fetch, and move it out of `dispatch.sh` if the removal would take it.
 - The examples come from `rhai-example-policies`. The archives install them under `share/ravel/examples/` as `static.rhai`, `sample.rhai` and `llm.rhai`.
 - Use the skill `linkuistics:simplify-project`. Prove that a file is dead before you remove it, and reconcile every consumer.
+- `native-incumbent-guard-build-rs-k51` (done) made the native-entry campaign pass again on Linux arm64. The frozen incumbent shares the compiled TypeScript worker, and `scripts/native-incumbent.sh` reads `crates/ravel/worker` and `dispatch.sh`. This leaf must therefore retire the campaign from `task test:native-linux` or build the incumbent's worker separately. Its running log states the two ways.
 - If the leaf proves too big, decompose it. A natural cut is the build and test machinery first, then the release scripts and the formula.
 
 ## Done when

@@ -1,3 +1,32 @@
+diff -ruN a/crates/keyed-launch/src/native_barrier.rs b/crates/keyed-launch/src/native_barrier.rs
+--- a/crates/keyed-launch/src/native_barrier.rs
++++ b/crates/keyed-launch/src/native_barrier.rs
+@@ -551,9 +551,8 @@
+             Instant::now()
+         };
+         let outer_by = self.outer_by();
+-        if let Some(child) = self.child.as_mut()
+-            && self.status.is_none()
+-        {
++        // The incumbent crates are edition 2021, which has no let chains.
++        if let Some(child) = self.child.as_mut().filter(|_| self.status.is_none()) {
+             match Self::reap_by(child, work_by) {
+                 Some(status) => self.status = Some(status),
+                 None => {
+@@ -699,9 +698,9 @@
+ /// Record one judged row when a campaign names a directory; otherwise inert.
+ /// Call it before asserting, so a violated claim is recorded as such.
+ pub fn row(id: &str, subject: &str, conforms: bool, note: &str) {
+-    if let Some(directory) = std::env::var_os(ROW_DIRECTORY_VARIABLE)
+-        && let Err(error) = record_row(Path::new(&directory), id, subject, conforms, note)
+-    {
+-        panic!("campaign row record {id}@{subject}: {error}");
++    if let Some(directory) = std::env::var_os(ROW_DIRECTORY_VARIABLE) {
++        if let Err(error) = record_row(Path::new(&directory), id, subject, conforms, note) {
++            panic!("campaign row record {id}@{subject}: {error}");
++        }
+     }
+ }
 diff -ruN a/crates/ravel/src/native_entry_tests.rs b/crates/ravel/src/native_entry_tests.rs
 --- a/crates/ravel/src/native_entry_tests.rs
 +++ b/crates/ravel/src/native_entry_tests.rs
@@ -39,11 +68,15 @@ diff -ruN a/crates/ravel/src/native_entry_tests.rs b/crates/ravel/src/native_ent
      if family() == "F06" {
          select_runner_fault(&case);
      }
-@@ -726,7 +734,12 @@
+@@ -748,11 +756,12 @@
      let outcome = read_json(directory.path().join("outcome.json"));
      let result = fs::read(directory.path().join("result-output")).unwrap();
      let log = fs::read_to_string(stderr).unwrap();
--    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at);
+-    eprintln!(
+-        "native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}",
+-        status.into_raw(),
+-        at
+-    );
 +    // The lines the incumbent's own seams printed (every one begins "native
 +    // baseline"): which operation was faulted and what it did.
 +    let seams: Vec<&str> = log.lines().filter(|l| l.starts_with("native baseline")).collect();

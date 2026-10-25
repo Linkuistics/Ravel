@@ -7,7 +7,7 @@
 # builds only), the repaired instrument sources copied verbatim (plus the small
 # compile adaptations in instruments.patch), and the baseline instruments under
 # scripts/native-incumbent/files. Nothing here changes what the incumbent does in
-# a non-test build. Everything this script reads is a campaign subject: the patches
+# a non-test build, but for the package version it pairs with its worker on. Everything this script reads is a campaign subject: the patches
 # and overlay live under scripts/, which the campaign driver digests, and the tree
 # and its binaries are digested by `digest` before and after a run.
 set -euo pipefail
@@ -27,10 +27,12 @@ instruments=(
   docs/native-entry-cases.json
 )
 
-# Where the worker is the same program in both trees: its sources, its build
-# script and the script that compiles it. If any differ, the repaired tree's
-# compiled worker is not the incumbent's.
-worker_paths=(crates/ravel/worker crates/ravel/scripts crates/ravel/build.rs)
+# Where the worker is the same program in both trees: its sources and the script
+# that compiles it. If either differs, the repaired tree's compiled worker is not
+# the incumbent's. build.rs is not here: it compiles nothing, it only computes the
+# digest the front compares the worker against, and `verify_pairing` measures that
+# digest on the built incumbent instead of reading build.rs.
+worker_paths=(crates/ravel/worker crates/ravel/scripts)
 
 die() {
   printf 'native-incumbent: %s\n' "$*" >&2
@@ -59,30 +61,79 @@ export_pristine() {
   git -C "$root" archive "$revision" | tar -x -C "$into"
 }
 
-# The one sanctioned difference inside worker_paths: k51 rewrote build.rs's `hex`
-# helper (same output for every byte, shown by
-# docs/evidence/native-entry-minimum-rust-lint-correction) so the repaired tree
-# lints clean at the declared minimum Rust. It is pinned as the SHA-256 of
-# `diff` (normal format, no timestamps) of the incumbent's file against the
-# repaired tree's, so any other edit to build.rs is still refused.
-build_rs=crates/ravel/build.rs
-build_rs_hex_rewrite_sha256=445d14e0f50ef010781b4ad0b6a984767151010d7fa46d49d80832ed28535706
-
-# Fails unless the incumbent's worker is the repaired tree's: byte for byte, but
-# for the one pinned difference in build.rs above.
+# Fails unless the incumbent's worker is the repaired tree's: byte for byte.
 worker_identity() {
-  local pristine="$1" path seen
+  local pristine="$1" path
   for path in "${worker_paths[@]}"; do
-    if [ "$path" = "$build_rs" ]; then
-      if cmp -s "$pristine/$path" "$root/$path"; then continue; fi
-      seen="$({ diff "$pristine/$path" "$root/$path" || true; } | shasum -a 256 | cut -d' ' -f1)"
-      [ "$seen" = "$build_rs_hex_rewrite_sha256" ] ||
-        die "the incumbent's $path differs from the repaired tree by more than the pinned hex rewrite; its worker would have to be built separately"
-      continue
-    fi
     diff -r -x node_modules "$pristine/$path" "$root/$path" >/dev/null ||
       die "the incumbent's $path differs from the repaired tree; its worker would have to be built separately"
   done
+}
+
+# The digest that `dispatch.sh` stamps into the compiled worker, which the front
+# must be built to expect. `build_id` in dispatch.sh and `source_files` in
+# build.rs define it twice; this asks the one that compiled the worker.
+worker_digest() {
+  bash "$root/crates/ravel/scripts/dispatch.sh" build-id
+}
+
+# Fails unless FILE carries the literal DIGEST: the worker embeds it through a
+# Bun --define, the front through `env!("RAVEL_WORKER_BUILD_ID")`.
+carries_digest() {
+  local file="$1" digest="$2"
+  [ -n "$digest" ] || die "no worker digest to look for in $file"
+  grep -aqF -- "$digest" "$file"
+}
+
+# After the build: the incumbent front expects the digest the shared compiled
+# worker carries. This is what the pinned build.rs diff stood in for. The
+# incumbent's own build.rs computes the digest, so a build.rs that listed other
+# files than dispatch.sh does would show here and nowhere earlier.
+verify_pairing() {
+  local front="$1" worker="$2" digest
+  digest="$(worker_digest)"
+  carries_digest "$worker" "$digest" ||
+    die "the shared compiled worker does not carry the repaired tree's worker digest $digest; rebuild it (task worker)"
+  carries_digest "$front" "$digest" ||
+    die "the incumbent front does not expect worker digest $digest; its build.rs computes another, so its worker would have to be built separately"
+}
+
+# The workspace package version in a Cargo.toml read from stdin.
+workspace_version() {
+  awk '/^\[/ { section = $0 }
+       section == "[workspace.package]" && /^version = "/ { gsub(/^version = "|"$/, ""); print; exit }'
+}
+
+# The versions Cargo.lock records for the two workspace members, one per line.
+locked_versions() {
+  awk '/^name = "(ravel|keyed-launch)"$/ { member = 1; next }
+       member && /^version = "/ { gsub(/^version = "|"$/, ""); print; member = 0 }'
+}
+
+# The front pairs with its worker on three things: the protocol, the build digest
+# and the package version. The compiled worker is the repaired tree's, so it
+# reports the repaired tree's version, while the incumbent's workspace says its
+# own (1.0.0 at REVISION). Set the incumbent's version, and the two lock entries
+# that follow it, to the repaired tree's, and fail unless both then agree. The
+# version is read, not pinned: a release changes it.
+align_version() {
+  local into="$1" version
+  version="$(workspace_version <"$root/Cargo.toml")"
+  [ -n "$version" ] || die "no workspace package version in $root/Cargo.toml"
+  awk -v version="$version" '
+    /^\[/ { section = $0 }
+    section == "[workspace.package]" && /^version = "/ { print "version = \"" version "\""; next }
+    { print }' "$into/Cargo.toml" >"$into/Cargo.toml.aligned" &&
+    mv "$into/Cargo.toml.aligned" "$into/Cargo.toml"
+  awk -v version="$version" '
+    /^name = "(ravel|keyed-launch)"$/ { member = 1; print; next }
+    member && /^version = "/ { print "version = \"" version "\""; member = 0; next }
+    { print }' "$into/Cargo.lock" >"$into/Cargo.lock.aligned" &&
+    mv "$into/Cargo.lock.aligned" "$into/Cargo.lock"
+  [ "$(workspace_version <"$into/Cargo.toml")" = "$version" ] ||
+    die "the incumbent's workspace version is not $version after alignment"
+  [ "$(locked_versions <"$into/Cargo.lock" | sort -u | tr '\n' ' ')" = "$version " ] ||
+    die "the incumbent's Cargo.lock does not record $version for both workspace members"
 }
 
 apply_patch() {
@@ -105,6 +156,7 @@ assemble() {
     cp "$root/$file" "$into/$file"
   done
   apply_patch "$into" "$root/$here/instruments.patch"
+  align_version "$into"
 }
 
 cmd_build() {
@@ -133,6 +185,7 @@ cmd_build() {
     # installed or release build never enables it.
     cargo rustc --locked -p ravel --bin ravel --profile dev --features native-faults \
       --target-dir target/native-entry-fixture -- --cfg test -A unused
+    verify_pairing target/native-entry-fixture/debug/ravel target/libexec/ravel/ravel-policy
     cargo test --locked --workspace --no-run
   )
 }
@@ -262,28 +315,73 @@ cmd_selftest() {
   fi
   printf 'selftest ok   a seam patch that no longer applies (rejected)\n'
 
-  # A worker that differs from the repaired tree's is refused.
-  export_pristine "$work/worker"
-  printf '// changed\n' >>"$work/worker/crates/ravel/build.rs"
-  if (worker_identity "$work/worker") 2>/dev/null; then
-    die "selftest: a different worker source was accepted"
-  fi
-  printf 'selftest ok   a worker source that differs from the repaired tree (rejected)\n'
+  # A worker that differs from the repaired tree's is refused: a TypeScript
+  # source, and the script that compiles it.
+  local edited
+  for edited in crates/ravel/worker/src/main.ts crates/ravel/scripts/dispatch.sh; do
+    export_pristine "$work/worker"
+    printf '// changed\n' >>"$work/worker/$edited"
+    if (worker_identity "$work/worker") 2>/dev/null; then
+      die "selftest: a changed $edited was accepted"
+    fi
+    rm -rf "$work/worker"
+  done
+  printf 'selftest ok   a worker source or compile script that differs from the repaired tree (rejected)\n'
 
-  # The pinned difference is exactly that: the unmodified incumbent passes, and
-  # the pinned difference plus any other build.rs edit does not.
-  export_pristine "$work/hexonly"
-  (worker_identity "$work/hexonly") ||
-    die "selftest: the incumbent's worker was refused although only the pinned hex rewrite differs"
-  printf 'selftest ok   the pinned hex rewrite alone (accepted)\n'
-  cp "$root/$build_rs" "$work/hexonly/$build_rs"
-  (worker_identity "$work/hexonly") ||
-    die "selftest: a build.rs identical to the repaired tree was refused"
-  printf '// changed\n' >>"$work/hexonly/$build_rs"
-  if (worker_identity "$work/hexonly") 2>/dev/null; then
-    die "selftest: a build.rs with a further edit was accepted"
+  # build.rs is not a worker input: the unmodified incumbent passes, and so does
+  # any build.rs, because the digest it computes is measured after the build.
+  export_pristine "$work/buildrs"
+  (worker_identity "$work/buildrs") ||
+    die "selftest: the incumbent's worker was refused although only build.rs differs"
+  printf '// changed\n' >>"$work/buildrs/crates/ravel/build.rs"
+  (worker_identity "$work/buildrs") ||
+    die "selftest: a changed build.rs refused the worker, which build.rs does not compile"
+  printf 'selftest ok   a build.rs that differs from the repaired tree (accepted: the digest is measured, not read)\n'
+
+  # The measurement refuses a front or a worker that lacks the digest, including
+  # one that differs from it in the last character only.
+  local digest
+  digest="$(worker_digest)"
+  printf 'x%sx' "$digest" >"$work/has"
+  printf 'x%sx' "${digest%?}0" >"$work/lacks"
+  : >"$work/empty"
+  carries_digest "$work/has" "$digest" ||
+    die "selftest: a file carrying the worker digest was refused"
+  if (carries_digest "$work/lacks" "$digest") 2>/dev/null; then
+    die "selftest: a file carrying another worker digest was accepted"
   fi
-  printf 'selftest ok   build.rs identical to the repaired tree (accepted) and with a further edit (rejected)\n'
+  if (carries_digest "$work/empty" "$digest") 2>/dev/null; then
+    die "selftest: an empty file was accepted as carrying the worker digest"
+  fi
+  if (carries_digest "$work/has" "") 2>/dev/null; then
+    die "selftest: an empty digest was looked for"
+  fi
+  if (verify_pairing "$work/lacks" "$work/has") 2>/dev/null; then
+    die "selftest: a front that does not expect the worker digest was paired"
+  fi
+  if (verify_pairing "$work/has" "$work/lacks") 2>/dev/null; then
+    die "selftest: a worker that lacks the digest was paired"
+  fi
+  (verify_pairing "$work/has" "$work/has") 2>/dev/null ||
+    die "selftest: a front and a worker that both carry the digest were refused"
+  printf 'selftest ok   a front or worker without the repaired tree'"'"'s worker digest (rejected), both with it (accepted)\n'
+
+  # The incumbent pairs with the shared worker on the repaired tree's version.
+  local version
+  version="$(workspace_version <"$root/Cargo.toml")"
+  [ "$(workspace_version <"$work/pristine/Cargo.toml")" != "$version" ] ||
+    printf 'selftest note the incumbent already has version %s; the alignment below proves nothing\n' "$version"
+  [ "$(workspace_version <"$work/one/Cargo.toml")" = "$version" ] &&
+    [ "$(locked_versions <"$work/one/Cargo.lock" | sort -u | tr '\n' ' ')" = "$version " ] ||
+    die "selftest: the assembled incumbent does not carry the repaired tree's version $version"
+  printf 'selftest ok   the incumbent carries the repaired tree'"'"'s version %s in Cargo.toml and Cargo.lock\n' "$version"
+  mkdir -p "$work/noversion"
+  printf '[workspace.package]\nedition = "2021"\n' >"$work/noversion/Cargo.toml"
+  cp "$work/one/Cargo.lock" "$work/noversion/Cargo.lock"
+  if (align_version "$work/noversion") 2>/dev/null; then
+    die "selftest: an incumbent without a workspace version was aligned"
+  fi
+  printf 'selftest ok   an incumbent whose workspace version cannot be set (rejected)\n'
 
   # An existing tree is never assembled into.
   if (assemble "$work/one") 2>/dev/null; then
