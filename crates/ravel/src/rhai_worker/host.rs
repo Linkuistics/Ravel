@@ -22,12 +22,14 @@ use sha2::{Digest as _, Sha256};
 
 use super::convert::check_depth;
 use super::discovery;
+use super::llm_call::{self, Call};
 use super::reader::{FileFailure, Reader, canonical, read_file};
-use super::{Bounds, MAX_MODULES, Module, Phase, Read, ScriptFailure};
+use super::{Bounds, LlmCall, MAX_MODULES, Module, Phase, Read, ScriptFailure};
 use crate::authority::RHAI_ENTRY_BYTES;
 use crate::context::{Measured, hex};
 use crate::environment::{Grants, Lookup};
 use crate::frame::FRONT_FRAME_BYTES;
+use crate::llm::{Adapter, Code, Failure, Response};
 use crate::settings::Directory;
 
 /// The `via` of a measured read, as the notice and the delivered context name it.
@@ -88,6 +90,10 @@ pub(super) struct Host {
     undecoded: u64,
     /// The entry first, then each module in the order of its first import.
     modules: Vec<Module>,
+    /// The HTTP client of the evaluation, built at the first call that sends.
+    adapter: Option<Adapter>,
+    /// Every `ravel::llm` call, in order, for the notice.
+    llm_calls: Vec<LlmCall>,
 }
 
 impl Host {
@@ -111,6 +117,8 @@ impl Host {
             reads: Vec::new(),
             undecoded: 0,
             modules: Vec::new(),
+            adapter: None,
+            llm_calls: Vec::new(),
         }
     }
 
@@ -138,8 +146,8 @@ impl Host {
         Ok(source)
     }
 
-    pub(super) fn into_record(self) -> (Vec<Module>, Vec<Read>) {
-        (self.modules, self.reads)
+    pub(super) fn into_record(self) -> (Vec<Module>, Vec<Read>, Vec<LlmCall>) {
+        (self.modules, self.reads, self.llm_calls)
     }
 
     /// The sources a loader's context is measured from: the caller's document,
@@ -184,6 +192,10 @@ impl Host {
             Some("endpoints") => Ok(self.endpoints()),
             Some("harnesses") => Ok(self.harnesses(phase, &site).await),
             Some("remaining") => Ok(self.remaining()),
+            Some("llm") => {
+                let call = llm_call::decode(frame)?;
+                Ok(self.llm(&call).await)
+            }
             Some(call @ ("read_text" | "read_json")) => {
                 let max_bytes = match frame.get("maxBytes") {
                     None | Some(Value::Null) => None,
@@ -271,8 +283,73 @@ impl Host {
         }
     }
 
-    /// `ravel::remaining`: what the evaluation still has. No call that spends an
-    /// LLM call or a harness run exists yet, so those budgets are whole.
+    /// `ravel::llm`: send one request through the named endpoint. Every failure
+    /// is data in the response map, so the answer is always a reply. The
+    /// adapter call runs on this thread's runtime, which keeps watching the
+    /// deadline, so a stop abandons a call in flight.
+    ///
+    /// The call counts against no budget yet: `rhai-llm-budgets` adds the
+    /// counting, and `rhai-llm-bounds` bounds the answer text.
+    async fn llm(&mut self, call: &Call) -> Answer {
+        let outcome = self.attempt(call).await;
+        let (value, record) = llm_call::answer(call, &outcome);
+        self.llm_calls.push(record);
+        Answer::Reply(encode(
+            &json!({ "type": "reply", "status": "ok", "value": value }),
+        ))
+    }
+
+    /// The outcome of one call. The two checks that need only the settings fail
+    /// before anything is sent.
+    async fn attempt(&mut self, call: &Call) -> Result<Response, Failure> {
+        let name = &call.endpoint;
+        let model = &call.request.model;
+        let Some(endpoint) = self.directory.endpoints.get(name) else {
+            return Err(Failure::new(
+                Code::UnknownEndpoint,
+                false,
+                format!("settings name no endpoint {name:?}; ravel::endpoints() lists them"),
+            ));
+        };
+        if !endpoint.models.is_empty() && !endpoint.models.contains(model) {
+            return Err(Failure::new(
+                Code::ModelNotOffered,
+                false,
+                format!(
+                    "the endpoint {name:?} offers only {}, not {model:?}",
+                    endpoint.models.join(", ")
+                ),
+            ));
+        }
+        if self.adapter.is_none() {
+            match Adapter::new() {
+                Ok(adapter) => self.adapter = Some(adapter),
+                Err(why) => {
+                    return Err(Failure::new(
+                        Code::Network,
+                        false,
+                        format!("the HTTP client could not start: {why}"),
+                    ));
+                }
+            }
+        }
+        let timeout = llm_call::deadline_of(
+            call.timeout,
+            self.deadline.saturating_duration_since(Instant::now()),
+        );
+        let adapter = self.adapter.as_ref().expect("the adapter was just built");
+        adapter
+            .call(
+                endpoint,
+                |variable| std::env::var_os(variable),
+                &call.request,
+                timeout,
+            )
+            .await
+    }
+
+    /// `ravel::remaining`: what the evaluation still has. The calls that spend an
+    /// LLM call or a harness run do not count yet, so those budgets are whole.
     fn remaining(&self) -> Answer {
         let ms = self
             .deadline

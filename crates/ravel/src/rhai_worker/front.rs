@@ -20,7 +20,7 @@ use serde_json::Value;
 use super::host::Host;
 use super::reader::Reader;
 use super::serve::{Judge, Served, Setup, serve};
-use super::{ARG0, BUILD_ID, Bounds, Module, PROTOCOL, RHAI_VERSION, Read, Reply};
+use super::{ARG0, BUILD_ID, Bounds, LlmCall, Module, PROTOCOL, RHAI_VERSION, Read, Reply};
 use crate::context::{Delivered, Measured};
 use crate::environment::Grants;
 use crate::limits::Limits;
@@ -62,6 +62,8 @@ pub struct Evaluated {
     pub modules: Vec<Module>,
     /// Every measured read that succeeded, in order.
     pub reads: Vec<Read>,
+    /// Every `ravel::llm` call, in order.
+    pub llm_calls: Vec<LlmCall>,
     /// The context a loader returned, as it was judged and measured.
     pub delivered: Option<Delivered>,
 }
@@ -167,6 +169,7 @@ pub fn evaluate(
         elapsed,
         modules: served.modules,
         reads: served.reads,
+        llm_calls: served.llm_calls,
         delivered: served.delivered,
     })
 }

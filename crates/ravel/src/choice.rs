@@ -14,7 +14,7 @@ use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
-use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
+use crate::rhai_worker::{Limit, LlmCall, Module, Read, Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 
@@ -46,6 +46,8 @@ pub struct Choice {
     pub modules: Vec<Module>,
     /// Every measured read of the Rhai path, with the phase that made it. (rhai)
     pub reads: Vec<Read>,
+    /// Every `ravel::llm` call of the Rhai path, in order. (rhai)
+    pub llm_calls: Vec<LlmCall>,
     pub diagnostics: Diagnostics,
     pub operational: Vec<String>,
 }
@@ -171,6 +173,7 @@ fn evaluate_and_resolve(
         context,
         modules: Vec::new(),
         reads: Vec::new(),
+        llm_calls: Vec::new(),
         diagnostics,
         operational: evaluation.operational,
     })
@@ -263,6 +266,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         context: evaluation.delivered.or(context),
         modules: evaluation.modules,
         reads: evaluation.reads,
+        llm_calls: evaluation.llm_calls,
         diagnostics,
         operational: evaluation.operational,
     })

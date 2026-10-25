@@ -368,15 +368,8 @@ fn stream_body(
     body.resize(total - suffix.len(), b'x');
     body.extend_from_slice(suffix);
     let mut sent = 0;
-    let mut paused = false;
+    let mut waited = false;
     for piece in body.chunks(CHUNK) {
-        // Past 8 MiB the kernel may still hold the rest in its buffers when
-        // the client closes. A pause there lets the close reach the server, so
-        // that the next write fails.
-        if !paused && sent >= 8 * 1024 * 1024 {
-            paused = true;
-            thread::sleep(Duration::from_millis(100));
-        }
         let wrote = if declared {
             stream.write_all(piece)
         } else {
@@ -389,9 +382,43 @@ fn stream_body(
             return (sent, true);
         }
         sent += piece.len();
+        // The first piece past 8 MiB is the byte that a client with that bound
+        // refuses. The kernel may hold the rest of the body in its buffers, so a
+        // write could still succeed after the close. The server therefore waits
+        // for the close itself, and a client that keeps reading ends the wait at
+        // its limit and gets the rest.
+        if !waited && sent > 8 * 1024 * 1024 {
+            waited = true;
+            if wait_for_close(stream, Duration::from_secs(5)) {
+                return (sent, true);
+            }
+        }
     }
     if !declared && stream.write_all(b"0\r\n\r\n").is_err() {
         return (sent, true);
     }
     (sent, false)
+}
+
+/// Wait until the client closes the connection, for at most `limit`. A client
+/// that sends nothing and holds the connection open ends the wait at the limit.
+fn wait_for_close(stream: &mut TcpStream, limit: Duration) -> bool {
+    let until = Instant::now() + limit;
+    stream.set_nonblocking(true).expect("a nonblocking socket");
+    let mut byte = [0u8; 1];
+    let closed = loop {
+        match stream.read(&mut byte) {
+            Ok(0) => break true,
+            Ok(_) => {}
+            Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                if Instant::now() >= until {
+                    break false;
+                }
+                thread::sleep(Duration::from_millis(10));
+            }
+            Err(_) => break true,
+        }
+    };
+    stream.set_nonblocking(false).expect("a blocking socket");
+    closed
 }

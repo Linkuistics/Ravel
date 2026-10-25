@@ -62,18 +62,20 @@ fn select(request, context) {
     let canonical = fs::canonicalize(&policy_path).unwrap();
     assert_eq!(report["policy"]["path"], text(&canonical));
     assert_eq!(report["policy"]["version"], "rhai-seam-1");
-    // The members that exist: no Bun, and no LLM call or harness run yet.
+    // The members that exist: no Bun, and no harness run yet.
     let worker = report["worker"].as_object().unwrap();
     let mut names: Vec<_> = worker.keys().map(String::as_str).collect();
     names.sort_unstable();
     assert_eq!(names, ["buildId", "path", "rhaiVersion", "version"]);
     assert_eq!(worker["rhaiVersion"], "1.27.0");
     assert_eq!(worker["version"], env!("CARGO_PKG_VERSION"));
-    for absent in ["llmCalls", "harnessRuns", "modules"] {
+    for absent in ["harnessRuns", "modules"] {
         assert!(report.get(absent).is_none(), "{absent} in {report}");
     }
-    // The policy made no host call, so no read, and the entry is its only module.
+    // The policy made no host call, so no read and no LLM call, and the entry is
+    // its only module.
     assert_eq!(report["reads"], json!([]));
+    assert_eq!(report["llmCalls"], json!([]));
     let modules = report["policy"]["modules"].as_array().unwrap();
     assert_eq!(modules.len(), 1, "{report}");
     assert_eq!(modules[0]["name"], text(&canonical));

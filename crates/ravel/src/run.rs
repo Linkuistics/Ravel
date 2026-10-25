@@ -89,8 +89,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "bunVersion": worker.bun_version}),
                 ),
                 // Schema version 2 reports the members that exist: later
-                // increments add `llmCalls`, `harnessRuns`, the `rigVersion` and
-                // the new bounds. `modules` and `reads` are added below. (rhai)
+                // increments add `harnessRuns`, the `rigVersion` and the new
+                // bounds. `modules`, `reads` and `llmCalls` are added below. (rhai)
                 WorkerReport::Rhai(worker) => (
                     2,
                     json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "rhaiVersion": worker.rhai_version}),
@@ -120,6 +120,13 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     .reads
                     .iter()
                     .map(crate::rhai_worker::Read::to_json)
+                    .collect();
+                // No message and no answer: the endpoint, model, status, error
+                // code, usage and elapsed time of each call.
+                notice["llmCalls"] = choice
+                    .llm_calls
+                    .iter()
+                    .map(crate::rhai_worker::LlmCall::to_json)
                     .collect();
             }
             selection_notice = Some(notice);

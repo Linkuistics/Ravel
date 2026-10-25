@@ -10,8 +10,6 @@ mod environment;
 mod frame;
 mod inputs;
 mod limits;
-// The host function that calls the adapter comes with `rhai-llm-anthropic-call`.
-#[expect(dead_code, reason = "nothing calls the adapter before ravel::llm")]
 mod llm;
 #[cfg(test)]
 #[path = "../../keyed-launch/src/native_barrier.rs"]

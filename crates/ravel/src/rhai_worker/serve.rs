@@ -23,7 +23,7 @@ use tokio::net::UnixStream;
 use tokio::time::{Instant, interval, sleep_until};
 
 use super::host::{Answer, Host};
-use super::{Bounds, Module, Read, Reply, ScriptFailure};
+use super::{Bounds, LlmCall, Module, Read, Reply, ScriptFailure};
 use crate::cancellation;
 use crate::context::{Delivered, Measured};
 use crate::frame::{FRONT_FRAME_BYTES, FrameError};
@@ -43,6 +43,7 @@ pub(super) struct Served {
     pub delivered: Option<Delivered>,
     pub modules: Vec<Module>,
     pub reads: Vec<Read>,
+    pub llm_calls: Vec<LlmCall>,
 }
 
 /// What stops the evaluation, whichever comes first.
@@ -239,12 +240,13 @@ pub(super) async fn serve(
 }
 
 fn finish(reply: Reply, delivered: Option<Delivered>, host: Host) -> Result<Served, Conversation> {
-    let (modules, reads) = host.into_record();
+    let (modules, reads, llm_calls) = host.into_record();
     Ok(Served {
         reply,
         delivered,
         modules,
         reads,
+        llm_calls,
     })
 }
 

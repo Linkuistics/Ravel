@@ -161,11 +161,14 @@ pub struct Response {
     pub elapsed: Duration,
 }
 
-/// The failure codes of the spec that the adapter produces. The host function
-/// adds the codes that fail before anything is sent.
+/// The failure codes of the spec that a call can end in. The adapter produces
+/// most of them. The host function produces `UnknownEndpoint` and
+/// `ModelNotOffered`, which fail before the adapter is asked.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Code {
+    UnknownEndpoint,
     EndpointUnavailable,
+    ModelNotOffered,
     UnsupportedParameter,
     Authentication,
     RateLimited,
@@ -180,7 +183,9 @@ pub enum Code {
 impl Code {
     pub fn name(self) -> &'static str {
         match self {
+            Code::UnknownEndpoint => "unknown_endpoint",
             Code::EndpointUnavailable => "endpoint_unavailable",
+            Code::ModelNotOffered => "model_not_offered",
             Code::UnsupportedParameter => "unsupported_parameter",
             Code::Authentication => "authentication",
             Code::RateLimited => "rate_limited",
@@ -207,7 +212,7 @@ pub struct Failure {
 }
 
 impl Failure {
-    fn new(code: Code, retryable: bool, message: impl Into<String>) -> Self {
+    pub fn new(code: Code, retryable: bool, message: impl Into<String>) -> Self {
         Failure {
             code,
             message: message.into(),
