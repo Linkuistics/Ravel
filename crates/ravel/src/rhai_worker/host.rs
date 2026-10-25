@@ -15,17 +15,20 @@
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
 use super::convert::check_depth;
+use super::discovery;
 use super::reader::{FileFailure, Reader, canonical, read_file};
 use super::{Bounds, MAX_MODULES, Module, Phase, Read, ScriptFailure};
 use crate::authority::RHAI_ENTRY_BYTES;
 use crate::context::{Measured, hex};
 use crate::environment::{Grants, Lookup};
 use crate::frame::FRONT_FRAME_BYTES;
+use crate::settings::Directory;
 
 /// The `via` of a measured read, as the notice and the delivered context name it.
 const VIA_TEXT: &str = "read_text";
@@ -71,6 +74,10 @@ pub(super) struct Host {
     bounds: Bounds,
     /// The variables of the caller's environment that the policy may read.
     grants: Grants,
+    /// The endpoints and harness entries that discovery reports on.
+    directory: Directory,
+    /// The end of the whole deadline, which `ravel::remaining` counts to.
+    deadline: Instant,
     /// The caller's `--context` document, which counts as a source and heads
     /// the measured list of a loader's context.
     caller: Option<Measured>,
@@ -89,6 +96,8 @@ impl Host {
         cwd: PathBuf,
         bounds: Bounds,
         grants: Grants,
+        directory: Directory,
+        deadline: Instant,
         caller: Option<Measured>,
     ) -> Self {
         Host {
@@ -96,6 +105,8 @@ impl Host {
             cwd,
             bounds,
             grants,
+            directory,
+            deadline,
             caller,
             reads: Vec::new(),
             undecoded: 0,
@@ -170,6 +181,9 @@ impl Host {
                     .ok_or("an env frame has no name")?;
                 Ok(self.env(name))
             }
+            Some("endpoints") => Ok(self.endpoints()),
+            Some("harnesses") => Ok(self.harnesses(phase, &site).await),
+            Some("remaining") => Ok(self.remaining()),
             Some(call @ ("read_text" | "read_json")) => {
                 let max_bytes = match frame.get("maxBytes") {
                     None | Some(Value::Null) => None,
@@ -227,6 +241,61 @@ impl Host {
         }
     }
 
+    /// `ravel::endpoints`: configuration, and whether each credential is set. It
+    /// touches no file, so the runtime thread answers it.
+    fn endpoints(&self) -> Answer {
+        let value = discovery::endpoints(&self.directory.endpoints, |name| std::env::var_os(name));
+        Answer::Reply(encode(
+            &json!({ "type": "reply", "status": "ok", "value": value }),
+        ))
+    }
+
+    /// `ravel::harnesses`: each program resolves as a selected program does, on
+    /// the reader thread, because the lookup is a filesystem call.
+    async fn harnesses(&self, phase: Phase, site: &Site) -> Answer {
+        let harnesses = self.directory.harnesses.clone();
+        let cwd = self.cwd.clone();
+        let path = std::env::var_os("PATH");
+        let sent = self
+            .reader
+            .run(move || discovery::harnesses(&harnesses, &cwd, path.as_deref()));
+        match sent.await {
+            Ok(value) => Answer::Reply(encode(
+                &json!({ "type": "reply", "status": "ok", "value": value }),
+            )),
+            Err(_) => Answer::End(Box::new(site.failure(
+                "worker_failed",
+                phase,
+                "the reader thread ended before it answered".to_owned(),
+            ))),
+        }
+    }
+
+    /// `ravel::remaining`: what the evaluation still has. No call that spends an
+    /// LLM call or a harness run exists yet, so those budgets are whole.
+    fn remaining(&self) -> Answer {
+        let ms = self
+            .deadline
+            .saturating_duration_since(Instant::now())
+            .as_millis();
+        let sources = self.bounds.sources.saturating_sub(self.source_count());
+        Answer::Reply(encode(&json!({
+            "type": "reply", "status": "ok", "value": {
+                "ms": u64::try_from(ms).unwrap_or(u64::MAX),
+                "llmCalls": self.bounds.llm_calls,
+                "llmOutputTokens": self.bounds.llm_output_tokens,
+                "harnessRuns": self.bounds.harness_runs,
+                "sources": sources,
+            },
+        })))
+    }
+
+    /// The sources the evaluation has used: the measured reads, the reads that
+    /// decoded to nothing, and the caller's document.
+    fn source_count(&self) -> u64 {
+        self.reads.len() as u64 + self.undecoded + u64::from(self.caller.is_some())
+    }
+
     async fn read(
         &mut self,
         json: bool,
@@ -258,7 +327,7 @@ impl Host {
             Some(max) => max,
             None => self.bounds.source_bytes,
         };
-        let count = self.reads.len() as u64 + self.undecoded + u64::from(self.caller.is_some());
+        let count = self.source_count();
         if count >= self.bounds.sources {
             let mut failure = site.failure(
                 "too_many_sources",

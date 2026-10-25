@@ -446,18 +446,25 @@ itself has no environment.
 `endpoints()` returns one map for each configured LLM endpoint, in name order.
 Each map has `name`, `type`, `available`, `reason`, `models` and
 `structuredOutput`. `available` is false when the credential variable is unset
-or empty, and `reason` is then `credential_unset`. `models` is the owner's list,
-or an empty array, which means that Ravel passes any model name.
+or empty, and `reason` is then `credential_unset`. An `openai-compatible`
+endpoint with no credential variable is available. `structuredOutput` is true
+for `anthropic` and `openai`, and it is the owner's setting for
+`openai-compatible`. `models` is the owner's list, or an empty array, which
+means that Ravel passes any model name.
 
 `harnesses()` returns one map for each harness entry, in name order. Each map
 has `name`, `program`, `available`, `resolved`, `reason` and `capabilities`.
 Ravel resolves the program as it resolves a selected program, and it runs
 nothing. `reason` is `not_found` or `not_executable` when `available` is false.
-`capabilities` repeats the labels of the owner, and Ravel gives them no meaning.
+`resolved` is the path that the lookup found, and `()` when `available` is
+false. `reason` is `()` when `available` is true. `capabilities` repeats the
+labels of the owner, and Ravel gives them no meaning.
 
 `remaining()` returns `ms`, `llmCalls`, `llmOutputTokens`, `harnessRuns` and
-`sources`: what the evaluation still has. Discovery uses no network, and it
-reports availability, never a recommendation. Rig does not offer a model list
+`sources`: what the evaluation still has. `ms` is the time to the whole
+deadline, and `sources` is the bound of 256 less the caller's document and every
+read that arrived. Discovery uses no network, and it reports availability, never
+a recommendation. Rig does not offer a model list
 that every endpoint supports, so Ravel lists only the models that the owner
 names.
 
@@ -620,10 +627,10 @@ or a digit. An unknown field refuses as `settings_invalid`.
 | Field | Values | Meaning |
 |---|---|---|
 | `type` | `anthropic`, `openai` or `openai-compatible` | The API type |
-| `apiKeyEnv` | String | The environment variable that holds the credential. It is required except for `openai-compatible` |
+| `apiKeyEnv` | String | The name of the environment variable that holds the credential. It is nonempty and has no `=`. It is required except for `openai-compatible`, where an endpoint with no `apiKeyEnv` needs no credential |
 | `baseUrl` | String | Optional for `anthropic` and `openai`. Required for `openai-compatible` |
 | `structuredOutput` | Boolean | Only for `openai-compatible`. The default is false |
-| `models` | Array of strings | Optional. When it is present, calls can name only these models |
+| `models` | Array of nonempty strings | Optional. When it is present and not empty, calls can name only these models |
 
 | `type` | Rig client and wire | Default base URL | Structured output |
 |---|---|---|---|
@@ -703,8 +710,11 @@ follow the rule for endpoints.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `program` | String | An absolute path, a `PATH` name or a relative path with a separator. Ravel resolves it as it resolves a selected program |
-| `capabilities` | Array of strings | Optional labels that discovery repeats |
+| `program` | String | Required and nonempty. An absolute path, a `PATH` name or a relative path with a separator. Ravel resolves it as it resolves a selected program |
+| `capabilities` | Array of nonempty strings | Optional labels that discovery repeats |
+
+A settings problem names its place in the file, such as `endpoints.main.baseUrl`
+or `budgets.llmCalls`, as the `location` of the refusal.
 
 ### Evaluation budgets and their composition
 

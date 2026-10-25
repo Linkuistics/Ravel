@@ -701,7 +701,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::rhai_worker::{HARNESS_RUNS_DEFAULT, LLM_CALLS_DEFAULT, LLM_OUTPUT_TOKENS_DEFAULT};
+    use crate::limits::{HARNESS_RUNS_DEFAULT, LLM_CALLS_DEFAULT, LLM_OUTPUT_TOKENS_DEFAULT};
 
     fn bounds() -> Bounds {
         Bounds {

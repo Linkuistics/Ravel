@@ -238,6 +238,20 @@ impl Bridge {
         }
     }
 
+    /// `ravel::endpoints`, `ravel::harnesses` or `ravel::remaining`: no
+    /// argument, and the front answers with the `value` to hand the script.
+    fn discover(&self, context: &NativeCallContext, function: &'static str) -> Outcome<Dynamic> {
+        let answer = self.ask(&self.frame(context, function))?;
+        match answer.get("status").and_then(Value::as_str) {
+            Some("ok") => match answer.get("value") {
+                Some(value) => Ok(from_json(value)),
+                None => Err(self.protocol(function, "a discovery reply has no value")),
+            },
+            Some("error") => Err(thrown_reply(context, &answer)),
+            _ => Err(self.protocol(function, "a discovery reply has no known status")),
+        }
+    }
+
     /// The front answered in a way no front of this build does.
     pub fn protocol(&self, what: &str, why: &str) -> Box<EvalAltResult> {
         self.end(ScriptFailure::new(
@@ -271,6 +285,13 @@ impl Bridge {
             &mut module,
             move |context: NativeCallContext, name: Dynamic| bridge.env(&context, &name),
         );
+        for function in ["endpoints", "harnesses", "remaining"] {
+            let bridge = Rc::clone(self);
+            FuncRegistration::new(function)
+                .set_into_module(&mut module, move |context: NativeCallContext| {
+                    bridge.discover(&context, function)
+                });
+        }
         helpers::register(&mut module, self);
         module
     }

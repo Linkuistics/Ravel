@@ -47,6 +47,38 @@ pub const MESSAGE_BYTES: u64 = 1024 * 1024;
 /// The worker's stdout and stderr together, in bytes.
 pub const DIAGNOSTICS_BYTES: u64 = 256 * 1024;
 
+/// The LLM and harness budgets of one evaluation (`docs/specs/policy-evaluation.md`,
+/// *Evaluation budgets and their composition*): the default and the range of
+/// each. Only the owner settings set them, and a policy can read them but not
+/// raise one.
+pub const LLM_CALLS_DEFAULT: u64 = 8;
+pub const LLM_CALLS_MAX: u64 = 256;
+pub const LLM_OUTPUT_TOKENS_DEFAULT: u64 = 32_768;
+pub const LLM_OUTPUT_TOKENS_MAX: u64 = 10_000_000;
+pub const HARNESS_RUNS_DEFAULT: u64 = 0;
+pub const HARNESS_RUNS_MAX: u64 = 16;
+
+/// The effective budgets. They are no part of the 1.x `bounds` of the notice or
+/// of the request of the TypeScript path.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Budgets {
+    pub llm_calls: u64,
+    pub llm_output_tokens: u64,
+    pub harness_runs: u64,
+}
+
+impl Budgets {
+    /// The owner's choices over the defaults.
+    pub fn read(settings: &Settings) -> Budgets {
+        let owner = &settings.budgets;
+        Budgets {
+            llm_calls: owner.llm_calls.unwrap_or(LLM_CALLS_DEFAULT),
+            llm_output_tokens: owner.llm_output_tokens.unwrap_or(LLM_OUTPUT_TOKENS_DEFAULT),
+            harness_runs: owner.harness_runs.unwrap_or(HARNESS_RUNS_DEFAULT),
+        }
+    }
+}
+
 /// Where a bound's value came from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Origin {
@@ -122,6 +154,8 @@ pub struct Limits {
     pub sources: Bound,
     pub message: Bound,
     pub diagnostics: Bound,
+    /// Read by the Rhai path alone. (rhai)
+    pub budgets: Budgets,
 }
 
 impl Limits {
@@ -200,6 +234,7 @@ impl Limits {
             sources: fixed("sources", "sources", SOURCES_LIMIT),
             message: fixed("message", "bytes", MESSAGE_BYTES),
             diagnostics: fixed("diagnostics", "bytes", DIAGNOSTICS_BYTES),
+            budgets: Budgets::read(settings),
         })
     }
 
@@ -321,6 +356,34 @@ mod tests {
             limits.source.to_json(),
             json!({ "bytes": 1024, "from": "settings.json" })
         );
+    }
+
+    #[test]
+    fn the_budgets_are_the_owners_choice_over_the_defaults() {
+        let limits = read(None, None).unwrap();
+        assert_eq!(
+            limits.budgets,
+            Budgets {
+                llm_calls: 8,
+                llm_output_tokens: 32_768,
+                harness_runs: 0,
+            }
+        );
+        let settings = Settings {
+            budgets: settings::BudgetSettings {
+                llm_calls: Some(0),
+                llm_output_tokens: None,
+                harness_runs: Some(16),
+            },
+            ..Settings::default()
+        };
+        let limits = Limits::read(None, None, &settings).unwrap();
+        assert_eq!(limits.budgets.llm_calls, 0);
+        assert_eq!(limits.budgets.llm_output_tokens, 32_768);
+        assert_eq!(limits.budgets.harness_runs, 16);
+        // The 1.x notice and request do not carry them.
+        assert!(limits.to_json().get("llmCalls").is_none());
+        assert!(limits.to_request().get("llmCalls").is_none());
     }
 
     #[test]

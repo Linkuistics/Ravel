@@ -1,4 +1,5 @@
-//! Optional owner settings: selection bound, context budget and policy environment grants.
+//! Optional owner settings: selection bound, context budget, policy environment
+//! grants, and the LLM endpoints, harness entries and budgets of a Rhai policy.
 
 use std::ffi::OsStr;
 use std::fs;
@@ -8,8 +9,12 @@ use std::path::Path;
 
 use serde_json::Value;
 
+use crate::endpoints::{self, Endpoints, Harnesses, Problem};
 use crate::environment;
-use crate::limits::{CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, SELECTION_MAX_MS, SELECTION_MIN_MS};
+use crate::limits::{
+    CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, HARNESS_RUNS_MAX, LLM_CALLS_MAX, LLM_OUTPUT_TOKENS_MAX,
+    SELECTION_MAX_MS, SELECTION_MIN_MS,
+};
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 /// The settings file, relative to HOME, beside the personal policy.
@@ -23,6 +28,26 @@ pub struct Settings {
     pub timeout_ms: Option<u64>,
     pub context_bytes: Option<u64>,
     pub policy_env: Vec<String>,
+    pub endpoints: Endpoints,
+    pub harnesses: Harnesses,
+    pub budgets: BudgetSettings,
+}
+
+/// The owner's choices for the three budgets, each within the range of the spec
+/// table. A budget the owner leaves out keeps its default.
+#[derive(Debug, Default)]
+pub struct BudgetSettings {
+    pub llm_calls: Option<u64>,
+    pub llm_output_tokens: Option<u64>,
+    pub harness_runs: Option<u64>,
+}
+
+/// What `ravel::endpoints()` and `ravel::harnesses()` report on: the owner's
+/// entries, checked and by name.
+#[derive(Clone, Debug, Default)]
+pub struct Directory {
+    pub endpoints: Endpoints,
+    pub harnesses: Harnesses,
 }
 
 impl Settings {
@@ -82,6 +107,15 @@ impl Settings {
                         settings.policy_env.push(name.to_owned());
                     }
                 }
+                "endpoints" => {
+                    settings.endpoints =
+                        endpoints::parse_endpoints(value).map_err(|p| problem(&file, p))?;
+                }
+                "harnesses" => {
+                    settings.harnesses =
+                        endpoints::parse_harnesses(value).map_err(|p| problem(&file, p))?;
+                }
+                "budgets" => settings.budgets = budgets(&file, value)?,
                 _ => {
                     return Err(
                         invalid(&file, format!("holds the unknown key {key:?}")).location(key)
@@ -89,8 +123,72 @@ impl Settings {
                 }
             }
         }
+        // A credential is never also a grant. This waits for the whole file,
+        // because `endpoints` can come after `policyEnv`.
+        for name in &settings.policy_env {
+            environment::not_credential(
+                name,
+                &settings.endpoints,
+                &environment::Named::Setting { file: &file },
+            )?;
+        }
         Ok(settings)
     }
+
+    /// The entries that discovery reports on.
+    pub fn directory(&self) -> Directory {
+        Directory {
+            endpoints: self.endpoints.clone(),
+            harnesses: self.harnesses.clone(),
+        }
+    }
+}
+
+fn problem(file: &str, problem: Problem) -> Refusal {
+    invalid(
+        file,
+        format!("is invalid at {}: it {}", problem.location, problem.what),
+    )
+    .location(problem.location)
+}
+
+/// The `budgets` key: an object of whole numbers within the ranges of the spec
+/// table, with no key besides the three.
+fn budgets(file: &str, value: &Value) -> Result<BudgetSettings, Refusal> {
+    let fields = value.as_object().ok_or_else(|| {
+        invalid(
+            file,
+            format!("holds budgets, {value}, that is not an object"),
+        )
+        .location("budgets")
+    })?;
+    let mut budgets = BudgetSettings::default();
+    for (key, value) in fields {
+        let (slot, max) = match key.as_str() {
+            "llmCalls" => (&mut budgets.llm_calls, LLM_CALLS_MAX),
+            "llmOutputTokens" => (&mut budgets.llm_output_tokens, LLM_OUTPUT_TOKENS_MAX),
+            "harnessRuns" => (&mut budgets.harness_runs, HARNESS_RUNS_MAX),
+            _ => {
+                return Err(invalid(
+                    file,
+                    format!(
+                        "holds budgets.{key}, an unknown budget: the budgets are llmCalls, \
+                         llmOutputTokens and harnessRuns"
+                    ),
+                )
+                .location(format!("budgets.{key}")));
+            }
+        };
+        let at = format!("budgets.{key}");
+        *slot = Some(value.as_u64().filter(|n| *n <= max).ok_or_else(|| {
+            invalid(
+                file,
+                format!("holds {at}, {value}, that is not a whole number from 0 to {max}"),
+            )
+            .location(&at)
+        })?);
+    }
+    Ok(budgets)
 }
 
 fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
@@ -99,7 +197,7 @@ fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
         Stage::Cli,
         EXIT_MALFORMED,
         format!("the owner settings file {file} {what}"),
-        "make it one JSON object holding any of timeoutMs, contextBytes and policyEnv (an array of variable names), or remove it to set nothing",
+        "make it one JSON object holding any of timeoutMs, contextBytes, policyEnv (an array of variable names), endpoints, harnesses and budgets, or remove it to set nothing",
     )
     .source(file)
 }
@@ -256,6 +354,85 @@ mod tests {
                 refusal.message
             );
         }
+    }
+
+    #[test]
+    fn the_three_keys_of_a_rhai_policy_are_read_and_default_to_nothing() {
+        let none = read("{}").unwrap();
+        assert!(none.endpoints.is_empty() && none.harnesses.is_empty());
+        assert_eq!(none.budgets.llm_calls, None);
+        let settings = read(
+            r#"{
+                "endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } },
+                "harnesses": { "claude": { "program": "claude", "capabilities": ["edit"] } },
+                "budgets": { "llmCalls": 256, "llmOutputTokens": 10000000, "harnessRuns": 16 }
+            }"#,
+        )
+        .unwrap();
+        assert_eq!(
+            settings.endpoints["main"].api_key_env.as_deref(),
+            Some("MAIN_KEY")
+        );
+        assert_eq!(settings.harnesses["claude"].program, "claude");
+        assert_eq!(settings.budgets.llm_calls, Some(256));
+        assert_eq!(settings.budgets.llm_output_tokens, Some(10_000_000));
+        assert_eq!(settings.budgets.harness_runs, Some(16));
+        let zero = read(r#"{ "budgets": { "llmCalls": 0, "harnessRuns": 0 } }"#).unwrap();
+        assert_eq!(zero.budgets.llm_calls, Some(0));
+        assert_eq!(zero.budgets.llm_output_tokens, None);
+    }
+
+    #[test]
+    fn a_problem_in_a_new_key_is_settings_invalid_at_its_location_whatever_the_key_order() {
+        for (contents, location) in [
+            (r#"{ "endpoints": [] }"#, "endpoints"),
+            (
+                r#"{ "endpoints": { "a": { "type": "gemini" } } }"#,
+                "endpoints.a.type",
+            ),
+            (r#"{ "harnesses": { "a": {} } }"#, "harnesses.a.program"),
+            (r#"{ "budgets": 5 }"#, "budgets"),
+            (r#"{ "budgets": { "llmCalls": 257 } }"#, "budgets.llmCalls"),
+            (r#"{ "budgets": { "llmCalls": -1 } }"#, "budgets.llmCalls"),
+            (r#"{ "budgets": { "llmCalls": 1.5 } }"#, "budgets.llmCalls"),
+            (r#"{ "budgets": { "llmCalls": "8" } }"#, "budgets.llmCalls"),
+            (
+                r#"{ "budgets": { "llmOutputTokens": 10000001 } }"#,
+                "budgets.llmOutputTokens",
+            ),
+            (
+                r#"{ "budgets": { "harnessRuns": 17 } }"#,
+                "budgets.harnessRuns",
+            ),
+            (r#"{ "budgets": { "ms": 5 } }"#, "budgets.ms"),
+            (
+                r#"{ "endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "LC_MODEL_KEY" } } }"#,
+                "endpoints.a.apiKeyEnv",
+            ),
+        ] {
+            let refusal = read(contents).unwrap_err();
+            assert_eq!(refusal.code, "settings_invalid", "{contents}");
+            assert_eq!(refusal.exit, EXIT_MALFORMED, "{contents}");
+            assert_eq!(refusal.location.as_deref(), Some(location), "{contents}");
+        }
+    }
+
+    #[test]
+    fn a_policy_env_grant_of_a_credential_is_an_excluded_grant_whichever_key_comes_first() {
+        let endpoints =
+            r#""endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } }"#;
+        for contents in [
+            format!(r#"{{ "policyEnv": ["MAIN_KEY"], {endpoints} }}"#),
+            format!(r#"{{ {endpoints}, "policyEnv": ["OTHER", "MAIN_KEY"] }}"#),
+        ] {
+            let refusal = read(&contents).unwrap_err();
+            assert_eq!(refusal.code, "excluded_grant", "{contents}");
+            assert_eq!(refusal.exit, EXIT_MALFORMED, "{contents}");
+            assert_eq!(refusal.location.as_deref(), Some("policyEnv"), "{contents}");
+            assert!(refusal.message.contains("main"), "{}", refusal.message);
+        }
+        let fine = format!(r#"{{ {endpoints}, "policyEnv": ["MAIN_KEY_2"] }}"#);
+        assert_eq!(read(&fine).unwrap().policy_env, ["MAIN_KEY_2"]);
     }
 
     #[test]

@@ -17,6 +17,10 @@ sha2 = "0.10"
 getrandom = "0.4"
 keyed-launch = { path = "../keyed-launch" }
 libc = "0.2"
+# The base URL of an LLM endpoint in the owner settings is checked as a WHATWG
+# URL, the grammar of the HTTP client that later increments build.
+# https://docs.rs/url/2/url/struct.Url.html
+url = "2"
 tempfile = "3.10"
 rhai = { version = "=1.27.0", features = ["compact_str"] }
 # The evaluation phase serves the worker from a current-thread runtime, which

@@ -5,6 +5,7 @@ mod choice;
 mod cli;
 mod confinement;
 mod context;
+mod endpoints;
 mod environment;
 mod frame;
 mod inputs;

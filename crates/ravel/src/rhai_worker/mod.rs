@@ -20,7 +20,7 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
-//! | `host` | worker | `call` (`read_text`, `read_json`, `import` or `env`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name` |
+//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `endpoints`, `harnesses` or `remaining`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The three discovery calls add nothing |
 //! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name` |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
@@ -35,6 +35,7 @@
 mod bridge;
 mod callbacks;
 pub mod convert;
+mod discovery;
 pub mod engine;
 pub mod front;
 pub mod heap;
@@ -214,8 +215,7 @@ pub const EXPRESSION_DEPTH_IN_FUNCTION: u64 = 32;
 
 /// The effective bounds the policy reads in `request.limits`. The worker keeps
 /// its own copy, so nothing the policy does can raise one. The LLM and harness
-/// budgets hold the defaults of the spec until the leaves that enforce them
-/// read the owner settings.
+/// budgets are the owner's settings, or the defaults of the spec.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Bounds {
     pub selection_ms: u64,
@@ -228,10 +228,6 @@ pub struct Bounds {
     pub llm_output_tokens: u64,
     pub harness_runs: u64,
 }
-
-pub const LLM_CALLS_DEFAULT: u64 = 8;
-pub const LLM_OUTPUT_TOKENS_DEFAULT: u64 = 32_768;
-pub const HARNESS_RUNS_DEFAULT: u64 = 0;
 
 /// The names of the bounds as the policy and the wire know them, in the order
 /// of [`Bounds::values`].
@@ -256,9 +252,9 @@ impl Bounds {
             sources: limits.sources.value,
             message_bytes: limits.message.value,
             diagnostics_bytes: limits.diagnostics.value,
-            llm_calls: LLM_CALLS_DEFAULT,
-            llm_output_tokens: LLM_OUTPUT_TOKENS_DEFAULT,
-            harness_runs: HARNESS_RUNS_DEFAULT,
+            llm_calls: limits.budgets.llm_calls,
+            llm_output_tokens: limits.budgets.llm_output_tokens,
+            harness_runs: limits.budgets.harness_runs,
         }
     }
 
@@ -472,6 +468,7 @@ impl Reply {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::limits::{HARNESS_RUNS_DEFAULT, LLM_CALLS_DEFAULT, LLM_OUTPUT_TOKENS_DEFAULT};
 
     #[test]
     fn the_pinned_rhai_release_is_the_one_the_worker_reports() {

@@ -15,7 +15,7 @@ use crate::context::{self, CallerContext};
 use crate::environment::Grants;
 use crate::limits::Limits;
 use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, Refusal, Stage};
-use crate::settings::Settings;
+use crate::settings::{Directory, Settings};
 use std::collections::BTreeMap;
 use std::ffi::OsString;
 use std::fs;
@@ -54,6 +54,9 @@ pub struct Inputs {
     /// The names the owner settings and `--policy-env` grant the worker
     /// beyond its base set.
     pub grants: Grants,
+    /// The owner's LLM endpoints and harness entries, which a Rhai policy
+    /// discovers. (rhai)
+    pub directory: Directory,
 }
 
 #[derive(Debug)]
@@ -107,7 +110,7 @@ impl Inputs {
                 .input("--prompt"));
             }
         };
-        let grants = Grants::read(&settings.policy_env, &args.policy_env)?;
+        let grants = Grants::read(&settings.policy_env, &args.policy_env, &settings.endpoints)?;
         let limits = Limits::read(
             args.timeout_ms.as_deref(),
             args.context_bytes.as_deref(),
@@ -128,6 +131,7 @@ impl Inputs {
             context,
             limits,
             grants,
+            directory: settings.directory(),
         })
     }
 }

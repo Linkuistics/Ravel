@@ -25,6 +25,7 @@ use crate::context::{Delivered, Measured};
 use crate::environment::Grants;
 use crate::limits::Limits;
 use crate::refusal::{Diagnostics, EXIT_WORKER, Failure, Refusal, Stage};
+use crate::settings::Directory;
 use crate::worker::{Bounded, Conversation, Launch, broken_for, receive_for, supervise};
 
 const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -72,6 +73,8 @@ pub struct Session<'a> {
     pub cwd: &'a Path,
     /// The names of the caller's environment that `ravel::env` may read.
     pub grants: &'a Grants,
+    /// The owner's LLM endpoints and harness entries, which discovery reports.
+    pub directory: &'a Directory,
     /// The caller's `--context` document, which counts as a source.
     pub caller: Option<&'a Measured>,
     /// Judges and measures the context that `load_context` returns.
@@ -198,6 +201,7 @@ fn converse(
     let Session {
         cwd,
         grants,
+        directory,
         caller,
         judge,
     } = session;
@@ -206,6 +210,8 @@ fn converse(
         cwd.to_owned(),
         *bounds,
         grants.clone(),
+        directory.clone(),
+        deadline,
         caller.cloned(),
     );
     let runtime = tokio::runtime::Builder::new_current_thread()
@@ -340,11 +346,14 @@ mod tests {
     }
 
     static NO_GRANTS: std::sync::LazyLock<Grants> = std::sync::LazyLock::new(Grants::default);
+    static NO_DIRECTORY: std::sync::LazyLock<Directory> =
+        std::sync::LazyLock::new(Directory::default);
 
     fn session<'a>(cwd: &'a Path, judge: &'a mut Judge<'a>) -> Session<'a> {
         Session {
             cwd,
             grants: &NO_GRANTS,
+            directory: &NO_DIRECTORY,
             caller: None,
             judge,
         }

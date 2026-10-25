@@ -220,6 +220,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         Session {
             cwd: &inputs.cwd,
             grants: &inputs.grants,
+            directory: &inputs.directory,
             caller: inputs.context.as_ref().map(|caller| &caller.measured),
             judge: &mut judge,
         },
@@ -780,6 +781,7 @@ mod tests {
             }),
             limits: Limits::read(None, None, &crate::settings::Settings::default()).unwrap(),
             grants: crate::environment::Grants::default(),
+            directory: crate::settings::Directory::default(),
         };
         let request = request(&inputs);
         assert_eq!(
