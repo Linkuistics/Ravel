@@ -9,7 +9,7 @@ Draft the changes to chapters 7, 8 and 9 of the Ravel book. A reader learns the 
 - The structure brief is `docs/book/contract.md`. The brief of this node lists the other inputs.
 - Chapter 7 explains the CLI and its separate worker. It describes a Bun worker now. Rewrite it for the worker as Ravel's own binary, the host bridge, the reader thread, the LLM adapter and the harness runs.
 - Chapter 8 follows a session through the code with 8 exact excerpts. The code has changed, so choose new excerpts of the Rhai path. Follow the successful, refused and cancelled paths.
-- Chapter 9 covers jobs, signals and the terminal. The runner is unchanged, so edit only what the new host calls change: the harness runs and the ordered stop.
+- Chapter 9 covers jobs, signals and the terminal. The runner is unchanged, so edit only what the new host calls change: the harness runs and the ordered stop. `typescript-worker-cutover` already ported the policy of its complete example to Rhai. Read its running log for the examples of chapters 7 to 11 that it ported.
 - Every complete example runs through the CLI test seam. Every excerpt is whole lines of a tracked file. Read `docs/book/examples.md` and `docs/book/excerpts.md`.
 - If the leaf proves too big, decompose it by chapter.
 

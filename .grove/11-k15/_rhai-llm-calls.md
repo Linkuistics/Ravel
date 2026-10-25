@@ -16,14 +16,14 @@ Let a Rhai policy ask a model a question with `ravel::llm`. The Ravel CLI sends 
 
 ## Decomposition
 
-- `rhai-llm-anthropic` makes the first call work end to end for one API type. It also proves that Rig builds for the three archive targets.
-- `rhai-llm-bounds` bounds the bodies and the answer, and it proves cancellation of a call in flight.
+- `rhai-llm-anthropic` makes the first call work end to end for one API type, with the bounded collection of every response body. It also proves that Rig builds for the three archive targets.
+- `rhai-llm-bounds` bounds the answer text, and it proves the stall deadline and the cancellation of a call in flight.
 - `rhai-llm-budgets` adds the budgets and the usage accounting.
 - `rhai-llm-openai-types` adds the other two API types.
 - `rhai-llm-structured-output` adds the schema subset and the checks on the answer.
 - `rhai-llm-upgrade-proof` adds the Rig upgrade task, the replay of recordings and the smoke tasks.
 
-The first leaf comes first because every later leaf extends its adapter and its fake endpoint. The bounds come before the budgets because the bounds are a safety property of the first call. Structured output follows the other API types, because it must hold on all three wires.
+The first leaf comes first because every later leaf extends its adapter and its fake endpoint. The body bounds are part of the first call, because the Ravel CLI holds an unbounded body, and no limit of the worker reaches it. The remaining bounds come before the budgets. Structured output follows the other API types, because it must hold on all three wires.
 
 ## Pointers
 

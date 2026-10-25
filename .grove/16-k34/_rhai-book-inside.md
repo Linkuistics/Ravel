@@ -31,5 +31,5 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 - Chapter 7 teaches why Ravel has a worker. The answer changes. The worker is Ravel's own binary in an internal role, and the CLI performs every host capability for it. The first draft teaches the reasons that the spec and the ADR give.
 - Chapter 11 describes the release. The release publishes the book, so the book must be final before the release leaves run. Describe the rule that `brew upgrade` removes the old version unless `HOMEBREW_NO_INSTALL_CLEANUP` is set. Do not describe the owner's machine.
-- The contract places a reader read after the proof of Parts III and IV. The proof stage asks the owner whether this revision needs a read. It cuts a `requirements` leaf only when the answer is yes.
+- Section 4 of the contract places Read 2 after the proof of Parts III and IV. The read is a `requirements` leaf, and it is not optional. The proof stage cuts it, unless section 4 of the contract no longer requires it. The answer of the owner to the fourth question of `rhai-book-use-k27` decides this.
 - Run the checks of the book with `task setup` done first.

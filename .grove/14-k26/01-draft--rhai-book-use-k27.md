@@ -7,7 +7,7 @@ Draft the migration chapter and rewrite chapter 4, "Write an owner policy", for 
 ## Context
 
 - The structure brief is `docs/book/contract.md`, section 1. The brief of this node lists the other inputs.
-- Start with the owner. The contract needs a change before the draft, as the brief says. Ask the three questions of the brief, with a recommendation for each, and record the answers in the running log. Change the contract in place.
+- Start with the owner. The contract needs a change before the draft, as the brief says. Ask the four questions of the brief, with a recommendation for each, and record the answers in the running log. Change the contract in place. The fourth question decides whether Read 1 and Read 2 of section 4 stay. If the owner waives a read, change section 4 in place. Name that read in the running log.
 - Chapter 4 is `docs/book/src/04-writing-an-owner-policy.md`. It has about 1,800 lines, and most of them describe the TypeScript SDK, the typecheck and the Bun worker. Rewrite it against `docs/specs/policy-evaluation.md` and the running binary.
 - The migration chapter is new. It builds on the example policies and the difference list in the running log of `rhai-example-policies`.
 - The book contract says that every complete example runs. Write each example as `docs/book/examples.md` says, and run `task docs:examples`.

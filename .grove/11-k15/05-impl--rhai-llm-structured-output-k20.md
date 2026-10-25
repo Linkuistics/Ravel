@@ -19,11 +19,11 @@ Let a policy ask for structured output with a `schema`. Ravel sends the schema n
 - A schema for an `openai-compatible` endpoint without `structuredOutput` fails the call as `unsupported_capability`. The fake endpoint receives nothing, and the call uses no budget.
 - Ravel parses the whole answer, trimmed, as JSON and checks it against the schema. A mismatch fails the call as `malformed_response`, with the location in the message. A match returns the value in `json`.
 - An endpoint can refuse a schema that the subset admits, such as one with `additionalProperties: true`. The call then fails as `provider_error` with the status of the reply, and it selects no fallback.
-- Tests at the CLI seam cover the scenario "Unsupported capability". They also cover a matching answer and a mismatching answer with a location. The other cases are an answer that is not JSON, a forbidden keyword, a deep nesting and the provider refusal. Each case runs on the wires that apply.
+- Tests at the CLI seam cover the scenario "Unsupported capability". They also cover a matching answer and a mismatching answer with a location. The other cases are an answer that is not JSON, a forbidden keyword, a deep nesting and the provider refusal. The edge cases of the validator follow. A required property is missing. An extra property meets `additionalProperties: false`. An `enum` or `items` check mismatches. Nesting reaches 32 levels and 33 levels. Each case runs on the wires that apply.
 - The fake endpoint checks the place of the schema in each request body.
 - `task check` and `task test` pass.
 
 ## Notes
 
 - A schema checks shape only. The script decides what the value means.
-- Keep the validator inside the adapter or beside it. It needs no network, so unit tests may cover its edge cases. The CLI seam still proves the behaviour.
+- Keep the validator inside the adapter or beside it. Test it only at the CLI seam, as the spec says, because the spec excludes a second in-process seam. A policy sends each edge case through the fake endpoint, and the answer decides the result. This leaf adds no unit test of the validator.

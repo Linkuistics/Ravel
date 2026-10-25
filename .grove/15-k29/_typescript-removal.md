@@ -10,6 +10,7 @@ Make Rhai the only format of owner policy. Remove the Bun policy worker, the Typ
 - The TypeScript worker, the SDK, the declarations, the Bun pin, the Bun notices and every worker build, typecheck, probe and hostile-runtime task are gone.
 - The installation holds `bin/ravel`, `share/ravel/examples/` and the third-party notices of the Rust dependency tree. The archive manifest, the formula and the formula test match, and the formula test runs a Rhai policy.
 - The tests that used TypeScript policies now use Rhai policies or frozen fixtures.
+- `task docs:examples`, `task docs:excerpts` and the tests of both checkers pass. No book example or checker runs a TypeScript policy or needs the worker.
 - The spec set, the ADR set, `CONTEXT.md` and the README describe the one remaining path.
 - `task check`, `task test` and `task release:smoke` pass.
 
@@ -35,5 +36,5 @@ Each leaf leaves main working. The cutover leaf can run before the delivery leaf
 - Book tools use a checkout-local Bun, for example `scripts/ste.ts` and `scripts/breaks.ts`. They are development tools and stay. The release carries no Bun.
 - Rhai still lists `smartstring`, which is MPL-2.0, as a dependency, although `compact_str` keeps its code out of the build. The licence allowlist records that decision.
 - A Taskfile task generates the notices from the Cargo metadata with a pinned tool. It refuses a licence outside an allowlist.
-- The book chapters 7 to 11 describe what this node removes. The node `rhai-book-inside` rewrites them afterwards. The leaves of this node keep `task docs:examples` and `task docs:excerpts` passing for the chapters that still describe present code. If a check cannot pass until the rewrite, record which one and why in the running log.
+- The book chapters 7 to 11 describe what this node removes. The node `rhai-book-inside` rewrites them afterwards. The leaves of this node keep `task docs:examples`, `task docs:excerpts` and the tests of both checkers passing. `typescript-worker-cutover` ports each complete example of chapters 7 to 11 that runs a TypeScript policy. The port changes the policy, and it leaves the prose alone. A moved excerpt is re-anchored in the leaf that moves it. No leaf of this node may retire with a failing book check.
 - Search `docs/` for evidence files that describe the Bun runtime, such as `docs/runtime-evidence.md`. Remove a file only if nothing cites it and it describes nothing that still exists.
