@@ -1,14 +1,14 @@
 //! Array functions that pass a callback error on instead of dropping it.
 //!
-//! Rhai 1.27.0 gives `dedup` and `sort` a comparer closure and discards what the
-//! closure fails with: `dedup` turns an error into `false`, and `sort` turns it
-//! into a comparison by type (`src/packages/array_basic.rs`). A policy that
-//! breaches a call-depth, string-size or variable bound inside such a closure
-//! would then go on to select, with no `try` at all. Every other function of the
+//! Rhai 1.27.0 gives `dedup`, `sort` and `order` a comparer closure and discards
+//! what the closure fails with: `dedup` turns an error into `false`, and `sort`
+//! and `order` turn it into a comparison by type (`src/packages/array_basic.rs`).
+//! A policy that breaches a call-depth, string-size or variable bound inside
+//! such a closure would then go on to select, with no `try` at all. Every other function of the
 //! array and map packages that calls a closure returns the closure's error, but
 //! wrapped in one that `try` catches.
 //!
-//! The worker registers these two replacements in the engine's own namespace,
+//! The worker registers these replacements in the engine's own namespace,
 //! which Rhai searches before its packages. They behave as the originals do
 //! while the closure succeeds. When it fails they stop calling it and return the
 //! first error, so a limit ends the evaluation here as it does in `map`.
@@ -23,13 +23,18 @@ use rhai::{Array, Engine, EvalAltResult, FnPtr, NativeCallContext, Position};
 
 use super::pointer_calls::{self, register};
 
-/// Register the replacements of `dedup` and of `sort` and `sort_by` with a
-/// comparer, and those of `pointer_calls`. Rhai declares these functions
-/// impure, so a constant cannot be their receiver, and so do the registrations.
+/// Register the replacements of `dedup`, of `sort` and `sort_by` and of `order`
+/// and `order_by` with a comparer, and those of `pointer_calls`. Rhai declares
+/// these functions impure, so a constant cannot be their receiver, and so do the
+/// registrations.
 pub fn install(engine: &mut Engine) {
     register!(engine, "dedup", false, dedup);
     register!(engine, "sort", false, sort_by);
     register!(engine, "sort_by", false, sort_by);
+    // `order` and `order_by` call the original `sort_by` in Rust, so the
+    // replacement of that name does not reach them.
+    register!(engine, "order", false, order_by);
+    register!(engine, "order_by", false, order_by);
     // The deprecated forms that take the name of the comparer.
     register!(engine, "dedup", false, dedup_named);
     register!(engine, "sort", false, sort_named);
@@ -73,6 +78,17 @@ fn dedup(
         }
     });
     failed.map_or(Ok(()), Err)
+}
+
+/// `array.order_by(|a, b| ..)`: `sort_by` of a copy, which is the result.
+fn order_by(
+    context: NativeCallContext,
+    array: &mut Array,
+    comparer: FnPtr,
+) -> Result<Array, Box<EvalAltResult>> {
+    let mut ordered = array.clone();
+    sort_by(context, &mut ordered, comparer)?;
+    Ok(ordered)
 }
 
 /// `array.sort(|a, b| ..)`: order the elements by the comparer's integer, or by

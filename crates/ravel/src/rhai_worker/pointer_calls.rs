@@ -9,7 +9,7 @@
 //! `src/types/error.rs:320`). Sixteen functions of the array and map packages
 //! call a pointer that way, so `try { [1].map(|x| up(0)) } catch (e) { }`
 //! swallowed a breach. The deprecated forms that take a function *name*
-//! (`[1].map("f")`) call the same Rust functions.
+//! (`[1].map("f")`, `[1].drain("f")`) call the same Rust functions.
 //!
 //! The worker registers a replacement for each of them in the engine's own
 //! namespace, which Rhai searches before its packages. A replacement does what
@@ -19,8 +19,11 @@
 //! ends the evaluation.
 //!
 //! The list is the call sites of `call_raw_with_extra_args` in 1.27.0, which the
-//! pin `=1.27.0` fixes. The tests of this module run each replacement against
-//! the original, and `engine.rs` runs each one under `try` with a breach.
+//! pin `=1.27.0` fixes, and every deprecated function of `api/deprecated.rs`
+//! that delegates to one of them. `callbacks.rs` holds the comparers, which
+//! Rhai calls with `call_raw` and not with that function. The tests of this
+//! module run each replacement against the original, and `engine.rs` runs each
+//! one under `try` with a breach.
 
 use std::mem;
 
@@ -74,6 +77,8 @@ pub fn install(engine: &mut Engine) {
     register!(engine, "reduce", true, reduce_named_with);
     register!(engine, "reduce_rev", true, reduce_rev_named);
     register!(engine, "reduce_rev", true, reduce_rev_named_with);
+    register!(engine, "drain", false, drain_named);
+    register!(engine, "retain", false, retain_named);
     // Map functions that take a function pointer.
     register!(engine, "map", true, map_of_map);
     register!(engine, "filter", true, filter_of_map);
@@ -443,6 +448,14 @@ fn retain(context: NativeCallContext, array: &mut Array, filter: FnPtr) -> Outco
     Ok(drained)
 }
 
+fn drain_named(context: NativeCallContext, array: &mut Array, filter: &str) -> Outcome<Array> {
+    drain(context, array, named(filter)?)
+}
+
+fn retain_named(context: NativeCallContext, array: &mut Array, filter: &str) -> Outcome<Array> {
+    retain(context, array, named(filter)?)
+}
+
 fn map_named(context: NativeCallContext, array: &mut Array, mapper: &str) -> Outcome<Array> {
     map(context, array, named(mapper)?)
 }
@@ -723,6 +736,12 @@ mod tests {
             "let a = [1, 2, 3, 4]; let r = a.drain(|x, i| i < 2); [a, r]",
             "let a = [1, 2, 3, 4]; let r = a.retain(|x| x % 2 == 0); [a, r]",
             "let a = [1, 2, 3, 4]; let r = a.retain(|x, i| i < 2); [a, r]",
+            "let a = [1, 2, 3, 4]; let r = a.drain(\"big\"); [a, r]",
+            "let a = [1, 2, 3, 4]; let r = a.retain(\"big\"); [a, r]",
+            "let a = [3, 1, 2]; a.order(|x, y| x - y)",
+            "let a = [3, 1, 2]; [a.order_by(|x, y| x > y), a]",
+            "[].order(|x, y| x - y)",
+            "const A = [3, 1, 2]; A.order(|x, y| x - y)",
             "let a = [3, 1, 2]; a.sort(\"cmp\"); a",
             "let a = [1, 1, 2, 2, 3]; a.dedup(\"same\"); a",
             "let m = #{ a: 1, b: 2 }; m.map(|v| v * 3)",
@@ -792,6 +811,10 @@ mod tests {
             "[1, 2].dedup(|a, b| up(0))",
             "[1, 2].sort(|a, b| up(0))",
             "[1, 2].sort_by(|a, b| up(0))",
+            "[1, 2].order(|a, b| up(0))",
+            "[1, 2].order_by(|a, b| up(0))",
+            "[1].drain(\"up\")",
+            "[1].retain(\"up\")",
             "[1].map(\"up\")",
             "[1].filter(\"up\")",
             "[1].index_of(\"up\")",
@@ -816,9 +839,11 @@ mod tests {
             );
             let swallowed = run(&original, &script);
             let ended = run(&replaced, &script);
-            // `dedup` and `sort` of the original drop the error with no `try`, so
+            // `dedup`, `sort` and `order` of the original drop the error with no `try`, so
             // they end the script in neither engine.
-            let direct = call.contains("dedup") || call.contains("sort");
+            let direct = ["dedup", "sort", "order"]
+                .iter()
+                .any(|name| call.contains(name));
             if !direct {
                 assert_eq!(swallowed, "ok \"caught\"", "the control: {call}");
             }

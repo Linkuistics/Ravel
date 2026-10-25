@@ -247,11 +247,38 @@ fn a_breach_inside_a_function_pointer_call_ends_the_evaluation_although_try_surr
 }
 
 #[test]
+fn a_breach_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_under_try() {
+    // The deprecated forms `drain("f")` and `retain("f")` reach the Rust
+    // originals, which wrap the error of `f` for `try`. The control names a
+    // function that stays under the bound, and the policy selects.
+    for call in ["drain", "retain"] {
+        let named = |body: &str| {
+            policy(&format!(
+                "fn down(n) {{ if n == 0 {{ true }} else {{ down(n - 1) }} }}\n\
+                 fn up(n) {{ up(n + 1) }}\n\
+                 fn pick(x) {{ {body} }}\n\
+                 fn select(request, context) {{\n    try {{ [1].{call}(\"pick\"); }} catch (e) {{ }}\n    \
+                 #{{ status: \"selected\", program: \"recording-agent\", args: [], provider: \"p\", \
+                 model: \"m\", effort: \"e\", reason: \"r\" }}\n}}"
+            ))
+        };
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        survives(&sandbox, &named("down(40)"), &recorded);
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let run = start(&sandbox, &named("up(0)"), &[]);
+        let error = limit(&run, "call depth", &recorded);
+        assert_eq!(error["bound"]["levels"], 64, "{call}: {error}");
+    }
+}
+
+#[test]
 fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() {
-    // Rhai 1.27.0 discards the error of the comparer in `dedup` and `sort`, so
-    // the worker replaces them. The control calls the same comparers with a
-    // depth that is under the bound, and the policy selects.
-    for call in ["dedup", "sort"] {
+    // Rhai 1.27.0 discards the error of the comparer in `dedup`, `sort` and
+    // `order`, so the worker replaces them. The control calls the same
+    // comparers with a depth that is under the bound, and the policy selects.
+    for call in ["dedup", "sort", "order", "order_by"] {
         let comparer = |depth: &str| {
             policy(&format!(
                 "fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\

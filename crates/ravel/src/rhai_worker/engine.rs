@@ -1220,6 +1220,43 @@ fn select(request, context) { global::SEEN }"#,
         assert_eq!(reply(&seen), selection(json!({ "status": "selected" })));
     }
 
+    #[test]
+    fn a_limit_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_although_try_surrounds_it()
+     {
+        // The deprecated forms `drain("f")` and `retain("f")` call the Rust
+        // originals, which wrap the error of `f` for `try`. The control names a
+        // function that stays under the bound, and the policy selects.
+        let doubles = "fn grow(x) { let s = \"x\"; for i in 0..ROUNDS { s += s; } true }\n";
+        let under_try = |call: &str, functions: &str| {
+            policy(&format!(
+                "{RECURSE}fn down(n) {{ if n == 0 {{ true }} else {{ down(n - 1) }} }}\n{functions}\
+                 fn select(request, context) {{\n    let a = [1];\n    \
+                 try {{ a.{call}; }} catch (e) {{ }}\n    #{{ status: \"selected\" }}\n}}"
+            ))
+        };
+        let selected = selection(json!({ "status": "selected" }));
+        for call in ["drain", "retain"] {
+            let named = |name: &str| format!("{call}(\"{name}\")");
+            let (control, hostile) = ("fn small(x) { down(40) }\n", "fn small(x) { up(0) }\n");
+            assert_eq!(
+                reply(&under_try(&named("small"), control)),
+                selected,
+                "{call}: the control must select"
+            );
+            breach(&under_try(&named("small"), hostile), Limit::CallDepth);
+            let (control, hostile) = (
+                doubles.replace("ROUNDS", "10"),
+                doubles.replace("ROUNDS", "100"),
+            );
+            assert_eq!(
+                reply(&under_try(&named("grow"), &control)),
+                selected,
+                "{call}: the control must select"
+            );
+            breach(&under_try(&named("grow"), &hostile), Limit::StringSize);
+        }
+    }
+
     /// A function that recurses past the call depth when it is called.
     const RECURSE: &str = "fn up(n) { up(n + 1) }\n";
 
@@ -1253,10 +1290,12 @@ fn select(request, context) { global::SEEN }"#,
     }
 
     #[test]
-    fn an_ordinary_error_in_a_dedup_or_sort_comparer_now_ends_the_selection() {
+    fn an_ordinary_error_in_a_dedup_sort_or_order_comparer_now_ends_the_selection() {
         for call in [
             "dedup(|a, b| throw \"boom\")",
             "sort(|a, b| throw \"boom\")",
+            "order(|a, b| throw \"boom\")",
+            "order_by(|a, b| throw \"boom\")",
         ] {
             let failure = failure(&selecting(&format!("    [1, 2, 3].{call};")));
             assert_eq!(failure.code, "selection_threw", "{call}");
@@ -1265,8 +1304,8 @@ fn select(request, context) { global::SEEN }"#,
     }
 
     #[test]
-    fn a_limit_inside_a_dedup_or_sort_comparer_ends_the_evaluation_without_try() {
-        // The two functions that Rhai gives a comparer discard its error, so
+    fn a_limit_inside_a_dedup_sort_or_order_comparer_ends_the_evaluation_without_try() {
+        // The functions that Rhai gives a comparer discard its error, so
         // the breach in the comparer used to leave the selection standing. Each
         // hostile case has a control with the same shape that selects.
         let recurses = |call: &str, depth: &str| {
@@ -1282,7 +1321,7 @@ fn select(request, context) { global::SEEN }"#,
                  #{{ status: \"selected\" }}\n}}"
             ))
         };
-        for call in ["dedup", "sort"] {
+        for call in ["dedup", "sort", "order", "order_by"] {
             assert_eq!(
                 reply(&recurses(call, "1")),
                 selection(json!({ "status": "selected" })),

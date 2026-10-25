@@ -263,10 +263,12 @@ Rhai 1.27.0. Those are `for_each`, `map`, `filter`, `find`, `find_map`,
 `index_of`, `some`, `all`, `reduce`, `reduce_rev`, `zip`, `drain` and `retain`
 of an array, and `map`, `filter`, `drain` and `retain` of an object map. They
 include the deprecated forms that name a function with a string, such as
-`map("f")`. Rhai 1.27.0 also drops the error of a comparer closure in `dedup`
-and in `sort`, with no `try` involved. The worker replaces those two functions
-too, and their string forms. Each replacement returns the first error of the
-comparer, as `map` does.
+`map("f")` and `drain("f")`. Rhai 1.27.0 also drops the error of a comparer
+closure in `dedup`, in `sort` and in `order`, with no `try` involved. `order`
+is also exported as `order_by`, and it calls the original `sort_by` in Rust, so
+a replacement of `sort_by` does not reach it. The worker replaces those
+functions too, and the string forms of `dedup` and `sort`. Each replacement
+returns the first error of the comparer, as `map` does.
 
 The worker counts operations itself, in the progress hook, for the top level
 and `select` together. It latches a breach of the operations bound when it
@@ -1129,8 +1131,8 @@ script handles errors.
 
 #### Scenario: A breach inside a comparer
 
-- **WHEN** a policy recurses past the call depth inside the comparer of `sort`
-  or `dedup`
+- **WHEN** a policy recurses past the call depth inside the comparer of `sort`,
+  `order`, `order_by` or `dedup`
 - **THEN** Ravel exits 3 with `script_limit`, and nothing launches
 
 ### Requirement: Credential boundary
