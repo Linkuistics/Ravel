@@ -42,7 +42,12 @@
 //! text that this module returns holds it: [`redact`] removes it from every
 //! string of a response and of a failure, whatever the endpoint echoes.
 
+mod shape;
 mod transport;
+
+/// The most bytes of an answer text. A longer text fails the call as
+/// `output_limit`.
+pub const MAX_TEXT_BYTES: usize = 1024 * 1024;
 
 use std::ffi::OsString;
 use std::time::{Duration, Instant};
@@ -279,6 +284,21 @@ impl Adapter {
                 redact_option(&mut response.response_id, &secret);
                 redact_option(&mut response.request_id, &secret);
                 response.elapsed = began.elapsed();
+                // The script sees the text after the redaction, which can make
+                // it longer, so the bound applies to that text.
+                if response.text.len() > MAX_TEXT_BYTES {
+                    let mut failure = Failure::new(
+                        Code::OutputLimit,
+                        false,
+                        format!(
+                            "the answer text holds {} bytes, over the limit of {MAX_TEXT_BYTES} bytes",
+                            response.text.len()
+                        ),
+                    );
+                    failure.request_id = response.request_id;
+                    failure.elapsed = response.elapsed;
+                    return Err(failure);
+                }
                 Ok(response)
             }
             Err(mut failure) => {
@@ -430,7 +450,7 @@ fn classify(error: &ProviderError) -> Failure {
                     true,
                     format!("the response {cause}"),
                 ),
-                Some(Fault::OutputLimit { .. }) => {
+                Some(Fault::OutputLimit { .. } | Fault::TooManyValues) => {
                     Failure::new(Code::OutputLimit, false, inner.to_string())
                 }
                 Some(Fault::Unsupported(_)) | None => {

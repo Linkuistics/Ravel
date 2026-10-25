@@ -48,6 +48,9 @@ pub enum Body {
     Short { declared: usize, sent: Vec<u8> },
     /// A head with no body, then a wait of `hold` or until the client closes.
     Stall { hold: Duration },
+    /// No head at all: the server reads the request and never answers. It
+    /// waits for `hold` or until the client closes.
+    Silent { hold: Duration },
 }
 
 /// One scripted response.
@@ -331,23 +334,28 @@ fn play(stream: &mut TcpStream, reply: &Reply) -> (usize, bool) {
             if stream.write_all(&head(reply, Some(1))).is_err() {
                 return (0, true);
             }
-            // A client that closes ends the wait with an end of stream or an
-            // error. One that holds the connection ends it at `hold`.
-            let _ = stream.set_read_timeout(Some(*hold));
-            let mut byte = [0u8; 1];
-            let closed = match stream.read(&mut byte) {
-                Ok(0) => true,
-                Ok(_) => false,
-                Err(error) => !matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut),
-            };
-            (0, closed)
+            (0, hold_until_closed(stream, *hold))
         }
+        Body::Silent { hold } => (0, hold_until_closed(stream, *hold)),
         Body::Streamed {
             prefix,
             suffix,
             total,
             declared,
         } => stream_body(stream, reply, prefix, suffix, *total, *declared),
+    }
+}
+
+/// Wait for the client to close the connection, for at most `hold`. A client
+/// that closes ends the wait with an end of stream or an error. One that holds
+/// the connection ends it at `hold`.
+fn hold_until_closed(stream: &mut TcpStream, hold: Duration) -> bool {
+    let _ = stream.set_read_timeout(Some(hold));
+    let mut byte = [0u8; 1];
+    match stream.read(&mut byte) {
+        Ok(0) => true,
+        Ok(_) => false,
+        Err(error) => !matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut),
     }
 }
 

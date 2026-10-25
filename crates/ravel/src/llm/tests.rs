@@ -542,3 +542,121 @@ fn only_https_or_loopback_http_is_a_base_url() {
     }));
     assert!(refused.is_err());
 }
+
+/// A Messages body whose `metadata` field holds `members`, an array or an object
+/// that the caller wrote.
+fn with_metadata(members: &str) -> Vec<u8> {
+    format!(
+        r#"{{"id":"msg_big","type":"message","role":"assistant","model":"m","content":[{{"type":"text","text":"ok"}}],"stop_reason":"end_turn","usage":{{"input_tokens":1,"output_tokens":1}},"metadata":{members}}}"#
+    )
+    .into_bytes()
+}
+
+/// The live bytes that one call held at its peak, beyond what the process held
+/// before it, and the call's result. The fake server's copy of the body counts
+/// too, which the ceilings of the tests allow for.
+fn peak_of_call(body: &[u8]) -> (usize, Result<Response, Failure>) {
+    let server = Server::start(vec![Reply::raw(200, "application/json", body)]);
+    let endpoint = endpoint(&server.url());
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+    let adapter = Adapter::new().unwrap();
+    let request = request();
+    let before = crate::rhai_worker::heap::live();
+    crate::rhai_worker::heap::reset_peak();
+    let result =
+        runtime.block_on(adapter.call(&endpoint, environment, &request, Duration::from_secs(60)));
+    (crate::rhai_worker::heap::peak() - before, result)
+}
+
+/// The peak that the body bound alone allowed was 586 MiB for a body of 8 MiB.
+const CEILING: usize = 128 * 1024 * 1024;
+
+#[test]
+fn a_body_of_many_small_values_fails_before_rig_builds_a_tree_of_it() {
+    // Four million values of `0` fit in 8 MiB, and Rig keeps a tree of them.
+    let body = with_metadata(&format!("[{}0]", "0,".repeat(4_000_000)));
+    assert!(body.len() < 8 * 1024 * 1024, "the body is within its bytes");
+
+    let (peak, result) = peak_of_call(&body);
+
+    let failure = result.expect_err("the body has too many values");
+    assert_eq!(failure.code, Code::OutputLimit, "{failure:?}");
+    assert!(!failure.retryable);
+    assert!(failure.message.contains("262144"), "{}", failure.message);
+    assert!(peak < CEILING, "the call held {} MiB", peak >> 20);
+}
+
+#[test]
+fn a_body_of_the_most_values_decodes_within_the_ceiling() {
+    // The head holds a few values, so this body is under the bound. The
+    // distinct keys are the shape that costs the most for each value.
+    let members: String = (0..130_000).map(|i| format!("\"k{i}\":0,")).collect();
+    let body = with_metadata(&format!("{{{members}\"z\":0}}"));
+
+    let (peak, result) = peak_of_call(&body);
+
+    assert_eq!(result.expect("the body is within its bound").text, "ok");
+    assert!(peak < CEILING, "the call held {} MiB", peak >> 20);
+}
+
+#[test]
+fn a_body_of_one_long_string_decodes_within_the_ceiling() {
+    let body = with_metadata(&format!("\"{}\"", "x".repeat(8 * 1024 * 1024 - 400)));
+    assert!(body.len() <= 8 * 1024 * 1024);
+
+    let (peak, result) = peak_of_call(&body);
+
+    assert_eq!(result.expect("the body is within its bound").text, "ok");
+    assert!(peak < CEILING, "the call held {} MiB", peak >> 20);
+}
+
+#[test]
+fn an_answer_text_of_exactly_one_mib_is_returned() {
+    let text = "a".repeat(MAX_TEXT_BYTES);
+    let (result, _) = call(vec![Reply::messages(&text)], &request());
+    assert_eq!(
+        result.expect("the text is within its bound").text.len(),
+        MAX_TEXT_BYTES
+    );
+}
+
+#[test]
+fn an_answer_text_of_one_byte_more_fails_the_call_as_output_limit() {
+    let text = "a".repeat(MAX_TEXT_BYTES + 1);
+    let (failure, _) = failed(vec![Reply::messages(&text)]);
+
+    assert_eq!(failure.code, Code::OutputLimit, "{failure:?}");
+    assert!(!failure.retryable);
+    assert_eq!(failure.http_status, None);
+    // The failure keeps the request id, and it holds none of the text.
+    assert_eq!(failure.request_id.as_deref(), Some("req_fixture_1"));
+    assert!(failure.message.contains("1048577"), "{}", failure.message);
+    assert!(!failure.message.contains("aaaa"));
+}
+
+#[test]
+fn the_bound_on_the_text_counts_bytes_not_characters() {
+    // Two bytes each: 524,289 of them are 1,048,578 bytes.
+    let text = "é".repeat(MAX_TEXT_BYTES / 2 + 1);
+    let (failure, _) = failed(vec![Reply::messages(&text)]);
+    assert_eq!(failure.code, Code::OutputLimit, "{failure:?}");
+}
+
+#[test]
+fn a_redaction_that_lengthens_the_text_cannot_carry_it_past_the_bound() {
+    // A credential of one byte becomes ten, so the text that the script would
+    // see is longer than the text the endpoint sent.
+    let text = "k".repeat(MAX_TEXT_BYTES / 2);
+    let server = Server::start(vec![Reply::messages(&text)]);
+    let result = run_with(
+        &endpoint(&server.url()),
+        |name| (name == "FIXTURE_KEY").then(|| OsString::from("k")),
+        &request(),
+        Duration::from_secs(30),
+    );
+    let failure = result.expect_err("the redacted text is over the bound");
+    assert_eq!(failure.code, Code::OutputLimit, "{failure:?}");
+}

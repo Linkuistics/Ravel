@@ -9,7 +9,7 @@
 //!
 //! After the handshake the conversation moves to a Tokio current-thread runtime
 //! (`serve`), which answers the host calls of the worker. The runtime is built
-//! here and dropped here, so none exists once the worker is stopped.
+//! here and retired here, so none exists once the worker is stopped.
 
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
@@ -238,8 +238,24 @@ fn converse(
         judge,
     ));
     // Every task is finished here, and the copy of the channel is closed.
-    drop(runtime);
+    retire(runtime);
     Ok((identity, served?, started.elapsed()))
+}
+
+/// Drop `runtime` without waiting for a blocking task. Dropping it waits for
+/// every one, with no limit, and the resolver of the HTTP client looks a host up
+/// with `getaddrinfo` in a blocking task
+/// (hyper-util 0.1.21, `client/legacy/connect/dns.rs`, `GaiResolver::call`). A
+/// lookup that stalls would hold the Ravel CLI after a stop, when the call that
+/// asked for it is long gone. The task cannot be stopped, so the thread is left
+/// to the exit of the process.
+///
+/// <https://docs.rs/tokio/1/tokio/runtime/struct.Runtime.html#method.shutdown_background>
+///
+/// A task of the runtime itself is dropped at once either way. On the path to a
+/// launch no blocking task exists, because no host call is in progress.
+fn retire(runtime: tokio::runtime::Runtime) {
+    runtime.shutdown_background();
 }
 
 fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {
@@ -307,6 +323,47 @@ mod tests {
 
     use super::*;
     use crate::settings::Settings;
+
+    /// A runtime whose blocking pool is busy for `hold`, as `getaddrinfo` can be.
+    fn busy_runtime(hold: Duration) -> tokio::runtime::Runtime {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .unwrap();
+        let started = std::sync::Arc::new(std::sync::Barrier::new(2));
+        let signal = std::sync::Arc::clone(&started);
+        runtime.spawn_blocking(move || {
+            signal.wait();
+            std::thread::sleep(hold);
+        });
+        started.wait();
+        runtime
+    }
+
+    #[test]
+    fn retiring_the_runtime_does_not_wait_for_a_blocking_task() {
+        let hold = Duration::from_millis(1500);
+
+        // The control: dropping the runtime waits for the task, so this test
+        // shows the wait that `retire` avoids.
+        let runtime = busy_runtime(hold);
+        let began = Instant::now();
+        drop(runtime);
+        assert!(
+            began.elapsed() >= Duration::from_millis(1000),
+            "a plain drop took {:?}",
+            began.elapsed()
+        );
+
+        let runtime = busy_runtime(hold);
+        let began = Instant::now();
+        retire(runtime);
+        assert!(
+            began.elapsed() < Duration::from_millis(500),
+            "retire took {:?}",
+            began.elapsed()
+        );
+    }
 
     fn limits() -> Limits {
         Limits::read(None, None, &Settings::default()).unwrap()

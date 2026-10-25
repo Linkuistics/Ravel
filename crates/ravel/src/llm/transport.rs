@@ -11,6 +11,7 @@
 //! - It ignores ambient proxy variables and system proxy settings.
 //! - It follows no redirect, so a credential cannot reach another host.
 //! - It makes no retry, and it switches off the protocol retries of reqwest.
+//! - It bounds the JSON values of a successful body, as well as its bytes.
 //! - It decodes no compressed body, so the bound counts the bytes Rig receives.
 //!   The reqwest features for `gzip`, `brotli`, `deflate` and `zstd` are off, so
 //!   the client also sends no `Accept-Encoding`.
@@ -30,8 +31,14 @@ use rig_core::http_client::{
 };
 use rig_core::wasm_compat::WasmCompatSend;
 
+use super::shape::{self, Shape};
+
 /// The most bytes of a successful response body.
 pub const MAX_BODY_BYTES: u64 = 8 * 1024 * 1024;
+
+/// The most JSON values, counting object keys, in a successful body. The bytes
+/// alone do not bound the memory of a decode: see [`shape`].
+pub const MAX_BODY_VALUES: u64 = 262_144;
 
 /// The most bytes read of a failure body. The connection closes after them.
 pub const MAX_FAILURE_BODY_BYTES: usize = 64 * 1024;
@@ -47,6 +54,9 @@ pub enum Fault {
     /// The body is longer than [`MAX_BODY_BYTES`]. `declared` is true when the
     /// reply announced the length before the first byte of the body.
     OutputLimit { declared: bool },
+    /// The body is within [`MAX_BODY_BYTES`] and holds more than
+    /// [`MAX_BODY_VALUES`] JSON values.
+    TooManyValues,
     /// Rig asked for a kind of request that Ravel never makes.
     Unsupported(&'static str),
 }
@@ -63,6 +73,10 @@ impl fmt::Display for Fault {
             Fault::OutputLimit { declared: false } => {
                 write!(f, "the response body is longer than {MAX_BODY_BYTES} bytes")
             }
+            Fault::TooManyValues => write!(
+                f,
+                "the response body holds more than {MAX_BODY_VALUES} JSON values"
+            ),
             Fault::Unsupported(what) => write!(f, "Ravel sends no {what} request"),
         }
     }
@@ -167,6 +181,11 @@ impl HttpClientExt for Transport {
                 let bytes = collect(response, MAX_BODY_BYTES)
                     .await
                     .map_err(Error::instance)?;
+                // Rig keeps a tree of the whole document, so the count of its
+                // values bounds the memory of the decode that the bytes do not.
+                if shape::check(&bytes, MAX_BODY_VALUES) == Shape::TooMany {
+                    return Err(Error::instance(Fault::TooManyValues));
+                }
                 Ok(U::from(Bytes::from(bytes)))
             });
             head.body(body).map_err(Error::Protocol)

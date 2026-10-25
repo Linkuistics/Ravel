@@ -39,6 +39,10 @@ static BOUND: AtomicUsize = AtomicUsize::new(usize::MAX);
 static REPORT: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
 static REPORT_LEN: AtomicUsize = AtomicUsize::new(0);
 static BREACHED: AtomicBool = AtomicBool::new(false);
+/// The most live bytes since the last [`reset_peak`]. Test builds only, because
+/// the worker needs no peak and an extra atomic on every allocation is a cost.
+#[cfg(test)]
+static PEAK: AtomicUsize = AtomicUsize::new(0);
 
 /// Bound the live bytes of this process to `bytes` from now on. The role calls
 /// it once, before it runs any policy code.
@@ -67,9 +71,31 @@ fn report(bytes: usize) -> Vec<u8> {
     frame
 }
 
+/// The live bytes of the whole process now. Test builds only.
+#[cfg(test)]
+pub(crate) fn live() -> usize {
+    LIVE.load(Relaxed)
+}
+
+/// Start a new peak from the live bytes now. Test builds only.
+#[cfg(test)]
+pub(crate) fn reset_peak() {
+    PEAK.store(LIVE.load(Relaxed), Relaxed);
+}
+
+/// The most live bytes of the whole process since [`reset_peak`]. Test builds
+/// only. The count covers every thread, so a test that reads it must run alone
+/// in its process, as nextest runs it.
+#[cfg(test)]
+pub(crate) fn peak() -> usize {
+    PEAK.load(Relaxed)
+}
+
 /// Take `bytes` more live bytes, or end the process when that passes the bound.
 fn reserve(bytes: usize) {
     let after = LIVE.fetch_add(bytes, Relaxed).saturating_add(bytes);
+    #[cfg(test)]
+    PEAK.fetch_max(after, Relaxed);
     if after > BOUND.load(Relaxed) {
         breach();
     }

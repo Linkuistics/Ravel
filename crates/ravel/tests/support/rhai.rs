@@ -7,6 +7,8 @@
 use std::fs;
 use std::os::unix::fs::PermissionsExt as _;
 use std::path::PathBuf;
+use std::process::Command;
+use std::time::{Duration, Instant};
 
 use super::{FRONT, Sandbox, write};
 
@@ -80,4 +82,38 @@ impl Sandbox {
         fs::set_permissions(&script, fs::Permissions::from_mode(0o755)).unwrap();
         Recorded { file }
     }
+}
+
+/// The `arg0` of the worker role, which `ps` shows as its command.
+const WORKER_ARG0: &str = "ravel-rhai-policy-worker";
+
+/// The pid of the worker that `front` launched, once it runs.
+pub fn worker_of(front: u32) -> i32 {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        let table = Command::new("ps")
+            .args(["-A", "-o", "pid=,ppid=,command="])
+            .output()
+            .expect("ps runs");
+        let table = String::from_utf8_lossy(&table.stdout).into_owned();
+        let found = table.lines().find_map(|line| {
+            let mut fields = line.split_whitespace();
+            let pid: i32 = fields.next()?.parse().ok()?;
+            let parent: u32 = fields.next()?.parse().ok()?;
+            (parent == front && fields.next() == Some(WORKER_ARG0)).then_some(pid)
+        });
+        if let Some(pid) = found {
+            return pid;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "no worker of {front} in\n{table}"
+        );
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+
+pub fn gone(pid: i32) -> bool {
+    // SAFETY: signal zero only tests whether the process exists.
+    unsafe { libc::kill(pid, 0) == -1 }
 }

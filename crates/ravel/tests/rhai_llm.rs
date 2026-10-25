@@ -10,11 +10,13 @@
 
 mod support;
 
+use std::os::unix::process::ExitStatusExt as _;
+use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 use support::llm_server::{self, Body, Reply, Server};
-use support::rhai::{Recorded, policy};
+use support::rhai::{Recorded, gone, policy, worker_of};
 use support::{Run, Sandbox, run};
 
 const SETTINGS: &str = ".config/ravel/settings.json";
@@ -44,6 +46,10 @@ fn settings(sandbox: &Sandbox, endpoints: &[(&str, &Server)], extra: &Value) {
 /// `start-session` with the credential in the caller's environment, unless
 /// `key` is false.
 fn start(sandbox: &Sandbox, key: bool, args: &[&str]) -> Run {
+    run(&mut start_command(sandbox, key, args))
+}
+
+fn start_command(sandbox: &Sandbox, key: bool, args: &[&str]) -> Command {
     let mut command = sandbox.command();
     if key {
         command.env(KEY_VARIABLE, KEY);
@@ -58,7 +64,25 @@ fn start(sandbox: &Sandbox, key: bool, args: &[&str]) -> Run {
             "--json",
         ])
         .args(args);
-    run(&mut command)
+    command
+}
+
+/// A `start-session` that the test can signal while it runs.
+fn spawn(sandbox: &Sandbox, args: &[&str]) -> Child {
+    start_command(sandbox, true, args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap()
+}
+
+/// Wait until `server` has read a request, so that a call is in flight.
+fn await_request(server: &Server) {
+    let deadline = Instant::now() + Duration::from_secs(20);
+    while server.requests_started() == 0 {
+        assert!(Instant::now() < deadline, "no request reached the server");
+        std::thread::sleep(Duration::from_millis(10));
+    }
 }
 
 /// A `select` whose `body` computes `args`, an array of strings.
@@ -115,6 +139,17 @@ fn stalled() -> Reply {
         status: 200,
         headers: Vec::new(),
         body: Body::Stall {
+            hold: Duration::from_secs(30),
+        },
+    }
+}
+
+/// An endpoint that reads the request and never answers.
+fn silent() -> Reply {
+    Reply {
+        status: 200,
+        headers: Vec::new(),
+        body: Body::Silent {
             hold: Duration::from_secs(30),
         },
     }
@@ -418,6 +453,59 @@ fn an_oversized_successful_body_fails_the_call_and_the_connection_closes_early()
 }
 
 #[test]
+fn an_answer_text_beyond_one_mib_in_a_body_below_the_bound_fails_the_call() {
+    // The body is a little over 1 MiB, far below the 8 MiB of the body bound, so
+    // only the bound on the text can fail the call.
+    // The script returns the length, because the text itself would pass the
+    // bound of 1 MiB on a message from the worker.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![Reply::messages(&"a".repeat(1024 * 1024))]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        "    let response = {};\n    let args = [response.status, response.text.len().to_string()];",
+        ask("main", "")
+    )));
+    start(&sandbox, true, &[]).report();
+    assert_eq!(
+        recorded.argv().unwrap(),
+        ["ok", "1048576"],
+        "exactly 1 MiB passes"
+    );
+
+    let beyond = "a".repeat(1024 * 1024 + 1);
+    let (response, _) = one_call(vec![Reply::messages(&beyond)], "");
+
+    assert_eq!(response["status"], "failed", "{response}");
+    let error = &response["error"];
+    assert_eq!(error["code"], "output_limit", "{response}");
+    assert_eq!(error["retryable"], false);
+    assert!(
+        error["message"].as_str().unwrap().len() < 200,
+        "the message holds no text: {response}"
+    );
+    // The failure keeps the request id of the answer.
+    assert_eq!(response["requestId"], "req_fixture_1", "{response}");
+}
+
+#[test]
+fn a_body_of_millions_of_small_values_fails_the_call_before_it_is_decoded() {
+    // About 8 MB, below the bound on bytes, with four million values.
+    let values = format!("[{}0]", "0,".repeat(4_000_000));
+    let body = format!(
+        r#"{{"id":"msg_big","type":"message","role":"assistant","model":"m","content":[{{"type":"text","text":"ok"}}],"stop_reason":"end_turn","usage":{{"input_tokens":1,"output_tokens":1}},"metadata":{values}}}"#
+    );
+    assert!(body.len() < 8 * 1024 * 1024);
+    let (response, _) = one_call(
+        vec![Reply::raw(200, "application/json", body.as_bytes())],
+        "",
+    );
+
+    assert_eq!(response["error"]["code"], "output_limit", "{response}");
+    assert_eq!(response["error"]["retryable"], false);
+}
+
+#[test]
 fn a_declared_length_beyond_the_bound_fails_from_the_head_alone() {
     // The server announces 9 MiB and sends ten bytes. A client that read the body
     // would fail as a short body, so `output_limit` shows that the head decided.
@@ -449,24 +537,151 @@ fn a_call_that_reaches_its_own_deadline_is_a_retryable_timeout_and_closes_the_co
     assert!(server.exchanges(1)[0].client_closed_early);
 }
 
-#[test]
-fn a_call_that_outlasts_the_whole_deadline_ends_the_evaluation_not_only_the_call() {
-    let sandbox = Sandbox::new();
-    let recorded = sandbox.recording_agent();
-    let server = Server::start(vec![stalled()]);
-    settings(&sandbox, &[("main", &server)], &json!({}));
-    // The call asks for a minute, and the evaluation has one second.
+/// A policy whose one call asks for a minute, which is longer than any
+/// evaluation of these tests, so the whole deadline decides.
+fn long_call(sandbox: &Sandbox) {
     sandbox.personal_rhai(&selecting(&format!(
         "    let response = {};\n    let args = [response.status];",
         ask("main", ", timeoutMs: 60000")
     )));
-    let began = Instant::now();
+}
 
-    let run = start(&sandbox, true, &["--timeout-ms", "1000"]);
+/// Hold the teardown of `front` open, so that the test can look at the front
+/// while it still runs. Returns the pid of the worker.
+///
+/// On Linux the worker is stopped. The teardown sends it TERM, which a stopped
+/// process takes only when it continues, so the front waits out its grace of one
+/// second and then kills it. macOS ends a stopped process on TERM, so there the
+/// teardown takes a few milliseconds and the checks that need the hold do not
+/// run (`assert_closed_before_exit`).
+fn hold_teardown(front: &Child) -> i32 {
+    let worker = worker_of(front.id());
+    #[cfg(target_os = "linux")]
+    // SAFETY: the pid is the live worker of this test's front.
+    assert_eq!(unsafe { libc::kill(worker, libc::SIGSTOP) }, 0);
+    worker
+}
 
-    assert_eq!(run.code, Some(124), "{}", run.stderr);
-    assert_eq!(recorded.argv(), None);
-    assert!(began.elapsed() < Duration::from_secs(20));
+/// The fake endpoint saw its connection close. On Linux it saw the close while
+/// the front, held in its teardown, had not yet exited. A close at the exit of
+/// the process would prove nothing, because the exit closes every descriptor.
+fn assert_closed_before_exit(server: &Server, front: &mut Child, what: &str) {
+    assert!(
+        server.exchanges(1)[0].client_closed_early,
+        "{what}: the fake endpoint saw no close"
+    );
+    #[cfg(target_os = "linux")]
+    assert!(
+        front.try_wait().unwrap().is_none(),
+        "{what}: the front had exited when the close arrived"
+    );
+    #[cfg(not(target_os = "linux"))]
+    let _ = front;
+}
+
+fn assert_no_residue(sandbox: &Sandbox, recorded: &Recorded, worker: i32, what: &str) {
+    assert!(gone(worker), "{what}: the worker survived");
+    assert_eq!(recorded.argv(), None, "{what}: a harness started");
+    assert_eq!(
+        std::fs::read_dir(&sandbox.tmp).unwrap().count(),
+        0,
+        "{what}: a private directory remains"
+    );
+}
+
+#[test]
+fn a_stalled_endpoint_ends_the_evaluation_at_the_deadline_and_the_connection_closes() {
+    // The scenario "Stalled endpoint". One endpoint stalls after its head, so
+    // the body never arrives. The other never answers at all.
+    for (what, reply) in [("a stalled body", stalled()), ("no answer", silent())] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let server = Server::start(vec![reply]);
+        settings(&sandbox, &[("main", &server)], &json!({}));
+        long_call(&sandbox);
+        // The call asks for a minute, and the evaluation has one second.
+        let mut front = spawn(&sandbox, &["--timeout-ms", "1000"]);
+        await_request(&server);
+        let worker = hold_teardown(&front);
+        let began = Instant::now();
+
+        assert_closed_before_exit(&server, &mut front, what);
+        let output = front.wait_with_output().unwrap();
+
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert_eq!(output.status.code(), Some(124), "{what}: {stderr}");
+        assert!(stderr.contains("selection_timeout"), "{what}: {stderr}");
+        assert!(began.elapsed() < Duration::from_secs(20), "{what}");
+        assert_no_residue(&sandbox, &recorded, worker, what);
+    }
+}
+
+#[test]
+fn a_signal_during_a_call_in_flight_closes_its_connection_and_launches_nothing() {
+    for signal in [libc::SIGTERM, libc::SIGINT, libc::SIGHUP] {
+        for (what, reply) in [("a stalled body", stalled()), ("no answer", silent())] {
+            let what = &format!("signal {signal}, {what}");
+            let sandbox = Sandbox::new();
+            let recorded = sandbox.recording_agent();
+            let server = Server::start(vec![reply]);
+            settings(&sandbox, &[("main", &server)], &json!({}));
+            long_call(&sandbox);
+            // The evaluation has its default 30 s, so only the signal can stop it.
+            let mut front = spawn(&sandbox, &[]);
+            await_request(&server);
+            let worker = hold_teardown(&front);
+            let began = Instant::now();
+
+            // SAFETY: the pid is this test's live front.
+            assert_eq!(unsafe { libc::kill(front.id() as i32, signal) }, 0);
+            assert_closed_before_exit(&server, &mut front, what);
+            let output = front.wait_with_output().unwrap();
+
+            // The front raises the signal again once it has cleaned up, so the
+            // status is 128 plus the number to a shell: 143 for TERM.
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert_eq!(output.status.signal(), Some(signal), "{what}: {stderr}");
+            assert!(output.stdout.is_empty(), "{what}");
+            assert!(stderr.contains("selection_cancelled"), "{what}: {stderr}");
+            assert!(began.elapsed() < Duration::from_secs(10), "{what}");
+            assert_no_residue(&sandbox, &recorded, worker, what);
+        }
+    }
+}
+
+/// Linux only: the hold on the teardown needs a stopped process to keep its TERM
+/// pending (see `hold_teardown`). The same rule holds on macOS, but no seam test
+/// can put a signal into the few milliseconds of its teardown without a race.
+#[cfg(target_os = "linux")]
+#[test]
+fn a_signal_that_arrives_after_the_deadline_wins_and_the_report_keeps_the_timeout() {
+    // The deadline passes during the call, and TERM arrives while the front
+    // tears down, which the stopped worker holds open. The signal came before
+    // the end of the teardown, so it wins over the deadline (*Cancellation and
+    // deadlines*), and the report keeps the deadline as the original failure.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![stalled()]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    long_call(&sandbox);
+    let mut front = spawn(&sandbox, &["--timeout-ms", "1000"]);
+    await_request(&server);
+    let worker = hold_teardown(&front);
+
+    // The deadline closes the connection, and the teardown begins.
+    assert_closed_before_exit(&server, &mut front, "after the deadline");
+    // SAFETY: the pid is this test's live front.
+    assert_eq!(unsafe { libc::kill(front.id() as i32, libc::SIGTERM) }, 0);
+    let output = front.wait_with_output().unwrap();
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.signal(), Some(libc::SIGTERM), "{stderr}");
+    assert!(stderr.contains("selection_cancelled"), "{stderr}");
+    assert!(
+        stderr.contains("selection_timeout"),
+        "the report keeps the deadline as the original failure: {stderr}"
+    );
+    assert_no_residue(&sandbox, &recorded, worker, "after the deadline");
 }
 
 #[test]

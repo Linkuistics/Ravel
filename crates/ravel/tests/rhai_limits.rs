@@ -12,15 +12,12 @@
 mod support;
 
 use std::os::unix::process::ExitStatusExt as _;
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 use std::time::{Duration, Instant};
 
 use serde_json::Value;
-use support::rhai::{Recorded, policy};
+use support::rhai::{Recorded, gone, policy, worker_of};
 use support::{Run, Sandbox};
-
-/// The `arg0` of the worker role, which `ps` shows as its command.
-const WORKER_ARG0: &str = "ravel-rhai-policy-worker";
 
 /// A policy whose `select` runs `body`, and then routes to the recording harness
 /// with `reason` as the reason.
@@ -427,37 +424,6 @@ fn a_result_over_the_message_bound_ends_as_message_too_large() {
     let run = start(&sandbox, &grow(21), &[]);
     let error = refused(&run, 3, "message_too_large", &recorded);
     assert_eq!(error["bound"]["name"], "message", "{error}");
-}
-
-/// The pid of the worker that `front` launched, once it runs.
-fn worker_of(front: u32) -> i32 {
-    let deadline = Instant::now() + Duration::from_secs(10);
-    loop {
-        let table = Command::new("ps")
-            .args(["-A", "-o", "pid=,ppid=,command="])
-            .output()
-            .expect("ps runs");
-        let table = String::from_utf8_lossy(&table.stdout).into_owned();
-        let found = table.lines().find_map(|line| {
-            let mut fields = line.split_whitespace();
-            let pid: i32 = fields.next()?.parse().ok()?;
-            let parent: u32 = fields.next()?.parse().ok()?;
-            (parent == front && fields.next() == Some(WORKER_ARG0)).then_some(pid)
-        });
-        if let Some(pid) = found {
-            return pid;
-        }
-        assert!(
-            Instant::now() < deadline,
-            "no worker of {front} in\n{table}"
-        );
-        std::thread::sleep(Duration::from_millis(20));
-    }
-}
-
-fn gone(pid: i32) -> bool {
-    // SAFETY: signal zero only tests whether the process exists.
-    unsafe { libc::kill(pid, 0) == -1 }
 }
 
 /// A front that is evaluating a policy that sleeps for ten minutes.

@@ -1073,6 +1073,7 @@ dependencies = [
  "rig-core",
  "rig-http",
  "rustls",
+ "serde",
  "serde_json",
  "sha2",
  "tempfile",

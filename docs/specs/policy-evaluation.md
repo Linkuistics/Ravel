@@ -307,6 +307,12 @@ The runtime waits for the reply of the reader as it waits for any host call. The
 reader is not a blocking task of the runtime, because Tokio cannot stop a running
 blocking task, and its shutdown waits for one.
 
+Ravel retires the runtime without waiting for a blocking task. The HTTP client
+looks up a host name with `getaddrinfo` in such a task, and Tokio cannot stop it.
+A lookup that stalls would otherwise hold the Ravel CLI after a stop. The thread
+of the lookup then ends with the process. No blocking task exists on the path to
+a launch, because no host call is in progress there.
+
 Only one host call runs at a time, because the script is synchronous. The
 worker sends its result only after the reply to its last host call. A message
 from the worker while a host call is in progress breaks the protocol, and the
@@ -523,7 +529,7 @@ options.
 | `timeout` | The call reached its own deadline | True |
 | `malformed_response` | A reply that does not decode, that stops short, that has no text, or whose JSON does not match the schema | True only when it stops short |
 | `content_filtered` | The provider ended the turn with its content filter | False |
-| `output_limit` | The text is longer than 1 MiB, or a successful response body is longer than 8 MiB | False |
+| `output_limit` | The text is longer than 1 MiB, or a successful response body is longer than 8 MiB or holds more than 262,144 JSON values | False |
 
 Ravel makes no retry. The script decides whether to try again, with which
 endpoint and which model, and how often. A call that fails before Ravel sends
@@ -693,6 +699,13 @@ The HTTP client follows these rules:
 - Its connection deadline is no later than the deadline of the call.
 - It bounds each response body before Rig decodes it. A successful body has at
   most 8 MiB, and a longer one fails the call as `output_limit`.
+- It counts the JSON values of a successful body before Rig decodes it. A body
+  with more than 262,144 values fails the call as `output_limit`. The count
+  includes the keys of objects, and it builds no tree. The bytes alone do not
+  bound the memory of the decode, because Rig keeps the whole document in
+  `CompletionResponse.raw` and reads it again for the answer. A body of 8 MiB
+  that holds `0,0,0,…` has four million values, and the decode of such a body
+  held 586 MiB in the test. A body at the bound held 52 MiB.
 - It reads at most 64 KiB of a failure body, and then it closes the connection.
   The call keeps the class of its status, and its message holds that part of
   the body.
@@ -701,6 +714,9 @@ The HTTP client follows these rules:
   beyond the bound.
 - It decodes no compressed body, so the bound counts the bytes that Rig
   receives.
+- It checks the text of the answer after Rig decodes it and after Ravel removes
+  the credential from it. A text longer than 1 MiB fails the call as
+  `output_limit`. The message names the length and holds none of the text.
 
 The TLS crypto provider must build for all three archive targets with the
 existing Zig glibc 2.17 toolchain. The design prefers `ring`. The increment that
@@ -734,7 +750,7 @@ or `budgets.llmCalls`, as the `location` of the refusal.
 | LLM calls | 8 | `budgets.llmCalls`, from 0 to 256 | `llm_budget_exhausted`, exit 3 |
 | LLM output tokens | 32,768 | `budgets.llmOutputTokens`, from 0 to 10,000,000 | `llm_budget_exhausted`, exit 3 |
 | LLM answer text | 1,048,576 bytes | Fixed | The call fails as `output_limit` |
-| LLM response body | 8,388,608 bytes for a success. Ravel reads at most 65,536 bytes of a failure | Fixed | A success fails the call as `output_limit`. A failure keeps its class |
+| LLM response body | 8,388,608 bytes and 262,144 JSON values for a success. Ravel reads at most 65,536 bytes of a failure | Fixed | A success fails the call as `output_limit`. A failure keeps its class |
 | Harness runs | 0 | `budgets.harnessRuns`, from 0 to 16 | `harness_budget_exhausted`, exit 3 |
 | Harness output | 1,048,576 bytes for each stream | Fixed | The run ends as `output_limit` |
 | Host calls at one time | 1 | Fixed by the synchronous script | None |
@@ -969,8 +985,9 @@ The tests prove an upgrade at the command-line seam:
   Further cases are an undecodable body, a body that stops short and a stall past
   the deadline. The body cases are a successful body beyond 8 MiB with little
   text and a 429 with a large body. A third body case has no declared length
-  and is longer than the bound. The last are an unsupported option and a
-  redirect that Ravel does not follow.
+  and is longer than the bound. A fourth body case is below 8 MiB and holds
+  millions of small values, and a fifth has an answer text beyond 1 MiB. The last
+  are an unsupported option and a redirect that Ravel does not follow.
 - The fake endpoint checks the request that the mapping of Ravel sent. It checks
   the path, the credential header, the model, the token limit and the place of
   the schema.
@@ -1100,6 +1117,20 @@ code. It SHALL NOT end the evaluation.
 - **THEN** the call fails as `output_limit`, and the fake endpoint sees its
   connection close before it sends the whole body
 
+#### Scenario: Many small values
+
+- **WHEN** the fake endpoint answers 200 with a body of 8 MB that holds four
+  million values of `0` in a metadata field
+- **THEN** the call fails as `output_limit` before Rig decodes the body, and the
+  memory of the Ravel CLI stays below 128 MiB
+
+#### Scenario: Oversized answer text
+
+- **WHEN** the fake endpoint answers 200 with a body of 2 MiB whose answer text
+  is longer than 1 MiB
+- **THEN** the call fails as `output_limit`, and its message holds none of the
+  text
+
 #### Scenario: Large failure body
 
 - **WHEN** the fake endpoint answers 429 with a body of 1 MiB
@@ -1133,6 +1164,20 @@ NOT wait for a read in progress. A consumed signal SHALL win over the deadline.
 
 - **WHEN** the fake endpoint never answers
 - **THEN** Ravel exits 124, and the fake endpoint sees its connection close
+
+#### Scenario: A signal during an LLM call
+
+- **WHEN** Ravel receives TERM while a call waits for a fake endpoint that
+  never answers
+- **THEN** Ravel exits 143 with `selection_cancelled` and raises TERM, the fake
+  endpoint sees its connection close, and no managed process launches
+
+#### Scenario: A signal after the deadline of an LLM call
+
+- **WHEN** the deadline passes during a call to a stalled endpoint, and Ravel
+  receives TERM before the teardown ends
+- **THEN** Ravel exits 143 with `selection_cancelled`, and the report keeps
+  `selection_timeout` as the original failure
 
 #### Scenario: Descendants of a harness run
 
@@ -1254,6 +1299,13 @@ stalls that a test can make, such as a FIFO. The FIFO case proves the open, and
 its firing control is a blocking open of the same FIFO, which stalls. No test at
 the seam proves that a stop never waits for a read. That property rests on the
 reader thread and the stop order in this specification.
+
+A signal after the deadline needs a teardown that lasts. On Linux, a test stops
+the worker. A stopped worker takes the TERM of the teardown only when it
+continues, so the Ravel CLI waits out its grace. macOS ends a stopped process on
+TERM. The case
+therefore runs on Linux only, and on macOS the stop order rests on the unit
+tests of the supervision.
 
 ## Out of scope
 

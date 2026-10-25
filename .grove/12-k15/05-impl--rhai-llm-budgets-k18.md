@@ -26,3 +26,4 @@ Enforce the evaluation budgets for LLM calls and output tokens. A policy cannot 
 ## Notes
 
 - A nested session in a managed process has budgets of its own. The budgets belong to one evaluation, which is one `start-session`.
+- A call whose answer text passes 1 MiB fails as `output_limit` after Rig decoded the answer, so the endpoint reported usage and spent the tokens. `Failure` carries no usage today. The accounting must debit the effective `maxTokens` for such a call, or carry the usage on the failure. See the running log of `rhai-llm-bounds-k17`.
