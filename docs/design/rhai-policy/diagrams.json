@@ -30,7 +30,7 @@
   ],
   "discussion": {
     "title": "LLM calls through a harness run",
-    "status": "Agreed with the owner. A review-design leaf reads the change next",
+    "status": "Agreed with the owner and reviewed. The review integration corrected the credential boundary, the bounds of one harness run and the scope of the re-entry refusal",
     "summary": "The owner chose a harness run with no re-entry for every LLM call. The policy runs Claude Code or Codex with ravel::run_harness, and the harness uses the owner's own sign-in. ravel::llm, the endpoints settings key, the LLM budgets and Rig are removed. The schema check stays as the data helper ravel::json_check. The owner rejected a nested start-session and a nested-session host call.",
     "diagramIds": [
       "processes",
@@ -51,11 +51,15 @@
       },
       {
         "id": "outcomes",
-        "summary": "Replaced llm_budget_exhausted with harness_budget_exhausted among the bounds that end the evaluation."
+        "summary": "Replaced llm_budget_exhausted with harness_budget_exhausted among the bounds that end the evaluation. The replies no longer name the statuses of ravel::llm. A run that Ravel stops at its own deadline or output bound returns as data."
       },
       {
         "id": "stopping-sequence",
-        "summary": "Removed the branch that drops a Rig request. An LLM call stops as a harness run."
+        "summary": "Removed the branch that drops a Rig request. An LLM call stops as a harness run. The title now says that the stop reaches the evaluation, not every process."
+      },
+      {
+        "id": "evaluation-states",
+        "summary": "The stop edge names the whole deadline and a breach of a bound of the evaluation. A run that Ravel stops at its own deadline or output bound does not stop the evaluation."
       },
       {
         "id": "rejected-nested-session",
@@ -90,12 +94,12 @@
       "group": "evaluation",
       "title": "Data or the end of the evaluation",
       "source": "outcomes.mmd",
-      "caption": "The script decides about every operational outcome, including a failed LLM call. The host alone decides about bounds, and the script cannot catch that decision."
+      "caption": "The script decides about every operational outcome, including a failed LLM call. The deadline and the output bound of one harness run stop only that run, which returns to the script as data. The host alone decides about every other bound, and the script cannot catch that decision."
     },
     {
       "id": "stopping-sequence",
       "group": "stopping",
-      "title": "A deadline or a signal stops everything",
+      "title": "A deadline or a signal stops the evaluation",
       "source": "stopping-sequence.mmd",
       "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. The CLI does not wait for a read in progress. An LLM call stops as any harness run. A signal that the CLI consumed wins over the deadline at the final read of the latch. A model service may still finish a request that it accepted."
     },

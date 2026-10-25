@@ -10,7 +10,7 @@ stateDiagram-v2
     HostCall --> Script: reply as data, failures included
   }
   Evaluating --> Judging: worker sends its result
-  Evaluating --> Stopping: deadline · signal · breach of a bound · worker died
+  Evaluating --> Stopping: whole deadline · signal · breach of a bound of the evaluation · worker died
   Stopping --> Refused: host work stopped, worker reaped
   Judging --> Refused: policy_refused · selection_malformed · selection_abstained
   Judging --> Reaped: selection checked

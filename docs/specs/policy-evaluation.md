@@ -35,7 +35,9 @@ send.
 
 An owner policy becomes a Rhai module. Ravel evaluates it in a policy worker,
 which is Ravel's own binary in an internal role. The worker only computes. It
-holds no credential, reads no file and launches no process.
+has an empty environment. It reads no file and launches no process. Ravel
+trusts the owner policy, so a policy can still receive a credential through a
+host capability, as [credentials](#credentials) states.
 
 The policy asks the Ravel CLI for each host capability: measured reads,
 discovery and harness runs. The Ravel CLI performs each one and returns data.
@@ -48,10 +50,11 @@ owner's own sign-in. The policy reads the answer from the output of the run or
 from its result. Ravel holds no model credential, opens no network connection
 and builds no argument that is specific to a harness.
 
-Every outcome of a host call is data that the script interprets. Every breach of
-a bound ends the evaluation. The script cannot catch a breach with `try`. That
-holds when the breach happens inside a function pointer, such as the closure
-that `map` runs.
+The outcome of a host call is data that the script interprets. A harness run
+that Ravel stops at its own deadline or at its output bound is such an outcome.
+A breach of any other bound ends the evaluation. The script cannot catch that
+breach with `try`. That holds when the breach happens inside a function pointer,
+such as the closure that `map` runs.
 
 The Ravel CLI kills
 the worker at the deadline or on cancellation. It stops the host work in
@@ -365,7 +368,7 @@ All host functions are in the `ravel` namespace. Each one is available in
 | `ravel::env(name)` | A string or `()` | A thrown `env_not_granted` or `env_not_utf8` | Nothing |
 | `ravel::harnesses()` | An array of maps | Nothing | Nothing |
 | `ravel::remaining()` | A map | Nothing | Nothing |
-| `ravel::run_harness(request)` | A result map | A `status` other than `exited` | A budget, the deadline, cancellation, `host_request_invalid`, `harness_cleanup_failed` |
+| `ravel::run_harness(request)` | A result map | A `status` other than `exited` | A budget, the whole deadline, cancellation, `host_request_invalid`, `harness_cleanup_failed` |
 
 A thrown map has `code`, `message` and, where it applies, `name`. The script can
 catch it. A malformed request to any host function ends the evaluation as
@@ -600,9 +603,11 @@ The sources are [Run Claude Code programmatically](https://code.claude.com/docs/
 and [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode).
 
 A script cannot write a file. A Codex call with structured output therefore
-names a schema file that the owner keeps, for example beside the policy. The
-script reads the same file with `ravel::read_json`. It then checks the answer
-against the schema that Codex received.
+names a schema file that the owner keeps. The script reads the same file with
+`ravel::read_json`. It then checks the answer against the schema that Codex
+received. An unconfined run can read a schema file beside the policy.
+Confinement refuses a grant that overlaps the directory of the policy, so a
+confined run cannot read the file there.
 
 Ravel reports no usage and counts no token for an LLM call. The usage that a
 harness prints reaches only the script, and a policy that wants it in the
@@ -639,10 +644,11 @@ widen the confinement for a sign-in. Whether a harness can use its sign-in
 inside confinement depends on the harness and the platform. The smoke tasks run
 unconfined.
 
-The credential boundary covers what Ravel serves to the script. It is not a
-filesystem sandbox. A measured read is not confined by path, so a policy that
-reads a file that holds a credential receives the credential. The sign-in file
-of a harness, such as `~/.codex/auth.json`, can be such a file. On Linux, the
+The credential boundary covers the caller variables that `ravel::env` serves. It
+is not a filesystem sandbox. A measured read is not confined by path, so a
+policy that reads a file that holds a credential receives the credential. The
+sign-in file of a harness, such as `~/.codex/auth.json`, can be such a file. On
+Linux, the
 environment file of a process under `/proc` can hold a credential. That includes
 the file of the Ravel CLI itself, which performs the read.
 
@@ -692,6 +698,12 @@ The bounds compose by these rules:
 - The deadline of a harness run is the smaller of its `timeoutMs` and the time
   that remains. When the whole deadline passes during a run, the evaluation
   ends, not only the run.
+- The deadline and the output bound of a harness run belong to that run. When
+  Ravel stops a run at one of them, `run_harness` returns `timed_out` or
+  `output_limit`, and the script goes on. A breach of any other bound in the
+  table ends the evaluation, and the script cannot catch it.
+- The run status `output_limit` is data. The refusal `output_limit`, exit 3, is
+  the breach of the diagnostics bound.
 - A harness run uses one run when the runner launches it. An LLM call is a
   harness run, so it uses one run too.
 - A run with no run left ends the evaluation before the runner launches it. The
@@ -808,9 +820,20 @@ records.
 `start-session` refuses as `policy_reentry_refused` when `RAVEL_POLICY_RUN` is in
 its environment. It refuses before it reads settings or a policy. The final
 managed process never receives the marker, because Ravel scrubs `RAVEL_*` names
-from it. Sessions that the final harness nests therefore stay allowed. A harness
-run that clears its own environment escapes the marker, and then the budget and
-the deadline still bound the work. Ravel 1.x ignores the marker.
+from it. Sessions that the final harness nests therefore stay allowed.
+
+The refusal is cooperative. It is isolation by inherited context, as in the
+[session execution specification](session-execution.md#managed-process-and-result),
+not authentication against code of the same user. A harness run that removes the
+marker from its environment escapes the refusal. A Ravel 1.x on `PATH` also
+escapes it, because 1.x ignores the marker.
+
+After an escape, the budget and the deadline of the outer evaluation bound only
+the harness run itself. The stop of the run reaches the process group of the
+run. The managed process of an escaped `start-session` is a job in a group of
+its own, so it can outlive that stop.
+[The launched child is a job](../adr/the-launched-child-is-a-job.md) puts every
+process that leaves its group outside group cleanup.
 
 Completion authority stays separate:
 
@@ -1018,8 +1041,9 @@ the line and the column.
 
 ### Requirement: Harness failures are data
 
-Each outcome of a harness run SHALL reach the script. A cleanup failure SHALL
-end the evaluation.
+The status of each harness run SHALL reach the script, unless the evaluation
+stops during the run. A stop at the deadline or at the output bound of the run
+SHALL end only the run. A cleanup failure SHALL end the evaluation.
 
 #### Scenario: Missing program
 
@@ -1029,15 +1053,25 @@ end the evaluation.
 
 #### Scenario: Output bound
 
-- **WHEN** a fake harness writes 2 MiB to `stdout`
-- **THEN** `run_harness` returns `output_limit`, and the process group of the run
-  is gone
+- **WHEN** a fake harness writes 2 MiB to `stdout`, and the policy then selects
+  a route
+- **THEN** `run_harness` returns `output_limit`, the process group of the run is
+  gone, and Ravel launches the route
 
-### Requirement: Deadlines and cancellation stop everything
+#### Scenario: Deadline of one run
 
-At the deadline or on cancellation, Ravel SHALL stop the script and the harness
-run. It SHALL reap every process and launch nothing. It SHALL NOT wait for a read
-in progress. A consumed signal SHALL win over the deadline.
+- **WHEN** a fake harness never exits in a run with a `timeoutMs` of 1,000, and
+  the policy then selects a route
+- **THEN** `run_harness` returns `timed_out`, the process group of the run is
+  gone, and Ravel launches the route
+
+### Requirement: Deadlines and cancellation stop the evaluation
+
+At the whole deadline or on cancellation, Ravel SHALL stop the script and the
+harness run. It SHALL clear the process group of the run, reap the child of the
+run and the worker, and launch nothing. A process that left the group of the run
+is outside this stop. Ravel SHALL NOT wait for a read in progress. A consumed
+signal SHALL win over the deadline.
 
 #### Scenario: A native call that does not yield
 
@@ -1065,8 +1099,10 @@ in progress. A consumed signal SHALL win over the deadline.
 
 ### Requirement: Resource exhaustion
 
-Ravel SHALL end the evaluation at each engine limit, at the heap bound of the
-worker and at each output bound. The script SHALL NOT catch a breach with `try`.
+Ravel SHALL end the evaluation at a breach of each bound in the
+[budget table](#evaluation-budgets-and-their-composition). The deadline and the
+output bound of one harness run are the exceptions. The script SHALL NOT catch a
+breach with `try`.
 That holds for a breach in the script itself and for a call-depth, data-size or
 variable breach inside the call of a function pointer. A breach of the
 operations bound or of the heap bound SHALL end the evaluation, however the
@@ -1104,22 +1140,25 @@ script handles errors.
 ### Requirement: Credential boundary
 
 Ravel SHALL hold no model credential. A harness run SHALL receive the environment
-of a managed process. No host function SHALL return a caller variable outside the
-readable names and the grants.
+of a managed process. `ravel::env` SHALL return no caller variable outside the
+readable names and the grants. Ravel SHALL remove no credential from a measured
+read or from the output of a harness run, because it trusts the owner policy.
 
 #### Scenario: Leak probes
 
-- **WHEN** the caller's environment holds `ANTHROPIC_API_KEY`, and a policy that
-  runs no harness calls `ravel::env` with that name and prints every value that
-  it can reach
-- **THEN** `env` throws `env_not_granted`, and the key appears in no diagnostic
-  or notice
+- **WHEN** the caller's environment holds a sentinel `ANTHROPIC_API_KEY` that
+  no grant names
+- **AND** a policy that makes no measured read and runs no harness calls
+  `ravel::env` with that name and prints every other value that it can reach
+- **THEN** `env` throws `env_not_granted`, and the sentinel appears in no
+  diagnostic or notice
 
 #### Scenario: A harness finds its own sign-in
 
 - **WHEN** a fake harness in an unconfined harness run prints its `HOME` and the
-  value of a caller variable
-- **THEN** the script receives the caller's `HOME` and the value, both unchanged
+  value of the same ungranted sentinel
+- **THEN** the script receives the caller's `HOME` and the sentinel, both
+  unchanged
 
 ### Requirement: Migration equivalence
 
@@ -1192,7 +1231,8 @@ on the unit tests of the supervision.
 - Modules embedded in Ravel, such as a successor to `ravel/sdk`.
 - A regular-expression host function. The string functions of Rhai parse a
   handle and a marker line, and the tests prove it.
-- A URL or a credential in a script.
+- A host function that takes a URL or a credential. A script reaches a model
+  only through a harness run.
 - A filesystem sandbox. A measured read can read each file that the user can
   read.
 - A compatibility period for TypeScript.

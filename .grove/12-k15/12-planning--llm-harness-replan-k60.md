@@ -9,6 +9,7 @@ Cut the work that the design `llm-calls-through-harnesses-k58` implies, and brin
 - Read the spec sections that the brief of `rhai-llm-calls-k15` lists. Read them after the review `llm-calls-through-harnesses-k59` and any integration of it.
 - Leaves `rhai-llm-adapter-proof-k54`, `rhai-llm-anthropic-call-k55`, `rhai-llm-bounds-k17`, `rhai-llm-budgets-k18`, `rhai-llm-openai-types-k19` and `rhai-llm-structured-output-k20` built the code that goes. Leaf `rhai-settings-discovery-k14` built the `endpoints` key and `ravel::endpoints()`.
 - The owner pruned `rhai-llm-upgrade-proof-k21`. It held the Taskfile task for a Rhai upgrade, which still needs a leaf.
+- The integration `llm-calls-through-harnesses-k61` changed some scenarios. The scenario "Deadline of one run" is new. "Output bound" now requires the policy to go on. "Leak probes" and "A harness finds its own sign-in" now share one ungranted sentinel. Give each of them a live leaf.
 
 ## Done when
 
