@@ -1,9 +1,8 @@
 //! The schema subset and the check of a value against it
 //! (`docs/specs/policy-evaluation.md`, *Data helpers*).
 //!
-//! A [`Schema`] keeps the JSON that the script wrote, and a tree of the keywords
-//! that Ravel checks. `ravel::json_check` and `ravel::llm` both check a value
-//! against that tree. This module depends on neither of them.
+//! A [`Schema`] is a tree of the keywords that Ravel checks. `ravel::json_check`
+//! checks a value against that tree.
 //!
 //! The subset has `type`, `properties`, `required`, `additionalProperties`,
 //! `items`, `enum`, `title` and `description`. A schema checks shape only. The
@@ -32,7 +31,6 @@ pub struct Invalid {
 /// A schema of the subset.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Schema {
-    raw: Value,
     root: Node,
 }
 
@@ -112,15 +110,7 @@ impl Schema {
     /// Check `value` against the subset. `root` names the schema in a location.
     pub fn parse(value: &Value, root: &str) -> Result<Schema, Invalid> {
         let node = Node::parse(value, root, 1)?;
-        Ok(Schema {
-            raw: value.clone(),
-            root: node,
-        })
-    }
-
-    /// The JSON that the script wrote.
-    pub fn raw(&self) -> &Value {
-        &self.raw
+        Ok(Schema { root: node })
     }
 
     /// Check `value` against the schema. The error says where the value

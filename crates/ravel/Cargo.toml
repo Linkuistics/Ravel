@@ -18,32 +18,15 @@ getrandom = "0.4"
 keyed-launch = { path = "../keyed-launch" }
 libc = "0.2"
 # The base URL of an LLM endpoint in the owner settings is checked as a WHATWG
-# URL, the grammar of the HTTP client that later increments build.
+# URL.
 # https://docs.rs/url/2/url/struct.Url.html
 url = "2"
 tempfile = "3.10"
 rhai = { version = "=1.27.0", features = ["compact_str"] }
-# The evaluation phase serves the worker from a current-thread runtime, which
-# later increments also use for the LLM client.
+# The evaluation phase serves the worker from a current-thread runtime, and the
+# reader thread has one of its own.
 # https://docs.rs/tokio/1/tokio/runtime/struct.Builder.html#method.new_current_thread
 tokio = { version = "1", features = ["rt", "net", "time", "macros", "sync", "io-util"] }
-# Rig stays behind the LLM adapter (`src/llm`), which sends through Ravel's own
-# `HttpClientExt` over a reqwest client that Ravel configures. `rig-reqwest` is
-# not used: its `into_response` and `non_success_status_error` collect a body
-# without a bound.
-# https://docs.rs/rig-core/0.45.0/rig_core/http_client/trait.HttpClientExt.html
-rig-core = { version = "=0.45.0", default-features = false }
-rig-http = { version = "=0.45.0", default-features = false }
-# The HTTP client of the adapter. `rustls-no-provider` leaves the crypto
-# provider to Ravel, which installs `ring`: the default `rustls` feature brings
-# `aws-lc-rs`, which the Zig glibc 2.17 targets may not build.
-# https://docs.rs/reqwest/0.13/reqwest/#optional-features
-reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "http2", "stream"] }
-rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
-# The count of the JSON values in a response body (`src/llm/shape.rs`) is a
-# visitor that builds no tree. serde is already in the tree through Rig.
-# https://docs.rs/serde/1/serde/de/trait.Visitor.html
-serde = "1"
 
 [build-dependencies]
 sha2 = "0.10"

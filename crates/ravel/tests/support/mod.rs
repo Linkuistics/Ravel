@@ -1,8 +1,6 @@
 //! Command/probe fixtures use private resources and an empty spawn environment.
 #![allow(dead_code)] // each integration binary uses its own subset
 pub mod direct;
-pub mod llm_seam;
-pub mod llm_server;
 pub mod rhai;
 use serde_json::Value;
 use std::fs;

@@ -10,7 +10,6 @@ mod environment;
 mod frame;
 mod inputs;
 mod limits;
-mod llm;
 #[cfg(test)]
 #[path = "../../keyed-launch/src/native_barrier.rs"]
 mod native_barrier;

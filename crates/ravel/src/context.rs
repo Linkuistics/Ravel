@@ -191,8 +191,8 @@ enum Author {
 
 /// `value` with the keys of every object in sorted order. The encoding that the
 /// context is measured by is sorted, and serde_json keeps the order of insertion
-/// when any crate in the build turns on its `preserve_order` feature, as
-/// `rig-core` does. Sorting here keeps the digest independent of that feature.
+/// when any crate in the build turns on its `preserve_order` feature. Sorting
+/// here keeps the digest independent of that feature.
 fn sorted(value: Value) -> Value {
     match value {
         Value::Object(map) => {

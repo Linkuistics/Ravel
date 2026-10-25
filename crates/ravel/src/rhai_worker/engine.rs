@@ -701,7 +701,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::limits::{HARNESS_RUNS_DEFAULT, LLM_CALLS_DEFAULT, LLM_OUTPUT_TOKENS_DEFAULT};
+    use crate::limits::HARNESS_RUNS_DEFAULT;
 
     fn bounds() -> Bounds {
         Bounds {
@@ -711,8 +711,6 @@ mod tests {
             sources: 256,
             message_bytes: 1_048_576,
             diagnostics_bytes: 262_144,
-            llm_calls: LLM_CALLS_DEFAULT,
-            llm_output_tokens: LLM_OUTPUT_TOKENS_DEFAULT,
             harness_runs: HARNESS_RUNS_DEFAULT,
         }
     }

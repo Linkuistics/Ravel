@@ -72,10 +72,16 @@ fn select(request, context) {
     for absent in ["harnessRuns", "modules"] {
         assert!(report.get(absent).is_none(), "{absent} in {report}");
     }
-    // The policy made no host call, so no read and no LLM call, and the entry is
-    // its only module.
+    // The policy made no host call, so it read nothing, and the entry is its only
+    // module. The notice has no member for an LLM call, which is a harness run.
     assert_eq!(report["reads"], json!([]));
-    assert_eq!(report["llmCalls"], json!([]));
+    assert!(report.get("llmCalls").is_none(), "llmCalls in {report}");
+    // The bounds hold the harness-run budget and no LLM budget.
+    let bounds = report["bounds"].as_object().unwrap();
+    assert!(bounds.contains_key("harnessRuns"), "{report}");
+    for retired in ["llmCalls", "llmOutputTokens"] {
+        assert!(!bounds.contains_key(retired), "{retired} in {report}");
+    }
     let modules = report["policy"]["modules"].as_array().unwrap();
     assert_eq!(modules.len(), 1, "{report}");
     assert_eq!(modules[0]["name"], text(&canonical));

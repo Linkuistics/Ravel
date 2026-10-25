@@ -20,8 +20,8 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
-//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `endpoints`, `harnesses`, `remaining` or `llm`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The three discovery calls add nothing. `llm` adds the checked request: `endpoint`, `model`, `messages`, `maxTokens`, and `temperature`, `reasoning`, `schema` and `timeoutMs` or null (`llm_call`) |
-//! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name`. A call of `llm` always answers `ok` with the response map, and a failed call is `status: "failed"` inside it |
+//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `endpoints`, `harnesses`, or `remaining`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The three discovery calls add nothing. |
+//! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name`. |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
 //! | `selection` | worker | `version`: the policy's `VERSION`. `result`: the JSON form of what `select` returned |
@@ -41,7 +41,6 @@ pub mod front;
 pub mod heap;
 mod helpers;
 mod host;
-mod llm_call;
 mod locate;
 mod pointer_calls;
 pub mod reader;
@@ -52,8 +51,6 @@ mod serve;
 use serde_json::{Value, json};
 
 use crate::limits::Limits;
-
-pub use llm_call::LlmCall;
 
 /// The `arg0` that marks the role. The front sets it, and `main` compares the
 /// whole of `argv[0]` to it, so a path that ends in this name is no role.
@@ -217,8 +214,8 @@ impl Read {
 pub const EXPRESSION_DEPTH_IN_FUNCTION: u64 = 32;
 
 /// The effective bounds the policy reads in `request.limits`. The worker keeps
-/// its own copy, so nothing the policy does can raise one. The LLM and harness
-/// budgets are the owner's settings, or the defaults of the spec.
+/// its own copy, so nothing the policy does can raise one. The harness-run
+/// budget is the owner's setting, or the default of the spec.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Bounds {
     pub selection_ms: u64,
@@ -227,22 +224,18 @@ pub struct Bounds {
     pub sources: u64,
     pub message_bytes: u64,
     pub diagnostics_bytes: u64,
-    pub llm_calls: u64,
-    pub llm_output_tokens: u64,
     pub harness_runs: u64,
 }
 
 /// The names of the bounds as the policy and the wire know them, in the order
 /// of [`Bounds::values`].
-const BOUND_NAMES: [&str; 9] = [
+const BOUND_NAMES: [&str; 7] = [
     "selectionMs",
     "contextBytes",
     "sourceBytes",
     "sources",
     "messageBytes",
     "diagnosticsBytes",
-    "llmCalls",
-    "llmOutputTokens",
     "harnessRuns",
 ];
 
@@ -255,13 +248,11 @@ impl Bounds {
             sources: limits.sources.value,
             message_bytes: limits.message.value,
             diagnostics_bytes: limits.diagnostics.value,
-            llm_calls: limits.budgets.llm_calls,
-            llm_output_tokens: limits.budgets.llm_output_tokens,
             harness_runs: limits.budgets.harness_runs,
         }
     }
 
-    fn values(self) -> [u64; 9] {
+    fn values(self) -> [u64; 7] {
         [
             self.selection_ms,
             self.context_bytes,
@@ -269,8 +260,6 @@ impl Bounds {
             self.sources,
             self.message_bytes,
             self.diagnostics_bytes,
-            self.llm_calls,
-            self.llm_output_tokens,
             self.harness_runs,
         ]
     }
@@ -290,7 +279,7 @@ impl Bounds {
         if object.len() != BOUND_NAMES.len() {
             return Err(format!("the bounds must hold exactly {BOUND_NAMES:?}"));
         }
-        let mut read = [0u64; 9];
+        let mut read = [0u64; 7];
         for (slot, name) in read.iter_mut().zip(BOUND_NAMES) {
             *slot = object
                 .get(name)
@@ -304,8 +293,6 @@ impl Bounds {
             sources,
             message_bytes,
             diagnostics_bytes,
-            llm_calls,
-            llm_output_tokens,
             harness_runs,
         ] = read;
         Ok(Bounds {
@@ -315,8 +302,6 @@ impl Bounds {
             sources,
             message_bytes,
             diagnostics_bytes,
-            llm_calls,
-            llm_output_tokens,
             harness_runs,
         })
     }
@@ -331,7 +316,7 @@ pub struct ScriptFailure {
     /// `selection_malformed`, `context_loader_failed`, `context_invalid`,
     /// `context_too_large`, `host_request_invalid`, `source_too_large`,
     /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`,
-    /// `llm_budget_exhausted` or `worker_failed`. The front raises the codes about a read, an import
+    /// or `worker_failed`. The front raises the codes about a read, an import
     /// and the size of a context when it ends the evaluation itself.
     pub code: String,
     /// The stage of that code.
@@ -346,7 +331,6 @@ pub struct ScriptFailure {
     /// The size a bound was exceeded at.
     pub actual: Option<u64>,
     /// For `script_limit` and `memory_limit`: the [`Limit::name`] that was hit.
-    /// For `llm_budget_exhausted`: the budget, `llmCalls` or `llmOutputTokens`.
     pub bound: Option<String>,
     /// For `source_too_large` and `too_many_sources`: the file that was read.
     pub source: Option<String>,
@@ -472,7 +456,7 @@ impl Reply {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::limits::{HARNESS_RUNS_DEFAULT, LLM_CALLS_DEFAULT, LLM_OUTPUT_TOKENS_DEFAULT};
+    use crate::limits::HARNESS_RUNS_DEFAULT;
 
     #[test]
     fn the_pinned_rhai_release_is_the_one_the_worker_reports() {
@@ -493,8 +477,6 @@ mod tests {
             sources: 256,
             message_bytes: 1_048_576,
             diagnostics_bytes: 262_144,
-            llm_calls: LLM_CALLS_DEFAULT,
-            llm_output_tokens: LLM_OUTPUT_TOKENS_DEFAULT,
             harness_runs: HARNESS_RUNS_DEFAULT,
         };
         assert_eq!(Bounds::from_json(&bounds.to_json()), Ok(bounds));

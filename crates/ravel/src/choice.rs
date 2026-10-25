@@ -14,7 +14,7 @@ use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
-use crate::rhai_worker::{Limit, LlmCall, Module, Read, Reply, ScriptFailure};
+use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 
@@ -46,8 +46,6 @@ pub struct Choice {
     pub modules: Vec<Module>,
     /// Every measured read of the Rhai path, with the phase that made it. (rhai)
     pub reads: Vec<Read>,
-    /// Every `ravel::llm` call of the Rhai path, in order. (rhai)
-    pub llm_calls: Vec<LlmCall>,
     pub diagnostics: Diagnostics,
     pub operational: Vec<String>,
 }
@@ -173,7 +171,6 @@ fn evaluate_and_resolve(
         context,
         modules: Vec::new(),
         reads: Vec::new(),
-        llm_calls: Vec::new(),
         diagnostics,
         operational: evaluation.operational,
     })
@@ -266,7 +263,6 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         context: evaluation.delivered.or(context),
         modules: evaluation.modules,
         reads: evaluation.reads,
-        llm_calls: evaluation.llm_calls,
         diagnostics,
         operational: evaluation.operational,
     })
@@ -429,7 +425,6 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
             Language::Rhai.shape(source),
         ),
         "script_limit" | "memory_limit" => return limit_refusal(failure, file),
-        "llm_budget_exhausted" => return budget_refusal(failure, file, limits),
         "message_too_large" => {
             let breach = Breach {
                 bound: "message".to_owned(),
@@ -505,47 +500,6 @@ fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
         value: limit.value(),
         origin: Origin::Fixed,
     });
-    match (failure.line, failure.column) {
-        (Some(line), Some(column)) => refusal.location(format!("{line}:{column}")),
-        (Some(line), None) => refusal.location(line.to_string()),
-        _ => refusal,
-    }
-}
-
-/// The refusal for a call that found no LLM call or no output token left,
-/// naming the budget and where the owner set it. (rhai)
-fn budget_refusal(failure: &ScriptFailure, file: &str, limits: &Limits) -> Refusal {
-    let named = limits
-        .budgets
-        .bounds()
-        .into_iter()
-        .find(|bound| Some(bound.name) == failure.bound.as_deref());
-    let Some(bound) = named else {
-        return Refusal::new(
-            "worker_failed",
-            Stage::Worker,
-            EXIT_WORKER,
-            format!(
-                "the policy worker reported {} without a budget this front knows: {}",
-                failure.code, failure.message
-            ),
-            "reinstall ravel, and start the session again",
-        )
-        .source(file);
-    };
-    let refusal = Refusal::new(
-        "llm_budget_exhausted",
-        Stage::Evaluation,
-        EXIT_REFUSED,
-        failure.message.clone(),
-        format!(
-            "make fewer calls, or ask for fewer tokens; a policy cannot catch this or raise its \
-             budget, and only the owner sets budgets.{} in the settings",
-            bound.name
-        ),
-    )
-    .source(file)
-    .bound(bound);
     match (failure.line, failure.column) {
         (Some(line), Some(column)) => refusal.location(format!("{line}:{column}")),
         (Some(line), None) => refusal.location(line.to_string()),

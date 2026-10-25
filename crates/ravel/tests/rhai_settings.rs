@@ -5,8 +5,8 @@
 //! functions `ravel::endpoints`, `ravel::harnesses` and `ravel::remaining`.
 //!
 //! Everything runs in a sandbox home with fake harness scripts on a private
-//! `PATH`. No test makes a network call, and none could: this increment has no
-//! LLM client. The policy hands what it computed to the recording harness as
+//! `PATH`. No test makes a network call, and none could: Ravel has no HTTP
+//! client. The policy hands what it computed to the recording harness as
 //! arguments, so a test sees what the script saw.
 
 mod support;
@@ -119,9 +119,9 @@ fn each_settings_failure_refuses_as_settings_invalid_with_exit_2_before_any_work
         (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "ftp://api.example.com" } }"#.to_owned(), "endpoints.a.baseUrl"),
         (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "not a url" } }"#.to_owned(), "endpoints.a.baseUrl"),
         // The budgets.
-        (r#""budgets": { "llmCalls": 257 }"#.to_owned(), "budgets.llmCalls"),
-        (r#""budgets": { "llmCalls": -1 }"#.to_owned(), "budgets.llmCalls"),
-        (r#""budgets": { "llmOutputTokens": 10000001 }"#.to_owned(), "budgets.llmOutputTokens"),
+        (r#""budgets": { "llmCalls": 8 }"#.to_owned(), "budgets.llmCalls"),
+        (r#""budgets": { "llmOutputTokens": 4096 }"#.to_owned(), "budgets.llmOutputTokens"),
+        (r#""budgets": { "harnessRuns": -1 }"#.to_owned(), "budgets.harnessRuns"),
         (r#""budgets": { "harnessRuns": 17 }"#.to_owned(), "budgets.harnessRuns"),
         (r#""budgets": { "harnessRuns": "1" }"#.to_owned(), "budgets.harnessRuns"),
         (r#""budgets": { "retries": 1 }"#.to_owned(), "budgets.retries"),
@@ -148,6 +148,26 @@ fn each_settings_failure_refuses_as_settings_invalid_with_exit_2_before_any_work
             error["message"].as_str().unwrap().contains(SETTINGS),
             "{contents}: {error}"
         );
+    }
+}
+
+/// The two budgets of `ravel::llm` are gone, so a settings file that still sets
+/// one refuses as an unknown budget, and no policy starts.
+#[test]
+fn the_budgets_of_the_removed_llm_call_are_unknown_budgets() {
+    for key in ["llmCalls", "llmOutputTokens"] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        settings(&sandbox, &format!(r#"{{ "budgets": {{ "{key}": 8 }} }}"#));
+        sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
+
+        let error = refused(&recorded, &start_with(&sandbox, &[], &[]));
+
+        assert_eq!(error["code"], "settings_invalid", "{key}");
+        assert_eq!(error["location"], format!("budgets.{key}"), "{key}");
+        let message = error["message"].as_str().unwrap();
+        assert!(message.contains("an unknown budget"), "{key}: {message}");
+        assert!(message.contains("harnessRuns"), "{key}: {message}");
     }
 }
 
@@ -369,18 +389,7 @@ fn remaining_reports_the_defaults_and_the_time_that_is_left() {
     let object = value.as_object().unwrap();
     let mut names: Vec<&str> = object.keys().map(String::as_str).collect();
     names.sort_unstable();
-    assert_eq!(
-        names,
-        [
-            "harnessRuns",
-            "llmCalls",
-            "llmOutputTokens",
-            "ms",
-            "sources"
-        ]
-    );
-    assert_eq!(value["llmCalls"], 8);
-    assert_eq!(value["llmOutputTokens"], 32_768);
+    assert_eq!(names, ["harnessRuns", "ms", "sources"]);
     assert_eq!(value["harnessRuns"], 0);
     assert_eq!(value["sources"], 256);
     let ms = value["ms"].as_u64().unwrap();
@@ -391,10 +400,7 @@ fn remaining_reports_the_defaults_and_the_time_that_is_left() {
 fn remaining_counts_down_the_time_and_the_sources_and_reports_the_owners_budgets() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    settings(
-        &sandbox,
-        r#"{ "budgets": { "llmCalls": 3, "llmOutputTokens": 4096, "harnessRuns": 2 } }"#,
-    );
+    settings(&sandbox, r#"{ "budgets": { "harnessRuns": 2 } }"#);
     sandbox.file("facts.txt", "x");
     sandbox.file("context.json", r#"{"schemaVersion": 1, "facts": {}}"#);
     sandbox.personal_rhai(&selecting(
@@ -421,15 +427,9 @@ fn remaining_counts_down_the_time_and_the_sources_and_reports_the_owners_budgets
     assert_eq!(seen["before"]["sources"], 255);
     assert_eq!(seen["after"]["sources"], 254);
     assert_eq!(seen["broken"], "source_missing");
-    for (key, expected) in [
-        ("llmCalls", 3),
-        ("llmOutputTokens", 4096),
-        ("harnessRuns", 2),
-    ] {
-        assert_eq!(seen["before"][key], expected, "{key}");
-        assert_eq!(seen["after"][key], expected, "{key}");
-        assert_eq!(seen["limits"][key], expected, "{key}");
-    }
+    assert_eq!(seen["before"]["harnessRuns"], 2);
+    assert_eq!(seen["after"]["harnessRuns"], 2);
+    assert_eq!(seen["limits"]["harnessRuns"], 2);
     let (before, after) = (
         seen["before"]["ms"].as_u64().unwrap(),
         seen["after"]["ms"].as_u64().unwrap(),
@@ -441,19 +441,18 @@ fn remaining_counts_down_the_time_and_the_sources_and_reports_the_owners_budgets
 #[test]
 fn a_policy_cannot_raise_a_budget_it_reads() {
     let value = computed_value(
-        r#"{ "budgets": { "llmCalls": 2 } }"#,
+        r#"{ "budgets": { "harnessRuns": 2 } }"#,
         &[],
         r#"{
         let mine = request.limits;
-        mine.llmCalls = 256;
+        mine.harnessRuns = 16;
         request.limits.harnessRuns = 16;
         #{ remaining: ravel::remaining(), limits: request.limits, mine: mine }
     }"#,
     );
 
-    assert_eq!(value["remaining"]["llmCalls"], 2);
-    assert_eq!(value["remaining"]["harnessRuns"], 0);
-    assert_eq!(value["mine"]["llmCalls"], 256);
+    assert_eq!(value["remaining"]["harnessRuns"], 2);
+    assert_eq!(value["mine"]["harnessRuns"], 16);
 }
 
 #[test]
@@ -469,20 +468,20 @@ fn the_discovery_functions_are_available_at_the_top_of_a_module_and_in_load_cont
     sandbox.file(
         "policy-lib.rhai",
         r#"export const AT_TOP = [ravel::endpoints().len(), ravel::harnesses().len(),
-                         ravel::remaining().llmCalls];"#,
+                         ravel::remaining().harnessRuns];"#,
     );
     sandbox.personal_rhai(&policy(
         r#"import "policy-lib" as lib;
 fn load_context(request) {
     #{ schemaVersion: 1, facts: #{ endpoints: ravel::endpoints().len(),
                                    harnesses: ravel::harnesses().len(),
-                                   llmCalls: ravel::remaining().llmCalls } }
+                                   harnessRuns: ravel::remaining().harnessRuns } }
 }
 fn select(request, context) {
     #{ status: "selected", program: "recording-agent",
        args: [lib::AT_TOP.map(|n| n.to_string()).reduce(|sum, n| sum + "," + n, ""),
               context.facts.endpoints.to_string(), context.facts.harnesses.to_string(),
-              context.facts.llmCalls.to_string(), ravel::endpoints().len().to_string()],
+              context.facts.harnessRuns.to_string(), ravel::endpoints().len().to_string()],
        provider: "p", model: "m", effort: "e", reason: "r" }
 }"#,
     ));
@@ -495,5 +494,5 @@ fn select(request, context) {
 
     start_with(&sandbox, &[], &[]).report();
 
-    assert_eq!(recorded.argv().unwrap(), [",1,1,8", "1", "1", "8", "1"]);
+    assert_eq!(recorded.argv().unwrap(), [",1,1,0", "1", "1", "0", "1"]);
 }

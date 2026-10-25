@@ -1,5 +1,5 @@
 //! Optional owner settings: selection bound, context budget, policy environment
-//! grants, and the LLM endpoints, harness entries and budgets of a Rhai policy.
+//! grants, and the LLM endpoints, harness entries and budget of a Rhai policy.
 
 use std::ffi::OsStr;
 use std::fs;
@@ -12,8 +12,7 @@ use serde_json::Value;
 use crate::endpoints::{self, Endpoints, Harnesses, Problem};
 use crate::environment;
 use crate::limits::{
-    CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, HARNESS_RUNS_MAX, LLM_CALLS_MAX, LLM_OUTPUT_TOKENS_MAX,
-    SELECTION_MAX_MS, SELECTION_MIN_MS,
+    CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, HARNESS_RUNS_MAX, SELECTION_MAX_MS, SELECTION_MIN_MS,
 };
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
@@ -33,12 +32,10 @@ pub struct Settings {
     pub budgets: BudgetSettings,
 }
 
-/// The owner's choices for the three budgets, each within the range of the spec
-/// table. A budget the owner leaves out keeps its default.
+/// The owner's choices for the budgets, each within the range of the spec table.
+/// A budget the owner leaves out keeps its default.
 #[derive(Debug, Default)]
 pub struct BudgetSettings {
-    pub llm_calls: Option<u64>,
-    pub llm_output_tokens: Option<u64>,
     pub harness_runs: Option<u64>,
 }
 
@@ -153,7 +150,7 @@ fn problem(file: &str, problem: Problem) -> Refusal {
 }
 
 /// The `budgets` key: an object of whole numbers within the ranges of the spec
-/// table, with no key besides the three.
+/// table, with no key besides `harnessRuns`.
 fn budgets(file: &str, value: &Value) -> Result<BudgetSettings, Refusal> {
     let fields = value.as_object().ok_or_else(|| {
         invalid(
@@ -165,15 +162,12 @@ fn budgets(file: &str, value: &Value) -> Result<BudgetSettings, Refusal> {
     let mut budgets = BudgetSettings::default();
     for (key, value) in fields {
         let (slot, max) = match key.as_str() {
-            "llmCalls" => (&mut budgets.llm_calls, LLM_CALLS_MAX),
-            "llmOutputTokens" => (&mut budgets.llm_output_tokens, LLM_OUTPUT_TOKENS_MAX),
             "harnessRuns" => (&mut budgets.harness_runs, HARNESS_RUNS_MAX),
             _ => {
                 return Err(invalid(
                     file,
                     format!(
-                        "holds budgets.{key}, an unknown budget: the budgets are llmCalls, \
-                         llmOutputTokens and harnessRuns"
+                        "holds budgets.{key}, an unknown budget: the only budget is harnessRuns"
                     ),
                 )
                 .location(format!("budgets.{key}")));
@@ -360,12 +354,12 @@ mod tests {
     fn the_three_keys_of_a_rhai_policy_are_read_and_default_to_nothing() {
         let none = read("{}").unwrap();
         assert!(none.endpoints.is_empty() && none.harnesses.is_empty());
-        assert_eq!(none.budgets.llm_calls, None);
+        assert_eq!(none.budgets.harness_runs, None);
         let settings = read(
             r#"{
                 "endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } },
                 "harnesses": { "claude": { "program": "claude", "capabilities": ["edit"] } },
-                "budgets": { "llmCalls": 256, "llmOutputTokens": 10000000, "harnessRuns": 16 }
+                "budgets": { "harnessRuns": 16 }
             }"#,
         )
         .unwrap();
@@ -374,12 +368,9 @@ mod tests {
             Some("MAIN_KEY")
         );
         assert_eq!(settings.harnesses["claude"].program, "claude");
-        assert_eq!(settings.budgets.llm_calls, Some(256));
-        assert_eq!(settings.budgets.llm_output_tokens, Some(10_000_000));
         assert_eq!(settings.budgets.harness_runs, Some(16));
-        let zero = read(r#"{ "budgets": { "llmCalls": 0, "harnessRuns": 0 } }"#).unwrap();
-        assert_eq!(zero.budgets.llm_calls, Some(0));
-        assert_eq!(zero.budgets.llm_output_tokens, None);
+        let zero = read(r#"{ "budgets": { "harnessRuns": 0 } }"#).unwrap();
+        assert_eq!(zero.budgets.harness_runs, Some(0));
     }
 
     #[test]
@@ -392,13 +383,23 @@ mod tests {
             ),
             (r#"{ "harnesses": { "a": {} } }"#, "harnesses.a.program"),
             (r#"{ "budgets": 5 }"#, "budgets"),
-            (r#"{ "budgets": { "llmCalls": 257 } }"#, "budgets.llmCalls"),
-            (r#"{ "budgets": { "llmCalls": -1 } }"#, "budgets.llmCalls"),
-            (r#"{ "budgets": { "llmCalls": 1.5 } }"#, "budgets.llmCalls"),
-            (r#"{ "budgets": { "llmCalls": "8" } }"#, "budgets.llmCalls"),
+            // The two LLM budgets are gone, so their keys are unknown budgets.
+            (r#"{ "budgets": { "llmCalls": 8 } }"#, "budgets.llmCalls"),
             (
-                r#"{ "budgets": { "llmOutputTokens": 10000001 } }"#,
+                r#"{ "budgets": { "llmOutputTokens": 4096 } }"#,
                 "budgets.llmOutputTokens",
+            ),
+            (
+                r#"{ "budgets": { "harnessRuns": -1 } }"#,
+                "budgets.harnessRuns",
+            ),
+            (
+                r#"{ "budgets": { "harnessRuns": 1.5 } }"#,
+                "budgets.harnessRuns",
+            ),
+            (
+                r#"{ "budgets": { "harnessRuns": "8" } }"#,
+                "budgets.harnessRuns",
             ),
             (
                 r#"{ "budgets": { "harnessRuns": 17 } }"#,

@@ -47,14 +47,9 @@ pub const MESSAGE_BYTES: u64 = 1024 * 1024;
 /// The worker's stdout and stderr together, in bytes.
 pub const DIAGNOSTICS_BYTES: u64 = 256 * 1024;
 
-/// The LLM and harness budgets of one evaluation (`docs/specs/policy-evaluation.md`,
-/// *Evaluation budgets and their composition*): the default and the range of
-/// each. Only the owner settings set them, and a policy can read them but not
-/// raise one.
-pub const LLM_CALLS_DEFAULT: u64 = 8;
-pub const LLM_CALLS_MAX: u64 = 256;
-pub const LLM_OUTPUT_TOKENS_DEFAULT: u64 = 32_768;
-pub const LLM_OUTPUT_TOKENS_MAX: u64 = 10_000_000;
+/// The harness-run budget of one evaluation (`docs/specs/policy-evaluation.md`,
+/// *Evaluation budgets and their composition*): the default and the range. Only
+/// the owner settings set it, and a policy can read it but not raise it.
 pub const HARNESS_RUNS_DEFAULT: u64 = 0;
 pub const HARNESS_RUNS_MAX: u64 = 16;
 
@@ -62,18 +57,14 @@ pub const HARNESS_RUNS_MAX: u64 = 16;
 /// of the request of the TypeScript path.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Budgets {
-    pub llm_calls: u64,
-    pub llm_output_tokens: u64,
     pub harness_runs: u64,
     /// Where each value came from: the owner's settings, or the default.
     pub origins: BudgetOrigins,
 }
 
-/// The origin of each of the three budgets.
+/// The origin of each budget.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BudgetOrigins {
-    pub llm_calls: Origin,
-    pub llm_output_tokens: Origin,
     pub harness_runs: Origin,
 }
 
@@ -81,17 +72,10 @@ impl Budgets {
     /// The owner's choices over the defaults.
     pub fn read(settings: &Settings) -> Budgets {
         let owner = &settings.budgets;
-        let (llm_calls, calls_origin) = owned(owner.llm_calls, LLM_CALLS_DEFAULT);
-        let (llm_output_tokens, tokens_origin) =
-            owned(owner.llm_output_tokens, LLM_OUTPUT_TOKENS_DEFAULT);
         let (harness_runs, runs_origin) = owned(owner.harness_runs, HARNESS_RUNS_DEFAULT);
         Budgets {
-            llm_calls,
-            llm_output_tokens,
             harness_runs,
             origins: BudgetOrigins {
-                llm_calls: calls_origin,
-                llm_output_tokens: tokens_origin,
                 harness_runs: runs_origin,
             },
         }
@@ -99,28 +83,19 @@ impl Budgets {
 
     /// The budgets as bounds, for the notice and for a refusal that names one.
     /// Their names are the keys of `bounds` and of `budgets` in the settings.
-    pub fn bounds(self) -> [Bound; 3] {
+    pub fn bounds(self) -> [Bound; 1] {
         let bound = |name, unit, value, origin| Bound {
             name,
             unit,
             value,
             origin,
         };
-        [
-            bound("llmCalls", "calls", self.llm_calls, self.origins.llm_calls),
-            bound(
-                "llmOutputTokens",
-                "tokens",
-                self.llm_output_tokens,
-                self.origins.llm_output_tokens,
-            ),
-            bound(
-                "harnessRuns",
-                "runs",
-                self.harness_runs,
-                self.origins.harness_runs,
-            ),
-        ]
+        [bound(
+            "harnessRuns",
+            "runs",
+            self.harness_runs,
+            self.origins.harness_runs,
+        )]
     }
 }
 
@@ -417,39 +392,27 @@ mod tests {
         assert_eq!(
             limits.budgets,
             Budgets {
-                llm_calls: 8,
-                llm_output_tokens: 32_768,
                 harness_runs: 0,
                 origins: BudgetOrigins {
-                    llm_calls: Origin::Default,
-                    llm_output_tokens: Origin::Default,
                     harness_runs: Origin::Default,
                 },
             }
         );
         let settings = Settings {
             budgets: settings::BudgetSettings {
-                llm_calls: Some(0),
-                llm_output_tokens: None,
                 harness_runs: Some(16),
             },
             ..Settings::default()
         };
         let limits = Limits::read(None, None, &settings).unwrap();
-        assert_eq!(limits.budgets.llm_calls, 0);
-        assert_eq!(limits.budgets.llm_output_tokens, 32_768);
         assert_eq!(limits.budgets.harness_runs, 16);
         assert_eq!(
             limits.budgets.bounds().map(Bound::to_json),
-            [
-                json!({ "calls": 0, "from": "settings.json" }),
-                json!({ "tokens": 32_768, "from": "default" }),
-                json!({ "runs": 16, "from": "settings.json" }),
-            ]
+            [json!({ "runs": 16, "from": "settings.json" })]
         );
         // The 1.x notice and request do not carry them.
-        assert!(limits.to_json().get("llmCalls").is_none());
-        assert!(limits.to_request().get("llmCalls").is_none());
+        assert!(limits.to_json().get("harnessRuns").is_none());
+        assert!(limits.to_request().get("harnessRuns").is_none());
     }
 
     #[test]

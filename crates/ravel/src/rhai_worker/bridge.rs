@@ -28,7 +28,6 @@ use serde_json::{Value, json};
 
 use super::convert::from_json;
 use super::helpers;
-use super::llm_call;
 use super::{Bounds, Phase, ScriptFailure};
 use crate::frame::write_frame;
 
@@ -253,20 +252,6 @@ impl Bridge {
         }
     }
 
-    /// `ravel::llm`: the request is checked here, and the front answers with the
-    /// response map. A failed call is a map with `status: "failed"`, not a throw.
-    fn llm(&self, context: &NativeCallContext, request: &Dynamic) -> Outcome<Dynamic> {
-        let frame = llm_call::frame(self, context, request)?;
-        let answer = self.ask(&frame)?;
-        match (
-            answer.get("status").and_then(Value::as_str),
-            answer.get("value"),
-        ) {
-            (Some("ok"), Some(value @ Value::Object(_))) => Ok(llm_call::response(value)),
-            _ => Err(self.protocol("llm", "an llm reply has no response map")),
-        }
-    }
-
     /// The front answered in a way no front of this build does.
     pub fn protocol(&self, what: &str, why: &str) -> Box<EvalAltResult> {
         self.end(ScriptFailure::new(
@@ -299,11 +284,6 @@ impl Bridge {
         FuncRegistration::new("env").set_into_module(
             &mut module,
             move |context: NativeCallContext, name: Dynamic| bridge.env(&context, &name),
-        );
-        let bridge = Rc::clone(self);
-        FuncRegistration::new("llm").set_into_module(
-            &mut module,
-            move |context: NativeCallContext, request: Dynamic| bridge.llm(&context, &request),
         );
         for function in ["endpoints", "harnesses", "remaining"] {
             let bridge = Rc::clone(self);

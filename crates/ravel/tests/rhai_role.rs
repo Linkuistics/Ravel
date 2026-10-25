@@ -33,7 +33,7 @@ fn bounds() -> Value {
     json!({
         "selectionMs": 30000, "contextBytes": 262144, "sourceBytes": 65536, "sources": 256,
         "messageBytes": 1048576, "diagnosticsBytes": 262144,
-        "llmCalls": 8, "llmOutputTokens": 32768, "harnessRuns": 0,
+        "harnessRuns": 0,
     })
 }
 
