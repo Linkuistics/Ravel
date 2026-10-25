@@ -40,7 +40,7 @@
 //!
 //! The credential is a Rig `Secret` from the construction of the config on. No
 //! text that this module returns holds it: [`redact`] removes it from every
-//! message, whatever the endpoint echoes.
+//! string of a response and of a failure, whatever the endpoint echoes.
 
 mod transport;
 
@@ -272,11 +272,18 @@ impl Adapter {
         };
         match outcome {
             Ok(mut response) => {
+                // An endpoint chooses every string of its answer, so any of
+                // them can echo the credential.
+                response.text = redact(&response.text, &secret);
+                redact_option(&mut response.reported_model, &secret);
+                redact_option(&mut response.response_id, &secret);
+                redact_option(&mut response.request_id, &secret);
                 response.elapsed = began.elapsed();
                 Ok(response)
             }
             Err(mut failure) => {
                 failure.message = redact(&failure.message, &secret);
+                redact_option(&mut failure.request_id, &secret);
                 Err(finish(failure))
             }
         }
@@ -485,6 +492,13 @@ fn redact(text: &str, secret: &str) -> String {
         text.to_owned()
     } else {
         text.replace(secret, "[redacted]")
+    }
+}
+
+/// `field`, if it holds text, with every occurrence of `secret` removed.
+fn redact_option(field: &mut Option<String>, secret: &str) {
+    if let Some(text) = field {
+        *text = redact(text, secret);
     }
 }
 

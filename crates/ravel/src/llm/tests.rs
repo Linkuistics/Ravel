@@ -495,6 +495,33 @@ fn a_credential_that_the_endpoint_echoes_is_redacted() {
 }
 
 #[test]
+fn a_credential_in_the_request_id_of_a_failure_is_redacted() {
+    let (failure, _) = failed(vec![
+        Reply::raw(401, "application/json", br#"{"error":"bad key"}"#).header("request-id", KEY),
+    ]);
+    assert_eq!(failure.code, Code::Authentication);
+    assert_eq!(failure.request_id.as_deref(), Some("[redacted]"));
+    assert!(!format!("{failure:?}").contains(KEY));
+}
+
+#[test]
+fn a_credential_anywhere_in_a_successful_answer_is_redacted() {
+    let mut body = messages_body(&format!("the key is {KEY}"));
+    body["id"] = json!(KEY);
+    body["model"] = json!(format!("model-{KEY}"));
+    let (result, _) = call(
+        vec![Reply::json(200, &body).header("request-id", KEY)],
+        &request(),
+    );
+    let response = result.unwrap();
+    assert_eq!(response.text, "the key is [redacted]");
+    assert_eq!(response.response_id.as_deref(), Some("[redacted]"));
+    assert_eq!(response.reported_model.as_deref(), Some("model-[redacted]"));
+    assert_eq!(response.request_id.as_deref(), Some("[redacted]"));
+    assert!(!format!("{response:?}").contains(KEY));
+}
+
+#[test]
 fn the_other_api_types_are_not_available_yet() {
     let other = crate::endpoints::parse_endpoints(&json!({
         "gpt": { "type": "openai", "apiKeyEnv": "FIXTURE_KEY", "baseUrl": "http://127.0.0.1:1" }

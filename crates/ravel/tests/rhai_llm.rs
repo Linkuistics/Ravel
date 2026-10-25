@@ -729,6 +729,89 @@ fn the_credential_reaches_the_server_only_in_its_header_and_no_probe_finds_it() 
 }
 
 #[test]
+fn an_endpoint_that_echoes_the_credential_in_any_field_of_an_answer_leaks_nothing() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let mut body = llm_server::messages_body(&format!("the key is {KEY}"));
+    body["id"] = json!(KEY);
+    body["model"] = json!(format!("model-{KEY}"));
+    let server = Server::start(vec![
+        Reply::json(200, &body).header("request-id", KEY),
+        Reply::raw(401, "application/json", br#"{"error":"bad key"}"#).header("request-id", KEY),
+    ]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    let answered = {};
+    let failed = {};
+    print(ravel::json_encode(answered));
+    print(ravel::json_encode(failed));
+    debug(answered);
+    let args = [answered.text, answered.responseId, answered.reportedModel, answered.requestId,
+                failed.error.code, failed.requestId];"#,
+        ask("main", ""),
+        ask("main", "")
+    )));
+
+    let run = start(&sandbox, true, &[]);
+    let report = run.report();
+
+    let args = recorded.argv().unwrap();
+    assert_eq!(args[0], "the key is [redacted]");
+    assert_eq!(args[1], "[redacted]");
+    assert_eq!(args[2], "model-[redacted]");
+    assert_eq!(args[3], "[redacted]");
+    assert_eq!(args[4], "authentication");
+    assert_eq!(args[5], "[redacted]");
+    assert!(!run.stderr.contains(KEY), "{}", run.stderr);
+    assert!(!report.to_string().contains(KEY), "{report}");
+}
+
+/// On Linux the TLS client reads the certificate file that the caller's
+/// environment names, when it is built. A FIFO that no process writes holds that
+/// read for good, so the whole deadline must still end the evaluation. The
+/// other platforms read no such file.
+#[cfg(target_os = "linux")]
+#[test]
+fn a_trust_store_that_blocks_cannot_hold_the_whole_deadline() {
+    use std::ffi::CString;
+    use std::os::unix::ffi::OsStrExt as _;
+
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![Reply::messages("never asked")]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        "    let response = {};\n    let args = [response.status];",
+        ask("main", "")
+    )));
+    let fifo = sandbox.home.join("blocking-roots.pem");
+    let path = CString::new(fifo.as_os_str().as_bytes()).unwrap();
+    assert_eq!(unsafe { libc::mkfifo(path.as_ptr(), 0o600) }, 0);
+    let began = Instant::now();
+
+    let mut command = sandbox.command();
+    command
+        .env(KEY_VARIABLE, KEY)
+        .env("SSL_CERT_FILE", &fifo)
+        .env_remove("SSL_CERT_DIR")
+        .args([
+            "start-session",
+            "--prompt",
+            "classify me",
+            "--kind",
+            "check",
+            "--json",
+            "--timeout-ms",
+            "1000",
+        ]);
+    let run = run(&mut command);
+
+    assert_eq!(run.code, Some(124), "{}", run.stderr);
+    assert_eq!(recorded.argv(), None);
+    assert!(began.elapsed() < Duration::from_secs(20));
+}
+
+#[test]
 fn a_flag_grant_of_the_credential_refuses_before_any_worker() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();

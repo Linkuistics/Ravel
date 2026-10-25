@@ -686,6 +686,10 @@ The HTTP client follows these rules:
 - It makes no retry. Ravel switches off the default protocol retries of
   reqwest.
 - It uses rustls with the trust store of the platform.
+  Ravel builds the client on the reader thread, because loading the trust store
+  can read files that the caller's environment names.
+- Ravel removes the credential from every string of a response and of a failure
+  before the script sees it, because an endpoint chooses those strings.
 - Its connection deadline is no later than the deadline of the call.
 - It bounds each response body before Rig decodes it. A successful body has at
   most 8 MiB, and a longer one fails the call as `output_limit`.

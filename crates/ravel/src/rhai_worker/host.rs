@@ -322,7 +322,15 @@ impl Host {
             ));
         }
         if self.adapter.is_none() {
-            match Adapter::new() {
+            // Building the client loads the trust store, which on Linux can
+            // read files that the caller's environment names. That is a
+            // filesystem call, so it runs on the reader thread, and a stop
+            // abandons it like any other read.
+            let built = match self.reader.run(Adapter::new).await {
+                Ok(built) => built,
+                Err(_) => Err("the reader thread ended before it answered".to_owned()),
+            };
+            match built {
                 Ok(adapter) => self.adapter = Some(adapter),
                 Err(why) => {
                     return Err(Failure::new(
