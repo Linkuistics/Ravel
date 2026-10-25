@@ -1,4 +1,11 @@
 //! Evaluate the compiled policy worker through a bounded private socket.
+//!
+//! Two halves, which the removal of the TypeScript path separates. `supervise`
+//! and what it owns stay: `Launch`, `Supervised`, `Conversation`, `Bounded`,
+//! the diagnostics capture, the bounded stop and the teardown report. The Bun
+//! protocol goes: `evaluate`, `locate`, `converse`, `verify_hello`, `Loaded`,
+//! the frame readers and `REBUILD`. The Rhai worker in `rhai_worker` uses the
+//! first half only.
 
 use std::ffi::OsString;
 use std::fs;
@@ -34,7 +41,7 @@ pub const BUILD_ID: &str = env!("RAVEL_WORKER_BUILD_ID");
 const WORKER_FROM_BIN: &str = "../libexec/ravel/ravel-policy";
 
 /// The descriptor the worker's channel occupies, fixed on both sides.
-const CHANNEL_FD: RawFd = 3;
+pub(crate) const CHANNEL_FD: RawFd = 3;
 
 /// The directory listing this process's open descriptors.
 #[cfg(target_os = "linux")]
@@ -781,7 +788,7 @@ pub(crate) enum Conversation {
 }
 
 impl Conversation {
-    fn failed(error: FrameError, handed_over: bool) -> Self {
+    pub(crate) fn failed(error: FrameError, handed_over: bool) -> Self {
         match error {
             FrameError::Io(error) if error.kind() == ErrorKind::TimedOut => {
                 Conversation::Expired { handed_over }
@@ -858,31 +865,47 @@ fn converse<T>(
     Ok((identity, decided, started.elapsed()))
 }
 
-/// The next frame, or why there is none: a malformed frame is the worker
-/// breaking the protocol, and anything else ends the conversation or its time.
 fn receive(
     channel: &mut Bounded<'_>,
     worker: &Path,
     handed_over: bool,
     max: usize,
 ) -> Result<Value, Conversation> {
+    receive_for(channel, worker, REBUILD, handed_over, max)
+}
+
+fn broken(worker: &Path, message: String) -> Conversation {
+    broken_for(worker, REBUILD, message)
+}
+
+/// The next frame, or why there is none: a malformed frame is the worker
+/// breaking the protocol, and anything else ends the conversation or its time.
+/// `rebuild` is the remedy of the worker being talked to.
+pub(crate) fn receive_for(
+    channel: &mut Bounded<'_>,
+    worker: &Path,
+    rebuild: &str,
+    handed_over: bool,
+    max: usize,
+) -> Result<Value, Conversation> {
     match read_frame(channel, max) {
-        Err(error @ (FrameError::TooLarge(..) | FrameError::NotJson(_))) => Err(broken(
+        Err(error @ (FrameError::TooLarge(..) | FrameError::NotJson(_))) => Err(broken_for(
             worker,
+            rebuild,
             format!("the policy worker sent a malformed frame: {error}"),
         )),
         other => other.map_err(|error| Conversation::failed(error, handed_over)),
     }
 }
 
-fn broken(worker: &Path, message: String) -> Conversation {
+pub(crate) fn broken_for(worker: &Path, rebuild: &str, message: String) -> Conversation {
     Conversation::Broken(
         Refusal::new(
             "protocol_error",
             Stage::Worker,
             EXIT_WORKER,
             message,
-            REBUILD,
+            rebuild,
         )
         .source(worker.to_string_lossy()),
     )

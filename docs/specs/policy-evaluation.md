@@ -128,7 +128,9 @@ of its own, so every import names a file.
 Ravel evaluates the entry as a module. Its top-level statements run once, before
 any of its functions. A missing export, a wrong arity or a blank version refuses
 as `policy_invalid`. Other functions and constants are helpers of the policy. A
-wrapper policy imports another module and calls its `select`. It can change the
+function reads a top-level constant through the `global::` namespace, such as
+`global::TABLE`. Rhai functions do not see the variables around them. A wrapper
+policy imports another module and calls its `select`. It can change the
 selection that comes back.
 
 The engine runs in a strict mode:
@@ -202,7 +204,8 @@ each value that it refuses, such as `result.args[2]`.
 | Character, BLOB, function pointer, timestamp, range or custom type | Refused |
 
 From JSON, an integer outside the signed 64-bit range becomes a float. A shared
-value that a closure captured converts as its current content.
+value that a closure captured converts as its current content. Arrays and
+maps nest at most 100 levels. A deeper value refuses at its location.
 
 ### The policy worker
 

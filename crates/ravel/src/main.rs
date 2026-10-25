@@ -17,6 +17,13 @@ mod native_entry_tests;
 mod policy;
 mod program;
 mod refusal;
+// The front half has no caller until `rhai-route-table-seam` joins it to
+// `start-session`; that leaf removes this expectation.
+#[expect(
+    dead_code,
+    reason = "the front half is joined to start-session by the seam leaf"
+)]
+mod rhai_worker;
 mod run;
 mod settings;
 mod signal_state;
@@ -36,6 +43,14 @@ fn main() -> ExitCode {
     if std::env::var_os("K28_NATIVE_ENTRY_MAIN").is_some() {
         native_entry_tests::run_role();
         unreachable!("the private main-thread fixture must exit explicitly");
+    }
+    // The internal role of the Rhai policy worker is chosen by `arg0` alone,
+    // because it accepts no command-line input. It never parses a command.
+    if std::env::args_os()
+        .next()
+        .is_some_and(|arg0| arg0 == rhai_worker::ARG0)
+    {
+        return rhai_worker::role::run();
     }
     let arguments: Vec<OsString> = std::env::args_os().collect();
     // Only a command line that did not parse, or whose words are never parsed,
