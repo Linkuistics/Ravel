@@ -1,4 +1,4 @@
-# rhai-llm-anthropic-k16
+# rhai-llm-anthropic-k16 — brief
 
 ## Goal
 
@@ -36,3 +36,12 @@ Make `ravel::llm` work end to end for the `anthropic` API type. A policy sends m
 - This leaf does not count budgets, and it does not bound the answer text or the time of a stalled call. `rhai-llm-budgets` counts budgets. `rhai-llm-bounds` owns the answer text, the stall and the cancellation of a call in flight. Keep the adapter so that both can plug into it.
 - A body that stops short is the one `malformed_response` that is retryable.
 - Record each Rig API call that the adapter uses in the running log. Give the file and the line in the pinned source.
+
+## Decomposition
+
+The leaf proved bigger than one session. The brief names the split.
+
+- `rhai-llm-adapter-proof` adds the dependencies, the adapter with its bounded body collection, the fake HTTP server and the build proof on all three targets.
+- `rhai-llm-anthropic-call` adds `ravel::llm`, the request checks, the notice and the tests at the CLI seam.
+
+No child exposes a live call before the bounded collection exists.

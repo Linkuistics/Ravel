@@ -27,6 +27,19 @@ rhai = { version = "=1.27.0", features = ["compact_str"] }
 # later increments also use for the LLM client.
 # https://docs.rs/tokio/1/tokio/runtime/struct.Builder.html#method.new_current_thread
 tokio = { version = "1", features = ["rt", "net", "time", "macros", "sync", "io-util"] }
+# Rig stays behind the LLM adapter (`src/llm`), which sends through Ravel's own
+# `HttpClientExt` over a reqwest client that Ravel configures. `rig-reqwest` is
+# not used: its `into_response` and `non_success_status_error` collect a body
+# without a bound.
+# https://docs.rs/rig-core/0.45.0/rig_core/http_client/trait.HttpClientExt.html
+rig-core = { version = "=0.45.0", default-features = false }
+rig-http = { version = "=0.45.0", default-features = false }
+# The HTTP client of the adapter. `rustls-no-provider` leaves the crypto
+# provider to Ravel, which installs `ring`: the default `rustls` feature brings
+# `aws-lc-rs`, which the Zig glibc 2.17 targets may not build.
+# https://docs.rs/reqwest/0.13/reqwest/#optional-features
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "http2", "stream"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 
 [build-dependencies]
 sha2 = "0.10"

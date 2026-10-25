@@ -189,6 +189,27 @@ enum Author {
     Loader,
 }
 
+/// `value` with the keys of every object in sorted order. The encoding that the
+/// context is measured by is sorted, and serde_json keeps the order of insertion
+/// when any crate in the build turns on its `preserve_order` feature, as
+/// `rig-core` does. Sorting here keeps the digest independent of that feature.
+fn sorted(value: Value) -> Value {
+    match value {
+        Value::Object(map) => {
+            let mut entries: Vec<(String, Value)> = map.into_iter().collect();
+            entries.sort_by(|(left, _), (right, _)| left.cmp(right));
+            Value::Object(
+                entries
+                    .into_iter()
+                    .map(|(key, value)| (key, sorted(value)))
+                    .collect(),
+            )
+        }
+        Value::Array(items) => Value::Array(items.into_iter().map(sorted).collect()),
+        other => other,
+    }
+}
+
 /// Validate and measure a context. `loader` is the language of the policy
 /// whose loader returned it, or `None` for the caller's `--context` document.
 pub fn deliver(
@@ -225,7 +246,7 @@ pub fn deliver(
         "measured".into(),
         sources.iter().map(Measured::to_json).collect(),
     );
-    let value = Value::Object(value);
+    let value = sorted(Value::Object(value));
     let encoded = serde_json::to_vec(&value).expect("a JSON value always encodes");
     let encoded_bytes = encoded.len() as u64;
     if encoded_bytes > limits.context.value {
@@ -999,5 +1020,21 @@ mod tests {
         let refusal = deliver(context, delivered.sources, None, &over, "c").unwrap_err();
         assert_eq!(refusal.code, "context_too_large");
         assert_eq!(refusal.input.as_deref(), Some("--context-bytes"));
+    }
+
+    #[test]
+    fn the_digest_does_not_depend_on_the_order_the_keys_arrived_in() {
+        let one: Value =
+            serde_json::from_str(r#"{"schemaVersion":1,"facts":{"y":1,"x":2},"summary":"s"}"#)
+                .unwrap();
+        let other: Value =
+            serde_json::from_str(r#"{"summary":"s","facts":{"x":2,"y":1},"schemaVersion":1}"#)
+                .unwrap();
+        let measure = |context: Value| {
+            deliver(context, Vec::new(), None, &limits(), "c")
+                .unwrap()
+                .sha256
+        };
+        assert_eq!(measure(one), measure(other));
     }
 }

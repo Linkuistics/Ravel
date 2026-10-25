@@ -805,8 +805,12 @@ mod tests {
             ..inputs
         };
         let request = super::request(&absent);
+        // The order of keys is the order of insertion when a crate turns on
+        // serde_json's `preserve_order`, so the keys are compared as a set.
+        let mut keys = request.as_object().unwrap().keys().collect::<Vec<_>>();
+        keys.sort();
         assert_eq!(
-            request.as_object().unwrap().keys().collect::<Vec<_>>(),
+            keys,
             ["cwd", "kind", "limits", "params", "prompt", "schemaVersion"]
         );
         assert_eq!(request["params"], serde_json::json!({}));
