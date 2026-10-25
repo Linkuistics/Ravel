@@ -17,3 +17,9 @@ all = { level = "deny", priority = -1 }
 
 [workspace.lints.rust]
 unfulfilled_lint_expectations = "deny"
+
+# The operations bound is 100,000,000, and the hostile-script tests run an endless
+# loop to it. Unoptimised Rhai needs about fifteen seconds for that, so the test
+# builds optimise the engine. Debug assertions stay on, as in every dev build.
+[profile.dev.package.rhai]
+opt-level = 3

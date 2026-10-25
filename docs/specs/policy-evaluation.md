@@ -238,11 +238,25 @@ limits are fixed:
 | Modules | 64 | `policy_import_failed` |
 | Worker heap | 1 GiB | `memory_limit` |
 
-A counting allocator in the worker enforces the heap bound. When an allocation
-would pass it, the worker reports the breach and exits. The script cannot catch
-an engine limit. Rhai passes these errors unwrapped through the boundary of a
-script function, and `try` does not catch them. A host latch also refuses when
-any other path swallows one.
+A counting allocator in the worker enforces the heap bound. It counts every live
+byte of the worker process. When an allocation would pass the bound, the worker
+reports `memory_limit` and exits.
+
+The script cannot catch an engine limit. Rhai passes these errors unwrapped
+through the boundary of a script function, and `try` does not catch them. Rhai
+does wrap every error that crosses a call of a function pointer, such as the
+closure that `map` runs, and `try` catches that wrapper.
+
+So the worker counts operations itself, in the progress hook, for the top level
+and `select` together. It latches a breach of the operations bound when it
+happens, and it refuses that breach whatever the script returns afterwards.
+Rhai 1.27.0 has no hook for the other limits. A script can swallow one of them
+when it reaches the limit inside the call of a function pointer.
+
+Rhai checks a data size when a call returns a value. It does not check the size
+when `push` or an index assignment grows a container in place. A script can grow
+a container past its size limit with those calls, and the heap bound ends that
+growth.
 
 The worker exits after it sends its result. The Ravel CLI reaps it and removes
 its private directory before the managed process launches, as in 1.x.
@@ -710,7 +724,8 @@ therefore also wins over a breach of a bound. No managed process launches after
 a stop.
 
 The worker also checks a stop flag at each Rhai operation, so a cooperative
-script stops at once. A native call that does not yield stops only when the
+script stops at once. The flag is set when the Ravel CLI closes its end of the
+private socket. A native call that does not yield stops only when the
 worker dies. Examples are `sleep` and the `pad` loop of Rhai 1.27.0. That is why
 the worker is a process.
 

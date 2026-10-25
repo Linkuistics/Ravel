@@ -5,7 +5,7 @@
 //! beyond `arg0`, a descriptor 3 that is no socket, or a handshake that fails
 //! all exit with status 2. After it sends its one result, it exits.
 
-use std::io::Write as _;
+use std::io::{Read as _, Write as _};
 use std::mem::MaybeUninit;
 use std::os::fd::FromRawFd as _;
 use std::os::unix::net::UnixStream;
@@ -14,8 +14,10 @@ use std::thread;
 
 use serde_json::{Value, json};
 
-use super::engine::{self, Entry};
-use super::{BUILD_ID, Bounds, EXIT_ROLE_REFUSED, PROTOCOL, RHAI_VERSION, Reply, ScriptFailure};
+use super::engine::{self, Entry, Latch};
+use super::{
+    BUILD_ID, Bounds, EXIT_ROLE_REFUSED, Limit, PROTOCOL, RHAI_VERSION, Reply, ScriptFailure, heap,
+};
 use crate::frame::{FRONT_FRAME_BYTES, read_frame, write_frame};
 use crate::worker::CHANNEL_FD;
 
@@ -57,11 +59,14 @@ pub fn run() -> ExitCode {
 fn serve() -> Result<(), Stop> {
     let channel =
         take_channel().ok_or_else(|| Stop::refused("descriptor 3 is not the protocol socket"))?;
+    // Bound the heap before the first policy byte arrives, so no policy code
+    // ever runs unbounded.
+    heap::arm(usize::try_from(Limit::Heap.value()).unwrap_or(usize::MAX));
     let hello = json!({
         "type": "hello",
         "protocol": PROTOCOL,
         "packageVersion": env!("CARGO_PKG_VERSION"),
-        "buildId": BUILD_ID,
+        "buildId": build_id(),
         "rhaiVersion": RHAI_VERSION,
     });
     write_frame(&channel, &hello)
@@ -71,6 +76,9 @@ fn serve() -> Result<(), Stop> {
     let evaluate = Evaluate::from_frame(&evaluate)
         .ok_or_else(|| Stop::refused("the first frame is not a well-formed evaluate frame"))?;
     let message_bytes = evaluate.bounds.message_bytes;
+    let latch = Latch::default();
+    watch(&channel, &latch)
+        .map_err(|error| Stop::refused(format!("the channel watcher did not start: {error}")))?;
 
     let evaluated = thread::Builder::new()
         .name("rhai-policy".into())
@@ -80,11 +88,12 @@ fn serve() -> Result<(), Stop> {
                 name: &evaluate.entry,
                 source: &evaluate.source,
             };
-            engine::evaluate(
+            engine::evaluate_with(
                 &entry,
                 &evaluate.request,
                 evaluate.select_context.as_ref(),
                 &evaluate.bounds,
+                &latch,
             )
         })
         .map_err(|error| Stop::refused(format!("the evaluation thread did not start: {error}")))
@@ -98,6 +107,25 @@ fn serve() -> Result<(), Stop> {
         status: 1,
         reason: format!("the result could not be sent: {error}"),
     })
+}
+
+/// Stop the evaluation when the front goes away. The front sends nothing after
+/// the evaluate frame, so a read on the channel returns only when the front
+/// closed its end (it dropped the conversation, or it died) or broke the
+/// protocol. Either way nobody waits for a result, and the next Rhai operation
+/// of a cooperative script ends the evaluation. A native call that does not
+/// yield, such as `sleep`, is stopped by the signal that follows the close.
+fn watch(channel: &UnixStream, latch: &Latch) -> std::io::Result<()> {
+    let mut reader = channel.try_clone()?;
+    let stop = latch.stop_flag();
+    thread::Builder::new()
+        .name("rhai-watch".into())
+        .spawn(move || {
+            let mut byte = [0u8; 1];
+            let _ = reader.read(&mut byte);
+            stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        })
+        .map(drop)
 }
 
 /// The reply as a frame, or the failure that its size makes of it: the front
@@ -118,6 +146,17 @@ fn bounded(reply: Reply, message_bytes: u64) -> Value {
     );
     failure.actual = Some(size);
     Reply::Failure(failure).to_frame()
+}
+
+/// The build identity the hello reports. A unit test that needs a worker of
+/// another build sets `RAVEL_ROLE_FIXTURE_BUILD` in the launch environment; the
+/// shipped role has no such input.
+fn build_id() -> String {
+    #[cfg(test)]
+    if let Some(other) = std::env::var_os("RAVEL_ROLE_FIXTURE_BUILD") {
+        return other.to_string_lossy().into_owned();
+    }
+    BUILD_ID.to_owned()
 }
 
 /// Descriptor 3 as the protocol channel, if it is a socket.

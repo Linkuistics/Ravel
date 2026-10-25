@@ -7,16 +7,18 @@
 //! decides what Ravel does with a selection.
 
 use std::io::Write as _;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering::Relaxed};
 
 use rhai::{
-    Dynamic, Engine, EvalAltResult, Module, ParseError, Position, Scope,
+    Dynamic, Engine, EvalAltResult, Module, ParseError, ParseErrorType, Position, Scope,
     module_resolvers::DummyModuleResolver,
 };
 use serde_json::Value;
 
 use super::convert::{self, from_json};
 use super::locate;
-use super::{Bounds, Reply, ScriptFailure};
+use super::{Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, MAX_MODULES, Reply, ScriptFailure};
 
 /// The value of `SCHEMA_VERSION` this release reads.
 pub const SCHEMA_VERSION: i64 = 3;
@@ -25,6 +27,54 @@ pub const SCHEMA_VERSION: i64 = 3;
 /// run against the constants the top level declared, which a call on the AST
 /// would not reach.
 const ENTRY_MODULE: &str = "policy";
+
+/// What the host knows about the evaluation that Rhai errors cannot tell it.
+///
+/// Rhai passes an engine limit up through a script function without wrapping
+/// it, and `try` does not catch it. Rhai does wrap every error that crosses a
+/// call of a function pointer, such as the closure that `map` calls, and that
+/// wrapper is catchable. So the host does not trust the error alone. The
+/// progress hook records an operations breach here, at the moment it happens,
+/// and [`evaluate_with`] reads the record after the script returns, whatever
+/// the script returned.
+///
+/// The record covers the breaches that the host can see, which are the
+/// operations bound and a stop. Rhai 1.27.0 has no hook for the other limits.
+/// They stay uncatchable by `try` itself, and a script that reaches one inside
+/// a closure can still swallow the error (see the leaf log of
+/// `rhai-engine-limits`).
+#[derive(Clone, Default)]
+pub struct Latch {
+    stop: Arc<AtomicBool>,
+    breach: Arc<AtomicU8>,
+}
+
+impl Latch {
+    /// The flag that asks the evaluation to end at its next operation. The role
+    /// hands it to the thread that watches the protocol channel.
+    pub fn stop_flag(&self) -> Arc<AtomicBool> {
+        Arc::clone(&self.stop)
+    }
+
+    fn record(&self, limit: Limit) {
+        let code = Limit::ALL
+            .iter()
+            .position(|&known| known == limit)
+            .unwrap_or(0) as u8
+            + 1;
+        let _ = self.breach.compare_exchange(0, code, Relaxed, Relaxed);
+    }
+
+    fn breached(&self) -> Option<Limit> {
+        usize::from(self.breach.load(Relaxed))
+            .checked_sub(1)
+            .and_then(|index| Limit::ALL.get(index).copied())
+    }
+
+    fn stopped(&self) -> bool {
+        self.stop.load(Relaxed)
+    }
+}
 
 /// What the worker evaluates: one entry, as the front read it.
 pub struct Entry<'a> {
@@ -39,11 +89,24 @@ pub struct Entry<'a> {
 /// `select_context` is the second argument of `select`. The front sends the
 /// caller's document with its measurement there, because the front owns the
 /// measured values. Without one, `select` receives `request.context`.
+#[cfg(test)]
 pub fn evaluate(
     entry: &Entry<'_>,
     request: &Value,
     select_context: Option<&Value>,
     bounds: &Bounds,
+) -> Result<Reply, String> {
+    evaluate_with(entry, request, select_context, bounds, &Latch::default())
+}
+
+/// [`evaluate`] with a latch the caller holds, so that it can stop the
+/// evaluation. A stopped evaluation is an `Err`: nobody waits for its reply.
+pub fn evaluate_with(
+    entry: &Entry<'_>,
+    request: &Value,
+    select_context: Option<&Value>,
+    bounds: &Bounds,
+    latch: &Latch,
 ) -> Result<Reply, String> {
     let request = request_map(request, bounds)?;
     let context = match select_context {
@@ -51,7 +114,16 @@ pub fn evaluate(
         Some(_) => return Err("the selectContext is not an object".to_owned()),
         None => request.get("context").cloned().unwrap_or(Dynamic::UNIT),
     };
-    Ok(match run(entry, request, context) {
+    let outcome = run(entry, request, context, latch);
+    if latch.stopped() {
+        return Err("the front asked the evaluation to stop".to_owned());
+    }
+    // The latch decides before the outcome does: a breach that a script
+    // swallowed still refuses.
+    if let Some(limit) = latch.breached() {
+        return Ok(Reply::Failure(limit_failure(entry, limit, None, None)));
+    }
+    Ok(match outcome {
         Ok((version, result)) => Reply::Selection { version, result },
         Err(failure) => Reply::Failure(*failure),
     })
@@ -66,14 +138,44 @@ pub fn evaluate(
 /// <https://docs.rs/rhai/1.27.0/rhai/module_resolvers/struct.DummyModuleResolver.html>.
 /// The strict options are the ones of
 /// <https://docs.rs/rhai/1.27.0/rhai/struct.Engine.html#method.set_strict_variables>
-/// and `set_fail_on_invalid_map_property`. Every limit keeps its default; the
-/// leaf `rhai-engine-limits` sets them.
-fn engine() -> Engine {
+/// and `set_fail_on_invalid_map_property`.
+///
+/// Every limit is set here, because Rhai's defaults differ between a debug and
+/// a release build (<https://docs.rs/rhai/1.27.0/rhai/struct.Engine.html#method.set_max_call_levels>
+/// and the siblings on the same page). The values are the table of the spec's
+/// *The policy worker*, in [`Limit`]. The operations bound is not set on the
+/// engine: the progress hook counts and enforces it, across the top level and
+/// `select` together, and records the breach in the latch.
+fn engine(latch: &Latch) -> Engine {
     let mut engine = Engine::new();
     engine.set_module_resolver(DummyModuleResolver::new());
     engine.set_strict_variables(true);
     engine.set_fail_on_invalid_map_property(true);
     engine.disable_symbol("eval");
+    let size = |limit: Limit| usize::try_from(limit.value()).unwrap_or(usize::MAX);
+    engine.set_max_operations(0);
+    engine.set_max_call_levels(size(Limit::CallDepth));
+    engine.set_max_expr_depths(
+        size(Limit::ExpressionDepth),
+        usize::try_from(EXPRESSION_DEPTH_IN_FUNCTION).unwrap_or(usize::MAX),
+    );
+    engine.set_max_string_size(size(Limit::StringSize));
+    engine.set_max_array_size(size(Limit::ArraySize));
+    engine.set_max_map_size(size(Limit::MapSize));
+    engine.set_max_variables(size(Limit::Variables));
+    engine.set_max_functions(size(Limit::ScriptFunctions));
+    engine.set_max_modules(MAX_MODULES);
+    let (stop, latch, operations) = (latch.stop_flag(), latch.clone(), AtomicU64::new(0));
+    engine.on_progress(move |_| {
+        if stop.load(Relaxed) {
+            return Some(Dynamic::from("stopped"));
+        }
+        if operations.fetch_add(1, Relaxed) >= Limit::Operations.value() {
+            latch.record(Limit::Operations);
+            return Some(Dynamic::from("operations"));
+        }
+        None
+    });
     engine.on_print(|text| {
         let _ = writeln!(std::io::stdout(), "{text}");
     });
@@ -88,8 +190,9 @@ fn run(
     entry: &Entry<'_>,
     request: rhai::Map,
     context: Dynamic,
+    latch: &Latch,
 ) -> Result<(String, Value), Box<ScriptFailure>> {
-    let mut engine = engine();
+    let mut engine = engine(latch);
     let mut ast = engine
         .compile(entry.source)
         .map_err(|error| Box::new(parse_failure(entry, &error)))?;
@@ -304,7 +407,70 @@ fn at(failure: ScriptFailure, entry: &Entry<'_>, position: Position) -> ScriptFa
     )
 }
 
+/// The limit a Rhai error reports, if it is a limit. Whether an operations
+/// breach or a stop ended the run is the latch's to say.
+fn limit_of(error: &EvalAltResult) -> Option<Limit> {
+    match innermost(error).0 {
+        EvalAltResult::ErrorStackOverflow(..) => Some(Limit::CallDepth),
+        EvalAltResult::ErrorTooManyVariables(..) => Some(Limit::Variables),
+        EvalAltResult::ErrorTooManyOperations(..) => Some(Limit::Operations),
+        EvalAltResult::ErrorDataTooLarge(what, ..) => match what.as_str() {
+            "Length of string" => Some(Limit::StringSize),
+            "Size of array/BLOB" | "Size of BLOB" => Some(Limit::ArraySize),
+            "Size of object map" => Some(Limit::MapSize),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// The failure for a breach of `limit`, with the position Rhai gave it.
+fn limit_failure(
+    entry: &Entry<'_>,
+    limit: Limit,
+    position: Option<Position>,
+    detail: Option<&str>,
+) -> ScriptFailure {
+    let value = limit.value();
+    let allowed = match limit {
+        Limit::ExpressionDepth => {
+            format!(
+                "{value} levels at the top level and {EXPRESSION_DEPTH_IN_FUNCTION} in a function"
+            )
+        }
+        _ => format!("{value} {}", limit.unit()),
+    };
+    let detail = detail.map_or_else(String::new, |detail| format!(": {detail}"));
+    let failure = ScriptFailure::new(
+        "script_limit",
+        "evaluation",
+        format!(
+            "the policy exceeded the engine limit {} of {allowed}{detail}",
+            limit.name()
+        ),
+    )
+    .bound(limit);
+    match position {
+        Some(position) => at(failure, entry, position),
+        None => failure.at(entry.name, None, None),
+    }
+}
+
 fn parse_failure(entry: &Entry<'_>, error: &ParseError) -> ScriptFailure {
+    let limit = match error.err_type() {
+        ParseErrorType::ExprTooDeep => Some(Limit::ExpressionDepth),
+        ParseErrorType::TooManyFunctions => Some(Limit::ScriptFunctions),
+        ParseErrorType::LiteralTooLarge(what, _) => match what.as_str() {
+            "Length of string" => Some(Limit::StringSize),
+            "Size of array" => Some(Limit::ArraySize),
+            "Size of object map" => Some(Limit::MapSize),
+            _ => None,
+        },
+        _ => None,
+    };
+    if let Some(limit) = limit {
+        return limit_failure(entry, limit, Some(error.position()), None);
+    }
     at(
         ScriptFailure::new(
             "policy_parse_failed",
@@ -318,6 +484,14 @@ fn parse_failure(entry: &Entry<'_>, error: &ParseError) -> ScriptFailure {
 
 fn import_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure {
     let (cause, position) = innermost(error);
+    if let Some(limit) = limit_of(error) {
+        return limit_failure(
+            entry,
+            limit,
+            Some(position),
+            Some(&without_position(&cause.to_string())),
+        );
+    }
     at(
         ScriptFailure::new(
             "policy_import_failed",
@@ -334,6 +508,17 @@ fn import_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure {
 
 fn selection_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure {
     let (cause, position) = innermost(error);
+    if let Some(limit) = limit_of(error) {
+        // Rhai moves the position of a limit error to the call that entered the
+        // function, and the call that entered `select` is the worker's own
+        // expression. That position names nothing in the policy, so it stays out.
+        return limit_failure(
+            entry,
+            limit,
+            None,
+            Some(&without_position(&cause.to_string())),
+        );
+    }
     at(
         ScriptFailure::new(
             "selection_threw",
@@ -717,5 +902,266 @@ fn select(request, context) { global::SEEN }"#,
         assert_eq!(failure.code, "selection_malformed");
         assert_eq!(failure.stage, "selection");
         assert_eq!(failure.path.as_deref(), Some("result.args[1]"));
+    }
+
+    /// The failure of a policy that must hit `limit`, with the fields every
+    /// `script_limit` has.
+    fn breach(source: &str, limit: Limit) -> ScriptFailure {
+        let failure = failure(source);
+        assert_eq!(failure.code, "script_limit", "{}", failure.message);
+        assert_eq!(failure.stage, "evaluation");
+        assert_eq!(failure.bound.as_deref(), Some(limit.name()));
+        assert_eq!(failure.file.as_deref(), Some("/home/o/policy.rhai"));
+        assert!(
+            failure.message.contains(limit.name()),
+            "{}",
+            failure.message
+        );
+        failure
+    }
+
+    /// A policy whose `select` runs `body` and then selects, so that a body
+    /// that survives its hostile step is seen to survive.
+    fn selecting(body: &str) -> String {
+        policy(&format!(
+            "fn select(request, context) {{\n{body}\n    #{{ status: \"selected\" }}\n}}"
+        ))
+    }
+
+    #[test]
+    fn every_limit_of_the_spec_table_is_set_on_the_engine_and_not_left_to_the_build_profile() {
+        let engine = engine(&Latch::default());
+        assert_eq!(engine.max_call_levels(), 64);
+        assert_eq!(engine.max_expr_depth(), 64);
+        assert_eq!(engine.max_function_expr_depth(), 32);
+        assert_eq!(engine.max_string_size(), 16 * 1024 * 1024);
+        assert_eq!(engine.max_array_size(), 1_048_576);
+        assert_eq!(engine.max_map_size(), 1_048_576);
+        assert_eq!(engine.max_variables(), 16_384);
+        assert_eq!(engine.max_functions(), 4_096);
+        assert_eq!(engine.max_modules(), 64);
+        // The progress hook counts operations, so the engine's own bound is off.
+        assert_eq!(engine.max_operations(), 0);
+        // Rhai's defaults for the three depths are 8, 32 and 16 in a debug build
+        // and 64, 64 and 32 in a release build, so each of these asserts a value
+        // that no build default needs to agree with.
+        assert_eq!(Limit::ALL.len(), 9);
+    }
+
+    #[test]
+    fn an_endless_loop_ends_at_the_operations_bound_and_a_short_loop_does_not() {
+        let survived = selecting("    let i = 0;\n    while i < 1000 { i += 1; }");
+        assert_eq!(
+            reply(&survived),
+            selection(json!({ "status": "selected" })),
+            "the control loop must finish"
+        );
+        let failure = breach(
+            &policy("fn select(request, context) { loop {} }"),
+            Limit::Operations,
+        );
+        assert!(failure.message.contains("100000000"), "{}", failure.message);
+    }
+
+    #[test]
+    fn the_operations_bound_counts_the_top_level_and_select_together() {
+        // Half of the bound in each. Each phase alone stays under it.
+        let half = Limit::Operations.value() / 2;
+        let source = policy(&format!(
+            "let i = 0;\nwhile i < {half} {{ i += 1; }}\n\
+             fn select(request, context) {{\n    let j = 0;\n    while j < {half} {{ j += 1; }}\n    #{{ status: \"selected\" }}\n}}"
+        ));
+        let failure = failure(&source);
+        assert_eq!(failure.code, "script_limit", "{}", failure.message);
+        assert_eq!(failure.bound.as_deref(), Some("operations"));
+    }
+
+    #[test]
+    fn unbounded_recursion_ends_at_the_call_depth_and_a_shallow_one_does_not() {
+        let shallow = policy(
+            "fn down(n) { if n == 0 { 0 } else { down(n - 1) } }\n\
+             fn select(request, context) { down(40); #{ status: \"selected\" } }",
+        );
+        assert_eq!(reply(&shallow), selection(json!({ "status": "selected" })));
+        breach(
+            &policy("fn up(n) { up(n + 1) }\nfn select(request, context) { up(0) }"),
+            Limit::CallDepth,
+        );
+    }
+
+    #[test]
+    fn a_string_that_doubles_ends_at_the_string_size_and_a_small_one_does_not() {
+        let small = selecting("    let s = \"x\";\n    for i in 0..10 { s += s; }");
+        assert_eq!(reply(&small), selection(json!({ "status": "selected" })));
+        breach(
+            &policy("fn select(request, context) { let s = \"x\"; loop { s += s; } }"),
+            Limit::StringSize,
+        );
+        breach(
+            &selecting("    let s = \"x\";\n    s.pad(17000000, 'a');"),
+            Limit::StringSize,
+        );
+    }
+
+    #[test]
+    fn an_array_that_doubles_ends_at_the_array_size_and_a_small_one_does_not() {
+        let small = selecting("    let a = [1];\n    for i in 0..10 { a = a + a; }");
+        assert_eq!(reply(&small), selection(json!({ "status": "selected" })));
+        breach(
+            &policy("fn select(request, context) { let a = [1]; loop { a = a + a; } }"),
+            Limit::ArraySize,
+        );
+        breach(
+            &selecting("    let a = [];\n    a.pad(2000000, 0);"),
+            Limit::ArraySize,
+        );
+    }
+
+    #[test]
+    fn a_map_that_grows_ends_at_the_map_size_and_a_small_one_does_not() {
+        // Rhai checks a size when a call returns a value, not when `push` or an
+        // index assignment grows a container in place. So the hostile step joins
+        // two maps that are each under the bound.
+        let joined = |count: u32| {
+            selecting(&format!(
+                "    let a = #{{}};\n    let b = #{{}};\n    \
+                 for i in 0..{count} {{ a[`a${{i}}`] = i; b[`b${{i}}`] = i; }}\n    let both = a + b;"
+            ))
+        };
+        assert_eq!(
+            reply(&joined(1000)),
+            selection(json!({ "status": "selected" }))
+        );
+        breach(&joined(600_000), Limit::MapSize);
+    }
+
+    #[test]
+    fn too_many_variables_end_at_the_variable_bound() {
+        let lets = |count: usize| {
+            (0..count)
+                .map(|n| format!("    let v{n} = 0;"))
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+        assert_eq!(
+            reply(&selecting(&lets(100))),
+            selection(json!({ "status": "selected" }))
+        );
+        breach(&selecting(&lets(16_500)), Limit::Variables);
+    }
+
+    #[test]
+    fn too_many_script_functions_end_at_the_function_bound() {
+        let functions = |count: usize| {
+            (0..count)
+                .map(|n| format!("fn f{n}() {{ }}"))
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+        let source = |count| policy(&format!("{}\nfn select(a, b) {{ () }}", functions(count)));
+        assert_eq!(reply(&source(50)), selection(Value::Null));
+        breach(&source(4_200), Limit::ScriptFunctions);
+    }
+
+    #[test]
+    fn expressions_nest_to_the_depth_of_their_place() {
+        // Rhai counts about two levels for each pair of parentheses. The top
+        // level allows 64 levels and a function body 32.
+        let nested = |depth: usize| format!("{}1{}", "(".repeat(depth), ")".repeat(depth));
+        let top = |depth| {
+            policy(&format!(
+                "const X = {};\nfn select(a, b) {{ () }}",
+                nested(depth)
+            ))
+        };
+        let inside = |depth| policy(&format!("fn select(a, b) {{ {} }}", nested(depth)));
+        assert_eq!(reply(&top(10)), selection(Value::Null));
+        assert_eq!(reply(&inside(8)), selection(json!(1)));
+        breach(&top(40), Limit::ExpressionDepth);
+        breach(&inside(20), Limit::ExpressionDepth);
+        // 20 levels of parentheses pass at the top level and fail in a function:
+        // the two places have their own bound.
+        assert_eq!(reply(&top(20)), selection(Value::Null));
+    }
+
+    #[test]
+    fn try_does_not_catch_a_limit_and_catches_an_ordinary_error() {
+        let caught = selecting("    try { throw \"boom\"; } catch (e) { }");
+        assert_eq!(
+            reply(&caught),
+            selection(json!({ "status": "selected" })),
+            "the control: try catches an ordinary error"
+        );
+        breach(
+            &selecting("    try { let s = \"x\"; loop { s += s; } } catch (e) { }"),
+            Limit::StringSize,
+        );
+        breach(
+            &policy("fn up(n) { up(n + 1) }\nfn select(a, b) { try { up(0) } catch (e) { } }"),
+            Limit::CallDepth,
+        );
+        breach(
+            &selecting("    try { loop { } } catch (e) { }"),
+            Limit::Operations,
+        );
+    }
+
+    #[test]
+    fn a_limit_that_a_closure_call_wraps_is_still_refused_by_the_latch() {
+        // `map` calls the closure through a function pointer, and Rhai wraps
+        // what comes back in an error that `try` catches. The control shows that
+        // the wrapper swallows an ordinary error. The hostile step is an endless
+        // loop in the closure, and the latch refuses although `try` caught it.
+        let swallowed = selecting("    try { [1].map(|x| { throw \"boom\"; }); } catch (e) { }");
+        assert_eq!(
+            reply(&swallowed),
+            selection(json!({ "status": "selected" }))
+        );
+        breach(
+            &selecting("    try { [1].map(|x| { loop { } }); } catch (e) { }"),
+            Limit::Operations,
+        );
+    }
+
+    #[test]
+    fn a_stop_ends_a_cooperative_script_at_its_next_operation() {
+        let latch = Latch::default();
+        let stop = latch.stop_flag();
+        let source = policy("fn select(request, context) { loop { } }");
+        let halted = std::thread::spawn(move || {
+            let entry = Entry {
+                name: "/home/o/policy.rhai",
+                source: &source,
+            };
+            evaluate_with(&entry, &request(), None, &bounds(), &latch)
+        });
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        assert!(!halted.is_finished(), "the endless loop must still run");
+        stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        let result = halted.join().unwrap();
+        assert!(result.is_err(), "{result:?}");
+    }
+
+    #[test]
+    fn a_closure_has_no_json_form_so_no_host_call_of_one_can_follow() {
+        // rhaiscript/rhai#1193: Rhai 1.27.0 loses the imports of a closure that
+        // a host calls after the script ended. The engine here only ever calls
+        // `policy::select`, a named function, and the converter refuses every
+        // function pointer, so nothing a script returns can be called later.
+        for returned in ["|x| x + 1", "Fn(\"select\")", "curry(Fn(\"select\"), 1)"] {
+            let failure = failure(&policy(&format!(
+                "fn select(request, context) {{ #{{ args: [{returned}] }} }}"
+            )));
+            assert_eq!(failure.code, "selection_malformed", "{returned}");
+            assert_eq!(
+                failure.path.as_deref(),
+                Some("result.args[0]"),
+                "{returned}"
+            );
+        }
+        let kept = failure(&policy(
+            "const KEEP = |x| x + 1;\nfn select(request, context) { global::KEEP }",
+        ));
+        assert_eq!(kept.code, "selection_malformed");
     }
 }

@@ -9,13 +9,13 @@ use crate::cancellation;
 use crate::cli::SelectionArgs;
 use crate::context::{self, Delivered, SourceBreach};
 use crate::inputs::Inputs;
-use crate::limits::{Limits, Origin};
+use crate::limits::{Bound, Limits, Origin};
 use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::engine::Entry;
 use crate::rhai_worker::front as rhai_front;
-use crate::rhai_worker::{Reply, ScriptFailure};
+use crate::rhai_worker::{Limit, Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 
@@ -295,6 +295,7 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
             Stage::Selection,
             Language::Rhai.shape(source),
         ),
+        "script_limit" | "memory_limit" => return limit_refusal(failure, file),
         "message_too_large" => {
             let breach = Breach {
                 bound: "message".to_owned(),
@@ -325,6 +326,55 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
         (Some(position), _) => refusal.location(position),
         (None, Some(path)) => refusal.location(path),
         (None, None) => refusal,
+    }
+}
+
+/// The refusal for an engine limit or the worker heap: `script_limit` or
+/// `memory_limit`, naming the bound. (rhai)
+fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
+    let limit = failure.bound.as_deref().and_then(Limit::from_name);
+    let (code, advice): (&'static str, &str) = if failure.code == "memory_limit" {
+        (
+            "memory_limit",
+            "make the policy hold less at one time; the worker ends at 1 GiB of heap",
+        )
+    } else {
+        (
+            "script_limit",
+            "make the policy do less: the engine limits are fixed, and a script cannot raise one",
+        )
+    };
+    let Some(limit) = limit else {
+        return Refusal::new(
+            "worker_failed",
+            Stage::Worker,
+            EXIT_WORKER,
+            format!(
+                "the policy worker reported {} without a bound this front knows: {}",
+                failure.code, failure.message
+            ),
+            "reinstall ravel, and start the session again",
+        )
+        .source(file);
+    };
+    let refusal = Refusal::new(
+        code,
+        Stage::Evaluation,
+        EXIT_REFUSED,
+        failure.message.clone(),
+        advice,
+    )
+    .source(file)
+    .bound(Bound {
+        name: limit.name(),
+        unit: limit.unit(),
+        value: limit.value(),
+        origin: Origin::Fixed,
+    });
+    match (failure.line, failure.column) {
+        (Some(line), Some(column)) => refusal.location(format!("{line}:{column}")),
+        (Some(line), None) => refusal.location(line.to_string()),
+        _ => refusal,
     }
 }
 

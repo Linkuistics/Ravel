@@ -26,6 +26,7 @@
 pub mod convert;
 pub mod engine;
 pub mod front;
+pub mod heap;
 mod locate;
 pub mod role;
 
@@ -49,6 +50,89 @@ pub const BUILD_ID: &str = env!("RAVEL_BUILD_ID");
 /// The exit status of a role that refuses to start: input on the command line,
 /// no socket at the channel descriptor, or a handshake that fails.
 pub const EXIT_ROLE_REFUSED: u8 = 2;
+
+/// An engine limit or the worker heap, one row of the table in the spec's
+/// *The policy worker*. The worker names the row it hit, and the front turns
+/// the name back into the bound the refusal reports, so both read this table.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Limit {
+    Operations,
+    CallDepth,
+    ExpressionDepth,
+    StringSize,
+    ArraySize,
+    MapSize,
+    Variables,
+    ScriptFunctions,
+    Heap,
+}
+
+impl Limit {
+    pub const ALL: [Limit; 9] = [
+        Limit::Operations,
+        Limit::CallDepth,
+        Limit::ExpressionDepth,
+        Limit::StringSize,
+        Limit::ArraySize,
+        Limit::MapSize,
+        Limit::Variables,
+        Limit::ScriptFunctions,
+        Limit::Heap,
+    ];
+
+    /// The name a report gives the bound, and the wire form.
+    pub fn name(self) -> &'static str {
+        match self {
+            Limit::Operations => "operations",
+            Limit::CallDepth => "call depth",
+            Limit::ExpressionDepth => "expression depth",
+            Limit::StringSize => "string size",
+            Limit::ArraySize => "array size",
+            Limit::MapSize => "map size",
+            Limit::Variables => "variables",
+            Limit::ScriptFunctions => "script functions",
+            Limit::Heap => "heap",
+        }
+    }
+
+    pub fn from_name(name: &str) -> Option<Limit> {
+        Limit::ALL.into_iter().find(|limit| limit.name() == name)
+    }
+
+    pub fn unit(self) -> &'static str {
+        match self {
+            Limit::Operations => "operations",
+            Limit::CallDepth | Limit::ExpressionDepth => "levels",
+            Limit::StringSize | Limit::Heap => "bytes",
+            Limit::ArraySize => "elements",
+            Limit::MapSize => "properties",
+            Limit::Variables => "variables",
+            Limit::ScriptFunctions => "functions",
+        }
+    }
+
+    /// The fixed value. The expression depth is the top-level one; a function
+    /// body allows [`EXPRESSION_DEPTH_IN_FUNCTION`].
+    pub fn value(self) -> u64 {
+        match self {
+            Limit::Operations => 100_000_000,
+            Limit::CallDepth => 64,
+            Limit::ExpressionDepth => 64,
+            Limit::StringSize => 16 * 1024 * 1024,
+            Limit::ArraySize | Limit::MapSize => 1_048_576,
+            Limit::Variables => 16_384,
+            Limit::ScriptFunctions => 4_096,
+            Limit::Heap => 1024 * 1024 * 1024,
+        }
+    }
+}
+
+/// The most modules a policy may import. This increment offers no import, so
+/// the bound is set and never reached.
+pub const MAX_MODULES: usize = 64;
+
+/// The expression depth that a function body allows.
+pub const EXPRESSION_DEPTH_IN_FUNCTION: u64 = 32;
 
 /// The effective bounds the policy reads in `request.limits`. The worker keeps
 /// its own copy, so nothing the policy does can raise one. The LLM and harness
@@ -167,7 +251,8 @@ impl Bounds {
 pub struct ScriptFailure {
     /// A code of the spec's table: `policy_parse_failed`, `policy_import_failed`,
     /// `policy_invalid`, `unsupported_version`, `selection_threw`,
-    /// `selection_malformed` or `message_too_large`.
+    /// `selection_malformed`, `message_too_large`, `script_limit` or
+    /// `memory_limit`.
     pub code: String,
     /// The stage of that code.
     pub stage: String,
@@ -180,6 +265,8 @@ pub struct ScriptFailure {
     pub path: Option<String>,
     /// The size a bound was exceeded at.
     pub actual: Option<u64>,
+    /// For `script_limit` and `memory_limit`: the [`Limit::name`] that was hit.
+    pub bound: Option<String>,
 }
 
 impl ScriptFailure {
@@ -193,7 +280,13 @@ impl ScriptFailure {
             column: None,
             path: None,
             actual: None,
+            bound: None,
         }
+    }
+
+    pub fn bound(mut self, limit: Limit) -> Self {
+        self.bound = Some(limit.name().to_owned());
+        self
     }
 
     pub fn at(mut self, file: &str, line: Option<u64>, column: Option<u64>) -> Self {
@@ -213,7 +306,11 @@ impl ScriptFailure {
         map.insert("code".into(), json!(self.code));
         map.insert("stage".into(), json!(self.stage));
         map.insert("message".into(), json!(self.message));
-        for (name, value) in [("file", &self.file), ("path", &self.path)] {
+        for (name, value) in [
+            ("file", &self.file),
+            ("path", &self.path),
+            ("bound", &self.bound),
+        ] {
             if let Some(value) = value {
                 map.insert(name.into(), json!(value));
             }
@@ -242,6 +339,7 @@ impl ScriptFailure {
             column: number("column"),
             path: text("path"),
             actual: number("actual"),
+            bound: text("bound"),
         })
     }
 }
@@ -309,6 +407,14 @@ mod tests {
         };
         assert_eq!(Bounds::from_json(&bounds.to_json()), Ok(bounds));
         assert!(Bounds::from_json(&json!({})).is_err());
+    }
+
+    #[test]
+    fn every_limit_round_trips_through_its_name() {
+        for limit in Limit::ALL {
+            assert_eq!(Limit::from_name(limit.name()), Some(limit));
+        }
+        assert_eq!(Limit::from_name("nonsense"), None);
     }
 
     #[test]

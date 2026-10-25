@@ -314,6 +314,30 @@ fn select(request, context) {
     }
 
     #[test]
+    fn a_real_worker_of_another_build_refuses_as_an_identity_mismatch() {
+        let dir = tempfile::tempdir().unwrap();
+        let program = role(dir.path());
+        let entry = Entry {
+            name: "p.rhai",
+            source: "",
+        };
+        let environment = vec![(
+            OsString::from("RAVEL_ROLE_FIXTURE_BUILD"),
+            OsString::from("0".repeat(64)),
+        )];
+        let failure = evaluate(
+            &entry,
+            &request(),
+            None,
+            launch(&program, environment),
+            &limits(),
+        )
+        .unwrap_err();
+        assert_eq!(failure.refusal.code, "worker_identity_mismatch");
+        assert_eq!(failure.refusal.exit, EXIT_WORKER);
+    }
+
+    #[test]
     fn a_policy_failure_is_a_reply_and_the_worker_is_reaped_either_way() {
         let evaluated = run(
             "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\nfn select(request, context) { throw \"no\"; }",
