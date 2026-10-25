@@ -42,9 +42,9 @@ owner names in settings. It runs a harness through the runner, as a job with a
 result channel of its own.
 
 Every outcome of a host call is data that the script interprets. Every breach of
-a bound ends the evaluation. The script cannot catch a breach with `try`
-directly. *The policy worker* names the one path that can still swallow some
-limits.
+a bound ends the evaluation. The script cannot catch a breach with `try`. That
+holds when the breach happens inside a function pointer, such as the closure
+that `map` runs.
 
 The Ravel CLI kills
 the worker at the deadline or on cancellation. It stops the host work in
@@ -246,23 +246,32 @@ A counting allocator in the worker enforces the heap bound. It counts every live
 byte of the worker process. When an allocation would pass the bound, the worker
 reports `memory_limit` and exits.
 
-The script cannot catch an engine limit with `try` directly. Rhai passes these
-errors unwrapped through the boundary of a script function, and `try` does not
-catch them. Rhai does wrap every error that crosses a call of a function
-pointer, such as the closure that `map` runs, and `try` catches that wrapper.
+The script cannot catch an engine limit with `try`. Rhai passes these errors
+unwrapped through the boundary of a script function, and `try` does not catch
+them. Rhai 1.27.0 does wrap every error that crosses a call of a function
+pointer in the array and map functions. `try` catches that wrapper whatever it
+holds.
 
-So the worker counts operations itself, in the progress hook, for the top level
+The worker replaces each of those functions. A replacement does what the
+original does. At the end of a pointer call it returns an error that `try`
+cannot catch as it is. It wraps every other error as before. So an ordinary
+`throw` in a closure is still caught. A call-depth, data-size or variable breach
+ends the evaluation.
+
+The replaced functions are the 16 call sites of `call_raw_with_extra_args` in
+Rhai 1.27.0. Those are `for_each`, `map`, `filter`, `find`, `find_map`,
+`index_of`, `some`, `all`, `reduce`, `reduce_rev`, `zip`, `drain` and `retain`
+of an array, and `map`, `filter`, `drain` and `retain` of an object map. They
+include the deprecated forms that name a function with a string, such as
+`map("f")`. Rhai 1.27.0 also drops the error of a comparer closure in `dedup`
+and in `sort`, with no `try` involved. The worker replaces those two functions
+too, and their string forms. Each replacement returns the first error of the
+comparer, as `map` does.
+
+The worker counts operations itself, in the progress hook, for the top level
 and `select` together. It latches a breach of the operations bound when it
-happens, and it refuses that breach whatever the script returns afterwards.
-Rhai 1.27.0 has no hook for the other limits. A script can swallow one of them
-with `try` around the call of a function pointer. The operation that breached
-the limit does not happen, so the limit still protects the worker, and only the
-refusal is lost.
-
-Rhai 1.27.0 also drops the error of a comparer closure in `dedup` and in `sort`
-with a comparer. This needs no `try`. The worker replaces those two functions.
-The replacements return the first error of the comparer, as `map` does. A limit
-inside a comparer therefore ends the evaluation.
+happens, and it refuses that breach whatever the script returns afterwards. This
+is a second line for the one limit that Rhai reports through a hook.
 
 Rhai checks a data size when a call returns a value. It does not check the size
 when `push` or an index assignment grows a container in place. A script can grow
@@ -1090,12 +1099,11 @@ NOT wait for a read in progress. A consumed signal SHALL win over the deadline.
 ### Requirement: Resource exhaustion
 
 Ravel SHALL end the evaluation at each engine limit, at the heap bound of the
-worker and at each output bound. The script SHALL NOT catch the breach with
-`try` directly. A breach of the operations bound or of the heap bound SHALL end
-the evaluation, however the script handles errors. A call-depth, data-size or
-variable breach inside the call of a function pointer MAY be swallowed by an
-enclosing `try`. The worker still prevents the operation that breached the
-limit, and the heap bound still applies.
+worker and at each output bound. The script SHALL NOT catch a breach with `try`.
+That holds for a breach in the script itself and for a call-depth, data-size or
+variable breach inside the call of a function pointer. A breach of the
+operations bound or of the heap bound SHALL end the evaluation, however the
+script handles errors.
 
 #### Scenario: Caught budget breach
 
@@ -1107,6 +1115,17 @@ limit, and the heap bound still applies.
 - **WHEN** a policy grows an array of strings without end
 - **THEN** Ravel exits 3 with `memory_limit` or `script_limit`, and the Ravel CLI
   survives to report it
+
+#### Scenario: A breach inside a function pointer under `try`
+
+- **WHEN** a policy wraps `[1].map(|x| ..)` in `try`, and the closure breaches
+  the call depth, a data size or the variable bound
+- **THEN** Ravel exits 3 with `script_limit`, and nothing launches
+
+#### Scenario: An ordinary error inside a function pointer under `try`
+
+- **WHEN** a policy wraps `[1].map(|x| throw "boom")` in `try`
+- **THEN** the catch block runs with the thrown value, and the policy goes on
 
 #### Scenario: A breach inside a comparer
 

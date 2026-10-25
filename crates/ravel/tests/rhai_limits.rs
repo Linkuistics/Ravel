@@ -194,6 +194,59 @@ fn try_does_not_catch_a_breach_and_the_host_refuses_one_that_a_closure_call_wrap
 }
 
 #[test]
+fn a_breach_inside_a_function_pointer_call_ends_the_evaluation_although_try_surrounds_it() {
+    // Rhai 1.27.0 wraps the error of a function pointer in one that `try`
+    // catches, whatever it holds, so the worker replaces the array and map
+    // functions that call a pointer (`rhai_worker::pointer_calls`). Each limit
+    // has a control with the same shape and a harmless amount, which selects.
+    let lets = |count: usize| {
+        (0..count)
+            .map(|n| format!("let v{n} = 0;"))
+            .collect::<Vec<_>>()
+            .join(" ")
+    };
+    let under_try = |closure: &str| {
+        policy(&format!(
+            "fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
+             fn up(n) {{ up(n + 1) }}\n\
+             fn select(request, context) {{\n    try {{ [1].map({closure}); }} catch (e) {{ }}\n    \
+             #{{ status: \"selected\", program: \"recording-agent\", args: [], provider: \"p\", \
+             model: \"m\", effort: \"e\", reason: \"r\" }}\n}}"
+        ))
+    };
+    for (control, hostile, bound) in [
+        (
+            "|x| down(40)".to_owned(),
+            "|x| up(0)".to_owned(),
+            "call depth",
+        ),
+        (
+            "|x| { let s = \"x\"; for i in 0..10 { s += s; } 0 }".to_owned(),
+            "|x| { let s = \"x\"; loop { s += s; } }".to_owned(),
+            "string size",
+        ),
+        (
+            "|x| { let a = [1]; for i in 0..10 { a = a + a; } 0 }".to_owned(),
+            "|x| { let a = [1]; loop { a = a + a; } }".to_owned(),
+            "array size",
+        ),
+        (
+            format!("|x| {{ {} 0 }}", lets(100)),
+            format!("|x| {{ {} 0 }}", lets(16_500)),
+            "variables",
+        ),
+    ] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        survives(&sandbox, &under_try(&control), &recorded);
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let run = start(&sandbox, &under_try(&hostile), &[]);
+        limit(&run, bound, &recorded);
+    }
+}
+
+#[test]
 fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() {
     // Rhai 1.27.0 discards the error of the comparer in `dedup` and `sort`, so
     // the worker replaces them. The control calls the same comparers with a

@@ -5,23 +5,51 @@
 //! into a comparison by type (`src/packages/array_basic.rs`). A policy that
 //! breaches a call-depth, string-size or variable bound inside such a closure
 //! would then go on to select, with no `try` at all. Every other function of the
-//! array and map packages that calls a closure returns the closure's error.
+//! array and map packages that calls a closure returns the closure's error, but
+//! wrapped in one that `try` catches.
 //!
 //! The worker registers these two replacements in the engine's own namespace,
 //! which Rhai searches before its packages. They behave as the originals do
 //! while the closure succeeds. When it fails they stop calling it and return the
 //! first error, so a limit ends the evaluation here as it does in `map`.
+//!
+//! `pointer_calls` replaces the other functions that call a function pointer,
+//! for the limits that `try` can still catch there. [`install`] registers both.
 
 use std::cmp::Ordering;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 
 use rhai::{Array, Engine, EvalAltResult, FnPtr, NativeCallContext, Position};
 
-/// Register the replacements of `dedup` and of `sort` and `sort_by` with a comparer.
+use super::pointer_calls::{self, register};
+
+/// Register the replacements of `dedup` and of `sort` and `sort_by` with a
+/// comparer, and those of `pointer_calls`. Rhai declares these functions
+/// impure, so a constant cannot be their receiver, and so do the registrations.
 pub fn install(engine: &mut Engine) {
-    engine.register_fn("dedup", dedup);
-    engine.register_fn("sort", sort_by);
-    engine.register_fn("sort_by", sort_by);
+    register!(engine, "dedup", false, dedup);
+    register!(engine, "sort", false, sort_by);
+    register!(engine, "sort_by", false, sort_by);
+    // The deprecated forms that take the name of the comparer.
+    register!(engine, "dedup", false, dedup_named);
+    register!(engine, "sort", false, sort_named);
+    pointer_calls::install(engine);
+}
+
+fn dedup_named(
+    context: NativeCallContext,
+    array: &mut Array,
+    comparer: &str,
+) -> Result<(), Box<EvalAltResult>> {
+    dedup(context, array, FnPtr::new(comparer)?)
+}
+
+fn sort_named(
+    context: NativeCallContext,
+    array: &mut Array,
+    comparer: &str,
+) -> Result<(), Box<EvalAltResult>> {
+    sort_by(context, array, FnPtr::new(comparer)?)
 }
 
 /// `array.dedup(|a, b| ..)`: remove each element that the comparer calls equal to

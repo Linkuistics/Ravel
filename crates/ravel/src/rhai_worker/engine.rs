@@ -34,17 +34,15 @@ const ENTRY_MODULE: &str = "policy";
 /// Rhai passes an engine limit up through a script function without wrapping
 /// it, and `try` does not catch it. Rhai does wrap every error that crosses a
 /// call of a function pointer, such as the closure that `map` calls, and that
-/// wrapper is catchable. So the host does not trust the error alone. The
-/// progress hook records an operations breach here, at the moment it happens,
-/// and [`evaluate_with`] reads the record after the script returns, whatever
-/// the script returned.
+/// wrapper is catchable. `pointer_calls` replaces the functions that wrap, so a
+/// limit reaches the top as it is. The host still does not trust the error
+/// alone for the one limit it can see. The progress hook records an operations
+/// breach here, at the moment it happens, and [`evaluate_with`] reads the record
+/// after the script returns, whatever the script returned.
 ///
 /// The record covers the breaches that the host can see, which are the
-/// operations bound and a stop. Rhai 1.27.0 has no hook for the other limits.
-/// They stay uncatchable by `try` itself, and a script that reaches one inside
-/// a closure that `try` surrounds can still swallow the error (see the leaf log
-/// of `rhai-engine-limits`). `dedup` and `sort` dropped a comparer's error with
-/// no `try`, and `callbacks` replaces them, so `try` is the one path left.
+/// operations bound and a stop. Rhai 1.27.0 has no hook for the other limits,
+/// and they end the evaluation through the error itself.
 #[derive(Clone, Default)]
 pub struct Latch {
     stop: Arc<AtomicBool>,
@@ -1147,6 +1145,79 @@ fn select(request, context) { global::SEEN }"#,
             &selecting("    try { [1].map(|x| { loop { } }); } catch (e) { }"),
             Limit::Operations,
         );
+    }
+
+    #[test]
+    fn a_limit_inside_a_function_pointer_call_ends_the_evaluation_although_try_surrounds_it() {
+        // Rhai 1.27.0 wraps what a function pointer fails with in an error that
+        // `try` catches, whatever the wrapped error is. `pointer_calls` returns
+        // a limit unwrapped. Each hostile case runs a closure under `try` with
+        // a harmless amount of the same step as its control, which selects.
+        let lets = |count: usize| {
+            (0..count)
+                .map(|n| format!("let v{n} = 0;"))
+                .collect::<Vec<_>>()
+                .join(" ")
+        };
+        let under_try = |closure: &str| {
+            policy(&format!(
+                "{RECURSE}fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
+                 fn select(request, context) {{\n    try {{ [1].map({closure}); }} catch (e) {{ }}\n    \
+                 #{{ status: \"selected\" }}\n}}"
+            ))
+        };
+        let selected = selection(json!({ "status": "selected" }));
+        for (label, control, hostile, limit) in [
+            (
+                "call depth",
+                "|x| down(40)".to_owned(),
+                "|x| up(0)".to_owned(),
+                Limit::CallDepth,
+            ),
+            (
+                "string size",
+                "|x| { let s = \"x\"; for i in 0..10 { s += s; } 0 }".to_owned(),
+                "|x| { let s = \"x\"; loop { s += s; } }".to_owned(),
+                Limit::StringSize,
+            ),
+            (
+                "array size",
+                "|x| { let a = [1]; for i in 0..10 { a = a + a; } 0 }".to_owned(),
+                "|x| { let a = [1]; loop { a = a + a; } }".to_owned(),
+                Limit::ArraySize,
+            ),
+            (
+                "variable count",
+                format!("|x| {{ {} 0 }}", lets(100)),
+                format!("|x| {{ {} 0 }}", lets(16_500)),
+                Limit::Variables,
+            ),
+        ] {
+            assert_eq!(
+                reply(&under_try(&control)),
+                selected,
+                "{label}: the control must select"
+            );
+            breach(&under_try(&hostile), limit);
+        }
+    }
+
+    #[test]
+    fn try_still_catches_what_a_function_pointer_call_fails_with_when_it_is_no_limit() {
+        // The replacements wrap an error that `try` can catch, as Rhai does, so
+        // the catch block sees the error of the closure and the policy selects.
+        let caught = selecting(
+            "    try { [1].map(|x| { throw \"boom\"; }); } catch (e) { }\n    \
+             try { [1, 2].sort(|a, b| { throw \"boom\"; }); } catch (e) { }\n    \
+             try { #{ a: 1 }.filter(|v| { throw \"boom\"; }); } catch (e) { }",
+        );
+        assert_eq!(reply(&caught), selection(json!({ "status": "selected" })));
+        let seen = selecting(
+            "    let seen = \"\";\n    \
+             try { [1].map(|x| { throw \"boom\"; }); } catch (e) { seen = e; }\n    \
+             if !seen.contains(\"boom\") { throw \"the catch block lost the thrown value: \" + seen; }",
+        );
+        assert_eq!(reply(&seen), selection(json!({ "status": "selected" })));
     }
 
     /// A function that recurses past the call depth when it is called.

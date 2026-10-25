@@ -29,6 +29,7 @@ pub mod engine;
 pub mod front;
 pub mod heap;
 mod locate;
+mod pointer_calls;
 pub mod role;
 
 use serde_json::{Value, json};
