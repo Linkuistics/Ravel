@@ -114,7 +114,8 @@ from the directory of the importing file. Ravel appends `.rhai` when the path
 has no extension, and it accepts an absolute path. The Ravel CLI reads each
 module with the file rules of the entry, and each module loads once per
 evaluation. A missing or unreadable module, a cycle or a 65th module refuses as
-`policy_import_failed`.
+`policy_import_failed`. The bound counts distinct files. An import of a loaded
+module is no new module, however many import statements run.
 
 Ravel measures the entry and every module. The routing notice lists each with
 its canonical name, its byte count and its SHA-256. Ravel 2.0.0 embeds no module
@@ -320,9 +321,11 @@ the bound of its capability.
 A stop does not wait for a read in progress. The Ravel CLI abandons the read and
 its reply, and nothing launches after the stop. The reader thread keeps the
 descriptor of that read, and it closes it when the call returns or the Ravel CLI
-exits. Ravel opens every descriptor close-on-exec, so no harness run inherits
-one. These rules bound the waiting of Ravel. As in the
-[native-entry contract](result-job-completion.md#checked-native-entry-transitions),
+exits. The thread starts with INT, TERM and HUP blocked, as the readers of the
+worker output do. It can outlive the stop through the finalisation of the Ravel
+CLI, and it must not take a signal there. Ravel opens every descriptor
+close-on-exec, so no harness run inherits one. These rules bound the waiting of
+Ravel. As in the [native-entry contract](result-job-completion.md#checked-native-entry-transitions),
 they are no real-time guarantee against a stall in the kernel.
 
 The kernel can hold a filesystem call without interruption, as with a read from
@@ -365,7 +368,14 @@ one byte beyond its bound.
 A read returns the content with a source record: the canonical `name`, the
 `bytes` that it read and their `sha256`. `max_bytes` defaults to `sourceBytes`
 and may rise to `contextBytes`. The bound of 256 sources counts the caller's
-context document and every read in the evaluation.
+context document and every read in the evaluation. A read counts once the file
+gave its bytes, whether or not they decode. A file that is not UTF-8, is not JSON or
+nests too deep is therefore a source, and a script cannot retry it without
+limit. A read that finds no file to read is no source.
+
+`read_json` returns a value that nests at most 100 levels, the bound of the
+conversion rule. A deeper file is a data failure, `source_invalid_json`. Its
+message names the first level past the bound.
 
 Reads that `load_context` makes enter the `measured` list of the delivered
 context, as in 1.x. The caller's document comes first, when there is one. Ravel
@@ -771,7 +781,8 @@ The JSON routing notice moves to schema version 2:
   of its first import.
 - `reads` lists every measured read with its `via`, its phase, its name, its
   bytes and its SHA-256. The `via` is `read_text` or `read_json`, and the phase
-  is `load`, `context` or `selection`. A read that failed is no measured read.
+  is `load`, `context` or `selection`. A read that failed is no measured read,
+  also when its bytes arrived and did not decode.
 - `llmCalls` lists the endpoint, model, status, error code, usage and elapsed
   time of each call.
 - `harnessRuns` lists the harness, status, exit code or signal, elapsed time of

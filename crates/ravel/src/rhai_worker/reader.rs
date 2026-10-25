@@ -13,6 +13,12 @@
 //! it is in, drops what that call opened and ends, or ends with the process.
 //! Every file is opened by `std`, which sets close-on-exec, so no harness run
 //! inherits a descriptor that a stalled read still holds.
+//!
+//! A stop can leave the thread alive through the finalisation of the CLI, so
+//! it must never be eligible for the handled signals. The creator blocks them
+//! before the thread exists, the thread inherits the block for its whole life,
+//! and only the creator is restored, as for the diagnostic readers
+//! (`docs/specs/result-job-completion.md`, *Checked native-entry transitions*).
 
 use std::fs;
 use std::io::{self, Read as _};
@@ -23,6 +29,8 @@ use std::thread;
 
 use tokio::sync::oneshot;
 
+use crate::cancellation::Shield;
+
 type Job = Box<dyn FnOnce() + Send>;
 
 /// The thread that runs the filesystem work of one evaluation.
@@ -31,12 +39,30 @@ pub struct Reader {
 }
 
 impl Reader {
+    /// Start the thread with the handled signals blocked, and leave the calling
+    /// thread's mask as it was. A failure of the block, of the creation or of
+    /// the restoration is an error. No thread outlives an error, because the
+    /// queue closes when it returns.
     pub fn start() -> io::Result<Self> {
         let (jobs, queue) = mpsc::channel::<Job>();
-        thread::Builder::new()
+        let shield = Shield::block()
+            .map_err(|error| io::Error::other(format!("reader mask block: {error}")))?;
+        let created = thread::Builder::new()
             .name("ravel-reader".into())
-            .spawn(move || queue.into_iter().for_each(|job| job()))?;
-        Ok(Reader { jobs })
+            .spawn(move || queue.into_iter().for_each(|job| job()));
+        let restored = shield.restore();
+        match (created, restored) {
+            (Ok(_), Ok(())) => Ok(Reader { jobs }),
+            (Err(created), Ok(())) => {
+                Err(io::Error::other(format!("reader thread create: {created}")))
+            }
+            (Ok(_), Err(restored)) => Err(io::Error::other(format!(
+                "reader creator mask restore: {restored}"
+            ))),
+            (Err(created), Err(restored)) => Err(io::Error::other(format!(
+                "reader thread create: {created}; reader creator mask restore: {restored}"
+            ))),
+        }
     }
 
     /// Run `work` on the reader thread. The receiver gets its value, or an
@@ -189,6 +215,68 @@ mod tests {
             read_file(dir.path(), 4).unwrap_err(),
             FileFailure::NotRegular
         );
+    }
+
+    /// Which of INT, TERM and HUP the calling thread blocks, in that order.
+    fn blocked() -> [bool; 3] {
+        let mut mask = unsafe { std::mem::zeroed::<libc::sigset_t>() };
+        // SAFETY: a null new set only reads the mask of the calling thread.
+        assert_eq!(
+            unsafe { libc::pthread_sigmask(libc::SIG_BLOCK, std::ptr::null(), &mut mask) },
+            0
+        );
+        [libc::SIGINT, libc::SIGTERM, libc::SIGHUP]
+            .map(|signal| unsafe { libc::sigismember(&mask, signal) } == 1)
+    }
+
+    fn mask_of(reader: &Reader) -> [bool; 3] {
+        tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap()
+            .block_on(reader.run(blocked))
+            .unwrap()
+    }
+
+    #[test]
+    fn the_reader_thread_blocks_the_handled_signals_and_the_creator_keeps_its_mask() {
+        // The firing control: a thread that is made the plain way is eligible,
+        // so the instrument tells a shielded thread from an eligible one.
+        assert_eq!(
+            thread::spawn(blocked).join().unwrap(),
+            [false; 3],
+            "the test thread must start with the handled signals unblocked"
+        );
+        let before = blocked();
+
+        let reader = Reader::start().unwrap();
+
+        assert_eq!(mask_of(&reader), [true; 3]);
+        assert_eq!(blocked(), before);
+    }
+
+    #[test]
+    fn a_failed_block_creates_no_reader() {
+        crate::worker::native_tests::configure("block-omitted");
+        let before = blocked();
+
+        let error = Reader::start().err().expect("the block fails");
+
+        assert!(error.to_string().contains("reader mask block"), "{error}");
+        assert_eq!(blocked(), before);
+    }
+
+    #[test]
+    fn a_failed_creator_restore_is_an_error() {
+        crate::worker::native_tests::configure("restore-performed");
+        let before = blocked();
+
+        let error = Reader::start().err().expect("the restore fails");
+
+        assert!(
+            error.to_string().contains("reader creator mask restore"),
+            "{error}"
+        );
+        assert_eq!(blocked(), before);
     }
 
     #[test]

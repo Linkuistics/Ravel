@@ -147,7 +147,7 @@ pub(crate) fn reader_receipt() -> serde_json::Value {
 }
 thread_local! { static CONTROL: RefCell<Control> = RefCell::new(Control::default()); }
 
-pub(super) fn configure(case: &str) {
+pub(crate) fn configure(case: &str) {
     // A row's named broken subject is a suffix on its fixed case name; the
     // repaired product has none. Each suffix puts exactly one defect in force.
     let (case, broken) = [

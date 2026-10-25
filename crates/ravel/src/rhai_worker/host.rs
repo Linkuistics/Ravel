@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
+use super::convert::check_depth;
 use super::reader::{FileFailure, Reader, canonical, read_file};
 use super::{Bounds, MAX_MODULES, Module, Phase, Read, ScriptFailure};
 use crate::authority::RHAI_ENTRY_BYTES;
@@ -71,6 +72,10 @@ pub(super) struct Host {
     /// the measured list of a loader's context.
     caller: Option<Measured>,
     reads: Vec<Read>,
+    /// The reads whose bytes arrived and then failed to decode. They count as
+    /// sources, because the file was read, and they are no measured read,
+    /// because the script got no content.
+    undecoded: u64,
     /// The entry first, then each module in the order of its first import.
     modules: Vec<Module>,
 }
@@ -88,6 +93,7 @@ impl Host {
             bounds,
             caller,
             reads: Vec::new(),
+            undecoded: 0,
             modules: Vec::new(),
         }
     }
@@ -206,7 +212,7 @@ impl Host {
             Some(max) => max,
             None => self.bounds.source_bytes,
         };
-        let count = self.reads.len() as u64 + u64::from(self.caller.is_some());
+        let count = self.reads.len() as u64 + self.undecoded + u64::from(self.caller.is_some());
         if count >= self.bounds.sources {
             let mut failure = site.failure(
                 "too_many_sources",
@@ -242,6 +248,10 @@ impl Host {
                 Answer::Reply(body)
             }
             Fetched::Data(body) => Answer::Reply(body),
+            Fetched::Undecoded(body) => {
+                self.undecoded += 1;
+                Answer::Reply(body)
+            }
             Fetched::TooLarge { name, actual } => {
                 let mut failure = site.failure(
                     "source_too_large",
@@ -365,8 +375,11 @@ enum Fetched {
         body: Vec<u8>,
         measured: Measured,
     },
-    /// A data failure, as the body of an error reply.
+    /// A data failure before any byte arrived, as the body of an error reply.
     Data(Vec<u8>),
+    /// A data failure after the bytes arrived, as the body of an error reply.
+    /// It counts against the bound of sources.
+    Undecoded(Vec<u8>),
     TooLarge {
         name: String,
         actual: u64,
@@ -406,24 +419,33 @@ fn fetch(joined: &Path, bound: u64, json: bool) -> Fetched {
     let name = content.name;
     let sha256 = hex(&Sha256::digest(&content.bytes));
     let bytes = content.bytes.len() as u64;
+    let undecoded = |code: &str, message: String| {
+        Fetched::Undecoded(encode(&json!({
+            "type": "reply", "status": "error", "code": code, "message": message, "name": name,
+        })))
+    };
     let Ok(text) = String::from_utf8(content.bytes) else {
-        return data(
-            "source_not_utf8",
-            format!("{name} is not valid UTF-8"),
-            &name,
-        );
+        return undecoded("source_not_utf8", format!("{name} is not valid UTF-8"));
     };
     let source = json!({ "name": name, "bytes": bytes, "sha256": sha256 });
     let reply = if json {
         match serde_json::from_str::<Value>(&text) {
             Ok(value) => {
+                // The conversion bound applies on this side of the socket, so
+                // that the reply never nests past what the worker's parser
+                // reads, and a deeper file is a failure the script can catch.
+                if let Err(refused) = check_depth(&value, "value") {
+                    return undecoded(
+                        "source_invalid_json",
+                        format!("{name} is not usable as JSON: {refused}"),
+                    );
+                }
                 json!({ "type": "reply", "status": "ok", "value": value, "source": source })
             }
             Err(error) => {
-                return data(
+                return undecoded(
                     "source_invalid_json",
                     format!("{name} is not JSON: {error}"),
-                    &name,
                 );
             }
         }
@@ -433,13 +455,12 @@ fn fetch(joined: &Path, bound: u64, json: bool) -> Fetched {
     let body = encode(&reply);
     // The escapes of a JSON string can make the reply longer than the file.
     if body.len() > FRONT_FRAME_BYTES {
-        return data(
+        return undecoded(
             "source_unreadable",
             format!(
                 "{name} encodes to {} bytes, over the {FRONT_FRAME_BYTES} bytes of one reply",
                 body.len()
             ),
-            &name,
         );
     }
     Fetched::Read {

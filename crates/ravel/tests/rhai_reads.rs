@@ -313,6 +313,111 @@ fn the_bound_of_256_sources_counts_the_callers_document_and_every_read() {
     assert_eq!(error["bound"]["sources"], 256, "{error}");
 }
 
+/// A `select` that reads `file` with `function` `count` times and catches each
+/// data failure.
+fn retrying(function: &str, file: &str, count: usize) -> String {
+    selecting(&format!(
+        r#"    let args = [];
+    for i in 0..{count} {{
+        try {{ ravel::{function}("{file}"); args.push("read"); }} catch (error) {{ }}
+    }}
+    args.push("done");"#
+    ))
+}
+
+#[test]
+fn a_read_whose_bytes_fail_to_decode_is_a_source_but_no_measured_read() {
+    // Each row reads the same bad file again and again. The bound is 256
+    // sources, with the caller's document as one of them when there is one.
+    for (function, file, caller, count, accepted) in [
+        ("read_json", "bad.json", false, 256, true),
+        ("read_json", "bad.json", false, 257, false),
+        ("read_text", "binary.bin", false, 256, true),
+        ("read_text", "binary.bin", false, 257, false),
+        ("read_json", "bad.json", true, 255, true),
+        ("read_json", "bad.json", true, 256, false),
+    ] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        sandbox.file("bad.json", "{ nope");
+        fs::write(sandbox.cwd.join("binary.bin"), [0xff, 0xfe, 0x00]).unwrap();
+        let document = sandbox.file("context.json", r#"{"schemaVersion":1}"#);
+        sandbox.personal_rhai(&retrying(function, file, count));
+        let context = text(&document);
+        let args: &[&str] = if caller {
+            &["--context", &context]
+        } else {
+            &[]
+        };
+        let case = format!("{function} {file} caller {caller} x{count}");
+
+        let run = start(&sandbox, args);
+
+        if accepted {
+            let report = run.report();
+            assert_eq!(recorded.argv().unwrap(), ["done"], "{case}");
+            // A read that failed is no measured read.
+            assert_eq!(report["reads"], json!([]), "{case}");
+        } else {
+            let error = refused(&run, "too_many_sources", &recorded);
+            assert_eq!(error["bound"]["sources"], 256, "{case}: {error}");
+        }
+    }
+}
+
+#[test]
+fn a_read_that_finds_no_file_is_no_source() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    sandbox.personal_rhai(&retrying("read_text", "absent.txt", 300));
+
+    let report = start(&sandbox, &[]).report();
+
+    assert_eq!(recorded.argv().unwrap(), ["done"]);
+    assert_eq!(report["reads"], json!([]));
+}
+
+#[test]
+fn a_json_file_nests_at_most_100_levels_and_a_deeper_one_is_a_data_failure() {
+    let nested = |levels: usize| format!("{}0{}", "[".repeat(levels), "]".repeat(levels));
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    // 127 levels fit the parser of the file but not the parser of the reply,
+    // which has the reply object around the value.
+    for levels in [100, 101, 127, 128] {
+        sandbox.file(&format!("d{levels}.json"), &nested(levels));
+    }
+    sandbox.personal_rhai(&selecting(
+        r#"    let args = [];
+    for name in ["d100.json", "d101.json", "d127.json", "d128.json"] {
+        try {
+            ravel::read_json(name);
+            args.push("read");
+        } catch (error) {
+            args.push(error.code);
+            args.push(if error.message.contains("deeper than 100 levels") { "deep" } else { "other" });
+        }
+    }"#,
+    ));
+
+    let report = start(&sandbox, &[]).report();
+
+    assert_eq!(
+        recorded.argv().unwrap(),
+        [
+            "read",
+            "source_invalid_json",
+            "deep",
+            "source_invalid_json",
+            "deep",
+            "source_invalid_json",
+            "other",
+        ]
+    );
+    // Only the file that fits is a measured read.
+    assert_eq!(report["reads"].as_array().unwrap().len(), 1);
+}
+
 #[test]
 fn a_malformed_host_request_ends_the_evaluation_and_names_the_function_the_field_and_the_line() {
     for (call, field) in [
@@ -579,6 +684,87 @@ fn the_64th_module_loads_and_the_65th_refuses() {
             assert_eq!(error["stage"], "load", "{error}");
         }
     }
+}
+
+#[test]
+fn the_bound_of_modules_counts_distinct_files_and_not_import_statements() {
+    // Eight modules import seven leaves each: 64 files, and no file has more
+    // than eight import statements, so only the front's count can refuse the
+    // 65th file.
+    let graph = |extra: bool| {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let config = sandbox.home.join(".config/ravel");
+        let mut entry = String::new();
+        for mid in 0..8 {
+            let leaves: String = (0..7)
+                .map(|leaf| {
+                    support::write(&config.join(format!("leaf{mid}_{leaf}.rhai")), "");
+                    format!("import \"leaf{mid}_{leaf}\" as leaf{leaf};\n")
+                })
+                .collect();
+            support::write(&config.join(format!("mid{mid}.rhai")), &leaves);
+            entry.push_str(&format!("import \"mid{mid}\" as mid{mid};\n"));
+        }
+        if extra {
+            support::write(&config.join("extra.rhai"), "");
+            entry.push_str("import \"extra\" as extra;\n");
+        }
+        sandbox.personal_rhai(&format!(
+            "{}{entry}{}",
+            rhai::HEADER,
+            rhai::ROUTED.lines().skip(2).collect::<Vec<_>>().join("\n")
+        ));
+        (start(&sandbox, &[]), recorded)
+    };
+
+    let (run, _) = graph(false);
+    assert_eq!(
+        run.report()["policy"]["modules"].as_array().unwrap().len(),
+        65,
+        "the entry and 64 modules"
+    );
+    let (run, recorded) = graph(true);
+    let error = refused(&run, "policy_import_failed", &recorded);
+    assert_eq!(error["stage"], "load", "{error}");
+    assert!(
+        error["message"]
+            .as_str()
+            .unwrap()
+            .contains("over the bound of 64"),
+        "{error}"
+    );
+}
+
+#[test]
+fn an_import_of_a_loaded_module_is_not_a_new_module_however_often_it_runs() {
+    // Rhai counts import statements, and counts a cached module again. The bound
+    // is the spec's 65th module, so 70 statements for one file load it once, at
+    // the top level and in a function that `select` runs.
+    let statements = |prefix: &str| -> String {
+        (0..70)
+            .map(|index| format!("{prefix}import \"helper\" as helper{index};\n"))
+            .collect()
+    };
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let config = sandbox.home.join(".config/ravel");
+    support::write(&config.join("helper.rhai"), "fn word() { \"w\" }");
+    sandbox.personal_rhai(&policy(&format!(
+        r#"{}
+fn select(request, context) {{
+{}
+    #{{ status: "selected", program: "recording-agent", args: [helper69::word()],
+       provider: "p", model: "m", effort: "e", reason: "r" }}
+}}"#,
+        statements(""),
+        statements("    ")
+    )));
+
+    let report = start(&sandbox, &[]).report();
+
+    assert_eq!(recorded.argv().unwrap(), ["w"]);
+    assert_eq!(report["policy"]["modules"].as_array().unwrap().len(), 2);
 }
 
 #[test]

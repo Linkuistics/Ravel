@@ -19,9 +19,7 @@ use super::callbacks;
 use super::convert::{self, from_json};
 use super::locate;
 use super::resolver::HostResolver;
-use super::{
-    Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, MAX_MODULES, Phase, Reply, ScriptFailure,
-};
+use super::{Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, Phase, Reply, ScriptFailure};
 
 /// The value of `SCHEMA_VERSION` this release reads.
 pub const SCHEMA_VERSION: i64 = 3;
@@ -185,7 +183,11 @@ fn engine(latch: &Latch, bridge: &Rc<Bridge>, entry: &Entry<'_>) -> Engine {
     engine.set_max_map_size(size(Limit::MapSize));
     engine.set_max_variables(size(Limit::Variables));
     engine.set_max_functions(size(Limit::ScriptFunctions));
-    engine.set_max_modules(MAX_MODULES);
+    // The bound of modules is the front's: it counts distinct files, and the
+    // spec's 65th module is a 65th file. Rhai's own counter counts import
+    // statements, cached ones too, so it would refuse a script that imports one
+    // module 65 times.
+    engine.set_max_modules(usize::MAX);
     let (stop, latch, operations) = (latch.stop_flag(), latch.clone(), AtomicU64::new(0));
     engine.on_progress(move |_| {
         if stop.load(Relaxed) {
@@ -596,12 +598,7 @@ pub(super) fn import_failure(file: &str, error: &EvalAltResult) -> ScriptFailure
             Some(&without_position(&cause.to_string())),
         );
     }
-    let what = match cause {
-        EvalAltResult::ErrorTooManyModules(..) => {
-            format!("it ran more than {MAX_MODULES} import statements")
-        }
-        _ => without_position(&cause.to_string()),
-    };
+    let what = without_position(&cause.to_string());
     at(
         ScriptFailure::new(
             "policy_import_failed",
@@ -1093,7 +1090,9 @@ fn select(request, context) { global::SEEN }"#,
         assert_eq!(engine.max_map_size(), 1_048_576);
         assert_eq!(engine.max_variables(), 16_384);
         assert_eq!(engine.max_functions(), 4_096);
-        assert_eq!(engine.max_modules(), 64);
+        // The front counts the modules, as distinct files, so the engine's own
+        // count of import statements must not refuse first.
+        assert_eq!(engine.max_modules(), usize::MAX);
         // The progress hook counts operations, so the engine's own bound is off.
         assert_eq!(engine.max_operations(), 0);
         // Rhai's defaults for the three depths are 8, 32 and 16 in a debug build

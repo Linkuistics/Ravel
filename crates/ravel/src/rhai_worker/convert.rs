@@ -56,6 +56,35 @@ pub fn from_json(value: &Value) -> Dynamic {
     }
 }
 
+/// Refuse a JSON value that nests deeper than [`MAX_DEPTH`], at the location of
+/// the first container past it. This is the bound of `to_json` for a value that
+/// arrives as JSON, such as a file that `read_json` parsed.
+pub fn check_depth(value: &Value, root: &str) -> Result<(), Refused> {
+    fn walk(value: &Value, path: &mut Path) -> Result<(), Refused> {
+        match value {
+            Value::Array(items) => {
+                too_deep(path)?;
+                for (index, item) in items.iter().enumerate() {
+                    path.enter(format_args!("[{index}]"));
+                    walk(item, path)?;
+                    path.leave();
+                }
+            }
+            Value::Object(fields) => {
+                too_deep(path)?;
+                for (key, item) in fields {
+                    path.enter(format_args!(".{key}"));
+                    walk(item, path)?;
+                    path.leave();
+                }
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+    walk(value, &mut Path::new(root))
+}
+
 /// The location of the value being converted, built up as the walk descends.
 struct Path {
     text: String,
@@ -273,5 +302,22 @@ mod tests {
         let json = to_json(&within, "result").unwrap();
         // The front reads it back, whatever the depth.
         serde_json::from_slice::<Value>(&serde_json::to_vec(&json).unwrap()).unwrap();
+    }
+
+    #[test]
+    fn a_json_value_has_the_same_depth_bound_as_a_rhai_value() {
+        let nested = |levels: usize| (0..levels).fold(json!(0), |inner, _| json!({ "k": [inner] }));
+        // Each step wraps a map and an array, so 50 steps are 100 levels.
+        assert_eq!(check_depth(&nested(MAX_DEPTH / 2), "value"), Ok(()));
+        let refusal = check_depth(&nested(MAX_DEPTH / 2 + 1), "value").unwrap_err();
+        assert!(refusal.reason.contains("nests deeper"), "{refusal}");
+        assert_eq!(
+            refusal.path,
+            format!("value{}", ".k[0]".repeat(MAX_DEPTH / 2))
+        );
+        // The same bound as the other direction: 100 arrays pass, 101 refuse.
+        let arrays = |levels: usize| (0..levels).fold(json!(0), |inner, _| json!([inner]));
+        assert_eq!(check_depth(&arrays(MAX_DEPTH), "value"), Ok(()));
+        assert!(check_depth(&arrays(MAX_DEPTH + 1), "value").is_err());
     }
 }

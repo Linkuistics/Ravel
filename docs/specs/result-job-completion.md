@@ -302,9 +302,12 @@ A single front-owned scope SHALL survive selection failure as well as success.
 Partial handler installation, reader creation and mask transitions retain their
 known protection and every failure report through explicit settlement. No new
 child is admitted after a failed transition. Output-reader shielding is checked
-before creation and lasts until each thread exits. Bounded diagnostic collection
-may leave shielded readers alive until CLI exit; no unbounded join or additional
-policy-descendant supervision promise follows.
+before creation and lasts until each thread exits. The file-reader thread of a
+Rhai evaluation takes the same shield. A failed block, creation or creator
+restore refuses the evaluation before any host call runs. Bounded diagnostic
+collection and an abandoned policy read may leave shielded readers alive until
+CLI exit; no unbounded join or additional policy-descendant supervision promise
+follows.
 
 Failure of the parent-mask transition after spawn SHALL enter runner-owned
 bounded teardown, actual wait and checked terminal recovery before returning.
