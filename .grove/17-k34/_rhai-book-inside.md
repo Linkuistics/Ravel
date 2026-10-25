@@ -25,7 +25,7 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 - Structure brief and prose contract: `docs/book/contract.md`, as updated by `rhai-book-use`. Its section 1 holds the reader, the section plan and the figure needs.
 - Source of truth: the code after `typescript-removal`, `docs/specs/policy-evaluation.md` and `CONTEXT.md`. Check each claim against the source and the running binary.
-- The running logs of the leaves `rhai-llm-upgrade-proof` and `typescript-delivery-removal` hold the task names, the new layout and the delivery steps.
+- The running logs of the leaves `rhai-upgrade-task`, `rhai-harness-smoke` and `typescript-delivery-removal` hold the task names, the new layout and the delivery steps.
 
 ## Notes
 

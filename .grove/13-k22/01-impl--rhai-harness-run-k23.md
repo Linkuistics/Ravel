@@ -24,7 +24,8 @@ Make `ravel::run_harness` work end to end. A policy runs a harness that settings
 - `start-session` refuses as `policy_reentry_refused`, exit 3, when `RAVEL_POLICY_RUN` is in its environment. It refuses before it reads settings or a policy. The final managed process never receives the marker, because Ravel scrubs `RAVEL_*` names from it.
 - The channel of a run replaces an enclosing `RAVEL_EXIT_FILE`, so a run cannot complete the enclosing session. The worker receives no `RAVEL_EXIT_FILE`.
 - The notice lists each run with its harness, status, exit code or signal, elapsed time and whether it sent a result.
-- Tests at the CLI seam cover these scenarios: "Missing program", "Re-entry attempt" and "Completion attempt". They also cover a successful run with stdin and a nonzero exit. The other cases are a signalled run, a timed-out run, an output bound, the budget at 0 and a confined run.
+- Tests at the CLI seam cover these scenarios: "Missing program", "Output bound", "Deadline of one run", "Caught budget breach", "Re-entry attempt" and "Completion attempt". They also cover a successful run with stdin and a nonzero exit. The other cases are a signalled run, the budget at 0 and a confined run.
+- In "Output bound" and "Deadline of one run", `run_harness` returns `output_limit` or `timed_out`. The process group of the run is gone, the script goes on, and Ravel launches the route that the policy selects. Each case has a firing control.
 - `task check` and `task test` pass.
 
 ## Notes

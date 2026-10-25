@@ -38,9 +38,11 @@ local upgrade.
   - `rhai-llm-calls` built `ravel::llm` through Rig. The design leaf
     `llm-calls-through-harnesses-k58` then moved every LLM call to a harness
     run. The node now removes `ravel::llm`, Rig and the endpoint settings, and
-    it keeps the schema check as `ravel::json_check`.
+    it keeps the schema check as `ravel::json_check`. It also adds the Taskfile
+    task for a Rhai upgrade.
   - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal, the
-    ordered stop and the smoke tasks for a real LLM call through each harness.
+    ordered stop, the tests of an LLM call through a fake harness and the smoke
+    tasks for a real LLM call through each harness.
   - `rhai-example-policies` translates the example policies and proves their
     equivalence with the TypeScript originals.
   - `rhai-book-use` revises Parts I and II of the book and adds the migration

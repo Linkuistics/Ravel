@@ -16,7 +16,8 @@ Draft the migration chapter and rewrite chapter 4, "Write an owner policy", for 
 ## Done when
 
 - The owner's answers are in the running log, and `docs/book/contract.md` agrees with them.
-- Chapter 4 teaches the Rhai policy module, the request, the context and the selection. It teaches the refusals and the host functions for reads and data. It covers the LLM calls, the harness runs, the settings keys, the budgets and the environment grants.
+- Chapter 4 teaches the Rhai policy module, the request, the context and the selection. It teaches the refusals and the host functions for reads and data. It covers the harness runs, the settings keys `harnesses` and `budgets`, and the environment grants.
+- Chapter 4 holds the recipes of an LLM call through Claude Code and through Codex. This leaf owns them. The arguments come from the running log of `rhai-harness-smoke-k66`, not from memory. Each recipe has a complete example with a fake harness, and the text says that the smoke tasks prove the real call. The text also states that Ravel builds no argument that is specific to a harness.
 - The migration chapter holds the translated policies, the difference table and the steps to convert an owner's own policy. It states the cutover rule: `policy.rhai` wins, and a lone `policy.ts` refuses.
 - Every complete example in these two chapters runs. `task docs:examples` and `task docs:excerpts` pass for them.
 - `docs/book/src/SUMMARY.md` and every cross-reference list the new chapter.

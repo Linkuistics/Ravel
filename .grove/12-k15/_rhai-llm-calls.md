@@ -9,9 +9,10 @@ Let a Rhai policy ask a model a question. This increment first built `ravel::llm
 - `ravel::llm`, `ravel::endpoints()`, the `endpoints` settings key, the two LLM budgets and `llm_budget_exhausted` are gone from the code, the tests and the notice.
 - The LLM adapter is gone, with its HTTP client and its body bounds. Rig, reqwest and rustls are gone from the dependency tree.
 - `ravel::json_check` applies the schema subset of the spec in the worker. Tests at the CLI seam cover a match, a mismatch with its location, a schema outside the subset and a value with no JSON form.
+- A Taskfile task proves a Rhai upgrade. It runs the engine tests and the hostile classes, and each class keeps its firing control.
 - The TypeScript path works as before, and `task check` and `task test` pass.
 
-The harness run itself, and the smoke tasks for a real LLM call through each harness, belong to `rhai-harness-runs`.
+The harness run itself belongs to `rhai-harness-runs`. So do the tests of an LLM call through a fake harness, and the smoke tasks for a real LLM call through each harness.
 
 ## Decomposition
 
@@ -19,7 +20,12 @@ The harness run itself, and the smoke tasks for a real LLM call through each har
 - `llm-calls-through-harnesses-k58` (design) moved every LLM call to a harness run. It changed the spec, the ADR set and the glossary.
 - The owner pruned `rhai-llm-upgrade-proof-k21`. Its Rig upgrade proof and its real recordings have no subject now.
 - A `review-design` leaf reads the change of the spec before any leaf builds on it.
-- A `planning` leaf, `llm-harness-replan`, then cuts the removal. It names `rhai-llm-removal` as the `impl` leaf that removes the built code and moves the schema check. It also brings the later leaves that still name `ravel::llm` into line with the spec.
+- `llm-harness-replan` (planning, done) cut the removal into four leaves, in this order. It also brought the later leaves into line with the spec.
+  - `rhai-json-check` adds `ravel::json_check` beside the checker that `ravel::llm` still uses. It moves the checker out of the LLM module.
+  - `rhai-llm-removal` removes `ravel::llm`, the adapter, Rig, reqwest and rustls, the two LLM budgets and the notice members.
+  - `rhai-endpoints-removal` removes the `endpoints` key, `ravel::endpoints()` and the endpoint types. It comes after the removal of the call, because the call reads the endpoints.
+  - `rhai-upgrade-task` adds the Taskfile task for a Rhai upgrade.
+- The scenarios of an LLM call, the credential scenarios and the smoke tasks belong to `rhai-harness-runs`.
 
 ## Pointers
 
