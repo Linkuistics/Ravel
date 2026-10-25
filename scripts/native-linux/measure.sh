@@ -12,10 +12,12 @@
 #   2. the declared minimum Rust building and linting the workspace: build with
 #      every target (test binaries included), clippy with warnings denied, and
 #      rustfmt's check;
-#   3. the worker and probe builds the protected suite expects, then the frozen
-#      campaign (`task test:native-campaign`): subjects digested before and
-#      after, the three native selections and the incumbent baseline, rows
-#      reconciled item by item;
+#   3. the worker and probe builds the protected suite expects, then the Rhai
+#      policy worker's own tests (the frozen campaign selects only `native_`
+#      cases, so none of them is in its scope), then the frozen campaign
+#      (`task test:native-campaign`): subjects digested before and after, the
+#      three native selections and the incumbent baseline, rows reconciled item
+#      by item;
 #   4. R01 through the six existing Taskfile tasks, joined identity by identity.
 #
 # Each step's exit status is recorded and the script continues, so a failing
@@ -93,6 +95,11 @@ step rust-fmt cargo fmt --all --check
 # 3. The frozen campaign. Its prerequisites are the worker (built by the
 # campaign itself) and, for the protected suite, the hostile-runtime probes.
 step worker-setup bash -c 'task setup && task worker && task probes'
+# The Rhai policy worker: its limits, role and policy tests and every unit test
+# that names it, through the real CLI. No nextest profile here writes junit, so
+# the summary line of OUT/rhai-worker.txt is the record.
+step rhai-worker cargo nextest run --locked -p ravel --no-fail-fast \
+  -E 'binary(/^rhai_/) | test(/rhai/)'
 step campaign task test:native-campaign DIR="$out/campaign"
 
 # 4. R01.

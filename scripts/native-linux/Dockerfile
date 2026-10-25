@@ -33,6 +33,10 @@ RUN apt-get update \
       python3 shellcheck unzip util-linux xz-utils bash coreutils findutils \
  && rm -rf /var/lib/apt/lists/*
 
+# rust-toolchain.toml lists three targets, and a rustup shim installs any that
+# are missing. /opt/rustup is root's, so the -t flags below install all three at
+# build time and the unprivileged campaign user fetches nothing at run time.
+#
 # No installed tool is executed here: the amd64 image is built under Docker's
 # default user-mode emulator, which cannot run rustc (see native-linux.sh), and
 # the campaign records each tool's own version where it measures.
@@ -46,7 +50,8 @@ RUN set -eux; \
     chmod +x /tmp/rustup-init; \
     CARGO_HOME=/opt/cargo /tmp/rustup-init -y --no-modify-path --profile minimal \
       --default-toolchain "${RUST_VERSION}" --default-host "${rust_host}" \
-      -c clippy -c rustfmt; \
+      -c clippy -c rustfmt \
+      -t aarch64-apple-darwin -t aarch64-unknown-linux-gnu -t x86_64-unknown-linux-gnu; \
     rm /tmp/rustup-init; \
     curl --proto '=https' --tlsv1.2 -fsSL \
       "https://github.com/nextest-rs/nextest/releases/download/cargo-nextest-${NEXTEST_VERSION}/cargo-nextest-${NEXTEST_VERSION}-${rust_host}.tar.gz" \
