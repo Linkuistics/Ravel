@@ -3,8 +3,9 @@ flowchart TB
   subgraph cli["Ravel CLI process — holds all authority"]
     direction TB
     auth["Entry and settings<br/>policy.rhai · endpoints<br/>harnesses · budgets"]
-    eval["Evaluation runtime<br/>deadline · cancellation · bounds<br/>measured reads · environment"]
-    llm["LLM adapter · Rig 0.45.0<br/>own reqwest client<br/>no proxy · redirect · retry"]
+    eval["Evaluation runtime<br/>deadline · cancellation · bounds<br/>environment"]
+    reader["Reader thread<br/>entry · modules · measured reads<br/>program lookups"]
+    llm["LLM adapter · Rig 0.45.0<br/>own bounded HTTP client<br/>no proxy · redirect · retry"]
     runner["Runner<br/>jobs · group cleanup · reap"]
   end
   subgraph worker["Policy worker — computes only"]
@@ -18,9 +19,10 @@ flowchart TB
   auth -->|"2 · re-execute own binary"| eval
   eval <-->|"3 · host calls on fd 3"| rhai
   rhai --- mods
-  eval -->|"4 · ravel::llm"| llm
+  eval -->|"4 · ravel::read_text and imports"| reader
+  eval -->|"5 · ravel::llm"| llm
   llm -->|"credential only here"| endpoints
-  eval -->|"5 · ravel::run_harness"| runner
+  eval -->|"6 · ravel::run_harness"| runner
   runner --> hrun
   classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
   classDef external fill:#eef3f8,color:#20344d,stroke:#6b7f95

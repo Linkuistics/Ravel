@@ -38,7 +38,7 @@
     "updatedDiagrams": [
       {
         "id": "processes",
-        "summary": "Added the process and authority view: the CLI holds credentials, reads and jobs, and the worker only computes."
+        "summary": "Added the process and authority view: the CLI holds credentials, reads and jobs, and the worker only computes. Reads run on a reader thread, apart from the runtime."
       },
       {
         "id": "evaluation-sequence",
@@ -54,7 +54,7 @@
       },
       {
         "id": "stopping-sequence",
-        "summary": "Added the order in which a deadline or a signal stops the Rig request, the harness run and the worker."
+        "summary": "Added the order in which a deadline or a signal stops the Rig request, a read, the harness run and the worker, and the final read of the cancellation latch."
       },
       {
         "id": "entry-precedence",
@@ -68,7 +68,7 @@
       "group": "processes",
       "title": "The CLI acts and the worker computes",
       "source": "processes.mmd",
-      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment, holds credentials, sends HTTP requests and launches jobs. The worker runs the Rhai script and asks for each host capability over fd 3. The launch after the reap is in the sequence view."
+      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment, holds credentials, sends HTTP requests and launches jobs. A reader thread does its filesystem work, so the runtime keeps watching the deadline. The worker runs the Rhai script and asks for each host capability over fd 3. The launch after the reap is in the sequence view."
     },
     {
       "id": "evaluation-sequence",
@@ -96,7 +96,7 @@
       "group": "stopping",
       "title": "A deadline or a signal stops everything",
       "source": "stopping-sequence.mmd",
-      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. A remote provider may still finish a request that it accepted."
+      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. The CLI does not wait for a read in progress. A signal that the CLI consumed wins over the deadline at the final read of the latch. A remote provider may still finish a request that it accepted."
     },
     {
       "id": "entry-precedence",

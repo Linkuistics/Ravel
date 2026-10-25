@@ -2,8 +2,8 @@
 
 An LLM endpoint exists only in the owner's `settings.json`, with its API type,
 its base URL and the environment variable of its credential. A policy names an
-endpoint in an LLM call. It never supplies a URL or a credential, and it never
-sees one. Only the Ravel CLI reads the credential, at the time of the call, and
+endpoint in an LLM call. It never supplies a URL or a credential, and no host
+capability gives it one. Only the Ravel CLI reads the credential, at the time of the call, and
 it sends the credential only to that base URL.
 
 The HTTP client of Ravel ignores ambient proxies, follows no redirect and makes

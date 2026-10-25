@@ -12,9 +12,9 @@ protocol, the capabilities and the bounds. The ordering of worker and job stays
 required. The Ravel CLI admits a selection only after it reaped the worker and
 removed its private directory, as the
 [C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
-record. Every harness run and every Rig request of the evaluation also ends
-before the launch. The waitability of the worker and the managed child at entry
-is part of the agreed
+record. Every host call of the evaluation also ends before the launch. The
+worker sends its result only after the reply to its last host call. The
+waitability of the worker and the managed child at entry is part of the agreed
 [native-entry contract](../specs/result-job-completion.md#checked-native-entry-transitions).
 
 The trade-off is a hard stop against a cheaper bridge. The owner rejected a Rhai

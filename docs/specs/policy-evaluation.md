@@ -43,8 +43,10 @@ result channel of its own.
 
 Every outcome of a host call is data that the script interprets. Every breach of
 a bound ends the evaluation, and the script cannot catch it. The Ravel CLI kills
-the worker at the deadline or on cancellation. It stops all host work, and it
-reaps the worker before the managed process launches.
+the worker at the deadline or on cancellation. It stops the host work in
+progress, and nothing launches. On the path to a launch, each host call ends
+before the worker sends its result. The Ravel CLI reaps the worker before the
+managed process launches.
 
 Callers do not change. The `start-session` flags, the policy context schema, the
 result channel and the selection fields keep their meaning.
@@ -252,14 +254,41 @@ keeps any message history itself.
 The Ravel CLI serves the socket from a Tokio current-thread runtime that exists
 only for the evaluation phase. While a host call runs, the runtime keeps
 watching the deadline, the cancellation latch, the health of the worker and the
-output bounds. A long LLM call or harness run therefore never blocks the work
-that stops it.
+output bounds. A long LLM call, read or harness run therefore never blocks the
+work that stops it.
+
+The runtime thread makes no filesystem call. A reader thread of the Ravel CLI
+does the filesystem work of the host functions. That work is the reads of the
+entry, of each module and of each measured source. It also includes the program
+lookups of discovery and of a harness run. The Ravel CLI reads the entry after it
+launches the worker, so the whole deadline covers every read.
+
+The runtime waits for the reply of the reader as it waits for any host call. The
+reader is not a blocking task of the runtime, because Tokio cannot stop a running
+blocking task, and its shutdown waits for one.
 
 Only one host call runs at a time, because the script is synchronous. The
-runtime shuts down with all of its tasks finished before the managed process
-launches. Each message from the worker is at most `messageBytes`, 1 MiB, except
-a delivered context, which has the context budget. A reply from the Ravel CLI
-has the bound of its capability.
+worker sends its result only after the reply to its last host call. A message
+from the worker while a host call is in progress breaks the protocol, and the
+evaluation refuses as `worker_failed`. On the path to a launch, no host call is
+therefore in progress. The runtime shuts down with all of its tasks finished
+before the managed process launches.
+
+Each message from the worker is at most `messageBytes`, 1 MiB, except a
+delivered context, which has the context budget. A reply from the Ravel CLI has
+the bound of its capability.
+
+A stop does not wait for a read in progress. The Ravel CLI abandons the read and
+its reply, and nothing launches after the stop. The reader thread keeps the
+descriptor of that read, and it closes it when the call returns or the Ravel CLI
+exits. Ravel opens every descriptor close-on-exec, so no harness run inherits
+one. These rules bound the waiting of Ravel. As in the
+[native-entry contract](result-job-completion.md#checked-native-entry-transitions),
+they are no real-time guarantee against a stall in the kernel.
+
+The kernel can hold a filesystem call without interruption, as with a read from
+a stalled network filesystem. Such a call can then delay the exit of the Ravel
+CLI. The refusal and its report are already written at that time.
 
 ### Host capabilities
 
@@ -290,10 +319,14 @@ in the script.
 #### Measured reads
 
 A read resolves a relative path against `request.cwd`. It reads a regular UTF-8
-file once. It returns the content with a source record: the canonical `name`,
-the `bytes` that it read and their `sha256`. `max_bytes` defaults to
-`sourceBytes` and may rise to `contextBytes`. The bound of 256 sources counts
-the caller's context document and every read in the evaluation.
+file once. It opens the file without blocking, as in 1.x, so a FIFO cannot hold
+the read. It checks that the open file is a regular file, and it reads at most
+one byte beyond its bound.
+
+A read returns the content with a source record: the canonical `name`, the
+`bytes` that it read and their `sha256`. `max_bytes` defaults to `sourceBytes`
+and may rise to `contextBytes`. The bound of 256 sources counts the caller's
+context document and every read in the evaluation.
 
 Reads that `load_context` makes enter the `measured` list of the delivered
 context, as in 1.x. Ravel also measures the reads that `select` and the top
@@ -308,16 +341,18 @@ Ravel:
 
 - It writes no whitespace.
 - It writes object members in ascending order of their keys, by code point.
-- It writes `\"`, `\\`, `\b`, `\f`, `\n`, `\r` and `\t` in strings, other
-  control characters as `\u00XX`, and every other character as UTF-8.
+- It writes `\"`, `\\`, `\b`, `\f`, `\n`, `\r` and `\t` in strings. It
+  writes each other character below U+0020 as `\u00xx`, with lowercase
+  hexadecimal digits. It writes every remaining character as UTF-8.
 - It writes integers in decimal, and finite floats in the shortest form that
   reads back exactly.
 
-Equal values therefore give equal bytes. A caller that needs a fixed member
-order, such as the provider receipt of Grove, joins members that `json_encode`
-wrote. The `to_json` of Rhai writes strings with Rust debug escapes, which are
-not JSON for control characters. The `parse_json` of Rhai accepts Rhai map
-syntax. Neither is part of the contract of Ravel.
+Equal values therefore give equal bytes. For a string that Rhai can hold,
+`json_encode` writes the bytes that `JSON.stringify` writes. A caller that needs
+a fixed member order, such as the provider receipt of Grove, therefore joins
+members that `json_encode` wrote. The `to_json` of Rhai writes strings with Rust
+debug escapes, which are not JSON for control characters. The `parse_json` of
+Rhai accepts Rhai map syntax. Neither is part of the contract of Ravel.
 
 `uuid_v4` returns a random version 4 UUID in lowercase hexadecimal. It takes its
 randomness from the operating system.
@@ -333,7 +368,9 @@ policy needs.
 `env` returns the caller's value of a readable name, or `()` when that name is
 unset. The readable names are `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and the
 names that `policyEnv` or `--policy-env` grant. Any other name throws
-`env_not_granted`. The worker itself has no environment.
+`env_not_granted`. No readable name is the credential variable of an LLM
+endpoint, by the [credential rules](#llm-endpoints-and-credentials). The worker
+itself has no environment.
 
 #### Discovery
 
@@ -410,7 +447,7 @@ options.
 | `timeout` | The call reached its own deadline | True |
 | `malformed_response` | A reply that does not decode, that stops short, that has no text, or whose JSON does not match the schema | True only when it stops short |
 | `content_filtered` | The provider ended the turn with its content filter | False |
-| `output_limit` | The text is longer than 1 MiB | False |
+| `output_limit` | The text is longer than 1 MiB, or a successful response body is longer than 8 MiB | False |
 
 Ravel makes no retry. The script decides whether to try again, with which
 endpoint and which model, and how often. A call that fails before Ravel sends
@@ -444,6 +481,14 @@ Ravel sends the schema natively where the endpoint supports structured output.
 Rig 0.45.0 drops the schema with only a warning on a Chat Completions dialect
 without structured output. Ravel therefore never sends a schema to such an
 endpoint, and it fails the call as `unsupported_capability`.
+
+On each of the three wires, Rig 0.45.0 rewrites the schema before it sends it.
+It marks every property as required. It also adds `additionalProperties: false`
+to each object that does not set the keyword. Ravel checks the answer against
+the schema of the script, not against the rewritten schema. An endpoint can
+still refuse a schema that the subset admits, such as one with
+`additionalProperties: true`. The call then fails as `provider_error`, with the
+status of the reply.
 
 #### Harness runs
 
@@ -517,8 +562,10 @@ or a digit. An unknown field refuses as `settings_invalid`.
 | `openai` | `OpenAIConfig` with the OpenAI dialect, the Responses wire | `https://api.openai.com/v1` | Yes |
 | `openai-compatible` | `OpenAIConfig` with a Ravel dialect from the baseline quirks of Rig, the Chat Completions wire | None | When `structuredOutput` is true |
 
-Ravel builds each client with `connect`, on a reqwest client that it built
-itself. It never uses the shared client or the environment constructors of Rig.
+Ravel builds each client with `connect`, on an HTTP client of its own. That
+client implements the `HttpClientExt` interface of Rig over a reqwest client
+that Ravel built. Ravel never uses the shared client or the environment
+constructors of Rig.
 No ambient `*_BASE_URL` or `*_API_KEY` variable therefore takes part. A base URL
 uses `https`, or `http` to a loopback address: `localhost`, 127.0.0.0/8 or
 `::1`. It has no user information, no query and no fragment.
@@ -526,11 +573,16 @@ uses `https`, or `http` to a loopback address: `localhost`, 127.0.0.0/8 or
 The credential follows these rules:
 
 - Only the Ravel CLI reads the named variable, at the time of each call.
-- It never reaches the worker, a diagnostic, a notice or a log.
+- No host function returns it to the worker. Ravel writes it to no diagnostic,
+  notice or log.
 - Rig carries it as a `Secret`, which never serialises.
 - It reaches only the base URL of its endpoint, in the header of its API type.
-- A name that an endpoint uses as `apiKeyEnv` cannot also be a `policyEnv`
-  grant. Settings that try refuse as `excluded_grant`.
+- A name that an endpoint uses as `apiKeyEnv` cannot also be a grant. A
+  `policyEnv` grant or a `--policy-env` flag that names it refuses as
+  `excluded_grant`, exit 2.
+- An `apiKeyEnv` cannot name a variable that `env` reads without a grant:
+  `HOME`, `PATH`, `TMPDIR`, `LANG` or a name of the form `LC_*`. Settings that
+  try refuse as `settings_invalid`, exit 2.
 
 A script names an endpoint and never a URL or a credential. It therefore cannot
 send a credential to an endpoint that the owner did not configure.
@@ -541,6 +593,16 @@ variable is in that environment, they receive it as any other caller variable.
 Ravel does not scrub it, because a harness may authenticate with it. A confined
 run or process receives only the confined environment, which excludes it.
 
+The credential boundary covers what Ravel serves to the script. It is not a
+filesystem sandbox. A measured read is not confined by path, so a policy that
+reads a file that holds a credential receives the credential. On Linux, the
+environment file of a process under `/proc` can hold one. That includes the file
+of the Ravel CLI itself, which performs the read.
+
+A list of refused paths would not remove this exposure, because the other files
+and processes of the same user stay readable. An unconfined harness run that
+prints its environment also returns the credential to the script in its output.
+
 The HTTP client follows these rules:
 
 - It ignores ambient proxy variables and system proxy settings.
@@ -549,6 +611,16 @@ The HTTP client follows these rules:
   reqwest.
 - It uses rustls with the trust store of the platform.
 - Its connection deadline is no later than the deadline of the call.
+- It bounds each response body before Rig decodes it. A successful body has at
+  most 8 MiB, and a longer one fails the call as `output_limit`.
+- It reads at most 64 KiB of a failure body, and then it closes the connection.
+  The call keeps the class of its status, and its message holds that part of
+  the body.
+- It counts the body bytes as they arrive. A declared length beyond the bound
+  fails at once. A body without a declared length stops at the first byte
+  beyond the bound.
+- It decodes no compressed body, so the bound counts the bytes that Rig
+  receives.
 
 The TLS crypto provider must build for all three archive targets with the
 existing Zig glibc 2.17 toolchain. The design prefers `ring`. The increment that
@@ -579,6 +651,7 @@ follow the rule for endpoints.
 | LLM calls | 8 | `budgets.llmCalls`, from 0 to 256 | `llm_budget_exhausted`, exit 3 |
 | LLM output tokens | 32,768 | `budgets.llmOutputTokens`, from 0 to 10,000,000 | `llm_budget_exhausted`, exit 3 |
 | LLM answer text | 1,048,576 bytes | Fixed | The call fails as `output_limit` |
+| LLM response body | 8,388,608 bytes for a success. Ravel reads at most 65,536 bytes of a failure | Fixed | A success fails the call as `output_limit`. A failure keeps its class |
 | Harness runs | 0 | `budgets.harnessRuns`, from 0 to 16 | `harness_budget_exhausted`, exit 3 |
 | Harness output | 1,048,576 bytes for each stream | Fixed | The run ends as `output_limit` |
 | Host calls at one time | 1 | Fixed by the synchronous script | None |
@@ -599,7 +672,7 @@ The bounds compose by these rules:
   Ravel sends it.
 - A harness run uses one run when the runner launches it.
 - Teardown after the deadline or a cancellation adds at most the kill-grace of
-  the runner and one second.
+  the runner and one second. It does not wait for a read in progress.
 - Only the owner sets the three new budgets, in settings. Callers get no new
   flag. A script can read its budgets but cannot raise one.
 
@@ -608,18 +681,30 @@ The bounds compose by these rules:
 An INT, TERM or HUP during the evaluation, or the end of the whole deadline,
 stops the evaluation in this order:
 
-1. The Ravel CLI latches the cause. A later signal does not replace it.
+1. The Ravel CLI records the first cause. A later cause does not repeat the
+   stop.
 2. It drops the Rig request in flight, which closes its connection.
-3. It asks the runner to stop a harness run in progress. The runner escalates
+3. It abandons a read in progress, and it does not wait for it.
+4. It asks the runner to stop a harness run in progress. The runner escalates
    from TERM to KILL, clears the group and reaps the child.
-4. It kills the worker and reaps it. The worker holds nothing that needs a
+5. It kills the worker and reaps it. The worker holds nothing that needs a
    graceful stop.
-5. It removes the private directories, reports every cleanup failure and
-   refuses.
+6. It removes the private directories, and it reports every cleanup failure.
+7. It reads the cancellation latch again, and then it refuses.
 
-A signal refuses as `selection_cancelled` with 128 plus its number, and Ravel
-raises the same signal again. The deadline refuses as `selection_timeout`, exit
-124. In both cases no managed process launches.
+Only one of steps 2 to 4 applies, because one host call runs at a time.
+
+The final read of the latch applies the precedence of the
+[completion contract](result-job-completion.md#outcome-and-diagnostic-order), as
+in 1.x. A signal that Ravel consumed before that read wins over the deadline.
+The refusal is then `selection_cancelled` with 128 plus its number, and Ravel
+raises the same signal again. Among signals, the first consumed signal stays the
+cause. The report keeps an earlier deadline as the original failure.
+
+Without a signal, the deadline refuses as `selection_timeout`, exit 124. The
+same final read follows every other refusal of the evaluation. A consumed signal
+therefore also wins over a breach of a bound. No managed process launches after
+a stop.
 
 The worker also checks a stop flag at each Rhai operation, so a cooperative
 script stops at once. A native call that does not yield stops only when the
@@ -679,10 +764,11 @@ cannot leave a promise unsettled.
 | `worker_failed` | `worker` | 5 | The worker died, broke the protocol or failed its teardown |
 
 Settings problems in the new keys use `settings_invalid` and `excluded_grant`,
-exit 2. A policy refusal stays `policy_refused`, with the owner's `policyCode`.
-Ravel never selects a fallback after a failure. The defaults for the harness,
-the model, the effort and every recovery belong to the policy. The host defaults
-are the ones in this specification.
+exit 2. A `--policy-env` flag that names a credential also refuses as
+`excluded_grant`, exit 2. A policy refusal stays `policy_refused`, with the
+owner's `policyCode`. Ravel never selects a fallback after a failure. The
+defaults for the harness, the model, the effort and every recovery belong to the
+policy. The host defaults are the ones in this specification.
 
 ### Re-entry and completion authority
 
@@ -793,8 +879,10 @@ The tests prove an upgrade at the command-line seam:
 - A scripted fake endpoint covers each API type. Its cases are success,
   structured output, usage present and absent, 401, 429 with a wait, and 500.
   Further cases are an undecodable body, a body that stops short and a stall past
-  the deadline. The last are an unsupported option and a redirect that Ravel does
-  not follow.
+  the deadline. The body cases are a successful body beyond 8 MiB with little
+  text and a 429 with a large body. A third body case has no declared length
+  and is longer than the bound. The last are an unsupported option and a
+  redirect that Ravel does not follow.
 - The fake endpoint checks the request that the mapping of Ravel sent. It checks
   the path, the credential header, the model, the token limit and the place of
   the schema.
@@ -847,6 +935,12 @@ and availability only.
 
 - **WHEN** `select` reads a file with `ravel::read_text`
 - **THEN** the notice lists the read with its phase, its bytes and its SHA-256
+
+#### Scenario: A FIFO as a source
+
+- **WHEN** `select` calls `ravel::read_text` on a FIFO that no process writes
+- **THEN** `read_text` throws `source_not_regular` at once, and the evaluation
+  goes on
 
 ### Requirement: Direct invocation without re-entry
 
@@ -911,6 +1005,19 @@ code. It SHALL NOT end the evaluation.
 - **THEN** the call fails as `unsupported_capability`, and the fake endpoint
   receives nothing
 
+#### Scenario: Oversized successful body
+
+- **WHEN** the fake endpoint answers 200 with a short text and a metadata field
+  of 9 MiB, without a declared length
+- **THEN** the call fails as `output_limit`, and the fake endpoint sees its
+  connection close before it sends the whole body
+
+#### Scenario: Large failure body
+
+- **WHEN** the fake endpoint answers 429 with a body of 1 MiB
+- **THEN** the call fails as `rate_limited`, and its message holds at most
+  64 KiB of the body
+
 ### Requirement: Harness failures are data
 
 Each outcome of a harness run SHALL reach the script. A cleanup failure SHALL
@@ -925,7 +1032,8 @@ end the evaluation.
 ### Requirement: Deadlines and cancellation stop everything
 
 At the deadline or on cancellation, Ravel SHALL stop the script, the LLM call
-and the harness run. It SHALL reap every process and launch nothing.
+and the harness run. It SHALL reap every process and launch nothing. It SHALL
+NOT wait for a read in progress. A consumed signal SHALL win over the deadline.
 
 #### Scenario: A native call that does not yield
 
@@ -942,6 +1050,13 @@ and the harness run. It SHALL reap every process and launch nothing.
 
 - **WHEN** Ravel receives TERM while a fake harness and its child sleep
 - **THEN** Ravel exits 143, and neither process exists afterwards
+
+#### Scenario: A signal after the deadline
+
+- **WHEN** the deadline passes during a harness run whose fake harness ignores
+  TERM, and Ravel receives TERM before the kill-grace ends
+- **THEN** Ravel exits 143 with `selection_cancelled` and raises TERM, and the
+  report keeps `selection_timeout` as the original failure
 
 ### Requirement: Resource exhaustion
 
@@ -962,8 +1077,8 @@ worker and at each output bound. The script SHALL NOT catch the breach.
 ### Requirement: Credential boundary
 
 Ravel SHALL send the credential of an LLM endpoint only to the base URL of that
-endpoint. It SHALL NOT pass the credential to the worker, a diagnostic or a
-notice.
+endpoint. No host function SHALL return the credential to the worker. Ravel
+SHALL NOT write it to a diagnostic or a notice.
 
 #### Scenario: Leak probes
 
@@ -971,6 +1086,17 @@ notice.
   every value that it can reach, and makes one call
 - **THEN** `env` throws `env_not_granted`, the key appears in no diagnostic or
   notice, and the fake endpoint sees it only in the credential header
+
+#### Scenario: A flag grant of the credential
+
+- **WHEN** a caller passes `--policy-env` with the `apiKeyEnv` name of an
+  endpoint
+- **THEN** Ravel exits 2 with `excluded_grant`, and no worker launches
+
+#### Scenario: A credential under a base name
+
+- **WHEN** an endpoint names `LC_MODEL_KEY` as its `apiKeyEnv`
+- **THEN** Ravel exits 2 with `settings_invalid`, and no worker launches
 
 ### Requirement: Migration equivalence
 
@@ -1014,6 +1140,12 @@ a firing control in the same test, as in 1.x. Policies at the same seam test the
 pure functions, such as `json_encode` and `path_resolve`. There is no second,
 in-process seam and no fake model inside the binary.
 
+The seam cannot make the kernel hold a read. The nonblocking open removes the
+stalls that a test can make, such as a FIFO. The FIFO case proves the open, and
+its firing control is a blocking open of the same FIFO, which stalls. No test at
+the seam proves that a stop never waits for a read. That property rests on the
+reader thread and the stop order in this specification.
+
 ## Out of scope
 
 - A verb that evaluates a policy without a launch. The owner kept it out of this
@@ -1028,6 +1160,8 @@ in-process seam and no fake model inside the binary.
 - A regular-expression host function. The string functions of Rhai parse a
   handle and a marker line, and the tests prove it.
 - A URL or a credential in a script.
+- A filesystem sandbox. A measured read can read each file that the user can
+  read.
 - A compatibility period for TypeScript.
 - The port of Grove's helpers, which Linkuistics/grove#24 carries.
 - A port of the book checks that run on Bun.

@@ -63,7 +63,8 @@ _Avoid_: host binding, SDK function
 
 **LLM endpoint**: An owner-configured connection to an LLM service, with a
 name, an API type, a base URL and the source of its credential. The **Owner
-policy** names it in an **LLM call** and never sees the credential.
+policy** names it in an **LLM call**, and no **Host capability** gives the
+policy its credential.
 _Avoid_: provider, model service, backend
 
 **LLM call**: One request that the **Owner policy** sends to a model through an
@@ -162,6 +163,6 @@ the session-result context.”
 Owner: “Can my policy ask a model which harness to use for a task?”
 
 Ravel maintainer: “Yes. The policy makes an LLM call through an LLM endpoint
-that your settings name, and it reads the answer as data. The policy worker
-never sees the credential. The provider in the selection stays your own
-label.”
+that your settings name, and it reads the answer as data. No host capability
+gives the policy worker the credential. The provider in the selection stays
+your own label.”

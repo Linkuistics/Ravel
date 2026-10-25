@@ -5,10 +5,12 @@ sequenceDiagram
   participant H as Harness run group
   participant W as Policy worker
   S->>R: INT, TERM, HUP or the end of the deadline
-  R->>R: latch the cause — a later signal does not replace it
+  R->>R: record the first cause — a later cause does not repeat the stop
   alt an LLM call is in flight
     R--xE: drop the Rig request, close the connection
     Note over E: work that the provider already accepted may finish and be billed
+  else a read is in progress
+    R->>R: abandon the read — its thread may stay until the CLI exits
   else a harness run is in progress
     R->>H: stop request: TERM
     H-->>R: exit, or the kill-grace ends
@@ -17,4 +19,5 @@ sequenceDiagram
   end
   R->>W: KILL
   R->>R: reap the worker, remove the private directories
-  R-->>S: refuse with 124, or with 128 plus the signal, then raise it again
+  R->>R: read the cancellation latch again — a consumed signal wins over the deadline
+  R-->>S: refuse with 128 plus the signal and raise it again, or else with 124
