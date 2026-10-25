@@ -26,7 +26,26 @@ local upgrade.
 - `plan-k1` (requirements, done) settled what to build, with the owner.
 - `rhai-policy-k2` (design) establishes how, as a spec and a reworked ADR set.
 - `rhai-policy-increments-k3` (planning) cuts that design into increments.
-  Each increment leaves main working.
+  Each increment leaves main working. The increments follow, in order.
+  - `rust-2024-toolchain` moves the workspace to Rust 1.99.1 and edition 2024.
+  - `rhai-route-table` makes a deterministic Rhai policy work, and it makes the
+    worker safe against a hostile script.
+  - `rhai-local-capabilities` adds reads, imports, `load_context`, the data
+    helpers, the three settings keys and discovery.
+  - `rhai-llm-calls` adds `ravel::llm` for three API types, with bounds,
+    budgets, structured output and the Rig upgrade proof.
+  - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal and the
+    ordered stop.
+  - `rhai-example-policies` translates the example policies and proves their
+    equivalence with the TypeScript originals.
+  - `rhai-book-use` revises Parts I and II of the book and adds the migration
+    guide.
+  - `typescript-removal` freezes the equivalence results, removes the
+    TypeScript path and its delivery machinery, and reconciles the specs.
+  - `rhai-book-inside` revises Parts III and IV and proves the whole book.
+  - `release-ravel-2-0-0`, `homebrew-upgrade` and `owner-policy-conversion`
+    end the workstream.
+  A `review-planning` leaf reads this cut before the first increment runs.
 
 The order is the dependency order. Planning needs the agreed design, and the
 design needs the settled requirements.
@@ -62,3 +81,13 @@ design needs the settled requirements.
 - The Homebrew upgrade runs inside a Grove session that Ravel 1.1.0 launched.
   Keep the 1.1.0 version and `policy.ts` until the driver restarts. The running
   log of `plan-k1` gives the reason.
+- Ravel 1.1.0 refuses an unknown key in `settings.json`, and both versions read
+  the same file. The conversion of the local configuration adds no new settings
+  key until the driver restarts.
+- `task release:major` refuses outside Ravel's default colocated jj workspace.
+  The work of this workstream lives in a secondary workspace, so the release
+  leaf asks the owner how the work lands on main.
+- The book is published with each release. Both book nodes finish before the
+  release leaves run.
+- Run `task docs:excerpts` and `task docs:examples` after a change to code that
+  the book quotes. Fix a moved excerpt in the same leaf.
