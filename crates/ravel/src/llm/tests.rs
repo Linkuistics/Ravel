@@ -13,13 +13,21 @@ use super::*;
 #[path = "../../tests/support/llm_server.rs"]
 mod server;
 
-use server::{Body, Reply, Server, messages_body, oversized};
+use server::{Body, Reply, Server, Wire, messages_body, oversized};
 
 const KEY: &str = "sk-fixture-credential-7f3a";
 
 fn endpoint(base_url: &str) -> Endpoint {
+    endpoint_on(Wire::Messages, base_url)
+}
+
+/// The endpoint of `wire` at the server `base_url`, with the credential variable.
+fn endpoint_on(wire: Wire, base_url: &str) -> Endpoint {
     crate::endpoints::parse_endpoints(&json!({
-        "main": { "type": "anthropic", "apiKeyEnv": "FIXTURE_KEY", "baseUrl": base_url }
+        "main": {
+            "type": wire.api_type(), "apiKeyEnv": "FIXTURE_KEY",
+            "baseUrl": format!("{base_url}{}", wire.base_path()),
+        }
     }))
     .unwrap()
     .remove("main")
@@ -31,8 +39,12 @@ fn environment(name: &str) -> Option<OsString> {
 }
 
 fn request() -> Request {
+    request_on(Wire::Messages)
+}
+
+fn request_on(wire: Wire) -> Request {
     Request {
-        model: "claude-sonnet-5-5".to_owned(),
+        model: wire.model().to_owned(),
         messages: vec![Message {
             role: Role::User,
             content: "Classify this prompt.".to_owned(),
@@ -522,19 +534,6 @@ fn a_credential_anywhere_in_a_successful_answer_is_redacted() {
 }
 
 #[test]
-fn the_other_api_types_are_not_available_yet() {
-    let other = crate::endpoints::parse_endpoints(&json!({
-        "gpt": { "type": "openai", "apiKeyEnv": "FIXTURE_KEY", "baseUrl": "http://127.0.0.1:1" }
-    }))
-    .unwrap()
-    .remove("gpt")
-    .unwrap();
-    let failure = run_with(&other, environment, &request(), Duration::from_secs(5))
-        .expect_err("not built yet");
-    assert_eq!(failure.code, Code::ProviderError);
-}
-
-#[test]
 fn only_https_or_loopback_http_is_a_base_url() {
     // The settings check the grammar; the adapter sends to what they accepted.
     let refused = crate::endpoints::parse_endpoints(&json!({
@@ -660,3 +659,5 @@ fn a_redaction_that_lengthens_the_text_cannot_carry_it_past_the_bound() {
     let failure = result.expect_err("the redacted text is over the bound");
     assert_eq!(failure.code, Code::OutputLimit, "{failure:?}");
 }
+
+mod openai;

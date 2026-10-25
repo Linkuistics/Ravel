@@ -137,6 +137,170 @@ pub fn oversized(total: usize, declared: bool) -> Body {
     }
 }
 
+/// The wire that a scripted endpoint speaks. Each API type of the spec has one.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Wire {
+    /// `anthropic`: Messages.
+    Messages,
+    /// `openai`: Responses.
+    Responses,
+    /// `openai-compatible`: Chat Completions.
+    Chat,
+}
+
+impl Wire {
+    /// The two wires that the OpenAI API types add.
+    pub const OPENAI: [Wire; 2] = [Wire::Responses, Wire::Chat];
+
+    /// The `type` of a settings entry for this wire.
+    pub fn api_type(self) -> &'static str {
+        match self {
+            Wire::Messages => "anthropic",
+            Wire::Responses => "openai",
+            Wire::Chat => "openai-compatible",
+        }
+    }
+
+    /// The path that follows the base URL of a server: nothing for Messages and
+    /// `/v1` for the OpenAI wires, as the services publish them.
+    pub fn base_path(self) -> &'static str {
+        match self {
+            Wire::Messages => "",
+            Wire::Responses | Wire::Chat => "/v1",
+        }
+    }
+
+    /// The path of a completion request.
+    pub fn path(self) -> &'static str {
+        match self {
+            Wire::Messages => "/v1/messages",
+            Wire::Responses => "/v1/responses",
+            Wire::Chat => "/v1/chat/completions",
+        }
+    }
+
+    /// A model for a call on this wire. The catalog of Rig lists the first two.
+    /// It cannot list the third, which is a name that a local server chose.
+    pub fn model(self) -> &'static str {
+        match self {
+            Wire::Messages => "claude-sonnet-5-5",
+            Wire::Responses => "gpt-5.2",
+            Wire::Chat => "local-model",
+        }
+    }
+
+    /// The header that carries the credential, and its value.
+    pub fn credential_header(self, key: &str) -> (&'static str, String) {
+        match self {
+            Wire::Messages => ("x-api-key", key.to_owned()),
+            Wire::Responses | Wire::Chat => ("authorization", format!("Bearer {key}")),
+        }
+    }
+
+    fn request_id_header(self) -> &'static str {
+        match self {
+            Wire::Messages => "request-id",
+            Wire::Responses | Wire::Chat => "x-request-id",
+        }
+    }
+
+    /// An answer with `text`, 11 input tokens and 7 output tokens.
+    pub fn answer(self, text: &str) -> Reply {
+        self.reply(self.body(text))
+    }
+
+    /// An answer that reports `output_tokens`, whatever the text.
+    pub fn answer_reporting(self, text: &str, output_tokens: u64) -> Reply {
+        let mut body = self.body(text);
+        match self {
+            Wire::Messages | Wire::Responses => {
+                body["usage"]["output_tokens"] = output_tokens.into();
+            }
+            Wire::Chat => body["usage"]["completion_tokens"] = output_tokens.into(),
+        }
+        self.reply(body)
+    }
+
+    /// An answer with no `usage` member: the endpoint reports no counter at all.
+    pub fn answer_without_usage(self, text: &str) -> Reply {
+        let mut body = self.body(text);
+        body.as_object_mut().expect("an object").remove("usage");
+        self.reply(body)
+    }
+
+    /// An answer that ends for `reason`. On the Chat wire it is the
+    /// `finish_reason`. On the Responses wire it is the `reason` of an
+    /// incomplete response.
+    pub fn answer_ending(self, text: &str, reason: &str) -> Reply {
+        let mut body = self.body(text);
+        match self {
+            Wire::Chat => body["choices"][0]["finish_reason"] = reason.into(),
+            Wire::Responses => {
+                body["status"] = "incomplete".into();
+                body["incomplete_details"] = serde_json::json!({ "reason": reason });
+            }
+            Wire::Messages => body["stop_reason"] = reason.into(),
+        }
+        self.reply(body)
+    }
+
+    fn reply(self, body: Value) -> Reply {
+        Reply::json(200, &body).header(self.request_id_header(), "req_fixture_1")
+    }
+
+    /// The JSON of an answer with `text`.
+    pub fn body(self, text: &str) -> Value {
+        match self {
+            Wire::Messages => messages_body(text),
+            Wire::Responses => serde_json::json!({
+                "id": "resp_fixture_1",
+                "object": "response",
+                "created_at": 0,
+                "status": "completed",
+                "model": "fixture-reported-model",
+                "output": [{
+                    "type": "message", "id": "msg_fixture_1", "status": "completed",
+                    "role": "assistant",
+                    "content": [{ "type": "output_text", "annotations": [], "text": text }]
+                }],
+                "usage": { "input_tokens": 11, "output_tokens": 7, "total_tokens": 18 }
+            }),
+            Wire::Chat => serde_json::json!({
+                "id": "chatcmpl_fixture_1",
+                "object": "chat.completion",
+                "created": 0,
+                "model": "fixture-reported-model",
+                "choices": [{
+                    "index": 0,
+                    "message": { "role": "assistant", "content": text },
+                    "finish_reason": "stop"
+                }],
+                "usage": { "prompt_tokens": 11, "completion_tokens": 7, "total_tokens": 18 }
+            }),
+        }
+    }
+
+    /// A body of `total` bytes: a short answer, and a `metadata` field that
+    /// fills the rest. The body is valid JSON only when it is whole.
+    pub fn oversized(self, total: usize, declared: bool) -> Body {
+        let prefix: &[u8] = match self {
+            Wire::Messages => return oversized(total, declared),
+            Wire::Responses => {
+                br#"{"id":"resp_big","object":"response","created_at":0,"status":"completed","model":"m","output":[{"type":"message","id":"m1","status":"completed","role":"assistant","content":[{"type":"output_text","annotations":[],"text":"ok"}]}],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2},"metadata":""#
+            }
+            Wire::Chat => {
+                br#"{"id":"c_big","object":"chat.completion","created":0,"model":"m","choices":[{"index":0,"message":{"role":"assistant","content":"ok"},"finish_reason":"stop"}],"usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":2},"metadata":""#
+            }
+        };
+        Body::Streamed {
+            total,
+            prefix: prefix.to_vec(),
+            suffix: br#""}"#.to_vec(),
+            declared,
+        }
+    }
+}
+
 /// What a request carried.
 #[derive(Clone, Debug)]
 pub struct Seen {

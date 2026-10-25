@@ -502,6 +502,12 @@ Ravel leaves `on_unsupported` unset, so Rig refuses an option that the wire or
 the model cannot honour. Ravel sends no tools, no documents and no provider
 options.
 
+Rig knows the mapping of `reasoning` only for the dialects that it registers.
+The Ravel dialect of `openai-compatible` is not one of them, because Ravel
+cannot know what a server behind a URL accepts. A call with `reasoning` to such
+an endpoint therefore fails as `unsupported_parameter`, whatever the level, and
+`off` is no exception. `maxTokens` and `temperature` reach every wire.
+
 | Field | When `status` is `ok` | When `status` is `failed` |
 |---|---|---|
 | `status` | `ok` | `failed` |

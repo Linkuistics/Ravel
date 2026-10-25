@@ -21,6 +21,15 @@
 //!   Messages wire on the transport of Ravel.
 //! - `Anthropic::completion` (`client/anthropic.rs:36`) and `Model::call`
 //!   (`driver.rs:353`): the model and its unary call.
+//! - `OpenAIConfig::new` (`providers/openai/wire.rs:578`), `with_key` (`:584`),
+//!   `with_base_url` (`:695`) and `with_route` (`:740`), and `OpenAI::completion`
+//!   (`client/openai.rs:56`): the Responses wire for `openai` with the `OPENAI`
+//!   dialect (`providers/openai/wire/dialects.rs:31`), and the Chat Completions
+//!   wire for `openai-compatible`.
+//! - `Dialect::gateway` (`providers/openai/wire.rs:482`), which gives the
+//!   `Quirks::openai()` baseline, and `Auth::OptionalBearer`
+//!   (`providers/openai/wire/auth.rs:23`), which sends no `Authorization` header
+//!   for an empty key (`:134`).
 //! - `CompletionRequest::new` (`completion/request.rs:1480`) and `messages`
 //!   (`:1528`), and its public fields `max_tokens`, `temperature` and
 //!   `options.reasoning`.
@@ -31,6 +40,14 @@
 //! - `HttpClientExt` (`rig-http` `http_client/mod.rs:204`), with
 //!   `Error::non_success_with_details` (`:99`) and `Error::instance` (`:145`).
 //! - `Secret` (`wire/secret.rs:15`), which Rig builds from the credential string.
+//!
+//! Rig maps `reasoning` for a Chat Completions dialect only for the ones it
+//! registers, and it refuses the option for any other (`providers/openai/options.rs:523`,
+//! with `refuse_all` at `providers/internal/mod.rs:42`). The `openai-compatible`
+//! dialect is not registered, so `reasoning` on that type fails as
+//! `unsupported_parameter`. The Responses wire reads a `max_output_tokens`
+//! incompletion as the finish `Length` and a `content_filter` one as
+//! `ContentFilter` (`providers/openai/responses_api/streaming.rs:276`).
 //!
 //! Rig reads a Messages refusal as the finish `ContentFilter` plus an error
 //! text (`providers/anthropic/streaming.rs:133`). The adapter reads the finish
@@ -59,6 +76,8 @@ use rig_core::completion::{
 use rig_core::error::ProviderError;
 use rig_core::http_client::Error as HttpError;
 use rig_core::providers::anthropic::AnthropicConfig;
+use rig_core::providers::openai::wire::{Auth, Dialect};
+use rig_core::providers::openai::{OpenAIConfig, Route};
 
 use crate::endpoints::{ApiType, Endpoint};
 use transport::{Fault, Transport};
@@ -332,24 +351,76 @@ impl Adapter {
         credential: String,
         request: &Request,
     ) -> Result<Response, Failure> {
-        let ApiType::Anthropic = endpoint.api else {
-            return Err(Failure::new(
-                Code::ProviderError,
-                false,
-                format!("the API type {} is not available yet", endpoint.api.name()),
-            ));
+        let outcome = match endpoint.api {
+            ApiType::Anthropic => {
+                let mut config = AnthropicConfig::new(credential);
+                if let Some(base) = &endpoint.base_url {
+                    config = config.with_base_url(base);
+                }
+                let client = config.connect(self.transport.clone());
+                client
+                    .completion(request.model.clone())
+                    .call(rig_request(request))
+                    .await
+            }
+            ApiType::OpenAi | ApiType::OpenAiCompatible => {
+                let config = openai_config(endpoint, credential)?;
+                let client = config.connect(self.transport.clone());
+                client
+                    .completion(request.model.clone())
+                    .call(rig_request(request))
+                    .await
+            }
         };
-        let mut config = AnthropicConfig::new(credential);
-        if let Some(base) = &endpoint.base_url {
-            config = config.with_base_url(base);
-        }
-        let client = config.connect(self.transport.clone());
-        let model = client.completion(request.model.clone());
-        match model.call(rig_request(request)).await {
+        match outcome {
             Ok(response) => answer(response),
             Err(error) => Err(classify(&error)),
         }
     }
+}
+
+/// The dialect of an `openai-compatible` endpoint: the baseline quirks of Rig
+/// for a server that speaks Chat Completions, and no more.
+///
+/// The dialect is not one that Rig registers, so Rig knows no mapping of
+/// `reasoning` onto this server, and it refuses the option as unsupported. A
+/// server that wants `reasoning_effort` is not one that Ravel can know about.
+/// `x-request-id` is the header that OpenAI names, and compatible servers copy
+/// it.
+const COMPATIBLE: Dialect = Dialect {
+    request_id_header: Some("x-request-id"),
+    ..Dialect::gateway("openai-compatible", "", "")
+};
+
+/// The configuration of Rig for an endpoint of an OpenAI API type. `openai` is
+/// the OpenAI dialect on the Responses wire. `openai-compatible` is [`COMPATIBLE`]
+/// on the Chat Completions wire, and it sends no `Authorization` header when it
+/// has no credential.
+fn openai_config(endpoint: &Endpoint, credential: String) -> Result<OpenAIConfig, Failure> {
+    let config = match endpoint.api {
+        ApiType::OpenAiCompatible => {
+            let Some(base) = &endpoint.base_url else {
+                return Err(Failure::new(
+                    Code::ProviderError,
+                    false,
+                    "an openai-compatible endpoint has no base URL",
+                ));
+            };
+            let mut config = OpenAIConfig::with_key(&COMPATIBLE, credential)
+                .with_base_url(base)
+                .with_route(Route::Chat);
+            config.auth = Auth::OptionalBearer;
+            config
+        }
+        _ => {
+            let config = OpenAIConfig::new(credential).with_route(Route::Responses);
+            match &endpoint.base_url {
+                Some(base) => config.with_base_url(base),
+                None => config,
+            }
+        }
+    };
+    Ok(config)
 }
 
 /// The credential of `endpoint`, read at the time of the call.
@@ -487,11 +558,11 @@ fn classify(error: &ProviderError) -> Failure {
         }
         // The transport reports a body that stops short as its own fault, so a
         // body that reaches Rig is whole. Rig reports `Truncated` when that whole
-        // body holds no Messages answer, and a new attempt would get the same.
+        // body holds no answer of the wire, and a new attempt would get the same.
         ProviderError::Truncated => Failure::new(
             Code::MalformedResponse,
             false,
-            "the response body holds no Messages answer",
+            "the response body holds no answer",
         ),
         other => Failure::new(Code::ProviderError, false, other.to_string()),
     };
