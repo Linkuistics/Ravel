@@ -6,10 +6,10 @@ use serde_json::{Value, json};
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 /// The names the owner granted, each once, in the order first given.
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Grants(Vec<Grant>);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Grant {
     name: String,
     /// Whether the caller's environment has it; unset, the worker lacks it.
@@ -52,6 +52,24 @@ impl Grants {
             .collect()
     }
 
+    /// What `ravel::env` finds for `name` in the caller's environment.
+    pub fn lookup(&self, name: &str) -> Lookup {
+        if !self.readable(name) {
+            return Lookup::NotReadable;
+        }
+        match std::env::var_os(name) {
+            Some(value) => Lookup::Set(value),
+            None => Lookup::Unset,
+        }
+    }
+
+    /// Whether the policy may read `name`. This is the one place that decides,
+    /// so a rule that outranks the base set and the grants, such as the
+    /// credential name of an LLM endpoint, goes first here.
+    fn readable(&self, name: &str) -> bool {
+        base(name.as_bytes()) || self.0.iter().any(|grant| grant.name == name)
+    }
+
     /// `[{ name, set }]`, never a value.
     pub fn to_json(&self) -> Value {
         self.0
@@ -59,6 +77,15 @@ impl Grants {
             .map(|grant| json!({ "name": grant.name, "set": grant.set }))
             .collect()
     }
+}
+
+/// What `ravel::env` finds for a name.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Lookup {
+    Set(OsString),
+    Unset,
+    /// A name that neither the base set nor a grant names.
+    NotReadable,
 }
 
 /// The values the front itself sets in the worker's environment, each under an
@@ -236,6 +263,26 @@ mod tests {
             let refusal = Grants::read(&[], &[name.into()]).unwrap_err();
             assert_eq!(refusal.code, code, "{name}");
             assert_eq!(refusal.input.as_deref(), Some("--policy-env"), "{name}");
+        }
+    }
+
+    #[test]
+    fn a_name_is_readable_when_it_is_in_the_base_set_or_granted() {
+        // Cargo sets this for every test run, and the test does not change it.
+        let granted = Grants::read(&["CARGO_MANIFEST_DIR".to_owned()], &[]).unwrap();
+        let none = Grants::default();
+        assert!(matches!(none.lookup("HOME"), Lookup::Set(_)));
+        assert!(matches!(none.lookup("PATH"), Lookup::Set(_)));
+        assert_eq!(none.lookup("LC_NO_SUCH_CATEGORY"), Lookup::Unset);
+        assert_eq!(none.lookup("RAVEL_NO_SUCH_NAME"), Lookup::NotReadable);
+        assert_eq!(none.lookup("CARGO_MANIFEST_DIR"), Lookup::NotReadable);
+        assert!(matches!(
+            granted.lookup("CARGO_MANIFEST_DIR"),
+            Lookup::Set(_)
+        ));
+        assert_eq!(granted.lookup("RAVEL_NO_SUCH_NAME"), Lookup::NotReadable);
+        for name in ["", "HOM", "home", "LC", "HOME=", "HOME\0"] {
+            assert_eq!(none.lookup(name), Lookup::NotReadable, "{name:?}");
         }
     }
 

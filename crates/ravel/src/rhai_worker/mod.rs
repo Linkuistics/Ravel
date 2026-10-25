@@ -20,7 +20,7 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
-//! | `host` | worker | `call` (`read_text`, `read_json` or `import`), `phase`, `path`, and where the call was made: `file`, `line`, `column`. A read adds `maxBytes`, an import `from` |
+//! | `host` | worker | `call` (`read_text`, `read_json`, `import` or `env`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name` |
 //! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name` |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
@@ -38,6 +38,7 @@ pub mod convert;
 pub mod engine;
 pub mod front;
 pub mod heap;
+mod helpers;
 mod host;
 mod locate;
 mod pointer_calls;

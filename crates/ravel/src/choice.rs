@@ -203,8 +203,8 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         })
         .transpose()?;
     let program = rhai_front::executable()?;
-    // The worker has no environment of its own. A grant is for the host
-    // functions that read the caller's environment.
+    // The worker has no environment of its own. A grant is for `ravel::env`,
+    // which reads the caller's environment.
     let launch = rhai_front::launch(&program, Vec::new());
     let mut judge =
         |value: Value, sources: Vec<Measured>| rhai_context(value, sources, &inputs, &source);
@@ -219,6 +219,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         &inputs.limits,
         Session {
             cwd: &inputs.cwd,
+            grants: &inputs.grants,
             caller: inputs.context.as_ref().map(|caller| &caller.measured),
             judge: &mut judge,
         },

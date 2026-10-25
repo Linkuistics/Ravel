@@ -24,6 +24,7 @@ use super::reader::{FileFailure, Reader, canonical, read_file};
 use super::{Bounds, MAX_MODULES, Module, Phase, Read, ScriptFailure};
 use crate::authority::RHAI_ENTRY_BYTES;
 use crate::context::{Measured, hex};
+use crate::environment::{Grants, Lookup};
 use crate::frame::FRONT_FRAME_BYTES;
 
 /// The `via` of a measured read, as the notice and the delivered context name it.
@@ -68,6 +69,8 @@ pub(super) struct Host {
     reader: Reader,
     cwd: PathBuf,
     bounds: Bounds,
+    /// The variables of the caller's environment that the policy may read.
+    grants: Grants,
     /// The caller's `--context` document, which counts as a source and heads
     /// the measured list of a loader's context.
     caller: Option<Measured>,
@@ -85,12 +88,14 @@ impl Host {
         reader: Reader,
         cwd: PathBuf,
         bounds: Bounds,
+        grants: Grants,
         caller: Option<Measured>,
     ) -> Self {
         Host {
             reader,
             cwd,
             bounds,
+            grants,
             caller,
             reads: Vec::new(),
             undecoded: 0,
@@ -150,12 +155,21 @@ impl Host {
             .and_then(Phase::from_name)
             .ok_or("a host frame has no known phase")?;
         let site = Site::of(frame);
-        let path = frame
-            .get("path")
-            .and_then(Value::as_str)
-            .filter(|path| !path.is_empty())
-            .ok_or("a host frame has no path")?;
+        let path = || {
+            frame
+                .get("path")
+                .and_then(Value::as_str)
+                .filter(|path| !path.is_empty())
+                .ok_or("a host frame has no path")
+        };
         match frame.get("call").and_then(Value::as_str) {
+            Some("env") => {
+                let name = frame
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .ok_or("an env frame has no name")?;
+                Ok(self.env(name))
+            }
             Some(call @ ("read_text" | "read_json")) => {
                 let max_bytes = match frame.get("maxBytes") {
                     None | Some(Value::Null) => None,
@@ -167,7 +181,7 @@ impl Host {
                     ),
                 };
                 Ok(self
-                    .read(call == "read_json", path, max_bytes, phase, &site)
+                    .read(call == "read_json", path()?, max_bytes, phase, &site)
                     .await)
             }
             Some("import") => {
@@ -175,9 +189,41 @@ impl Host {
                     .get("from")
                     .and_then(Value::as_str)
                     .ok_or("an import frame has no importing file")?;
-                Ok(self.import(path, from, phase, &site).await)
+                Ok(self.import(path()?, from, phase, &site).await)
             }
             other => Err(format!("a host frame names the unknown call {other:?}")),
+        }
+    }
+
+    /// `ravel::env`: the caller's value of a readable name. It touches no file,
+    /// so the runtime thread answers it.
+    fn env(&self, name: &str) -> Answer {
+        let failure = |code: &str, message: String| {
+            Answer::Reply(encode(&json!({
+                "type": "reply", "status": "error", "code": code, "message": message,
+                "name": name,
+            })))
+        };
+        match self.grants.lookup(name) {
+            Lookup::Set(value) => match value.into_string() {
+                Ok(value) => Answer::Reply(encode(
+                    &json!({ "type": "reply", "status": "ok", "value": value }),
+                )),
+                Err(_) => failure(
+                    "env_not_utf8",
+                    format!("the variable {name} does not hold UTF-8, which a Rhai string needs"),
+                ),
+            },
+            Lookup::Unset => Answer::Reply(encode(
+                &json!({ "type": "reply", "status": "ok", "value": null }),
+            )),
+            Lookup::NotReadable => failure(
+                "env_not_granted",
+                format!(
+                    "the variable {name} is not readable: a policy reads HOME, PATH, TMPDIR, \
+                     LANG, LC_* and the names that policyEnv or --policy-env grant"
+                ),
+            ),
         }
     }
 

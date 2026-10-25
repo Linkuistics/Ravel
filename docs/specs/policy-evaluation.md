@@ -346,7 +346,7 @@ All host functions are in the `ravel` namespace. Each one is available in
 | `ravel::uuid_v4()` | A string | Nothing | Nothing |
 | `ravel::path_resolve(base, path)` | A string | A thrown `path_not_absolute` | Nothing |
 | `ravel::path_parent(path)` | A string | A thrown `path_not_absolute` | Nothing |
-| `ravel::env(name)` | A string or `()` | A thrown `env_not_granted` | Nothing |
+| `ravel::env(name)` | A string or `()` | A thrown `env_not_granted` or `env_not_utf8` | Nothing |
 | `ravel::endpoints()` | An array of maps | Nothing | Nothing |
 | `ravel::harnesses()` | An array of maps | Nothing | Nothing |
 | `ravel::remaining()` | A map | Nothing | Nothing |
@@ -395,14 +395,27 @@ Ravel:
   writes each other character below U+0020 as `\u00xx`, with lowercase
   hexadecimal digits. It writes every remaining character as UTF-8.
 - It writes integers in decimal, and finite floats in the shortest form that
-  reads back exactly.
+  reads back exactly, such as `1.5`, `1.0`, `1e-7` and `1e+21`. A float keeps
+  its type when `json_parse` reads it back.
 
 Equal values therefore give equal bytes. For a string that Rhai can hold,
 `json_encode` writes the bytes that `JSON.stringify` writes. A caller that needs
 a fixed member order, such as the provider receipt of Grove, therefore joins
 members that `json_encode` wrote. The `to_json` of Rhai writes strings with Rust
 debug escapes, which are not JSON for control characters. The `parse_json` of
-Rhai accepts Rhai map syntax. Neither is part of the contract of Ravel.
+Rhai reads Rhai syntax, so it accepts a trailing comma and a single-quoted
+string. Neither is part of the contract of Ravel.
+
+A value that has no JSON form throws `json_unencodable`, and its message names
+the location, such as `value.args[2]`. A text that is not strict JSON throws
+`json_invalid`. Strict JSON has no trailing comma, comment, single-quoted
+string, `NaN` or text after the value. `json_parse` reads an integer outside
+the signed 64-bit range as a float, and it throws `json_invalid` for a value
+that nests deeper than 100 levels, the bound of the conversion rule.
+
+The data helpers run in the worker and send no message. `json_encode` may write
+any string that Rhai can hold, which is more than one message of the worker
+holds.
 
 `uuid_v4` returns a random version 4 UUID in lowercase hexadecimal. It takes its
 randomness from the operating system.
@@ -410,15 +423,21 @@ randomness from the operating system.
 `path_resolve` and `path_parent` are lexical, and they read no file.
 `path_resolve` joins a relative path to an absolute base. It then removes `.` and
 empty segments, and it applies each `..` to the segment before it, never above
-`/`. An absolute path replaces the base. `path_parent` removes the last segment,
-and the parent of `/` is `/`. For absolute inputs, both follow the rules of the
-`path.resolve` and `path.dirname` of Node, which the migration of the owner's
-policy needs.
+`/`. An absolute path replaces the base. `path_parent` removes the trailing
+slashes and the last segment, and the parent of `/` is `/`. For absolute inputs,
+both follow the rules of the `path.resolve` and `path.dirname` of Node, which
+the migration of the owner's policy needs. That includes the cases where
+`dirname` does not normalise: the parent of `/a//b` is `/a/`, the parent of
+`/a/./b` is `/a/.`, and the parent of `//a` is `//`. A relative `base` or a
+relative `path_parent` argument throws `path_not_absolute`, whatever the other
+argument is.
 
 `env` returns the caller's value of a readable name, or `()` when that name is
 unset. The readable names are `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and the
 names that `policyEnv` or `--policy-env` grant. Any other name throws
-`env_not_granted`. No readable name is the credential variable of an LLM
+`env_not_granted`, whether or not the caller has set it, and the message never
+holds a value. A value that is not UTF-8 throws `env_not_utf8`, because a Rhai
+string holds UTF-8 only. No readable name is the credential variable of an LLM
 endpoint, by the [credential rules](#llm-endpoints-and-credentials). The worker
 itself has no environment.
 

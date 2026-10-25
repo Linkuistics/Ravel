@@ -27,10 +27,11 @@ use rhai::{
 use serde_json::{Value, json};
 
 use super::convert::from_json;
+use super::helpers;
 use super::{Bounds, Phase, ScriptFailure};
 use crate::frame::write_frame;
 
-type Outcome<T> = Result<T, Box<EvalAltResult>>;
+pub(super) type Outcome<T> = Result<T, Box<EvalAltResult>>;
 
 /// The channel to the front.
 pub struct Link {
@@ -200,18 +201,40 @@ impl Bridge {
                 map.insert("source".into(), from_json(source));
                 Ok(Dynamic::from_map(map))
             }
-            Some("error") => {
-                let text = |field: &str| answer.get(field).map_or(Value::Null, Clone::clone);
-                let mut map = Map::new();
-                for field in ["code", "message", "name"] {
-                    map.insert(field.into(), from_json(&text(field)));
-                }
-                Err(
-                    EvalAltResult::ErrorRuntime(Dynamic::from_map(map), context.call_position())
-                        .into(),
-                )
-            }
+            Some("error") => Err(thrown_reply(context, &answer)),
             _ => Err(self.protocol(function, "a read reply has no known status")),
+        }
+    }
+
+    /// The string in `argument`, or the end of the evaluation as a malformed
+    /// `field` of `function`.
+    pub(super) fn string(
+        &self,
+        context: &NativeCallContext,
+        function: &str,
+        field: &str,
+        argument: &Dynamic,
+    ) -> Outcome<ImmutableString> {
+        argument
+            .clone()
+            .into_immutable_string()
+            .map_err(|_| self.invalid(context, function, field, "it must be a string"))
+    }
+
+    /// `ravel::env`: the front holds the caller's environment, and the worker
+    /// has none.
+    fn env(&self, context: &NativeCallContext, name: &Dynamic) -> Outcome<Dynamic> {
+        let name = self.string(context, "env", "name", name)?;
+        let mut request = self.frame(context, "env");
+        request["name"] = json!(name.as_str());
+        let answer = self.ask(&request)?;
+        match answer.get("status").and_then(Value::as_str) {
+            Some("ok") => match answer.get("value") {
+                Some(value @ (Value::Null | Value::String(_))) => Ok(from_json(value)),
+                _ => Err(self.protocol("env", "an env reply has no string or null value")),
+            },
+            Some("error") => Err(thrown_reply(context, &answer)),
+            _ => Err(self.protocol("env", "an env reply has no known status")),
         }
     }
 
@@ -243,8 +266,41 @@ impl Bridge {
                 },
             );
         }
+        let bridge = Rc::clone(self);
+        FuncRegistration::new("env").set_into_module(
+            &mut module,
+            move |context: NativeCallContext, name: Dynamic| bridge.env(&context, &name),
+        );
+        helpers::register(&mut module, self);
         module
     }
+}
+
+/// A data failure that the script can catch: a map with `code`, `message` and,
+/// where it applies, `name`.
+pub(super) fn thrown(
+    context: &NativeCallContext,
+    code: &str,
+    message: String,
+    name: Option<&str>,
+) -> Box<EvalAltResult> {
+    let mut map = Map::new();
+    map.insert("code".into(), code.into());
+    map.insert("message".into(), message.into());
+    if let Some(name) = name {
+        map.insert("name".into(), name.into());
+    }
+    EvalAltResult::ErrorRuntime(Dynamic::from_map(map), context.call_position()).into()
+}
+
+/// The failure that an `error` reply carries, thrown as it came.
+fn thrown_reply(context: &NativeCallContext, answer: &Value) -> Box<EvalAltResult> {
+    let text = |field: &str| answer.get(field).map_or(Value::Null, Clone::clone);
+    let mut map = Map::new();
+    for field in ["code", "message", "name"] {
+        map.insert(field.into(), from_json(&text(field)));
+    }
+    EvalAltResult::ErrorRuntime(Dynamic::from_map(map), context.call_position()).into()
 }
 
 /// An error that `try` does not catch. The engine's progress hook ends a run

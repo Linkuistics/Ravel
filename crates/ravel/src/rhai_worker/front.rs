@@ -22,6 +22,7 @@ use super::reader::Reader;
 use super::serve::{Judge, Served, Setup, serve};
 use super::{ARG0, BUILD_ID, Bounds, Module, PROTOCOL, RHAI_VERSION, Read, Reply};
 use crate::context::{Delivered, Measured};
+use crate::environment::Grants;
 use crate::limits::Limits;
 use crate::refusal::{Diagnostics, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::worker::{Bounded, Conversation, Launch, broken_for, receive_for, supervise};
@@ -69,6 +70,8 @@ pub struct Evaluated {
 pub struct Session<'a> {
     /// The caller's working directory, which a relative read resolves against.
     pub cwd: &'a Path,
+    /// The names of the caller's environment that `ravel::env` may read.
+    pub grants: &'a Grants,
     /// The caller's `--context` document, which counts as a source.
     pub caller: Option<&'a Measured>,
     /// Judges and measures the context that `load_context` returns.
@@ -192,8 +195,19 @@ fn converse(
         .and_then(|copy| copy.set_nonblocking(true).map(|()| copy))
         .map_err(|error| failed("the channel", &error))?;
     let reader = Reader::start().map_err(|error| failed("the reader thread", &error))?;
-    let Session { cwd, caller, judge } = session;
-    let host = Host::new(reader, cwd.to_owned(), *bounds, caller.cloned());
+    let Session {
+        cwd,
+        grants,
+        caller,
+        judge,
+    } = session;
+    let host = Host::new(
+        reader,
+        cwd.to_owned(),
+        *bounds,
+        grants.clone(),
+        caller.cloned(),
+    );
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_io()
         .enable_time()
@@ -325,9 +339,12 @@ mod tests {
         panic!("this test has no load_context");
     }
 
+    static NO_GRANTS: std::sync::LazyLock<Grants> = std::sync::LazyLock::new(Grants::default);
+
     fn session<'a>(cwd: &'a Path, judge: &'a mut Judge<'a>) -> Session<'a> {
         Session {
             cwd,
+            grants: &NO_GRANTS,
             caller: None,
             judge,
         }
