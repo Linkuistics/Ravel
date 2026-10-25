@@ -11,6 +11,7 @@ Make a Rig upgrade cheap to prove. Rig released seven minor versions between Jun
 - The earlier leaves of this increment own the scripted cases. This leaf checks that the list of the spec is complete, and it adds the layers around it.
 - `rig-cassette` 0.45.0 records and replays provider HTTP traffic. It is a development dependency only.
 - A real recording needs real credentials and costs money. Ask the owner before any real call. The owner may supply credentials, or may decline.
+- `tests/rhai_llm_schema.rs` already holds the scripted structured-output cases for each API type, with the place of the schema in each request body. The list of the spec needs no new case for it.
 - The scripted fakes already use provider documents that the tests author. A replay of another authored document adds no evidence about the wire, so the spec asks for a real exchange.
 
 ## Done when

@@ -152,6 +152,9 @@ impl Wire {
     /// The two wires that the OpenAI API types add.
     pub const OPENAI: [Wire; 2] = [Wire::Responses, Wire::Chat];
 
+    /// Every wire, one for each API type.
+    pub const ALL: [Wire; 3] = [Wire::Messages, Wire::Responses, Wire::Chat];
+
     /// The `type` of a settings entry for this wire.
     pub fn api_type(self) -> &'static str {
         match self {
@@ -187,6 +190,23 @@ impl Wire {
             Wire::Responses => "gpt-5.2",
             Wire::Chat => "local-model",
         }
+    }
+
+    /// The member of a request body that holds the schema of structured
+    /// output: the `format` that names its kind and the schema beside it.
+    /// Messages keeps it in `output_config.format`, Responses in
+    /// `text.format`, and Chat Completions in `response_format.json_schema`.
+    pub fn schema_member(self, body: &Value) -> Option<&Value> {
+        match self {
+            Wire::Messages => body.pointer("/output_config/format"),
+            Wire::Responses => body.pointer("/text/format"),
+            Wire::Chat => body.pointer("/response_format/json_schema"),
+        }
+    }
+
+    /// The schema that a request body carries, as Rig rewrote it.
+    pub fn schema_in(self, body: &Value) -> Option<&Value> {
+        self.schema_member(body)?.get("schema")
     }
 
     /// The header that carries the credential, and its value.

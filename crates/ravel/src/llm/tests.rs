@@ -52,6 +52,7 @@ fn request_on(wire: Wire) -> Request {
         max_tokens: 1024,
         temperature: None,
         reasoning: None,
+        schema: None,
     }
 }
 

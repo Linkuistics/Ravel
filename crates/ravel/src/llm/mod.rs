@@ -41,6 +41,22 @@
 //!   `Error::non_success_with_details` (`:99`) and `Error::instance` (`:145`).
 //! - `Secret` (`wire/secret.rs:15`), which Rig builds from the credential string.
 //!
+//! `schema` becomes `CompletionRequest.output_schema` (`completion/request.rs:1230`),
+//! a `schemars::Schema` that `rig_core::schemars` re-exports. Each wire sends it
+//! through `structured_output_schema` (`providers/openai/mod.rs:71`), which runs
+//! the sanitiser (`providers/internal/schema.rs`): every property becomes
+//! required, and an object without the keyword gets `additionalProperties:
+//! false`. Messages puts the result in `output_config.format`
+//! (`providers/anthropic/completion.rs:306`), Responses in `text.format`
+//! (`providers/openai/responses_api/mod.rs:511`) and Chat Completions in
+//! `response_format.json_schema` (`providers/openai/wire/chat.rs:293`). Chat
+//! drops the schema with only a warning when the dialect has no
+//! `supports_response_format` (`:293`), so a call with a schema to an endpoint
+//! without structured output fails as `unsupported_capability` before Rig sees
+//! it, and the dialect of such an endpoint backs that check with
+//! `without_response_format` (`providers/openai/wire.rs:445`). The check of the
+//! answer is Ravel's own (`schema`), against the schema as the script wrote it.
+//!
 //! Rig maps `reasoning` for a Chat Completions dialect only for the ones it
 //! registers, and it refuses the option for any other (`providers/openai/options.rs:523`,
 //! with `refuse_all` at `providers/internal/mod.rs:42`). The `openai-compatible`
@@ -59,6 +75,7 @@
 //! text that this module returns holds it: [`redact`] removes it from every
 //! string of a response and of a failure, whatever the endpoint echoes.
 
+pub mod schema;
 mod shape;
 mod transport;
 
@@ -80,6 +97,7 @@ use rig_core::providers::openai::wire::{Auth, Dialect};
 use rig_core::providers::openai::{OpenAIConfig, Route};
 
 use crate::endpoints::{ApiType, Endpoint};
+use schema::Schema;
 use transport::{Fault, Transport};
 
 /// The role of a message.
@@ -145,6 +163,9 @@ pub struct Request {
     pub max_tokens: u64,
     pub temperature: Option<f64>,
     pub reasoning: Option<Reasoning>,
+    /// The shape that the answer must have. The adapter sends it natively and
+    /// checks the answer against it.
+    pub schema: Option<Schema>,
 }
 
 /// Why the model stopped.
@@ -177,6 +198,8 @@ pub struct Usage {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Response {
     pub text: String,
+    /// The text as a value that the request's schema accepted, when it had one.
+    pub json: Option<serde_json::Value>,
     pub finish: Finish,
     pub usage: Usage,
     pub reported_model: Option<String>,
@@ -193,6 +216,7 @@ pub enum Code {
     UnknownEndpoint,
     EndpointUnavailable,
     ModelNotOffered,
+    UnsupportedCapability,
     UnsupportedParameter,
     Authentication,
     RateLimited,
@@ -218,6 +242,7 @@ impl Code {
             Code::UnknownEndpoint
                 | Code::EndpointUnavailable
                 | Code::ModelNotOffered
+                | Code::UnsupportedCapability
                 | Code::UnsupportedParameter
         )
     }
@@ -227,6 +252,7 @@ impl Code {
             Code::UnknownEndpoint => "unknown_endpoint",
             Code::EndpointUnavailable => "endpoint_unavailable",
             Code::ModelNotOffered => "model_not_offered",
+            Code::UnsupportedCapability => "unsupported_capability",
             Code::UnsupportedParameter => "unsupported_parameter",
             Code::Authentication => "authentication",
             Code::RateLimited => "rate_limited",
@@ -298,6 +324,15 @@ impl Adapter {
             failure
         };
         let credential = credential(endpoint, environment).map_err(finish)?;
+        // Rig drops a schema with only a warning on a dialect without
+        // structured output, so the request never reaches it.
+        if request.schema.is_some() && !endpoint.structured_output() {
+            return Err(finish(Failure::new(
+                Code::UnsupportedCapability,
+                false,
+                "the endpoint takes no schema: set structuredOutput to true in its settings                  entry if the server supports structured output",
+            )));
+        }
         let secret = credential.clone();
         let sent = self.send(endpoint, credential, request);
         let outcome = match tokio::time::timeout(timeout, sent).await {
@@ -334,6 +369,19 @@ impl Adapter {
                     failure.request_id = response.request_id;
                     failure.elapsed = response.elapsed;
                     return Err(failure);
+                }
+                // The check reads the redacted text, so the value cannot carry
+                // the credential either.
+                if let Some(schema) = &request.schema {
+                    match schema.check(&response.text) {
+                        Ok(value) => response.json = Some(value),
+                        Err(why) => {
+                            let mut failure = Failure::new(Code::MalformedResponse, false, why);
+                            failure.request_id = response.request_id;
+                            failure.elapsed = response.elapsed;
+                            return Err(failure);
+                        }
+                    }
                 }
                 Ok(response)
             }
@@ -392,6 +440,12 @@ const COMPATIBLE: Dialect = Dialect {
     ..Dialect::gateway("openai-compatible", "", "")
 };
 
+/// [`COMPATIBLE`] for a server that the owner did not mark as taking structured
+/// output: Rig then maps no `output_schema` onto `response_format`. The adapter
+/// fails such a call before it reaches Rig, so this only backs that check.
+const COMPATIBLE_PLAIN: Dialect =
+    COMPATIBLE.with_quirks(COMPATIBLE.quirks.without_response_format());
+
 /// The configuration of Rig for an endpoint of an OpenAI API type. `openai` is
 /// the OpenAI dialect on the Responses wire. `openai-compatible` is [`COMPATIBLE`]
 /// on the Chat Completions wire, and it sends no `Authorization` header when it
@@ -406,7 +460,12 @@ fn openai_config(endpoint: &Endpoint, credential: String) -> Result<OpenAIConfig
                     "an openai-compatible endpoint has no base URL",
                 ));
             };
-            let mut config = OpenAIConfig::with_key(&COMPATIBLE, credential)
+            let dialect = if endpoint.structured_output() {
+                &COMPATIBLE
+            } else {
+                &COMPATIBLE_PLAIN
+            };
+            let mut config = OpenAIConfig::with_key(dialect, credential)
                 .with_base_url(base)
                 .with_route(Route::Chat);
             config.auth = Auth::OptionalBearer;
@@ -462,6 +521,7 @@ fn rig_request(request: &Request) -> CompletionRequest {
     built.max_tokens = Some(request.max_tokens);
     built.temperature = request.temperature;
     built.options.reasoning = request.reasoning.map(Reasoning::to_rig);
+    built.output_schema = request.schema.as_ref().map(Schema::to_rig);
     built
 }
 
@@ -510,6 +570,7 @@ fn answer(response: rig_core::completion::CompletionResponse) -> Result<Response
     }
     Ok(Response {
         text,
+        json: None,
         finish: match finish {
             Some(RigFinish::Length) => Finish::Length,
             Some(RigFinish::Stop) | None => Finish::Stop,

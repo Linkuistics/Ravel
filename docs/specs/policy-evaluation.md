@@ -533,7 +533,7 @@ an endpoint therefore fails as `unsupported_parameter`, whatever the level, and
 | `provider_error` | Any other reply that reports a failure, or a turn that the provider ended with an error | As Rig classifies it |
 | `network` | A transport failure with no reply | As Rig classifies it |
 | `timeout` | The call reached its own deadline | True |
-| `malformed_response` | A reply that does not decode, that stops short, that has no text, or whose JSON does not match the schema | True only when it stops short |
+| `malformed_response` | A reply that does not decode, stops short or has no text, or an answer that fails the schema check | True only when it stops short |
 | `content_filtered` | The provider ended the turn with its content filter | False |
 | `output_limit` | The text is longer than 1 MiB, or a successful response body is longer than 8 MiB or holds more than 262,144 JSON values | False |
 
@@ -562,10 +562,22 @@ The schema subset for structured output:
 | `title`, `description` | Strings. The check ignores them |
 
 Any other keyword, or a nesting deeper than 32 levels, ends the evaluation as
-`host_request_invalid`. Ravel parses the whole answer, trimmed, as JSON, and
-checks it against the schema. A mismatch fails the call as `malformed_response`,
-with the location in its message. A schema checks shape only, and the script
-decides what the value means.
+`host_request_invalid`. The root schema is level 1, and each member of
+`properties` and each `items` schema is one level more. The report names the
+keyword or the schema that breaks the rule, such as `schema.properties.a.format`.
+
+Ravel parses the whole answer, trimmed, as JSON, and checks it against the
+schema. A keyword applies to the kinds of value it describes. `required`,
+`properties` and `additionalProperties` say nothing about an array, and `items`
+says nothing about an object. A number with no fraction is an `integer`, so `3.0`
+matches.
+
+An answer that is not JSON, that nests deeper than 100 levels, or that does not
+match fails the call as `malformed_response`. The message of a mismatch gives
+the location in the style of the conversion table, such as `json.items[1].name`.
+It never holds a value of the answer. The value that matched arrives in `json`,
+and `json` is `()` when the matching answer is `null`. A schema checks shape
+only, and the script decides what the value means.
 
 Ravel sends the schema natively where the endpoint supports structured output.
 Rig 0.45.0 drops the schema with only a warning on a Chat Completions dialect

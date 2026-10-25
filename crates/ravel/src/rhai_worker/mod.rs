@@ -20,7 +20,7 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
-//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `endpoints`, `harnesses`, `remaining` or `llm`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The three discovery calls add nothing. `llm` adds the checked request: `endpoint`, `model`, `messages`, `maxTokens`, and `temperature`, `reasoning` and `timeoutMs` or null (`llm_call`) |
+//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `endpoints`, `harnesses`, `remaining` or `llm`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The three discovery calls add nothing. `llm` adds the checked request: `endpoint`, `model`, `messages`, `maxTokens`, and `temperature`, `reasoning`, `schema` and `timeoutMs` or null (`llm_call`) |
 //! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name`. A call of `llm` always answers `ok` with the response map, and a failed call is `status: "failed"` inside it |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |

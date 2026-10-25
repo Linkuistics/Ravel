@@ -662,8 +662,8 @@ fn each_malformed_request_ends_the_evaluation_with_the_field_and_the_line() {
         // The fields of the request.
         (format!(r#"#{{ endpoint: "main", model: "m", messages: {user}, tools: [] }}"#), "tools"),
         (
-            format!(r#"#{{ endpoint: "main", model: "m", messages: {user}, schema: #{{ type: "object" }} }}"#),
-            "schema",
+            format!(r#"#{{ endpoint: "main", model: "m", messages: {user}, schema: #{{ type: "object", pattern: "x" }} }}"#),
+            "schema.pattern",
         ),
         (format!(r#"#{{ model: "m", messages: {user} }}"#), "endpoint"),
         (format!(r#"#{{ endpoint: 3, model: "m", messages: {user} }}"#), "endpoint"),

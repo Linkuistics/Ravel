@@ -16,6 +16,7 @@
 //! | `messages` | Array of `{ role, content }` |
 //! | `maxTokens` | Integer, 1 or more |
 //! | `temperature`, `reasoning`, `timeoutMs` | Number, String, Integer, or null when the script gave none |
+//! | `schema` | A map of the schema subset, or null when the script gave none |
 
 use std::time::Duration;
 
@@ -23,21 +24,22 @@ use rhai::{Dynamic, EvalAltResult, Map, NativeCallContext};
 use serde_json::{Value, json};
 
 use super::bridge::{Bridge, Outcome};
-use super::convert::from_json;
+use super::convert::{from_json, to_json};
+use crate::llm::schema::Schema;
 use crate::llm::{Failure, Message, Reasoning, Request, Response, Role, Usage};
 
 /// The `maxTokens` of a request that names none.
 const DEFAULT_MAX_TOKENS: i64 = 1024;
 
-/// The fields of the request, in the order the spec lists them. `schema` joins
-/// them with `rhai-llm-structured-output`.
-const FIELDS: [&str; 7] = [
+/// The fields of the request, in the order the spec lists them.
+const FIELDS: [&str; 8] = [
     "endpoint",
     "model",
     "messages",
     "maxTokens",
     "temperature",
     "reasoning",
+    "schema",
     "timeoutMs",
 ];
 
@@ -115,6 +117,15 @@ pub(super) fn frame(
             json!(word.as_str())
         }
     };
+    let schema = match map.get("schema") {
+        None => Value::Null,
+        Some(value) => {
+            let json = to_json(value, "schema")
+                .map_err(|refused| invalid(&refused.path, &refused.reason))?;
+            Schema::parse(&json, "schema").map_err(|why| invalid(&why.path, &why.reason))?;
+            json
+        }
+    };
     let timeout = match map.get("timeoutMs") {
         None => Value::Null,
         Some(value) => json!(whole("timeoutMs", value)?),
@@ -127,6 +138,7 @@ pub(super) fn frame(
     frame["maxTokens"] = json!(max_tokens);
     frame["temperature"] = temperature;
     frame["reasoning"] = reasoning;
+    frame["schema"] = schema;
     frame["timeoutMs"] = timeout;
 
     // The front reads no host frame past the message bound, and a request the
@@ -275,6 +287,15 @@ pub(super) fn decode(frame: &Value) -> Result<Call, String> {
                 .ok_or("an llm frame has an unknown reasoning")?,
         ),
     };
+    let schema = match frame.get("schema") {
+        None | Some(Value::Null) => None,
+        Some(value) => Some(Schema::parse(value, "schema").map_err(|why| {
+            format!(
+                "an llm frame has a schema outside the subset: {}: {}",
+                why.path, why.reason
+            )
+        })?),
+    };
     Ok(Call {
         endpoint: text("endpoint")?,
         request: Request {
@@ -283,6 +304,7 @@ pub(super) fn decode(frame: &Value) -> Result<Call, String> {
             max_tokens: number("maxTokens")?.ok_or("an llm frame has no maxTokens")?,
             temperature,
             reasoning,
+            schema,
         },
         timeout: number("timeoutMs")?.map(Duration::from_millis),
     })
@@ -313,7 +335,7 @@ pub(super) fn answer(call: &Call, outcome: &Result<Response, Failure>) -> (Value
         Ok(done) => (
             json!({
                 "status": "ok", "endpoint": endpoint, "model": model,
-                "text": done.text, "json": null, "finishReason": done.finish.name(),
+                "text": done.text, "json": done.json, "finishReason": done.finish.name(),
                 "usage": usage(done.usage), "reportedModel": done.reported_model,
                 "responseId": done.response_id, "requestId": done.request_id,
                 "elapsedMs": millis(done.elapsed), "error": null,
@@ -462,6 +484,7 @@ mod tests {
         let call = decode(&frame()).unwrap();
         let done = Response {
             text: "secret answer".to_owned(),
+            json: None,
             finish: Finish::Stop,
             usage: Usage {
                 input_tokens: Some(3),

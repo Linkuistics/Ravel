@@ -519,35 +519,6 @@ fn reasoning_reaches_the_openai_wire_and_an_option_the_wire_cannot_honour_fails_
 }
 
 #[test]
-fn a_schema_is_still_a_malformed_request_on_each_type() {
-    for wire in Wire::OPENAI {
-        let sandbox = Sandbox::new();
-        let recorded = sandbox.recording_agent();
-        let server = Server::start(vec![wire.answer("never sent")]);
-        settings_on(wire, &sandbox, &[("main", &server)], &json!({}));
-        sandbox.personal_rhai(&selecting(&format!(
-            "    {};\n    let args = [];",
-            call_on(wire, ", schema: #{ type: \"object\" }")
-        )));
-
-        let error = refused(
-            &start(&sandbox, true, &[]),
-            "host_request_invalid",
-            &recorded,
-        );
-
-        assert!(
-            error["location"]
-                .as_str()
-                .unwrap()
-                .starts_with("ravel::llm(schema)"),
-            "{wire:?}: {error}"
-        );
-        assert_eq!(server.requests_started(), 0, "{wire:?}");
-    }
-}
-
-#[test]
 fn the_credential_reaches_the_server_only_in_its_header_and_an_echo_leaks_nothing() {
     for wire in Wire::OPENAI {
         let (response, server) =
