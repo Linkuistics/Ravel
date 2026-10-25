@@ -35,6 +35,7 @@
 //! spawn emits none. [`run`] keeps the same interface without an observer.
 
 mod argv;
+mod capture;
 mod channel;
 mod confinement;
 mod error;
@@ -45,6 +46,7 @@ mod native_hooks;
 mod run;
 
 pub use argv::Argv;
+pub use capture::StopRequest;
 pub use channel::{Channel, signal};
 pub use confinement::{
     FilesystemGrants, confinement_available, confinement_system_reads, regular_file_at,
@@ -55,7 +57,8 @@ pub use error::LaunchError;
 #[cfg(feature = "native-faults")]
 pub use native_hooks::native_fault_select;
 pub use run::{
-    End, Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
-    reraise, run, run_confined_observed, run_confined_observed_with_start_check,
-    run_noninteractive, run_observed, run_observed_with_start_check, take_interrupt,
+    Captured, CapturedLaunch, End, Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent,
+    NoninteractiveLaunch, reraise, run, run_captured, run_confined_observed,
+    run_confined_observed_with_start_check, run_noninteractive, run_observed,
+    run_observed_with_start_check, take_interrupt,
 };

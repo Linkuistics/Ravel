@@ -10,6 +10,7 @@ use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::atomic::{AtomicI32, AtomicU8, Ordering};
 use std::time::{Duration, Instant};
 
+use crate::capture::{Piped, Pipes, StopRequest};
 use crate::channel::Channel;
 use crate::error::LaunchError;
 
@@ -20,6 +21,10 @@ use crate::error::LaunchError;
 /// escalation's own graces are measured in seconds — a caller tuning this would
 /// be tuning latency it cannot observe.
 const POLL_INTERVAL: Duration = Duration::from_millis(500);
+
+/// The same wait for a captured job. Its caller bounds the job by a deadline and
+/// by the size of its output. A stop that waits half a second is late.
+const CAPTURED_POLL_INTERVAL: Duration = Duration::from_millis(20);
 
 /// The two waits of the kill escalation.
 ///
@@ -1120,7 +1125,7 @@ pub fn run_observed_with_start_check(
     observer: &mut dyn FnMut(LaunchEvent),
     start_check: &mut dyn FnMut() -> std::io::Result<()>,
 ) -> Result<Ended, LaunchError> {
-    run_with_output(launch.into(), observer, start_check, None, None)
+    run_with_output(launch.into(), observer, start_check, None, None, None).map(|(ended, _)| ended)
 }
 
 /// Run a noninteractive child in a new POSIX session, without a controlling
@@ -1156,7 +1161,107 @@ pub fn run_noninteractive(
         &mut || Ok(()),
         Some(output),
         None,
+        None,
     )
+    .map(|(ended, _)| ended)
+}
+
+/// The pipes and the stop of a captured job.
+struct Capture<'a> {
+    stdin: &'a [u8],
+    limit: usize,
+    stop: StopRequest,
+    overflow: StopRequest,
+}
+
+/// A captured job: a noninteractive child in a new POSIX session. The runner
+/// reads its pipes, and the caller can stop it.
+///
+/// What [`Launch`] documents holds here. The program and arguments are spawned
+/// whole. The environment is the launcher's own minus `scrub`, plus `grant`,
+/// plus the channel path. The runner kills the group whatever ended the child.
+pub struct CapturedLaunch<'a> {
+    pub argv: &'a crate::Argv,
+    /// The channel and the variable that publishes its path. A value sent on it
+    /// begins the escalation, as for every job.
+    pub channel: (&'a Channel, &'a str),
+    pub scrub: &'a [&'a OsStr],
+    pub grant: &'a [(&'a OsStr, &'a OsStr)],
+    /// The signal state the job starts with, in place of the defaults of this
+    /// crate. The caller records it before the Rust runtime changes it.
+    pub transparent: Option<&'a EntrySignals>,
+    pub cwd: Option<&'a Path>,
+    pub escalation: Escalation,
+    /// The text for standard input. When it is empty, standard input is at end
+    /// of file.
+    pub stdin: &'a [u8],
+    /// The most that each of standard output and standard error keeps. The
+    /// first byte beyond it stops the job, and the runner drops that byte.
+    pub limit: usize,
+    /// The caller sets this to stop the job, and the runner escalates from
+    /// SIGTERM to SIGKILL, kills the group and reaps the child.
+    pub stop: &'a StopRequest,
+}
+
+/// How a captured job ended, with what it wrote.
+#[derive(Debug)]
+pub struct Captured {
+    pub ended: Ended,
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
+    /// Whether a stream carried a byte beyond [`CapturedLaunch::limit`].
+    pub overflow: bool,
+}
+
+/// Run a captured job, confined by `grants` when they are given.
+///
+/// The runner installs no signal handler for a captured job. It takes no signal
+/// of the launcher, so the caller keeps the signals of its own process. The
+/// launch ends only when the job exits, when the caller sets the stop, or when
+/// an output stream passes its bound. In the last two cases the runner stops
+/// the job, and `ended.end` is [`End::Escalated`].
+///
+/// `observer` has the contract of [`run_observed`]: [`LaunchEvent::Started`]
+/// follows a successful spawn, so a caller learns whether an error came before
+/// the job existed or after.
+pub fn run_captured(
+    launch: CapturedLaunch<'_>,
+    grants: Option<&crate::FilesystemGrants<'_>>,
+    observer: &mut dyn FnMut(LaunchEvent),
+) -> Result<Captured, LaunchError> {
+    let command = match grants {
+        Some(grants) => {
+            let mut command = crate::confinement::command_with_grants(launch.argv, grants)?;
+            command.env_clear();
+            Some(command)
+        }
+        None => None,
+    };
+    let overflow = StopRequest::new();
+    let capture = Capture {
+        stdin: launch.stdin,
+        limit: launch.limit,
+        stop: launch.stop.clone(),
+        overflow,
+    };
+    let job = Job {
+        argv: launch.argv,
+        completion: Some(launch.channel),
+        scrub: launch.scrub,
+        grant: launch.grant,
+        transparent: launch.transparent,
+        cwd: launch.cwd,
+        escalation: launch.escalation,
+    };
+    let (ended, piped) =
+        run_with_output(job, observer, &mut || Ok(()), None, command, Some(capture))?;
+    let piped = piped.ok_or_else(|| LaunchError::new("a captured job returned no output"))?;
+    Ok(Captured {
+        ended,
+        stdout: piped.stdout,
+        stderr: piped.stderr,
+        overflow: piped.overflow,
+    })
 }
 
 /// Confine a noninteractive job with EOF stdin and inherited stdout/stderr.
@@ -1183,7 +1288,15 @@ pub fn run_confined_observed_with_start_check(
 ) -> Result<Ended, LaunchError> {
     let mut command = crate::confinement::command_with_grants(launch.argv, policy)?;
     command.env_clear();
-    run_with_output(launch.into(), observer, start_check, None, Some(command))
+    run_with_output(
+        launch.into(),
+        observer,
+        start_check,
+        None,
+        Some(command),
+        None,
+    )
+    .map(|(ended, _)| ended)
 }
 
 fn run_with_output(
@@ -1192,19 +1305,24 @@ fn run_with_output(
     start_check: &mut dyn FnMut() -> std::io::Result<()>,
     output: Option<File>,
     confined_command: Option<Command>,
-) -> Result<Ended, LaunchError> {
-    let mode = match (&output, &confined_command) {
-        (_, Some(_)) => Mode::Confined,
-        (Some(_), None) => Mode::Noninteractive,
-        (None, None) => Mode::Interactive,
+    capture: Option<Capture<'_>>,
+) -> Result<(Ended, Option<Piped>), LaunchError> {
+    let mode = match (&capture, &output, &confined_command) {
+        (Some(_), _, _) => Mode::Captured,
+        (None, _, Some(_)) => Mode::Confined,
+        (None, Some(_), None) => Mode::Noninteractive,
+        (None, None, None) => Mode::Interactive,
     };
     let detached = mode != Mode::Interactive;
     // A detached child is in a session of its own and could never be handed
     // the terminal, so only an interactive launch opens it.
     let terminal = if detached { None } else { Terminal::open() };
-    // Clear only stale state before the new handlers can become eligible.
-    INTERRUPTED_BY.store(0, Ordering::Relaxed);
-    install_termination_handler(terminal.is_none() || launch.transparent.is_some())?;
+    // Clear only stale state before the new handlers can become eligible. A
+    // captured job leaves the handlers and the latch to its caller.
+    if mode != Mode::Captured {
+        INTERRUPTED_BY.store(0, Ordering::Relaxed);
+        install_termination_handler(terminal.is_none() || launch.transparent.is_some())?;
+    }
     let transparent = launch.transparent.copied();
     let sigchld_ignored = restore_child_watching()?;
     let descriptor_limit = if detached { descriptor_limit()? } else { 3 };
@@ -1216,6 +1334,12 @@ fn run_with_output(
     });
     if detached {
         command.stdin(Stdio::null());
+    }
+    if let Some(capture) = &capture {
+        if !capture.stdin.is_empty() {
+            command.stdin(Stdio::piped());
+        }
+        command.stdout(Stdio::piped()).stderr(Stdio::piped());
     }
     if let Some(output) = output {
         let stderr = output.try_clone().map_err(|error| {
@@ -1409,17 +1533,63 @@ fn run_with_output(
 
     lease.child = pgid;
     let lease = std::cell::RefCell::new(lease);
-    let child = OwnedChild::new(child);
-    supervise_started(
+    let mut child = child;
+    // The runner reads the pipes. A thread that cannot start leaves a running
+    // job with nobody to read it. The runner then fails the started transition,
+    // and that stops and reaps the job before the error returns.
+    let mut pipes = None;
+    let mut pipes_failed = None;
+    if let Some(capture) = &capture {
+        let piped =
+            (|| -> std::io::Result<Pipes> {
+                let stdin = child.stdin.take().map(OwnedFd::from);
+                let stdout =
+                    child.stdout.take().map(OwnedFd::from).ok_or_else(|| {
+                        std::io::Error::other("the job has no standard output pipe")
+                    })?;
+                let stderr =
+                    child.stderr.take().map(OwnedFd::from).ok_or_else(|| {
+                        std::io::Error::other("the job has no standard error pipe")
+                    })?;
+                Pipes::start(
+                    stdin.map(|fd| (fd, capture.stdin.to_vec())),
+                    stdout,
+                    stderr,
+                    capture.limit,
+                    capture.overflow.clone(),
+                )
+            })();
+        match piped {
+            Ok(started) => pipes = Some(started),
+            Err(error) => pipes_failed = Some(error),
+        }
+    }
+    let mut child = OwnedChild::new(child);
+    if let Some(capture) = &capture {
+        child.watched = vec![capture.stop.clone(), capture.overflow.clone()];
+    }
+    let mut checked = || match pipes_failed.take() {
+        Some(error) => Err(error),
+        None => start_check(),
+    };
+    let ended = supervise_started(
         child,
         launch.completion.map(|(channel, _)| channel),
         launch.escalation,
         mode,
         observer,
-        start_check,
+        &mut checked,
         || lease.borrow_mut().lend(),
         |status| lease.borrow_mut().reclaim(status, false),
-    )
+    );
+    let piped = pipes
+        .map(Pipes::finish)
+        .transpose()
+        .map_err(|error| LaunchError::new(format!("cannot read the job's output: {error}")));
+    match (ended, piped) {
+        (Ok(ended), Ok(piped)) => Ok((ended, piped)),
+        (Err(error), _) | (Ok(_), Err(error)) => Err(error),
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1526,6 +1696,9 @@ enum Mode {
     Interactive,
     Noninteractive,
     Confined,
+    /// A noninteractive job whose caller owns the pipes and asks for the stop.
+    /// It installs no signal handler and takes no signal of the launcher.
+    Captured,
 }
 
 /// The launched child as supervision sees it: a process that can be watched,
@@ -1561,6 +1734,11 @@ trait Process {
     fn confirmation_report(&mut self) -> Option<LaunchError> {
         None
     }
+    /// Whether the caller of a captured job asked to stop it, or its output
+    /// passed the bound.
+    fn stop_requested(&self) -> bool {
+        false
+    }
 }
 
 const ERROR_SETTLEMENT: Duration = Duration::from_secs(2);
@@ -1592,6 +1770,8 @@ struct OwnedChild {
     stops: Vec<StopReport>,
     attempts: u32,
     confirmation_error: Option<std::io::Error>,
+    /// The requests that stop a captured job. Empty for any other job.
+    watched: Vec<StopRequest>,
     #[cfg(test)]
     control: native_tests::Control,
 }
@@ -1606,6 +1786,7 @@ impl OwnedChild {
             stops: Vec::new(),
             attempts: 0,
             confirmation_error: None,
+            watched: Vec::new(),
             #[cfg(test)]
             control: native_tests::Control::configured(),
         }
@@ -1800,6 +1981,9 @@ impl Process for OwnedChild {
     }
     fn release(&mut self) {
         self.reserved = false;
+    }
+    fn stop_requested(&self) -> bool {
+        self.watched.iter().any(StopRequest::requested)
     }
     fn confirmation_report(&mut self) -> Option<LaunchError> {
         self.confirmation_error.take().map(|error| {
@@ -2054,6 +2238,7 @@ fn watch(
     let mut watch = Watch::Running;
     let mut interrupted: Option<i32> = None;
     let mut escalated = false;
+    let mut stopped = false;
 
     loop {
         if let Watch::Killed(by) = watch
@@ -2078,7 +2263,10 @@ fn watch(
         let retake = native_tests::first_latch_broken("guard");
         #[cfg(not(test))]
         let retake = false;
-        if (interrupted.is_none() || retake)
+        // A captured job takes no signal of the launcher: its caller owns the
+        // signals and asks for the stop.
+        if mode != Mode::Captured
+            && (interrupted.is_none() || retake)
             && let Some(signal) = take_interrupt()
         {
             interrupted = Some(signal);
@@ -2123,6 +2311,17 @@ fn watch(
             }
         }
 
+        // After the exit check, so that a job which ended by itself in the same
+        // tick is not reported as stopped.
+        if !stopped && child.stop_requested() {
+            stopped = true;
+            if matches!(watch, Watch::Running | Watch::Signalled(_)) {
+                escalated = true;
+                child.signal(libc::SIGTERM);
+                watch = Watch::Terminated(Instant::now());
+            }
+        }
+
         watch = match watch {
             Watch::Running if channel.is_some_and(Channel::appeared) => {
                 Watch::Signalled(Instant::now())
@@ -2164,6 +2363,8 @@ fn watch(
         }
         std::thread::sleep(if matches!(watch, Watch::Killed(_)) {
             KILLED_POLL_INTERVAL
+        } else if mode == Mode::Captured {
+            CAPTURED_POLL_INTERVAL
         } else {
             POLL_INTERVAL
         });
@@ -2177,7 +2378,11 @@ fn watch(
     let reaped = child.reap();
     // Freeze the launch at the reap, before an observer, terminal recovery or
     // group confirmation can delay it. Later signals belong to the caller.
-    let at_reap = take_interrupt();
+    let at_reap = if mode == Mode::Captured {
+        None
+    } else {
+        take_interrupt()
+    };
     let elapsed = started.elapsed();
     #[cfg(test)]
     let interrupted = if first_latch_broken("at-reap") {

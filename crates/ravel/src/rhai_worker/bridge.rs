@@ -252,6 +252,118 @@ impl Bridge {
         }
     }
 
+    /// `ravel::run_harness`. The worker checks the request, so a malformed one
+    /// ends the evaluation before anything runs. The front answers with the
+    /// result map of the run.
+    fn run_harness(&self, context: &NativeCallContext, request: &Dynamic) -> Outcome<Dynamic> {
+        const FUNCTION: &str = "run_harness";
+        let Some(fields) = request.read_lock::<Map>().map(|map| map.clone()) else {
+            return Err(self.invalid(
+                context,
+                FUNCTION,
+                "request",
+                "it must be an object map with harness, args and, where needed, stdin and timeoutMs",
+            ));
+        };
+        if let Some(unknown) = fields
+            .keys()
+            .find(|key| !matches!(key.as_str(), "harness" | "args" | "stdin" | "timeoutMs"))
+        {
+            return Err(self.invalid(
+                context,
+                FUNCTION,
+                unknown.as_str(),
+                "it is no field of a harness request, which holds harness, args, stdin and \
+                 timeoutMs",
+            ));
+        }
+        let harness = match fields.get("harness") {
+            Some(value) => self.string(context, FUNCTION, "harness", value)?,
+            None => {
+                return Err(self.invalid(context, FUNCTION, "harness", "it is required"));
+            }
+        };
+        let args = match fields.get("args") {
+            Some(value) => match value.clone().into_array() {
+                Ok(array) => array,
+                Err(_) => {
+                    return Err(self.invalid(
+                        context,
+                        FUNCTION,
+                        "args",
+                        "it must be an array of strings",
+                    ));
+                }
+            },
+            None => return Err(self.invalid(context, FUNCTION, "args", "it is required")),
+        };
+        let mut words = Vec::with_capacity(args.len());
+        for (index, arg) in args.iter().enumerate() {
+            match arg.clone().into_immutable_string() {
+                Ok(word) if !word.contains('\0') => words.push(word.to_string()),
+                Ok(_) => {
+                    return Err(self.invalid(
+                        context,
+                        FUNCTION,
+                        &format!("args[{index}]"),
+                        "no argument may hold a NUL byte",
+                    ));
+                }
+                Err(_) => {
+                    return Err(self.invalid(
+                        context,
+                        FUNCTION,
+                        &format!("args[{index}]"),
+                        "it must be a string",
+                    ));
+                }
+            }
+        }
+        let mut frame = self.frame(context, FUNCTION);
+        frame["harness"] = json!(harness.as_str());
+        frame["args"] = json!(words);
+        if let Some(stdin) = fields.get("stdin") {
+            frame["stdin"] = json!(self.string(context, FUNCTION, "stdin", stdin)?.as_str());
+        }
+        if let Some(timeout) = fields.get("timeoutMs") {
+            match timeout.as_int() {
+                Ok(ms) if ms >= 1 => frame["timeoutMs"] = json!(ms),
+                _ => {
+                    return Err(self.invalid(
+                        context,
+                        FUNCTION,
+                        "timeoutMs",
+                        "it must be a positive integer",
+                    ));
+                }
+            }
+        }
+        // The front reads no frame past the message bound.
+        let size = serde_json::to_vec(&frame).map_or(u64::MAX, |bytes| bytes.len() as u64);
+        if size > self.bounds.message_bytes {
+            let mut failure = ScriptFailure::new(
+                "message_too_large",
+                self.phase().name(),
+                format!(
+                    "ravel::run_harness of {} encodes to {size} bytes, over the message bound \
+                     of {}",
+                    harness.as_str(),
+                    self.bounds.message_bytes
+                ),
+            );
+            failure.actual = Some(size);
+            return Err(self.end(failure));
+        }
+        let answer = self.ask(&frame)?;
+        match answer.get("status").and_then(Value::as_str) {
+            Some("ok") => match answer.get("value") {
+                Some(value) => Ok(from_json(value)),
+                None => Err(self.protocol(FUNCTION, "a run reply has no value")),
+            },
+            _ => Err(self.protocol(FUNCTION, "a run reply has no known status")),
+        }
+    }
+
     /// The front answered in a way no front of this build does.
     pub fn protocol(&self, what: &str, why: &str) -> Box<EvalAltResult> {
         self.end(ScriptFailure::new(
@@ -292,6 +404,13 @@ impl Bridge {
                     bridge.discover(&context, function)
                 });
         }
+        let bridge = Rc::clone(self);
+        FuncRegistration::new("run_harness").set_into_module(
+            &mut module,
+            move |context: NativeCallContext, request: Dynamic| {
+                bridge.run_harness(&context, &request)
+            },
+        );
         helpers::register(&mut module, self);
         module
     }

@@ -62,16 +62,16 @@ fn select(request, context) {
     let canonical = fs::canonicalize(&policy_path).unwrap();
     assert_eq!(report["policy"]["path"], text(&canonical));
     assert_eq!(report["policy"]["version"], "rhai-seam-1");
-    // The members that exist: no Bun, and no harness run yet.
+    // The members that exist: no Bun.
     let worker = report["worker"].as_object().unwrap();
     let mut names: Vec<_> = worker.keys().map(String::as_str).collect();
     names.sort_unstable();
     assert_eq!(names, ["buildId", "path", "rhaiVersion", "version"]);
     assert_eq!(worker["rhaiVersion"], "1.27.0");
     assert_eq!(worker["version"], env!("CARGO_PKG_VERSION"));
-    for absent in ["harnessRuns", "modules"] {
-        assert!(report.get(absent).is_none(), "{absent} in {report}");
-    }
+    assert!(report.get("modules").is_none(), "modules in {report}");
+    // The policy ran no harness, so the notice lists none.
+    assert_eq!(report["harnessRuns"], json!([]));
     // The policy made no host call, so it read nothing, and the entry is its only
     // module. The notice has no member for an LLM call, which is a harness run.
     assert_eq!(report["reads"], json!([]));

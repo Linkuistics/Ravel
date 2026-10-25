@@ -502,7 +502,8 @@ labels of the owner, and Ravel gives them no meaning. An owner can label the
 models that a harness offers there, such as `model:sonnet`.
 
 `remaining()` returns `ms`, `harnessRuns` and `sources`: what the evaluation
-still has. `ms` is the time to the whole deadline, and `sources` is the bound of
+still has. `ms` is the time to the whole deadline, and `harnessRuns` is the
+budget less the runs that the runner launched. `sources` is the bound of
 256 less the caller's document and every read that arrived. Discovery uses no
 network and runs no harness. It reports availability, never a recommendation. A
 harness offers no model list that Ravel can read without a run, so Ravel lists
@@ -771,7 +772,8 @@ The JSON routing notice moves to schema version 2:
   is `load`, `context` or `selection`. A read that failed is no measured read,
   also when its bytes arrived and did not decode.
 - `harnessRuns` lists the harness, status, exit code or signal, elapsed time of
-  each run, and whether it sent a result. An LLM call is one of these runs.
+  each run, and whether it sent a result. An LLM call is one of these runs. The
+  list also holds a call that launched nothing, with the status `unavailable`.
 - `bounds` adds `harnessRuns`.
 
 The JSON failure document keeps schema version 1. For an error in a script, its

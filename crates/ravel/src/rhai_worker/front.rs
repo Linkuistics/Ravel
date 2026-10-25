@@ -17,7 +17,8 @@ use std::time::{Duration, Instant};
 
 use serde_json::Value;
 
-use super::host::Host;
+use super::harness::{RunRecord, RunSetup};
+use super::host::{Host, Surroundings};
 use super::reader::Reader;
 use super::serve::{Judge, Served, Setup, serve};
 use super::{ARG0, BUILD_ID, Bounds, Module, PROTOCOL, RHAI_VERSION, Read, Reply};
@@ -62,6 +63,8 @@ pub struct Evaluated {
     pub modules: Vec<Module>,
     /// Every measured read that succeeded, in order.
     pub reads: Vec<Read>,
+    /// Every harness run, in order, whether or not it started.
+    pub runs: Vec<RunRecord>,
     /// The context a loader returned, as it was judged and measured.
     pub delivered: Option<Delivered>,
 }
@@ -77,6 +80,8 @@ pub struct Session<'a> {
     pub directory: &'a Directory,
     /// The caller's `--context` document, which counts as a source.
     pub caller: Option<&'a Measured>,
+    /// How a harness run is launched.
+    pub setup: &'a RunSetup,
     /// Judges and measures the context that `load_context` returns.
     pub judge: &'a mut Judge<'a>,
 }
@@ -167,6 +172,7 @@ pub fn evaluate(
         elapsed,
         modules: served.modules,
         reads: served.reads,
+        runs: served.runs,
         delivered: served.delivered,
     })
 }
@@ -203,16 +209,20 @@ fn converse(
         grants,
         directory,
         caller,
+        setup,
         judge,
     } = session;
     let host = Host::new(
         reader,
-        cwd.to_owned(),
         *bounds,
-        grants.clone(),
-        directory.clone(),
         deadline,
-        caller.cloned(),
+        Surroundings {
+            cwd: cwd.to_owned(),
+            grants: grants.clone(),
+            directory: directory.clone(),
+            caller: caller.cloned(),
+            setup: setup.clone(),
+        },
     );
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_io()
@@ -405,6 +415,7 @@ mod tests {
     static NO_GRANTS: std::sync::LazyLock<Grants> = std::sync::LazyLock::new(Grants::default);
     static NO_DIRECTORY: std::sync::LazyLock<Directory> =
         std::sync::LazyLock::new(Directory::default);
+    static NO_SETUP: std::sync::LazyLock<RunSetup> = std::sync::LazyLock::new(RunSetup::default);
 
     fn session<'a>(cwd: &'a Path, judge: &'a mut Judge<'a>) -> Session<'a> {
         Session {
@@ -412,6 +423,7 @@ mod tests {
             grants: &NO_GRANTS,
             directory: &NO_DIRECTORY,
             caller: None,
+            setup: &NO_SETUP,
             judge,
         }
     }

@@ -598,8 +598,10 @@ fn worker_reap_admission_fixture() {
     let outcome = if route == "front" {
         crate::run::run(&args)
     } else {
-        let selected =
-            crate::choice::choose_prepared(crate::choice::prepare(&args.selection).unwrap());
+        let selected = crate::choice::choose_prepared(
+            crate::choice::prepare(&args.selection).unwrap(),
+            &crate::rhai_worker::harness::RunSetup::default(),
+        );
         eprintln!("Selected={}", selected.is_ok());
         if scenario == "success" && fault == "poll" {
             let reports = &selected.as_ref().unwrap().choice.operational;

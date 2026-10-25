@@ -24,21 +24,55 @@ fn unusable(path: &Path, problem: impl std::fmt::Display) -> Refusal {
     ).input("--confine")
 }
 
+/// What a confined launch protects and grants, from the selection that it
+/// belongs to: the working directory, the policy entry and the owner settings.
+/// The managed process and each harness run of one selection share it.
+#[derive(Clone, Debug)]
+pub struct Basis {
+    pub cwd: PathBuf,
+    pub entry: String,
+    pub settings: Option<PathBuf>,
+}
+
+impl From<&Prepared> for Basis {
+    fn from(selection: &Prepared) -> Self {
+        Basis {
+            cwd: selection.inputs.cwd.clone(),
+            entry: selection.entry.path.clone(),
+            settings: selection.settings_path.clone(),
+        }
+    }
+}
+
 impl Confined {
     pub fn prepare(
         selection: &Prepared,
         exit_dir: Option<&Path>,
         runtime_read: &[PathBuf],
     ) -> Result<Self, Refusal> {
+        Self::prepare_for(&Basis::from(selection), exit_dir, runtime_read, true)
+    }
+
+    /// A private run directory of its own, with the grants of `basis`. The
+    /// probe runs a program in the sandbox, so a harness run skips it: the
+    /// managed process proved the backend before the worker started, and the
+    /// probe changes the disposition of SIGCHLD while the worker is alive.
+    pub fn prepare_for(
+        selection: &Basis,
+        exit_dir: Option<&Path>,
+        runtime_read: &[PathBuf],
+        probe: bool,
+    ) -> Result<Self, Refusal> {
         let cwd = selection
-            .inputs
             .cwd
             .canonicalize()
-            .map_err(|error| unusable(&selection.inputs.cwd, error))?;
+            .map_err(|error| unusable(&selection.cwd, error))?;
         if cwd.parent().is_none() {
             return Err(unusable(&cwd, "the cwd must not be /"));
         }
-        keyed_launch::confinement_available().map_err(|error| unusable(&cwd, error))?;
+        if probe {
+            keyed_launch::confinement_available().map_err(|error| unusable(&cwd, error))?;
+        }
         #[cfg(test)]
         let parent = crate::directory_control::parent("confined", std::env::temp_dir());
         let private = tempfile::Builder::new()
@@ -94,11 +128,11 @@ impl Confined {
                 reads.push(resolved);
             }
             let mut protected = vec![prospective(
-                Path::new(&selection.entry.path)
+                Path::new(&selection.entry)
                     .parent()
                     .expect("absolute policy has a parent"),
             )?];
-            if let Some(settings) = &selection.settings_path {
+            if let Some(settings) = &selection.settings {
                 protected.push(prospective(settings)?);
             }
             #[cfg(test)]

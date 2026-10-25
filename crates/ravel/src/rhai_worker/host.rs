@@ -17,11 +17,17 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
+use keyed_launch::StopRequest;
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
+use tokio::sync::oneshot;
 
 use super::convert::check_depth;
 use super::discovery;
+use super::harness::{
+    self, Executed, Plan, Request, RunRecord, RunSetup, Unavailable, cleanup_message,
+    cleanup_refusal,
+};
 use super::reader::{FileFailure, Reader, canonical, read_file};
 use super::{Bounds, MAX_MODULES, Module, Phase, Read, ScriptFailure};
 use crate::authority::RHAI_ENTRY_BYTES;
@@ -29,6 +35,7 @@ use crate::context::{Measured, hex};
 use crate::environment::{Grants, Lookup};
 use crate::frame::FRONT_FRAME_BYTES;
 use crate::settings::Directory;
+use crate::worker::Conversation;
 
 /// The `via` of a measured read, as the notice and the delivered context name it.
 const VIA_TEXT: &str = "read_text";
@@ -68,6 +75,20 @@ impl Site {
     }
 }
 
+/// What the evaluation runs in, beyond its bounds and its deadline.
+pub(super) struct Surroundings {
+    pub cwd: PathBuf,
+    /// The variables of the caller's environment that the policy may read.
+    pub grants: Grants,
+    /// The harness entries that discovery reports on.
+    pub directory: Directory,
+    /// The caller's `--context` document, which counts as a source and heads
+    /// the measured list of a loader's context.
+    pub caller: Option<Measured>,
+    /// How the CLI launches a harness run.
+    pub setup: RunSetup,
+}
+
 pub(super) struct Host {
     reader: Reader,
     cwd: PathBuf,
@@ -88,18 +109,41 @@ pub(super) struct Host {
     undecoded: u64,
     /// The entry first, then each module in the order of its first import.
     modules: Vec<Module>,
+    /// How the CLI launches a harness run.
+    setup: RunSetup,
+    /// Every harness run of the evaluation, in order, for the notice.
+    runs: Vec<RunRecord>,
+    /// The runs that the runner launched, which the budget counts.
+    launched: u64,
+    /// The run in progress. A stop drops the call that waits for it, so the
+    /// record of the run stays here for the teardown to find.
+    flight: Option<Flight>,
 }
+
+/// A harness run that the reader thread executes.
+struct Flight {
+    stop: StopRequest,
+    outcome: oneshot::Receiver<Executed>,
+}
+
+/// How long a stop waits for a run to settle: the kill-grace of the runner,
+/// and its reap and confirmation after the KILL.
+const SETTLE: std::time::Duration = std::time::Duration::from_secs(5 + 3);
 
 impl Host {
     pub(super) fn new(
         reader: Reader,
-        cwd: PathBuf,
         bounds: Bounds,
-        grants: Grants,
-        directory: Directory,
         deadline: Instant,
-        caller: Option<Measured>,
+        around: Surroundings,
     ) -> Self {
+        let Surroundings {
+            cwd,
+            grants,
+            directory,
+            caller,
+            setup,
+        } = around;
         Host {
             reader,
             cwd,
@@ -111,6 +155,10 @@ impl Host {
             reads: Vec::new(),
             undecoded: 0,
             modules: Vec::new(),
+            setup,
+            runs: Vec::new(),
+            launched: 0,
+            flight: None,
         }
     }
 
@@ -138,8 +186,8 @@ impl Host {
         Ok(source)
     }
 
-    pub(super) fn into_record(self) -> (Vec<Module>, Vec<Read>) {
-        (self.modules, self.reads)
+    pub(super) fn into_record(self) -> (Vec<Module>, Vec<Read>, Vec<RunRecord>) {
+        (self.modules, self.reads, self.runs)
     }
 
     /// The sources a loader's context is measured from: the caller's document,
@@ -183,6 +231,10 @@ impl Host {
             }
             Some("harnesses") => Ok(self.harnesses(phase, &site).await),
             Some("remaining") => Ok(self.remaining()),
+            Some("run_harness") => {
+                let request = Request::from_frame(frame)?;
+                Ok(self.run_harness(request, phase, &site).await)
+            }
             Some(call @ ("read_text" | "read_json")) => {
                 let max_bytes = match frame.get("maxBytes") {
                     None | Some(Value::Null) => None,
@@ -261,8 +313,7 @@ impl Host {
         }
     }
 
-    /// `ravel::remaining`: what the evaluation still has. The harness runs do not
-    /// count yet, so that budget is whole.
+    /// `ravel::remaining`: what the evaluation still has.
     fn remaining(&self) -> Answer {
         let ms = self
             .deadline
@@ -272,7 +323,7 @@ impl Host {
         Answer::Reply(encode(&json!({
             "type": "reply", "status": "ok", "value": {
                 "ms": u64::try_from(ms).unwrap_or(u64::MAX),
-                "harnessRuns": self.bounds.harness_runs,
+                "harnessRuns": self.bounds.harness_runs.saturating_sub(self.launched),
                 "sources": sources,
             },
         })))
@@ -282,6 +333,155 @@ impl Host {
     /// decoded to nothing, and the caller's document.
     fn source_count(&self) -> u64 {
         self.reads.len() as u64 + self.undecoded + u64::from(self.caller.is_some())
+    }
+
+    /// `ravel::run_harness`: a harness that the owner named, run through the
+    /// runner. A run that cannot start is data, and so are the deadline and the
+    /// output bound of one run. The budget and a cleanup failure end the
+    /// evaluation.
+    async fn run_harness(&mut self, request: Request, phase: Phase, site: &Site) -> Answer {
+        let reader_gone = || {
+            Answer::End(Box::new(site.failure(
+                "worker_failed",
+                phase,
+                "the reader thread ended before it answered".to_owned(),
+            )))
+        };
+        let Some(entry) = self.directory.harnesses.get(&request.harness) else {
+            let names: Vec<&str> = self
+                .directory
+                .harnesses
+                .keys()
+                .map(String::as_str)
+                .collect();
+            let known = if names.is_empty() {
+                "the owner settings name no harness".to_owned()
+            } else {
+                format!("the owner settings name {}", names.join(", "))
+            };
+            return self.unavailable(
+                &request.harness,
+                Unavailable::new(
+                    "unknown_harness",
+                    format!("there is no harness entry {:?}: {known}", request.harness),
+                ),
+            );
+        };
+
+        let (name, program, cwd) = (
+            request.harness.clone(),
+            entry.program.clone(),
+            self.cwd.clone(),
+        );
+        let path = std::env::var_os("PATH");
+        let found = self
+            .reader
+            .run(move || harness::resolve(&name, &program, &cwd, path.as_deref()))
+            .await;
+        let resolved = match found {
+            Ok(Ok(resolved)) => resolved,
+            Ok(Err(unavailable)) => return self.unavailable(&request.harness, unavailable),
+            Err(_) => return reader_gone(),
+        };
+
+        // The run uses one run of the budget when the runner launches it, and
+        // a call with none left ends the evaluation before that.
+        if self.launched >= self.bounds.harness_runs {
+            let mut failure = site.failure(
+                "harness_budget_exhausted",
+                phase,
+                format!(
+                    "ravel::run_harness of {} would be harness run {}, over the budget of {}",
+                    request.harness,
+                    self.launched + 1,
+                    self.bounds.harness_runs
+                ),
+            );
+            failure.actual = Some(self.launched + 1);
+            return Answer::End(Box::new(failure));
+        }
+
+        let remaining = self.deadline.saturating_duration_since(Instant::now());
+        let limit = request.timeout_ms.map_or(remaining, |ms| {
+            std::time::Duration::from_millis(ms).min(remaining)
+        });
+        let stop = StopRequest::new();
+        let timed_out = StopRequest::new();
+        let plan = Plan {
+            name: request.harness.clone(),
+            resolved,
+            args: request.args,
+            stdin: request.stdin.unwrap_or_default().into_bytes(),
+            cwd: self.cwd.clone(),
+            setup: self.setup.clone(),
+        };
+        let outcome = self.reader.run({
+            let (stop, timed_out) = (stop.clone(), timed_out.clone());
+            move || harness::execute(plan, &stop, &timed_out)
+        });
+        let flight = self.flight.insert(Flight { stop, outcome });
+        let deadline = tokio::time::sleep(limit);
+        tokio::pin!(deadline);
+        let mut expired = false;
+        let executed = loop {
+            tokio::select! {
+                done = &mut flight.outcome => break done,
+                () = &mut deadline, if !expired => {
+                    expired = true;
+                    timed_out.request();
+                    flight.stop.request();
+                }
+            }
+        };
+        self.flight = None;
+        match executed {
+            Err(_) => reader_gone(),
+            Ok(Executed::Finished(done)) => {
+                self.launched += u64::from(done.launched);
+                self.runs.push(done.record);
+                Answer::Reply(encode(
+                    &json!({ "type": "reply", "status": "ok", "value": done.value }),
+                ))
+            }
+            Ok(Executed::Cleanup { launched, reports }) => {
+                self.launched += u64::from(launched);
+                Answer::End(Box::new(site.failure(
+                    "harness_cleanup_failed",
+                    phase,
+                    cleanup_message(&reports),
+                )))
+            }
+        }
+    }
+
+    /// The answer for a run that did not start, and its entry in the notice.
+    fn unavailable(&mut self, harness: &str, why: Unavailable) -> Answer {
+        self.runs.push(why.record(harness));
+        Answer::Reply(encode(
+            &json!({ "type": "reply", "status": "ok", "value": why.value() }),
+        ))
+    }
+
+    /// Stop a run that is still in progress, and wait for the runner to clear its
+    /// group. A stop of the evaluation drops the call that waits for the run, and
+    /// the run goes on until this asks it to stop. The refusal of a left-over
+    /// replaces `conversation`, because a process that survives is worse than
+    /// the deadline or the signal that found it.
+    pub(super) async fn settle(&mut self, conversation: Conversation) -> Conversation {
+        let Some(flight) = self.flight.take() else {
+            return conversation;
+        };
+        flight.stop.request();
+        match tokio::time::timeout(SETTLE, flight.outcome).await {
+            Ok(Ok(Executed::Cleanup { reports, .. })) => {
+                Conversation::Refused(cleanup_refusal(&reports))
+            }
+            Ok(_) => conversation,
+            Err(_) => Conversation::Refused(cleanup_refusal(&[format!(
+                "the runner did not settle the run within {} seconds of the stop",
+                SETTLE.as_secs()
+            )])),
+        }
     }
 
     async fn read(

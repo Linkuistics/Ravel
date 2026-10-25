@@ -22,6 +22,7 @@ use tokio::io::{AsyncReadExt as _, AsyncWriteExt as _};
 use tokio::net::UnixStream;
 use tokio::time::{Instant, interval, sleep_until};
 
+use super::harness::RunRecord;
 use super::host::{Answer, Host};
 use super::{Bounds, Module, Read, Reply, ScriptFailure};
 use crate::cancellation;
@@ -43,6 +44,7 @@ pub(super) struct Served {
     pub delivered: Option<Delivered>,
     pub modules: Vec<Module>,
     pub reads: Vec<Read>,
+    pub runs: Vec<RunRecord>,
 }
 
 /// What stops the evaluation, whichever comes first.
@@ -184,10 +186,14 @@ pub(super) async fn serve(
                 if length > message.saturating_add(ENVELOPE) {
                     return Err(broken("a host frame passed the message bound".to_owned()));
                 }
-                let answer = watch
-                    .until(during_call(&stream, host.call(&frame)))
-                    .await??
-                    .map_err(|why| broken(format!("a malformed host frame: {why}")))?;
+                let called = watch.until(during_call(&stream, host.call(&frame))).await;
+                // A stop drops the call, and a harness run that the call was
+                // waiting for goes on until it is asked to stop.
+                let answer = match called {
+                    Ok(Ok(answer)) => answer,
+                    Ok(Err(stopped)) | Err(stopped) => return Err(host.settle(stopped).await),
+                }
+                .map_err(|why| broken(format!("a malformed host frame: {why}")))?;
                 match answer {
                     Answer::Reply(body) => watch
                         .until(write_body(&mut stream, &body))
@@ -239,12 +245,13 @@ pub(super) async fn serve(
 }
 
 fn finish(reply: Reply, delivered: Option<Delivered>, host: Host) -> Result<Served, Conversation> {
-    let (modules, reads) = host.into_record();
+    let (modules, reads, runs) = host.into_record();
     Ok(Served {
         reply,
         delivered,
         modules,
         reads,
+        runs,
     })
 }
 

@@ -16,11 +16,25 @@ use serde_json::Value;
 
 use crate::limits::{CONTEXT_MAX_BYTES, MESSAGE_BYTES};
 
-/// The largest frame the front sends: its evaluate message carries the
+/// The largest reply to a harness run. It holds three strings of 1 MiB each,
+/// the output, the error output and the result. JSON writes a control byte as
+/// six bytes, such as `\u0001`. One more message bound is room for the rest of
+/// the map.
+const HARNESS_REPLY_BYTES: u64 = 3 * 6 * MESSAGE_BYTES + MESSAGE_BYTES;
+
+/// The largest frame the front sends. Its evaluate message carries the
 /// caller's context, which the front re-encodes, beside the request, whose
-/// prompt and parameters the factor of two leaves room for. The worker
-/// accepts the same (`worker/src/channel.ts`).
-pub const FRONT_FRAME_BYTES: usize = (2 * CONTEXT_MAX_BYTES + MESSAGE_BYTES) as usize;
+/// prompt and parameters the factor of two leaves room for. A reply to a
+/// harness run can be larger, and then it sets the bound. The worker accepts
+/// the same (`worker/src/channel.ts`).
+pub const FRONT_FRAME_BYTES: usize = {
+    let evaluate = 2 * CONTEXT_MAX_BYTES + MESSAGE_BYTES;
+    (if evaluate > HARNESS_REPLY_BYTES {
+        evaluate
+    } else {
+        HARNESS_REPLY_BYTES
+    }) as usize
+};
 
 #[derive(Debug)]
 pub enum FrameError {

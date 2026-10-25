@@ -95,6 +95,24 @@ pub enum Lookup {
 /// `really_get_cache_dir`).
 pub const HOST: [(&str, &str); 1] = [("BUN_RUNTIME_TRANSPILER_CACHE_PATH", "0")];
 
+/// The marker that a harness run carries, and that `start-session` refuses
+/// (`docs/specs/policy-evaluation.md`, *Re-entry and completion authority*).
+pub const POLICY_RUN: &str = "RAVEL_POLICY_RUN";
+
+/// The variables that the managed process and each harness run never inherit:
+/// the launch controls of an enclosing session or driver. They would let the
+/// child end somebody else's session. The marker is no part of the list.
+/// `start-session` refuses to run when it is set, so the managed process cannot
+/// inherit it.
+pub const LAUNCH_CONTROLS: [&str; 6] = [
+    "HARNESS_DISPATCH_EXIT_FILE",
+    "HARNESS_DISPATCH_RUN_ID",
+    "HARNESS_DISPATCH_STATE_DIR",
+    "RAVEL_EXIT_FILE",
+    "RAVEL_RUN_ID",
+    "RAVEL_STATE_DIR",
+];
+
 /// Whether the policy gets `name` without a grant: `HOME`, `PATH`, `TMPDIR`,
 /// `LANG` and `LC_*`.
 pub fn is_base(name: &[u8]) -> bool {

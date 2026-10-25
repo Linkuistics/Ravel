@@ -20,7 +20,7 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
-//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `harnesses`, or `remaining`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. The two discovery calls add nothing. |
+//! | `host` | worker | `call` (`read_text`, `read_json`, `import`, `env`, `harnesses`, `remaining`, or `run_harness`), `phase`, and where the call was made: `file`, `line`, `column`. A read or an import adds `path`, a read also `maxBytes`, an import `from`, and `env` adds `name`. A harness run adds `harness`, `args`, and when the script gave them `stdin` and `timeoutMs`. The two discovery calls add nothing. |
 //! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name`. |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
@@ -38,6 +38,7 @@ pub mod convert;
 mod discovery;
 pub mod engine;
 pub mod front;
+pub mod harness;
 pub mod heap;
 mod helpers;
 mod host;
@@ -316,8 +317,9 @@ pub struct ScriptFailure {
     /// `selection_malformed`, `context_loader_failed`, `context_invalid`,
     /// `context_too_large`, `host_request_invalid`, `source_too_large`,
     /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`,
-    /// or `worker_failed`. The front raises the codes about a read, an import
-    /// and the size of a context when it ends the evaluation itself.
+    /// or `worker_failed`. The front raises some codes itself, when it ends the
+    /// evaluation: the codes about a read, an import, the size of a context and
+    /// a harness run (`harness_budget_exhausted`, `harness_cleanup_failed`).
     pub code: String,
     /// The stage of that code.
     pub stage: String,

@@ -14,10 +14,13 @@ use serde_json::json;
 
 use crate::choice::{self, Selected, WorkerReport};
 use crate::cli::RunArgs;
-use crate::refusal::{EXIT_MALFORMED, EXIT_WORKER, Failure, Refusal, Stage};
+use crate::environment::{LAUNCH_CONTROLS, POLICY_RUN};
+use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
+use crate::rhai_worker::harness::{ConfineSetup, RunSetup};
 use crate::signal_state;
 
-const ESCALATION: Escalation = Escalation {
+/// The waits of the managed process and of each harness run.
+pub(crate) const ESCALATION: Escalation = Escalation {
     grace: Duration::from_secs(2),
     kill_grace: Duration::from_secs(5),
 };
@@ -33,6 +36,22 @@ fn failed(code: &'static str, message: impl std::fmt::Display) -> Refusal {
 }
 
 pub fn run(args: &RunArgs) -> Result<(), Failure> {
+    // Before settings or a policy: a harness run executes its harness directly,
+    // so a `start-session` inside one has no selection to make.
+    if std::env::var_os(POLICY_RUN).is_some() {
+        return Err(Refusal::new(
+            "policy_reentry_refused",
+            Stage::Authority,
+            EXIT_REFUSED,
+            format!(
+                "start-session runs inside a harness run of a policy ({POLICY_RUN} is in its \
+                 environment), where it cannot select"
+            ),
+            "have the policy call its own route function for another question, and run the \
+             harness directly; a nested start-session is not supported",
+        )
+        .into());
+    }
     signal_state::recorded()?;
     let mut handlers = crate::cancellation::Handlers::new();
     let mut confined: Option<crate::confinement::Confined> = None;
@@ -61,10 +80,18 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 )
             })
             .transpose()?;
+        let setup = RunSetup {
+            entry: signal_state::entry(),
+            confine: args.confine.then(|| ConfineSetup {
+                basis: crate::confinement::Basis::from(&prepared),
+                runtime_read: args.runtime_read.clone(),
+            }),
+            exit_dir: exit_dir.clone(),
+        };
         let Selected {
             choice,
             source: selected_source,
-        } = choice::choose_prepared(prepared)?;
+        } = choice::choose_prepared(prepared, &setup)?;
         source = selected_source;
         for report in &choice.operational {
             eprintln!("ravel: {report}");
@@ -88,8 +115,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     1,
                     json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "bunVersion": worker.bun_version}),
                 ),
-                // Schema version 2 reports the members that exist: later
-                // increments add `harnessRuns`. `modules`, `reads` and the
+                // Schema version 2. `modules`, `reads`, `harnessRuns` and the
                 // budgets in `bounds` are added below. (rhai)
                 WorkerReport::Rhai(worker) => (
                     2,
@@ -120,6 +146,11 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     .reads
                     .iter()
                     .map(crate::rhai_worker::Read::to_json)
+                    .collect();
+                notice["harnessRuns"] = choice
+                    .runs
+                    .iter()
+                    .map(crate::rhai_worker::harness::RunRecord::to_json)
                     .collect();
                 // The budgets join the bounds of the notice. The 1.x path
                 // reports none.
@@ -168,16 +199,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .iter()
             .map(|(name, value)| (name.as_os_str(), value.as_os_str()))
             .collect();
-        let scrub: Vec<_> = [
-            "HARNESS_DISPATCH_EXIT_FILE",
-            "HARNESS_DISPATCH_RUN_ID",
-            "HARNESS_DISPATCH_STATE_DIR",
-            "RAVEL_EXIT_FILE",
-            "RAVEL_RUN_ID",
-            "RAVEL_STATE_DIR",
-        ]
-        .map(OsStr::new)
-        .into();
+        let scrub: Vec<_> = LAUNCH_CONTROLS.map(OsStr::new).into();
         #[cfg(test)]
         crate::native_entry_tests::before_managed();
         let entry = signal_state::entry();

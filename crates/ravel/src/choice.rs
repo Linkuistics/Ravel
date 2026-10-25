@@ -14,6 +14,7 @@ use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
+use crate::rhai_worker::harness::{RunRecord, RunSetup};
 use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
@@ -46,6 +47,8 @@ pub struct Choice {
     pub modules: Vec<Module>,
     /// Every measured read of the Rhai path, with the phase that made it. (rhai)
     pub reads: Vec<Read>,
+    /// Every harness run of the Rhai path, in order. (rhai)
+    pub runs: Vec<RunRecord>,
     pub diagnostics: Diagnostics,
     pub operational: Vec<String>,
 }
@@ -74,7 +77,7 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
     })
 }
 
-pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
+pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected, Failure> {
     let Prepared { inputs, entry, .. } = prepared;
     let source = entry.display();
     let evaluated = match entry.format {
@@ -82,7 +85,7 @@ pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
             let worker_path = worker::locate()?;
             evaluate_and_resolve(inputs, entry, &worker_path)
         }
-        Format::Rhai { .. } => evaluate_and_resolve_rhai(inputs, entry),
+        Format::Rhai { .. } => evaluate_and_resolve_rhai(inputs, entry, setup),
     };
 
     match evaluated {
@@ -171,6 +174,7 @@ fn evaluate_and_resolve(
         context,
         modules: Vec::new(),
         reads: Vec::new(),
+        runs: Vec::new(),
         diagnostics,
         operational: evaluation.operational,
     })
@@ -182,7 +186,11 @@ fn evaluate_and_resolve(
 /// The worker reads no file, so the front reads the entry on its reader thread
 /// and the source travels in the evaluate frame exactly as read. The context `select` receives is the caller's document
 /// with its measurement attached, which only this side can measure.
-fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choice, Failure> {
+fn evaluate_and_resolve_rhai(
+    inputs: Inputs,
+    entry: PolicyEntry,
+    setup: &RunSetup,
+) -> Result<Choice, Failure> {
     let source = entry.display();
     let Format::Rhai(admitted) = &entry.format else {
         unreachable!("the caller dispatched on the Rhai format")
@@ -222,6 +230,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
             grants: &inputs.grants,
             directory: &inputs.directory,
             caller: inputs.context.as_ref().map(|caller| &caller.measured),
+            setup,
             judge: &mut judge,
         },
     )?;
@@ -263,6 +272,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         context: evaluation.delivered.or(context),
         modules: evaluation.modules,
         reads: evaluation.reads,
+        runs: evaluation.runs,
         diagnostics,
         operational: evaluation.operational,
     })
@@ -387,6 +397,35 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
                 file,
                 Some(Language::Rhai),
             );
+        }
+        "harness_budget_exhausted" => {
+            let refusal = Refusal::new(
+                "harness_budget_exhausted",
+                Stage::Evaluation,
+                EXIT_REFUSED,
+                failure.message.clone(),
+                "raise budgets.harnessRuns in the owner settings, up to 16, or make the policy \
+                 run fewer harnesses; a script reads what remains with ravel::remaining() and \
+                 cannot raise the budget or catch this refusal",
+            )
+            .source(file)
+            .bound(limits.budgets.bounds()[0]);
+            return match (&failure.path, &position) {
+                (Some(call), Some(position)) => refusal.location(format!("{call} at {position}")),
+                (None, Some(position)) => refusal.location(position),
+                _ => refusal,
+            };
+        }
+        "harness_cleanup_failed" => {
+            return Refusal::new(
+                "harness_cleanup_failed",
+                Stage::Evaluation,
+                EXIT_WORKER,
+                failure.message.clone(),
+                "stop the named process and remove the named directory by hand, then retry; do \
+                 not signal a process ID that may have been reused",
+            )
+            .source(file);
         }
         "worker_failed" => {
             return Refusal::new(

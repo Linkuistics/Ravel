@@ -728,8 +728,10 @@ fn partial_acquisition_cleanup_fixture() {
         || route.ends_with("late-choice")
         || (route == "direct" && role == "worker")
     {
-        let selected =
-            crate::choice::choose_prepared(crate::choice::prepare(&args.selection).unwrap());
+        let selected = crate::choice::choose_prepared(
+            crate::choice::prepare(&args.selection).unwrap(),
+            &crate::rhai_worker::harness::RunSetup::default(),
+        );
         eprintln!("Selected={}", selected.is_ok());
         assert_eq!(
             selected.is_ok(),
