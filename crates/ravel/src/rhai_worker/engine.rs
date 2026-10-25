@@ -16,6 +16,7 @@ use rhai::{
 };
 use serde_json::Value;
 
+use super::callbacks;
 use super::convert::{self, from_json};
 use super::locate;
 use super::{Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, MAX_MODULES, Reply, ScriptFailure};
@@ -41,8 +42,9 @@ const ENTRY_MODULE: &str = "policy";
 /// The record covers the breaches that the host can see, which are the
 /// operations bound and a stop. Rhai 1.27.0 has no hook for the other limits.
 /// They stay uncatchable by `try` itself, and a script that reaches one inside
-/// a closure can still swallow the error (see the leaf log of
-/// `rhai-engine-limits`).
+/// a closure that `try` surrounds can still swallow the error (see the leaf log
+/// of `rhai-engine-limits`). `dedup` and `sort` dropped a comparer's error with
+/// no `try`, and `callbacks` replaces them, so `try` is the one path left.
 #[derive(Clone, Default)]
 pub struct Latch {
     stop: Arc<AtomicBool>,
@@ -152,6 +154,7 @@ fn engine(latch: &Latch) -> Engine {
     engine.set_strict_variables(true);
     engine.set_fail_on_invalid_map_property(true);
     engine.disable_symbol("eval");
+    callbacks::install(&mut engine);
     let size = |limit: Limit| usize::try_from(limit.value()).unwrap_or(usize::MAX);
     engine.set_max_operations(0);
     engine.set_max_call_levels(size(Limit::CallDepth));
@@ -965,13 +968,36 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn the_operations_bound_counts_the_top_level_and_select_together() {
-        // Half of the bound in each. Each phase alone stays under it.
-        let half = Limit::Operations.value() / 2;
-        let source = policy(&format!(
-            "let i = 0;\nwhile i < {half} {{ i += 1; }}\n\
-             fn select(request, context) {{\n    let j = 0;\n    while j < {half} {{ j += 1; }}\n    #{{ status: \"selected\" }}\n}}"
-        ));
-        let failure = failure(&source);
+        // One `while` iteration costs 6 operations in Rhai 1.27.0: the condition,
+        // the assignment and their operands. So 10 million iterations are about
+        // 60 million operations, under the bound of 100 million. Any cost from 5
+        // to 10 operations per iteration keeps this shape: each phase alone
+        // stays under the bound, and both together pass it.
+        const ITERATIONS: u64 = 10_000_000;
+        let loops = |top: bool, within: bool| {
+            let spin = |name: &str| {
+                format!("let {name} = 0;\nwhile {name} < {ITERATIONS} {{ {name} += 1; }}")
+            };
+            policy(&format!(
+                "{}\nfn select(request, context) {{\n{}\n    #{{ status: \"selected\" }}\n}}",
+                if top { spin("i") } else { String::new() },
+                if within { spin("j") } else { String::new() },
+            ))
+        };
+        let selected = selection(json!({ "status": "selected" }));
+        assert_eq!(
+            reply(&loops(true, false)),
+            selected,
+            "the top level alone must select"
+        );
+        assert_eq!(
+            reply(&loops(false, true)),
+            selected,
+            "select alone must select"
+        );
+        // A count that restarts between the two phases, such as the one Rhai
+        // passes to the hook for each evaluation, would let this select too.
+        let failure = failure(&loops(true, true));
         assert_eq!(failure.code, "script_limit", "{}", failure.message);
         assert_eq!(failure.bound.as_deref(), Some("operations"));
     }
@@ -1121,6 +1147,84 @@ fn select(request, context) { global::SEEN }"#,
             &selecting("    try { [1].map(|x| { loop { } }); } catch (e) { }"),
             Limit::Operations,
         );
+    }
+
+    /// A function that recurses past the call depth when it is called.
+    const RECURSE: &str = "fn up(n) { up(n + 1) }\n";
+
+    #[test]
+    fn dedup_and_sort_still_work_with_a_comparer_that_succeeds() {
+        // Rhai 1.27.0 discards a comparer's error in these two, so the worker
+        // replaces them (`callbacks.rs`). The controls show the replacements
+        // keep the results and the argument order of the originals.
+        let got = |value: Value| selection(json!({ "status": "selected", "got": value }));
+        let changed = |setup: &str, call: &str| {
+            reply(&selecting(&format!(
+                "    let a = {setup};\n    a.{call};\n    return #{{ status: \"selected\", got: a }};"
+            )))
+        };
+        assert_eq!(
+            changed(
+                "[1, 1, 2, 2, 3, 1]",
+                "dedup(|earlier, later| earlier == later)"
+            ),
+            got(json!([1, 2, 3, 1]))
+        );
+        assert_eq!(
+            changed("[3, 1, 2]", "sort(|left, right| left - right)"),
+            got(json!([1, 2, 3]))
+        );
+        assert_eq!(
+            changed("[3, 1, 2]", "sort_by(|left, right| left > right)"),
+            got(json!([3, 2, 1]))
+        );
+        assert_eq!(changed("[]", "sort(|a, b| a - b)"), got(json!([])));
+    }
+
+    #[test]
+    fn an_ordinary_error_in_a_dedup_or_sort_comparer_now_ends_the_selection() {
+        for call in [
+            "dedup(|a, b| throw \"boom\")",
+            "sort(|a, b| throw \"boom\")",
+        ] {
+            let failure = failure(&selecting(&format!("    [1, 2, 3].{call};")));
+            assert_eq!(failure.code, "selection_threw", "{call}");
+            assert!(failure.message.contains("boom"), "{}", failure.message);
+        }
+    }
+
+    #[test]
+    fn a_limit_inside_a_dedup_or_sort_comparer_ends_the_evaluation_without_try() {
+        // The two functions that Rhai gives a comparer discard its error, so
+        // the breach in the comparer used to leave the selection standing. Each
+        // hostile case has a control with the same shape that selects.
+        let recurses = |call: &str, depth: &str| {
+            policy(&format!(
+                "{RECURSE}fn select(request, context) {{\n    let a = [1, 2];\n    \
+                 a.{call}(|x, y| {{ {depth}; 0 }});\n    #{{ status: \"selected\" }}\n}}"
+            ))
+        };
+        let doubles = |call: &str, rounds: &str| {
+            policy(&format!(
+                "fn select(request, context) {{\n    let a = [1, 2];\n    \
+                 a.{call}(|x, y| {{ let s = \"x\"; for i in 0..{rounds} {{ s += s; }} 0 }});\n    \
+                 #{{ status: \"selected\" }}\n}}"
+            ))
+        };
+        for call in ["dedup", "sort"] {
+            assert_eq!(
+                reply(&recurses(call, "1")),
+                selection(json!({ "status": "selected" })),
+                "{call}: the control must select"
+            );
+            breach(&recurses(call, "up(0)"), Limit::CallDepth);
+            assert_eq!(
+                reply(&doubles(call, "10")),
+                selection(json!({ "status": "selected" })),
+                "{call}: the control must select"
+            );
+            breach(&doubles(call, "100"), Limit::StringSize);
+        }
     }
 
     #[test]

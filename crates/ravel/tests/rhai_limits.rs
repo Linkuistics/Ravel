@@ -194,6 +194,32 @@ fn try_does_not_catch_a_breach_and_the_host_refuses_one_that_a_closure_call_wrap
 }
 
 #[test]
+fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() {
+    // Rhai 1.27.0 discards the error of the comparer in `dedup` and `sort`, so
+    // the worker replaces them. The control calls the same comparers with a
+    // depth that is under the bound, and the policy selects.
+    for call in ["dedup", "sort"] {
+        let comparer = |depth: &str| {
+            policy(&format!(
+                "fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
+                 fn up(n) {{ up(n + 1) }}\n\
+                 fn select(request, context) {{\n    [1, 2].{call}(|x, y| {{ {depth}; 0 }});\n    \
+                 #{{ status: \"selected\", program: \"recording-agent\", args: [], provider: \"p\", \
+                 model: \"m\", effort: \"e\", reason: \"r\" }}\n}}"
+            ))
+        };
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        survives(&sandbox, &comparer("down(40)"), &recorded);
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let run = start(&sandbox, &comparer("up(0)"), &[]);
+        let error = limit(&run, "call depth", &recorded);
+        assert_eq!(error["bound"]["levels"], 64, "{call}: {error}");
+    }
+}
+
+#[test]
 fn a_policy_that_fills_the_heap_ends_at_the_heap_bound_and_the_cli_reports_it() {
     // Each variable holds a copy of an array that is under the array size, and
     // no single value, and no one array with its nested elements counted, passes

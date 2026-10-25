@@ -226,6 +226,58 @@ fn a_front_that_closes_the_socket_before_it_sends_leaves_status_2() {
     assert_eq!(finish(child).status.code(), Some(2));
 }
 
+/// A role that a failed assertion must not leave running.
+struct Running(Option<Child>);
+
+impl Running {
+    fn child(&mut self) -> &mut Child {
+        self.0.as_mut().unwrap()
+    }
+
+    fn finish(mut self) -> Output {
+        self.0.take().unwrap().wait_with_output().unwrap()
+    }
+}
+
+impl Drop for Running {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.0.take() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+}
+
+#[test]
+fn a_front_that_closes_the_socket_during_the_evaluation_stops_a_cooperative_script() {
+    // The endless loop ends at the operations bound after about two seconds.
+    // Then the role fails to send that result, and says so. Only the watcher on
+    // the socket makes it stop earlier, with the status and the reason of a
+    // stop, so a role without the watcher fails the last two assertions.
+    let (child, channel) = start(&[], true);
+    let mut role = Running(Some(child));
+    read_frame(&channel);
+    write_frame(
+        &channel,
+        &evaluate(&POLICY.replace("debug(\"debugged in select\");", "loop { }")),
+    );
+
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    assert!(
+        role.child().try_wait().unwrap().is_none(),
+        "the control: with the channel open the endless loop is still running"
+    );
+
+    drop(channel);
+    let output = role.finish();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.code(), Some(2), "{stderr}");
+    assert!(
+        stderr.contains("the front asked the evaluation to stop"),
+        "{stderr}"
+    );
+}
+
 #[test]
 fn only_an_arg0_equal_to_the_role_name_enters_the_role() {
     let output = Command::new(FRONT)

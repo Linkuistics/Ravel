@@ -23,6 +23,7 @@
 //! | `selection` | worker | `version`: the policy's `VERSION`. `result`: the JSON form of what `select` returned |
 //! | `failure` | worker | `failure`: a [`ScriptFailure`] |
 
+mod callbacks;
 pub mod convert;
 pub mod engine;
 pub mod front;
