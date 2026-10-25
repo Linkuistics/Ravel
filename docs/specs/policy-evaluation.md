@@ -113,7 +113,9 @@ A module import has the form `import "PATH" as NAME;`. A relative path resolves
 from the directory of the importing file. Ravel appends `.rhai` when the path
 has no extension, and it accepts an absolute path. The Ravel CLI reads each
 module with the file rules of the entry, and each module loads once per
-evaluation. A missing or unreadable module, a cycle or a 65th module refuses as
+evaluation.
+
+A missing or unreadable module, a cycle or a 65th module refuses as
 `policy_import_failed`. The bound counts distinct files. An import of a loaded
 module is no new module, however many import statements run.
 
@@ -132,8 +134,9 @@ of its own, so every import names a file.
 
 Ravel evaluates the entry as a module. Its top-level statements run once, before
 any of its functions. A missing export, a wrong arity or a blank version refuses
-as `policy_invalid`. Other functions and constants are helpers of the policy. A
-function reads a top-level constant through the `global::` namespace, such as
+as `policy_invalid`.
+
+Other functions and constants are helpers of the policy. A function reads a top-level constant through the `global::` namespace, such as
 `global::TABLE`. Rhai functions do not see the variables around them. A wrapper
 policy imports another module and calls its `select`. It can change the
 selection that comes back.
@@ -264,7 +267,9 @@ Rhai 1.27.0. Those are `for_each`, `map`, `filter`, `find`, `find_map`,
 `index_of`, `some`, `all`, `reduce`, `reduce_rev`, `zip`, `drain` and `retain`
 of an array, and `map`, `filter`, `drain` and `retain` of an object map. They
 include the deprecated forms that name a function with a string, such as
-`map("f")` and `drain("f")`. Rhai 1.27.0 also drops the error of a comparer
+`map("f")` and `drain("f")`.
+
+Rhai 1.27.0 also drops the error of a comparer
 closure in `dedup`, in `sort` and in `order`, with no `try` involved. `order`
 is also exported as `order_by`, and it calls the original `sort_by` in Rust, so
 a replacement of `sort_by` does not reach it. The worker replaces those
@@ -327,9 +332,12 @@ the bound of its capability.
 A stop does not wait for a read in progress. The Ravel CLI abandons the read and
 its reply, and nothing launches after the stop. The reader thread keeps the
 descriptor of that read, and it closes it when the call returns or the Ravel CLI
-exits. The thread starts with INT, TERM and HUP blocked, as the readers of the
-worker output do. It can outlive the stop through the finalisation of the Ravel
-CLI, and it must not take a signal there. Ravel opens every descriptor
+exits.
+
+The Ravel CLI creates the thread with INT, TERM and HUP blocked, as it creates
+the readers of the worker output. The thread can outlive the stop through the
+finalisation of the Ravel CLI, and it must not take a signal there. Ravel opens
+every descriptor
 close-on-exec, so no harness run inherits one. These rules bound the waiting of
 Ravel. As in the [native-entry contract](result-job-completion.md#checked-native-entry-transitions),
 they are no real-time guarantee against a stall in the kernel.
@@ -416,8 +424,8 @@ A value that has no JSON form throws `json_unencodable`, and its message names
 the location, such as `value.args[2]`. A text that is not strict JSON throws
 `json_invalid`. Strict JSON has no trailing comma, comment, single-quoted
 string, `NaN` or text after the value. `json_parse` reads an integer outside
-the signed 64-bit range as a float, and it throws `json_invalid` for a value
-that nests deeper than 100 levels, the bound of the conversion rule.
+the signed 64-bit range as a float. It throws `json_invalid` for a value that
+nests deeper than 100 levels, the bound of the conversion rule.
 
 The data helpers run in the worker and send no message. `json_encode` may write
 any string that Rhai can hold, which is more than one message of the worker
@@ -430,7 +438,9 @@ randomness from the operating system.
 `path_resolve` joins a relative path to an absolute base. It then removes `.` and
 empty segments, and it applies each `..` to the segment before it, never above
 `/`. An absolute path replaces the base. `path_parent` removes the trailing
-slashes and the last segment, and the parent of `/` is `/`. For absolute inputs,
+slashes and the last segment, and the parent of `/` is `/`.
+
+For absolute inputs,
 both follow the rules of the `path.resolve` and `path.dirname` of Node, which
 the migration of the owner's policy needs. That includes the cases where
 `dirname` does not normalise: the parent of `/a//b` is `/a/`, the parent of
@@ -461,7 +471,9 @@ means that Ravel passes any model name.
 `harnesses()` returns one map for each harness entry, in name order. Each map
 has `name`, `program`, `available`, `resolved`, `reason` and `capabilities`.
 Ravel resolves the program as it resolves a selected program, and it runs
-nothing. `reason` is `not_found` or `not_executable` when `available` is false.
+nothing.
+
+`reason` is `not_found` or `not_executable` when `available` is false.
 `resolved` is the path that the lookup found, and `()` when `available` is
 false. `reason` is `()` when `available` is true. `capabilities` repeats the
 labels of the owner, and Ravel gives them no meaning.

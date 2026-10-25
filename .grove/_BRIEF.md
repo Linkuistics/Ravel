@@ -97,4 +97,4 @@ design needs the settled requirements.
   `scripts/native-linux/Dockerfile`. The native-entry campaign selects only
   `native_` cases, so it runs no Rhai test. The `rhai-worker` step of
   `scripts/native-linux/measure.sh` runs the Rhai tests, and
-  `native-incumbent-guard-build-rs-k51` repairs the campaign step.
+  `native-incumbent-guard-build-rs-k51` fixes the campaign step.
