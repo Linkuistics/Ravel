@@ -94,6 +94,10 @@ pub(super) struct Host {
     adapter: Option<Adapter>,
     /// Every `ravel::llm` call, in order, for the notice.
     llm_calls: Vec<LlmCall>,
+    /// The LLM calls the evaluation may still send.
+    calls_left: u64,
+    /// The output tokens the evaluation may still ask for.
+    tokens_left: u64,
 }
 
 impl Host {
@@ -119,6 +123,8 @@ impl Host {
             modules: Vec::new(),
             adapter: None,
             llm_calls: Vec::new(),
+            calls_left: bounds.llm_calls,
+            tokens_left: bounds.llm_output_tokens,
         }
     }
 
@@ -194,7 +200,7 @@ impl Host {
             Some("remaining") => Ok(self.remaining()),
             Some("llm") => {
                 let call = llm_call::decode(frame)?;
-                Ok(self.llm(&call).await)
+                Ok(self.llm(call, phase, &site).await)
             }
             Some(call @ ("read_text" | "read_json")) => {
                 let max_bytes = match frame.get("maxBytes") {
@@ -284,42 +290,100 @@ impl Host {
     }
 
     /// `ravel::llm`: send one request through the named endpoint. Every failure
-    /// is data in the response map, so the answer is always a reply. The
-    /// adapter call runs on this thread's runtime, which keeps watching the
-    /// deadline, so a stop abandons a call in flight.
+    /// is data in the response map, so the answer is always a reply, with one
+    /// exception: a call that finds no LLM call or no output token left ends the
+    /// evaluation before anything is sent. The worker hears nothing then, so a
+    /// script cannot catch it, and `try` around the call changes nothing.
     ///
-    /// The call counts against no budget yet: `rhai-llm-budgets` adds the
-    /// counting, and `rhai-llm-bounds` bounds the answer text.
-    async fn llm(&mut self, call: &Call) -> Answer {
-        let outcome = self.attempt(call).await;
-        let (value, record) = llm_call::answer(call, &outcome);
+    /// The adapter call runs on this thread's runtime, which keeps watching the
+    /// deadline, so a stop abandons a call in flight. That holds for the whole
+    /// deadline, not only for the deadline of the call: the call's deadline is
+    /// never later than the whole one, and the watch wins a tie.
+    async fn llm(&mut self, mut call: Call, phase: Phase, site: &Site) -> Answer {
+        if self.calls_left == 0 || self.tokens_left == 0 {
+            return Answer::End(Box::new(self.exhausted(&call, phase, site)));
+        }
+        // The endpoint may spend only what the budget still holds.
+        call.request.max_tokens = call.request.max_tokens.min(self.tokens_left);
+        let (outcome, sent) = self.attempt(&call).await;
+        if sent {
+            self.debit(&call, &outcome);
+        }
+        let (value, record) = llm_call::answer(&call, &outcome);
         self.llm_calls.push(record);
         Answer::Reply(encode(
             &json!({ "type": "reply", "status": "ok", "value": value }),
         ))
     }
 
-    /// The outcome of one call. The two checks that need only the settings fail
-    /// before anything is sent.
-    async fn attempt(&mut self, call: &Call) -> Result<Response, Failure> {
+    /// Charge a call that Ravel sent: one LLM call, and the output tokens the
+    /// endpoint reported, or the effective `maxTokens` when it reported none.
+    /// A failure reports no usage, so a sent call that failed costs its
+    /// `maxTokens` too: an endpoint can bill a request that Ravel then fails
+    /// or abandons. A count past what remains leaves nothing.
+    fn debit(&mut self, call: &Call, outcome: &Result<Response, Failure>) {
+        let tokens = match outcome {
+            Ok(response) => response.usage.output_tokens,
+            Err(_) => None,
+        }
+        .unwrap_or(call.request.max_tokens);
+        self.calls_left = self.calls_left.saturating_sub(1);
+        self.tokens_left = self.tokens_left.saturating_sub(tokens);
+    }
+
+    /// The failure that ends the evaluation for a call with no budget left. The
+    /// refusal names the budget through `bound`.
+    fn exhausted(&self, call: &Call, phase: Phase, site: &Site) -> ScriptFailure {
+        let (bound, what, all) = if self.calls_left == 0 {
+            ("llmCalls", "LLM call", self.bounds.llm_calls)
+        } else {
+            (
+                "llmOutputTokens",
+                "output token",
+                self.bounds.llm_output_tokens,
+            )
+        };
+        let mut failure = site.failure(
+            "llm_budget_exhausted",
+            phase,
+            format!(
+                "ravel::llm to the endpoint {:?} found no {what} left, and the evaluation \
+                 may use {all}",
+                call.endpoint
+            ),
+        );
+        failure.bound = Some(bound.to_owned());
+        failure
+    }
+
+    /// The outcome of one call, and whether Ravel sent it. The checks that need
+    /// only the settings fail before anything is sent, and so does a client
+    /// that cannot start.
+    async fn attempt(&mut self, call: &Call) -> (Result<Response, Failure>, bool) {
         let name = &call.endpoint;
         let model = &call.request.model;
         let Some(endpoint) = self.directory.endpoints.get(name) else {
-            return Err(Failure::new(
-                Code::UnknownEndpoint,
+            return (
+                Err(Failure::new(
+                    Code::UnknownEndpoint,
+                    false,
+                    format!("settings name no endpoint {name:?}; ravel::endpoints() lists them"),
+                )),
                 false,
-                format!("settings name no endpoint {name:?}; ravel::endpoints() lists them"),
-            ));
+            );
         };
         if !endpoint.models.is_empty() && !endpoint.models.contains(model) {
-            return Err(Failure::new(
-                Code::ModelNotOffered,
+            return (
+                Err(Failure::new(
+                    Code::ModelNotOffered,
+                    false,
+                    format!(
+                        "the endpoint {name:?} offers only {}, not {model:?}",
+                        endpoint.models.join(", ")
+                    ),
+                )),
                 false,
-                format!(
-                    "the endpoint {name:?} offers only {}, not {model:?}",
-                    endpoint.models.join(", ")
-                ),
-            ));
+            );
         }
         if self.adapter.is_none() {
             // Building the client loads the trust store, which on Linux can
@@ -333,11 +397,14 @@ impl Host {
             match built {
                 Ok(adapter) => self.adapter = Some(adapter),
                 Err(why) => {
-                    return Err(Failure::new(
-                        Code::Network,
+                    return (
+                        Err(Failure::new(
+                            Code::Network,
+                            false,
+                            format!("the HTTP client could not start: {why}"),
+                        )),
                         false,
-                        format!("the HTTP client could not start: {why}"),
-                    ));
+                    );
                 }
             }
         }
@@ -346,18 +413,23 @@ impl Host {
             self.deadline.saturating_duration_since(Instant::now()),
         );
         let adapter = self.adapter.as_ref().expect("the adapter was just built");
-        adapter
+        let outcome = adapter
             .call(
                 endpoint,
                 |variable| std::env::var_os(variable),
                 &call.request,
                 timeout,
             )
-            .await
+            .await;
+        let sent = outcome
+            .as_ref()
+            .err()
+            .is_none_or(|failure| failure.code.was_sent());
+        (outcome, sent)
     }
 
-    /// `ravel::remaining`: what the evaluation still has. The calls that spend an
-    /// LLM call or a harness run do not count yet, so those budgets are whole.
+    /// `ravel::remaining`: what the evaluation still has. The harness runs do not
+    /// count yet, so that budget is whole.
     fn remaining(&self) -> Answer {
         let ms = self
             .deadline
@@ -367,8 +439,8 @@ impl Host {
         Answer::Reply(encode(&json!({
             "type": "reply", "status": "ok", "value": {
                 "ms": u64::try_from(ms).unwrap_or(u64::MAX),
-                "llmCalls": self.bounds.llm_calls,
-                "llmOutputTokens": self.bounds.llm_output_tokens,
+                "llmCalls": self.calls_left,
+                "llmOutputTokens": self.tokens_left,
                 "harnessRuns": self.bounds.harness_runs,
                 "sources": sources,
             },

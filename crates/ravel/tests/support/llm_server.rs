@@ -93,6 +93,21 @@ impl Reply {
     pub fn messages(text: &str) -> Self {
         Reply::json(200, &messages_body(text)).header("request-id", "req_fixture_1")
     }
+
+    /// A Messages-wire answer that reports `output_tokens`, whatever the text.
+    pub fn messages_reporting(text: &str, output_tokens: u64) -> Self {
+        let mut body = messages_body(text);
+        body["usage"]["output_tokens"] = output_tokens.into();
+        Reply::json(200, &body).header("request-id", "req_fixture_1")
+    }
+
+    /// A Messages-wire answer with no `usage` member: the endpoint reports no
+    /// counter at all.
+    pub fn messages_without_usage(text: &str) -> Self {
+        let mut body = messages_body(text);
+        body.as_object_mut().expect("an object").remove("usage");
+        Reply::json(200, &body).header("request-id", "req_fixture_1")
+    }
 }
 
 /// The JSON of a Messages-wire answer.

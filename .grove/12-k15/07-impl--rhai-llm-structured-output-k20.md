@@ -11,6 +11,7 @@ Let a policy ask for structured output with a `schema`. Ravel sends the schema n
 - Rig rewrites the schema on each wire. It marks every property as required and adds `additionalProperties: false` to each object that does not set the keyword. Ravel checks the answer against the schema of the script, not against the rewritten schema.
 - The review of `rhai-policy-k4` read the sanitiser in `rig-core` 0.45.0, `src/providers/internal/schema.rs`. Read it again at the pinned version.
 - All three API types and their fake endpoints exist after the earlier leaves.
+- `rhai-llm-budgets` debits a call only when `Code::was_sent` says Ravel sent it. The new code `unsupported_capability` fails before the send, so add it to the codes that say no, and add a seam case that shows the budget stays whole.
 
 ## Done when
 

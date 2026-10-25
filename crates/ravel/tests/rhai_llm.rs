@@ -27,6 +27,11 @@ const MODEL: &str = "claude-sonnet-5-5";
 /// Settings that name each of `endpoints` as an `anthropic` endpoint at the base
 /// URL of its server. `extra` adds fields to every entry.
 fn settings(sandbox: &Sandbox, endpoints: &[(&str, &Server)], extra: &Value) {
+    settings_with(sandbox, endpoints, extra, &Value::Null);
+}
+
+/// [`settings`], and the owner's `budgets` unless it is null.
+fn settings_with(sandbox: &Sandbox, endpoints: &[(&str, &Server)], extra: &Value, budgets: &Value) {
     let mut entries = serde_json::Map::new();
     for (name, server) in endpoints {
         let mut entry = json!({
@@ -37,10 +42,11 @@ fn settings(sandbox: &Sandbox, endpoints: &[(&str, &Server)], extra: &Value) {
         }
         entries.insert((*name).to_owned(), entry);
     }
-    support::write(
-        &sandbox.home.join(SETTINGS),
-        &json!({ "endpoints": entries }).to_string(),
-    );
+    let mut document = json!({ "endpoints": entries });
+    if !budgets.is_null() {
+        document["budgets"] = budgets.clone();
+    }
+    support::write(&sandbox.home.join(SETTINGS), &document.to_string());
 }
 
 /// `start-session` with the credential in the caller's environment, unless
@@ -1103,4 +1109,365 @@ fn a_policy_without_calls_has_an_empty_list_in_its_notice() {
     let report = start(&sandbox, false, &[]).report();
 
     assert_eq!(report["llmCalls"], json!([]));
+}
+
+// The evaluation budgets for LLM calls and output tokens (`docs/specs/
+// policy-evaluation.md`, *Evaluation budgets and their composition*, and the
+// scenario "Caught budget breach").
+
+/// A policy that makes `calls` in order, each as `let rN = ...;`, and then hands
+/// the harness `tail`, an array expression, as its arguments.
+fn calling(calls: &[String], tail: &str) -> String {
+    let lets: String = calls
+        .iter()
+        .enumerate()
+        .map(|(index, call)| format!("    let r{index} = {call};\n"))
+        .collect();
+    selecting(&format!("{lets}    let args = {tail};"))
+}
+
+/// The refusal for a budget, with its bound.
+fn exhausted(run: &Run, recorded: &Recorded) -> Value {
+    let error = refused(run, "llm_budget_exhausted", recorded);
+    assert_eq!(error["stage"], "evaluation", "{error}");
+    error
+}
+
+#[test]
+fn a_ninth_call_in_try_still_ends_the_evaluation_as_llm_budget_exhausted() {
+    // The scenario "Caught budget breach". Eight calls use the default budget.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![Reply::messages("a"); 8]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    for turn in 0..8 {{ {}; }}
+    let args = ["escaped"];
+    try {{ {}; args = ["caught"]; }} catch (error) {{ args = ["swallowed"]; }}"#,
+        ask("main", ", maxTokens: 8"),
+        ask("main", ", maxTokens: 8"),
+    )));
+
+    let run = start(&sandbox, true, &[]);
+
+    let error = exhausted(&run, &recorded);
+    assert!(
+        error["message"].as_str().unwrap().contains("ravel::llm"),
+        "{error}"
+    );
+    assert_eq!(error["bound"]["name"], "llmCalls", "{error}");
+    assert_eq!(error["bound"]["calls"], 8, "{error}");
+    assert_eq!(error["bound"]["from"], "default", "{error}");
+    assert_eq!(server.requests_started(), 8, "the ninth call was sent");
+}
+
+#[test]
+fn the_owners_call_budget_replaces_the_default_and_a_zero_budget_forbids_every_call() {
+    for (budget, sent) in [(2, 2), (0, 0)] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let server = Server::start(vec![Reply::messages("a"); 3]);
+        settings_with(
+            &sandbox,
+            &[("main", &server)],
+            &json!({}),
+            &json!({ "llmCalls": budget }),
+        );
+        let call = ask("main", ", maxTokens: 8");
+        sandbox.personal_rhai(&calling(&[call.clone(), call.clone(), call], "[]"));
+
+        let error = exhausted(&start(&sandbox, true, &[]), &recorded);
+
+        assert_eq!(error["bound"]["calls"], budget, "{error}");
+        assert_eq!(error["bound"]["from"], "settings.json", "{error}");
+        assert_eq!(server.requests_started(), sent, "budget {budget}");
+    }
+}
+
+#[test]
+fn a_call_uses_one_call_and_the_output_tokens_the_endpoint_reports() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![
+        Reply::messages_reporting("a", 300),
+        Reply::messages_reporting("b", 42),
+    ]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    let before = ravel::remaining();
+    {};
+    let middle = ravel::remaining();
+    {};
+    let after = ravel::remaining();
+    let args = [ravel::json_encode(#{{ before: before, middle: middle, after: after,
+                                      limits: request.limits }})];"#,
+        ask("main", ", maxTokens: 500"),
+        ask("main", ", maxTokens: 500"),
+    )));
+
+    start(&sandbox, true, &[]).report();
+
+    let seen: Value = serde_json::from_str(&recorded.argv().unwrap()[0]).unwrap();
+    let live = |at: &str| {
+        (
+            seen[at]["llmCalls"].clone(),
+            seen[at]["llmOutputTokens"].clone(),
+        )
+    };
+    assert_eq!(live("before"), (json!(8), json!(32_768)));
+    assert_eq!(live("middle"), (json!(7), json!(32_768 - 300)));
+    assert_eq!(live("after"), (json!(6), json!(32_768 - 342)));
+    // The map of limits holds the budgets of the evaluation, not what is left.
+    assert_eq!(seen["limits"]["llmCalls"], 8);
+    assert_eq!(seen["limits"]["llmOutputTokens"], 32_768);
+}
+
+#[test]
+fn an_endpoint_that_reports_no_usage_costs_the_effective_max_tokens() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![
+        Reply::messages_without_usage("a"),
+        Reply::messages_without_usage("b"),
+    ]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    let first = {};
+    let middle = ravel::remaining().llmOutputTokens;
+    let second = {};
+    let after = ravel::remaining().llmOutputTokens;
+    let args = [first.status, ravel::json_encode(first.usage), middle.to_string(),
+                after.to_string()];"#,
+        ask("main", ", maxTokens: 100"),
+        // No maxTokens: the default of 1,024 applies.
+        ask("main", ""),
+    )));
+
+    start(&sandbox, true, &[]).report();
+
+    assert_eq!(
+        recorded.argv().unwrap(),
+        [
+            "ok",
+            r#"{"inputTokens":null,"outputTokens":null,"totalTokens":null}"#,
+            &(32_768 - 100).to_string(),
+            &(32_768 - 100 - 1024).to_string(),
+        ]
+    );
+    assert_eq!(server.requests_started(), 2);
+}
+
+#[test]
+fn the_tokens_that_remain_lower_max_tokens_and_a_spent_budget_ends_the_evaluation() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![
+        Reply::messages_without_usage("a"),
+        Reply::messages_reporting("b", 15),
+        Reply::messages_without_usage("c"),
+        Reply::messages("never sent"),
+    ]);
+    settings_with(
+        &sandbox,
+        &[("main", &server)],
+        &json!({}),
+        &json!({ "llmOutputTokens": 100 }),
+    );
+    sandbox.personal_rhai(&calling(
+        &[
+            ask("main", ", maxTokens: 60"),
+            // The default of 1,024 is lowered to the 40 that remain, and the
+            // endpoint reports 15 of them.
+            ask("main", ""),
+            // 25 remain, and the call asks for 5,000.
+            ask("main", ", maxTokens: 5000"),
+            ask("main", ""),
+        ],
+        "[]",
+    ));
+
+    let error = exhausted(&start(&sandbox, true, &[]), &recorded);
+
+    assert_eq!(error["bound"]["name"], "llmOutputTokens", "{error}");
+    assert_eq!(error["bound"]["tokens"], 100, "{error}");
+    assert_eq!(error["bound"]["from"], "settings.json", "{error}");
+    let sent: Vec<Value> = server
+        .exchanges(3)
+        .iter()
+        .map(|exchange| exchange.seen.json()["max_tokens"].clone())
+        .collect();
+    assert_eq!(sent, [json!(60), json!(40), json!(25)]);
+    assert_eq!(server.requests_started(), 3, "a fourth call was sent");
+}
+
+#[test]
+fn a_call_that_fails_before_it_is_sent_uses_no_budget() {
+    // The budget holds one call and one token. Every call below fails before
+    // Ravel sends it, so the budget must be whole at the end, and the fifth call
+    // is the one that spends it.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![Reply::messages_reporting("fine", 1)]);
+    settings_with(
+        &sandbox,
+        &[("main", &server)],
+        &json!({ "models": ["offered-model", "claude-opus-4-5"] }),
+        &json!({ "llmCalls": 1, "llmOutputTokens": 1 }),
+    );
+    // The catalog of Rig lists low, medium and high for this model.
+    let unsupported = r#"ravel::llm(#{ endpoint: "main", model: "claude-opus-4-5",
+        reasoning: "xhigh", maxTokens: 1, messages: [#{ role: "user", content: "x" }] })"#;
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    let codes = [];
+    codes.push({}.error.code);
+    codes.push({}.error.code);
+    codes.push({unsupported}.error.code);
+    let left = ravel::remaining();
+    let sent = ravel::llm(#{{ endpoint: "main", model: "offered-model", maxTokens: 1,
+        messages: [#{{ role: "user", content: "x" }}] }});
+    codes.push(sent.status);
+    codes.push(ravel::remaining().llmCalls.to_string());
+    let args = [ravel::json_encode(codes), left.llmCalls.to_string(),
+                left.llmOutputTokens.to_string()];"#,
+        ask("missing", ", maxTokens: 1"),
+        ask("main", ", maxTokens: 1"),
+    )));
+
+    start(&sandbox, true, &[]).report();
+
+    assert_eq!(
+        recorded.argv().unwrap(),
+        [
+            r#"["unknown_endpoint","model_not_offered","unsupported_parameter","ok","0"]"#,
+            "1",
+            "1"
+        ]
+    );
+    assert_eq!(server.requests_started(), 1);
+}
+
+#[test]
+fn a_credential_that_is_unset_uses_no_budget() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![]);
+    settings_with(
+        &sandbox,
+        &[("main", &server)],
+        &json!({}),
+        &json!({ "llmCalls": 1 }),
+    );
+    let call = ask("main", ", maxTokens: 8");
+    sandbox.personal_rhai(&calling(
+        &[call.clone(), call.clone(), call],
+        "[r0.error.code, r1.error.code, r2.error.code, ravel::remaining().llmCalls.to_string()]",
+    ));
+
+    start(&sandbox, false, &[]).report();
+
+    assert_eq!(
+        recorded.argv().unwrap(),
+        [
+            "endpoint_unavailable",
+            "endpoint_unavailable",
+            "endpoint_unavailable",
+            "1"
+        ]
+    );
+    assert_eq!(server.requests_started(), 0);
+}
+
+#[test]
+fn a_call_that_was_sent_and_failed_uses_a_call_and_its_effective_max_tokens() {
+    // A 429 and an answer text past 1 MiB are both sent. The second one reached
+    // Rig with its usage, but the failure carries none, so it costs max_tokens.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![
+        Reply::raw(429, "text/plain", b"slow"),
+        Reply::messages_reporting(&"a".repeat(1024 * 1024 + 1), 3),
+    ]);
+    settings(&sandbox, &[("main", &server)], &json!({}));
+    sandbox.personal_rhai(&selecting(&format!(
+        r#"    let first = {};
+    let after_first = ravel::remaining();
+    let second = {};
+    let after_second = ravel::remaining();
+    let args = [first.error.code, second.error.code,
+                after_first.llmCalls.to_string(), after_first.llmOutputTokens.to_string(),
+                after_second.llmCalls.to_string(), after_second.llmOutputTokens.to_string()];"#,
+        ask("main", ", maxTokens: 200"),
+        ask("main", ", maxTokens: 50"),
+    )));
+
+    start(&sandbox, true, &[]).report();
+
+    assert_eq!(
+        recorded.argv().unwrap(),
+        [
+            "rate_limited",
+            "output_limit",
+            "7",
+            &(32_768 - 200).to_string(),
+            "6",
+            &(32_768 - 250).to_string(),
+        ]
+    );
+}
+
+#[test]
+fn the_notice_lists_the_effective_budgets_among_its_bounds() {
+    let sandbox = Sandbox::new();
+    sandbox.recording_agent();
+    let server = Server::start(vec![]);
+    sandbox.personal_rhai(&selecting("    let args = [];"));
+    settings_with(
+        &sandbox,
+        &[("main", &server)],
+        &json!({}),
+        &json!({ "llmCalls": 3, "harnessRuns": 2 }),
+    );
+
+    let bounds = start(&sandbox, false, &[]).report()["bounds"].clone();
+
+    assert_eq!(
+        bounds["llmCalls"],
+        json!({ "calls": 3, "from": "settings.json" })
+    );
+    assert_eq!(
+        bounds["llmOutputTokens"],
+        json!({ "tokens": 32_768, "from": "default" })
+    );
+    assert_eq!(
+        bounds["harnessRuns"],
+        json!({ "runs": 2, "from": "settings.json" })
+    );
+    assert!(bounds["selection"].is_object(), "{bounds}");
+}
+
+#[test]
+fn a_budget_breach_reports_the_line_of_the_call() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let server = Server::start(vec![]);
+    settings_with(
+        &sandbox,
+        &[("main", &server)],
+        &json!({}),
+        &json!({ "llmCalls": 0 }),
+    );
+    sandbox.personal_rhai(&selecting(&format!(
+        "    let r = {};\n    let args = [];",
+        ask("main", "")
+    )));
+
+    let error = exhausted(&start(&sandbox, true, &[]), &recorded);
+
+    assert!(
+        error["location"]
+            .as_str()
+            .is_some_and(|at| at.contains(':')),
+        "{error}"
+    );
+    assert_eq!(server.requests_started(), 0);
 }

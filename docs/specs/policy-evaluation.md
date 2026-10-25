@@ -533,7 +533,9 @@ options.
 
 Ravel makes no retry. The script decides whether to try again, with which
 endpoint and which model, and how often. A call that fails before Ravel sends
-it, as with the first four codes, uses no budget.
+it uses no budget. Those failures are the first four codes and
+`unsupported_parameter`, because Rig refuses that option before it opens a
+connection.
 
 Messages and answers stay out of the notices and logs of Ravel. The notice
 reports the endpoint, model, status, code, usage and elapsed time of each call.
@@ -765,10 +767,16 @@ The bounds compose by these rules:
 - The deadline of a call is the smaller of its `timeoutMs` and the time that
   remains. When the whole deadline passes during a call, the evaluation ends,
   not only the call.
+- Ravel lowers the `maxTokens` of a call to the output tokens that remain.
+  That value is the effective `maxTokens`.
 - A call that Ravel sends uses one LLM call. It then uses its reported output
-  tokens, or its effective `maxTokens` when the endpoint reports none.
+  tokens, or its effective `maxTokens` when the endpoint reports none. A sent
+  call that failed reports no usage, so it uses its effective `maxTokens`. An
+  endpoint can bill a request that Ravel then fails or abandons.
 - A call with no LLM call or no output token left ends the evaluation before
-  Ravel sends it.
+  Ravel sends it. Ravel checks this before any other check of the call, so a
+  call to an unknown endpoint ends the evaluation too. The script cannot catch
+  it, because the worker hears nothing more.
 - A harness run uses one run when the runner launches it.
 - Teardown after the deadline or a cancellation adds at most the kill-grace of
   the runner and one second. It does not wait for a read in progress.

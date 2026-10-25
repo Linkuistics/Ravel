@@ -65,17 +65,70 @@ pub struct Budgets {
     pub llm_calls: u64,
     pub llm_output_tokens: u64,
     pub harness_runs: u64,
+    /// Where each value came from: the owner's settings, or the default.
+    pub origins: BudgetOrigins,
+}
+
+/// The origin of each of the three budgets.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct BudgetOrigins {
+    pub llm_calls: Origin,
+    pub llm_output_tokens: Origin,
+    pub harness_runs: Origin,
 }
 
 impl Budgets {
     /// The owner's choices over the defaults.
     pub fn read(settings: &Settings) -> Budgets {
         let owner = &settings.budgets;
+        let (llm_calls, calls_origin) = owned(owner.llm_calls, LLM_CALLS_DEFAULT);
+        let (llm_output_tokens, tokens_origin) =
+            owned(owner.llm_output_tokens, LLM_OUTPUT_TOKENS_DEFAULT);
+        let (harness_runs, runs_origin) = owned(owner.harness_runs, HARNESS_RUNS_DEFAULT);
         Budgets {
-            llm_calls: owner.llm_calls.unwrap_or(LLM_CALLS_DEFAULT),
-            llm_output_tokens: owner.llm_output_tokens.unwrap_or(LLM_OUTPUT_TOKENS_DEFAULT),
-            harness_runs: owner.harness_runs.unwrap_or(HARNESS_RUNS_DEFAULT),
+            llm_calls,
+            llm_output_tokens,
+            harness_runs,
+            origins: BudgetOrigins {
+                llm_calls: calls_origin,
+                llm_output_tokens: tokens_origin,
+                harness_runs: runs_origin,
+            },
         }
+    }
+
+    /// The budgets as bounds, for the notice and for a refusal that names one.
+    /// Their names are the keys of `bounds` and of `budgets` in the settings.
+    pub fn bounds(self) -> [Bound; 3] {
+        let bound = |name, unit, value, origin| Bound {
+            name,
+            unit,
+            value,
+            origin,
+        };
+        [
+            bound("llmCalls", "calls", self.llm_calls, self.origins.llm_calls),
+            bound(
+                "llmOutputTokens",
+                "tokens",
+                self.llm_output_tokens,
+                self.origins.llm_output_tokens,
+            ),
+            bound(
+                "harnessRuns",
+                "runs",
+                self.harness_runs,
+                self.origins.harness_runs,
+            ),
+        ]
+    }
+}
+
+/// The owner's value of a budget, or its default.
+fn owned(setting: Option<u64>, default: u64) -> (u64, Origin) {
+    match setting {
+        Some(value) => (value, Origin::Set(settings::ORIGIN)),
+        None => (default, Origin::Default),
     }
 }
 
@@ -367,6 +420,11 @@ mod tests {
                 llm_calls: 8,
                 llm_output_tokens: 32_768,
                 harness_runs: 0,
+                origins: BudgetOrigins {
+                    llm_calls: Origin::Default,
+                    llm_output_tokens: Origin::Default,
+                    harness_runs: Origin::Default,
+                },
             }
         );
         let settings = Settings {
@@ -381,6 +439,14 @@ mod tests {
         assert_eq!(limits.budgets.llm_calls, 0);
         assert_eq!(limits.budgets.llm_output_tokens, 32_768);
         assert_eq!(limits.budgets.harness_runs, 16);
+        assert_eq!(
+            limits.budgets.bounds().map(Bound::to_json),
+            [
+                json!({ "calls": 0, "from": "settings.json" }),
+                json!({ "tokens": 32_768, "from": "default" }),
+                json!({ "runs": 16, "from": "settings.json" }),
+            ]
+        );
         // The 1.x notice and request do not carry them.
         assert!(limits.to_json().get("llmCalls").is_none());
         assert!(limits.to_request().get("llmCalls").is_none());

@@ -330,8 +330,8 @@ pub struct ScriptFailure {
     /// `policy_invalid`, `unsupported_version`, `selection_threw`,
     /// `selection_malformed`, `context_loader_failed`, `context_invalid`,
     /// `context_too_large`, `host_request_invalid`, `source_too_large`,
-    /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`
-    /// or `worker_failed`. The front raises the codes about a read, an import
+    /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`,
+    /// `llm_budget_exhausted` or `worker_failed`. The front raises the codes about a read, an import
     /// and the size of a context when it ends the evaluation itself.
     pub code: String,
     /// The stage of that code.
@@ -346,6 +346,7 @@ pub struct ScriptFailure {
     /// The size a bound was exceeded at.
     pub actual: Option<u64>,
     /// For `script_limit` and `memory_limit`: the [`Limit::name`] that was hit.
+    /// For `llm_budget_exhausted`: the budget, `llmCalls` or `llmOutputTokens`.
     pub bound: Option<String>,
     /// For `source_too_large` and `too_many_sources`: the file that was read.
     pub source: Option<String>,

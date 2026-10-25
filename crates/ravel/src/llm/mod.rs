@@ -186,6 +186,23 @@ pub enum Code {
 }
 
 impl Code {
+    /// Whether a call that failed with this code had left the Ravel CLI. A call
+    /// that fails before Ravel sends it uses no budget.
+    ///
+    /// The codes that say no are the ones decided from the settings, from the
+    /// environment or from the request alone: Ravel checks each before it opens
+    /// a connection. `Network` says yes even for a connect that failed, because
+    /// the code cannot tell a request that never left from one cut mid-flight.
+    pub fn was_sent(self) -> bool {
+        !matches!(
+            self,
+            Code::UnknownEndpoint
+                | Code::EndpointUnavailable
+                | Code::ModelNotOffered
+                | Code::UnsupportedParameter
+        )
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Code::UnknownEndpoint => "unknown_endpoint",
