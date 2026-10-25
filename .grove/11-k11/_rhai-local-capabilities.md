@@ -24,7 +24,7 @@ The last two leaves do not depend on each other. The order follows the risk, wit
 ## Pointers
 
 - Spec: `docs/specs/policy-evaluation.md`. The sections are "The bridge between the script and the CLI", "Host capabilities", "LLM endpoints and credentials" and "Harness entries".
-- ADR: `docs/adr/owner-settings-name-the-llm-endpoints.md` for the settings keys.
+- ADR: this increment followed an ADR about LLM endpoints in settings. `docs/adr/a-policy-asks-a-model-through-a-harness-run.md` replaced it, and the running log of `llm-calls-through-harnesses-k58` records why.
 - Review finding F1 of `rhai-policy-k4` explains why a read needs a reader thread. Read it with `grove-llm resolve rhai-policy-k4`. The integration `rhai-policy-k5` records the chosen mechanism.
 - Glossary: Host capability, Policy context, LLM endpoint and Evaluation budget.
 - Test seam: the real `ravel start-session` against a sandbox home.

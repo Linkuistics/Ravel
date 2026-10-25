@@ -2,41 +2,37 @@
 
 ## Goal
 
-Let a Rhai policy ask a model a question with `ravel::llm`. The Ravel CLI sends the request through Rig to an LLM endpoint that the owner named in settings. The script builds the messages and interprets the answer.
+Let a Rhai policy ask a model a question. This increment first built `ravel::llm` through Rig. The owner then moved every LLM call to a harness run of Claude Code or Codex, which uses the owner's own sign-in. The increment now removes `ravel::llm`, Rig and the endpoint settings. It keeps the schema check as the data helper `ravel::json_check`.
 
 ## Done when
 
-- `ravel::llm` works for the three API types: `anthropic`, `openai` and `openai-compatible`. It supports plain text, structured output, usage reporting and the failure codes of the spec.
-- Every failure of a call reaches the script as data. Every breach of a bound ends the evaluation. A script cannot catch a breach.
-- The credential reaches only the base URL of its endpoint. No host function, notice or log carries it.
-- Every response body, successful or not, has a bound that Ravel applies before Rig decodes it.
-- The evaluation budgets for LLM calls and output tokens hold, and they compose with the whole deadline.
-- A Rig upgrade has a task that proves it at the CLI seam, and opt-in smoke tasks make one real call for each API type.
+- `ravel::llm`, `ravel::endpoints()`, the `endpoints` settings key, the two LLM budgets and `llm_budget_exhausted` are gone from the code, the tests and the notice.
+- The LLM adapter is gone, with its HTTP client and its body bounds. Rig, reqwest and rustls are gone from the dependency tree.
+- `ravel::json_check` applies the schema subset of the spec in the worker. Tests at the CLI seam cover a match, a mismatch with its location, a schema outside the subset and a value with no JSON form.
 - The TypeScript path works as before, and `task check` and `task test` pass.
+
+The harness run itself, and the smoke tasks for a real LLM call through each harness, belong to `rhai-harness-runs`.
 
 ## Decomposition
 
-- `rhai-llm-anthropic` makes the first call work end to end for one API type, with the bounded collection of every response body. It also proves that Rig builds for the three archive targets.
-- `rhai-llm-bounds` bounds the answer text, and it proves the stall deadline and the cancellation of a call in flight.
-- `rhai-llm-budgets` adds the budgets and the usage accounting.
-- `rhai-llm-openai-types` adds the other two API types.
-- `rhai-llm-structured-output` adds the schema subset and the checks on the answer.
-- `rhai-llm-upgrade-proof` adds the Rig upgrade task, the replay of recordings and the smoke tasks.
-
-The first leaf comes first because every later leaf extends its adapter and its fake endpoint. The body bounds are part of the first call, because the Ravel CLI holds an unbounded body, and no limit of the worker reaches it. The remaining bounds come before the budgets. Structured output follows the other API types, because it must hold on all three wires.
+- `rhai-llm-anthropic`, `rhai-llm-bounds`, `rhai-llm-budgets`, `rhai-llm-openai-types` and `rhai-llm-structured-output` built `ravel::llm` through Rig. They are done.
+- `llm-calls-through-harnesses-k58` (design) moved every LLM call to a harness run. It changed the spec, the ADR set and the glossary.
+- The owner pruned `rhai-llm-upgrade-proof-k21`. Its Rig upgrade proof and its real recordings have no subject now.
+- A `review-design` leaf reads the change of the spec before any leaf builds on it.
+- A `planning` leaf, `llm-harness-replan`, then cuts the removal. It names `rhai-llm-removal` as the `impl` leaf that removes the built code and moves the schema check. It also brings the later leaves that still name `ravel::llm` into line with the spec.
 
 ## Pointers
 
-- ADR: `docs/adr/owner-settings-name-the-llm-endpoints.md`.
-- Spec: `docs/specs/policy-evaluation.md`. The sections are "LLM calls", "LLM endpoints and credentials", "Evaluation budgets and their composition", "Rig upgrades" and "Test seams".
-- Review findings F2 and F3 of `rhai-policy-k4`, and their integration in `rhai-policy-k5`. Find both with `grove-llm resolve`. They define the bounded transport and the credential rules.
-- Glossary: LLM endpoint, LLM call, Provider and Evaluation budget.
-- Test seam: the real `ravel start-session` against a sandbox home. A deterministic local HTTP server stands behind it, with a dummy key and no network. The real Rig client runs.
+- ADR: `docs/adr/a-policy-asks-a-model-through-a-harness-run.md`.
+- Spec: `docs/specs/policy-evaluation.md`. The sections are "Data helpers", "LLM calls through a harness", "Credentials", "Evaluation budgets and their composition" and "Upgrades".
+- The running log of `llm-calls-through-harnesses-k58` holds the owner's decisions.
+- Glossary: LLM call, Harness run, Provider and Evaluation budget.
+- Test seam: the real `ravel start-session` against a sandbox home, with fake harness scripts on a private `PATH`.
 
 ## Notes
 
-- Pins: `rig-core`, `rig-http` and `rig-reqwest` at `=0.45.0` each. `reqwest` 0.13 comes through `rig-reqwest`. `rig-cassette` `=0.45.0` is a development dependency only.
-- All use of Rig stays behind one internal module, the LLM adapter. Its interface is one call. An endpoint entry and a checked request go in, and a response or a classified failure comes out.
-- Ravel never uses the shared HTTP client of Rig or its environment constructors. No ambient `*_BASE_URL` or `*_API_KEY` variable takes part.
-- Rig has no 1.0 release. Read the source of the pinned version before you rely on an API. The design and the review both checked the APIs that the spec names.
-- The notice of the Rhai path has schema version 2. This increment adds `llmCalls` and `bounds`.
+- The schema checker that `rhai-llm-structured-output` built moves into the worker, where the data helpers run. Its tests move to the CLI seam with it.
+- A schema outside the subset now throws `schema_invalid`, which the script can catch. `ravel::llm` ended the evaluation for it.
+- `rhai-llm-adapter-proof-k54` proved that `ring` builds for the three archive targets. That proof has no subject once rustls is gone.
+- `excluded_grant` stays for the names that 1.x excludes, such as `NODE_OPTIONS`. Only its clause for an `apiKeyEnv` goes.
+- The notice of the Rhai path keeps schema version 2. `llmCalls`, `worker.rigVersion` and the LLM members of `bounds` go.

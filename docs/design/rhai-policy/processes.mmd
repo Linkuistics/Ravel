@@ -2,10 +2,9 @@ flowchart TB
   start["Start here: the caller runs ravel start-session"]
   subgraph cli["Ravel CLI process — holds all authority"]
     direction TB
-    auth["Entry and settings<br/>policy.rhai · endpoints<br/>harnesses · budgets"]
+    auth["Entry and settings<br/>policy.rhai · harnesses<br/>budgets"]
     eval["Evaluation runtime<br/>deadline · cancellation · bounds<br/>environment"]
     reader["Reader thread<br/>entry · modules · measured reads<br/>program lookups"]
-    llm["LLM adapter · Rig 0.45.0<br/>own bounded HTTP client<br/>no proxy · redirect · retry"]
     runner["Runner<br/>jobs · group cleanup · reap"]
   end
   subgraph worker["Policy worker — computes only"]
@@ -13,18 +12,17 @@ flowchart TB
     rhai["Rhai 1.27.0 engine<br/>strict mode · fixed limits<br/>1 GiB heap"]
     mods["policy.rhai and<br/>imported modules"]
   end
-  endpoints[("LLM endpoints<br/>HTTPS, or loopback HTTP")]
-  hrun["Harness run<br/>own result channel<br/>RAVEL_POLICY_RUN"]
+  hrun["Harness run<br/>such as claude -p<br/>own result channel<br/>RAVEL_POLICY_RUN<br/>the owner's sign-in"]
+  model[("Model service<br/>reached only<br/>by the harness")]
   start -->|"1 · flags, prompt, context"| auth
   auth -->|"2 · re-execute own binary"| eval
   eval <-->|"3 · host calls on fd 3"| rhai
   rhai --- mods
   eval -->|"4 · ravel::read_text and imports"| reader
-  eval -->|"5 · ravel::llm"| llm
-  llm -->|"credential only here"| endpoints
-  eval -->|"6 · ravel::run_harness"| runner
+  eval -->|"5 · run_harness, also an LLM call"| runner
   runner --> hrun
+  hrun -->|"sign-in only here"| model
   classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
   classDef external fill:#eef3f8,color:#20344d,stroke:#6b7f95
   class start start
-  class endpoints,hrun external
+  class hrun,model external

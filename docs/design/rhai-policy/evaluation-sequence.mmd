@@ -3,7 +3,7 @@ sequenceDiagram
   participant C as Caller
   participant R as Ravel CLI
   participant W as Policy worker
-  participant E as LLM endpoint
+  participant H as Harness run (claude -p)
   C->>R: start-session --kind KIND --prompt TEXT
   R->>R: read settings, resolve policy.rhai
   R->>W: re-execute own binary (empty environment, fd 3)
@@ -12,11 +12,13 @@ sequenceDiagram
   W->>R: module request for "routes"
   R->>W: module source (measured)
   W->>W: run the top level, then select(request, context)
-  W->>R: host call ravel::llm(request)
-  R->>E: completion request with the credential header
-  E-->>R: answer
-  R-->>W: response map (status ok, text, usage)
-  W->>W: interpret the answer, build the selection
+  W->>R: host call ravel::run_harness(harness, args, stdin)
+  R->>H: the runner launches the job, with a fresh result channel
+  Note over H: the harness signs in with the owner's own sign-in
+  H-->>R: JSON answer on stdout, then exit 0
+  R->>R: reap the run, check that its group is gone
+  R-->>W: result map (status exited, exitCode 0, stdout)
+  W->>W: json_parse, json_check, then build the selection
   W->>R: result: a Selected map
   R->>R: check the selection, reap the worker, remove its directory
   R->>R: resolve the program, allocate the session's result channel

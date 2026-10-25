@@ -1,21 +1,18 @@
 sequenceDiagram
   participant S as Signal or deadline
   participant R as Ravel CLI
-  participant E as LLM endpoint
   participant H as Harness run group
   participant W as Policy worker
   S->>R: INT, TERM, HUP or the end of the deadline
   R->>R: record the first cause — a later cause does not repeat the stop
-  alt an LLM call is in flight
-    R--xE: drop the Rig request, close the connection
-    Note over E: work that the provider already accepted may finish and be billed
-  else a read is in progress
+  alt a read is in progress
     R->>R: abandon the read — its thread may stay until the CLI exits
-  else a harness run is in progress
+  else a harness run is in progress, such as an LLM call
     R->>H: stop request: TERM
     H-->>R: exit, or the kill-grace ends
     R->>H: KILL the survivors in the group
     R->>R: reap the child, check that the group is gone
+    Note over H: a model service may still finish work that it accepted
   end
   R->>W: KILL
   R->>R: reap the worker, remove the private directories

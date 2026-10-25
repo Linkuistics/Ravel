@@ -1,11 +1,11 @@
 {
   "title": "Rhai policy evaluation for Ravel 2.0.0",
-  "intro": "How Ravel 2.0.0 evaluates a Rhai owner policy: a separate policy worker computes, and the Ravel CLI performs every host capability. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. Sequences start at their first message, and the state view starts at its initial pseudo-state. The specification docs/specs/policy-evaluation.md is the authority for every rule drawn here.",
+  "intro": "How Ravel 2.0.0 evaluates a Rhai owner policy: a separate policy worker computes, and the Ravel CLI performs every host capability. An LLM call is a harness run of Claude Code or Codex, which signs in with the owner's own sign-in. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. Sequences start at their first message, and the state view starts at its initial pseudo-state. The specification docs/specs/policy-evaluation.md is the authority for every rule drawn here.",
   "groups": [
     {
       "id": "processes",
       "title": "Processes and authority",
-      "description": "Which process holds credentials, files and jobs, and which only computes?"
+      "description": "Which process holds files and jobs, which only computes, and where the sign-in lives."
     },
     {
       "id": "evaluation",
@@ -21,44 +21,45 @@
       "id": "configuration",
       "title": "Configuration and migration",
       "description": "Which policy file Ravel evaluates, and when it refuses."
+    },
+    {
+      "id": "rejected",
+      "title": "Rejected alternatives",
+      "description": "Shapes that the owner rejected. They are not part of the design."
     }
   ],
   "discussion": {
-    "title": "Rhai policy evaluation design",
-    "status": "Proposed. The owner chose the separate worker, the meaning of provider and the harness-run default",
-    "summary": "The policy worker is Ravel's own binary and only computes. The Ravel CLI serves reads, LLM calls through Rig and harness runs through the runner. Outcomes of a host call are data, and breaches of a bound end the evaluation. Rhai 1.27.0, Rig 0.45.0 and Rust 1.99.1 are pinned.",
+    "title": "LLM calls through a harness run",
+    "status": "Agreed with the owner. A review-design leaf reads the change next",
+    "summary": "The owner chose a harness run with no re-entry for every LLM call. The policy runs Claude Code or Codex with ravel::run_harness, and the harness uses the owner's own sign-in. ravel::llm, the endpoints settings key, the LLM budgets and Rig are removed. The schema check stays as the data helper ravel::json_check. The owner rejected a nested start-session and a nested-session host call.",
     "diagramIds": [
       "processes",
       "evaluation-sequence",
-      "evaluation-states",
       "outcomes",
       "stopping-sequence",
-      "entry-precedence"
+      "rejected-nested-session",
+      "evaluation-states"
     ],
     "updatedDiagrams": [
       {
         "id": "processes",
-        "summary": "Added the process and authority view: the CLI holds credentials, reads and jobs, and the worker only computes. Reads run on a reader thread, apart from the runtime."
+        "summary": "Removed the LLM adapter and the LLM endpoints. The harness run now reaches the model service with the owner's own sign-in."
       },
       {
         "id": "evaluation-sequence",
-        "summary": "Added the sequence from start-session through one LLM call to the launch."
-      },
-      {
-        "id": "evaluation-states",
-        "summary": "Added the evaluation states, with every path to a refusal and the reap before the launch."
+        "summary": "The LLM-assisted selection now asks Claude Code through ravel::run_harness, then parses and checks the answer in the worker."
       },
       {
         "id": "outcomes",
-        "summary": "Added the rule that call outcomes are data and that breaches of a bound end the evaluation."
+        "summary": "Replaced llm_budget_exhausted with harness_budget_exhausted among the bounds that end the evaluation."
       },
       {
         "id": "stopping-sequence",
-        "summary": "Added the order in which a deadline or a signal stops the Rig request, a read, the harness run and the worker, and the final read of the cancellation latch."
+        "summary": "Removed the branch that drops a Rig request. An LLM call stops as a harness run."
       },
       {
-        "id": "entry-precedence",
-        "summary": "Added the choice between policy.rhai and policy.ts, and the re-entry refusal."
+        "id": "rejected-nested-session",
+        "summary": "Added the rejected nested start-session, which shows the process group that the outer stop cannot reach."
       }
     ]
   },
@@ -68,14 +69,14 @@
       "group": "processes",
       "title": "The CLI acts and the worker computes",
       "source": "processes.mmd",
-      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment, holds credentials, sends HTTP requests and launches jobs. A reader thread does its filesystem work, so the runtime keeps watching the deadline. The worker runs the Rhai script and asks for each host capability over fd 3. The launch after the reap is in the sequence view."
+      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment and launches jobs. A reader thread does its filesystem work, so the runtime keeps watching the deadline. The worker runs the Rhai script and asks for each host capability over fd 3. Ravel holds no model credential: a harness run reaches the model service with the owner's own sign-in. The launch after the reap is in the sequence view."
     },
     {
       "id": "evaluation-sequence",
       "group": "evaluation",
       "title": "One LLM-assisted selection",
       "source": "evaluation-sequence.mmd",
-      "caption": "A policy imports one module, asks a model one question and selects from the answer. The worker is reaped before the managed process launches."
+      "caption": "A policy imports one module, asks Claude Code one question through a harness run and selects from the answer. The worker parses the answer with json_parse and checks its shape with json_check. The run and then the worker are reaped before the managed process launches."
     },
     {
       "id": "evaluation-states",
@@ -89,21 +90,28 @@
       "group": "evaluation",
       "title": "Data or the end of the evaluation",
       "source": "outcomes.mmd",
-      "caption": "The script decides about every operational outcome. The host alone decides about bounds, and the script cannot catch that decision."
+      "caption": "The script decides about every operational outcome, including a failed LLM call. The host alone decides about bounds, and the script cannot catch that decision."
     },
     {
       "id": "stopping-sequence",
       "group": "stopping",
       "title": "A deadline or a signal stops everything",
       "source": "stopping-sequence.mmd",
-      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. The CLI does not wait for a read in progress. A signal that the CLI consumed wins over the deadline at the final read of the latch. A remote provider may still finish a request that it accepted."
+      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. The CLI does not wait for a read in progress. An LLM call stops as any harness run. A signal that the CLI consumed wins over the deadline at the final read of the latch. A model service may still finish a request that it accepted."
     },
     {
       "id": "entry-precedence",
       "group": "configuration",
       "title": "Which policy file Ravel evaluates",
       "source": "entry-precedence.mmd",
-      "caption": "policy.rhai wins when both files exist, so a 1.1.0 session can keep policy.ts during the local upgrade. A lone policy.ts refuses with the migration remedy."
+      "caption": "policy.rhai wins when both files exist, so a 1.1.0 session can keep policy.ts during the local upgrade. A lone policy.ts refuses with the migration remedy. start-session inside a harness run refuses first."
+    },
+    {
+      "id": "rejected-nested-session",
+      "group": "rejected",
+      "title": "Rejected: a nested start-session",
+      "source": "rejected-nested-session.mmd",
+      "caption": "REJECTED. A harness run whose program is ravel would select again in a second Ravel CLI, with budgets of its own. Runner 1 stops only the group of its run. Managed process 2 has a group of its own, and both levels use a kill-grace of 5 s, so an outer KILL can leave claude running. The owner chose a harness run with no re-entry instead."
     }
   ]
 }

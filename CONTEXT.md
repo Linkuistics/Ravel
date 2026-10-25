@@ -56,27 +56,22 @@ capability**. It is not a managed process and receives no session-result
 context.
 
 **Host capability**: An operation that the **Owner policy** asks the **Ravel
-CLI** to perform during evaluation. Examples are a measured read, an **LLM
-call** and a **Harness run**. The Ravel CLI performs it and returns data to the
-policy.
+CLI** to perform during evaluation. Examples are a measured read and a **Harness
+run**. The Ravel CLI performs it and returns data to the policy.
 _Avoid_: host binding, SDK function
 
-**LLM endpoint**: An owner-configured connection to an LLM service, with a
-name, an API type, a base URL and the source of its credential. The **Owner
-policy** names it in an **LLM call**, and no **Host capability** gives the
-policy its credential.
-_Avoid_: provider, model service, backend
-
-**LLM call**: One request that the **Owner policy** sends to a model through an
-**LLM endpoint**, and the response to it. It runs no **Harness**.
+**LLM call**: A **Harness run** in which the **Owner policy** asks a model one
+question and reads the answer as data. The **Harness** signs in with the
+**Owner**'s own sign-in, and Ravel holds no model credential.
+_Avoid_: API call, completion request, LLM endpoint
 
 **Provider**: The owner's label for the origin of the model that a selection
 runs, such as `anthropic`. Ravel reports it unchanged and never connects to it.
-_Avoid_: LLM endpoint, vendor
+_Avoid_: vendor
 
 **Evaluation budget**: A limit that the **Owner** sets for one **Session** on
-**Host capabilities**, such as the number of **LLM calls** or **Harness runs**.
-The **Owner policy** cannot raise it or catch its exhaustion.
+**Host capabilities**, such as the number of **Harness runs**. The **Owner
+policy** cannot raise it or catch its exhaustion.
 _Avoid_: quota
 
 **Ravel CLI**: The Rust `ravel` command-line program. During
@@ -140,11 +135,9 @@ the **Owner policy** or its **Policy worker**.
   file, through which `end-session` sends the result. It uses the runner's
   completion channel, which only signals that a file appeared.
 - **"Worker"** means the **Policy worker** process, never a thread.
-- **"Provider"** means only the owner's model-origin label in a selection. Rig
-  calls the LLM service a provider. In Ravel, that service is an **LLM
-  endpoint**.
-- **"Endpoint"** alone means an **LLM endpoint**, never one HTTP path of that
-  service.
+- **"Provider"** means only the owner's model-origin label in a selection.
+- **"LLM call"** means a **Harness run** that asks a model a question. Ravel
+  sends no request to a model service itself.
 - **"Policy"** means the **Owner policy**, never a security or sandbox policy.
   A restriction on a **Managed process** is confinement.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
@@ -162,7 +155,7 @@ the session-result context.”
 
 Owner: “Can my policy ask a model which harness to use for a task?”
 
-Ravel maintainer: “Yes. The policy makes an LLM call through an LLM endpoint
-that your settings name, and it reads the answer as data. No host capability
-gives the policy worker the credential. The provider in the selection stays
-your own label.”
+Ravel maintainer: “Yes. The policy makes an LLM call: a harness run of Claude
+Code or Codex, which your settings name. The harness signs in with your own
+sign-in, and the policy reads the answer as data. Ravel never holds the
+credential. The provider in the selection stays your own label.”

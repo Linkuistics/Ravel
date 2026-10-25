@@ -3,14 +3,17 @@
 ## Goal
 
 Replace Ravel's TypeScript owner policy with embedded Rhai scripts, as GitHub
-issue 2 asks. Rhai scripts get generic LLM access through Rig, and Ravel keeps
-execution authority. The work ends with the Ravel 2.0.0 release and the owner's
+issue 2 asks. Rhai scripts ask a model through a harness run of Claude Code or
+Codex, with the owner's own sign-in, and Ravel keeps execution authority. The
+owner amended issue 2 for that in `llm-calls-through-harnesses-k58`, and Ravel
+no longer uses Rig. The work ends with the Ravel 2.0.0 release and the owner's
 local upgrade.
 
 ## Done when
 
-- Every acceptance criterion in issue 2 holds, and tests through the agreed
-  seam prove each one.
+- Every acceptance criterion in issue 2 holds, as the owner amended it, and
+  tests through the agreed seam prove each one. The amendment is a comment on
+  the issue and the running log of `llm-calls-through-harnesses-k58`.
 - Rhai is the only format of owner policy. The Bun policy worker, the
   TypeScript SDK, their declarations, and their build and release steps are
   gone.
@@ -32,10 +35,12 @@ local upgrade.
     worker safe against a hostile script.
   - `rhai-local-capabilities` adds reads, imports, `load_context`, the data
     helpers, the three settings keys and discovery.
-  - `rhai-llm-calls` adds `ravel::llm` for three API types, with bounds,
-    budgets, structured output and the Rig upgrade proof.
-  - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal and the
-    ordered stop.
+  - `rhai-llm-calls` built `ravel::llm` through Rig. The design leaf
+    `llm-calls-through-harnesses-k58` then moved every LLM call to a harness
+    run. The node now removes `ravel::llm`, Rig and the endpoint settings, and
+    it keeps the schema check as `ravel::json_check`.
+  - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal, the
+    ordered stop and the smoke tasks for a real LLM call through each harness.
   - `rhai-example-policies` translates the example policies and proves their
     equivalence with the TypeScript originals.
   - `rhai-book-use` revises Parts I and II of the book and adds the migration
@@ -57,16 +62,16 @@ design needs the settled requirements.
   with `grove-llm resolve plan-k1`.
 - ADRs in play: `owner-policy-is-a-rhai-script`,
   `policy-evaluation-precedes-the-launch`,
-  `owner-settings-name-the-llm-endpoints`, `ravel-supervises-the-session` and
-  `the-launched-child-is-a-job`.
+  `a-policy-asks-a-model-through-a-harness-run`, `ravel-supervises-the-session`
+  and `the-launched-child-is-a-job`.
 - Specs in play: `policy-evaluation`, which is the 2.0.0 design, and
   `session-execution` and `result-job-completion`.
 - Glossary terms in play: Owner policy, Policy worker, Host capability, LLM
-  endpoint, LLM call and Provider. Also Harness run, Evaluation budget, Policy
-  context, Harness, Refusal, Caller and Owner. See `CONTEXT.md`.
+  call and Provider. Also Harness run, Evaluation budget, Policy context,
+  Harness, Refusal, Caller and Owner. See `CONTEXT.md`.
 - `task docs:rhai-policy` serves the design views in `docs/design/rhai-policy/`.
 - The test seam: the real `ravel start-session` against a sandbox home. Fake
-  harness scripts and a local fake provider endpoint stand behind it.
+  harness scripts stand behind it, also for an LLM call.
 
 ## On the horizon
 

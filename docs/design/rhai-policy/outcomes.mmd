@@ -10,7 +10,7 @@ flowchart TD
   start --> wellformed
   wellformed -->|"no: host_request_invalid"| endeval
   wellformed -->|yes| bound
-  bound -->|"yes: llm_budget_exhausted · selection_timeout · source_too_large"| endeval
+  bound -->|"yes: harness_budget_exhausted · selection_timeout · source_too_large"| endeval
   bound -->|no| run
   run --> ok
   run --> fail

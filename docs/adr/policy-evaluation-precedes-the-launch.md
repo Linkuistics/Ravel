@@ -4,8 +4,8 @@ Ravel evaluates the owner policy in a policy worker: a separate process that
 Ravel reaps before the selected process launches. The worker is Ravel's own
 binary in an internal role, and it runs the Rhai script. It only computes. The
 Ravel CLI performs every host capability for it: measured reads, the
-environment, LLM calls through Rig and harness runs through the runner. Owner
-policy never executes inside the process that supervises the session.
+environment and harness runs through the runner. An LLM call is a harness run.
+Owner policy never executes inside the process that supervises the session.
 
 The [policy evaluation specification](../specs/policy-evaluation.md) owns the
 protocol, the capabilities and the bounds. The ordering of worker and job stays
@@ -33,5 +33,5 @@ thread.
 The design also rejected two other shapes. A second binary under `libexec`
 needs a pairing check and a second installed file, and its isolation is no
 better than re-execution. Host capabilities inside the worker would let a kill
-of the worker orphan harness jobs and HTTP requests. The worker would also hold
-the credentials.
+of the worker orphan harness jobs. The worker would also hold the caller's
+environment and its files.

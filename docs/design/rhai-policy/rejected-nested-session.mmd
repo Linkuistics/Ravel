@@ -1,0 +1,23 @@
+flowchart TB
+  start["Start here — REJECTED: a nested start-session inside a harness run"]
+  subgraph cli1["Ravel CLI 1 — the outer evaluation"]
+    direction TB
+    w1["Worker 1<br/>ravel::run_harness with program ravel"]
+    r1["Runner 1<br/>stops only the group of its run"]
+  end
+  subgraph g1["Process group of the harness run"]
+    cli2["Ravel CLI 2 — a second evaluation<br/>budgets and deadline of its own<br/>the ravel on PATH, maybe 1.1.0"]
+  end
+  subgraph g2["Process group of managed process 2"]
+    claude["claude -p<br/>the owner's sign-in"]
+  end
+  start --> w1
+  w1 -->|"1 · host call"| r1
+  r1 -->|"2 · launch"| cli2
+  cli2 -->|"3 · select and launch"| claude
+  r1 -.->|"4 · stop: TERM, then KILL after 5 s"| cli2
+  cli2 -.->|"5 · its own teardown also needs up to 5 s"| claude
+  classDef start fill:#20344d,color:#fff,stroke:#20344d,font-weight:bold
+  classDef rejected fill:#fbe3e1,color:#5a1d17,stroke:#b4473b
+  class start start
+  class cli2,claude rejected
