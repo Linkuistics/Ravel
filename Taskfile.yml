@@ -278,6 +278,11 @@ tasks:
     cmds:
       - cargo nextest run --locked -p ravel --test hostile {{.CLI_ARGS}}
 
+  rhai:upgrade-proof:
+    desc: Prove a Rhai upgrade. Print the pin, run the rhai_* engine tests, then each hostile class in a fixed order, and fail on a missing or empty target
+    cmds:
+      - bash scripts/rhai-upgrade-proof.sh
+
   install:
     desc: Install and verify the matched pair and SDK under PREFIX (default ~/.local)
     silent: true
