@@ -21,6 +21,7 @@ mod program;
 mod refusal;
 mod rhai_worker;
 mod run;
+mod schema;
 mod settings;
 mod signal_state;
 mod worker;

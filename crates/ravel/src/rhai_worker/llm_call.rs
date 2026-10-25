@@ -25,8 +25,8 @@ use serde_json::{Value, json};
 
 use super::bridge::{Bridge, Outcome};
 use super::convert::{from_json, to_json};
-use crate::llm::schema::Schema;
 use crate::llm::{Failure, Message, Reasoning, Request, Response, Role, Usage};
+use crate::schema::Schema;
 
 /// The `maxTokens` of a request that names none.
 const DEFAULT_MAX_TOKENS: i64 = 1024;

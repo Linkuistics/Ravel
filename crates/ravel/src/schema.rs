@@ -1,10 +1,9 @@
-//! The schema subset of structured output and the check of an answer against it
-//! (`docs/specs/policy-evaluation.md`, *LLM calls*).
+//! The schema subset and the check of a value against it
+//! (`docs/specs/policy-evaluation.md`, *Data helpers*).
 //!
-//! A [`Schema`] keeps the JSON that the script wrote, because Rig rewrites the
-//! schema on each wire and the adapter sends it as written. It also keeps a
-//! tree of the keywords that Ravel checks. The answer is checked against that
-//! tree, never against the rewritten schema of Rig.
+//! A [`Schema`] keeps the JSON that the script wrote, and a tree of the keywords
+//! that Ravel checks. `ravel::json_check` and `ravel::llm` both check a value
+//! against that tree. This module depends on neither of them.
 //!
 //! The subset has `type`, `properties`, `required`, `additionalProperties`,
 //! `items`, `enum`, `title` and `description`. A schema checks shape only. The
@@ -14,14 +13,12 @@
 
 use serde_json::{Map, Value};
 
-use crate::rhai_worker::convert;
-
 /// The deepest nesting of schemas: the root is level 1, and each `properties`
 /// member or `items` schema is one level more.
 pub const MAX_LEVELS: usize = 32;
 
-/// The longest key that a message shows. A key of an answer is the endpoint's
-/// text, so a message cuts it.
+/// The longest key that a message shows. A key of the checked value is the
+/// caller's text, so a message cuts it.
 const SHOWN_KEY: usize = 64;
 
 /// A schema the subset rejects, with where it is and why.
@@ -121,32 +118,19 @@ impl Schema {
         })
     }
 
-    /// The schema as the `output_schema` of a Rig request.
-    pub fn to_rig(&self) -> rig_core::schemars::Schema {
-        rig_core::schemars::Schema::try_from(self.raw.clone())
-            .expect("a checked schema is a JSON object")
+    /// The JSON that the script wrote.
+    pub fn raw(&self) -> &Value {
+        &self.raw
     }
 
-    /// Parse the whole answer, trimmed, as JSON and check it against the
-    /// schema. The error says where the answer departs, in the style of the
-    /// converter, such as `json.items[2].name`.
-    pub fn check(&self, answer: &str) -> Result<Value, String> {
-        let value: Value = serde_json::from_str(answer.trim())
-            .map_err(|error| format!("the answer is not JSON: {error}"))?;
-        // The reply to the worker nests the value three levels down, and the
-        // worker reads no frame past the depth of its converter.
-        convert::check_depth(&value, "json").map_err(|refused| {
-            format!(
-                "the answer nests deeper than {} levels, at {}",
-                convert::MAX_DEPTH,
-                refused.path
-            )
-        })?;
-        let mut path = String::from("json");
-        match self.root.check(&value, &mut path) {
-            Ok(()) => Ok(value),
-            Err(why) => Err(format!("the answer does not match the schema: {why}")),
-        }
+    /// Check `value` against the schema. The error says where the value
+    /// departs and why, in the style of the converter, such as
+    /// `value.items[2].name: expected string, found integer`. `root` names the
+    /// value in a location. The error holds the kind of a value, never a part
+    /// of it, except the keys in the location.
+    pub fn check(&self, value: &Value, root: &str) -> Result<(), String> {
+        let mut path = String::from(root);
+        self.root.check(value, &mut path)
     }
 }
 

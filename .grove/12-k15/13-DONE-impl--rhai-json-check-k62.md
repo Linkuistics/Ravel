@@ -27,3 +27,12 @@ Add the data helper `ravel::json_check` to the worker. A policy checks a parsed 
 - Port the cases of `tests/rhai_llm_schema.rs` that test the checker. Leave the cases about the place of the schema in a request body. The next leaf removes them with `ravel::llm`.
 - Do not remove `ravel::llm`, its budgets or its endpoints here.
 - `docs/book` may quote the moved module. Fix a moved excerpt in this leaf.
+
+## Decisions (running log)
+
+- The checker moved from `crates/ravel/src/llm/schema.rs` to `crates/ravel/src/schema.rs`. It depends on neither Rig nor `ravel::llm`. `Schema::to_rig` and the parse of an answer text stay in `src/llm/mod.rs` as `to_rig` and `check_answer`, because only `ravel::llm` needs them. The shared `Schema::check(value, root)` takes a parsed value and the name of its root.
+- `ravel::json_check` checks the schema first, so a schema outside the subset throws `schema_invalid` whatever the value is. A schema with no JSON form, such as `#{ f: || 1 }`, also throws `schema_invalid` at its path. The spec reserves `json_unencodable` for the value.
+- A mismatch message reads `the value does not match the schema: <location>: <why>`. It holds the kinds of value and the keys of the location, cut at 64 characters. It never holds a value.
+- The new tests are in `tests/rhai_json_check.rs`. The old cases of `tests/rhai_llm_schema.rs` stay untouched for the next leaf to remove with `ravel::llm`.
+- Proof of the controls: with the mismatch check disabled, six of the eleven tests failed. The file is restored.
+- `a_native_call_that_does_not_yield_stops_at_the_deadline` in `tests/rhai_limits.rs` failed in one of four isolated runs, on a wall-clock bound for the `sleep(0)` control. The leaf does not touch it, and `task check` and `task test` passed in full.

@@ -75,7 +75,6 @@
 //! text that this module returns holds it: [`redact`] removes it from every
 //! string of a response and of a failure, whatever the endpoint echoes.
 
-pub mod schema;
 mod shape;
 mod transport;
 
@@ -95,9 +94,11 @@ use rig_core::http_client::Error as HttpError;
 use rig_core::providers::anthropic::AnthropicConfig;
 use rig_core::providers::openai::wire::{Auth, Dialect};
 use rig_core::providers::openai::{OpenAIConfig, Route};
+use serde_json::Value;
 
 use crate::endpoints::{ApiType, Endpoint};
-use schema::Schema;
+use crate::rhai_worker::convert;
+use crate::schema::Schema;
 use transport::{Fault, Transport};
 
 /// The role of a message.
@@ -373,7 +374,7 @@ impl Adapter {
                 // The check reads the redacted text, so the value cannot carry
                 // the credential either.
                 if let Some(schema) = &request.schema {
-                    match schema.check(&response.text) {
+                    match check_answer(schema, &response.text) {
                         Ok(value) => response.json = Some(value),
                         Err(why) => {
                             let mut failure = Failure::new(Code::MalformedResponse, false, why);
@@ -521,8 +522,36 @@ fn rig_request(request: &Request) -> CompletionRequest {
     built.max_tokens = Some(request.max_tokens);
     built.temperature = request.temperature;
     built.options.reasoning = request.reasoning.map(Reasoning::to_rig);
-    built.output_schema = request.schema.as_ref().map(Schema::to_rig);
+    built.output_schema = request.schema.as_ref().map(to_rig);
     built
+}
+
+/// The schema as the `output_schema` of a Rig request. Rig rewrites the schema
+/// on each wire, and the adapter sends it as the script wrote it.
+fn to_rig(schema: &Schema) -> rig_core::schemars::Schema {
+    rig_core::schemars::Schema::try_from(schema.raw().clone())
+        .expect("a checked schema is a JSON object")
+}
+
+/// Parse the whole answer, trimmed, as JSON and check it against the schema of
+/// the script, never against the schema that Rig rewrote. The error says where
+/// the answer departs, such as `json.items[2].name`.
+fn check_answer(schema: &Schema, answer: &str) -> Result<Value, String> {
+    let value: Value = serde_json::from_str(answer.trim())
+        .map_err(|error| format!("the answer is not JSON: {error}"))?;
+    // The reply to the worker nests the value three levels down, and the worker
+    // reads no frame past the depth of its converter.
+    convert::check_depth(&value, "json").map_err(|refused| {
+        format!(
+            "the answer nests deeper than {} levels, at {}",
+            convert::MAX_DEPTH,
+            refused.path
+        )
+    })?;
+    match schema.check(&value, "json") {
+        Ok(()) => Ok(value),
+        Err(why) => Err(format!("the answer does not match the schema: {why}")),
+    }
 }
 
 /// The successful answer, or the failure of an answer that is no answer.

@@ -13,6 +13,7 @@ use rhai::{Dynamic, EvalAltResult, FuncRegistration, Module, NativeCallContext};
 
 use super::bridge::{Bridge, Outcome, thrown};
 use super::convert::{check_depth, from_json, to_json};
+use crate::schema::Schema;
 
 pub(super) fn register(module: &mut Module, bridge: &Rc<Bridge>) {
     let checked = Rc::clone(bridge);
@@ -27,6 +28,12 @@ pub(super) fn register(module: &mut Module, bridge: &Rc<Bridge>) {
         .set_into_module(module, |context: NativeCallContext, value: Dynamic| {
             encode(&context, &value)
         });
+    FuncRegistration::new("json_check").set_into_module(
+        module,
+        |context: NativeCallContext, value: Dynamic, schema: Dynamic| {
+            check(&context, &value, &schema)
+        },
+    );
     FuncRegistration::new("uuid_v4")
         .set_into_module(module, |context: NativeCallContext| uuid_v4(&context));
     let checked = Rc::clone(bridge);
@@ -88,6 +95,35 @@ fn encode(context: &NativeCallContext, value: &Dynamic) -> Outcome<String> {
     let json = to_json(value, "value")
         .map_err(|refused| thrown(context, "json_unencodable", refused.to_string(), None))?;
     Ok(json.to_string())
+}
+
+/// `ravel::json_check`: the value, unchanged, when it matches the schema of the
+/// subset. The schema comes first, so a schema outside the subset throws
+/// whatever the value is. The mismatch message gives the location and the kinds
+/// of value, and no part of the value except the keys in the location.
+fn check(context: &NativeCallContext, value: &Dynamic, schema: &Dynamic) -> Outcome<Dynamic> {
+    let invalid = |path: &str, reason: &str| {
+        thrown(
+            context,
+            "schema_invalid",
+            format!("the schema is outside the subset, at {path}: {reason}"),
+            None,
+        )
+    };
+    let schema =
+        to_json(schema, "schema").map_err(|refused| invalid(&refused.path, &refused.reason))?;
+    let schema = Schema::parse(&schema, "schema").map_err(|why| invalid(&why.path, &why.reason))?;
+    let json = to_json(value, "value")
+        .map_err(|refused| thrown(context, "json_unencodable", refused.to_string(), None))?;
+    schema.check(&json, "value").map_err(|why| {
+        thrown(
+            context,
+            "json_mismatch",
+            format!("the value does not match the schema: {why}"),
+            None,
+        )
+    })?;
+    Ok(value.clone())
 }
 
 /// `ravel::uuid_v4`: 122 random bits from the operating system, with the version
