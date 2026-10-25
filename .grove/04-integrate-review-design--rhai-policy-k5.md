@@ -27,4 +27,4 @@ Ravel 2.0.0 policy design before planning consumes it.
 ## Notes
 
 The review is evidence to triage, not a prescribed fix list. Read its committed
-artifact through the handle above; do not treat its conclusions as requirements.
+artifact through the handle above. Do not treat its conclusions as requirements.
