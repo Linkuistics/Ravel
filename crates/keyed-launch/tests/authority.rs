@@ -33,7 +33,9 @@ fn direct_helpers_remove_old_and_new_authority_but_keep_fixture_inputs() {
             "direct helper inherited {name}"
         );
     }
-    assert!(environment
-        .lines()
-        .any(|line| line == "RUNNER_FIXTURE_INPUT=keep"));
+    assert!(
+        environment
+            .lines()
+            .any(|line| line == "RUNNER_FIXTURE_INPUT=keep")
+    );
 }

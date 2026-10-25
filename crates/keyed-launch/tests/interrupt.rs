@@ -18,7 +18,7 @@ use std::path::Path;
 use std::time::Duration;
 
 use keyed_launch::{
-    run, run_observed, take_interrupt, Argv, Channel, End, Escalation, Launch, LaunchEvent,
+    Argv, Channel, End, Escalation, Launch, LaunchEvent, run, run_observed, take_interrupt,
 };
 use tempfile::TempDir;
 

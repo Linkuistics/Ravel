@@ -23,7 +23,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
 use std::time::{Duration, Instant};
 
-use keyed_launch::{run, Argv, Channel, End, EntrySignals, Escalation, Group, Launch};
+use keyed_launch::{Argv, Channel, End, EntrySignals, Escalation, Group, Launch, run};
 use tempfile::TempDir;
 
 // ---------------------------------------------------------------------------

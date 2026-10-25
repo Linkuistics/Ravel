@@ -339,7 +339,10 @@ pub(super) fn fixture_cleanup(child: &mut Child, product: &Teardown) {
     if !injected() {
         return;
     }
-    eprintln!("native worker product observation before fixture cleanup: pid={} status={:?} stops_failed={} reports={:?}", product.pid, product.status, product.stop_failed, product.reports);
+    eprintln!(
+        "native worker product observation before fixture cleanup: pid={} status={:?} stops_failed={} reports={:?}",
+        product.pid, product.status, product.stop_failed, product.reports
+    );
     // The fixture alone retains a physical Child handle; substituted ECHILD
     // never released that actual reservation. No product ownership is restored.
     let until = Instant::now() + Duration::from_secs(2);
@@ -592,11 +595,11 @@ pub(crate) fn e08_worker() -> ! {
     read_frame(&mut channel, 1_048_576).unwrap();
     println!("owner stdout");
     eprintln!("owner stderr");
-    if let Some(socket) = std::env::var_os("K28_E08_HOLDER") {
-        if let Err(error) = crate::native_barrier::send_descriptor(Path::new(&socket), 1) {
-            eprintln!("e08 worker: holder handoff failed: {error}");
-            std::process::exit(70);
-        }
+    if let Some(socket) = std::env::var_os("K28_E08_HOLDER")
+        && let Err(error) = crate::native_barrier::send_descriptor(Path::new(&socket), 1)
+    {
+        eprintln!("e08 worker: holder handoff failed: {error}");
+        std::process::exit(70);
     }
     write_frame(
         &mut channel,

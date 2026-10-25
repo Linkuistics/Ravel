@@ -25,11 +25,11 @@ mod worker;
 use std::ffi::OsString;
 use std::process::ExitCode;
 
-use clap::error::{ContextKind, ContextValue, ErrorKind};
 use clap::Parser as _;
+use clap::error::{ContextKind, ContextValue, ErrorKind};
 
 use crate::cli::{Cli, Command};
-use crate::refusal::{Failure, Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Failure, Refusal, Stage};
 
 fn main() -> ExitCode {
     #[cfg(test)]

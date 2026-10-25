@@ -473,7 +473,9 @@ fn check_wait_failure(poll_failed: bool, reap_failed: bool) {
         want.push("recover");
         assert_eq!(*trace.borrow(), want);
         assert_eq!(error.raw_os_error(), None);
-        eprintln!("checked poll_failed={poll_failed} reap_failed={reap_failed} early={early:?} at_reap={at_reap:?} retained={expected:?}; diagnostics, receipt, ordering and drained latch asserted");
+        eprintln!(
+            "checked poll_failed={poll_failed} reap_failed={reap_failed} early={early:?} at_reap={at_reap:?} retained={expected:?}; diagnostics, receipt, ordering and drained latch asserted"
+        );
     }
 }
 
@@ -515,16 +517,20 @@ fn cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separat
             let late = take_interrupt();
             assert_eq!(error.consumed_signal(), early);
             assert_eq!(late, Some(libc::SIGTERM));
-            assert!(error
-                .to_string()
-                .contains("reported terminal recovery failure"));
+            assert!(
+                error
+                    .to_string()
+                    .contains("reported terminal recovery failure")
+            );
             if failed_watch {
                 assert!(error.to_string().contains("injected wait failure"));
             }
             assert!(!trace.borrow().contains(&"confirm"));
             assert_eq!(trace.borrow().last(), Some(&"recover"));
             assert_eq!(trace.borrow().contains(&"reaped"), !failed_reap);
-            eprintln!("checked reported recovery error: observation_failed={failed_watch} reap_failed={failed_reap} early={early:?}; retained observation and late TERM asserted");
+            eprintln!(
+                "checked reported recovery error: observation_failed={failed_watch} reap_failed={failed_reap} early={early:?}; retained observation and late TERM asserted"
+            );
         }
     }
 }

@@ -10,9 +10,9 @@ use crate::cli::SelectionArgs;
 use crate::context::{self, Delivered, SourceBreach};
 use crate::inputs::Inputs;
 use crate::limits::{Limits, Origin};
-use crate::policy::{self, Command, Policy, Validator, SCHEMA_VERSION};
+use crate::policy::{self, Command, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
-use crate::refusal::{Diagnostics, Failure, Refusal, Stage, EXIT_REFUSED};
+use crate::refusal::{Diagnostics, EXIT_REFUSED, Failure, Refusal, Stage};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 

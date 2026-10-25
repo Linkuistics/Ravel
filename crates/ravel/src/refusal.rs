@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 
 use crate::cancellation::Signal;
 use crate::limits::Bound;

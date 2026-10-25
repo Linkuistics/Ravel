@@ -45,9 +45,9 @@ mod native_hooks;
 mod run;
 
 pub use argv::Argv;
-pub use channel::{signal, Channel};
+pub use channel::{Channel, signal};
 pub use confinement::{
-    confinement_available, confinement_system_reads, regular_file_at, FilesystemGrants,
+    FilesystemGrants, confinement_available, confinement_system_reads, regular_file_at,
 };
 pub use error::LaunchError;
 /// Private fixture seam: absent unless the `native-faults` feature is enabled,
@@ -55,7 +55,7 @@ pub use error::LaunchError;
 #[cfg(feature = "native-faults")]
 pub use native_hooks::native_fault_select;
 pub use run::{
+    End, Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
     reraise, run, run_confined_observed, run_confined_observed_with_start_check,
-    run_noninteractive, run_observed, run_observed_with_start_check, take_interrupt, End, Ended,
-    EntrySignals, Escalation, Group, Launch, LaunchEvent, NoninteractiveLaunch,
+    run_noninteractive, run_observed, run_observed_with_start_check, take_interrupt,
 };

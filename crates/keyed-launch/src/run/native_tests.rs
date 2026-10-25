@@ -2,7 +2,7 @@
 use super::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU8};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU32};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum Fault {
@@ -317,7 +317,9 @@ fn settle(fault: Fault, broken: Broken) -> Settled {
     let released_attempts = state.borrow().control.released_attempts.len();
     let actual_reap = state.borrow().reaped;
     let cleanup = fixture.cleanup();
-    eprintln!("native settlement fault={fault:?} broken={broken:?} elapsed={elapsed:?} product_released={released} actual_reap={actual_reap:?} events={events:?} fixture_cleanup={cleanup:?} released_attempts={released_attempts} error={error}\nphysical={physical:#?}");
+    eprintln!(
+        "native settlement fault={fault:?} broken={broken:?} elapsed={elapsed:?} product_released={released} actual_reap={actual_reap:?} events={events:?} fixture_cleanup={cleanup:?} released_attempts={released_attempts} error={error}\nphysical={physical:#?}"
+    );
     cleanup.expect("fixture ownership must settle on every row");
     Settled {
         message: error.to_string(),
@@ -793,7 +795,9 @@ fn e07_row(first: i32, second: i32, error: bool, broken: &str) -> E07 {
         row.reported.push(error);
     }
     row.outcome = std::fs::read_to_string(&out).unwrap_or_default();
-    eprintln!("native E07 first={first} second={second} error={error} broken={broken}: {row:?} {settlement:?}");
+    eprintln!(
+        "native E07 first={first} second={second} error={error} broken={broken}: {row:?} {settlement:?}"
+    );
     row
 }
 
@@ -1673,9 +1677,11 @@ fn native_row_record_is_write_once_read_only_and_names_its_verdict() {
         second.unwrap_err().kind(),
         std::io::ErrorKind::AlreadyExists
     );
-    assert!(std::fs::read_to_string(&path)
-        .unwrap()
-        .contains("\"conforms\":true"));
+    assert!(
+        std::fs::read_to_string(&path)
+            .unwrap()
+            .contains("\"conforms\":true")
+    );
     // A different subject of the same row is a different record.
     crate::native_barrier::record_row(at, "E01__signal=INT", "broken:capture", false, "").unwrap();
 }

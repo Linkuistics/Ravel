@@ -4,8 +4,8 @@
 //!
 //! The harness is to receive the signal mask, and every disposition that
 //! survives exec, exactly as this process inherited them. Two facts of Rust's
-//! standard library stand in the way, and both hold in 1.85.0, the workspace's
-//! minimum, and in 1.98.1:
+//! standard library stand in the way, and both hold in 1.85.0, in 1.98.1 and in
+//! 1.99.1, the workspace's minimum:
 //!
 //! - Before `main`, `lang_start` runs `sys::init`, whose `reset_sigpipe` sets
 //!   SIGPIPE to ignored unless the unstable `-Zon-broken-pipe` is used
@@ -14,7 +14,7 @@
 //! - A spawn with a `pre_exec` closure forks and runs `do_exec` in the child.
 //!   It keeps the calling thread's mask, sets SIGPIPE to default, and only
 //!   then runs the `pre_exec` closures before `execvp` (1.85.0:
-//!   `library/std/src/sys/pal/unix/process/process_unix.rs`; 1.98.1:
+//!   `library/std/src/sys/pal/unix/process/process_unix.rs`; 1.98.1 and 1.99.1:
 //!   `library/std/src/sys/process/unix/unix.rs`). Nothing before those
 //!   closures can restore SIGPIPE.
 //!
@@ -31,7 +31,7 @@ use std::io;
 use std::ptr;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicU64, Ordering};
 
-use crate::refusal::{Refusal, Stage, EXIT_WORKER};
+use crate::refusal::{EXIT_WORKER, Refusal, Stage};
 
 /// Target signal domain: 1..=31 on Darwin, 1..=64 on Linux, excluding glibc's
 /// reserved 32/33. Required queries inside this domain must succeed; Darwin's

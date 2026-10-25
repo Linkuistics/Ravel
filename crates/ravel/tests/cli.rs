@@ -658,7 +658,9 @@ select() {{ return {{ status: "selected", program: {:?}, args: [], provider: "fi
         );
         assert_eq!(after.c_lflag & !libc::PENDIN, saved.c_lflag & !libc::PENDIN);
         assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
-        eprintln!("C4 public CLI {name}: real TypeScript policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed");
+        eprintln!(
+            "C4 public CLI {name}: real TypeScript policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed"
+        );
     }
     assert_eq!(unsafe { libc::close(tty) }, 0);
 }

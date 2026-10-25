@@ -23,7 +23,7 @@ checkout.
 ## Prepare a checkout
 
 The checkout needs tools that an installed Ravel does not need. The build uses
-a C linker and Rust 1.85 or later. On macOS, the Command Line Tools supply the
+a C linker and Rust 1.99.1 or later. On macOS, the Command Line Tools supply the
 linker. On Linux, the system development tools supply it.
 The table shows which part of the workflow needs each prerequisite.
 

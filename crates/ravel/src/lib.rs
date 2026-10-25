@@ -3,7 +3,7 @@
 mod completion;
 
 pub use completion::{
-    end_session, publish_result, SessionChannel, EXIT_FILE_VARIABLE, MAX_RESULT_BYTES,
+    EXIT_FILE_VARIABLE, MAX_RESULT_BYTES, SessionChannel, end_session, publish_result,
 };
 
 #[cfg(test)]

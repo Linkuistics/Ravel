@@ -11,7 +11,7 @@ use clap::Parser as _;
 use keyed_launch::{Ended, EntrySignals, LaunchEvent};
 
 use crate::native_barrier::{Controller, Limits, Settlement};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
 pub(crate) mod faults;
@@ -338,7 +338,10 @@ pub(crate) fn run_role() {
     fs::write(&policy, format!("export const policy={{schemaVersion:2,version:'native-entry',select(){{return {selected};}}}};" )).unwrap();
     // Only the fake managed process receives this marker. Worker environment
     // scrubbing remains the product's real implementation.
-    std::env::set_var("K28_ENTRY_JOB", "1");
+    // SAFETY: this role process has started no thread of its own by now, so
+    // nothing reads or writes the environment while `set_var` runs.
+    // https://doc.rust-lang.org/std/env/fn.set_var.html
+    unsafe { std::env::set_var("K28_ENTRY_JOB", "1") };
     let cli = crate::cli::Cli::try_parse_from([
         "ravel",
         "start-session",
@@ -745,7 +748,11 @@ fn case(case: Value, broken: &str) -> bool {
     let outcome = read_json(directory.path().join("outcome.json"));
     let result = fs::read(directory.path().join("result-output")).unwrap();
     let log = fs::read_to_string(stderr).unwrap();
-    eprintln!("native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}", status.into_raw(), at);
+    eprintln!(
+        "native entry case={case} broken={broken} raw_wait={} elapsed={:?} launcher={launcher} worker={worker:?} managed={managed:?} ending={ending:?} outcome={outcome:?} result={result:?}\n{log}",
+        status.into_raw(),
+        at
+    );
     assert_eq!(launcher["recorded"], true);
     assert_eq!(
         launcher["capturingThread"], launcher["currentThread"],
@@ -888,7 +895,10 @@ fn native_e03_both_real_waits_survive_ignored_sigchld_entry() {
             LAST_RAW_CHLD_FLAGS.get() & libc::SA_NOCLDWAIT == 0
         };
         assert_eq!(mutant, already_waitable);
-        eprintln!("E03 skip-repair mutant conformance={mutant}; raw no-child-wait present={}; private E04 is the independent repair control", !already_waitable);
+        eprintln!(
+            "E03 skip-repair mutant conformance={mutant}; raw no-child-wait present={}; private E04 is the independent repair control",
+            !already_waitable
+        );
     }
 }
 #[test]

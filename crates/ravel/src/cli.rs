@@ -1,5 +1,5 @@
 //! Ravel's two public verbs. Result stdout is an opaque byte stream.
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 use clap::{Args, Parser, Subcommand};
 use std::ffi::OsString;
 use std::path::PathBuf;

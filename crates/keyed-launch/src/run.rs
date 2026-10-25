@@ -998,7 +998,12 @@ impl Lease {
                 append_recovery(&mut reports, error);
             }
         } else if (failed_spawn || status.is_none()) && holder != own && !uncertainty_dropped {
-            append_recovery(&mut reports, LaunchError::new(format!("terminal held by unrelated foreground group {holder}; preserved; foreground and saved-mode recovery unconfirmed")));
+            append_recovery(
+                &mut reports,
+                LaunchError::new(format!(
+                    "terminal held by unrelated foreground group {holder}; preserved; foreground and saved-mode recovery unconfirmed"
+                )),
+            );
         }
         let after = terminal.foreground();
         let query = if after == -1 {
@@ -1708,9 +1713,12 @@ impl Process for OwnedChild {
         loop {
             if Instant::now() >= by {
                 self.reserved = false;
-                return Err(std::io::Error::new(std::io::ErrorKind::TimedOut, format!(
-                    "child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno {first:?}, retries {retries}"
-                )));
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::TimedOut,
+                    format!(
+                        "child reap deadline expired; ownership released, physical reap unconfirmed; first wait errno {first:?}, retries {retries}"
+                    ),
+                ));
             }
             let mut raw = 0;
             // WNOWAIT observation reserved the PID; only this owner reaps it.
@@ -1724,7 +1732,9 @@ impl Process for OwnedChild {
                 let status = ExitStatus::from_raw(raw);
                 self.reaped = Some(status);
                 return match first {
-                    Some(errno) => Err(std::io::Error::other(format!("wait recovered after errno {errno}; retries {retries}; actual reap confirmed"))),
+                    Some(errno) => Err(std::io::Error::other(format!(
+                        "wait recovered after errno {errno}; retries {retries}; actual reap confirmed"
+                    ))),
                     None => Ok(status),
                 };
             }
@@ -1738,7 +1748,9 @@ impl Process for OwnedChild {
                 let guard_broken = false;
                 if error.raw_os_error() == Some(libc::ECHILD) && !guard_broken {
                     self.reserved = false;
-                    return Err(std::io::Error::other(format!("wait lost ownership: {error}; first wait errno {first:?}, retries {retries}; reap unconfirmed")));
+                    return Err(std::io::Error::other(format!(
+                        "wait lost ownership: {error}; first wait errno {first:?}, retries {retries}; reap unconfirmed"
+                    )));
                 }
             }
             std::thread::sleep(
@@ -2044,17 +2056,16 @@ fn watch(
     let mut escalated = false;
 
     loop {
-        if let Watch::Killed(by) = watch {
-            if Instant::now() >= by {
-                return Err(error_settlement(
-                    child,
-                    LaunchError::new("post-SIGKILL deadline expired")
-                        .with_consumed_signal(interrupted),
-                    by,
-                    false,
-                    observer,
-                ));
-            }
+        if let Watch::Killed(by) = watch
+            && Instant::now() >= by
+        {
+            return Err(error_settlement(
+                child,
+                LaunchError::new("post-SIGKILL deadline expired").with_consumed_signal(interrupted),
+                by,
+                false,
+                observer,
+            ));
         }
         lend();
 
@@ -2067,21 +2078,21 @@ fn watch(
         let retake = native_tests::first_latch_broken("guard");
         #[cfg(not(test))]
         let retake = false;
-        if interrupted.is_none() || retake {
-            if let Some(signal) = take_interrupt() {
-                interrupted = Some(signal);
-                #[cfg(test)]
-                native_tests::first_consumed(signal);
-                if mode == Mode::Confined {
-                    child.signal(libc::SIGKILL);
-                    let by = Instant::now() + ERROR_SETTLEMENT;
-                    child.bound(by);
-                    watch = Watch::Killed(by);
-                } else {
-                    child.signal(signal);
-                    if matches!(watch, Watch::Running | Watch::Signalled(_)) {
-                        watch = Watch::Terminated(Instant::now());
-                    }
+        if (interrupted.is_none() || retake)
+            && let Some(signal) = take_interrupt()
+        {
+            interrupted = Some(signal);
+            #[cfg(test)]
+            native_tests::first_consumed(signal);
+            if mode == Mode::Confined {
+                child.signal(libc::SIGKILL);
+                let by = Instant::now() + ERROR_SETTLEMENT;
+                child.bound(by);
+                watch = Watch::Killed(by);
+            } else {
+                child.signal(signal);
+                if matches!(watch, Watch::Running | Watch::Signalled(_)) {
+                    watch = Watch::Terminated(Instant::now());
                 }
             }
         }
@@ -2195,7 +2206,7 @@ fn watch(
                 )
                 .with_consumed_signal(interrupted),
                 status,
-            })
+            });
         }
     };
     Ok(Watched {

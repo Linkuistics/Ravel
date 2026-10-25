@@ -5,11 +5,12 @@ resolver = "2"
 
 [workspace.package]
 version = "1.1.0"
-edition = "2021"
+edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/Linkuistics/Ravel"
-# Retain the source project's supported Rust floor during extraction.
-rust-version = "1.85"
+# The newest stable release when the policy design was written. Rig 0.45.0 needs
+# 1.97.1 and edition 2024. rust-toolchain.toml names the same release.
+rust-version = "1.99.1"
 
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }

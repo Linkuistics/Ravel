@@ -6,11 +6,11 @@ use std::io::Read as _;
 use std::os::unix::fs::OpenOptionsExt as _;
 use std::path::Path;
 
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 use sha2::{Digest as _, Sha256};
 
-use crate::limits::{Bound, Limits, Origin, CONTEXT_MAX_BYTES, SOURCE_DEFAULT_BYTES};
-use crate::refusal::{Refusal, Stage, EXIT_REFUSED};
+use crate::limits::{Bound, CONTEXT_MAX_BYTES, Limits, Origin, SOURCE_DEFAULT_BYTES};
+use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
 /// A version-1 context's fields; the delivered context adds `measured`.
 const FIELDS: [&str; 6] = [
@@ -464,7 +464,7 @@ impl<'a> Shape<'a> {
                         "`schemaVersion` must be the number 1, found {}",
                         self.describe(schema)
                     ),
-                ))
+                ));
             }
         }
         if let Some(unknown) = context.keys().find(|key| !FIELDS.contains(&key.as_str())) {
@@ -571,16 +571,16 @@ impl<'a> Shape<'a> {
                 ));
             }
         }
-        if let Some(bytes) = fields.get("bytes") {
-            if bytes.as_u64().is_none() {
-                return Err(self.invalid(
-                    &format!("{at}.bytes"),
-                    format!(
-                        "`bytes` must be a whole number of bytes, found {}",
-                        self.describe(bytes)
-                    ),
-                ));
-            }
+        if let Some(bytes) = fields.get("bytes")
+            && bytes.as_u64().is_none()
+        {
+            return Err(self.invalid(
+                &format!("{at}.bytes"),
+                format!(
+                    "`bytes` must be a whole number of bytes, found {}",
+                    self.describe(bytes)
+                ),
+            ));
         }
         if let Some(version) = fields.get("version") {
             self.string(version, &format!("{at}.version"), true)?;

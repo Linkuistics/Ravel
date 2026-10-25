@@ -551,25 +551,25 @@ impl Controller {
             Instant::now()
         };
         let outer_by = self.outer_by();
-        if let Some(child) = self.child.as_mut() {
-            if self.status.is_none() {
-                match Self::reap_by(child, work_by) {
-                    Some(status) => self.status = Some(status),
-                    None => {
-                        self.expired = true;
-                        // The unreaped direct child still reserves its identity
-                        // and its group's: group first, then the child itself.
-                        let pid = child.id() as i32;
-                        // SAFETY: unreaped child; identity reserved.
-                        unsafe {
-                            libc::kill(-pid, libc::SIGKILL);
-                            libc::kill(pid, libc::SIGKILL);
-                        }
-                        self.stopped = true;
-                        match Self::reap_by(child, outer_by) {
-                            Some(status) => self.status = Some(status),
-                            None => self.unresolved.push(format!("fixture pid {pid}")),
-                        }
+        if let Some(child) = self.child.as_mut()
+            && self.status.is_none()
+        {
+            match Self::reap_by(child, work_by) {
+                Some(status) => self.status = Some(status),
+                None => {
+                    self.expired = true;
+                    // The unreaped direct child still reserves its identity
+                    // and its group's: group first, then the child itself.
+                    let pid = child.id() as i32;
+                    // SAFETY: unreaped child; identity reserved.
+                    unsafe {
+                        libc::kill(-pid, libc::SIGKILL);
+                        libc::kill(pid, libc::SIGKILL);
+                    }
+                    self.stopped = true;
+                    match Self::reap_by(child, outer_by) {
+                        Some(status) => self.status = Some(status),
+                        None => self.unresolved.push(format!("fixture pid {pid}")),
                     }
                 }
             }
@@ -699,9 +699,9 @@ pub fn record_row(
 /// Record one judged row when a campaign names a directory; otherwise inert.
 /// Call it before asserting, so a violated claim is recorded as such.
 pub fn row(id: &str, subject: &str, conforms: bool, note: &str) {
-    if let Some(directory) = std::env::var_os(ROW_DIRECTORY_VARIABLE) {
-        if let Err(error) = record_row(Path::new(&directory), id, subject, conforms, note) {
-            panic!("campaign row record {id}@{subject}: {error}");
-        }
+    if let Some(directory) = std::env::var_os(ROW_DIRECTORY_VARIABLE)
+        && let Err(error) = record_row(Path::new(&directory), id, subject, conforms, note)
+    {
+        panic!("campaign row record {id}@{subject}: {error}");
     }
 }

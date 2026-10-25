@@ -10,18 +10,18 @@ use std::os::unix::process::CommandExt as _;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::cancellation;
 use crate::context::Measured;
-use crate::frame::{read_frame, write_frame, FrameError};
+use crate::frame::{FrameError, read_frame, write_frame};
 use crate::limits::{Bound, Limits, SELECTION_MAX_MS};
 use crate::refusal::{
-    Diagnostics, Failure, Refusal, Stage, EXIT_REFUSED, EXIT_TIMEOUT, EXIT_WORKER,
+    Diagnostics, EXIT_REFUSED, EXIT_TIMEOUT, EXIT_WORKER, Failure, Refusal, Stage,
 };
 
 pub const PROTOCOL: u64 = 1;
@@ -570,11 +570,7 @@ pub fn evaluate<T>(
             let dropped = native_tests::drop_wait_reports();
             #[cfg(not(test))]
             let dropped = false;
-            if dropped {
-                Vec::new()
-            } else {
-                stopped.reports
-            }
+            if dropped { Vec::new() } else { stopped.reports }
         },
         stop_failed: stopped.stop_failed,
         directory,
@@ -1057,7 +1053,7 @@ fn child_watching() -> io::Result<()> {
     // F02: the physical query ran; only its report is substituted.
     #[cfg(test)]
     let queried = {
-        use crate::native_entry_tests::faults::{query, Query};
+        use crate::native_entry_tests::faults::{Query, query};
         match query("watch-action-query", queried) {
             Query::Real => queried,
             Query::Substituted => -1,
@@ -1140,8 +1136,13 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
                 ));
             }
             return Stopped {
-                status: Err(io::Error::new(ErrorKind::TimedOut, "worker teardown deadline expired; child ownership released, actual reap unconfirmed")),
-                reports, drain_by, stop_failed,
+                status: Err(io::Error::new(
+                    ErrorKind::TimedOut,
+                    "worker teardown deadline expired; child ownership released, actual reap unconfirmed",
+                )),
+                reports,
+                drain_by,
+                stop_failed,
             };
         }
         #[cfg(not(test))]

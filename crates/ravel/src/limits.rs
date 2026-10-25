@@ -15,9 +15,9 @@
 use std::ffi::OsStr;
 use std::time::Duration;
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 use crate::settings::{self, Settings};
 
 /// The whole-selection bound, in milliseconds: its default and the range an

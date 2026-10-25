@@ -3,7 +3,7 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
-use crate::refusal::{Refusal, Stage, EXIT_REFUSED};
+use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
 /// The personal default, relative to HOME. `XDG_CONFIG_HOME` is deliberately
 /// not consulted: it would be an environment-selected entry.

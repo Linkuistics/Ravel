@@ -1,9 +1,9 @@
 use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt as _;
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 /// The names the owner granted, each once, in the order first given.
 #[derive(Debug, Default)]

@@ -131,7 +131,7 @@ impl Handlers {
             // ran; only its report is substituted.
             #[cfg(test)]
             let queried = if signal == libc::SIGINT {
-                use crate::native_entry_tests::faults::{query, Query};
+                use crate::native_entry_tests::faults::{Query, query};
                 match query("action-query", queried) {
                     Query::Real => queried,
                     Query::Substituted => -1,
@@ -226,7 +226,7 @@ impl Handlers {
         };
         #[cfg(test)]
         let queried = if last {
-            use crate::native_entry_tests::faults::{query, Query};
+            use crate::native_entry_tests::faults::{Query, query};
             match query("pending-query", queried) {
                 Query::Real => queried,
                 Query::Substituted => -1,
@@ -245,7 +245,7 @@ impl Handlers {
             let member = unsafe { libc::sigismember(&pending, number) };
             #[cfg(test)]
             let member = if last && number == libc::SIGTERM {
-                use crate::native_entry_tests::faults::{query, Query};
+                use crate::native_entry_tests::faults::{Query, query};
                 match query("TERM-membership", member) {
                     Query::Real => member,
                     Query::Substituted => -1,
@@ -383,7 +383,9 @@ impl Handlers {
 
     pub fn restore_entry_mask(&mut self) -> io::Result<()> {
         if !self.installed_complete {
-            return Err(io::Error::other("partial signal installation; entry-mask release deferred until the blocked final snapshot"));
+            return Err(io::Error::other(
+                "partial signal installation; entry-mask release deferred until the blocked final snapshot",
+            ));
         }
         self.blocked = false;
         signal_state::restore_mask()

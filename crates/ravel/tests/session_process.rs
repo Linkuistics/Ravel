@@ -4,7 +4,7 @@ use std::process::Command;
 use std::time::Duration;
 
 use keyed_launch::{Argv, End, Escalation, Group, Launch};
-use ravel::{end_session, SessionChannel, EXIT_FILE_VARIABLE};
+use ravel::{EXIT_FILE_VARIABLE, SessionChannel, end_session};
 
 #[path = "../../keyed-launch/tests/support/mod.rs"]
 mod support;

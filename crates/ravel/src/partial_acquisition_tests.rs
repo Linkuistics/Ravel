@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
-use crate::directory_control::{Control, CONTROL};
+use crate::directory_control::{CONTROL, Control};
 
 fn case(role: &str, step: &str, mutation: &str, route: &str) {
     let exe = std::env::current_exe().unwrap();

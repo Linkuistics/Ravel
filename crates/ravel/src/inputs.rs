@@ -14,7 +14,7 @@ use crate::cli::SelectionArgs;
 use crate::context::{self, CallerContext};
 use crate::environment::Grants;
 use crate::limits::Limits;
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED, EXIT_REFUSED};
+use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, Refusal, Stage};
 use crate::settings::Settings;
 use std::collections::BTreeMap;
 use std::ffi::OsString;
@@ -207,14 +207,14 @@ fn params(given: &[OsString]) -> Result<BTreeMap<String, String>, Refusal> {
                     "--param",
                     format!("--param {param:?} has no name before its ="),
                     remedy,
-                ))
+                ));
             }
             None => {
                 return Err(malformed(
                     "--param",
                     format!("--param {param:?} has no =, so it names no value"),
                     remedy,
-                ))
+                ));
             }
         };
         bytes += name.len() + value.len();

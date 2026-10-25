@@ -272,9 +272,9 @@ configuration of real agents are outside the scope of the book.
 
 Recorded measurements checked how Ravel starts a session and completes its
 cleanup on two platforms. One platform is aarch64 macOS with Rust 1.99. The
-other platform is native aarch64 GNU/Linux with Rust 1.85.0, the declared
-minimum. Each measurement applies only to the platform, kernel, C library and
-compiler that it records.
+other platform is native aarch64 GNU/Linux with Rust 1.85.0, which was the
+declared minimum at that time. Each measurement applies only to the platform,
+kernel, C library and compiler that it records.
 
 The project built the x86_64 GNU/Linux target, linted it at Rust 1.85.0 and
 ran it only under QEMU user-mode emulation. This emulation translates x86-64
@@ -291,7 +291,7 @@ evidence as a measured native target.
 | Target | Recorded execution | Compiler | Limit |
 |---|---|---|---|
 | aarch64 macOS | Native measurements | Rust 1.99 | Only the recorded platform and compiler |
-| aarch64 GNU/Linux | Native measurements | Rust 1.85.0, the declared minimum | Only the recorded kernel, C library and compiler |
+| aarch64 GNU/Linux | Native measurements | Rust 1.85.0, the earlier declared minimum | Only the recorded kernel, C library and compiler |
 | x86_64 GNU/Linux | Built, linted and run under QEMU user-mode emulation | Rust 1.85.0 | Uses the kernel of the host. No x86-64 kernel is qualified. |
 
 The reader checkpoints of the book use the owner as a labelled stand-in for a

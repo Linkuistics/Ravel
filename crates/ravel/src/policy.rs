@@ -17,7 +17,7 @@
 use serde_json::{Map, Value};
 
 use crate::limits::Limits;
-use crate::refusal::{Refusal, Stage, EXIT_REFUSED};
+use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 use crate::worker::{Breach, Produced};
 
 /// The policy contract this release evaluates.
@@ -78,7 +78,7 @@ impl<'a> Validator<'a> {
                 return Err(self.invalid(
                     "policy",
                     format!("expected an object, found {}", describe(snapshot)),
-                ))
+                ));
             }
         };
 
@@ -135,7 +135,7 @@ impl<'a> Validator<'a> {
                         "`schemaVersion` must be the number {SCHEMA_VERSION}, found {}",
                         describe(schema)
                     ),
-                ))
+                ));
             }
         }
         if let Some(unknown) = policy.keys().find(|key| !TOP_LEVEL.contains(&key.as_str())) {
@@ -165,13 +165,13 @@ impl<'a> Validator<'a> {
         let version = match policy.get("version") {
             Some(Value::String(version)) if !version.trim().is_empty() => version.clone(),
             Some(Value::String(_)) => {
-                return Err(self.invalid("policy.version", "`version` must not be blank"))
+                return Err(self.invalid("policy.version", "`version` must not be blank"));
             }
             Some(other) => {
                 return Err(self.invalid(
                     "policy.version",
                     format!("`version` must be a string, found {}", describe(other)),
-                ))
+                ));
             }
             None => return Err(self.invalid("policy.version", "`version` is missing")),
         };
@@ -222,7 +222,7 @@ pub fn selected(
                      than throwing"
                 ),
                 "policy.select",
-            ))
+            ));
         }
         Produced::Unsettled => {
             return Err(refuse(
@@ -235,16 +235,16 @@ pub fn selected(
                  something that will never complete leaves it pending"
                     .to_owned(),
                 "policy.select",
-            ))
+            ));
         }
         Produced::Unserializable { name, message } => {
             return Err(malformed(
                 "result",
                 format!("the result of select cannot be serialized: {name}: {message}"),
-            ))
+            ));
         }
         Produced::Breach(breach) => {
-            return Err(message_too_large(Stage::Selection, &breach, source, limits))
+            return Err(message_too_large(Stage::Selection, &breach, source, limits));
         }
     };
 
@@ -268,7 +268,7 @@ pub fn selected(
                     "a selection result must be an object, found {}",
                     describe(&result)
                 ),
-            ))
+            ));
         }
     };
     let status = fields
@@ -284,7 +284,7 @@ pub fn selected(
                     "`status` must be \"selected\" or \"refused\", found {}",
                     describe_value(status)
                 ),
-            ))
+            ));
         }
     };
     if let Some(unknown) = fields.keys().find(|key| !allowed.contains(&key.as_str())) {
@@ -432,13 +432,13 @@ pub fn loader_refused(fields: &Map<String, Value>, kind: &str, source: &str) -> 
             None => return malformed(&location, format!("`{field}` is missing")),
             Some(Value::String(text)) if !text.trim().is_empty() => said.push(text.clone()),
             Some(Value::String(_)) => {
-                return malformed(&location, format!("`{field}` must not be blank"))
+                return malformed(&location, format!("`{field}` must not be blank"));
             }
             Some(value) => {
                 return malformed(
                     &location,
                     format!("`{field}` must be a string, found {}", describe(value)),
-                )
+                );
             }
         }
     }

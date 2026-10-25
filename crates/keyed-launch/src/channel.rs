@@ -88,7 +88,7 @@ impl Channel {
                          {error}; make the directory readable and retry",
                         path.display()
                     ))
-                    .with_io_source(error))
+                    .with_io_source(error));
                 }
                 Ok(_) => continue,
             }

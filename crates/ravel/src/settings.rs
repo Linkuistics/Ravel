@@ -10,7 +10,7 @@ use serde_json::Value;
 
 use crate::environment;
 use crate::limits::{CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, SELECTION_MAX_MS, SELECTION_MIN_MS};
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 /// The settings file, relative to HOME, beside the personal policy.
 pub const SETTINGS_FILE: &str = ".config/ravel/settings.json";
@@ -39,7 +39,7 @@ impl Settings {
             Err(error) if error.kind() == ErrorKind::NotFound => return Ok(Settings::default()),
             Err(error) => return Err(invalid(&file, format!("cannot be read: {error}"))),
             Ok(metadata) if !metadata.is_file() => {
-                return Err(invalid(&file, "is not a regular file"))
+                return Err(invalid(&file, "is not a regular file"));
             }
             Ok(_) => {}
         }
@@ -85,7 +85,7 @@ impl Settings {
                 _ => {
                     return Err(
                         invalid(&file, format!("holds the unknown key {key:?}")).location(key)
-                    )
+                    );
                 }
             }
         }

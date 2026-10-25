@@ -331,7 +331,7 @@ each kind has a route. Use it together with the fake-program checks above.
 
 <!-- tc: depart synonym-rotation because fetch refers to tool downloads, while get also describes receiving policy data -->
 The recipes below need a source checkout as a development tool. The
-installed Ravel alone can run your policy. For the checkout, use Rust 1.85
+installed Ravel alone can run your policy. For the checkout, use Rust 1.99.1
 or later, curl, tar, Task, ShellCheck and cargo-nextest. Run `task setup` in
 the checkout root to fetch its tools and install its development dependencies.
 [Chapter 10, “Develop Ravel”](10-develop-ravel.md), gives the development workflow.

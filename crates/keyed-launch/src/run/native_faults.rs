@@ -178,8 +178,7 @@ fn native_fault_role() {
             records.extend_from_slice(&buffer[..count as usize]);
         }
     }
-    let line =
-        format!(
+    let line = format!(
         "events={events:?} {ended} records={records:?} stray={stray} stray_errno={stray_errno:?} \
          chld_nocldwait={} int={} term={} hup={} foreground_restored={} modes_unchanged={} \
          pending_term={pending_term} latch_before={latch_before} latch_after={latch_after}",
@@ -187,7 +186,10 @@ fn native_fault_role() {
         runner_owner(libc::SIGINT),
         runner_owner(libc::SIGTERM),
         runner_owner(libc::SIGHUP),
-        terminal.as_ref().map(|t| t.foreground() == own).map_or(-1, i32::from),
+        terminal
+            .as_ref()
+            .map(|t| t.foreground() == own)
+            .map_or(-1, i32::from),
         match (&terminal, &modes_before) {
             (Some(t), Some(before)) => i32::from(&termios_bytes(t) == before),
             _ => -1,
@@ -360,7 +362,9 @@ fn paired_row(
         line: std::fs::read_to_string(&out).unwrap_or_default(),
         clean: settlement.clean() && settlement.status.is_some_and(|s| s.success()),
     };
-    eprintln!("native runner fault case={case} site={site} mode={mode} broken={broken}: {row:?} {settlement:?}");
+    eprintln!(
+        "native runner fault case={case} site={site} mode={mode} broken={broken}: {row:?} {settlement:?}"
+    );
     row
 }
 

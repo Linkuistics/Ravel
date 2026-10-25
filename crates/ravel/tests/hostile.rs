@@ -20,9 +20,9 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use serde_json::{json, Value};
-use support::direct::{self, probe_build, shipped_worker, Probe};
-use support::{run, text, Sandbox, DEEP, FRONT, ROUTED};
+use serde_json::{Value, json};
+use support::direct::{self, Probe, probe_build, shipped_worker};
+use support::{DEEP, FRONT, ROUTED, Sandbox, run, text};
 
 /// The reason `ROUTED`'s `select` gives: seen in a report, it shows that the
 /// policy the test installed is the one that selected.
@@ -379,8 +379,8 @@ fn poison(entry: &Path) {
 }
 
 #[test]
-fn the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly(
-) {
+fn the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly()
+ {
     let sandbox = Sandbox::new();
     let entry = sandbox.personal_policy(&cacheable_policy());
     assert!(fs::metadata(&entry).unwrap().len() >= 4096);
@@ -490,8 +490,8 @@ export const policy = {{
 }
 
 #[test]
-fn node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly(
-) {
+fn node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly()
+ {
     let sandbox = Sandbox::new();
     let linked = symlinked_helper_policy(&sandbox.root);
     // An ordinary module that reports to a parent process when it has one.
@@ -996,7 +996,9 @@ fn policies_importing_from_no_file(specifier: &str) -> [(&'static str, String); 
     [
         (
             "data:",
-            format!("await import(\"data:text/javascript,\" + encodeURIComponent({module:?}));\n{ROUTED}"),
+            format!(
+                "await import(\"data:text/javascript,\" + encodeURIComponent({module:?}));\n{ROUTED}"
+            ),
         ),
         (
             "blob:",
@@ -1226,8 +1228,8 @@ fn watching_for_a_reader<T>(fifo: &Path, drive: impl FnOnce() -> T) -> (T, bool)
 }
 
 #[test]
-fn a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe(
-) {
+fn a_package_json_that_never_yields_above_the_workers_start_directory_stays_unopened_and_stalls_the_unmoved_probe()
+ {
     let sandbox = Sandbox::new();
     let shipped = shipped_build();
     // A policy that imports nothing: whatever a worker does with this

@@ -58,12 +58,24 @@ check_zig() {
   mark_pass "zig: $version"
 }
 
+# Rust 1.99 passes -Wl,--fix-cortex-a53-843419 for aarch64-unknown-linux-gnu,
+# and zig cc refuses it ("unsupported linker arg") before cargo-zigbuild 0.23.3.
+# https://github.com/rust-cross/cargo-zigbuild/blob/v0.23.3/src/zig/linker_args.rs
+zigbuild_minimum=0.23.3
+
 check_cargo_zigbuild() {
-  if cargo zigbuild --help >/dev/null 2>&1; then
-    mark_pass "cargo-zigbuild: available"
-  else
+  local version
+  if ! cargo zigbuild --help >/dev/null 2>&1; then
     mark_fail "cargo-zigbuild: not installed"
-    remediation "cargo install cargo-zigbuild"
+    remediation "cargo install cargo-zigbuild --locked"
+    return
+  fi
+  version="$(cargo-zigbuild --version 2>/dev/null | awk '{print $2}')"
+  if [[ -n "$version" && "$(printf '%s\n%s\n' "$zigbuild_minimum" "$version" | sort -V | head -n 1)" == "$zigbuild_minimum" ]]; then
+    mark_pass "cargo-zigbuild: $version"
+  else
+    mark_fail "cargo-zigbuild: ${version:-unknown version} is older than $zigbuild_minimum"
+    remediation "cargo install cargo-zigbuild --locked --force"
   fi
 }
 

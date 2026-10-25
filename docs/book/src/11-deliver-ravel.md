@@ -76,9 +76,9 @@ The target names spell arm64 as `aarch64` and x86-64 as `x86_64`. This chapter
 uses the target spelling only in target names and in the support statement.
 
 Run the release tasks from the checkout. The full workflow needs an Apple
-silicon Mac, Bash 4 or later, Task, rustup with Rust 1.85 or later, curl,
-tar/xz and ShellCheck. The Linux builds also need Zig, cargo-zigbuild and both
-Linux Rust target libraries. The Linux smoke tests need an available
+silicon Mac, Bash 4 or later, Task, rustup, curl,
+tar/xz and ShellCheck. The Linux builds also need Zig, cargo-zigbuild 0.23.3 or
+later and both Linux Rust target libraries. The Linux smoke tests need an available
 `linux/arm64` Docker daemon with kernel 6.7 or later.
 
 The kernel requirement comes from the emulated routes. They register QEMU in a
@@ -87,19 +87,22 @@ namespace. Thus, the registration does not change the Docker host's own. The
 requirement applies to the test environment. It is not Ravel's minimum kernel.
 
 `task setup` supplies the checkout's pinned Bun and development dependencies.
-The release build prefers rustup's tools on `PATH` when its shims exist.
-An explicit `RUSTC` override can still select another compiler.
-[The release doctor](#prepare-a-version-cut) checks the compiler that the build
-will use and its target libraries.
 The worker build checks each target's Bun
 runtime against a committed SHA-256 digest before compilation. It also generates
 the SDK declarations.
+
+The release build prefers rustup's tools on `PATH` when its shims exist.
+Those shims read `rust-toolchain.toml`, which selects Rust 1.99.1 with the
+three target libraries.
+An explicit `RUSTC` override can still select another compiler.
+[The release doctor](#prepare-a-version-cut) checks the compiler that the build
+will use and its target libraries.
 
 Fragment: prepare the target libraries and build local archives. This recipe
 omits tool installation and the command output.
 
 ```sh
-rustup target add aarch64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu
+rustup toolchain install
 task setup
 task release:archives
 ```

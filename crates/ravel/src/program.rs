@@ -4,7 +4,7 @@ use std::io::ErrorKind;
 use std::os::unix::ffi::OsStrExt as _;
 use std::path::{Path, PathBuf};
 
-use crate::refusal::{Refusal, Stage, EXIT_NOT_FOUND, EXIT_UNEXECUTABLE};
+use crate::refusal::{EXIT_NOT_FOUND, EXIT_UNEXECUTABLE, Refusal, Stage};
 
 #[derive(Debug)]
 pub struct Executable {
@@ -157,7 +157,7 @@ fn probe(file: &Path) -> Probe {
             if error.kind() == ErrorKind::NotFound
                 || error.raw_os_error() == Some(libc::ENOTDIR) =>
         {
-            return Probe::Missing
+            return Probe::Missing;
         }
         Err(error) => return Probe::Unexecutable(error.to_string()),
     };

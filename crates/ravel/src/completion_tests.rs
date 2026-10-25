@@ -1,7 +1,7 @@
 use std::fs;
 use std::os::unix::fs::symlink;
 
-use super::{publish_result, SessionChannel, MAX_RESULT_BYTES};
+use super::{MAX_RESULT_BYTES, SessionChannel, publish_result};
 
 #[test]
 fn complete_opaque_values_are_published_once_without_changing_the_first_result() {

@@ -62,11 +62,7 @@ pub(super) fn drop_recovery_reports() {
 }
 
 pub(super) fn recovery_status(actual: Option<ExitStatus>) -> Option<ExitStatus> {
-    if UNKNOWN_STATUS.get() {
-        None
-    } else {
-        actual
-    }
+    if UNKNOWN_STATUS.get() { None } else { actual }
 }
 
 #[derive(Clone, Copy)]
@@ -610,31 +606,34 @@ fn terminal_recovery_role() {
     assert_eq!(local_modes(&terminal), saved.c_lflag & !libc::PENDIN);
     let receipt = *observed.lock().unwrap();
     assert_eq!(PREPARED.get(), !(background || pipe_failure));
-    if !DROP_REPORTS.get() {
-        if let Some(destination) = std::env::var_os("C4_RECEIPTS") {
-            let text = match &result {
-                Err(error) => format!(
-                    "errno={}\nsignal={}\nstarted={}\nerror={}\n",
-                    error.raw_os_error().unwrap_or(0),
-                    error.consumed_signal().unwrap_or(0),
-                    events.contains(&LaunchEvent::Started),
-                    error
-                ),
-                Ok(ended) => format!(
-                    "status={}\nsignalled={}\ninterrupted={}\n",
-                    ended.status.into_raw(),
-                    ended.signalled,
-                    matches!(ended.end, End::Interrupted { .. })
-                ),
-            };
-            std::fs::write(
-                std::path::Path::new(&destination).join(format!("{case}.txt")),
-                text,
-            )
-            .unwrap();
-        }
+    if !DROP_REPORTS.get()
+        && let Some(destination) = std::env::var_os("C4_RECEIPTS")
+    {
+        let text = match &result {
+            Err(error) => format!(
+                "errno={}\nsignal={}\nstarted={}\nerror={}\n",
+                error.raw_os_error().unwrap_or(0),
+                error.consumed_signal().unwrap_or(0),
+                events.contains(&LaunchEvent::Started),
+                error
+            ),
+            Ok(ended) => format!(
+                "status={}\nsignalled={}\ninterrupted={}\n",
+                ended.status.into_raw(),
+                ended.signalled,
+                matches!(ended.end, End::Interrupted { .. })
+            ),
+        };
+        std::fs::write(
+            std::path::Path::new(&destination).join(format!("{case}.txt")),
+            text,
+        )
+        .unwrap();
     }
-    eprintln!("C4 {case}: own={own} parent_observed_handoff={receipt:?} after={after} modes_restored={} events={events:?} result={result:?}", modes == saved.c_lflag & !libc::PENDIN);
+    eprintln!(
+        "C4 {case}: own={own} parent_observed_handoff={receipt:?} after={after} modes_restored={} events={events:?} result={result:?}",
+        modes == saved.c_lflag & !libc::PENDIN
+    );
     assert_eq!(receipt.is_some(), expected_handoff);
     if foreign || background {
         assert_eq!(
@@ -653,7 +652,9 @@ fn terminal_recovery_role() {
             std::io::Error::last_os_error().raw_os_error(),
             Some(libc::ECHILD)
         );
-        eprintln!("C4 {case}: recorded direct child is no longer waitable (ECHILD); runner events remain {events:?}");
+        eprintln!(
+            "C4 {case}: recorded direct child is no longer waitable (ECHILD); runner events remain {events:?}"
+        );
     }
     if successful || signal_death {
         assert_eq!(events, [LaunchEvent::Started, LaunchEvent::Reaped]);
@@ -1258,7 +1259,10 @@ fn native_s04_role(terminal: Terminal, saved: libc::termios, case: &str) {
     let error = result.unwrap_err();
     let text = error.to_string();
     let restored = modes == saved.c_lflag & !libc::PENDIN;
-    eprintln!("native S04 row={row} broken={kind:?}: events={events:?} foreground={after} own={own} child_group={child_group} holder={holder_pid:?} modes_restored={restored} second_latch={second_latch} pending={pending:?} consumed={:?} cleanup={cleanup:?} error={text}", error.consumed_signal());
+    eprintln!(
+        "native S04 row={row} broken={kind:?}: events={events:?} foreground={after} own={own} child_group={child_group} holder={holder_pid:?} modes_restored={restored} second_latch={second_latch} pending={pending:?} consumed={:?} cleanup={cleanup:?} error={text}",
+        error.consumed_signal()
+    );
     assert!(
         cleanup.as_ref().is_none_or(Result::is_ok),
         "fixture cleanup"

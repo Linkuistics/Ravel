@@ -230,7 +230,9 @@ fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, Lau
     );
     let backend = "/usr/bin/sandbox-exec";
     if !Path::new(backend).is_file() {
-        return Err(LaunchError::new("filesystem confinement requires /usr/bin/sandbox-exec; restore the system Seatbelt launcher"));
+        return Err(LaunchError::new(
+            "filesystem confinement requires /usr/bin/sandbox-exec; restore the system Seatbelt launcher",
+        ));
     }
     let mut command = Command::new(backend);
     for path in confinement_system_reads() {

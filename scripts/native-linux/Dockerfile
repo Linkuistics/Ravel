@@ -6,12 +6,12 @@
 # tool's SHA-256 is written to /opt/native-linux/tools.txt so the campaign's
 # domain record can name what it measured with.
 #
-# The declared minimum Rust is 1.85 (rust-version in Cargo.toml), so the default
-# toolchain is exactly 1.85.0, the first release that satisfies it.
+# The declared minimum Rust is 1.99.1 (rust-version in Cargo.toml), so the default
+# toolchain is exactly 1.99.1, the first release that satisfies it.
 ARG BASE=ubuntu@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7
 FROM ${BASE}
 
-ARG RUST_VERSION=1.85.0
+ARG RUST_VERSION=1.99.1
 ARG NEXTEST_VERSION=0.9.148
 ARG TASK_VERSION=3.54.0
 ARG TARGETARCH

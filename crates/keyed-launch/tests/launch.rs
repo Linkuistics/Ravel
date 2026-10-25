@@ -14,7 +14,7 @@ use std::os::unix::process::ExitStatusExt as _;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use keyed_launch::{run, run_observed, Argv, Channel, End, Escalation, Group, Launch, LaunchEvent};
+use keyed_launch::{Argv, Channel, End, Escalation, Group, Launch, LaunchEvent, run, run_observed};
 use tempfile::TempDir;
 
 /// The escalation on test timescales. Long enough that a poll tick lands inside
@@ -871,7 +871,7 @@ fn gone(pid: i32) -> bool {
 
 #[test]
 fn observed_immediate_exit_and_failed_spawn_have_exact_events() {
-    use keyed_launch::{run_observed, LaunchEvent};
+    use keyed_launch::{LaunchEvent, run_observed};
     let harness = Harness::new();
     let script = harness.script("exit 3\n");
     let argv = harness.argv(&script);
@@ -893,11 +893,13 @@ fn observed_immediate_exit_and_failed_spawn_have_exact_events() {
 
     events.clear();
     let missing = harness.dir.path().join("missing-directory");
-    assert!(run_observed(
-        launch(&argv, &channel, support::controls(), Some(&missing)),
-        &mut |event| { events.push(event) }
-    )
-    .is_err());
+    assert!(
+        run_observed(
+            launch(&argv, &channel, support::controls(), Some(&missing)),
+            &mut |event| { events.push(event) }
+        )
+        .is_err()
+    );
     assert!(events.is_empty());
 }
 

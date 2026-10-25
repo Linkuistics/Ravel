@@ -6,7 +6,7 @@ use std::os::unix::fs::PermissionsExt as _;
 use std::path::{Component, Path, PathBuf};
 
 use crate::choice::Prepared;
-use crate::refusal::{Refusal, Stage, EXIT_MALFORMED};
+use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 pub struct Confined {
     private: crate::private_directory::PrivateDirectory,

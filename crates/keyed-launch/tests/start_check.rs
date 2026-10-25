@@ -4,7 +4,7 @@ use std::ffi::OsString;
 use std::io;
 use std::time::Duration;
 
-use keyed_launch::{run_observed_with_start_check, Argv, Escalation, Launch, LaunchEvent};
+use keyed_launch::{Argv, Escalation, Launch, LaunchEvent, run_observed_with_start_check};
 
 #[test]
 fn failed_start_check_retains_io_source_and_confirms_real_reap() {

@@ -107,7 +107,9 @@ fn native_propagation_role() {
     let mut pending = unsafe { std::mem::zeroed::<libc::sigset_t>() };
     assert_eq!(unsafe { libc::sigpending(&mut pending) }, 0);
     assert_eq!(unsafe { libc::sigismember(&pending, libc::SIGTERM) }, 0);
-    eprintln!("native F07 ready: first actual TERM handler consumption confirmed, selected TERM pending=false, main handled mask blocked");
+    eprintln!(
+        "native F07 ready: first actual TERM handler consumption confirmed, selected TERM pending=false, main handled mask blocked"
+    );
     let path = std::env::var_os("K28_RESULT").unwrap();
     let output = File::create(path).unwrap();
     assert_eq!(unsafe { libc::dup2(output.as_raw_fd(), 1) }, 1);
@@ -129,12 +131,12 @@ fn collect(mut child: std::process::Child) -> Result<ExitStatus, String> {
                     ))
                 } else {
                     Ok(status)
-                }
+                };
             }
             Err(error) => {
                 return Err(format!(
                     "fixture identity/wait uncertain: {error}; no further signalling"
-                ))
+                ));
             }
             Ok(None) => {}
         }

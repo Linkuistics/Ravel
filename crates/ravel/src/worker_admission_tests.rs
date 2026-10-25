@@ -130,7 +130,11 @@ pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
                     stderr: fs::read(root.path().join("fixture-stderr")).unwrap(),
                 };
                 let log = String::from_utf8_lossy(&output.stderr);
-                eprintln!("case scenario={scenario} fault={fault} route={route} status={} elapsed={:?}\n{log}", output.status, started.elapsed());
+                eprintln!(
+                    "case scenario={scenario} fault={fault} route={route} status={} elapsed={:?}\n{log}",
+                    output.status,
+                    started.elapsed()
+                );
                 assert!(
                     started.elapsed() < Duration::from_secs(10),
                     "fixture exceeded bound"
@@ -599,10 +603,12 @@ fn worker_reap_admission_fixture() {
         eprintln!("Selected={}", selected.is_ok());
         if scenario == "success" && fault == "poll" {
             let reports = &selected.as_ref().unwrap().choice.operational;
-            assert!(reports
-                .iter()
-                .any(|report| report.contains("injected recoverable poll error")
-                    && report.contains("confirmed reap")));
+            assert!(
+                reports
+                    .iter()
+                    .any(|report| report.contains("injected recoverable poll error")
+                        && report.contains("confirmed reap"))
+            );
         }
         selected.map(|_| ())
     };

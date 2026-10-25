@@ -6,15 +6,15 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 #[cfg(test)]
-use crate::completion::{SessionChannel, EXIT_FILE_VARIABLE};
+use crate::completion::{EXIT_FILE_VARIABLE, SessionChannel};
 use keyed_launch::{Argv, End, Escalation, Group, Launch, LaunchEvent};
 #[cfg(not(test))]
-use ravel::{SessionChannel, EXIT_FILE_VARIABLE};
+use ravel::{EXIT_FILE_VARIABLE, SessionChannel};
 use serde_json::json;
 
 use crate::choice::{self, Selected};
 use crate::cli::RunArgs;
-use crate::refusal::{Failure, Refusal, Stage, EXIT_MALFORMED, EXIT_WORKER};
+use crate::refusal::{EXIT_MALFORMED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::signal_state;
 
 const ESCALATION: Escalation = Escalation {
@@ -345,10 +345,10 @@ fn settle(
     source: &str,
     diagnostics: &mut dyn io::Write,
 ) -> Result<String, Failure> {
-    if signal.is_some() {
-        if let Err(error) = &result {
-            let _ = diagnostics.write_all(error.to_text().as_bytes());
-        }
+    if signal.is_some()
+        && let Err(error) = &result
+    {
+        let _ = diagnostics.write_all(error.to_text().as_bytes());
     }
     for error in cleanups.iter().filter_map(|cleanup| cleanup.as_ref().err()) {
         let _ = writeln!(diagnostics, "ravel: {}", error.message);
@@ -584,12 +584,16 @@ mod tests {
             } else {
                 assert_eq!(result.refusal.code, "supervision_failed");
                 assert_eq!(result.refusal.exit, 5);
-                assert!(result
-                    .refusal
-                    .message
-                    .contains("original observation failure"));
+                assert!(
+                    result
+                        .refusal
+                        .message
+                        .contains("original observation failure")
+                );
             }
-            eprintln!("checked front={front:?} runner={runner:?} late={late:?} selected={want:?}; no ending/result, original diagnostics and four cleanup reports asserted");
+            eprintln!(
+                "checked front={front:?} runner={runner:?} late={late:?} selected={want:?}; no ending/result, original diagnostics and four cleanup reports asserted"
+            );
         }
     }
 
@@ -770,7 +774,9 @@ mod tests {
                 ] {
                     assert!(diagnostics.contains(label));
                 }
-                eprintln!("C4 front {case}: front={front:?} late={late:?} selected={selected:?}; exact runner message and four outer reports retained; no ending/result");
+                eprintln!(
+                    "C4 front {case}: front={front:?} late={late:?} selected={selected:?}; exact runner message and four outer reports retained; no ending/result"
+                );
             }
         }
         for case in ["success", "success-fds", "signal-death"] {
@@ -821,7 +827,9 @@ mod tests {
             assert_eq!(result.refusal.exit, 1);
             assert_eq!(result.refusal.code, "session_result_missing");
             assert_eq!(result.refusal.signal, None);
-            eprintln!("C4 front {case}: actual runner status {status}; no publication refuses; no invented launcher cancellation");
+            eprintln!(
+                "C4 front {case}: actual runner status {status}; no publication refuses; no invented launcher cancellation"
+            );
         }
     }
 }

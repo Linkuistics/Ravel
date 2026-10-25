@@ -363,8 +363,8 @@ agreed and implemented, and its conformance is measured per target: each
 measurement qualifies only the kernel, libc and compiler it names, and only as
 far as its receipts say. The frozen 153-row matrix, its incumbent baseline and
 the 310 protected test identities are measured on three targets:
-aarch64-apple-darwin (Rust 1.99), aarch64-unknown-linux-gnu natively at the
-declared minimum Rust 1.85.0, and x86_64-unknown-linux-gnu under QEMU user-mode
+aarch64-apple-darwin (Rust 1.99), aarch64-unknown-linux-gnu natively at
+Rust 1.85.0, which was the declared minimum then, and x86_64-unknown-linux-gnu under QEMU user-mode
 emulation. The x86_64 measurement is emulated and is never a qualification of an
 x86-64 kernel: it cannot create user namespaces or honour SA_NOCLDWAIT, so its
 rows and protected identities that need either are accounted for with a reason
