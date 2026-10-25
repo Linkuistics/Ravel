@@ -18,3 +18,8 @@ Make the `rust-clippy` step of `task test:native-linux` pass on Linux again. Thr
 ## Notes
 
 - Do not change the heap bound itself.
+
+## Decisions (running log)
+
+- **Removed the helpers instead of testing them.** `git log -S reset_peak` shows `rhai-llm-bounds-k17` added `live`, `reset_peak` and `peak` to measure the heap of the LLM body bounds, and `rhai-llm-removal-k63` (`82766a0`) removed the only tests that called them. No engine-limit test needs a peak, so `live`, `reset_peak`, `peak`, the `PEAK` static and its `fetch_max` in `reserve` are gone from `rhai_worker/heap.rs`. `LIVE` stays, because the bound check reads it. The heap bound is unchanged.
+- **Evidence.** `task check` passes with no warning. `task test:native-linux PLATFORM=arm64` ends with `failed=0`, and its `rust-clippy` step passes. Only arm64 ran.
