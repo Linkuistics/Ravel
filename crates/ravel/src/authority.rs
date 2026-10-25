@@ -1,13 +1,27 @@
 use std::ffi::OsStr;
 use std::fs;
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Read as _};
 use std::path::{Path, PathBuf};
 
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
-/// The personal default, relative to HOME. `XDG_CONFIG_HOME` is deliberately
-/// not consulted: it would be an environment-selected entry.
+// While both policy paths live, the extension of the entry selects the path.
+// The removal increment deletes every item marked `typescript` here, and keeps
+// every item marked `rhai`.
+
+/// The personal default of the Rhai path, relative to HOME. `XDG_CONFIG_HOME`
+/// is deliberately not consulted: it would be an environment-selected entry.
+/// It wins over [`PERSONAL_DEFAULT`] when both files exist. (rhai)
+pub const PERSONAL_RHAI_DEFAULT: &str = ".config/ravel/policy.rhai";
+
+/// The personal default of the TypeScript path, relative to HOME. (typescript)
 pub const PERSONAL_DEFAULT: &str = ".config/ravel/policy.ts";
+
+/// The extension that takes the Rhai path. (rhai)
+const RHAI_EXTENSION: &str = "rhai";
+
+/// The most an entry of the Rhai path may hold: 1 MiB. (rhai)
+pub const RHAI_ENTRY_BYTES: u64 = 1024 * 1024;
 
 #[derive(Debug)]
 pub enum Authority {
@@ -16,12 +30,24 @@ pub enum Authority {
     Explicit,
 }
 
+/// Which worker evaluates the entry, and what that worker needs of it.
+#[derive(Debug)]
+pub enum Format {
+    /// The Bun worker imports the entry itself, by its canonical path. (typescript)
+    TypeScript,
+    /// The Rhai worker reads no file, so the front reads the entry once and
+    /// sends exactly these bytes. (rhai)
+    Rhai { source: String },
+}
+
 #[derive(Debug)]
 pub struct PolicyEntry {
-    /// The canonical path, exactly the string the worker imports; symlinks are
-    /// resolved, so this is the file whose directory relative imports start
-    /// from. [`import_specifier`] has proven that it names this file.
+    /// The canonical path; symlinks are resolved, so this is the file whose
+    /// directory relative imports start from. On the TypeScript path it is
+    /// exactly the string the worker imports, and [`import_specifier`] has
+    /// proven that it names this file.
     pub path: String,
+    pub format: Format,
 }
 
 impl PolicyEntry {
@@ -31,6 +57,10 @@ impl PolicyEntry {
 }
 
 /// Resolve the selected entry and prove it is a readable regular file.
+///
+/// A `.rhai` file given to `--config` takes the Rhai path, and so does the
+/// personal `policy.rhai` when it exists, whether or not `policy.ts` does.
+/// Every other entry keeps the TypeScript path.
 pub fn resolve(
     config: Option<&Path>,
     cwd: &Path,
@@ -38,8 +68,20 @@ pub fn resolve(
 ) -> Result<PolicyEntry, Refusal> {
     let (candidate, authority) = match config {
         Some(config) => (cwd.join(config), Authority::Explicit),
-        None => (personal_default(home)?, Authority::Personal),
+        None => {
+            let rhai = personal_rhai_default(home)?;
+            let typescript = personal_default(home)?;
+            // `exists` is true for a dangling symlink, so that one reports
+            // itself as missing instead of falling through to another file.
+            if rhai.symlink_metadata().is_ok() || typescript.symlink_metadata().is_err() {
+                return resolve_rhai(&rhai, &Authority::Personal, cwd);
+            }
+            (typescript, Authority::Personal)
+        }
     };
+    if candidate.extension() == Some(OsStr::new(RHAI_EXTENSION)) {
+        return resolve_rhai(&candidate, &authority, cwd);
+    }
     let shown = candidate.to_string_lossy().into_owned();
     let remedy = match &authority {
         Authority::Personal => {
@@ -113,7 +155,84 @@ pub fn resolve(
         )
         .source(shown.clone())
     })?;
-    Ok(PolicyEntry { path })
+    Ok(PolicyEntry {
+        path,
+        format: Format::TypeScript,
+    })
+}
+
+/// Admit `candidate` as an entry of the Rhai path: a regular UTF-8 file of at
+/// most [`RHAI_ENTRY_BYTES`], read once. A symlink is admitted by its real
+/// file. (rhai)
+fn resolve_rhai(
+    candidate: &Path,
+    authority: &Authority,
+    cwd: &Path,
+) -> Result<PolicyEntry, Refusal> {
+    let shown = candidate.to_string_lossy().into_owned();
+    let remedy = match authority {
+        Authority::Personal => format!(
+            "write {shown} defining SCHEMA_VERSION, VERSION and `fn select(request, context)`, \
+             or name another entry with --config PATH"
+        ),
+        Authority::Explicit => format!(
+            "check the --config path; a relative path resolves against the current directory {}",
+            cwd.display()
+        ),
+    };
+    let refuse = |code: &'static str, message: String, remedy: String| {
+        Refusal::new(code, Stage::Authority, EXIT_REFUSED, message, remedy).source(shown.clone())
+    };
+    let unreadable = |what: String| {
+        refuse(
+            "policy_unreadable",
+            format!("the selected policy entry {shown} {what}"),
+            remedy.clone(),
+        )
+    };
+
+    let metadata = fs::metadata(candidate).map_err(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            refuse(
+                "policy_missing",
+                format!("the selected policy entry {shown} does not exist"),
+                remedy.clone(),
+            )
+        } else {
+            unreadable(format!("cannot be read: {error}"))
+        }
+    })?;
+    if !metadata.is_file() {
+        return Err(unreadable("is not a regular file".to_owned()));
+    }
+    let real = fs::canonicalize(candidate)
+        .map_err(|error| unreadable(format!("cannot be resolved: {error}")))?;
+    let path = real
+        .to_str()
+        .ok_or_else(|| {
+            unreadable(format!(
+                "resolves to {}, which is not valid UTF-8, so no failure could name it exactly",
+                real.display()
+            ))
+        })?
+        .to_owned();
+
+    // Bounded, so that a file that grew since `metadata` is not read whole.
+    let mut bytes = Vec::new();
+    fs::File::open(&real)
+        .and_then(|file| file.take(RHAI_ENTRY_BYTES + 1).read_to_end(&mut bytes))
+        .map_err(|error| unreadable(format!("cannot be read: {error}")))?;
+    if bytes.len() as u64 > RHAI_ENTRY_BYTES {
+        return Err(unreadable(format!(
+            "holds more than {RHAI_ENTRY_BYTES} bytes, the most an entry may hold"
+        )));
+    }
+    let source = String::from_utf8(bytes)
+        .map_err(|error| unreadable(format!("is not valid UTF-8: {}", error.utf8_error())))?;
+    Ok(PolicyEntry {
+        path,
+        format: Format::Rhai { source },
+    })
 }
 
 /// The canonical `path` as the exact string the worker imports, or why no
@@ -132,15 +251,28 @@ fn import_specifier(path: &Path) -> Result<&str, &'static str> {
     Ok(path)
 }
 
-/// The personal default's path under `home`, read by [`resolve`].
+/// The personal default of the Rhai path under `home`, read by [`resolve`]. (rhai)
+pub fn personal_rhai_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
+    Ok(personal_home(home)?.join(PERSONAL_RHAI_DEFAULT))
+}
+
+/// The personal default's path under `home`, read by [`resolve`]. (typescript)
 pub fn personal_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
+    Ok(personal_home(home)?.join(PERSONAL_DEFAULT))
+}
+
+/// `home`, once it is proven to be the absolute directory the personal
+/// defaults are under.
+fn personal_home(home: Option<&OsStr>) -> Result<&Path, Refusal> {
     let remedy = "set HOME to your absolute home directory, or name an entry with --config PATH";
     let home = home.filter(|home| !home.is_empty()).ok_or_else(|| {
         Refusal::new(
             "home_unset",
             Stage::Authority,
             EXIT_REFUSED,
-            format!("HOME is not set, so the personal policy ~/{PERSONAL_DEFAULT} has no location"),
+            format!(
+                "HOME is not set, so the personal policy ~/{PERSONAL_RHAI_DEFAULT} has no location"
+            ),
             remedy,
         )
         .input("HOME")
@@ -161,7 +293,7 @@ pub fn personal_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
         )
         .input("HOME"));
     }
-    Ok(home.join(PERSONAL_DEFAULT))
+    Ok(home)
 }
 
 #[cfg(test)]

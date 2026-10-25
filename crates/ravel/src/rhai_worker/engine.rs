@@ -35,11 +35,24 @@ pub struct Entry<'a> {
 
 /// Evaluate `entry` for `request`. A request that does not have the shape the
 /// front sends is an `Err`: it breaks the protocol, and no policy can cause it.
-pub fn evaluate(entry: &Entry<'_>, request: &Value, bounds: &Bounds) -> Result<Reply, String> {
+///
+/// `select_context` is the second argument of `select`. The front sends the
+/// caller's document with its measurement there, because the front owns the
+/// measured values. Without one, `select` receives `request.context`.
+pub fn evaluate(
+    entry: &Entry<'_>,
+    request: &Value,
+    select_context: Option<&Value>,
+    bounds: &Bounds,
+) -> Result<Reply, String> {
     let request = request_map(request, bounds)?;
-    let context = request.get("context").cloned().unwrap_or(Dynamic::UNIT);
+    let context = match select_context {
+        Some(context) if context.is_object() => from_json(context),
+        Some(_) => return Err("the selectContext is not an object".to_owned()),
+        None => request.get("context").cloned().unwrap_or(Dynamic::UNIT),
+    };
     Ok(match run(entry, request, context) {
-        Ok(selection) => Reply::Selection(selection),
+        Ok((version, result)) => Reply::Selection { version, result },
         Err(failure) => Reply::Failure(*failure),
     })
 }
@@ -75,7 +88,7 @@ fn run(
     entry: &Entry<'_>,
     request: rhai::Map,
     context: Dynamic,
-) -> Result<Value, Box<ScriptFailure>> {
+) -> Result<(String, Value), Box<ScriptFailure>> {
     let mut engine = engine();
     let mut ast = engine
         .compile(entry.source)
@@ -84,7 +97,7 @@ fn run(
 
     let module = Module::eval_ast_as_new(Scope::new(), &ast, &engine)
         .map_err(|error| Box::new(import_failure(entry, &error)))?;
-    check_contract(entry, &ast, &module)?;
+    let version = check_contract(entry, &ast, &module)?;
     engine.register_static_module(ENTRY_MODULE, module.into());
 
     let mut scope = Scope::new();
@@ -96,7 +109,7 @@ fn run(
             &format!("{ENTRY_MODULE}::select(request, context)"),
         )
         .map_err(|error| Box::new(selection_failure(entry, &error)))?;
-    convert::to_json(&returned, "result").map_err(|refused| {
+    let result = convert::to_json(&returned, "result").map_err(|refused| {
         Box::new(
             ScriptFailure::new(
                 "selection_malformed",
@@ -109,15 +122,17 @@ fn run(
             .at(entry.name, None, None)
             .path(refused.path),
         )
-    })
+    })?;
+    Ok((version, result))
 }
 
-/// The exports a policy must have. The first export that fails refuses.
+/// The exports a policy must have. The first export that fails refuses. It
+/// returns the `VERSION` the policy declared.
 fn check_contract(
     entry: &Entry<'_>,
     ast: &rhai::AST,
     module: &Module,
-) -> Result<(), Box<ScriptFailure>> {
+) -> Result<String, Box<ScriptFailure>> {
     let invalid = |message: String, at: Option<locate::Position>| {
         Box::new(located(
             ScriptFailure::new("policy_invalid", "validation", message),
@@ -165,7 +180,7 @@ fn check_contract(
         },
     }
 
-    match module.get_var(VERSION_NAME) {
+    let version = match module.get_var(VERSION_NAME) {
         None => {
             return Err(invalid(
                 format!(
@@ -176,7 +191,7 @@ fn check_contract(
             ));
         }
         Some(declared) => match declared.into_string() {
-            Ok(text) if !text.trim().is_empty() => {}
+            Ok(text) if !text.trim().is_empty() => text.to_string(),
             Ok(_) => {
                 return Err(invalid(
                     format!("{VERSION_NAME} must not be blank"),
@@ -190,7 +205,7 @@ fn check_contract(
                 ));
             }
         },
-    }
+    };
 
     let function = |name: &str| locate::declaration(entry.source, "fn", name);
     let defined = |name: &str| {
@@ -227,7 +242,7 @@ fn check_contract(
             function("load_context"),
         ));
     }
-    Ok(())
+    Ok(version)
 }
 
 const SCHEMA_VERSION_NAME: &str = "SCHEMA_VERSION";
@@ -386,7 +401,15 @@ mod tests {
             name: "/home/o/policy.rhai",
             source,
         };
-        evaluate(&entry, request, &bounds()).unwrap()
+        evaluate(&entry, request, None, &bounds()).unwrap()
+    }
+
+    /// What a successful evaluation of the `policy` helper's source reports.
+    fn selection(result: Value) -> Reply {
+        Reply::Selection {
+            version: "1.0".to_owned(),
+            result,
+        }
     }
 
     fn reply(source: &str) -> Reply {
@@ -416,7 +439,7 @@ fn select(request, context) {
         );
         assert_eq!(
             reply(&source),
-            Reply::Selection(json!({
+            selection(json!({
                 "status": "selected", "program": "claude", "args": ["--print"],
                 "provider": "p", "model": "m", "effort": "e", "reason": "fast",
             }))
@@ -429,7 +452,7 @@ fn select(request, context) {
             r#"const SEEN = [1 + 1];
 fn select(request, context) { global::SEEN }"#,
         );
-        assert_eq!(reply(&source), Reply::Selection(json!([2])));
+        assert_eq!(reply(&source), selection(json!([2])));
     }
 
     #[test]
@@ -444,7 +467,7 @@ fn select(request, context) { global::SEEN }"#,
         );
         assert_eq!(
             reply(&source),
-            Reply::Selection(json!({
+            selection(json!({
                 "names": ["context", "cwd", "kind", "limits", "params", "prompt",
                           "schemaVersion", "taskFile", "taskId"],
                 "task_file": null, "task_id": null, "context": null, "schema": 3,
@@ -467,7 +490,7 @@ fn select(request, context) { global::SEEN }"#,
         });
         assert_eq!(
             run_with(&source, &request),
-            Reply::Selection(json!({
+            selection(json!({
                 "file": "/w/t.md", "id": "T-1", "same": true, "facts": { "a": 1 },
             }))
         );
@@ -476,7 +499,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn limits_holds_the_effective_bounds() {
         let source = policy("fn select(request, context) { request.limits }");
-        assert_eq!(reply(&source), Reply::Selection(bounds().to_json()));
+        assert_eq!(reply(&source), selection(bounds().to_json()));
     }
 
     #[test]
@@ -492,7 +515,10 @@ fn select(request, context) { global::SEEN }"#,
             json!({ "kind": "k", "prompt": "", "cwd": "", "params": {}, "taskId": 4 }),
             json!({ "kind": "k", "prompt": "", "cwd": "", "params": {}, "context": [] }),
         ] {
-            assert!(evaluate(&entry, &request, &bounds()).is_err(), "{request}");
+            assert!(
+                evaluate(&entry, &request, None, &bounds()).is_err(),
+                "{request}"
+            );
         }
     }
 
@@ -524,7 +550,7 @@ fn select(request, context) { global::SEEN }"#,
         assert!(failure.message.contains("nope"), "{}", failure.message);
 
         let readable = policy("fn select(request, context) { request.taskFile }");
-        assert_eq!(reply(&readable), Reply::Selection(Value::Null));
+        assert_eq!(reply(&readable), selection(Value::Null));
     }
 
     #[test]
@@ -668,7 +694,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn a_return_of_unit_is_data_for_the_judge() {
         let source = policy("fn select(request, context) { () }");
-        assert_eq!(reply(&source), Reply::Selection(Value::Null));
+        assert_eq!(reply(&source), selection(Value::Null));
     }
 
     #[test]

@@ -4,22 +4,34 @@ use std::path::Path;
 
 use serde_json::{Map, Value};
 
-use crate::authority::{self, PolicyEntry};
+use crate::authority::{self, Format, PolicyEntry};
 use crate::cancellation;
 use crate::cli::SelectionArgs;
 use crate::context::{self, Delivered, SourceBreach};
 use crate::inputs::Inputs;
 use crate::limits::{Limits, Origin};
-use crate::policy::{self, Command, Policy, SCHEMA_VERSION, Validator};
+use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
-use crate::refusal::{Diagnostics, EXIT_REFUSED, Failure, Refusal, Stage};
+use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
+use crate::rhai_worker::engine::Entry;
+use crate::rhai_worker::front as rhai_front;
+use crate::rhai_worker::{Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
+
+/// The worker that evaluated the entry, as it reported itself.
+#[derive(Debug)]
+pub enum WorkerReport {
+    /// (typescript)
+    Bun(worker::WorkerIdentity),
+    /// (rhai)
+    Rhai(rhai_front::Identity),
+}
 
 #[derive(Debug)]
 pub struct Choice {
     pub version: String,
-    pub worker: worker::WorkerIdentity,
+    pub worker: WorkerReport,
     pub elapsed: std::time::Duration,
     pub inputs: Inputs,
     pub entry: PolicyEntry,
@@ -61,9 +73,15 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
 pub fn choose_prepared(prepared: Prepared) -> Result<Selected, Failure> {
     let Prepared { inputs, entry, .. } = prepared;
     let source = entry.display();
-    let worker_path = worker::locate()?;
+    let evaluated = match entry.format {
+        Format::TypeScript => {
+            let worker_path = worker::locate()?;
+            evaluate_and_resolve(inputs, entry, &worker_path)
+        }
+        Format::Rhai { .. } => evaluate_and_resolve_rhai(inputs, entry),
+    };
 
-    match evaluate_and_resolve(inputs, entry, &worker_path) {
+    match evaluated {
         // The program is resolved, and the handlers stay: the caller decides
         // when a signal stops cancelling.
         Ok(choice) => match cancellation::received() {
@@ -140,7 +158,7 @@ fn evaluate_and_resolve(
 
     Ok(Choice {
         version: policy.version,
-        worker: evaluation.worker,
+        worker: WorkerReport::Bun(evaluation.worker),
         elapsed: evaluation.elapsed,
         inputs,
         entry,
@@ -152,8 +170,166 @@ fn evaluate_and_resolve(
     })
 }
 
+/// Evaluate an entry of the Rhai path in the policy worker, judge what it
+/// reports and resolve the program it selected. (rhai)
+///
+/// The worker reads no file, so the entry source travels in the evaluate frame
+/// exactly as admitted. The context `select` receives is the caller's document
+/// with its measurement attached, which only this side can measure.
+fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choice, Failure> {
+    let source = entry.display();
+    let Format::Rhai { source: text } = &entry.format else {
+        unreachable!("the caller dispatched on the Rhai format")
+    };
+
+    let context = inputs
+        .context
+        .as_ref()
+        .map(|caller| {
+            context::deliver(
+                caller.value.clone(),
+                vec![caller.measured.clone()],
+                false,
+                &inputs.limits,
+                &caller.measured.name,
+            )
+        })
+        .transpose()?;
+    let program = rhai_front::executable()?;
+    // The worker has no environment of its own. A grant is for the host
+    // functions that read the caller's environment.
+    let launch = rhai_front::launch(&program, Vec::new());
+    let evaluation = rhai_front::evaluate(
+        &Entry {
+            name: &entry.path,
+            source: text,
+        },
+        &rhai_request(&inputs),
+        context.as_ref().map(|delivered| &delivered.value),
+        launch,
+        &inputs.limits,
+    )?;
+    let diagnostics = evaluation.diagnostics;
+    let refuse = |refusal: Refusal| {
+        let refusal = if evaluation.operational.is_empty() {
+            refusal
+        } else {
+            refusal.report(
+                &evaluation.operational.join("\n"),
+                "inspect reported worker operations before retrying",
+            )
+        };
+        Failure::with_diagnostics(refusal, diagnostics.clone())
+    };
+
+    let (version, result) = match evaluation.reply {
+        Reply::Selection { version, result } => (version, result),
+        Reply::Failure(failure) => {
+            return Err(refuse(script_refusal(&failure, &source, &inputs.limits)));
+        }
+    };
+    let command =
+        policy::judge_result(result, &inputs.kind, &source, Language::Rhai).map_err(refuse)?;
+    cancellation::check(&source).map_err(refuse)?;
+    let path = std::env::var_os("PATH");
+    let executable = program::resolve(&command.program, &source, &inputs.cwd, path.as_deref())
+        .map_err(refuse)?;
+
+    Ok(Choice {
+        version,
+        worker: WorkerReport::Rhai(evaluation.worker),
+        elapsed: evaluation.elapsed,
+        inputs,
+        entry,
+        command,
+        executable,
+        context,
+        diagnostics,
+        operational: evaluation.operational,
+    })
+}
+
+/// The refusal for a failure the Rhai worker reported. The code and stage are
+/// the worker's, and a position in the entry becomes `LINE:COLUMN`. (rhai)
+fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Refusal {
+    let file = failure.file.as_deref().unwrap_or(source);
+    let position = match (failure.line, failure.column) {
+        (Some(line), Some(column)) => Some(format!("{line}:{column}")),
+        (Some(line), None) => Some(line.to_string()),
+        _ => None,
+    };
+    let (code, stage, remedy): (&'static str, Stage, String) = match failure.code.as_str() {
+        "policy_parse_failed" => (
+            "policy_parse_failed",
+            Stage::Load,
+            format!("fix the syntax error in {file}, at the line and column the location names"),
+        ),
+        "policy_import_failed" => (
+            "policy_import_failed",
+            Stage::Load,
+            format!("fix {file}: its top level raised an error before any function of it ran"),
+        ),
+        "policy_invalid" => (
+            "policy_invalid",
+            Stage::Validation,
+            format!(
+                "define `export const SCHEMA_VERSION = 3;`, a nonblank `export const VERSION` \
+                 and `fn select(request, context)` in {file}"
+            ),
+        ),
+        "unsupported_version" => (
+            "unsupported_version",
+            Stage::Validation,
+            format!("set `export const SCHEMA_VERSION = 3;` in {file}; this release reads only 3"),
+        ),
+        "selection_threw" => (
+            "selection_threw",
+            Stage::Selection,
+            format!(
+                "fix select in {file} so that it returns a result on every path; to decline, \
+                 return #{{ status: \"refused\", code, message, remedy }} rather than raising"
+            ),
+        ),
+        "selection_malformed" => (
+            "selection_malformed",
+            Stage::Selection,
+            Language::Rhai.shape(source),
+        ),
+        "message_too_large" => {
+            let breach = Breach {
+                bound: "message".to_owned(),
+                actual: failure.actual,
+                source: None,
+                max_bytes: None,
+            };
+            return policy::message_too_large(Stage::Selection, &breach, source, limits);
+        }
+        other => {
+            return Refusal::new(
+                "worker_failed",
+                Stage::Worker,
+                EXIT_WORKER,
+                format!(
+                    "the policy worker reported the code {other}, which this front does not \
+                     know: {}",
+                    failure.message
+                ),
+                "reinstall ravel, and start the session again",
+            )
+            .source(file);
+        }
+    };
+    let refusal =
+        Refusal::new(code, stage, EXIT_REFUSED, failure.message.clone(), remedy).source(file);
+    match (&position, &failure.path) {
+        (Some(position), _) => refusal.location(position),
+        (None, Some(path)) => refusal.location(path),
+        (None, None) => refusal,
+    }
+}
+
 /// What the judge decided: the valid policy, the command it selected, the
-/// context it was made with.
+/// context it was made with. (typescript)
 struct Judged {
     policy: Policy,
     command: Command,
@@ -340,6 +516,17 @@ fn context_breach(breach: &Breach, policy: &Policy, inputs: &Inputs, source: &st
     }
 }
 
+/// The request of the Rhai path: the fields of the caller, with the 3 that
+/// the worker adds itself, `schemaVersion` and `limits`, left out. (rhai)
+fn rhai_request(inputs: &Inputs) -> Value {
+    let mut request = request(inputs);
+    let fields = request.as_object_mut().expect("a request is an object");
+    fields.remove("schemaVersion");
+    fields.remove("limits");
+    request
+}
+
+/// (typescript)
 fn request(inputs: &Inputs) -> Value {
     let mut request = Map::new();
     request.insert("schemaVersion".into(), SCHEMA_VERSION.into());

@@ -248,12 +248,68 @@ pub fn selected(
         }
     };
 
+    judge_result(result, kind, source, Language::TypeScript)
+}
+
+/// The language a policy is written in, which decides how a refusal tells the
+/// owner to repair the result of `select`.
+#[derive(Clone, Copy, Debug)]
+pub enum Language {
+    /// (typescript)
+    TypeScript,
+    /// (rhai)
+    Rhai,
+}
+
+impl Language {
+    /// The result shapes `select` may return, as a remedy.
+    pub fn shape(self, source: &str) -> String {
+        match self {
+            Language::TypeScript => format!(
+                "return {{ status: \"selected\", program, args, provider, model, effort, reason }} or \
+                 {{ status: \"refused\", code, message, remedy }} from select in {source}; the types in \
+                 ravel/sdk describe both"
+            ),
+            Language::Rhai => format!(
+                "return #{{ status: \"selected\", program, args, provider, model, effort, reason }} or \
+                 #{{ status: \"refused\", code, message, remedy }} from select in {source}"
+            ),
+        }
+    }
+
+    fn nothing(self) -> &'static str {
+        match self {
+            Language::TypeScript => "no result (undefined or null)",
+            Language::Rhai => "no result (the unit value `()`)",
+        }
+    }
+}
+
+/// Judge the value `select` returned, in the words of `language`. Both paths
+/// apply the same 1.x checks. The Rhai path calls this directly, with a result
+/// its worker already converted to JSON.
+pub fn judge_result(
+    result: Value,
+    kind: &str,
+    source: &str,
+    language: Language,
+) -> Result<Command, Refusal> {
+    let shape = language.shape(source);
+    let refuse = |code: &'static str, message: String, remedy: String, location: &str| {
+        Refusal::new(code, Stage::Selection, EXIT_REFUSED, message, remedy)
+            .source(source)
+            .location(location)
+    };
+    let malformed = |location: &str, message: String| {
+        refuse("selection_malformed", message, shape.clone(), location)
+    };
+
     if result.is_null() {
         return Err(refuse(
             "selection_abstained",
             format!(
-                "select in {source} returned no result (undefined or null), so it selected \
-                 nothing"
+                "select in {source} returned {}, so it selected nothing",
+                language.nothing()
             ),
             format!("{shape}; ravel never picks a command for a policy that abstains"),
             "result",

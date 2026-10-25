@@ -19,8 +19,8 @@
 //! | Frame | From | Fields |
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
-//! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds` |
-//! | `selection` | worker | `result`: the JSON form of what `select` returned |
+//! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
+//! | `selection` | worker | `version`: the policy's `VERSION`. `result`: the JSON form of what `select` returned |
 //! | `failure` | worker | `failure`: a [`ScriptFailure`] |
 
 pub mod convert;
@@ -249,23 +249,31 @@ impl ScriptFailure {
 /// What the worker reports once it has evaluated the entry.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Reply {
-    /// The JSON form of what `select` returned, `null` for `()`. Judging it is
-    /// the front's.
-    Selection(Value),
+    /// What `select` returned, with the `VERSION` the policy declared. The
+    /// result is JSON, `null` for `()`. Judging it is the front's.
+    Selection {
+        version: String,
+        result: Value,
+    },
     Failure(ScriptFailure),
 }
 
 impl Reply {
     pub fn to_frame(&self) -> Value {
         match self {
-            Reply::Selection(result) => json!({ "type": "selection", "result": result }),
+            Reply::Selection { version, result } => {
+                json!({ "type": "selection", "version": version, "result": result })
+            }
             Reply::Failure(failure) => json!({ "type": "failure", "failure": failure.to_json() }),
         }
     }
 
     pub fn from_frame(frame: &Value) -> Option<Self> {
         match frame.get("type").and_then(Value::as_str)? {
-            "selection" => Some(Reply::Selection(frame.get("result")?.clone())),
+            "selection" => Some(Reply::Selection {
+                version: frame.get("version")?.as_str()?.to_owned(),
+                result: frame.get("result")?.clone(),
+            }),
             "failure" => ScriptFailure::from_json(frame.get("failure")?).map(Reply::Failure),
             _ => None,
         }
@@ -305,7 +313,10 @@ mod tests {
 
     #[test]
     fn a_reply_round_trips_through_its_frame() {
-        let selection = Reply::Selection(json!({ "status": "selected" }));
+        let selection = Reply::Selection {
+            version: "1".to_owned(),
+            result: json!({ "status": "selected" }),
+        };
         assert_eq!(Reply::from_frame(&selection.to_frame()), Some(selection));
         let failure = Reply::Failure(
             ScriptFailure::new("selection_threw", "selection", "boom").at("p.rhai", Some(3), None),

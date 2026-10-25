@@ -97,18 +97,28 @@ pub fn launch(program: &Path, environment: Vec<(OsString, OsString)>) -> Launch<
 ///
 /// `request` holds `kind`, `prompt`, `cwd` and `params`, and may hold `taskFile`,
 /// `taskId` and `context`. The worker adds `schemaVersion` and `limits` itself,
-/// from its own copy of the bounds. The whole evaluation counts from the start
+/// from its own copy of the bounds. `select_context` is the second argument of
+/// `select`: the caller's document with its measurement attached. Without one,
+/// `select` receives `request.context`. The whole evaluation counts from the start
 /// of the worker, within the selection bound of `limits`.
 pub fn evaluate(
     entry: &Entry<'_>,
     request: &Value,
+    select_context: Option<&Value>,
     launch: Launch<'_>,
     limits: &Limits,
 ) -> Result<Evaluated, Failure> {
     let program = launch.program.to_owned();
     let bounds = Bounds::from_limits(limits);
     let supervised = supervise(launch, entry.name, limits, |channel, started| {
-        converse(channel, &program, entry, request, &bounds, started)
+        converse(
+            channel,
+            &program,
+            entry,
+            (request, select_context),
+            &bounds,
+            started,
+        )
     })?;
     let (worker, reply, elapsed) = supervised.decided;
     Ok(Evaluated {
@@ -124,26 +134,26 @@ fn converse(
     mut channel: Bounded<'_>,
     program: &Path,
     entry: &Entry<'_>,
-    request: &Value,
+    (request, select_context): (&Value, Option<&Value>),
     bounds: &Bounds,
     started: Instant,
 ) -> Result<(Identity, Reply, Duration), Conversation> {
     let hello = receive_for(&mut channel, program, REBUILD, false, HELLO_BYTES)?;
     let identity = verify_hello(&hello, program).map_err(Conversation::Broken)?;
 
-    write_frame(
-        &mut channel,
-        &json!({
-            "type": "evaluate",
-            "protocol": PROTOCOL,
-            // Exactly the admitted file: the failures name it.
-            "entry": entry.name,
-            "source": entry.source,
-            "request": request,
-            "bounds": bounds.to_json(),
-        }),
-    )
-    .map_err(|error| Conversation::failed(error, false))?;
+    let mut frame = json!({
+        "type": "evaluate",
+        "protocol": PROTOCOL,
+        // Exactly the admitted file: the failures name it.
+        "entry": entry.name,
+        "source": entry.source,
+        "request": request,
+        "bounds": bounds.to_json(),
+    });
+    if let Some(context) = select_context {
+        frame["selectContext"] = context.clone();
+    }
+    write_frame(&mut channel, &frame).map_err(|error| Conversation::failed(error, false))?;
 
     let max = usize::try_from(bounds.message_bytes)
         .unwrap_or(usize::MAX)
@@ -258,7 +268,13 @@ mod tests {
             name: "/home/o/policy.rhai",
             source,
         };
-        evaluate(&entry, request, launch(&program, Vec::new()), &limits())
+        evaluate(
+            &entry,
+            request,
+            None,
+            launch(&program, Vec::new()),
+            &limits(),
+        )
     }
 
     #[test]
@@ -278,10 +294,13 @@ fn select(request, context) {
         .unwrap();
         assert_eq!(
             evaluated.reply,
-            Reply::Selection(json!({
-                "status": "selected", "program": "claude",
-                "args": ["--print", "--fast"], "reason": "v",
-            }))
+            Reply::Selection {
+                version: "1".to_owned(),
+                result: json!({
+                    "status": "selected", "program": "claude",
+                    "args": ["--print", "--fast"], "reason": "v",
+                }),
+            }
         );
         assert_eq!(evaluated.worker.build_id, BUILD_ID);
         assert_eq!(evaluated.worker.rhai_version, "1.27.0");
@@ -374,8 +393,14 @@ fn select(request, context) {
             source: "",
         };
         let program = Path::new("/nonexistent/ravel");
-        let failure =
-            evaluate(&entry, &request(), launch(program, Vec::new()), &limits()).unwrap_err();
+        let failure = evaluate(
+            &entry,
+            &request(),
+            None,
+            launch(program, Vec::new()),
+            &limits(),
+        )
+        .unwrap_err();
         assert_eq!(failure.refusal.code, "worker_missing");
     }
 }

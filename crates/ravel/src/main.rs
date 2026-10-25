@@ -17,12 +17,6 @@ mod native_entry_tests;
 mod policy;
 mod program;
 mod refusal;
-// The front half has no caller until `rhai-route-table-seam` joins it to
-// `start-session`; that leaf removes this expectation.
-#[expect(
-    dead_code,
-    reason = "the front half is joined to start-session by the seam leaf"
-)]
 mod rhai_worker;
 mod run;
 mod settings;

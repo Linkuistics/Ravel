@@ -12,7 +12,7 @@ use keyed_launch::{Argv, End, Escalation, Group, Launch, LaunchEvent};
 use ravel::{EXIT_FILE_VARIABLE, SessionChannel};
 use serde_json::json;
 
-use crate::choice::{self, Selected};
+use crate::choice::{self, Selected, WorkerReport};
 use crate::cli::RunArgs;
 use crate::refusal::{EXIT_MALFORMED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::signal_state;
@@ -82,11 +82,25 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 .map_err(|error| failed("session_channel_unavailable", error))?,
         );
         if args.json {
-            selection_notice = Some(json!({"schemaVersion": 1, "selection": {
+            let (schema_version, worker) = match &choice.worker {
+                // (typescript)
+                WorkerReport::Bun(worker) => (
+                    1,
+                    json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "bunVersion": worker.bun_version}),
+                ),
+                // Schema version 2 reports the members that exist: later
+                // increments add `modules`, `reads`, `llmCalls`, `harnessRuns`,
+                // the `rigVersion` and the new bounds. (rhai)
+                WorkerReport::Rhai(worker) => (
+                    2,
+                    json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "rhaiVersion": worker.rhai_version}),
+                ),
+            };
+            selection_notice = Some(json!({"schemaVersion": schema_version, "selection": {
             "provider": choice.command.provider, "model": choice.command.model,
             "effort": choice.command.effort, "reason": choice.command.reason,
         }, "policy": {"path": choice.entry.path, "version": choice.version},
-        "worker": {"path": choice.worker.path, "version": choice.worker.package_version, "buildId": choice.worker.build_id, "bunVersion": choice.worker.bun_version},
+        "worker": worker,
         "selectionMs": choice.elapsed.as_millis(), "context": choice.context.as_ref().map(|context| context.to_json(true)),
         "bounds": choice.inputs.limits.to_json(), "policyEnvironment": choice.inputs.grants.to_json(),
         "resolution": choice.executable.to_text(),

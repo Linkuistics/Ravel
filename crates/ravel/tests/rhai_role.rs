@@ -117,6 +117,7 @@ fn the_role_says_hello_evaluates_the_source_and_exits_after_its_result() {
         reply,
         json!({
             "type": "selection",
+            "version": "role-test",
             "result": { "status": "selected", "program": "fake-agent", "args": ["--print"] },
         })
     );

@@ -80,7 +80,12 @@ fn serve() -> Result<(), Stop> {
                 name: &evaluate.entry,
                 source: &evaluate.source,
             };
-            engine::evaluate(&entry, &evaluate.request, &evaluate.bounds)
+            engine::evaluate(
+                &entry,
+                &evaluate.request,
+                evaluate.select_context.as_ref(),
+                &evaluate.bounds,
+            )
         })
         .map_err(|error| Stop::refused(format!("the evaluation thread did not start: {error}")))
         .and_then(|thread| {
@@ -135,6 +140,8 @@ struct Evaluate {
     entry: String,
     source: String,
     request: Value,
+    /// What `select` gets as its second argument, when it is not `request.context`.
+    select_context: Option<Value>,
     bounds: Bounds,
 }
 
@@ -148,6 +155,7 @@ impl Evaluate {
             entry: text("entry")?,
             source: text("source")?,
             request: frame.get("request")?.clone(),
+            select_context: frame.get("selectContext").filter(|v| !v.is_null()).cloned(),
             bounds: Bounds::from_json(frame.get("bounds")?).ok()?,
         })
     }
@@ -171,12 +179,18 @@ mod tests {
 
     #[test]
     fn a_result_over_the_message_bound_becomes_a_failure() {
-        let big = Reply::Selection(json!({ "text": "x".repeat(200) }));
+        let big = Reply::Selection {
+            version: "1".to_owned(),
+            result: json!({ "text": "x".repeat(200) }),
+        };
         let frame = bounded(big, 100);
         assert_eq!(frame["type"], "failure");
         assert_eq!(frame["failure"]["code"], "message_too_large");
         assert!(frame["failure"]["actual"].as_u64().unwrap() > 100);
-        let small = Reply::Selection(json!(1));
+        let small = Reply::Selection {
+            version: "1".to_owned(),
+            result: json!(1),
+        };
         assert_eq!(bounded(small.clone(), 100), small.to_frame());
     }
 }
