@@ -20,17 +20,31 @@
 //! |---|---|---|
 //! | `hello` | worker | `protocol`, `packageVersion`, `buildId`, `rhaiVersion` |
 //! | `evaluate` | front | `protocol`, `entry`, `source`, `request`, `bounds`, and `selectContext` when the front has a context to hand `select` |
+//! | `host` | worker | `call` (`read_text`, `read_json` or `import`), `phase`, `path`, and where the call was made: `file`, `line`, `column`. A read adds `maxBytes`, an import `from` |
+//! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name` |
+//! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
+//! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
 //! | `selection` | worker | `version`: the policy's `VERSION`. `result`: the JSON form of what `select` returned |
 //! | `failure` | worker | `failure`: a [`ScriptFailure`] |
+//!
+//! A host function is a blocking call in the worker. The worker sends one `host`
+//! or `context` frame and waits for the one answer, so no frame of the worker
+//! is in flight while the front works. The result follows the reply to the
+//! last call.
 
+mod bridge;
 mod callbacks;
 pub mod convert;
 pub mod engine;
 pub mod front;
 pub mod heap;
+mod host;
 mod locate;
 mod pointer_calls;
+pub mod reader;
+mod resolver;
 pub mod role;
+mod serve;
 
 use serde_json::{Value, json};
 
@@ -129,9 +143,70 @@ impl Limit {
     }
 }
 
-/// The most modules a policy may import. This increment offers no import, so
-/// the bound is set and never reached.
+/// The most modules a policy may import, besides the entry.
 pub const MAX_MODULES: usize = 64;
+
+/// The part of the evaluation a host call was made in, which is also the stage
+/// of a refusal about the call.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Phase {
+    /// The top level of the entry and of the modules it imports.
+    Load,
+    /// `load_context`.
+    Context,
+    /// `select`.
+    Selection,
+}
+
+impl Phase {
+    pub fn name(self) -> &'static str {
+        match self {
+            Phase::Load => "load",
+            Phase::Context => "context",
+            Phase::Selection => "selection",
+        }
+    }
+
+    pub fn from_name(name: &str) -> Option<Phase> {
+        [Phase::Load, Phase::Context, Phase::Selection]
+            .into_iter()
+            .find(|phase| phase.name() == name)
+    }
+}
+
+/// The entry or a module, as Ravel measured it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Module {
+    /// The canonical path.
+    pub name: String,
+    pub bytes: u64,
+    pub sha256: String,
+}
+
+impl Module {
+    pub fn to_json(&self) -> Value {
+        json!({ "name": self.name, "bytes": self.bytes, "sha256": self.sha256 })
+    }
+}
+
+/// A measured read and the part of the evaluation that made it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Read {
+    pub phase: Phase,
+    pub measured: crate::context::Measured,
+}
+
+impl Read {
+    pub fn to_json(&self) -> Value {
+        json!({
+            "via": self.measured.via,
+            "phase": self.phase.name(),
+            "name": self.measured.name,
+            "bytes": self.measured.bytes,
+            "sha256": self.measured.sha256,
+        })
+    }
+}
 
 /// The expression depth that a function body allows.
 pub const EXPRESSION_DEPTH_IN_FUNCTION: u64 = 32;
@@ -253,13 +328,16 @@ impl Bounds {
 pub struct ScriptFailure {
     /// A code of the spec's table: `policy_parse_failed`, `policy_import_failed`,
     /// `policy_invalid`, `unsupported_version`, `selection_threw`,
-    /// `selection_malformed`, `message_too_large`, `script_limit` or
-    /// `memory_limit`.
+    /// `selection_malformed`, `context_loader_failed`, `context_invalid`,
+    /// `context_too_large`, `host_request_invalid`, `source_too_large`,
+    /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`
+    /// or `worker_failed`. The front raises the codes about a read, an import
+    /// and the size of a context when it ends the evaluation itself.
     pub code: String,
     /// The stage of that code.
     pub stage: String,
     pub message: String,
-    /// The entry the line and column are in.
+    /// The entry or module the line and column are in.
     pub file: Option<String>,
     pub line: Option<u64>,
     pub column: Option<u64>,
@@ -269,6 +347,10 @@ pub struct ScriptFailure {
     pub actual: Option<u64>,
     /// For `script_limit` and `memory_limit`: the [`Limit::name`] that was hit.
     pub bound: Option<String>,
+    /// For `source_too_large` and `too_many_sources`: the file that was read.
+    pub source: Option<String>,
+    /// For `source_too_large`: the `max_bytes` the read passed, if it passed one.
+    pub max_bytes: Option<u64>,
 }
 
 impl ScriptFailure {
@@ -283,6 +365,8 @@ impl ScriptFailure {
             path: None,
             actual: None,
             bound: None,
+            source: None,
+            max_bytes: None,
         }
     }
 
@@ -312,6 +396,7 @@ impl ScriptFailure {
             ("file", &self.file),
             ("path", &self.path),
             ("bound", &self.bound),
+            ("source", &self.source),
         ] {
             if let Some(value) = value {
                 map.insert(name.into(), json!(value));
@@ -321,6 +406,7 @@ impl ScriptFailure {
             ("line", self.line),
             ("column", self.column),
             ("actual", self.actual),
+            ("maxBytes", self.max_bytes),
         ] {
             if let Some(value) = value {
                 map.insert(name.into(), json!(value));
@@ -342,6 +428,8 @@ impl ScriptFailure {
             path: text("path"),
             actual: number("actual"),
             bound: text("bound"),
+            source: text("source"),
+            max_bytes: number("maxBytes"),
         })
     }
 }

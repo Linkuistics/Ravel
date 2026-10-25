@@ -62,7 +62,7 @@ const CLEANUP_GRACE: Duration = Duration::from_secs(1);
 /// The longest a channel read or write waits before it looks again at the
 /// diagnostics bound, so that a policy printing without end is stopped for
 /// that, promptly, rather than at the deadline.
-const POLL: Duration = Duration::from_millis(50);
+pub(crate) const POLL: Duration = Duration::from_millis(50);
 
 /// What a context frame carries beyond the delivered context the worker
 /// measured: its type, and the `measured` key it moves out of the context.
@@ -1305,6 +1305,16 @@ pub(crate) struct Bounded<'a> {
     channel: &'a UnixStream,
     deadline: Instant,
     overflow: &'a AtomicBool,
+}
+
+impl<'a> Bounded<'a> {
+    /// The parts a runtime needs to take over the conversation: the channel,
+    /// the instant the evaluation ends, and the flag that the policy's output
+    /// passed its bound. The handshake used this channel with timeouts, and
+    /// the runtime keeps the same stops.
+    pub(crate) fn parts(&self) -> (&'a UnixStream, Instant, &'a AtomicBool) {
+        (self.channel, self.deadline, self.overflow)
+    }
 }
 
 impl Bounded<'_> {

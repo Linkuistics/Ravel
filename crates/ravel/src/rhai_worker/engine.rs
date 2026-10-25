@@ -7,22 +7,27 @@
 //! decides what Ravel does with a selection.
 
 use std::io::Write as _;
+use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering::Relaxed};
 
-use rhai::{
-    Dynamic, Engine, EvalAltResult, Module, ParseError, ParseErrorType, Position, Scope,
-    module_resolvers::DummyModuleResolver,
-};
-use serde_json::Value;
+use rhai::{Dynamic, Engine, EvalAltResult, Module, ParseError, ParseErrorType, Position, Scope};
+use serde_json::{Value, json};
 
+use super::bridge::Bridge;
 use super::callbacks;
 use super::convert::{self, from_json};
 use super::locate;
-use super::{Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, MAX_MODULES, Reply, ScriptFailure};
+use super::resolver::HostResolver;
+use super::{
+    Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, MAX_MODULES, Phase, Reply, ScriptFailure,
+};
 
 /// The value of `SCHEMA_VERSION` this release reads.
 pub const SCHEMA_VERSION: i64 = 3;
+
+/// The name of the namespace that holds the host functions.
+const HOST_NAMESPACE: &str = "ravel";
 
 /// The module name under which the evaluated entry answers calls. Its functions
 /// run against the constants the top level declared, which a call on the AST
@@ -96,7 +101,14 @@ pub fn evaluate(
     select_context: Option<&Value>,
     bounds: &Bounds,
 ) -> Result<Reply, String> {
-    evaluate_with(entry, request, select_context, bounds, &Latch::default())
+    evaluate_with(
+        entry,
+        request,
+        select_context,
+        bounds,
+        &Latch::default(),
+        &Bridge::detached(*bounds),
+    )
 }
 
 /// [`evaluate`] with a latch the caller holds, so that it can stop the
@@ -107,6 +119,7 @@ pub fn evaluate_with(
     select_context: Option<&Value>,
     bounds: &Bounds,
     latch: &Latch,
+    bridge: &Rc<Bridge>,
 ) -> Result<Reply, String> {
     let request = request_map(request, bounds)?;
     let context = match select_context {
@@ -114,14 +127,18 @@ pub fn evaluate_with(
         Some(_) => return Err("the selectContext is not an object".to_owned()),
         None => request.get("context").cloned().unwrap_or(Dynamic::UNIT),
     };
-    let outcome = run(entry, request, context, latch);
+    let outcome = run(entry, request, context, latch, bridge);
     if latch.stopped() {
         return Err("the front asked the evaluation to stop".to_owned());
     }
     // The latch decides before the outcome does: a breach that a script
     // swallowed still refuses.
     if let Some(limit) = latch.breached() {
-        return Ok(Reply::Failure(limit_failure(entry, limit, None, None)));
+        return Ok(Reply::Failure(limit_failure(entry.name, limit, None, None)));
+    }
+    // So does an end that a host function raised, which `try` cannot catch.
+    if let Some(failure) = bridge.ended() {
+        return Ok(Reply::Failure(failure));
     }
     Ok(match outcome {
         Ok((version, result)) => Reply::Selection { version, result },
@@ -132,10 +149,10 @@ pub fn evaluate_with(
 /// The engine every policy runs in.
 ///
 /// The default `Engine` installs a file module resolver, which would read any
-/// path a script names; this worker reads no file, so it takes the dummy
-/// resolver, which refuses every import. Source: `Engine::new` in
+/// path a script names; this worker reads no file, so it takes a resolver that
+/// asks the front. Source: `Engine::new` in
 /// <https://docs.rs/rhai/1.27.0/src/rhai/engine.rs.html>, and
-/// <https://docs.rs/rhai/1.27.0/rhai/module_resolvers/struct.DummyModuleResolver.html>.
+/// <https://docs.rs/rhai/1.27.0/rhai/trait.ModuleResolver.html>.
 /// The strict options are the ones of
 /// <https://docs.rs/rhai/1.27.0/rhai/struct.Engine.html#method.set_strict_variables>
 /// and `set_fail_on_invalid_map_property`.
@@ -146,9 +163,12 @@ pub fn evaluate_with(
 /// *The policy worker*, in [`Limit`]. The operations bound is not set on the
 /// engine: the progress hook counts and enforces it, across the top level and
 /// `select` together, and records the breach in the latch.
-fn engine(latch: &Latch) -> Engine {
+fn engine(latch: &Latch, bridge: &Rc<Bridge>, entry: &Entry<'_>) -> Engine {
     let mut engine = Engine::new();
-    engine.set_module_resolver(DummyModuleResolver::new());
+    // The default `Engine` installs a file resolver. This one asks the front,
+    // which reads the module on its reader thread.
+    engine.set_module_resolver(HostResolver::new(Rc::clone(bridge), entry.name));
+    engine.register_static_module(HOST_NAMESPACE, bridge.namespace().into());
     engine.set_strict_variables(true);
     engine.set_fail_on_invalid_map_property(true);
     engine.disable_symbol("eval");
@@ -192,18 +212,26 @@ fn run(
     request: rhai::Map,
     context: Dynamic,
     latch: &Latch,
+    bridge: &Rc<Bridge>,
 ) -> Result<(String, Value), Box<ScriptFailure>> {
-    let mut engine = engine(latch);
+    let mut engine = engine(latch, bridge, entry);
     let mut ast = engine
         .compile(entry.source)
-        .map_err(|error| Box::new(parse_failure(entry, &error)))?;
+        .map_err(|error| Box::new(parse_failure(entry.name, &error)))?;
     ast.set_source(entry.name);
 
+    bridge.enter(Phase::Load);
     let module = Module::eval_ast_as_new(Scope::new(), &ast, &engine)
-        .map_err(|error| Box::new(import_failure(entry, &error)))?;
-    let version = check_contract(entry, &ast, &module)?;
+        .map_err(|error| Box::new(import_failure(entry.name, &error)))?;
+    let (version, loads_context) = check_contract(entry, &ast, &module)?;
     engine.register_static_module(ENTRY_MODULE, module.into());
 
+    let context = if loads_context {
+        load_context(&engine, entry, &request, bridge)?
+    } else {
+        context
+    };
+    bridge.enter(Phase::Selection);
     let mut scope = Scope::new();
     scope.push("request", Dynamic::from_map(request));
     scope.push("context", context);
@@ -212,7 +240,7 @@ fn run(
             &mut scope,
             &format!("{ENTRY_MODULE}::select(request, context)"),
         )
-        .map_err(|error| Box::new(selection_failure(entry, &error)))?;
+        .map_err(|error| Box::new(selection_failure(entry.name, &error)))?;
     let result = convert::to_json(&returned, "result").map_err(|refused| {
         Box::new(
             ScriptFailure::new(
@@ -230,13 +258,72 @@ fn run(
     Ok((version, result))
 }
 
+/// Run `load_context`, hand what it returned to the front, and return the
+/// context the front delivers: the value with its measured sources.
+fn load_context(
+    engine: &Engine,
+    entry: &Entry<'_>,
+    request: &rhai::Map,
+    bridge: &Rc<Bridge>,
+) -> Result<Dynamic, Box<ScriptFailure>> {
+    bridge.enter(Phase::Context);
+    let mut scope = Scope::new();
+    scope.push("request", Dynamic::from_map(request.clone()));
+    let returned = engine
+        .eval_with_scope::<Dynamic>(
+            &mut scope,
+            &format!("{ENTRY_MODULE}::load_context(request)"),
+        )
+        .map_err(|error| Box::new(context_failure(entry.name, &error)))?;
+    let value = convert::to_json(&returned, "context").map_err(|refused| {
+        Box::new(
+            ScriptFailure::new(
+                "context_invalid",
+                "context",
+                format!(
+                    "load_context returned a value that cannot cross to Ravel as JSON: {}",
+                    refused.reason
+                ),
+            )
+            .at(entry.name, None, None)
+            .path(refused.path),
+        )
+    })?;
+    // The front reads a context frame up to the context budget, so a larger one
+    // is reported by its size and never sent.
+    let size = serde_json::to_vec(&value).map_or(u64::MAX, |bytes| bytes.len() as u64);
+    let frame = if size > bridge.bounds().context_bytes {
+        json!({ "type": "context", "oversize": size })
+    } else {
+        json!({ "type": "context", "value": value })
+    };
+    let answer = bridge.ask(&frame).map_err(|_| {
+        Box::new(ScriptFailure::new(
+            "stopped",
+            "context",
+            "the front stopped",
+        ))
+    })?;
+    match (
+        answer.get("type").and_then(Value::as_str),
+        answer.get("context"),
+    ) {
+        (Some("delivered"), Some(context)) => Ok(from_json(context)),
+        _ => Err(Box::new(ScriptFailure::new(
+            "worker_failed",
+            "context",
+            "the answer to the context broke the protocol",
+        ))),
+    }
+}
+
 /// The exports a policy must have. The first export that fails refuses. It
 /// returns the `VERSION` the policy declared.
 fn check_contract(
     entry: &Entry<'_>,
     ast: &rhai::AST,
     module: &Module,
-) -> Result<String, Box<ScriptFailure>> {
+) -> Result<(String, bool), Box<ScriptFailure>> {
     let invalid = |message: String, at: Option<locate::Position>| {
         Box::new(located(
             ScriptFailure::new("policy_invalid", "validation", message),
@@ -338,15 +425,25 @@ fn check_contract(
             ),
         });
     }
-    if !defined("load_context").is_empty() {
-        return Err(invalid(
-            "this build does not support `load_context` yet; remove it, and the selection \
-             receives the caller's context"
-                .to_owned(),
-            function("load_context"),
-        ));
+    let loaders = defined("load_context");
+    if !loaders.is_empty()
+        && !loaders
+            .iter()
+            .any(|&(arity, access)| arity == 1 && access == rhai::FnAccess::Public)
+    {
+        return Err(match loaders.first() {
+            Some(&(1, _)) => invalid(
+                "`load_context` is private; remove `private`, so that Ravel can call it".to_owned(),
+                function("load_context"),
+            ),
+            Some(&(arity, _)) => invalid(
+                format!("`load_context` must take 1 parameter, request, and takes {arity}"),
+                function("load_context"),
+            ),
+            None => unreachable!("the list is not empty"),
+        });
     }
-    Ok(version)
+    Ok((version, !loaders.is_empty()))
 }
 
 const SCHEMA_VERSION_NAME: &str = "SCHEMA_VERSION";
@@ -400,9 +497,9 @@ fn located(
     )
 }
 
-fn at(failure: ScriptFailure, entry: &Entry<'_>, position: Position) -> ScriptFailure {
+fn at(failure: ScriptFailure, file: &str, position: Position) -> ScriptFailure {
     failure.at(
-        entry.name,
+        file,
         position.line().map(|line| line as u64),
         position.position().map(|column| column as u64),
     )
@@ -425,9 +522,9 @@ fn limit_of(error: &EvalAltResult) -> Option<Limit> {
     }
 }
 
-/// The failure for a breach of `limit`, with the position Rhai gave it.
-fn limit_failure(
-    entry: &Entry<'_>,
+/// The failure for a breach of `limit` in `file`, with the position Rhai gave it.
+pub(super) fn limit_failure(
+    file: &str,
     limit: Limit,
     position: Option<Position>,
     detail: Option<&str>,
@@ -452,12 +549,14 @@ fn limit_failure(
     )
     .bound(limit);
     match position {
-        Some(position) => at(failure, entry, position),
-        None => failure.at(entry.name, None, None),
+        Some(position) => at(failure, file, position),
+        None => failure.at(file, None, None),
     }
 }
 
-fn parse_failure(entry: &Entry<'_>, error: &ParseError) -> ScriptFailure {
+/// The failure for a source that does not parse. `file` is the entry or the
+/// module that holds the error.
+pub(super) fn parse_failure(file: &str, error: &ParseError) -> ScriptFailure {
     let limit = match error.err_type() {
         ParseErrorType::ExprTooDeep => Some(Limit::ExpressionDepth),
         ParseErrorType::TooManyFunctions => Some(Limit::ScriptFunctions),
@@ -470,7 +569,7 @@ fn parse_failure(entry: &Entry<'_>, error: &ParseError) -> ScriptFailure {
         _ => None,
     };
     if let Some(limit) = limit {
-        return limit_failure(entry, limit, Some(error.position()), None);
+        return limit_failure(file, limit, Some(error.position()), None);
     }
     at(
         ScriptFailure::new(
@@ -478,43 +577,50 @@ fn parse_failure(entry: &Entry<'_>, error: &ParseError) -> ScriptFailure {
             "load",
             without_position(&error.to_string()),
         ),
-        entry,
+        file,
         error.position(),
     )
 }
 
-fn import_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure {
-    let (cause, position) = innermost(error);
+/// The failure for a top level that raised an error. `file` is the entry or
+/// the module whose top level it was, unless the error came from a function of
+/// another file.
+pub(super) fn import_failure(file: &str, error: &EvalAltResult) -> ScriptFailure {
+    let (cause, position, origin) = innermost(error);
+    let file = origin.as_deref().unwrap_or(file);
     if let Some(limit) = limit_of(error) {
         return limit_failure(
-            entry,
+            file,
             limit,
             Some(position),
             Some(&without_position(&cause.to_string())),
         );
     }
+    let what = match cause {
+        EvalAltResult::ErrorTooManyModules(..) => {
+            format!("it ran more than {MAX_MODULES} import statements")
+        }
+        _ => without_position(&cause.to_string()),
+    };
     at(
         ScriptFailure::new(
             "policy_import_failed",
             "load",
-            format!(
-                "the top level of the policy failed: {}",
-                without_position(&cause.to_string())
-            ),
+            format!("the top level of the policy failed: {what}"),
         ),
-        entry,
+        file,
         position,
     )
 }
 
-fn selection_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure {
-    let (cause, position) = innermost(error);
+fn selection_failure(file: &str, error: &EvalAltResult) -> ScriptFailure {
+    let (cause, position, origin) = innermost(error);
     if let Some(limit) = limit_of(error) {
         // Rhai moves the position of a limit error to the call that entered the
         // function, and the call that entered `select` is the worker's own
         // expression. That position names nothing in the policy, so it stays out.
         return limit_failure(
-            entry,
+            file,
             limit,
             None,
             Some(&without_position(&cause.to_string())),
@@ -529,19 +635,58 @@ fn selection_failure(entry: &Entry<'_>, error: &EvalAltResult) -> ScriptFailure 
                 without_position(&cause.to_string())
             ),
         ),
-        entry,
+        origin.as_deref().unwrap_or(file),
         position,
     )
 }
 
-/// The error that started a chain of calls, with its position in the entry:
-/// the call frames around it only say where each function was called from.
-fn innermost(error: &EvalAltResult) -> (&EvalAltResult, Position) {
-    match error {
-        EvalAltResult::ErrorInFunctionCall(_, _, inner, _)
-        | EvalAltResult::ErrorInModule(_, inner, _) => innermost(inner),
-        other => (other, other.position()),
+/// The failure for a `load_context` that raised an error.
+fn context_failure(file: &str, error: &EvalAltResult) -> ScriptFailure {
+    let (cause, position, origin) = innermost(error);
+    if let Some(limit) = limit_of(error) {
+        return limit_failure(
+            file,
+            limit,
+            None,
+            Some(&without_position(&cause.to_string())),
+        );
     }
+    at(
+        ScriptFailure::new(
+            "context_loader_failed",
+            "context",
+            format!(
+                "load_context raised an error: {}",
+                without_position(&cause.to_string())
+            ),
+        ),
+        origin.as_deref().unwrap_or(file),
+        position,
+    )
+}
+
+/// The error that started a chain of calls, with its position and the file of
+/// the function it was raised in when that is not the entry: the call frames
+/// around it only say where each function was called from.
+fn innermost(error: &EvalAltResult) -> (&EvalAltResult, Position, Option<String>) {
+    fn descend(
+        error: &EvalAltResult,
+        origin: Option<String>,
+    ) -> (&EvalAltResult, Position, Option<String>) {
+        match error {
+            EvalAltResult::ErrorInFunctionCall(_, source, inner, _) => {
+                let origin = if source.is_empty() {
+                    origin
+                } else {
+                    Some(source.clone())
+                };
+                descend(inner, origin)
+            }
+            EvalAltResult::ErrorInModule(_, inner, _) => descend(inner, origin),
+            other => (other, other.position(), origin),
+        }
+    }
+    descend(error, None)
 }
 
 /// Rhai appends ` (line N, position M)` to a message. The failure carries the
@@ -747,13 +892,13 @@ fn select(request, context) { global::SEEN }"#,
     }
 
     #[test]
-    fn an_import_has_no_resolver_to_read_a_file() {
+    fn an_import_asks_the_front_and_a_worker_without_one_cannot_resolve_it() {
         let failure = failure(&policy(
             "import \"/etc/hosts\" as hosts;\nfn select(request, context) { () }",
         ));
         assert_eq!(failure.code, "policy_import_failed");
         assert!(
-            failure.message.contains("/etc/hosts"),
+            failure.message.contains("no Ravel CLI to ask"),
             "{}",
             failure.message
         );
@@ -861,20 +1006,24 @@ fn select(request, context) { global::SEEN }"#,
     }
 
     #[test]
-    fn a_defined_load_context_refuses_as_this_build_does_not_support_it() {
-        let failure = failure(&policy(
-            "fn select(request, context) { () }\nfn load_context(request) { #{} }",
+    fn a_load_context_must_be_public_and_take_the_request_alone() {
+        let arity = failure(&policy(
+            "fn select(request, context) { () }\nfn load_context(request, more) { #{} }",
         ));
-        assert_eq!(failure.code, "policy_invalid");
-        assert_eq!(failure.stage, "validation");
+        assert_eq!(arity.code, "policy_invalid");
+        assert_eq!(arity.stage, "validation");
         assert!(
-            failure
-                .message
-                .contains("does not support `load_context` yet"),
+            arity.message.contains("must take 1 parameter"),
             "{}",
-            failure.message
+            arity.message
         );
-        assert_eq!((failure.line, failure.column), (Some(4), Some(4)));
+        assert_eq!((arity.line, arity.column), (Some(4), Some(4)));
+
+        let hidden = failure(&policy(
+            "fn select(request, context) { () }\nprivate fn load_context(request) { #{} }",
+        ));
+        assert_eq!(hidden.code, "policy_invalid");
+        assert!(hidden.message.contains("is private"), "{}", hidden.message);
     }
 
     #[test]
@@ -931,7 +1080,11 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn every_limit_of_the_spec_table_is_set_on_the_engine_and_not_left_to_the_build_profile() {
-        let engine = engine(&Latch::default());
+        let entry = Entry {
+            name: "/home/o/policy.rhai",
+            source: "",
+        };
+        let engine = engine(&Latch::default(), &Bridge::detached(bounds()), &entry);
         assert_eq!(engine.max_call_levels(), 64);
         assert_eq!(engine.max_expr_depth(), 64);
         assert_eq!(engine.max_function_expr_depth(), 32);
@@ -1347,7 +1500,14 @@ fn select(request, context) { global::SEEN }"#,
                 name: "/home/o/policy.rhai",
                 source: &source,
             };
-            evaluate_with(&entry, &request(), None, &bounds(), &latch)
+            evaluate_with(
+                &entry,
+                &request(),
+                None,
+                &bounds(),
+                &latch,
+                &Bridge::detached(bounds()),
+            )
         });
         std::thread::sleep(std::time::Duration::from_millis(100));
         assert!(!halted.is_finished(), "the endless loop must still run");

@@ -5,15 +5,17 @@
 //! beyond `arg0`, a descriptor 3 that is no socket, or a handshake that fails
 //! all exit with status 2. After it sends its one result, it exits.
 
-use std::io::{Read as _, Write as _};
+use std::io::Write as _;
 use std::mem::MaybeUninit;
 use std::os::fd::FromRawFd as _;
 use std::os::unix::net::UnixStream;
 use std::process::ExitCode;
+use std::sync::mpsc::{self, Receiver};
 use std::thread;
 
 use serde_json::{Value, json};
 
+use super::bridge::{Bridge, Link};
 use super::engine::{self, Entry, Latch};
 use super::{
     BUILD_ID, Bounds, EXIT_ROLE_REFUSED, Limit, PROTOCOL, RHAI_VERSION, Reply, ScriptFailure, heap,
@@ -77,8 +79,11 @@ fn serve() -> Result<(), Stop> {
         .ok_or_else(|| Stop::refused("the first frame is not a well-formed evaluate frame"))?;
     let message_bytes = evaluate.bounds.message_bytes;
     let latch = Latch::default();
-    watch(&channel, &latch)
-        .map_err(|error| Stop::refused(format!("the channel watcher did not start: {error}")))?;
+    let frames = watch(&channel, &latch)
+        .map_err(|error| Stop::refused(format!("the channel reader did not start: {error}")))?;
+    let writer = channel
+        .try_clone()
+        .map_err(|error| Stop::refused(format!("the channel could not be shared: {error}")))?;
 
     let evaluated = thread::Builder::new()
         .name("rhai-policy".into())
@@ -88,12 +93,19 @@ fn serve() -> Result<(), Stop> {
                 name: &evaluate.entry,
                 source: &evaluate.source,
             };
+            let link = Link {
+                channel: writer,
+                frames,
+                stop: latch.stop_flag(),
+            };
+            let bridge = Bridge::linked(link, evaluate.bounds);
             engine::evaluate_with(
                 &entry,
                 &evaluate.request,
                 evaluate.select_context.as_ref(),
                 &evaluate.bounds,
                 &latch,
+                &bridge,
             )
         })
         .map_err(|error| Stop::refused(format!("the evaluation thread did not start: {error}")))
@@ -109,23 +121,32 @@ fn serve() -> Result<(), Stop> {
     })
 }
 
-/// Stop the evaluation when the front goes away. The front sends nothing after
-/// the evaluate frame, so a read on the channel returns only when the front
-/// closed its end (it dropped the conversation, or it died) or broke the
-/// protocol. Either way nobody waits for a result, and the next Rhai operation
-/// of a cooperative script ends the evaluation. A native call that does not
-/// yield, such as `sleep`, is stopped by the signal that follows the close.
-fn watch(channel: &UnixStream, latch: &Latch) -> std::io::Result<()> {
-    let mut reader = channel.try_clone()?;
+/// Read every frame the front sends, and stop the evaluation when it goes away.
+///
+/// The front sends frames only as answers to host calls, so the evaluation
+/// thread, which waits for each answer, takes them from the returned receiver.
+/// A read that fails means the front closed its end (it dropped the
+/// conversation, or it died) or broke the protocol. Either way nobody waits for
+/// a result, so the thread sets the stop flag and ends the wait with `None`, and
+/// the next Rhai operation of a cooperative script ends the evaluation. A native
+/// call that does not yield, such as `sleep`, is stopped by the signal that
+/// follows the close.
+fn watch(channel: &UnixStream, latch: &Latch) -> std::io::Result<Receiver<Option<Value>>> {
+    let reader = channel.try_clone()?;
     let stop = latch.stop_flag();
+    let (frames, received) = mpsc::channel();
     thread::Builder::new()
         .name("rhai-watch".into())
         .spawn(move || {
-            let mut byte = [0u8; 1];
-            let _ = reader.read(&mut byte);
+            while let Ok(frame) = read_frame(&reader, FRONT_FRAME_BYTES) {
+                if frames.send(Some(frame)).is_err() {
+                    return;
+                }
+            }
             stop.store(true, std::sync::atomic::Ordering::Relaxed);
+            let _ = frames.send(None);
         })
-        .map(drop)
+        .map(|_| received)
 }
 
 /// The reply as a frame, or the failure that its size makes of it: the front

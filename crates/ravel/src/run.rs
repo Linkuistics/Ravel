@@ -89,14 +89,14 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "bunVersion": worker.bun_version}),
                 ),
                 // Schema version 2 reports the members that exist: later
-                // increments add `modules`, `reads`, `llmCalls`, `harnessRuns`,
-                // the `rigVersion` and the new bounds. (rhai)
+                // increments add `llmCalls`, `harnessRuns`, the `rigVersion` and
+                // the new bounds. `modules` and `reads` are added below. (rhai)
                 WorkerReport::Rhai(worker) => (
                     2,
                     json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "rhaiVersion": worker.rhai_version}),
                 ),
             };
-            selection_notice = Some(json!({"schemaVersion": schema_version, "selection": {
+            let mut notice = json!({"schemaVersion": schema_version, "selection": {
             "provider": choice.command.provider, "model": choice.command.model,
             "effort": choice.command.effort, "reason": choice.command.reason,
         }, "policy": {"path": choice.entry.path, "version": choice.version},
@@ -107,7 +107,22 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         "promptSource": match &choice.inputs.prompt.source {
             crate::inputs::PromptSource::Argument => "argument".to_owned(),
             crate::inputs::PromptSource::File(path) => path.display().to_string(),
-        }, "diagnostics": choice.diagnostics.to_json()}));
+        }, "diagnostics": choice.diagnostics.to_json()});
+            if matches!(choice.worker, WorkerReport::Rhai(_)) {
+                // The entry and the modules it imported, and every measured read
+                // with the phase that made it. (rhai)
+                notice["policy"]["modules"] = choice
+                    .modules
+                    .iter()
+                    .map(crate::rhai_worker::Module::to_json)
+                    .collect();
+                notice["reads"] = choice
+                    .reads
+                    .iter()
+                    .map(crate::rhai_worker::Read::to_json)
+                    .collect();
+            }
+            selection_notice = Some(notice);
         } else {
             eprint!("{}", choice.diagnostics.to_text());
             eprintln!(

@@ -368,8 +368,9 @@ and may rise to `contextBytes`. The bound of 256 sources counts the caller's
 context document and every read in the evaluation.
 
 Reads that `load_context` makes enter the `measured` list of the delivered
-context, as in 1.x. Ravel also measures the reads that `select` and the top
-level make, and the notice lists every read with its phase. A breach of a read
+context, as in 1.x. The caller's document comes first, when there is one. Ravel
+also measures the reads that `select` and the top level make, and the notice
+lists every read with its phase. A breach of a read
 bound refuses even if the script catches the error. The 1.x choice-file helper
 becomes a few lines of the shipped sample, with `read_text` and `split()`.
 
@@ -765,9 +766,12 @@ The JSON routing notice moves to schema version 2:
 
 - `worker` reports `path`, `version`, `buildId`, `rhaiVersion` and `rigVersion`.
   `bunVersion` is gone.
-- `policy` adds `modules`: the canonical name, bytes and SHA-256 of each module.
+- `policy` adds `modules`: the canonical name, bytes and SHA-256 of the entry and
+  of each module. The entry comes first, and each module follows in the order
+  of its first import.
 - `reads` lists every measured read with its `via`, its phase, its name, its
-  bytes and its SHA-256.
+  bytes and its SHA-256. The `via` is `read_text` or `read_json`, and the phase
+  is `load`, `context` or `selection`. A read that failed is no measured read.
 - `llmCalls` lists the endpoint, model, status, error code, usage and elapsed
   time of each call.
 - `harnessRuns` lists the harness, status, exit code or signal, elapsed time of

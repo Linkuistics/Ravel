@@ -10,6 +10,7 @@ use serde_json::{Map, Value, json};
 use sha2::{Digest as _, Sha256};
 
 use crate::limits::{Bound, CONTEXT_MAX_BYTES, Limits, Origin, SOURCE_DEFAULT_BYTES};
+use crate::policy::Language;
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
 /// A version-1 context's fields; the delivered context adds `measured`.
@@ -188,22 +189,28 @@ enum Author {
     Loader,
 }
 
+/// Validate and measure a context. `loader` is the language of the policy
+/// whose loader returned it, or `None` for the caller's `--context` document.
 pub fn deliver(
     context: Value,
     sources: Vec<Measured>,
-    loader: bool,
+    loader: Option<Language>,
     limits: &Limits,
     source: &str,
 ) -> Result<Delivered, Refusal> {
-    let shape = if loader {
-        Shape::loader(source)
-    } else {
-        Shape::caller(source)
+    let shape = match loader {
+        Some(language) => Shape::loader(source, language),
+        None => Shape::caller(source),
     };
     if context.is_null() {
+        let language = loader.unwrap_or(Language::TypeScript);
         return Err(shape.invalid(
             "context",
-            "loadContext returned no context (undefined or null)".to_owned(),
+            format!(
+                "{} returned no context ({})",
+                language.loader(),
+                language.unit()
+            ),
         ));
     }
     shape.validate(&context, limits)?;
@@ -228,7 +235,7 @@ pub fn deliver(
         source_bytes: sources.iter().map(|source| source.bytes).sum(),
         sha256: hex(&Sha256::digest(&encoded)),
         encoded_bytes,
-        loader,
+        loader: loader.is_some(),
         sources,
         value,
     })
@@ -236,12 +243,16 @@ pub fn deliver(
 
 /// The delivered context encodes to more than the budget: its source records
 /// count, and nothing is ever cut to fit.
-pub fn context_too_large(limits: &Limits, actual: u64, source: &str, loader: bool) -> Refusal {
+pub fn context_too_large(
+    limits: &Limits,
+    actual: u64,
+    source: &str,
+    loader: Option<Language>,
+) -> Refusal {
     let budget = limits.context.value;
-    let deliver_less = if loader {
-        format!("have loadContext in {source} deliver less")
-    } else {
-        "shorten the --context document".to_owned()
+    let deliver_less = match loader {
+        Some(language) => format!("have {} in {source} deliver less", language.loader()),
+        None => "shorten the --context document".to_owned(),
     };
     let refusal = Refusal::new(
         "context_too_large",
@@ -294,17 +305,32 @@ pub struct SourceBreach {
     pub requested: Option<u64>,
 }
 
-pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> Refusal {
+pub fn source_too_large(
+    limits: &Limits,
+    breach: &SourceBreach,
+    entry: &str,
+    language: Language,
+) -> Refusal {
     let budget = limits.context.value;
     let name = &breach.name;
+    // Who read: the loader of 1.x, which was the only place a read was allowed,
+    // or the policy, which reads at its top level, in `load_context` and in `select`.
+    let reader = match language {
+        Language::TypeScript => format!("loadContext in {entry}"),
+        Language::Rhai => format!("the policy {entry}"),
+    };
+    let max_bytes = match language {
+        Language::TypeScript => "maxBytes",
+        Language::Rhai => "max_bytes",
+    };
     let (message, remedy, bound) = match breach.requested {
         Some(requested) => (
             format!(
-                "loadContext in {entry} asked to read {name} with maxBytes {requested}, over the \
+                "{reader} asked to read {name} with {max_bytes} {requested}, over the \
                  context budget of {budget} bytes, which no read may exceed"
             ),
             format!(
-                "pass a maxBytes of at most {budget}, or raise the budget with contextBytes in \
+                "pass a {max_bytes} of at most {budget}, or raise the budget with contextBytes in \
                  the owner settings or --context-bytes, up to {CONTEXT_MAX_BYTES}"
             ),
             Bound {
@@ -314,7 +340,7 @@ pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> 
         ),
         None => (
             format!(
-                "loadContext in {entry} read {name}, which holds more than its limit of {} bytes{}{}",
+                "{reader} read {name}, which holds more than its limit of {} bytes{}{}",
                 breach.limit,
                 breach
                     .actual
@@ -330,7 +356,7 @@ pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> 
             // so only the budget, or a smaller source, can meet it.
             if breach.limit < budget {
                 format!(
-                    "read it with a larger maxBytes, up to the context budget of {budget} bytes, \
+                    "read it with a larger {max_bytes}, up to the context budget of {budget} bytes, \
                      or read a smaller source; a read is never truncated"
                 )
             } else if budget == CONTEXT_MAX_BYTES {
@@ -338,19 +364,19 @@ pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> 
                     "read a smaller source: the read already takes the whole context budget, at \
                      its ceiling of {CONTEXT_MAX_BYTES} bytes, and a read is never truncated"
                 )
-            } else if breach.from == Origin::Set("maxBytes") {
+            } else if matches!(breach.from, Origin::Set("maxBytes" | "max_bytes")) {
                 format!(
                     "raise the context budget with contextBytes in the owner \
                      settings or --context-bytes, up to {CONTEXT_MAX_BYTES}: a \
-                     read whose maxBytes is request.limits.contextBytes takes the new budget, and \
-                     one with a fixed maxBytes needs it raised too; or read a smaller source, \
+                     read whose {max_bytes} is request.limits.contextBytes takes the new budget, and \
+                     one with a fixed {max_bytes} needs it raised too; or read a smaller source, \
                      since a read is never truncated"
                 )
             } else {
                 format!(
                     "raise the context budget with contextBytes in the owner \
                      settings or --context-bytes, up to {CONTEXT_MAX_BYTES}: a \
-                     read without maxBytes takes the budget, up to {SOURCE_DEFAULT_BYTES} bytes; \
+                     read without {max_bytes} takes the budget, up to {SOURCE_DEFAULT_BYTES} bytes; \
                      or read a smaller source, since a read is never truncated"
                 )
             },
@@ -370,7 +396,10 @@ pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> 
         remedy,
     )
     .source(name.clone())
-    .location("host.readText")
+    .location(match language {
+        Language::TypeScript => "host.readText",
+        Language::Rhai => "ravel::read_text",
+    })
     .bound(bound)
 }
 
@@ -379,6 +408,8 @@ pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> 
 struct Shape<'a> {
     source: &'a str,
     author: Author,
+    /// The language of the loader, for the words of a refusal about its result.
+    language: Language,
 }
 
 impl<'a> Shape<'a> {
@@ -386,13 +417,15 @@ impl<'a> Shape<'a> {
         Shape {
             source,
             author: Author::Caller,
+            language: Language::TypeScript,
         }
     }
 
-    fn loader(source: &'a str) -> Self {
+    fn loader(source: &'a str, language: Language) -> Self {
         Shape {
             source,
             author: Author::Loader,
+            language,
         }
     }
 
@@ -407,11 +440,15 @@ impl<'a> Shape<'a> {
                 ),
             ),
             Author::Loader => (
-                format!("the context loadContext returned is invalid: {message}"),
                 format!(
-                    "correct what loadContext in {} returns at {location}; the types in \
-                     ravel/sdk describe a version-1 context",
-                    self.source
+                    "the context {} returned is invalid: {message}",
+                    self.language.loader()
+                ),
+                format!(
+                    "correct what {} in {} returns at {location}{}",
+                    self.language.loader(),
+                    self.source,
+                    self.language.context_types()
                 ),
             ),
         };
@@ -474,9 +511,11 @@ impl<'a> Shape<'a> {
                      no program, argument, environment or policy"
                 )
             } else if unknown == "measured" && matches!(self.author, Author::Loader) {
-                "`measured` is what ravel measured, and it attaches that itself; \
-                 loadContext cannot supply it"
-                    .to_owned()
+                format!(
+                    "`measured` is what ravel measured, and it attaches that itself; \
+                     {} cannot supply it",
+                    self.language.loader()
+                )
             } else {
                 format!("unknown field `{unknown}`")
             };
@@ -748,6 +787,7 @@ mod tests {
         let shape = Shape {
             source: "/work/context.json",
             author,
+            language: Language::TypeScript,
         };
         shape.validate(&value, &limits()).unwrap_err()
     }
@@ -934,7 +974,7 @@ mod tests {
         let delivered = deliver(
             json!({ "summary": "s", "schemaVersion": 1 }),
             vec![source],
-            false,
+            None,
             &limits(),
             "/work/context.json",
         )
@@ -950,13 +990,13 @@ mod tests {
         let at_bound = deliver(
             context.clone(),
             delivered.sources.clone(),
-            false,
+            None,
             &exact,
             "c",
         );
         assert!(at_bound.is_ok());
         let over = budget(encoded.len() - 1);
-        let refusal = deliver(context, delivered.sources, false, &over, "c").unwrap_err();
+        let refusal = deliver(context, delivered.sources, None, &over, "c").unwrap_err();
         assert_eq!(refusal.code, "context_too_large");
         assert_eq!(refusal.input.as_deref(), Some("--context-bytes"));
     }

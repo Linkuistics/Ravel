@@ -277,6 +277,30 @@ impl Language {
         }
     }
 
+    /// What the policy calls its context loader.
+    pub fn loader(self) -> &'static str {
+        match self {
+            Language::TypeScript => "loadContext",
+            Language::Rhai => "load_context",
+        }
+    }
+
+    /// How a message points at the description of a version-1 context.
+    pub fn context_types(self) -> &'static str {
+        match self {
+            Language::TypeScript => "; the types in ravel/sdk describe a version-1 context",
+            Language::Rhai => "; a version-1 context is a map with schemaVersion 1",
+        }
+    }
+
+    /// The value that stands for no value.
+    pub fn unit(self) -> &'static str {
+        match self {
+            Language::TypeScript => "undefined or null",
+            Language::Rhai => "the unit value `()`",
+        }
+    }
+
     fn nothing(self) -> &'static str {
         match self {
             Language::TypeScript => "no result (undefined or null)",
@@ -442,18 +466,32 @@ pub fn judge_result(
 /// refusal, reported as `select`'s is but at the context stage, and `select`
 /// is never asked. Anything else with a `status` is neither a context nor a
 /// refusal, and is refused where it sits.
-pub fn loader_refused(fields: &Map<String, Value>, kind: &str, source: &str) -> Refusal {
+pub fn loader_refused(
+    fields: &Map<String, Value>,
+    kind: &str,
+    source: &str,
+    language: Language,
+) -> Refusal {
     let malformed = |location: &str, message: String| {
         Refusal::new(
             "context_invalid",
             Stage::Context,
             EXIT_REFUSED,
-            format!("loadContext in {source} returned neither a context nor a refusal: {message}"),
             format!(
-                "return a version-1 context, or {{ status: \"refused\", code, message, remedy }} \
-                 to decline, from loadContext in {source}; the types in ravel/sdk \
-                 describe both"
+                "{} in {source} returned neither a context nor a refusal: {message}",
+                language.loader()
             ),
+            match language {
+                Language::TypeScript => format!(
+                    "return a version-1 context, or {{ status: \"refused\", code, message, remedy }} \
+                     to decline, from loadContext in {source}; the types in ravel/sdk \
+                     describe both"
+                ),
+                Language::Rhai => format!(
+                    "return a version-1 context, or #{{ status: \"refused\", code, message, remedy }} \
+                     to decline, from load_context in {source}"
+                ),
+            },
         )
         .source(source)
         .location(location)
@@ -503,13 +541,16 @@ pub fn loader_refused(fields: &Map<String, Value>, kind: &str, source: &str) -> 
         "policy_refused",
         Stage::Context,
         EXIT_REFUSED,
-        format!("the policy {source} refused the selection in loadContext: {message}"),
+        format!(
+            "the policy {source} refused the selection in {}: {message}",
+            language.loader()
+        ),
         remedy,
     )
     .policy_code(code)
     .input(format!("--kind {kind}"))
     .source(source)
-    .location("policy.loadContext")
+    .location(format!("policy.{}", language.loader()))
 }
 
 /// A snapshot or result the worker would not send, because it encodes to more

@@ -60,20 +60,23 @@ fn select(request, context) {
         json!({ "provider": "table", "model": "m", "effort": "e", "reason": "route table" })
     );
     let canonical = fs::canonicalize(&policy_path).unwrap();
-    assert_eq!(
-        report["policy"],
-        json!({ "path": text(&canonical), "version": "rhai-seam-1" })
-    );
-    // The members that exist: no Bun, no host call.
+    assert_eq!(report["policy"]["path"], text(&canonical));
+    assert_eq!(report["policy"]["version"], "rhai-seam-1");
+    // The members that exist: no Bun, and no LLM call or harness run yet.
     let worker = report["worker"].as_object().unwrap();
     let mut names: Vec<_> = worker.keys().map(String::as_str).collect();
     names.sort_unstable();
     assert_eq!(names, ["buildId", "path", "rhaiVersion", "version"]);
     assert_eq!(worker["rhaiVersion"], "1.27.0");
     assert_eq!(worker["version"], env!("CARGO_PKG_VERSION"));
-    for absent in ["reads", "llmCalls", "harnessRuns", "modules"] {
+    for absent in ["llmCalls", "harnessRuns", "modules"] {
         assert!(report.get(absent).is_none(), "{absent} in {report}");
     }
+    // The policy made no host call, so no read, and the entry is its only module.
+    assert_eq!(report["reads"], json!([]));
+    let modules = report["policy"]["modules"].as_array().unwrap();
+    assert_eq!(modules.len(), 1, "{report}");
+    assert_eq!(modules[0]["name"], text(&canonical));
     assert_eq!(report["diagnostics"]["stdout"], "printed by the policy\n");
     // `debug` names its position, so only its text is exact.
     let stderr = report["diagnostics"]["stderr"].as_str().unwrap();
@@ -245,24 +248,6 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
     );
     let blank = refused(&start(&sandbox, &[]), "policy_invalid", Some(&recorded));
     assert!(blank["message"].as_str().unwrap().contains("blank"));
-}
-
-#[test]
-fn a_policy_that_defines_load_context_refuses_as_not_supported_yet() {
-    let sandbox = Sandbox::new();
-    let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
-        "fn load_context(request) { #{} }\nfn select(request, context) { () }",
-    ));
-    let error = refused(&start(&sandbox, &[]), "policy_invalid", Some(&recorded));
-    assert!(
-        error["message"]
-            .as_str()
-            .unwrap()
-            .contains("this build does not support `load_context` yet"),
-        "{error}"
-    );
-    assert_eq!(error["location"], "3:4");
 }
 
 #[test]

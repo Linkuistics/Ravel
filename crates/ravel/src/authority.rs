@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 use std::fs;
-use std::io::{ErrorKind, Read as _};
+use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
@@ -35,9 +35,34 @@ pub enum Authority {
 pub enum Format {
     /// The Bun worker imports the entry itself, by its canonical path. (typescript)
     TypeScript,
-    /// The Rhai worker reads no file, so the front reads the entry once and
-    /// sends exactly these bytes. (rhai)
-    Rhai { source: String },
+    /// The Rhai worker reads no file, so the front reads the entry once, on its
+    /// reader thread after the worker has started, and sends exactly those
+    /// bytes. The entry is proven to be a regular file here, and a failure of
+    /// the read itself refuses as this describes. (rhai)
+    Rhai(RhaiEntry),
+}
+
+/// What a refusal about the read of a Rhai entry says. (rhai)
+#[derive(Debug)]
+pub struct RhaiEntry {
+    /// The path as it was selected, which the refusal names.
+    shown: String,
+    remedy: String,
+}
+
+impl RhaiEntry {
+    /// The refusal for an entry that cannot be read, where `what` completes the
+    /// sentence "the selected policy entry PATH ...".
+    pub fn unreadable(&self, what: &str) -> Refusal {
+        Refusal::new(
+            "policy_unreadable",
+            Stage::Authority,
+            EXIT_REFUSED,
+            format!("the selected policy entry {} {what}", self.shown),
+            self.remedy.clone(),
+        )
+        .source(self.shown.clone())
+    }
 }
 
 #[derive(Debug)]
@@ -161,9 +186,9 @@ pub fn resolve(
     })
 }
 
-/// Admit `candidate` as an entry of the Rhai path: a regular UTF-8 file of at
-/// most [`RHAI_ENTRY_BYTES`], read once. A symlink is admitted by its real
-/// file. (rhai)
+/// Admit `candidate` as an entry of the Rhai path: a regular file, which the
+/// front reads once later as UTF-8 text of at most [`RHAI_ENTRY_BYTES`]. A
+/// symlink is admitted by its real file. (rhai)
 fn resolve_rhai(
     candidate: &Path,
     authority: &Authority,
@@ -217,21 +242,9 @@ fn resolve_rhai(
         })?
         .to_owned();
 
-    // Bounded, so that a file that grew since `metadata` is not read whole.
-    let mut bytes = Vec::new();
-    fs::File::open(&real)
-        .and_then(|file| file.take(RHAI_ENTRY_BYTES + 1).read_to_end(&mut bytes))
-        .map_err(|error| unreadable(format!("cannot be read: {error}")))?;
-    if bytes.len() as u64 > RHAI_ENTRY_BYTES {
-        return Err(unreadable(format!(
-            "holds more than {RHAI_ENTRY_BYTES} bytes, the most an entry may hold"
-        )));
-    }
-    let source = String::from_utf8(bytes)
-        .map_err(|error| unreadable(format!("is not valid UTF-8: {}", error.utf8_error())))?;
     Ok(PolicyEntry {
         path,
-        format: Format::Rhai { source },
+        format: Format::Rhai(RhaiEntry { shown, remedy }),
     })
 }
 

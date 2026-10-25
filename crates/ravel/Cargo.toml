@@ -16,6 +16,10 @@ keyed-launch = { path = "../keyed-launch" }
 libc = "0.2"
 tempfile = "3.10"
 rhai = { version = "=1.27.0", features = ["compact_str"] }
+# The evaluation phase serves the worker from a current-thread runtime, which
+# later increments also use for the LLM client.
+# https://docs.rs/tokio/1/tokio/runtime/struct.Builder.html#method.new_current_thread
+tokio = { version = "1", features = ["rt", "net", "time", "macros", "sync", "io-util"] }
 
 [build-dependencies]
 sha2 = "0.10"

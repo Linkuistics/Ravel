@@ -34,3 +34,18 @@ Add the bridge between the policy worker and the Ravel CLI. Use it for the first
 
 - Decide how the Rhai module resolver reaches the reader thread. Rhai calls its resolver on the worker, so the resolver is one more host call.
 - The 1.x helper `readChoice` becomes a few lines of the shipped sample, with `read_text` and `split()`. The example policies leaf writes it.
+
+## Decisions (running log)
+
+- Wire protocol. The worker sends a `host` frame for `read_text`, `read_json` and each import. The front answers with one `reply` frame. After `load_context` returns, the worker sends a `context` frame, and the front answers with a `delivered` frame that holds the measured context. A demux thread in the worker reads every frame from the front. It hands replies to the evaluation thread and sets the stop flag when the channel closes. This replaces the old watcher thread, which would otherwise consume the replies.
+- Ends of the evaluation that the front detects (`source_too_large`, `too_many_sources`, a failed import) never reach the script. The front returns them as a `ScriptFailure` and drops the channel. The worker cannot catch what it never hears. The worker records the ends that it detects (`host_request_invalid`, a module parse error, a cycle) in the bridge and raises `ErrorTerminated`, which `try` cannot catch.
+- The reader is one std thread per evaluation. It runs closures and answers through a Tokio oneshot. The runtime thread makes no filesystem call. A stop drops the receiver and the sender, and leaves the thread to finish its call.
+- `policy.modules` in the notice lists the entry first and then each imported module in the order of first import. The top-level `reads` lists every successful read with `via`, `phase`, `name`, `bytes` and `sha256`. Both are always present on the Rhai path.
+- The measured list of the delivered context is the caller's document followed by the reads of the `context` phase. Reads at the top level and in `select` appear in the notice only.
+- The front reads the entry on the reader thread too, after the worker starts. `authority` now only proves that the entry is a regular file and canonicalises it. A failed read refuses as `policy_unreadable` with the same words as before. The deadline therefore covers the read.
+- The worker detects `host_request_invalid`, because only the worker knows the position of the call. The location reads `ravel::read_text(max_bytes) at LINE:COLUMN`. That names the function, the field and the line, as the spec says. A call with a wrong number of arguments is still an ordinary Rhai error, because the registered signatures take one or two arguments.
+- The `read_text` and `read_json` data failures are `ErrorRuntime` with a map. A map is what `catch (error)` binds, so `error.code` works.
+- Shared refusal text takes a `Language`. `context.rs` and `policy.rs` name `load_context` and `max_bytes` for the Rhai path and keep the 1.x words for TypeScript. The removal increment deletes the TypeScript arms.
+- Module attribution: a `throw` or limit inside a function of an imported module names that module as the file. The error chain carries the source of the function.
+- Tokio features: `rt`, `net`, `time`, `macros`, `sync`, `io-util`. `Cargo.lock` gained only `tokio`, `tokio-macros`, `mio` and `socket2`.
+- Mutation controls seen to fail: removing `O_NONBLOCK` from the reader makes the FIFO test time out (30 s). Replying to an oversized read with a catchable error makes the "although the script catches" test fail.

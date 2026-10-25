@@ -3,19 +3,25 @@
 //!
 //! The API is small on purpose. [`evaluate`] takes the entry source, the request
 //! and the launch description, and returns what the judge needs: the
-//! [`Reply`](super::Reply), the identity of the worker and the supervision
-//! reports. The leaf that joins this to `start-session` builds the request and
-//! judges the reply.
+//! [`Reply`](super::Reply), the identity of the worker, the modules and reads it
+//! measured and the supervision reports. `choice` builds the request and judges
+//! the reply.
+//!
+//! After the handshake the conversation moves to a Tokio current-thread runtime
+//! (`serve`), which answers the host calls of the worker. The runtime is built
+//! here and dropped here, so none exists once the worker is stopped.
 
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
-use serde_json::{Value, json};
+use serde_json::Value;
 
-use super::engine::Entry;
-use super::{ARG0, BUILD_ID, Bounds, PROTOCOL, RHAI_VERSION, Reply};
-use crate::frame::write_frame;
+use super::host::Host;
+use super::reader::Reader;
+use super::serve::{Judge, Served, Setup, serve};
+use super::{ARG0, BUILD_ID, Bounds, Module, PROTOCOL, RHAI_VERSION, Read, Reply};
+use crate::context::{Delivered, Measured};
 use crate::limits::Limits;
 use crate::refusal::{Diagnostics, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::worker::{Bounded, Conversation, Launch, broken_for, receive_for, supervise};
@@ -30,9 +36,6 @@ const REBUILD: &str = "reinstall ravel, and start the session again; the policy 
 
 /// The largest hello: a few short fields.
 const HELLO_BYTES: usize = 4096;
-
-/// What a reply frame carries beyond its result.
-const REPLY_ENVELOPE: usize = 1024;
 
 /// What the worker reported about itself in its hello.
 #[derive(Debug)]
@@ -53,6 +56,23 @@ pub struct Evaluated {
     pub operational: Vec<String>,
     /// From starting the worker to its reply.
     pub elapsed: Duration,
+    /// The entry first, then each module in the order of its first import.
+    pub modules: Vec<Module>,
+    /// Every measured read that succeeded, in order.
+    pub reads: Vec<Read>,
+    /// The context a loader returned, as it was judged and measured.
+    pub delivered: Option<Delivered>,
+}
+
+/// What the front knows about the evaluation beyond the entry and the request,
+/// and what it needs to answer the host calls of the worker.
+pub struct Session<'a> {
+    /// The caller's working directory, which a relative read resolves against.
+    pub cwd: &'a Path,
+    /// The caller's `--context` document, which counts as a source.
+    pub caller: Option<&'a Measured>,
+    /// Judges and measures the context that `load_context` returns.
+    pub judge: &'a mut Judge<'a>,
 }
 
 /// The program that is Ravel's own binary, as the role must be launched.
@@ -93,7 +113,17 @@ pub fn launch(program: &Path, environment: Vec<(OsString, OsString)>) -> Launch<
     }
 }
 
+/// The entry the front admitted, which it reads itself.
+pub struct Admitted<'a> {
+    /// The canonical path of the entry, exactly as the failures name it.
+    pub name: &'a str,
+    /// The refusal for an entry that cannot be read, from what is wrong with it.
+    pub unreadable: &'a dyn Fn(&str) -> Refusal,
+}
+
 /// Start the role, have it evaluate `entry` for `request`, and tear it down.
+/// The reader thread reads the entry once the worker has started, so the whole
+/// deadline covers it.
 ///
 /// `request` holds `kind`, `prompt`, `cwd` and `params`, and may hold `taskFile`,
 /// `taskId` and `context`. The worker adds `schemaVersion` and `limits` itself,
@@ -102,11 +132,12 @@ pub fn launch(program: &Path, environment: Vec<(OsString, OsString)>) -> Launch<
 /// `select` receives `request.context`. The whole evaluation counts from the start
 /// of the worker, within the selection bound of `limits`.
 pub fn evaluate(
-    entry: &Entry<'_>,
+    entry: &Admitted<'_>,
     request: &Value,
     select_context: Option<&Value>,
     launch: Launch<'_>,
     limits: &Limits,
+    session: Session<'_>,
 ) -> Result<Evaluated, Failure> {
     let program = launch.program.to_owned();
     let bounds = Bounds::from_limits(limits);
@@ -118,58 +149,74 @@ pub fn evaluate(
             (request, select_context),
             &bounds,
             started,
+            session,
         )
     })?;
-    let (worker, reply, elapsed) = supervised.decided;
+    let (worker, served, elapsed) = supervised.decided;
     Ok(Evaluated {
         worker,
-        reply,
+        reply: served.reply,
         diagnostics: supervised.diagnostics,
         operational: supervised.operational,
         elapsed,
+        modules: served.modules,
+        reads: served.reads,
+        delivered: served.delivered,
     })
 }
 
 fn converse(
     mut channel: Bounded<'_>,
     program: &Path,
-    entry: &Entry<'_>,
+    entry: &Admitted<'_>,
     (request, select_context): (&Value, Option<&Value>),
     bounds: &Bounds,
     started: Instant,
-) -> Result<(Identity, Reply, Duration), Conversation> {
+    session: Session<'_>,
+) -> Result<(Identity, Served, Duration), Conversation> {
     let hello = receive_for(&mut channel, program, REBUILD, false, HELLO_BYTES)?;
     let identity = verify_hello(&hello, program).map_err(Conversation::Broken)?;
 
-    let mut frame = json!({
-        "type": "evaluate",
-        "protocol": PROTOCOL,
-        // Exactly the admitted file: the failures name it.
-        "entry": entry.name,
-        "source": entry.source,
-        "request": request,
-        "bounds": bounds.to_json(),
-    });
-    if let Some(context) = select_context {
-        frame["selectContext"] = context.clone();
-    }
-    write_frame(&mut channel, &frame).map_err(|error| Conversation::failed(error, false))?;
-
-    let max = usize::try_from(bounds.message_bytes)
-        .unwrap_or(usize::MAX)
-        .saturating_add(REPLY_ENVELOPE);
-    let frame = receive_for(&mut channel, program, REBUILD, true, max)?;
-    let reply = Reply::from_frame(&frame).ok_or_else(|| {
+    let (stream, deadline, overflow) = channel.parts();
+    let failed = |what: &str, error: &dyn std::fmt::Display| {
         broken_for(
             program,
             REBUILD,
-            format!(
-                "the policy worker sent an unexpected frame: {}",
-                shown(&frame)
-            ),
+            format!("cannot start serving the policy worker: {what}: {error}"),
         )
-    })?;
-    Ok((identity, reply, started.elapsed()))
+    };
+    // The runtime takes the descriptor over in nonblocking mode, from a copy, so
+    // that the supervision still holds the end it closes.
+    let stream = stream
+        .try_clone()
+        .and_then(|copy| copy.set_nonblocking(true).map(|()| copy))
+        .map_err(|error| failed("the channel", &error))?;
+    let reader = Reader::start().map_err(|error| failed("the reader thread", &error))?;
+    let Session { cwd, caller, judge } = session;
+    let host = Host::new(reader, cwd.to_owned(), *bounds, caller.cloned());
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_io()
+        .enable_time()
+        .build()
+        .map_err(|error| failed("the runtime", &error))?;
+    let served = runtime.block_on(serve(
+        stream,
+        (deadline, overflow),
+        Setup {
+            program,
+            rebuild: REBUILD,
+            entry: entry.name,
+            unreadable: entry.unreadable,
+            request,
+            select_context,
+            bounds,
+        },
+        host,
+        judge,
+    ));
+    // Every task is finished here, and the copy of the channel is closed.
+    drop(runtime);
+    Ok((identity, served?, started.elapsed()))
 }
 
 fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {
@@ -220,7 +267,7 @@ fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {
 }
 
 /// A frame, abbreviated for an error message.
-fn shown(frame: &Value) -> String {
+pub(super) fn shown(frame: &Value) -> String {
     let text = frame.to_string();
     match text.char_indices().nth(400) {
         Some((at, _)) => format!("{}… ({} bytes)", &text[..at], text.len()),
@@ -232,6 +279,8 @@ fn shown(frame: &Value) -> String {
 mod tests {
     use std::fs;
     use std::os::unix::fs::PermissionsExt as _;
+
+    use serde_json::json;
 
     use super::*;
     use crate::settings::Settings;
@@ -261,19 +310,48 @@ mod tests {
         json!({ "kind": "impl", "prompt": "go", "cwd": "/work", "params": { "k": "v" } })
     }
 
+    fn unreadable(what: &str) -> Refusal {
+        Refusal::new(
+            "policy_unreadable",
+            Stage::Authority,
+            3,
+            format!("the entry {what}"),
+            "read it",
+        )
+    }
+
+    /// A judge for a test that never loads a context.
+    fn no_loader(_: Value, _: Vec<Measured>) -> Result<Delivered, Refusal> {
+        panic!("this test has no load_context");
+    }
+
+    fn session<'a>(cwd: &'a Path, judge: &'a mut Judge<'a>) -> Session<'a> {
+        Session {
+            cwd,
+            caller: None,
+            judge,
+        }
+    }
+
     fn run(source: &str, request: &Value) -> Result<Evaluated, Failure> {
         let dir = tempfile::tempdir().unwrap();
         let program = role(dir.path());
-        let entry = Entry {
-            name: "/home/o/policy.rhai",
-            source,
+        let path = dir.path().join("policy.rhai");
+        fs::write(&path, source).unwrap();
+        let name = fs::canonicalize(&path).unwrap();
+        let unreadable = |what: &str| unreadable(what);
+        let entry = Admitted {
+            name: name.to_str().unwrap(),
+            unreadable: &unreadable,
         };
+        let mut judge = no_loader;
         evaluate(
             &entry,
             request,
             None,
             launch(&program, Vec::new()),
             &limits(),
+            session(dir.path(), &mut judge),
         )
     }
 
@@ -317,20 +395,22 @@ fn select(request, context) {
     fn a_real_worker_of_another_build_refuses_as_an_identity_mismatch() {
         let dir = tempfile::tempdir().unwrap();
         let program = role(dir.path());
-        let entry = Entry {
+        let entry = Admitted {
             name: "p.rhai",
-            source: "",
+            unreadable: &unreadable,
         };
         let environment = vec![(
             OsString::from("RAVEL_ROLE_FIXTURE_BUILD"),
             OsString::from("0".repeat(64)),
         )];
+        let mut judge = no_loader;
         let failure = evaluate(
             &entry,
             &request(),
             None,
             launch(&program, environment),
             &limits(),
+            session(dir.path(), &mut judge),
         )
         .unwrap_err();
         assert_eq!(failure.refusal.code, "worker_identity_mismatch");
@@ -412,17 +492,19 @@ fn select(request, context) {
 
     #[test]
     fn a_program_that_is_not_there_refuses_as_worker_missing() {
-        let entry = Entry {
+        let entry = Admitted {
             name: "p.rhai",
-            source: "",
+            unreadable: &unreadable,
         };
         let program = Path::new("/nonexistent/ravel");
+        let mut judge = no_loader;
         let failure = evaluate(
             &entry,
             &request(),
             None,
             launch(program, Vec::new()),
             &limits(),
+            session(Path::new("/"), &mut judge),
         )
         .unwrap_err();
         assert_eq!(failure.refusal.code, "worker_missing");

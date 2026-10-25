@@ -7,15 +7,14 @@ use serde_json::{Map, Value};
 use crate::authority::{self, Format, PolicyEntry};
 use crate::cancellation;
 use crate::cli::SelectionArgs;
-use crate::context::{self, Delivered, SourceBreach};
+use crate::context::{self, Delivered, Measured, SourceBreach};
 use crate::inputs::Inputs;
 use crate::limits::{Bound, Limits, Origin};
 use crate::policy::{self, Command, Language, Policy, SCHEMA_VERSION, Validator};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
-use crate::rhai_worker::engine::Entry;
-use crate::rhai_worker::front as rhai_front;
-use crate::rhai_worker::{Limit, Reply, ScriptFailure};
+use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
+use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
 use crate::settings::Settings;
 use crate::worker::{self, Assembled, Breach, Halt, Loaded, Outcome};
 
@@ -42,6 +41,11 @@ pub struct Choice {
     /// The context selection saw, when there was one: a loader's result, or
     /// the caller's document, measured.
     pub context: Option<Delivered>,
+    /// The entry first, then each module it imported, as measured. Empty on the
+    /// TypeScript path. (rhai)
+    pub modules: Vec<Module>,
+    /// Every measured read of the Rhai path, with the phase that made it. (rhai)
+    pub reads: Vec<Read>,
     pub diagnostics: Diagnostics,
     pub operational: Vec<String>,
 }
@@ -165,6 +169,8 @@ fn evaluate_and_resolve(
         command,
         executable,
         context,
+        modules: Vec::new(),
+        reads: Vec::new(),
         diagnostics,
         operational: evaluation.operational,
     })
@@ -173,14 +179,15 @@ fn evaluate_and_resolve(
 /// Evaluate an entry of the Rhai path in the policy worker, judge what it
 /// reports and resolve the program it selected. (rhai)
 ///
-/// The worker reads no file, so the entry source travels in the evaluate frame
-/// exactly as admitted. The context `select` receives is the caller's document
+/// The worker reads no file, so the front reads the entry on its reader thread
+/// and the source travels in the evaluate frame exactly as read. The context `select` receives is the caller's document
 /// with its measurement attached, which only this side can measure.
 fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choice, Failure> {
     let source = entry.display();
-    let Format::Rhai { source: text } = &entry.format else {
+    let Format::Rhai(admitted) = &entry.format else {
         unreachable!("the caller dispatched on the Rhai format")
     };
+    let unreadable = |what: &str| admitted.unreadable(what);
 
     let context = inputs
         .context
@@ -189,7 +196,7 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
             context::deliver(
                 caller.value.clone(),
                 vec![caller.measured.clone()],
-                false,
+                None,
                 &inputs.limits,
                 &caller.measured.name,
             )
@@ -199,15 +206,22 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
     // The worker has no environment of its own. A grant is for the host
     // functions that read the caller's environment.
     let launch = rhai_front::launch(&program, Vec::new());
+    let mut judge =
+        |value: Value, sources: Vec<Measured>| rhai_context(value, sources, &inputs, &source);
     let evaluation = rhai_front::evaluate(
-        &Entry {
+        &Admitted {
             name: &entry.path,
-            source: text,
+            unreadable: &unreadable,
         },
         &rhai_request(&inputs),
         context.as_ref().map(|delivered| &delivered.value),
         launch,
         &inputs.limits,
+        Session {
+            cwd: &inputs.cwd,
+            caller: inputs.context.as_ref().map(|caller| &caller.measured),
+            judge: &mut judge,
+        },
     )?;
     let diagnostics = evaluation.diagnostics;
     let refuse = |refusal: Refusal| {
@@ -243,10 +257,35 @@ fn evaluate_and_resolve_rhai(inputs: Inputs, entry: PolicyEntry) -> Result<Choic
         entry,
         command,
         executable,
-        context,
+        // What `load_context` returned, or else the caller's own document.
+        context: evaluation.delivered.or(context),
+        modules: evaluation.modules,
+        reads: evaluation.reads,
         diagnostics,
         operational: evaluation.operational,
     })
+}
+
+/// Judge and measure the context that `load_context` returned. A result with a
+/// `status` is no context: it is the policy's refusal, or it is malformed. (rhai)
+fn rhai_context(
+    value: Value,
+    sources: Vec<Measured>,
+    inputs: &Inputs,
+    source: &str,
+) -> Result<Delivered, Refusal> {
+    if let Some(fields) = value
+        .as_object()
+        .filter(|fields| fields.contains_key("status"))
+    {
+        return Err(policy::loader_refused(
+            fields,
+            &inputs.kind,
+            source,
+            Language::Rhai,
+        ));
+    }
+    context::deliver(value, sources, Some(Language::Rhai), &inputs.limits, source)
 }
 
 /// The refusal for a failure the Rhai worker reported. The code and stage are
@@ -267,8 +306,96 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
         "policy_import_failed" => (
             "policy_import_failed",
             Stage::Load,
-            format!("fix {file}: its top level raised an error before any function of it ran"),
+            format!(
+                "fix {file}, or the module it imports: a module is a regular UTF-8 file of at \
+                 most 1 MiB, at most 64 modules load, none may import itself, and the top level \
+                 of each must run to its end"
+            ),
         ),
+        "context_loader_failed" => (
+            "context_loader_failed",
+            Stage::Context,
+            format!(
+                "fix load_context in {file}, or supply what it requires; a loader that fails \
+                 fails the whole selection, and nothing is selected without its context"
+            ),
+        ),
+        "context_invalid" => (
+            "context_invalid",
+            Stage::Context,
+            format!(
+                "return plain data from load_context in {file}: maps, arrays, strings, finite \
+                 numbers, booleans and `()`, nested at most 100 levels"
+            ),
+        ),
+        "host_request_invalid" => {
+            let stage = match failure.stage.as_str() {
+                "load" => Stage::Load,
+                "context" => Stage::Context,
+                _ => Stage::Selection,
+            };
+            let refusal = Refusal::new(
+                "host_request_invalid",
+                stage,
+                EXIT_REFUSED,
+                failure.message.clone(),
+                format!("correct the call in {file}, at the line and column the location names"),
+            )
+            .source(file);
+            // The location names the function, the field and the line.
+            return match (&failure.path, &position) {
+                (Some(call), Some(position)) => refusal.location(format!("{call} at {position}")),
+                (Some(call), None) => refusal.location(call),
+                (None, Some(position)) => refusal.location(position),
+                (None, None) => refusal,
+            };
+        }
+        "source_too_large" => {
+            let budget = limits.context.value;
+            let name = failure.source.clone().unwrap_or_else(|| source.to_owned());
+            let (limit, from, requested) = match failure.max_bytes {
+                Some(max) if max > budget => (budget, limits.context.origin, Some(max)),
+                Some(max) => (max, Origin::Set("max_bytes"), None),
+                None => (limits.source.value, limits.source.origin, None),
+            };
+            let refusal = context::source_too_large(
+                limits,
+                &SourceBreach {
+                    name,
+                    limit,
+                    from,
+                    actual: failure.actual,
+                    requested,
+                },
+                file,
+                Language::Rhai,
+            );
+            return match &position {
+                Some(position) => refusal.location(format!("ravel::read_text at {position}")),
+                None => refusal,
+            };
+        }
+        "too_many_sources" => {
+            return context::too_many_sources(limits, failure.actual.unwrap_or(0), file);
+        }
+        "context_too_large" => {
+            return context::context_too_large(
+                limits,
+                failure.actual.unwrap_or(0),
+                file,
+                Some(Language::Rhai),
+            );
+        }
+        "worker_failed" => {
+            return Refusal::new(
+                "worker_failed",
+                Stage::Worker,
+                EXIT_WORKER,
+                failure.message.clone(),
+                "reinstall ravel, and start the session again",
+            )
+            .source(file);
+        }
         "policy_invalid" => (
             "policy_invalid",
             Stage::Validation,
@@ -475,13 +602,24 @@ fn deliver(
                 .as_object()
                 .filter(|fields| policy.loader && fields.contains_key("status"))
             {
-                return Err(policy::loader_refused(fields, &inputs.kind, source));
+                return Err(policy::loader_refused(
+                    fields,
+                    &inputs.kind,
+                    source,
+                    Language::TypeScript,
+                ));
             }
             let about = match (&inputs.context, policy.loader) {
                 (Some(caller), false) => caller.measured.name.as_str(),
                 _ => source,
             };
-            context::deliver(context, measured, policy.loader, limits, about)
+            context::deliver(
+                context,
+                measured,
+                policy.loader.then_some(Language::TypeScript),
+                limits,
+                about,
+            )
         }
         Assembled::Threw { name, message } => Err(refuse(
             "context_loader_failed",
@@ -552,6 +690,7 @@ fn context_breach(breach: &Breach, policy: &Policy, inputs: &Inputs, source: &st
                     requested,
                 },
                 source,
+                Language::TypeScript,
             )
         }
         "sources" => context::too_many_sources(limits, actual, source),
@@ -561,7 +700,12 @@ fn context_breach(breach: &Breach, policy: &Policy, inputs: &Inputs, source: &st
                 (Some(caller), false) => caller.measured.name.as_str(),
                 _ => source,
             };
-            context::context_too_large(limits, actual, about, policy.loader)
+            context::context_too_large(
+                limits,
+                actual,
+                about,
+                policy.loader.then_some(Language::TypeScript),
+            )
         }
     }
 }
