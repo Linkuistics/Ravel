@@ -1,5 +1,5 @@
 //! Optional owner settings: selection bound, context budget, policy environment
-//! grants, and the LLM endpoints, harness entries and budget of a Rhai policy.
+//! grants, and the harness entries and budget of a Rhai policy.
 
 use std::ffi::OsStr;
 use std::fs;
@@ -9,8 +9,8 @@ use std::path::Path;
 
 use serde_json::Value;
 
-use crate::endpoints::{self, Endpoints, Harnesses, Problem};
 use crate::environment;
+use crate::harness_entries::{self, Harnesses, Problem};
 use crate::limits::{
     CONTEXT_MAX_BYTES, CONTEXT_MIN_BYTES, HARNESS_RUNS_MAX, SELECTION_MAX_MS, SELECTION_MIN_MS,
 };
@@ -27,7 +27,6 @@ pub struct Settings {
     pub timeout_ms: Option<u64>,
     pub context_bytes: Option<u64>,
     pub policy_env: Vec<String>,
-    pub endpoints: Endpoints,
     pub harnesses: Harnesses,
     pub budgets: BudgetSettings,
 }
@@ -39,11 +38,10 @@ pub struct BudgetSettings {
     pub harness_runs: Option<u64>,
 }
 
-/// What `ravel::endpoints()` and `ravel::harnesses()` report on: the owner's
-/// entries, checked and by name.
+/// What `ravel::harnesses()` reports on: the owner's entries, checked and by
+/// name.
 #[derive(Clone, Debug, Default)]
 pub struct Directory {
-    pub endpoints: Endpoints,
     pub harnesses: Harnesses,
 }
 
@@ -104,13 +102,9 @@ impl Settings {
                         settings.policy_env.push(name.to_owned());
                     }
                 }
-                "endpoints" => {
-                    settings.endpoints =
-                        endpoints::parse_endpoints(value).map_err(|p| problem(&file, p))?;
-                }
                 "harnesses" => {
                     settings.harnesses =
-                        endpoints::parse_harnesses(value).map_err(|p| problem(&file, p))?;
+                        harness_entries::parse_harnesses(value).map_err(|p| problem(&file, p))?;
                 }
                 "budgets" => settings.budgets = budgets(&file, value)?,
                 _ => {
@@ -120,22 +114,12 @@ impl Settings {
                 }
             }
         }
-        // A credential is never also a grant. This waits for the whole file,
-        // because `endpoints` can come after `policyEnv`.
-        for name in &settings.policy_env {
-            environment::not_credential(
-                name,
-                &settings.endpoints,
-                &environment::Named::Setting { file: &file },
-            )?;
-        }
         Ok(settings)
     }
 
     /// The entries that discovery reports on.
     pub fn directory(&self) -> Directory {
         Directory {
-            endpoints: self.endpoints.clone(),
             harnesses: self.harnesses.clone(),
         }
     }
@@ -191,7 +175,7 @@ fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
         Stage::Cli,
         EXIT_MALFORMED,
         format!("the owner settings file {file} {what}"),
-        "make it one JSON object holding any of timeoutMs, contextBytes, policyEnv (an array of variable names), endpoints, harnesses and budgets, or remove it to set nothing",
+        "make it one JSON object holding any of timeoutMs, contextBytes, policyEnv (an array of variable names), harnesses and budgets, or remove it to set nothing",
     )
     .source(file)
 }
@@ -351,22 +335,17 @@ mod tests {
     }
 
     #[test]
-    fn the_three_keys_of_a_rhai_policy_are_read_and_default_to_nothing() {
+    fn the_two_keys_of_a_rhai_policy_are_read_and_default_to_nothing() {
         let none = read("{}").unwrap();
-        assert!(none.endpoints.is_empty() && none.harnesses.is_empty());
+        assert!(none.harnesses.is_empty());
         assert_eq!(none.budgets.harness_runs, None);
         let settings = read(
             r#"{
-                "endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } },
                 "harnesses": { "claude": { "program": "claude", "capabilities": ["edit"] } },
                 "budgets": { "harnessRuns": 16 }
             }"#,
         )
         .unwrap();
-        assert_eq!(
-            settings.endpoints["main"].api_key_env.as_deref(),
-            Some("MAIN_KEY")
-        );
         assert_eq!(settings.harnesses["claude"].program, "claude");
         assert_eq!(settings.budgets.harness_runs, Some(16));
         let zero = read(r#"{ "budgets": { "harnessRuns": 0 } }"#).unwrap();
@@ -376,11 +355,8 @@ mod tests {
     #[test]
     fn a_problem_in_a_new_key_is_settings_invalid_at_its_location_whatever_the_key_order() {
         for (contents, location) in [
-            (r#"{ "endpoints": [] }"#, "endpoints"),
-            (
-                r#"{ "endpoints": { "a": { "type": "gemini" } } }"#,
-                "endpoints.a.type",
-            ),
+            // The `endpoints` key is gone, so it is an unknown key.
+            (r#"{ "endpoints": {} }"#, "endpoints"),
             (r#"{ "harnesses": { "a": {} } }"#, "harnesses.a.program"),
             (r#"{ "budgets": 5 }"#, "budgets"),
             // The two LLM budgets are gone, so their keys are unknown budgets.
@@ -406,34 +382,12 @@ mod tests {
                 "budgets.harnessRuns",
             ),
             (r#"{ "budgets": { "ms": 5 } }"#, "budgets.ms"),
-            (
-                r#"{ "endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "LC_MODEL_KEY" } } }"#,
-                "endpoints.a.apiKeyEnv",
-            ),
         ] {
             let refusal = read(contents).unwrap_err();
             assert_eq!(refusal.code, "settings_invalid", "{contents}");
             assert_eq!(refusal.exit, EXIT_MALFORMED, "{contents}");
             assert_eq!(refusal.location.as_deref(), Some(location), "{contents}");
         }
-    }
-
-    #[test]
-    fn a_policy_env_grant_of_a_credential_is_an_excluded_grant_whichever_key_comes_first() {
-        let endpoints =
-            r#""endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } }"#;
-        for contents in [
-            format!(r#"{{ "policyEnv": ["MAIN_KEY"], {endpoints} }}"#),
-            format!(r#"{{ {endpoints}, "policyEnv": ["OTHER", "MAIN_KEY"] }}"#),
-        ] {
-            let refusal = read(&contents).unwrap_err();
-            assert_eq!(refusal.code, "excluded_grant", "{contents}");
-            assert_eq!(refusal.exit, EXIT_MALFORMED, "{contents}");
-            assert_eq!(refusal.location.as_deref(), Some("policyEnv"), "{contents}");
-            assert!(refusal.message.contains("main"), "{}", refusal.message);
-        }
-        let fine = format!(r#"{{ {endpoints}, "policyEnv": ["MAIN_KEY_2"] }}"#);
-        assert_eq!(read(&fine).unwrap().policy_env, ["MAIN_KEY_2"]);
     }
 
     #[test]

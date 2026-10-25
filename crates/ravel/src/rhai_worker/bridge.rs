@@ -238,7 +238,7 @@ impl Bridge {
         }
     }
 
-    /// `ravel::endpoints`, `ravel::harnesses` or `ravel::remaining`: no
+    /// `ravel::harnesses` or `ravel::remaining`: no
     /// argument, and the front answers with the `value` to hand the script.
     fn discover(&self, context: &NativeCallContext, function: &'static str) -> Outcome<Dynamic> {
         let answer = self.ask(&self.frame(context, function))?;
@@ -285,7 +285,7 @@ impl Bridge {
             &mut module,
             move |context: NativeCallContext, name: Dynamic| bridge.env(&context, &name),
         );
-        for function in ["endpoints", "harnesses", "remaining"] {
+        for function in ["harnesses", "remaining"] {
             let bridge = Rc::clone(self);
             FuncRegistration::new(function)
                 .set_into_module(&mut module, move |context: NativeCallContext| {

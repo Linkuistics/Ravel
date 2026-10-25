@@ -3,16 +3,12 @@ use std::os::unix::ffi::OsStrExt as _;
 
 use serde_json::{Value, json};
 
-use crate::endpoints::{self, Endpoints};
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
 /// The names the owner granted, each once, in the order first given.
 #[derive(Clone, Debug, Default)]
 pub struct Grants {
     grants: Vec<Grant>,
-    /// The credential variable of every LLM endpoint. No policy reads one,
-    /// whatever else names it.
-    credentials: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -24,19 +20,10 @@ struct Grant {
 
 impl Grants {
     /// The owner settings' names, already checked, then each `--policy-env`
-    /// name, refusing an excluded or malformed one, or the credential of an
-    /// endpoint in `endpoints`.
-    pub fn read(
-        settings: &[String],
-        flags: &[OsString],
-        endpoints: &Endpoints,
-    ) -> Result<Grants, Refusal> {
+    /// name, refusing an excluded or malformed one.
+    pub fn read(settings: &[String], flags: &[OsString]) -> Result<Grants, Refusal> {
         let mut grants: Vec<Grant> = Vec::new();
-        let flags = flags.iter().map(|name| {
-            let name = checked(name)?;
-            not_credential(&name, endpoints, &Named::Flag)?;
-            Ok(name)
-        });
+        let flags = flags.iter().map(|name| checked(name));
         for name in settings.iter().cloned().map(Ok).chain(flags) {
             let name = name?;
             if grants.iter().all(|grant| grant.name != name) {
@@ -46,10 +33,7 @@ impl Grants {
                 });
             }
         }
-        Ok(Grants {
-            grants,
-            credentials: endpoints::credentials(endpoints),
-        })
+        Ok(Grants { grants })
     }
 
     /// The worker's whole environment: the base set and the granted names,
@@ -81,13 +65,8 @@ impl Grants {
         }
     }
 
-    /// Whether the policy may read `name`. This is the one place that decides,
-    /// so a rule that outranks the base set and the grants, such as the
-    /// credential name of an LLM endpoint, goes first here.
+    /// Whether the policy may read `name`. This is the one place that decides.
     fn readable(&self, name: &str) -> bool {
-        if self.credentials.iter().any(|variable| variable == name) {
-            return false;
-        }
         is_base(name.as_bytes()) || self.grants.iter().any(|grant| grant.name == name)
     }
 
@@ -213,25 +192,6 @@ pub fn grantable(name: &str, named: &Named) -> Result<(), Refusal> {
     Ok(())
 }
 
-/// Refuse a grant that names the credential variable of an LLM endpoint. A
-/// credential reaches only its endpoint, so it is never also a grant.
-pub fn not_credential(name: &str, endpoints: &Endpoints, named: &Named) -> Result<(), Refusal> {
-    let Some(endpoint) = endpoints::credential_user(endpoints, name) else {
-        return Ok(());
-    };
-    let label = named.label();
-    Err(named.name(Refusal::new(
-        "excluded_grant",
-        Stage::Cli,
-        EXIT_MALFORMED,
-        format!(
-            "{label} {name} is the apiKeyEnv of the endpoint {endpoint}, and a credential is \
-             never granted to the policy: only the Ravel CLI reads it, to call that endpoint"
-        ),
-        "remove the grant, or name another variable as the apiKeyEnv of the endpoint",
-    )))
-}
-
 /// A `--policy-env` name, which must also be UTF-8.
 fn checked(name: &OsStr) -> Result<String, Refusal> {
     let name = name.to_str().ok_or_else(|| {
@@ -293,7 +253,7 @@ mod tests {
     #[test]
     fn a_grant_is_one_name_and_duplicates_are_one_grant() {
         let flags = ["A_TOKEN".into(), "OTHER".into(), "A_TOKEN".into()];
-        let grants = Grants::read(&[], &flags, &Endpoints::new()).unwrap();
+        let grants = Grants::read(&[], &flags).unwrap();
         let names: Vec<&str> = grants
             .grants
             .iter()
@@ -305,7 +265,7 @@ mod tests {
             ("A=B", "malformed_input"),
             ("NODE_OPTIONS", "excluded_grant"),
         ] {
-            let refusal = Grants::read(&[], &[name.into()], &Endpoints::new()).unwrap_err();
+            let refusal = Grants::read(&[], &[name.into()]).unwrap_err();
             assert_eq!(refusal.code, code, "{name}");
             assert_eq!(refusal.input.as_deref(), Some("--policy-env"), "{name}");
         }
@@ -314,8 +274,7 @@ mod tests {
     #[test]
     fn a_name_is_readable_when_it_is_in_the_base_set_or_granted() {
         // Cargo sets this for every test run, and the test does not change it.
-        let granted =
-            Grants::read(&["CARGO_MANIFEST_DIR".to_owned()], &[], &Endpoints::new()).unwrap();
+        let granted = Grants::read(&["CARGO_MANIFEST_DIR".to_owned()], &[]).unwrap();
         let none = Grants::default();
         assert!(matches!(none.lookup("HOME"), Lookup::Set(_)));
         assert!(matches!(none.lookup("PATH"), Lookup::Set(_)));
@@ -332,46 +291,11 @@ mod tests {
         }
     }
 
-    fn endpoint(variable: &str) -> Endpoints {
-        let entry = serde_json::json!({ "type": "anthropic", "apiKeyEnv": variable });
-        endpoints::parse_endpoints(&serde_json::json!({ "main": entry })).unwrap()
-    }
-
-    #[test]
-    fn a_flag_that_names_a_credential_is_an_excluded_grant() {
-        let endpoints = endpoint("MAIN_KEY");
-        let refusal = Grants::read(&[], &["MAIN_KEY".into()], &endpoints).unwrap_err();
-        assert_eq!(refusal.code, "excluded_grant");
-        assert_eq!(refusal.exit, EXIT_MALFORMED);
-        assert_eq!(refusal.input.as_deref(), Some("--policy-env"));
-        assert!(refusal.message.contains("main"), "{}", refusal.message);
-        // A near miss is an ordinary grant, and a credential nobody names is none.
-        assert!(Grants::read(&[], &["MAIN_KEY_2".into()], &endpoints).is_ok());
-        assert!(Grants::read(&[], &["MAIN_KEY".into()], &Endpoints::new()).is_ok());
-    }
-
-    #[test]
-    fn a_credential_name_is_unreadable_whatever_else_would_make_it_readable() {
-        // No settings or flag can produce this state, since both refuse before.
-        // The test builds it, because the rule is what holds if a later grant
-        // path forgets to check, and the credential must still never be read.
-        let mut grants = Grants::read(&[], &[], &endpoint("CARGO_MANIFEST_DIR")).unwrap();
-        grants.grants.push(Grant {
-            name: "CARGO_MANIFEST_DIR".to_owned(),
-            set: true,
-        });
-        assert_eq!(grants.lookup("CARGO_MANIFEST_DIR"), Lookup::NotReadable);
-        let mut base_name = Grants::default();
-        base_name.credentials.push("PATH".to_owned());
-        assert_eq!(base_name.lookup("PATH"), Lookup::NotReadable);
-        assert!(matches!(base_name.lookup("HOME"), Lookup::Set(_)));
-    }
-
     #[test]
     fn a_flag_adds_to_the_names_the_owner_settings_grant() {
         let settings = ["SETTING".to_owned(), "BOTH".to_owned()];
         let flags = ["BOTH".into(), "FLAG".into()];
-        let grants = Grants::read(&settings, &flags, &Endpoints::new()).unwrap();
+        let grants = Grants::read(&settings, &flags).unwrap();
         let names: Vec<&str> = grants
             .grants
             .iter()

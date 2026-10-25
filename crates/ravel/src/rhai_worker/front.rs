@@ -73,7 +73,7 @@ pub struct Session<'a> {
     pub cwd: &'a Path,
     /// The names of the caller's environment that `ravel::env` may read.
     pub grants: &'a Grants,
-    /// The owner's LLM endpoints and harness entries, which discovery reports.
+    /// The owner's harness entries, which discovery reports.
     pub directory: &'a Directory,
     /// The caller's `--context` document, which counts as a source.
     pub caller: Option<&'a Measured>,

@@ -1,8 +1,7 @@
 //! The owner settings of a Rhai policy through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *LLM endpoints and credentials*, *Harness
-//! entries*, *Evaluation budgets and their composition* and *Discovery*): the
-//! keys `endpoints`, `harnesses` and `budgets`, the credential rules, and the
-//! functions `ravel::endpoints`, `ravel::harnesses` and `ravel::remaining`.
+//! (`docs/specs/policy-evaluation.md`, *Harness entries*, *Evaluation budgets
+//! and their composition* and *Discovery*): the keys `harnesses` and `budgets`,
+//! and the functions `ravel::harnesses` and `ravel::remaining`.
 //!
 //! Everything runs in a sandbox home with fake harness scripts on a private
 //! `PATH`. No test makes a network call, and none could: Ravel has no HTTP
@@ -81,62 +80,66 @@ fn refused(recorded: &Recorded, run: &Run) -> Value {
     document["error"].clone()
 }
 
-const MAIN: &str = r#""main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" }"#;
-
 #[test]
 fn each_settings_failure_refuses_as_settings_invalid_with_exit_2_before_any_worker() {
     let long = "a".repeat(65);
-    for (endpoints_and_more, location) in [
+    for (entries, location) in [
         // The name rule.
-        (r#""endpoints": { "": { "type": "openai", "apiKeyEnv": "K" } }"#.to_owned(), "endpoints"),
-        (r#""endpoints": { "-a": { "type": "openai", "apiKeyEnv": "K" } }"#.to_owned(), "endpoints"),
-        (r#""endpoints": { "A": { "type": "openai", "apiKeyEnv": "K" } }"#.to_owned(), "endpoints"),
-        (r#""endpoints": { "a_b": { "type": "openai", "apiKeyEnv": "K" } }"#.to_owned(), "endpoints"),
         (
-            format!(r#""endpoints": {{ "{long}": {{ "type": "openai", "apiKeyEnv": "K" }} }}"#),
-            "endpoints",
+            r#""harnesses": { "Bad": { "program": "x" } }"#.to_owned(),
+            "harnesses",
         ),
-        (r#""harnesses": { "Bad": { "program": "x" } }"#.to_owned(), "harnesses"),
+        (
+            r#""harnesses": { "": { "program": "x" } }"#.to_owned(),
+            "harnesses",
+        ),
+        (
+            r#""harnesses": { "-a": { "program": "x" } }"#.to_owned(),
+            "harnesses",
+        ),
+        (
+            format!(r#""harnesses": {{ "{long}": {{ "program": "x" }} }}"#),
+            "harnesses",
+        ),
         // The fields.
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "key": "x" } }"#.to_owned(), "endpoints.a.key"),
-        (r#""endpoints": { "a": { "apiKeyEnv": "K" } }"#.to_owned(), "endpoints.a.type"),
-        (r#""endpoints": { "a": { "type": "bedrock", "apiKeyEnv": "K" } }"#.to_owned(), "endpoints.a.type"),
-        (r#""endpoints": { "a": { "type": "anthropic" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "openai-compatible" } }"#.to_owned(), "endpoints.a.baseUrl"),
         (
-            r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "structuredOutput": true } }"#.to_owned(),
-            "endpoints.a.structuredOutput",
+            r#""harnesses": { "a": { "capabilities": [] } }"#.to_owned(),
+            "harnesses.a.program",
         ),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "models": [1] } }"#.to_owned(), "endpoints.a.models"),
-        (r#""harnesses": { "a": { "capabilities": [] } }"#.to_owned(), "harnesses.a.program"),
-        (r#""harnesses": { "a": { "program": "x", "env": {} } }"#.to_owned(), "harnesses.a.env"),
-        // The base URL.
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "http://api.example.com" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "http://10.0.0.1:8080" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "https://u:p@api.example.com" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "https://api.example.com/v1?key=1" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "https://api.example.com/v1#top" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "ftp://api.example.com" } }"#.to_owned(), "endpoints.a.baseUrl"),
-        (r#""endpoints": { "a": { "type": "openai", "apiKeyEnv": "K", "baseUrl": "not a url" } }"#.to_owned(), "endpoints.a.baseUrl"),
+        (
+            r#""harnesses": { "a": { "program": "x", "env": {} } }"#.to_owned(),
+            "harnesses.a.env",
+        ),
         // The budgets.
-        (r#""budgets": { "llmCalls": 8 }"#.to_owned(), "budgets.llmCalls"),
-        (r#""budgets": { "llmOutputTokens": 4096 }"#.to_owned(), "budgets.llmOutputTokens"),
-        (r#""budgets": { "harnessRuns": -1 }"#.to_owned(), "budgets.harnessRuns"),
-        (r#""budgets": { "harnessRuns": 17 }"#.to_owned(), "budgets.harnessRuns"),
-        (r#""budgets": { "harnessRuns": "1" }"#.to_owned(), "budgets.harnessRuns"),
-        (r#""budgets": { "retries": 1 }"#.to_owned(), "budgets.retries"),
+        (
+            r#""budgets": { "llmCalls": 8 }"#.to_owned(),
+            "budgets.llmCalls",
+        ),
+        (
+            r#""budgets": { "llmOutputTokens": 4096 }"#.to_owned(),
+            "budgets.llmOutputTokens",
+        ),
+        (
+            r#""budgets": { "harnessRuns": -1 }"#.to_owned(),
+            "budgets.harnessRuns",
+        ),
+        (
+            r#""budgets": { "harnessRuns": 17 }"#.to_owned(),
+            "budgets.harnessRuns",
+        ),
+        (
+            r#""budgets": { "harnessRuns": "1" }"#.to_owned(),
+            "budgets.harnessRuns",
+        ),
+        (
+            r#""budgets": { "retries": 1 }"#.to_owned(),
+            "budgets.retries",
+        ),
         (r#""budgets": [1]"#.to_owned(), "budgets"),
-        // A credential cannot hide under a name that `ravel::env` reads for free.
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "HOME" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "PATH" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "TMPDIR" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "LANG" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "LC_ALL" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
-        (r#""endpoints": { "a": { "type": "anthropic", "apiKeyEnv": "LC_MODEL_KEY" } }"#.to_owned(), "endpoints.a.apiKeyEnv"),
     ] {
         let sandbox = Sandbox::new();
         let recorded = sandbox.recording_agent();
-        let contents = format!("{{ {endpoints_and_more} }}");
+        let contents = format!("{{ {entries} }}");
         settings(&sandbox, &contents);
         sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
 
@@ -171,139 +174,78 @@ fn the_budgets_of_the_removed_llm_call_are_unknown_budgets() {
     }
 }
 
+/// `endpoints` held the LLM endpoints of the removed `ravel::llm`. The settings
+/// file names no such key now, so a file that still holds one refuses before any
+/// worker starts, and the refusal names the key.
 #[test]
-fn a_settings_grant_of_a_credential_refuses_as_excluded_grant_with_exit_2() {
+fn the_endpoints_key_is_an_unknown_key_and_the_refusal_names_it() {
     for contents in [
-        format!(r#"{{ "policyEnv": ["MAIN_KEY"], "endpoints": {{ {MAIN} }} }}"#),
-        format!(r#"{{ "endpoints": {{ {MAIN} }}, "policyEnv": ["X_TOKEN", "MAIN_KEY"] }}"#),
+        r#"{ "endpoints": {} }"#,
+        r#"{ "endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "MAIN_KEY" } } }"#,
+        r#"{ "harnesses": {}, "endpoints": [] }"#,
     ] {
         let sandbox = Sandbox::new();
         let recorded = sandbox.recording_agent();
-        settings(&sandbox, &contents);
+        settings(&sandbox, contents);
         sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
 
         let error = refused(&recorded, &start_with(&sandbox, &[], &[]));
 
-        assert_eq!(error["code"], "excluded_grant", "{contents}");
-        assert_eq!(error["location"], "policyEnv", "{contents}");
+        assert_eq!(error["code"], "settings_invalid", "{contents}");
+        assert_eq!(error["location"], "endpoints", "{contents}");
+        let message = error["message"].as_str().unwrap();
+        assert!(message.contains(SETTINGS), "{contents}: {message}");
+        assert!(
+            message.contains(r#"the unknown key "endpoints""#),
+            "{contents}: {message}"
+        );
     }
 }
 
-/// The scenario "A flag grant of the credential".
+/// The variable that an endpoint named as its credential is an ordinary name
+/// again: `--policy-env` grants it, and `ravel::env` reads it.
 #[test]
-fn a_flag_grant_of_a_credential_refuses_as_excluded_grant_with_exit_2_and_no_worker() {
+fn a_variable_that_an_endpoint_once_named_as_its_credential_is_an_ordinary_grant() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    settings(&sandbox, &format!(r#"{{ "endpoints": {{ {MAIN} }} }}"#));
-    sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
-
-    let run = start_with(
+    sandbox.personal_rhai(&selecting(
+        "",
+        r#"    let args = [ravel::env("MAIN_KEY")];"#,
+    ));
+    start_with(
         &sandbox,
-        &[("MAIN_KEY", OsStr::new("topsecret"))],
-        &["--policy-env", "OTHER", "--policy-env", "MAIN_KEY"],
-    );
-    let error = refused(&recorded, &run);
+        &[("MAIN_KEY", OsStr::new("granted-value"))],
+        &["--policy-env", "MAIN_KEY"],
+    )
+    .report();
+    assert_eq!(recorded.argv().unwrap(), ["granted-value"]);
+}
 
-    assert_eq!(error["code"], "excluded_grant");
-    assert_eq!(error["input"], "--policy-env");
-    assert!(!run.stderr.contains("topsecret"), "{}", run.stderr);
-
-    // Without the credential's endpoint, the same flag is an ordinary grant.
+/// `ravel::endpoints()` is gone, so a policy that calls it fails as any call of
+/// a function that the namespace lacks does. The control beside it calls a
+/// function that stays, in the same position, and succeeds.
+#[test]
+fn a_policy_that_calls_ravel_endpoints_fails_with_an_unknown_function() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
-    start_with(&sandbox, &[], &["--policy-env", "MAIN_KEY"]).report();
-    assert_eq!(recorded.argv().unwrap(), ["x"]);
-}
-
-/// The scenario "A credential under a base name".
-#[test]
-fn a_credential_under_a_base_name_refuses_as_settings_invalid_with_exit_2_and_no_worker() {
-    let sandbox = Sandbox::new();
-    let recorded = sandbox.recording_agent();
-    settings(
-        &sandbox,
-        r#"{ "endpoints": { "main": { "type": "anthropic", "apiKeyEnv": "LC_MODEL_KEY" } } }"#,
-    );
-    sandbox.personal_rhai(&rhai::routing(r#"["x"]"#));
-
-    let error = refused(&recorded, &start_with(&sandbox, &[], &[]));
-
-    assert_eq!(error["code"], "settings_invalid");
-    assert!(error["message"].as_str().unwrap().contains("LC_MODEL_KEY"));
-}
-
-#[test]
-fn env_still_refuses_the_variable_of_a_credential_that_the_caller_has_set() {
-    let args = computed_with(
-        &format!(r#"{{ "endpoints": {{ {MAIN} }} }}"#),
-        &[("MAIN_KEY", OsStr::new("topsecret"))],
-        r#"fn caught(attempt) {
-    try { attempt.call(); } catch (error) { return error.code + ":" + error.message; }
-    "none"
-}"#,
-        r#"    let args = [caught(|| ravel::env("MAIN_KEY"))];"#,
-    );
-
-    assert!(args.starts_with("env_not_granted:"), "{args}");
-    assert!(!args.contains("topsecret"), "{args}");
-}
-
-#[test]
-fn endpoints_lists_each_endpoint_in_name_order_with_its_availability() {
-    // The keys come out of order, and the order of the answer is the names'.
-    let contents = r#"{ "endpoints": {
-        "local": { "type": "openai-compatible", "baseUrl": "http://localhost:11434/v1",
-                   "structuredOutput": true, "models": ["llama", "qwen"] },
-        "plain": { "type": "openai-compatible", "baseUrl": "https://gateway.example/v1" },
-        "gpt": { "type": "openai", "apiKeyEnv": "GPT_KEY", "models": [] },
-        "claude": { "type": "anthropic", "apiKeyEnv": "CLAUDE_KEY",
-                    "baseUrl": "https://proxy.example", "models": ["m1"] },
-        "9lives": { "type": "anthropic", "apiKeyEnv": "EMPTY_KEY" }
-    } }"#;
-
-    let value = computed_value(
-        contents,
-        &[
-            ("CLAUDE_KEY", OsStr::new("sk-claude")),
-            ("EMPTY_KEY", OsStr::new("")),
-        ],
-        "ravel::endpoints()",
-    );
-
-    assert_eq!(
-        value,
-        json!([
-            { "name": "9lives", "type": "anthropic", "available": false,
-              "reason": "credential_unset", "models": [], "structuredOutput": true },
-            { "name": "claude", "type": "anthropic", "available": true,
-              "reason": null, "models": ["m1"], "structuredOutput": true },
-            { "name": "gpt", "type": "openai", "available": false,
-              "reason": "credential_unset", "models": [], "structuredOutput": true },
-            { "name": "local", "type": "openai-compatible", "available": true,
-              "reason": null, "models": ["llama", "qwen"], "structuredOutput": true },
-            { "name": "plain", "type": "openai-compatible", "available": true,
-              "reason": null, "models": [], "structuredOutput": false },
-        ])
-    );
-}
-
-#[test]
-fn endpoints_is_an_empty_array_without_settings_and_never_shows_a_credential_or_a_url() {
-    let value = computed_value("{}", &[], "ravel::endpoints()");
-    assert_eq!(value, json!([]));
-
-    let args = computed_with(
-        &format!(r#"{{ "endpoints": {{ {MAIN} }} }}"#),
-        &[("MAIN_KEY", OsStr::new("sk-topsecret"))],
+    sandbox.personal_rhai(&selecting(
         "",
         r#"    let args = [ravel::json_encode(ravel::endpoints())];"#,
-    );
+    ));
+
+    let run = start_with(&sandbox, &[], &[]);
+
+    let document = run.refusal(3);
+    assert_eq!(recorded.argv(), None, "a harness started after a failure");
+    assert_eq!(document["error"]["code"], "selection_threw", "{document}");
+    let message = document["error"]["message"].as_str().unwrap();
     assert!(
-        !args.contains("sk-topsecret") && !args.contains("MAIN_KEY"),
-        "{args}"
+        message.contains("Function not found: ravel::endpoints"),
+        "{document}"
     );
-    assert!(!args.contains("http"), "{args}");
+
+    let control = computed_value("{}", &[], "ravel::harnesses()");
+    assert_eq!(control, json!([]));
 }
 
 /// A fake program on the private `PATH`, with the mode that it should have.
@@ -461,27 +403,23 @@ fn the_discovery_functions_are_available_at_the_top_of_a_module_and_in_load_cont
     let recorded = sandbox.recording_agent();
     settings(
         &sandbox,
-        &format!(
-            r#"{{ "endpoints": {{ {MAIN} }}, "harnesses": {{ "agent": {{ "program": "recording-agent" }} }} }}"#
-        ),
+        r#"{ "harnesses": { "agent": { "program": "recording-agent" } } }"#,
     );
     sandbox.file(
         "policy-lib.rhai",
-        r#"export const AT_TOP = [ravel::endpoints().len(), ravel::harnesses().len(),
-                         ravel::remaining().harnessRuns];"#,
+        r#"export const AT_TOP = [ravel::harnesses().len(), ravel::remaining().harnessRuns];"#,
     );
     sandbox.personal_rhai(&policy(
         r#"import "policy-lib" as lib;
 fn load_context(request) {
-    #{ schemaVersion: 1, facts: #{ endpoints: ravel::endpoints().len(),
-                                   harnesses: ravel::harnesses().len(),
+    #{ schemaVersion: 1, facts: #{ harnesses: ravel::harnesses().len(),
                                    harnessRuns: ravel::remaining().harnessRuns } }
 }
 fn select(request, context) {
     #{ status: "selected", program: "recording-agent",
        args: [lib::AT_TOP.map(|n| n.to_string()).reduce(|sum, n| sum + "," + n, ""),
-              context.facts.endpoints.to_string(), context.facts.harnesses.to_string(),
-              context.facts.harnessRuns.to_string(), ravel::endpoints().len().to_string()],
+              context.facts.harnesses.to_string(), context.facts.harnessRuns.to_string(),
+              ravel::harnesses().len().to_string()],
        provider: "p", model: "m", effort: "e", reason: "r" }
 }"#,
     ));
@@ -494,5 +432,5 @@ fn select(request, context) {
 
     start_with(&sandbox, &[], &[]).report();
 
-    assert_eq!(recorded.argv().unwrap(), [",1,1,0", "1", "1", "0", "1"]);
+    assert_eq!(recorded.argv().unwrap(), [",1,0", "1", "0", "1"]);
 }

@@ -74,7 +74,7 @@ pub(super) struct Host {
     bounds: Bounds,
     /// The variables of the caller's environment that the policy may read.
     grants: Grants,
-    /// The endpoints and harness entries that discovery reports on.
+    /// The harness entries that discovery reports on.
     directory: Directory,
     /// The end of the whole deadline, which `ravel::remaining` counts to.
     deadline: Instant,
@@ -181,7 +181,6 @@ impl Host {
                     .ok_or("an env frame has no name")?;
                 Ok(self.env(name))
             }
-            Some("endpoints") => Ok(self.endpoints()),
             Some("harnesses") => Ok(self.harnesses(phase, &site).await),
             Some("remaining") => Ok(self.remaining()),
             Some(call @ ("read_text" | "read_json")) => {
@@ -239,15 +238,6 @@ impl Host {
                 ),
             ),
         }
-    }
-
-    /// `ravel::endpoints`: configuration, and whether each credential is set. It
-    /// touches no file, so the runtime thread answers it.
-    fn endpoints(&self) -> Answer {
-        let value = discovery::endpoints(&self.directory.endpoints, |name| std::env::var_os(name));
-        Answer::Reply(encode(
-            &json!({ "type": "reply", "status": "ok", "value": value }),
-        ))
     }
 
     /// `ravel::harnesses`: each program resolves as a selected program does, on

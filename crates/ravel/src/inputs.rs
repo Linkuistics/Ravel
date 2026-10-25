@@ -54,8 +54,7 @@ pub struct Inputs {
     /// The names the owner settings and `--policy-env` grant the worker
     /// beyond its base set.
     pub grants: Grants,
-    /// The owner's LLM endpoints and harness entries, which a Rhai policy
-    /// discovers. (rhai)
+    /// The owner's harness entries, which a Rhai policy discovers. (rhai)
     pub directory: Directory,
 }
 
@@ -110,7 +109,7 @@ impl Inputs {
                 .input("--prompt"));
             }
         };
-        let grants = Grants::read(&settings.policy_env, &args.policy_env, &settings.endpoints)?;
+        let grants = Grants::read(&settings.policy_env, &args.policy_env)?;
         let limits = Limits::read(
             args.timeout_ms.as_deref(),
             args.context_bytes.as_deref(),

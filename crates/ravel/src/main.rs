@@ -5,9 +5,9 @@ mod choice;
 mod cli;
 mod confinement;
 mod context;
-mod endpoints;
 mod environment;
 mod frame;
+mod harness_entries;
 mod inputs;
 mod limits;
 #[cfg(test)]

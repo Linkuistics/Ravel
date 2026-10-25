@@ -11,35 +11,8 @@ use std::path::Path;
 
 use serde_json::{Value, json};
 
-use crate::endpoints::{Endpoints, Harnesses};
+use crate::harness_entries::Harnesses;
 use crate::program;
-
-/// `ravel::endpoints()`: one map for each endpoint, in name order. The
-/// credential is read to learn whether it is set, and it is never reported.
-/// `environment` is the lookup into the caller's environment. It makes no
-/// filesystem call.
-pub(super) fn endpoints(
-    endpoints: &Endpoints,
-    environment: impl Fn(&str) -> Option<std::ffi::OsString>,
-) -> Value {
-    endpoints
-        .iter()
-        .map(|(name, endpoint)| {
-            // An endpoint with no credential variable needs none.
-            let set = endpoint.api_key_env.as_deref().is_none_or(|variable| {
-                environment(variable).is_some_and(|value| !value.is_empty())
-            });
-            json!({
-                "name": name,
-                "type": endpoint.api.name(),
-                "available": set,
-                "reason": if set { Value::Null } else { json!("credential_unset") },
-                "models": endpoint.models,
-                "structuredOutput": endpoint.structured_output(),
-            })
-        })
-        .collect()
-}
 
 /// `ravel::harnesses()`: one map for each entry, in name order. The program
 /// resolves as a selected program resolves, and nothing runs. This looks at the
