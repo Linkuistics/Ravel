@@ -1,4 +1,4 @@
-# rhai-policy-worker-k9
+# rhai-policy-worker-k9 — brief
 
 ## Goal
 
@@ -33,3 +33,13 @@ Make a Rhai route table work end to end through the real `ravel start-session`. 
 - Add Rhai `=1.27.0` with the `compact_str` feature. Do not enable `unchecked`.
 - The next leaf sets the fixed engine limits and the heap bound. Leave the engine at its defaults here, except for the strict mode.
 - Mark the new code so that the removal increment can find the code it keeps and the code it removes.
+
+## Decomposition
+
+`worker::evaluate` mixes two things. The first is generic supervision of a child with a private socket: the private directory, the socket pair, the descriptor hygiene, the diagnostics capture, the bounded stop, the teardown report and the cancellation order. The second is the Bun protocol: locating `ravel-policy`, the hello with `bunVersion`, and the evaluate, context and select frames. The supervision cannot serve a second worker until the first part is separate from the second. So this leaf is a node with three children, in order.
+
+- `worker-supervision-extraction` moves the generic supervision into a function that takes a launch description and a conversation. The TypeScript path calls it with its own launch and conversation. Behaviour stays the same.
+- `rhai-engine-worker` adds the internal role of Ravel's own binary, the strict Rhai engine, the converter, the module contract and the worker side of a Rhai protocol. It adds the front side that launches the role through the extracted supervision. Unit tests cover it.
+- `rhai-route-table-seam` joins the pieces to `ravel start-session`: the entry rules, the validation and result checks, the routing notice of schema version 2, the sandbox helper and the CLI tests.
+
+Each child leaves `task check` and `task test` passing.

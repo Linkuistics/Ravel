@@ -323,6 +323,76 @@ pub fn evaluate<T>(
     environment: Vec<(OsString, OsString)>,
     judge: impl FnOnce(Outcome, Loaded<'_>) -> Result<T, Halt>,
 ) -> Result<Evaluation<T>, Failure> {
+    let launch = Launch {
+        program: worker,
+        arg0: None,
+        environment,
+        rebuild: REBUILD,
+    };
+    let asked = Asked {
+        worker,
+        entry,
+        request,
+        limits,
+        caller,
+    };
+    let supervised = supervise(launch, entry, limits, |channel, started| {
+        converse(channel, asked, started, judge)
+    })?;
+    let (worker, decided, elapsed) = supervised.decided;
+    Ok(Evaluation {
+        worker,
+        decided,
+        diagnostics: supervised.diagnostics,
+        operational: supervised.operational,
+        elapsed,
+    })
+}
+
+/// How to start one worker process. The supervision owns everything about the
+/// child except what it is: the program and its `arg0`, its whole environment,
+/// and the remedy that a failure to start it points at.
+pub(crate) struct Launch<'a> {
+    pub program: &'a Path,
+    /// The name the child sees as its own, when it must differ from the path.
+    pub arg0: Option<&'a std::ffi::OsStr>,
+    /// The child's whole environment.
+    pub environment: Vec<(OsString, OsString)>,
+    /// The remedy for a worker that is missing, broken or not ready in time.
+    pub rebuild: &'static str,
+}
+
+/// What a supervised worker left behind when its conversation succeeded and
+/// its teardown was confirmed.
+pub(crate) struct Supervised<T> {
+    /// What the conversation decided.
+    pub decided: T,
+    pub diagnostics: Diagnostics,
+    pub operational: Vec<String>,
+}
+
+/// Run one worker process, bounded, through `converse`, and tear it down.
+///
+/// The worker gets a private mode-0700 empty directory, null stdin, the
+/// environment of `launch` and the private socket at descriptor 3, and
+/// inherits no other descriptor. `converse` talks to it over the bounded
+/// channel and gets the instant the worker started, from which the selection
+/// bound counts. Whatever `converse` returns, the worker is stopped and
+/// reaped, its directory removed and its output collected before a success
+/// is returned, and a cancellation that arrived meanwhile wins over every
+/// other outcome. `entry` names the policy in the refusals about it.
+pub(crate) fn supervise<T>(
+    launch: Launch<'_>,
+    entry: &str,
+    limits: &Limits,
+    converse: impl FnOnce(Bounded<'_>, Instant) -> Result<T, Conversation>,
+) -> Result<Supervised<T>, Failure> {
+    let Launch {
+        program: worker,
+        arg0,
+        environment,
+        rebuild,
+    } = launch;
     let bound = limits.selection;
     let failed = |message: String| {
         Refusal::new(
@@ -330,7 +400,7 @@ pub fn evaluate<T>(
             Stage::Worker,
             EXIT_WORKER,
             message,
-            REBUILD,
+            rebuild,
         )
         .source(worker.to_string_lossy())
     };
@@ -398,6 +468,9 @@ pub fn evaluate<T>(
         drop(pair_end);
 
         let mut command = Command::new(worker);
+        if let Some(arg0) = arg0 {
+            command.arg0(arg0);
+        }
         command
             .current_dir(private_dir.path())
             .env_clear()
@@ -487,7 +560,7 @@ pub fn evaluate<T>(
                         "the policy worker {} cannot be started: {error}",
                         worker.display()
                     ),
-                    REBUILD,
+                    rebuild,
                 )
                 .source(worker.to_string_lossy())
             } else {
@@ -530,17 +603,10 @@ pub fn evaluate<T>(
         deadline,
         overflow: &capture.overflow,
     };
-    let asked = Asked {
-        worker,
-        entry,
-        request,
-        limits,
-        caller,
-    };
     // Retain the conversation even when cancellation supersedes it: its
     // original cause and metadata still belong in the failure report.
     let result = if reader_reports.is_empty() {
-        converse(channel, asked, started, judge)
+        converse(channel, started)
     } else {
         Err(Conversation::Broken(failed(format!(
             "cannot admit diagnostic readers for worker pid {}: {}",
@@ -597,9 +663,10 @@ pub fn evaluate<T>(
         Err(Conversation::Refused(refusal) | Conversation::Broken(refusal)) => {
             (None, Some(refusal))
         }
-        Err(Conversation::Expired { handed_over }) => {
-            (None, Some(expired(worker, entry, bound, handed_over)))
-        }
+        Err(Conversation::Expired { handed_over }) => (
+            None,
+            Some(expired(worker, entry, bound, handed_over, rebuild)),
+        ),
         Err(Conversation::Ended(error)) => {
             let status = teardown.status.as_ref().map_or_else(
                 |error| format!("unconfirmed reap (wait: {error})"),
@@ -653,12 +720,10 @@ pub fn evaluate<T>(
     // Every conversation failure was converted above; only a judged success
     // with confirmed reap and successful required removal reaches this branch.
     match success {
-        Some((worker, decided, elapsed)) => Ok(Evaluation {
-            worker,
+        Some(decided) => Ok(Supervised {
             decided,
             diagnostics,
             operational,
-            elapsed,
         }),
         None => Err(Failure::with_diagnostics(
             failed("worker supplied no judgment".into()),
@@ -704,7 +769,7 @@ impl Teardown {
     }
 }
 
-enum Conversation {
+pub(crate) enum Conversation {
     /// The judge refused what the worker reported.
     Refused(Refusal),
     /// The worker broke the protocol, or is not this front's pair.
@@ -990,7 +1055,7 @@ fn output_limit(entry: &str, limits: &Limits) -> Refusal {
 
 /// The refusal when the deadline passes: after the entry was handed over, the
 /// policy held evaluation; before, the worker never became ready for it.
-fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refusal {
+fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool, rebuild: &str) -> Refusal {
     let limit = bound.to_text();
     let raise = format!(
         "or allow more time with timeoutMs in the owner settings or --timeout-ms, up to \
@@ -1021,7 +1086,7 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool) -> Refus
                  of {limit}, so worker teardown was attempted and nothing was launched",
                 worker.display()
             ),
-            format!("{REBUILD}; on a heavily loaded machine, {raise}"),
+            format!("{rebuild}; on a heavily loaded machine, {raise}"),
         )
         .source(worker.to_string_lossy())
     };
@@ -1213,7 +1278,7 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
 /// waits in slices of at most `POLL`, and between slices it fails at once if
 /// the policy's output has passed its bound or a handled signal was received.
 #[derive(Clone, Copy)]
-struct Bounded<'a> {
+pub(crate) struct Bounded<'a> {
     channel: &'a UnixStream,
     deadline: Instant,
     overflow: &'a AtomicBool,
