@@ -20,3 +20,11 @@ Run `task test:native-linux` once on the finished increment `rhai-route-table-k8
 ## Notes
 
 - Do not run the amd64 variant unless the arm64 run points at an architecture problem. It runs under emulation and measures less.
+
+## Decisions (running log)
+
+- Ran `task test:native-linux PLATFORM=arm64 OUT=<scratchpad>/k49-arm64`. The task exited 1. Step status: `signal-domain` 0, `emulation-probe` 0, and `rust-minimum-version`, `rust-build`, `rust-clippy`, `rust-fmt`, `worker-setup`, `campaign` and `r01` all non-zero. The campaign measured nothing about the worker.
+- Cause: `rust-toolchain.toml` (added by `rust-2024-toolchain-k7`) lists the targets `aarch64-apple-darwin` and `x86_64-unknown-linux-gnu`. The image installs only `aarch64-unknown-linux-gnu`, and `/opt/rustup` belongs to root. The unprivileged user's `rustup` fails with `could not create temp file /opt/rustup/tmp/...: Permission denied`. This is an environment gap and has nothing to do with the Rhai worker, so it is reported and not fixed here. The leaf `rhai-route-table-linux-toolchain-k50` names it.
+- Diagnostic, not the campaign: with `RUSTUP_TOOLCHAIN=1.99.1-aarch64-unknown-linux-gnu` set in the left-up container, the Rhai tests of the `ravel` crate gave 107 passed and 1 failed of 108. Every `rhai_limits` test passed, and so did the flaky deadline test. The failure was `rhai_policy::a_policy_ts_alone_and_every_other_extension_keep_the_typescript_path` with `worker_missing`, because `task worker` never built `target/libexec/ravel/ravel-policy`. No Rhai worker defect shows. The check stays open until k50 runs the campaign.
+- The amd64 variant was not run, because nothing points at an architecture problem.
+- The node `rhai-route-table-k8` does not close in this session: its brief asks for the Linux check, and k50 holds it.
