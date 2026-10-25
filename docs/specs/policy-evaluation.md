@@ -618,7 +618,9 @@ its own, which Ravel cannot see.
 
 The prompt and the answer stay out of the notices and logs of Ravel, as all
 output of a harness run does. The notice lists the run with its harness, its
-status and its elapsed time.
+status and its elapsed time. A script that copies an answer into the context
+that `load_context` returns, or into its own output, publishes the answer
+there. The notice reports the delivered context.
 
 ### Credentials
 
