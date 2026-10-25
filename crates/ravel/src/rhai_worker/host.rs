@@ -126,9 +126,14 @@ struct Flight {
     outcome: oneshot::Receiver<Executed>,
 }
 
-/// How long a stop waits for a run to settle: the kill-grace of the runner,
-/// and its reap and confirmation after the KILL.
-const SETTLE: std::time::Duration = std::time::Duration::from_secs(5 + 3);
+/// How long a stop waits for a run to settle. This is a ceiling for a runner
+/// that does not report, and no schedule: a stop that the runner confirms ends
+/// within its kill-grace and one second. The ceiling adds the runner's bounds
+/// for a reap that fails (two seconds) and for the confirmation of the group
+/// (one second), so that it never refuses a stop that the runner would still
+/// have reported.
+const SETTLE: std::time::Duration =
+    std::time::Duration::from_secs(crate::run::ESCALATION.kill_grace.as_secs() + 2 + 1);
 
 impl Host {
     pub(super) fn new(

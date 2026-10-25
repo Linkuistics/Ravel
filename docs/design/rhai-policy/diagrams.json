@@ -101,7 +101,7 @@
       "group": "stopping",
       "title": "A deadline or a signal stops the evaluation",
       "source": "stopping-sequence.mmd",
-      "caption": "The worker holds no external resource, so the CLI kills it after it stops the host work. The CLI does not wait for a read in progress. An LLM call stops as any harness run. A signal that the CLI consumed wins over the deadline at the final read of the latch. A model service may still finish a request that it accepted."
+      "caption": "The worker holds no external resource, so the CLI stops it with TERM after it stops the host work, and kills it after one second if it is still there. The CLI does not wait for a read in progress. An LLM call stops as any harness run, and a stop that the runner confirms ends within the kill-grace and one second. A signal that the CLI consumed wins over the deadline and over a cleanup failure at the final read of the latch. A model service may still finish a request that it accepted."
     },
     {
       "id": "entry-precedence",

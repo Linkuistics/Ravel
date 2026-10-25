@@ -339,6 +339,7 @@ async fn write_body(stream: &mut UnixStream, body: &[u8]) -> Result<(), FrameErr
 mod tests {
     use std::io::Write as _;
     use std::os::unix::net::UnixStream as StdStream;
+    use std::sync::Arc;
     use std::time::{Duration, Instant as StdInstant};
 
     use super::*;
@@ -416,6 +417,39 @@ mod tests {
             outcome,
             Err(Conversation::Expired { handed_over: true })
         ));
+        assert!(
+            began.elapsed() < Duration::from_secs(2),
+            "the stop waited {:?}",
+            began.elapsed()
+        );
+    }
+
+    /// The same for the other cause that reaches `until` with a read in
+    /// progress. A signal takes the same arm, but it sets a latch that every test
+    /// of this binary shares, so the seam tests of `rhai_harness_run` cover it.
+    #[test]
+    fn the_output_bound_does_not_wait_for_the_call_the_reader_is_in() {
+        let reader = Reader::start().unwrap();
+        let overflow = Arc::new(AtomicBool::new(false));
+        let began = StdInstant::now();
+        let outcome = runtime().block_on(async {
+            let watch = Watch {
+                deadline: Instant::now() + Duration::from_secs(30),
+                overflow: &overflow,
+            };
+            let slow = reader.run(|| std::thread::sleep(Duration::from_secs(3)));
+            let raise = {
+                let overflow = Arc::clone(&overflow);
+                std::thread::spawn(move || {
+                    std::thread::sleep(Duration::from_millis(100));
+                    overflow.store(true, Ordering::SeqCst);
+                })
+            };
+            let outcome = watch.until(slow).await;
+            raise.join().unwrap();
+            outcome
+        });
+        assert!(matches!(outcome, Err(Conversation::Ended(_))));
         assert!(
             began.elapsed() < Duration::from_secs(2),
             "the stop waited {:?}",

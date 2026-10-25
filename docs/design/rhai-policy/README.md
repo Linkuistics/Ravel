@@ -14,7 +14,7 @@ a harness run, and the integration of its review, changed these views:
 - [Evaluation → One LLM-assisted selection](index.html#diagram-evaluation-sequence) — The selection now asks Claude Code through `ravel::run_harness`, then parses and checks the answer in the worker.
 - [Evaluation → Data or the end of the evaluation](index.html#diagram-outcomes) — Replaced `llm_budget_exhausted` with `harness_budget_exhausted` among the bounds. The replies no longer name the statuses of `ravel::llm`. A run that Ravel stops at its own deadline or output bound returns as data.
 - [Evaluation → Evaluation states](index.html#diagram-evaluation-states) — The stop edge names the whole deadline and a breach of a bound of the evaluation. A run that Ravel stops at its own deadline or output bound does not stop the evaluation.
-- [Stopping an evaluation → A deadline or a signal stops the evaluation](index.html#diagram-stopping-sequence) — Removed the branch that drops a Rig request. An LLM call stops as a harness run. The title no longer says that the stop reaches every process.
+- [Stopping an evaluation → A deadline or a signal stops the evaluation](index.html#diagram-stopping-sequence) — Removed the branch that drops a Rig request. An LLM call stops as a harness run. The title no longer says that the stop reaches every process. The worker now stops with TERM and KILL after one second, as the code does, and a cleanup failure shows as `harness_cleanup_failed` with exit 5.
 - [Rejected alternatives → Rejected: a nested start-session](index.html#diagram-rejected-nested-session) — Added the rejected shape, with the process group that the outer stop cannot reach.
 
 The [entry precedence](index.html#diagram-entry-precedence) did not change.

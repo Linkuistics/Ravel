@@ -1097,3 +1097,245 @@ fn the_largest_reply_of_a_run_still_reaches_the_script() {
     assert_eq!(run["stderrBytes"], 1024 * 1024);
     assert_eq!(run["resultBytes"], 1024 * 1024);
 }
+
+// The ordered stop of an evaluation (`docs/specs/policy-evaluation.md`,
+// *Cancellation and deadlines*). The runner stops a run with TERM and escalates
+// to KILL after its kill-grace, which is 5 seconds.
+
+/// The kill-grace of the runner, and the margin that the spec adds to it.
+const KILL_GRACE: Duration = Duration::from_secs(5);
+const TEARDOWN_MARGIN: Duration = Duration::from_secs(1);
+/// What a loaded machine adds to the process start and to the reap of the worker.
+/// An idle machine adds about 0.3 seconds.
+const SLACK: Duration = Duration::from_secs(2);
+
+/// A harness that ignores TERM, so that only the KILL after the kill-grace ends
+/// it. It leaves a background process of its own, and writes both pids.
+fn deaf_harness(sandbox: &Sandbox, pids: &Path) {
+    harness(
+        sandbox,
+        "deaf-agent",
+        &format!("trap '' TERM\nsleep 60 &\necho $! > {pids:?}\necho $$ >> {pids:?}\nwait"),
+    );
+    settings(sandbox, &["deaf-agent"], 1);
+    sandbox.personal_rhai(&running(r#"#{ harness: "deaf-agent", args: [] }"#, WHOLE));
+}
+
+fn spawn_front(sandbox: &Sandbox, extra: &[&str]) -> std::process::Child {
+    use std::process::Stdio;
+    sandbox
+        .command()
+        .args([
+            "start-session",
+            "--kind",
+            "check",
+            "--prompt",
+            "p",
+            "--json",
+        ])
+        .args(extra)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap()
+}
+
+/// Wait until the harness has written both pids, which is when the run is in
+/// progress.
+fn await_run(pids: &Path) {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while fs::read_to_string(pids).map_or(true, |text| text.lines().count() < 2) {
+        assert!(Instant::now() < deadline, "no run started");
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+
+fn send(front: &std::process::Child, signal: i32) {
+    // SAFETY: the pid is this test's live front.
+    assert_eq!(unsafe { libc::kill(front.id() as i32, signal) }, 0);
+}
+
+fn assert_all_gone(pids: &Path) {
+    for pid in fs::read_to_string(pids).unwrap().lines() {
+        assert!(
+            gone(pid.parse().unwrap()),
+            "process {pid} of the run survived"
+        );
+    }
+}
+
+#[test]
+fn a_run_that_ignores_term_is_killed_after_the_kill_grace_and_the_deadline_refuses() {
+    // The firing control of the cases below: without a signal, the window
+    // between the deadline and the KILL exists, because the harness holds it.
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let pids = sandbox.root.join("deaf.pids");
+    deaf_harness(&sandbox, &pids);
+    let began = Instant::now();
+
+    let run = start(&sandbox, &["--timeout-ms", "1500"]);
+
+    let elapsed = began.elapsed();
+    refused(&run, 124, "selection_timeout", &recorded);
+    assert_all_gone(&pids);
+    assert!(
+        elapsed >= KILL_GRACE,
+        "the run ended after {elapsed:?}, before the kill-grace: the harness did not ignore TERM"
+    );
+    assert!(
+        elapsed < Duration::from_millis(1500) + KILL_GRACE + TEARDOWN_MARGIN + SLACK,
+        "the stop took {elapsed:?}"
+    );
+    assert_clean(&sandbox);
+}
+
+#[test]
+fn a_signal_after_the_deadline_wins_and_the_report_keeps_the_timeout() {
+    use std::os::unix::process::ExitStatusExt as _;
+
+    for signal in [libc::SIGINT, libc::SIGTERM, libc::SIGHUP] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        let pids = sandbox.root.join("deaf.pids");
+        deaf_harness(&sandbox, &pids);
+        let began = Instant::now();
+        let front = spawn_front(&sandbox, &["--timeout-ms", "1500"]);
+        await_run(&pids);
+        // The deadline has passed, and the kill-grace has not.
+        std::thread::sleep(Duration::from_millis(3000).saturating_sub(began.elapsed()));
+        send(&front, signal);
+
+        let output = front.wait_with_output().unwrap();
+
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert_eq!(
+            output.status.signal(),
+            Some(signal),
+            "signal {signal}: {stderr}"
+        );
+        assert!(
+            stderr.contains("selection_cancelled"),
+            "signal {signal}: {stderr}"
+        );
+        assert!(
+            stderr.contains("selection_timeout"),
+            "signal {signal}: the report lost the original failure: {stderr}"
+        );
+        assert_all_gone(&pids);
+        assert_eq!(recorded.argv(), None, "signal {signal}: a harness started");
+        assert_clean(&sandbox);
+        assert!(
+            began.elapsed() < Duration::from_millis(1500) + KILL_GRACE + TEARDOWN_MARGIN + SLACK,
+            "signal {signal}: the stop took {:?}",
+            began.elapsed()
+        );
+    }
+}
+
+#[test]
+fn the_first_consumed_signal_stays_the_cause() {
+    use std::os::unix::process::ExitStatusExt as _;
+
+    let sandbox = Sandbox::new();
+    let pids = sandbox.root.join("deaf.pids");
+    deaf_harness(&sandbox, &pids);
+    let front = spawn_front(&sandbox, &["--timeout-ms", "20000"]);
+    await_run(&pids);
+    send(&front, libc::SIGINT);
+    std::thread::sleep(Duration::from_millis(300));
+    send(&front, libc::SIGTERM);
+
+    let output = front.wait_with_output().unwrap();
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.signal(), Some(libc::SIGINT), "{stderr}");
+    assert!(stderr.contains("selection_cancelled"), "{stderr}");
+    assert_all_gone(&pids);
+    assert_clean(&sandbox);
+}
+
+/// A harness that leaves a directory in its private run directory that nobody
+/// can remove, and then runs `after`. The test must restore it.
+fn locking_harness(sandbox: &Sandbox, after: &str) {
+    harness(
+        sandbox,
+        "locking-agent",
+        &format!(
+            "d=$(dirname \"$RAVEL_EXIT_FILE\")\nmkdir \"$d/locked\"\ntouch \"$d/locked/file\"\n\
+             chmod 000 \"$d/locked\"\n{after}"
+        ),
+    );
+    settings(sandbox, &["locking-agent"], 1);
+    sandbox.personal_rhai(&running(
+        r#"#{ harness: "locking-agent", args: [] }"#,
+        WHOLE,
+    ));
+}
+
+/// Make the directories that `locking_harness` locked removable again, and
+/// remove them.
+fn unlock(sandbox: &Sandbox) {
+    for entry in fs::read_dir(&sandbox.tmp).unwrap() {
+        let path = entry.unwrap().path();
+        let locked = path.join("locked");
+        if locked.symlink_metadata().is_ok() {
+            fs::set_permissions(&locked, fs::Permissions::from_mode(0o755)).unwrap();
+        }
+        let _ = fs::remove_dir_all(&path);
+    }
+}
+
+#[test]
+fn a_cleanup_failure_after_a_run_ends_the_evaluation_with_exit_5() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    locking_harness(&sandbox, "exit 0");
+
+    let run = start(&sandbox, &[]);
+
+    let error = refused(&run, 5, "harness_cleanup_failed", &recorded);
+    unlock(&sandbox);
+    assert!(
+        error["message"]
+            .as_str()
+            .unwrap()
+            .contains("ravel-session-"),
+        "the report names no directory: {error}"
+    );
+}
+
+#[test]
+fn a_cleanup_failure_is_reported_when_the_deadline_stops_the_run() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    locking_harness(&sandbox, "sleep 60");
+
+    let run = start(&sandbox, &["--timeout-ms", "1500"]);
+
+    refused(&run, 5, "harness_cleanup_failed", &recorded);
+    unlock(&sandbox);
+}
+
+#[test]
+fn a_signal_wins_over_a_cleanup_failure_and_the_report_keeps_the_failure() {
+    use std::os::unix::process::ExitStatusExt as _;
+
+    let sandbox = Sandbox::new();
+    let pids = sandbox.root.join("locking.pids");
+    locking_harness(
+        &sandbox,
+        &format!("echo $$ > {pids:?}\necho $$ >> {pids:?}\nsleep 60"),
+    );
+    let front = spawn_front(&sandbox, &[]);
+    await_run(&pids);
+    send(&front, libc::SIGTERM);
+
+    let output = front.wait_with_output().unwrap();
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.signal(), Some(libc::SIGTERM), "{stderr}");
+    assert!(stderr.contains("selection_cancelled"), "{stderr}");
+    assert!(stderr.contains("harness_cleanup_failed"), "{stderr}");
+    unlock(&sandbox);
+}

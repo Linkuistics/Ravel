@@ -724,12 +724,18 @@ stops the evaluation in this order:
 2. It abandons a read in progress, and it does not wait for it.
 3. It asks the runner to stop a harness run in progress. The runner escalates
    from TERM to KILL, clears the group and reaps the child.
-4. It kills the worker and reaps it. The worker holds nothing that needs a
-   graceful stop.
+4. It stops the worker with TERM, kills it if it is still there after one
+   second, and reaps it. The worker holds nothing that needs a graceful stop.
 5. It removes the private directories, and it reports every cleanup failure.
 6. It reads the cancellation latch again, and then it refuses.
 
 Only one of steps 2 and 3 applies, because one host call runs at a time.
+
+A stop that the runner reports ends within the kill-grace of the runner and one
+second. Ravel does not wait for a read in progress. If the runner does not
+report, Ravel waits at most the kill-grace and three more seconds. Those seconds
+are the runner's bounds for a reap that fails and for the group to disappear.
+Ravel then ends the evaluation as `harness_cleanup_failed`.
 
 The final read of the latch applies the precedence of the
 [completion contract](result-job-completion.md#outcome-and-diagnostic-order), as
@@ -738,10 +744,12 @@ The refusal is then `selection_cancelled` with 128 plus its number, and Ravel
 raises the same signal again. Among signals, the first consumed signal stays the
 cause. The report keeps an earlier deadline as the original failure.
 
-Without a signal, the deadline refuses as `selection_timeout`, exit 124. The
-same final read follows every other refusal of the evaluation. A consumed signal
-therefore also wins over a breach of a bound. No managed process launches after
-a stop.
+Without a signal, the deadline refuses as `selection_timeout`, exit 124. A run
+whose group survives, or whose reap fails, replaces the deadline: the refusal is
+`harness_cleanup_failed`, exit 5. The same final read follows every other
+refusal of the evaluation. A consumed signal therefore also wins over a breach
+of a bound and over a cleanup failure. The report keeps the replaced refusal as
+the original failure. No managed process launches after a stop.
 
 The worker also checks a stop flag at each Rhai operation, so a cooperative
 script stops at once. The flag is set when the Ravel CLI closes its end of the

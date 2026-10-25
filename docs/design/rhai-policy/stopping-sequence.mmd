@@ -13,8 +13,9 @@ sequenceDiagram
     R->>H: KILL the survivors in the group
     R->>R: reap the child, check that the group is gone
     Note over H: a model service may still finish work that it accepted
+    Note over R: a group that survives, or a reap that fails, is harness_cleanup_failed — it replaces the deadline
   end
-  R->>W: KILL
-  R->>R: reap the worker, remove the private directories
-  R->>R: read the cancellation latch again — a consumed signal wins over the deadline
-  R-->>S: refuse with 128 plus the signal and raise it again, or else with 124
+  R->>W: TERM, and KILL after one second if the worker is still there
+  R->>R: reap the worker, remove the private directories and report every failure
+  R->>R: read the cancellation latch again — a consumed signal wins over the deadline and over a cleanup failure
+  R-->>S: refuse with 128 plus the signal and raise it again, or else with 124, or with 5 for a cleanup failure
