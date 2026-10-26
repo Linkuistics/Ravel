@@ -26,6 +26,7 @@ run_check scripts shellcheck scripts/*.sh crates/ravel/scripts/*.sh
 run_check worker-build bash scripts/worker-check.sh build
 run_check worker-probes bash scripts/worker-check.sh probes
 run_check runtime-integrity bash scripts/runtime-integrity.test.sh
+run_check harness-smoke-fakes bash scripts/harness-smoke.test.sh
 run_check worker-types bash scripts/worker-check.sh typecheck
 run_check lint cargo clippy --locked --workspace --all-targets
 run_check terminal-recovery bash scripts/terminal-recovery-check.sh

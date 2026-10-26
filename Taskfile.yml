@@ -283,6 +283,21 @@ tasks:
     cmds:
       - bash scripts/rhai-upgrade-proof.sh
 
+  harness:smoke:claude:
+    desc: "Opt-in, spends subscription usage: make one real LLM call through Claude Code with the owner's sign-in and check the route"
+    cmds:
+      - bash scripts/harness-smoke.sh claude
+
+  harness:smoke:codex:
+    desc: "Opt-in, spends subscription usage: make one real LLM call through Codex with the owner's sign-in and check the route"
+    cmds:
+      - bash scripts/harness-smoke.sh codex
+
+  harness:smoke:test:
+    desc: Test the harness smoke script against fake harnesses (no real call, run by task check)
+    cmds:
+      - bash scripts/harness-smoke.test.sh
+
   install:
     desc: Install and verify the matched pair and SDK under PREFIX (default ~/.local)
     silent: true

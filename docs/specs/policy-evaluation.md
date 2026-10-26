@@ -647,6 +647,17 @@ widen the confinement for a sign-in. Whether a harness can use its sign-in
 inside confinement depends on the harness and the platform. The smoke tasks run
 unconfined.
 
+Ravel reads its settings from `$HOME/.config/ravel` and has no override. A
+harness run receives the caller's `HOME`. A smoke task therefore cannot run in
+the owner's `HOME` without writing the owner's settings. It runs in a sandbox
+home with its own settings and policy. The sandbox home links the sign-in store
+of the harness. That is `Library/Keychains` on macOS for Claude Code, `.claude`
+on Linux, and `.codex` for Codex.
+
+Claude Code finds its macOS sign-in through `HOME`, and the link supplies it there.
+The task reads no sign-in, because the harness opens its own store. The task
+also removes the API keys from the environment, so the call proves the sign-in.
+
 The credential boundary covers the caller variables that `ravel::env` serves. It
 is not a filesystem sandbox. A measured read is not confined by path, so a
 policy that reads a file that holds a credential receives the credential. The
@@ -941,9 +952,11 @@ its firing control.
 A new release of Claude Code or Codex changes no code of Ravel. Ravel builds no
 argument that is specific to a harness, and it parses no output of a harness.
 The owner's policy holds the recipe of each call. The opt-in smoke tasks make one
-real LLM call through each of the two harnesses, with the owner's sign-in. An
-owner runs them after a harness upgrade to check the recipes that the book
-gives.
+real LLM call through each of the two harnesses, with the owner's sign-in. They
+are `task harness:smoke:claude` and `task harness:smoke:codex`.
+
+An owner runs them after a harness upgrade to check the recipes that the book
+gives. Each call spends subscription usage.
 
 ## Requirements
 
