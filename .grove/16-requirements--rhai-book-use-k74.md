@@ -9,9 +9,9 @@ Record the owner's task performance and corrections before dependent drafting co
 ## Context
 
 - Section 4 of `docs/book/contract.md` requires this checkpoint after proof.
-  The proof is `rhai-book-use-k73`; its task records coverage, visual evidence and mechanical checks.
+  The proof is `rhai-book-use-k73`. Its task records coverage, visual evidence and mechanical checks.
 - Open the locally built book at chapter 1. Use `mise exec -- task docs:book` after `task setup`.
-  Confirm that figures load before the read.
+  Check that the figures load before the read.
 - The book describes the agreed 2.0.0 design. The checkout still has the old-format path until `typescript-worker-cutover-k31`.
   Complete Rhai examples already run through the built CLI. The release version remains a placeholder.
 - The final notice path belongs to `typescript-delivery-removal-k32`, then the whole-book reconciliation in `rhai-book-inside-k34`.
