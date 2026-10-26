@@ -1257,16 +1257,18 @@ The policy worker is a separate process of the same binary.
 Ravel completes host calls, reaps the worker and removes its directory before the final managed launch.
 
 > **Figure — Source responsibilities:** This C4 view groups internal code by process responsibility.
+> The same linked runner supervises evaluation harness runs and the final managed process at different times.
 > It does not define a sandbox or a supported library interface.
 
-![Source responsibilities: crates/ravel checks and evaluates requests, and crates/keyed-launch supplies its linked runner. Ravel starts its own binary in a separate internal Rhai worker role. Host capabilities run under the CLI's control. Worker cleanup precedes the final managed launch.](figures/source-components.svg)
+![Source responsibilities: crates/ravel checks requests, controls host calls and decides the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate policy worker uses the same binary to evaluate Rhai policy and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the policy. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
 
 > **Figure link:** [Open the source-responsibility view at full size](figures/source-components.svg).
 
 > **Figure — Installed files:** This deployment view groups installed files by directory.
+> One executable supplies both the CLI and the separate policy worker. The three Rhai examples remain editable files.
 > Directory outlines do not show concurrent process lifetimes.
 
-![Installed files: bin/ravel supplies the CLI and its internal Rhai worker role. share/ravel/examples contains static.rhai, sample.rhai and llm.rhai. The installation also carries third-party notices. The archive adds README.md and LICENSE.](figures/installed-files.svg)
+![Installed files: bin/ravel contains the CLI, linked runner and Rhai engine. The CLI starts that same binary as a separate policy worker. share/ravel/examples contains static.rhai, sample.rhai and llm.rhai as editable files. The distribution also carries third-party notices. The archive adds README.md and LICENSE at its root.](figures/installed-files.svg)
 
 > **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
 

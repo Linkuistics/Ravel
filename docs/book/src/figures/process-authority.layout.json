@@ -1,6 +1,6 @@
 {
   "w": 812.0,
-  "h": 1304.74375,
+  "h": 1359.75390625,
   "elements": [
     {
       "id": "title",
@@ -31,11 +31,11 @@
         ],
         [
           761.0,
-          779.2375
+          795.9109375
         ],
         [
           -51.0,
-          779.2375
+          795.9109375
         ],
         [
           -51.0,
@@ -180,7 +180,7 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Checks the selection and decides the final outcome. The runner executes inside this process and owns launch and supervision.",
+      "text": "Controls host calls and checks the selection. The runner executes inside this process and owns launch and supervision.",
       "x": 350,
       "y": 390.3703125,
       "anchor": "center",
@@ -196,7 +196,7 @@
       "x0": -25.0,
       "y0": 618.15625,
       "x1": 185.0,
-      "y1": 751.57421875
+      "y1": 769.9109375
     },
     {
       "id": "worker-stereo",
@@ -231,7 +231,7 @@
       "shape": "text",
       "role": "ravel",
       "face": "qual",
-      "text": "[Separate process: compiled Bun]",
+      "text": "[Separate process: same ravel binary]",
       "x": 80,
       "y": 670.846875,
       "anchor": "center",
@@ -245,14 +245,14 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Evaluates trusted owner policy. No session-result context.",
+      "text": "Evaluates Rhai owner policy. Empty environment. No session-result context.",
       "x": 80,
-      "y": 716.9191406250001,
+      "y": 726.0875,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 186.0,
-      "h": 47.31015625
+      "h": 65.64687500000001
     },
     {
       "id": "managed",
@@ -282,13 +282,13 @@
       "shape": "text",
       "role": "external",
       "face": "name",
-      "text": "managed process",
+      "text": "final managed process",
       "x": 350,
       "y": 998.3515625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 158.703125,
+      "w": 203.8046875,
       "h": 12.15625
     },
     {
@@ -487,28 +487,28 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Policy response",
+      "text": "Host calls and policy response",
       "x": 193.0,
-      "y": 493.24843749999997,
+      "y": 501.10703125,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
       "w": 150.0,
-      "h": 10.63671875
+      "h": 28.9734375
     },
     {
       "id": "rel-worker-cli-tech",
       "shape": "text",
       "role": "label",
       "face": "qual",
-      "text": "[selection or refusal on a separate socket]",
+      "text": "[private socket]",
       "x": 193.0,
-      "y": 513.983984375,
+      "y": 523.15234375,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
       "w": 150.0,
-      "h": 24.834374999999998
+      "h": 9.1171875
     },
     {
       "id": "rel-cli-worker",
@@ -550,7 +550,7 @@
       "shape": "text",
       "role": "label",
       "face": "qual",
-      "text": "[bounded request and restricted environment]",
+      "text": "[bounded request and host replies]",
       "x": 132.5,
       "y": 319.7578125,
       "anchor": "center",
@@ -695,21 +695,21 @@
       "x0": 64.9716796875,
       "y0": 1090.73984375,
       "x1": 645.0283203125,
-      "y1": 1304.74375
+      "y1": 1359.75390625
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel processes. Grey: external participants. Gold: temporary channel.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session.\nThe managed process’s children inherit its session-result context.\nThe sent result asks Ravel to stop. Ravel returns only after successful cleanup.\n1 precedes 2: the worker and managed process are not concurrent phases.\nBefore 2: the worker ends. Ravel reaps it and removes its private directory.\nA valid selection alone is insufficient for launch.\nThe runner is library code inside the Ravel CLI, not another process.\nThe outer outline is software membership, not a sandbox.\nBoundaries do not authenticate same-user code or contain detached children.",
+      "text": "Blue: Ravel processes. Grey: external participants. Gold: temporary channel.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session.\nThe managed process’s children inherit its session-result context.\nThe sent result asks Ravel to stop. Ravel returns only after successful cleanup.\n1 precedes 2: the worker and managed process are not concurrent phases.\nBefore 2: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends before 2. Harness runs complete their required cleanup.\nEvaluation harness runs and their separate result channels are omitted here.\nTheir output and results return to the policy as data, not to the caller.\nA valid selection alone is insufficient for launch.\nThe runner is library code inside the Ravel CLI, not another process.\nThe outer outline is software membership, not a sandbox.\nBoundaries do not authenticate same-user code or contain detached children.",
       "x": 355.0,
-      "y": 1197.741796875,
+      "y": 1225.246875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 552.056640625,
-      "h": 194.00390625000003
+      "h": 249.01406250000005
     }
   ]
 }

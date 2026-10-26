@@ -43,6 +43,7 @@
   [No result means that no program sent a result, even if the managed process exited 0.],
   [An empty result is a value. A later nonzero managed exit does not invalidate it.],
   [Green: the only route to successful result delivery.],
-  [A failed write may leave a prefix on stdout.],
+  [A failed write can leave a prefix on standard output.],
+  [Select includes evaluation harness runs, before the final managed launch.],
   [This view groups operations. It is not the full failure-precedence algorithm.],
 ), col-gap: 30, row-gap: (56, 56, 56, 56, 100, 56)))

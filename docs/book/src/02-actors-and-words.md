@@ -103,7 +103,7 @@ The policy reads the answer as data and decides what it means.
 An **evaluation budget** limits work during one policy evaluation.
 For example, the owner sets the number of harness runs in settings.
 The policy cannot raise that number or catch its exhaustion.
-The whole evaluation also has a deadline.
+One deadline covers evaluation. Compare purposes and completion rules:
 
 | Execution | Purpose | How it ends |
 |---|---|---|
@@ -215,11 +215,12 @@ These are not operating-system containers. The result channel holds
 temporary files, not a database. The
 outline around them groups the software of Ravel, not a sandbox.
 
-Steps 1 and 2 show the order: Ravel completes the cleanup of the worker
-before the managed process starts. The participants in the figure do not all
-run at the same time.
+Steps 1 and 2 show the order: Ravel completes every host call and worker cleanup
+before the final managed process starts. The participants do not all run at the same time.
+The figure omits evaluation harness runs and their result channels.
+Those runs return data to the policy through host replies, as the table above shows.
 
-![An orchestrator or a person requests a session, and the Ravel CLI sends the request to a separate policy worker. The worker evaluates trusted owner policy without session-result context and sends a selection or a refusal through a separate socket. The Ravel CLI confirms that the worker ended, that it reaped the worker and that it removed the worker's private directory. Then the runner in the Ravel CLI launches and supervises the selected harness or other program. The LLM tells its harness to run end-session, which uses the inherited session-result context to send the result into the temporary result channel. The Ravel CLI reads and checks the sent result, stops the group members that remain and writes it to the caller only after cleanup succeeds.](figures/process-authority.svg)
+![The Ravel CLI starts its own binary as a policy worker with an empty environment and no session-result context. The worker evaluates Rhai policy and sends host calls and its selection or refusal through a private socket. The CLI controls host calls and returns their replies. Every host call and worker cleanup ends before the final managed launch. This view omits evaluation harness runs and their separate channels. The final managed process sends its result through its own channel, and the CLI returns it to the caller only after successful cleanup.](figures/process-authority.svg)
 
 [Open the process-and-authority figure at full size.](figures/process-authority.svg)
 
@@ -285,6 +286,8 @@ The policy cannot change that directory or use it to read files.
 Relative measured reads use `request.cwd`.
 Relative imports use the directory of the file that imports them.
 After the worker ends and Ravel reaps it, Ravel removes its private directory.
+
+The table identifies the directory for each path operation or program execution.
 
 | Operation | Directory used |
 |---|---|

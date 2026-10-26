@@ -54,24 +54,19 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 
 ## Handed forward
 
-- **Art:** chapter 4 distinguishes evaluation calls from the final managed session through tables and tested examples.
-  Check that the process and sequence figures elsewhere teach the same authority boundary after the second draft.
-- **Art:** chapter 5's selection-cancellation example now uses a fake evaluation harness that signals the Ravel CLI.
-  `selection-cancellation.typ` and its SVG still show the policy worker as the signal sender.
-  Show the evaluation harness and the order of its cleanup before worker teardown. Update the chapter's figure description with the figure.
-  Check `process-authority.typ` for its Bun worker label and update it for the internal Rhai role.
 - **Proof:** chapter 3's version line uses the release placeholder for this unreleased 2.0.0 draft.
   The release task must write the actual version before publication, as the existing release guard requires.
 - **Proof:** the book describes 2.0.0. The checkout's default-entry behaviour still accepts the old format until `typescript-worker-cutover-k31`.
   Preserve the cutover dependency. Fake harness examples prove argument delivery and answer checks, not real model behaviour.
   The real-call evidence remains the smoke record, and both owner reader checkpoints remain required.
-- **Art:** chapter 6 now describes the single executable, its internal Rhai worker role and the three Rhai examples.
-  `source-components.typ` and `installed-files.typ`, with their SVGs, still depict the old worker and SDK layout.
-  Update both figures to match their new descriptions and the 2.0.0 delivery contract.
 - **Proof:** check the third-party notice installation path after delivery removal.
   Chapter 6 names the notices but does not invent a path that the delivery contract has not fixed.
   Keep the settings validation and the exact six-name environment scrub distinct from reserved grant prefixes.
   The broad RAVEL_* scrub wording in the policy-evaluation spec needs reconciliation with the exact source list.
+- **Proof:** the art pass updated seven shared figures and the alternatives in chapters 2, 5 and 6.
+  Chapter 8 still embeds the selection-cancellation figure beside its old example and alternative.
+  The scheduled Parts III and IV draft owns that reconciliation, now recorded in its node brief.
+  Do not treat the current later chapters as a completed 2.0.0 book.
 
 ## Draft closure
 

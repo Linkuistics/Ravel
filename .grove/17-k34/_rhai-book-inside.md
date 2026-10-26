@@ -29,6 +29,11 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 ## Notes
 
+- `rhai-book-use-k72` updated the shared figures for Rhai in Parts I and II.
+  Chapter 8 still embeds `selection-cancellation.svg` beside its old worker-signal example and alternative.
+  Reconcile that example, alternative and surrounding explanation during the first draft.
+  The figure now shows a fake evaluation harness sending INT, then harness cleanup before worker teardown.
+  The shared process, source and installation views now show the same executable for the CLI and policy worker.
 - Chapter 7 teaches why Ravel has a worker. The answer changes. The worker is Ravel's own binary in an internal role, and the CLI performs every host capability for it. The first draft teaches the reasons that the spec and the ADR give.
 - Chapter 11 describes the release. The release publishes the book, so the book must be final before the release leaves run. Describe the rule that `brew upgrade` removes the old version unless `HOMEBREW_NO_INSTALL_CLEANUP` is set. Do not describe the owner's machine.
 - Section 4 of the contract places Read 2 after the proof of Parts III and IV. The read is a `requirements` leaf, and it is not optional. The proof stage cuts it, unless section 4 of the contract no longer requires it. The answer of the owner to the fourth question of `rhai-book-use-k27` decides this.

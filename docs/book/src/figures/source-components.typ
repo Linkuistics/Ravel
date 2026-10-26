@@ -8,33 +8,38 @@
 #let ents = (
   ent("front", "ravel", [Request checks and final outcome], [«component»], cx: 130, top: 0, w: 260,
     tech: [Rust: crates/ravel/src],
-    desc: [Checks owner policy and its response. Decides the final outcome.]),
+    desc: [Controls host calls. Checks owner policy and its response. Decides the final outcome.]),
   ent("worker", "ravel", [policy worker], [«container»], cx: 600, cy-of: "front", w: 250,
-    tech: [Separate process: ravel-policy],
-    desc: [crates/ravel/worker/src \ Bun compiles this worker with worker/sdk and worker/examples/static.ts embedded. The worker evaluates trusted owner policy.]),
-  ent("runner", "ravel", [runner], [«component»], cx: 130, top: 330, w: 260,
+    tech: [Separate process: same bin/ravel],
+    desc: [crates/ravel/src/rhai_worker \ Evaluates Rhai owner policy and requests host capabilities.]),
+  ent("runner", "ravel", [runner], [«component»], cx: 130, top: 390, w: 260,
     tech: [Rust: crates/keyed-launch],
-    desc: [Linked library code. Launches and supervises the managed job inside the Ravel CLI.]),
-  ent("managed", "external", [managed process], [«external_system»], cx: 600, cy-of: "runner", w: 250,
+    desc: [Linked library code. Supervises harness runs and the final managed job inside the Ravel CLI.]),
+  ent("harness", "external", [evaluation harness], [«external_system»], cx: 600, cy-of: "runner", w: 250,
+    desc: [Program from owner settings. Returns data to the policy. Own result channel.]),
+  ent("managed", "external", [final managed process], [«external_system»], cx: 600, top: 740, w: 250,
     desc: [Program that owner policy selects]),
 )
 
 #let bounds = (boundary("native", [Ravel CLI — one Rust process \ (bin/ravel)], ("front", "runner"), tag: [Container]),)
 
 #let rels = (
-  rel("front", "worker", [Evaluates owner policy], tech: [private request and response protocol], w: 170, dx: 10),
-  rel("front", "runner", [Uses after worker cleanup], tech: [Rust library interface], w: 110),
-  rel("runner", "managed", [Launches and supervises], tech: [selected program and arguments], w: 170, dx: 10),
+  rel("front", "worker", [Evaluates owner policy], tech: [request, host calls and replies on private socket], w: 170, dx: 10),
+  rel("front", "runner", [Uses for each launch], tech: [Rust library interface], w: 110),
+  rel("runner", "harness", [Supervises harness run], tech: [during evaluation], w: 170, dx: 10),
+  rel("runner", "managed", [Launches after evaluation], tech: [selected program and arguments], out: "bottom", into: "left", seg: 1, side: "above", w: 170),
 )
 
 #render(c4([Source responsibilities — C4 component view], ents, bounds, rels, (
-  [Blue: Ravel code or process. Grey: selected program.],
+  [Blue: Ravel code or process. Grey: external programs.],
   [Dashed outline: components inside the Ravel CLI, not a sandbox.],
   [C4 components here are internal code. Ravel supports no separate component.],
   [The runner has no separate process or installed executable.],
   [Arrows name use or supervision, not a complete chronology.],
   [Before managed launch: the worker ends. Ravel reaps it and removes its private directory.],
+  [Every host call ends first. Each harness run completes its required cleanup.],
+  [Harness-run data returns to the policy. It cannot complete the final session.],
   [The worker never receives the session-result context.],
   [Two Rust packages: crates/ravel and crates/keyed-launch.],
-  [Worker paths in its box are relative to crates/ravel.],
+  [The CLI and policy worker are separate processes of the same installed executable.],
 )))

@@ -1,6 +1,6 @@
 {
   "w": 788.89453125,
-  "h": 917.04765625,
+  "h": 935.3843750000001,
   "elements": [
     {
       "id": "title",
@@ -500,24 +500,24 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 101.31201171875,
+      "x0": 100.06103515625,
       "y0": 721.3804687500001,
-      "x1": 687.58251953125,
-      "y1": 917.04765625
+      "x1": 688.83349609375,
+      "y1": 935.3843750000001
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Refinement of chapter 3’s final-outcome step for start-session.\nBlue: steps to decide the outcome. Grey: outcomes.\nRavel attempts applicable cleanup before it reports an outcome.\nThis order expresses precedence, not the implementation’s call order.\nOriginal failures keep their status when later cleanup also fails.\nCancellation returns no result to the caller and retains other diagnostics.\nGreen: the only success route. An empty result is a valid value.\nA later nonzero child exit does not invalidate that value.\nA failed final write can leave a prefix. A late signal can interrupt it.\nThe table covers end-session, help and version invocations. This view does not.",
+      "text": "Refinement of chapter 3’s final-outcome step for start-session.\nBlue: steps to decide the outcome. Grey: outcomes.\nRavel attempts applicable cleanup before it reports an outcome.\nThis order expresses precedence, not the implementation’s call order.\nAfter evaluation, original failures keep their status when later cleanup also fails.\nDuring evaluation, failed harness cleanup replaces a deadline with status 5.\nCancellation returns no result to the caller and retains other diagnostics.\nGreen: the only success route. An empty result is a valid value.\nA later nonzero child exit does not invalidate that value.\nA failed final write can leave a prefix. A late signal can interrupt it.\nThe table covers end-session, help and version invocations. This view does not.",
       "x": 394.447265625,
-      "y": 819.2140625000001,
+      "y": 828.3824218750001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 558.2705078125,
-      "h": 175.6671875
+      "w": 560.7724609375,
+      "h": 194.00390625000003
     }
   ]
 }

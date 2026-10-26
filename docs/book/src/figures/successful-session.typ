@@ -17,7 +17,6 @@
   msg("cli", "cli", [Check inputs and policy path]),
   div([Selection]),
   msg("cli", "worker", [Start in empty private directory], create: true),
-  msg("worker", "worker", [Change to /]),
   msg("worker", "cli", [Identity. Ravel CLI checks the match], dashed: true),
   msg("cli", "worker", [Send policy request (no session-result context)]),
   msg("worker", "worker", [Import owner policy and select]),
@@ -47,5 +46,6 @@
   [Blue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.],
   [Green arrows carry the opaque result.],
   [Successful unconfined path only. Recover the terminal only if Ravel lent it.],
+  [This chapter's policy makes no host call or evaluation harness run.],
   [The sent result precedes cleanup. Only the last arrow delivers the result to the caller.],
 ), max-label: 125))

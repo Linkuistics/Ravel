@@ -1,6 +1,6 @@
 {
   "w": 751.0,
-  "h": 781.4171875000001,
+  "h": 1170.63671875,
   "elements": [
     {
       "id": "title",
@@ -31,11 +31,11 @@
         ],
         [
           286.0,
-          586.08671875
+          664.4234375000001
         ],
         [
           -26.0,
-          586.08671875
+          664.4234375000001
         ],
         [
           -26.0,
@@ -129,7 +129,7 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Checks owner policy and its response. Decides the final outcome.",
+      "text": "Controls host calls. Checks owner policy and its response. Decides the final outcome.",
       "x": 130,
       "y": 216.387890625,
       "anchor": "center",
@@ -143,9 +143,9 @@
       "shape": "box",
       "role": "ravel",
       "x0": 475.0,
-      "y0": 95.358984375,
+      "y0": 122.8640625,
       "x1": 725.0,
-      "y1": 268.069921875
+      "y1": 240.56484375000002
     },
     {
       "id": "worker-stereo",
@@ -154,7 +154,7 @@
       "face": "qual",
       "text": "«container»",
       "x": 600,
-      "y": 110.917578125,
+      "y": 138.42265625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -168,7 +168,7 @@
       "face": "name",
       "text": "policy worker",
       "x": 600,
-      "y": 125.554296875,
+      "y": 153.059375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -180,13 +180,13 @@
       "shape": "text",
       "role": "ravel",
       "face": "qual",
-      "text": "[Separate process: ravel-policy]",
+      "text": "[Separate process: same bin/ravel]",
       "x": 600,
-      "y": 140.191015625,
+      "y": 167.69609375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 191.255859375,
+      "w": 210.69140625,
       "h": 9.1171875
     },
     {
@@ -194,23 +194,23 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "crates/ravel/worker/src\nBun compiles this worker with worker/sdk and worker/examples/static.ts embedded. The worker evaluates trusted owner policy.",
+      "text": "crates/ravel/src/rhai_worker\nEvaluates Rhai owner policy and requests host capabilities.",
       "x": 600,
-      "y": 205.909765625,
+      "y": 205.90976562499998,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 226.0,
-      "h": 102.3203125
+      "h": 47.31015625
     },
     {
       "id": "runner",
       "shape": "box",
       "role": "ravel",
       "x0": 0.0,
-      "y0": 442.3859375,
+      "y0": 502.3859375,
       "x1": 260.0,
-      "y1": 560.08671875
+      "y1": 638.4234375000001
     },
     {
       "id": "runner-stereo",
@@ -219,7 +219,7 @@
       "face": "qual",
       "text": "«component»",
       "x": 130,
-      "y": 457.94453125,
+      "y": 517.9445312500001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -233,7 +233,7 @@
       "face": "name",
       "text": "runner",
       "x": 130,
-      "y": 472.58125,
+      "y": 532.5812500000001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -247,7 +247,7 @@
       "face": "qual",
       "text": "[Rust: crates/keyed-launch]",
       "x": 130,
-      "y": 487.21796875,
+      "y": 547.2179687500001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -259,13 +259,64 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Linked library code. Launches and supervises the managed job inside the Ravel CLI.",
+      "text": "Linked library code. Supervises harness runs and the final managed job inside the Ravel CLI.",
       "x": 130,
-      "y": 525.431640625,
+      "y": 594.6,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 236.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "harness",
+      "shape": "box",
+      "role": "external",
+      "x0": 475.0,
+      "y0": 518.1128906250001,
+      "x1": 725.0,
+      "y1": 622.696484375
+    },
+    {
+      "id": "harness-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«external_system»",
+      "x": 600,
+      "y": 533.671484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.443359375,
+      "h": 9.1171875
+    },
+    {
+      "id": "harness-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "evaluation harness",
+      "x": 600,
+      "y": 548.308203125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 172.203125,
+      "h": 12.15625
+    },
+    {
+      "id": "harness-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Program from owner settings. Returns data to the policy. Own result channel.",
+      "x": 600,
+      "y": 588.04140625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 226.0,
       "h": 47.31015625
     },
     {
@@ -273,9 +324,9 @@
       "shape": "box",
       "role": "external",
       "x0": 475.0,
-      "y0": 458.112890625,
+      "y0": 852.3859375,
       "x1": 725.0,
-      "y1": 544.359765625
+      "y1": 938.6328125
     },
     {
       "id": "managed-stereo",
@@ -284,7 +335,7 @@
       "face": "qual",
       "text": "«external_system»",
       "x": 600,
-      "y": 473.671484375,
+      "y": 867.9445312500001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -296,13 +347,13 @@
       "shape": "text",
       "role": "external",
       "face": "name",
-      "text": "managed process",
+      "text": "final managed process",
       "x": 600,
-      "y": 488.308203125,
+      "y": 882.5812500000001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 158.703125,
+      "w": 203.8046875,
       "h": 12.15625
     },
     {
@@ -312,7 +363,7 @@
       "face": "body",
       "text": "Program that owner policy selects",
       "x": 600,
-      "y": 518.873046875,
+      "y": 913.1460937500001,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -355,7 +406,7 @@
       "shape": "text",
       "role": "label",
       "face": "qual",
-      "text": "[private request and response protocol]",
+      "text": "[request, host calls and replies on private socket]",
       "x": 377.5,
       "y": 165.29726562500002,
       "anchor": "center",
@@ -375,7 +426,7 @@
         ],
         [
           130,
-          442.3859375
+          502.3859375
         ]
       ],
       "dashed": false,
@@ -386,9 +437,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Uses after worker cleanup",
+      "text": "Uses for each launch",
       "x": 193.0,
-      "y": 332.797265625,
+      "y": 362.797265625,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
@@ -402,7 +453,7 @@
       "face": "qual",
       "text": "[Rust library interface]",
       "x": 193.0,
-      "y": 362.701171875,
+      "y": 392.70117187500006,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
@@ -410,17 +461,66 @@
       "h": 24.834374999999998
     },
     {
-      "id": "rel-runner-managed",
+      "id": "rel-runner-harness",
       "shape": "line",
       "role": "relation",
       "pts": [
         [
           260.0,
-          501.236328125
+          570.4046875
         ],
         [
           475.0,
-          501.236328125
+          570.4046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-runner-harness-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Supervises harness run",
+      "x": 377.5,
+      "y": 548.969140625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 170.0,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-runner-harness-tech",
+      "shape": "text",
+      "role": "label",
+      "face": "qual",
+      "text": "[during evaluation]",
+      "x": 377.5,
+      "y": 561.84609375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 170.0,
+      "h": 9.1171875
+    },
+    {
+      "id": "rel-runner-managed",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          130,
+          638.4234375000001
+        ],
+        [
+          130,
+          895.5093750000001
+        ],
+        [
+          475.0,
+          895.5093750000001
         ]
       ],
       "dashed": false,
@@ -431,9 +531,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Launches and supervises",
-      "x": 377.5,
-      "y": 454.91523437500007,
+      "text": "Launches after evaluation",
+      "x": 302.5,
+      "y": 849.18828125,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -446,8 +546,8 @@
       "role": "label",
       "face": "qual",
       "text": "[selected program and arguments]",
-      "x": 377.5,
-      "y": 484.81914062500005,
+      "x": 302.5,
+      "y": 879.0921875000001,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -459,23 +559,23 @@
       "shape": "box",
       "role": "key",
       "x0": 17.96728515625,
-      "y0": 604.08671875,
+      "y0": 956.6328125,
       "x1": 681.03271484375,
-      "y1": 781.4171875000001
+      "y1": 1170.63671875
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel code or process. Grey: selected program.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nC4 components here are internal code. Ravel supports no separate component.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nWorker paths in its box are relative to crates/ravel.",
+      "text": "Blue: Ravel code or process. Grey: external programs.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nC4 components here are internal code. Ravel supports no separate component.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends first. Each harness run completes its required cleanup.\nHarness-run data returns to the policy. It cannot complete the final session.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nThe CLI and policy worker are separate processes of the same installed executable.",
       "x": 349.5,
-      "y": 692.751953125,
+      "y": 1063.634765625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 635.0654296875,
-      "h": 157.33046875
+      "h": 194.00390625000003
     }
   ]
 }

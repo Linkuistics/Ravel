@@ -769,7 +769,11 @@ The policy itself cannot send a signal.
 In these UML sequences, no lifetime ends with an X. Ravel attempts
 cleanup, and a failed attempt does not confirm a reap or a removal.
 
-![The caller starts selection. The policy worker sends INT to the Ravel CLI. The Ravel CLI attempts worker teardown and private-directory cleanup. It keeps the teardown problems, launches no managed process and reports cancellation. It returns no result to the caller.](figures/selection-cancellation.svg)
+The selection sequence shows that Ravel attempts harness cleanup before worker teardown.
+The fake evaluation harness sends the signal directly to the Ravel CLI.
+Its own result channel is separate from the channel of a final managed process.
+
+![During selection, the policy worker requests a harness run and waits for data. The Ravel CLI starts the fake evaluation harness with its own result channel. The harness sends INT to the Ravel CLI. Ravel attempts harness group shutdown, reap and directory cleanup within the stop bound, then worker teardown and private-directory cleanup. It retains cleanup problems and reports cancellation. It launches no final managed process and returns no result to the caller.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 

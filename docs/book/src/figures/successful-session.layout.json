@@ -1,6 +1,6 @@
 {
   "w": 809.57421875,
-  "h": 1537.0031250000002,
+  "h": 1523.3398437500002,
   "elements": [
     {
       "id": "title",
@@ -27,7 +27,7 @@
         ],
         [
           41.99609375,
-          1427.0195312500002
+          1395.0195312500002
         ]
       ],
       "dashed": true,
@@ -44,7 +44,7 @@
         ],
         [
           196.99609375,
-          1427.0195312500002
+          1395.0195312500002
         ]
       ],
       "dashed": true,
@@ -61,7 +61,7 @@
         ],
         [
           394.3046875,
-          600.9593749999999
+          568.9593749999999
         ]
       ],
       "dashed": true,
@@ -74,11 +74,11 @@
       "pts": [
         [
           561.3046875,
-          834.5749999999999
+          802.5749999999999
         ],
         [
           561.3046875,
-          1145.8156250000002
+          1113.8156250000002
         ]
       ],
       "dashed": true,
@@ -91,11 +91,11 @@
       "pts": [
         [
           716.3046875,
-          771.0453124999999
+          739.0453124999999
         ],
         [
           716.3046875,
-          1247.7257812500002
+          1215.7257812500002
         ]
       ],
       "dashed": true,
@@ -335,22 +335,14 @@
       "pts": [
         [
           394.3046875,
-          274.7453125
+          305.71875
         ],
         [
-          416.3046875,
-          274.7453125
-        ],
-        [
-          416.3046875,
-          292.7453125
-        ],
-        [
-          394.3046875,
-          292.7453125
+          196.99609375,
+          305.71875
         ]
       ],
-      "dashed": false,
+      "dashed": true,
       "arrow": true
     },
     {
@@ -358,14 +350,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Change to /",
-      "x": 422.3046875,
-      "y": 283.7453125,
-      "anchor": "west",
-      "align": "left",
+      "text": "Identity. Ravel CLI checks the match",
+      "x": 295.650390625,
+      "y": 301.71875,
+      "anchor": "south",
+      "align": "center",
       "wrapped": true,
-      "w": 83.2724609375,
-      "h": 10.63671875
+      "w": 185.30859375,
+      "h": 28.9734375
     },
     {
       "id": "msg-5",
@@ -373,15 +365,15 @@
       "role": "relation",
       "pts": [
         [
-          394.3046875,
-          337.71875
+          196.99609375,
+          350.6921875
         ],
         [
-          196.99609375,
-          337.71875
+          394.3046875,
+          350.6921875
         ]
       ],
-      "dashed": true,
+      "dashed": false,
       "arrow": true
     },
     {
@@ -389,9 +381,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Identity. Ravel CLI checks the match",
+      "text": "Send policy request (no session-result context)",
       "x": 295.650390625,
-      "y": 333.71875,
+      "y": 346.6921875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -404,12 +396,20 @@
       "role": "relation",
       "pts": [
         [
-          196.99609375,
-          382.6921875
+          394.3046875,
+          370.17890625
+        ],
+        [
+          416.3046875,
+          370.17890625
+        ],
+        [
+          416.3046875,
+          388.17890625
         ],
         [
           394.3046875,
-          382.6921875
+          388.17890625
         ]
       ],
       "dashed": false,
@@ -420,13 +420,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Send policy request (no session-result context)",
-      "x": 295.650390625,
-      "y": 378.6921875,
-      "anchor": "south",
-      "align": "center",
+      "text": "Import owner policy and select",
+      "x": 422.3046875,
+      "y": 379.17890625,
+      "anchor": "west",
+      "align": "left",
       "wrapped": true,
-      "w": 185.30859375,
+      "w": 127.0,
       "h": 28.9734375
     },
     {
@@ -436,22 +436,14 @@
       "pts": [
         [
           394.3046875,
-          402.17890625
+          438.63906249999997
         ],
         [
-          416.3046875,
-          402.17890625
-        ],
-        [
-          416.3046875,
-          420.17890625
-        ],
-        [
-          394.3046875,
-          420.17890625
+          196.99609375,
+          438.63906249999997
         ]
       ],
-      "dashed": false,
+      "dashed": true,
       "arrow": true
     },
     {
@@ -459,13 +451,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Import owner policy and select",
-      "x": 422.3046875,
-      "y": 411.17890625,
-      "anchor": "west",
-      "align": "left",
+      "text": "Policy response on private socket",
+      "x": 295.650390625,
+      "y": 434.63906249999997,
+      "anchor": "south",
+      "align": "center",
       "wrapped": true,
-      "w": 127.0,
+      "w": 185.30859375,
       "h": 28.9734375
     },
     {
@@ -474,15 +466,23 @@
       "role": "relation",
       "pts": [
         [
-          394.3046875,
-          470.63906249999997
+          196.99609375,
+          494.79921874999997
+        ],
+        [
+          218.99609375,
+          494.79921874999997
+        ],
+        [
+          218.99609375,
+          512.7992187499999
         ],
         [
           196.99609375,
-          470.63906249999997
+          512.7992187499999
         ]
       ],
-      "dashed": true,
+      "dashed": false,
       "arrow": true
     },
     {
@@ -490,14 +490,48 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Policy response on private socket",
-      "x": 295.650390625,
-      "y": 466.63906249999997,
-      "anchor": "south",
-      "align": "center",
+      "text": "Check response and confirm worker reap.\nRemove the private directory of the worker",
+      "x": 224.99609375,
+      "y": 503.79921874999997,
+      "anchor": "west",
+      "align": "left",
       "wrapped": true,
-      "w": 185.30859375,
-      "h": 28.9734375
+      "w": 127.0,
+      "h": 102.3203125
+    },
+    {
+      "id": "end-32-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          386.3046875,
+          560.9593749999999
+        ],
+        [
+          402.3046875,
+          576.9593749999999
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-32-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          386.3046875,
+          576.9593749999999
+        ],
+        [
+          402.3046875,
+          560.9593749999999
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
     },
     {
       "id": "msg-9",
@@ -506,19 +540,19 @@
       "pts": [
         [
           196.99609375,
-          526.7992187499999
+          596.4460937499999
         ],
         [
           218.99609375,
-          526.7992187499999
+          596.4460937499999
         ],
         [
           218.99609375,
-          544.7992187499999
+          614.4460937499999
         ],
         [
           196.99609375,
-          544.7992187499999
+          614.4460937499999
         ]
       ],
       "dashed": false,
@@ -529,48 +563,71 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Check response and confirm worker reap.\nRemove the private directory of the worker",
+      "text": "Resolve selected executable",
       "x": 224.99609375,
-      "y": 535.7992187499999,
+      "y": 605.4460937499999,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
       "w": 127.0,
-      "h": 102.3203125
+      "h": 28.9734375
     },
     {
-      "id": "end-34-a",
+      "id": "div-36-rule-a",
       "shape": "line",
-      "role": "end",
+      "role": "rule",
       "pts": [
         [
-          386.3046875,
-          592.9593749999999
+          0.0,
+          645.9328125
         ],
         [
-          402.3046875,
-          608.9593749999999
+          809.57421875,
+          645.9328125
         ]
       ],
       "dashed": false,
       "arrow": false
     },
     {
-      "id": "end-34-b",
+      "id": "div-36-rule-b",
       "shape": "line",
-      "role": "end",
+      "role": "rule",
       "pts": [
         [
-          386.3046875,
-          608.9593749999999
+          0.0,
+          649.9328125
         ],
         [
-          402.3046875,
-          592.9593749999999
+          809.57421875,
+          649.9328125
         ]
       ],
       "dashed": false,
       "arrow": false
+    },
+    {
+      "id": "div-36",
+      "shape": "box",
+      "role": "divider",
+      "x0": 332.01611328125,
+      "y0": 639.614453125,
+      "x1": 477.55810546875,
+      "y1": 656.251171875
+    },
+    {
+      "id": "div-36-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launch and result",
+      "x": 404.787109375,
+      "y": 647.9328125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 125.5419921875,
+      "h": 10.63671875
     },
     {
       "id": "msg-10",
@@ -579,19 +636,11 @@
       "pts": [
         [
           196.99609375,
-          628.4460937499999
+          703.4890624999999
         ],
         [
-          218.99609375,
-          628.4460937499999
-        ],
-        [
-          218.99609375,
-          646.4460937499999
-        ],
-        [
-          196.99609375,
-          646.4460937499999
+          629.03515625,
+          703.4890624999999
         ]
       ],
       "dashed": false,
@@ -602,97 +651,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Resolve selected executable",
-      "x": 224.99609375,
-      "y": 637.4460937499999,
-      "anchor": "west",
-      "align": "left",
-      "wrapped": true,
-      "w": 127.0,
-      "h": 28.9734375
-    },
-    {
-      "id": "div-38-rule-a",
-      "shape": "line",
-      "role": "rule",
-      "pts": [
-        [
-          0.0,
-          677.9328125
-        ],
-        [
-          809.57421875,
-          677.9328125
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "div-38-rule-b",
-      "shape": "line",
-      "role": "rule",
-      "pts": [
-        [
-          0.0,
-          681.9328125
-        ],
-        [
-          809.57421875,
-          681.9328125
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "div-38",
-      "shape": "box",
-      "role": "divider",
-      "x0": 332.01611328125,
-      "y0": 671.614453125,
-      "x1": 477.55810546875,
-      "y1": 688.251171875
-    },
-    {
-      "id": "div-38-label",
-      "shape": "text",
-      "role": "label",
-      "face": "body",
-      "text": "Launch and result",
-      "x": 404.787109375,
-      "y": 679.9328125,
-      "anchor": "center",
-      "align": "center",
-      "wrapped": false,
-      "w": 125.5419921875,
-      "h": 10.63671875
-    },
-    {
-      "id": "msg-11",
-      "shape": "line",
-      "role": "relation",
-      "pts": [
-        [
-          196.99609375,
-          735.4890624999999
-        ],
-        [
-          629.03515625,
-          735.4890624999999
-        ]
-      ],
-      "dashed": false,
-      "arrow": true
-    },
-    {
-      "id": "msg-11-label",
-      "shape": "text",
-      "role": "label",
-      "face": "body",
       "text": "Allocate fresh result channel",
       "x": 413.015625,
-      "y": 731.4890624999999,
+      "y": 699.4890624999999,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -704,9 +665,9 @@
       "shape": "cylinder",
       "role": "temporary",
       "x0": 629.03515625,
-      "y0": 699.9328125,
+      "y0": 667.9328125,
       "x1": 803.57421875,
-      "y1": 771.0453124999999,
+      "y1": 739.0453124999999,
       "cap": 9
     },
     {
@@ -716,7 +677,7 @@
       "face": "name",
       "text": "result channel\n(temporary files)",
       "x": 716.3046875,
-      "y": 742.4890624999999,
+      "y": 710.4890624999999,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -724,30 +685,30 @@
       "h": 33.112500000000004
     },
     {
-      "id": "msg-12",
+      "id": "msg-11",
       "shape": "line",
       "role": "relation",
       "pts": [
         [
           196.99609375,
-          812.01875
+          780.01875
         ],
         [
           508.59765625,
-          812.01875
+          780.01875
         ]
       ],
       "dashed": false,
       "arrow": true
     },
     {
-      "id": "msg-12-label",
+      "id": "msg-11-label",
       "shape": "text",
       "role": "label",
       "face": "body",
       "text": "Launch in its own process group.\nPass session-result context",
       "x": 352.796875,
-      "y": 808.01875,
+      "y": 776.01875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -759,9 +720,9 @@
       "shape": "box",
       "role": "external",
       "x0": 508.59765625,
-      "y0": 789.4625,
+      "y0": 757.4625,
       "x1": 614.01171875,
-      "y1": 834.5749999999999
+      "y1": 802.5749999999999
     },
     {
       "id": "head-managed-label",
@@ -770,7 +731,7 @@
       "face": "name",
       "text": "managed\nprocess",
       "x": 561.3046875,
-      "y": 812.01875,
+      "y": 780.01875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -778,17 +739,167 @@
       "h": 33.112500000000004
     },
     {
-      "id": "msg-13",
+      "id": "msg-12",
       "shape": "line",
       "role": "result",
       "pts": [
         [
           561.3046875,
-          875.5484375
+          843.5484375
         ],
         [
           716.3046875,
-          875.5484375
+          843.5484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-12-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Send opaque result with end-session",
+      "x": 638.8046875,
+      "y": 839.5484375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 143.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "note-50",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          508.59765625,
+          855.5484375
+        ],
+        [
+          793.57421875,
+          855.5484375
+        ],
+        [
+          803.57421875,
+          865.5484375
+        ],
+        [
+          803.57421875,
+          898.521875
+        ],
+        [
+          508.59765625,
+          898.521875
+        ]
+      ]
+    },
+    {
+      "id": "note-50-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          793.57421875,
+          855.5484375
+        ],
+        [
+          793.57421875,
+          865.5484375
+        ],
+        [
+          803.57421875,
+          865.5484375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-50-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Ravel keeps the first complete result.\nend-session does not wait for cleanup.",
+      "x": 656.0859375,
+      "y": 877.03515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 274.9765625,
+      "h": 28.9734375
+    },
+    {
+      "id": "div-53-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          926.521875
+        ],
+        [
+          809.57421875,
+          926.521875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-53-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          0.0,
+          930.521875
+        ],
+        [
+          809.57421875,
+          930.521875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-53",
+      "shape": "box",
+      "role": "divider",
+      "x0": 320.31298828125,
+      "y0": 920.203515625,
+      "x1": 489.26123046875,
+      "y1": 936.840234375
+    },
+    {
+      "id": "div-53-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cleanup and delivery",
+      "x": 404.787109375,
+      "y": 928.521875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 148.9482421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-13",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          196.99609375,
+          983.4953125000001
+        ],
+        [
+          561.3046875,
+          983.4953125000001
         ]
       ],
       "dashed": false,
@@ -797,135 +908,16 @@
     {
       "id": "msg-13-label",
       "shape": "text",
-      "role": "result",
+      "role": "label",
       "face": "body",
-      "text": "Send opaque result with end-session",
-      "x": 638.8046875,
-      "y": 871.5484375,
+      "text": "Stop the managed process’s group\n(grace and escalation if needed)",
+      "x": 379.150390625,
+      "y": 979.4953125000001,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 143.0,
+      "w": 246.86328125,
       "h": 28.9734375
-    },
-    {
-      "id": "note-52",
-      "shape": "polygon",
-      "role": "note",
-      "pts": [
-        [
-          508.59765625,
-          887.5484375
-        ],
-        [
-          793.57421875,
-          887.5484375
-        ],
-        [
-          803.57421875,
-          897.5484375
-        ],
-        [
-          803.57421875,
-          930.521875
-        ],
-        [
-          508.59765625,
-          930.521875
-        ]
-      ]
-    },
-    {
-      "id": "note-52-fold",
-      "shape": "line",
-      "role": "fold",
-      "pts": [
-        [
-          793.57421875,
-          887.5484375
-        ],
-        [
-          793.57421875,
-          897.5484375
-        ],
-        [
-          803.57421875,
-          897.5484375
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "note-52-label",
-      "shape": "text",
-      "role": "label",
-      "face": "body",
-      "text": "Ravel keeps the first complete result.\nend-session does not wait for cleanup.",
-      "x": 656.0859375,
-      "y": 909.03515625,
-      "anchor": "center",
-      "align": "center",
-      "wrapped": true,
-      "w": 274.9765625,
-      "h": 28.9734375
-    },
-    {
-      "id": "div-55-rule-a",
-      "shape": "line",
-      "role": "rule",
-      "pts": [
-        [
-          0.0,
-          958.521875
-        ],
-        [
-          809.57421875,
-          958.521875
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "div-55-rule-b",
-      "shape": "line",
-      "role": "rule",
-      "pts": [
-        [
-          0.0,
-          962.521875
-        ],
-        [
-          809.57421875,
-          962.521875
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "div-55",
-      "shape": "box",
-      "role": "divider",
-      "x0": 320.31298828125,
-      "y0": 952.203515625,
-      "x1": 489.26123046875,
-      "y1": 968.840234375
-    },
-    {
-      "id": "div-55-label",
-      "shape": "text",
-      "role": "label",
-      "face": "body",
-      "text": "Cleanup and delivery",
-      "x": 404.787109375,
-      "y": 960.521875,
-      "anchor": "center",
-      "align": "center",
-      "wrapped": false,
-      "w": 148.9482421875,
-      "h": 10.63671875
     },
     {
       "id": "msg-14",
@@ -934,11 +926,19 @@
       "pts": [
         [
           196.99609375,
-          1015.4953125000001
+          1039.6554687500002
         ],
         [
-          561.3046875,
-          1015.4953125000001
+          218.99609375,
+          1039.6554687500002
+        ],
+        [
+          218.99609375,
+          1057.6554687500002
+        ],
+        [
+          196.99609375,
+          1057.6554687500002
         ]
       ],
       "dashed": false,
@@ -949,14 +949,48 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Stop the managed process’s group\n(grace and escalation if needed)",
-      "x": 379.150390625,
-      "y": 1011.4953125000001,
-      "anchor": "south",
-      "align": "center",
+      "text": "Confirm direct-child reap. Recover terminal\nif lent. Confirm process-group absence",
+      "x": 224.99609375,
+      "y": 1048.6554687500002,
+      "anchor": "west",
+      "align": "left",
       "wrapped": true,
-      "w": 246.86328125,
-      "h": 28.9734375
+      "w": 127.0,
+      "h": 102.3203125
+    },
+    {
+      "id": "end-61-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          553.3046875,
+          1105.8156250000002
+        ],
+        [
+          569.3046875,
+          1121.8156250000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-61-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          553.3046875,
+          1121.8156250000002
+        ],
+        [
+          569.3046875,
+          1105.8156250000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
     },
     {
       "id": "msg-15",
@@ -965,19 +999,11 @@
       "pts": [
         [
           196.99609375,
-          1071.6554687500002
+          1148.4523437500002
         ],
         [
-          218.99609375,
-          1071.6554687500002
-        ],
-        [
-          218.99609375,
-          1089.6554687500002
-        ],
-        [
-          196.99609375,
-          1089.6554687500002
+          716.3046875,
+          1148.4523437500002
         ]
       ],
       "dashed": false,
@@ -988,74 +1014,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Confirm direct-child reap. Recover terminal\nif lent. Confirm process-group absence",
-      "x": 224.99609375,
-      "y": 1080.6554687500002,
-      "anchor": "west",
-      "align": "left",
-      "wrapped": true,
-      "w": 127.0,
-      "h": 102.3203125
-    },
-    {
-      "id": "end-63-a",
-      "shape": "line",
-      "role": "end",
-      "pts": [
-        [
-          553.3046875,
-          1137.8156250000002
-        ],
-        [
-          569.3046875,
-          1153.8156250000002
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "end-63-b",
-      "shape": "line",
-      "role": "end",
-      "pts": [
-        [
-          553.3046875,
-          1153.8156250000002
-        ],
-        [
-          569.3046875,
-          1137.8156250000002
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "msg-16",
-      "shape": "line",
-      "role": "relation",
-      "pts": [
-        [
-          196.99609375,
-          1180.4523437500002
-        ],
-        [
-          716.3046875,
-          1180.4523437500002
-        ]
-      ],
-      "dashed": false,
-      "arrow": true
-    },
-    {
-      "id": "msg-16-label",
-      "shape": "text",
-      "role": "label",
-      "face": "body",
       "text": "Validate and read sent result",
       "x": 456.650390625,
-      "y": 1176.4523437500002,
+      "y": 1144.4523437500002,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -1063,35 +1024,100 @@
       "h": 10.63671875
     },
     {
-      "id": "msg-17",
+      "id": "msg-16",
       "shape": "line",
       "role": "result",
       "pts": [
         [
           716.3046875,
-          1207.0890625000002
+          1175.0890625000002
         ],
         [
           196.99609375,
-          1207.0890625000002
+          1175.0890625000002
         ]
       ],
       "dashed": true,
       "arrow": true
     },
     {
-      "id": "msg-17-label",
+      "id": "msg-16-label",
       "shape": "text",
       "role": "result",
       "face": "body",
       "text": "Unchanged opaque value",
       "x": 456.650390625,
-      "y": 1203.0890625000002,
+      "y": 1171.0890625000002,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
       "w": 181.07421875,
       "h": 10.63671875
+    },
+    {
+      "id": "msg-17",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          196.99609375,
+          1201.7257812500002
+        ],
+        [
+          716.3046875,
+          1201.7257812500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-17-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Remove result channel’s temporary directory",
+      "x": 456.650390625,
+      "y": 1197.7257812500002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 319.5634765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "end-69-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          708.3046875,
+          1207.7257812500002
+        ],
+        [
+          724.3046875,
+          1223.7257812500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-69-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          708.3046875,
+          1223.7257812500002
+        ],
+        [
+          724.3046875,
+          1207.7257812500002
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
     },
     {
       "id": "msg-18",
@@ -1100,11 +1126,19 @@
       "pts": [
         [
           196.99609375,
-          1233.7257812500002
+          1270.7175781250003
         ],
         [
-          716.3046875,
-          1233.7257812500002
+          218.99609375,
+          1270.7175781250003
+        ],
+        [
+          218.99609375,
+          1288.7175781250003
+        ],
+        [
+          196.99609375,
+          1288.7175781250003
         ]
       ],
       "dashed": false,
@@ -1115,69 +1149,27 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Remove result channel’s temporary directory",
-      "x": 456.650390625,
-      "y": 1229.7257812500002,
-      "anchor": "south",
-      "align": "center",
+      "text": "Decide the final outcome from the result,\ncancellation and cleanup",
+      "x": 224.99609375,
+      "y": 1279.7175781250003,
+      "anchor": "west",
+      "align": "left",
       "wrapped": true,
-      "w": 319.5634765625,
-      "h": 10.63671875
-    },
-    {
-      "id": "end-71-a",
-      "shape": "line",
-      "role": "end",
-      "pts": [
-        [
-          708.3046875,
-          1239.7257812500002
-        ],
-        [
-          724.3046875,
-          1255.7257812500002
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
-    },
-    {
-      "id": "end-71-b",
-      "shape": "line",
-      "role": "end",
-      "pts": [
-        [
-          708.3046875,
-          1255.7257812500002
-        ],
-        [
-          724.3046875,
-          1239.7257812500002
-        ]
-      ],
-      "dashed": false,
-      "arrow": false
+      "w": 127.0,
+      "h": 83.98359375
     },
     {
       "id": "msg-19",
       "shape": "line",
-      "role": "relation",
+      "role": "result",
       "pts": [
         [
           196.99609375,
-          1302.7175781250003
+          1385.0195312500002
         ],
         [
-          218.99609375,
-          1302.7175781250003
-        ],
-        [
-          218.99609375,
-          1320.7175781250003
-        ],
-        [
-          196.99609375,
-          1320.7175781250003
+          41.99609375,
+          1385.0195312500002
         ]
       ],
       "dashed": false,
@@ -1186,42 +1178,11 @@
     {
       "id": "msg-19-label",
       "shape": "text",
-      "role": "label",
-      "face": "body",
-      "text": "Decide the final outcome from the result,\ncancellation and cleanup",
-      "x": 224.99609375,
-      "y": 1311.7175781250003,
-      "anchor": "west",
-      "align": "left",
-      "wrapped": true,
-      "w": 127.0,
-      "h": 83.98359375
-    },
-    {
-      "id": "msg-20",
-      "shape": "line",
-      "role": "result",
-      "pts": [
-        [
-          196.99609375,
-          1417.0195312500002
-        ],
-        [
-          41.99609375,
-          1417.0195312500002
-        ]
-      ],
-      "dashed": false,
-      "arrow": true
-    },
-    {
-      "id": "msg-20-label",
-      "shape": "text",
       "role": "result",
       "face": "body",
       "text": "Write and flush opaque result. Exit 0",
       "x": 119.49609375,
-      "y": 1413.0195312500002,
+      "y": 1381.0195312500002,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -1233,23 +1194,23 @@
       "shape": "box",
       "role": "key",
       "x0": 91.58154296875,
-      "y0": 1433.0195312500002,
+      "y0": 1401.0195312500002,
       "x1": 717.99267578125,
-      "y1": 1537.0031250000002
+      "y1": 1523.3398437500002
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "An X ends the pictured lifetime after reap or removal, not at process exit.\nBlue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.\nGreen arrows carry the opaque result.\nSuccessful unconfined path only. Recover the terminal only if Ravel lent it.\nThe sent result precedes cleanup. Only the last arrow delivers the result to the caller.",
+      "text": "An X ends the pictured lifetime after reap or removal, not at process exit.\nBlue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.\nGreen arrows carry the opaque result.\nSuccessful unconfined path only. Recover the terminal only if Ravel lent it.\nThis chapter’s policy makes no host call or evaluation harness run.\nThe sent result precedes cleanup. Only the last arrow delivers the result to the caller.",
       "x": 404.787109375,
-      "y": 1485.0113281250003,
+      "y": 1462.1796875000002,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 598.4111328125,
-      "h": 83.98359375
+      "h": 102.3203125
     }
   ]
 }
