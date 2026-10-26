@@ -1,16 +1,14 @@
-# Examples: convention, seam and checking
+# Examples: convention, seam and checks
 
-This note settles how a complete example is written in a chapter and how
-`task docs:examples` runs and compares it, so a drafting session and the checker
-read the same blocks. The contract (`contract.md`, "Examples policy") owns *that*
-every complete example runs; this note owns the mechanics. It sits beside the
-contract and is not part of the published book.
+This note defines the Markdown form of a complete example and how the checker runs it.
+The contract requires every complete example to run.
+This note supplies the mechanics for authors and the checker.
+It sits beside the contract, outside the published book.
 
 ## What a reader sees
 
-A complete example is ordinary Markdown: a label paragraph, then labelled code
-blocks. Nothing in it is hidden from a reader except an optional one-line HTML
-comment, which neither mdBook nor GitHub renders.
+A complete example has a label paragraph and labelled code blocks.
+An optional HTML comment carries a platform requirement that rendered views hide.
 
 ````markdown
 Complete example: route every request to a fake `claude`, which publishes
@@ -49,225 +47,198 @@ continue
 ```
 ````
 
-The same Markdown is what GitHub, an editor and mdBook show, and it is what the
-checker reads. A runnable `.md` page needs no build step.
+GitHub, an editor and mdBook show the same Markdown that the checker reads.
+A runnable Markdown page needs no build step.
 
 ## The grammar
 
-An example starts at a paragraph whose text begins `Complete example` and ends
-at the next heading or the next `Complete example` or `Fragment` paragraph.
-Inside it, **every fenced block is directly preceded by a label paragraph**, a
-paragraph that is one line of bold text. HTML comments between the label and the
-block are ignored. Any other paragraph between them removes the label, and the
-block is then an error. Inside an example the language tag is for the reader
-and the highlighter and is not read.
+An example starts at a paragraph whose text starts with `Complete example`.
+It ends at the next heading or the next `Complete example` or `Fragment` paragraph.
+Each fenced block inside it directly follows a label paragraph: one line of bold text.
+HTML comments between the label and block have no effect.
+Any other intervening paragraph removes the label, so the checker refuses that block.
 
-| Label | The block is | Required |
+The language tag serves the reader and highlighter. The example runner does not read it.
+
+| Label | Meaning | Requirement |
 |---|---|---|
-| ``**`path`**`` | a file written to that relative path in the example's working directory before any command runs. Paths under `bin/` are made executable. | no |
-| `**Command**` | a shell script: the first line begins `$ ` and each later line beginning `$ ` starts another command; a line without the prefix continues the previous one. The blocks that follow describe the script as a whole: its standard output is every command's, and its exit status is that of the last command (`sh -c` without `-e`). Steps whose own status matters are separate Command blocks. | one or more |
-| `**Standard output**` | the command's standard output, including a final newline | each command |
-| `**Standard output, without a final newline**` | the same, for a stream that does not end in a newline (an opaque result is such a stream) | (one of the two) |
-| `**Standard error**` | the whole of standard error, including a final newline | no |
-| `**Standard error, without a final newline**` | the same, without the final newline | no |
-| `**Standard error includes**` | text that appears contiguously somewhere in standard error | no |
-| `**Exit status**` | one integer. A command that ends from a signal has status 128 plus the signal, as a shell reports it (SIGINT is 130, SIGTERM 143) | each command |
+| ``**`path`**`` | Write a file at that relative path before any command runs. Make paths under `bin/` executable. | Optional. |
+| `**Command**` | Run a shell script. The first line starts with `$ `. Each later `$ ` starts another command. Other lines continue the previous command. | At least one. |
+| `**Standard output**` | Compare stdout, with a final newline. | One stdout label per command. |
+| `**Standard output, without a final newline**` | Compare stdout without a final newline. | Alternative stdout label. |
+| `**Standard error**` | Compare the whole stderr stream, with a final newline. | Optional. |
+| `**Standard error, without a final newline**` | Compare the whole stderr stream without a final newline. | Optional. |
+| `**Standard error includes**` | Require nonempty text that occurs contiguously in stderr. | Optional. |
+| `**Exit status**` | Compare one integer. A signal gives 128 plus its number, as the shell reports it. INT gives 130, and TERM gives 143. | One per command. |
 
-- Each result block appears at most once per command, and standard error has one
-  claim (exact, exact without a final newline, or includes). A repeat fails the
-  page, because the later block would silently replace the earlier. An
-  `includes` block must not be empty.
-- A command with no standard output block fails the page: an empty block
-  (nothing between the fences) claims that the stream is empty.
-- A command with no standard error block claims nothing about standard error.
-  This is the one place the checker does not compare a stream, and it is stated
-  here and by the label the author did not write.
-- Blocks after a `**Command**` belong to that command. A second command in the
-  same example repeats its own blocks. Files may not follow a command.
-- A file path is plain and relative: letters, digits, `.`, `_`, `-` and `/`
-  only, no leading `/`, no `..` part, no empty part, and no path given twice.
-- A page uses LF line endings. A CRLF page is refused rather than compared, because
-  a stream is compared byte for byte.
+A Command block runs with `sh -c`, without `-e`.
+Its output includes every command, and its status is the last command's status.
+Use separate Command blocks when each status matters.
+Result blocks describe the whole preceding Command block.
+A second Command block has its own result blocks.
 
-A **fragment** is a paragraph beginning `Fragment` that says what the block
-omits, directly followed by one block. It is not run, and it covers that block
-only: a second block, or any paragraph between the label and its block, leaves
-the next block unlabelled.
+The checker enforces these rules:
 
-An **excerpt** is a paragraph beginning `Excerpt from` and a file path, directly
-followed by one block that quotes lines of that file. The same extractor reads
-it, and it covers that block only, as a fragment does. This checker does not run
-it and does not compare it; `task docs:excerpts` does. `excerpts.md` owns the
-convention.
+- Each result label occurs at most once per command. Stderr has at most one claim, exact or partial.
+- A missing stdout block fails. An empty block claims an empty stream.
+- A missing exit-status block fails.
+- A missing stderr block makes no claim about stderr. Only this omission leaves a stream without a comparison.
+- Files precede every command. No file follows a Command block.
+- File paths use letters, digits, `.`, `_`, `-` and `/`. They are relative, with no `..` component or empty component.
+- Each file path occurs once. A label cannot contain a shell command.
+- Pages use LF line endings. The checker refuses CRLF because it compares bytes.
 
-The check **fails closed** for blocks outside an example. A fenced block with no
-language tag is an error, and so is one in any language not on the checker's list
-of languages that are never examples (`text`, `yaml`, `yml`, `markdown`, `md`,
-`diff`, `ini`, `xml`, `html`, `ruby`, `python`; the list is in
-`scripts/examples-extract.awk`, and a chapter that needs another adds it
-there). The match ignores case. So an unlabelled `sh`, `console`,
-`shell-session` or `ts` block is caught, and so is one nobody thought to list.
-`rust` and `toml` are not on the list: a block of either is a fragment, a
-complete example or an excerpt, because the book describes Ravel's own source
-and a bare block could be a quotation that nothing checks (`excerpts.md` gives
-the reason).
-Two shapes that Markdown would show but the checker cannot read are errors for
-the same reason: a fence opened on a list-item line (`- ```sh`), and an indented
-code block that begins `$ `. A fence indented four or more spaces is an error too;
-unindent it or move it out of the list. Fences may be backticks or tildes, of any
-length of three or more, and an example may sit in a blockquote.
+A fragment starts with `Fragment` and states what it omits.
+Its paragraph directly precedes one block and covers only that block.
+A second block, or a paragraph between the label and block, leaves the next block unlabelled.
+
+An excerpt starts with `Excerpt from` and a source path.
+It directly precedes one block of whole source lines and covers only that block.
+The example extractor recognises it but neither runs nor compares it.
+`task docs:excerpts` compares the source lines. `excerpts.md` defines that convention.
+
+Outside examples, fragments and excerpts, the checker refuses an untagged fence.
+It also refuses a language outside its list of languages that never identify examples.
+That list is in `scripts/examples-extract.awk`:
+`text`, `yaml`, `yml`, `markdown`, `md`, `diff`, `ini`, `xml`, `html`, `ruby` and `python`.
+The comparison ignores case. A chapter that needs another language adds it there.
+
+Thus, unlabelled `sh`, `console`, `shell-session` and `ts` blocks fail, as do unknown language tags.
+`rust` and `toml` also need a label.
+They can quote Ravel source, so the check must not silently ignore them.
+The excerpt note explains that rule.
+
+The checker also refuses fences on list-item lines and fences indented at least four spaces.
+An indented code block that starts with `$ ` fails too.
+Move such blocks outside the list or remove the indentation.
+Fences can use backticks or tildes, with at least three characters.
+An example can appear in a blockquote.
 
 ## What runs
 
-For each example the checker makes a fresh scratch directory holding `home`,
-`work`, `tmp` and a directory with one symlink `ravel` to the built front, then
-runs each command with `/bin/sh -c` in `work`, with standard input from
-`/dev/null`, under `env -i`:
+For each example, the checker creates a fresh scratch directory with `home`, `work` and `tmp`.
+It also creates a directory with a `ravel` symlink to the built Ravel CLI.
+Each command runs in `work` through `/bin/sh -c`, with null stdin and `env -i`.
 
-| | Value | The same as |
+| Input | Value | Corresponding test input |
 |---|---|---|
-| `HOME` | `<scratch>/home`, empty | `Fixture::command` in `crates/ravel/tests/cli.rs` |
-| `TMPDIR` | `<scratch>/tmp` | the same |
-| `PATH` | `<scratch>/ravel:/usr/bin:/bin` | the same, plus the directory holding `ravel` |
-| current directory | `<scratch>/work` | the same |
-| everything else | absent | `env_clear()` |
+| `HOME` | `<scratch>/home`, empty | `Fixture::command` in `crates/ravel/tests/cli.rs`. |
+| `TMPDIR` | `<scratch>/tmp` | The same fixture. |
+| `PATH` | `<scratch>/ravel:/usr/bin:/bin` | The fixture, plus the directory with `ravel`. |
+| Working directory | `<scratch>/work` | The same fixture. |
+| Other variables | Absent | `env_clear()`. |
 
-So the examples write `PATH="$PWD/bin:$PATH" ravel …` themselves, and what a
-reader sees is what ran. No real agent program is reachable (a route to `claude`
-or `codex` finds only the fake the example supplies), no personal policy or
-settings are read, and no real model is contacted. Real TypeScript policy
-evaluation runs because the built front pairs with its compiled worker exactly
-as an installation does.
+Examples supply their own `PATH="$PWD/bin:$PATH" ravel ...` commands.
+The reader sees the commands that run.
+A route to `claude` or `codex` reaches only the fake that the example supplies.
+No personal policy or settings enter the run, and no real model receives a call.
+Real TypeScript policy evaluation uses the built CLI and its matched compiled worker, as an installation does.
 
-A command runs in a process group of its own for at most 60 seconds. One that
-runs longer has the group killed and fails whatever the page claims: the checker
-records the timeout itself, so a claimed status cannot excuse it. The commands
-of an example run in order, one scratch directory shared.
+Each command runs in its own process group for at most 60 seconds.
+After that time, the checker kills the group and records a failure.
+An expected status cannot excuse this timeout.
+Commands run in order and share the example's scratch directory.
 
 ## The one normalisation
 
-The scratch directory path is different every run, so **every occurrence of it
-in standard output and standard error is replaced with `<scratch>` before the
-comparison**. A claimed block therefore reads `<scratch>/work/policy.ts` where
-the real path is `/private/var/folders/…/work/policy.ts`. The rule is not
-one-to-one: a command that prints the literal `<scratch>` satisfies a claim
-written with it, so an example that means to show a path does not rely on the
-substitution to prove one. Nothing else is normalised: a process id, a timestamp or an elapsed time in a stream is not
-replaced, so an example that would print one does not claim that stream
-(`Standard error includes` the stable part, or no standard error block).
+The checker replaces every scratch-directory path in stdout and stderr with `<scratch>` before comparison.
+A claimed path therefore reads `<scratch>/work/policy.ts` instead of the temporary path of that run.
 
-Everything else is a byte-for-byte comparison.
+This substitution is not one-to-one.
+A command that prints literal `<scratch>` satisfies a claim that contains those characters.
+An example therefore cannot use this substitution alone to prove a path.
+The checker changes nothing else in either stream.
+
+Process IDs, timestamps and elapsed times remain unchanged.
+An example that prints them claims only stable stderr text with `Standard error includes`, or leaves stderr without a claim.
+Every other comparison is byte for byte.
 
 ## Skipped, never passed
 
-`<!-- example: requires NAME -->` anywhere within the example makes it run only
-where the platform has the feature. The summary line reports
-`passed`, `failed` and `skipped` separately, and a skip prints its reason.
+The comment `<!-- example: requires NAME -->` restricts an example to platforms with that feature.
+It can appear anywhere inside the example.
+The summary reports passed, failed and skipped counts separately.
+A skip prints its reason.
 
-| Name | Present when |
+| Name | Required platform feature |
 |---|---|
-| `confinement` | macOS has `/usr/bin/sandbox-exec`; Linux has `bwrap` on `PATH` |
+| `confinement` | `/usr/bin/sandbox-exec` on macOS, or `bwrap` on Linux's `PATH`. |
 
-An unknown name fails the page, so a misspelt requirement cannot skip silently.
+An unknown requirement fails. A misspelt requirement cannot silently skip a test.
 
 ## Cancellation by a signal
 
-A cancellation that the example itself causes runs under the seam without a
-terminal, and gives the same result every time:
+An example can cause cancellation without a terminal.
+During supervision, the fake agent sends INT to its parent, the Ravel CLI, with `kill -INT "$PPID"`.
+Ravel reports `session_cancelled` and raises the signal again.
+The shell therefore reports 128 plus the signal number.
 
-- **During supervision**, the fake agent sends its parent, the front, a signal:
-  `kill -INT "$PPID"` in the fake. The front reports `session_cancelled` and
-  ends by re-raising the signal, so the command's status is 128 plus its
-  number. The refusal's first two lines are stable. The front's `stop attempt`
-  lines before them are not: they carry a process-group id, and under one
-  sandboxed tool session they also ended `Operation not permitted` (the cause
-  was not established). The example therefore claims the refusal with
-  `Standard error includes`, never the whole stream.
-- **During selection**, the policy sends `process.kill(process.ppid, "SIGINT")`.
-  The status is 130 and the first line (`selection_cancelled`) is stable. The
-  worker's reap detail below it differs between runs (`signal: 15` or `exit
-  status: 0`), so only that line is claimed.
+The refusal's first two lines are stable.
+Earlier stop-attempt lines contain a process-group ID and can vary.
+One sandboxed tool session also reported `Operation not permitted`, whose cause was not established.
+The example therefore uses `Standard error includes` for the refusal, not an exact stderr claim.
 
-A cancellation that needs a terminal (Ctrl-C typed at the keyboard, job-control
-stop and continue, a closed terminal) is **not** run by the seam, and a chapter
-shows it as a `Fragment` that says the terminal is what it omits.
+During selection, the policy sends `process.kill(process.ppid, "SIGINT")`.
+The status is 130, and the first `selection_cancelled` line is stable.
+The worker reap detail varies between `signal: 15` and `exit status: 0`.
+The example claims only the stable line.
+
+Terminal-dependent cancellation does not run through this seam.
+Examples include keyboard Ctrl-C, job-control stop and continue, and a closed terminal.
+A chapter uses a Fragment label that identifies the omitted terminal interaction.
 
 ## Real agent routes
 
-A route to Claude Code or Codex is shown as the policy fragment that selects it
-and is validated by an example whose `bin/claude` or `bin/codex` is a fake
-executable of the same name that records its arguments. The chapter that shows
-the route records the agent's version and the date its flags were checked
-against that agent's own `--help`; the checker does not check that claim and it
-is written next to the route, where a reader sees its age.
+A policy fragment selects Claude Code or Codex.
+A complete example checks that route through a fake `bin/claude` or `bin/codex` that records its arguments.
+The chapter records the real agent's version and the date of the check against its own help.
+Those facts appear beside the route, so readers can assess their age.
+The example checker does not establish them.
 
-## Running and checking the checker
+## Run the checker and its controls
 
-| Command | What it does |
+| Command | Purpose |
 |---|---|
-| `task docs:examples` | builds the front and worker, then runs every complete example under `docs/book/src/` |
-| `task docs:examples:test` | the controls: every refusal below is made to fire against a wrong fixture page, and the good pages pass |
-| `task docs:examples:mutants` | removes one safeguard at a time from a copy of the checker and shows the control that notices; it first runs those controls against the unmutated checker, so none can "kill" a mutant by already failing |
+| `task docs:examples` | Build the CLI and worker, then run every complete example in `docs/book/src/`. |
+| `task docs:examples:test` | Pass correct fixtures and show each safeguard refuse a wrong fixture. |
+| `task docs:examples:mutants` | Remove each safeguard in turn from a checker copy and show which control finds the omission. First pass the controls against the unchanged checker. |
 
-The checker is `scripts/examples.sh` with its extractor
-`scripts/examples-extract.awk`; the fixture pages are in
-`scripts/examples-fixtures/pages/`, outside the book. **`task check` does not run
-any of it**, so an edit to a chapter cannot turn `task check` red; the new
-scripts pass its shellcheck stage. A drafting unit runs `task docs:examples`
-itself, as part of its own proof.
+The checker consists of `scripts/examples.sh` and `scripts/examples-extract.awk`.
+Its fixtures live in `scripts/examples-fixtures/pages/`, outside the book.
+`task check` does not run these examples, though its shellcheck stage checks their scripts.
+A draft runs `task docs:examples` as its own verification.
 
-### Why a shell script and not nextest
+### Why a shell script
 
-The seam's neighbours are Rust test cases, and a nextest case would reuse
-`Fixture` directly. They were not chosen for three reasons. A nextest run is
-`task test` and `task check`, so a chapter edit would turn them red unless the
-cases were ignored by default and run by name, which hides them. The examples are
-discovered from Markdown at run time, and a nextest case is a function the
-compiler knows, so each would need one generated function or one case that
-loops, whose failures nextest cannot name. And the figure and book checks beside
-this one are scripts under `scripts/` with a `task` wrapper, so a contributor
-meets the same shape in all three. The cost is that the seam is written twice,
-in `cli.rs` and in `examples.sh`; a control reads `cli.rs` and fails when the
-`Fixture`'s environment no longer matches the one in the script.
+A nextest case could reuse `Fixture` from the CLI tests.
+The checker instead uses shell for three reasons:
+
+- Nextest cases enter `task test` and `task check`. A chapter edit would affect those tasks unless the cases were ignored by default.
+- Examples come from Markdown at runtime. Nextest knows compiled test functions, so it needs generated cases or one loop with less precise failure names.
+- Book and figure checks already use scripts with Taskfile wrappers. The example checker follows that arrangement.
+
+The cost is a duplicate environment definition in `cli.rs` and `examples.sh`.
+A control reads `cli.rs` and fails when the fixture environment differs from the script's environment.
 
 ### What the controls show
 
-Each is seen to fire, and the first line of the failure it names is the reason:
+The controls exercise these conditions and report the first failure line:
 
-- a changed expected standard output, a changed exit status, a command with no
-  standard output block, a command with no exit status block;
-- a fake program the page does not supply, with a program of the same name on
-  the caller's `PATH` that records being run and must not be;
-- a front, and separately a worker, built from different worker source than the
-  checkout's, and a pair with today's digest but older than the Rust and worker
-  sources (all refused before any example runs, naming which). The digest covers
-  the worker's TypeScript; the modification-time check covers a front built before
-  a Rust edit. Touching a source file makes the check refuse, which is the safe
-  direction;
-- a runnable, unknown-language, Rust, TOML or untagged block outside any example, an
-  indented transcript, a fence on a list-item line, a CRLF page, a block with no
-  label inside an example, prose between a label and its block, a fragment label
-  followed by two blocks, an unknown label, a repeated result block, an empty
-  `includes`, and a file label holding a shell command (refused, and the command
-  does not run);
-- the shapes an example may take (a blockquote with a claimed line that itself
-  starts with `>`, tilde fences, a four-backtick fence around a three-backtick
-  line) read correctly, and eleven commands run in order;
-- a changed standard error, a standard error claim that omits a trailing line
-  (exact means the whole stream), an `includes` claim the stream does not
-  contain, a newline claim that is wrong for the stream, a raw path where the
-  page should have written `<scratch>`;
-- a scratch page with an example, a fragment and a TypeScript excerpt of a real
-  file, which this checker and `task docs:excerpts` both pass, and a bare `ts`
-  or `sh` block after an excerpt, which this checker still refuses;
-- a skipped example counted as skipped and not passed, an unknown requirement, a
-  file after a command, a path that escapes the directory, a path given twice, a
-  command that runs past the timeout;
-- the seam's own `HOME`, `TMPDIR` and `PATH` printed from inside an example, the
-  caller's variable and standard input absent;
-- a caller whose `HOME` holds an invalid `settings.json` and whose `PATH` leads
-  with a `claude`, a `codex` and a `ravel` that record being run: the examples
-  still pass and none of the three runs; and the same with an empty `HOME` and a
-  `PATH` of the fakes plus `/usr/bin:/bin` only;
-- a cancellation by signal that passes five runs in a row, and its signal number
-  claimed wrongly.
+- Changed expected stdout or exit status, missing stdout or exit status.
+- A fake program absent from the example. A caller-PATH program of the same name records any accidental execution.
+- A CLI or worker built from different worker source. Another control uses a matching digest with a build older than Rust or worker sources.
+- A digest covers the worker's TypeScript. A modification-time check finds a CLI built before a Rust edit. A source timestamp change causes refusal.
+- An unlabelled executable, unknown-language, Rust, TOML or untagged block.
+- An indented transcript, a fence on a list-item line, or a CRLF page.
+- An unlabelled block inside an example, intervening prose, or a fragment label followed by two blocks.
+- An unknown label, a repeated result block, an empty partial claim, or a file label with a shell command.
+- Correct blockquotes, including a claimed line that starts with `>`, tilde fences, and four-backtick fences around three-backtick lines.
+- Eleven commands that run in order.
+- Changed stderr, an omitted trailing line in an exact claim, or absent text in a partial claim.
+- Incorrect final-newline claims or an unnormalised path in an expected stream.
+- A page with an example, fragment and exact TypeScript excerpt. Both checkers pass it, and the example checker still refuses an unlabelled block after the excerpt.
+- A skipped example, an unknown requirement, a file after a command, an escaped or repeated path, and a command timeout.
+- The fixture's `HOME`, `TMPDIR` and `PATH`, with the caller's variables and stdin absent.
+- A caller with invalid personal settings and recording fakes for `claude`, `codex` and `ravel`. The examples pass, and no caller fake runs.
+- The same isolation with an empty caller HOME and a PATH with only those fakes and system commands.
+- Signal cancellation that passes five consecutive runs, and a wrong expected signal number that fails.
