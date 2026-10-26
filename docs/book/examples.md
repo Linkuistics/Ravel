@@ -11,14 +11,18 @@ A complete example has a label paragraph and labelled code blocks.
 An optional HTML comment carries a platform requirement that rendered views hide.
 
 ````markdown
-Complete example: route every request to a fake `claude`, which publishes
+Complete example: route every request to a fake `claude`, which sends
 `continue`.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
-export const policy = definePolicy({ /* … */ });
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "convention-example";
+fn select(request, context) {
+    #{ status: "selected", program: "claude", args: [],
+       provider: "local", model: "fake", effort: "none", reason: "example" }
+}
 ```
 
 **`bin/claude`**
@@ -31,7 +35,8 @@ ravel end-session -- "continue"
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --prompt "Review the change."
+$ mkdir -p home tmp && chmod +x bin/claude || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
 ```
 
 **Standard output, without a final newline**
@@ -132,7 +137,10 @@ Examples supply their own `PATH="$PWD/bin:$PATH" ravel ...` commands.
 The reader sees the commands that run.
 A route to `claude` or `codex` reaches only the fake that the example supplies.
 No personal policy or settings enter the run, and no real model receives a call.
-Real TypeScript policy evaluation uses the built CLI and its matched compiled worker, as an installation does.
+Real Rhai policy evaluation runs in the built Ravel binary, re-executed as its internal worker.
+
+The checkout still builds the separate worker until the format-removal increment.
+That build dependency does not make the Rhai examples use the old worker.
 
 Each command runs in its own process group for at most 60 seconds.
 After that time, the checker kills the group and records a failure.
@@ -142,7 +150,7 @@ Commands run in order and share the example's scratch directory.
 ## The one normalisation
 
 The checker replaces every scratch-directory path in stdout and stderr with `<scratch>` before comparison.
-A claimed path therefore reads `<scratch>/work/policy.ts` instead of the temporary path of that run.
+A claimed path therefore reads `<scratch>/work/policy.rhai` instead of the temporary path of that run.
 
 This substitution is not one-to-one.
 A command that prints literal `<scratch>` satisfies a claim that contains those characters.
@@ -178,10 +186,11 @@ Earlier stop-attempt lines contain a process-group ID and can vary.
 One sandboxed tool session also reported `Operation not permitted`, whose cause was not established.
 The example therefore uses `Standard error includes` for the refusal, not an exact stderr claim.
 
-During selection, the policy sends `process.kill(process.ppid, "SIGINT")`.
-The status is 130, and the first `selection_cancelled` line is stable.
-The worker reap detail varies between `signal: 15` and `exit status: 0`.
-The example claims only the stable line.
+During selection, the policy calls a configured fake through `ravel::run_harness`.
+The fake sends `kill -INT "$PPID"` to its parent, the Ravel CLI.
+The policy itself cannot send a signal.
+Ravel stops the harness run before the worker and reports `selection_cancelled`, status 130.
+The example claims only the stable diagnostic line, because teardown details vary.
 
 Terminal-dependent cancellation does not run through this seam.
 Examples include keyboard Ctrl-C, job-control stop and continue, and a closed terminal.

@@ -7,7 +7,7 @@ Draft the changes to chapters 1, 2, 3, 5 and 6 of the Ravel book for Rhai. The c
 ## Context
 
 - The structure brief is `docs/book/contract.md`, as updated by `rhai-book-use-k27`. Read its running log and the new chapters first.
-- Chapter 2 names the owner policy and the policy worker, and it mentions Bun. Chapter 3 is a complete session with a TypeScript policy. Chapter 5 runs sessions under real conditions. Chapter 6 is the one lookup chapter.
+- Chapter 2 names the owner policy and its internal Rhai worker. Chapter 3 is a complete session with a Rhai policy. Chapter 5 runs sessions under real conditions. Chapter 6 is the lookup chapter.
 - Chapter 6 needs the most new content. It lists every setting, bound, request, selection and context shape, error code, exit code and notice field. Take each of them from the spec and the code. The new items are the settings keys `harnesses` and `budgets`, the host functions, the error codes and the notice schema 2.
 - The term "provider" keeps one meaning in the book: the owner's model-origin label. A call to a model is an LLM call, which is a harness run. See the term risks in the contract and `CONTEXT.md`.
 - The policy worker is still a separate process. It is now Ravel's own binary in an internal role. Chapters 2 and 3 must say so without teaching the internals that Part III covers.
@@ -20,7 +20,7 @@ Draft the changes to chapters 1, 2, 3, 5 and 6 of the Ravel book for Rhai. The c
 - Chapter 6 lists every new setting, bound, code and notice member, and it removes the Bun and SDK entries.
 - Every complete example and excerpt in these chapters passes `task docs:examples` and `task docs:excerpts`.
 - The leaf records the defects that a later stage owns in the `## Handed forward` list of the node brief.
-- The last act cuts the `copy-edit` leaf, unless a live copy-edit leaf already stands below the node.
+- The existing document-level copy-edit leaf `rhai-book-use-k69` follows both drafts. No duplicate pipeline is necessary.
 
 ## Notes
 

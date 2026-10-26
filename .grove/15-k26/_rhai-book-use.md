@@ -54,9 +54,6 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 
 ## Handed forward
 
-- **Draft (`rhai-book-use-k28`):** chapter 6 still describes the old interface, as its assigned rewrite expects.
-  Three links from its old declaration sections now reach chapter 4's policy-validation section.
-  Replace those obsolete entries during the chapter 6 rewrite. Preserve the unchanged chapter numbers.
 - **Copy-edit:** the whole-book STE scan reports `binding` in `CONTEXT.md` under the Host capability term's avoided names.
   This predates the draft. Preserve the terminology guidance while resolving the prose-check finding.
   Chapter 4 itself passes strict STE and prose-break checks.
@@ -71,3 +68,23 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 - **Proof:** the book describes 2.0.0. The checkout's default-entry behaviour still accepts the old format until `typescript-worker-cutover-k31`.
   Preserve the cutover dependency. Fake harness examples prove argument delivery and answer checks, not real model behaviour.
   The real-call evidence remains the smoke record, and both owner reader checkpoints remain required.
+- **Art:** chapter 6 now describes the single executable, its internal Rhai worker role and the three Rhai examples.
+  `source-components.typ` and `installed-files.typ`, with their SVGs, still depict the old worker and SDK layout.
+  Update both figures to match their new descriptions and the 2.0.0 delivery contract.
+- **Proof:** verify the third-party notice installation path after delivery removal.
+  Chapter 6 names the notices but does not invent a path that the delivery contract has not fixed.
+  Keep the settings validation and the exact six-name environment scrub distinct from reserved grant prefixes.
+  The broad RAVEL_* scrub wording in the policy-evaluation spec needs reconciliation with the exact source list.
+
+## Draft closure
+
+- `rhai-book-use-k28` delivered chapters 1, 2, 3, 5 and 6 through its two drafts.
+  Chapter 6 is the lookup chapter, with Rhai host calls, harness settings and results, fixed bounds and notice schema 2.
+  The example-convention note now uses a runnable Rhai sample and explains cancellation through a fake evaluation harness.
+- The book assumes no TypeScript knowledge. References to retired extensions and reserved environment names remain explicit interface rules.
+  The default-entry refusal and final installed layout still depend on `typescript-worker-cutover-k31` and delivery removal.
+- `rhai-book-use-k69` is the existing next copy-edit stage for the whole document.
+  No second editorial pipeline belongs inside the closed draft subtree.
+- The final draft checks passed: all 19 book examples and the separate convention sample, nine excerpts, 14 figure reproductions and the book build.
+  Chapter 6 passes strict STE and prose-break checks. All 317 rendered links to or from it resolve.
+  Mechanical figure reproduction does not discharge the art updates above.
