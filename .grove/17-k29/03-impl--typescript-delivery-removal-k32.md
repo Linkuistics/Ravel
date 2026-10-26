@@ -30,6 +30,10 @@ Remove the Bun worker, the TypeScript SDK and their build and release machinery.
 
 ## Notes
 
+- Parts I and II proof requires the final third-party-notice path to reach the book.
+  Chapter 6 and `installed-files.typ` currently name the notices without a path.
+  Record the final path here for `rhai-book-inside-k34` to reconcile in chapter 6 and the shared installed-file figure.
+  Keep the generated notices, archive manifest, formula and installed smoke checks consistent with that path.
 - The release step `brew upgrade ravel` removes the old version unless `HOMEBREW_NO_INSTALL_CLEANUP` is set. The release leaf of the root brief handles that. Do not change the step here.
 - `task release:major` refuses outside the default colocated jj workspace. Do not run a release from a leaf in this node.
 - The archive manifest check is exact. A file that the new layout adds or drops needs an edit of the manifest and of its control tests.

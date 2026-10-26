@@ -24,6 +24,12 @@ Make the spec set, the ADR set, the glossary and the README describe the one rem
 
 ## Notes
 
+- Parts I and II proof checked `environment::LAUNCH_CONTROLS` against chapters 5 and 6.
+  The list has six exact names, not every `RAVEL_*` name.
+  Correct the broad scrub claim in the policy-evaluation spec's re-entry section.
+  `start-session` refuses an inherited `RAVEL_POLICY_RUN` before evaluation, so the final managed process cannot inherit that marker.
+  Each evaluation harness run gets a fresh marker and its own result path.
+  Keep these rules separate from the wider reserved classes for policy environment grants.
 - The design views in `docs/design/rhai-policy` stay. Check that they still match the spec.
 - Do not edit the book. The nodes `rhai-book-use` and `rhai-book-inside` own it.
 - The changelog entry for 2.0.0 belongs to the release leaf.

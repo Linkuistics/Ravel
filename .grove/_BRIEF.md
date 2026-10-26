@@ -83,6 +83,18 @@ design needs the settled requirements.
 
 ## Notes
 
+- `rhai-book-use-k26` closed after the whole-document proof `rhai-book-use-k73`.
+  Chapters 1–6 teach Rhai policies and both harness-call recipes.
+  All 19 complete examples, nine excerpts, fourteen figure reproductions, strict checks for these chapters and the book build passed.
+  The proof corrected chapter 4's timeout summary and recorded source-derived coverage and local visual evidence in its task.
+- `rhai-book-use-k74` is the required Read 1 checkpoint immediately after that closed node.
+  The owner writes a fake-agent policy, runs a session, interprets refusal and cancellation, and uses a direct reference entry.
+  Corrections precede dependent drafting. Read 2 remains required after the later whole-book proof.
+- Parts I and II describe the agreed 2.0.0 design before the default-entry cutover and delivery removal.
+  The release retains responsibility for replacing chapter 3's version placeholder before publication.
+  `typescript-delivery-removal-k32` supplies the final notice path to `rhai-book-inside-k34`, which reconciles chapter 6 and the shared installed-file figure.
+  `rhai-spec-reconciliation-k33` corrects the spec's broad environment-scrub claim to the six exact launch controls.
+  The Parts III and IV brief also owns chapter 8's old cancellation example and alternative beside the revised figure.
 - <https://github.com/Linkuistics/grove/issues/24> carries the port of Grove's
   policy helpers to Rhai. Ravel 2.0.0 does not wait for it.
 - The Homebrew upgrade runs inside a Grove session that Ravel 1.1.0 launched.

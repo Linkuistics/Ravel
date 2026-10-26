@@ -52,22 +52,6 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
   Mechanical link fixes can precede that rewrite.
 - Run `task setup` before the book checks. The checkout-local Bun remains a development tool after release.
 
-## Handed forward
-
-- **Proof:** chapter 3's version line uses the release placeholder for this unreleased 2.0.0 draft.
-  The release task must write the actual version before publication, as the existing release guard requires.
-- **Proof:** the book describes 2.0.0. The checkout's default-entry behaviour still accepts the old format until `typescript-worker-cutover-k31`.
-  Preserve the cutover dependency. Fake harness examples prove argument delivery and answer checks, not real model behaviour.
-  The real-call evidence remains the smoke record, and both owner reader checkpoints remain required.
-- **Proof:** check the third-party notice installation path after delivery removal.
-  Chapter 6 names the notices but does not invent a path that the delivery contract has not fixed.
-  Keep the settings validation and the exact six-name environment scrub distinct from reserved grant prefixes.
-  The broad RAVEL_* scrub wording in the policy-evaluation spec needs reconciliation with the exact source list.
-- **Proof:** the art pass updated seven shared figures and the alternatives in chapters 2, 5 and 6.
-  Chapter 8 still embeds the selection-cancellation figure beside its old example and alternative.
-  The scheduled Parts III and IV draft owns that reconciliation, now recorded in its node brief.
-  Do not treat the current later chapters as a completed 2.0.0 book.
-
 ## Draft closure
 
 - `rhai-book-use-k28` delivered chapters 1, 2, 3, 5 and 6 through its two drafts.

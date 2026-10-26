@@ -29,6 +29,9 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 ## Notes
 
+- Parts I and II proof passed the final notice-path choice to `typescript-delivery-removal-k32`.
+  After that leaf settles the installed path, update chapter 6's installed-layout table and `installed-files.typ` with its SVG, layout record and alternative.
+  The whole-book proof checks those entries against the final archive and installed layout.
 - `rhai-book-use-k72` updated the shared figures for Rhai in Parts I and II.
   Chapter 8 still embeds `selection-cancellation.svg` beside its old worker-signal example and alternative.
   Reconcile that example, alternative and surrounding explanation during the first draft.

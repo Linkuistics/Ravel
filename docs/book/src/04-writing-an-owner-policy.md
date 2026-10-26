@@ -849,7 +849,8 @@ These values describe the effective bounds. A change to the map cannot raise the
 
 The whole deadline covers module loads, the context loader, selection and all
 host calls. It does not bound the final managed process.
-A breach gives `selection_timeout`, exit status 124.
+At expiry, Ravel reports `selection_timeout`, exit status 124.
+Cancellation or failed harness cleanup can take precedence.
 Cleanup takes additional time.
 Other fixed bounds include 1 MiB worker messages and 262,144 bytes of policy
 diagnostics.
