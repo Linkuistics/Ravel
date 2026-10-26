@@ -1,1382 +1,205 @@
 # Write an owner policy
 
-An [owner policy](02-actors-and-words.md#caller-and-owner) receives a request
-from a [caller](02-actors-and-words.md#caller-and-owner) and returns a command
-or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision).
-Start with chapter 3's fake agent. Then add decisions that you can test:
-which [kinds](02-actors-and-words.md#caller-and-owner) to accept, which
-arguments to pass, and what to tell a caller when no route applies.
+An [owner policy](02-actors-and-words.md) chooses the program for a session.
+It can use a fixed table, read local data, or ask a model before it decides.
+You write it in Rhai, a small language that Ravel embeds.
+This chapter teaches the Rhai that the examples need.
 
-Use the Ravel that you installed in
-[chapter 3](03-a-complete-session.md#install-ravel-and-check-its-version).
-Put each complete example below in its own empty directory. Create the `bin`
-subdirectory first. Then save the files of the example at the labelled paths.
+The script has no direct filesystem, network or process access.
+A host capability is an operation that the policy asks Ravel to perform.
+Ravel supplies those operations in the `ravel` namespace.
+They are available at the module's top level, in `load_context` and in `select`.
 
-The examples create private `home` and `tmp` directories. They clear the
-environment of the subprocess and put the fake programs first on `PATH`. They
-use real policy evaluation. They do not connect to a model service or read
-your usual owner configuration.
+A [harness](02-actors-and-words.md) is a program such as Claude Code or Codex.
+The policy can select it as the managed process, or call it during evaluation.
+These are different uses. A call during evaluation returns data to the policy.
+The final selection starts only after evaluation ends.
+
+Every complete example here uses fake programs. None needs a model account.
+
+Use a fresh directory for each example. Create the listed files there.
+The commands make the fake programs executable and create local `home` and `tmp`
+directories. Each Ravel command uses a cleared environment and those directories.
+Your personal policy and settings do not enter these examples.
+
+The book checker runs the same examples through the
+[CLI test environment](03-a-complete-session.md), with the built Ravel CLI.
 
 ## Define a policy and read the request
 
-<!-- tc: depart synonym-rotation because TypeScript field checks and runtime policy validation occur at different boundaries -->
-The entry file exports a plain object with the name `policy`. Import
-`definePolicy` from the literal module name `ravel/sdk`. Give that object to
-`definePolicy` as its argument. The helper returns the object unchanged. It
-gives TypeScript sufficient information to check your fields and
-to find the parameter types of `select`. Ravel still validates the policy at
-runtime, when it evaluates the policy.
+The default policy is `$HOME/.config/ravel/policy.rhai`.
+`HOME` must be absolute for that default.
+`--config PATH` selects another file, relative to the caller's working directory.
+Ravel searches no parent directory and tries no fallback policy.
+The file must be readable UTF-8, regular, and at most 1 MiB.
+A symlink identifies its canonical real file.
 
-The policy object can have these four fields. They identify the policy
-interface, give a label to your revision and supply the functions that Ravel
-calls:
+The module exports two constants and defines a function:
 
-| Field | Meaning |
+| Declaration | Purpose |
 |---|---|
-| `schemaVersion` | The literal number `2`. It identifies the policy shape. |
-| `version` | A nonblank label that you maintain, such as `book-routing-1`. It is independent of Ravel's own version. |
-| `select` | A function that returns a selection or a refusal, directly or through a promise. |
-| `loadContext` | An optional function that assembles the [policy context](02-actors-and-words.md#three-different-kinds-of-information) before selection. [Supply policy context](#supply-policy-context) describes it. |
+| `export const SCHEMA_VERSION = 3;` | Select the policy interface version. |
+| `export const VERSION = "my-policy-1";` | Give the policy an owner-maintained version for the notice. |
+| `fn select(request, context)` | Return a selection or a refusal. |
+| `fn load_context(request)` | Optionally assemble policy context before `select`. |
 
-Ravel refuses a policy object that has an unknown field. It reads only the
-named export `policy`. If an entry has only a default export, Ravel refuses
-it as an invalid policy.
+`SCHEMA_VERSION` is independent of the Ravel release and the policy context
+schema. `VERSION` is a nonblank string that you change when your policy changes.
+The functions need the parameter counts shown above.
+Top-level statements run once before the functions.
 
-The simplest `select` uses only its first parameter, `request`. Ravel also
-gives `select` the delivered policy context, which can be `undefined`, and a
-host. The host has `diagnostic(text)` and an
-`AbortSignal` at `signal`. With the host, asynchronous work can monitor the
-selection deadline, and the policy can write diagnostic text. The host of
-`select` has no operations that read files. Only the host of the
-policy-context loader has them.
+Complete example: pass the caller's prompt to a fake agent.
 
-The request is frozen data. This table gives its fields. Most fields are
-caller input. `schemaVersion` identifies the request shape, and `limits`
-holds Ravel's effective bounds:
+**`policy.rhai`**
 
-| Field | Meaning |
-|---|---|
-| `schemaVersion` | The literal number `2`. |
-| `kind` | The caller's nonempty token. Only your policy defines which tokens it accepts. |
-| `prompt` | The unchanged prompt, also when it is an empty string or contains newlines. Ravel adds no instructions to end the [session](02-actors-and-words.md#caller-and-owner). |
-| `cwd` | The caller's working directory, not the directory of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). |
-| `params` | The caller's `--param NAME=VALUE` pairs, as strings by name. It is an empty object when the caller supplied no pair. |
-| `taskFile` | An optional absolute path from `--task-file`. Ravel does not read the file for you. |
-| `taskId` | An optional caller identifier from `--task-id`. |
-| `context` | An optional validated version-1 document from `--context`. |
-| `limits` | The effective bounds for this invocation. |
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "first-policy-1";
 
-If an optional field is absent, the caller did not supply it. `limits` has
-these six fields:
-
-- `selectionMs`: the maximum time for the whole selection
-- `contextBytes`: the maximum bytes of the delivered policy context
-- `sourceBytes`: the default maximum bytes for one host read
-- `sources`: the maximum number of measured sources
-- `messageBytes`: the maximum bytes of one protocol message
-- `diagnosticsBytes`: the maximum bytes of all worker output together
-
-Your policy can read these values. If the policy changes a value, the bound
-that Ravel enforces does not increase.
-[Set bounds and grant environment names](#set-bounds-and-grant-environment-names)
-gives the settings and their ranges.
-
-Fragment: only the signature of the `select` method. This block omits the
-policy object and the policy code in the method.
-
-```ts
-select(request, context, host) {
-  host.diagnostic(`Selecting a command for ${JSON.stringify(request.kind)}`);
-  // Return a selected command or a refusal here.
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [request.prompt],
+        provider: "example",
+        model: "fake",
+        effort: "low",
+        reason: "one fixed route",
+    }
 }
 ```
 
-To use a private test file, pass `--config policy.ts`. Ravel resolves that
-path against the caller's working directory. It follows the path to a
-readable regular file and imports the real path. Put relative helpers beside
-that real file.
-
-Without `--config`, the entry is `$HOME/.config/ravel/policy.ts`. Ravel does
-not search a repository for a policy. With each of the two entries, the
-settings come from `$HOME/.config/ravel/settings.json`. Thus, the examples
-supply an empty private `HOME` and also `--config`.
-
-## Select a command or refuse
-
-A selection describes the process that Ravel starts. `program` is one of
-these:
-
-- an absolute path
-- a relative path that contains a separator, which Ravel resolves against the
-  caller's working directory
-- a name that Ravel finds on the caller's `PATH`
-
-Each string in `args` becomes one argument after the program. Ravel does no
-shell expansion or word splitting. A shell runs only when the selected
-command needs one. The fake in this section needs one: its shebang line names
-`/bin/sh`.
-
-A selection has these fields. Some give the command that Ravel executes. The
-others give the labels and the explanation that Ravel reports:
-
-| Selection field | Meaning |
-|---|---|
-| `status` | The literal `"selected"`. |
-| `program` | The path or the name of the executable. |
-| `args` | The argument strings, in order. The array and its strings can be empty. |
-| `provider`, `model`, `effort` | Owner labels that the routing diagnostics report. They do not configure a service or change the arguments. |
-| `reason` | Your explanation of this decision. The routing diagnostics report it verbatim. |
-
-Each string field is nonblank, except the entries in `args`. The program and
-the arguments cannot contain a NUL. Ravel validates the shape of the
-selection. It does not examine whether the command is sensible or whether it
-passes the prompt. Your policy and its tests own those decisions.
-
-A refusal gives a reason that the caller can identify and an action that the
-caller can take. It has these fields:
-
-| Refusal field | Meaning |
-|---|---|
-| `status` | The literal `"refused"`. |
-| `code` | Your nonblank code that identifies the reason. |
-| `message` | A nonblank explanation of the problem. |
-| `remedy` | A nonblank action that the caller or the owner can take. |
-
-<!-- tc: depart synonym-rotation because launch refers to a process, while start also names the beginning of a deadline -->
-Ravel reports your refusal as `policy_refused`, together with your code
-(`policyCode` in JSON diagnostics). Then it exits with status 3 and launches
-nothing. It does not try a different route. If `select` returns nothing,
-returns malformed data or throws an error, Ravel also launches nothing. But
-then the caller does not get the message and the remedy of your refusal. If
-evaluation does not finish before the selection deadline, the outcome is
-`selection_timeout`, which is different from an explicit policy refusal.
-
-The table below gives the steps of evaluation, in order, on the path to a
-launch. A returned selection does not let Ravel skip the worker cleanup. If
-evaluation stops at an earlier step, it also needs worker cleanup, but no
-managed launch can follow.
-
-| Step | Work | Condition to continue |
-|---|---|---|
-| 1 | Ravel imports the owner policy. | The import succeeds, and the named `policy` export has the accepted shape. |
-| 2 | Ravel assembles the [policy context](#supply-policy-context). It calls `loadContext` if it exists. | The caller data and the delivered document obey their shape and size rules. If the loader refuses, evaluation stops here, and Ravel does not call `select`. Without a loader or a caller document, selection continues with `undefined`. |
-| 3 | Ravel calls `select` with the request and the delivered policy context. | The returned value is a valid selection. An explicit refusal becomes `policy_refused`. Malformed data or a thrown error also prevents the launch. |
-| 4 | Ravel reaps the policy worker and removes its private directory before the managed launch. | Ravel confirms the reap and the removal. If the cleanup fails, a returned selection is not sufficient for a launch. <!-- tc: depart synonym-rotation because confirmation establishes completed reap and removal rather than merely attempting a check --> |
-
-One deadline, `selectionMs`, starts when Ravel spawns the worker. It covers
-the import, the assembly of the policy context and `select`. It does not
-start again for each step. When it expires, evaluation stops with
-`selection_timeout` (exit status 124), and Ravel launches nothing. A refusal
-has exit status 3. Ravel can refuse an invalid caller document before the
-loader runs.
-
-The evaluation table above gives only the order from the policy to the
-launch. Chapter 3's
-[outcome view](03-a-complete-session.md#recognise-the-other-outcomes) also
-gives the outcomes of cancellation and supervision.
-
-The policy below extends the example of chapter 3. It accepts only the kind
-`demo`, and it refuses an empty prompt for that kind. Ravel accepts an empty
-prompt, but this policy requires a prompt. The order of the two checks is
-intentional: the policy refuses an unsupported kind before it examines the
-prompt.
-
-Complete example: validate the accepted route and the two explicit refusals
-of one small policy.
-
-**`policy.ts`**
-
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-routing-1",
-  select(request) {
-    if (request.kind !== "demo") {
-      return {
-        status: "refused",
-        code: "unsupported_kind",
-        message: "This policy accepts only demo.",
-        remedy: "Pass --kind demo or add a route in policy.ts.",
-      };
-    }
-    if (request.prompt === "") {
-      return {
-        status: "refused",
-        code: "prompt_required",
-        message: "The demo route needs a prompt.",
-        remedy: "Supply a nonempty --prompt or --prompt-file.",
-      };
-    }
-    return {
-      status: "selected",
-      program: "fake-agent",
-      args: [request.prompt],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "The demo route uses the local fake.",
-    };
-  },
-});
-```
-
 **`bin/fake-agent`**
 
 ```sh
 #!/bin/sh
-set -eu
-printf 'fake-agent received: %s\n' "$1"
-ravel end-session -- "finished"
-```
-
-**Command**
-
-```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Print this prompt, then call ravel end-session -- "finished".'
-```
-
-**Standard output, without a final newline**
-
-```text
-finished
-```
-
-**Standard error includes**
-
-```text
-ravel: starting provider local, model fake, effort none for kind "demo"
-fake-agent received: Print this prompt, then call ravel end-session -- "finished".
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: unsupported_kind
-  remedy: Pass --kind demo or add a route in policy.ts.
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt ''
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: prompt_required
-  remedy: Supply a nonempty --prompt or --prompt-file.
-```
-
-**Exit status**
-
-```text
-3
-```
-
-For the successful command, Ravel writes the
-[opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-`finished` unchanged to standard output, with no final newline. The fake's
-output goes to the caller's standard error. Thus, standard output contains
-only the result. Each refusal returns no result to the caller. The standard-error excerpts check stable diagnostic lines.
-Other operational reports can also occur on standard error.
-
-When you edit the policy, keep a test case for each route and each refusal.
-A fake can record the full argument vector and send a known value as the
-result. Thus, you can check the choice of command, and you do not pay for a
-model. Also, no agent acts on the prompt. `start-session` launches the selected
-command. Ravel has no verb that examines a policy without a launch,
-so this validation is necessary.
-
-`task docs:examples` runs the examples in this book. It uses a private `PATH`
-that contains only the fakes of the example, the built Ravel and the system
-utilities. It also clears the environment, uses a temporary `HOME` and
-`TMPDIR`, and gives each command a limit of 60 seconds.
-
-## Typecheck against the public declarations
-
-A typecheck finds misspelt fields, missing fields and wrong return types
-before a session runs. It does not execute the policy. It does not prove that
-each kind has a route. Use it together with the fake-program checks above.
-
-<!-- tc: depart synonym-rotation because fetch refers to tool downloads, while get also describes receiving policy data -->
-The recipes below need a source checkout as a development tool. The
-installed Ravel alone can run your policy. For the checkout, use Rust 1.99.1
-or later, curl, tar, Task, ShellCheck and cargo-nextest. Run `task setup` in
-the checkout root to fetch its tools and install its development dependencies.
-[Chapter 10, “Develop Ravel”](10-develop-ravel.md), gives the development workflow.
-
-The checkout generates the public declarations when it builds the worker.
-Use those declarations for your policy. Do not use the implementation modules
-of the worker. In the root of the checkout, run `task worker` to generate the
-declarations. Then create a temporary configuration that includes the
-absolute path of your policy. The recipe maps the two embedded module names,
-because the later examples also import the starter table.
-
-Fragment: the typecheck in a checkout. Replace the policy path. This block
-omits the policy and the development setup above. Run it in
-the root of the checkout. It runs in a subshell, so its cleanup trap has an
-effect only in that subshell.
-
-```sh
-(
-  set -eu
-  task worker
-  export RAVEL_BOOK_ROOT="$PWD"
-  export RAVEL_BOOK_POLICY="/absolute/path/to/policy.ts"
-  check_dir=$(mktemp -d)
-  trap 'rm -rf "$check_dir"' EXIT
-  target/tools/bun -e '
-    const root = process.env.RAVEL_BOOK_ROOT;
-    console.log(JSON.stringify({
-      extends: `${root}/crates/ravel/worker/tsconfig.json`,
-      compilerOptions: {
-        types: ["bun"],
-        typeRoots: [`${root}/crates/ravel/worker/node_modules/@types`],
-        paths: {
-          "ravel/sdk": [`${root}/target/libexec/ravel/sdk/index.d.ts`],
-          "ravel/examples/*": [`${root}/target/libexec/ravel/examples/*.d.ts`]
-        }
-      },
-      include: [process.env.RAVEL_BOOK_POLICY]
-    }, null, 2));
-  ' > "$check_dir/tsconfig.json"
-  target/tools/bun crates/ravel/worker/node_modules/typescript/bin/tsc \
-    -p "$check_dir/tsconfig.json"
-)
-```
-
-The recipe uses `JSON.stringify` to write the file. Thus, spaces and other
-characters in the paths stay correct. Through `extends`, the checker uses
-the strict options of the repository. `typeRoots` finds the checkout's Bun
-declarations, although the configuration is in a different directory. A
-successful check prints no TypeScript diagnostics and exits with status 0.
-
-The directory that `brew --prefix ravel` prints also contains
-`libexec/ravel/sdk/index.d.ts` and `libexec/ravel/examples/static.d.ts`,
-together with TypeScript sources that you can edit. The installation does not
-contain a development type checker. You can check
-a policy against that installed interface with a separate TypeScript
-installation. The following recipe uses the checkout's pinned checker only as
-that development tool. Its module mappings point to the installed
-declarations. To run a policy, an installation needs neither that checker
-nor a separate installation of Bun.
-
-Fragment: the typecheck against the installed declarations, with the
-checkout's checker. Replace the two absolute paths. This block omits the
-installation and the policy. Run it in the root of the checkout, after you
-install the development dependencies of the checkout.
-
-```sh
-(
-  set -eu
-  export RAVEL_BOOK_PREFIX="/absolute/path/to/installation"
-  export RAVEL_BOOK_POLICY="/absolute/path/to/policy.ts"
-  check_dir=$(mktemp -d)
-  trap 'rm -rf "$check_dir"' EXIT
-  target/tools/bun -e '
-    const prefix = process.env.RAVEL_BOOK_PREFIX;
-    console.log(JSON.stringify({
-      compilerOptions: {
-        strict: true,
-        noEmit: true,
-        target: "esnext",
-        module: "preserve",
-        moduleResolution: "bundler",
-        allowImportingTsExtensions: true,
-        verbatimModuleSyntax: true,
-        noUncheckedIndexedAccess: true,
-        noImplicitOverride: true,
-        exactOptionalPropertyTypes: true,
-        types: [],
-        paths: {
-          "ravel/sdk": [`${prefix}/libexec/ravel/sdk/index.d.ts`],
-          "ravel/examples/*": [`${prefix}/libexec/ravel/examples/*.d.ts`]
-        }
-      },
-      include: [process.env.RAVEL_BOOK_POLICY]
-    }, null, 2));
-  ' > "$check_dir/tsconfig.json"
-  target/tools/bun crates/ravel/worker/node_modules/typescript/bin/tsc \
-    -p "$check_dir/tsconfig.json"
-)
-```
-
-The policies in the sections above need no global types for Bun.
-Thus, the standalone configuration uses `types: []`. A policy that uses the
-APIs of a specific runtime also needs the development declarations for that
-runtime. A typecheck does not replace validation at runtime. The installed
-worker still checks the object and the selection that it actually receives.
-
-## Use the starter route table
-
-The embedded module `ravel/examples/static` supplies an example that you can
-copy and edit. The module's `Route` type is a function from a request
-to a `Command`. A
-`Command` is a selection without `status` and `reason`.
-`selectRoute(table, request)` finds the table's own entry, not an inherited
-property, whose name is exactly the kind. It calls that route and adds the selected status and a reason that
-names the route. For an unknown kind, it returns a refusal with the policy
-code `incomplete_mapping`, and no other entry is a default.
-
-This table gives the effort argument that each route of the module passes.
-These kind names and effort values are owner conventions:
-
-| Kind | Effort passed to the wrapper |
-|---|---|
-| `question` | `low` |
-| `bugfix` | `medium` |
-| `feature` | `high` |
-| `migration` | `xhigh` |
-| `architecture` | `xhigh` |
-
-Each entry calls `agent(effort)`. This function makes a command that runs
-`my-agent-wrapper` with the arguments `--model your-model --effort EFFORT`.
-The unchanged prompt follows them as one argument. The provider label of the
-command is `your-provider`. These names are placeholders. They are not
-integrations with installed agents.
-
-The module's exported `policy` is a complete policy that uses this table. To
-try the table, re-export that `policy` from your own entry file. Then, to edit
-your own table, copy `examples/static.ts` from the installation's
-`libexec/ravel` directory. A change to
-your local copy does not change the embedded import.
-
-The fake below sends the arguments that it receives as a multiline result.
-Thus, the transcript shows the order of the arguments, the labels that are
-arguments and the prompt as one argument. The loop checks the status of each
-session before it starts the next session.
-
-Complete example: test each entry of the supplied table, and its refusal of
-an unknown kind, through a fake wrapper.
-
-**`policy.ts`**
-
-```ts
-export { policy } from "ravel/examples/static";
-```
-
-**`bin/my-agent-wrapper`**
-
-```sh
-#!/bin/sh
-set -eu
-result=$(printf '<%s>\n' "$@")
-ravel end-session -- "$result"
-```
-
-**Command**
-
-```console
-$ mkdir -p home tmp && chmod +x bin/my-agent-wrapper
-$ for kind in question bugfix feature migration architecture; do
-    printf '%s\n' "$kind"
-    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Report the arguments, then call ravel end-session with that report.' || exit "$?"
-    printf '\n'
-  done
-```
-
-**Standard output**
-
-```text
-question
-<--model>
-<your-model>
-<--effort>
-<low>
-<Report the arguments, then call ravel end-session with that report.>
-bugfix
-<--model>
-<your-model>
-<--effort>
-<medium>
-<Report the arguments, then call ravel end-session with that report.>
-feature
-<--model>
-<your-model>
-<--effort>
-<high>
-<Report the arguments, then call ravel end-session with that report.>
-migration
-<--model>
-<your-model>
-<--effort>
-<xhigh>
-<Report the arguments, then call ravel end-session with that report.>
-architecture
-<--model>
-<your-model>
-<--effort>
-<xhigh>
-<Report the arguments, then call ravel end-session with that report.>
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: incomplete_mapping
-  remedy: add a route for this kind in your copy of the policy
-```
-
-**Exit status**
-
-```text
-3
-```
-
-## Offer a checkout choice
-
-A policy can let a checkout choose from arrangements that the owner wrote
-before. The SDK's `readChoice(request.cwd, offered)` reads `.ravel-choice` in
-that directory. It splits the contents of the file at whitespace and returns
-the names as an array. If the file does not exist, it returns `undefined`,
-so the policy supplies the default. It does not search parent directories. For an empty file, it returns an empty array, not `undefined`.
-
-The helper accepts a regular UTF-8 file of 4 KiB or less. For a file that
-exists but that the helper does not accept, it returns a refusal with the
-code `choice_unreadable`:
-
-- a file that it cannot read
-- a file that is too large
-- a file that is not valid UTF-8
-- a file that is not a regular file
-
-For a name that is not in `offered`, it returns a refusal with the code
-`choice_unoffered`. Return each refusal of `readChoice` from `select`.
-
-The exported constant `CHOICE_FILE` holds the file name. The helper does an
-ordinary filesystem read, not a measured read of policy context. If the
-selection must explain the choice, put the applied choice in its `reason`.
-
-Nothing reads this file unless your policy calls the helper. The file can
-choose offered names, but it cannot add a program or arguments. Your code
-decides how many names the policy accepts and what each name means.
-
-The sample that you can edit is `crates/ravel/worker/sample/policy.ts` in the
-checkout, and `libexec/ravel/examples/sample.ts` in an installation. The
-example below uses the decisions of the sample:
-
-- Without a choice file, the choice is `default`.
-- The policy accepts exactly one name.
-- `careful` sets the selected effort and its argument to `high`.
-
-The `careful` value replaces the effort of each route. It is not a minimum.
-Thus, it also replaces the table's `xhigh` for `migration` and
-`architecture`. If you want a different arrangement, edit the names and the
-behaviour together.
-
-Complete example: validate the two arrangements of the sample on all five
-routes. Then validate its four refusals: an unknown kind, the wrong number of
-names, a name that it does not offer and an unreadable file.
-
-**`policy.ts`**
-
-```ts
-import { definePolicy, readChoice } from "ravel/sdk";
-import { selectRoute, routes } from "ravel/examples/static";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "owner-choice-1",
-  select(request) {
-    const choice = readChoice(request.cwd, ["default", "careful"]);
-    if (choice !== undefined && "status" in choice) return choice;
-    const names = choice ?? ["default"];
-    if (names.length !== 1) {
-      return {
-        status: "refused",
-        code: "one_choice",
-        message: "choose one arrangement",
-        remedy: "write default or careful in .ravel-choice",
-      };
-    }
-    const selected = selectRoute(routes, request);
-    if (selected.status === "refused" || names[0] !== "careful") return selected;
-    return {
-      ...selected,
-      effort: "high",
-      args: ["--model", selected.model, "--effort", "high", request.prompt],
-      reason: "careful choice",
-    };
-  },
-});
-```
-
-**`bin/my-agent-wrapper`**
-
-```sh
-#!/bin/sh
-set -eu
-[ "$#" -eq 5 ]
-[ "$1" = '--model' ]
-[ "$2" = 'your-model' ]
-[ "$3" = '--effort' ]
-[ "$5" = 'Report the effort, then call ravel end-session with that effort.' ]
-ravel end-session -- "$4"
-```
-
-**Command**
-
-```console
-$ mkdir -p home tmp && chmod +x bin/my-agent-wrapper
-$ for choice in absent default careful; do
-    if [ "$choice" = absent ]; then
-      rm -f .ravel-choice
-    else
-      printf '%s\n' "$choice" > .ravel-choice
-    fi
-    for kind in question bugfix feature migration architecture; do
-      printf '%s %s: ' "$choice" "$kind"
-      env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Report the effort, then call ravel end-session with that effort.' || exit "$?"
-      printf '\n'
-    done
-  done
-```
-
-**Standard output**
-
-```text
-absent question: low
-absent bugfix: medium
-absent feature: high
-absent migration: xhigh
-absent architecture: xhigh
-default question: low
-default bugfix: medium
-default feature: high
-default migration: xhigh
-default architecture: xhigh
-careful question: high
-careful bugfix: high
-careful feature: high
-careful migration: high
-careful architecture: high
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: incomplete_mapping
-  remedy: add a route for this kind in your copy of the policy
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf 'default careful\n' > .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: one_choice
-  remedy: write default or careful in .ravel-choice
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf '' > .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: one_choice
-  remedy: write default or careful in .ravel-choice
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf 'turbo\n' > .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: choice_unoffered
-  remedy: write names from default, careful in <scratch>/work/.ravel-choice, separated by whitespace, or delete it
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ rm .ravel-choice && mkdir .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind question --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: choice_unreadable
-  remedy: write names from default, careful in <scratch>/work/.ravel-choice, separated by whitespace, or delete it
-```
-
-**Exit status**
-
-```text
-3
-```
-
-The prefix `<scratch>/work` stands for the temporary working directory that
-the book's checker uses. Your diagnostic gives your example directory. The last
-case makes `.ravel-choice` a directory. Thus, it tests the refusal of a file
-that is not a regular file, and the test does not depend on permissions.
-Remove that directory with `rmdir` before you write a choice file again. The
-other conditions for an unreadable file also give `choice_unreadable`, but
-this example does not show each filesystem failure that can cause that code.
-
-## Supply policy context
-
-A caller can supply a JSON document with `--context PATH`. The path is
-relative to the caller's working directory, and it names a readable regular
-file. The document's `schemaVersion` is `1`, independently of the policy's
-version-2 interface. The document holds facts and attributed judgements. Your
-policy can use them to choose from the commands that it defines. The document
-does not give permission to run a command that its facts name.
-
-The document has the fields in the table below. The choice of the executable
-stays in owner code.
-
-| Field | Accepted data |
-|---|---|
-| `schemaVersion` | Required: the number `1`. |
-| `summary` | An optional string. It can be empty. |
-| `acceptanceCriteria` | An optional array of strings. |
-| `facts` | An optional object with JSON data as its values. |
-| `assessments` | An optional object with values of the form `{ by, value }`: a nonblank author name and JSON data. |
-| `sources` | An optional array of 256 source records or fewer. Each record has a nonblank `name`. It identifies the source with `sha256`, with a nonblank `version`, or with both. An optional `bytes` is a nonnegative whole number. A digest is 64 lowercase hexadecimal digits. |
-
-An absent field means that the value is unknown. For example, an absent
-`facts` is different from a known empty object. Ravel refuses each unknown
-top-level field, for example `program`, `args`, `argv`, `command`, `select`,
-`loadContext`, `env`, `environment`, `exec`, `shell` and `script`. Nested JSON facts stay data, also when a key has one of those
-names. The caller and the loader do not supply the `measured` field. Ravel
-adds it.
-
-Ravel reserves one JSON object shape, also in facts and in assessment values:
-an object whose only key is `$ravel`. Ravel uses that shape to mark values
-that JSON cannot hold. It refuses that shape as `context_invalid`. Use a
-different key for your own data.
-
-Without `loadContext`, `select` receives the caller's document with Ravel's
-`measured` field attached. If the caller supplied no document, `select` receives
-`undefined`. With a loader, `select` receives the return value of the loader
-instead. The loader receives `request.context`. Thus, it can explicitly keep
-or replace the caller's data. Ravel does not merge the two documents for you.
-
-The loader can be asynchronous. It shares the selection deadline with the
-policy import and `select`.
-
-Find the row for your caller input and your policy. A loader replaces the
-document that `select` receives, unless the code of the loader keeps the
-caller's data. Each row assumes that the documents are valid and that the
-loader, if the policy has one, returns a document:
-
-| Caller document? | Policy has `loadContext`? | Policy context that `select` receives |
-|---|---|---|
-| No | No | `undefined`. |
-| Yes | No | The caller's document, with Ravel's `measured` list attached. |
-| No | Yes | The document that the loader returns, with `measured` attached. The loader receives no `request.context`. |
-| Yes | Yes | The document that the loader returns, with `measured` attached. The loader receives the caller's document at `request.context`, and it decides what to keep. Ravel does not merge the two documents automatically. |
-
-Choose a synchronous host read for the value that your loader needs. Each
-read returns a source record that identifies the bytes that it read:
-
-| Operation | Return value |
-|---|---|
-| `host.readText(path, maxBytes?)` | `{ text, source }`. It decodes the file as UTF-8. |
-| `host.readJson(path, maxBytes?)` | `{ value, source }`. It decodes the file as UTF-8 and parses the JSON. Validate that JSON value for the needs of your policy. |
-
-The two reads resolve relative paths against `request.cwd`. They accept only
-a regular file. They return a `source` with the canonical `name`, the actual
-`bytes` and the `sha256` of the file. The default read limit is 65,536 bytes,
-or the policy-context budget if the budget is smaller. A positive whole
-number in `maxBytes` sets the limit of one read. That limit can be as large
-as the policy-context budget.
-
-These read problems cause a refusal, even if the loader catches the exception
-that the read throws:
-
-- a read that is larger than its limit
-- a read that asks for a limit larger than the budget
-- a read that makes the number of measured sources larger than its limit
-
-A missing file, invalid UTF-8 or invalid JSON causes an exception. If the loader
-does not catch that exception, the refusal identifies the source of the read
-that failed. A loader that needs valid content can return its own
-refusal, as `select` can. Then Ravel does not call `select`.
-
-Ravel attaches a `measured` array to the frozen document that it delivers.
-Its records have `name`, `bytes`, `sha256` and `via` (`"--context"`,
-`"readText"` or `"readJson"`). The caller's document comes first. The
-successful host reads follow, in order, and each repeated read of a file
-makes its own record. The limit is 256 measured records, and the record of
-the caller's document, if there is one, counts toward it. The document's
-own `sources` array has a separate limit of 256 records.
-
-The complete delivered JSON, with `measured`, cannot be larger than the
-policy-context budget. Thus, a small input file can give a delivered
-document that is too large when Ravel attaches its measurement.
-
-These fields distinguish claims about sources from Ravel's own measurements:
-
-| Field | Who supplies it | What it identifies |
-|---|---|---|
-| `sources` | The caller or the loader | The stated origin of a claim, by digest, version or both. |
-| `assessments[name].by` | The caller or the loader | The stated author of an assessment. |
-| `measured` | Ravel | The bytes read from the caller document and through the host, with each path, size, digest and method. |
-
-None of these fields proves who the author is or that the claim is true.
-Trusted owner code can also read files or the network directly, but
-`measured` does not record those reads.
-
-Keep the policy decisions in owner code. Use outside information to choose a
-route that the policy defines. Do not use outside text as a program or as a
-template of arguments to execute.
-
-The example below keeps the caller's data and adds a local readiness fact and
-a summary. The loader checks the JSON readiness file before it reads the text
-file. The fake reports the summary and the measurement methods. Thus, the two
-successful commands show the change when the caller supplies a document.
-
-Complete example: assemble the policy context and validate its necessary
-fact. Then test the refusals for invalid caller data, for a source that the
-loader cannot read and for a read that is too large.
-
-**`policy.ts`**
-
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-context-1",
-  loadContext(request, host) {
-    const readiness = host.readJson("ready.json");
-    const value = readiness.value;
-    if (value === null || typeof value !== "object" || Array.isArray(value)
-        || !("ready" in value) || value.ready !== true) {
-      return {
-        status: "refused",
-        code: "not_ready",
-        message: "The local readiness file does not say ready: true.",
-        remedy: "Set ready to true in ready.json when the work is ready.",
-      };
-    }
-    const brief = host.readText("brief.txt", 128);
-    return {
-      ...request.context,
-      schemaVersion: 1,
-      summary: brief.text.trim(),
-      facts: { ...request.context?.facts, ready: true },
-      sources: [...(request.context?.sources ?? []), readiness.source, brief.source],
-    };
-  },
-  select(request, context) {
-    return {
-      status: "selected",
-      program: "fake-agent",
-      args: [context?.summary ?? "", context?.measured.map((s) => s.via).join(",") ?? ""],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: `Local readiness accepted for ${request.kind}.`,
-    };
-  },
-});
-```
-
-**`caller.json`**
-
-```json
-{
-  "schemaVersion": 1,
-  "acceptanceCriteria": ["Keep the public interface unchanged."],
-  "assessments": { "scope": { "by": "caller", "value": "small" } },
-  "sources": [{ "name": "work-brief", "version": "revision-1" }]
-}
-```
-
-**`ready.json`**
-
-```json
-{"ready": true}
-```
-
-**`brief.txt`**
-
-```text
-Check the interface.
-```
-
-**`bin/fake-agent`**
-
-```sh
-#!/bin/sh
-set -eu
-[ "$#" -eq 2 ]
-result=$(printf '%s\n%s' "$1" "$2")
-ravel end-session -- "$result"
-```
-
-**Command**
-
-```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Report the supplied summary and source methods.'
-```
-
-**Standard output, without a final newline**
-
-```text
-Check the interface.
-readJson,readText
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Report the supplied summary and source methods.'
-```
-
-**Standard output, without a final newline**
-
-```text
-Check the interface.
---context,readJson,readText
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ printf '{"ready":false}\n' > ready.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  policy code: not_ready
-  remedy: Set ready to true in ready.json when the work is ready.
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf '{"ready":true}\n' > ready.json && rm brief.txt
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-  source: <scratch>/work/brief.txt
-  location: policy.loadContext
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf '%129s' x > brief.txt
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-ravel: refused (source_too_large, stage context): loadContext in <scratch>/work/policy.ts read <scratch>/work/brief.txt, which holds more than its limit of 128 bytes (129 bytes or more)
-```
-
-**Exit status**
-
-```text
-3
-```
-
-**Command**
-
-```console
-$ printf '{"schemaVersion":1,"program":"fake-agent"}\n' > caller.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --context caller.json --prompt 'Do nothing.'
-```
-
-**Standard output**
-
-```text
-```
-
-**Standard error includes**
-
-```text
-ravel: refused (context_invalid, stage context): `program` would be an executable field, and a context is data: it supplies no program, argument, environment or policy
-```
-
-**Exit status**
-
-```text
-3
-```
-
-In the last command, Ravel refuses the caller's invalid document before the
-loader runs. Thus, the loader does not read the text file that is larger
-than its limit, from the command before it. These examples test the one
-accepted route of the policy, its explicit refusal and some typical Ravel
-refusals.
-
-The table below gives all the diagnostic codes for policy context. With each
-of these codes, Ravel exits with status 3 and launches nothing. Use the code
-to find the input, the loader behaviour or the bound that needs a change:
-
-| Code | What to correct |
-|---|---|
-| `context_unreadable` | Ravel cannot read the `--context` path as a regular file. |
-| `context_invalid` | The document is not valid JSON or has the wrong shape. The same code applies when the loader returns invalid or unserialisable data or no document, or supplies `measured` itself. |
-| `unsupported_version` | A nonnegative integer that fits in an unsigned 64-bit value names a policy-context schema version other than 1. A negative, fractional or wrong-type version gives `context_invalid`. |
-| `context_loader_failed` | The loader throws an exception or rejects its promise. The cause is not a known source-read failure or a breach of a bound. |
-| `context_loader_unsettled` | The loader's promise stays unsettled, and no work that can resolve or reject it remains. |
-| `message_too_large` | A failure report of the loader is larger than the fixed 1 MiB protocol-message bound. Make the error that it reports shorter. <!-- tc: depart synonym-rotation because fixed describes an immutable bound and does not mean correcting an error --> |
-| `context_source_unreadable` | A required host read fails, also for invalid UTF-8 or invalid JSON, and the loader does not catch the failure. |
-| `source_too_large` | A host read is larger than its limit, or it asks for a limit above the policy-context budget. |
-| `too_many_sources` | The `measured` list or the document's attributed `sources` has more than 256 entries. |
-| `context_too_large` | The caller document or the delivered document is larger than the policy-context budget. |
-| `policy_refused` | The loader returns a well-formed refusal. Its own code, message and remedy explain the requirement. |
-
-If the loader's promise is unsettled and work that can settle it continues
-until the deadline, the outcome is `selection_timeout`, not `context_loader_unsettled`.
-Invalid host arguments can cause a loader failure. If
-the loader returns a malformed refusal, Ravel treats it as invalid policy
-context. [Chapter 6, “Reference”](06-reference.md), gives the complete
-lookup entries. They include the failures that also occur in policy
-selection.
-
-## Set bounds and grant environment names
-
-The owner settings are in `$HOME/.config/ravel/settings.json`, also when
-`--config` chooses a different policy. The file is optional. If the file is
-absent or holds an empty JSON object, Ravel uses the defaults. If `HOME` is
-missing or relative, Ravel reads no settings file. The default policy entry
-still needs an absolute `HOME`. Thus, in that case, give an explicit entry
-with `--config`.
-
-Use this table to choose an owner default. It also shows whether a caller
-replaces that value or adds to it:
-
-| Key | Value and default | Caller adjustment |
-|---|---|---|
-| `timeoutMs` | Whole-number milliseconds, 1,000–600,000 inclusive. The default is 30,000. | `--timeout-ms` replaces it. |
-| `contextBytes` | Whole-number bytes, 1–8,388,608 inclusive. The default is 262,144 (256 KiB). | `--context-bytes` replaces it. |
-| `policyEnv` | An array of environment-variable names. The default has no extra grants. | Each `--policy-env NAME` adds one name. |
-
-Ravel checks all the settings before it applies the CLI values. A valid CLI
-replacement does not correct an invalid setting. These problems give
-`settings_invalid` (exit status 2):
-
-- a settings file that Ravel cannot read, or that is not a regular file
-- invalid JSON
-- a document that is not an object
-- a `policyEnv` value that is not an array of strings
-- an unknown key
-
-An invalid numeric bound or a malformed grant name gives `malformed_input`
-(exit status 2).
-
-The obsolete key `stateDir` is an unknown key. Remove it. Do not point it to
-an old store. Ravel opens no storage.
-
-A numeric CLI bound accepts only plain decimal digits in the range, with no
-sign, fraction, exponent or whitespace. Ravel never clamps a value.
-
-The request gives six effective limits. The first two settings change the
-other limits only as this table shows. They do not limit the time for which
-the [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
-runs.
-
-| Request field | Effective bound | Source of the value |
-|---|---|---|
-| `selectionMs` | The policy import, the loader and the selection together, from the worker spawn. | `timeoutMs`, then a `--timeout-ms` that replaces it. Otherwise 30,000 ms. |
-| `contextBytes` | The caller document and the delivered policy-context JSON, with the measured records. | `contextBytes`, then a `--context-bytes` that replaces it. Otherwise 262,144 bytes. |
-| `sourceBytes` | The default bytes for one host read. | The smaller of 65,536 and `contextBytes`. A read can set `maxBytes` from 1 through `contextBytes`. |
-| `sources` | The measured records, with the caller document. Separately, the attributed source records. | Always 256 for each array. |
-| `messageBytes` | A policy snapshot, a selection result or a failure report in the private protocol. | Always 1,048,576 bytes (1 MiB). The policy-context document has its own budget. |
-| `diagnosticsBytes` | The worker's standard output and standard error together. | Always 262,144 bytes (256 KiB). |
-
-Ravel refuses data that is too large. It does not truncate the data to make
-it fit. An overflow of policy context or of a host read gives the codes
-above. A policy snapshot, a selection result or a failure report that is
-larger than its protocol bound gives `message_too_large` (exit status 3). Too
-much worker output gives `output_limit` (exit status 3). Ravel then captures
-only the first 262,144 diagnostic bytes, discards the remainder while it
-stops the worker and does not accept the selection.
-
-If the selection deadline expires, the outcome is `selection_timeout` (exit
-status 124). A caller can increase an adjustable bound only in its hard
-range. The policy cannot increase a bound with a change to the request data.
-
-The policy worker receives the caller's `HOME`, `PATH`, `TMPDIR`, `LANG` and
-`LC_*` variables, if they are present. Grant more names only when the policy
-code needs their values. An example is a network request while the policy
-chooses a route. A grant is a name, never `NAME=value`. Its value comes from
-the environment of the
-[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision).
-Repeated grants of one name give one grant.
-
-A name that is not set stays unset in the worker. Grant diagnostics report
-the names and whether each name is set. They never report values. But your
-own policy can disclose a value if it prints that value.
-
-The following exclusions are case-sensitive. They apply to settings and to
-CLI grants. An excluded name gives `excluded_grant` (exit status 2).
-
-| Name or prefix pattern | Reason for the exclusion |
-|---|---|
-| `BUN_*` | Runtime startup and options, for example preloads and runtime mode. |
-| `NODE_OPTIONS`, `NODE_PATH`, `NODE_PRESERVE_SYMLINKS` | Runtime startup and module resolution. |
-| `NODE_CHANNEL_*` | Runtime IPC descriptors and channel options. |
-| `LD_*`, `DYLD_*` | Dynamic-loader inputs. |
-| `RAVEL_*` | Ravel's own controls. The [session-result context](02-actors-and-words.md#three-different-kinds-of-information) is one of them. |
-| `HARNESS_DISPATCH_*` | Legacy dispatch controls. |
-
-Ravel itself sets `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0` in the worker. An
-owner grant cannot replace it. The exclusions match these exact names and
-prefixes, not each name that starts with `NODE` or `BUN`. A grant name is
-nonempty UTF-8 and contains no `=`.
-
-The policy worker's environment is different from the managed process's
-environment. An unconfined managed process inherits the caller's
-environment. Ravel removes Ravel's own private and obsolete controls from
-that environment and supplies the session-result context. The worker does not
-need a grant of a credential only because the managed process uses that
-credential. [Confinement](02-actors-and-words.md#trust-and-confinement)
-applies its own environment rules to the managed process.
-[Chapter 5, “Run sessions”](05-running-sessions.md#confine-the-managed-process),
-describes these rules.
-
-Compare the columns before you grant a name. A credential that only an
-unconfined managed process uses does not need a grant to the policy worker:
-
-| Environment rule | Policy worker | Unconfined managed process |
-|---|---|---|
-| Initial values | Only the caller's `HOME`, `PATH`, `TMPDIR`, `LANG` and `LC_*`, if they are present. | The caller's environment, without Ravel's private and obsolete controls. |
-| Additional grants | `policyEnv` and `--policy-env` add permitted names with their values from the caller. Unset names stay unset. The exclusions above apply. | These grants do not filter or add to this environment. |
-| Values that Ravel supplies | `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0`. No session-result context. | A new session-result context in `RAVEL_EXIT_FILE` for this launch. |
-
-This comparison gives the environments that Ravel supplies at launch. It
-does not limit what trusted policy code can read after the launch. Chapter
-2's [process-authority view](02-actors-and-words.md#the-managed-process-and-its-result)
-shows why the policy worker and the managed process have different
-permissions. Confinement changes the rules in the managed-process column. It
-does not confine the policy worker.
-
-The next policy reports only whether two invented grant names are present.
-Its output also shows how a lower policy-context budget decreases the
-default read limit. The fake sends that report unchanged as the result.
-
-Complete example: observe the settings, the CLI replacements and the
-additional grants. Then observe the refusals of an obsolete key and of a
-forbidden grant.
-
-**`home/.config/ravel/settings.json`**
-
-```json
-{"timeoutMs": 5000, "contextBytes": 1024, "policyEnv": ["BOOK_FIRST"]}
-```
-
-**`policy.ts`**
-
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-settings-1",
-  select(request) {
-    const limits = request.limits;
-    const report = [limits.selectionMs, limits.contextBytes, limits.sourceBytes,
-      limits.sources, limits.messageBytes, limits.diagnosticsBytes,
-      process.env.BOOK_FIRST !== undefined, process.env.BOOK_SECOND !== undefined];
-    return {
-      status: "selected",
-      program: "fake-agent",
-      args: [JSON.stringify(report)],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Report effective bounds and grant presence.",
-    };
-  },
-});
-```
-
-**`bin/fake-agent`**
-
-```sh
-#!/bin/sh
-set -eu
-[ "$#" -eq 1 ]
 ravel end-session -- "$1"
 ```
 
 **Command**
 
 ```console
-$ mkdir -p tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "Explain this change."
 ```
 
 **Standard output, without a final newline**
 
 ```text
-[5000,1024,1024,256,1048576,262144,true,false]
+Explain this change.
+```
+
+**Exit status**
+
+```text
+0
+```
+
+`#{ ... }` constructs a map. `request.prompt` reads a property of a map.
+`[request.prompt]` constructs an array with one element.
+A function's final expression, without a semicolon, is its return value.
+`return value;` returns earlier.
+
+The request has these fields. Optional inputs have the value `()` when absent.
+That value means no value in Rhai and becomes `null` in JSON.
+
+| Field | Value |
+|---|---|
+| `schemaVersion` | The integer `3`. |
+| `kind` | The caller's token from `--kind`. |
+| `prompt` | The caller's prompt, unchanged. |
+| `cwd` | The caller's working directory. |
+| `params` | A map of strings from `--param NAME=VALUE`. |
+| `taskFile` | The absolute `--task-file` path, or `()`. Ravel does not read it. |
+| `taskId` | The `--task-id` string, or `()`. |
+| `context` | The caller's checked policy context document, or `()`. |
+| `limits` | The effective bounds that the policy can read. |
+
+The second argument, `context`, is the delivered
+[policy context](#supply-policy-context). A loader can make it different from
+`request.context`. Neither value gives the policy authority to end the session.
+
+Ravel checks undefined variables when it compiles the script.
+It also refuses an absent map property when the script reads it.
+Check `request.params.contains("name")` before you read an optional parameter.
+The documented request fields themselves are always present.
+
+## Select a command or refuse
+
+The selected map has seven fields, all required.
+Ravel refuses an unknown field.
+
+| Field | What the policy supplies |
+|---|---|
+| `status` | The literal `"selected"`. |
+| `program` | A nonblank program name or path, without NUL. |
+| `args` | An array of strings after the program. Empty strings are valid, but NUL is not. |
+| `provider` | A nonblank owner label for the model origin. |
+| `model` | A nonblank owner label for the model. |
+| `effort` | A nonblank owner label for the effort. |
+| `reason` | A nonblank explanation of the choice. |
+
+A bare program name resolves through the caller's `PATH`.
+A relative path with `/` resolves from the caller's working directory.
+Each member of `args` is one argument.
+Ravel performs no word splitting, shell expansion or template substitution.
+A prompt with spaces therefore stays one argument when the policy puts it there.
+
+The labels do not configure the program.
+For example, `model: "haiku"` records a label, whereas
+`args: ["--model", "haiku"]` gives a model option to a program.
+The policy owns both, and Ravel does not compare them.
+
+A refused map has `status: "refused"`, plus nonblank `code`, `message` and
+`remedy` strings. Ravel reports `policy_refused`, exit status 3.
+The owner's `code` appears separately as `policyCode`.
+No managed process starts, and Ravel tries no other route.
+
+Complete example: accept one kind and refuse an unknown kind or a forbidden
+parameter.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "checked-route-1";
+
+fn refuse(code, message, remedy) {
+    #{ status: "refused", code: code, message: message, remedy: remedy }
+}
+
+fn select(request, context) {
+    if request.kind != "question" {
+        return refuse("unknown_kind", "This policy accepts question only.",
+                      "Use --kind question.");
+    }
+    if request.params.contains("model") {
+        return refuse("owner_model", "The owner chooses the model.",
+                      "Remove the model parameter.");
+    }
+    #{ status: "selected", program: "fake-agent", args: [request.prompt],
+       provider: "example", model: "fake", effort: "low", reason: "question route" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+hello
 ```
 
 **Exit status**
@@ -1388,45 +211,7 @@ $ mkdir -p tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PW
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --timeout-ms 6000 --context-bytes 2048 --policy-env BOOK_SECOND --prompt 'Report effective bounds and grant presence.'
-```
-
-**Standard output, without a final newline**
-
-```text
-[6000,2048,2048,256,1048576,262144,true,true]
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ rm home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" BOOK_FIRST=example BOOK_SECOND=example ravel start-session --kind demo --config policy.ts --prompt 'Report effective bounds and grant presence.'
-```
-
-**Standard output, without a final newline**
-
-```text
-[30000,262144,65536,256,1048576,262144,false,false]
-```
-
-**Exit status**
-
-```text
-0
-```
-
-**Command**
-
-```console
-$ printf '{"stateDir":"old-store"}\n' > home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Do nothing.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind unknown --prompt "hello"
 ```
 
 **Standard output**
@@ -1437,20 +222,19 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-ravel: refused (settings_invalid, stage cli): the owner settings file <scratch>/work/home/.config/ravel/settings.json holds the unknown key "stateDir"
+policy_refused
 ```
 
 **Exit status**
 
 ```text
-2
+3
 ```
 
 **Command**
 
 ```console
-$ rm home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --policy-env NODE_OPTIONS --prompt 'Do nothing.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --param model=other --prompt "hello"
 ```
 
 **Standard output**
@@ -1461,213 +245,1154 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-ravel: refused (excluded_grant, stage cli): --policy-env NODE_OPTIONS is never granted to the policy worker: NODE_OPTIONS, NODE_PATH and NODE_PRESERVE_SYMLINKS change what code loads, and from where
+policy_refused
 ```
 
 **Exit status**
 
 ```text
-2
+3
 ```
+
+`if` chooses a branch. `!=` compares values for inequality.
+`fn refuse(...)` is an ordinary helper function, with no special Ravel role.
+Rhai functions have no parameter type declarations here.
+Ravel checks the value when it crosses the boundary from the script.
+
+A return of `()` gives `selection_abstained`.
+An uncaught error in `select` gives `selection_threw` with a source location.
+A wrong field or type gives `selection_malformed`.
+After any of these outcomes, Ravel starts no managed process.
+
+<!-- tc: depart synonym-rotation because validate names the end-to-end policy exercise, while check names a single diagnostic inspection -->
+## Validate a policy with fake agents
+
+Ravel has no separate policy typecheck command or evaluation-only command.
+`start-session` evaluates the policy and runs the selected program.
+Use fake programs while you develop it.
+
+For each route, test the arguments and the result.
+For each refusal, test the diagnostic and absence of a managed process.
+Include absent optional inputs, unknown kinds and malformed local data.
+The examples in this chapter show success and failure at that same boundary.
+
+| Observation | What to examine |
+|---|---|
+| A parse failure | The source file, line and column in the diagnostic. |
+| `policy_invalid` | The exports, their types and the function parameter counts. |
+| `selection_threw` | The property or expression at the reported location. |
+| `selection_malformed` | The shape and field types of the returned map. |
+| `policy_refused` | The owner's `policyCode`, message and remedy. |
+| `selection_timeout` | The work before the selection and its whole deadline. |
+
+`print(text)` writes to captured policy stdout.
+`debug(text)` writes to captured policy stderr, with source information.
+These streams are diagnostics. They are not the opaque result on Ravel's stdout.
+The final managed process sends that result with `end-session`.
+Use `--json` when you need the structured routing notice on stderr.
+
+## Use the starter route table
+
+A table makes the policy's choices visible together.
+The shipped `static.rhai` provides one such table.
+Its program, provider and model are placeholders that the owner replaces.
+
+Excerpt from `crates/ravel/examples/static.rhai`: the example's kinds and efforts.
+
+```rhai
+export const ROUTES = #{
+    question: agent("low"),
+    bugfix: agent("medium"),
+    feature: agent("high"),
+    migration: agent("xhigh"),
+    architecture: agent("xhigh"),
+};
+```
+
+These kinds and efforts belong to this example.
+Ravel defines neither list.
+The helper `select_route` refuses an unknown kind with `incomplete_mapping`.
+When a route matches, it returns a command. The helper adds `status` and `reason`.
+
+A smaller table can store strings directly.
+`const` declares a value that the script does not reassign.
+A function reads a top-level constant through `global::`, as the next example
+shows. `let` declares a local variable that the script can change.
+
+Complete example: route two kinds through a local table.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "table-1";
+const EFFORTS = #{ question: "low", feature: "high" };
+
+fn select(request, context) {
+    if !global::EFFORTS.contains(request.kind) {
+        return #{ status: "refused", code: "unknown_kind",
+                  message: "The table has no route for this kind.",
+                  remedy: "Use question or feature." };
+    }
+    let effort = global::EFFORTS[request.kind];
+    #{ status: "selected", program: "fake-agent", args: [effort, request.prompt],
+       provider: "example", model: "fake", effort: effort, reason: "table lookup" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1|$2"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+low|hello
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind feature --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+high|hello
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind other --prompt "hello"
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+policy_refused
+```
+
+**Exit status**
+
+```text
+3
+```
+
+The `!` operator means logical negation.
+`table[key]` selects a property whose name comes from a variable.
+The earlier `contains` check prevents an absent property error.
+Rhai functions do not capture the variables around their definitions.
+Pass local values as parameters, or use a top-level constant through `global::`.
 
 ## Resolve policy imports
 
-Use the literal import names `ravel/sdk` and `ravel/examples/static` for the
-embedded modules. They resolve to the worker's embedded copies, also when a
-package beside your policy supplies the same names. Ravel reserves only those
-two exact names. `ravel/anything-else` is an ordinary package lookup. A
-change to the installed SDK source or to a copy of the static table does not
-change the embedded copies. To use a local copy, import it by its file path.
+An import gives a name to another module.
+`import "routes" as routes;` reads `routes.rhai` beside the file that imports it.
+An absolute import uses that path.
+Ravel appends `.rhai` when the path has no extension.
+For a symlinked policy, imports start from the real file's directory.
 
-This table gives the location from which each reference resolves. A relative
-import and a relative host read do not always refer to the same directory:
+Imports and measured reads use different bases:
 
-| Reference | Resolution base or destination |
+| Operation | Base for a relative path |
 |---|---|
-| Literal `ravel/sdk` or `ravel/examples/static` import | The worker's embedded module, also beside a package with the same name. |
-| Relative import such as `./routes.ts` | The directory of the file that contains the import. For a symlinked policy, the directory of its real file. |
-| Ordinary package import | Bun's package resolver, from the location of the file that contains the import. |
-| Package `imports` alias with an embedded name as its target | An ordinary package lookup. It does not reach the embedded module. |
-| Import without a file location | The worker's process directory. That directory is `/` when owner code starts. |
-| Relative `host.readText` or `host.readJson` path | The caller's `request.cwd`. |
+| `import "routes" as routes;` | The directory of the file that imports it. |
+| `ravel::read_text("choice.txt")` | The caller's `request.cwd`. |
+| `ravel::read_json("choice.json")` | The caller's `request.cwd`. |
+| `--config policy.rhai` | The caller's working directory. |
 
-A relative import resolves in the directory of the file that contains it. If
-your entry is a symlink, the location of its real file applies. Keep a
-helper beside the policy. Import it with a relative path, for example
-`import { route } from "./routes.ts"`. The agent example below uses that
-layout. A relative host read is different: it resolves against the caller's
-`request.cwd`, as the policy-context example showed.
+Each distinct imported module loads once per evaluation.
+Ravel measures the entry and each module with its canonical path, byte count
+and SHA-256 digest. The routing notice reports those measurements.
+A missing module, import cycle or 65th distinct imported module gives
+`policy_import_failed`.
+Ravel embeds no policy module. Imports name files, which can be copies of the
+shipped examples.
 
-Bun's package resolver resolves ordinary dependencies from the location of
-the file that imports them. The nearest `package.json` that Bun can read as a
-package supplies the `imports` map, the package's own name and its `exports`.
-Bun skips a `package.json` file that it cannot parse or that is not a
-package. Resolution
-through the `main` and `exports` fields of a package stays enabled. Install
-the dependencies yourself, because the standalone worker does not install a
-missing dependency automatically.
+Complete example: call an imported function and use its exported constant.
 
-An alias in a package's `imports` map with the target `ravel/sdk` is still a
-package lookup. It never reaches the embedded module. Thus, it can load a
-package that supplies the same name instead. When you need the embedded
-module, use the literal `ravel/sdk` import. The same rule applies to
-`ravel/examples/static`.
+**`policy.rhai`**
 
-The compiled worker controls which configuration files Bun loads
-automatically. These controls apply at runtime:
+```rhai
+import "routes" as routes;
+export const SCHEMA_VERSION = 3;
+export const VERSION = "import-1";
 
-| Configuration | Autoloading in the worker | Effect on your policy |
-|---|---|---|
-| dotenv files | Disabled | Bun does not load environment values from these files. |
-| bunfig | Disabled | Bun does not load this configuration automatically. |
-| `tsconfig.json` | Disabled | A path alias can help your editor, but that alias alone does not make a runtime import work. |
-| `package.json` | Enabled | The package behaviour above, with `main` and `exports`, stays available. |
+fn select(request, context) {
+    routes::choose(request, routes::EFFORT)
+}
+```
 
-The Ravel CLI clears the runtime-injection variables and disables Bun's
-runtime transpiler cache. Then it starts the worker in a private empty
-directory. Before the worker imports owner code, it changes its directory to
-`/`. File imports still resolve from their files. Imports without a file
-location, such as a virtual module, resolve from that process directory.
+**`routes.rhai`**
 
-The worker changes its directory to `/`. Thus, the lookups for imports
-without a file location do not search the parent directories of the
-temporary directory. But the resolver can
-still find `/package.json` and `/node_modules`. Owner code can change its
-directory or import arbitrary code itself.
+```rhai
+export const EFFORT = "medium";
 
-If policy code creates a native Bun `Worker`, that `Worker` starts a
-different runtime instance. The worker disables dotenv autoloading. Thus,
-that instance does not load the dotenv files that it finds. The controls in
-this section change how the worker starts and resolves modules. They do not confine trusted
-owner code. The policy is never in a managed-process confinement.
+fn choose(request, effort) {
+    #{ status: "selected", program: "fake-agent", args: [effort, request.prompt],
+       provider: "example", model: "fake", effort: effort, reason: "local module" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1|$2"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+medium|hello
+```
+
+**Exit status**
+
+```text
+0
+```
+
+## Offer a checkout choice
+
+A policy can let a checkout choose among arrangements that the owner offers.
+The shipped `sample.rhai` reads `.ravel-choice` from `request.cwd`.
+That filename is a rule of the sample, not a Ravel configuration search rule.
+
+The sample imports an adjacent copy of `static.rhai`.
+An absent choice file uses `default`.
+A file with exactly `careful` changes the selected effort to `high` and rebuilds
+the arguments. It leaves an unknown kind as a refusal.
+
+| Choice file | Sample behaviour |
+|---|---|
+| Absent | Use `default`. |
+| `default` | Use the starter table unchanged. |
+| `careful` | Use the starter table with effort `high`. |
+| Empty or more than one offered name | Refuse with `one_choice`. |
+| An unoffered name | Refuse with `choice_unoffered`. |
+| An unreadable file or a directory | Refuse with `choice_unreadable`. |
+
+The sample implements this behaviour with `ravel::read_text` and ordinary
+Rhai string operations. No special choice-file API is necessary.
+The next example uses a smaller choice rule so you can test every branch.
+
+Complete example: accept `careful`, use a default when absent, and refuse any
+other text.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "choice-1";
+
+fn select(request, context) {
+    let choice = "default";
+    try {
+        choice = ravel::read_text(".ravel-choice", 4096).text;
+        choice.trim();
+    } catch (error) {
+        if error.code != "source_missing" { throw error; }
+    }
+    if choice != "default" && choice != "careful" {
+        return #{ status: "refused", code: "choice_unoffered",
+                  message: "The choice is not offered.",
+                  remedy: "Write default or careful in .ravel-choice." };
+    }
+    let effort = if choice == "careful" { "high" } else { "low" };
+    #{ status: "selected", program: "fake-agent", args: [effort],
+       provider: "example", model: "fake", effort: effort, reason: "checkout choice" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+low
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ printf 'careful\n' > .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+high
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ printf 'other\n' > .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+policy_refused
+```
+
+**Exit status**
+
+```text
+3
+```
+
+`try` runs a block whose ordinary error can reach `catch (error)`.
+`throw error` passes an error onwards.
+A measured read throws a map with `code` and `message`, and a `name` where
+applicable. The policy catches only the absent file here.
+`trim()` changes the string in place.
+
+A successful read returns `text` and `source`.
+`source` holds the canonical `name`, the byte count and `sha256`.
+Ravel records the read in its notice, with the evaluation phase.
+The default read bound is the smaller of 65,536 bytes and the context budget.
+The optional second argument changes it, up to the context budget.
+
+| Read failure | Policy can catch it? |
+|---|---|
+| `source_missing`, `source_not_regular`, `source_unreadable`, `source_not_utf8` | Yes. |
+| `source_invalid_json` from `read_json` | Yes. |
+| `source_too_large`, `too_many_sources` | No. They end evaluation. |
+| A malformed host request | No. It ends evaluation as `host_request_invalid`. |
+
+## Supply policy context
+
+Policy context is data for the decision, not authority to execute a command.
+The caller can supply a version-1 JSON document with `--context PATH`.
+Without a loader, `select` receives that document with its measured source,
+or `()` when no document exists.
+
+A `load_context(request)` function can assemble a different document.
+It can read the caller's input at `request.context` and read local sources.
+Ravel checks its return value before it calls `select`.
+A loader that returns `()` gives `context_invalid`.
+A loader can also return a refusal, in which case `select` never runs.
+
+| Document field | Purpose |
+|---|---|
+| `schemaVersion` | Required integer `1`. |
+| `summary` | Optional text for the policy. |
+| `facts` | Optional map of JSON values. |
+| `assessments` | Optional map of judgements, each with `by` and `value`. |
+| `sources` | Optional attributed source records, each with `name` and a digest or version. |
+| `acceptanceCriteria` | Optional array of strings that state the caller's criteria. |
+
+Ravel adds `measured` to the delivered document.
+The caller and loader do not supply that field themselves.
+It lists the caller's context file first, then the reads made by the loader.
+A read in `select` appears in the routing notice but changes no delivered context.
+
+Attributed `sources` describe claims. `measured` records the bytes Ravel read.
+Neither measurement establishes that a claim is true.
+
+Complete example: read task data, build policy context, and use it in the
+selection.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "context-1";
+
+fn load_context(request) {
+    let task = ravel::read_json("task.json");
+    #{ schemaVersion: 1, summary: task.value.title,
+       facts: #{ effort: task.value.effort } }
+}
+
+fn select(request, context) {
+    #{ status: "selected", program: "fake-agent",
+       args: [context.summary, context.facts.effort,
+              context.measured.len().to_string()],
+       provider: "example", model: "fake", effort: context.facts.effort,
+       reason: "task facts" }
+}
+```
+
+**`task.json`**
+
+```json
+{"title":"Review the change","effort":"high"}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1|$2|$3"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind review --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+Review the change|high|1
+```
+
+**Exit status**
+
+```text
+0
+```
+
+`read_json` returns `value` and `source`.
+The loader chooses which values enter the document.
+`.len()` counts the measured records, and `.to_string()` makes a string for
+`args`. Ravel refuses an integer in that array.
+
+The context budget applies to the caller's file and to the delivered JSON,
+with `measured`. The default is 262,144 bytes.
+At most 256 measured sources can contribute to one evaluation.
+A file counts once its bytes arrive, even if the bytes are not valid JSON or UTF-8.
+An absent file does not consume a source.
+
+## Use the data helpers
+
+Ravel supplies strict JSON operations in the `ravel` namespace.
+Use them for data that crosses between the policy and another program.
+The Rhai built-in `parse_json` accepts syntax that strict JSON rejects.
+Its `to_json` can produce string escapes that are not JSON.
+
+| Helper | Use |
+|---|---|
+| `ravel::json_parse(text)` | Parse strict JSON into a Rhai value. |
+| `ravel::json_encode(value)` | Encode JSON with sorted object keys and no whitespace. |
+| `ravel::json_check(value, schema)` | Check a JSON Schema subset and return the value unchanged. |
+| `ravel::uuid_v4()` | Generate a random version-4 UUID string. |
+| `ravel::path_resolve(base, path)` | Join a path to an absolute base and normalise `.` and `..`. |
+| `ravel::path_parent(path)` | Return the parent of an absolute path. |
+
+The path helpers read no file and resolve no symlink.
+An absolute second path replaces the base in `path_resolve`.
+A relative base or relative `path_parent` input throws `path_not_absolute`.
+Use a measured read when you also need to establish what a file contains.
+
+Values at the boundary are JSON values: null, booleans, numbers, strings,
+arrays and maps. Rhai's `()` represents null.
+Characters, function pointers, ranges and other non-JSON types do not cross.
+Non-finite numbers also refuse. Arrays and maps nest at most 100 levels.
+A JSON integer outside the signed 64-bit range becomes a float.
+
+Complete example: check data, handle a failed check, and encode the result.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "data-1";
+
+fn select(request, context) {
+    let schema = #{ type: "object",
+                    properties: #{ effort: #{ type: "string", enum: ["low", "high"] } },
+                    required: ["effort"], additionalProperties: false };
+    let good = ravel::json_check(ravel::json_parse("{\"effort\":\"high\"}"), schema);
+    let failure = "none";
+    try { ravel::json_check(#{ effort: "other" }, schema); }
+    catch (error) { failure = error.code; }
+    let values = [];
+    for value in [good.effort, failure] { values.push(value); }
+    #{ status: "selected", program: "fake-agent", args: [ravel::json_encode(values)],
+       provider: "example", model: "fake", effort: good.effort, reason: "checked data" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+["high","json_mismatch"]
+```
+
+**Exit status**
+
+```text
+0
+```
+
+`for value in array` visits each element.
+`push` adds an element to the array.
+The schema requires a string whose value is `low` or `high`.
+It also rejects properties other than `effort`.
+A schema checks shape and permitted values. The policy still decides their meaning.
+
+The supported schema keywords are `type`, `properties`, `required`,
+`additionalProperties`, `items`, `enum`, `title` and `description`.
+The last two are descriptive only.
+`additionalProperties` is a boolean, and `enum` holds scalar JSON values.
+Unknown keywords and schema depth beyond 32 levels throw `schema_invalid`.
+A mismatch throws `json_mismatch`. Its message names the location and can include
+property names, but omits property values.
+
+`json_parse` throws `json_invalid` for invalid JSON or excessive depth.
+`json_encode` and `json_check` throw `json_unencodable` for a non-JSON value.
+Ravel disables `eval`, so a model's answer cannot become code through that function.
+Keep model answers as data that the policy checks and interprets.
+
+## Set bounds and grant environment names
+
+Settings live at `$HOME/.config/ravel/settings.json`, also with `--config`.
+An absent file sets nothing. Each key is optional, and Ravel refuses unknown keys.
+
+| Key | Meaning and range |
+|---|---|
+| `timeoutMs` | Whole evaluation deadline, 1,000–600,000 ms. Default: 30,000. |
+| `contextBytes` | Context budget, 1–8,388,608 bytes. Default: 262,144. |
+| `policyEnv` | Additional caller environment names that `ravel::env` may read. |
+| `harnesses` | Named programs available to `ravel::run_harness`. |
+| `budgets` | An object whose optional `harnessRuns` is an integer from 0 to 16. Default: 0. |
+
+`--timeout-ms` and `--context-bytes` replace the settings of those bounds.
+Ravel checks the settings first, so a flag cannot override an invalid file.
+`--policy-env NAME` adds a grant to those in `policyEnv`.
+Duplicate grants count once.
+
+`request.limits` holds `selectionMs`, `contextBytes`, `sourceBytes`, `sources`,
+`messageBytes`, `diagnosticsBytes` and `harnessRuns`.
+These values describe the effective bounds. A change to the map cannot raise them.
+`ravel::remaining()` reports what is left: time in `ms`, `harnessRuns` and
+`sources`.
+
+The whole deadline covers module loads, the context loader, selection and all
+host calls. It does not bound the final managed process.
+A breach gives `selection_timeout`, exit status 124.
+Cleanup takes additional time.
+Other fixed bounds include 1 MiB worker messages and 262,144 bytes of policy
+diagnostics.
+
+| Bound reached | Effect |
+|---|---|
+| Whole deadline | End evaluation and start no managed process. |
+| Source, context, message or diagnostics bound | End evaluation and start no managed process. |
+| Engine operation, depth or data bound | End evaluation with `script_limit`. |
+| Worker heap bound of 1 GiB | End evaluation with `memory_limit`. |
+| Harness-run budget | End evaluation with `harness_budget_exhausted`. |
+| One harness run's deadline or output bound | Return a status to the script if the whole evaluation can continue. |
+
+The script cannot catch an evaluation bound with `try`.
+This rule also applies inside a closure passed to an array or map helper.
+A deadline or output bound of one harness run is different: it returns data,
+as the next section explains.
+
+The Rhai worker has an empty environment.
+`ravel::env` asks the Ravel CLI for the caller's value.
+It permits `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and explicit grants.
+An unset permitted name returns `()`.
+An ungranted name throws `env_not_granted`, even if it is unset.
+A value outside UTF-8 throws `env_not_utf8`.
+
+Complete example: grant one variable and observe a CLI bound replacement.
+The command installs settings only in the example's temporary home.
+
+**`settings.json`**
+
+```json
+{"timeoutMs":5000,"contextBytes":4096,"policyEnv":["BOOK_EFFORT"]}
+```
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "settings-1";
+
+fn select(request, context) {
+    let effort = ravel::env("BOOK_EFFORT");
+    let hidden = "none";
+    try { ravel::env("BOOK_HIDDEN"); }
+    catch (error) { hidden = error.code; }
+    #{ status: "selected", program: "fake-agent",
+       args: [effort, request.limits.selectionMs.to_string(), hidden],
+       provider: "example", model: "fake", effort: effort, reason: "owner settings" }
+}
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1|$2|$3"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" BOOK_EFFORT=high BOOK_HIDDEN=unused PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --timeout-ms 10000 --prompt "hello"
+```
+
+**Standard output, without a final newline**
+
+```text
+high|10000|env_not_granted
+```
+
+**Exit status**
+
+```text
+0
+```
+
+Environment grants control this helper, not the environment of an unconfined
+managed process or harness run. Those programs receive the caller's environment,
+with the control variables of an enclosing session or driver removed or replaced.
+Ravel refuses grants for its reserved variables and dynamic-loader variables.
+The [reference](06-reference.md) lists the reserved classes.
+
+A measured read can reach files that the user can read.
+These grants therefore do not create a filesystem sandbox for the policy.
+The owner controls the script and chooses which data it reads.
+
+## Run a harness during evaluation
+
+A harness entry fixes the program that a host call may run.
+Its name has 1–64 lowercase letters, digits or dashes. Its first character is a letter
+or digit. The entry has a required `program` and optional `capabilities` labels.
+Ravel gives those labels no meaning.
+
+Fragment: settings for a harness run. This block omits the policy and program.
+
+```json
+{
+  "harnesses": {
+    "classifier": {"program":"my-classifier","capabilities":["classify"]}
+  },
+  "budgets": {"harnessRuns":1}
+}
+```
+
+`ravel::harnesses()` reports the entries in name order without a program execution.
+Each map has `name`, `program`, `available`, `resolved`, `reason` and
+`capabilities`. An available program has a resolved path and `reason: ()`.
+An unavailable one has `resolved: ()` and a reason of `not_found` or
+`not_executable`. Discovery reports availability, not a recommendation or live model list.
+
+`ravel::run_harness` accepts this request:
+
+| Field | Meaning |
+|---|---|
+| `harness` | Required name of a settings entry. |
+| `args` | Required array of argument strings, without NUL. |
+| `stdin` | Optional text for standard input. Without it, input is at end of file. |
+| `timeoutMs` | Optional positive integer in milliseconds, capped by the time left for evaluation. |
+
+The call is synchronous. Only one host call runs at a time.
+It runs in `request.cwd`, without a terminal, in a new POSIX session.
+It uses the environment and confinement rules of a managed process.
+`--confine` therefore also confines harness runs.
+
+The policy supplies every argument and chooses where the prompt goes.
+Ravel builds no argument that is specific to a harness.
+
+The returned map describes the completed run:
+
+| Field | Value |
+|---|---|
+| `status` | `exited`, `signalled`, `timed_out`, `output_limit` or `unavailable`. |
+| `exitCode` | An integer or `()`. |
+| `signal` | A signal name or `()`. |
+| `stdout`, `stderr` | Captured text. Invalid UTF-8 becomes the replacement character. |
+| `result` | The value sent by the run with `end-session`, or `()`. |
+| `elapsedMs` | Elapsed milliseconds. |
+| `error` | `()`, or a map with `code` and `message` for an unavailable run. |
+
+A run can finish by natural exit and return stdout to the policy.
+It need not call `end-session`.
+If it does, that result belongs only to this run.
+It cannot complete the outer session.
+The final managed process later receives a different result channel.
+
+An unavailable run reports `unknown_harness`, `harness_not_found`,
+`harness_not_executable` or `harness_launch_failed` and consumes no run budget.
+Each run that starts consumes one.
+Each output stream has a 1 MiB bound.
+A per-run timeout or output overflow stops the run and returns its status.
+A cleanup failure ends evaluation as `harness_cleanup_failed`, exit status 5.
+
+A harness run receives `RAVEL_POLICY_RUN`.
+`start-session` refuses inside it as `policy_reentry_refused`.
+Call a policy helper directly if you need another selection decision.
+This marker is cooperative, not protection against code that removes it.
+A descendant that leaves the process group is outside group cleanup.
+
+## Ask a model through Claude Code
+
+An LLM call is a harness run that asks a model a question.
+Claude Code uses its own sign-in. Ravel stores no model credential.
+The policy reads the response and decides what it means.
+The fake below uses the same arguments but returns a fixed answer.
+
+The recipe uses Claude Code 2.1.310.
+The author checked the installed help on 2026-10-26.
+The repository's real smoke call also succeeded with that version.
+Its arguments and response field are the basis of this example.
+
+| Argument | Purpose |
+|---|---|
+| `-p` | Print an answer and exit. |
+| `--model haiku` | Select the model for this call. |
+| `--tools ""` | Give the call no tools. |
+| `--no-session-persistence` | Do not retain the session in local history. |
+| `--output-format json` | Return a JSON document. |
+| `--json-schema TEXT` | Request an answer of this shape, in `structured_output`. |
+
+The prompt goes to `stdin`, not into `args`.
+The policy checks the run status and exit code before it parses stdout.
+It then checks `structured_output` against the same schema.
+The fixed answer permits only `yes` or `no`.
+It never supplies a program name or arbitrary command argument.
+
+Complete example: ask through a fake Claude Code and refuse an invalid answer.
+
+**`settings.json`**
+
+```json
+{"harnesses":{"claude":{"program":"claude"}},"budgets":{"harnessRuns":1}}
+```
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "claude-question-1";
+
+fn refuse() {
+    #{ status: "refused", code: "no_answer", message: "The call gave no valid answer.",
+       remedy: "Check the harness and its output." }
+}
+
+fn select(request, context) {
+    let schema = #{ type: "object",
+                    properties: #{ prime: #{ type: "string", enum: ["yes", "no"] } },
+                    required: ["prime"], additionalProperties: false };
+    let run = ravel::run_harness(#{
+        harness: "claude",
+        args: ["-p", "--model", "haiku", "--tools", "", "--no-session-persistence",
+               "--output-format", "json", "--json-schema", ravel::json_encode(schema)],
+        stdin: "Is 17 a prime number? Answer with the JSON object only.",
+        timeoutMs: 20000,
+    });
+    if run.status != "exited" || run.exitCode != 0 { return refuse(); }
+    let answer = ();
+    try {
+        let document = ravel::json_parse(run.stdout);
+        if type_of(document) != "map" || !document.contains("structured_output") {
+            return refuse();
+        }
+        answer = ravel::json_check(document.structured_output, schema);
+    } catch (error) { return refuse(); }
+    let result = if answer.prime == "yes" { "prime" } else { "not-prime" };
+    #{ status: "selected", program: "fake-agent", args: [result],
+       provider: "example", model: "fake", effort: "low", reason: "checked model answer" }
+}
+```
+
+**`bin/claude`**
+
+```sh
+#!/bin/sh
+printf '%s\n' "$@" > call.args
+cat > call.prompt
+if test -f invalid-answer; then
+    printf '%s\n' '{"structured_output":{"prime":"perhaps"}}'
+else
+    printf '%s\n' '{"structured_output":{"prime":"yes"}}'
+fi
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
+```
+
+**Standard output, without a final newline**
+
+```text
+-p
+--model
+haiku
+--tools
+
+--no-session-persistence
+--output-format
+json
+--json-schema
+{"additionalProperties":false,"properties":{"prime":{"enum":["yes","no"],"type":"string"}},"required":["prime"],"type":"object"}
+Is 17 a prime number? Answer with the JSON object only.
+prime
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ touch invalid-answer
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+policy_refused
+```
+
+**Exit status**
+
+```text
+3
+```
+
+`type_of` reports the Rhai type name.
+The map check and `contains` test protect the read of `structured_output`.
+The schema rejects `perhaps`, and the policy returns its own refusal.
+A different policy could choose a fixed fallback after an unusable answer.
+It still cannot catch an exhausted evaluation budget.
+
+The shipped `llm.rhai` asks Claude Code to classify the caller's prompt.
+It limits the answer to keys from the starter route table.
+An unusable answer falls back to the caller's kind.
+It imports `static.rhai`, so both files must be present.
+
+## Ask a model through Codex
+
+Codex accepts its structured-output schema as a file path.
+Keep that file where the run can read it.
+The script cannot write the schema file itself.
+The example places it in the caller's working directory and reads the same
+file with `ravel::read_json`.
+
+The recipe uses Codex CLI 0.164.0.
+The author checked the installed help on 2026-10-26.
+The repository's real smoke call succeeded with that version and these arguments.
+The final message on stdout is the JSON answer.
+This recipe does not use `--json`, which selects JSON Lines events instead.
+
+| Argument | Purpose |
+|---|---|
+| `exec` | Run noninteractively. |
+| `--ephemeral` | Do not retain the session in local history. |
+| `--skip-git-repo-check` | Permit the call outside a Git repository. |
+| `--sandbox read-only` | Select the harness's read-only sandbox. |
+| `-c 'model_reasoning_effort="low"'` | Set the effort for this call. |
+| `--output-schema PATH` | Read the answer schema from a file. |
+| `-` | Read the prompt from stdin. |
+
+Complete example: ask through a fake Codex, check the schema and inspect every
+argument.
+
+**`settings.json`**
+
+```json
+{"harnesses":{"codex":{"program":"codex"}},"budgets":{"harnessRuns":1}}
+```
+
+**`answer-schema.json`**
+
+```json
+{"type":"object","properties":{"prime":{"type":"string","enum":["yes","no"]}},"required":["prime"],"additionalProperties":false}
+```
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "codex-question-1";
+
+fn refuse() {
+    #{ status: "refused", code: "no_answer", message: "The call gave no valid answer.",
+       remedy: "Check the harness and its output." }
+}
+
+fn select(request, context) {
+    let schema = ravel::read_json("answer-schema.json").value;
+    let run = ravel::run_harness(#{
+        harness: "codex",
+        args: ["exec", "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only",
+               "-c", "model_reasoning_effort=\"low\"", "--output-schema",
+               ravel::path_resolve(request.cwd, "answer-schema.json"), "-"],
+        stdin: "Is 17 a prime number? Answer with the JSON object only.",
+        timeoutMs: 20000,
+    });
+    if run.status != "exited" || run.exitCode != 0 { return refuse(); }
+    let answer = ();
+    try { answer = ravel::json_check(ravel::json_parse(run.stdout), schema); }
+    catch (error) { return refuse(); }
+    let result = if answer.prime == "yes" { "prime" } else { "not-prime" };
+    #{ status: "selected", program: "fake-agent", args: [result],
+       provider: "example", model: "fake", effort: "low", reason: "checked model answer" }
+}
+```
+
+**`bin/codex`**
+
+```sh
+#!/bin/sh
+printf '%s\n' "$@" > call.args
+cat > call.prompt
+if test -f failed-call; then
+    printf '%s\n' 'The fake call failed.' >&2
+    exit 1
+fi
+printf '%s\n' '{"prime":"yes"}'
+```
+
+**`bin/fake-agent`**
+
+```sh
+#!/bin/sh
+ravel end-session -- "$1"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
+```
+
+**Standard output, without a final newline**
+
+```text
+exec
+--ephemeral
+--skip-git-repo-check
+--sandbox
+read-only
+-c
+model_reasoning_effort="low"
+--output-schema
+<scratch>/work/answer-schema.json
+-
+Is 17 a prime number? Answer with the JSON object only.
+prime
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ touch failed-call
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error includes**
+
+```text
+policy_refused
+```
+
+**Exit status**
+
+```text
+3
+```
+
+The failed call returns `status: "exited"` and `exitCode: 1` to the script.
+The script then refuses. Ravel itself assigns no meaning to the harness's text.
+A retry would need another run in the budget and time before the whole deadline.
+
+The fake examples prove the arguments, prompt placement and the checks of each answer.
+The opt-in checkout tasks `task harness:smoke:claude` and
+`task harness:smoke:codex` prove the recipes with real calls.
+Each spends subscription usage and needs the owner's sign-in.
+Run the appropriate task after a harness upgrade.
+
+Those tasks use a temporary configuration and links to the harness's sign-in
+store. They do not need edits to the owner's live settings.
+They run unconfined. Confinement can deny writes to a harness's sign-in
+store, and Ravel does not widen confinement for authentication.
+A schema beside the policy is also unsuitable for a confined harness run,
+because confinement refuses grants that overlap the policy directory.
+
+The harness owns its authentication.
+See the [Claude Code setup documentation](https://code.claude.com/docs/en/setup)
+and [Codex authentication documentation](https://learn.chatgpt.com/docs/auth)
+for account setup. This chapter assumes an installed, signed-in harness for real calls.
+Ravel reports no token usage. Its notice lists run metadata, not the prompt or answer.
+A policy that copies an answer into diagnostics or delivered context exposes it there.
 
 ## Route to Claude Code and Codex
 
-When the checks with fakes confirm your policy decisions, a route can name an
-installed agent program. Claude Code and Codex can run under the
-subscription of their user, instead of with paid API access. The
-[Claude Code authentication guide](https://code.claude.com/docs/en/authentication)
-and [Codex authentication guide](https://learn.chatgpt.com/docs/auth)
-describe those options, as checked on 18 October 2026.
+A final interactive harness is the managed process, not an evaluation call.
+Select its `program` and `args` directly.
+This selection needs no `harnesses` entry or harness-run budget.
+The caller's prompt tells the LLM when and how to send its opaque result.
 
-Ravel treats the selected program as an ordinary executable. The program
-does not have to be a
-[harness](02-actors-and-words.md#the-managed-process-and-its-result), and it
-does not have to receive the prompt. Any program in the session can send the
-result with `end-session`. These routes select harnesses and pass the
-caller's prompt to them. Ravel does not configure an account or supply a prompt
-convention.
+For example, the prompt can instruct the LLM to run
+`ravel end-session -- "continue"` as its last action.
+The caller decides what `continue` means.
+The policy passes that prompt unchanged if its route uses `request.prompt`.
+Ravel does not add the instruction.
 
-For installation and sign-in, follow the
-[Claude Code quickstart](https://code.claude.com/docs/en/quickstart) or the
-[Codex CLI documentation](https://learn.chatgpt.com/docs/codex/cli). This
-chapter does not explain agent installation, accounts or credentials.
-
-On 2026-10-16, the flags below agreed with the `--version` and `--help`
-output of the installed programs. The programs were Claude Code 2.1.301 and
-codex-cli 0.163.0. When you change a route, check the help of your installed
-program again. The check of 2026-10-16 records which flags the programs
-support. It is not a test that runs a real agent.
-
-The argument column shows which agent settings the route actually changes.
-The Ravel labels alone do not set those options:
-
-| Program | Arguments this example uses | Meaning in the checked help |
+| Intended use | Policy action | How it completes |
 |---|---|---|
-| `claude` | `--effort medium`, then the prompt after `--` | Sets the effort and supplies the initial prompt. The usual CLI is interactive. `-p`/`--print` selects noninteractive output instead. |
-| `codex` | `--no-daemon --no-alt-screen --sandbox workspace-write --ask-for-approval on-request`, then the prompt after `--` | Runs without the shared background server and keeps the terminal scrollback. Selects the workspace-write sandbox and lets the agent request approvals. Without a subcommand, the interactive CLI starts. |
+| Ask a question before selection | Call `ravel::run_harness` with noninteractive arguments. | Read its output, status or run result. |
+| Run an interactive LLM session | Return a selected map for the harness. | A program in the session calls `end-session`. |
 
-The `--` separator causes the agent to read the prompt as a positional
-argument, also when the prompt looks like an option. These routes use the
-configured model defaults of the agents. The Ravel label `configured-default`
-describes that decision. It does not claim a specific
-resolved model. Put an explicit model choice in the agent's arguments, and
-also in each Ravel label that reports it.
+The noninteractive recipes above are for the first row.
+The next example uses interactive arguments from the same installed versions.
+The author checked those arguments against their help on 2026-10-26.
+Both routes use the harness's configured model default.
+Only the Claude Code route sets an explicit effort.
 
-Ravel's `effort` label does not set the effort of the agent. The Claude route
-passes a real flag. The Codex route uses the effort that Codex has in its
-configuration.
+`--` separates the prompt from options, even when its first character is `-`.
+Codex's `--no-daemon` avoids its shared background server.
+Ravel supervises the selected process group. A process that leaves that group
+is outside its cleanup.
 
-<!-- tc: depart synonym-rotation because display is the terminal presentation, not a verb for showing evidence -->
-The two routes start interactive agents for attended work, and each agent
-needs a terminal. Run a real interactive agent from a foreground terminal.
-Ravel can then
-[lend the terminal](03-a-complete-session.md#launch-the-managed-job) to its
-managed process. `--no-alt-screen`
-changes the display of Codex. It does not change the need for a terminal.
+Complete example: pass an instruction to end the session to two fake interactive
+harnesses.
 
-`--no-daemon` makes this example's Codex invocation run without a shared
-background server. Do not assume that Ravel supervises a process that leaves
-the managed process's group. [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md),
-explains how Ravel lends and recovers the terminal, and the process-group
-boundary.
+**`policy.rhai`**
 
-The automated example below uses fake programs without a terminal. It checks
-only that the arguments arrive.
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "interactive-1";
 
-The caller's prompt contains the instructions to end the session. They give
-the `ravel end-session` command and the exact opaque result to send. The
-real agent needs permission to execute that command. It also needs
-permission to write the path in its inherited session-result context. The
-agent's own sandbox and approval settings are independent of Ravel's
-settings. If the agent exits before it sends a result, the session returns
-no result to the caller, also when the exit status is 0.
-
-Put `ravel` on the agent's `PATH`, or write the installed absolute path of
-`ravel` in the instructions to end the session. Ravel adds none of these
-instructions itself.
-
-Complete example: validate the two agent routes and the refusal of an
-unknown kind. Fake executables return the argument vector that they receive.
-
-**`policy.ts`**
-
-```ts
-import { definePolicy } from "ravel/sdk";
-import { route } from "./routes.ts";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-agents-1",
-  select: route,
-});
-```
-
-**`routes.ts`**
-
-```ts
-import type { SelectionRequest, SelectionResult } from "ravel/sdk";
-
-export function route(request: SelectionRequest): SelectionResult {
-  if (request.kind === "claude-demo") {
-    return {
-      status: "selected",
-      program: "claude",
-      args: ["--effort", "medium", "--", request.prompt],
-      provider: "agent-configured",
-      model: "configured-default",
-      effort: "medium",
-      reason: "Use the attended Claude Code route.",
-    };
-  }
-  if (request.kind === "codex-demo") {
-    return {
-      status: "selected",
-      program: "codex",
-      args: ["--no-daemon", "--no-alt-screen", "--sandbox", "workspace-write",
-        "--ask-for-approval", "on-request", "--", request.prompt],
-      provider: "agent-configured",
-      model: "configured-default",
-      effort: "configured-default",
-      reason: "Use the attended Codex route.",
-    };
-  }
-  return {
-    status: "refused",
-    code: "unsupported_kind",
-    message: "No agent route matches this kind.",
-    remedy: "Use claude-demo or codex-demo, or add an owner route.",
-  };
+fn select(request, context) {
+    let program = "";
+    let args = [];
+    let effort = "configured-default";
+    if request.kind == "claude-demo" {
+        program = "claude";
+        effort = "medium";
+        args = ["--effort", effort, "--", request.prompt];
+    } else if request.kind == "codex-demo" {
+        program = "codex";
+        args = ["--no-daemon", "--no-alt-screen", "--sandbox", "workspace-write",
+                "--ask-for-approval", "on-request", "--", request.prompt];
+    } else {
+        return #{ status: "refused", code: "unsupported_kind",
+                  message: "No interactive route matches this kind.",
+                  remedy: "Use claude-demo or codex-demo." };
+    }
+    #{ status: "selected", program: program, args: args,
+       provider: "agent-configured", model: "configured-default",
+       effort: effort, reason: "attended harness route" }
 }
 ```
 
@@ -1692,10 +1417,10 @@ ravel end-session -- "$result"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/claude bin/codex
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
 $ for kind in claude-demo codex-demo; do
     printf '%s\n' "$kind"
-    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind "$kind" --config policy.ts --prompt 'Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.' || exit "$?"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind "$kind" --prompt 'Review the change. Then run ravel end-session -- "reviewed" as your last action.' || exit "$?"
     printf '\n'
   done
 ```
@@ -1707,7 +1432,7 @@ claude-demo
 <--effort>
 <medium>
 <-->
-<Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.>
+<Review the change. Then run ravel end-session -- "reviewed" as your last action.>
 codex-demo
 <--no-daemon>
 <--no-alt-screen>
@@ -1716,7 +1441,7 @@ codex-demo
 <--ask-for-approval>
 <on-request>
 <-->
-<Read the project and report one improvement. When you finish, run ravel end-session -- "reviewed" as your last action. Then do nothing else.>
+<Review the change. Then run ravel end-session -- "reviewed" as your last action.>
 ```
 
 **Exit status**
@@ -1728,7 +1453,7 @@ codex-demo
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind unknown --config policy.ts --prompt 'Do nothing.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind other --prompt "hello"
 ```
 
 **Standard output**
@@ -1739,8 +1464,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-  policy code: unsupported_kind
-  remedy: Use claude-demo or codex-demo, or add an owner route.
+policy_refused
 ```
 
 **Exit status**
@@ -1749,66 +1473,34 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 3
 ```
 
-The fakes intentionally send their arguments as the result. They do not act
-on the prompt. The transcript checks that the caller's instructions to end
-the session arrive unchanged. It does not show that an agent obeys
-them, or that its sandbox lets it complete the session.
+The fakes return their arguments. They do not act on the prompt.
+This check establishes prompt delivery, not whether an LLM obeys the instruction.
+Real interactive harnesses need a foreground terminal.
+Ravel can lend that terminal to the managed process and recover it afterwards.
 
-Before real use, check that the agent can run the Ravel CLI with your chosen
-permissions. Also check that it can write the result path. Keep checks with
-fakes for each new route.
+The harness needs permission to run `ravel` and write its inherited result path.
+Keep `ravel` on its `PATH`, or name the installed absolute path in the prompt.
+The harness's own sandbox and approvals are independent of Ravel's `--confine`.
+A natural exit without `end-session`, even exit status 0, returns no result to the caller.
 
 ## Copy a policy from another configuration
 
-A copy of a policy is a configuration change. You can validate it before you
-use it for real work. Keep the source and the destination available while
-you reconcile them. Ravel has no init or migration verb, and it imports no
-stored history.
+Copy a Rhai policy with its imported modules and data files.
+Preserve relative import paths, and check paths relative to `request.cwd` separately.
+Copy only the settings entries and environment grants that the new policy needs.
+The policy does not carry its own settings file through `--config`.
 
-Compare these files before you copy. Each row identifies what the
-destination needs to preserve or change:
+The shipped examples live under `share/ravel/examples/` in a Ravel 2.0.0 installation.
+In a checkout, their source is `crates/ravel/examples/`.
+The examples are editable copies, not embedded imports.
 
-| Files | What to reconcile |
+| Example | Files and purpose |
 |---|---|
-| Policy entry | Kinds, selected arguments, labels, owner version and refusals. |
-| Relative helpers and dependencies | Imports, file locations and the packages that the helpers need. |
-| `.ravel-choice` in each checkout | The names that the destination policy offers, if it calls `readChoice`. |
-| `settings.json` | Supported bounds and environment grants. Remove obsolete keys such as `stateDir`. |
+| `static.rhai` | A fixed route table with placeholder commands and labels. |
+| `sample.rhai` | A checkout choice. It also needs `static.rhai`. |
+| `llm.rhai` | An LLM-assisted choice through Claude Code. It needs `static.rhai` and harness settings. |
 
-1. Compare the source directory with `$HOME/.config/ravel`. Keep the two
-   directories. Keep all your edits in the destination. Before you copy, identify
-   the entry, the relative helpers, the dependencies and the settings. A
-   policy can need more than one file.
-2. Copy only the missing files. Do not overwrite a file that already exists
-   in the destination. Reconcile each file that is different in the source
-   and the destination. Do this in the destination. Do not change the
-   source. The older installation
-   and its configuration can stay installed, independently of the
-   destination.
-3. Change the SDK imports to the literal `ravel/sdk`. Keep each relative
-   helper beside the file that imports it. Install the dependencies of the
-   helpers where the resolver can find them. Caller-specific helpers stay
-   files that the caller owns, because Ravel embeds no caller adapter.
-   Reconcile the imports of each helper too.
-4. Keep the intended kind mappings, selected arguments, labels, owner version
-   and refusals. If the policy uses `readChoice`, reconcile the offered
-   arrangements with the `.ravel-choice` of each checkout. A copy of the
-   helper does not make Ravel read that file automatically.
-5. Reconcile `timeoutMs`, `contextBytes` and `policyEnv` with the
-   destination's settings. Keep the supported bounds and grants. Remove
-   obsolete storage settings, such as `stateDir`. Do not copy records,
-   databases, snapshots or history. None of them is an input to this
-   configuration.
-6. Typecheck the destination against its installed declarations with the
-   recipe above. Then validate each route and each refusal with fakes. Use a
-   private `PATH`, a cleared environment, a temporary `HOME` and `TMPDIR`,
-   and a time limit. Put the intended settings in
-   `.config/ravel/settings.json` under that temporary `HOME`. `--config`
-   alone does not move the settings beside your test policy. In a test copy,
-   use fake paths for absolute selected programs, because a private `PATH`
-   cannot intercept them.
-7. Compare the captured argument vectors and the exact results with the
-   intended policy decisions. Check the loader refusals and the choice
-   combinations, and also the unknown kinds. When those checks pass, use the
-   reconciled destination for real sessions. Give those sessions the caller's
-   instructions to end the session and the chosen agent's own permissions.
+Before real use, replace placeholder commands and test every route with fake
+agents. Check that unknown kinds refuse as intended.
+Check that absent data and unsuccessful harness calls produce the outcome you chose.
+Then place the policy at your personal entry or select it with `--config`.

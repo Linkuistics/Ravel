@@ -6,7 +6,11 @@ Convert the owner's local configuration to Rhai. The owner's installation of Rav
 
 ## Context
 
-- The input is the migration guide in the book, the examples from `rhai-example-policies`, and `~/.config/ravel/policy.ts`. The leaf `rhai-example-policies` translated a policy of the same shape.
+- The inputs are the Rhai examples from `rhai-example-policies` and `~/.config/ravel/policy.ts`.
+  That leaf translated a policy of the same shape.
+- The owner made this a one-off manual conversion in `rhai-book-use-k27`.
+  The book has no migration chapter and assumes no TypeScript knowledge.
+  Chapter 4 teaches the Rhai capabilities that the conversion uses.
 - The owner's `policy.ts` has a harness table. It grants the main repository of a jj workspace, and it reads a workspace file through `node:fs`. It uses none of Grove's helpers.
 - Sessions under the 1.1.0 driver read `policy.ts`. Ravel 2.0.0 reads `policy.rhai` and ignores `policy.ts` when both exist. Keep both files until the driver restarts.
 - Ravel 1.1.0 refuses an unknown key in `settings.json` as `settings_invalid`. Both versions read the same settings file. Do not add `harnesses` or `budgets` to `~/.config/ravel/settings.json` while the 1.1.0 driver runs. The owner's configuration gains harness entries for Claude Code and Codex, and it gains no endpoints. Record the new keys that the owner may want, and add them after the restart.

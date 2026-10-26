@@ -15,7 +15,8 @@ Draft the changes to chapters 1, 2, 3, 5 and 6 of the Ravel book for Rhai. The c
 
 ## Done when
 
-- Chapters 1, 2, 3, 5 and 6 describe Ravel 2.0.0. They mention no TypeScript policy, except in a link to the migration chapter.
+- Chapters 1, 2, 3, 5 and 6 describe Ravel 2.0.0 and teach Rhai policies directly.
+  The owner removed the migration chapter in `rhai-book-use-k27`. Chapter numbers stay unchanged, and the book assumes no TypeScript knowledge.
 - Chapter 6 lists every new setting, bound, code and notice member, and it removes the Bun and SDK entries.
 - Every complete example and excerpt in these chapters passes `task docs:examples` and `task docs:excerpts`.
 - The leaf records the defects that a later stage owns in the `## Handed forward` list of the node brief.

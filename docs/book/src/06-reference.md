@@ -878,7 +878,7 @@ declarations. Type declarations help the typecheck, but the Ravel CLI
 validates runtime values independently. Configure the editor and the
 compiler with the installed `sdk/index.d.ts`. TypeScript path mappings do not
 create runtime aliases. See
-[typecheck public declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations).
+[policy validation](04-writing-an-owner-policy.md#validate-a-policy-with-fake-agents).
 
 | Export | Meaning | Taught in |
 |---|---|---|
@@ -1018,9 +1018,9 @@ See [install Ravel and check its version](03-a-complete-session.md#install-ravel
 | `bin/ravel` | The Ravel CLI, built in Rust from `crates/ravel`. It links the runner library in `crates/keyed-launch`. It checks the policy, supervises the session, decides the final outcome and writes the result. | [Installed pair](03-a-complete-session.md#install-ravel-and-check-its-version) |
 | `libexec/ravel/ravel-policy` | The private compiled TypeScript worker, built from `crates/ravel/worker/src`. It embeds Bun, the SDK and the static example. It evaluates the policy and never receives a session-result context. | [Policy evaluation](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
 | `libexec/ravel/sdk/index.ts` | A copy of `worker/sdk/index.ts`, to read or copy. An edit to it does not change the embedded SDK. | [SDK and imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
-| `libexec/ravel/sdk/index.d.ts` | Generated public SDK declarations for the typecheck of a policy. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
+| `libexec/ravel/sdk/index.d.ts` | Generated public SDK declarations for the typecheck of a policy. | [Policy validation](04-writing-an-owner-policy.md#validate-a-policy-with-fake-agents) |
 | `libexec/ravel/examples/static.ts` | A copy of `worker/examples/static.ts`. To use edits, import a local copy by its path. | [Starter table](04-writing-an-owner-policy.md#use-the-starter-route-table) |
-| `libexec/ravel/examples/static.d.ts` | Generated declarations for the exports of the static example. | [Installed declarations](04-writing-an-owner-policy.md#typecheck-against-the-public-declarations) |
+| `libexec/ravel/examples/static.d.ts` | Generated declarations for the exports of the static example. | [Policy validation](04-writing-an-owner-policy.md#validate-a-policy-with-fake-agents) |
 | `libexec/ravel/examples/sample.ts` | A copy of `worker/sample/policy.ts`. It is an owner entry that you can edit, and it uses checkout choices. Ravel does not copy it into `HOME` automatically. | [Copy a policy](04-writing-an-owner-policy.md#copy-a-policy-from-another-configuration) |
 | `libexec/ravel/notices/NOTICES.md` | The inventory of runtime third-party notices, copied from `crates/ravel/notices`. Keep it with the worker. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |
 | `libexec/ravel/notices/bun-LICENSE.md` | The bundled Bun licence and notice text, copied from `crates/ravel/notices`. | [Installation assets](03-a-complete-session.md#install-ravel-and-check-its-version) |

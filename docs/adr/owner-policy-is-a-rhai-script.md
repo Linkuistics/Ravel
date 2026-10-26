@@ -8,7 +8,7 @@ through a host capability that Ravel controls, and Ravel ships no JavaScript
 runtime.
 
 Ravel 2.0.0 is a clean cutover, and no release runs both formats. A lone
-`policy.ts` refuses with a remedy that names the migration guide. When both
+`policy.ts` refuses with a remedy that names the Rhai policy chapter. When both
 files exist, `policy.rhai` wins. The owner chose the cutover over a
 compatibility period in 1.x. All known TypeScript policies are the owner's, and
 coexistence keeps the costs of the Bun worker. The

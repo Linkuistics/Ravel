@@ -16,7 +16,9 @@ Remove the TypeScript path from the Rust code and the tests. Ravel evaluates onl
 
 ## Done when
 
-- A lone `policy.ts`, and a `--config` file ending in `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs`, refuse as `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the migration guide. When both default files exist, Ravel evaluates `policy.rhai` and never opens `policy.ts`.
+- A lone `policy.ts`, and a `--config` file ending in `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs`, refuse as `policy_format_retired`, exit 3.
+  The remedy names `policy.rhai` and chapter 4, "Write an owner policy". The owner removed the migration guide in `rhai-book-use-k27`.
+  When both default files exist, Ravel evaluates `policy.rhai` and never opens `policy.ts`.
 - A `--config` file with another extension refuses as `policy_unreadable`. The remedy asks for a `.rhai` file. A missing default entry refuses as `policy_missing`, and the message names `policy.rhai`.
 - The Bun conversation, the policy snapshot validator, the worker source digest, the `libexec` lookup, the Bun version in the notice and the codes `selection_unsettled` and `context_loader_unsettled` are gone.
 - The reserved environment names `BUN_*`, `NODE_OPTIONS`, `NODE_PATH`, `NODE_PRESERVE_SYMLINKS` and `NODE_CHANNEL_*` no longer refuse. The names `LD_*`, `DYLD_*`, `RAVEL_*` and `HARNESS_DISPATCH_*` keep their rules.

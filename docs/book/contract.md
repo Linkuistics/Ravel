@@ -35,12 +35,12 @@ Assume the programming knowledge below, and write in plain, direct language.
 Do not assume familiarity with specialist systems terminology beyond the
 stated prerequisites.
 
-- **Assumed, and not taught:** everyday shell use (PATH, environment
-  variables, quoting, pipes), Git and JSON; reading and writing TypeScript and
-  Rust; general OS concepts: processes and PIDs, exec, exit status, signals as
-  a mechanism, file descriptors and pipes, and file permissions; and all
-  diagram types used in the book. Readers unfamiliar with a notation can look
-  it up; the book explains only its own figure conventions.
+- **Assumed, and not taught:** everyday shell use, Git, JSON and Rust.
+  Shell knowledge covers PATH, environment variables, quotation rules and pipes.
+  OS knowledge covers processes, PIDs, exec, exit status, signals, file descriptors,
+  pipes and file permissions.
+  The reader knows the diagram notations or consults their documentation.
+  The book explains only its own figure conventions.
 - **Not assumed, and taught where the book first needs it:**
   - Ravel's own domain: callers, owners, owner policy, sessions, kinds,
     results, and who holds which authority.
@@ -49,20 +49,22 @@ stated prerequisites.
     modes, reaping and why PID reuse makes it matter, signal dispositions and
     masks across exec, PTYs as the tests use them, and the confinement
     backends (`sandbox-exec` on macOS, bubblewrap on Linux).
-  - The Bun runtime's compile, autoload and module-resolution behaviour, where
-    Ravel depends on it.
+  - The Rhai syntax that policies need: constants, variables, maps, arrays,
+    functions, conditions, loops, imports and error handling.
+    Chapter 4 teaches these through policies and fake agents.
+  - The restrictions of Ravel's Rhai engine and its host capabilities.
   - The `libc` job-control calls the runner makes.
-- **Never taught:** TypeScript or Rust language features, shell, Git, JSON,
+- **Never taught:** TypeScript, Rust language features, shell, Git, JSON,
   general programming, diagram notation, or the general OS concepts above.
 
 <!-- tc: on -->
 
 ### What the reader can do afterwards
 
-- Configure and run a session. Write, typecheck and validate an owner policy
+- Configure and run a session. Write and validate a Rhai owner policy
   with fake agents. Route kinds to real agent programs. Interpret every
   outcome and exit code.
-- Explain why Ravel has a TypeScript policy worker and two Rust packages,
+- Explain why Ravel has a separate Rhai policy worker and two Rust packages,
   and what each part owns.
 - Follow successful, refused and cancelled sessions through the code.
   Find where a change belongs.
@@ -104,7 +106,7 @@ first describes Ravel. It names no price or plan. Each harness's own
 documentation covers its plans and terms.
 
 A **caller**, such as an orchestrator, asks for a session of some kind.
-The **owner's** executable TypeScript policy chooses the harness command.
+The **owner's** executable Rhai policy chooses the harness command.
 Ravel launches that command as a supervised job. An interactive harness
 waits for more input when its LLM finishes the task.
 
@@ -168,11 +170,11 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
 | 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and policy validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny policy and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
-| 4 | Write an owner policy | Write, typecheck and validate a policy with fake agents. Use the SDK, refusals, policy context, settings and environment grants. Route to real agents and copy an existing policy. |
+| 4 | Write an owner policy | Write and validate a Rhai policy with fake agents. Use refusals, policy context, host capabilities, settings and environment grants. Route to harnesses and ask a model through a harness run. |
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
-| 7 | The parts of Ravel | Explain the Ravel CLI and its separate TypeScript worker. Explain why Ravel reaps the worker before the managed launch. Explain the separate runner package and how the parts compose. |
+| 7 | The parts of Ravel | Explain the Ravel CLI and its separate Rhai worker. Explain why Ravel reaps the worker before the managed launch. Explain the separate runner package and how the parts compose. |
 | 8 | Follow a session through the code | Follow a successful session from `main` to the result write, then the refusal and cancellation paths. Explain error and signal precedence. Find where a change belongs. |
 | 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
 | **Part IV** | **Develop and deliver Ravel** | |
@@ -187,6 +189,12 @@ with a known agent (Rule 3.6). Its file is `07-the-parts-of-ravel.md`.
 The owner removed the planned component chapter on 2026-10-21.
 “Develop Ravel” and “Deliver Ravel” now form Part IV, as chapters 10 and 11.
 Their files are `10-develop-ravel.md` and `11-deliver-ravel.md`.
+
+The owner agreed the Rhai revision on 2026-10-26. The book assumes no
+TypeScript knowledge and has no migration chapter. Chapter numbers stay unchanged.
+The owner's configuration conversion is a separate, one-off manual task.
+Chapter 4 teaches the Rhai that its policies need, without a separate language
+tutorial. Both reader checkpoints remain obligations.
 
 Ravel supports no separate component. Its runner, `keyed-launch`, stays a
 private package of the Ravel CLI, which supervises one session and then exits.
@@ -262,6 +270,8 @@ quotes source excerpts but does not cover the complete source.
   owner's routing table, `docs/configuration-handoff-2026-10-12.md`, is not
   teaching material. It stays outside the book; it was kept, not deleted, when
   the owner configuration guide was folded in and removed.
+- **Policy migration.** The book teaches Rhai policies directly. The owner's
+  one-off manual conversion and comparisons with TypeScript stay outside it.
 - **Grove's conventions.** Grove may appear as one illustrative caller,
   labelled as such. Its task kinds and result values are never presented as
   Ravel's.
@@ -289,8 +299,8 @@ matters:
 - **Channel**: the result channel is Ravel's private directory and completion
   file, through which `end-session` sends the result. It is built on the runner's
   completion `Channel`, which only signals that a file appeared.
-- **Worker**: the policy worker is a separate process. It is not a Bun
-  `Worker` thread, which owner code may itself start.
+- **Worker**: the policy worker is a separate process, not a thread.
+  The Ravel CLI starts its own binary in an internal role to evaluate Rhai.
 - **Result**: the opaque bytes that `end-session` sends. It is never the
   managed process's exit status or the agent's work.
 - **Policy**: the owner's routing code. It is not a security or sandbox
@@ -320,14 +330,14 @@ help for `ravel`, `ravel start-session` and `ravel end-session`. Coverage includ
 - The stdout and stderr contract and the `--json` notices.
 - Every environment variable that Ravel reads, sets, passes on or refuses to grant.
 
-**Configuration inputs.** Sources are the session specification, the SDK's
-exported declarations and the settings reader. Coverage includes:
+**Configuration inputs.** Sources are the policy evaluation specification,
+the Rhai engine, its host capabilities and the settings reader. Coverage includes:
 
 - The policy entry, its discovery and its checks.
 - Every settings key, the refusal of unknown keys and every bound.
 - The policy object's fields and the request, selection and refusal fields.
 - The policy context document's fields and the host operations.
-- The SDK's exports, embedded imports, module-resolution rules and shipped sample.
+- The module exports, file imports, module-resolution rules and shipped examples.
 
 **Lifecycle and failure outcomes.** Sources are the session specification
 and the result/job completion specification. At this agreement, coverage includes:
@@ -356,7 +366,7 @@ and the result/job completion specification. At this agreement, coverage include
 **Component obligations.** The session specification authorises these ten
 obligations. The component guide tabulated them before its removal:
 
-- Existing owner configuration keeps working.
+- Caller commands retain their meaning. The owner supplies a Rhai policy.
 - Policy execution has no session-result authority. Ravel reaps its worker
   before the managed launch.
 - Ravel judges policy output without fallback.
@@ -366,7 +376,7 @@ obligations. The component guide tabulated them before its removal:
 - Cancellation suppresses results.
 - Ravel recovers the terminal's foreground and modes.
 - Only result bytes reach stdout.
-- Installed execution uses the matched Ravel CLI and worker.
+- Installed execution uses one binary for the Ravel CLI and its policy worker.
 
 **Contributor workflows.** The source is `task --list`. Coverage includes
 setup, build, tests, checks, install, smoke, release tasks and the book's tasks.
@@ -396,7 +406,7 @@ The book also states them wherever they matter:
 ### Examples policy
 
 - **Every complete example runs**, through the seam Ravel's CLI tests
-  already use: the built `ravel`, real TypeScript policy evaluation, fake
+  already use: the built `ravel`, real Rhai policy evaluation, fake
   agent programs on a private PATH, a cleared environment and a temporary
   HOME and TMPDIR. A Taskfile task runs every complete example and compares
   its output exactly.
@@ -444,7 +454,7 @@ This checks visual consistency, not the reader's knowledge of notation.
 | Which states does a session pass through to each outcome? | UML state machine | chapters 3 and 5 |
 | What is the timing after `end-session` sends the result (2-second grace, TERM, up to 5 seconds, KILL)? | UML timing | chapter 9 |
 | How is the terminal lent to the managed process and recovered? | UML sequence | chapter 9 |
-| How do the packages, the worker and the SDK fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 11 |
+| How do the packages, the policy worker and the examples fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 11 |
 | How is the outcome chosen when failures and signals combine? | UML activity | chapter 8 |
 | How is a release built and checked? | UML activity | chapter 11 |
 
@@ -670,7 +680,7 @@ The house style's points, as this book takes them:
   or error message, without the preceding text. Corrections land before the
   draft of Parts III and IV.
 - **Read 2** follows proof of Parts III and IV. The reader explains why Ravel
-  has a TypeScript worker and two Rust packages. The reader follows a session
+  has a separate Rhai worker and two Rust packages. The reader follows a session
   through the code to its final cancellation decision, then builds and tests
   Ravel from a checkout.
 - **Every read** opens at chapter 1 or its stated entry in the locally built

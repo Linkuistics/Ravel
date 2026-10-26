@@ -103,7 +103,7 @@ directory. There is no search, no environment override and no fallback.
 | Entry state | Result |
 |---|---|
 | `policy.rhai` exists | Ravel evaluates it, and it does not open `policy.ts` |
-| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the migration guide |
+| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the book's chapter 4, "Write an owner policy" |
 | Neither file exists | `policy_missing`, exit 3. The message names `policy.rhai` |
 | `--config` names a `.rhai` file | Ravel evaluates it |
 | `--config` names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` file | `policy_format_retired`, exit 3 |
@@ -455,7 +455,8 @@ A keyword applies to the kinds of value that it describes. `required`,
 says nothing about an object. A number with no fraction is an `integer`, so
 `3.0` matches. A value that does not match throws `json_mismatch`. Its message
 gives the location in the style of the conversion table, such as
-`value.items[1].name`. It never holds a part of the value.
+`value.items[1].name`. The location can include property names from the value,
+but the message omits property values.
 
 The check converts the value by the conversion rule. A value with no JSON form
 throws `json_unencodable`, as in `json_encode`.
@@ -808,7 +809,7 @@ cannot leave a promise unsettled.
 
 | Code | Stage | Exit | Meaning |
 |---|---|---|---|
-| `policy_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Translate it with the migration guide |
+| `policy_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Write a Rhai policy with chapter 4 of the book |
 | `policy_reentry_refused` | `authority` | 3 | `start-session` runs inside a harness run, where it cannot select |
 | `policy_parse_failed` | `load` | 3 | A syntax error in the entry or a module, with its file, line and column |
 | `policy_import_failed` | `load` | 3 | A module is missing, unreadable, too large, in a cycle or the 65th, or its top level failed |
@@ -921,11 +922,12 @@ the entry lets a Grove session that Ravel 1.1.0 launched keep reading
 | `async` and `await` | Ordinary calls |
 | `settings.json` keys | Unchanged, plus `harnesses` and `budgets` |
 
-The migration guide is a chapter of the book. It translates the shipped static
-route table and the shipped sample policy. It also translates a policy with the
-shape of the owner's: a harness table and the grant of the main repository of a
-jj workspace. A fourth example shows an LLM-assisted policy, which asks a model
-through a harness run.
+The owner chose a one-off manual conversion of their configuration on
+2026-10-26. The book has no migration chapter and assumes no TypeScript
+knowledge. Its [chapter 4](../book/src/04-writing-an-owner-policy.md) teaches
+Rhai policy authoring directly. The translated examples and their equivalence
+checks remain inputs to the manual conversion. The table above records the
+implementation correspondence, outside the book.
 
 While main holds both paths, a test runs each TypeScript policy and its
 translation through the command-line seam over one table of requests. It

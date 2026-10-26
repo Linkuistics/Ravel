@@ -18,7 +18,8 @@ local upgrade.
   TypeScript SDK, their declarations, and their build and release steps are
   gone.
 - The book, the README, the CLI help and the installation documents describe
-  Rhai policies. A migration guide translates the representative policies.
+  Rhai policies. The owner converts their configuration as a one-off manual task.
+  The book assumes no TypeScript knowledge and has no migration chapter.
 - The ADR set, the spec set and `CONTEXT.md` describe the new design.
 - Ravel 2.0.0 is released.
 - The owner's Homebrew installation runs Ravel 2.0.0, and the owner's local
@@ -40,13 +41,12 @@ local upgrade.
     run. The node now removes `ravel::llm`, Rig and the endpoint settings, and
     it keeps the schema check as `ravel::json_check`. It also adds the Taskfile
     task for a Rhai upgrade.
-  - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal, the
-    ordered stop, the tests of an LLM call through a fake harness and the smoke
+  - `rhai-harness-runs` adds `ravel::run_harness`, the re-entry refusal and the
+    ordered stop. It tests an LLM call through a fake harness and adds smoke
     tasks for a real LLM call through each harness.
   - `rhai-example-policies` translates the example policies and proves their
     equivalence with the TypeScript originals.
-  - `rhai-book-use` revises Parts I and II of the book and adds the migration
-    guide.
+  - `rhai-book-use` revises Parts I and II of the book for Rhai.
   - `typescript-removal` freezes the equivalence results, removes the
     TypeScript path and its delivery machinery, and reconciles the specs.
   - `rhai-book-inside` revises Parts III and IV and proves the whole book.

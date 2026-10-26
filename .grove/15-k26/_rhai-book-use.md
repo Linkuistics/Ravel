@@ -2,37 +2,66 @@
 
 ## Goal
 
-Revise Parts I and II of the Ravel book for Ravel 2.0.0, and add the migration guide. The chapters teach Rhai owner policies. The pipeline is draft, copy-edit, art and proof.
+Revise Parts I and II of the Ravel book for Ravel 2.0.0.
+The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edit, art and proof.
 
 ## Done when
 
-- Chapter 4 owns the recipes of an LLM call through Claude Code and through Codex. Each recipe gives the arguments, the place of the prompt, the structured-output flags and the read of the answer. A complete example of each runs with a fake harness. The recipes agree with the running log of `rhai-harness-smoke`.
-- Chapters 1 to 6 describe Rhai policies, the host functions, the harness entries and the budgets. They describe an LLM call as a harness run. No chapter of these two parts teaches TypeScript as the policy language.
-- A new chapter holds the migration guide. It translates the shipped static route table, the shipped sample policy and a policy with the shape of the owner's. It adds the LLM-assisted example, which asks a model through a harness run. It explains the difference table of the spec, and the refusal for a lone `policy.ts`.
-- Every complete example runs through the CLI test seam, and `task docs:examples` passes. Each excerpt is exact, and `task docs:excerpts` passes.
-- The prose follows the prose contract, and `task docs:ste` reports no problem. The figures of these chapters match the text, and `task docs:figures` passes.
-- The proof stage has read the two parts as one reader would.
+- Chapter 4 teaches Rhai and owns the recipes of an LLM call through Claude Code and Codex.
+  Each recipe gives the arguments, prompt placement, structured-output flags and answer extraction.
+  Complete examples use fake harnesses and agree with the recorded real smoke calls.
+- Chapters 1–6 describe Rhai policies, host capabilities, harness entries and budgets.
+  They describe an LLM call as a harness run.
+- Every complete example runs through the CLI seam, and `task docs:examples` passes.
+  Every excerpt is exact, and `task docs:excerpts` passes.
+- The prose follows the contract, and `task docs:ste` reports no problem.
+  Figures agree with the text, and `task docs:figures` passes.
+- Proof reads both parts as one document and cuts the required Read 1 leaf.
 
 ## Decomposition
 
-- `rhai-book-use` (first draft) writes the migration chapter and rewrites chapter 4, "Write an owner policy".
-- `rhai-book-use` (second draft) updates chapters 1, 2, 3, 5 and 6.
-- Copy-edit, art and proof follow. The second draft or the first one cuts them, as the editorial procedure says.
+- `rhai-book-use-k27` rewrites chapter 4 and records the owner's revised contract.
+- `rhai-book-use-k28` updates chapters 1, 2, 3, 5 and 6.
+- Copy-edit, art and proof follow both drafts.
 
-The two drafts share one stem, so name them by key. The migration chapter comes first because chapters 5 and 6 refer to its terms.
+The two drafts share one stem. Refer to each by key.
 
 ## Pointers
 
-- Structure brief and prose contract: `docs/book/contract.md`. It states the reader, the section plan, the exclusions, the term risks, the examples policy and the figure needs. `docs/book/examples.md`, `docs/book/excerpts.md`, `docs/book/figures.md` and `docs/book/ste.md` state the mechanics.
-- Source of truth for the content: `docs/specs/policy-evaluation.md`, `CONTEXT.md` and the code. Check each claim against the running binary and the source, not against the text of the old chapter.
-- Example policies and their equivalence tests: the leaf `rhai-example-policies`.
-- The running logs of the leaves in the increments `rhai-local-capabilities`, `rhai-llm-calls` and `rhai-harness-runs` record every difference from the spec. The log of `rhai-harness-smoke` holds the argument vectors that a real call through each harness proved.
+- Structure brief and prose contract: `docs/book/contract.md`.
+  It states the reader, ordered section plan, emphasis and exclusions.
+- Mechanics: `docs/book/examples.md`, `docs/book/excerpts.md`, `docs/book/figures.md` and `docs/book/ste.md`.
+- Technical sources: `docs/specs/policy-evaluation.md`, `CONTEXT.md`, the source and the built CLI.
+- Example policies and equivalence evidence: `rhai-example-policies-k25`.
+- Measured model-call arguments and versions: the running log of `rhai-harness-smoke-k66`.
+
+## Owner decisions
+
+The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
+
+- The book has no migration chapter or TypeScript prerequisite. Chapter numbers stay unchanged.
+- The owner's configuration conversion is a one-off manual task under `owner-policy-conversion-k39`.
+- Shell, Git, JSON and Rust remain prerequisites. Chapter 4 teaches the Rhai that its policies need.
+- Read 1 and Read 2 remain required under section 4 of the contract.
 
 ## Notes
 
-- The contract says that the reader can read and write TypeScript. The policy language is now Rhai, so the contract needs a change. A change to the structure is made with the owner. The first draft asks the owner before it drafts.
-- The questions for the owner are four. Where does the migration chapter go? What new prerequisites does the reader need? What does the book teach about Rhai? Do Read 1 and Read 2 stay as obligations for this revision? Recommend that both stay. The revision rewrites the chapters that the reads test. The recommended place is Part II, after "Write an owner policy". This renumbers the later chapters, as the removal of chapter ten did before.
-- The TypeScript path still exists on main while this node runs. The book describes Ravel 2.0.0. Do not add a complete example that needs a refusal of `policy.ts`. Describe that refusal in prose. The removal increment adds the example.
-- Chapters 7 to 11 describe the worker, the installation and the release. They stay as they are until the node `rhai-book-inside`, because the removal increment changes what they describe.
-- Section 4 of the contract places Read 1 after the proof of Parts I and II. It places Read 2 after the proof of Parts III and IV. Each read is a `requirements` leaf, and it is not optional. The proof stage cuts the Read 1 leaf, unless section 4 of the contract no longer requires it. Only the owner can remove the obligation. The first draft then changes the contract.
-- Run the checks of the book with `task setup` done first. The book uses a checkout-local Bun as a development tool. That tool stays after the release.
+- The book describes Ravel 2.0.0. The checkout still supports both policy formats until the cutover increment.
+  The cutover leaf adds the example of a retired-format refusal.
+- Chapters 7–11 remain with `rhai-book-inside` after the removal increment.
+  Mechanical link fixes can precede that rewrite.
+- Run `task setup` before the book checks. The checkout-local Bun remains a development tool after release.
+
+## Handed forward
+
+- **Draft (`rhai-book-use-k28`):** chapter 6 still describes the old interface, as its assigned rewrite expects.
+  Three links from its old declaration sections now reach chapter 4's policy-validation section.
+  Replace those obsolete entries during the chapter 6 rewrite. Preserve the unchanged chapter numbers.
+- **Copy-edit:** the whole-book STE scan reports `binding` in `CONTEXT.md` under the Host capability term's avoided names.
+  This predates the draft. Preserve the terminology guidance while resolving the prose-check finding.
+  Chapter 4 itself passes strict STE and prose-break checks.
+- **Art:** chapter 4 distinguishes evaluation calls from the final managed session through tables and tested examples.
+  Check that the process and sequence figures elsewhere teach the same authority boundary after the second draft.
+- **Proof:** the book describes 2.0.0. The checkout's default-entry behaviour still accepts the old format until `typescript-worker-cutover-k31`.
+  Preserve the cutover dependency. Fake harness examples prove argument delivery and answer checks, not real model behaviour.
+  The real-call evidence remains the smoke record, and both owner reader checkpoints remain required.

@@ -2,7 +2,9 @@
 
 ## Goal
 
-Make Rhai the only format of owner policy. Remove the Bun policy worker, the TypeScript SDK, their declarations, and their build and release steps. A lone `policy.ts` refuses with a remedy that names the migration guide.
+Make Rhai the only format of owner policy. Remove the Bun policy worker, the TypeScript SDK, their declarations, and their build and release steps.
+A lone `policy.ts` refuses with a remedy that names `policy.rhai` and chapter 4 of the book.
+The owner removed the migration guide in `rhai-book-use-k27` and chose a one-off manual conversion of their configuration.
 
 ## Done when
 

@@ -15,7 +15,9 @@ Release Ravel 2.0.0 and keep the Ravel 1.1.0 binary that the running Grove drive
 ## Done when
 
 - The owner approved the landing of the work on main and the publication, and the running log records both answers.
-- `CHANGELOG.md` has an entry for 2.0.0. It states that the policy format changed, names the migration guide, and lists the new settings keys, the host functions and the removed Bun worker.
+- `CHANGELOG.md` has an entry for 2.0.0. It states that the policy format changed and links to chapter 4 for Rhai policies.
+  It lists the new settings keys, the host functions and the removed Bun worker.
+  The owner removed the migration guide in `rhai-book-use-k27` and chose a one-off manual configuration conversion.
 - `task release:doctor` passes.
 - `HOMEBREW_NO_INSTALL_CLEANUP=1 task release:major` completes from the default workspace. The tag `v2.0.0`, the GitHub Release with the three archives, the book on the Pages branch and the tap formula exist.
 - `/opt/homebrew/Cellar/ravel/1.1.0/bin/ravel` still exists after the task.
