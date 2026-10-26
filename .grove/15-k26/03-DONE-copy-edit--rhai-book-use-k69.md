@@ -31,3 +31,23 @@ Apply the prose and terminology contract within the copy-edit charter.
 
 Read 1 belongs after proof of Parts I and II. The proof stage cuts that requirements leaf.
 The owner did not waive either reader checkpoint.
+
+## Decisions (running log)
+
+- The `binding` finding in `CONTEXT.md` comes from an `_Avoid_` line, which names a word and does not use it.
+  `scripts/ste.ts` already exempts these lines from the table of words that the book does not use.
+  The fix extends that exemption to the check of words in -ing, because both are word decisions.
+  The avoided term `host binding` stays unchanged. `docs/book/ste.md` states the exemption.
+  `ste.test.sh` gets a pass control with `host binding` and a mutant that removes the exemption.
+- The prose of chapters 1–6 writes "standard output", "standard error" and "standard input".
+  Chapters 1–3 already did. Chapters 4–6 also wrote bare stdout, stderr and stdin.
+  Code font keeps the identifiers, such as the `stdout` field and the `policy stdout:` prefix.
+  `docs/book/ste.md` records the decision for every stage. Chapters 8, 10 and 11 still use bare forms, and `rhai-book-inside` owns them.
+- The owner policy has one name. "The script" and "the Rhai script" become "the policy" where they mean the owner policy.
+  A fake program's shell script keeps the word "script", as do code identifiers such as `script_limit`.
+- The policy worker has one name. "The Rhai worker" becomes "the policy worker".
+- A harness run has one name. "Evaluation call", "evaluation run" and "harness call" become "harness run".
+  "Evaluation harness run" stays where the text contrasts it with the final managed process.
+  Chapter 2 defines "host call" as the request for a host capability, because chapters 2–6 use that word.
+- Each page links the first use of each glossary term to the place in chapter 2 that teaches it.
+  Chapter 4 had two links to chapter 2, and both lacked an anchor.

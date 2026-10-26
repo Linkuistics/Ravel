@@ -54,9 +54,6 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 
 ## Handed forward
 
-- **Copy-edit:** the whole-book STE scan reports `binding` in `CONTEXT.md` under the Host capability term's avoided names.
-  This predates the draft. Preserve the terminology guidance while resolving the prose-check finding.
-  Chapter 4 itself passes strict STE and prose-break checks.
 - **Art:** chapter 4 distinguishes evaluation calls from the final managed session through tables and tested examples.
   Check that the process and sequence figures elsewhere teach the same authority boundary after the second draft.
 - **Art:** chapter 5's selection-cancellation example now uses a fake evaluation harness that signals the Ravel CLI.
@@ -71,7 +68,7 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 - **Art:** chapter 6 now describes the single executable, its internal Rhai worker role and the three Rhai examples.
   `source-components.typ` and `installed-files.typ`, with their SVGs, still depict the old worker and SDK layout.
   Update both figures to match their new descriptions and the 2.0.0 delivery contract.
-- **Proof:** verify the third-party notice installation path after delivery removal.
+- **Proof:** check the third-party notice installation path after delivery removal.
   Chapter 6 names the notices but does not invent a path that the delivery contract has not fixed.
   Keep the settings validation and the exact six-name environment scrub distinct from reserved grant prefixes.
   The broad RAVEL_* scrub wording in the policy-evaluation spec needs reconciliation with the exact source list.

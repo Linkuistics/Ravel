@@ -24,9 +24,9 @@ Other signal names keep that prefix. Code and diagnostic text keep their literal
 
 | Request | Output | Status |
 |---|---|---|
-| `ravel` without a verb | Help on stderr. | `2` |
-| `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on stdout. `-h` is the short option on all three command lines. | `0` |
-| `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) on stdout. The version option belongs only to the top-level command. | `0` |
+| `ravel` without a verb | Help on standard error. | `2` |
+| `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on standard output. `-h` is the short option on all three command lines. | `0` |
+| `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
 
 Help and version text is informational output, never an opaque result.
 See [the first complete session](03-a-complete-session.md#run-the-first-session)
@@ -44,10 +44,10 @@ result that looks like an option. Inside a live session,
 and `--prompt-file PATH`. It reads the owner settings, checks and evaluates
 the owner policy, then supervises the selected program. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) starts no final managed process.
-Evaluation harness runs can precede it. Ravel tries no alternative route.
+Evaluation [harness runs](02-actors-and-words.md#policy-evaluation-and-supervision) can precede it. Ravel tries no alternative route.
 
 <!-- tc: depart synonym-rotation because confirmed absence is a successful cleanup observation, not just an input check -->
-A successful invocation writes the sent result unchanged to stdout. This write occurs only after the reap, the confirmed
+A successful invocation writes the sent result unchanged to standard output. This write occurs only after the reap, the confirmed
 absence of the process group and the required cleanup. Ravel does not
 interpret the result.
 See [run a complete session](03-a-complete-session.md#run-the-first-session)
@@ -84,7 +84,7 @@ the session. The policy decides how to give that text to its selected program.
 An unreadable prompt file reports `prompt_unreadable`. Invalid encoding, a
 NUL or too many bytes reports `prompt_invalid`. Both give status 2. A command with
 no prompt input, or with both prompt inputs, also exits 2. Ravel does not
-implicitly read the prompt from stdin, and it refuses a prompt file that is a terminal. See [supply the prompt and caller data](05-running-sessions.md#supply-the-prompt-and-caller-data).
+implicitly read the prompt from standard input, and it refuses a prompt file that is a terminal. See [supply the prompt and caller data](05-running-sessions.md#supply-the-prompt-and-caller-data).
 
 > **Note:** Shell command substitution removes trailing newlines before Ravel
 > receives an argument. `--prompt-file` preserves those bytes. An
@@ -229,7 +229,7 @@ The table gives the access of the confined managed process.
 | Canonical working directory and private run directory | Writable. |
 | System runtime paths, selected executable and real executable file of the Ravel CLI | Readable. |
 | Network | Permitted. |
-| POSIX session and terminal | A new POSIX session, with EOF on stdin. Ravel does not lend the caller's controlling terminal. |
+| POSIX session and terminal | A new POSIX session, with EOF on standard input. Ravel does not lend the caller's controlling terminal. |
 | Environment | Ravel restricts the [managed-process environment](#managed-process-environment) separately from the environment of the policy worker. |
 
 Filesystem grants cannot overlap the policy directory or the owner settings,
@@ -277,7 +277,7 @@ status 5. See
 ### `--json`
 
 `--json` replaces Ravel's text routing notice and failure document with
-JSON on stderr. The routing notice uses schema 2, and the failure document uses schema 1. It does not change the result on stdout or the
+JSON on standard error. The routing notice uses schema 2, and the failure document uses schema 1. It does not change the result on standard output or the
 output of the managed process. It is off when it is absent, and it belongs to
 `start-session`. See [streams and notices](#streams-and-notices) for the fields and the order of output,
 and [read notices](05-running-sessions.md#read-notices-separately-from-results)
@@ -323,7 +323,7 @@ mean that the job ended or that the result reached the caller. A
 cancellation or a failure of required cleanup still returns no result to
 the caller.
 
-`end-session` exits 1, with a text diagnostic on stderr, if the [session-result context](02-actors-and-words.md#three-different-kinds-of-information)
+`end-session` exits 1, with a text diagnostic on standard error, if the [session-result context](02-actors-and-words.md#three-different-kinds-of-information)
 is missing, empty, stale or invalid. It also exits 1 for an oversized value
 or an I/O failure of the send. If the Ravel CLI finds an argument-count or encoding
 error, it exits 2. The operating system can set a smaller argument limit
@@ -338,7 +338,7 @@ See [accept a result only after success](05-running-sessions.md#accept-a-result-
 
 ## Exit statuses
 
-For `start-session`, accept the result on stdout only when the final status
+For `start-session`, accept the result on standard output only when the final status
 is 0. Neither the exit status of the managed process nor an earlier
 successful `end-session` decides the result of the enclosing session.
 
@@ -351,7 +351,7 @@ reports stay as diagnostics. See
 
 | Status | Meaning and next action | Taught in |
 |---|---|---|
-| `0` | `start-session` wrote the sent result unchanged to stdout and flushed it. This occurs after the reap, the confirmed absence of the group and the required cleanup. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Ravel does not interpret the result. Interpret it with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also gives status 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
+| `0` | `start-session` wrote the sent result unchanged to standard output and flushed it. This occurs after the reap, the confirmed absence of the group and the required cleanup. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Ravel does not interpret the result. Interpret it with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also gives status 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. For `end-session`, status 1 means that it could not send the result. For example, the session-result context was missing, empty or stale, or the value was too large. Check that the call occurs inside a live session. A missing result is not an empty result. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, or confinement inputs that are unusable or overlap. Without a verb, `ravel` prints help with this status. Correct the named input or setting before you try again. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 | `3` | The policy refused, or Ravel could not accept the entry, behaviour, shape, selection result or policy context. Evaluation bounds and policy re-entry also use 3. No fallback route runs. Read the code, the stage and the remedy. For `policy_refused`, also read `policyCode`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
@@ -371,10 +371,10 @@ its place. A caller that uses a process API handles both cases. If a signal
 is ignored or blocked when Ravel starts, that signal does not automatically
 cause a cancellation.
 
-> **Note:** KILL or another abrupt death can stop Ravel before it decides
+> **Note:** KILL or another abrupt stop can end Ravel before it decides
 > the final outcome. A signal that arrives after the final decision about
 > cancellation can interrupt the result write. Neither case confirms the
-> cleanup or that the caller received the complete result. A failed final write can leave a prefix on stdout.
+> cleanup or that the caller received the complete result. A failed final write can leave a prefix on standard output.
 > The [operational limits](05-running-sessions.md#understand-the-operational-limits)
 > describe these cases.
 
@@ -382,16 +382,16 @@ cause a cancellation.
 
 ### Standard streams
 
-> **Table — Streams:** Stdout carries only the result. Stderr combines the
-> managed output and the diagnostics. Stdin serves the managed
+> **Table — Streams:** Standard output carries only the result. Standard error combines the
+> managed output and the diagnostics. Standard input serves the managed
 > process and does not implicitly supply a prompt.
 
 | Stream | Session behaviour | Taught in |
 |---|---|---|
-| stdout | `start-session` writes only the result of a successful session, unchanged and with no added newline. Ravel does not interpret it. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to stdout. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
-| stderr | The stdout and stderr of the managed process, Ravel notices and failures, captured policy diagnostics and operational reports. Without `--json`, each runner operation report has the form `ravel: <report>`. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) and [runner operation reports](08-follow-a-session-through-the-code.md#complete-cleanup-and-write-the-result) |
-| Evaluation harness output | Captured stdout, stderr and optional result return to the policy as data. They reach a caller stream only if policy code copies them into visible output. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
-| stdin | Ravel does not implicitly read a prompt from stdin. The worker receives null stdin. A harness run receives its requested text or EOF. An unconfined managed process can use the caller's stdin, and a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
+| Standard output | `start-session` writes only the result of a successful session, unchanged and with no added newline. Ravel does not interpret it. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to standard output. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
+| Standard error | The standard output and standard error of the managed process, Ravel notices and failures, captured policy diagnostics and operational reports. Without `--json`, each runner operation report has the form `ravel: <report>`. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) and [runner operation reports](08-follow-a-session-through-the-code.md#complete-cleanup-and-write-the-result) |
+| Evaluation harness output | Captured standard output, standard error and optional result return to the policy as data. They reach a caller stream only if policy code copies them into visible output. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| Standard input | Ravel does not implicitly read a prompt from standard input. The worker receives a null standard input. A harness run receives its requested text or EOF. An unconfined managed process can use the caller's standard input, and a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 
 A text routing notice starts with `ravel: starting provider` and names the
 provider, model, effort and kind before the launch. Captured policy lines
@@ -407,7 +407,7 @@ Ravel prepares the `--json` routing notice after three steps succeed: the
 selection, the reservation of the result output and the allocation of the
 result channel. It prints the notice after the supervision attempt, before it
 decides the final outcome. The notice does not prove the launch, the cleanup
-or success. Stderr stays a mixed stream, and the managed process can print
+or success. Standard error stays a mixed stream, and the managed process can print
 text that looks like a Ravel document. See
 [read notices](05-running-sessions.md#read-notices-separately-from-results).
 
@@ -467,7 +467,7 @@ teaches where they come from.
 A JSON failure document has `schemaVersion: 1`, an `error` object and an
 optional top-level `diagnostics`. That object contains the policy `stdout` and
 `stderr` strings. Read `code` and `stage` together, and retain the complete
-stderr stream. Secondary operational reports can occur outside this document.
+standard error stream. Secondary operational reports can occur outside this document.
 See [read failure notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | `error` field | Presence and meaning |
@@ -505,7 +505,7 @@ CLI cannot see which policy operation ran at expiry.
 
 ### Caller inputs and worker environment
 
-The Rhai worker receives an empty environment. The policy uses `ravel::env(name)`
+The policy worker receives an empty environment. The policy uses `ravel::env(name)`
 to request a caller value from the Ravel CLI.
 The helper permits the base names below and explicit grants.
 A permitted but unset name returns `()`.
@@ -620,7 +620,7 @@ See [define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the
 | Other explicit extension | Refuse with `policy_unreadable`, status 3. Supply a `.rhai` file. |
 
 Ravel runs the module in a separate worker, which is its own binary in an internal role.
-The script has no direct filesystem, network, process or environment access.
+The policy has no direct filesystem, network, process or environment access.
 It uses the [host operations](#host-operations) for permitted effects.
 The worker receives no session-result context.
 Before the final managed launch, every host call ends and Ravel reaps the worker.
@@ -640,17 +640,17 @@ a JSON object. `end-session` reads neither settings nor policy. See
 | `timeoutMs` | Optional whole number of milliseconds, 1,000–600,000 inclusive. The default is 30,000. `--timeout-ms` replaces the value after settings validation. It limits worker startup, module loads, the loader, selection and every host call. It does not limit the final managed process. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `contextBytes` | Optional whole number of bytes, 1–8,388,608 inclusive. The default is 262,144. `--context-bytes` replaces it after validation. It limits the caller document and the delivered policy context. It is also the ceiling for a host read. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `policyEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Grant environment names](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
-| `harnesses` | Optional object of named programs for evaluation runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 | `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 
 A harness name contains 1–64 lowercase ASCII letters, digits or dashes.
-The first character is a letter or digit. Unknown nested fields refuse.
+The first character is a letter or digit. Ravel refuses unknown nested fields.
 
 | Nested setting | Accepted value and default |
 |---|---|
 | `harnesses.NAME.program` | Required nonempty string without NUL. An absolute path, a relative path with `/`, or a bare `PATH` name. Resolution uses the caller's directory and environment. |
 | `harnesses.NAME.capabilities` | Optional array of nonempty strings. Default: empty. Discovery repeats these owner labels without interpretation. |
-| `budgets.harnessRuns` | Optional integer from 0 to 16 inclusive. Default: 0. Only settings can raise it. Each launched evaluation run consumes one. |
+| `budgets.harnessRuns` | Optional integer from 0 to 16 inclusive. Default: 0. Only settings can raise it. Each launched harness run consumes one. |
 
 These problems report `settings_invalid`, status 2:
 
@@ -683,7 +683,7 @@ See [set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-
 | `sourceBytes` / `source` | The smaller of 65,536 bytes and `contextBytes` | A positive whole-number `max_bytes` of a host read can replace the default, up to `contextBytes`. Too many bytes, or a requested limit that is too large, cause `source_too_large`, status 3. No script `try` can prevent this refusal. | [Host reads](04-writing-an-owner-policy.md#supply-policy-context) |
 | `sources` / `sources` | Fixed 256 | It applies separately to the measured reads, with the caller document and reads in every phase, and to the attributed `sources` array of the document. If either has more, the code is `too_many_sources`, status 3. A caught exception for a read bound still causes the refusal. | [Measured and attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
 | `messageBytes` / `message` | Fixed 1,048,576 bytes | It limits a host request, selection result or failure report from the worker. A message that is too large gives `message_too_large`, status 3. A delivered document has the policy-context budget instead. | [Protocol bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
-| `diagnosticsBytes` / `diagnostics` | Fixed 262,144 bytes | The combined worker stdout and stderr, with `print` and `debug` output. Output above the limit gives `output_limit`, status 3. Ravel retains the first 262,144 bytes and discards the rest while it stops the worker. | [Output bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
+| `diagnosticsBytes` / `diagnostics` | Fixed 262,144 bytes | The combined standard output and standard error of the worker, with `print` and `debug` output. Output above the limit gives `output_limit`, status 3. Ravel retains the first 262,144 bytes and discards the rest while it stops the worker. | [Output bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `harnessRuns` / `harnessRuns` | 0 runs | Only `budgets.harnessRuns` changes it, within 0–16. A launched run consumes one. Exhaustion gives `harness_budget_exhausted`, status 3. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 
 `from` in a reported bound is `default`, `fixed`, `settings.json` or the flag
@@ -712,8 +712,8 @@ Functions read top-level constants through `global::NAME`.
 They do not capture variables around them.
 Ravel checks undefined variables at compilation and refuses absent map properties at execution.
 Ravel disables `eval`.
-`print` writes captured policy stdout, and `debug` writes captured policy stderr with source information.
-Both streams count towards the diagnostics bound and reach caller stderr.
+`print` writes to the policy's captured standard output, and `debug` writes to its captured standard error with source information.
+Both streams count towards the diagnostics bound and reach the caller's standard error.
 
 ### `SelectionRequest`
 
@@ -726,7 +726,7 @@ the session-result context. See [read the request](04-writing-an-owner-policy.md
 | `schemaVersion` | Always the integer `3`, independent of policy-context schema 1. | [Read the request](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `kind` | Required nonempty caller token, unchanged from `--kind`. Ravel defines no catalogue. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `prompt` | Required UTF-8 string, possibly empty, with a maximum of 1,048,576 bytes and no NUL. The caller bytes and newlines stay unchanged. The policy chooses how to give them to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `cwd` | The caller's working directory as data. Relative input paths and selected program paths resolve from it. The worker starts in a private directory. The script cannot change that directory or read files directly. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
+| `cwd` | The caller's working directory as data. Relative input paths and selected program paths resolve from it. The worker starts in a private directory. The policy cannot change that directory or read files directly. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `params` | String values by caller-supplied name, or `#{}` if there are none. Names are nonempty without `=`. Ravel refuses a duplicate name. All names and values together have a maximum of 65,536 bytes. | [Caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskFile` | Absolute UTF-8 path from `--task-file`, or `()`. Ravel does not canonicalise or read it, and the file does not have to exist. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskId` | Nonempty opaque UTF-8 string of at most 1,024 bytes, or `()`. It names no Ravel record. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
@@ -780,7 +780,7 @@ After evaluation, the original error decides the code and status.
 Ravel reports later cleanup errors beside it. Thus, a code in these tables can also occur
 as retained detail beside a different outcome.
 
-Read the complete stderr
+Read the complete standard error
 stream. See [interpret notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | Code | Stage | Status | Meaning and remedy | Taught in |
@@ -803,7 +803,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `protocol_error` | `worker` | 5 | The private worker conversation is malformed or closed unexpectedly. Retain the diagnostics and reinstall or rebuild Ravel. | [Policy behaviour](04-writing-an-owner-policy.md#validate-a-policy-with-fake-agents) |
 | `selection_timeout` | `evaluation` | 124 | The whole deadline expired during worker startup, imports, loader, selection or host calls. Reduce the work or increase the permitted deadline. Failed harness cleanup can replace this outcome. | [Policy behaviour](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `selection_cancelled` | `evaluation` | 129/130/143 | HUP, INT or TERM ended the selection. Retain the teardown reports, and try again only if the caller still wants the work. Termination by the signal is the usual outcome at the process level. | [Selection cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `output_limit` | `evaluation` | 3 | The stdout and stderr of the worker together are larger than 262,144 bytes (256 KiB). Print less. The retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
+| `output_limit` | `evaluation` | 3 | The standard output and standard error of the worker together are larger than 262,144 bytes (256 KiB). Print less. The retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `policy_import_failed` | `load` | 3 | A module read, import cycle, module-count breach or top-level execution failed. Correct the file, import chain or top-level code. | [Policy behaviour](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `policy_invalid` | `validation` | 3 | A required export is absent or mistyped, or a function is private or has the wrong parameter count. Supply the documented schema-3 module. | [Policy behaviour](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `unsupported_version` | `validation or context` | 3 | The policy schema is not 3, or the policy-context schema is not 1. Supply the supported shape, not only its version number. | [Policy behaviour](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
@@ -822,7 +822,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `policy_format_retired` | `authority` | 3 | The selected entry uses a retired format. Supply a Rhai policy, as chapter 4 teaches. No compatibility path runs. | [Policy behaviour](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
 | `policy_reentry_refused` | `authority` | 3 | `start-session` inherited `RAVEL_POLICY_RUN` from an evaluation harness run. Call the policy route helper directly instead of another session. | [Policy behaviour](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 | `host_request_invalid` | `load, context or selection` | 3 | A host call has an invalid argument type, field or value. Correct the function and field at the reported location. This failure is not catchable. | [Policy behaviour](04-writing-an-owner-policy.md#use-the-data-helpers) |
-| `script_limit` | `evaluation` | 3 | The script exceeded an engine bound. Reduce its operations, recursion or data size. A `try` block cannot suppress this failure. | [Policy behaviour](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
+| `script_limit` | `evaluation` | 3 | The policy exceeded an engine bound. Reduce its operations, recursion or data size. A `try` block cannot suppress this failure. | [Policy behaviour](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `memory_limit` | `evaluation` | 3 | The worker exceeded its 1 GiB heap bound. Reduce retained data. The worker exits, and no managed launch follows. | [Policy behaviour](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `harness_budget_exhausted` | `evaluation` | 3 | The policy requested a harness run with no runs left. Reduce calls or raise the owner setting, at most to 16. No caller flag raises it. | [Policy behaviour](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 | `harness_cleanup_failed` | `evaluation` | 5 | A harness run left a group, failed reap or failed required cleanup. Retain the reports and inspect the named resources. This failure replaces an evaluation deadline. | [Policy behaviour](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
@@ -833,14 +833,14 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 |---|---|---|---|---|
 | `cancellation_unavailable` | `exec` | 5 | The Ravel CLI cannot prepare for cancellation. Examine the reported OS error and the execution environment. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
 | `signal_state_unavailable` | `exec` | 5 | The capture of the signal state at entry, or a required transition of the signal state, failed. Retain all reports, and correct the execution environment. Do not treat any result as success. | [Signal and recovery limits](05-running-sessions.md#understand-the-operational-limits) |
-| `output_unavailable` | `exec` | 5 | Ravel cannot reserve or restore the result stdout. Supply a writable output stream, and examine any error of the restoration. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
+| `output_unavailable` | `exec` | 5 | Ravel cannot reserve or restore standard output for the result. Supply a writable output stream, and examine any error of the restoration. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_channel_unavailable` | `exec` | 5 | Ravel cannot allocate or prepare the private result channel. Correct the temporary storage or `--exit-dir`, and examine the reports of a partial cleanup. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |
 | `supervision_failed` | `exec` | 127, 126 or 5 | Before the runner reports the start, ENOENT gives 127, and other failures give 126. After the start, the status is 5. Check the executable and the interpreter, the execution environment and the retained reports of the runner and the terminal. | [Launch and supervision](05-running-sessions.md#interpret-the-exit-status) |
 | `session_result_missing` | `exec` | 1 | The managed process ended and sent no result, even if its own status was 0. Make the managed process call `end-session` when its work succeeds. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_result_invalid` | `exec` | 5 | Ravel cannot accept the sent entry in the result channel or the result bytes, for example because of an invalid encoding, type or size. Use `end-session` inside the live session, and send a result of 1 MiB or less. | [Result validity](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_cleanup_failed` | `exec` | 5 | The required cleanup of the result channel or of a private directory failed. Examine the named path and the ownership report before you remove any residue. Ravel returns no result to the caller. | [Cleanup limits](05-running-sessions.md#understand-the-operational-limits) |
 | `process_group_survived` | `exec` | 5 | Ravel did not confirm the absence of the group when it decided the final outcome. Examine the reported group and the cleanup failures before you try again. The sent result alone is not sufficient. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
-| `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM wins when Ravel decides the final outcome, even after Ravel received the result. Ravel returns no result to the caller. Retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM has priority when Ravel decides the final outcome, even after Ravel received the result. Ravel returns no result to the caller. Retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `result_write_failed` | `exec` | 5 | The final write or flush of the result failed after Ravel decided the outcome. Correct the output destination, and discard any prefix that Ravel already wrote. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 
 An `end-session` failure is a plain `ravel: end-session:` message with
@@ -945,7 +945,7 @@ A wrong argument type or malformed host request ends evaluation as `host_request
 Rhai resolves function arity before the host function runs. A wrong argument count
 therefore raises an ordinary function-call error instead.
 
-A source consumes one count once its bytes arrive, even if UTF-8 or JSON conversion fails.
+A source consumes one count when its bytes arrive, even if UTF-8 or JSON conversion fails.
 A read with no file consumes none. Repeated reads each consume one.
 Only successful reads enter the measurement records.
 Entry and module loads have their own module bound and do not consume this source count.
@@ -972,7 +972,7 @@ See [data conversion](04-writing-an-owner-policy.md#use-the-data-helpers).
 | `()` | `null`. |
 | Boolean | Boolean. |
 | Signed 64-bit integer | Integer. A JSON integer outside this range becomes a float on input. |
-| Finite float | Number. NaN and infinities refuse. |
+| Finite float | Number. Ravel refuses NaN and infinities. |
 | String | String. |
 | Array | Array of converted values. |
 | Map | Object of converted values. |
@@ -1045,7 +1045,7 @@ See [run a harness](04-writing-an-owner-policy.md#run-a-harness-during-evaluatio
 | `stdin` | Optional string for standard input. Without it, input is at end of file. |
 | `timeoutMs` | Optional positive integer in milliseconds. Ravel lowers it to the time left for evaluation. Without it, all the time left applies. |
 
-The script supplies every argument and decides whether the prompt belongs in an argument or stdin.
+The policy supplies every argument and decides whether the prompt belongs in an argument or standard input.
 Ravel builds no harness-specific argument and parses no harness output.
 An [LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) uses this same operation.
 The harness uses its own sign-in. Ravel holds no model credential or token budget.
@@ -1059,7 +1059,7 @@ Each launched run consumes one from `budgets.harnessRuns`.
 An unavailable call consumes none, even with no budget left.
 After successful program resolution, a call with no budget left ends evaluation before launch.
 A malformed request also ends evaluation, as `host_request_invalid`.
-The script cannot catch these evaluation failures.
+The policy cannot catch these evaluation failures.
 
 ### Harness-run result
 
@@ -1096,7 +1096,7 @@ The policy cannot catch that failure.
 
 ### Host data errors
 
-These codes reach the script as data. They have no independent CLI exit status.
+These codes reach the policy as data. They have no independent CLI exit status.
 A thrown helper error can reach `catch`.
 If it escapes, Ravel reports `policy_import_failed`, `context_loader_failed` or `selection_threw`, as the evaluation phase requires.
 Unavailable-run errors instead appear in `run.error`.
@@ -1138,7 +1138,7 @@ See [resolve imports](04-writing-an-owner-policy.md#resolve-policy-imports).
 | File | Readable regular UTF-8 file, at most 1 MiB, with a canonical UTF-8 name. |
 | Repeated import | Each distinct canonical file loads once per evaluation. Repetition does not consume another module. |
 | Count | At most 64 distinct imported modules, besides the entry. |
-| Cycle | An import cycle refuses as `policy_import_failed`. |
+| Cycle | Ravel refuses an import cycle as `policy_import_failed`. |
 | Measurement | The notice lists the entry first, then modules in first-import order, with canonical name, bytes and SHA-256. |
 | Embedded modules | None. Every import names a file. The `ravel` host namespace needs no import. |
 
@@ -1171,7 +1171,7 @@ See [evaluation bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-envir
 | Encoded host-read reply | 19,922,944 bytes (19 MiB), with JSON escapes and record fields. Excess throws catchable `source_unreadable` and consumes one source. |
 | JSON conversion depth | 100 levels of arrays and maps. The boundary reports a data-conversion error at the value's location. |
 | JSON Schema depth | 32 levels, with the root at level 1. Excess gives catchable `schema_invalid`. |
-| Host calls at one time | One, because the script is synchronous. |
+| Host calls at one time | One, because each host call is synchronous. |
 | Harness output | 1,048,576 bytes per stream. Excess returns run status `output_limit` after cleanup. |
 | One harness deadline | The smaller of its positive `timeoutMs` and the whole time left. Expiry can return `timed_out`. |
 
@@ -1226,7 +1226,7 @@ See [checkout choices](04-writing-an-owner-policy.md#offer-a-checkout-choice).
 
 `llm.rhai` needs a `claude` settings entry and at least one harness run in the budget.
 It accepts only an allowed table key from a successful structured answer.
-An unavailable, unsuccessful or invalid answer falls back to the caller's kind.
+After an unavailable, unsuccessful or invalid answer, it uses the caller's kind instead.
 An exhausted budget or whole deadline still ends evaluation.
 The [Claude Code recipe](04-writing-an-owner-policy.md#ask-a-model-through-claude-code)
 teaches that call, and the [Codex recipe](04-writing-an-owner-policy.md#ask-a-model-through-codex)

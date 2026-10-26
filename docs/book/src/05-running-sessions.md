@@ -28,7 +28,7 @@ not enter these examples.
 Pass exactly one of `--prompt TEXT` and `--prompt-file PATH`. Ravel gives the
 text to the policy unchanged, also when it is an empty string or ends with
 newlines. Ravel adds no instructions to end the session. It never
-reads a prompt from terminal stdin. A prompt is UTF-8, contains no NUL and
+reads a prompt from the standard input of a terminal. A prompt is UTF-8, contains no NUL and
 has a maximum size of 1 MiB. Ravel does not truncate input that is not
 valid, but stops the invocation with status 2.
 
@@ -68,8 +68,9 @@ and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and
 The `--timeout-ms` bound applies to policy evaluation, not to the time that
 the managed process works.
 
-The evaluation deadline defaults to 30 seconds and covers every host call.
-An LLM call through a harness uses that same deadline.
+The evaluation deadline defaults to 30 seconds and covers every
+[host call](02-actors-and-words.md#policy-evaluation-and-supervision).
+An [LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) through a harness uses that same deadline.
 The owner can set `timeoutMs` in settings. `--timeout-ms` replaces that value
 for this invocation, within the permitted range of 1,000–600,000 ms.
 The owner also sets `budgets.harnessRuns`, from 0 to 16, in settings.
@@ -173,8 +174,8 @@ profile=careful
 ```
 
 The final newline came from `prompt.txt`. Ravel added no newline. The
-`printf` output of the fake agent goes to the caller's stderr, because Ravel
-uses stdout only for the result. This example does not need a `tasks/check.md`
+`printf` output of the fake agent goes to the caller's standard error, because Ravel
+uses standard output only for the result. This example does not need a `tasks/check.md`
 file.
 
 ## Accept a result only after success
@@ -325,7 +326,7 @@ get a new 2-second wait.
 Send the result after the work that has to finish, because Ravel can stop
 code that comes after `end-session`.
 
-For an automated caller that needs trailing newlines intact, redirect stdout
+For an automated caller that needs trailing newlines intact, redirect standard output
 to a file. Read the file only after you check the status. Shell command
 substitution removes trailing newlines. Use it only when the caller's result
 convention accepts this change. A failed final write can leave only the first
@@ -372,8 +373,9 @@ policy, without another selection. Ravel gives it the `RAVEL_POLICY_RUN` marker.
 The refusal occurs before Ravel reads settings or policy.
 
 The final managed process receives no such marker and can start nested sessions.
-Each nested session has its own evaluation budgets.
-The marker is cooperative: code that removes it escapes the refusal.
+Each nested session has its own
+[evaluation budgets](02-actors-and-words.md#policy-evaluation-and-supervision).
+The marker does not protect against code that removes it: such code escapes the refusal.
 Such an escape can leave a separate process group outside the outer cleanup.
 
 Complete example: the inner program sends `inner`, and the outer program
@@ -440,7 +442,7 @@ inner|outer
 
 Each layer's [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
 supervises only the group of its own managed process, and it does the
-cleanup only for that group. Thus, if an inner Ravel CLI dies before it
+cleanup only for that group. Thus, if an inner Ravel CLI stops abruptly before it
 completes its cleanup, the group of its managed process can remain. The
 outer Ravel CLI does not stop that group. The
 [operational limits](#understand-the-operational-limits) apply at each layer.
@@ -584,9 +586,9 @@ confinement together with its effects on the environment and the terminal:
 
 ## Read notices separately from results
 
-For `start-session`, stdout contains only the result. Ravel writes the result
-unchanged, with no added newline, and does not interpret it. The stdout of the
-managed process goes to the caller's stderr, together with its stderr, Ravel's
+For `start-session`, standard output contains only the result. Ravel writes the result
+unchanged, with no added newline, and does not interpret it. The standard output of the
+managed process goes to the caller's standard error, together with its own standard error, Ravel's
 diagnostics and the routing notice. In text form, the routing notice is one
 line that Ravel writes before the launch. The line starts with
 `ravel: starting provider` and gives the selected provider, model, effort and
@@ -594,21 +596,21 @@ kind.
 These labels are owner text, not integrations with model providers.
 
 `--json` changes the routing notice and the failure document of Ravel into
-JSON on stderr. It does not change the result into JSON, and it does not
-change other stderr output. The managed process can still write any text
-there. Keep stderr as a diagnostic stream, and do not parse the full stream
+JSON on standard error. It does not change the result into JSON, and it does not
+change other output on standard error. The managed process can still write any text
+there. Keep standard error as a diagnostic stream, and do not parse the full stream
 as one JSON document. The managed process can write a line that looks like a
 Ravel notice. Thus, the form of a line does not prove that Ravel wrote it.
 
-Read stdout only as the result of a successful session. Keep stderr as a
+Read standard output only as the result of a successful session. Keep standard error as a
 mixed diagnostic stream, even with `--json`:
 
 | Output | Destination | Effect of `--json` |
 |---|---|---|
-| Unchanged opaque result after a successful session | Caller stdout, with no added newline | None |
-| Stdout and stderr of the managed process | Caller stderr | None. Any program text stays. |
-| Stdout, stderr and optional result of an evaluation harness run | Return data for the policy | None. They reach a caller stream only if the policy copies them into visible output. |
-| Routing notice and failure document of Ravel | Caller stderr | JSON documents replace their text form |
+| Unchanged opaque result after a successful session | The caller's standard output, with no added newline | None |
+| Standard output and standard error of the managed process | The caller's standard error | None. Any program text stays. |
+| Standard output, standard error and optional result of an evaluation harness run | Return data for the policy | None. They reach a caller stream only if the policy copies them into visible output. |
+| Routing notice and failure document of Ravel | The caller's standard error | JSON documents replace their text form |
 
 The version-2 routing notice gives `selection`, `policy`, `worker`,
 `selectionMs`, the delivered `context`, the effective `bounds`,
@@ -626,7 +628,7 @@ The notice also records what evaluation used:
 | `worker.rhaiVersion` | Version of the embedded Rhai engine |
 | `policy.modules` | Entry first, then imported modules, each with its canonical name, byte count and SHA-256 digest |
 | `reads` | Successful measured reads, with their operation, phase, canonical name, byte count and digest |
-| `harnessRuns` | Each evaluation call, with its harness name, status, exit code or signal, elapsed time and whether it sent a result |
+| `harnessRuns` | Each harness run, with its harness name, status, exit code or signal, elapsed time and whether it sent a result |
 | `bounds.harnessRuns` | Effective run budget and its origin |
 
 An unavailable call appears in `harnessRuns` even though no program started.
@@ -677,7 +679,7 @@ The status is then 5, not 124. Cancellation has precedence over both.
 Ravel then sets the cancellation
 status, keeps the original and cleanup diagnostics and returns no result to
 the caller. If required cleanup fails, Ravel also returns no result to the
-caller, even when everything else succeeds. Thus, keep the complete stderr
+caller, even when everything else succeeds. Thus, keep the complete standard error
 stream, even after the caller classifies the exit status.
 
 ## Interpret the exit status
@@ -686,7 +688,7 @@ This table gives the normal outcomes of the Ravel CLI. It comes from the
 status constants of the Ravel CLI, its launch and final-outcome code and its
 code for signals. A caller checks the status of `start-session`. It does not
 use the status of the managed process or the earlier status of
-`end-session`. For a session result, accept stdout only with status 0 from
+`end-session`. For a session result, accept standard output only with status 0 from
 `start-session`. A help or version request is a separate invocation for
 information, and it sends no result.
 
@@ -704,7 +706,7 @@ These sections teach the subject of each row:
 
 | Status | Meaning | What the caller does |
 |---|---|---|
-| `0` | `start-session` wrote the sent result unchanged to stdout after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
+| `0` | `start-session` wrote the sent result unchanged to standard output after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
 | `3` | A refusal by the policy, or Ravel's refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Script limits, the worker heap bound, exhausted evaluation budgets and policy re-entry also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the policy deliberately. Do not silently substitute a program. |
@@ -728,15 +730,15 @@ procedure of Ravel does not apply to such a signal. Then the shell status
 does not show that cleanup or result delivery occurred. Also, a new signal
 that arrives after the final cancellation decision can interrupt the result
 write. No atomic guarantee covers both the arrival of a signal and an
-arbitrary write to stdout.
+arbitrary write to standard output.
 
 The following view expands one step of
 [chapter 3's outcome state machine](03-a-complete-session.md#recognise-the-other-outcomes):
-the step where Ravel decides the final outcome. Cancellation wins over an
+the step where Ravel decides the final outcome. Cancellation has priority over an
 original failure. After evaluation decides its failure, the final cleanup
 does not replace that failure's status. During evaluation, failed harness
 cleanup can first replace a deadline with `harness_cleanup_failed`.
-Only a valid result with confirmed cleanup gets to the final write.
+Only a valid result with confirmed cleanup reaches the final write.
 
 The view shows the precedence of outcomes, not the order of function calls.
 Ravel attempts the applicable cleanup before it reports an outcome.
@@ -772,7 +774,7 @@ cleanup, and a failed attempt does not confirm a reap or a removal.
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
 Complete example: a fake evaluation harness sends INT to the Ravel CLI.
-The policy waits for the harness call. No final managed process starts.
+The policy waits for the harness run. No final managed process starts.
 
 **`settings.json`**
 
@@ -855,7 +857,7 @@ cancellation.
 
 The supervision sequence shows why a cancellation returns no result to the
 caller, even after the managed process sent a result. The result reaches the
-temporary result channel, but Ravel does not write it to stdout. The runner
+temporary result channel, but Ravel does not write it to standard output. The runner
 runs inside the Ravel CLI. The group of the managed process includes the
 descendants that stay in that group. The cleanup steps in the figure are
 attempts, and Ravel keeps their failures as diagnostics.
@@ -952,9 +954,9 @@ caller to examine:
 | Condition | Consequence |
 |---|---|
 | Code that runs as the same user makes unauthorised changes to the result channel or the installation. | Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the re-executed binary reports the expected build. It does not check a trusted signature. |
-| The Ravel CLI dies abruptly, for example from KILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
+| The Ravel CLI stops abruptly, for example because of KILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone. |
-| An evaluation harness run starts a descendant that leaves its process group. | Cleanup of the run does not reach that descendant. The Rhai policy worker itself starts no program. Confinement does not restrict measured reads. |
+| An evaluation harness run starts a descendant that leaves its process group. | Cleanup of the run does not reach that descendant. The policy worker itself starts no program. Confinement does not restrict measured reads. |
 | Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal) explains the conditions. |
 | The host is different from the measured platforms. | The project measured how Ravel handles inherited signal settings, cancellation, cleanup and terminal recovery. It measured them on aarch64 macOS and aarch64 GNU/Linux. The project built Ravel for x86_64 GNU/Linux and ran it only under emulation. Native x86-64 qualification is not complete. These checks do not cover all combinations of kernel, libc and compiler. |
 

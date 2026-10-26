@@ -1,18 +1,19 @@
 # Write an owner policy
 
-An [owner policy](02-actors-and-words.md) chooses the program for a session.
+An [owner policy](02-actors-and-words.md#caller-and-owner) chooses the program for a
+[session](02-actors-and-words.md#caller-and-owner).
 It can use a fixed table, read local data, or ask a model before it decides.
 You write it in Rhai, a small language that Ravel embeds.
 This chapter teaches the Rhai that the examples need.
 
-The script has no direct filesystem, network or process access.
-A host capability is an operation that the policy asks Ravel to perform.
+The policy has no direct filesystem, network or process access.
+A [host capability](02-actors-and-words.md#policy-evaluation-and-supervision) is an operation that the policy asks Ravel to perform.
 Ravel supplies those operations in the `ravel` namespace.
 They are available at the module's top level, in `load_context` and in `select`.
 
-A [harness](02-actors-and-words.md) is a program such as Claude Code or Codex.
-The policy can select it as the managed process, or call it during evaluation.
-These are different uses. A call during evaluation returns data to the policy.
+A [harness](02-actors-and-words.md#the-managed-process-and-its-result) is a program such as Claude Code or Codex.
+The policy can select it as the [managed process](02-actors-and-words.md#the-managed-process-and-its-result), or run it during evaluation.
+These are different uses. A [harness run](02-actors-and-words.md#policy-evaluation-and-supervision) during evaluation returns data to the policy.
 The final selection starts only after evaluation ends.
 
 Every complete example here uses fake programs. None needs a model account.
@@ -23,13 +24,14 @@ directories. Each Ravel command uses a cleared environment and those directories
 Your personal policy and settings do not enter these examples.
 
 The book checker runs the same examples through the
-[CLI test environment](03-a-complete-session.md), with the built Ravel CLI.
+[CLI test environment](03-a-complete-session.md), with the built
+[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision).
 
 ## Define a policy and read the request
 
 The default policy is `$HOME/.config/ravel/policy.rhai`.
 `HOME` must be absolute for that default.
-`--config PATH` selects another file, relative to the caller's working directory.
+`--config PATH` selects another file, relative to the [caller's](02-actors-and-words.md#caller-and-owner) working directory.
 Ravel searches no parent directory and tries no fallback policy.
 The file must be readable UTF-8, regular, and at most 1 MiB.
 A symlink identifies its canonical real file.
@@ -40,7 +42,7 @@ The module exports two constants and defines a function:
 |---|---|
 | `export const SCHEMA_VERSION = 3;` | Select the policy interface version. |
 | `export const VERSION = "my-policy-1";` | Give the policy an owner-maintained version for the notice. |
-| `fn select(request, context)` | Return a selection or a refusal. |
+| `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision). |
 | `fn load_context(request)` | Optionally assemble policy context before `select`. |
 
 `SCHEMA_VERSION` is independent of the Ravel release and the policy context
@@ -106,7 +108,7 @@ That value means no value in Rhai and becomes `null` in JSON.
 | Field | Value |
 |---|---|
 | `schemaVersion` | The integer `3`. |
-| `kind` | The caller's token from `--kind`. |
+| `kind` | The caller's [kind](02-actors-and-words.md#caller-and-owner) token, from `--kind`. |
 | `prompt` | The caller's prompt, unchanged. |
 | `cwd` | The caller's working directory. |
 | `params` | A map of strings from `--param NAME=VALUE`. |
@@ -119,8 +121,8 @@ The second argument, `context`, is the delivered
 [policy context](#supply-policy-context). A loader can make it different from
 `request.context`. Neither value gives the policy authority to end the session.
 
-Ravel checks undefined variables when it compiles the script.
-It also refuses an absent map property when the script reads it.
+Ravel checks undefined variables when it compiles the policy.
+It also refuses an absent map property when the policy reads it.
 Check `request.params.contains("name")` before you read an optional parameter.
 The documented request fields themselves are always present.
 
@@ -257,7 +259,7 @@ policy_refused
 `if` chooses a branch. `!=` compares values for inequality.
 `fn refuse(...)` is an ordinary helper function, with no special Ravel role.
 Rhai functions have no parameter type declarations here.
-Ravel checks the value when it crosses the boundary from the script.
+Ravel checks the value when it crosses the boundary from the policy.
 
 A return of `()` gives `selection_abstained`.
 An uncaught error in `select` gives `selection_threw` with a source location.
@@ -285,11 +287,11 @@ The examples in this chapter show success and failure at that same boundary.
 | `policy_refused` | The owner's `policyCode`, message and remedy. |
 | `selection_timeout` | The work before the selection and its whole deadline. |
 
-`print(text)` writes to captured policy stdout.
-`debug(text)` writes to captured policy stderr, with source information.
-These streams are diagnostics. They are not the opaque result on Ravel's stdout.
+`print(text)` writes to the policy's captured standard output.
+`debug(text)` writes to the policy's captured standard error, with source information.
+These streams are diagnostics. They are not the [opaque result](02-actors-and-words.md#the-managed-process-and-its-result) on Ravel's standard output.
 The final managed process sends that result with `end-session`.
-Use `--json` when you need the structured routing notice on stderr.
+Use `--json` when you need the structured routing notice on standard error.
 
 ## Use the starter route table
 
@@ -315,9 +317,9 @@ The helper `select_route` refuses an unknown kind with `incomplete_mapping`.
 When a route matches, it returns a command. The helper adds `status` and `reason`.
 
 A smaller table can store strings directly.
-`const` declares a value that the script does not reassign.
+`const` declares a value that the policy does not reassign.
 A function reads a top-level constant through `global::`, as the next example
-shows. `let` declares a local variable that the script can change.
+shows. `let` declares a local variable that the policy can change.
 
 Complete example: route two kinds through a local table.
 
@@ -723,7 +725,7 @@ The loader chooses which values enter the document.
 The context budget applies to the caller's file and to the delivered JSON,
 with `measured`. The default is 262,144 bytes.
 At most 256 measured sources can contribute to one evaluation.
-A file counts once its bytes arrive, even if the bytes are not valid JSON or UTF-8.
+A file counts when its bytes arrive, even if the bytes are not valid JSON or UTF-8.
 An absent file does not consume a source.
 
 ## Use the data helpers
@@ -750,7 +752,7 @@ Use a measured read when you also need to establish what a file contains.
 Values at the boundary are JSON values: null, booleans, numbers, strings,
 arrays and maps. Rhai's `()` represents null.
 Characters, function pointers, ranges and other non-JSON types do not cross.
-Non-finite numbers also refuse. Arrays and maps nest at most 100 levels.
+Ravel also refuses non-finite numbers. Arrays and maps nest at most 100 levels.
 A JSON integer outside the signed 64-bit range becomes a float.
 
 Complete example: check data, handle a failed check, and encode the result.
@@ -823,14 +825,14 @@ Keep model answers as data that the policy checks and interprets.
 
 ## Set bounds and grant environment names
 
-Settings live at `$HOME/.config/ravel/settings.json`, also with `--config`.
+Ravel reads settings from `$HOME/.config/ravel/settings.json`, also with `--config`.
 An absent file sets nothing. Each key is optional, and Ravel refuses unknown keys.
 
 | Key | Meaning and range |
 |---|---|
 | `timeoutMs` | Whole evaluation deadline, 1,000–600,000 ms. Default: 30,000. |
 | `contextBytes` | Context budget, 1–8,388,608 bytes. Default: 262,144. |
-| `policyEnv` | Additional caller environment names that `ravel::env` may read. |
+| `policyEnv` | Additional caller environment names that `ravel::env` can read. |
 | `harnesses` | Named programs available to `ravel::run_harness`. |
 | `budgets` | An object whose optional `harnessRuns` is an integer from 0 to 16. Default: 0. |
 
@@ -859,14 +861,14 @@ diagnostics.
 | Engine operation, depth or data bound | End evaluation with `script_limit`. |
 | Worker heap bound of 1 GiB | End evaluation with `memory_limit`. |
 | Harness-run budget | End evaluation with `harness_budget_exhausted`. |
-| One harness run's deadline or output bound | Return a status to the script if the whole evaluation can continue. |
+| One harness run's deadline or output bound | Return a status to the policy if the whole evaluation can continue. |
 
-The script cannot catch an evaluation bound with `try`.
+The policy cannot catch an evaluation bound with `try`.
 This rule also applies inside a closure passed to an array or map helper.
 A deadline or output bound of one harness run is different: it returns data,
 as the next section explains.
 
-The Rhai worker has an empty environment.
+The [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) has an empty environment.
 `ravel::env` asks the Ravel CLI for the caller's value.
 It permits `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and explicit grants.
 An unset permitted name returns `()`.
@@ -934,11 +936,11 @@ The [reference](06-reference.md) lists the reserved classes.
 
 A measured read can reach files that the user can read.
 These grants therefore do not create a filesystem sandbox for the policy.
-The owner controls the script and chooses which data it reads.
+The owner controls the policy and chooses which data it reads.
 
 ## Run a harness during evaluation
 
-A harness entry fixes the program that a host call may run.
+A harness entry fixes the program that a host call can run.
 Its name has 1–64 lowercase letters, digits or dashes. Its first character is a letter
 or digit. The entry has a required `program` and optional `capabilities` labels.
 Ravel gives those labels no meaning.
@@ -954,7 +956,7 @@ Fragment: settings for a harness run. This block omits the policy and program.
 }
 ```
 
-`ravel::harnesses()` reports the entries in name order without a program execution.
+`ravel::harnesses()` reports the entries in name order and runs no program.
 Each map has `name`, `program`, `available`, `resolved`, `reason` and
 `capabilities`. An available program has a resolved path and `reason: ()`.
 An unavailable one has `resolved: ()` and a reason of `not_found` or
@@ -971,7 +973,7 @@ An unavailable one has `resolved: ()` and a reason of `not_found` or
 
 The call is synchronous. Only one host call runs at a time.
 It runs in `request.cwd`, without a terminal, in a new POSIX session.
-It uses the environment and confinement rules of a managed process.
+It uses the environment and [confinement](02-actors-and-words.md#trust-and-confinement) rules of a managed process.
 `--confine` therefore also confines harness runs.
 
 The policy supplies every argument and chooses where the prompt goes.
@@ -989,11 +991,12 @@ The returned map describes the completed run:
 | `elapsedMs` | Elapsed milliseconds. |
 | `error` | `()`, or a map with `code` and `message` for an unavailable run. |
 
-A run can finish by natural exit and return stdout to the policy.
-It need not call `end-session`.
+A run can finish by natural exit and return standard output to the policy.
+It does not have to call `end-session`.
 If it does, that result belongs only to this run.
 It cannot complete the outer session.
-The final managed process later receives a different result channel.
+The final managed process later receives a different
+[result channel](02-actors-and-words.md#the-managed-process-and-its-result).
 
 An unavailable run reports `unknown_harness`, `harness_not_found`,
 `harness_not_executable` or `harness_launch_failed` and consumes no run budget.
@@ -1005,12 +1008,12 @@ A cleanup failure ends evaluation as `harness_cleanup_failed`, exit status 5.
 A harness run receives `RAVEL_POLICY_RUN`.
 `start-session` refuses inside it as `policy_reentry_refused`.
 Call a policy helper directly if you need another selection decision.
-This marker is cooperative, not protection against code that removes it.
+The marker does not protect against code that removes it.
 A descendant that leaves the process group is outside group cleanup.
 
 ## Ask a model through Claude Code
 
-An LLM call is a harness run that asks a model a question.
+An [LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) is a harness run that asks a model a question.
 Claude Code uses its own sign-in. Ravel stores no model credential.
 The policy reads the response and decides what it means.
 The fake below uses the same arguments but returns a fixed answer.
@@ -1030,7 +1033,7 @@ Its arguments and response field are the basis of this example.
 | `--json-schema TEXT` | Request an answer of this shape, in `structured_output`. |
 
 The prompt goes to `stdin`, not into `args`.
-The policy checks the run status and exit code before it parses stdout.
+The policy checks the run status and exit code before it parses standard output.
 It then checks `structured_output` against the same schema.
 The fixed answer permits only `yes` or `no`.
 It never supplies a program name or arbitrary command argument.
@@ -1159,25 +1162,26 @@ policy_refused
 The map check and `contains` test protect the read of `structured_output`.
 The schema rejects `perhaps`, and the policy returns its own refusal.
 A different policy could choose a fixed fallback after an unusable answer.
-It still cannot catch an exhausted evaluation budget.
+It still cannot catch an exhausted
+[evaluation budget](02-actors-and-words.md#policy-evaluation-and-supervision).
 
 The shipped `llm.rhai` asks Claude Code to classify the caller's prompt.
 It limits the answer to keys from the starter route table.
-An unusable answer falls back to the caller's kind.
+After an unusable answer, it uses the caller's kind instead.
 It imports `static.rhai`, so both files must be present.
 
 ## Ask a model through Codex
 
 Codex accepts its structured-output schema as a file path.
 Keep that file where the run can read it.
-The script cannot write the schema file itself.
+The policy cannot write the schema file itself.
 The example places it in the caller's working directory and reads the same
 file with `ravel::read_json`.
 
 The recipe uses Codex CLI 0.164.0.
 The author checked the installed help on 2026-10-26.
 The repository's real smoke call succeeded with that version and these arguments.
-The final message on stdout is the JSON answer.
+The final message on standard output is the JSON answer.
 This recipe does not use `--json`, which selects JSON Lines events instead.
 
 | Argument | Purpose |
@@ -1188,7 +1192,7 @@ This recipe does not use `--json`, which selects JSON Lines events instead.
 | `--sandbox read-only` | Select the harness's read-only sandbox. |
 | `-c 'model_reasoning_effort="low"'` | Set the effort for this call. |
 | `--output-schema PATH` | Read the answer schema from a file. |
-| `-` | Read the prompt from stdin. |
+| `-` | Read the prompt from standard input. |
 
 Complete example: ask through a fake Codex, check the schema and inspect every
 argument.
@@ -1311,8 +1315,8 @@ policy_refused
 3
 ```
 
-The failed call returns `status: "exited"` and `exitCode: 1` to the script.
-The script then refuses. Ravel itself assigns no meaning to the harness's text.
+The failed run returns `status: "exited"` and `exitCode: 1` to the policy.
+The policy then refuses. Ravel itself assigns no meaning to the harness's text.
 A retry would need another run in the budget and time before the whole deadline.
 
 The fake examples prove the arguments, prompt placement and the checks of each answer.
@@ -1337,7 +1341,7 @@ A policy that copies an answer into diagnostics or delivered context exposes it 
 
 ## Route to Claude Code and Codex
 
-A final interactive harness is the managed process, not an evaluation call.
+A final interactive harness is the managed process, not a harness run.
 Select its `program` and `args` directly.
 This selection needs no `harnesses` entry or harness-run budget.
 The caller's prompt tells the LLM when and how to send its opaque result.
@@ -1360,7 +1364,7 @@ Both routes use the harness's configured model default.
 Only the Claude Code route sets an explicit effort.
 
 `--` separates the prompt from options, even when its first character is `-`.
-Codex's `--no-daemon` avoids its shared background server.
+Codex's `--no-daemon` makes Codex run without its shared background server.
 Ravel supervises the selected process group. A process that leaves that group
 is outside its cleanup.
 
@@ -1490,7 +1494,7 @@ Preserve relative import paths, and check paths relative to `request.cwd` separa
 Copy only the settings entries and environment grants that the new policy needs.
 The policy does not carry its own settings file through `--config`.
 
-The shipped examples live under `share/ravel/examples/` in a Ravel 2.0.0 installation.
+The shipped examples are under `share/ravel/examples/` in a Ravel 2.0.0 installation.
 In a checkout, their source is `crates/ravel/examples/`.
 The examples are editable copies, not embedded imports.
 
@@ -1501,6 +1505,6 @@ The examples are editable copies, not embedded imports.
 | `llm.rhai` | An LLM-assisted choice through Claude Code. It needs `static.rhai` and harness settings. |
 
 Before real use, replace placeholder commands and test every route with fake
-agents. Check that unknown kinds refuse as intended.
-Check that absent data and unsuccessful harness calls produce the outcome you chose.
+agents. Check that the policy refuses unknown kinds as intended.
+Check that absent data and unsuccessful harness runs produce the outcome you chose.
 Then place the policy at your personal entry or select it with `--config`.

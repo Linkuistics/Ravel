@@ -51,7 +51,7 @@ const keep: string[][] = [];
 // A block is a unit of text with the line where it starts: a paragraph, a
 // heading, a list item, a table cell or the text of one figure element.
 // An _Avoid_ line of CONTEXT.md names the words to avoid, so the word
-// decisions do not apply to it.
+// decisions (both tables of ste.md) do not apply to it.
 type Block = { line: number; kind: "prose" | "step" | "item" | "heading" | "cell" | "figure" | "avoid"; text: string };
 
 function inline(text: string): string {
@@ -173,10 +173,13 @@ function check(file: string, blocks: Block[]) {
     if (semi >= 0) add("Rule 8.1 semicolon", excerpt(b.text.slice(Math.max(0, semi - 40), semi + 30)));
     for (const m of b.text.matchAll(/\p{L}+(?:n['’]t|['’](?:re|ve|ll|d|m))(?!\p{L})/giu)) add("Rule 4.2 contraction", m[0]);
     for (const m of b.text.matchAll(/\b(MUST|SHOULD|MAY|SHALL|REQUIRED)\b/g)) add("normative keyword (contract)", m[0]);
+    // An _Avoid_ line names words and does not use them, so neither word
+    // decision applies to it.
+    if (b.kind === "avoid") continue;
     // A hyphenated word is examined in its parts: "pre-start", "operating-system".
     const parts = (b.text.match(WORD) ?? []).flatMap((w) => w.toLowerCase().replace(/['’]s$/, "").split("-"));
     parts.forEach((p, i) => {
-      if (avoid.has(p) && b.kind !== "avoid") add("word that the book does not use (ste.md)", `${p}: use ${avoid.get(p)}`);
+      if (avoid.has(p)) add("word that the book does not use (ste.md)", `${p}: use ${avoid.get(p)}`);
       if (p.length > 4 && p.endsWith("ing") && !kept(parts, i)) add("Rule 3.5 word in -ing (ste.md)", p);
     });
   }

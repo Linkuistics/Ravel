@@ -68,6 +68,8 @@ controls() {
   # shellcheck disable=SC2016 # the backquotes are Markdown, not a command
   expect_pass code-block "$(printf 'Text.\n\n```sh\nrunning; publish; MUST\n```')"
   expect_pass avoid-line "_Avoid_: publish, submit"
+  expect_pass avoid-line-ing "_Avoid_: host binding, SDK function"
+  expect_fail ing-word-beside-avoid "Rule 3.5" "$(printf '_Avoid_: host binding\n\nThe host binding runs.')"
 
   # A figure record is JSON: its text is examined, not its keys.
   local fig="$work/figure.layout.json"
@@ -143,12 +145,12 @@ no semicolon check	s/if (semi >= 0)/if (false)/
 no contraction check	s/(?:n\['’\]t|/(?:nXt|/
 no normative check	s/MUST|SHOULD|MAY|SHALL|REQUIRED/XXXXXXXXXX/
 no -ing check	s/p.endsWith("ing")/p.endsWith("ingX")/
-no decided words	s/if (avoid.has(p) \&\&/if (false \&\&/
+no decided words	s/if (avoid.has(p))/if (false)/
 no kept phrases	s/!kept(parts, i)/true/
 no code removal	s/" CODE ") \/\/ a code span/"$\&") \/\/ a code span/
 no step limit	s/b.kind === "step" ? 20 : 25/25/
 no fence removal	s/if (fence) {/if (false) {/
-no avoid lines	s/b.kind !== "avoid"/true/
+no avoid lines	s/if (b.kind === "avoid") continue;/\/\/ no exemption/
 EOF
 }
 

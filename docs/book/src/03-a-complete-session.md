@@ -189,7 +189,7 @@ The worker receives an empty environment and no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 
 The `cwd` of the request keeps the caller's working directory.
-The script has no direct filesystem access. Ravel reads `policy.rhai` and
+The policy has no direct filesystem access. Ravel reads `policy.rhai` and
 sends its source to the worker, which evaluates it and calls `select`.
 
 The policy has no `load_context` function, and the caller supplied no
@@ -200,7 +200,7 @@ The second argument to `select` is `()`, Rhai's value for no value.
 A policy that needs files or model advice asks Ravel through
 [host capabilities](02-actors-and-words.md#policy-evaluation-and-supervision).
 Ravel measures each successful file read and supervises each evaluation
-harness run. This policy needs neither operation.
+[harness run](02-actors-and-words.md#policy-evaluation-and-supervision). This policy needs neither operation.
 
 The worker sends its response through a private socket. The Ravel CLI checks
 the policy metadata and the selected command. Anything that the worker prints
@@ -211,7 +211,7 @@ The worker and the managed process have different roles in this example:
 | Property | Policy worker | Managed process |
 |---|---|---|
 | Purpose | Evaluate the owner policy | Execute the selected command |
-| Working directory | Starts in a private directory. The script cannot read files directly or change that directory. | Starts in the caller's working directory |
+| Working directory | Starts in a private directory. The policy cannot read files directly or change that directory. | Starts in the caller's working directory |
 | Session-result context | None | Receives its own `RAVEL_EXIT_FILE` path |
 | Response to Ravel | Policy response through a private socket | Opaque result through the [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
 
@@ -242,7 +242,7 @@ process. The `PATH` of the example also lets the fake find the same installed
 The [runner](02-actors-and-words.md#policy-evaluation-and-supervision) in
 Ravel launches the managed process in a process group of its own. A
 **process group** is a set of processes. A program can send one signal to all
-processes in the group. A child usually inherits the group of its parent.
+processes in the group. A child inherits the group of its parent unless it moves to another group.
 Thus, with one signal to the group, Ravel can stop the fake and each
 descendant that stays in that group.
 

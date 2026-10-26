@@ -35,6 +35,10 @@ then it finds these problems:
 - **Words that the book does not use**: each word in the table
   [Words that the book does not use](#words-that-the-book-does-not-use).
 
+An `_Avoid_` line of `CONTEXT.md` names the words that a term replaces. It
+does not use those words. Thus, the check does not apply the two word
+tables to that line. It applies the other rules.
+
 The script cannot find all problems. Read the text for the other rules. For
 example, use the active voice (Rule 3.6) and the simple tenses (Rule 3.2).
 Do not use phrasal verbs (Rule 9.3). Give each paragraph one topic (Rule
@@ -99,6 +103,15 @@ The file names for chapters 1–6 do not change. Chapter 7 uses
 `07-the-parts-of-ravel.md`. Its title is a noun phrase, which avoids passive
 voice with a known agent (Rule 3.6). A link text or a sentence that gives a
 chapter title uses the new title.
+
+## Standard streams
+
+In text, write “standard output”, “standard error” and “standard input”, not
+stdout, stderr and stdin. Code font keeps an identifier exact, for example
+the `stdout` field of a harness-run result and the `policy stdout:` prefix.
+A table column of stream names uses the full names too. Chapters 1–3 used
+these words first. Copy-edit of Parts I and II applied them to chapters 4–6
+on 2026-10-26. The check does not find the short words.
 
 ## Signal names
 

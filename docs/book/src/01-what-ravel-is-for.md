@@ -94,7 +94,8 @@ Before it selects a command, the policy can ask a model a question through a
 [harness run](02-actors-and-words.md#policy-evaluation-and-supervision).
 The harness uses the owner's sign-in, and the policy reads its answer as data.
 This call does not complete the session or start the final managed process.
-Ravel supervises the call within the owner's evaluation budget.
+Ravel supervises the harness run within the owner's
+[evaluation budget](02-actors-and-words.md#policy-evaluation-and-supervision).
 
 An interactive harness does not exit when its LLM completes the task. It
 waits for more input. Thus, the caller's prompt tells the LLM to run
@@ -221,9 +222,9 @@ Ravel has no persistent session store and no history lookup. Its
 uses temporary files for one session. It is not a record of past work. If a
 caller needs a permanent record, that caller saves it.
 
-The Rhai script has
-no direct filesystem, network or process access. It asks Ravel to read files
-or run an owner-configured harness through host capabilities.
+The owner policy has no direct filesystem, network or process access. It
+asks Ravel to read files or run an owner-configured harness through
+[host capabilities](02-actors-and-words.md#policy-evaluation-and-supervision).
 That harness can use files and network services within its own permissions.
 
 Grove, a task-tree driver, is one illustrative caller. It is an orchestrator
@@ -241,7 +242,7 @@ each limit for the caller.
 | Condition | Limit of the guarantee |
 |---|---|
 | A descendant leaves the process group of the managed process | Group cleanup does not reach it. The session can succeed while that descendant continues to run. |
-| An evaluation harness run starts descendants that leave its process group | Cleanup of that run does not reach those descendants. The Rhai policy worker itself starts no program. |
+| An evaluation harness run starts descendants that leave its process group | Cleanup of that run does not reach those descendants. The [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) itself starts no program. |
 | The Ravel CLI stops abruptly, for example because of KILL | The managed process or temporary files can remain. The Ravel CLI cannot catch KILL. |
 | Other code runs as the same user as Ravel | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
 
@@ -265,7 +266,7 @@ and the chapters for further detail.
 | Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), [8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), and [10, “Develop Ravel”](10-develop-ravel.md) | [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md), and [chapter 11, “Deliver Ravel”](11-deliver-ravel.md) |
 | Reuse Ravel from another program | Ravel supports no separate component. Invoke the Ravel CLI as a child process. Chapters 2, 3 and [5](05-running-sessions.md) teach that interface. | [Chapters 7](07-the-parts-of-ravel.md) and [9](09-jobs-signals-and-the-terminal.md) explain the private runner and its limits |
 
-Ravel's runner, `keyed-launch`, is a private package of the Ravel CLI. The
+Ravel's [runner](02-actors-and-words.md#policy-evaluation-and-supervision), `keyed-launch`, is a private package of the Ravel CLI. The
 runner can change process-wide signal state, and its return does not restore
 that state. A program that needs supervised harness sessions invokes the Ravel
 CLI as a child process. The Ravel CLI supervises one session and then exits.
