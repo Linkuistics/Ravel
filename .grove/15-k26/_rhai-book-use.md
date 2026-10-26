@@ -21,7 +21,7 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
 ## Decomposition
 
 - `rhai-book-use-k27` rewrites chapter 4 and records the owner's revised contract.
-- `rhai-book-use-k28` updates chapters 1, 2, 3, 5 and 6.
+- `rhai-book-use-k28` contains two drafts: `rhai-book-use-k70` updates chapters 1, 2, 3 and 5, and `rhai-book-use-k71` updates chapter 6.
 - Copy-edit, art and proof follow both drafts.
 
 The two drafts share one stem. Refer to each by key.
@@ -62,6 +62,12 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
   Chapter 4 itself passes strict STE and prose-break checks.
 - **Art:** chapter 4 distinguishes evaluation calls from the final managed session through tables and tested examples.
   Check that the process and sequence figures elsewhere teach the same authority boundary after the second draft.
+- **Art:** chapter 5's selection-cancellation example now uses a fake evaluation harness that signals the Ravel CLI.
+  `selection-cancellation.typ` and its SVG still show the policy worker as the signal sender.
+  Show the evaluation harness and the order of its cleanup before worker teardown. Update the chapter's figure description with the figure.
+  Check `process-authority.typ` for its Bun worker label and update it for the internal Rhai role.
+- **Proof:** chapter 3's version line uses the release placeholder for this unreleased 2.0.0 draft.
+  The release task must write the actual version before publication, as the existing release guard requires.
 - **Proof:** the book describes 2.0.0. The checkout's default-entry behaviour still accepts the old format until `typescript-worker-cutover-k31`.
   Preserve the cutover dependency. Fake harness examples prove argument delivery and answer checks, not real model behaviour.
   The real-call evidence remains the smoke record, and both owner reader checkpoints remain required.

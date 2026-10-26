@@ -51,8 +51,8 @@ policy agree on that token. Ravel has no built-in review category.
 The [owner](02-actors-and-words.md#caller-and-owner) controls the
 configuration of the account. Their
 [owner policy](02-actors-and-words.md#caller-and-owner) is a configuration
-file with TypeScript code. Its default path is
-`$HOME/.config/ravel/policy.ts`. The policy receives the request. Then it
+file with Rhai code. Rhai is a small language that Ravel embeds.
+Its default path is `$HOME/.config/ravel/policy.rhai`. The policy receives the request. Then it
 selects a program and its arguments, or it refuses to launch a program.
 
 The policy can use the kind to choose a harness and the arguments that set
@@ -89,6 +89,12 @@ teaches. The runnable examples use ordinary programs as fake agents.
 | Selected command | The policy selects a program and its arguments | The program runs an LLM session |
 | Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel gives that text to the policy unchanged. The policy decides whether the program receives it. | The policy passes the prompt to the harness |
 | Result | A program in the session sends one value with `end-session` | The LLM follows the caller's instructions and tells the harness to run that command |
+
+Before it selects a command, the policy can ask a model a question through a
+[harness run](02-actors-and-words.md#policy-evaluation-and-supervision).
+The harness uses the owner's sign-in, and the policy reads its answer as data.
+This call does not complete the session or start the final managed process.
+Ravel supervises the call within the owner's evaluation budget.
 
 An interactive harness does not exit when its LLM completes the task. It
 waits for more input. Thus, the caller's prompt tells the LLM to run
@@ -161,7 +167,8 @@ success.
 Some outcomes return no result to the caller:
 
 - A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) means
-  that Ravel launches no program.
+  that Ravel launches no final managed process. Evaluation harness runs can
+  occur before the policy refuses.
 - If the managed process exits and no program sent a result, the session has
   no result and fails. This is also true when the exit status is zero.
 - Cancellation of the session suppresses the result, even if a program sent
@@ -200,7 +207,7 @@ need a caller, a service or a selected program.
 | Different owners to choose different harnesses for the same LLM task | Evaluate the policy of each owner and run the command that it selects | The caller's task meaning and the owner's policy decisions |
 | An interactive harness to finish as a step of your program | Accept the result that `end-session` sends, stop the group members that remain and return the result after successful cleanup | The caller's instructions to end the session, the interpretation of the result and all further work |
 | Task queues, schedules, retries or durable history | Run a session when a caller invokes Ravel | A caller or service that stores and schedules work |
-| Model access, credentials, usage measurement or rules for model selection | Run the command that the policy chose | The harness's model integration and the owner's selection rules |
+| Model access, credentials, usage measurement or rules for model selection | Supervise evaluation harness runs and the command that the policy selects | The harness's model integration, sign-in and usage reports, and the owner's selection rules |
 | A host that continues to do other work after a launch | The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) supervises one session and then exits | A separate host that continues to run after each launch, which Ravel does not provide |
 
 The Ravel CLI, the `ravel` command-line program, is a **launcher CLI**. One
@@ -212,10 +219,12 @@ session does not give what such a host needs.
 Ravel has no persistent session store and no history lookup. Its
 [result channel](02-actors-and-words.md#the-managed-process-and-its-result)
 uses temporary files for one session. It is not a record of past work. If a
-caller needs a permanent record, that caller saves it. Owner policy is
-executable code and can itself use files or network services. Ravel has no
-store, but the absence of a store does not restrict what that trusted code
-can do.
+caller needs a permanent record, that caller saves it.
+
+The Rhai script has
+no direct filesystem, network or process access. It asks Ravel to read files
+or run an owner-configured harness through host capabilities.
+That harness can use files and network services within its own permissions.
 
 Grove, a task-tree driver, is one illustrative caller. It is an orchestrator
 that runs LLM sessions in harnesses as steps of the work on its task tree. It
@@ -232,7 +241,7 @@ each limit for the caller.
 | Condition | Limit of the guarantee |
 |---|---|
 | A descendant leaves the process group of the managed process | Group cleanup does not reach it. The session can succeed while that descendant continues to run. |
-| Policy starts detached children | The cleanup guarantee of the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) does not cover them. |
+| An evaluation harness run starts descendants that leave its process group | Cleanup of that run does not reach those descendants. The Rhai policy worker itself starts no program. |
 | The Ravel CLI stops abruptly, for example because of KILL | The managed process or temporary files can remain. The Ravel CLI cannot catch KILL. |
 | Other code runs as the same user as Ravel | That code can tamper with Ravel's files. The separation of sessions is not a security check against that code. |
 
@@ -242,9 +251,9 @@ separation of these roles is useful within these limits.
 ## Choose a route through the book
 
 The book assumes everyday use of shell, Git and JSON, the ability to read
-TypeScript and Rust, and general operating-system knowledge. It teaches the
-domain of Ravel and the job-control details that the behaviour of Ravel
-depends on.
+Rust, and general operating-system knowledge. It teaches the domain of Ravel
+and the job-control details that Ravel needs.
+Chapter 4 teaches the Rhai syntax and host capabilities that policies need.
 
 Choose the route that serves your task. The table gives the chapter order
 and the chapters for further detail.

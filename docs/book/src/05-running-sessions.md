@@ -18,6 +18,11 @@ code, go to the [status table](#interpret-the-exit-status). It gives each
 normal status of the CLI and the three cancellation signals that Ravel
 handles, with an action for each.
 
+Use a fresh directory for each complete example and create the labelled files there.
+The commands create local `home` and `tmp` directories and clear the environment.
+They make each fake program executable. Your personal policy and settings do
+not enter these examples.
+
 ## Supply the prompt and caller data
 
 Pass exactly one of `--prompt TEXT` and `--prompt-file PATH`. Ravel gives the
@@ -63,6 +68,13 @@ and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and
 The `--timeout-ms` bound applies to policy evaluation, not to the time that
 the managed process works.
 
+The evaluation deadline defaults to 30 seconds and covers every host call.
+An LLM call through a harness uses that same deadline.
+The owner can set `timeoutMs` in settings. `--timeout-ms` replaces that value
+for this invocation, within the permitted range of 1,000–600,000 ms.
+The owner also sets `budgets.harnessRuns`, from 0 to 16, in settings.
+Its default is 0, and callers have no flag that raises it.
+
 The selected program runs in the caller's working directory. The form of its
 program path sets the base that Ravel uses to find the program:
 
@@ -90,26 +102,26 @@ the result, so the result shows what the agent received. Create the
 labelled files in a new directory. Make `bin/echo-prompt` executable before
 you run the command.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "prompt-demo";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "prompt-demo",
-  select(request) {
-    return {
-      status: "selected",
-      program: "echo-prompt",
-      args: [request.prompt, request.params.profile ?? "default"],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Show the caller's prompt unchanged",
-    };
-  },
-});
+fn select(request, context) {
+    let profile = if request.params.contains("profile") {
+        request.params.profile
+    } else { "default" };
+    #{
+        status: "selected",
+        program: "echo-prompt",
+        args: [request.prompt, profile],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show the caller's prompt unchanged",
+    }
+}
 ```
 
 **`bin/echo-prompt`**
@@ -137,7 +149,8 @@ When you finish, send the agreed result.
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.ts --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.rhai --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
 ```
 
 **Standard output**
@@ -208,26 +221,23 @@ the program sends an empty result. In the third, it sends no result and exits
 naturally with status 0. Create these files in a new directory and make
 `bin/outcome` executable.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "outcome-demo";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "outcome-demo",
-  select(request) {
-    return {
-      status: "selected",
-      program: "outcome",
-      args: [request.kind, request.prompt],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Compare a sent result with natural exit",
-    };
-  },
-});
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "outcome",
+        args: [request.kind, request.prompt],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Compare a sent result with natural exit",
+    }
+}
 ```
 
 **`bin/outcome`**
@@ -246,7 +256,8 @@ exit 7
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --prompt '--help'
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.rhai --prompt '--help'
 ```
 
 **Standard output, without a final newline**
@@ -264,7 +275,7 @@ $ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --pro
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --prompt ''
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.rhai --prompt ''
 ```
 
 **Standard output**
@@ -281,7 +292,7 @@ $ PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.ts --pro
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind natural --config policy.ts --prompt ''
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind natural --config policy.rhai --prompt ''
 ```
 
 **Standard output**
@@ -327,7 +338,7 @@ policy, the prompt file and how the caller handles each successful value or
 failure.
 
 ```sh
-if ravel start-session --kind review --config policy.ts --prompt-file prompt.txt >result.txt; then
+if ravel start-session --kind review --config policy.rhai --prompt-file prompt.txt >result.txt; then
   status=0
 else
   status=$?
@@ -354,31 +365,39 @@ outer process does this itself:
 | Outer managed process, also the inner caller | Keeps the `RAVEL_EXIT_FILE` of the outer session | The result of the outer session |
 | Inner managed process | Gets a new inner `RAVEL_EXIT_FILE` | The result of the inner session. Ravel returns it to the outer process after the inner cleanup. |
 
+An evaluation [harness run](02-actors-and-words.md#policy-evaluation-and-supervision)
+is different. It executes an owner-configured program and returns data to the
+policy, without another selection. Ravel gives it the `RAVEL_POLICY_RUN` marker.
+`start-session` refuses inside that run with `policy_reentry_refused`, status 3.
+The refusal occurs before Ravel reads settings or policy.
+
+The final managed process receives no such marker and can start nested sessions.
+Each nested session has its own evaluation budgets.
+The marker is cooperative: code that removes it escapes the refusal.
+Such an escape can leave a separate process group outside the outer cleanup.
+
 Complete example: the inner program sends `inner`, and the outer program
 uses that result in `inner|outer`. Create these files in a new directory and
 make both files under `bin/` executable. These values have no trailing
 newlines, so command substitution keeps them unchanged.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "nested-demo";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "nested-demo",
-  select(request) {
-    return {
-      status: "selected",
-      program: request.kind === "outer" ? "outer" : "inner",
-      args: [`${request.cwd}/policy.ts`],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Give each nested session its own result",
-    };
-  },
-});
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: if request.kind == "outer" { "outer" } else { "inner" },
+        args: [ravel::path_resolve(request.cwd, "policy.rhai")],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Give each nested session its own result",
+    }
+}
 ```
 
 **`bin/inner`**
@@ -403,7 +422,8 @@ ravel end-session -- "$result|outer"
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config policy.ts --prompt 'Run the inner session. Then add |outer to its result and send it.'
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config policy.rhai --prompt 'Run the inner session. Then add |outer to its result and send it.'
 ```
 
 **Standard output, without a final newline**
@@ -433,7 +453,9 @@ interactive job control for nested sessions.
 filesystem access and the environment of the managed process. Add
 `--confine` when you want that restriction. The owner policy and its
 [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
-stay outside the confinement. Policy is trusted executable configuration.
+stay outside the confinement. Its measured reads can still reach any regular
+file that the user can read. Evaluation harness runs use the same confinement
+rules as the managed process. Thus, `--confine` also restricts those runs.
 
 <!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
 On macOS, Ravel uses `/usr/bin/sandbox-exec`. On Linux, it uses the system
@@ -469,7 +491,7 @@ Keep the policy directory and the owner settings outside every filesystem
 grant. Ravel makes each path canonical. If paths overlap, Ravel stops with
 an error before it evaluates the policy. This check also finds overlaps
 through symlinks or through the system runtime grants. For example, if you
-run `--confine --config ./policy.ts` from the directory that contains that
+run `--confine --config ./policy.rhai` from the directory that contains that
 policy, the policy overlaps the writable working directory. Put the policy in
 a separate owner directory, and invoke Ravel from the project directory.
 
@@ -488,32 +510,31 @@ contain the policy.
 
 <!-- example: requires confinement -->
 
-**`owner/policy.ts`**
+**`owner/policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "confined-demo";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "confined-demo",
-  select() {
-    return {
-      status: "selected",
-      program: "ravel",
-      args: ["end-session", "--", "confined"],
-      provider: "local",
-      model: "sender",
-      effort: "none",
-      reason: "Check a confined sent result",
-    };
-  },
-});
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "ravel",
+        args: ["end-session", "--", "confined"],
+        provider: "local",
+        model: "sender",
+        effort: "none",
+        reason: "Check a confined sent result",
+    }
+}
 ```
 
 **Command**
 
 ```console
-$ mkdir -p project && cd project && ravel start-session --kind check --config ../owner/policy.ts --confine --prompt 'Send confined.'
+$ mkdir -p home tmp project || exit "$?"
+$ example_home="$PWD/home" && example_tmp="$PWD/tmp" && cd project || exit "$?"
+$ env -i HOME="$example_home" TMPDIR="$example_tmp" PATH="$PATH" ravel start-session --kind check --config ../owner/policy.rhai --confine --prompt 'Send confined.'
 ```
 
 **Standard output, without a final newline**
@@ -532,8 +553,11 @@ The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and
 `LC_*`. Ravel sets `TMPDIR`, `TMP` and `TEMP` to the private run directory and
 gives the managed process a new `RAVEL_EXIT_FILE`. The `HOME` variable does
 not give access to the directory that it names. The other caller variables are
-not in the environment. This also applies to `--policy-env`. It grants a
-variable to the policy worker, not to this managed process.
+not in the environment.
+
+`--policy-env` grants a
+variable to `ravel::env`, the policy's environment helper.
+It adds no variable to a confined managed process or harness run.
 
 A confined launch starts a new POSIX session and is not interactive. Ravel
 does not [lend](03-a-complete-session.md#launch-the-managed-job) it the
@@ -583,9 +607,10 @@ mixed diagnostic stream, even with `--json`:
 |---|---|---|
 | Unchanged opaque result after a successful session | Caller stdout, with no added newline | None |
 | Stdout and stderr of the managed process | Caller stderr | None. Any program text stays. |
+| Stdout, stderr and optional result of an evaluation harness run | Return data for the policy | None. They reach a caller stream only if the policy copies them into visible output. |
 | Routing notice and failure document of Ravel | Caller stderr | JSON documents replace their text form |
 
-The version-1 routing notice gives `selection`, `policy`, `worker`,
+The version-2 routing notice gives `selection`, `policy`, `worker`,
 `selectionMs`, the delivered `context`, the effective `bounds`,
 `policyEnvironment`, `resolution`, `promptSource` and the captured policy
 `diagnostics`. The field `context` is policy context, not the result
@@ -593,6 +618,20 @@ channel. Grant diagnostics show the name of each environment variable and
 whether it is set. They never show its value. Policy code can still write
 values itself. Thus, keep its diagnostics with the care that those values
 need.
+
+The notice also records what evaluation used:
+
+| Field | Recorded data |
+|---|---|
+| `worker.rhaiVersion` | Version of the embedded Rhai engine |
+| `policy.modules` | Entry first, then imported modules, each with its canonical name, byte count and SHA-256 digest |
+| `reads` | Successful measured reads, with their operation, phase, canonical name, byte count and digest |
+| `harnessRuns` | Each evaluation call, with its harness name, status, exit code or signal, elapsed time and whether it sent a result |
+| `bounds.harnessRuns` | Effective run budget and its origin |
+
+An unavailable call appears in `harnessRuns` even though no program started.
+The run record contains no prompt, answer or token usage.
+The policy can still expose that data through its own diagnostics or context.
 
 Ravel writes this JSON notice after the supervision attempt and before it
 decides the final outcome. If the
@@ -616,7 +655,9 @@ before and after launch:
 | Code | Stage | Meaning |
 |---|---|---|
 | `policy_refused` | `selection` | The owner policy declined the request. |
-| `worker_identity_mismatch` | `worker` | The policy worker does not match the Ravel CLI. Ravel stops before policy evaluation. |
+| `worker_identity_mismatch` | `worker` | The re-executed Ravel binary reports another build. Ravel stops before policy evaluation. |
+| `harness_budget_exhausted` | `evaluation` | The policy requested a run with no run budget left. Evaluation ends. |
+| `harness_cleanup_failed` | `evaluation` | Ravel could not complete the cleanup of an evaluation harness run. No managed process starts. |
 | `session_result_missing` | `exec` | The managed process ended without a sent result. |
 
 The text form of each failure starts with `ravel: refused`, also when no
@@ -625,9 +666,15 @@ between a policy
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) and an
 operational failure.
 
-If later cleanup also fails, an original failure keeps its code and status.
-Ravel reports the cleanup problems together with the original failure.
-Cancellation has precedence over both. Ravel then sets the cancellation
+For worker teardown and final-session cleanup, an original failure keeps its
+code and status if cleanup also fails. Ravel reports those cleanup problems
+together with the original failure.
+
+An evaluation harness run has an exception. If its cleanup fails after the
+whole deadline expires, `harness_cleanup_failed` replaces `selection_timeout`.
+The status is then 5, not 124. Cancellation has precedence over both.
+
+Ravel then sets the cancellation
 status, keeps the original and cleanup diagnostics and returns no result to
 the caller. If required cleanup fails, Ravel also returns no result to the
 caller, even when everything else succeeds. Thus, keep the complete stderr
@@ -660,9 +707,9 @@ These sections teach the subject of each row:
 | `0` | `start-session` wrote the sent result unchanged to stdout after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
-| `3` | A refusal by the policy, or Ravel's refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the policy deliberately. Do not silently substitute a program. |
-| `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A missing or stale policy worker, or one that does not match the Ravel CLI, also uses 5. | Keep the full diagnostics. Repair the matched installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
-| `124` | The deadline for policy evaluation expired. The deadline covers the worker startup, the policy import, the load of policy context and the selection. Ravel launched no managed process. | Examine the work of the policy. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer selection. This is not a time limit for the managed process. |
+| `3` | A refusal by the policy, or Ravel's refusal of the policy. The owner policy declined, or Ravel could not accept its entry, behaviour, shape, returned data or policy context. Script limits, the worker heap bound, exhausted evaluation budgets and policy re-entry also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the policy deliberately. Do not silently substitute a program. |
+| `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A failed re-execution or worker identity mismatch also uses 5, as does `harness_cleanup_failed` during evaluation. | Keep the full diagnostics. Repair the installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
+| `124` | The whole policy evaluation deadline expired. It covers worker startup, module loads, the context loader, selection and every host call. Ravel launched no managed process. A failed harness cleanup replaces this outcome with status 5. Cancellation also has priority. | Examine the work of the policy. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer evaluation. A single harness run's `timed_out` status is data for the policy. This is not a time limit for the managed process. |
 | `126` | Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file). | Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute. |
 | `127` | Program resolution found no executable, or a launch failed with ENOENT before the start. An executable script can exist while its interpreter is missing. | Check the caller's `PATH`, the selected path and its interpreter. Install or correct the program that you intended. |
 | `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work. |
@@ -686,8 +733,11 @@ arbitrary write to stdout.
 The following view expands one step of
 [chapter 3's outcome state machine](03-a-complete-session.md#recognise-the-other-outcomes):
 the step where Ravel decides the final outcome. Cancellation wins over an
-original failure. An original failure keeps its status if later cleanup also
-fails. Only a valid result with confirmed cleanup gets to the final write.
+original failure. After evaluation decides its failure, the final cleanup
+does not replace that failure's status. During evaluation, failed harness
+cleanup can first replace a deadline with `harness_cleanup_failed`.
+Only a valid result with confirmed cleanup gets to the final write.
+
 The view shows the precedence of outcomes, not the order of function calls.
 Ravel attempts the applicable cleanup before it reports an outcome.
 
@@ -700,15 +750,19 @@ help and version invocations.
 
 ## Cancel during selection or supervision
 
-A cancellation during selection stops the policy worker and prevents the
-managed launch. Ravel attempts the worker teardown and reports the
-cancellation with any teardown problems. The worker has no session-result
+A cancellation during selection stops evaluation and prevents the managed launch.
+Ravel abandons a read in progress and does not wait for it.
+If a harness run is in progress, Ravel first stops its group and attempts its reap.
+Then it stops and reaps the worker and removes the private directories.
+Ravel reports the cancellation with any cleanup problems.
+
+The worker has no session-result
 context. Thus, it cannot send a result for an enclosing session through the
 usual `end-session` interface.
 
-The selection sequence shows why a cancellation can need worker cleanup,
-although Ravel launched no managed process. It follows the example below,
-where the worker sends INT directly to the Ravel CLI.
+An evaluation harness run can therefore need cleanup before any managed launch.
+The example below uses a fake harness that sends INT to its parent, the Ravel CLI.
+The policy itself cannot send a signal.
 
 In these UML sequences, no lifetime ends with an X. Ravel attempts
 cleanup, and a failed attempt does not confirm a reap or a removal.
@@ -717,30 +771,44 @@ cleanup, and a failed attempt does not confirm a reap or a removal.
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
-Complete example: the policy sends INT directly to its parent, the Ravel
-CLI. Then it waits indefinitely. This example causes a cancellation during
-selection without a terminal or a managed process. Create the policy in a
-new directory.
+Complete example: a fake evaluation harness sends INT to the Ravel CLI.
+The policy waits for the harness call. No final managed process starts.
 
-**`policy.ts`**
+**`settings.json`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```json
+{"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1}}
+```
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "cancel-selection",
-  async select() {
-    process.kill(process.ppid, "SIGINT");
-    return await new Promise<never>(() => {});
-  },
-});
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "cancel-selection";
+
+fn select(request, context) {
+    ravel::run_harness(#{ harness: "cancel", args: [] });
+    #{ status: "refused", code: "unexpected_return",
+       message: "The call returned without cancellation.",
+       remedy: "Check that the fake harness sent INT." }
+}
+```
+
+**`bin/cancel-selection`**
+
+```sh
+#!/bin/sh
+set -eu
+kill -INT "$PPID"
+while :; do sleep 1; done
 ```
 
 **Command**
 
 ```console
-$ ravel start-session --kind check --config policy.ts --prompt 'No program should launch.'
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/* || exit "$?"
+$ cp settings.json home/.config/ravel/settings.json || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt 'No managed process should launch.'
 ```
 
 **Standard output**
@@ -751,7 +819,7 @@ $ ravel start-session --kind check --config policy.ts --prompt 'No program shoul
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.ts was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**
@@ -764,6 +832,19 @@ Here `<scratch>` is the temporary directory that the example checker of the
 book uses. A manual run shows the actual absolute path of your policy. The
 details of worker teardown can change from run to run. Thus, the transcript
 claims only the stable diagnostic line.
+Here, the diagnostic's “nothing was launched” refers to the final managed process.
+The evaluation harness did run before cancellation.
+
+The owner enables this call with a named harness entry and a run budget of one.
+The run has no terminal, so its signal does not depend on keyboard input.
+[Chapter 4](04-writing-an-owner-policy.md#run-a-harness-during-evaluation)
+explains the call's inputs and output.
+
+The whole deadline uses the same stop order as cancellation.
+Cleanup takes additional time. A signal consumed before the final outcome decision
+has priority over a deadline, and the report keeps the earlier failure.
+A stop of an LLM call ends local work only. A model service can still complete
+a request that it already accepted.
 
 During supervision, a cancellation stops the group of the managed process.
 Ravel attempts the reap, the terminal recovery and the temporary cleanup
@@ -788,26 +869,23 @@ directly to the Ravel CLI. Then it stays alive until the supervisor stops the
 job. Create the files in a new directory and make `bin/cancel-after-result`
 executable.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "cancel-session";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "cancel-session",
-  select() {
-    return {
-      status: "selected",
-      program: "cancel-after-result",
-      args: [],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Cancel after a sent result",
-    };
-  },
-});
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "cancel-after-result",
+        args: [],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Cancel after a sent result",
+    }
+}
 ```
 
 **`bin/cancel-after-result`**
@@ -823,7 +901,8 @@ while :; do sleep 1; done
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --prompt 'Show cancellation after a sent result.'
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt 'Show cancellation after a sent result.'
 ```
 
 **Standard output**
@@ -834,7 +913,7 @@ $ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --pr
 **Standard error includes**
 
 ```text
-ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.ts was cancelled by SIGINT
+ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.rhai was cancelled by SIGINT
 ```
 
 **Exit status**
@@ -861,7 +940,7 @@ interaction with the terminal. The automated examples do not test keyboard
 delivery or foreground recovery.
 
 ```sh
-ravel start-session --kind interactive --config policy.ts --prompt-file prompt.txt
+ravel start-session --kind interactive --config policy.rhai --prompt-file prompt.txt
 ```
 
 ## Understand the operational limits
@@ -872,10 +951,10 @@ caller to examine:
 
 | Condition | Consequence |
 |---|---|
-| Code that runs as the same user makes unauthorised changes to the result channel or the installation. | Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the policy worker matches the build of the Ravel CLI. It does not check a trusted signature. |
+| Code that runs as the same user makes unauthorised changes to the result channel or the installation. | Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the re-executed binary reports the expected build. It does not check a trusted signature. |
 | The Ravel CLI dies abruptly, for example from KILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone. |
-| Trusted owner policy starts a detached child. | Worker teardown does not guarantee the cleanup of that child. The confinement of the managed process does not contain policy code. |
+| An evaluation harness run starts a descendant that leaves its process group. | Cleanup of the run does not reach that descendant. The Rhai policy worker itself starts no program. Confinement does not restrict measured reads. |
 | Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal) explains the conditions. |
 | The host is different from the measured platforms. | The project measured how Ravel handles inherited signal settings, cancellation, cleanup and terminal recovery. It measured them on aarch64 macOS and aarch64 GNU/Linux. The project built Ravel for x86_64 GNU/Linux and ran it only under emulation. Native x86-64 qualification is not complete. These checks do not cover all combinations of kernel, libc and compiler. |
 

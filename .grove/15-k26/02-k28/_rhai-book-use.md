@@ -1,4 +1,4 @@
-# rhai-book-use-k28
+# rhai-book-use-k28 — brief
 
 ## Goal
 
@@ -26,3 +26,18 @@ Draft the changes to chapters 1, 2, 3, 5 and 6 of the Ravel book for Rhai. The c
 
 - If chapter 6 does not fit one session, decompose the leaf and put chapter 6 in a child of its own.
 - Do not edit chapters 7 to 11. The node `rhai-book-inside` owns them.
+
+## Decomposition
+
+- `rhai-book-use-k70` updates chapters 1, 2, 3 and 5, including their complete examples.
+- `rhai-book-use-k71` derives the source inventory and rewrites chapter 6.
+- Both children use the structure brief `docs/book/contract.md`.
+  The document's editorial pipeline belongs to `rhai-book-use-k26`.
+  Its live copy-edit leaf `rhai-book-use-k69` follows this subtree.
+  Neither child cuts another copy-edit leaf inside this node.
+
+## Decisions (running log)
+
+- The reference chapter is a separate source-verification task: its settings, bounds, host functions, errors and notice fields need a complete inventory.
+  The narrative chapters form the first independently runnable slice. Chapter 6 forms the second.
+  This is the decomposition permitted by the original leaf, not a second editorial pipeline.

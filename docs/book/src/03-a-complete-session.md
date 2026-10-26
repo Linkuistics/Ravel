@@ -32,7 +32,7 @@ Before you use the examples of this book, compare the version output with
 this version line:
 
 ```text
-ravel 1.1.0
+ravel @RAVEL_BOOK_VERSION@
 ```
 
 The release procedure writes the version of the release into that line. If
@@ -46,14 +46,11 @@ Markdown or local build. [Chapter 11](11-deliver-ravel.md#keep-the-book-with-its
 explains this limit and the address of each release's book.
 
 The directory that `brew --prefix ravel` prints contains the
-[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`, and the
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
-that matches it, `libexec/ravel/ravel-policy`. Keep the two files together.
-The Ravel CLI finds the worker relative to its own real path. If the worker
-is missing or does not match, the Ravel CLI stops with an error.
-
-The worker contains the Bun runtime. Thus, you do not need to install Bun or
-Node.
+[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`.
+That executable also contains the Rhai engine.
+Ravel launches its own binary as the separate
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+You install no separate policy worker or language runtime.
 
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
 separates the measured aarch64 macOS and aarch64 GNU/Linux targets from
@@ -75,26 +72,23 @@ settings or policy.
 Complete example: pass a prompt through a small policy to a fake agent. The
 fake prints the prompt and sends `finished`.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "first-session";
 
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "first-session",
-  select(request) {
-    return {
-      status: "selected",
-      program: "fake-agent",
-      args: [request.prompt],
-      provider: "local",
-      model: "fake",
-      effort: "none",
-      reason: "Learn the session protocol without a model service.",
-    };
-  },
-});
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [request.prompt],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Learn the session protocol without a model service.",
+    }
+}
 ```
 
 **`bin/fake-agent`**
@@ -109,7 +103,7 @@ ravel end-session -- "finished"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Print this prompt, then call ravel end-session -- "finished".'
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.rhai --prompt 'Print this prompt, then call ravel end-session -- "finished".'
 ```
 
 **Standard output, without a final newline**
@@ -170,35 +164,43 @@ error. The policy returns these fields:
 | `effort` | `none` | Describes the effort in the routing notice |
 
 The `provider`, `model` and `effort` labels do not select a model service.
-`definePolicy` returns the
-policy object unchanged and gives it the TypeScript type of the SDK. Thus, a
-type checker can check its fields. Ravel checks the values when it evaluates
-the policy.
+`SCHEMA_VERSION` identifies the policy interface, and `VERSION` names this
+owner's policy revision. `fn` defines a function, and `#{ ... }` constructs a map.
+The final expression returns that map. Ravel checks its fields during evaluation.
+
+The function accepts a request and policy context. This example needs only
+`request.prompt`, so it leaves the second argument unused.
+[Chapter 4](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request)
+teaches the syntax and the other fields.
 
 ## Check the request and evaluate the policy
 
 The Ravel CLI first reads the settings and the command-line inputs and checks
-the policy file. `--config policy.ts` names a file relative to the caller's
+the policy file. `--config policy.rhai` names a file relative to the caller's
 working directory. Ravel resolves its real path and requires a readable
 regular file. It does not search the caller's repository for a different
 policy. Settings still come from `$HOME/.config/ravel/settings.json`, even
 when `--config` is present. The private `home` of the example is empty, so the
 defaults apply.
 
-The Ravel CLI finds the worker that matches it and starts it in the empty private
-directory of the worker. It checks the identity of the worker before it sends
-the policy request. The worker receives a restricted environment and no
+The Ravel CLI launches its own binary in the worker's empty private directory.
+It checks the identity of the worker before it sends the policy request.
+The worker receives an empty environment and no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
-It changes to `/` before it imports the owner policy. The `cwd` of the request
-keeps the caller's working directory. The directory of the worker does not
-change that value.
 
-The worker imports `policy.ts` and calls `select`. The literal import
-`ravel/sdk` resolves to the embedded SDK of the worker. Thus, this example
-needs no local installation of dependencies. The policy has no policy-context
-loader, and the caller supplied no
+The `cwd` of the request keeps the caller's working directory.
+The script has no direct filesystem access. Ravel reads `policy.rhai` and
+sends its source to the worker, which evaluates it and calls `select`.
+
+The policy has no `load_context` function, and the caller supplied no
 [policy context](02-actors-and-words.md#three-different-kinds-of-information).
 In this example, the selection therefore depends only on the request.
+The second argument to `select` is `()`, Rhai's value for no value.
+
+A policy that needs files or model advice asks Ravel through
+[host capabilities](02-actors-and-words.md#policy-evaluation-and-supervision).
+Ravel measures each successful file read and supervises each evaluation
+harness run. This policy needs neither operation.
 
 The worker sends its response through a private socket. The Ravel CLI checks
 the policy metadata and the selected command. Anything that the worker prints
@@ -209,13 +211,14 @@ The worker and the managed process have different roles in this example:
 | Property | Policy worker | Managed process |
 |---|---|---|
 | Purpose | Evaluate the owner policy | Execute the selected command |
-| Working directory | Starts in a private directory, then changes to `/` before the policy import | Starts in the caller's working directory |
+| Working directory | Starts in a private directory. The script cannot read files directly or change that directory. | Starts in the caller's working directory |
 | Session-result context | None | Receives its own `RAVEL_EXIT_FILE` path |
 | Response to Ravel | Policy response through a private socket | Opaque result through the [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
 
 After the response, the Ravel CLI confirms that the worker ended and that the
 Ravel CLI reaped it. It also removes the private directory of the worker. Only
-then does it resolve the selected executable and allow the managed launch. If
+then does it resolve the selected executable and allow the managed launch.
+Any host call also ends before that launch. If
 the worker cleanup fails, Ravel does not launch, even after a valid response.
 
 Here, Ravel searches the caller's `PATH` for `fake-agent`. The first directory
@@ -340,7 +343,7 @@ That guarantee is for the process group of the managed process. It does not
 include these three cases:
 
 - a descendant that leaves the group
-- a detached child that trusted policy starts
+- a descendant of an evaluation harness run that leaves its group
 - a KILL that stops the Ravel CLI (the Ravel CLI cannot catch KILL)
 
 The [trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)

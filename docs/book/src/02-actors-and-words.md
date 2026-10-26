@@ -33,7 +33,8 @@ interprets it. For example, a caller can request `review`. But Ravel has no
 registry of task kinds and does not know what a review includes.
 
 The **owner** is the person who controls the configuration of Ravel for the
-account. Their **owner policy** is executable TypeScript configuration. It
+account. Their **owner policy** is executable Rhai configuration. Rhai is a
+small language that Ravel embeds. The policy
 selects a program and its arguments, or it refuses the request. The caller
 and the owner can be the same person, but their roles stay different. The
 choice of the work does not set the rules that select a command.
@@ -47,14 +48,17 @@ both roles.
 | Owner | The policy that selects a command or refuses a request | The caller's task and next step |
 
 By default, Ravel uses the account's policy file,
-`$HOME/.config/ravel/policy.ts`. `--config PATH` names a different policy
+`$HOME/.config/ravel/policy.rhai`. `--config PATH` names a different policy
 file. Ravel resolves that path relative to the working directory of the
 caller. Ravel does not search
 the repository of the caller for a policy.
 
 A selection contains a program, arguments and descriptive labels in the
-`provider`, `model` and `effort` fields. These labels are text from the owner, not
-built-in model integrations. The policy selects the actual command that
+`provider`, `model` and `effort` fields. The **provider** is the owner's label
+for the model's origin. Ravel reports it unchanged and never connects to it.
+These labels do not configure the program.
+
+The policy selects the actual command that
 starts the chosen program. Ravel runs that command without shell expansion or
 word splitting. A shell runs only if the policy selects one.
 
@@ -74,32 +78,59 @@ the managed process. The runner runs in the process of the Ravel CLI. It is
 not a separate service.
 
 The **policy worker** is a separate process that evaluates the owner policy
-for the Ravel CLI. Its executable contains the Bun runtime. Thus, it can run
-TypeScript policy and the modules that the policy imports, without a
-separately installed runtime. Here, “worker” means a process. It is not a Bun
-`Worker` thread, which policy code can itself create.
+for the Ravel CLI. Ravel starts its own binary in an internal role to run
+the Rhai script. Here, “worker” means a process, not a thread.
+You install no separate language runtime.
 
-This separation lets policy run ordinary TypeScript, while only the Ravel CLI
-supervises. Ravel gives the worker a request with a size limit and a
-restricted environment. The worker gets no
+The worker only computes. It has an empty environment, and the Rhai script
+has no direct filesystem, network or process access.
+A **host capability** is an operation that the policy asks the Ravel CLI to perform.
+These operations include measured file reads and harness runs.
+The Ravel CLI controls each operation and returns its data to the script.
+
+Ravel gives the worker a request with a size limit. The worker gets no
 [session-result context](#three-different-kinds-of-information). The Ravel
 CLI checks the response of the worker. Only the Ravel
 CLI supervises the [managed process](#the-managed-process-and-its-result).
-Policy evaluation is complete before that process starts.
+Policy evaluation and all its host calls end before that process starts.
 
-A **refusal** is a decision not to launch. The owner policy makes it, or Ravel
+A **harness run** is one execution of a program from the owner's `harnesses`
+settings, requested by the policy during evaluation.
+An **LLM call** is a harness run that asks a model a question.
+The harness uses the owner's sign-in, and Ravel holds no model credential.
+The policy reads the answer as data and decides what it means.
+
+An **evaluation budget** limits work during one policy evaluation.
+For example, the owner sets the number of harness runs in settings.
+The script cannot raise that number or catch its exhaustion.
+The whole evaluation also has a deadline.
+
+| Execution | Purpose | How it ends |
+|---|---|---|
+| Policy worker | Evaluate the Rhai script | Return a selection or refusal, then exit |
+| Evaluation harness run | Return data to the policy, such as an LLM answer | Natural exit or its own `end-session` result, followed by cleanup |
+| Final managed process | Perform the work of the caller's session | Send the session result with `end-session`, followed by cleanup |
+
+Each harness run has its own result channel. Its result reaches only the
+policy, and cannot complete the outer session.
+The final managed process receives a different channel after evaluation ends.
+
+A **refusal** is a decision not to launch the final managed process.
+The owner policy makes it, or Ravel
 makes it when it cannot accept the file, behaviour or data of the policy.
 Ravel does not try a different route. A failure of the worker, a failure of
 supervision and a selection timeout are different outcomes. A caller needs to
 tell a refusal from a failure during evaluation or supervision.
+Evaluation harness runs can occur before the policy refuses.
 
 <!-- tc: depart synonym-rotation because confirmation establishes completed cleanup, while checks also cover input validation -->
 A valid selection alone is not sufficient to start the launch. Ravel also
-confirms both cleanup conditions in this table before it launches the
+confirms the cleanup conditions in this table before it launches the
 selected program.
 
 | Condition before launch | What the Ravel CLI confirms |
 |---|---|
+| Host-call completion | Every host call ended. Each harness run completed its required cleanup. |
 | Worker exit and reap | The worker ended, and the Ravel CLI collected its exit status |
 | Removal of the private directory | The Ravel CLI removed the worker's private directory |
 
@@ -200,7 +231,7 @@ final outcome. The caller and the owner keep their separate decisions.
 |---|---|---|
 | Caller, such as an orchestrator | Supplies the task and the instructions to end the session. Interprets the result. | Start the session and decide the next step |
 | Owner | Writes the policy code and the settings | Configure which commands the requests select |
-| Policy worker | Evaluates the owner policy and sends its response | Receive request data with a size limit, in a restricted environment, with no session-result context |
+| Policy worker | Evaluates the owner policy and sends its response | Receive bounded request data and ask for host capabilities, with no environment or session-result context |
 | Ravel CLI, with its runner | Checks the request, launches and supervises the program, and decides the outcome | Supervise processes, control the terminal and write the final result |
 | Managed process, such as a harness | Runs the LLM session and the commands that it requests, which include `end-session`. Another selected program can take its place. | Use its own session-result context, which its children inherit |
 
@@ -233,14 +264,15 @@ session. The outer process keeps its own path for the result.
 
 The **policy context** is version-1 JSON data that the `select` function of
 the policy receives. It comes from the caller or from the optional
-policy-context loader of the policy. It can describe the work and the sources
-that inform a choice. Ravel measures each read through the host operations
-that it provides. For each source, it records the canonical name, the byte
+`load_context` function of the policy. It can describe the work and the sources
+that inform a choice. The script reads files through `ravel::read_text` and
+`ravel::read_json`. For each successful read, Ravel records the canonical name, the byte
 count and the SHA-256 digest of the bytes that it read.
 
-Policy code can also read data directly, but Ravel does not measure these
-reads. Policy context is data for selection. It gives no permission to send a
-result, and it does not prove that the data is trustworthy.
+The script cannot read a file directly. A harness program can read files,
+but those reads are not policy source measurements.
+Policy context is data for selection. It gives no permission to send a
+session result, and it does not prove that the data is trustworthy.
 
 The working directory of the caller is the `cwd` of the request. It tells the
 policy where the caller works. It is not one of the two forms of context
@@ -249,22 +281,18 @@ policy author uses the `cwd` of the request when the location of the caller is
 important. The author does not assume that the current directory of the
 worker is the same.
 
-The Ravel CLI creates the private directory of the worker, which is empty, and
-starts the worker there. The worker changes to `/` before it registers its
-embedded modules or imports owner policy. Policy code can then change the
-working directory of the worker again. During worker cleanup, before it
-launches the selected program, the Ravel CLI removes the private directory of
-the worker.
+The Ravel CLI starts the worker in an empty private directory.
+The script cannot change that directory or use it to read files.
+Relative measured reads use `request.cwd`.
+Relative imports use the directory of the file that imports them.
+After the worker ends and Ravel reaps it, Ravel removes its private directory.
 
-The table separates the start location of the worker from the location where
-policy code starts to run. It also shows that the removal of the private
-directory occurs before the launch.
-
-| Point in policy evaluation | Fact about the working directory |
+| Operation | Directory used |
 |---|---|
-| Worker startup | The Ravel CLI starts the worker in its empty private directory |
-| Before policy import | The worker changes to `/`. Then policy code can change its working directory. |
-| Worker cleanup, before the managed launch | After the worker ends and the Ravel CLI reaps it, the Ravel CLI removes the private directory of the worker |
+| Relative `--config` path | Caller's working directory |
+| Relative policy import | Directory of the real file that imports the module |
+| Relative measured read | Caller's `request.cwd` |
+| Evaluation harness run or final managed process | Caller's working directory |
 
 Use this table to keep selection data and the working directory separate from
 the inherited path for the result.
@@ -277,17 +305,17 @@ the inherited path for the result.
 
 ## Trust and confinement
 
-Owner policy is trusted executable code. The worker is separate and gets
-restricted inputs. Thus, policy has no part in the normal paths of supervision
-and of the result. But this separation does not make arbitrary
-owner code safe. Policy can access files or the network and can start
-unrelated processes. Its detached children are outside the cleanup guarantee
-of the worker.
+The owner controls the script and its settings. The separate worker computes
+with restricted inputs, while the Ravel CLI performs its host capabilities.
+A measured read can reach any regular file that the user can read.
+A configured harness can access files and the network within its permissions.
+These capabilities do not make arbitrary owner code safe.
 
 **Confinement** is the optional restriction of the filesystem access and the
 environment of the managed process. It is separate from owner policy. Owner
 policy selects a command, and confinement restricts the access of that
-command. `--confine` applies to the managed process, not to the policy worker.
+command. `--confine` applies to the managed process and to evaluation harness
+runs. It does not restrict measured reads or the policy worker.
 If the request asks for confinement and Ravel cannot provide it, Ravel does
 not launch the process unconfined.
 
