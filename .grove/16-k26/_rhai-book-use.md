@@ -28,6 +28,10 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
 - The correction run is draft `rhai-book-use-k75`, copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78`.
   Each stage finds its successor already cut.
 - This run is the first correction run against this document. Another send-back against it goes to the owner.
+- The draft node `rhai-book-use-k75` closed on 2026-10-28 after four drafts, `rhai-book-use-k80` to `rhai-book-use-k83`.
+  Chapters 1–6 now open each section with the reader's goal and explain each term at its first use on the page. Each mechanism has a real example.
+  Chapter 6 restates the words of every page, Rhai and chapter 1's real values, because a reader can enter it at any entry.
+  The F2, F4 and F5 entries under “Handed forward” name each place for a figure. No draft placed an image.
 
 ## Handed forward
 
@@ -40,6 +44,7 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   The JSON form replaces the line after the supervision attempt. The labels do not reach the program. Only `program` and `args` do.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
   Chapter 5 place, from draft `rhai-book-use-k82`: “Read notices separately from results”, after the table that follows the notice example. That example uses the same review values, so the figure's notice matches it. Draft `rhai-book-use-k82` placed no image.
+  Chapter 6 place, from draft `rhai-book-use-k83`: “Standard streams”, after the text fragment of the routing notice and before the table of first parts. The fragment has the same review values. Draft `rhai-book-use-k83` placed no image.
 - **Art: how `end-session` finds its session (F5).** Question: how does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest?
   Notation: a process tree with the inherited `RAVEL_EXIT_FILE`, as C4 dynamic or UML object. Row 3 of “Figure needs”.
   Place: chapter 1, “How `end-session` finds its session”, after the table of processes and before the nested fragment. Chapter 2, “Three different kinds of information”, and chapter 5, “Keep nested sessions separate”, can reuse it.
@@ -48,6 +53,7 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   The policy worker has none. An evaluation harness run has its own path, and its result goes back to the policy.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
   Chapter 5 place, from draft `rhai-book-use-k82`: “Keep nested sessions separate”, after the table of processes and before the fragment of the real nested run. That fragment has other random paths, `/private/tmp/ravel-session-DW2gTg/signal-c8008b48…` and `/private/tmp/ravel-session-47e8Ar/signal-803d525c…`. A reused figure keeps chapter 1's values, or art states which run it shows. Draft `rhai-book-use-k82` placed no image.
+  Chapter 6 places, from draft `rhai-book-use-k83`: “`end-session RESULT`”, after the table of processes, and “`RAVEL_EXIT_FILE`”, after the fragment of the nested run. Both use chapter 1's table and paths. Draft `rhai-book-use-k83` placed no image.
 - **Art: a harness run during evaluation (F4, chapter 4).** Question: how does a harness run that the policy launches return its answer to the policy, and how does it differ from the managed process?
   Notation: UML sequence, with the policy worker, the Ravel CLI, the harness run, the caller and the managed process. Art decides whether this needs a new row of “Figure needs”.
   Place: chapter 4, “Run a harness during evaluation”, after the order table and before the `harnessRuns` fragment. Chapter 4, “Follow the evaluation of a policy” and “Route to Claude Code and Codex”, can reuse it.
@@ -56,6 +62,8 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   Real values: the chapter's Claude Code example, entry `claude`, record `{"elapsedMs":314,"exitCode":0,"harness":"claude","sentResult":false,"signal":null,"status":"exited"}`, final result `prime`.
   The chapter 1 figure of F2 can also serve chapter 4, “Select a command or refuse”.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k81` placed no image.
+  Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k81` placed no image.
+  Chapter 6 place, from draft `rhai-book-use-k83`: “Harness-run request”, after the order table, which restates chapter 4's table. Draft `rhai-book-use-k83` placed no image.
 
 ## Decomposition
 

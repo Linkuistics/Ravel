@@ -64,6 +64,7 @@ Draft `rhai-book-use-k80` put the introduction in chapter 1, “The owner policy
 Draft `rhai-book-use-k81` restates the characteristics and the three links in chapter 4, “Know the Rhai language”.
 
 Draft `rhai-book-use-k82` introduces `sandbox-exec` and bubblewrap in chapter 5, “Confine the managed process”, because no earlier chapter names them.
+Draft `rhai-book-use-k83` restates Rhai, its links and both sandbox tools in chapter 6, because a reader can enter that chapter at any entry.
 
 ### L05. Explain a term before each page needs it
 
@@ -75,6 +76,7 @@ A link can then offer more detail.
 The owner found that “'a selection' is not described/contextualised”.
 **Ravel application:** Contract §2, “Explain a term before you use it” and “Terms”, replace the earlier link-only rule.
 Direct chapter 6 entries also need their own context under contract §1.
+Draft `rhai-book-use-k83` opens chapter 6 with the words of every page and gives each entry a short local explanation of its terms.
 
 ### L06. Name the actor, action, destination and reader of an output
 
@@ -90,6 +92,7 @@ The text notice precedes launch, and the `--json` report follows the supervision
 Draft `rhai-book-use-k80` explains the notice in chapter 1, “The selection and the routing notice”, as a who, when, where, reader and why list.
 
 Draft `rhai-book-use-k82` restates that list in chapter 5, “Read notices separately from results”, with the different times of the text and JSON forms.
+Draft `rhai-book-use-k83` restates the list in chapter 6, “Standard streams”, and adds a table of the first part of each line on standard error with its writer.
 
 ### L07. Explain the mechanism behind an abstract verb
 
@@ -103,6 +106,8 @@ The correction shows `RAVEL_EXIT_FILE`, its inheritance and its replacement for 
 Draft `rhai-book-use-k80` shows it in chapter 1, “How `end-session` finds its session”, with a table of processes and the paths of a real nested run.
 Draft `rhai-book-use-k82` restates the mechanism in chapter 5, “Keep nested sessions separate”, with a table of both layers and a second real run.
 
+Draft `rhai-book-use-k83` restates it in chapter 6, “`end-session RESULT`” and “`RAVEL_EXIT_FILE`”. Chapter 6 also shows the mechanism of `ravel::env` and of a host call: the worker asks the Ravel CLI over a private socket.
+
 ### L08. State the reader's goal before the capability
 
 Give the reason why the reader might want the operation.
@@ -113,6 +118,7 @@ Prefer an observable change to an abstract description of instructions.
 The owner preferred “to extend or modify the prompt” and described the desired harness/model/effort choice before the means.
 **Ravel application:** Contract §2, “Describe the effect in the reader's terms” and “Put the reader's goal first”.
 Draft `rhai-book-use-k81` opens each section of chapter 4 with the reason why the owner may want it. “Run a harness during evaluation” opens with the owner's F4 sentence.
+Draft `rhai-book-use-k83` opens each chapter 6 entry with the reader's question or goal, then gives the facts.
 
 ### L09. Follow an action through to the caller's result
 
@@ -128,6 +134,7 @@ Draft `rhai-book-use-k81` gives chapter 4 order tables for an evaluation and the
 Other order tables follow policy context, a harness run, the Claude Code recipe and an interactive route.
 
 Draft `rhai-book-use-k82` opens chapter 5 with chapter 1's order table and a column for the section of each row. A table after each complete example ends with what the caller receives.
+Draft `rhai-book-use-k83` gives chapter 6 order tables for `start-session` and a harness run. The `end-session` and refusal entries end with what the caller receives.
 
 ### L10. Repeat explanations where they help the reader
 
@@ -482,6 +489,8 @@ Read 1 checked nonzero image dimensions with an absent-image control.
 The browser's hidden mdBook zoom copy does not count as a second visible figure.
 Draft `rhai-book-use-k82`'s first link script reported every same-page anchor of chapter 5 as broken, because it resolved the page without its directory. The built HTML had each id.
 
+Draft `rhai-book-use-k83` found that mdBook gives the heading “`--exit-dir DIR`” the id `--exit-dir-dir`, with the two dashes of the option.
+
 ### L40. Keep checker rules distinct from editorial judgement
 
 Check what a rule actually governs. Preserve quotations, code identifiers and historical records as such.
@@ -665,6 +674,8 @@ They concerned the two bases of imports and measured reads, the capture of polic
 **Ravel application:** Chapter 4 says that an import and a measured read can find two different files from one relative name. It says that the arguments of a recipe stay the same for each prompt.
 The draft's decision log names the specification sections that it read.
 
+Draft `rhai-book-use-k83` removed its own motive for the reserved grant classes of chapter 6. The text now gives the description in the source: controls of a language runtime, of the dynamic loader or of Ravel.
+
 ### L55. Claim the order of two outputs when the order teaches the point
 
 When the text explains that one output comes before another, make one claim cover both outputs.
@@ -675,6 +686,22 @@ Show an order that the check cannot claim in a labelled fragment of a real run.
 The text routing notice precedes the launch, and the JSON notice follows the supervision attempt. Chapter 5 teaches that difference.
 **Ravel application:** The notice example of chapter 5 claims the text notice and the fake agent's next line as one block. A changed character in either line failed the check.
 The JSON notice holds values that change in each run, so a fragment of a real run shows the agent's line before the JSON document.
+
+### L56. Inspect the rendered page after an edit beside a code block
+
+An edit that ends inside a line can join the rest of that line to new text.
+After a closing code fence, that join leaves the fence open, and the page shows the following prose as code.
+Prose, break and example checks then read less text and still pass.
+After such an edit, search the built page for raw Markdown, such as a fence or a heading marker.
+Then compare the heading ids with the headings.
+
+**Source:** Session evidence, `rhai-book-use-k83`, 2026-10-28.
+**Ravel application:** In chapter 6, “`--json`”, a new fragment ended where an old sentence continued on the same line.
+The built page showed the rest of the entry as code, and the heading “`end-session RESULT`” had no id. The STE, break and example checks passed.
+
+The link check found the missing anchor.
+The draft then searched the built HTML for lines with a fence, a heading marker or an escaped `tc` comment as their first text.
+That search found the leak. After the edit that closed the fence, the same search found nothing.
 
 The following checks apply the rules where a judgement has no standalone executable check.
 
@@ -690,6 +717,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L52–L53 | The draft's running log records each run that a fragment quotes. The node brief names each draft's pages and the passages that restate earlier ones. |
 | L54 | The draft's decision log records the source of each reason that the text gives. Proof compares each reason with the normative documents. |
 | L55 | The examples check compares each multi-line claim byte for byte. Proof reads each order that the text states against a claim or a labelled fragment. |
+| L56 | A search of the built HTML for raw Markdown, and a count of headings against heading ids, follow an edit beside a code block. |
 
 ### Disposition of the task's candidate readings
 
