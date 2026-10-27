@@ -482,17 +482,15 @@ behaviour against its rule.
 campaign files stay separate. So do the caller-reference inventory and the
 retired-project record.
 
-<!-- tc: pending because this large contract is converted by the sections each edit touches -->
-
 ## 2. Prose contract
 
-- **Base**: ASD-STE100 Simplified Technical English, Issue 9 (2025-01-15).
+- <!-- tc: depart long-sentence because the sentence quotes the owner's words verbatim --> **Base**: ASD-STE100 Simplified Technical English, Issue 9 (2025-01-15).
   STE applies to all text in the book: prose, headings, tables, lists, figure
   labels, captions, keys and alt text. The owner made this decision on
-  2026-10-17: “I intend to add a global instruction to use ADE-STE100 for all
+  2026-10-17. In the owner's words: “I intend to add a global instruction to use ADE-STE100 for all
   LLM communication (such as when you talk to me here) as well as in all
-  documentation. Apply that rule now.” On 2026-10-18 the owner limited the
-  base to the writing rules: “The skill I am going to adopt does not use the
+  documentation. Apply that rule now.” On 2026-10-18, the owner limited the
+  base to the writing rules. In the owner's words: “The skill I am going to adopt does not use the
   word list, only the rules.” Thus, the book uses STE's writing rules (Part 1
   of the specification) and does not use its dictionary (Part 2). The points
   below add to STE. If a point and STE do not
@@ -537,13 +535,14 @@ retired-project record.
 - **Simple, self-contained language**: every page can be understood without
   following a link. A link is optional depth, and it names its destination and
   purpose.
-- **Term list**: `CONTEXT.md` plus the term risks above. A Ravel term not yet
-  in `CONTEXT.md` is added there when the book first needs it.
+- **Term list**: `CONTEXT.md` plus the term risks above. When the book first
+  needs a Ravel term that `CONTEXT.md` does not have, the stage that writes it
+  adds the term there.
 
 The house style's points, as this book takes them:
 
-- **Task headings** start with a bare infinitive: "Write a policy", not
-  "Writing a policy" or "To write a policy".
+- **Task headings**: the first word of a task heading is a bare infinitive.
+  Write "Write a policy", not "Writing a policy" or "To write a policy".
 - **Introducing steps**: a complete sentence introduces a procedure, or nothing
   does when its heading already says what it does. A fragment that the steps
   complete, such as "To install:", does not.
@@ -558,32 +557,36 @@ The house style's points, as this book takes them:
   4.2).
 - **Steps**: the location, condition or goal the reader needs first comes
   before the action, and the result after it. A step's first sentence is an
-  imperative; running text is indicative.
+  imperative. Running text is indicative.
 - **Demonstratives**: "this" or "these" takes a noun where its referent could
   be unclear.
 - **Voice and verbs**: use the active voice. In descriptive text, use the
   passive voice only when the agent is unknown (Rule 3.6). Use only the simple
   tenses (Rule 3.2). Use “-ing” forms only in technical names (Rule 3.5). Do
   not use phrasal verbs (Rule 9.3).
-- **Front-loading**: headings, list items and paragraph openings start with
-  their information-carrying words.
+- **Front-loading**: the first words of a heading, a list item or a paragraph
+  carry its information.
 - **Terms**: a term from the term list is linked at its first use on each page
   to the place the book teaches it.
 - **Code**: code font for identifiers, commands, file names, paths and literal
-  values. Code blocks are fenced and tagged with their language.
-- **Example labels**: each example is introduced by a label beginning
-  "Complete example" or "Fragment"; a fragment's label says what it omits.
-- **Stock phrasing**: no filler opener or closer ("It's worth noting", "In
-  summary"), no signpost that repeats its heading, no closing paragraph that
-  restates the section, no hedge without a condition ("typically" without
-  saying when), no inflated word where a plain one serves ("leverage",
-  "robust", "seamless"), and no reflexive list of three.
+  values. A code block has fences and a language tag.
+- **Example labels**: a label introduces each example. Its first words are
+  "Complete example" or "Fragment". The label of a fragment says what it
+  omits.
+- **Stock phrasing**: the book does not use these forms:
+  - a filler opener or closer, such as "It's worth noting" or "In summary".
+  - a signpost that repeats its heading.
+  - a closing paragraph that restates the section.
+  - a hedge without a condition, such as "typically" without saying when.
+  - an inflated word where a plain one serves, such as "leverage", "robust"
+    or "seamless".
+  - a reflexive list of three.
 - **Simple layout**: the headings the section plan states stand. Beyond them, a
-  heading level is added only for a section with at least two subsections. A
+  stage adds a heading level only for a section with at least two subsections. A
   paragraph carries one idea. Parallel items form a list, and items compared on
   the same attributes form a table. Bold marks only a run-in label or a term at
-  its definition. Nothing is added for decoration.
-- **Breaks in prose**: the owner made this decision on 2026-10-18: “I also
+  its definition. A stage adds nothing for decoration.
+- <!-- tc: depart long-sentence because the sentence quotes the owner's words verbatim --> **Breaks in prose**: the owner made this decision on 2026-10-18. In the owner's words: “I also
   want to make sure that we don't have too long expanses of prose without a
   diagram or a table to break it up.” A run of prose has about 450 words or
   fewer, one screen at the 750-pixel column. Then a figure, a table or a code
@@ -594,13 +597,16 @@ The house style's points, as this book takes them:
   450 words. The words are those of paragraphs, list items and blockquotes.
   The text of a heading, a list marker, the `>` of a blockquote, a link target
   and an HTML comment add no words. A fenced code block, a table row (a line
-  that starts with `|`) and an image (a line that starts with `![`) break a
-  run. `task docs:breaks -- --strict FILE…` stops with status 1 when it finds
+  with `|` as its first character) and an image (a line with `![` as its
+  first characters) break a run. `task docs:breaks -- --strict FILE…` stops with status 1 when it finds
   a longer run. `task docs:breaks:test` shows that the check finds a longer
   run and that each rule changes the result.
-- **Statements and asides**: in chapter 6, a note, example or summary beside an
-  entry's statement is set apart as a Markdown blockquote that opens with its
-  label (`> **Note:** …`), with every line marked and a blank line closing it.
+- **Statements and asides**: in chapter 6, a Markdown blockquote sets a note,
+  an example or a summary apart from the statement of an entry. The
+  blockquote opens with its label, for example `> **Note:** …`. Each of its
+  lines has the `>` mark, and a blank line ends it.
+
+<!-- tc: pending because this large contract is converted by the sections each edit touches -->
 
 ## 3. Format and media
 

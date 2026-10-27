@@ -109,11 +109,11 @@ design needs the settled requirements.
 - The book is published with each release. Both book nodes finish before the
   release leaves run.
 - Run `task docs:excerpts` and `task docs:examples` after a change to code that
-  the book quotes. Fix a moved excerpt in the same leaf.
+  the book quotes. Correct a moved excerpt in the same leaf.
 - `task test:native-linux` runs on a Linux image whose rustup holds every target
   that `rust-toolchain.toml` lists, because `/opt/rustup` is read-only to the
   campaign user. A new target in that file needs the same `-t` flag in
   `scripts/native-linux/Dockerfile`. The native-entry campaign selects only
   `native_` cases, so it runs no Rhai test. The `rhai-worker` step of
   `scripts/native-linux/measure.sh` runs the Rhai tests, and
-  `native-incumbent-guard-build-rs-k51` fixes the campaign step.
+  `native-incumbent-guard-build-rs-k51` corrects the campaign step.
