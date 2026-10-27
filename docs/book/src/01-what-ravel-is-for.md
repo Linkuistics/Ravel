@@ -226,6 +226,14 @@ standard error. This block omits the other lines on standard error.
 ravel: starting provider local, model fake, effort low for kind "review"
 ```
 
+The selection separates the command that Ravel launches from the labels that the caller reads.
+
+![The policy worker returns the fake-agent command and the local, fake and low labels. The Ravel CLI reaps the worker, writes the routing notice on the caller's standard error and launches fake-agent with args. Labels do not go to the program. With JSON, the notice follows the supervision attempt.](figures/routing-notice.svg)
+
+*Figure: The review selection reaches the program and the caller by separate paths.*
+
+[Open the selection and routing notice at full size](figures/routing-notice.svg).
+
 With `--json`, Ravel writes a version-2 JSON document in place of that line.
 The document gives more detail, such as the `reason` and the program file
 that Ravel found. Ravel writes this document after the supervision attempt,
@@ -331,6 +339,14 @@ and writes the result to that file.
 | The harness, which is the managed process | Ravel | A new path that Ravel makes for this session |
 | A shell for a command of the LLM | The harness | The same path, inherited from the harness |
 | `ravel end-session continue` | That shell | The same path, inherited from the shell. The command writes the result there. |
+
+Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+
+![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
+
+*Figure: The nested run gives each session's children its own result path.*
+
+[Open the inherited result paths at full size](figures/inherited-result-path.svg).
 
 Here is a real run. A fake agent printed its own `RAVEL_EXIT_FILE`. Then it
 was the caller of a second, inner session. The inner fake agent printed its

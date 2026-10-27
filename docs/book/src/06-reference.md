@@ -545,6 +545,14 @@ the parent changes it. The table shows the path when each parent leaves it uncha
 | A shell for a command of the LLM | The harness | The same path, inherited from the harness |
 | `ravel end-session continue` | That shell | The same path, inherited from the shell. The command writes the result there. |
 
+Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+
+![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
+
+*Figure: The nested run gives each session's children its own result path.*
+
+[Open the inherited result paths at full size](figures/inherited-result-path.svg).
+
 The book calls this path the
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 The [`RAVEL_EXIT_FILE` entry](#ravel_exit_file) shows real paths, also for a
@@ -702,6 +710,14 @@ standard error.
 ```text
 ravel: starting provider local, model fake, effort low for kind "review"
 ```
+
+The selection separates the command that Ravel launches from the labels that the caller reads.
+
+![The policy worker returns the fake-agent command and the local, fake and low labels. The Ravel CLI reaps the worker, writes the routing notice on the caller's standard error and launches fake-agent with args. Labels do not go to the program. With JSON, the notice follows the supervision attempt.](figures/routing-notice.svg)
+
+*Figure: The review selection reaches the program and the caller by separate paths.*
+
+[Open the selection and routing notice at full size](figures/routing-notice.svg).
 
 The line names the provider, model, effort and kind. These are the labels of
 the selection and the caller's kind. The line does not show `program` or
@@ -1002,6 +1018,14 @@ inner-agent: RAVEL_EXIT_FILE=/private/tmp/ravel-session-QpztGn/signal-b643cbee52
 outer-agent: the inner session returned inner-done
 outer-agent: RAVEL_EXIT_FILE=/private/tmp/ravel-session-mlcN86/signal-c7d5f2eed4198eb768996f7b4868bbcc
 ```
+
+Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+
+![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
+
+*Figure: The nested run gives each session's children its own result path.*
+
+[Open the inherited result paths at full size](figures/inherited-result-path.svg).
 
 The inner session got a new path, but only the inner fake agent received it.
 The outer fake agent kept its own path. Thus, each `end-session` goes to the
@@ -1661,6 +1685,14 @@ How does the answer get back to the policy? Follow one harness run:
 | 4 | The harness run | Reads its standard input, writes its answer on standard output and exits |
 | 5 | The Ravel CLI | Stops the processes that remain in the group of the run, completes cleanup and sends a map back to the worker |
 | 6 | The policy | Reads `status`, `exitCode` and `stdout` from the map, then continues |
+
+The harness run returns its answer to the policy before Ravel launches the final managed process.
+
+![The policy worker requests a claude harness run from the Ravel CLI and waits. The CLI checks the budget and starts the run with its own result channel. The run reads standard input, writes its answer and exits. After cleanup the CLI returns a map to the worker. The policy selects, the CLI reaps the worker, writes the routing notice and launches the managed process.](figures/evaluation-harness.svg)
+
+*Figure: The evaluation harness run and the managed process are separate launches.*
+
+[Open the evaluation harness sequence at full size](figures/evaluation-harness.svg).
 
 A harness run differs from the managed process. The managed process is the
 final program, which Ravel launches after evaluation. Its result goes to the

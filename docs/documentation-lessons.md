@@ -375,6 +375,8 @@ A word-set comparison cannot establish position, multiplicity or visible text.
 Session evidence: `rhai-book-use-k72`, 2026-10-26.
 **Ravel application:** Layout records separate geometry from drawing style.
 The crisp restyle kept records unchanged. Later art checked semantic changes against the source and surrounding text.
+Session `rhai-book-use-k77` found that Typst converted `--json` to an en dash in a figure.
+Escape literal command punctuation and inspect the rendered label, not only the source.
 
 ### L30. Pin every input that can change a render
 

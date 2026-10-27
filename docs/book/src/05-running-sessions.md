@@ -531,6 +531,16 @@ only to its own managed process:
 | Inner managed process | The inner Ravel CLI | A new inner path | The result of the inner session. Ravel returns it to the outer process after the inner cleanup. |
 | Outer managed process, after the inner session | The outer Ravel CLI | The outer path, unchanged | The result of the outer session |
 
+The figure uses the paths of the separate run in chapter 1.
+
+Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+
+![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
+
+*Figure: The nested run gives each session's children its own result path.*
+
+[Open the inherited result paths at full size](figures/inherited-result-path.svg).
+
 Here is a real run of the nested example below. Each fake agent also printed
 its own `RAVEL_EXIT_FILE` on standard error. The outer agent printed its value
 before and after the inner session.

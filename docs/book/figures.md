@@ -1479,3 +1479,31 @@ A renderer or version change is a change to the contract. Re-read the release's
 digests, edit the constants in `scripts/figures.sh`, run `task setup`, then
 `task docs:figures:update` for the fixtures and the book's figures, and read the
 diff of every figure and layout record before committing it.
+
+### Read 1 correction art (`rhai-book-use-k77`)
+
+The selection sequence uses the review example's actual labels and shows the
+notice before launch. The process tree uses the two paths of chapter 1's nested
+run, shortened at the random suffix. It shows inheritance and the replacement
+for the inner child. The evaluation sequence separates the run's return to the
+policy from the later managed launch. These sources use the existing sequence
+and C4 layout modules and the shared crisp renderer.
+
+At a 750-pixel width, the final SVG exports show the three new figures and
+their keys without visible overlap. Safari in an isolated macOS guest showed
+the routing sequence and the upper and middle portions of the process tree
+in the local book. The remaining tree and the evaluation sequence were viewed
+as 750-pixel SVG exports, not in the browser. The first routing render changed
+`--json` to an en dash; the final source escapes both hyphens.
+
+A headless Chrome check loaded every figure image in chapters 1–6 of the
+local book at a 750-pixel content width. The hidden zoom copies also decoded.
+A deliberately absent image failed the same decode check on each page. This
+checks loading, not human understanding. No editor preview, other theme,
+narrower viewport, GitHub or published site was inspected in this pass.
+
+The routing and nested-path figures can be linked from other chapters instead
+of redrawing each relation. That is an editorial choice: the shared figure
+shows chapter 1's run, and the other examples can use different program names
+or random paths. The contract does not forbid another figure and the medium
+can carry one.

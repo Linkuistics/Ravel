@@ -1383,6 +1383,14 @@ How does the answer get back to the policy? Follow one harness run:
 | 5 | The Ravel CLI | Stops the processes that remain in the group of the run, completes cleanup and sends a map back to the worker |
 | 6 | The policy | Reads `status`, `exitCode` and `stdout` from the map, then continues |
 
+The harness run returns its answer to the policy before Ravel launches the final managed process.
+
+![The policy worker requests a claude harness run from the Ravel CLI and waits. The CLI checks the budget and starts the run with its own result channel. The run reads standard input, writes its answer and exits. After cleanup the CLI returns a map to the worker. The policy selects, the CLI reaps the worker, writes the routing notice and launches the managed process.](figures/evaluation-harness.svg)
+
+*Figure: The evaluation harness run and the managed process are separate launches.*
+
+[Open the evaluation harness sequence at full size](figures/evaluation-harness.svg).
+
 A [result channel](02-actors-and-words.md#the-managed-process-and-its-result)
 is a private temporary directory with a path for one result file. The path
 goes to the program in `RAVEL_EXIT_FILE`. A harness run gets a result channel

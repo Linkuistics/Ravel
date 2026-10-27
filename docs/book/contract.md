@@ -460,6 +460,7 @@ This checks visual consistency, not the reader's knowledge of notation.
 | Where does Ravel sit between a caller, such as an orchestrator, and the harness or other program it launches? | C4 system context | chapters 1–2 |
 | What does the policy return, and how does Ravel tell the caller which harness, model and effort the policy chose? | UML sequence, with a real routing notice as its example | chapter 1, then chapters 3 and 5 |
 | How does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest? | Process tree with the inherited `RAVEL_EXIT_FILE` (C4 dynamic or UML object) | chapter 1, then chapters 2 and 5 |
+| How does an evaluation harness return data to the policy before the managed launch? | UML sequence | chapters 4 and 6 |
 | Which processes exist during a session, and which holds which authority? | C4 container | chapters 2 and 7 |
 | What happens, in order, in a successful session? | UML sequence | chapter 3, then in full in chapter 8 |
 | What changes when cancellation arrives during selection versus during supervision? | UML sequence, one per phase | chapters 5 and 9 |

@@ -1,0 +1,762 @@
+{
+  "w": 852.4921875,
+  "h": 1534.3867187499998,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "How end-session finds its session — process tree",
+      "x": 336.24609375,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 442.9140625,
+      "h": 12.15625
+    },
+    {
+      "id": "caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 215.0,
+      "y0": 26.15625,
+      "x1": 485.0,
+      "y1": 94.06640625
+    },
+    {
+      "id": "caller-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 350,
+      "y": 41.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "caller-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 350,
+      "y": 56.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "caller-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: none",
+      "x": 350,
+      "y": 77.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 162.1005859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "outer",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 215.0,
+      "y0": 206.15625,
+      "x1": 485.0,
+      "y1": 274.06640625
+    },
+    {
+      "id": "outer-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«process»",
+      "x": 350,
+      "y": 221.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "outer-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "outer start-session",
+      "x": 350,
+      "y": 236.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 171.78125,
+      "h": 12.15625
+    },
+    {
+      "id": "outer-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: none",
+      "x": 350,
+      "y": 257.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 162.1005859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": -90.0,
+      "y0": 426.15625,
+      "x1": 150.0,
+      "y1": 494.06640625
+    },
+    {
+      "id": "worker-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«process»",
+      "x": 30,
+      "y": 441.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "policy worker",
+      "x": 30,
+      "y": 456.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 121.515625,
+      "h": 12.15625
+    },
+    {
+      "id": "worker-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: none",
+      "x": 30,
+      "y": 477.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 162.1005859375,
+      "h": 10.63671875
+    },
+    {
+      "id": "harness",
+      "shape": "box",
+      "role": "external",
+      "x0": 215.0,
+      "y0": 426.15625,
+      "x1": 485.0,
+      "y1": 494.06640625
+    },
+    {
+      "id": "harness-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 350,
+      "y": 441.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "harness-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "outer harness",
+      "x": 350,
+      "y": 456.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 125.7109375,
+      "h": 12.15625
+    },
+    {
+      "id": "harness-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: outer path",
+      "x": 350,
+      "y": 477.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 200.7509765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "shell",
+      "shape": "box",
+      "role": "external",
+      "x0": 215.0,
+      "y0": 646.15625,
+      "x1": 485.0,
+      "y1": 714.06640625
+    },
+    {
+      "id": "shell-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 350,
+      "y": 661.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "shell-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "child shell",
+      "x": 350,
+      "y": 676.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 91.6015625,
+      "h": 12.15625
+    },
+    {
+      "id": "shell-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: outer path",
+      "x": 350,
+      "y": 697.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 200.7509765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "end",
+      "shape": "box",
+      "role": "external",
+      "x0": -20.0,
+      "y0": 876.15625,
+      "x1": 220.0,
+      "y1": 962.403125
+    },
+    {
+      "id": "end-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 100,
+      "y": 891.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "end-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "end-session",
+      "x": 100,
+      "y": 906.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 107.625,
+      "h": 12.15625
+    },
+    {
+      "id": "end-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: outer path; writes result there",
+      "x": 100,
+      "y": 936.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 216.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "inner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 470.0,
+      "y0": 876.15625,
+      "x1": 730.0,
+      "y1": 944.06640625
+    },
+    {
+      "id": "inner-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«process»",
+      "x": 600,
+      "y": 891.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "inner-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "inner start-session",
+      "x": 600,
+      "y": 906.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 170.015625,
+      "h": 12.15625
+    },
+    {
+      "id": "inner-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: outer path",
+      "x": 600,
+      "y": 927.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 200.7509765625,
+      "h": 10.63671875
+    },
+    {
+      "id": "agent",
+      "shape": "box",
+      "role": "external",
+      "x0": 470.0,
+      "y0": 1106.15625,
+      "x1": 730.0,
+      "y1": 1174.06640625
+    },
+    {
+      "id": "agent-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 600,
+      "y": 1121.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "agent-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "inner harness",
+      "x": 600,
+      "y": 1136.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 123.9453125,
+      "h": 12.15625
+    },
+    {
+      "id": "agent-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: inner path",
+      "x": 600,
+      "y": 1157.748046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 199.458984375,
+      "h": 10.63671875
+    },
+    {
+      "id": "innerend",
+      "shape": "box",
+      "role": "external",
+      "x0": 470.0,
+      "y0": 1326.15625,
+      "x1": 730.0,
+      "y1": 1412.4031249999998
+    },
+    {
+      "id": "innerend-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«process»",
+      "x": 600,
+      "y": 1341.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.796875,
+      "h": 9.1171875
+    },
+    {
+      "id": "innerend-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "inner end-session",
+      "x": 600,
+      "y": 1356.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 160.203125,
+      "h": 12.15625
+    },
+    {
+      "id": "innerend-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "RAVEL_EXIT_FILE: inner path; writes result there",
+      "x": 600,
+      "y": 1386.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 236.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-caller-outer",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          350,
+          94.06640625
+        ],
+        [
+          350,
+          206.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-caller-outer-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts",
+      "x": 377.95068359375,
+      "y": 150.111328125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 39.9013671875,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-outer-worker",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          215.0,
+          240.111328125
+        ],
+        [
+          30,
+          240.111328125
+        ],
+        [
+          30,
+          426.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-outer-worker-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts without path",
+      "x": 83.0,
+      "y": 333.1337890625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 90.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-outer-harness",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          350,
+          274.06640625
+        ],
+        [
+          350,
+          426.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-outer-harness-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; sets outer path",
+      "x": 435.89208984375,
+      "y": 350.111328125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 155.7841796875,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-harness-shell",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          350,
+          494.06640625
+        ],
+        [
+          350,
+          646.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-harness-shell-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; inherits",
+      "x": 408.873046875,
+      "y": 570.111328125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 101.74609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-shell-end",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          215.0,
+          680.111328125
+        ],
+        [
+          100,
+          680.111328125
+        ],
+        [
+          100,
+          876.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-shell-end-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; inherits",
+      "x": 153.0,
+      "y": 778.1337890625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 90.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-shell-inner",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          485.0,
+          680.111328125
+        ],
+        [
+          600,
+          680.111328125
+        ],
+        [
+          600,
+          876.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-shell-inner-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; inherits",
+      "x": 653.0,
+      "y": 778.1337890625,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 90.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-inner-agent",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          600,
+          944.06640625
+        ],
+        [
+          600,
+          1106.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-inner-agent-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; sets inner path",
+      "x": 685.24609375,
+      "y": 1025.111328125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 154.4921875,
+      "h": 10.63671875
+    },
+    {
+      "id": "rel-agent-innerend",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          600,
+          1174.06640625
+        ],
+        [
+          600,
+          1326.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-agent-innerend-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "starts; inherits",
+      "x": 658.873046875,
+      "y": 1250.111328125,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": false,
+      "w": 101.74609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 48.94873046875,
+      "y0": 1430.4031249999998,
+      "x1": 623.54345703125,
+      "y1": 1534.3867187499998
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: session supervisors and worker. Grey: caller and managed descendants.\nOuter path: /private/tmp/ravel-session-mlcN86/signal-c7d5…\nInner path: /private/tmp/ravel-session-QpztGn/signal-b643…\nAn evaluation harness run gets its own path; its result returns to the policy.\nThe inner launch changes its child’s environment, not the outer harness’s.",
+      "x": 336.24609375,
+      "y": 1482.394921875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 546.5947265625,
+      "h": 83.98359375
+    }
+  ]
+}
