@@ -183,9 +183,10 @@ selected program.
 
 ## The managed process and its result
 
-The **managed process** is the direct child that owner policy selects and that
-the Ravel CLI supervises. Cleanup applies to its full process group, with all
-descendants that stay in that group.
+The **managed process** is the direct child that the owner policy selects and
+that the Ravel CLI supervises. A process group is a set of processes that can
+receive a signal as one unit. Cleanup applies to that group, with all
+descendants that stay in it.
 
 A **harness** is the agent program, such as Claude Code or Codex, in which an
 LLM session works on the prompt. The harness gives the prompt to the LLM and
@@ -303,8 +304,8 @@ The **session-result context** is the inherited `RAVEL_EXIT_FILE` path. It
 identifies the result channel of the enclosing session. How does it reach
 `end-session`? Ravel puts the path in the environment of the program that it
 launches. A child process gets a copy of the environment of its parent,
-unless the parent changes it. Thus, a shell that the harness starts, and the
-`ravel end-session` that the shell starts, have the same path.
+unless the parent changes it. If each parent leaves the variable unchanged,
+the shell and the `ravel end-session` that it starts have the same path.
 
 `end-session` reads that path from its own environment. It reads no policy or
 settings and accepts no target argument. It fails with status 1 if the path
@@ -403,5 +404,5 @@ caller is correct.
 
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md), uses
 these roles in one session with a small policy and a fake agent. The fake
-agent makes the choice of command, the sent result and the cleanup visible. It
+agent makes the selected command, the sent result and the cleanup visible. It
 needs no agent account and no model service.

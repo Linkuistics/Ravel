@@ -1,11 +1,18 @@
 # Run sessions
 
-You have an owner policy that selects a program. Now you want to run sessions
-from a script, an orchestrator or your terminal. You also want to know what
-each outcome means for your program. This chapter shows how to give a request
-and how to read the result and the routing notice. It also shows how to run
-nested or confined sessions and how to identify each outcome that a caller can
-see.
+Your owner policy is a file of Rhai code that selects a program for a request.
+Rhai is a small computer language that Ravel contains. Now you want to run a
+session, one run of `ravel start-session`, from a script or your terminal.
+You may also use an orchestrator, a program that runs sessions as steps of its
+own work.
+
+You want to know what each outcome means for your program. This chapter shows
+how to give a request and how to read the result and the routing notice. The
+routing notice tells the caller, the person or program that requested the
+session, which provider, model and effort the policy chose. This chapter also
+shows how to run a session inside another session and identify each outcome.
+It also explains confinement, which restricts a program's filesystem access
+and environment.
 
 First, the words that this chapter uses on every page:
 
@@ -510,8 +517,9 @@ that it launches. The book calls this path the
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 
 A child process gets a copy of the environment of its parent. Thus, each
-descendant of the managed process inherits the same path, and
-`ravel end-session` finds the path in its own environment. `end-session` takes
+descendant of the managed process inherits the same path, unless its parent
+changes the environment. `ravel end-session` finds the path in its own
+environment. `end-session` takes
 no session ID and no target argument. An inner `start-session` gives a new path
 only to its own managed process:
 

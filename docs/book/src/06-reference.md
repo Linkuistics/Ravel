@@ -5,9 +5,8 @@ standard error or one file? This chapter answers it in one entry. You can come
 here from any page of the book, or directly from an error message. You do not
 have to read the earlier chapters first.
 
-Each entry gives the facts and explains the words that it uses. Then it links
-to the chapter that teaches the subject. The entries repeat short explanations
-on purpose. Thus, each entry makes sense alone.
+Each entry explains its terms and links to the chapter that teaches the subject.
+The entries repeat short explanations so that each entry makes sense alone.
 
 First, the words that this chapter uses on every page:
 
@@ -20,8 +19,9 @@ First, the words that this chapter uses on every page:
 - The [owner](02-actors-and-words.md#caller-and-owner) is the person who
   controls the configuration of Ravel for the account. The owner can be you.
 - The [owner policy](02-actors-and-words.md#caller-and-owner) is a file of
-  Rhai code that the owner writes. Ravel gives the request to the policy. The
-  policy then selects a program and its arguments, or it refuses the request.
+  Rhai code that the owner writes. Rhai is a small computer language that
+  Ravel contains. Ravel gives the request to the policy. The policy then
+  selects a program and its arguments, or it refuses the request.
 - The [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
   is the separate process that runs the owner policy. Each session has a new
   worker, and it ends before Ravel launches the selected program.
@@ -534,8 +534,8 @@ How does `end-session` find its session? It takes no session ID and no target
 argument. Before the launch, Ravel makes a private
 [result channel](#--exit-dir-dir) for the session. Ravel puts the path of its
 result file in the `RAVEL_EXIT_FILE` environment variable of the program that
-it launches. Each child process gets a copy of the environment of its parent.
-Thus, each process below the harness has the same path:
+it launches. Each child process gets a copy of its parent's environment, unless
+the parent changes it. The table shows the path when each parent leaves it unchanged:
 
 <!-- tc: depart synonym-rotation because the table repeats chapter 1's words, and start names any parent's process creation while launch names Ravel's supervised launch -->
 | Process | Which process starts it | Its `RAVEL_EXIT_FILE` |
@@ -979,9 +979,10 @@ receives it.
 
 How does the path reach `end-session`? Ravel puts it in the environment of the
 program that it launches. Each child process gets a copy of the environment of
-its parent. Thus, a shell that the harness starts, and the `ravel end-session`
-in that shell, have the same path. `end-session` reads the path from its own
-environment and writes the result to that file.
+its parent, unless the parent changes it. If each parent leaves the path
+unchanged, a shell that the harness starts and the `ravel end-session` in that
+shell have the same path. `end-session` reads the path from its own environment
+and writes the result to that file.
 
 What happens when sessions nest? A nested launch replaces the path only for
 its own managed process. The value of the outer caller does not change. In the

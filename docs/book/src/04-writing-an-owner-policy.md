@@ -1,9 +1,9 @@
 # Write an owner policy
 
-Callers ask Ravel for sessions of different kinds. You may want to decide which
-harness, model and effort runs each kind, and which requests Ravel refuses.
-You do this with an owner policy. This chapter teaches you to write a policy,
-to check it with fake agents and to let an LLM help it choose.
+A caller asks Ravel to run a session, one `start-session` invocation. The
+caller gives a kind, a token that names the work. You choose the program for
+each kind with an owner policy, a file of Rhai code. This chapter teaches you
+to write and check a policy and to let an LLM help it choose.
 
 First, the words that this chapter uses on every page:
 
@@ -41,8 +41,7 @@ important for a policy:
   evaluation.
 - **Modules.** A policy can import other Rhai files.
 
-This chapter teaches the Rhai that a policy needs. Each example shows some new
-Rhai, and the text after the example explains it. Rhai also has its own
+Each example explains the Rhai that it uses. Rhai also has its own
 documentation:
 
 - [The Rhai Book](https://rhai.rs/book/) is the manual. On 27 October 2026, it
@@ -470,7 +469,7 @@ ravel: refused (policy_refused, stage selection): the policy <scratch>/work/poli
 
 How do you read a refusal? The first command succeeded, and the two refused
 commands wrote nothing on standard output. Each refusal wrote these lines on
-standard error. The values come from the second command:
+standard error. The values come from the third command:
 
 | Line | What it tells you |
 |---|---|
@@ -1884,8 +1883,9 @@ Ravel does not add the instruction.
 How does `ravel end-session` find the session? Ravel puts the path of the
 session's result file in the `RAVEL_EXIT_FILE` environment variable of the
 harness. The harness runs each command of the LLM in a child process, for
-example a shell. Each child inherits `RAVEL_EXIT_FILE` from its parent. Thus,
-`ravel end-session` finds the path in its own environment.
+example a shell. Each child inherits `RAVEL_EXIT_FILE` from its parent unless
+the parent changes it. Thus, `ravel end-session` finds the path in its own
+environment.
 [Chapter 1, “How `end-session` finds its session”](01-what-ravel-is-for.md#how-end-session-finds-its-session),
 shows the paths of a real nested run.
 

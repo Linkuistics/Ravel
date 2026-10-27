@@ -321,9 +321,9 @@ path the
 How does the path reach `end-session`? When a process starts a child, the
 child gets a copy of the environment of its parent, unless the parent changes
 it. A harness runs each command that the LLM requests in a child process,
-for example a shell. That shell starts `ravel end-session`. Each of these
-processes inherits the same `RAVEL_EXIT_FILE`. Thus, `ravel end-session` finds the path in its own
-environment and writes the result to that file.
+for example a shell. That shell starts `ravel end-session`. If each parent leaves `RAVEL_EXIT_FILE` unchanged, each child inherits the
+same path. Thus, `ravel end-session` finds the path in its own environment
+and writes the result to that file.
 
 | Process | Which process starts it | Its `RAVEL_EXIT_FILE` |
 |---|---|---|

@@ -8,8 +8,9 @@ chooses the program, and a fake agent. Then you follow the request through
 selection, launch, the sent result and cleanup.
 
 You act as both [owner and caller](02-actors-and-words.md#caller-and-owner).
-You write the rule in the owner policy, supply the prompt and choose the
-result that you expect. The fake is an ordinary shell program. It needs no
+The owner controls the configuration of Ravel, and the caller requests the
+session and interprets its result. You write the rule in the owner policy,
+supply the prompt and choose the result that you expect. The fake is an ordinary shell program. It needs no
 model service or agent account.
 
 The example returns `finished`. That word is your convention, not a Ravel
