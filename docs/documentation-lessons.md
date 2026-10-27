@@ -1,6 +1,6 @@
 # Lessons for documents and communication
 
-This file records what this grove learnt about documents and communication through 2026-10-27.
+This file records what this grove learnt about documents and communication through 2026-10-28.
 Its rules apply to books, reference pages, specifications, decision records, help text and replies.
 They also apply to questions, handovers, task files, briefs, commit messages and prompts for other models.
 Another project can use the rules after it states its own readers, terms and evidence requirements.
@@ -61,6 +61,7 @@ Distinguish the upstream language from restrictions and capabilities supplied by
 **Ravel application:** Contract §1 and §2 require the Rhai introduction in chapter 1.
 `rhai-book-use-k75` owns the correction. The upstream playground has no `ravel::` capabilities or Ravel limits.
 Draft `rhai-book-use-k80` put the introduction in chapter 1, “The owner policy chooses a program”, and a shorter restatement in chapter 2.
+Draft `rhai-book-use-k81` restates the characteristics and the three links in chapter 4, “Know the Rhai language”.
 
 ### L05. Explain a term before each page needs it
 
@@ -106,6 +107,7 @@ Prefer an observable change to an abstract description of instructions.
 **Source:** Owner F3 and F4, `rhai-book-use-k74`, 2026-10-27.
 The owner preferred “to extend or modify the prompt” and described the desired harness/model/effort choice before the means.
 **Ravel application:** Contract §2, “Describe the effect in the reader's terms” and “Put the reader's goal first”.
+Draft `rhai-book-use-k81` opens each section of chapter 4 with the reason why the owner may want it. “Run a harness during evaluation” opens with the owner's F4 sentence.
 
 ### L09. Follow an action through to the caller's result
 
@@ -117,6 +119,8 @@ Explain an empty result, an absent result and a process exit status separately.
 F6 asks that “the result becomes the value returned as the Ravel result”.
 **Ravel application:** Contract §1 and §2 follow `end-session`, group cleanup and the return from `start-session`.
 The first-result rule also needs the race and shutdown explanation.
+Draft `rhai-book-use-k81` gives chapter 4 order tables for an evaluation and the first example.
+Other order tables follow policy context, a harness run, the Claude Code recipe and an interactive route.
 
 ### L10. Repeat explanations where they help the reader
 
@@ -169,6 +173,8 @@ Session evidence: `rhai-book-use-k69`, 2026-10-26.
 **Ravel application:** `CONTEXT.md` keeps Provider as the owner's model-origin label.
 [Word decisions](book/ste.md) keep “policy”, “policy worker”, “harness run” and the full standard-stream names consistent.
 Its signal-name rule preserves literal identifiers and diagnostics.
+
+The prose checker accepts the first word of a synonym group in a file and reports each other member. New text uses the verb that the page already uses. Chapter 4 says “start” for a process, where chapter 1 says “launch”.
 
 ### L14. Prefer a familiar verb and a clear referent
 
@@ -260,6 +266,8 @@ Label fragments with what they omit.
 **Ravel application:** `task docs:examples` extracts the Markdown and runs the real CLI with fake programs.
 Missing labels, unknown requirements and timeouts fail. Skips remain skips.
 `<scratch>` substitution alone cannot prove that a path is correct.
+
+When the text explains a diagnostic line by line, the example claims those lines. Chapter 4 claims the whole standard error of two refusals and a parse failure, which launch no program. A changed character in one of those lines failed the check.
 
 ### L22. Isolate examples and live reader exercises from the agent's session
 
@@ -634,6 +642,18 @@ Chapters 1–6 had about 4,870 lines, and chapter 4 alone had about 1,500 lines.
 **Ravel application:** Draft `rhai-book-use-k80` takes Part I, because chapter 1 holds the new explanations of Rhai, a selection, the routing notice and `RAVEL_EXIT_FILE`.
 Drafts `rhai-book-use-k81`, `rhai-book-use-k82` and `rhai-book-use-k83` take chapters 4, 5 and 6. Their task bodies name the passages that restate chapter 1.
 
+### L54. Give a design reason only from its record
+
+When an explanation needs the reason for a rule, find that reason in the specification or a decision record.
+If no record states a reason, state the difference and its effect for the reader.
+Do not write a likely motive as the design's reason.
+
+**Source:** Session evidence, `rhai-book-use-k81`, 2026-10-28.
+Three planned reasons in chapter 4 had no record.
+They concerned the two bases of imports and measured reads, the capture of policy output and the prompt on standard input.
+**Ravel application:** Chapter 4 says that an import and a measured read can find two different files from one relative name. It says that the arguments of a recipe stay the same for each prompt.
+The draft's decision log names the specification sections that it read.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -646,6 +666,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L43–L48 | The source audit below checks attribution. A read of task bodies and `jj diff` checks handoffs and incidental artifacts. |
 | L49–L51 | Contract §2 records source restrictions. The prose checker and separate conversion diffs check writing changes before semantic edits. |
 | L52–L53 | The draft's running log records each run that a fragment quotes. The node brief names each draft's pages and the passages that restate earlier ones. |
+| L54 | The draft's decision log records the source of each reason that the text gives. Proof compares each reason with the normative documents. |
 
 ### Disposition of the task's candidate readings
 

@@ -46,6 +46,14 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   Show the caller, `ravel start-session`, the harness, a child shell and `ravel end-session`, each with its value of the variable.
   The policy worker has none. An evaluation harness run has its own path, and its result goes back to the policy.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
+- **Art: a harness run during evaluation (F4, chapter 4).** Question: how does a harness run that the policy launches return its answer to the policy, and how does it differ from the managed process?
+  Notation: UML sequence, with the policy worker, the Ravel CLI, the harness run, the caller and the managed process. Art decides whether this needs a new row of “Figure needs”.
+  Place: chapter 4, “Run a harness during evaluation”, after the order table and before the `harnessRuns` fragment. Chapter 4, “Follow the evaluation of a policy” and “Route to Claude Code and Codex”, can reuse it.
+  Order, from the source: the policy calls `ravel::run_harness`. The worker sends the request over its private socket and waits. The Ravel CLI finds the entry's program, checks the run budget and launches the run in a new POSIX session. The run has its own result channel and the marker `RAVEL_POLICY_RUN`.
+  The run reads standard input, writes its answer and exits. The CLI completes the cleanup of the run's group and returns a map to the policy. Later, `select` returns, the CLI reaps the worker, writes the routing notice and launches the managed process.
+  Real values: the chapter's Claude Code example, entry `claude`, record `{"elapsedMs":314,"exitCode":0,"harness":"claude","sentResult":false,"signal":null,"status":"exited"}`, final result `prime`.
+  The chapter 1 figure of F2 can also serve chapter 4, “Select a command or refuse”.
+  Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k81` placed no image.
 
 ## Decomposition
 
