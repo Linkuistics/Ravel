@@ -41,3 +41,38 @@ The owner wants these lessons as a skill for future documents and books in other
 
 - The skill waits until the owner names its home. The root brief keeps it under “On the horizon”.
 - Do not change the chapters of the book. The correction run under `rhai-book-use-k26` follows this leaf.
+
+## Decisions (running log)
+
+- **Sources and evidence, 2026-10-27.** Read the task tree and the book's contract and mechanics as evidence of this grove.
+  Read `book-read-one-k70` at `fa7b73f` as background from the earlier grove.
+  Keep owner quotations, owner choices and session conclusions distinct.
+  The graph CLI cannot start because an incompatible generation is active. Markdown reads need no graph completeness claim.
+- **The deliverable, 2026-10-27.** Write transferable rules with source handles, dates and their current Ravel applications.
+  Keep the obsolete migration-guide decision visible beside its replacement.
+  Keep the skill under “On the horizon” until the owner names its home.
+- **Read 1 analysis, 2026-10-27.** Accept the missing-explanation finding, but reject the claim that STE alone caused it.
+  No controlled comparison establishes that cause.
+  Keep the distinction between useful repeated explanations and a duplicated colour key as an interpretation of the recorded contract.
+  The two reads show that passing checks do not establish comprehension.
+- **Audit, 2026-10-27.** The baseline is `0f16c8e38f8d`, before this leaf's additions.
+  Its 80 Markdown files include 55 running logs and 575 segments under the recorded search algorithm.
+  The 97 segments that mention the owner or a human each have a disposition in the lessons file.
+  The semantic inventory records 20 owner decisions or findings about documentation and communication.
+  It keeps earlier-grove evidence and repeated mentions outside that count.
+- **One review, 2026-10-27.** The leaf spent its sole in-session review on attribution, audit coverage and missing lessons.
+  Both findings are valid and actionable: separate prose conversions from semantic edits, and preserve source rights and distribution limits.
+  The commit messages and the contract establish both directly. L49 and L51 record them.
+  No finding is an unclear contract, an accepted trade-off or noise. Neither addition needs a design change or another review.
+- **Validation, 2026-10-27.** The documented baseline audit reproduces 80 files, 55 logs, 575 segments and 97 matches.
+  A structural check finds 51 rules, each with a source and application, and 20 owner entries.
+  Every numbered search match has exactly one disposition. Removing a disposition row makes that check fail.
+  The five links in the new record and both edited pointers resolve.
+  Missing-page and missing-anchor controls fail through the same check.
+  The general prose checker reports zero findings in the lessons file. A semicolon control fails.
+  SHA-256 digests stayed unchanged for 93 subjects during these checks.
+  The subjects were the current task tree, five book contract/mechanics files, five ADRs, glossary, lessons file and prose checker.
+- **Completion boundary, 2026-10-27.** The root brief and the book contract require later sessions to extend the record.
+  The skill still waits for the owner's choice of home. No chapter, source code or product behaviour changed.
+  The proof and runtime suites need no repeat for these author notes.
+  This leaf has no live review that names it. The root still has live leaves, so retirement closes no parent node.

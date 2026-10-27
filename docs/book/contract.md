@@ -551,6 +551,10 @@ retired-project record.
   needs a Ravel term that `CONTEXT.md` does not have, the stage that writes it
   adds the term there.
 
+The [documentation and communication lessons](../documentation-lessons.md) record what this grove learnt for later documents and books.
+Each later session adds its new lessons there, with their sources, evidence classes and Ravel applications.
+The record distinguishes the owner's decisions from a session's analysis.
+
 The owner's Read 1 patterns follow, as this book takes them. The owner took
 them from six passages of chapter 1 on 2026-10-27 and asked for them in every
 chapter. In the owner's words:

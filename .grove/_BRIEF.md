@@ -98,8 +98,9 @@ design needs the settled requirements.
   Section 2 of `docs/book/contract.md` now states those patterns for the whole book. Thus, the drafts of Parts III and IV use them too.
   The run under `rhai-book-use-k26` is draft `rhai-book-use-k75`, copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78`.
   Read 1 resumes after that proof.
-- Each session that learns a lesson about documentation or communication adds it to `docs/documentation-lessons.md`.
-  `documentation-lessons-k79` first creates that file from the whole grove. The owner wants these lessons as a skill for other groves.
+- Each later session adds its new documentation or communication lessons to [the shared record](../docs/documentation-lessons.md).
+  Each rule keeps its source, evidence class and Ravel application.
+  `documentation-lessons-k79` created the record from the whole grove. The owner wants these lessons as a skill for other groves.
 - Parts I and II describe the agreed 2.0.0 design before the default-entry cutover and delivery removal.
   The release retains responsibility for replacing chapter 3's version placeholder before publication.
   `typescript-delivery-removal-k32` supplies the final notice path to `rhai-book-inside-k34`, which reconciles chapter 6 and the shared installed-file figure.
