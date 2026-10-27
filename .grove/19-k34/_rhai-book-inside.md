@@ -12,6 +12,8 @@ Revise Parts III and IV of the Ravel book for Ravel 2.0.0, and prove the whole b
 - The book gets one complete example that shows the refusal of a lone `policy.ts`, as the removal makes it executable.
 - Every complete example passes `task docs:examples`, and `task docs:ste` reports no problem.
 - The proof stage has read the whole book, Parts I to IV, as one reader would. It finds no stale TypeScript, Bun or `libexec` statement, no broken link and no unresolved term.
+- Chapters 7 to 11 follow the owner's Read 1 patterns in section 2 of `docs/book/contract.md`. The owner asked for the patterns in the entire book on 2026-10-27.
+  The whole-book proof checks each pattern in all eleven chapters.
 
 ## Decomposition
 

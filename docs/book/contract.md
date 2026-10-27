@@ -166,7 +166,7 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | # | Chapter | After it, the reader can… |
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
-| 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. |
+| 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. Say what Rhai is, read a short Rhai policy and find Rhai's own documentation. Explain how the routing notice tells the caller what the policy chose. Explain how `end-session` finds its session. |
 | 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
 | 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and policy validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny policy and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
@@ -195,6 +195,16 @@ TypeScript knowledge and has no migration chapter. Chapter numbers stay unchange
 The owner's configuration conversion is a separate, one-off manual task.
 Chapter 4 teaches the Rhai that its policies need, without a separate language
 tutorial. Both reader checkpoints remain obligations.
+
+The owner's Read 1 findings of 2026-10-27 moved the first presentation of
+Rhai to chapter 1. Chapter 1 says what Rhai is and which of its
+characteristics matter to a policy. It shows a short policy and links to
+Rhai's own documentation. That documentation is the Rhai Book,
+<https://rhai.rs/book/>, with its language reference,
+<https://rhai.rs/book/ref/>, and an online playground,
+<https://rhai.rs/playground/stable/>. On 2026-10-27, the Rhai Book documented
+Rhai 1.27.0, the version that Ravel embeds. The playground does not have
+Ravel's host capabilities or limits.
 
 Ravel supports no separate component. Its runner, `keyed-launch`, stays a
 private package of the Ravel CLI, which supervises one session and then exits.
@@ -448,6 +458,8 @@ This checks visual consistency, not the reader's knowledge of notation.
 | Reader question | Level and notation | Where |
 |---|---|---|
 | Where does Ravel sit between a caller, such as an orchestrator, and the harness or other program it launches? | C4 system context | chapters 1–2 |
+| What does the policy return, and how does Ravel tell the caller which harness, model and effort the policy chose? | UML sequence, with a real routing notice as its example | chapter 1, then chapters 3 and 5 |
+| How does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest? | Process tree with the inherited `RAVEL_EXIT_FILE` (C4 dynamic or UML object) | chapter 1, then chapters 2 and 5 |
 | Which processes exist during a session, and which holds which authority? | C4 container | chapters 2 and 7 |
 | What happens, in order, in a successful session? | UML sequence | chapter 3, then in full in chapter 8 |
 | What changes when cancellation arrives during selection versus during supervision? | UML sequence, one per phase | chapters 5 and 9 |
@@ -539,6 +551,76 @@ retired-project record.
   needs a Ravel term that `CONTEXT.md` does not have, the stage that writes it
   adds the term there.
 
+The owner's Read 1 patterns follow, as this book takes them. The owner took
+them from six passages of chapter 1 on 2026-10-27 and asked for them in every
+chapter. In the owner's words:
+
+<!-- tc: off because these are the owner's quoted words -->
+
+> I would like you to apply the patterns of these re-statements to the result
+> of Part I and II, and then I will re-review.
+>
+> Good human-centered writing doesn't use DRY at all. Repetition and
+> restatement are important techniques.
+>
+> We should also use a more conversational tone where possible
+
+<!-- tc: on -->
+
+The patterns add to STE. Each example below comes from the owner's comment on
+one of the six passages. The history of `rhai-book-use-k74` keeps the passages
+and the comments in full.
+
+- **Introduce a technology where the book first names it.** Say what it is
+  and which of its characteristics matter to the reader. Show a short example.
+  Link to the technology's own documentation. For Rhai, the owner's words were
+  “describe its characteristics, show an example, and link to some
+  documentation”.
+- **Explain a term before you use it.** At the first use of a term on each
+  page, explain it in plain words, even when another chapter teaches it. Say
+  what it is, where it comes from and why it matters here. A link to the full
+  explanation can follow, but it never replaces the explanation. Chapter 1
+  used “a selection” before the book said what a selection is.
+- **Say who does what, where and why.** Name the actor, the action, the place
+  and the reader of each output. When a write gives information to another
+  actor, say that it is a means of communication. For example, Ravel writes
+  the routing notice as one line on the caller's standard error. That line
+  tells the caller which harness, model and effort the policy chose.
+- **Show the mechanism.** When the text says that something is inherited,
+  found, sent or chosen, explain how. For example, Ravel puts the path of the
+  result file in the `RAVEL_EXIT_FILE` environment variable of the program
+  that it launches. Each child process inherits that variable from its
+  parent, unless the parent removes it. Thus, `ravel end-session` finds the
+  path in its own environment. A nested session gives its own child a new
+  path.
+- **Give a diagram and a concrete example.** Each mechanism and each
+  communication path gets a figure and an example with real values. Real
+  values are a real command, its real output, a real path or a real JSON
+  document. “Figure needs” lists the figures.
+- <!-- tc: depart synonym-rotation because the quote keeps the owner's word "modify" --> **Describe the effect in the reader's terms.** Say what changes for the
+  reader or for the thing that they make. The caller can use the kind “to
+  extend or modify the prompt”, not “to choose instructions for the prompt”.
+- **Put the reader's goal first.** Before a capability, say why you may want
+  it. Then say how to do it. For example: “You may want an LLM to choose the
+  best harness, model, effort and prompt additions for a kind and a prompt.
+  You can do this with a harness run in your policy.”
+- **Follow an action to its result.** Name the actors in the order that they
+  act, and end with what the caller receives. For example, the program that
+  Ravel launched, usually a harness that runs an LLM, runs `ravel end-session`
+  with a result. Ravel then stops that program and the rest of its process
+  group. After cleanup, that result becomes the result of `ravel start-session`.
+- **Repeat and restate.** The book does not apply DRY (“Don't Repeat
+  Yourself”) to its explanations. Restate a key fact where the reader needs
+  it, even when an earlier page states it. Repeat a short explanation instead
+  of a link to another page. A preview at the top of a long section and a
+  summary at its end help the reader. Use the same terms each time. The text
+  beside a figure still does not repeat the figure's colour key (the owner's
+  finding R8 of 2026-10-17).
+- **Talk to the reader.** Use a conversational tone where the STE rules permit
+  it. Address the reader as “you”. Ask the question that the reader has, then
+  answer it. Give the reason before the detail. The STE rules still apply, so
+  the book has no contractions, slang or jokes.
+
 The house style's points, as this book takes them:
 
 - **Task headings**: the first word of a task heading is a bare infinitive.
@@ -546,8 +628,8 @@ The house style's points, as this book takes them:
 - **Introducing steps**: a complete sentence introduces a procedure, or nothing
   does when its heading already says what it does. A fragment that the steps
   complete, such as "To install:", does not.
-- **Register**: plain written prose in STE, with no slang, idiom or joke, and
-  no transcribed speech.
+- **Register**: plain, conversational prose in STE, as “Talk to the reader”
+  states. It has no slang, idiom, joke or transcribed speech.
 - **Length**: no length target for a section. STE sets the limits for
   sentences and paragraphs. An instruction has 20 words or fewer (Rule 5.1). A
   descriptive sentence has 25 words or fewer (Rule 6.3). A paragraph has one
@@ -566,21 +648,23 @@ The house style's points, as this book takes them:
   not use phrasal verbs (Rule 9.3).
 - **Front-loading**: the first words of a heading, a list item or a paragraph
   carry its information.
-- **Terms**: a term from the term list is linked at its first use on each page
-  to the place the book teaches it.
+- **Terms**: at its first use on each page, a term from the term list gets a
+  short explanation, as “Explain a term before you use it” states. A link to
+  the place where the book teaches the term follows that explanation.
 - **Code**: code font for identifiers, commands, file names, paths and literal
   values. A code block has fences and a language tag.
 - **Example labels**: a label introduces each example. Its first words are
   "Complete example" or "Fragment". The label of a fragment says what it
   omits.
 - **Stock phrasing**: the book does not use these forms:
-  - a filler opener or closer, such as "It's worth noting" or "In summary".
-  - a signpost that repeats its heading.
-  - a closing paragraph that restates the section.
+  - a filler opener or closer, such as "It's worth noting".
   - a hedge without a condition, such as "typically" without saying when.
   - an inflated word where a plain one serves, such as "leverage", "robust"
     or "seamless".
   - a reflexive list of three.
+
+  A preview, a restatement or a summary that helps the reader is not stock
+  phrasing. “Repeat and restate” gives the owner's decision of 2026-10-27.
 - **Simple layout**: the headings the section plan states stand. Beyond them, a
   stage adds a heading level only for a section with at least two subsections. A
   paragraph carries one idea. Parallel items form a list, and items compared on

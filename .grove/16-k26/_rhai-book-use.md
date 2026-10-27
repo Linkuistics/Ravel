@@ -17,6 +17,17 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
 - The prose follows the contract, and `task docs:ste` reports no problem.
   Figures agree with the text, and `task docs:figures` passes.
 - Proof reads both parts as one document and cuts the required Read 1 leaf.
+- After the Read 1 corrections, chapters 1–6 follow the owner's Read 1 patterns in section 2 of the contract.
+  The proof of that correction run cuts nothing, and Read 1 resumes.
+
+## Read 1 corrections
+
+- Read 1, `rhai-book-use-k74`, stopped in chapter 1 on 2026-10-27.
+  The owner asked for the patterns of eight findings in chapters 1–6 before a re-review.
+- Section 2 of `docs/book/contract.md` holds the patterns. Two new rows of “Figure needs” hold the figures that the owner asked for.
+- The correction run is draft `rhai-book-use-k75`, copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78`.
+  Each stage finds its successor already cut.
+- This run is the first correction run against this document. Another send-back against it goes to the owner.
 
 ## Decomposition
 

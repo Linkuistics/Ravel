@@ -80,6 +80,9 @@ design needs the settled requirements.
 - A verb that evaluates a policy without a launch. The owner kept it out of
   this workstream. With LLM calls in a policy, `start-session` is the only way
   to exercise the policy, and it launches the selected program.
+- A skill for documents and books in other groves, made from
+  `docs/documentation-lessons.md`. The owner names its home when the lessons
+  are complete.
 
 ## Notes
 
@@ -87,9 +90,16 @@ design needs the settled requirements.
   Chapters 1–6 teach Rhai policies and both harness-call recipes.
   All 19 complete examples, nine excerpts, fourteen figure reproductions, strict checks for these chapters and the book build passed.
   The proof corrected chapter 4's timeout summary and recorded source-derived coverage and local visual evidence in its task.
-- `rhai-book-use-k74` is the required Read 1 checkpoint immediately after that closed node.
+  Read 1 then opened the node again for a correction run.
+- `rhai-book-use-k74` is the required Read 1 checkpoint after that node.
   The owner writes a fake-agent policy, runs a session, interprets refusal and cancellation, and uses a direct reference entry.
   Corrections precede dependent drafting. Read 2 remains required after the later whole-book proof.
+- Read 1 stopped in chapter 1 on 2026-10-27. The owner asked for the patterns of eight findings in chapters 1–6 before a re-review.
+  Section 2 of `docs/book/contract.md` now states those patterns for the whole book. Thus, the drafts of Parts III and IV use them too.
+  The run under `rhai-book-use-k26` is draft `rhai-book-use-k75`, copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78`.
+  Read 1 resumes after that proof.
+- Each session that learns a lesson about documentation or communication adds it to `docs/documentation-lessons.md`.
+  `documentation-lessons-k79` first creates that file from the whole grove. The owner wants these lessons as a skill for other groves.
 - Parts I and II describe the agreed 2.0.0 design before the default-entry cutover and delivery removal.
   The release retains responsibility for replacing chapter 3's version placeholder before publication.
   `typescript-delivery-removal-k32` supplies the final notice path to `rhai-book-inside-k34`, which reconciles chapter 6 and the shared installed-file figure.
