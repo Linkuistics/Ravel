@@ -1,4 +1,4 @@
-# rhai-book-use-k75
+# rhai-book-use-k75 — brief
 
 ## Goal
 
@@ -53,8 +53,25 @@ Keep the examples, the facts in the figures and the technical truth correct.
 
 ## Notes
 
-- If the six chapters do not fit one session, decompose this leaf with `grove-llm leaf-decompose`. Do Part I first.
+- The six chapters did not fit one session, so this node has four drafts. See “Decomposition”.
 - Copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78` already follow this leaf. Cut no next stage.
 - This run is the first correction run against this document. Another send-back against it goes to the owner.
 - Keep the release placeholder in chapter 3. Keep the recorded dependencies on the format cutover and the notice path.
 - Do not change chapters 7–11. `rhai-book-inside` owns them.
+
+## Decomposition
+
+- `rhai-book-use-k80` applies the patterns to Part I, chapters 1–3. It writes the new explanations of chapter 1.
+- `rhai-book-use-k81` applies the patterns to chapter 4.
+- `rhai-book-use-k82` applies the patterns to chapter 5.
+- `rhai-book-use-k83` applies the patterns to chapter 6, the lookup chapter. It also runs the mechanical gates for all of chapters 1–6.
+
+The four drafts share the stem `rhai-book-use`. Refer to each by key.
+Copy-edit `rhai-book-use-k76` follows this node. No draft cuts a later stage.
+
+## Decisions (running log)
+
+- **Four drafts, 2026-10-27.** Chapters 1–6 have about 4,870 lines. Chapter 4 alone has about 1,500 lines.
+  Each pattern applies to every page, so each chapter needs a full read and edit.
+  Part I is one draft, because chapter 1 holds most of the new material and chapters 2 and 3 restate it.
+  Chapters 4, 5 and 6 each get a draft of their own.

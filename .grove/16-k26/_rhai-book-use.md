@@ -29,6 +29,24 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   Each stage finds its successor already cut.
 - This run is the first correction run against this document. Another send-back against it goes to the owner.
 
+## Handed forward
+
+- **Art: the selection and the routing notice (F2).** Question: what does the policy return, and how does Ravel tell the caller which harness, model and effort the policy chose?
+  Notation: UML sequence, with the real routing notice as its example. Row 2 of “Figure needs” in the contract.
+  Place: chapter 1, “The selection and the routing notice”, after the text fragment of the routing notice. Chapter 3, “Run the first session”, and chapter 5, “Read notices separately from results”, can reuse it.
+  Real values: the review policy of chapter 1 returns `provider: "local"`, `model: "fake"`, `effort: "low"` for the kind `review`.
+  The notice is `ravel: starting provider local, model fake, effort low for kind "review"`.
+  Order: the worker returns the selection, and Ravel reaps the worker. The Ravel CLI then writes the line on the caller's standard error and launches the program.
+  The JSON form replaces the line after the supervision attempt. The labels do not reach the program. Only `program` and `args` do.
+  Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
+- **Art: how `end-session` finds its session (F5).** Question: how does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest?
+  Notation: a process tree with the inherited `RAVEL_EXIT_FILE`, as C4 dynamic or UML object. Row 3 of “Figure needs”.
+  Place: chapter 1, “How `end-session` finds its session”, after the table of processes and before the nested fragment. Chapter 2, “Three different kinds of information”, and chapter 5, “Keep nested sessions separate”, can reuse it.
+  Real values: the nested run in chapter 1. The outer path is `/private/tmp/ravel-session-mlcN86/signal-c7d5…`, and the inner path is `/private/tmp/ravel-session-QpztGn/signal-b643…`.
+  Show the caller, `ravel start-session`, the harness, a child shell and `ravel end-session`, each with its value of the variable.
+  The policy worker has none. An evaluation harness run has its own path, and its result goes back to the policy.
+  Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
+
 ## Decomposition
 
 - `rhai-book-use-k27` rewrites chapter 4 and records the owner's revised contract.

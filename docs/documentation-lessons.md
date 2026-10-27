@@ -60,6 +60,7 @@ Distinguish the upstream language from restrictions and capabilities supplied by
 **Source:** Owner F1, `rhai-book-use-k74`, 2026-10-27: “describe its characteristics, show an example, and link to some documentation”.
 **Ravel application:** Contract §1 and §2 require the Rhai introduction in chapter 1.
 `rhai-book-use-k75` owns the correction. The upstream playground has no `ravel::` capabilities or Ravel limits.
+Draft `rhai-book-use-k80` put the introduction in chapter 1, “The owner policy chooses a program”, and a shorter restatement in chapter 2.
 
 ### L05. Explain a term before each page needs it
 
@@ -82,7 +83,8 @@ Distinguish human text from a structured report when their timing differs.
 The same finding asks for a diagram and a concrete example.
 **Ravel application:** Contract §2, “Say who does what, where and why”, applies to the routing notice.
 `rhai-book-use-k75` and `rhai-book-use-k77` own the explanation and figure.
-The text notice precedes launch. The `--json` report follows the supervision attempt.
+The text notice precedes launch, and the `--json` report follows the supervision attempt.
+Draft `rhai-book-use-k80` explains the notice in chapter 1, “The selection and the routing notice”, as a who, when, where, reader and why list.
 
 ### L07. Explain the mechanism behind an abstract verb
 
@@ -93,6 +95,7 @@ Do not replace an unexplained term with another unexplained term.
 **Source:** Owner F5, `rhai-book-use-k74`, 2026-10-27: “inherited how? what is the mechanism.”
 **Ravel application:** Contract §2, “Show the mechanism”, requires the environment-variable path through parents and children.
 The correction shows `RAVEL_EXIT_FILE`, its inheritance and its replacement for a nested session's own child.
+Draft `rhai-book-use-k80` shows it in chapter 1, “How `end-session` finds its session”, with a table of processes and the paths of a real nested run.
 
 ### L08. State the reader's goal before the capability
 
@@ -609,6 +612,28 @@ The first says that the separate change makes the later design diff show only me
 The prose checker and a read of each conversion diff establish the boundary.
 Historical records and owner quotations retain their words.
 
+### L52. Give real values before the reader can run the example
+
+On a page before the reader can run the product, show real output as a labelled fragment of a recorded run.
+Record the build, the date and the environment of that run in the task.
+Choose environment values that keep the output short, and say in the label which parts change in each run.
+
+**Source:** Session evidence, `rhai-book-use-k80`, 2026-10-27.
+Contract §2, “Give a diagram and a concrete example”, asks for real values, and chapter 1 comes before the installation in chapter 3.
+**Ravel application:** Chapter 1 shows the routing notice, the JSON `selection` member, two nested `RAVEL_EXIT_FILE` paths and the `end-session` failure from runs of the checkout build.
+The nested run used `TMPDIR=/tmp`. Its label names the random parts of each path and the `/private/tmp` path that macOS shows.
+
+### L53. Put the new explanation in the first draft of a correction run
+
+When a reader finding applies to every page, size each draft by the pages that it reads in full.
+Put the page that introduces the new explanation in the first draft.
+Later drafts then restate that explanation in the same terms.
+
+**Source:** Session evidence, `rhai-book-use-k75`, 2026-10-27.
+Chapters 1–6 had about 4,870 lines, and chapter 4 alone had about 1,500 lines.
+**Ravel application:** Draft `rhai-book-use-k80` takes Part I, because chapter 1 holds the new explanations of Rhai, a selection, the routing notice and `RAVEL_EXIT_FILE`.
+Drafts `rhai-book-use-k81`, `rhai-book-use-k82` and `rhai-book-use-k83` take chapters 4, 5 and 6. Their task bodies name the passages that restate chapter 1.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -620,6 +645,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L35–L42 | Contract §1 requires coverage evidence. Section 4 separates reader evidence. The named checks need controls and unchanged inputs. |
 | L43–L48 | The source audit below checks attribution. A read of task bodies and `jj diff` checks handoffs and incidental artifacts. |
 | L49–L51 | Contract §2 records source restrictions. The prose checker and separate conversion diffs check writing changes before semantic edits. |
+| L52–L53 | The draft's running log records each run that a fragment quotes. The node brief names each draft's pages and the passages that restate earlier ones. |
 
 ### Disposition of the task's candidate readings
 

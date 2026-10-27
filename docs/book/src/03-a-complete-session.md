@@ -1,9 +1,13 @@
 # A complete session, end to end
 
-Run one [session](02-actors-and-words.md#caller-and-owner) with a small
-[owner policy](02-actors-and-words.md#caller-and-owner) and a fake agent.
-Then follow the request through selection, launch, the sent result and
-cleanup. You act as both [owner and caller](02-actors-and-words.md#caller-and-owner).
+In this chapter, you run one
+[session](02-actors-and-words.md#caller-and-owner), one run of
+`ravel start-session`, on your own computer. The session uses a small
+[owner policy](02-actors-and-words.md#caller-and-owner), the Rhai file that
+chooses the program, and a fake agent. Then you follow the request through
+selection, launch, the sent result and cleanup.
+
+You act as both [owner and caller](02-actors-and-words.md#caller-and-owner).
 You write the rule in the owner policy, supply the prompt and choose the
 result that you expect. The fake is an ordinary shell program. It needs no
 model service or agent account.
@@ -47,9 +51,10 @@ explains this limit and the address of each release's book.
 
 The directory that `brew --prefix ravel` prints contains the
 [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), `bin/ravel`.
-That executable also contains the Rhai engine.
+That executable also contains the Rhai engine, which runs the owner policy.
 Ravel launches its own binary as the separate
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision), the
+process that evaluates the policy.
 You install no separate policy worker or language runtime.
 
 The [platform evidence in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
@@ -151,19 +156,33 @@ author wrote the script to run `end-session`, which is the action that the
 prompt requests. Ravel does not understand that instruction and does not add it.
 
 The policy selects the fake for every request. `demo` is the caller's
-[kind](02-actors-and-words.md#caller-and-owner), and this policy does not need
-to examine it. The routing notice is the `ravel: starting` line on standard
-error. The policy returns these fields:
+[kind](02-actors-and-words.md#caller-and-owner), the token that names the sort
+of work. This policy does not need to examine it.
+
+What did the policy choose? Look at the first line on standard error. This
+line is the **routing notice**. The Ravel CLI writes it on your standard error
+after the policy selects a program and before the launch. It tells you, the
+caller, which provider, model and effort the policy chose, and for which kind.
+The values come from the labels of the selection.
+
+The policy returns a **selection**, the map with `status: "selected"`. Ravel
+reads these fields from it:
 
 | Field | Value in this example | Effect |
 |---|---|---|
+| `status` | `"selected"` | Tells Ravel that the map is a selection, not a refusal |
 | `program` | `fake-agent` | Names the program to execute |
 | `args` | `[request.prompt]` | Passes the unchanged prompt as one argument |
 | `provider` | `local` | Describes the provider in the routing notice |
 | `model` | `fake` | Describes the model in the routing notice |
 | `effort` | `none` | Describes the effort in the routing notice |
+| `reason` | `"Learn the session protocol without a model service."` | Explains the choice in the JSON form of the routing notice |
 
 The `provider`, `model` and `effort` labels do not select a model service.
+A real policy puts the options of its harness in `args`. The labels only
+report the choice.
+
+This file is Rhai, the small language that Ravel contains.
 `SCHEMA_VERSION` identifies the policy interface, and `VERSION` names this
 owner's policy revision. `fn` defines a function, and `#{ ... }` constructs a map.
 The final expression returns that map. Ravel checks its fields during evaluation.
@@ -186,19 +205,22 @@ defaults apply.
 The Ravel CLI launches its own binary in the worker's empty private directory.
 It checks the identity of the worker before it sends the policy request.
 The worker receives an empty environment and no
-[session-result context](02-actors-and-words.md#three-different-kinds-of-information).
+[session-result context](02-actors-and-words.md#three-different-kinds-of-information),
+the `RAVEL_EXIT_FILE` path with which a program sends the session result.
 
 The `cwd` of the request keeps the caller's working directory.
 The policy has no direct filesystem access. Ravel reads `policy.rhai` and
 sends its source to the worker, which evaluates it and calls `select`.
 
 The policy has no `load_context` function, and the caller supplied no
-[policy context](02-actors-and-words.md#three-different-kinds-of-information).
+[policy context](02-actors-and-words.md#three-different-kinds-of-information),
+the optional JSON data that informs the choice.
 In this example, the selection therefore depends only on the request.
 The second argument to `select` is `()`, Rhai's value for no value.
 
 A policy that needs files or model advice asks Ravel through
-[host capabilities](02-actors-and-words.md#policy-evaluation-and-supervision).
+[host capabilities](02-actors-and-words.md#policy-evaluation-and-supervision),
+the `ravel::` functions that the Ravel CLI performs for the policy.
 Ravel measures each successful file read and supervises each evaluation
 [harness run](02-actors-and-words.md#policy-evaluation-and-supervision). This policy needs neither operation.
 
@@ -234,10 +256,17 @@ first line, `#!/bin/sh`, tells the operating system to run the file with
 After selection, Ravel makes a new
 [result channel](02-actors-and-words.md#the-managed-process-and-its-result).
 This channel is a private temporary directory and a path where a program can
-send a result. Ravel gives that path to the managed process in
-`RAVEL_EXIT_FILE`. This path is the session-result context of the managed
-process. The `PATH` of the example also lets the fake find the same installed
-`ravel` for `end-session`.
+send a result. Ravel puts that path in the `RAVEL_EXIT_FILE` environment
+variable of the managed process. This path is the session-result context of
+the managed process. Here, the managed process is the fake agent.
+
+How does `end-session` find that path later? Each child process gets a copy
+of the environment of its parent, unless the parent changes it. The fake
+starts `ravel end-session` as its child, so that command inherits the same
+`RAVEL_EXIT_FILE`. In a real run on macOS with `TMPDIR=/tmp`, the path was
+`/private/tmp/ravel-session-mlcN86/signal-c7d5f2eed4198eb768996f7b4868bbcc`.
+The random parts change in each run. The `PATH` of the example also lets the
+fake find the same installed `ravel` for `end-session`.
 
 The [runner](02-actors-and-words.md#policy-evaluation-and-supervision) in
 Ravel launches the managed process in a process group of its own. A
@@ -302,8 +331,12 @@ temporary file. Then it sends the value into the result channel, but it does
 not replace a result that is already there. Ravel keeps the first complete
 result that it receives.
 
-When `end-session` sends the result, it asks the Ravel CLI to end the
-session. This request does not mean that the job already ended. Also,
+Follow that command to its result. When `end-session` sends the result, it
+asks the Ravel CLI to end the session. Ravel then stops the fake and the rest
+of its process group. After cleanup, `finished` becomes the result of
+`ravel start-session`.
+
+The request does not mean that the job already ended. Also,
 `end-session` does not wait for the cleanup of the enclosing session. In this
 fake, the script has no more commands, so it exits.
 
