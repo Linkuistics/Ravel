@@ -1,52 +1,136 @@
 # Run sessions
 
-A [caller](02-actors-and-words.md#caller-and-owner) starts a
-[session](02-actors-and-words.md#caller-and-owner), gives its instructions
-and interprets its result. The [owner policy](02-actors-and-words.md#caller-and-owner)
-chooses the program. Ravel supervises that
-[managed process](02-actors-and-words.md#the-managed-process-and-its-result)
-and returns an [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
-only after it confirms the cleanup. This chapter shows how to give a request
-and how to run nested or confined sessions. It also shows how to identify
-each outcome that a caller can see.
+You have an owner policy that selects a program. Now you want to run sessions
+from a script, an orchestrator or your terminal. You also want to know what
+each outcome means for your program. This chapter shows how to give a request
+and how to read the result and the routing notice. It also shows how to run
+nested or confined sessions and how to identify each outcome that a caller can
+see.
+
+First, the words that this chapter uses on every page:
+
+- A [session](02-actors-and-words.md#caller-and-owner) is one run of
+  `ravel start-session`, from the request to the result.
+- The [caller](02-actors-and-words.md#caller-and-owner) is the person or
+  program that runs that command, for example an orchestrator. The caller gives
+  a prompt and a [kind](02-actors-and-words.md#caller-and-owner). A kind is a
+  short token that names the sort of work, such as `review`.
+- The [owner](02-actors-and-words.md#caller-and-owner) is the person who
+  controls the configuration of Ravel for the account. The owner can be you.
+- The [owner policy](02-actors-and-words.md#caller-and-owner) is a file of
+  Rhai code that the owner writes. Rhai is a small computer language, and its
+  engine is part of the `ravel` executable. Ravel gives the request to the
+  policy. The policy then selects a program and its arguments, or it refuses
+  the request.
+- The
+  [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
+  is the program that the policy selected. It is usually a
+  [harness](02-actors-and-words.md#the-managed-process-and-its-result), such as
+  Claude Code or Codex, the program in which an LLM works on the prompt. Ravel
+  launches the managed process and supervises it.
+- The [result](02-actors-and-words.md#the-managed-process-and-its-result) is
+  the text that a program in the session sends with `ravel end-session`. Ravel
+  does not interpret it. Thus, the book calls it an opaque result.
+- The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) is
+  the `ravel` command-line program. It evaluates the policy in a separate
+  process, launches the selected program and returns the result.
+
+<!-- tc: depart synonym-rotation because launch names process creation, while start also names the beginning of output -->
+What happens between your command and your result? The table restates the
+order from
+[chapter 1, “From a request to a result”](01-what-ravel-is-for.md#from-a-request-to-a-result).
+Each section of this chapter adds detail to one or more rows. Read the
+sections in order, or go to the row that you need:
+
+| Order | Who acts | What happens | Section that teaches it |
+|---|---|---|---|
+| 1 | The caller | Runs `ravel start-session` with a kind, a prompt and optional caller data | [Supply the prompt and caller data](#supply-the-prompt-and-caller-data) |
+| 2 | The owner policy | Selects a program and its arguments, or refuses the request | [Chapter 4](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| 3 | The Ravel CLI | Writes the routing notice on the caller's standard error | [Read notices separately from results](#read-notices-separately-from-results) |
+| 4 | The Ravel CLI | Launches the selected program, with or without confinement, and supervises it | [Confine the managed process](#confine-the-managed-process) |
+| 5 | The selected program | Does its work, which can include an inner session, and sends a result with `ravel end-session` | [Keep nested sessions separate](#keep-nested-sessions-separate) |
+| 6 | The Ravel CLI | Stops the program and its process group, completes cleanup, writes the result on standard output and exits with a status | [Accept a result only after success](#accept-a-result-only-after-success) and [Interpret the exit status](#interpret-the-exit-status) |
+
+A cancellation can stop the order at rows 2 to 6.
+[Cancel during selection or supervision](#cancel-during-selection-or-supervision)
+explains what you receive then. Did you come here for an exit code? Go to the
+[status table](#interpret-the-exit-status). It gives each normal status of the
+Ravel CLI and the three cancellation signals that Ravel handles, with an action
+for each.
+
+## Run the examples of this chapter
+
+Every complete example in this chapter uses fake programs. A **fake agent** is
+a small shell script that stands where a harness stands. Most fake agents run
+`ravel end-session` themselves, as an LLM in a harness does when the prompt
+tells it to. The examples use real policy evaluation. No example needs an agent
+account or a model service.
 
 <!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
-Follow chapter 3 to [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
-These examples use real policy evaluation and small local programs. They do
-not need an agent account or a model service. If you came here for an exit
-code, go to the [status table](#interpret-the-exit-status). It gives each
-normal status of the CLI and the three cancellation signals that Ravel
-handles, with an action for each.
+First, follow chapter 3 to
+[install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
+Then use a fresh directory for each complete example, and create the labelled
+files there. Run the commands of the example in that directory. Each command
+line has these parts:
 
-Use a fresh directory for each complete example and create the labelled files there.
-The commands create local `home` and `tmp` directories and clear the environment.
-They make each fake program executable. Your personal policy and settings do
-not enter these examples.
+| Part of the command | What it does |
+|---|---|
+| `mkdir -p home tmp` | Makes a private home directory and a private temporary directory |
+| `chmod +x bin/*` | Makes the fake programs executable |
+| `env -i` | Runs the command with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
+| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Thus, your personal policy and settings do not enter the example. |
+| `PATH="$PWD/bin:$PATH"` | Puts the fake programs first on the search path |
+| `ravel start-session --config policy.rhai` | Runs a session with the policy file of the example |
+
+The book checker runs the same examples with the built Ravel CLI. It compares
+each output with the output that the book shows.
 
 ## Supply the prompt and caller data
 
+What does the selected program receive, and how can you give the policy more
+facts about the task? You may want the LLM to receive your instructions
+exactly as you wrote them. You may also want the policy to choose a route from
+facts such as a profile name or a task file. This section shows the inputs of
+`start-session` that do these things.
+
 Pass exactly one of `--prompt TEXT` and `--prompt-file PATH`. Ravel gives the
 text to the policy unchanged, also when it is an empty string or ends with
-newlines. Ravel adds no instructions to end the session. It never
-reads a prompt from the standard input of a terminal. A prompt is UTF-8, contains no NUL and
-has a maximum size of 1 MiB. Ravel does not truncate input that is not
-valid, but stops the invocation with status 2.
+newlines. It never reads a prompt from the standard input of a terminal. A
+prompt is UTF-8, contains no NUL and has a maximum size of 1 MiB. Ravel does
+not truncate input that is not valid, but stops the invocation with status 2.
+
+| Input | When to use it | What Ravel reads |
+|---|---|---|
+| `--prompt TEXT` | A short prompt that you write in the command | The argument, as the shell gives it to Ravel |
+| `--prompt-file PATH` | A prompt whose exact text is important, for example with trailing newlines | The file, relative to the caller's working directory |
+
+Ravel adds no instructions to end the session. An interactive harness does
+not exit when its LLM completes the task. It waits for more input. Thus, your
+prompt tells the LLM to run `ravel end-session RESULT` when the task is
+complete. `RESULT` is a placeholder for the text to send. Your prompt gives
+the permitted values and tells the LLM when to use each value.
 
 The argument limits of the operating system can be smaller than 1 MiB. These
 limits also apply when the policy puts a prompt from a file into the
 arguments of the selected program.
 
-Use a file when the exact text is important. Shell command substitution
-removes trailing newlines. Thus, `--prompt "$(cat prompt.txt)"` can change
-the text before Ravel receives it. `--prompt-file prompt.txt` reads the file
-directly, relative to the caller's working directory. Ravel changes no text
-before the policy receives it. Then the policy makes the arguments of the
+Why is a file safer for exact text? Shell command substitution removes
+trailing newlines. Thus, `--prompt "$(cat prompt.txt)"` can change the text
+before Ravel receives it. `--prompt-file prompt.txt` reads the file directly.
+Ravel changes no text before the policy receives it. Then the policy makes the arguments of the
 selected command and decides how to give the prompt to that program.
 
 The [kind](02-actors-and-words.md#caller-and-owner) is a required caller
 token that is not empty. Ravel has no catalogue of kinds and does not get a
 kind from a file name. A policy can route `review`, refuse it or treat it as
 any other kind. The caller and the policy author agree on these tokens.
+
+<!-- tc: depart synonym-rotation because the sentence keeps the owner's word "modify" from finding F3 -->
+The caller can also use the kind to extend or modify the prompt. For example,
+if the harness supports skills, the caller can add a line to the prompt for
+the kind `review`. That line tells the LLM which skill to load. The policy can
+also put text before the prompt for a kind. Ravel gives neither the kind nor
+the prompt a meaning.
 
 These inputs give data to the policy. They do not tell Ravel to read a task
 or to give the task a meaning:
@@ -58,23 +142,42 @@ or to give the task a meaning:
 | `--task-id example-17` | An opaque `request.taskId`. It is UTF-8, is not empty and has a maximum of 1,024 bytes. Ravel does not search for a stored task. |
 | `--context caller-context.json` | A version-1 JSON document that Ravel measures and validates. If the policy has no loader, the document becomes the second argument to `select`. A loader can make a different document for the policy. <!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup --> |
 
-That last document is [policy context](02-actors-and-words.md#three-different-kinds-of-information),
-which is data that the policy uses to choose the route. It is different from
-the working directory of the request, `cwd`. It is also different from the
-[session-result context](02-actors-and-words.md#three-different-kinds-of-information),
-which later lets the managed process send a result. Chapter 4 teaches
+That last document is
+[policy context](02-actors-and-words.md#three-different-kinds-of-information),
+which is data that the policy uses to choose the route. The book uses the word
+“context” for three different things, and it always names which one:
+
+| Name | What it is | Who uses it |
+|---|---|---|
+| Policy context | The version-1 JSON document from `--context`, or the document that the policy's `load_context` function makes | The policy, to make its choice |
+| [Session-result context](02-actors-and-words.md#three-different-kinds-of-information) | The path of the result file, which Ravel puts in the `RAVEL_EXIT_FILE` environment variable of the program that it launches | `ravel end-session`, to send the result |
+| Working directory, `cwd` | The current directory of the caller | The selected program, which runs there |
+
+Chapter 4 teaches
 [policy context and loaders](04-writing-an-owner-policy.md#supply-policy-context)
 and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
-The `--timeout-ms` bound applies to policy evaluation, not to the time that
-the managed process works.
 
-The evaluation deadline defaults to 30 seconds and covers every
-[host call](02-actors-and-words.md#policy-evaluation-and-supervision).
-An [LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) through a harness uses that same deadline.
-The owner can set `timeoutMs` in settings. `--timeout-ms` replaces that value
-for this invocation, within the permitted range of 1,000–600,000 ms.
-The owner also sets `budgets.harnessRuns`, from 0 to 16, in settings.
-Its default is 0, and callers have no flag that raises it.
+Ravel runs your policy in the
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision), a
+separate process. This work is policy evaluation. The policy can ask the Ravel
+CLI to do work for it, for example to read a file or to run a harness. It does this through a
+[host capability](02-actors-and-words.md#policy-evaluation-and-supervision), a
+`ravel::` function such as `ravel::read_text` or `ravel::run_harness`. Each such
+request is a **host call**.
+
+How long can evaluation take? The evaluation deadline defaults to 30 seconds
+and covers every host call. An
+[LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) is a
+harness run that asks a model a question. It uses that same deadline.
+
+The owner can set `timeoutMs` in settings. For one invocation, `--timeout-ms`
+replaces that value. The permitted range is 1,000–600,000 ms. This bound
+applies to policy evaluation, not to the time that the managed process works.
+
+The owner also sets `budgets.harnessRuns`, from 0 to 16, in settings. This
+[evaluation budget](02-actors-and-words.md#policy-evaluation-and-supervision)
+limits the number of harness runs in one evaluation. Its default is 0, and
+callers have no flag that raises it.
 
 The selected program runs in the caller's working directory. The form of its
 program path sets the base that Ravel uses to find the program:
@@ -86,12 +189,22 @@ program path sets the base that Ravel uses to find the program:
 | Bare program name | The caller's `PATH` |
 
 Ravel gives the argument strings directly to the program, without shell word
-splitting or expansion. An unconfined managed process inherits the caller's
-environment, with two changes. Ravel removes `RAVEL_RUN_ID`,
-`RAVEL_STATE_DIR`, `HARNESS_DISPATCH_EXIT_FILE`, `HARNESS_DISPATCH_RUN_ID`
-and `HARNESS_DISPATCH_STATE_DIR`, and it replaces `RAVEL_EXIT_FILE` for the
-new session. Put the installed `ravel` on the `PATH` of the managed process.
-As an alternative, write the absolute path of `ravel` in the prompt's
+splitting or expansion.
+
+How does the managed process get its environment? A child process gets a copy
+of the environment of its parent. Thus, an unconfined managed process gets the
+environment of the Ravel CLI, which is the caller's environment. Ravel makes
+two changes to that copy before the launch:
+
+- It removes `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`, `HARNESS_DISPATCH_EXIT_FILE`,
+  `HARNESS_DISPATCH_RUN_ID` and `HARNESS_DISPATCH_STATE_DIR`. These variables
+  are controls of an enclosing session or of another launcher.
+- It replaces `RAVEL_EXIT_FILE` with the path of the result file of the new
+  session.
+
+Thus, `end-session` in the program and its children finds only the path of
+the session that Ravel made for them. Put the installed `ravel` on the `PATH` of the managed
+process. As an alternative, write the absolute path of `ravel` in the prompt's
 instructions to end the session. A confined managed process gets a smaller
 environment, which [Confine the managed process](#confine-the-managed-process)
 describes.
@@ -164,6 +277,7 @@ When you finish, send the agreed result.
 **Standard error includes**
 
 ```text
+ravel: starting provider local, model fake, effort none for kind "review"
 profile=careful
 ```
 
@@ -173,22 +287,42 @@ profile=careful
 0
 ```
 
+The table follows this example from the command to the result that the caller
+receives:
+
+| Order | Who acts | What happens in this example |
+|---|---|---|
+| 1 | The caller | Runs `start-session` with the prompt file, one parameter, the task fields and the policy context |
+| 2 | The owner policy | Selects `echo-prompt`, with the prompt and `careful` as its two arguments |
+| 3 | The Ravel CLI | Writes the routing notice `ravel: starting provider local, model fake, effort none for kind "review"` on standard error |
+| 4 | `echo-prompt` | Writes `profile=careful` on its standard output. Ravel sends that output to the caller's standard error. |
+| 5 | `echo-prompt` | Runs `ravel end-session` with the prompt as the result |
+| 6 | The Ravel CLI | Stops the program's process group, completes cleanup and writes the prompt unchanged on standard output. It exits with status 0. |
+
 The final newline came from `prompt.txt`. Ravel added no newline. The
-`printf` output of the fake agent goes to the caller's standard error, because Ravel
-uses standard output only for the result. This example does not need a `tasks/check.md`
-file.
+`printf` output of the fake agent goes to the caller's standard error, because
+Ravel uses standard output only for the result. This example does not need a
+`tasks/check.md` file.
 
 ## Accept a result only after success
 
-Keep the result bytes and the status of `start-session` together. Status 0
-means that all of these conditions are true:
+When can your program trust the result? You may want to act on the result as
+soon as a program in the session sends it. But Ravel can still fail after that
+moment, for example during cleanup. Thus, keep the result bytes and the status
+of `start-session` together, and accept the result only with status 0.
+
+Two operating-system words explain the conditions of status 0:
+
+| Word | What it means | Why status 0 depends on it |
+|---|---|---|
+| [Process group](03-a-complete-session.md#launch-the-managed-job) | A set of processes that the operating system can signal together. Ravel puts the managed process in a new group. Its descendants stay in that group unless they leave it. | When the group is gone, no process of the session that stayed in the group still runs. |
+| [Reap](03-a-complete-session.md#send-the-result-and-finish-the-job) | A parent collects the exit status of its child process. | After the reap, Ravel knows that the managed process ended. |
+
+Status 0 means that all of these conditions are true:
 
 - A program in the session sent a valid result.
-- Ravel [reaped](03-a-complete-session.md#send-the-result-and-finish-the-job)
-  the direct child.
-- Ravel confirmed that the
-  [process group](03-a-complete-session.md#launch-the-managed-job) of the
-  managed process is gone.
+- Ravel reaped the direct child, which is the managed process.
+- Ravel confirmed that the process group of the managed process is gone. <!-- tc: depart synonym-rotation because confirmation establishes completed cleanup, while a check compares a value -->
 - The required cleanup succeeded.
 - The final write and flush of the result succeeded.
 
@@ -204,11 +338,14 @@ it, and put `--` before a value that looks like an option, such as `--help`.
 Ravel writes an empty, multiline or Unicode value unchanged to standard
 output and does not interpret it. The operating
 system can apply a smaller limit for command arguments before `end-session`
-starts.
+runs.
 
-Ravel keeps the first complete result that it receives through the
-[result channel](02-actors-and-words.md#the-managed-process-and-its-result).
-When that first result arrives, Ravel starts to stop the
+How does Ravel receive the result? `end-session` writes it through the
+[result channel](02-actors-and-words.md#the-managed-process-and-its-result),
+the private directory and result file that Ravel made for the session.
+
+Ravel keeps the first complete result that it receives. When that first result
+arrives, Ravel starts to stop the <!-- tc: depart synonym-rotation because start names the beginning of the shutdown here, while launch names process creation -->
 [harness](02-actors-and-words.md#the-managed-process-and-its-result). Thus, a
 second `end-session` call and the shutdown are in a race: either can occur
 first. For example, another process in the group can send a result before
@@ -313,6 +450,14 @@ ravel: refused (session_result_missing, stage exec): the managed process ended w
 1
 ```
 
+The table follows each command to what the caller receives:
+
+| Command | What the program does | What the caller receives |
+|---|---|---|
+| `--kind send --prompt '--help'` | Sends `--help`, then tries to send a second value and to exit with status 7 | The result `--help` and status 0. Ravel kept the first result. |
+| `--kind send --prompt ''` | Sends an empty result | An empty result and status 0 |
+| `--kind natural --prompt ''` | Exits with status 0 and sends no result | No result, the diagnostic `session_result_missing` and status 1 |
+
 This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
 Other signal names keep that prefix. Code and diagnostic text keep their literal names.
 
@@ -348,28 +493,72 @@ fi
 
 ## Keep nested sessions separate
 
-A managed process can be the caller of another `start-session`. The inner
-session allocates its own
-[result channel](02-actors-and-words.md#the-managed-process-and-its-result).
-It replaces `RAVEL_EXIT_FILE` only for its own managed process. The outer
-process keeps the value of its enclosing session. When the inner invocation returns, the
-outer process decides what to send for the outer session. When the inner
-process sends its result, the outer session does not finish, and
-`end-session` accepts no session ID or target argument.
+You may want the program of one session to start another session. For
+example, an orchestrator can run as a harness and ask Ravel for a review
+session as one step of its work. Then it uses the review's result in its own
+work. The program that asks is the caller of the inner session. How does each
+`end-session` reach the right session?
 
-Each process uses the session-result context that it inherited to send a
-result. Ravel does not change the inner result into an outer result. The
-outer process does this itself:
+The answer is the path in `RAVEL_EXIT_FILE`.
+[Chapter 1, “How `end-session` finds its session”](01-what-ravel-is-for.md#how-end-session-finds-its-session),
+explains it, and this section restates it for nested sessions. Before each
+launch, Ravel makes a
+[result channel](02-actors-and-words.md#the-managed-process-and-its-result),
+which is a private temporary directory with a path for one result file. Ravel
+puts that path in the `RAVEL_EXIT_FILE` environment variable of the program
+that it launches. The book calls this path the
+[session-result context](02-actors-and-words.md#three-different-kinds-of-information).
 
-| Process | Session-result context | What its `end-session` call sends |
-|---|---|---|
-| Outer managed process, also the inner caller | Keeps the `RAVEL_EXIT_FILE` of the outer session | The result of the outer session |
-| Inner managed process | Gets a new inner `RAVEL_EXIT_FILE` | The result of the inner session. Ravel returns it to the outer process after the inner cleanup. |
+A child process gets a copy of the environment of its parent. Thus, each
+descendant of the managed process inherits the same path, and
+`ravel end-session` finds the path in its own environment. `end-session` takes
+no session ID and no target argument. An inner `start-session` gives a new path
+only to its own managed process:
 
-An evaluation [harness run](02-actors-and-words.md#policy-evaluation-and-supervision)
-is different. It executes an owner-configured program and returns data to the
-policy, without another selection. Ravel gives it the `RAVEL_POLICY_RUN` marker.
-`start-session` refuses inside that run with `policy_reentry_refused`, status 3.
+| Process | Which process starts it | Its `RAVEL_EXIT_FILE` | What its `end-session` call sends |
+|---|---|---|---|
+| Outer `ravel start-session` | The caller | None, unless the caller itself runs in a session | It does not call `end-session` |
+| Outer managed process | The outer Ravel CLI | The outer path | The result of the outer session |
+| Inner `ravel start-session` | The outer managed process | The outer path, inherited | It does not call `end-session` |
+| Inner managed process | The inner Ravel CLI | A new inner path | The result of the inner session. Ravel returns it to the outer process after the inner cleanup. |
+| Outer managed process, after the inner session | The outer Ravel CLI | The outer path, unchanged | The result of the outer session |
+
+Here is a real run of the nested example below. Each fake agent also printed
+its own `RAVEL_EXIT_FILE` on standard error. The outer agent printed its value
+before and after the inner session.
+
+Fragment: standard error of a real nested session on macOS with
+`TMPDIR=/tmp`. This block omits the cleanup reports. The random parts of each
+path change in each run. macOS gives `/tmp` the real path `/private/tmp`.
+
+```text
+ravel: starting provider local, model fake, effort none for kind "outer"
+outer: RAVEL_EXIT_FILE=/private/tmp/ravel-session-DW2gTg/signal-c8008b48ae03d4d4a5e671806d997d6a
+ravel: starting provider local, model fake, effort none for kind "inner"
+inner: RAVEL_EXIT_FILE=/private/tmp/ravel-session-47e8Ar/signal-803d525c20ad7bff18912ce6edb1d662
+outer: RAVEL_EXIT_FILE=/private/tmp/ravel-session-DW2gTg/signal-c8008b48ae03d4d4a5e671806d997d6a
+```
+
+Ravel made a directory under `TMPDIR` for each session. The inner agent
+received the new path. The outer agent kept its own path, also after the inner
+session. Thus, each `end-session` goes to the session that encloses it.
+
+When the inner invocation returns, the outer process decides what to send for
+the outer session. Ravel does not change the inner result into an outer
+result. The outer process does this itself. When the inner process sends its
+result, the outer session does not finish.
+
+An evaluation
+[harness run](02-actors-and-words.md#policy-evaluation-and-supervision) is
+different. A harness run is a program that the policy starts with
+`ravel::run_harness` during evaluation, to ask a question before it chooses.
+Ravel gives that run a result path of its own, so its result goes back to the
+policy, not to a caller. The owner's harness entry names its program, so the
+policy makes no selection for it.
+
+Ravel also gives a harness run the
+`RAVEL_POLICY_RUN` marker, an environment variable. If a program in that run
+calls `start-session`, Ravel refuses with `policy_reentry_refused`, status 3.
 The refusal occurs before Ravel reads settings or policy.
 
 The final managed process receives no such marker and can start nested sessions.
@@ -440,32 +629,63 @@ inner|outer
 0
 ```
 
-Each layer's [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
-supervises only the group of its own managed process, and it does the
-cleanup only for that group. Thus, if an inner Ravel CLI stops abruptly before it
-completes its cleanup, the group of its managed process can remain. The
-outer Ravel CLI does not stop that group. The
+The table follows this example from the caller's command to the caller's
+result:
+
+| Order | Who acts | What happens in this example |
+|---|---|---|
+| 1 | The caller | Runs `start-session` with the kind `outer` |
+| 2 | The outer Ravel CLI | Launches `outer` with the outer path in `RAVEL_EXIT_FILE` |
+| 3 | `outer` | Keeps its path in `enclosing`, then runs `start-session` with the kind `inner` |
+| 4 | The inner Ravel CLI | Launches `inner` with a new inner path |
+| 5 | `inner` | Sends `inner` to the inner path |
+| 6 | The inner Ravel CLI | Completes the inner cleanup and writes `inner` on its standard output, which `outer` captures |
+| 7 | `outer` | Checks that its path did not change, then sends `inner|outer` to the outer path |
+| 8 | The outer Ravel CLI | Completes the outer cleanup and writes `inner|outer` on the caller's standard output. It exits with status 0. |
+
+Each layer's Ravel CLI supervises only the group of its own managed process,
+and it does the cleanup only for that group. Thus, if an inner Ravel CLI stops
+abruptly before it completes its cleanup, the group of its managed process can
+remain. The outer Ravel CLI does not stop that group. The
 [operational limits](#understand-the-operational-limits) apply at each layer.
 The example checks that the results stay separate. It does not check
 interactive job control for nested sessions.
 
 ## Confine the managed process
 
-[Confinement](02-actors-and-words.md#trust-and-confinement) restricts the
-filesystem access and the environment of the managed process. Add
-`--confine` when you want that restriction. The owner policy and its
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
-stay outside the confinement. Its measured reads can still reach any regular
-file that the user can read. Evaluation harness runs use the same confinement
-rules as the managed process. Thus, `--confine` also restricts those runs.
+You may want to limit what the managed process can change on your computer.
+For example, an LLM that edits files in one project needs no write access to
+your other files.
+[Confinement](02-actors-and-words.md#trust-and-confinement) does this. Ravel
+launches the managed process inside a sandbox of the operating system, which
+restricts its filesystem access. Ravel also gives it a smaller environment.
+Add `--confine` when you want these restrictions.
+
+Ravel uses one sandbox tool on each operating system:
+
+- **macOS: `/usr/bin/sandbox-exec`.** This system command runs a program
+  inside a sandbox that a profile describes. Ravel gives it a profile that
+  refuses access by default and then permits the grants below. Its
+  manual page, `man sandbox-exec`, marks the command as deprecated.
+- **Linux: bubblewrap, at `/usr/bin/bwrap` or `/bin/bwrap`.** This tool runs a
+  program in new Linux namespaces. Ravel starts it with an empty filesystem
+  view and adds only the grants below.
+  [The bubblewrap project page](https://github.com/containers/bubblewrap)
+  describes the tool.
 
 <!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
-On macOS, Ravel uses `/usr/bin/sandbox-exec`. On Linux, it uses the system
-bubblewrap executable, `/usr/bin/bwrap` or `/bin/bwrap`. Before Ravel
-evaluates the policy, it tests whether the backend can make a sandbox. If
-the backend is not available or not usable, the invocation stops with
-`confinement_unusable` and status 2. Ravel does not then launch the process
-without confinement.
+Before Ravel evaluates the policy, it tests whether the backend can make a
+sandbox. If the backend is not available or not usable, the invocation stops
+with `confinement_unusable` and status 2. Ravel does not then launch the
+process without confinement.
+
+The owner policy and its
+[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
+stay outside the confinement. A **measured read** is a read of a file through
+`ravel::read_text` or `ravel::read_json`. The policy's measured reads can
+still reach any regular file that the user can read. Evaluation harness runs
+use the same confinement rules as the managed process. Thus, `--confine` also
+restricts those runs.
 
 These paths have different grants for the confined managed process:
 
@@ -551,6 +771,11 @@ confined
 0
 ```
 
+Here, the selected program is `ravel end-session` itself. It runs inside the
+sandbox, in the `project` directory, and finds its result path in its own
+`RAVEL_EXIT_FILE`. It sends `confined`. After cleanup, the caller receives
+`confined` on standard output and status 0.
+
 The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and
 `LC_*`. Ravel sets `TMPDIR`, `TMP` and `TEMP` to the private run directory and
 gives the managed process a new `RAVEL_EXIT_FILE`. The `HOME` variable does
@@ -561,12 +786,19 @@ not in the environment.
 variable to `ravel::env`, the policy's environment helper.
 It adds no variable to a confined managed process or harness run.
 
+Confinement also changes how the managed process uses your terminal. A
+**POSIX session** is an operating-system set of process groups that can share
+one controlling terminal. It is not a Ravel session. To
+[lend](03-a-complete-session.md#launch-the-managed-job) the terminal, Ravel
+makes the group of the managed process the foreground group of the terminal.
+Then that group receives the keyboard input. After the session, Ravel gives
+the terminal back to its own group.
+
 A confined launch starts a new POSIX session and is not interactive. Ravel
-does not [lend](03-a-complete-session.md#launch-the-managed-job) it the
-caller's controlling terminal. An unconfined launch uses a new process group
-in the caller's POSIX session. Ravel lends it the terminal if Ravel's own
-process group is the foreground group of the terminal. This difference is
-important for an interactive program. [Chapter 9, “Jobs, signals and the
+does not lend it the caller's controlling terminal. An unconfined launch uses
+a new process group in the caller's POSIX session. Ravel lends it the terminal
+if Ravel's own process group is the foreground group of the terminal. This
+difference is important for an interactive program. [Chapter 9, “Jobs, signals and the
 terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal), teaches the mechanism.
 
 Confinement is separate from the permission flags of an agent program.
@@ -586,21 +818,211 @@ confinement together with its effects on the environment and the terminal:
 
 ## Read notices separately from results
 
-For `start-session`, standard output contains only the result. Ravel writes the result
-unchanged, with no added newline, and does not interpret it. The standard output of the
-managed process goes to the caller's standard error, together with its own standard error, Ravel's
-diagnostics and the routing notice. In text form, the routing notice is one
-line that Ravel writes before the launch. The line starts with
-`ravel: starting provider` and gives the selected provider, model, effort and
-kind.
+Your program needs the result. It can also want to know what the policy chose.
+For example, an orchestrator can record which harness, model and effort ran
+each task. Ravel gives these two kinds of information on two different
+streams. This section shows what each stream carries and when Ravel writes to
+it.
+
+What does the policy give back to Ravel? It gives back a selection or a
+refusal. A **selection** is the map that `select` returns when it chooses a
+program. It holds `program` and `args`, the command that Ravel runs. It also
+holds the labels `provider`, `model`, `effort` and `reason`.
+
+A label describes
+the choice of the policy, but it does not configure the harness. For example,
+a policy that selects Claude Code puts the model option of Claude Code in
+`args`. The `model` label only tells the caller which model the policy chose.
 These labels are owner text, not integrations with model providers.
 
+The caller does not read the owner's policy. Thus, Ravel tells the caller what
+the policy chose in the **routing notice**:
+
+- **Who writes it:** the Ravel CLI.
+- **When:** in text form, after the policy selects a program and before Ravel
+  launches it. In JSON form, after the supervision attempt.
+- **Where:** the caller's standard error. Standard output carries only the
+  result.
+- **Who reads it:** the caller, or the person who watches the terminal.
+- **Why:** this notice is the way in which Ravel tells the caller which
+  harness, model and effort the policy chose.
+
+The text form is one line that starts with `ravel: starting provider`. It
+gives the selected provider, model, effort and kind. `--json` replaces that
+line with a version-2 JSON document. The document gives more detail, such as
+the `reason` and the program file that Ravel found.
+
+Complete example: run one review session in text form, the same session with
+`--json`, and a request that the policy refuses. The policy uses the values of
+the review example in chapter 1. The fake agent writes one line, then sends
+`continue`. Create these files in a new directory and make
+`bin/review-agent` executable.
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "notice-demo";
+
+fn select(request, context) {
+    if request.kind == "review" {
+        return #{
+            status: "selected",
+            program: "review-agent",
+            args: [request.prompt],
+            provider: "local",
+            model: "fake",
+            effort: "low",
+            reason: "Reviews go to the fake agent.",
+        };
+    }
+    #{
+        status: "refused",
+        code: "unknown_kind",
+        message: "This policy has no rule for the kind " + request.kind + ".",
+        remedy: "Use the kind review.",
+    }
+}
+```
+
+**`bin/review-agent`**
+
+```sh
+#!/bin/sh
+set -eu
+echo "review-agent: the review is complete"
+ravel end-session -- "continue"
+```
+
+**Command**
+
+```console
+$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.rhai --prompt 'Review the last commit. Then run ravel end-session continue.'
+```
+
+**Standard output, without a final newline**
+
+```text
+continue
+```
+
+**Standard error includes**
+
+```text
+ravel: starting provider local, model fake, effort low for kind "review"
+review-agent: the review is complete
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind review --config policy.rhai --prompt 'Review the last commit. Then run ravel end-session continue.'
+```
+
+**Standard output, without a final newline**
+
+```text
+continue
+```
+
+**Standard error includes**
+
+```text
+"schemaVersion":2,"selection":{"effort":"low","model":"fake","provider":"local","reason":"Reviews go to the fake agent."}
+```
+
+**Exit status**
+
+```text
+0
+```
+
+**Command**
+
+```console
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind deploy --config policy.rhai --prompt 'Deploy the last commit.'
+```
+
+**Standard output**
+
+```text
+```
+
+**Standard error**
+
+```text
+{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"policy_refused","exit":3,"input":"--kind deploy","message":"the policy <scratch>/work/policy.rhai refused the selection: This policy has no rule for the kind deploy.","policyCode":"unknown_kind","remedy":"Use the kind review.","source":"<scratch>/work/policy.rhai","stage":"selection"},"schemaVersion":1}
+```
+
+**Exit status**
+
+```text
+3
+```
+
+Here `<scratch>` is the temporary directory that the example checker of the
+book uses. A manual run shows the actual absolute path of your policy.
+
+The table follows the three commands to what the caller receives:
+
+| Command | What Ravel writes on standard error, in order | What the caller receives |
+|---|---|---|
+| Text form | The routing notice, then the line of the fake agent | `continue` and status 0 |
+| `--json` | The line of the fake agent, then the JSON routing notice | `continue` and status 0 |
+| `--json --kind deploy` | Only the JSON failure document. The policy refused, so Ravel launched no program. | No result and status 3 |
+
+In text form, the notice comes first, because Ravel writes it before the
+launch. With `--json`, the notice comes last, because Ravel writes it after
+the supervision attempt. The text form tells you the choice before the
+program starts. The JSON form also records what happened during the session.
+
+Fragment: standard error of the `--json` review command from a real run on
+macOS. Ravel writes the JSON document as one line. This block shows it on
+several lines and omits the members `bounds`, `context`, `diagnostics`,
+`operationReports`, `policyEnvironment`, `reads` and `worker`.
+
+```text
+review-agent: the review is complete
+{
+  "harnessRuns": [],
+  "policy": {
+    "modules": [
+      {
+        "bytes": 605,
+        "name": "/private/tmp/ch5r/policy.rhai",
+        "sha256": "2f04fb9b1b9192ea4408b6dc3950180e04a6d1c1b1df68adb13064fe9ac50d53"
+      }
+    ],
+    "path": "/private/tmp/ch5r/policy.rhai",
+    "version": "notice-demo"
+  },
+  "promptSource": "argument",
+  "resolution": "/tmp/ch5r/bin/review-agent (found on PATH in /tmp/ch5r/bin)",
+  "schemaVersion": 2,
+  "selection": {
+    "effort": "low",
+    "model": "fake",
+    "provider": "local",
+    "reason": "Reviews go to the fake agent."
+  },
+  "selectionMs": 3
+}
+```
+
 `--json` changes the routing notice and the failure document of Ravel into
-JSON on standard error. It does not change the result into JSON, and it does not
-change other output on standard error. The managed process can still write any text
-there. Keep standard error as a diagnostic stream, and do not parse the full stream
-as one JSON document. The managed process can write a line that looks like a
-Ravel notice. Thus, the form of a line does not prove that Ravel wrote it.
+JSON on standard error. It does not change the result into JSON, and it does
+not change other output on standard error. The managed process can still
+write any text there. Keep standard error as a diagnostic stream, and do not
+parse the full stream as one JSON document. The managed process can write a
+line that looks like a Ravel notice. Thus, the form of a line does not prove
+that Ravel wrote it.
 
 Read standard output only as the result of a successful session. Keep standard error as a
 mixed diagnostic stream, even with `--json`:
@@ -636,9 +1058,10 @@ The run record contains no prompt, answer or token usage.
 The policy can still expose that data through its own diagnostics or context.
 
 Ravel writes this JSON notice after the supervision attempt and before it
-decides the final outcome. If the
-[runner](02-actors-and-words.md#policy-evaluation-and-supervision) completed
-supervision and returned its record of how the job ended,
+decides the final outcome. The
+[runner](02-actors-and-words.md#policy-evaluation-and-supervision) is the part
+of the Ravel CLI that launches and supervises the managed process. If the
+runner completed supervision and returned its record of how the job ended,
 `operationReports` holds the operational reports that the runner kept. The
 array is empty if there are no reports. If supervision failed before the
 runner returned that record, the notice has no such field.
@@ -650,8 +1073,9 @@ and the routing notice also does not. Check the final status.
 A JSON failure has `schemaVersion: 1` and an `error` object with `code`,
 `stage`, `message`, `remedy` and `exit`. It adds the fields that apply, such
 as `input`, `source`, `location`, `policyCode`, `bound` and `signal`, and the
-captured policy `diagnostics` when they are available. Read the code and the
-stage together. These examples distinguish a policy decision from failures
+captured policy `diagnostics` when they are available. The refused command of
+the example above shows `policyCode`, the owner's own code. Read the code and
+the stage together. These examples distinguish a policy decision from failures
 before and after launch:
 
 | Code | Stage | Meaning |
@@ -684,13 +1108,16 @@ stream, even after the caller classifies the exit status.
 
 ## Interpret the exit status
 
-This table gives the normal outcomes of the Ravel CLI. It comes from the
-status constants of the Ravel CLI, its launch and final-outcome code and its
-code for signals. A caller checks the status of `start-session`. It does not
-use the status of the managed process or the earlier status of
-`end-session`. For a session result, accept standard output only with status 0 from
-`start-session`. A help or version request is a separate invocation for
-information, and it sends no result.
+Your program has the status of `start-session`. What does it mean, and what
+does your program do next? This table gives the normal outcomes of the Ravel
+CLI. It comes from the status constants of the Ravel CLI, its launch and
+final-outcome code and its code for signals.
+
+A caller checks the status of `start-session`. It does not use the status of
+the managed process or the earlier status of `end-session`. For a session
+result, accept standard output only with status 0 from `start-session`. A help
+or version request is a separate invocation for information, and it sends no
+result.
 
 These sections teach the subject of each row:
 
@@ -751,6 +1178,17 @@ help and version invocations.
 [Open the final-outcome view at full size](figures/settled-exit-status.svg).
 
 ## Cancel during selection or supervision
+
+You may need to stop a session before it ends. For example, the person at the
+terminal presses Ctrl-C, or your orchestrator stops its wait. A
+**cancellation** is an INT, TERM or HUP signal that reaches the Ravel CLI.
+Ravel then stops the work, attempts cleanup and returns no result to the
+caller. What Ravel stops depends on the phase of the session:
+
+| Phase | What runs | What Ravel does at a cancellation |
+|---|---|---|
+| Selection | The policy worker, and any harness run that the policy started | Attempts to stop and reap the harness run, then the worker. Launches no managed process. |
+| Supervision | The managed process and its process group | Attempts to stop the group, to reap the managed process and to recover the terminal. Returns no result, even after a sent result. |
 
 A cancellation during selection stops evaluation and prevents the managed launch.
 Ravel abandons a read in progress and does not wait for it.
@@ -846,6 +1284,17 @@ The run has no terminal, so its signal does not depend on keyboard input.
 [Chapter 4](04-writing-an-owner-policy.md#run-a-harness-during-evaluation)
 explains the call's inputs and output.
 
+The table follows this example to what the caller receives:
+
+| Order | Who acts | What happens in this example |
+|---|---|---|
+| 1 | The caller | Runs `start-session` with the kind `check` |
+| 2 | The owner policy | Calls `ravel::run_harness` for the harness entry `cancel` and waits |
+| 3 | The Ravel CLI | Starts `cancel-selection` as a harness run |
+| 4 | `cancel-selection` | Sends INT to its parent, the Ravel CLI |
+| 5 | The Ravel CLI | Attempts to stop and reap the harness run, then the worker. It launches no managed process. |
+| 6 | The Ravel CLI | Writes `selection_cancelled` on standard error. The caller receives no result and status 130. |
+
 The whole deadline uses the same stop order as cancellation.
 Cleanup takes additional time. A signal consumed before the final outcome decision
 has priority over a deadline, and the report keeps the earlier failure.
@@ -928,6 +1377,11 @@ ravel: refused (session_cancelled, stage exec): session selected by <scratch>/wo
 130
 ```
 
+The program sent `candidate`, and Ravel received it. Then INT reached the
+Ravel CLI. Ravel attempted to stop the group and to complete cleanup. Then it
+wrote `session_cancelled` on standard error. The caller receives no result and
+status 130, although a program sent a result.
+
 A signal that you send to the Ravel CLI is different from Ctrl-C at the
 terminal. After Ravel lends the terminal, the group of the managed process is
 the foreground group of the terminal. Ctrl-C then makes the terminal send INT
@@ -951,9 +1405,9 @@ ravel start-session --kind interactive --config policy.rhai --prompt-file prompt
 
 ## Understand the operational limits
 
-Ravel's cleanup guarantee does not apply under the conditions in this table.
-Use the table to decide what an unsuccessful invocation can leave for the
-caller to examine:
+What can an unsuccessful invocation leave behind? Ravel's cleanup guarantee
+does not apply under the conditions in this table. Use the table to decide
+what the caller examines after such an invocation:
 
 | Condition | Consequence |
 |---|---|
@@ -969,5 +1423,32 @@ Chapter 2 explains these [trust limits](02-actors-and-words.md#trust-and-confine
 native x86-64 qualification. The examples in this chapter check the choice
 of command, the delivery of the result and the status. They do not show the
 behaviour of real agents, interactive terminal operation or whether a new
-reader can use the book. [Chapter 6, “Reference”](06-reference.md), gives the
-reference entries for the inputs and outputs that this chapter teaches.
+reader can use the book.
+
+## Check your caller before real use
+
+In short, the caller runs `ravel start-session` with a kind, a prompt and
+optional caller data. The owner policy selects a program, and the Ravel CLI
+tells the caller about that choice in the routing notice on standard error.
+Ravel launches the program with a new path in `RAVEL_EXIT_FILE`. A program in
+the session sends one result to that path with `ravel end-session`. Ravel stops
+the program and its process group, completes cleanup and writes the result
+unchanged on standard output. The status of `start-session` tells the caller
+whether it can use that result.
+
+Before your program runs sessions with real harnesses, check each of these
+points with fake agents:
+
+| Point to check | What a good caller does |
+|---|---|
+| The prompt | Tells the LLM how and when to run `ravel end-session`, with the permitted result values |
+| The status | Uses the result only after status 0 from `start-session` |
+| The result bytes | Redirects standard output to a file when trailing newlines are important |
+| A missing result | Treats status 1 as no result, not as an empty result |
+| Standard error | Keeps it as a mixed diagnostic stream, and takes no line as proof of what Ravel wrote |
+| A cancellation | Treats 129, 130, 143 and termination by a signal as no result |
+| A nested session | Sends its own result after the inner session returns |
+| Confinement | Keeps the policy and the owner settings outside every filesystem grant |
+
+[Chapter 6, “Reference”](06-reference.md), gives the reference entries for the
+inputs and outputs that this chapter teaches.

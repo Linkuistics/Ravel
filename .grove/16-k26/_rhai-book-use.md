@@ -39,6 +39,7 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   Order: the worker returns the selection, and Ravel reaps the worker. The Ravel CLI then writes the line on the caller's standard error and launches the program.
   The JSON form replaces the line after the supervision attempt. The labels do not reach the program. Only `program` and `args` do.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
+  Chapter 5 place, from draft `rhai-book-use-k82`: “Read notices separately from results”, after the table that follows the notice example. That example uses the same review values, so the figure's notice matches it. Draft `rhai-book-use-k82` placed no image.
 - **Art: how `end-session` finds its session (F5).** Question: how does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest?
   Notation: a process tree with the inherited `RAVEL_EXIT_FILE`, as C4 dynamic or UML object. Row 3 of “Figure needs”.
   Place: chapter 1, “How `end-session` finds its session”, after the table of processes and before the nested fragment. Chapter 2, “Three different kinds of information”, and chapter 5, “Keep nested sessions separate”, can reuse it.
@@ -46,6 +47,7 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
   Show the caller, `ravel start-session`, the harness, a child shell and `ravel end-session`, each with its value of the variable.
   The policy worker has none. An evaluation harness run has its own path, and its result goes back to the policy.
   Owner: art `rhai-book-use-k77`. Draft `rhai-book-use-k80` placed no image.
+  Chapter 5 place, from draft `rhai-book-use-k82`: “Keep nested sessions separate”, after the table of processes and before the fragment of the real nested run. That fragment has other random paths, `/private/tmp/ravel-session-DW2gTg/signal-c8008b48…` and `/private/tmp/ravel-session-47e8Ar/signal-803d525c…`. A reused figure keeps chapter 1's values, or art states which run it shows. Draft `rhai-book-use-k82` placed no image.
 - **Art: a harness run during evaluation (F4, chapter 4).** Question: how does a harness run that the policy launches return its answer to the policy, and how does it differ from the managed process?
   Notation: UML sequence, with the policy worker, the Ravel CLI, the harness run, the caller and the managed process. Art decides whether this needs a new row of “Figure needs”.
   Place: chapter 4, “Run a harness during evaluation”, after the order table and before the `harnessRuns` fragment. Chapter 4, “Follow the evaluation of a policy” and “Route to Claude Code and Codex”, can reuse it.

@@ -63,6 +63,8 @@ Distinguish the upstream language from restrictions and capabilities supplied by
 Draft `rhai-book-use-k80` put the introduction in chapter 1, “The owner policy chooses a program”, and a shorter restatement in chapter 2.
 Draft `rhai-book-use-k81` restates the characteristics and the three links in chapter 4, “Know the Rhai language”.
 
+Draft `rhai-book-use-k82` introduces `sandbox-exec` and bubblewrap in chapter 5, “Confine the managed process”, because no earlier chapter names them.
+
 ### L05. Explain a term before each page needs it
 
 Give a short local explanation even when another chapter teaches the term.
@@ -87,6 +89,8 @@ The same finding asks for a diagram and a concrete example.
 The text notice precedes launch, and the `--json` report follows the supervision attempt.
 Draft `rhai-book-use-k80` explains the notice in chapter 1, “The selection and the routing notice”, as a who, when, where, reader and why list.
 
+Draft `rhai-book-use-k82` restates that list in chapter 5, “Read notices separately from results”, with the different times of the text and JSON forms.
+
 ### L07. Explain the mechanism behind an abstract verb
 
 Words such as “inherits”, “finds” and “sends” need a concrete mechanism when the reader does not know it.
@@ -97,6 +101,7 @@ Do not replace an unexplained term with another unexplained term.
 **Ravel application:** Contract §2, “Show the mechanism”, requires the environment-variable path through parents and children.
 The correction shows `RAVEL_EXIT_FILE`, its inheritance and its replacement for a nested session's own child.
 Draft `rhai-book-use-k80` shows it in chapter 1, “How `end-session` finds its session”, with a table of processes and the paths of a real nested run.
+Draft `rhai-book-use-k82` restates the mechanism in chapter 5, “Keep nested sessions separate”, with a table of both layers and a second real run.
 
 ### L08. State the reader's goal before the capability
 
@@ -122,6 +127,8 @@ The first-result rule also needs the race and shutdown explanation.
 Draft `rhai-book-use-k81` gives chapter 4 order tables for an evaluation and the first example.
 Other order tables follow policy context, a harness run, the Claude Code recipe and an interactive route.
 
+Draft `rhai-book-use-k82` opens chapter 5 with chapter 1's order table and a column for the section of each row. A table after each complete example ends with what the caller receives.
+
 ### L10. Repeat explanations where they help the reader
 
 Restate a key fact where the reader needs it.
@@ -137,6 +144,7 @@ Do not force readers to follow links to reconstruct a page's explanation.
 
 **Ravel application:** Contract §2, “Repeat and restate”, replaces the old ban on a closing restatement.
 The adjacent-text rule for colour keys remains narrower. L26 records that distinction.
+Chapter 5 restates the words of every page, the three meanings of “context” and the selection. A closing section, “Check your caller before real use”, summarises the chapter.
 
 ### L11. Speak to the reader in connected prose
 
@@ -207,6 +215,7 @@ A correct detailed section cannot correct a contradictory summary elsewhere.
 **Ravel application:** The design integration found false summaries during its own sweep.
 The chapter drafts corrected cleanup precedence, budget-check order and settlement time.
 Proof corrected chapter 4's deadline summary after chapters 5 and 6 already stated the exception.
+Draft `rhai-book-use-k82` found its own new order tables in chapter 5 saying “stops” where the detailed text says that Ravel attempts the stop. The tables now say “attempts”.
 
 ### L17. Separate a new contract from delivered behaviour
 
@@ -464,12 +473,14 @@ Review findings distinguish source-derived counterexamples from executed reprodu
 
 Check local files and anchors, then check each external destination separately.
 Use a missing page, anchor or image to show that the check fails.
+Before you correct a page for a reported failure, open one reported link by hand. A false failure is a defect of the instrument, not of the page.
 Inspect the visible image as well as its load status.
 
 **Source:** Sessions `rhai-book-use-k27`, `k70`, `k71`, `k73` and `k74`, 2026-10-26 to 2026-10-27.
 **Ravel application:** The Rhai address ending in `/book/language/` returned 404 despite appearing in a search result.
 Read 1 checked nonzero image dimensions with an absent-image control.
 The browser's hidden mdBook zoom copy does not count as a second visible figure.
+Draft `rhai-book-use-k82`'s first link script reported every same-page anchor of chapter 5 as broken, because it resolved the page without its directory. The built HTML had each id.
 
 ### L40. Keep checker rules distinct from editorial judgement
 
@@ -654,6 +665,17 @@ They concerned the two bases of imports and measured reads, the capture of polic
 **Ravel application:** Chapter 4 says that an import and a measured read can find two different files from one relative name. It says that the arguments of a recipe stay the same for each prompt.
 The draft's decision log names the specification sections that it read.
 
+### L55. Claim the order of two outputs when the order teaches the point
+
+When the text explains that one output comes before another, make one claim cover both outputs.
+A claim of two adjacent lines fails when their order changes. Two separate claims do not.
+Show an order that the check cannot claim in a labelled fragment of a real run.
+
+**Source:** Session evidence, `rhai-book-use-k82`, 2026-10-28.
+The text routing notice precedes the launch, and the JSON notice follows the supervision attempt. Chapter 5 teaches that difference.
+**Ravel application:** The notice example of chapter 5 claims the text notice and the fake agent's next line as one block. A changed character in either line failed the check.
+The JSON notice holds values that change in each run, so a fragment of a real run shows the agent's line before the JSON document.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -667,6 +689,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L49–L51 | Contract §2 records source restrictions. The prose checker and separate conversion diffs check writing changes before semantic edits. |
 | L52–L53 | The draft's running log records each run that a fragment quotes. The node brief names each draft's pages and the passages that restate earlier ones. |
 | L54 | The draft's decision log records the source of each reason that the text gives. Proof compares each reason with the normative documents. |
+| L55 | The examples check compares each multi-line claim byte for byte. Proof reads each order that the text states against a claim or a labelled fragment. |
 
 ### Disposition of the task's candidate readings
 
