@@ -1,0 +1,3051 @@
+{
+  "cases": {
+    "a prompt that looks like options": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-review",
+          "-c",
+          "reasoning_effort=high",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "--add-dir /tmp"
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-review",
+          "provider": "provider-b",
+          "reason": "routes \"build-check\" to review-agent with model model-review at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "a prompt with unicode": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Fix 🦀\n--add-dir /etc"
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "jj is a file": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind build",
+          "message": "the policy <policy> refused the selection: <sandbox>/work/.jj/repo names no jj store: ENOTDIR: not a directory, stat '<sandbox>/work/.jj/repo'",
+          "policyCode": "jj_store_unreadable",
+          "remedy": "run from a jj workspace whose <sandbox>/work/.jj/repo names its store, or from a directory with no .jj",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "route build": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route build-check": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-review",
+          "-c",
+          "reasoning_effort=high",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "Explain the parser."
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-review",
+          "provider": "provider-b",
+          "reason": "routes \"build-check\" to review-agent with model model-review at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route build-fold": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build-fold\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route design": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "xhigh",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"design\" to lead-agent with model model-deep at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route design-check": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "-c",
+          "reasoning_effort=xhigh",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "Explain the parser."
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "model-deep",
+          "provider": "provider-b",
+          "reason": "routes \"design-check\" to review-agent with model model-deep at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route design-fold": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "xhigh",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"design-fold\" to lead-agent with model model-deep at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route draft": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-writer",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-writer",
+          "provider": "provider-a",
+          "reason": "routes \"draft\" to lead-agent with model model-writer at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route polish": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"polish\" to lead-agent with model model-deep at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route release-notes": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"release-notes\" to lead-agent with model model-lead at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "route scope": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "max",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "max",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"scope\" to lead-agent with model model-deep at effort max"
+        }
+      },
+      "refusal": null
+    },
+    "route scope-check": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "-c",
+          "reasoning_effort=max",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "Explain the parser."
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "max",
+          "model": "model-deep",
+          "provider": "provider-b",
+          "reason": "routes \"scope-check\" to review-agent with model model-deep at effort max"
+        }
+      },
+      "refusal": null
+    },
+    "route scope-fold": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "max",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "max",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"scope-fold\" to lead-agent with model model-deep at effort max"
+        }
+      },
+      "refusal": null
+    },
+    "route survey-a": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "--effort",
+          "xhigh",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "model-deep",
+          "provider": "provider-a",
+          "reason": "routes \"survey-a\" to lead-agent with model model-deep at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route survey-b": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-deep",
+          "-c",
+          "reasoning_effort=xhigh",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "Explain the parser."
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "model-deep",
+          "provider": "provider-b",
+          "reason": "routes \"survey-b\" to review-agent with model model-deep at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "store a byte order mark": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store a dot": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store a next line": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/work/.jj/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store a no-break space around": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store absolute": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "/srv/main",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store absolute with a double slash": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "/srv/main",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store empty": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind build",
+          "message": "the policy <policy> refused the selection: <sandbox>/work/.jj/repo names no jj store: it is empty",
+          "policyCode": "jj_store_unreadable",
+          "remedy": "run from a jj workspace whose <sandbox>/work/.jj/repo names its store, or from a directory with no .jj",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "store empty, unlisted kind": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind nope",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"nope\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "store is a dangling link": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store is a directory": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store is not UTF-8": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store is not readable": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind build",
+          "message": "the policy <policy> refused the selection: <sandbox>/work/.jj/repo names no jj store: EACCES: permission denied, open '<sandbox>/work/.jj/repo'",
+          "policyCode": "jj_store_unreadable",
+          "remedy": "run from a jj workspace whose <sandbox>/work/.jj/repo names its store, or from a directory with no .jj",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "store only white space": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind build",
+          "message": "the policy <policy> refused the selection: <sandbox>/work/.jj/repo names no jj store: it is empty",
+          "policyCode": "jj_store_unreadable",
+          "remedy": "run from a jj workspace whose <sandbox>/work/.jj/repo names its store, or from a directory with no .jj",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "store relative": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store relative above the root": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "/",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store relative for a reviewer": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "model-review",
+          "-c",
+          "reasoning_effort=high",
+          "-c",
+          "permissions=full-access",
+          "--ask-for-approval",
+          "never",
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "Explain the parser."
+        ],
+        "program": "review-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-review",
+          "provider": "provider-b",
+          "reason": "routes \"build-check\" to review-agent with model model-review at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store relative with a trailing slash": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store relative with dot segments": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store relative with white space around": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "<sandbox>/elsewhere",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "store the root": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--add-dir",
+          "/",
+          "--model",
+          "model-lead",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "lead-agent"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "model-lead",
+          "provider": "provider-a",
+          "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "unlisted \"Build\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind Build",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"Build\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"__proto__\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind __proto__",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"__proto__\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"a\\\"b\\\\cé\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind a\"b\\cé",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"a\\\"b\\\\cé\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"build \"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind build ",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"build \"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"constructor\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind constructor",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"constructor\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"nope\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind nope",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"nope\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"toString\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind toString",
+          "message": "the policy <policy> refused the selection: no mapping for kind \"toString\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a mapping for this kind in your policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    }
+  },
+  "source": "TypeScript observations captured by rhai-equivalence-fixtures-k30; never regenerate",
+  "workspaces": {
+    "primary": {
+      "build": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-lead",
+            "--effort",
+            "high",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-lead",
+            "provider": "provider-a",
+            "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "build-check": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-review",
+            "-c",
+            "reasoning_effort=high",
+            "-c",
+            "permissions=full-access",
+            "--ask-for-approval",
+            "never",
+            "Explain the parser."
+          ],
+          "program": "review-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-review",
+            "provider": "provider-b",
+            "reason": "routes \"build-check\" to review-agent with model model-review at effort high"
+          }
+        },
+        "refusal": null
+      }
+    },
+    "secondary": {
+      "build": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-lead",
+            "--effort",
+            "high",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-lead",
+            "provider": "provider-a",
+            "reason": "routes \"build\" to lead-agent with model model-lead at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "build-check": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-review",
+            "-c",
+            "reasoning_effort=high",
+            "-c",
+            "permissions=full-access",
+            "--ask-for-approval",
+            "never",
+            "--add-dir",
+            "<sandbox>/main",
+            "Explain the parser."
+          ],
+          "program": "review-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-review",
+            "provider": "provider-b",
+            "reason": "routes \"build-check\" to review-agent with model model-review at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "build-fold": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-lead",
+            "--effort",
+            "high",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-lead",
+            "provider": "provider-a",
+            "reason": "routes \"build-fold\" to lead-agent with model model-lead at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "design": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "xhigh",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "xhigh",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"design\" to lead-agent with model model-deep at effort xhigh"
+          }
+        },
+        "refusal": null
+      },
+      "design-check": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-deep",
+            "-c",
+            "reasoning_effort=xhigh",
+            "-c",
+            "permissions=full-access",
+            "--ask-for-approval",
+            "never",
+            "--add-dir",
+            "<sandbox>/main",
+            "Explain the parser."
+          ],
+          "program": "review-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "xhigh",
+            "model": "model-deep",
+            "provider": "provider-b",
+            "reason": "routes \"design-check\" to review-agent with model model-deep at effort xhigh"
+          }
+        },
+        "refusal": null
+      },
+      "design-fold": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "xhigh",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "xhigh",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"design-fold\" to lead-agent with model model-deep at effort xhigh"
+          }
+        },
+        "refusal": null
+      },
+      "draft": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-writer",
+            "--effort",
+            "high",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-writer",
+            "provider": "provider-a",
+            "reason": "routes \"draft\" to lead-agent with model model-writer at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "polish": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "high",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "high",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"polish\" to lead-agent with model model-deep at effort high"
+          }
+        },
+        "refusal": null
+      },
+      "release-notes": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-lead",
+            "--effort",
+            "medium",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "medium",
+            "model": "model-lead",
+            "provider": "provider-a",
+            "reason": "routes \"release-notes\" to lead-agent with model model-lead at effort medium"
+          }
+        },
+        "refusal": null
+      },
+      "scope": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "max",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "max",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"scope\" to lead-agent with model model-deep at effort max"
+          }
+        },
+        "refusal": null
+      },
+      "scope-check": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-deep",
+            "-c",
+            "reasoning_effort=max",
+            "-c",
+            "permissions=full-access",
+            "--ask-for-approval",
+            "never",
+            "--add-dir",
+            "<sandbox>/main",
+            "Explain the parser."
+          ],
+          "program": "review-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "max",
+            "model": "model-deep",
+            "provider": "provider-b",
+            "reason": "routes \"scope-check\" to review-agent with model model-deep at effort max"
+          }
+        },
+        "refusal": null
+      },
+      "scope-fold": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "max",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "max",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"scope-fold\" to lead-agent with model model-deep at effort max"
+          }
+        },
+        "refusal": null
+      },
+      "survey-a": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--add-dir",
+            "<sandbox>/main",
+            "--model",
+            "model-deep",
+            "--effort",
+            "xhigh",
+            "Explain the parser."
+          ],
+          "program": "lead-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/lead-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "xhigh",
+            "model": "model-deep",
+            "provider": "provider-a",
+            "reason": "routes \"survey-a\" to lead-agent with model model-deep at effort xhigh"
+          }
+        },
+        "refusal": null
+      },
+      "survey-b": {
+        "exit": 0,
+        "launched": {
+          "args": [
+            "--model",
+            "model-deep",
+            "-c",
+            "reasoning_effort=xhigh",
+            "-c",
+            "permissions=full-access",
+            "--ask-for-approval",
+            "never",
+            "--add-dir",
+            "<sandbox>/main",
+            "Explain the parser."
+          ],
+          "program": "review-agent"
+        },
+        "notice": {
+          "bounds": {
+            "context": {
+              "bytes": 262144,
+              "from": "default"
+            },
+            "diagnostics": {
+              "bytes": 262144,
+              "from": "fixed"
+            },
+            "message": {
+              "bytes": 1048576,
+              "from": "fixed"
+            },
+            "selection": {
+              "from": "default",
+              "ms": 30000
+            },
+            "source": {
+              "bytes": 65536,
+              "from": "default"
+            },
+            "sources": {
+              "from": "fixed",
+              "sources": 256
+            }
+          },
+          "context": null,
+          "diagnostics": {
+            "stderr": "",
+            "stdout": ""
+          },
+          "policyEnvironment": [],
+          "promptSource": "argument",
+          "resolution": "<sandbox>/bin/review-agent (found on PATH in <sandbox>/bin)",
+          "selection": {
+            "effort": "xhigh",
+            "model": "model-deep",
+            "provider": "provider-b",
+            "reason": "routes \"survey-b\" to review-agent with model model-deep at effort xhigh"
+          }
+        },
+        "refusal": null
+      }
+    }
+  }
+}

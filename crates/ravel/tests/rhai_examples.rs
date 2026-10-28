@@ -7,8 +7,10 @@
 //! another, over one table of requests. A fake agent on the private `PATH`
 //! records the argument vector that it was started with. The comparison covers
 //! the routing notice, that argument vector, the delivered context and the
-//! refusal. The leaf that removes the TypeScript path freezes `observe` for
-//! every case of `cases` as fixtures first, so keep the table in this form.
+//! refusal. The frozen TypeScript observations in `equivalence/fixtures/`
+//! also drive independent Rhai checks. Never regenerate them to fix a failure.
+//! `typescript-worker-cutover-k31` removes the live TypeScript comparisons,
+//! their source constants, and the one-shot generator after the cutover.
 //!
 //! The comparison leaves out these fields, because they must differ:
 //!
@@ -23,7 +25,11 @@
 //! - `bounds.harnessRuns`: only the Rhai bounds hold the harness-run budget.
 //! - `context.sha256`: it hashes the delivered context, which holds the path of
 //!   the sandbox, and the two languages run in two sandboxes. The value, the
-//!   byte count and the measured sources of the context are compared.
+//!   source-byte count and the measured sources of the context are compared.
+//! - `context.encodedBytes` across sandboxes: the encoded value contains the
+//!   temporary root, whose length differs between machines. Each live count is
+//!   checked against the actual value before path normalization instead. The
+//!   captured fixtures retain their original byte counts unchanged.
 //!
 //! A case that must differ says why, in `Expect::Differs`, and the test proves
 //! that it does. The same list is the migration guide's list of what changes.
@@ -572,6 +578,15 @@ fn observe_in(sandbox: &Sandbox, cwd: &Path, language: Language, case: &Case) ->
     let mut observation = match result.code {
         Some(0) => {
             let notice = result.report();
+            if notice["context"].is_object() {
+                assert_eq!(
+                    notice["context"]["encodedBytes"],
+                    serde_json::to_vec(&notice["context"]["value"])
+                        .unwrap()
+                        .len(),
+                    "context byte count before path normalization"
+                );
+            }
             json!({
                 "exit": 0,
                 "launched": launched(sandbox).expect("a selected route starts its agent"),
@@ -619,6 +634,9 @@ fn observe(language: Language, policy: &Policy, case: &Case) -> Value {
 /// `observation` as `expect` compares it.
 fn comparable(observation: &Value, expect: Expect) -> Value {
     let mut copy = observation.clone();
+    if let Some(context) = copy["notice"]["context"].as_object_mut() {
+        context.remove("encodedBytes");
+    }
     if let Expect::SameExceptMessage(_) = expect
         && let Some(error) = copy["refusal"]["error"].as_object_mut()
     {
@@ -628,8 +646,9 @@ fn comparable(observation: &Value, expect: Expect) -> Value {
 }
 
 /// The failures of `cases` against `policy`, one text each. It runs the cases in
-/// parallel, because each one starts a worker of each language.
-fn compare(policy: &Policy, cases: &[Case]) -> Vec<String> {
+/// parallel. A fixture supplies the reference without starting TypeScript;
+/// otherwise each case starts a worker of each language.
+fn compare_with(policy: &Policy, cases: &[Case], fixture: Option<&Value>) -> Vec<String> {
     let next = AtomicUsize::new(0);
     let failures = std::sync::Mutex::new(vec![]);
     std::thread::scope(|scope| {
@@ -638,7 +657,7 @@ fn compare(policy: &Policy, cases: &[Case]) -> Vec<String> {
                 loop {
                     let index = next.fetch_add(1, Ordering::SeqCst);
                     let Some(case) = cases.get(index) else { break };
-                    if let Some(failure) = check_case(policy, case) {
+                    if let Some(failure) = check_case(policy, case, fixture) {
                         failures.lock().unwrap().push(failure);
                     }
                 }
@@ -650,7 +669,11 @@ fn compare(policy: &Policy, cases: &[Case]) -> Vec<String> {
     failures
 }
 
-fn check_case(policy: &Policy, case: &Case) -> Option<String> {
+fn compare(policy: &Policy, cases: &[Case]) -> Vec<String> {
+    compare_with(policy, cases, None)
+}
+
+fn check_case(policy: &Policy, case: &Case, fixture: Option<&Value>) -> Option<String> {
     let unreadable = case.steps.iter().any(|step| {
         matches!(
             step,
@@ -663,11 +686,21 @@ fn check_case(policy: &Policy, case: &Case) -> Option<String> {
     if unreadable && superuser() {
         return None;
     }
-    let (typescript, rhai) = std::thread::scope(|scope| {
-        let typescript = scope.spawn(|| observe(Language::TypeScript, policy, case));
-        let rhai = scope.spawn(|| observe(Language::Rhai, policy, case));
-        (typescript.join().unwrap(), rhai.join().unwrap())
-    });
+    let (typescript, rhai) = if let Some(fixture) = fixture {
+        let typescript = fixture[&case.name].clone();
+        assert!(
+            typescript.is_object(),
+            "missing fixture case: {}",
+            case.name
+        );
+        (typescript, observe(Language::Rhai, policy, case))
+    } else {
+        std::thread::scope(|scope| {
+            let typescript = scope.spawn(|| observe(Language::TypeScript, policy, case));
+            let rhai = scope.spawn(|| observe(Language::Rhai, policy, case));
+            (typescript.join().unwrap(), rhai.join().unwrap())
+        })
+    };
     let (left, right) = (
         comparable(&typescript, case.expect),
         comparable(&rhai, case.expect),
@@ -704,6 +737,59 @@ fn assert_equivalent(policy: &Policy) {
     );
 }
 
+fn fixture(policy: &Policy) -> Value {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/equivalence/fixtures")
+        .join(format!("{}.json", policy.name));
+    let bytes = fs::read(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()));
+    serde_json::from_slice(&bytes).expect("a frozen TypeScript observation document")
+}
+
+#[test]
+fn rhai_examples_match_the_frozen_typescript_observations() {
+    for policy in [static_policy(), sample_policy(), harness_table_policy()] {
+        let fixture = fixture(&policy);
+        let cases = cases_of(&policy);
+        // Missing and extra cases both fail: changing the table needs an
+        // explicit decision, never regeneration of the historical reference.
+        assert_eq!(fixture["cases"].as_object().unwrap().len(), cases.len());
+        let failures = compare_with(&policy, &cases, Some(&fixture["cases"]));
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+    }
+}
+
+#[test]
+fn the_fixture_comparison_fails_on_a_changed_fixture() {
+    let policy = static_policy();
+    let fixture = fixture(&policy);
+    let cases: Vec<Case> = cases_of(&policy)
+        .into_iter()
+        .filter(|case| {
+            ["route bugfix", "unlisted \"nope\"", "a context document"]
+                .contains(&case.name.as_str())
+        })
+        .collect();
+    assert_eq!(cases.len(), 3);
+    assert!(compare_with(&policy, &cases, Some(&fixture["cases"])).is_empty());
+
+    for (name, field) in [
+        ("route bugfix", "/notice/selection/effort"),
+        ("unlisted \"nope\"", "/refusal/error/remedy"),
+        ("a context document", "/notice/context/value/summary"),
+    ] {
+        let mut changed = fixture["cases"].clone();
+        *changed[name]
+            .pointer_mut(field)
+            .expect("an existing fixture field") = json!("changed");
+        assert_ne!(changed, fixture["cases"]);
+        let failures = compare_with(&policy, &cases, Some(&changed));
+        assert_eq!(failures.len(), 1, "{field}: {failures:?}");
+        assert!(failures[0].contains(name), "{failures:?}");
+        assert!(failures[0].contains("the results differ"), "{failures:?}");
+    }
+}
+
+// Live TypeScript checks: removed by `typescript-worker-cutover-k31`.
 #[test]
 fn the_static_route_table_gives_the_same_results_in_both_languages() {
     assert_equivalent(&static_policy());
@@ -793,63 +879,108 @@ fn jj_workspaces(sandbox: &Sandbox) -> (PathBuf, PathBuf) {
     (main.canonicalize().unwrap(), second.canonicalize().unwrap())
 }
 
+fn observe_workspaces(language: Language) -> Value {
+    let policy = harness_table_policy();
+    let sandbox = Sandbox::new();
+    install(&sandbox, language, &policy);
+    let (main, second) = jj_workspaces(&sandbox);
+    let mut secondary = Map::new();
+    for kind in TABLE_KINDS {
+        let case = Case::new(&format!("secondary workspace {kind}"), kind);
+        let observed = observe_in(&sandbox, &second, language, &case);
+        // The grant is the main repository, once, beside `--add-dir`.
+        let args = observed["launched"]["args"].as_array().unwrap();
+        let grants: Vec<&Value> = args
+            .windows(2)
+            .filter(|pair| pair[0] == "--add-dir")
+            .map(|pair| &pair[1])
+            .collect();
+        assert_eq!(
+            grants,
+            [&json!("<sandbox>/main")],
+            "{language:?} {kind}: {args:?}"
+        );
+        assert!(secondary.insert(kind.to_owned(), observed).is_none());
+    }
+    // A primary workspace needs no grant, for either layout of arguments.
+    let mut primary = Map::new();
+    for kind in ["build", "build-check"] {
+        let case = Case::new(&format!("primary workspace {kind}"), kind);
+        let observed = observe_in(&sandbox, &main, language, &case);
+        let args = observed["launched"]["args"].as_array().unwrap();
+        assert!(
+            !args.contains(&json!("--add-dir")),
+            "{language:?} {kind}: {args:?}"
+        );
+        assert!(primary.insert(kind.to_owned(), observed).is_none());
+    }
+    json!({ "secondary": secondary, "primary": primary })
+}
+
+#[test]
+fn rhai_harness_table_matches_the_frozen_jj_workspace_observations() {
+    if !jj_available() {
+        eprintln!("SKIPPED: jj is not installed, and this test needs a secondary jj workspace");
+        return;
+    }
+    let fixture = fixture(&harness_table_policy());
+    assert_eq!(observe_workspaces(Language::Rhai), fixture["workspaces"]);
+}
+
+// Live TypeScript check: removed by `typescript-worker-cutover-k31`.
 #[test]
 fn the_harness_table_grants_the_main_repository_for_every_kind_in_a_secondary_jj_workspace() {
     if !jj_available() {
         eprintln!("SKIPPED: jj is not installed, and this test needs a secondary jj workspace");
         return;
     }
-    let policy = harness_table_policy();
-    // One main repository and one secondary workspace for each language, shared
-    // by every kind, because a workspace costs far more than a session. The two
-    // languages run side by side.
-    let run_language = |language: Language| {
-        let sandbox = Sandbox::new();
-        install(&sandbox, language, &policy);
-        let (main, second) = jj_workspaces(&sandbox);
-        let mut secondary = vec![];
-        for kind in TABLE_KINDS {
-            let case = Case::new(&format!("secondary workspace {kind}"), kind);
-            let observed = observe_in(&sandbox, &second, language, &case);
-            // The grant is the main repository, once, beside `--add-dir`.
-            let args = observed["launched"]["args"].as_array().unwrap();
-            let grants: Vec<&Value> = args
-                .windows(2)
-                .filter(|pair| pair[0] == "--add-dir")
-                .map(|pair| &pair[1])
-                .collect();
-            assert_eq!(
-                grants,
-                [&json!("<sandbox>/main")],
-                "{language:?} {kind}: {args:?}"
-            );
-            secondary.push(observed);
-        }
-        // A primary workspace needs no grant, for either layout of arguments.
-        let mut primary = vec![];
-        for kind in ["build", "build-check"] {
-            let case = Case::new(&format!("primary workspace {kind}"), kind);
-            let observed = observe_in(&sandbox, &main, language, &case);
-            let args = observed["launched"]["args"].as_array().unwrap();
-            assert!(
-                !args.contains(&json!("--add-dir")),
-                "{language:?} {kind}: {args:?}"
-            );
-            primary.push(observed);
-        }
-        (secondary, primary)
-    };
+    // Share workspaces across kinds; the two languages run side by side.
     let (typescript, rhai) = std::thread::scope(|scope| {
-        let typescript = scope.spawn(|| run_language(Language::TypeScript));
-        let rhai = scope.spawn(|| run_language(Language::Rhai));
+        let typescript = scope.spawn(|| observe_workspaces(Language::TypeScript));
+        let rhai = scope.spawn(|| observe_workspaces(Language::Rhai));
         (typescript.join().unwrap(), rhai.join().unwrap())
     });
     // Each argument vector, and every other compared field, equals that of the
     // TypeScript policy.
-    for (kind, (left, right)) in TABLE_KINDS.iter().zip(typescript.0.iter().zip(&rhai.0)) {
-        assert_eq!(left, right, "secondary workspace {kind}");
+    assert_eq!(typescript, rhai, "primary and secondary workspaces");
+}
+
+/// One-shot capture, removed by `typescript-worker-cutover-k31`. The destination
+/// must not exist: historical observations must never be refreshed to pass a test.
+#[test]
+#[ignore = "one-shot TypeScript freeze; task equivalence:freeze (requires jj)"]
+fn freeze_typescript_observations() {
+    assert!(!superuser(), "mode-000 cases require an unprivileged user");
+    assert!(
+        jj_available(),
+        "freezing requires real secondary jj workspaces"
+    );
+    let destination = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/equivalence/fixtures");
+    fs::create_dir(&destination).expect("refuse to overwrite the frozen TypeScript fixtures");
+    for policy in [static_policy(), sample_policy(), harness_table_policy()] {
+        let mut cases = Map::new();
+        for case in cases_of(&policy) {
+            let observed = observe(Language::TypeScript, &policy, &case);
+            assert!(
+                cases.insert(case.name, observed).is_none(),
+                "duplicate case"
+            );
+        }
+        let mut fixture = json!({
+            "source": "TypeScript observations captured by rhai-equivalence-fixtures-k30; never regenerate",
+            "cases": cases,
+        });
+        if policy.name == "harness-table" {
+            fixture["workspaces"] = observe_workspaces(Language::TypeScript);
+        }
+        let path = destination.join(format!("{}.json", policy.name));
+        fs::write(
+            &path,
+            format!("{}\n", serde_json::to_string_pretty(&fixture).unwrap()),
+        )
+        .unwrap();
+        eprintln!("froze {} cases in {}", cases.len(), path.display());
     }
-    assert_eq!(typescript.1, rhai.1, "primary workspace");
 }
 
 #[test]

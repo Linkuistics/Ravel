@@ -1,0 +1,1877 @@
+{
+  "cases": {
+    "a context document": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": {
+          "encodedBytes": 329,
+          "loader": false,
+          "sourceBytes": 113,
+          "sources": [
+            {
+              "bytes": 113,
+              "name": "<sandbox>/work/context.json",
+              "sha256": "4d86eba73b7653b49387b453b1286d2cbf6f6fc1dd4a1e200b22ac3dade01ad2",
+              "via": "--context"
+            }
+          ],
+          "value": {
+            "acceptanceCriteria": [
+              "it parses"
+            ],
+            "facts": {
+              "area": "parser",
+              "n": 3
+            },
+            "measured": [
+              {
+                "bytes": 113,
+                "name": "<sandbox>/work/context.json",
+                "sha256": "4d86eba73b7653b49387b453b1286d2cbf6f6fc1dd4a1e200b22ac3dade01ad2",
+                "via": "--context"
+              }
+            ],
+            "schemaVersion": 1,
+            "summary": "Fix the parser"
+          }
+        },
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"feature\"] gives my-agent-wrapper with model your-model at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "a context document and an unlisted kind": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind nope",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"nope\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "a long prompt": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "xhigh",
+          "long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long "
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"migration\"] gives my-agent-wrapper with model your-model at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "a prompt that looks like options": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "low",
+          "--model other --effort low"
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "low",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"question\"] gives my-agent-wrapper with model your-model at effort low"
+        }
+      },
+      "refusal": null
+    },
+    "a prompt with lines": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "one\n\ntwo\n  three\n"
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"feature\"] gives my-agent-wrapper with model your-model at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "a prompt with unicode": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Fix 🦀 in été now"
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "choice 4097 bytes": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice holds more than 4096 bytes",
+          "policyCode": "choice_unreadable",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a byte order mark between names": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice a name in another case": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"Careful\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a name that is not offered": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"fast\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a name with a control character": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"fa\\u0001st\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a name with a quote": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"fa\\\"st\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a name with accents": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"café\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a next line between names": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"carefuldefault\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice a no-break space": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice an em space": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice an offered name and one that is not": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice names \"fast\", which this policy does not offer; it offers default, careful",
+          "policyCode": "choice_unoffered",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice careful": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice careful, many spaces and lines": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice careful, no newline": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice default": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "choice empty": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: choose one arrangement",
+          "policyCode": "one_choice",
+          "remedy": "write default or careful in .ravel-choice",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice exactly 4096 bytes": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice is a FIFO": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice is not a regular file",
+          "policyCode": "choice_unreadable",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice is a dangling link": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "choice is a directory": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice is not a regular file",
+          "policyCode": "choice_unreadable",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice is a link to a file": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "careful choice"
+        }
+      },
+      "refusal": null
+    },
+    "choice is not readable": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice cannot be read: EACCES: permission denied, open '<sandbox>/work/.ravel-choice'",
+          "policyCode": "choice_unreadable",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice not UTF-8": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: the choice file <sandbox>/work/.ravel-choice cannot be read: The encoded data was not valid for encoding utf-8",
+          "policyCode": "choice_unreadable",
+          "remedy": "write names from default, careful in <sandbox>/work/.ravel-choice, separated by whitespace, or delete it",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice only white space": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: choose one arrangement",
+          "policyCode": "one_choice",
+          "remedy": "write default or careful in .ravel-choice",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice the same name twice": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: choose one arrangement",
+          "policyCode": "one_choice",
+          "remedy": "write default or careful in .ravel-choice",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "choice two names": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind bugfix",
+          "message": "the policy <policy> refused the selection: choose one arrangement",
+          "policyCode": "one_choice",
+          "remedy": "write default or careful in .ravel-choice",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "no choice file": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "params and task": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "route architecture": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "xhigh",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"architecture\"] gives my-agent-wrapper with model your-model at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route bugfix": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "medium",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "medium",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"bugfix\"] gives my-agent-wrapper with model your-model at effort medium"
+        }
+      },
+      "refusal": null
+    },
+    "route feature": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "high",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "high",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"feature\"] gives my-agent-wrapper with model your-model at effort high"
+        }
+      },
+      "refusal": null
+    },
+    "route migration": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "xhigh",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "xhigh",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"migration\"] gives my-agent-wrapper with model your-model at effort xhigh"
+        }
+      },
+      "refusal": null
+    },
+    "route question": {
+      "exit": 0,
+      "launched": {
+        "args": [
+          "--model",
+          "your-model",
+          "--effort",
+          "low",
+          "Explain the parser."
+        ],
+        "program": "my-agent-wrapper"
+      },
+      "notice": {
+        "bounds": {
+          "context": {
+            "bytes": 262144,
+            "from": "default"
+          },
+          "diagnostics": {
+            "bytes": 262144,
+            "from": "fixed"
+          },
+          "message": {
+            "bytes": 1048576,
+            "from": "fixed"
+          },
+          "selection": {
+            "from": "default",
+            "ms": 30000
+          },
+          "source": {
+            "bytes": 65536,
+            "from": "default"
+          },
+          "sources": {
+            "from": "fixed",
+            "sources": 256
+          }
+        },
+        "context": null,
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "policyEnvironment": [],
+        "promptSource": "argument",
+        "resolution": "<sandbox>/bin/my-agent-wrapper (found on PATH in <sandbox>/bin)",
+        "selection": {
+          "effort": "low",
+          "model": "your-model",
+          "provider": "your-provider",
+          "reason": "routes[\"question\"] gives my-agent-wrapper with model your-model at effort low"
+        }
+      },
+      "refusal": null
+    },
+    "unlisted \"Question\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind Question",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"Question\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"\\u{1}\\u{7f}\\u{2028}\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind \u0001 ",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"\\u0001 \"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"__proto__\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind __proto__",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"__proto__\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"a\\\"quote\\\\andé\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind a\"quote\\andé",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"a\\\"quote\\\\andé\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"constructor\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind constructor",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"constructor\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"hasOwnProperty\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind hasOwnProperty",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"hasOwnProperty\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"line\\nbreak\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind line\nbreak",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"line\\nbreak\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"nope\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind nope",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"nope\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"question \"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind question ",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"question \"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"tab\\there\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind tab\there",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"tab\\there\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"toString\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind toString",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"toString\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    },
+    "unlisted \"кириллица\"": {
+      "exit": 3,
+      "launched": null,
+      "notice": null,
+      "refusal": {
+        "diagnostics": {
+          "stderr": "",
+          "stdout": ""
+        },
+        "error": {
+          "code": "policy_refused",
+          "exit": 3,
+          "input": "--kind кириллица",
+          "message": "the policy <policy> refused the selection: the routes name no command for kind \"кириллица\"",
+          "policyCode": "incomplete_mapping",
+          "remedy": "add a route for this kind in your copy of the policy",
+          "source": "<policy>",
+          "stage": "selection"
+        }
+      }
+    }
+  },
+  "source": "TypeScript observations captured by rhai-equivalence-fixtures-k30; never regenerate"
+}

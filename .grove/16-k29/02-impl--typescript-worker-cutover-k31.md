@@ -32,6 +32,7 @@ Remove the TypeScript path from the Rust code and the tests. Ravel evaluates onl
 
 ## Notes
 
+- `rhai-equivalence-fixtures-k30` captured the TypeScript observations once in `crates/ravel/tests/equivalence/fixtures/{static,sample,harness-table}.json`. Keep these files unchanged and retain the independent Rhai fixture checks in `rhai_examples.rs`, including the real secondary jj workspace and its skip message. Remove the live TypeScript comparisons, their source constants and the ignored one-shot generator together with the `equivalence:freeze` Taskfile task. The earlier leaf's running log records the capture digests and the additional `context.encodedBytes` exclusion: each live count is checked before path normalization instead.
 - The worker identity of the Rhai path replaces the source digest of the TypeScript worker. Check that `build.rs` still gives the Rhai worker a build identity that changes with the source.
 - The installed layout still holds the unused worker until the next leaf. That harms nothing.
 - The book examples that show the old refusals of `NODE_OPTIONS` belong to the chapters that `rhai-book-use` rewrites. Run `task docs:examples` and repair any example that this leaf breaks, as the done condition says. Chapter 9 is the known case. Search chapters 7, 8, 10 and 11 for others.

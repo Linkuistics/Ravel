@@ -154,6 +154,12 @@ tasks:
     cmds:
       - cargo nextest run --locked -p ravel {{.CLI_ARGS}}
 
+  equivalence:freeze:
+    desc: One-shot capture of TypeScript example observations (requires jj; refuses existing fixtures; removed by typescript-worker-cutover-k31)
+    cmds:
+      - task: build
+      - cargo test --locked -p ravel --test rhai_examples freeze_typescript_observations -- --ignored --exact --nocapture
+
   test:list:
     desc: List nextest cases before selecting a run (optional package/filter arguments)
     cmds:
