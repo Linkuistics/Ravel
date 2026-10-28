@@ -10,7 +10,7 @@ Record the owner's task performance and corrections before dependent drafting co
 
 - Section 4 of `docs/book/contract.md` requires this checkpoint after proof.
   The initial proof is `rhai-book-use-k73`, and the first correction proof is `rhai-book-use-k78`.
-  The latest completed proof is `rhai-book-use-k87`. The next resumption follows correction proof `rhai-book-use-k96`.
+  The latest completed proof is `rhai-book-use-k96`. This resumption follows that correction proof.
   Read that proof's evidence and correction recap first.
 - The owner completed Part I, then reached chapter 4's example-setup section and reported F17.
   Resume at the interrupted setup section after correction. Make amended Part I available without a restart at chapter 1.
@@ -18,8 +18,8 @@ Record the owner's task performance and corrections before dependent drafting co
   Prepare and check the private reader shell again before the owner runs the outstanding tasks.
 - The book describes the agreed 2.0.0 design. Use the latest proof's dependency record for any difference from the checkout.
   Complete Rhai examples run through the built CLI. The release still owns the version placeholder.
-- The final notice path belongs to `typescript-delivery-removal-k32`. The next correction proof reconciles it before this read resumes.
-  Spec reconciliation and `configuration-names-k92` precede that proof. Read their evidence for the final interface and environment-scrub wording.
+- Proof `rhai-book-use-k96` reconciled the final notice path after delivery, spec reconciliation and `configuration-names-k92`.
+  Its evidence records the final interface and environment-scrub wording. Release-version substitution remains with the release leaf.
 
 ## Done when
 
@@ -578,6 +578,46 @@ The new draft's brief chain resolves through the root and `rhai-book-use-k26`.
 This session stopped its local book server before the handover. The resumed read needs a fresh build, server and private shell after proof.
 The changes are task and contract records. No chapter, runtime source or TestSubject product changed in this requirements handover.
 
+**Resume after the third correction proof, 2026-10-29.** Evidence class: preparation, not the owner's read.
+
+The parent at entry is `e7079a53`, which retired proof `rhai-book-use-k96` and closed `rhai-book-use-k26`.
+The working copy was empty. The agreed tasks and chapter 4 entry remain settled, so this session opens no requirements interview.
+The read resumes at “Run the examples of this chapter”. Part I remains available without a repeated read.
+
+`mise exec -- task setup` and `mise exec -- task build` passed.
+`mise exec -- task docs:book PORT=8796` built without warnings and serves the book at `http://127.0.0.1:8796`.
+All six chapter pages and thirteen distinct SVG paths returned HTTP 200. An absent-image control returned 404.
+
+These checks establish file delivery. The in-app browser was unavailable, so this preparation claims no fresh browser view.
+The six chapter digests stayed unchanged through preparation. The prior proof retains its recorded visual evidence and limits.
+
+The new private reader workspace is `/private/tmp/ravel-read1-k74-p9JPUF9r`.
+Its `enter` script starts zsh through `env -i`, with new home, temporary and work directories.
+Its private `bin/ravel` links to this checkout's built executable. The remaining PATH entries are system directories.
+
+The shell reports the expected directories and `ravel 1.1.0`. Neither real harness is on its path.
+It has no Grove variable, `RAVEL_EXIT_FILE`, `RAVEL_CONFIG_RUN` or `RAVEL_POLICY_RUN`. No reader exercise ran during preparation.
+
+The graph CLI refused to start because a pre-coordination or unverified generation is active.
+This session uses document reads and claims no graph project, generation or coverage.
+The prior proof recap now has a historical-text marker, preserving its wording while the current record follows the prose rules.
+
+The owner received the chapter 4 setup link and the private shell command.
+The next requested observation is the first unclear instruction, or the first example's output and exit status if completed.
+The checkpoint stays live for the owner's Part II read and practical results. Read 2 remains required.
+
+**Owner direction: publish the current work, 2026-10-30.**
+
+<!-- tc: off because this is the owner's publication instruction -->
+
+> I would like you to advance main and push to git right now, so that this book work is current in the repo - people are looking at it.
+
+<!-- tc: on -->
+
+The owner authorises advancing `main` and pushing the current work before the remaining reader tasks finish.
+This publication preserves the live checkpoint. It supplies no reader observation or practical-task result.
+The current book build passed without warnings before publication. The owner still needs to complete Read 1, and Read 2 remains required.
+
 <!-- tc: off because this recap records the completed k87 proof before the owner's F17 and F18 findings -->
 
 ## Correction recap for the Part II read, 2026-10-28
@@ -610,6 +650,8 @@ Read 2 remains required after the later whole-book proof.
 
 <!-- tc: on -->
 
+<!-- tc: off because this recap records the completed k96 proof before the resumed reader checkpoint -->
+
 ## Correction recap after F17–F18, 2026-10-29
 
 Proof `rhai-book-use-k96` completes the owner-directed third correction run of chapters 1–6.
@@ -640,3 +682,5 @@ The trial did not implement TestSubject or replace this read.
 
 The practical tasks remain outstanding: write a fake-agent script and run a session, interpret refusal and cancellation, and use one direct reference entry.
 Record the owner's results separately. Later whole-book proof and Read 2 remain required.
+
+<!-- tc: on -->
