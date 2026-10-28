@@ -84,6 +84,9 @@ pub struct Session<'a> {
     pub setup: &'a RunSetup,
     /// Judges and measures the context that `load_context` returns.
     pub judge: &'a mut Judge<'a>,
+    /// Judge the final reply before teardown can supersede its original refusal.
+    /// Successful selection still requires the supervisor's admission receipt.
+    pub reply_judge: &'a dyn Fn(&Reply) -> Result<(), Refusal>,
 }
 
 /// The program that is Ravel's own binary, as the role must be launched.
@@ -92,6 +95,10 @@ pub struct Session<'a> {
 /// the file was replaced. On macOS there is no such name, so it is the
 /// canonical path of the executable, which names the file now at that path.
 pub fn executable() -> Result<PathBuf, Refusal> {
+    #[cfg(test)]
+    if let Some(program) = super::fixtures::executable() {
+        return Ok(program);
+    }
     #[cfg(target_os = "linux")]
     {
         Ok(PathBuf::from("/proc/self/exe"))
@@ -211,6 +218,7 @@ fn converse(
         caller,
         setup,
         judge,
+        reply_judge,
     } = session;
     let host = Host::new(
         reader,
@@ -246,7 +254,9 @@ fn converse(
     ));
     // Every task is finished here, and the copy of the channel is closed.
     retire(runtime);
-    Ok((identity, served?, started.elapsed()))
+    let served = served?;
+    reply_judge(&served.reply).map_err(Conversation::Refused)?;
+    Ok((identity, served, started.elapsed()))
 }
 
 /// Drop `runtime` without waiting for a blocking task. Dropping it waits for
@@ -425,6 +435,7 @@ mod tests {
             caller: None,
             setup: &NO_SETUP,
             judge,
+            reply_judge: &|_| Ok(()),
         }
     }
 

@@ -58,23 +58,14 @@ pub(super) fn reported_teardown(report: &mut Teardown, child: &mut Child) {
 // this ignored test role, never in the product or owner policy contract.
 pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
     let exe = std::env::current_exe().unwrap();
-    let worker = exe
-        .ancestors()
-        .nth(3)
-        .unwrap()
-        .join("libexec/ravel/ravel-policy");
-    assert!(worker.is_file(), "run task worker: {}", worker.display());
     for scenario in scenarios {
         for fault in faults {
             for route in routes {
                 let root = tempfile::tempdir().unwrap();
                 let bin = root.path().join("bin");
-                let libexec = root.path().join("libexec/ravel");
                 fs::create_dir_all(&bin).unwrap();
-                fs::create_dir_all(&libexec).unwrap();
                 let fixture = bin.join("fixture");
                 fs::copy(&exe, &fixture).unwrap();
-                fs::copy(&worker, libexec.join("ravel-policy")).unwrap();
                 fs::create_dir(root.path().join("home")).unwrap();
                 fs::create_dir(root.path().join("tmp")).unwrap();
                 let started = Instant::now();
@@ -191,14 +182,18 @@ pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
                                 "owner_declined",
                                 "owner original detail",
                                 "owner original remedy",
-                                "policy stdout: owner stdout",
-                                "policy stderr: owner stderr",
                             ] {
                                 assert!(log.contains(expected), "cancellation lost {expected}");
                             }
+                            crate::rhai_worker::fixtures::assert_owner_diagnostics(log);
                         }
                         "timeout" => {
-                            assert!(log.contains("selection_timeout") && log.contains("1000 ms"))
+                            assert!(log.contains("selection_timeout") && log.contains("1000 ms"));
+                            assert!(
+                                log.contains("selection timeout ready"),
+                                "deadline expired before select: {log}"
+                            );
+                            crate::rhai_worker::fixtures::assert_owner_diagnostics(log);
                         }
                         "timeout-overflow" => assert!(
                             log.contains("selection_timeout")
@@ -213,10 +208,9 @@ pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
                         "overflow" => {
                             assert!(log.contains("output_limit") && log.contains("262144"))
                         }
-                        "teardown-cancel" => assert!(
-                            log.contains("policy stdout: owner stdout")
-                                && log.contains("policy stderr: owner stderr")
-                        ),
+                        "teardown-cancel" => {
+                            crate::rhai_worker::fixtures::assert_owner_diagnostics(log)
+                        }
                         _ => unreachable!(),
                     }
                 }
@@ -514,13 +508,16 @@ fn worker_reap_admission_fixture() {
         );
     }
     let body = match scenario.as_str() {
-        "refusal" | "late-refusal" => "return {status:'refused', code:'owner_declined', message:'owner original detail', remedy:'owner original remedy'};".to_owned(),
-        "timeout" => "for (;;) {}".to_owned(),
-        "overflow" => "console.log('x'.repeat(1048576)); for (;;) {}".to_owned(),
-        _ => format!("return {command};"),
+        "refusal" | "late-refusal" => "return #{status: \"refused\", code: \"owner_declined\", message: \"owner original detail\", remedy: \"owner original remedy\"};".to_owned(),
+        "timeout" => "print(\"selection timeout ready\"); sleep(600);".to_owned(),
+        "overflow" => "loop { print(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"); }".to_owned(),
+        _ => format!("return ravel::json_parse({});", json!(command.to_string())),
     };
-    let policy = root.join("policy.ts");
-    fs::write(&policy, format!("console.log('owner stdout'); console.error('owner stderr'); export const policy = {{schemaVersion:2, version:'fixture', select(){{{body}}}}};")).unwrap();
+    let policy = root.join("policy.rhai");
+    fs::write(&policy, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    let worker = root.join("bin/rhai-role");
+    crate::rhai_worker::fixtures::install_role(&worker, scenario == "native-reader");
+    crate::rhai_worker::fixtures::use_executable(worker.clone());
     if [
         "protocol",
         "eof",
@@ -532,7 +529,6 @@ fn worker_reap_admission_fixture() {
     ]
     .contains(&scenario.as_str())
     {
-        let worker = root.join("libexec/ravel/ravel-policy");
         fs::write(&worker, format!("#!/bin/sh\nC2_WORKER_MODE='{scenario}' exec '{}' --exact worker::admission_tests::worker_reap_admission_protocol_fixture --ignored --nocapture\n", std::env::current_exe().unwrap().display())).unwrap();
         fs::set_permissions(worker, fs::Permissions::from_mode(0o755)).unwrap();
     }
@@ -818,6 +814,12 @@ fn worker_reap_admission_fixture() {
             assert_eq!(document["error"]["bound"]["ms"], 1000);
             assert!(document["error"]["input"].is_string());
             assert!(document["error"]["source"].is_string());
+            if scenario == "timeout" {
+                assert!(
+                    text.contains("selection timeout ready"),
+                    "deadline expired before select: {text}"
+                );
+            }
         }
         if scenario == "eof" {
             assert!(text.contains("without a result"));
@@ -832,10 +834,7 @@ fn worker_reap_admission_fixture() {
             "operations contaminated policy output"
         );
         if !["pre-ready-timeout", "eof", "protocol", "overflow"].contains(&scenario.as_str()) {
-            assert!(
-                text.contains("policy stdout: owner stdout")
-                    && text.contains("policy stderr: owner stderr")
-            );
+            crate::rhai_worker::fixtures::assert_owner_diagnostics(&text);
         }
     }
     assert!(!root.join("started").exists());
@@ -869,15 +868,15 @@ fn worker_reap_admission_protocol_fixture() {
     if mode == "eof" {
         return;
     }
-    write_frame(&mut channel, &json!({"type":"hello", "protocol":1, "packageVersion":PACKAGE_VERSION, "buildId":BUILD_ID, "bunVersion":"1.4.2"})).unwrap();
-    read_frame(&mut channel, 1_048_576).unwrap();
+    write_frame(&mut channel, &json!({"type":"hello", "protocol":crate::rhai_worker::PROTOCOL, "packageVersion":PACKAGE_VERSION, "buildId":crate::rhai_worker::BUILD_ID, "rhaiVersion":crate::rhai_worker::RHAI_VERSION})).unwrap();
+    let evaluate = read_frame(&mut channel, 1_048_576).unwrap();
+    assert_eq!(evaluate["type"], "evaluate");
+    assert_eq!(evaluate["protocol"], crate::rhai_worker::PROTOCOL);
     println!("owner stdout");
     eprintln!("owner stderr");
-    write_frame(&mut channel, &json!({"type":"policy", "policy":{"schemaVersion":2,"version":"fixture","select":{"$ravel":"function"}}})).unwrap();
-    read_frame(&mut channel, 1_048_576).unwrap();
     write_frame(
         &mut channel,
-        &json!({"type":"selection", "result":selected("/bin/sh", vec!["-c".into(), "exit 0".into()])}),
+        &json!({"type":"selection", "version":"fixture", "result":selected("/bin/sh", vec!["-c".into(), "exit 0".into()])}),
     )
     .unwrap();
     let mut byte = [0];

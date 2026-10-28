@@ -37,6 +37,8 @@ mod callbacks;
 pub mod convert;
 mod discovery;
 pub mod engine;
+#[cfg(test)]
+pub(crate) mod fixtures;
 pub mod front;
 pub mod harness;
 pub mod heap;

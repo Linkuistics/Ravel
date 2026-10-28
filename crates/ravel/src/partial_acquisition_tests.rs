@@ -12,19 +12,10 @@ fn case(role: &str, step: &str, mutation: &str, route: &str) {
     let exe = std::env::current_exe().unwrap();
     let root = tempfile::tempdir().unwrap();
     fs::create_dir_all(root.path().join("bin")).unwrap();
-    fs::create_dir_all(root.path().join("libexec/ravel")).unwrap();
     fs::create_dir(root.path().join("home")).unwrap();
     fs::create_dir(root.path().join("tmp")).unwrap();
     let fixture = root.path().join("bin/fixture");
     fs::copy(&exe, &fixture).unwrap();
-    fs::copy(
-        exe.ancestors()
-            .nth(3)
-            .unwrap()
-            .join("libexec/ravel/ravel-policy"),
-        root.path().join("libexec/ravel/ravel-policy"),
-    )
-    .unwrap();
     let mut child = Command::new(&fixture)
         .args([
             "--exact",
@@ -616,17 +607,24 @@ fn partial_acquisition_cleanup_fixture() {
     let command = serde_json::json!({"status":"selected","program":program,"args":["-c","echo started > \"$1\"; \"$2\" end-session -- \"$3\"; exit 7","fixture",root.join("work/started"),std::env::var("C3_FRONT").unwrap(),value],"provider":"fixture","model":"fixture","effort":"fixture","reason":"cleanup"});
     let policy_dir = root.join("owner");
     fs::create_dir(&policy_dir).unwrap();
-    let policy = policy_dir.join("policy.ts");
+    let policy = policy_dir.join("policy.rhai");
     let body = if route.contains("refusal") {
-        "return {status:'refused',code:'owner_declined',message:'owner original detail',remedy:'owner original remedy'};".to_owned()
+        "return #{status: \"refused\", code: \"owner_declined\", message: \"owner original detail\", remedy: \"owner original remedy\"};".to_owned()
     } else if route.contains("timeout") {
-        "for (;;) {}".to_owned()
+        "print(\"selection timeout ready\"); sleep(600);".to_owned()
     } else if route.contains("overflow") {
-        "console.log('x'.repeat(1048576)); for (;;) {}".to_owned()
+        "loop { print(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"); }"
+            .to_owned()
     } else {
-        format!("return {command};")
+        format!(
+            "return ravel::json_parse({});",
+            serde_json::json!(command.to_string())
+        )
     };
-    fs::write(&policy,format!("console.log('owner stdout'); console.error('owner stderr'); export const policy = {{schemaVersion:2,version:'fixture',select(){{{body}}}}};")).unwrap();
+    fs::write(&policy,format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    let worker = root.join("bin/rhai-role");
+    crate::rhai_worker::fixtures::install_role(&worker, false);
+    crate::rhai_worker::fixtures::use_executable(worker.clone());
     if route.contains("protocol") || route.contains("nonzero") {
         use std::os::unix::fs::PermissionsExt as _;
         let mode = if route.contains("protocol") {
@@ -634,7 +632,6 @@ fn partial_acquisition_cleanup_fixture() {
         } else {
             "nonzero"
         };
-        let worker = root.join("libexec/ravel/ravel-policy");
         fs::write(&worker,format!("#!/bin/sh\nC2_WORKER_MODE='{mode}' exec '{}' --exact worker::admission_tests::worker_reap_admission_protocol_fixture --ignored --nocapture\n",std::env::current_exe().unwrap().display())).unwrap();
         fs::set_permissions(worker, fs::Permissions::from_mode(0o755)).unwrap();
     }
@@ -892,6 +889,10 @@ fn partial_acquisition_cleanup_fixture() {
             }
             if route.contains("timeout") {
                 assert!(error.contains("1000 ms") && error.contains("selection_timeout"));
+                assert!(
+                    error.contains("selection timeout ready"),
+                    "deadline expired before select: {error}"
+                );
             }
             if route.contains("overflow") {
                 assert!(error.contains("262144") && error.contains("output_limit"));
@@ -903,10 +904,7 @@ fn partial_acquisition_cleanup_fixture() {
                 && !route.contains("overflow")
                 && !route.contains("nonzero")
             {
-                assert!(
-                    error.contains("policy stdout: owner stdout")
-                        && error.contains("policy stderr: owner stderr")
-                );
+                crate::rhai_worker::fixtures::assert_owner_diagnostics(&error);
             }
         }
         CONTROL.with(|c| {

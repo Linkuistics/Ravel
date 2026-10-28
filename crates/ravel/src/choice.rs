@@ -216,6 +216,15 @@ fn evaluate_and_resolve_rhai(
     let launch = rhai_front::launch(&program, Vec::new());
     let mut judge =
         |value: Value, sources: Vec<Measured>| rhai_context(value, sources, &inputs, &source);
+    // A refusal is part of the conversation, so retain it even when the later
+    // worker reap or private-directory cleanup fails. Never resolve a program
+    // until the supervisor has admitted the successful reply.
+    let reply_judge = |reply: &Reply| match reply {
+        Reply::Selection { result, .. } => {
+            policy::judge_result(result.clone(), &inputs.kind, &source, Language::Rhai).map(|_| ())
+        }
+        Reply::Failure(failure) => Err(script_refusal(failure, &source, &inputs.limits)),
+    };
     let evaluation = rhai_front::evaluate(
         &Admitted {
             name: &entry.path,
@@ -232,6 +241,7 @@ fn evaluate_and_resolve_rhai(
             caller: inputs.context.as_ref().map(|caller| &caller.measured),
             setup,
             judge: &mut judge,
+            reply_judge: &reply_judge,
         },
     )?;
     let diagnostics = evaluation.diagnostics;

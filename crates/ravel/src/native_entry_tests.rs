@@ -332,10 +332,13 @@ pub(crate) fn run_role() {
     if case["result"] == "policy-refusal" || case["outcome"] == "policy-refusal" {
         selected = json!({"status":"refused","code":"owner_declined","message":"native entry refusal","remedy":"none"});
     }
-    // E08's private worker returns this verbatim; the real worker reads policy.ts.
+    // E08's private worker returns this verbatim; the real worker reads policy.rhai.
     fs::write(directory.join("e08-selection.json"), selected.to_string()).unwrap();
-    let policy = directory.join("policy.ts");
-    fs::write(&policy, format!("export const policy={{schemaVersion:2,version:'native-entry',select(){{return {selected};}}}};" )).unwrap();
+    let policy = directory.join("policy.rhai");
+    fs::write(&policy, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"native-entry\"; fn select(request, context) {{ ravel::json_parse({}) }}", json!(selected.to_string()))).unwrap();
+    if family() == "E08" {
+        crate::rhai_worker::fixtures::use_executable(directory.join("bin/e08-worker"));
+    }
     // Only the fake managed process receives this marker. Worker environment
     // scrubbing remains the product's real implementation.
     // SAFETY: this role process has started no thread of its own by now, so
@@ -615,15 +618,10 @@ impl Pty {
 /// fixture is its own process-group leader; the controller owns settlement.
 fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf, Option<Pty>) {
     let directory = tempfile::tempdir().unwrap();
-    for path in ["bin", "libexec/ravel", "home", "tmp"] {
+    for path in ["bin", "home", "tmp"] {
         fs::create_dir_all(directory.path().join(path)).unwrap();
     }
     let exe = std::env::current_exe().unwrap();
-    let worker = exe
-        .ancestors()
-        .nth(3)
-        .unwrap()
-        .join("libexec/ravel/ravel-policy");
     let fixture = directory.path().join("bin/fixture");
     let private = exe
         .ancestors()
@@ -635,7 +633,7 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
         "build the private main-thread executable with task test:native-entry"
     );
     fs::copy(&private, &fixture).unwrap();
-    let installed = directory.path().join("libexec/ravel/ravel-policy");
+    let installed = directory.path().join("bin/e08-worker");
     if case["family"] == "E08" {
         // The private worker is this same executable in its worker role. Its
         // settings are baked into the script: nothing is inherited.
@@ -661,8 +659,6 @@ fn launch(case: &Value, broken: &str) -> (tempfile::TempDir, Controller, PathBuf
             std::os::unix::fs::PermissionsExt::from_mode(0o755),
         )
         .unwrap();
-    } else {
-        fs::copy(&worker, &installed).unwrap();
     }
     let stdout = directory.path().join("fixture-stdout");
     let stderr = directory.path().join("fixture-stderr");

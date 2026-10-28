@@ -46,6 +46,9 @@ struct Control {
     guard_broken: bool,
     /// F03's break: a reader creation/mask failure is ignored.
     ignore_reader_failures: bool,
+    /// F03's mask fault belongs to diagnostic-reader creation. Rhai later
+    /// creates a separate filesystem reader which must not retrigger it.
+    diagnostic_readers_done: bool,
     /// How long the teardown actually took when its deadline expired.
     teardown_took: Option<Duration>,
 }
@@ -225,24 +228,25 @@ pub(crate) fn teardown_receipt() -> Option<Duration> {
 }
 /// F03's broken subject: the creation/mask failure never reaches admission.
 pub(super) fn reader_reports(reports: Vec<String>) -> Vec<String> {
-    if CONTROL.with(|c| c.borrow().ignore_reader_failures) {
-        Vec::new()
-    } else {
-        reports
-    }
+    let ignored = CONTROL.with(|c| {
+        let mut c = c.borrow_mut();
+        c.diagnostic_readers_done = true;
+        c.ignore_reader_failures
+    });
+    if ignored { Vec::new() } else { reports }
 }
 pub(super) fn drop_wait_reports() -> bool {
     CONTROL.with(|c| c.borrow().drop_reports)
 }
 pub(crate) fn block_fault() -> Option<Mutation> {
     CONTROL.with(|c| match c.borrow().fault {
-        Fault::Block(mode) => Some(mode),
+        Fault::Block(mode) if !c.borrow().diagnostic_readers_done => Some(mode),
         _ => None,
     })
 }
 pub(crate) fn restore_fault() -> Option<Mutation> {
     CONTROL.with(|c| match c.borrow().fault {
-        Fault::CreatorRestore(mode) => Some(mode),
+        Fault::CreatorRestore(mode) if !c.borrow().diagnostic_readers_done => Some(mode),
         _ => None,
     })
 }
@@ -589,10 +593,12 @@ pub(crate) fn e08_worker() -> ! {
     let mut channel = unsafe { UnixStream::from_raw_fd(CHANNEL_FD) };
     write_frame(
         &mut channel,
-        &json!({"type":"hello","protocol":1,"packageVersion":PACKAGE_VERSION,"buildId":BUILD_ID,"bunVersion":"1.4.2"}),
+        &json!({"type":"hello","protocol":crate::rhai_worker::PROTOCOL,"packageVersion":PACKAGE_VERSION,"buildId":crate::rhai_worker::BUILD_ID,"rhaiVersion":crate::rhai_worker::RHAI_VERSION}),
     )
     .unwrap();
-    read_frame(&mut channel, 1_048_576).unwrap();
+    let evaluate = read_frame(&mut channel, 1_048_576).unwrap();
+    assert_eq!(evaluate["type"], "evaluate");
+    assert_eq!(evaluate["protocol"], crate::rhai_worker::PROTOCOL);
     println!("owner stdout");
     eprintln!("owner stderr");
     if let Some(socket) = std::env::var_os("K28_E08_HOLDER")
@@ -603,13 +609,7 @@ pub(crate) fn e08_worker() -> ! {
     }
     write_frame(
         &mut channel,
-        &json!({"type":"policy","policy":{"schemaVersion":2,"version":"native-entry","select":{"$ravel":"function"}}}),
-    )
-    .unwrap();
-    read_frame(&mut channel, 1_048_576).unwrap();
-    write_frame(
-        &mut channel,
-        &json!({"type":"selection","result":selection}),
+        &json!({"type":"selection","version":"native-entry","result":selection}),
     )
     .unwrap();
     // The front closes the protocol after reading the selection.
