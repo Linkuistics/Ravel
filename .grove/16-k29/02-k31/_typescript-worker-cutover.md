@@ -1,4 +1,4 @@
-# typescript-worker-cutover-k31
+# typescript-worker-cutover-k31 — brief
 
 ## Goal
 
@@ -30,6 +30,18 @@ Remove the TypeScript path from the Rust code and the tests. Ravel evaluates onl
 - Every book excerpt that this leaf moves is re-anchored on its new lines. `task docs:examples` and `task docs:excerpts` pass at the end of this leaf.
 - `task test:native-linux` passes once on a Linux target for the changed worker lookup.
 
+## Decomposition
+
+This is the migration/contraction half of the existing dual-runtime expansion. Each child leaves all checks working and retains the TypeScript runtime until its last consumer has migrated.
+
+- `frozen-equivalence-only-k97` removes live TypeScript comparisons and the one-shot generator, retaining independent Rhai checks against immutable observations.
+- `rhai-runtime-fixtures-k98` ports the ordinary command and runtime fixtures, including shared support and native-entry/admission/acquisition tests, while both runtimes remain available.
+- `rhai-hostile-fixtures-k99` maps every old hostile class to an executable Rhai peer and removes or ports the Bun-only hostile cases.
+- `rhai-executable-book-examples-k100` ports complete examples in chapters 7–11, repairs source anchors and makes example freshness depend on the Rust binary and sources rather than the worker pair.
+- `rhai-only-runtime-k101` removes the TypeScript runtime, snapshot validation and environment reservations, adds retired-format refusals, reconciles help and routing notices, then runs the complete local and Linux checks.
+
+The final child owns the complete rollup above. It must check for residual executable TypeScript consumers across the repository rather than rely only on the earlier children's path lists. Delivery removal and spec reconciliation remain the following sibling leaves under `typescript-removal-k29`.
+
 ## Notes
 
 - `rhai-equivalence-fixtures-k30` captured the TypeScript observations once in `crates/ravel/tests/equivalence/fixtures/{static,sample,harness-table}.json`. Keep these files unchanged and retain the independent Rhai fixture checks in `rhai_examples.rs`, including the real secondary jj workspace and its skip message. Remove the live TypeScript comparisons, their source constants and the ignored one-shot generator together with the `equivalence:freeze` Taskfile task. The earlier leaf's running log records the capture digests and the additional `context.encodedBytes` exclusion: each live count is checked before path normalization instead.
@@ -37,3 +49,9 @@ Remove the TypeScript path from the Rust code and the tests. Ravel evaluates onl
 - The installed layout still holds the unused worker until the next leaf. That harms nothing.
 - The book examples that show the old refusals of `NODE_OPTIONS` belong to the chapters that `rhai-book-use` rewrites. Run `task docs:examples` and repair any example that this leaf breaks, as the done condition says. Chapter 9 is the known case. Search chapters 7, 8, 10 and 11 for others.
 - A repaired example in a chapter that `rhai-book-inside` rewrites later is a mechanical port. Do not rewrite its prose here. Record each port in the running log, so that `rhai-book-inside-k35` and `rhai-book-inside-k36` know which examples already run Rhai.
+
+## Decisions (running log)
+
+2026-10-28: Decompose this broad removal as migration batches before the final contraction. Direct source inspection found TypeScript fixtures in CLI, hostile, native-entry, acquisition, admission and runtime unit tests, beside the live equivalence suite. The first child removes the live equivalence dependency using the already frozen observations; subsequent children migrate ordinary fixtures, reconcile hostile classes, port executable book examples and their freshness checker, then remove the runtime path. Every child keeps the existing runtime available until its consumers have moved. This follows Grove's expand/migrate/contract rule and the explicit requirement that no child remove TypeScript while a test or book example still executes it.
+
+2026-10-28: The codebase-memory CLI refused `list_projects` because a pre-coordination or unverified generation is active. Graph project and generation could not be established. Use direct source reads and targeted text searches for this session; do not treat graph absence as evidence of absent code.
