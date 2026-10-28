@@ -36,5 +36,6 @@ Make the spec set, the ADR set, the glossary and the README describe the one rem
 - Draft `rhai-book-use-k88` changed the reader-facing terms in `CONTEXT.md` and the book on 2026-10-28, after owner finding F10.
   “Owner policy” is now “configuration script”, “policy worker” is “Rhai worker” and “policy context” is “selection context”.
   The term map is in the brief of `rhai-book-use-k84`. Bring the specs, ADRs and README to the same terms, or record why one keeps the old term.
-  Literal names stay: `policy.rhai`, `--policy-env`, `policyEnv`, `RAVEL_POLICY_RUN` and the `policy_*` codes.
-  The CLI help also says “owner policy”. A change to that text is a product change, so check it with the owner first.
+  This leaf matches the pre-rename literal names. F18 in `rhai-book-use-k74` now authorises a product rename after this node.
+  `configuration-names-k92` owns that coordinated change and the final current spec and ADR filenames.
+  The owner has requested the help terminology change. No further permission is needed for that already authorised correction.

@@ -35,6 +35,9 @@ Each leaf leaves main working. The cutover leaf can run before the delivery leaf
 
 ## Notes
 
+- F18 in `rhai-book-use-k74` adds `configuration-names-k92` immediately after this node.
+  This node deliberately completes the removal under the current interface names. The following leaf performs the coordinated rename.
+  Freeze the pre-rename observations first. Do not pre-empt that rename piecemeal or regenerate fixtures after it.
 - Book tools use a checkout-local Bun, for example `scripts/ste.ts` and `scripts/breaks.ts`. They are development tools and stay. The release carries no Bun.
 - Rhai still lists `smartstring`, which is MPL-2.0, as a dependency, although `compact_str` keeps its code out of the build. The licence allowlist records that decision.
 - A Taskfile task generates the notices from the Cargo metadata with a pinned tool. It refuses a licence outside an allowlist.

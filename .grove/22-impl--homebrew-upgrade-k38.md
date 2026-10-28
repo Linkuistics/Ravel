@@ -8,7 +8,7 @@ Make the owner's Homebrew installation run Ravel 2.0.0, and keep Ravel 1.1.0 bes
 
 - The release task runs `brew upgrade ravel` as one of its last steps. Read the running log of `release-ravel-2-0-0`. This leaf checks the result, and it runs the upgrade only if the task did not.
 - The driver resolved `/opt/homebrew/Cellar/ravel/1.1.0/bin/ravel` once. The end of every session goes through that path. Homebrew removes the old version on an upgrade unless `HOMEBREW_NO_INSTALL_CLEANUP` is set.
-- Sessions under the 1.1.0 driver read `policy.ts`. Ravel 2.0.0 reads `policy.rhai`. The next leaf creates that file.
+- Sessions under the 1.1.0 driver read `policy.ts`. Ravel 2.0.0 reads `config.rhai` after `configuration-names-k92`. The next leaf creates that file.
 - Do not touch `~/.config/ravel`. The leaf `owner-policy-conversion` owns it.
 
 ## Done when

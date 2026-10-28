@@ -10,13 +10,13 @@ The chapters teach Ravel configuration with Rhai directly. The pipeline is draft
 - Chapter 4 teaches Rhai and owns the recipes of an LLM call through Claude Code and Codex.
   Each recipe gives the arguments, prompt placement, structured-output flags and answer extraction.
   Complete examples use fake harnesses and agree with the recorded real smoke calls.
-- Chapters 1–6 describe Rhai policies, host capabilities, harness entries and budgets.
+- Chapters 1–6 describe Rhai configuration scripts, host capabilities, harness entries and budgets.
   They describe an LLM call as a harness run.
 - Every complete example runs through the CLI seam, and `task docs:examples` passes.
   Every excerpt is exact, and `task docs:excerpts` passes.
 - The prose follows the contract, and `task docs:ste` reports no problem.
   Figures agree with the text, and `task docs:figures` passes.
-- Proof reads both parts as one document and cuts the required Read 1 leaf.
+- Proof reads both parts as one document and returns to the existing Read 1 leaf, `rhai-book-use-k74`.
 - After the Read 1 corrections, chapters 1–6 follow the owner's Read 1 patterns in section 2 of the contract.
   The proof of that correction run cuts nothing, and Read 1 resumes.
 
@@ -59,6 +59,27 @@ It also includes the worker's purpose, JSON descriptions, Grove links and famili
 After proof, Read 1 resumes at chapter 4. It gives the owner a correction recap and access to the amended Part I.
 The owner need not restart at chapter 1. The practical reader tasks still need the owner's results.
 Parts III and IV apply the same current lessons in their scheduled rewrite before Read 2.
+
+## Corrections after the first Part II finding
+
+The owner reached chapter 4's setup section and reported missing context for its files and command table (F17).
+They also requested removal of “policy” from filenames and arguments (F18), then asked the session to continue.
+Their words and the TestSubject clarifications are in `rhai-book-use-k74`.
+This is an owner-directed third correction run, not an unattended repeat of the previous verdict.
+
+The existing TypeScript-removal node now precedes this node, followed by `configuration-names-k92`.
+That leaf implements the name map, updates exact examples and preserves working consumers.
+This node then owns draft `rhai-book-use-k93`, copy-edit `rhai-book-use-k94`, art `rhai-book-use-k95` and proof `rhai-book-use-k96`.
+All four stages are already present. Each reads chapters 1–6 under its charter and cuts no duplicate successor.
+
+Apply the full contract and lessons, including L67. Show example inputs and complete commands before explaining their fragments.
+Reconcile all implemented configuration names and remove obsolete explanations for retained old literals.
+The removal has supplied the final installed layout, so proof resolves that dependency here.
+Parts III and IV still own their whole-book reconciliation and Read 2.
+
+The bounded LLM trial in `rhai-book-use-k74` supplies execution and model evidence, with limits.
+Its successful run did not identify the owner's setup complaint and does not settle instructional sufficiency.
+After proof, Read 1 resumes at the interrupted setup section. The owner need not repeat Part I, and their practical results remain outstanding.
 
 ## Pointers
 

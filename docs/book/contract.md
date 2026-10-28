@@ -654,10 +654,18 @@ That read also adds these requirements for the next correction of the book:
   reader-facing prose with “configuration”. Distinguish the executable Rhai
   script from the JSON settings wherever the distinction matters. Reconcile
   the glossary, related terms, headings and figures with that choice. The
-  correction preserves literal filenames, CLI options, JSON keys and
-  diagnostics unless a separate product change owns them. Draft
+  correction keeps literals exact against the implemented interface. Owner
+  finding F18 now requests the product-name change too. `configuration-names-k92`
+  owns that change before the next book correction. The draft then updates
+  filenames, options, fields, diagnostics and their explanations together. Draft
   `rhai-book-use-k88` chose “configuration script”, “settings”, “Rhai worker”
   and “selection context”. The table is in `ste.md`, “Configuration words”.
+- **Make example setup concrete.** Before a procedure asks the reader to create files,
+  name the example and show its workspace, directories and file paths. Explain each file's purpose and give its contents.
+  Distinguish files that the reader saves from directories or files that a command creates.
+  Show a complete command before a table explains its parts. Tie that explanation to the named example.
+  State a later example's differences where they occur. Do not imply that every command has the same parts.
+  Owner finding F17 of Read 1, 2026-10-28, requires this pattern throughout the book.
 - **Explain JSON by its purpose.** Say “JSON document”, “routing notice” or
   “failure document” where that description is sufficient. Do not attach a
   version number to each mention of JSON. Exact examples keep required

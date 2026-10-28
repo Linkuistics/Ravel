@@ -891,14 +891,16 @@ The owner prefers “and `cd` into it”. Everyday shell use is a stated prerequ
 The correction belongs to the draft and copy-edit stages.
 Draft `rhai-book-use-k88` writes “Create an empty directory for the example and `cd` into it.”
 
-### L63. Rename a term everywhere that names the concept, and say where a literal keeps the old word
+### L63. Reconcile a term across prose and product names
 
 When a name that the reader sees changes, find every form that names the concept. Include its short form.
 In Ravel, the bare word “policy” named the same concept as “owner policy”. A change of the phrase alone would give one concept two names.
 
 Choose each qualified term in one shared record before any chapter changes.
 Then each later draft uses the same words.
-Keep literal file names, options, codes and help text exact. On each page that shows such a literal, say once why it keeps the old word.
+For a prose-only change, keep literal file names, options, codes and help text exact. Explain a retained name where necessary.
+When the owner also requests a product rename, coordinate that implementation with its documentation and remove obsolete retained-name explanations.
+
 Route each other surface to its owner. A glossary, a specification and command help can have different owners.
 
 
@@ -907,12 +909,16 @@ The owner's words were “configuration” in place of “owner policy”. The q
 
 **Ravel application:** “Policy” occurred about 1,250 times in chapters 1–6. `ste.md`, “Configuration words”, and `CONTEXT.md` hold the term map.
 The CLI option `--config` already matched the new term. `rhai-spec-reconciliation-k33` owns the specs, ADRs and README.
-The CLI help is a product change, so that leaf checks it with the owner. `rhai-book-inside` owns chapters 7–11.
+The CLI help is part of the product interface. `rhai-book-inside` owns chapters 7–11.
+
+Owner F18 later requested the rename in filenames and arguments. `configuration-names-k92` owns the product change before the next book correction.
 
 **Check:** Search each changed page for the old words. Classify each match as a literal, a quotation, a record of the decision or an omission.
 
 Draft `rhai-book-use-k89`, 2026-10-28, applied the map to text that the reader sees in an example's output. A refusal `message` in an example script appears on standard error. Thus, it is prose, and it follows the map. The expected output of the example changed with it.
-Ravel's own diagnostic words, `VERSION` strings and labels stay, because they are literals or identifiers.
+That draft retained Ravel's own diagnostic words, `VERSION` strings and labels as literals or identifiers.
+
+The later product rename changes Ravel-owned names. It does not rewrite arbitrary owner-supplied data.
 
 The renamed headings of chapter 4 changed 102 inbound anchors in four other chapters. The draft changed only the anchors there. The link texts that quote old titles belong to the drafts that own those chapters.
 **Check:** Search the old anchors in the whole repository. Run the same search on the parent revision as a control.
@@ -985,6 +991,44 @@ The visible transcripts stated that the reads were incomplete but did not say wh
 **Ravel application:** A future force-stop explanation names the preventing condition, evidence, remaining work and why continuation or decomposition cannot resolve it. The task's running log preserves it.
 
 **Check:** Read the explanation without the preceding conversation. It must distinguish the observed condition from an inferred cause and identify the next action.
+
+### L67. Make setup visible and check the reader's sequence
+
+When a tutorial asks the reader to prepare an example, name that example.
+Show its workspace, file paths, contents and complete command.
+Explain the purpose of each file. Distinguish what the reader creates from what an execution command creates.
+Show the complete command before a table explains its parts. Explain differences between examples where they occur.
+
+A tutorial check must account for the preparation that its runner supplies.
+Associate each reader action with an instruction already encountered or a declared prerequisite.
+Record an unsupported inference, missing tool or missing input instead of silently supplying it.
+Preserve state between dependent steps and reset only where the tutorial specifies a reset.
+
+**Source:** Owner finding F17 and the owner's intended TestSubject use, `rhai-book-use-k74`, 2026-10-28.
+The owner reported that chapter 4's setup section did not identify the files and that its table did not make sense.
+The owner wants TestSubject to execute tutorial steps in the specified environment and expose undeclared tools or expertise.
+They clarified that it must check all instructions, prerequisites and context, and that an LLM reads the tutorial and decides what to do.
+
+**Evidence:** The chapter's file blocks and complete command occur after the setup table.
+Direct inspection of `scripts/examples.sh`, `run_example`, shows automatic parent-directory creation, file copying and executable permissions before any example command.
+These mechanics are declared in `docs/book/examples.md`. They do not test whether a reader was told how to prepare those inputs.
+
+**Ravel application:** Contract §2 requires a concrete setup sequence throughout the book.
+Chapter 4 is a proposed first TestSubject case. TestSubject itself is still pre-development.
+Its intended learner is an LLM that reads the actual prose and uses tools to perform the steps.
+A parser, hidden fixture or prewritten action sequence must not supply the understanding or preparation that the tutorial is meant to provide.
+
+The LLM can use declared prerequisite knowledge and explicitly referenced material. It must expose unsupported assumptions instead of silently correcting the instructions.
+
+The first bounded LLM trial completed the example and found no material information gap, although the owner had reported confusing setup.
+It used the later file blocks and the declared shell prerequisites. Its execution result was correct, but it did not identify the owner's context complaint.
+Thus, procedural executability and instructional sufficiency need separate judgements. One model's successful derivation does not settle the latter.
+
+The trial also read beyond its stopping boundary during a later citation lookup. Supply a physically bounded corpus when that boundary matters.
+
+**Check:** Follow the visible instructions from the declared initial environment, recording the source of every action and the resulting state.
+Prove that a validator notices a missing setup step, a reordered dependency, an absent required tool and an incorrect output claim.
+Separate observed execution from model judgements about prerequisite knowledge and from human-reader evidence.
 
 ### Disposition of the task's candidate readings
 

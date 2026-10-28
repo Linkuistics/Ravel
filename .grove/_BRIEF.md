@@ -46,9 +46,11 @@ local upgrade.
     tasks for a real LLM call through each harness.
   - `rhai-example-policies` translates the example policies and proves their
     equivalence with the TypeScript originals.
-  - `rhai-book-use` revises Parts I and II of the book for Rhai.
   - `typescript-removal` freezes the equivalence results, removes the
     TypeScript path and its delivery machinery, and reconciles the specs.
+  - `configuration-names` gives the remaining interface consistent configuration names.
+    It follows the removal so that the frozen observations precede the rename and the old worker needs no second conversion.
+  - `rhai-book-use` revises Parts I and II for Rhai and completes the current setup and naming corrections.
   - `rhai-book-inside` revises Parts III and IV and proves the whole book.
   - `release-ravel-2-0-0`, `homebrew-upgrade` and `owner-policy-conversion`
     end the workstream.
@@ -77,6 +79,10 @@ design needs the settled requirements.
 
 ## On the horizon
 
+- The owner intends TestSubject to use an LLM as the reader of a tutorial and to execute its steps through tools.
+  It checks whether all required instructions, prerequisites and context are supplied, as well as the observed outcomes in the stated environment.
+  `rhai-book-use-k74` records the feasibility assessment and chapter 4 as a proposed first case.
+  TestSubject is pre-development in its own repository. Its implementation is not yet a dependency of this workstream.
 - A verb that evaluates a policy without a launch. The owner kept it out of
   this workstream. With LLM calls in a policy, `start-session` is the only way
   to exercise the policy, and it launches the selected program.
@@ -89,6 +95,15 @@ design needs the settled requirements.
 
 ## Notes
 
+- The owner reached chapter 4's example-setup section and reported F17: its files and table lack context.
+  They also requested removal of “policy” from filenames and arguments (F18), then asked the session to continue.
+  `configuration-names-k92` owns the consistent public-interface rename. Its map is the requirements session's interpretation.
+  The existing TypeScript-removal node now precedes it. The book correction follows as `rhai-book-use-k93` through `rhai-book-use-k96`.
+  Read 1 stays live under `rhai-book-use-k74` and resumes at the interrupted setup section after proof.
+  The practical tasks and Read 2 remain required. The versioned 1.1.0 ending command and live owner files stay with their existing handover.
+- A bounded fresh LLM trial manually performed chapter 4's first example successfully, but did not identify the owner's context complaint.
+  It also exceeded its reading boundary during a later citation lookup. Its record in `rhai-book-use-k74` separates execution and model judgement.
+  TestSubject remains an LLM-reader proposal. The trial does not establish that the proposed validator detects missing instructional context.
 - Before requesting `grove-force-stop`, state the condition that prevents further work, the evidence, the remaining work, and why continuation or decomposition cannot resolve it. Record that explanation in the task's running log. An incomplete task alone is not a reason to force-stop. The owner requested this instruction on 2026-10-28 after two copy-edit sessions stopped without a visible reason to stop.
 - `rhai-book-use-k26` closed after the whole-document proof `rhai-book-use-k73`.
   Chapters 1–6 teach Rhai policies and both harness-call recipes.

@@ -33,6 +33,10 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 ## Notes
 
+- The latest Part II findings are F17 and F18 in `rhai-book-use-k74`.
+  TypeScript removal now precedes `configuration-names-k92` and the third Parts I–II correction, ending at `rhai-book-use-k96`.
+  Use the final configuration names and apply L67 to every procedure's instructions, prerequisites and context.
+  The bounded TestSubject trial remains model evidence. It supplies neither the owner's practical results nor Read 2.
 - The owner completed Part I on 2026-10-28 and requested all lessons before Part II.
   The second correction run under `rhai-book-use-k26` ends at proof `rhai-book-use-k87` before Read 1 resumes.
   These later drafts inherit the current contract and lessons, including configuration terms, concrete examples and descriptive headings.

@@ -10,19 +10,20 @@ Record the owner's task performance and corrections before dependent drafting co
 
 - Section 4 of `docs/book/contract.md` requires this checkpoint after proof.
   The initial proof is `rhai-book-use-k73`, and the first correction proof is `rhai-book-use-k78`.
-  The next resumption follows correction proof `rhai-book-use-k87`. Read its evidence and correction recap first.
-- The owner completed Part I on 2026-10-28 and asked for all lessons before Part II.
-  Resume at chapter 4 after the correction run. Make the amended Part I available without requiring a restart at chapter 1.
+  The latest completed proof is `rhai-book-use-k87`. The next resumption follows correction proof `rhai-book-use-k96`.
+  Read that proof's evidence and correction recap first.
+- The owner completed Part I, then reached chapter 4's example-setup section and reported F17.
+  Resume at the interrupted setup section after correction. Make amended Part I available without a restart at chapter 1.
 - Refresh the local book with `mise exec -- task docs:book` after `task setup`. Check that its figures load.
   Prepare and check the private reader shell again before the owner runs the outstanding tasks.
 - The book describes the agreed 2.0.0 design. Use the latest proof's dependency record for any difference from the checkout.
   Complete Rhai examples run through the built CLI. The release still owns the version placeholder.
-- The final notice path belongs to `typescript-delivery-removal-k32`, then the whole-book reconciliation in `rhai-book-inside-k34`.
-  Spec reconciliation owns the exact environment-scrub wording. These are recorded dependencies.
+- The final notice path belongs to `typescript-delivery-removal-k32`. The next correction proof reconciles it before this read resumes.
+  Spec reconciliation and `configuration-names-k92` precede that proof. Read their evidence for the final interface and environment-scrub wording.
 
 ## Done when
 
-- The owner uses the book to write a policy for a fake agent and run a session.
+- The owner uses the book to write a configuration script for a fake agent and run a session.
 - The owner interprets a refusal and a cancellation from their observed outcomes.
 - The owner uses a direct reference entry, such as an exit code or error message, without its preceding teaching text.
 - The record preserves the owner's words, progress, reported locations and places they did not reach.
@@ -35,7 +36,7 @@ Record the owner's task performance and corrections before dependent drafting co
 ## Notes
 
 This checkpoint needs the owner's live participation. Do not substitute another model for that reader.
-Use fake agents and the examples' private environment. No real model call or personal policy conversion is part of this read.
+Use fake agents and the examples' private environment. No real model call or personal configuration conversion is part of this read.
 
 ## Decisions (running log)
 
@@ -384,6 +385,201 @@ Validation passed for all twelve changed records: zero hard prose findings, with
 A comparison with `3c80f840` found no change under `docs/book/src`. The chapter corrections belong to the ordered run above.
 This session stopped its local book server before the handover. The resumed checkpoint must start a fresh server for the proofed text.
 
+**Resume after the second correction proof, 2026-10-28.** Evidence class: preparation, not the owner's read.
+
+The parent at entry is `5b76154d`, which retired proof `rhai-book-use-k87`.
+The working copy was empty. All six chapter digests match the proof's recorded subjects.
+The agreed tasks and chapter 4 entry remain settled, so this session opens no requirements interview.
+Part I stays available for inspection without a repeated read from chapter 1.
+
+`mise exec -- task setup` and `mise exec -- task build` passed.
+`mise exec -- task docs:book PORT=8796` built without a warning and serves the fresh book at `http://127.0.0.1:8796`.
+All six chapter pages and thirteen distinct SVG paths returned HTTP 200. The absent-image control returned 404.
+These responses establish delivery, not visible rendering.
+
+Safari in an isolated macOS 27 guest opened a copy of this fresh build.
+The chapter 4 opening and the upper part of its evaluation-harness figure were visible at the chapter width.
+This is a bounded load check, not a repeated whole-book visual proof. The guest is stopped after the check.
+The local server stays available for the owner's read.
+
+The fresh reader workspace is `/private/tmp/ravel-read1-k74-Cq83i6uO`.
+Its `enter` script uses the same cleared-environment procedure as the earlier shell, with new private directories.
+The checked shell has the expected home, temporary directory and working directory.
+It has neither `RAVEL_EXIT_FILE` nor `RAVEL_POLICY_RUN`, no Grove variable, and neither real harness on its path.
+Its `ravel` points to this checkout's fresh build and reports `ravel 1.1.0`, as expected before release.
+No reader exercise ran during this preparation.
+
+The graph CLI refused access because a pre-coordination or unverified generation is active.
+This session uses document reads and claims no graph project, generation or coverage.
+The checkpoint remains live for the owner's Part II observations and practical-task results. Read 2 remains required.
+The six chapter digests stayed unchanged through this preparation. The checkpoint note is the only tracked change.
+
+**Owner findings F17–F18, chapter 4, 2026-10-28.** Evidence class: the owner's stand-in read and product instruction.
+
+The owner reached “Run the examples of this chapter” in chapter 4.
+They reported no practical-task result, later Part II progress or viewing surface.
+The chapter's digest is unchanged from proof `rhai-book-use-k87`.
+
+**F17, the example setup has no concrete subject.** The owner's words follow.
+
+<!-- tc: off because this is the owner's observation -->
+
+> "Run the examples of this chapter" lacks context - for example what files need to be created there - and the table doesn't make sense.
+
+<!-- tc: on -->
+
+Located: chapter 4, lines 182–208. The section says to create “the listed files”, but its own text lists no files.
+The first complete example, with its file blocks and command, comes after the next section's explanation of the configuration interface.
+The table explains isolated command fragments before it shows a complete command. Its claim about “Each command line” also hides differences between examples.
+
+These observations explain the session's reading of the finding. They are not further words from the owner.
+
+Disposition: accept. Draft owns the setup sequence and its placement.
+Use one named example workspace. Show which directories the reader creates, which files they save, their paths and purposes, and their complete contents.
+
+Distinguish those inputs from the private directories that the execution command creates.
+Show the complete command before any table explains its parts. Explain later examples' differences where they occur.
+
+Apply this pattern to every procedure that assumes files or paths the book has not yet given the reader.
+Copy-edit checks the sequence as a reader instruction. Proof checks the visible files and command through the existing example seam.
+The read stops at this comprehension failure for correction. Part I remains complete, and the practical tasks remain outstanding.
+
+**F18, remove the old term from the product interface.** The owner's words follow.
+
+> Also we should eliminate the term policy, in file names and arguments.
+
+Disposition: accept the product rename. This supersedes the earlier choice to preserve literal filenames and CLI options after F10.
+The proposed spellings are `config.rhai` and `--config-env`, consistent with the existing `--config` option.
+The session asked whether the rename also covers settings, JSON fields and diagnostic codes, with no old aliases in 2.0.0.
+That scope choice remains unanswered at this entry. No product name has changed yet.
+
+Implementation must precede the book's literal updates, so examples and help remain executable and exact.
+The original process and cleanup contracts remain the test oracle for the rename.
+
+**Owner intention: TestSubject for tutorial execution, 2026-10-28.** The owner's words follow.
+
+<!-- tc: off because this is the owner's intended use and feasibility question -->
+
+> My intention is to use the project `TestSubject` to run through tutorials/examples like in chapter 4, validating that each step works, and that the steps executed in order, in the environment specified in the tutorial/example, produce the right outputs and not require more expertise or tools than are specified. Is it feasible to do that for our chapter 4. Note that TestSubject is a shell at the moment.
+
+<!-- tc: on -->
+
+The local TestSubject repository is `/Users/antony/Development/AgenticWriting/TestSubject`.
+Its README describes the learner-validation goal and marks the project as pre-development.
+Its TODO proposes models and a simulation API. Neither document describes an implemented tutorial executor.
+This inspection changes no TestSubject file and uses no graph evidence.
+
+The current Ravel checker prepares more than a reader's empty directory.
+`scripts/examples.sh`, `run_example`, creates parent directories, copies every labelled file and makes listed fake programs executable before the commands run.
+`docs/book/examples.md` declares those mechanics. The checker executes commands in order and compares the stated results.
+That evidence does not establish that the visible tutorial supplied every preparation step.
+F17 is a concrete case for a separate check of instruction sufficiency.
+
+The session recommends chapter 4 as TestSubject's first bounded use case.
+Start with its first complete example, then cover the other examples and their declared resets.
+Give the learner the visible instructions, the material they explicitly reference, the stated prerequisites, and the declared starting environment.
+Each action needs a supporting instruction or prerequisite. Record an unsupported inference or missing tool instead of silently supplying it.
+
+Preserve shell state between steps when the instructions require it. Reset only where the tutorial tells the reader to reset.
+Compare actual streams, status and relevant files with the stated outcomes, and record the first failure with its source passage.
+
+Proposed controls remove a setup instruction, reorder dependent steps, remove a required tool, and change an expected result.
+These controls have not run. They would test whether the new validator detects the failure it claims to detect.
+An execution trace can establish behaviour in a measured environment. A model's account of prerequisite knowledge remains model evidence.
+It cannot establish novice comprehension on its own, and no TestSubject result has replaced either required reader checkpoint.
+
+The owner has asked about feasibility. No TestSubject implementation or new release dependency is assumed from that question.
+
+**Owner clarification: completeness and an LLM reader, 2026-10-28.** The owner's words follow.
+
+<!-- tc: off because these are the owner's purpose and implementation direction -->
+
+> The purpose of TestSubject was to ensure that each tutorial or example contains all instructions, all prerequisites, all the context required, as well as actually doing the steps to ensure that the tutorial is correct.
+
+> TestSubject is intended to be an LLM system that reads the tutorial, rather than a deterministic system using traditional code.
+
+<!-- tc: on -->
+
+This settles the intended validator: an LLM reads the actual tutorial as the intended learner and performs its steps through tools.
+It examines whether the tutorial supplies the instructions, prerequisites and context needed for each action and for interpretation of its result.
+The shell supplies execution and observations. It does not replace the LLM with a parser or a prewritten sequence of example actions.
+No hidden fixture, extracted action plan or repository source may silently supply knowledge or preparation that the tutorial omits.
+
+The learner profile distinguishes declared knowledge from material taught by the tutorial or an explicit reference.
+Ordinary actions within a stated prerequisite are allowed. Ravel-specific knowledge is not silently treated as ordinary shell knowledge.
+At a gap, TestSubject records the passage, what the learner needs, why the supplied material does not establish it, and the observed execution if reached.
+It does not fix the tutorial or use expert knowledge to turn that same attempt into a pass.
+
+The resulting record separates an observed command result from an LLM judgement about instructional sufficiency.
+The earlier proposal for a tutorial executor is subordinate to this LLM-reader design, not a separate deterministic validation product.
+
+**Continuation and the concrete name map, 2026-10-28.** The owner said “continue”.
+
+The session proceeds with consistent public configuration names, as its interpretation of the instruction to eliminate the old term.
+This is not a separate owner quotation or a claimed answer to the earlier scope question.
+`configuration-names-k92` records the map: `config.rhai`, `--config-env`, `configEnv`, `config`, `configEnvironment`, `configCode`, `config_*` and `RAVEL_CONFIG_RUN`.
+It preserves explicit arbitrary paths and opaque data. It supplies no old option, setting or default-path aliases in 2.0.0.
+Historical evidence and old-input refusal cases remain exact, as do stable Grove handles and third-party identifiers.
+
+The failure JSON moves to schema version 2 because the published version 1 has the old field names.
+The unreleased routing notice and Rhai script retain schema versions 2 and 3.
+The rename also reconciles current source and document filenames, links, help, examples, tests, specs and ADRs.
+It does not change routing, result transport or cleanup behaviour.
+
+The already agreed test seam remains the real CLI in a private home with fake programs.
+The session put the rename cases to the owner: paths, environment grants, refusals, JSON output and retired spellings.
+No different seam or additional owner constraint was reported before this record.
+The personal settings file was absent when checked. This is a point-in-time observation, not a conversion-time assumption.
+
+**Bounded TestSubject trial, 2026-10-28.** Evidence classes: one LLM-reader judgement and one measured example execution.
+
+One fresh subagent received the reader prerequisites, chapters 1–3 and chapter 4, with a stopping instruction before “Select a command or refuse”.
+It received no owner finding, repository source, example extractor or prepared example files.
+The private workspace was `/private/tmp/testsubject-ravel-ch4-oDmXRPm8`, with the checkout build preinstalled.
+Installation and release-version matching were explicitly outside the trial.
+
+The LLM created the labelled files manually and ran the published commands through the private shell.
+It cited the earlier chapters and declared shell knowledge for directory creation, file saving, permissions and interpretation of cleanup reports.
+Its judgement was that no material information gap prevented completion of the first example.
+It did not identify the context complaint that the owner reported in F17. That result does not overturn the owner's observation.
+
+The captured standard output was exactly `Explain this change.`, 20 bytes without a final newline, with status 0.
+This session independently checked those bytes and the captured status file.
+Standard error contained the routing notice and two `Operation not permitted` cleanup reports, which chapter 3 explains.
+Neither session independently instrumented process-group cleanup. Status 0 has the documented interpretation, with that limit.
+The four supplied chapter digests and executable digest were unchanged after the trial.
+
+The subagent reported that a citation lookup after the run showed lines beyond the stopping boundary.
+This is an actionable defect in the trial's document boundary. Future bounded trials receive a physically truncated chapter copy.
+The measured command result remains evidence, while the model's reading judgement carries the boundary limitation.
+Its full report and captured files remain in the private workspace. The essential observations and limitations are preserved here.
+
+This used the leaf's one fresh-context review allowance. No second trial or reviewer ran in this leaf.
+Lesson L67 records that a successful derivation does not establish instructional sufficiency.
+No TestSubject product was implemented, and no model result replaces either owner checkpoint.
+
+**Correction routing, 2026-10-28.** The existing TypeScript-removal node now precedes the next correction.
+
+It freezes the pre-rename observations first, then removes the old worker and its delivery machinery.
+`configuration-names-k92` follows that node. Draft `rhai-book-use-k93`, copy-edit `rhai-book-use-k94`, art `rhai-book-use-k95` and proof `rhai-book-use-k96` follow it.
+This is the owner's directed correction after F17–F18 and “continue”, not an unattended repeat of a completed judgement.
+Each stage has its successor already cut. Proof returns to this same live checkpoint and creates no duplicate.
+
+The root and document briefs record the order. Later conversion work names `config.rhai` and preserves the running driver's `policy.ts` and versioned binary.
+The active shared settings stay unchanged until that driver restarts. The later whole-book work inherits F17–F18 and L67.
+This leaf remains live: Part II and the owner's practical tasks are incomplete. No retirement or parent close is claimed at this handover.
+
+**Handover checks, 2026-10-28.** The whole-file prose check passed for all sixteen new or edited documents.
+It reported zero unaccepted hard findings. This session reviewed the 45 advisory findings. Existing pending regions remain unchanged.
+The separate preparatory commit `a99a4ea0` fixes three pre-existing prose findings in the documentation lessons without changing their meaning.
+
+The tree diagnostic selects `rhai-equivalence-fixtures-k30` next, and the mandated handle still resolves to this live checkpoint.
+The new draft's brief chain resolves through the root and `rhai-book-use-k26`.
+This session stopped its local book server before the handover. The resumed read needs a fresh build, server and private shell after proof.
+The changes are task and contract records. No chapter, runtime source or TestSubject product changed in this requirements handover.
+
+<!-- tc: off because this recap records the completed k87 proof before the owner's F17 and F18 findings -->
+
 ## Correction recap for the Part II read, 2026-10-28
 
 Proof `rhai-book-use-k87` completed the authorised correction run of chapters 1–6.
@@ -411,3 +607,5 @@ Fresh Safari inspection covered the six openings and all 13 figures at chapter w
 The practical tasks remain outstanding: a fake-agent session, refusal and cancellation interpretation, and one direct reference entry.
 The proof and the completed Part I review supply no practical-task result. Record the owner's results separately as this checkpoint resumes.
 Read 2 remains required after the later whole-book proof.
+
+<!-- tc: on -->
