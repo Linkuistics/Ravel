@@ -7,8 +7,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 pub const FRONT: &str = env!("CARGO_BIN_EXE_ravel");
-pub const DEEP: &str = r#"{ status: "selected", program: "fake-agent", args: [request.prompt], provider: "fixture", model: "fixture", effort: "high", reason: "the fixture agent" }"#;
-pub const ROUTED: &str = r#"export const policy = {
+// Retained for the pending hostile-suite port; ordinary routes use rhai::ROUTED.
+pub const TYPESCRIPT_SELECTION: &str = r#"{ status: "selected", program: "fake-agent", args: [request.prompt], provider: "fixture", model: "fixture", effort: "high", reason: "the fixture agent" }"#;
+pub const TYPESCRIPT_ROUTED: &str = r#"export const policy = {
  schemaVersion: 2, version: "seam-1",
  select(request) { return { status: "selected", program: "fake-agent", args: [request.prompt], provider: "fixture", model: "fixture", effort: "high", reason: "fixture route" }; }
 };"#;
@@ -33,7 +34,7 @@ impl Sandbox {
         for dir in [&home, &cwd, &tmp, &bin] {
             fs::create_dir(dir).unwrap();
         }
-        // The fixture publishes through the original development pair even when the
+        // The fixture publishes through the original development binary even when the
         // tested front has been copied into a deliberately mismatched installation.
         write(
             &bin.join("fake-agent"),
@@ -50,11 +51,11 @@ impl Sandbox {
             bin,
         }
     }
-    pub fn personal_path(&self) -> PathBuf {
+    pub fn personal_typescript_path(&self) -> PathBuf {
         self.home.join(".config/ravel/policy.ts")
     }
-    pub fn personal_policy(&self, source: &str) -> PathBuf {
-        let path = self.personal_path();
+    pub fn personal_typescript(&self, source: &str) -> PathBuf {
+        let path = self.personal_typescript_path();
         write(&path, source);
         path
     }

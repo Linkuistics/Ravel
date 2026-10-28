@@ -822,18 +822,14 @@ mod tests {
             grants: crate::environment::Grants::default(),
             directory: crate::settings::Directory::default(),
         };
-        let request = request(&inputs);
+        let request = rhai_request(&inputs);
         assert_eq!(
             request,
             serde_json::json!({
-                "schemaVersion": 2, "kind": "impl", "prompt": "the prompt text\n", "cwd": "/work",
+                "kind": "impl", "prompt": "the prompt text\n", "cwd": "/work",
                 "params": { "repo": "/work", "session_name": "a b\n" },
                 "taskFile": "/work/task.md", "taskId": "T-1",
                 "context": { "schemaVersion": 1, "facts": {} },
-                "limits": {
-                    "selectionMs": 30_000, "contextBytes": 262_144, "sourceBytes": 65_536,
-                    "sources": 256, "messageBytes": 1_048_576, "diagnosticsBytes": 262_144,
-                },
             })
         );
         let absent = Inputs {
@@ -843,15 +839,12 @@ mod tests {
             context: None,
             ..inputs
         };
-        let request = super::request(&absent);
+        let request = super::rhai_request(&absent);
         // The order of keys is the order of insertion when a crate turns on
         // serde_json's `preserve_order`, so the keys are compared as a set.
         let mut keys = request.as_object().unwrap().keys().collect::<Vec<_>>();
         keys.sort();
-        assert_eq!(
-            keys,
-            ["cwd", "kind", "limits", "params", "prompt", "schemaVersion"]
-        );
+        assert_eq!(keys, ["cwd", "kind", "params", "prompt"]);
         assert_eq!(request["params"], serde_json::json!({}));
         assert_eq!(request["prompt"], "the prompt text\n");
     }

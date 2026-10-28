@@ -312,7 +312,7 @@ mod tests {
             ),
             (r#"{ "stateDir": 7 }"#, "settings_invalid", Some("stateDir")),
             (
-                r#"{ "config": "/p/policy.ts" }"#,
+                r#"{ "config": "/p/policy.rhai" }"#,
                 "settings_invalid",
                 Some("config"),
             ),

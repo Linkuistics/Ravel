@@ -4,7 +4,7 @@
 //! and results*).
 //!
 //! Everything runs in a sandbox home, with fake harness scripts on a private
-//! `PATH`. The tests of the TypeScript path stay in `cli.rs` and `hostile.rs`.
+//! `PATH`. The remaining TypeScript hostile tests stay in `hostile.rs`.
 
 mod support;
 
@@ -291,7 +291,7 @@ fn an_uncaught_error_refuses_with_its_file_line_and_column() {
 #[test]
 fn both_files_prefer_policy_rhai_and_never_open_policy_ts() {
     let sandbox = Sandbox::new();
-    let typescript = sandbox.personal_policy("this is not a policy");
+    let typescript = sandbox.personal_typescript("this is not a policy");
     // An unreadable policy.ts refuses if Ravel opens it at all.
     fs::set_permissions(&typescript, fs::Permissions::from_mode(0o000)).unwrap();
     let entry = sandbox.personal_rhai(rhai::ROUTED);
@@ -306,24 +306,9 @@ fn both_files_prefer_policy_rhai_and_never_open_policy_ts() {
 }
 
 #[test]
-fn a_policy_ts_alone_and_every_other_extension_keep_the_typescript_path() {
-    let sandbox = Sandbox::new();
-    sandbox.personal_policy(support::ROUTED);
-    let alone = start(&sandbox, &[]).report();
-    assert_eq!(alone["schemaVersion"], 1);
-    assert!(alone["worker"]["bunVersion"].is_string(), "{alone}");
-    assert!(alone["worker"].get("rhaiVersion").is_none());
-
-    let other = sandbox.file("route.mts", support::ROUTED);
-    let named = start(&sandbox, &["--config", &text(&other)]).report();
-    assert_eq!(named["schemaVersion"], 1);
-    assert!(named["worker"]["bunVersion"].is_string(), "{named}");
-}
-
-#[test]
 fn a_rhai_file_given_to_config_takes_the_rhai_path_beside_a_policy_ts() {
     let sandbox = Sandbox::new();
-    sandbox.personal_policy(support::ROUTED);
+    sandbox.personal_typescript("this TypeScript entry must never be evaluated");
     let named = sandbox.file("elsewhere/route.rhai", rhai::ROUTED);
 
     let report = start(&sandbox, &["--config", &text(&named)]).report();
@@ -369,7 +354,7 @@ fn the_entry_must_exist_and_be_a_regular_file() {
 #[test]
 fn a_dangling_policy_rhai_is_missing_and_does_not_fall_back_to_policy_ts() {
     let sandbox = Sandbox::new();
-    sandbox.personal_policy(support::ROUTED);
+    sandbox.personal_typescript("this TypeScript entry must never be evaluated");
     let link = sandbox.personal_rhai_path();
     std::os::unix::fs::symlink(sandbox.root.join("nowhere.rhai"), &link).unwrap();
 

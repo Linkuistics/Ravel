@@ -808,7 +808,7 @@ mod tests {
         let shape = Shape {
             source: "/work/context.json",
             author,
-            language: Language::TypeScript,
+            language: Language::Rhai,
         };
         shape.validate(&value, &limits()).unwrap_err()
     }

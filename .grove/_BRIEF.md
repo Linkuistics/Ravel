@@ -79,6 +79,7 @@ design needs the settled requirements.
 
 ## On the horizon
 
+- On 2026-10-28 the owner proposed notebook-like tutorials and runnable examples, possibly using only a formal structure. Explore readable steps with executable blocks, explicit prerequisites and shared state, reset rules, and expected outputs or state checks. The existing Markdown example checker is a starting point. Mechanical execution and TestSubject's proposed assessment of explanatory completeness remain separate questions; no new format is selected yet.
 - The owner intends TestSubject to use an LLM as the reader of a tutorial and to execute its steps through tools.
   It checks whether all required instructions, prerequisites and context are supplied, as well as the observed outcomes in the stated environment.
   `rhai-book-use-k74` records the feasibility assessment and chapter 4 as a proposed first case.

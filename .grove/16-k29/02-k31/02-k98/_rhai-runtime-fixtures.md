@@ -1,4 +1,4 @@
-# rhai-runtime-fixtures-k98
+# rhai-runtime-fixtures-k98 — brief
 
 
 ## Goal
@@ -23,3 +23,12 @@ Port ordinary CLI and runtime fixtures to Rhai while both runtimes still work, s
 ## Notes
 
 Keep both runtime paths. The final runtime child owns format refusal, snapshot-validator deletion and notice schema contraction. Do not prematurely change runtime discovery or production behavior to make this migration pass.
+
+## Decomposition
+
+- `rhai-command-fixtures-k102` ports the ordinary public CLI fixtures and language-neutral unit fixtures, gives shared TypeScript support explicit names, and preserves the hostile suite's consumers.
+- `rhai-native-fixtures-k103` ports the native-entry, worker-admission and partial-acquisition fixtures. Their fake worker protocols and test-executable role dispatch need a separate bounded migration that preserves fault discriminators.
+
+## Decisions (running log)
+
+2026-10-28: `list_projects` refused because a pre-coordination or unverified graph generation is active. No project or generation could be established; source reads and targeted text searches supply evidence. The native fixtures depend on fake TypeScript workers and executable role dispatch, not just policy syntax. Split at that seam, completing only the first child in this session. Both runtimes remain available and the parent stays live until both children satisfy its checks.

@@ -529,7 +529,7 @@ mod tests {
                 Err(failed("cleanup", "sandbox cannot be removed")),
             ],
             Some(signal),
-            "policy.ts",
+            "policy.rhai",
             &mut diagnostics,
         )
         .unwrap_err();
@@ -560,7 +560,7 @@ mod tests {
             Some(&ended),
             vec![],
             crate::cancellation::Signal::of(libc::SIGTERM),
-            "policy.ts",
+            "policy.rhai",
             &mut diagnostics,
         )
         .unwrap_err();
@@ -609,7 +609,7 @@ mod tests {
                     Err(failed("cleanup", "output restore failure")),
                 ],
                 joined,
-                "policy.ts",
+                "policy.rhai",
                 &mut diagnostics,
             )
             .unwrap_err();
@@ -668,7 +668,7 @@ mod tests {
                 None,
                 vec![],
                 signal,
-                "policy.ts",
+                "policy.rhai",
                 &mut Vec::new(),
             )
             .unwrap_err();
@@ -692,7 +692,7 @@ mod tests {
                     Some(&ended),
                     vec![Ok(())],
                     None,
-                    "policy.ts",
+                    "policy.rhai",
                     &mut Vec::new()
                 )
                 .unwrap(),

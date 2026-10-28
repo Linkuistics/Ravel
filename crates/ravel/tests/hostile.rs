@@ -22,9 +22,9 @@ use std::time::Duration;
 
 use serde_json::{Value, json};
 use support::direct::{self, Probe, probe_build, shipped_worker};
-use support::{DEEP, FRONT, ROUTED, Sandbox, run, text};
+use support::{FRONT, Sandbox, TYPESCRIPT_ROUTED, TYPESCRIPT_SELECTION, run, text};
 
-/// The reason `ROUTED`'s `select` gives: seen in a report, it shows that the
+/// The reason `TYPESCRIPT_ROUTED`'s `select` gives: seen in a report, it shows that the
 /// policy the test installed is the one that selected.
 const ROUTED_REASON: &str = "fixture route";
 
@@ -48,7 +48,7 @@ fn base_env(sandbox: &Sandbox) -> Vec<(&'static str, OsString)> {
 /// The shipped worker's build identity, as the checkout's front reports it.
 fn shipped_build() -> String {
     let sandbox = Sandbox::new();
-    sandbox.personal_policy(ROUTED);
+    sandbox.personal_typescript(TYPESCRIPT_ROUTED);
     let report = sandbox.start(&["--kind", "check", "--json"]).report();
     report["worker"]["buildId"].as_str().unwrap().to_owned()
 }
@@ -85,7 +85,7 @@ writeFileSync({view:?}, JSON.stringify({{
   dotenv: process.env.HOSTILE_DOTENV ?? null,
   dotenvLocal: process.env.HOSTILE_DOTENV_LOCAL ?? null,
 }}));
-{ROUTED}"#,
+{TYPESCRIPT_ROUTED}"#,
         view = text(view)
     )
 }
@@ -101,7 +101,7 @@ fn a_cwd_dotenv_and_bunfig_preload_stay_inert_and_fire_under_the_autoload_probe(
     sandbox.file(".env.local", "HOSTILE_DOTENV_LOCAL=from-dotenv-local\n");
     sandbox.file("bunfig.toml", "preload = [\"./hostile-preload.ts\"]\n");
     sandbox.file("hostile-preload.ts", &sentinel_module(&preloaded));
-    let entry = sandbox.personal_policy(&dotenv_view_policy(&view));
+    let entry = sandbox.personal_typescript(&dotenv_view_policy(&view));
     let inert = json!({ "dotenv": null, "dotenvLocal": null });
 
     // Through the public launcher, the public command.
@@ -178,7 +178,7 @@ writeFileSync({view:?}, JSON.stringify({{
   }},
   started,
 }}));
-{ROUTED}"#,
+{TYPESCRIPT_ROUTED}"#,
         dir = text(dir),
         module = text(module),
         view = text(view)
@@ -203,7 +203,8 @@ fn a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autol
     );
     let module = sandbox.root.join("reporting-worker.ts");
     support::write(&module, DOTENV_REPORTING_WORKER);
-    let entry = sandbox.personal_policy(&dotenv_view_policy_moved_into(&hostile, &module, &view));
+    let entry =
+        sandbox.personal_typescript(&dotenv_view_policy_moved_into(&hostile, &module, &view));
     let inert = json!({ "dotenv": null, "dotenvLocal": null });
     let fired = json!({ "dotenv": "from-dotenv", "dotenvLocal": "from-dotenv-local" });
 
@@ -244,7 +245,8 @@ fn a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autol
     // second control, and one that moves to `/` does not.
     let elsewhere = sandbox.root.join("moved-into-empty");
     fs::create_dir(&elsewhere).unwrap();
-    let entry = sandbox.personal_policy(&dotenv_view_policy_moved_into(&elsewhere, &module, &view));
+    let entry =
+        sandbox.personal_typescript(&dotenv_view_policy_moved_into(&elsewhere, &module, &view));
     direct::drive(
         &probe_build(Probe::Autoload),
         &empty,
@@ -258,7 +260,7 @@ fn a_dotenv_where_a_policy_starts_a_worker_stays_inert_and_fires_under_the_autol
 #[test]
 fn bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_started_directly() {
     let sandbox = Sandbox::new();
-    sandbox.personal_policy(ROUTED);
+    sandbox.personal_typescript(TYPESCRIPT_ROUTED);
     let preloaded = sandbox.root.join("options-preload-ran");
     let preload = sandbox.root.join("options-preload.ts");
     support::write(&preload, &sentinel_module(&preloaded));
@@ -287,7 +289,7 @@ fn bun_runtime_variables_stay_inert_through_the_front_and_fire_in_the_worker_sta
     // it is handed.
     let mut env = base_env(&sandbox);
     env.push(("BUN_OPTIONS", options.clone().into()));
-    let entry = sandbox.personal_path();
+    let entry = sandbox.personal_typescript_path();
     direct::drive(&shipped_worker(), &sandbox.root, &env, &entry).loaded();
     assert!(preloaded.exists(), "BUN_OPTIONS never preloaded");
 
@@ -318,7 +320,7 @@ fn cacheable_policy() -> String {
         r#"export const policy = {{
   schemaVersion: 2,
   version: "admitted",
-  select(request) {{ return {{ ...{DEEP}, reason: this.version }}; }},
+  select(request) {{ return {{ ...{TYPESCRIPT_SELECTION}, reason: this.version }}; }},
 }};
 // {}
 "#,
@@ -382,7 +384,7 @@ fn poison(entry: &Path) {
 fn the_runtime_transpiler_cache_stays_inert_through_the_front_and_fires_in_the_worker_started_directly()
  {
     let sandbox = Sandbox::new();
-    let entry = sandbox.personal_policy(&cacheable_policy());
+    let entry = sandbox.personal_typescript(&cacheable_policy());
     assert!(fs::metadata(&entry).unwrap().len() >= 4096);
 
     // Through the public launcher, the worker writes no cache under HOME.
@@ -481,7 +483,7 @@ fn symlinked_helper_policy(root: &Path) -> PathBuf {
 export const policy = {{
   schemaVersion: 2,
   version: which,
-  select: (request) => ({DEEP}),
+  select: (request) => ({TYPESCRIPT_SELECTION}),
 }};
 "#
         ),
@@ -498,7 +500,7 @@ fn node_resolver_and_channel_variables_stay_inert_through_the_front_and_fire_in_
     let reporting = sandbox.root.join("reporting.ts");
     support::write(
         &reporting,
-        &format!("if (process.send) process.send({{ via: \"ipc\" }});\n{ROUTED}"),
+        &format!("if (process.send) process.send({{ via: \"ipc\" }});\n{TYPESCRIPT_ROUTED}"),
     );
     let caller = [
         ("NODE_PRESERVE_SYMLINKS", "1"),
@@ -642,7 +644,7 @@ fn importing_entry(specifiers: &[String], view: &Path) -> String {
         .map(|(index, specifier)| format!("{specifier:?}: Object.keys(m{index}).sort()"))
         .collect();
     source.push_str(&format!(
-        "writeFileSync({:?}, JSON.stringify({{ {} }}));\n{ROUTED}",
+        "writeFileSync({:?}, JSON.stringify({{ {} }}));\n{TYPESCRIPT_ROUTED}",
         text(view),
         fields.join(", ")
     ));
@@ -819,7 +821,7 @@ fn hostile_package(dir: &Path, sentinel: &Path) -> [&'static str; 3] {
 
 /// A policy whose own file imports `specifier`.
 fn importing_from_its_file(specifier: &str) -> String {
-    format!("import {{ shadowed }} from {specifier:?};\nvoid shadowed;\n{ROUTED}")
+    format!("import {{ shadowed }} from {specifier:?};\nvoid shadowed;\n{TYPESCRIPT_ROUTED}")
 }
 
 /// Assert that a directly driven worker refused the entry at its import of
@@ -853,7 +855,7 @@ fn a_cwd_package_json_stays_inert_and_fires_for_an_entry_admitted_there() {
         let source = importing_from_its_file(specifier);
 
         // Through the public launcher, personal policy finds nothing there.
-        let entry = sandbox.personal_policy(&source);
+        let entry = sandbox.personal_typescript(&source);
         let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
         assert_eq!(
             refusal["error"]["code"], "policy_import_failed",
@@ -919,13 +921,13 @@ fn tsconfig_alias(dir: &Path, sentinel: &Path) {
 }
 
 fn aliased_entry() -> String {
-    format!("import {{ shadowed }} from \"hostile-alias\";\nvoid shadowed;\n{ROUTED}")
+    format!("import {{ shadowed }} from \"hostile-alias\";\nvoid shadowed;\n{TYPESCRIPT_ROUTED}")
 }
 
 /// The same import, made once the policy has moved the worker into `dir`.
 fn aliased_entry_moved_into(dir: &Path) -> String {
     format!(
-        "process.chdir({:?});\nconst {{ shadowed }} = await import(\"hostile-alias\");\nvoid shadowed;\n{ROUTED}",
+        "process.chdir({:?});\nconst {{ shadowed }} = await import(\"hostile-alias\");\nvoid shadowed;\n{TYPESCRIPT_ROUTED}",
         text(dir)
     )
 }
@@ -997,13 +999,13 @@ fn policies_importing_from_no_file(specifier: &str) -> [(&'static str, String); 
         (
             "data:",
             format!(
-                "await import(\"data:text/javascript,\" + encodeURIComponent({module:?}));\n{ROUTED}"
+                "await import(\"data:text/javascript,\" + encodeURIComponent({module:?}));\n{TYPESCRIPT_ROUTED}"
             ),
         ),
         (
             "blob:",
             format!(
-                "await import(URL.createObjectURL(new Blob([{module:?}], {{ type: \"text/javascript\" }})));\n{ROUTED}"
+                "await import(URL.createObjectURL(new Blob([{module:?}], {{ type: \"text/javascript\" }})));\n{TYPESCRIPT_ROUTED}"
             ),
         ),
         (
@@ -1016,7 +1018,7 @@ fn policies_importing_from_no_file(specifier: &str) -> [(&'static str, String); 
   }},
 }});
 await import("policy-virtual");
-{ROUTED}"#
+{TYPESCRIPT_ROUTED}"#
             ),
         ),
     ]
@@ -1036,7 +1038,7 @@ fn a_package_above_the_workers_start_directory_stays_inert_and_fires_under_the_u
     fs::create_dir(&started).unwrap();
 
     for (kind, policy) in policies_importing_from_no_file("chain-planted") {
-        let entry = sandbox.personal_policy(&policy);
+        let entry = sandbox.personal_typescript(&policy);
 
         // Through the public launcher the name is missing, through the
         // commands: no directory between where the worker started and `/`
@@ -1122,7 +1124,7 @@ fn a_package_json_above_the_workers_start_directory_stays_inert_and_fires_under_
         );
         for (kind, policy, has_no_file) in policies {
             let context = format!("{specifier} from a {kind}");
-            let entry = sandbox.personal_policy(&policy);
+            let entry = sandbox.personal_typescript(&policy);
 
             // Through the public launcher the name is missing, through the
             // commands: no `package.json` between where the worker started
@@ -1234,7 +1236,7 @@ fn a_package_json_that_never_yields_above_the_workers_start_directory_stays_unop
     let shipped = shipped_build();
     // A policy that imports nothing: whatever a worker does with this
     // `package.json`, no import asked it to.
-    let entry = sandbox.personal_policy(ROUTED);
+    let entry = sandbox.personal_typescript(TYPESCRIPT_ROUTED);
     // The front creates the worker's directory in the caller's TMPDIR, so
     // this `package.json` sits one level above where the worker starts. Each
     // directly driven worker starts beside where the front would start it:
@@ -1351,7 +1353,7 @@ fn classes_with_no_known_firing_configuration_are_reported_not_counted() {
             text(&sandbox.home.join("hostile-preload.ts"))
         ),
     );
-    let entry = sandbox.personal_policy(ROUTED);
+    let entry = sandbox.personal_typescript(TYPESCRIPT_ROUTED);
     sandbox.start(&["--kind", "check", "--json"]).report();
     assert!(
         !preloaded.exists(),
@@ -1397,7 +1399,7 @@ fn classes_with_no_known_firing_configuration_are_reported_not_counted() {
     let module = sandbox.root.join("reporting-worker.ts");
     support::write(&module, DOTENV_REPORTING_WORKER);
     let entry =
-        sandbox.personal_policy(&dotenv_view_policy_moved_into(&moved_into, &module, &view));
+        sandbox.personal_typescript(&dotenv_view_policy_moved_into(&moved_into, &module, &view));
     let inert = json!({ "dotenv": null, "dotenvLocal": null });
     sandbox.start(&["--kind", "check", "--json"]).report();
     assert_eq!(read_json(&view)["moved"], inert);
@@ -1427,7 +1429,7 @@ fn classes_with_no_known_firing_configuration_are_reported_not_counted() {
     // entry moves the worker back there before it imports the alias.
     let aliased = sandbox.root.join("cwd-alias-ran");
     tsconfig_alias(&sandbox.cwd, &aliased);
-    let entry = sandbox.personal_policy(&aliased_entry_moved_into(&sandbox.cwd));
+    let entry = sandbox.personal_typescript(&aliased_entry_moved_into(&sandbox.cwd));
     let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
     assert_eq!(
         refusal["error"]["code"], "policy_import_failed",
@@ -1464,8 +1466,8 @@ fn a_probe_build_is_never_accepted_as_an_installations_worker() {
     // No marker means policy code did not run before the identity refusal.
     let sandbox = Sandbox::new();
     let evaluated = sandbox.root.join("policy-ran");
-    sandbox.personal_policy(&format!(
-        "import {{ writeFileSync }} from \"node:fs\";\nwriteFileSync({:?}, \"evaluated\");\n{ROUTED}",
+    sandbox.personal_typescript(&format!(
+        "import {{ writeFileSync }} from \"node:fs\";\nwriteFileSync({:?}, \"evaluated\");\n{TYPESCRIPT_ROUTED}",
         text(&evaluated)
     ));
     let prefix = sandbox.root.join("prefix");
@@ -1540,7 +1542,7 @@ const flood = () => {{ writeSync(1, chunk); writeSync(2, chunk); }};
 flood();
 export const policy = {{schemaVersion: 2, version: "flood-1",
 loadContext() {{ flood(); return {{schemaVersion: 1}}; }},
-select(request) {{ flood(); return {{ ...{DEEP}, reason: "real selection" }}; }} }};
+select(request) {{ flood(); return {{ ...{TYPESCRIPT_SELECTION}, reason: "real selection" }}; }} }};
 "#
     )
 }
@@ -1548,7 +1550,7 @@ select(request) {{ flood(); return {{ ...{DEEP}, reason: "real selection" }}; }}
 #[test]
 fn diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses() {
     let sandbox = Sandbox::new();
-    sandbox.personal_policy(&flooding_policy(40_000));
+    sandbox.personal_typescript(&flooding_policy(40_000));
     let ran = sandbox.start(&["--kind", "check", "--json"]);
     let notice = ran.report();
     assert_eq!(notice["selection"]["reason"], "real selection");
@@ -1558,7 +1560,7 @@ fn diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses() {
     assert_eq!(stdout.matches("\"program\":\"forged\"").count(), 6);
     assert!(stdout.len() > 120_000 && stdout.len() + stderr.len() <= 262_144);
     assert_eq!(ran.stderr.lines().count(), 1, "routing notice was split");
-    sandbox.personal_policy(&flooding_policy(60_000));
+    sandbox.personal_typescript(&flooding_policy(60_000));
     let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
     assert_eq!(refusal["error"]["code"], "output_limit");
 }

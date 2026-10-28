@@ -3,6 +3,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Output};
 
+mod support;
+use support::rhai;
+
 struct Fixture {
     _dir: tempfile::TempDir,
     root: PathBuf,
@@ -30,7 +33,7 @@ impl Fixture {
         command
     }
     fn start(&self, policy: &str, prompt: &str) -> Output {
-        let path = self.root.join("policy.ts");
+        let path = self.root.join("policy.rhai");
         fs::write(&path, policy).unwrap();
         self.command()
             .args(["start-session", "--kind", "check", "--config"])
@@ -42,14 +45,83 @@ impl Fixture {
     fn selecting(&self, script: &str, result: &str) -> String {
         let front = format!("{:?}", Self::front().to_str().unwrap());
         format!(
-            r#"import {{ definePolicy }} from "ravel/sdk";
-export const policy = definePolicy({{
- schemaVersion: 2, version: "cli-test",
- select(request) {{ return {{ status: "selected", program: "/bin/sh",
+            r#"export const SCHEMA_VERSION = 3;
+export const VERSION = "cli-test";
+fn select(request, context) {{
+ #{{ status: "selected", program: "/bin/sh",
  args: ["-c", {script:?}, "fixture", {front}, {result:?}, request.prompt],
- provider: "fixture", model: "fixture", effort: "fixture", reason: "command seam" }}; }}
-}});"#
+ provider: "fixture", model: "fixture", effort: "fixture", reason: "command seam" }}
+}}"#
         )
+    }
+
+    fn allow_barrier(&self) {
+        let config = self.root.join("home/.config/ravel");
+        fs::create_dir_all(&config).unwrap();
+        fs::write(
+            config.join("settings.json"),
+            r#"{"harnesses":{"barrier":{"program":"/bin/sh"}},"budgets":{"harnessRuns":1}}"#,
+        )
+        .unwrap();
+    }
+
+    // The controller changes permissions after select begins, then releases
+    // it. This preserves the fault boundary without ambient I/O in Rhai.
+    fn cleanup_fault(&self, closed_stdout: bool, setup: impl FnOnce()) -> Output {
+        let release = self.root.join("work/release");
+        fs::write(&release, "wait").unwrap();
+        self.allow_barrier();
+        let source = self.selecting("exit 91", "unused").replace(
+            "fn select(request, context) {",
+            r#"fn select(request, context) {
+ let barrier = ravel::run_harness(#{ harness: "barrier", args: ["-c", "printf '%s' \"${TMPDIR%/tmp}\" > setup-ready.tmp; mv setup-ready.tmp setup-ready"] });
+ if barrier.status != "exited" || barrier.exitCode != 0 { throw "barrier failed"; }
+ while ravel::read_text("release").text != "ready" { sleep(1); }"#,
+        );
+        let policy = self.root.join("owner/policy.rhai");
+        fs::create_dir_all(policy.parent().unwrap()).unwrap();
+        fs::write(&policy, source).unwrap();
+        let diagnostics = self.root.join("diagnostics");
+        let mut command = self.command();
+        command
+            .args([
+                "start-session",
+                "--kind",
+                "check",
+                "--prompt",
+                "caller",
+                "--confine",
+                "--config",
+            ])
+            .arg(policy)
+            .stdout(std::process::Stdio::piped())
+            .stderr(fs::File::create(&diagnostics).unwrap());
+        if closed_stdout {
+            command.stdout(fs::File::open("/dev/null").unwrap());
+        }
+        let mut child = command.spawn().unwrap();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        // TMPDIR names private-root/tmp; wait for the whole private root to
+        // disappear, rather than an inner directory removed during cleanup.
+        while !fs::read_to_string(self.root.join("work/setup-ready")).is_ok_and(|path| {
+            let path = std::path::Path::new(&path);
+            path.parent() == Some(self.root.join("tmp").as_path()) && !path.exists()
+        }) {
+            if child.try_wait().unwrap().is_some() || std::time::Instant::now() >= deadline {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!(
+                    "selection did not reach the fault barrier: {}",
+                    fs::read_to_string(&diagnostics).unwrap()
+                );
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        setup();
+        fs::write(&release, "ready").unwrap();
+        let mut output = child.wait_with_output().unwrap();
+        output.stderr = fs::read(diagnostics).unwrap();
+        output
     }
 }
 
@@ -130,8 +202,13 @@ fn routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate() {
 #[test]
 fn refused_policy_never_launches_and_unreported_exit_is_failure() {
     let fixture = Fixture::new();
-    let refused = fixture.start(r#"export const policy = { schemaVersion: 2, version: "1",
-select() { return {status: "refused", code: "no_route", message: "no route", remedy: "choose a route"}; }};"#, "caller");
+    let refused = fixture.start(
+        &rhai::policy(
+            r#"fn select(request, context) {
+#{status: "refused", code: "no_route", message: "no route", remedy: "choose a route"} }"#,
+        ),
+        "caller",
+    );
     assert_eq!(refused.status.code(), Some(3));
     assert!(refused.stdout.is_empty());
     assert!(String::from_utf8_lossy(&refused.stderr).contains("no_route"));
@@ -170,22 +247,24 @@ fn context_reads_params_choice_and_environment_grants_reach_policy() {
     fs::write(file, r#"{"answer":"from context"}"#).unwrap();
     fs::write(fixture.root.join("work/.ravel-choice"), "careful").unwrap();
     let mut policy = fixture.selecting(r#""$1" end-session "$2""#, "unused");
-    policy = policy.replace("definePolicy }", "definePolicy, readChoice }")
-        .replace("select(request) { return", r#"loadContext(request, host) {
- const read = host.readJson('data.json');
- return {schemaVersion: 1, facts: read.value, sources: [read.source]};
-}, select(request, context, host) {
- if (process.env.RAVEL_EXIT_FILE || process.env.HARNESS_DISPATCH_EXIT_FILE) throw new Error('ambient session authority');
- if (process.env.TOKEN !== 'granted') throw new Error('no granted token');
- if (process.env.UNGRANTED !== undefined) throw new Error('ungranted environment');
- const choice = readChoice(request.cwd, ['careful']);
- if (choice?.[0] !== 'careful') throw new Error('choice was not read');
- if (context.measured[0].via !== 'readJson' || context.measured[0].bytes !== 25) throw new Error('read not measured');
- if (request.params.profile !== 'exact\ntext') throw new Error('parameters changed');
- console.log('policy stdout'); host.diagnostic('policy stderr');
- return"#)
+    policy = policy.replace("fn select(request, context) {", r#"fn load_context(request) {
+ let read = ravel::read_json("data.json");
+ #{schemaVersion: 1, facts: read.value, sources: [read.source]}
+}
+fn select(request, context) {
+ for name in ["RAVEL_EXIT_FILE", "HARNESS_DISPATCH_EXIT_FILE", "UNGRANTED"] {
+     let denied = false;
+     try { ravel::env(name); } catch (error) { denied = error.code == "env_not_granted"; }
+     if !denied { throw `unexpected environment grant: ${name}`; }
+ }
+ if ravel::env("TOKEN") != "granted" { throw "no granted token"; }
+ let choice = ravel::read_text(".ravel-choice");
+ if choice.text != "careful" { throw "choice was not read"; }
+ if context.measured[0].via != "read_json" || context.measured[0].bytes != 25 { throw "read not measured"; }
+ if request.params.profile != "exact\ntext" { throw "parameters changed"; }
+ print("policy stdout"); debug("policy stderr");"#)
         .replace("\"unused\", request.prompt", "context.facts.answer, request.prompt");
-    let path = fixture.root.join("policy.ts");
+    let path = fixture.root.join("policy.rhai");
     fs::write(&path, policy).unwrap();
     let output = fixture
         .command()
@@ -227,8 +306,8 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
     fs::create_dir_all(&config).unwrap();
     fs::write(config.join("settings.json"), r#"{"contextBytes": 1}"#).unwrap();
     let policy = fixture.selecting("exit 0", "unused").replace(
-        "select(request)",
-        "loadContext() { return { schemaVersion: 1, facts: {} }; }, select(request)",
+        "fn select(request, context)",
+        "fn load_context(request) { #{ schemaVersion: 1, facts: #{} } } fn select(request, context)",
     );
     let output = fixture.start(&policy, "caller");
     assert_eq!(output.status.code(), Some(3));
@@ -249,7 +328,7 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
         "HARNESS_DISPATCH_EXIT_FILE",
         "BUN_OPTIONS",
     ] {
-        let path = fixture.root.join("policy.ts");
+        let path = fixture.root.join("policy.rhai");
         let output = fixture
             .command()
             .args([
@@ -292,12 +371,17 @@ fn cancellation_during_selection_launches_nothing_and_during_session_reaps_group
     for selection in [true, false] {
         let fixture = Fixture::new();
         let marker = fixture.root.join("ready");
-        let path = fixture.root.join("policy.ts");
+        let path = fixture.root.join("policy.rhai");
         let policy = if selection {
-            format!(
-                r#"import {{writeFileSync}} from 'node:fs';
-export const policy = {{schemaVersion: 2, version: '1', select() {{writeFileSync({marker:?}, 'ready'); for (;;) {{}}}}}};"#
-            )
+            fixture.allow_barrier();
+            let ready = format!("echo ready > {marker:?}");
+            rhai::policy(&format!(
+                r#"fn select(request, context) {{
+    let barrier = ravel::run_harness(#{{ harness: "barrier", args: ["-c", {ready:?}] }});
+    if barrier.status != "exited" || barrier.exitCode != 0 {{ throw "barrier failed"; }}
+    sleep(600);
+}}"#
+            ))
         } else {
             fixture.selecting(
                 &format!("echo $$ > {marker:?}; while :; do sleep 1; done"),
@@ -320,13 +404,23 @@ export const policy = {{schemaVersion: 2, version: '1', select() {{writeFileSync
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
+        // Both markers are written by code reached from the active phase:
+        // the barrier harness called by select, or the managed shell itself.
         await_file(&marker);
+        let worker = if selection {
+            Some(rhai::worker_of(front.id()))
+        } else {
+            None
+        };
         // SAFETY: signal only the PID of this fixture's live child.
         assert_eq!(unsafe { libc::kill(front.id() as i32, libc::SIGTERM) }, 0);
         let output = front.wait_with_output().unwrap();
         assert_eq!(output.status.signal(), Some(libc::SIGTERM));
         assert!(output.stdout.is_empty());
         assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
+        if let Some(worker) = worker {
+            assert!(rhai::gone(worker), "selection worker survived cancellation");
+        }
         if !selection {
             let child: i32 = fs::read_to_string(marker).unwrap().trim().parse().unwrap();
             // SAFETY: signal zero checks whether the fixture process/group remains.
@@ -339,7 +433,7 @@ export const policy = {{schemaVersion: 2, version: '1', select() {{writeFileSync
 #[test]
 fn nested_command_context_is_isolated_and_first_result_wins() {
     let fixture = Fixture::new();
-    let inner = fixture.root.join("inner.ts");
+    let inner = fixture.root.join("inner.rhai");
     let inner_policy = fixture.selecting(
         r#""$1" end-session inner; "$1" end-session ignored"#,
         "unused",
@@ -361,7 +455,7 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
     let fixture = Fixture::new();
     let owner = fixture.root.join("owner");
     fs::create_dir(&owner).unwrap();
-    let policy = owner.join("policy.ts");
+    let policy = owner.join("policy.rhai");
     fs::write(
         &policy,
         fixture.selecting(
@@ -405,7 +499,7 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
         ])
         .arg(policy)
         .args(["--runtime-read"])
-        .arg(owner.join("policy.ts"))
+        .arg(owner.join("policy.rhai"))
         .output()
         .unwrap();
     assert_eq!(overlap.status.code(), Some(2));
@@ -414,13 +508,12 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
 }
 
 #[test]
-fn selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses() {
-    use std::os::unix::fs::PermissionsExt as _;
+fn selection_deadline_stops_real_worker() {
     let fixture = Fixture::new();
-    let policy = fixture.root.join("policy.ts");
+    let policy = fixture.root.join("policy.rhai");
     fs::write(
         &policy,
-        r#"export const policy = {schemaVersion: 2, version: '1', select() { for (;;) {} }};"#,
+        rhai::policy("fn select(request, context) { sleep(600); }"),
     )
     .unwrap();
     let output = fixture
@@ -435,57 +528,11 @@ fn selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses()
             "1000",
             "--config",
         ])
-        .arg(&policy)
+        .arg(policy)
         .output()
         .unwrap();
     assert_eq!(output.status.code(), Some(124));
     assert!(output.stdout.is_empty());
-    let prefix = fixture.root.join("prefix");
-    fs::create_dir_all(prefix.join("bin")).unwrap();
-    let front = prefix.join("bin/ravel");
-    fs::copy(Fixture::front(), &front).unwrap();
-    let invoke = || {
-        let mut command = {
-            let mut local = Command::new(&front);
-            local
-                .env_clear()
-                .env("HOME", fixture.root.join("home"))
-                .env("TMPDIR", fixture.root.join("tmp"))
-                .env("PATH", "/usr/bin:/bin")
-                .current_dir(fixture.root.join("work"));
-            local
-        };
-        command
-            .args([
-                "start-session",
-                "--kind",
-                "check",
-                "--prompt",
-                "caller",
-                "--config",
-            ])
-            .arg(&policy)
-            .output()
-            .unwrap()
-    };
-    let missing = invoke();
-    assert_eq!(missing.status.code(), Some(5));
-    assert!(String::from_utf8_lossy(&missing.stderr).contains("worker_missing"));
-    let worker = prefix.join("libexec/ravel/ravel-policy");
-    fs::create_dir_all(worker.parent().unwrap()).unwrap();
-    let hello = r#"{"type":"hello","protocol":1,"packageVersion":"0.0.0","buildId":"wrong-source","bunVersion":"1.4.2"}"#;
-    let length = u32::try_from(hello.len()).unwrap().to_be_bytes();
-    let prefix_bytes = length.map(|byte| format!("\\{byte:03o}")).concat();
-    fs::write(
-        &worker,
-        format!("#!/bin/sh\nprintf '{prefix_bytes}' >&3\nprintf '%s' '{hello}' >&3\n"),
-    )
-    .unwrap();
-    fs::set_permissions(&worker, fs::Permissions::from_mode(0o755)).unwrap();
-    let mismatched = invoke();
-    assert_eq!(mismatched.status.code(), Some(5));
-    assert!(String::from_utf8_lossy(&mismatched.stderr).contains("worker_identity_mismatch"));
-    assert!(mismatched.stdout.is_empty());
     assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
 }
 
@@ -493,38 +540,19 @@ fn selection_deadline_stops_real_worker_and_missing_or_mismatched_pair_refuses()
 fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure() {
     use std::os::unix::fs::PermissionsExt as _;
     let fixture = Fixture::new();
-    let owner = fixture.root.join("owner");
-    fs::create_dir(&owner).unwrap();
-    let policy = owner.join("policy.ts");
-    let code = fixture
-        .selecting("exit 91", "unused")
-        .replace(
-            "import { definePolicy }",
-            "import { chmodSync, readdirSync, writeFileSync } from 'node:fs';\nimport { definePolicy }",
-        )
-        .replace(
-            "select(request) {",
-            // Fail the confined cleanup alone. Making their shared TMPDIR
-            // unwritable now correctly refuses earlier at worker admission.
-            "select(request) { for (const name of readdirSync(process.env.TMPDIR)) { if (name.startsWith('ravel-confined-')) { const path = process.env.TMPDIR + '/' + name; writeFileSync(path + '/cleanup-blocker', 'fixture'); chmodSync(path, 0o500); } }",
-        );
-    fs::write(&policy, code).unwrap();
-    let mut command = fixture.command();
-    command
-        .args([
-            "start-session",
-            "--kind",
-            "check",
-            "--prompt",
-            "caller",
-            "--confine",
-            "--config",
-        ])
-        .arg(policy);
-    command.stdout(std::process::Stdio::from(
-        fs::File::open("/dev/null").unwrap(),
-    ));
-    let output = command.output().unwrap();
+    let output = fixture.cleanup_fault(true, || {
+        for entry in fs::read_dir(fixture.root.join("tmp")).unwrap() {
+            let entry = entry.unwrap();
+            if entry
+                .file_name()
+                .to_string_lossy()
+                .starts_with("ravel-confined-")
+            {
+                fs::write(entry.path().join("cleanup-blocker"), "fixture").unwrap();
+                fs::set_permissions(entry.path(), fs::Permissions::from_mode(0o500)).unwrap();
+            }
+        }
+    });
     fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o700)).unwrap();
     for entry in fs::read_dir(fixture.root.join("tmp")).unwrap() {
         let entry = entry.unwrap();
@@ -550,34 +578,9 @@ fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_fa
 fn worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup() {
     use std::os::unix::fs::PermissionsExt as _;
     let fixture = Fixture::new();
-    let owner = fixture.root.join("owner");
-    fs::create_dir(&owner).unwrap();
-    let policy = owner.join("policy.ts");
-    let code = fixture
-        .selecting("exit 91", "unused")
-        .replace(
-            "import { definePolicy }",
-            "import { chmodSync } from 'node:fs';\nimport { definePolicy }",
-        )
-        .replace(
-            "select(request) {",
-            "select(request) { chmodSync(process.env.TMPDIR, 0o500);",
-        );
-    fs::write(&policy, code).unwrap();
-    let output = fixture
-        .command()
-        .args([
-            "start-session",
-            "--kind",
-            "check",
-            "--prompt",
-            "caller",
-            "--confine",
-            "--config",
-        ])
-        .arg(policy)
-        .output()
-        .unwrap();
+    let output = fixture.cleanup_fault(false, || {
+        fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o500)).unwrap();
+    });
     // Uninjected fixture ownership removes physical debris after checking the
     // failed product cleanup; it does not replace that reported outcome.
     fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o700)).unwrap();
@@ -627,9 +630,9 @@ fn terminal_recovery_cli_role() {
         fs::write(&script, format!("#!{}\n", interpreter.display())).unwrap();
         fs::set_permissions(&script, fs::Permissions::from_mode(0o700)).unwrap();
         let policy = format!(
-            r#"import {{ definePolicy }} from "ravel/sdk";
-export const policy = definePolicy({{ schemaVersion: 2, version: "C4-cli",
-select() {{ return {{ status: "selected", program: {:?}, args: [], provider: "fixture", model: "fixture", effort: "fixture", reason: "C4 real failed exec" }}; }} }});"#,
+            r#"export const SCHEMA_VERSION = 3;
+export const VERSION = "C4-cli";
+fn select(request, context) {{ #{{ status: "selected", program: {:?}, args: [], provider: "fixture", model: "fixture", effort: "fixture", reason: "C4 real failed exec" }} }}"#,
             script.to_str().unwrap()
         );
         let output = fixture.start(&policy, "C4 no model service");
@@ -659,7 +662,7 @@ select() {{ return {{ status: "selected", program: {:?}, args: [], provider: "fi
         assert_eq!(after.c_lflag & !libc::PENDIN, saved.c_lflag & !libc::PENDIN);
         assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
         eprintln!(
-            "C4 public CLI {name}: real TypeScript policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed"
+            "C4 public CLI {name}: real Rhai policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed"
         );
     }
     assert_eq!(unsafe { libc::close(tty) }, 0);
