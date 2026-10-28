@@ -380,6 +380,7 @@ A word-set comparison cannot establish position, multiplicity or visible text.
 
 **Source:** Background `book-figure-viewing-check-k118` and `ravel-book-k101` in `figures.md`, 2026-10-17 to 2026-10-19.
 Session evidence: `rhai-book-use-k72`, 2026-10-26.
+
 **Ravel application:** Layout records separate geometry from drawing style.
 The crisp restyle kept records unchanged. Later art checked semantic changes against the source and surrounding text.
 Session `rhai-book-use-k77` found that Typst converted `--json` to an en dash in a figure.
