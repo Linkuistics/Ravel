@@ -1067,6 +1067,13 @@ Twelve of 13 examples matched exactly. The other differed only in the `<scratch>
 
 A control that omitted `chmod` failed with status 126. This mechanical walk shows that the visible steps are executable. It is not evidence that a reader understands them.
 
+Draft `rhai-book-use-k116`, 2026-10-29, applied the rule to chapter 5, where each example belongs to a different section.
+The setup section lists the eight examples, their directories and the files to save. The tree, the path table and the command-part table stay at the first example, because its files need that section's explanation.
+A reader can enter chapter 5 after chapter 3, so the section restates chapter 4's steps instead of a link to them.
+
+The same walk ran the visible steps of all eight examples, and each matched exactly. The control without `chmod` failed seven of them.
+It could not fail the confinement example, which has no `bin` directory. Choose a control that reaches each subject, or name the subjects that it cannot reach.
+
 ### L68. Write each example command for the reader's shell
 
 An example checker often runs each block in a noninteractive shell. A reader types the same lines into an interactive shell, where some commands behave differently.
@@ -1080,6 +1087,18 @@ Name the reader's shell when its behaviour matters, such as a continuation promp
 A failed preparation still changes the next command's output, so the check still fails.
 
 **Check:** Run the visible commands in the reader's default shell, after only the preparation that the page states. Then plant one omitted step and see that run fail.
+
+### L69. Check a qualifier against the source, because it implies its complement
+
+A qualifier limits a statement, and the reader then infers the opposite for the excluded case.
+Thus, “never reads X from a terminal” tells the reader that Ravel reads X from other sources.
+Check each qualifier against the source. Remove it when the behaviour has no such limit.
+
+**Source:** Session evidence, `rhai-book-use-k116`, 2026-10-29.
+**Ravel application:** Chapter 5 said that Ravel “never reads a prompt from the standard input of a terminal”.
+`crates/ravel/src/inputs.rs` never reads a prompt from standard input at all, so the chapter now says that. The specification `configuration-evaluation.md` has the same narrow words, “terminal stdin”.
+
+**Check:** For each “never”, “only” or “always” statement with a qualifier, find the code that enforces it. Read whether the code has the qualifier too.
 
 ### Disposition of the task's candidate readings
 

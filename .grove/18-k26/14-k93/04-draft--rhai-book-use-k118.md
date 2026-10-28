@@ -10,6 +10,9 @@ Then run the mechanical gates for all of chapters 1–6, and close node `rhai-bo
 - The node brief `rhai-book-use-k93` gives the full requirements and the decomposition.
 - Drafts `rhai-book-use-k115` to `rhai-book-use-k117` changed chapters 1–5. Chapter 6 quotes their examples in fragments.
 - Derive the CLI and configuration inventories of contract §1 from the source and the built CLI.
+- Draft `rhai-book-use-k116` named chapter 5's examples. The `--json` review command now belongs to the example `notices`.
+  Its real-run fragment in chapter 5 now shows a new run in `/tmp/ravel-chapter-5/notices`, with `selectionMs` 3. The script bytes and digest did not change.
+  Chapter 6 quotes the earlier run in `/tmp/ch5r`. Its values are still those of that run, but its paths and label differ from chapter 5's fragment.
 
 ## Done when
 

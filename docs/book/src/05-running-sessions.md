@@ -80,21 +80,58 @@ No example needs an agent account or a model service.
 <!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
 First, follow chapter 3 to
 [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
-Then use a fresh directory for each complete example, and create the labelled
-files there. Run the commands of the example in that directory. Each command
-line has these parts:
+You need the installed `ravel` and a shell. No other tool is necessary.
 
-| Part of the command | What it does |
-|---|---|
-| `mkdir -p home tmp` | Makes a private home directory and a private temporary directory |
-| `chmod +x bin/*` | Makes the fake programs executable |
-| `env -i` | Runs the command with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
-| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Thus, your own configuration script and settings do not enter the example. |
-| `PATH="$PWD/bin:$PATH"` | Puts the fake programs first on the search path |
-| `ravel start-session --config config.rhai` | Runs a session with the configuration script of the example |
+Each example has a name and a directory of its own. Put these directories in
+one workspace directory, `~/ravel-chapter-5`, in your home directory. Why a
+new directory for each example? Several examples use the same file names,
+such as `config.rhai` and `bin/review-agent`, with different contents. Some
+commands also write files, such as `result.txt` and `review-notes.md`. A file
+from one example must not change the result of another example.
 
-The book checker runs the same examples with the built Ravel CLI. It compares
-each output with the output that the book shows.
+The chapter has eight examples. Each row names the example, its directory
+under `~/ravel-chapter-5` and the files that you save there:
+
+| Example | Section | What the example shows | Files that you save |
+|---|---|---|---|
+| `prompt-and-data` | [Supply the prompt and caller data](#supply-the-prompt-and-caller-data) | The prompt and the caller data that the configuration script receives | `config.rhai`, `bin/echo-prompt`, `prompt.txt` and `caller-context.json` |
+| `outcomes` | [Accept a result only after success](#accept-a-result-only-after-success) | A sent result, an empty result and a natural exit without a result | `config.rhai` and `bin/outcome` |
+| `review-caller` | [Accept a result only after success](#accept-a-result-only-after-success) | An orchestrator script that acts on the result of the review | `config.rhai`, `bin/review-agent`, `bin/fix-agent`, `review-prompt.txt` and `orchestrator.sh` |
+| `nested` | [Keep nested sessions separate](#keep-nested-sessions-separate) | A session inside the managed process of another session | `config.rhai`, `bin/inner` and `bin/outer` |
+| `confined` | [Confine the managed process](#confine-the-managed-process) | A session with `--confine` | `owner/config.rhai` |
+| `notices` | [Read notices separately from results](#read-notices-separately-from-results) | The text routing notice, the JSON routing notice and a refusal | `config.rhai`, `bin/review-agent` and `review-prompt.txt` |
+| `cancel-selection` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation while the configuration script waits for a harness run | `settings.json`, `config.rhai` and `bin/cancel-selection` |
+| `cancel-session` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation after the managed process sent a result | `config.rhai` and `bin/cancel-after-result` |
+
+Do these steps for each example, in a shell where `ravel --version` succeeds:
+
+1. Make the example directory and the subdirectories of its files, then `cd`
+   into the example directory. The paragraph before each example gives the
+   two commands.
+2. Save the files of the complete example at their labelled paths. Each label
+   is a path in the example directory.
+3. Type each command line of the example without its first `$ `, which
+   stands for the prompt of your shell.
+4. Run `echo "$?"` immediately after the last line of each command block to
+   see its exit status. Compare the output and the status with the example.
+
+The first example, `prompt-and-data`, shows each step in full. A tree shows
+its paths, and a table says who makes each path and why. After its complete
+command, a second table explains each part of that command. Each later example
+has a paragraph that names its directory and says how it is different from
+`prompt-and-data`.
+
+Each example labels its output. A label “Standard error includes” means that
+standard error contains those lines. It can also contain other lines, such as
+reports of cleanup operations. A label “without a final newline” means that
+Ravel added no newline after the result. Thus, the next prompt of your shell
+can appear on the same line as the result.
+
+The book checker runs the same files and commands with the built Ravel CLI.
+For each example, it makes a new directory, saves the labelled files and makes
+the files in `bin` executable. Then it runs the command blocks in order and
+compares each output with the output that the book shows. You do the
+preparation by hand, in the steps above.
 
 ## Supply the prompt and caller data
 
@@ -140,7 +177,7 @@ meaning.
 
 Pass exactly one of `--prompt TEXT` and `--prompt-file PATH`. Ravel gives the
 text to the configuration script unchanged, also when it is an empty string
-or ends with newlines. It never reads a prompt from the standard input of a terminal. A
+or ends with newlines. It never reads a prompt from its standard input. A
 prompt is UTF-8, contains no NUL and has a maximum size of 1 MiB. Ravel does
 not truncate input that is not valid, but stops the invocation with status 2.
 
@@ -181,7 +218,7 @@ read a task or to give the task a meaning:
 | `--param profile=careful` | `request.params.profile` with the string `careful`. Each name is not empty, contains no `=` and occurs one time. The value can be empty or contain more `=` characters. The limit for all names and values together is 65,536 UTF-8 bytes. |
 | `--task-file tasks/check.md` | An absolute UTF-8 `request.taskFile`. Ravel makes it from the given path and the caller's working directory. Ravel does not read that file, and the file does not have to exist. Ravel gets no kind or identity from it. |
 | `--task-id example-17` | An opaque `request.taskId`. It is UTF-8, is not empty and has a maximum of 1,024 bytes. Ravel does not search for a stored task. |
-| `--context caller-context.json` | A JSON document of facts about the task, which Ravel measures and validates. If the configuration script has no loader, the document becomes the second argument to `select`. A loader can make a different document for the script. <!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup --> |
+| `--context caller-context.json` | A JSON document of facts about the task, which Ravel measures and validates. If the configuration script has no loader, the document becomes the second argument to `select`. A loader can make a different document for the script. The compact JSON text of the document that `select` receives has a maximum of 262,144 bytes by default. The owner's `contextBytes` setting or `--context-bytes` changes that limit. <!-- tc: depart synonym-rotation because validation enforces a data shape, while confirmation establishes cleanup --> |
 
 That last document is
 [selection context](02-actors-and-words.md#three-different-kinds-of-information),
@@ -273,12 +310,59 @@ instructions to end the session. A confined managed process gets a smaller
 environment, which [Confine the managed process](#confine-the-managed-process)
 describes.
 
+Now run these inputs yourself in the first example of this chapter,
+`prompt-and-data`. Its caller gives a prompt file and each kind of caller
+data. Its configuration script passes the prompt and the parameter `profile`
+to a fake agent. The fake agent writes the profile, which you see on standard
+error. Then it sends the prompt back as the result, so the result shows what
+the agent received. When you finish the steps, the directory holds these paths:
+
+```text
+~/ravel-chapter-5/
+└── prompt-and-data/
+    ├── config.rhai           you save it
+    ├── prompt.txt            you save it
+    ├── caller-context.json   you save it
+    ├── bin/                  you make it
+    │   └── echo-prompt       you save it
+    ├── home/                 the first command line makes it
+    └── tmp/                  the first command line makes it
+```
+
+Each path has one purpose in the example:
+
+| Path in `prompt-and-data` | Who makes it | Purpose |
+|---|---|---|
+| `config.rhai` | You | The configuration script. The option `--config config.rhai` selects it. It gives the prompt and the value of `profile` to `echo-prompt`. |
+| `prompt.txt` | You | The prompt, with a final newline. The option `--prompt-file prompt.txt` gives it to Ravel. |
+| `caller-context.json` | You | The selection context. The option `--context caller-context.json` gives it to the configuration script, which does not use it here. |
+| `bin/echo-prompt` | You | The fake agent that the configuration script selects. It writes `profile=careful`, then sends its first argument as the result. |
+| `home/` | The first command line | An empty home directory for Ravel. Ravel finds no settings file there, so the default settings apply. |
+| `tmp/` | The first command line | A private temporary directory. Ravel makes the result channel of the session here. |
+
+The command also names `tasks/check.md` with `--task-file`. You do not make
+that file. Ravel gives its absolute path to the configuration script and does
+not read it.
+
+Do the four steps of
+[Run the examples of this chapter](#run-the-examples-of-this-chapter). Step 1
+is this fragment.
+
+Fragment: make the directory of `prompt-and-data` and `cd` into it. This
+block omits the four files, which you save next. The book checker makes its
+own directory for each example and does not run this block.
+
+```sh
+mkdir -p ~/ravel-chapter-5/prompt-and-data/bin
+cd ~/ravel-chapter-5/prompt-and-data
+```
+
+The `~` stands for your home directory, so these commands work from any
+current directory.
+
 Complete example: pass a prompt from a file, with its final newline, and
 caller data. The configuration script uses `profile` as an argument. It does
-not use the task fields or the selection context. The fake agent sends the prompt itself as
-the result, so the result shows what the agent received. Create the
-labelled files in a new directory. Make `bin/echo-prompt` executable before
-you run the command.
+not use the task fields or the selection context.
 
 **`config.rhai`**
 
@@ -327,7 +411,7 @@ When you finish, send the agreed result.
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
 ```
 
@@ -350,6 +434,28 @@ profile=careful
 ```text
 0
 ```
+
+What did the two command lines do? The first line prepares the directory. The
+second line runs the session. These are their parts:
+
+| Part of the command | What it does in `prompt-and-data` |
+|---|---|
+| `mkdir -p home tmp` | Makes `home` and `tmp`. With `-p`, `mkdir` gives no error when they exist already. |
+| `chmod +x bin/*` | Makes each file in `bin`, here only `echo-prompt`, executable |
+| `env -i` | Runs the rest of the line with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
+| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Your shell expands `$PWD` before `env` runs, so each value is an absolute path. |
+| `PATH="$PWD/bin:$PATH"` | Puts `bin` first on the search path. Your shell expands `$PATH` before `env -i` clears the environment, so your installed `ravel` stays on the path. |
+| `ravel start-session` | Asks Ravel for one session |
+| `--kind review` | Gives the caller's kind. This configuration script does not examine it, but the routing notice names it. |
+| `--config config.rhai` | Selects the configuration script of the example, relative to the current directory |
+| `--prompt-file prompt.txt` | Gives the text of `prompt.txt`, with its final newline, as the prompt |
+| `--param profile=careful` | Gives `request.params.profile` the value `careful` |
+| `--task-file tasks/check.md` | Gives `request.taskFile` the absolute path of `tasks/check.md` in the example directory |
+| `--task-id example-17` | Gives `request.taskId` the value `example-17` |
+| `--context caller-context.json` | Gives the document in `caller-context.json` to `select` as its second argument |
+
+The private home and the explicit `--config` keep your own settings and
+configuration script out of the example.
 
 The table follows this example from the command to the result that the caller
 receives:
@@ -416,12 +522,22 @@ first. For example, another process in the group can send a result before
 Ravel stops that process. Ravel keeps the first result, even if the second
 command succeeds.
 
+Run the next example in the directory `outcomes`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/outcomes/bin`, then `cd ~/ravel-chapter-5/outcomes`.
+You save two files, `config.rhai` and `bin/outcome`. The fake agent
+`outcome` examines the kind. For the kind `natural`, it exits without a
+result. For any other kind, it sends the prompt as the result.
+
+This example is different from `prompt-and-data` in two ways. It has no
+prompt file, so each command gives the prompt with `--prompt`. It also has
+three command blocks. Only the first block makes `home` and `tmp`. The other
+two blocks use those directories. Run `echo "$?"` after each block.
+
 Complete example: compare three outcomes. In the first, the program sends a
 result and then tries a second call before it exits with status 7. The
 shutdown can stop the program before that call or that exit. In the second,
 the program sends an empty result. In the third, it sends no result and exits
-naturally with status 0. Create these files in a new directory and make
-`bin/outcome` executable.
+naturally with status 0.
 
 **`config.rhai`**
 
@@ -458,7 +574,7 @@ exit 7
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config config.rhai --prompt '--help'
 ```
 
@@ -554,13 +670,30 @@ the bytes on standard output. It decides its next action from both:
 | Status 0 and another value | Treats the review as failed, because its prompt permitted only two values |
 | A status other than 0 | Reads standard error, then decides whether to request the review again. It does not use standard output as a result. |
 
+Run the next example in the directory `review-caller`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/review-caller/bin`, then
+`cd ~/ravel-chapter-5/review-caller`. You save five files:
+
+| Path in `review-caller` | Purpose |
+|---|---|
+| `config.rhai` | The configuration script. It selects `review-agent` for the kind `review` and `fix-agent` for the kind `fix`. |
+| `bin/review-agent` | The fake harness of the review. It writes `review-notes.md` and sends `changes-needed`, as the LLM did in chapter 1. |
+| `bin/fix-agent` | The fake harness of the `fix` session. It sends `fixed`. |
+| `review-prompt.txt` | The prompt of chapter 1's review |
+| `orchestrator.sh` | The caller. It runs both sessions and acts on each result. |
+
+This example is different from `prompt-and-data`. Your command line does not
+run `ravel start-session` itself. It runs `sh orchestrator.sh`, and the script
+runs `ravel start-session` two times. Both inner command lines inherit the
+private `HOME`, `TMPDIR` and `PATH` that `env -i` gave to `sh`. The script is
+not in `bin`, so it needs no execute permission.
+
+The run also writes four files in the example directory. `review-agent`
+writes `review-notes.md`. The script writes `result.txt`, `fix-prompt.txt`
+and `fix-result.txt`. You do not make these files.
+
 Complete example: an orchestrator script runs the review and acts on each
-outcome. The file `review-prompt.txt` is the prompt of chapter 1.
-`bin/review-agent` stands in for the harness of the review. It writes
-`review-notes.md` and sends `changes-needed`, as the LLM did in chapter 1.
-`bin/fix-agent` stands in for the harness of the `fix` session and sends
-`fixed`. Create these files in a new directory and make the files under
-`bin/` executable.
+outcome.
 
 **`config.rhai`**
 
@@ -657,7 +790,7 @@ esac
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" sh orchestrator.sh
 ```
 
@@ -789,10 +922,21 @@ Each nested session has its own
 The marker does not protect against code that removes it: such code escapes the refusal.
 Such an escape can leave a separate process group outside the outer cleanup.
 
+Run the next example in the directory `nested`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/nested/bin`, then `cd ~/ravel-chapter-5/nested`.
+You save three files. `config.rhai` selects `outer` for the kind `outer` and
+`inner` for every other kind. `bin/outer` is the outer fake agent, which runs
+the inner session. `bin/inner` is the inner fake agent.
+
+This example is different from `prompt-and-data`, because one configuration
+script serves both sessions. The script gives `outer` the absolute path of
+`config.rhai` as its argument. `outer` then gives that path to the inner
+`ravel start-session` with `--config`. The inner session inherits the private
+`HOME`, `TMPDIR` and `PATH` from `outer`.
+
 Complete example: the inner program sends `inner`, and the outer program
-uses that result in `inner|outer`. Create these files in a new directory and
-make both files under `bin/` executable. These values have no trailing
-newlines, so command substitution keeps them unchanged.
+uses that result in `inner|outer`. These values have no trailing newlines, so
+command substitution keeps them unchanged.
 
 **`config.rhai`**
 
@@ -835,7 +979,7 @@ ravel end-session -- "$result|outer"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config config.rhai --prompt 'Run the inner session. Then add |outer to its result and send it.'
 ```
 
@@ -946,12 +1090,41 @@ Before selection, an `--exit-dir` that is not valid can also give
 `exit_dir_unusable`. Later failures of allocation or cleanup have their own
 diagnostics.
 
+Run the next example in the directory `confined`. It has a different layout
+from `prompt-and-data`, because the configuration script must stay outside
+the writable directory. When you finish the steps, the directory holds these
+paths:
+
+```text
+~/ravel-chapter-5/
+└── confined/
+    ├── owner/            you make it
+    │   └── config.rhai   you save it
+    ├── home/             the first command line makes it
+    ├── tmp/              the first command line makes it
+    └── project/          the first command line makes it
+```
+
+Step 1 is `mkdir -p ~/ravel-chapter-5/confined/owner`, then
+`cd ~/ravel-chapter-5/confined`. You save one file, `owner/config.rhai`. The
+example has no `bin` directory and no fake agent. The configuration script
+selects `ravel end-session` itself, from your `PATH`.
+
+The command block has three lines. The first makes `home`, `tmp` and
+`project`. The second keeps the absolute paths of `home` and `tmp` in two
+shell variables, then runs `cd project`. The third runs the session from
+`project`. Thus, `project` is the writable working directory, and it does not
+contain the configuration script.
+
+After the example, the current directory of your shell is `project`. The
+`cd` of step 1 of the next example changes it.
+
+The example needs a sandbox tool: `sandbox-exec` on macOS, or bubblewrap on
+Linux. Without it, Ravel stops with `confinement_unusable` and status 2.
+
 Complete example: select `ravel end-session` itself as a minimal confined
 program. This example checks confinement and result delivery without another
-agent. Create the labelled configuration script, then run the command from
-the directory that contains `owner`. The command makes a separate `project`
-directory and runs `cd project`. Thus, the writable directory does not
-contain the script.
+agent.
 
 <!-- example: requires confinement -->
 
@@ -977,8 +1150,8 @@ fn select(request, context) {
 **Command**
 
 ```console
-$ mkdir -p home tmp project || exit "$?"
-$ example_home="$PWD/home" && example_tmp="$PWD/tmp" && cd project || exit "$?"
+$ mkdir -p home tmp project
+$ example_home="$PWD/home" && example_tmp="$PWD/tmp" && cd project
 $ env -i HOME="$example_home" TMPDIR="$example_tmp" PATH="$PATH" ravel start-session --kind check --config ../owner/config.rhai --confine --prompt 'Send confined.'
 ```
 
@@ -1088,11 +1261,20 @@ gives more detail, such as the `reason` and the program file that Ravel found.
 When Ravel cannot complete a session, `--json` also replaces the text
 diagnostic with a JSON document, the failure document.
 
+Run the next example in the directory `notices`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/notices/bin`, then `cd ~/ravel-chapter-5/notices`.
+You save three files. `config.rhai` selects `review-agent` for the kind
+`review` and refuses every other kind. `bin/review-agent` is a fake harness
+that writes one line, then sends `changes-needed`. `review-prompt.txt` is the
+prompt of chapter 1's review, the same file as in `review-caller`.
+
+This example is different from `prompt-and-data` in its three command blocks.
+Only the first block makes `home` and `tmp`. The second block adds `--json`.
+The third block uses the kind `deploy`, which the script refuses.
+
 Complete example: run the review in text form, the same review with
 `--json`, and a request that the configuration script refuses. The script
-and the prompt are those of chapter 1. The fake agent writes one line, then
-sends `changes-needed`. Create these files in a new directory and make
-`bin/review-agent` executable.
+and the prompt are those of chapter 1.
 
 **`config.rhai`**
 
@@ -1145,7 +1327,7 @@ When the review is complete, end this session with one command:
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt
 ```
 
@@ -1215,9 +1397,10 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 3
 ```
 
-Here `<scratch>` is the temporary directory that the example checker of the
-book uses. A manual run shows the actual absolute path of your configuration
-script. Ravel supplies the diagnostic prefix. The configuration script
+Here `<scratch>/work` stands for the example's directory. In your shell, the
+document shows the absolute path of your `notices` directory, for example
+`/Users/you/ravel-chapter-5/notices/config.rhai`. Ravel supplies the
+diagnostic prefix. The configuration script
 supplies the refusal code, message and remedy.
 
 The table follows the three commands to what the caller receives:
@@ -1233,11 +1416,13 @@ launch. With `--json`, the notice comes last, because Ravel writes it after
 the supervision attempt. The text form tells you the choice before the
 program starts. The JSON form also records what happened during the session.
 
-Fragment: standard error of the `--json` review command from a real run on
-macOS, in the directory `/tmp/ch5r`. Ravel writes the JSON document as one
-line. This block shows it on
-several lines and omits the members `bounds`, `context`, `diagnostics`,
-`operationReports`, `configEnvironment`, `reads` and `worker`.
+Fragment: standard error of the `--json` review command of `notices` from a
+real run on macOS. The run used the directory `/tmp/ravel-chapter-5/notices`
+in place of `~/ravel-chapter-5/notices`, and macOS shows `/tmp` as
+`/private/tmp`. Ravel writes the JSON document as one line. This block shows
+it on several lines and omits the members `bounds`, `context`, `diagnostics`,
+`operationReports`, `configEnvironment`, `reads` and `worker`. The value of
+`selectionMs` changes in each run.
 
 ```text
 review-agent: the review is complete
@@ -1247,15 +1432,15 @@ review-agent: the review is complete
     "modules": [
       {
         "bytes": 619,
-        "name": "/private/tmp/ch5r/config.rhai",
+        "name": "/private/tmp/ravel-chapter-5/notices/config.rhai",
         "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
       }
     ],
-    "path": "/private/tmp/ch5r/config.rhai",
+    "path": "/private/tmp/ravel-chapter-5/notices/config.rhai",
     "version": "notice-demo"
   },
-  "promptSource": "/private/tmp/ch5r/review-prompt.txt",
-  "resolution": "/tmp/ch5r/bin/review-agent (found on PATH in /tmp/ch5r/bin)",
+  "promptSource": "/private/tmp/ravel-chapter-5/notices/review-prompt.txt",
+  "resolution": "/tmp/ravel-chapter-5/notices/bin/review-agent (found on PATH in /tmp/ravel-chapter-5/notices/bin)",
   "schemaVersion": 2,
   "selection": {
     "effort": "low",
@@ -1263,7 +1448,7 @@ review-agent: the review is complete
     "provider": "local",
     "reason": "Reviews go to the fake agent."
   },
-  "selectionMs": 9
+  "selectionMs": 3
 }
 ```
 
@@ -1473,6 +1658,22 @@ Its own result channel is separate from the channel of a final managed process.
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 
+Run the next example in the directory `cancel-selection`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/cancel-selection/bin`, then
+`cd ~/ravel-chapter-5/cancel-selection`. You save three files:
+
+| Path in `cancel-selection` | Purpose |
+|---|---|
+| `settings.json` | The settings. They name the harness entry `cancel` with the program `cancel-selection`, and they permit one harness run. |
+| `config.rhai` | The configuration script. It asks for a run of the harness entry `cancel` before it chooses. |
+| `bin/cancel-selection` | The fake evaluation harness. It sends INT to the Ravel CLI, then waits. |
+
+This example is different from `prompt-and-data`, because it needs settings.
+Ravel reads the settings from `.config/ravel/settings.json` in its home
+directory. The first command line makes `home/.config/ravel` together with
+`tmp`. The second line copies your `settings.json` into that directory. The
+third line runs the session.
+
 Complete example: a fake evaluation harness sends INT to the Ravel CLI.
 The configuration script waits for the harness run. No final managed process
 starts.
@@ -1509,8 +1710,8 @@ while :; do sleep 1; done
 **Command**
 
 ```console
-$ mkdir -p home/.config/ravel tmp && chmod +x bin/* || exit "$?"
-$ cp settings.json home/.config/ravel/settings.json || exit "$?"
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt 'No managed process should launch.'
 ```
 
@@ -1531,9 +1732,8 @@ ravel: refused (selection_cancelled, stage evaluation): selection with the confi
 130
 ```
 
-Here `<scratch>` is the temporary directory that the example checker of the
-book uses. A manual run shows the actual absolute path of your configuration
-script. The
+Here `<scratch>/work` stands for the example's directory. In your shell, the
+line shows the absolute path of your `cancel-selection` directory. The
 details of worker teardown can change from run to run. Thus, the transcript
 claims only the stable diagnostic line.
 Here, the diagnostic's “nothing was launched” refers to the final managed process.
@@ -1580,10 +1780,19 @@ attempts, and Ravel keeps their failures as diagnostics.
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 
+Run the next example in the directory `cancel-session`. Step 1 is
+`mkdir -p ~/ravel-chapter-5/cancel-session/bin`, then
+`cd ~/ravel-chapter-5/cancel-session`. You save two files. `config.rhai`
+selects `cancel-after-result` for every request. `bin/cancel-after-result` is
+the fake agent.
+
+The command block has two lines. The first line is the same as in
+`prompt-and-data`. The second line gives the prompt with `--prompt` and gives
+no caller data.
+
 Complete example: the program sends a candidate result and sends INT
 directly to the Ravel CLI. Then it stays alive until the supervisor stops the
-job. Create the files in a new directory and make `bin/cancel-after-result`
-executable.
+job.
 
 **`config.rhai`**
 
@@ -1617,7 +1826,7 @@ while :; do sleep 1; done
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt 'Show cancellation after a sent result.'
 ```
 
@@ -1638,6 +1847,9 @@ ravel: refused (session_cancelled, stage exec): session selected by <scratch>/wo
 130
 ```
 
+Here `<scratch>/work` stands for the example's directory. In your shell, the
+line shows the absolute path of your `cancel-session` directory.
+
 The program sent `candidate`, and Ravel received it. Then INT reached the
 Ravel CLI. Ravel attempted to stop the group and to complete cleanup. Then it
 wrote `session_cancelled` on standard error. The caller receives no result and
@@ -1657,7 +1869,8 @@ from the key that you pressed. [Chapter 9](09-jobs-signals-and-the-terminal.md#p
 
 Fragment: run an interactive route and press Ctrl-C at the terminal. This
 fragment omits the configuration script, the interactive program and the physical
-interaction with the terminal. The automated examples do not test keyboard
+interaction with the terminal. It is not one of the eight examples of this
+chapter and has no directory. The automated examples do not test keyboard
 delivery or foreground recovery.
 
 ```sh
