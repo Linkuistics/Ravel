@@ -1,5 +1,4 @@
 use std::ffi::{OsStr, OsString};
-use std::os::unix::ffi::OsStrExt as _;
 
 use serde_json::{Value, json};
 
@@ -36,24 +35,6 @@ impl Grants {
         Ok(Grants { grants })
     }
 
-    /// The worker's whole environment: the base set and the granted names,
-    /// with the caller's values, and the front's own [`HOST`] settings.
-    pub fn worker_environment(&self) -> Vec<(OsString, OsString)> {
-        std::env::vars_os()
-            .filter(|(name, _)| {
-                is_base(name.as_bytes())
-                    || self
-                        .grants
-                        .iter()
-                        .any(|grant| grant.name.as_bytes() == name.as_bytes())
-            })
-            .chain(
-                HOST.iter()
-                    .map(|(name, value)| (OsString::from(name), OsString::from(value))),
-            )
-            .collect()
-    }
-
     /// What `ravel::env` finds for `name` in the caller's environment.
     pub fn lookup(&self, name: &str) -> Lookup {
         if !self.readable(name) {
@@ -88,13 +69,6 @@ pub enum Lookup {
     NotReadable,
 }
 
-/// The values the front itself sets in the worker's environment, each under an
-/// excluded name, so no caller value or grant can replace it.
-/// `BUN_RUNTIME_TRANSPILER_CACHE_PATH` of `0` turns Bun's runtime transpiler
-/// cache off (bun-v1.4.2 `src/jsc/RuntimeTranspilerCache.rs`,
-/// `really_get_cache_dir`).
-pub const HOST: [(&str, &str); 1] = [("BUN_RUNTIME_TRANSPILER_CACHE_PATH", "0")];
-
 /// The marker that a harness run carries, and that `start-session` refuses
 /// (`docs/specs/policy-evaluation.md`, *Re-entry and completion authority*).
 pub const POLICY_RUN: &str = "RAVEL_POLICY_RUN";
@@ -121,25 +95,7 @@ pub fn is_base(name: &[u8]) -> bool {
 
 /// Why `name` is never granted, if it is not.
 fn excluded(name: &str) -> Option<&'static str> {
-    if name.starts_with("BUN_") {
-        Some(
-            "Bun reads its runtime options from BUN_* variables, and BUN_OPTIONS can preload \
-             code and BUN_BE_BUN turn the worker into Bun itself",
-        )
-    } else if matches!(
-        name,
-        "NODE_OPTIONS" | "NODE_PATH" | "NODE_PRESERVE_SYMLINKS"
-    ) {
-        Some(
-            "NODE_OPTIONS, NODE_PATH and NODE_PRESERVE_SYMLINKS change what code loads, and from \
-             where",
-        )
-    } else if name.starts_with("NODE_CHANNEL_") {
-        Some(
-            "NODE_CHANNEL_* variables name a descriptor that Bun adopts as its IPC channel, which \
-             could make the policy worker's private protocol channel its own",
-        )
-    } else if name.starts_with("LD_") || name.starts_with("DYLD_") {
+    if name.starts_with("LD_") || name.starts_with("DYLD_") {
         Some("the dynamic loaders read LD_* and DYLD_* variables, which can inject libraries")
     } else if name.starts_with("RAVEL_") || name.starts_with("HARNESS_DISPATCH_") {
         Some(
@@ -203,8 +159,7 @@ pub fn grantable(name: &str, named: &Named) -> Result<(), Refusal> {
             EXIT_MALFORMED,
             format!("{label} {name} is never granted to the policy worker: {why}"),
             "remove it; the worker's environment is HOME, PATH, TMPDIR, LANG and LC_* plus the \
-             names you grant, and BUN_*, NODE_OPTIONS, NODE_PATH, NODE_PRESERVE_SYMLINKS, \
-             NODE_CHANNEL_*, LD_*, DYLD_* and RAVEL_* are excluded from grants",
+             names you grant; LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_* are excluded from grants",
         )));
     }
     Ok(())
@@ -234,14 +189,6 @@ mod tests {
     #[test]
     fn exclusion_is_by_class_and_leaves_its_near_misses_grantable() {
         for name in [
-            "BUN_OPTIONS",
-            "BUN_BE_BUN",
-            "BUN_INSTALL",
-            "NODE_OPTIONS",
-            "NODE_PATH",
-            "NODE_PRESERVE_SYMLINKS",
-            "NODE_CHANNEL_FD",
-            "NODE_CHANNEL_SERIALIZATION_MODE",
             "LD_PRELOAD",
             "LD_LIBRARY_PATH",
             "LD_AUDIT",
@@ -253,6 +200,14 @@ mod tests {
             assert!(excluded(name).is_some(), "{name} is grantable");
         }
         for name in [
+            "BUN_OPTIONS",
+            "BUN_BE_BUN",
+            "BUN_INSTALL",
+            "NODE_OPTIONS",
+            "NODE_PATH",
+            "NODE_PRESERVE_SYMLINKS",
+            "NODE_CHANNEL_FD",
+            "NODE_CHANNEL_SERIALIZATION_MODE",
             "BUN",
             "BUNDLE_GEMFILE",
             "NODE_EXTRA_CA_CERTS",
@@ -281,7 +236,7 @@ mod tests {
         for (name, code) in [
             ("", "malformed_input"),
             ("A=B", "malformed_input"),
-            ("NODE_OPTIONS", "excluded_grant"),
+            ("LD_PRELOAD", "excluded_grant"),
         ] {
             let refusal = Grants::read(&[], &[name.into()]).unwrap_err();
             assert_eq!(refusal.code, code, "{name}");

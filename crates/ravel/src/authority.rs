@@ -5,17 +5,9 @@ use std::path::{Path, PathBuf};
 
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
-// While both policy paths live, the extension of the entry selects the path.
-// The removal increment deletes every item marked `typescript` here, and keeps
-// every item marked `rhai`.
-
 /// The personal default of the Rhai path, relative to HOME. `XDG_CONFIG_HOME`
 /// is deliberately not consulted: it would be an environment-selected entry.
-/// It wins over [`PERSONAL_DEFAULT`] when both files exist. (rhai)
 pub const PERSONAL_RHAI_DEFAULT: &str = ".config/ravel/policy.rhai";
-
-/// The personal default of the TypeScript path, relative to HOME. (typescript)
-pub const PERSONAL_DEFAULT: &str = ".config/ravel/policy.ts";
 
 /// The extension that takes the Rhai path. (rhai)
 const RHAI_EXTENSION: &str = "rhai";
@@ -28,18 +20,6 @@ pub enum Authority {
     Personal,
     /// The `--config` argument exactly as the caller gave it.
     Explicit,
-}
-
-/// Which worker evaluates the entry, and what that worker needs of it.
-#[derive(Debug)]
-pub enum Format {
-    /// The Bun worker imports the entry itself, by its canonical path. (typescript)
-    TypeScript,
-    /// The Rhai worker reads no file, so the front reads the entry once, on its
-    /// reader thread after the worker has started, and sends exactly those
-    /// bytes. The entry is proven to be a regular file here, and a failure of
-    /// the read itself refuses as this describes. (rhai)
-    Rhai(RhaiEntry),
 }
 
 /// What a refusal about the read of a Rhai entry says. (rhai)
@@ -68,11 +48,9 @@ impl RhaiEntry {
 #[derive(Debug)]
 pub struct PolicyEntry {
     /// The canonical path; symlinks are resolved, so this is the file whose
-    /// directory relative imports start from. On the TypeScript path it is
-    /// exactly the string the worker imports, and [`import_specifier`] has
-    /// proven that it names this file.
+    /// directory relative imports start from.
     pub path: String,
-    pub format: Format,
+    pub admitted: RhaiEntry,
 }
 
 impl PolicyEntry {
@@ -83,9 +61,8 @@ impl PolicyEntry {
 
 /// Resolve the selected entry and prove it is a readable regular file.
 ///
-/// A `.rhai` file given to `--config` takes the Rhai path, and so does the
-/// personal `policy.rhai` when it exists, whether or not `policy.ts` does.
-/// Every other entry keeps the TypeScript path.
+/// The personal Rhai entry wins even when it is unreadable or a dangling
+/// symlink. A retired default is only inspected when that entry is absent.
 pub fn resolve(
     config: Option<&Path>,
     cwd: &Path,
@@ -95,95 +72,42 @@ pub fn resolve(
         Some(config) => (cwd.join(config), Authority::Explicit),
         None => {
             let rhai = personal_rhai_default(home)?;
-            let typescript = personal_default(home)?;
-            // `exists` is true for a dangling symlink, so that one reports
-            // itself as missing instead of falling through to another file.
-            if rhai.symlink_metadata().is_ok() || typescript.symlink_metadata().is_err() {
-                return resolve_rhai(&rhai, &Authority::Personal, cwd);
+            // Only NotFound means absent; permission errors must not select a
+            // different entry. symlink_metadata also preserves dangling links.
+            if fs::symlink_metadata(&rhai).is_err_and(|error| error.kind() == ErrorKind::NotFound) {
+                let retired = rhai.with_extension("ts");
+                if fs::symlink_metadata(&retired).is_ok() {
+                    return Err(retired_format(&retired));
+                }
             }
-            (typescript, Authority::Personal)
+            (rhai, Authority::Personal)
         }
     };
-    if candidate.extension() == Some(OsStr::new(RHAI_EXTENSION)) {
-        return resolve_rhai(&candidate, &authority, cwd);
+    match candidate.extension().and_then(OsStr::to_str) {
+        Some(RHAI_EXTENSION) => resolve_rhai(&candidate, &authority, cwd),
+        Some("ts" | "mts" | "cts" | "js" | "mjs" | "cjs") => Err(retired_format(&candidate)),
+        _ => Err(Refusal::new(
+            "policy_unreadable",
+            Stage::Authority,
+            EXIT_REFUSED,
+            format!(
+                "the selected policy entry {} has an unsupported extension",
+                candidate.display()
+            ),
+            "name a .rhai file with --config PATH",
+        )
+        .source(candidate.to_string_lossy())),
     }
-    let shown = candidate.to_string_lossy().into_owned();
-    let remedy = match &authority {
-        Authority::Personal => {
-            format!("write {shown} exporting a `policy`, or name another entry with --config PATH")
-        }
-        Authority::Explicit => format!(
-            "check the --config path; a relative path resolves against the current directory {}",
-            cwd.display()
-        ),
-    };
+}
 
-    let metadata = fs::metadata(&candidate).map_err(|error| {
-        let (code, what) = if error.kind() == ErrorKind::NotFound {
-            ("policy_missing", "does not exist".to_owned())
-        } else {
-            ("policy_unreadable", format!("cannot be read: {error}"))
-        };
-        Refusal::new(
-            code,
-            Stage::Authority,
-            EXIT_REFUSED,
-            format!("the selected policy entry {shown} {what}"),
-            remedy.clone(),
-        )
-        .source(shown.clone())
-    })?;
-    if !metadata.is_file() {
-        return Err(Refusal::new(
-            "policy_unreadable",
-            Stage::Authority,
-            EXIT_REFUSED,
-            format!("the selected policy entry {shown} is not a regular file"),
-            remedy,
-        )
-        .source(shown));
-    }
-    let path = fs::canonicalize(&candidate).map_err(|error| {
-        Refusal::new(
-            "policy_unreadable",
-            Stage::Authority,
-            EXIT_REFUSED,
-            format!("the selected policy entry {shown} cannot be resolved: {error}"),
-            remedy.clone(),
-        )
-        .source(shown.clone())
-    })?;
-    let path = import_specifier(&path)
-        .map_err(|why| {
-            Refusal::new(
-                "policy_unreadable",
-                Stage::Authority,
-                EXIT_REFUSED,
-                format!(
-                    "the selected policy entry {shown} resolves to {}, which {why}, so the policy \
-                     worker cannot import that exact file",
-                    path.display()
-                ),
-                "rename the entry, or the directories above it, so that its resolved path is \
-                 UTF-8 with no `?`, or name another entry with --config PATH",
-            )
-            .source(shown.clone())
-        })?
-        .to_owned();
-    fs::read(&path).map_err(|error| {
-        Refusal::new(
-            "policy_unreadable",
-            Stage::Authority,
-            EXIT_REFUSED,
-            format!("the selected policy entry {shown} cannot be read: {error}"),
-            remedy.clone(),
-        )
-        .source(shown.clone())
-    })?;
-    Ok(PolicyEntry {
-        path,
-        format: Format::TypeScript,
-    })
+fn retired_format(path: &Path) -> Refusal {
+    Refusal::new(
+        "policy_format_retired",
+        Stage::Authority,
+        EXIT_REFUSED,
+        format!("the selected policy entry {} is TypeScript or JavaScript, which this release no longer evaluates", path.display()),
+        "write policy.rhai using chapter 4 of the book, \"Write a configuration script\", and name a .rhai file with --config PATH if it is elsewhere",
+    ).source(path.to_string_lossy())
 }
 
 /// Admit `candidate` as an entry of the Rhai path: a regular file, which the
@@ -244,34 +168,13 @@ fn resolve_rhai(
 
     Ok(PolicyEntry {
         path,
-        format: Format::Rhai(RhaiEntry { shown, remedy }),
+        admitted: RhaiEntry { shown, remedy },
     })
-}
-
-/// The canonical `path` as the exact string the worker imports, or why no
-/// string names it. The worker's runtime takes a string, and reads a `?` in it
-/// as the start of a query even through a `file:` URL: under Bun 1.4.2,
-/// `policy.ts?x` loads `policy.ts`, and `d?q/policy.ts` loads `d.ts`. A path
-/// that is not UTF-8 has no exact string, only a lossy one naming another
-/// file. Either would evaluate code other than the file admitted and hashed
-/// here, so both refuse before a worker starts. (`#`, `%`, spaces and newlines
-/// import exactly; a `\` fails to load rather than loading another file.)
-fn import_specifier(path: &Path) -> Result<&str, &'static str> {
-    let path = path.to_str().ok_or("is not valid UTF-8")?;
-    if path.contains('?') {
-        return Err("contains `?`, read by the worker's runtime as a query");
-    }
-    Ok(path)
 }
 
 /// The personal default of the Rhai path under `home`, read by [`resolve`]. (rhai)
 pub fn personal_rhai_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
     Ok(personal_home(home)?.join(PERSONAL_RHAI_DEFAULT))
-}
-
-/// The personal default's path under `home`, read by [`resolve`]. (typescript)
-pub fn personal_default(home: Option<&OsStr>) -> Result<PathBuf, Refusal> {
-    Ok(personal_home(home)?.join(PERSONAL_DEFAULT))
 }
 
 /// `home`, once it is proven to be the absolute directory the personal
@@ -307,24 +210,4 @@ fn personal_home(home: Option<&OsStr>) -> Result<&Path, Refusal> {
         .input("HOME"));
     }
     Ok(home)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::os::unix::ffi::OsStrExt as _;
-
-    #[test]
-    fn only_a_path_the_worker_imports_exactly_is_a_specifier() {
-        for exact in ["/p/policy.ts", "/p/a b#c%41\n.ts", "/p/é/policy.ts"] {
-            assert_eq!(import_specifier(Path::new(exact)), Ok(exact));
-        }
-        for queried in ["/p/policy.ts?x", "/p/d?q/policy.ts"] {
-            let why = import_specifier(Path::new(queried)).unwrap_err();
-            assert!(why.contains('?'), "{queried}: {why}");
-        }
-        // The lossy form of this path is a different, UTF-8 file name.
-        let native = Path::new(OsStr::from_bytes(b"/p/policy-\xff.ts"));
-        assert_eq!(import_specifier(native), Err("is not valid UTF-8"));
-    }
 }

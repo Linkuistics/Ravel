@@ -281,7 +281,7 @@ mod tests {
                 Some("contextBytes"),
             ),
             (
-                r#"{ "policyEnv": ["BUN_OPTIONS"] }"#,
+                r#"{ "policyEnv": ["LD_PRELOAD"] }"#,
                 "excluded_grant",
                 Some("policyEnv"),
             ),

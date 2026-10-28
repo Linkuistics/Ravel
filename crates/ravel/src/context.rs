@@ -10,7 +10,6 @@ use serde_json::{Map, Value, json};
 use sha2::{Digest as _, Sha256};
 
 use crate::limits::{Bound, CONTEXT_MAX_BYTES, Limits, Origin, SOURCE_DEFAULT_BYTES};
-use crate::policy::Language;
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
 /// A version-1 context's fields; the delivered context adds `measured`.
@@ -31,7 +30,7 @@ const EXECUTABLE: [&str; 11] = [
     "argv",
     "command",
     "select",
-    "loadContext",
+    "load_context",
     "env",
     "environment",
     "exec",
@@ -182,7 +181,7 @@ impl Delivered {
 }
 
 /// Where a context came from, for its refusals: the caller's document, or the
-/// policy's `loadContext`.
+/// policy's `load_context`.
 #[derive(Clone, Copy)]
 enum Author {
     Caller,
@@ -210,28 +209,23 @@ fn sorted(value: Value) -> Value {
     }
 }
 
-/// Validate and measure a context. `loader` is the language of the policy
-/// whose loader returned it, or `None` for the caller's `--context` document.
+/// Validate and measure a context, identifying a loader result with `loader`.
 pub fn deliver(
     context: Value,
     sources: Vec<Measured>,
-    loader: Option<Language>,
+    loader: bool,
     limits: &Limits,
     source: &str,
 ) -> Result<Delivered, Refusal> {
-    let shape = match loader {
-        Some(language) => Shape::loader(source, language),
-        None => Shape::caller(source),
+    let shape = if loader {
+        Shape::loader(source)
+    } else {
+        Shape::caller(source)
     };
     if context.is_null() {
-        let language = loader.unwrap_or(Language::TypeScript);
         return Err(shape.invalid(
             "context",
-            format!(
-                "{} returned no context ({})",
-                language.loader(),
-                language.unit()
-            ),
+            "load_context returned no context (the unit value `()`)".to_owned(),
         ));
     }
     shape.validate(&context, limits)?;
@@ -256,7 +250,7 @@ pub fn deliver(
         source_bytes: sources.iter().map(|source| source.bytes).sum(),
         sha256: hex(&Sha256::digest(&encoded)),
         encoded_bytes,
-        loader: loader.is_some(),
+        loader,
         sources,
         value,
     })
@@ -264,16 +258,12 @@ pub fn deliver(
 
 /// The delivered context encodes to more than the budget: its source records
 /// count, and nothing is ever cut to fit.
-pub fn context_too_large(
-    limits: &Limits,
-    actual: u64,
-    source: &str,
-    loader: Option<Language>,
-) -> Refusal {
+pub fn context_too_large(limits: &Limits, actual: u64, source: &str, loader: bool) -> Refusal {
     let budget = limits.context.value;
-    let deliver_less = match loader {
-        Some(language) => format!("have {} in {source} deliver less", language.loader()),
-        None => "shorten the --context document".to_owned(),
+    let deliver_less = if loader {
+        format!("have load_context in {source} deliver less")
+    } else {
+        "shorten the --context document".to_owned()
     };
     let refusal = Refusal::new(
         "context_too_large",
@@ -315,8 +305,8 @@ pub fn too_many_sources(limits: &Limits, count: u64, source: &str) -> Refusal {
     .bound(limits.sources)
 }
 
-/// What the worker reported about an SDK read over its limit. `limit` is the
-/// read's own, `from` the origin of that limit, and `requested` a `maxBytes`
+/// What the worker reported about a host read over its limit. `limit` is the
+/// read's own, `from` the origin of that limit, and `requested` a `max_bytes`
 /// above the context budget, which no read may exceed.
 pub struct SourceBreach {
     pub name: String,
@@ -326,24 +316,11 @@ pub struct SourceBreach {
     pub requested: Option<u64>,
 }
 
-pub fn source_too_large(
-    limits: &Limits,
-    breach: &SourceBreach,
-    entry: &str,
-    language: Language,
-) -> Refusal {
+pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> Refusal {
     let budget = limits.context.value;
     let name = &breach.name;
-    // Who read: the loader of 1.x, which was the only place a read was allowed,
-    // or the policy, which reads at its top level, in `load_context` and in `select`.
-    let reader = match language {
-        Language::TypeScript => format!("loadContext in {entry}"),
-        Language::Rhai => format!("the policy {entry}"),
-    };
-    let max_bytes = match language {
-        Language::TypeScript => "maxBytes",
-        Language::Rhai => "max_bytes",
-    };
+    let reader = format!("the policy {entry}");
+    let max_bytes = "max_bytes";
     let (message, remedy, bound) = match breach.requested {
         Some(requested) => (
             format!(
@@ -385,7 +362,7 @@ pub fn source_too_large(
                     "read a smaller source: the read already takes the whole context budget, at \
                      its ceiling of {CONTEXT_MAX_BYTES} bytes, and a read is never truncated"
                 )
-            } else if matches!(breach.from, Origin::Set("maxBytes" | "max_bytes")) {
+            } else if matches!(breach.from, Origin::Set("max_bytes")) {
                 format!(
                     "raise the context budget with contextBytes in the owner \
                      settings or --context-bytes, up to {CONTEXT_MAX_BYTES}: a \
@@ -417,10 +394,7 @@ pub fn source_too_large(
         remedy,
     )
     .source(name.clone())
-    .location(match language {
-        Language::TypeScript => "host.readText",
-        Language::Rhai => "ravel::read_text",
-    })
+    .location("ravel::read_text")
     .bound(bound)
 }
 
@@ -429,8 +403,6 @@ pub fn source_too_large(
 struct Shape<'a> {
     source: &'a str,
     author: Author,
-    /// The language of the loader, for the words of a refusal about its result.
-    language: Language,
 }
 
 impl<'a> Shape<'a> {
@@ -438,15 +410,13 @@ impl<'a> Shape<'a> {
         Shape {
             source,
             author: Author::Caller,
-            language: Language::TypeScript,
         }
     }
 
-    fn loader(source: &'a str, language: Language) -> Self {
+    fn loader(source: &'a str) -> Self {
         Shape {
             source,
             author: Author::Loader,
-            language,
         }
     }
 
@@ -455,21 +425,15 @@ impl<'a> Shape<'a> {
             Author::Caller => (
                 message,
                 format!(
-                    "correct {location} in the --context document {}; the types in \
-                     ravel/sdk describe a version-1 context",
+                    "correct {location} in the --context document {}; a version-1 context is a map with schemaVersion 1",
                     self.source
                 ),
             ),
             Author::Loader => (
+                format!("the context load_context returned is invalid: {message}"),
                 format!(
-                    "the context {} returned is invalid: {message}",
-                    self.language.loader()
-                ),
-                format!(
-                    "correct what {} in {} returns at {location}{}",
-                    self.language.loader(),
-                    self.source,
-                    self.language.context_types()
+                    "correct what load_context in {} returns at {location}; a version-1 context is a map with schemaVersion 1",
+                    self.source
                 ),
             ),
         };
@@ -532,11 +496,9 @@ impl<'a> Shape<'a> {
                      no program, argument, environment or policy"
                 )
             } else if unknown == "measured" && matches!(self.author, Author::Loader) {
-                format!(
-                    "`measured` is what ravel measured, and it attaches that itself; \
-                     {} cannot supply it",
-                    self.language.loader()
-                )
+                "`measured` is what ravel measured, and it attaches that itself; \
+                 load_context cannot supply it"
+                    .to_owned()
             } else {
                 format!("unknown field `{unknown}`")
             };
@@ -560,9 +522,7 @@ impl<'a> Shape<'a> {
             }
         }
         if let Some(facts) = context.get("facts") {
-            for (key, fact) in self.object(facts, "context.facts")? {
-                self.data(fact, &format!("context.facts[{}]", quoted(key)))?;
-            }
+            self.object(facts, "context.facts")?;
         }
         if let Some(assessments) = context.get("assessments") {
             for (key, assessment) in self.object(assessments, "context.assessments")? {
@@ -603,7 +563,8 @@ impl<'a> Shape<'a> {
             "an assessment is { by, value }",
         )?;
         self.string(self.field(fields, "by", at)?, &format!("{at}.by"), true)?;
-        self.data(self.field(fields, "value", at)?, &format!("{at}.value"))
+        self.field(fields, "value", at)?;
+        Ok(())
     }
 
     /// A source record names its evidence and identifies it by digest or
@@ -656,40 +617,6 @@ impl<'a> Shape<'a> {
         Ok(())
     }
 
-    /// Any JSON value, as data, except the worker's marker for a value JSON
-    /// cannot carry, anywhere inside it.
-    fn data(&self, value: &Value, at: &str) -> Result<(), Refusal> {
-        match value {
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    self.data(item, &format!("{at}[{index}]"))?;
-                }
-                Ok(())
-            }
-            Value::Object(_) if is_marker(value) => Err(self.reserved(value, at)),
-            Value::Object(fields) => {
-                for (key, field) in fields {
-                    self.data(field, &format!("{at}[{}]", quoted(key)))?;
-                }
-                Ok(())
-            }
-            _ => Ok(()),
-        }
-    }
-
-    fn reserved(&self, marker: &Value, at: &str) -> Refusal {
-        let message = match self.author {
-            Author::Caller => "an object whose only key is `$ravel` is reserved: the \
-                               worker uses it to mark a value that JSON cannot carry"
-                .to_owned(),
-            Author::Loader => format!(
-                "{} cannot be carried in JSON, so no context can deliver it",
-                self.describe(marker)
-            ),
-        };
-        self.invalid(at, message)
-    }
-
     fn known(
         &self,
         fields: &Map<String, Value>,
@@ -719,7 +646,6 @@ impl<'a> Shape<'a> {
 
     fn object<'v>(&self, value: &'v Value, at: &str) -> Result<&'v Map<String, Value>, Refusal> {
         match value.as_object() {
-            Some(_) if is_marker(value) => Err(self.reserved(value, at)),
             Some(object) => Ok(object),
             None => Err(self.invalid(
                 at,
@@ -750,8 +676,7 @@ impl<'a> Shape<'a> {
         Ok(text)
     }
 
-    /// A value's type, for "found …" messages. Only a loader's result can hold
-    /// a marker the worker wrote; in a caller's document it is an object.
+    /// A JSON value's type for refusal messages.
     fn describe(&self, value: &Value) -> String {
         match value {
             Value::Null => "null".to_owned(),
@@ -759,20 +684,9 @@ impl<'a> Shape<'a> {
             Value::Number(_) => "a number".to_owned(),
             Value::String(_) => "a string".to_owned(),
             Value::Array(_) => "an array".to_owned(),
-            Value::Object(object) => match (self.author, object.get("$ravel")) {
-                (Author::Loader, Some(Value::String(kind))) if object.len() == 1 => {
-                    format!("a {kind}")
-                }
-                _ => "an object".to_owned(),
-            },
+            Value::Object(_) => "an object".to_owned(),
         }
     }
-}
-
-fn is_marker(value: &Value) -> bool {
-    value
-        .as_object()
-        .is_some_and(|object| object.len() == 1 && object.contains_key("$ravel"))
 }
 
 /// A key as a JSON string, for locations such as `context.facts["risk"]`.
@@ -808,9 +722,20 @@ mod tests {
         let shape = Shape {
             source: "/work/context.json",
             author,
-            language: Language::Rhai,
         };
         shape.validate(&value, &limits()).unwrap_err()
+    }
+
+    #[test]
+    fn a_literal_dollar_ravel_map_is_plain_context_data() {
+        let value = json!({"schemaVersion": 1, "facts": {"literal": {"$ravel": "function"}}});
+        for loader in [false, true] {
+            let delivered = deliver(value.clone(), Vec::new(), loader, &limits(), "c").unwrap();
+            assert_eq!(
+                delivered.value["facts"]["literal"],
+                json!({"$ravel": "function"})
+            );
+        }
     }
 
     #[test]
@@ -867,10 +792,6 @@ mod tests {
                 "context.acceptanceCriteria[1]",
             ),
             (json!({ "schemaVersion": 1, "facts": [] }), "context.facts"),
-            (
-                json!({ "schemaVersion": 1, "facts": { "a": { "b": [{ "$ravel": "function" }] } } }),
-                "context.facts[\"a\"][\"b\"][0]",
-            ),
             (
                 json!({ "schemaVersion": 1, "assessments": { "risk": "high" } }),
                 "context.assessments[\"risk\"]",
@@ -946,34 +867,6 @@ mod tests {
     }
 
     #[test]
-    fn a_marker_is_named_for_what_it_marks_only_in_a_loaders_result() {
-        let marker = json!({ "$ravel": "function" });
-        let typed = json!({ "schemaVersion": 1, "summary": marker });
-        let loader = refused(Author::Loader, typed.clone());
-        assert!(
-            loader.message.contains("found a function"),
-            "{}",
-            loader.message
-        );
-        let caller = refused(Author::Caller, typed);
-        assert!(
-            caller.message.contains("found an object"),
-            "{}",
-            caller.message
-        );
-
-        let free = json!({ "schemaVersion": 1, "facts": { "f": marker } });
-        let loader = refused(Author::Loader, free.clone());
-        assert!(
-            loader.message.contains("a function cannot be carried"),
-            "{}",
-            loader.message
-        );
-        let caller = refused(Author::Caller, free);
-        assert!(caller.message.contains("is reserved"), "{}", caller.message);
-    }
-
-    #[test]
     fn more_source_records_than_the_bound_refuse_by_name() {
         let record = json!({ "name": "x", "version": "1" });
         let at_bound = json!({ "schemaVersion": 1, "sources": vec![record.clone(); 256] });
@@ -995,7 +888,7 @@ mod tests {
         let delivered = deliver(
             json!({ "summary": "s", "schemaVersion": 1 }),
             vec![source],
-            None,
+            false,
             &limits(),
             "/work/context.json",
         )
@@ -1011,13 +904,13 @@ mod tests {
         let at_bound = deliver(
             context.clone(),
             delivered.sources.clone(),
-            None,
+            false,
             &exact,
             "c",
         );
         assert!(at_bound.is_ok());
         let over = budget(encoded.len() - 1);
-        let refusal = deliver(context, delivered.sources, None, &over, "c").unwrap_err();
+        let refusal = deliver(context, delivered.sources, false, &over, "c").unwrap_err();
         assert_eq!(refusal.code, "context_too_large");
         assert_eq!(refusal.input.as_deref(), Some("--context-bytes"));
     }
@@ -1031,7 +924,7 @@ mod tests {
             serde_json::from_str(r#"{"summary":"s","facts":{"x":2,"y":1},"schemaVersion":1}"#)
                 .unwrap();
         let measure = |context: Value| {
-            deliver(context, Vec::new(), None, &limits(), "c")
+            deliver(context, Vec::new(), false, &limits(), "c")
                 .unwrap()
                 .sha256
         };

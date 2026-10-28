@@ -34,14 +34,14 @@ pub const CONTEXT_DEFAULT_BYTES: u64 = 256 * 1024;
 pub const CONTEXT_MIN_BYTES: u64 = 1;
 pub const CONTEXT_MAX_BYTES: u64 = 8 * 1024 * 1024;
 
-/// One SDK source read, by default; never more than the context budget.
+/// One host source read, by default; never more than the context budget.
 pub const SOURCE_DEFAULT_BYTES: u64 = 64 * 1024;
 
 /// Measured context sources, the `--context` document included, and the
 /// records a context's `sources` array may hold.
 pub const SOURCES_LIMIT: u64 = 256;
 
-/// A policy snapshot or selection result as a protocol message, in bytes.
+/// A selection result as a protocol message, in bytes.
 pub const MESSAGE_BYTES: u64 = 1024 * 1024;
 
 /// The worker's stdout and stderr together, in bytes.
@@ -53,8 +53,7 @@ pub const DIAGNOSTICS_BYTES: u64 = 256 * 1024;
 pub const HARNESS_RUNS_DEFAULT: u64 = 0;
 pub const HARNESS_RUNS_MAX: u64 = 16;
 
-/// The effective budgets. They are no part of the 1.x `bounds` of the notice or
-/// of the request of the TypeScript path.
+/// The effective budgets, joined to the time and size bounds in the routing notice.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Budgets {
     pub harness_runs: u64,
@@ -284,19 +283,6 @@ impl Limits {
         }
         Value::Object(bounds)
     }
-
-    /// What the policy sees as `request.limits`: each effective value, in the
-    /// units its name says.
-    pub fn to_request(self) -> Value {
-        json!({
-            "selectionMs": self.selection.value,
-            "contextBytes": self.context.value,
-            "sourceBytes": self.source.value,
-            "sources": self.sources.value,
-            "messageBytes": self.message.value,
-            "diagnosticsBytes": self.diagnostics.value,
-        })
-    }
 }
 
 /// A flag replaces the owner's setting, which replaces the default.
@@ -410,9 +396,8 @@ mod tests {
             limits.budgets.bounds().map(Bound::to_json),
             [json!({ "runs": 16, "from": "settings.json" })]
         );
-        // The 1.x notice and request do not carry them.
+        // The caller adds budgets beside the time and size bounds.
         assert!(limits.to_json().get("harnessRuns").is_none());
-        assert!(limits.to_request().get("harnessRuns").is_none());
     }
 
     #[test]

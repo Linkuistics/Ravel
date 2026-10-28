@@ -1555,8 +1555,7 @@ document as `context_invalid` and names a field.
 
 JSON data allows null, booleans, finite numbers, strings, arrays and objects of
 JSON values. Ravel cannot deliver cycles, executable values or other values
-that are not JSON. Ravel reserves an object whose only key is `$ravel`, also
-inside facts or assessment values, and refuses it as `context_invalid`. See
+that are not JSON. An object whose only key is `$ravel` is ordinary JSON data. See
 [JSON data in selection context](04-writing-an-owner-policy.md#supply-selection-context).
 
 | Type and field | Accepted value or meaning | Taught in |

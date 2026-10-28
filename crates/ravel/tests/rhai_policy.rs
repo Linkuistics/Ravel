@@ -289,6 +289,110 @@ fn an_uncaught_error_refuses_with_its_file_line_and_column() {
 }
 
 #[test]
+fn retired_policy_formats_refuse_before_opening_or_evaluating_them() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    // A Rhai body would launch if the extension check accidentally admitted it.
+    for extension in ["ts", "mts", "cts", "js", "mjs", "cjs"] {
+        let path = sandbox.file(&format!("retired.{extension}"), rhai::ROUTED);
+        for present in [true, false] {
+            if !present {
+                fs::remove_file(&path).unwrap();
+            }
+            let error = refused(
+                &start(&sandbox, &["--config", &text(&path)]),
+                "policy_format_retired",
+                Some(&recorded),
+            );
+            assert_eq!(error["stage"], "authority");
+            assert_eq!(error["source"], text(&path));
+            let remedy = error["remedy"].as_str().unwrap();
+            assert!(
+                remedy.contains("policy.rhai") && remedy.contains("chapter 4"),
+                "{error}"
+            );
+        }
+    }
+    support::write(&sandbox.home.join(".config/ravel/policy.ts"), rhai::ROUTED);
+    refused(
+        &start(&sandbox, &[]),
+        "policy_format_retired",
+        Some(&recorded),
+    );
+}
+
+#[test]
+fn unsupported_policy_extensions_ask_for_a_rhai_file_without_evaluating() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    for name in ["route", "route.txt", "route.tsx", "route.RHAI"] {
+        let path = sandbox.file(name, rhai::ROUTED);
+        let error = refused(
+            &start(&sandbox, &["--config", &text(&path)]),
+            "policy_unreadable",
+            Some(&recorded),
+        );
+        assert_eq!(error["stage"], "authority");
+        assert!(
+            error["remedy"].as_str().unwrap().contains(".rhai"),
+            "{error}"
+        );
+    }
+}
+
+#[test]
+fn bun_and_node_names_are_ordinary_environment_grants() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    sandbox.personal_rhai(&routing("[ravel::env(request.params.name)]"));
+    for name in [
+        "BUN_OPTIONS",
+        "BUN_BE_BUN",
+        "BUN_RUNTIME_TRANSPILER_CACHE_PATH",
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "NODE_PRESERVE_SYMLINKS",
+        "NODE_CHANNEL_FD",
+        "NODE_CHANNEL_SERIALIZATION_MODE",
+    ] {
+        // Both settings and flags must accept the name, and the host read must
+        // return the caller's value without interpreting it as a runtime option.
+        for setting in [false, true] {
+            support::write(
+                &sandbox.home.join(".config/ravel/settings.json"),
+                &if setting {
+                    json!({"policyEnv": [name]}).to_string()
+                } else {
+                    "{}".to_owned()
+                },
+            );
+            let mut command = sandbox.command();
+            command.env(name, "ordinary grant");
+            command.args([
+                "start-session",
+                "--kind",
+                "check",
+                "--prompt",
+                "p",
+                "--json",
+                "--param",
+                &format!("name={name}"),
+            ]);
+            if !setting {
+                command.args(["--policy-env", name]);
+            }
+            let output = command.output().unwrap();
+            assert!(
+                output.status.success(),
+                "{name}: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            assert_eq!(recorded.argv().unwrap(), ["ordinary grant"]);
+        }
+    }
+}
+
+#[test]
 fn both_files_prefer_policy_rhai_and_never_open_policy_ts() {
     let sandbox = Sandbox::new();
     let typescript = sandbox.home.join(".config/ravel/policy.ts");

@@ -242,7 +242,7 @@ tasks:
       - bash scripts/native-linux.sh image {{.PLATFORM}}
 
   test:native-linux:
-    desc: Run the whole native support measurement on a GNU/Linux target in Docker (OUT must not exist)
+    desc: Run current Rust, Rhai and native-entry checks on a GNU/Linux target in Docker (OUT must not exist)
     requires:
       vars:
         - name: PLATFORM

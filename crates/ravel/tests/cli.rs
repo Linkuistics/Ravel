@@ -326,7 +326,7 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
     for name in [
         "RAVEL_EXIT_FILE",
         "HARNESS_DISPATCH_EXIT_FILE",
-        "BUN_OPTIONS",
+        "LD_PRELOAD",
     ] {
         let path = fixture.root.join("policy.rhai");
         let output = fixture

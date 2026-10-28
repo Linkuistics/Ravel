@@ -6,14 +6,6 @@
 //! role (`role`) is chosen by `arg0`, because it accepts no command-line input.
 //! It reads one source from the evaluate frame, because it reads no file.
 //!
-//! What the removal increment does with the code beside this module:
-//!
-//! - It keeps this whole module, and in `worker.rs` the supervision (`supervise`,
-//!   `Launch`, `Supervised`, `Conversation`, `Bounded` and everything they own).
-//! - It removes the Bun protocol in `worker.rs` (`evaluate`, `locate`,
-//!   `converse`, `verify_hello`, `Loaded` and the frame readers), `policy.rs`,
-//!   and the build script's digest of the TypeScript sources.
-//!
 //! The wire protocol is length-prefixed JSON frames (`frame.rs`):
 //!
 //! | Frame | From | Fields |
@@ -59,7 +51,7 @@ use crate::limits::Limits;
 /// whole of `argv[0]` to it, so a path that ends in this name is no role.
 pub const ARG0: &str = "ravel-rhai-policy-worker";
 
-/// The version of this protocol. The Bun protocol has its own.
+/// The version of the internal worker protocol.
 pub const PROTOCOL: u64 = 1;
 
 /// The Rhai release the worker is built with, which `Cargo.toml` pins.

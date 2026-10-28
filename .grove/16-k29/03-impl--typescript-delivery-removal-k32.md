@@ -30,6 +30,8 @@ Remove the Bun worker, the TypeScript SDK and their build and release machinery.
 
 ## Notes
 
+- k101 removed the runtime path and brought forward retirement of the frozen incumbent/R01 from `test:native-linux`, after a real Linux run failed on the now-Rhai fixture and deliberately retired Bun test identities. That task now runs current Rhai, native-entry, check and test tasks with source digests; it makes no new frozen-campaign claim. Keep historical campaign receipts intact when removing the old tooling. The remaining executable TypeScript policies are delivery-only fixtures in `crates/ravel/scripts/installed-smoke.sh` and `scripts/templates/ravel.rb.tmpl`, plus the retired probe exercise in `scripts/release-formula.test.rb`. Reconcile or delete them with their existing delivery ownership. Current runtime tests and complete book examples use Rhai.
+
 - Parts I and II proof requires the final third-party-notice path to reach the book.
   Chapter 6 and `installed-files.typ` currently name the notices without a path.
   Record the final path here for `rhai-book-inside-k34` to reconcile in chapter 6 and the shared installed-file figure.

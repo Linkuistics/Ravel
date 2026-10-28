@@ -18,14 +18,14 @@ pub struct Cli {
 }
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Route the prompt unchanged through owner policy and supervise its selected process
+    /// Route the prompt unchanged through an owner Rhai policy and supervise its selected process
     #[command(
-        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, policy refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.ts --param profile=careful --prompt 'Check and end with a result'"
+        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, policy refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.rhai --param profile=careful --prompt 'Check and end with a result'"
     )]
     StartSession(Box<RunArgs>),
     /// Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
     #[command(
-        after_help = "The command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no policy.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
+        after_help = "The command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no Rhai policy.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
     )]
     EndSession {
         #[arg(value_name = "RESULT")]
@@ -72,7 +72,7 @@ pub struct SelectionArgs {
     /// The task's stable identity: opaque UTF-8, at most 1024 bytes
     #[arg(long, value_name = "ID", allow_hyphen_values = true)]
     pub task_id: Option<OsString>,
-    /// Evaluate this policy entry instead of the personal default; relative to the current directory
+    /// Evaluate this Rhai policy entry instead of ~/.config/ravel/policy.rhai; relative to the current directory
     #[arg(long, value_name = "PATH")]
     pub config: Option<PathBuf>,
     /// Caller data for the policy's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes
@@ -88,7 +88,7 @@ pub struct SelectionArgs {
     #[arg(long, value_name = "BYTES")]
     pub context_bytes: Option<OsString>,
 
-    /// Let the policy worker, and not the managed process, see this environment variable with the caller's value, beyond its HOME, PATH, TMPDIR, LANG and LC_* base; repeatable, added to the policyEnv owner setting. Names Ravel reserves refuse: BUN_*, NODE_OPTIONS, NODE_PATH, NODE_PRESERVE_SYMLINKS, NODE_CHANNEL_*, LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
+    /// Let the Rhai policy read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the policyEnv owner setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
     #[arg(long, value_name = "NAME")]
     pub policy_env: Vec<OsString>,
 }

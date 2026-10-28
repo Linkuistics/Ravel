@@ -1,10 +1,10 @@
 //! The front's half of the private protocol channel: length-prefixed JSON.
 //!
 //! A frame is a four-byte big-endian length followed by that many bytes of
-//! UTF-8 JSON, the same encoding `worker/src/channel.ts` writes. The channel is
+//! UTF-8 JSON. Both the Ravel CLI and the internal Rhai worker use this module. The channel is
 //! a socket pair the front creates; the worker's end is its descriptor 3.
 //!
-//! Each read names the largest frame it accepts. A policy snapshot and a
+//! Each read names the largest frame it accepts. A context and a
 //! selection result are bounded by the fixed protocol message bound, and a
 //! context by the caller's context budget. The worker checks each of its
 //! frames against the same bound before it sends it, and reports an overflow
@@ -26,7 +26,7 @@ const HARNESS_REPLY_BYTES: u64 = 3 * 6 * MESSAGE_BYTES + MESSAGE_BYTES;
 /// caller's context, which the front re-encodes, beside the request, whose
 /// prompt and parameters the factor of two leaves room for. A reply to a
 /// harness run can be larger, and then it sets the bound. The worker accepts
-/// the same (`worker/src/channel.ts`).
+/// the same bound in `rhai_worker::role`.
 pub const FRONT_FRAME_BYTES: usize = {
     let evaluate = 2 * CONTEXT_MAX_BYTES + MESSAGE_BYTES;
     (if evaluate > HARNESS_REPLY_BYTES {

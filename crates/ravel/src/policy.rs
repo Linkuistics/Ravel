@@ -1,36 +1,9 @@
-//! Validate a policy snapshot, then judge what its `select` returned
-//! (`docs/specs/session-execution.md`, *Policy and the selected
-//! command*).
-//!
-//! The worker hands over the entry's `policy` export as JSON, with any value
-//! JSON cannot carry replaced by a `{"$ravel": "<type>"}` marker, and
-//! later the value `select` produced, marked the same way. This module is the
-//! one validator for both: every refusal names the location it found, in the
-//! form `policy.select` or `result.args[2]`, and nothing invalid is ever
-//! repaired into something that passes.
-//!
-//! Only the shape is judged. A selected result is the command to run, and
-//! what it holds is the owner's function's: nothing here checks that the
-//! prompt is among the arguments, that the program is one the owner listed
-//! anywhere, or that a kind has a route.
+//! Validate the plain JSON result of Rhai selection and loader refusals.
 
 use serde_json::{Map, Value};
 
 use crate::limits::Limits;
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
-use crate::worker::{Breach, Produced};
-
-/// The policy contract this release evaluates.
-pub const SCHEMA_VERSION: u64 = 2;
-
-const TOP_LEVEL: [&str; 4] = ["schemaVersion", "version", "select", "loadContext"];
-
-#[derive(Debug)]
-pub struct Policy {
-    pub version: String,
-    /// Whether it has a `loadContext`, which only the worker can call.
-    pub loader: bool,
-}
 
 /// The selected command: what `select` returned when it did not refuse. The
 /// program and arguments are run as they are, each argument one whole word,
@@ -45,280 +18,22 @@ pub struct Command {
     pub reason: String,
 }
 
-/// Validates against one source file, so each refusal can name it.
-pub struct Validator<'a> {
-    source: &'a str,
-}
-
-impl<'a> Validator<'a> {
-    pub fn new(source: &'a str) -> Self {
-        Validator { source }
-    }
-
-    fn invalid(&self, location: &str, message: impl Into<String>) -> Refusal {
-        Refusal::new(
-            "policy_invalid",
-            Stage::Validation,
-            EXIT_REFUSED,
-            message,
-            format!(
-                "correct {location} in {}; the types in ravel/sdk describe a \
-                 version-{SCHEMA_VERSION} policy",
-                self.source
-            ),
-        )
-        .source(self.source)
-        .location(location)
-    }
-
-    pub fn validate(&self, snapshot: &Value) -> Result<Policy, Refusal> {
-        let policy = match snapshot.as_object() {
-            Some(object) if !is_marker(snapshot) => object,
-            _ => {
-                return Err(self.invalid(
-                    "policy",
-                    format!("expected an object, found {}", describe(snapshot)),
-                ));
-            }
-        };
-
-        // The version comes first: another schema's fields are not unknown to it.
-        let schema = policy
-            .get("schemaVersion")
-            .ok_or_else(|| self.invalid("policy.schemaVersion", "`schemaVersion` is missing"))?;
-        match schema.as_u64() {
-            Some(SCHEMA_VERSION) => {}
-            Some(other) => {
-                let unsupported = |message: String, remedy: String| {
-                    Refusal::new(
-                        "unsupported_version",
-                        Stage::Validation,
-                        EXIT_REFUSED,
-                        message,
-                        remedy,
-                    )
-                    .source(self.source)
-                    .location("policy.schemaVersion")
-                };
-                return Err(if other == 1 {
-                    unsupported(
-                        "schemaVersion 1 is the catalog contract, which this release no longer \
-                         reads: a policy is now one `select` that returns the command to run"
-                            .to_owned(),
-                        format!(
-                            "rewrite {} to schemaVersion {SCHEMA_VERSION}: drop `catalog` and \
-                             `routes`, and have `select` return {{ status: \"selected\", program, \
-                             args, provider, model, effort, reason }}, building `args` from \
-                             `request.prompt` and its other fields; nothing converts a version-1 \
-                             policy, and the types in ravel/sdk describe the contract",
-                            self.source
-                        ),
-                    )
-                } else {
-                    unsupported(
-                        format!(
-                            "schemaVersion {other} is not supported; this release reads \
-                             schemaVersion {SCHEMA_VERSION}"
-                        ),
-                        format!(
-                            "write schemaVersion {SCHEMA_VERSION} in {}, or upgrade \
-                             ravel",
-                            self.source
-                        ),
-                    )
-                });
-            }
-            None => {
-                return Err(self.invalid(
-                    "policy.schemaVersion",
-                    format!(
-                        "`schemaVersion` must be the number {SCHEMA_VERSION}, found {}",
-                        describe(schema)
-                    ),
-                ));
-            }
-        }
-        if let Some(unknown) = policy.keys().find(|key| !TOP_LEVEL.contains(&key.as_str())) {
-            return Err(self.invalid(
-                &format!("policy.{unknown}"),
-                format!(
-                    "unknown field `{unknown}`: a policy has only {}",
-                    TOP_LEVEL.join(", ")
-                ),
-            ));
-        }
-
-        let function = |field: &str| match policy.get(field) {
-            Some(value) if is_function(value) => Ok(()),
-            Some(value) => Err(self.invalid(
-                &format!("policy.{field}"),
-                format!("`{field}` must be a function, found {}", describe(value)),
-            )),
-            None => Err(self.invalid(&format!("policy.{field}"), format!("`{field}` is missing"))),
-        };
-        let loader = policy
-            .get("loadContext")
-            .is_some_and(|value| !value.is_null());
-        if loader {
-            function("loadContext")?;
-        }
-        let version = match policy.get("version") {
-            Some(Value::String(version)) if !version.trim().is_empty() => version.clone(),
-            Some(Value::String(_)) => {
-                return Err(self.invalid("policy.version", "`version` must not be blank"));
-            }
-            Some(other) => {
-                return Err(self.invalid(
-                    "policy.version",
-                    format!("`version` must be a string, found {}", describe(other)),
-                ));
-            }
-            None => return Err(self.invalid("policy.version", "`version` is missing")),
-        };
-        function("select")?;
-        Ok(Policy { version, loader })
-    }
-}
-
 const SELECTED_FIELDS: [&str; 7] = [
     "status", "program", "args", "provider", "model", "effort", "reason",
 ];
 const REFUSED_FIELDS: [&str; 4] = ["status", "code", "message", "remedy"];
 
-/// Judge what a valid policy's `select` produced. A selected result is the
-/// command to run: a program, an array of string arguments, and nonblank
-/// labels and reason. A refusal it returns must say what and why. Every other
-/// value refuses, each kind with its own code, and nothing is ever run in its
-/// place.
-pub fn selected(
-    produced: Produced,
-    kind: &str,
-    source: &str,
-    limits: &Limits,
-) -> Result<Command, Refusal> {
-    let shape = format!(
-        "return {{ status: \"selected\", program, args, provider, model, effort, reason }} or \
-         {{ status: \"refused\", code, message, remedy }} from select in {source}; the types in \
-         ravel/sdk describe both"
-    );
-    let refuse = |code: &'static str, message: String, remedy: String, location: &str| {
-        Refusal::new(code, Stage::Selection, EXIT_REFUSED, message, remedy)
-            .source(source)
-            .location(location)
-    };
-    let malformed = |location: &str, message: String| {
-        refuse("selection_malformed", message, shape.clone(), location)
-    };
-
-    let result = match produced {
-        Produced::Result(result) => result,
-        Produced::Threw { name, message } => {
-            return Err(refuse(
-                "selection_threw",
-                format!("select in {source} threw, or its promise rejected: {name}: {message}"),
-                format!(
-                    "fix select in {source} so that it returns a result on every path; to \
-                     decline, return {{ status: \"refused\", code, message, remedy }} rather \
-                     than throwing"
-                ),
-                "policy.select",
-            ));
-        }
-        Produced::Unsettled => {
-            return Err(refuse(
-                "selection_unsettled",
-                format!(
-                    "select in {source} returned a promise that never settled: it was still \
-                     pending when nothing was left running that could settle it"
-                ),
-                "make every path through select resolve or reject its promise; an await on \
-                 something that will never complete leaves it pending"
-                    .to_owned(),
-                "policy.select",
-            ));
-        }
-        Produced::Unserializable { name, message } => {
-            return Err(malformed(
-                "result",
-                format!("the result of select cannot be serialized: {name}: {message}"),
-            ));
-        }
-        Produced::Breach(breach) => {
-            return Err(message_too_large(Stage::Selection, &breach, source, limits));
-        }
-    };
-
-    judge_result(result, kind, source, Language::TypeScript)
+/// The result shapes `select` may return, as a remedy.
+pub fn shape(source: &str) -> String {
+    format!(
+        "return #{{ status: \"selected\", program, args, provider, model, effort, reason }} or \
+         #{{ status: \"refused\", code, message, remedy }} from select in {source}"
+    )
 }
 
-/// The language a policy is written in, which decides how a refusal tells the
-/// owner to repair the result of `select`.
-#[derive(Clone, Copy, Debug)]
-pub enum Language {
-    /// (typescript)
-    TypeScript,
-    /// (rhai)
-    Rhai,
-}
-
-impl Language {
-    /// The result shapes `select` may return, as a remedy.
-    pub fn shape(self, source: &str) -> String {
-        match self {
-            Language::TypeScript => format!(
-                "return {{ status: \"selected\", program, args, provider, model, effort, reason }} or \
-                 {{ status: \"refused\", code, message, remedy }} from select in {source}; the types in \
-                 ravel/sdk describe both"
-            ),
-            Language::Rhai => format!(
-                "return #{{ status: \"selected\", program, args, provider, model, effort, reason }} or \
-                 #{{ status: \"refused\", code, message, remedy }} from select in {source}"
-            ),
-        }
-    }
-
-    /// What the policy calls its context loader.
-    pub fn loader(self) -> &'static str {
-        match self {
-            Language::TypeScript => "loadContext",
-            Language::Rhai => "load_context",
-        }
-    }
-
-    /// How a message points at the description of a version-1 context.
-    pub fn context_types(self) -> &'static str {
-        match self {
-            Language::TypeScript => "; the types in ravel/sdk describe a version-1 context",
-            Language::Rhai => "; a version-1 context is a map with schemaVersion 1",
-        }
-    }
-
-    /// The value that stands for no value.
-    pub fn unit(self) -> &'static str {
-        match self {
-            Language::TypeScript => "undefined or null",
-            Language::Rhai => "the unit value `()`",
-        }
-    }
-
-    fn nothing(self) -> &'static str {
-        match self {
-            Language::TypeScript => "no result (undefined or null)",
-            Language::Rhai => "no result (the unit value `()`)",
-        }
-    }
-}
-
-/// Judge the value `select` returned, in the words of `language`. Both paths
-/// apply the same 1.x checks. The Rhai path calls this directly, with a result
-/// its worker already converted to JSON.
-pub fn judge_result(
-    result: Value,
-    kind: &str,
-    source: &str,
-    language: Language,
-) -> Result<Command, Refusal> {
-    let shape = language.shape(source);
+/// Judge the value `select` returned, already converted to JSON by the worker.
+pub fn judge_result(result: Value, kind: &str, source: &str) -> Result<Command, Refusal> {
+    let shape = shape(source);
     let refuse = |code: &'static str, message: String, remedy: String, location: &str| {
         Refusal::new(code, Stage::Selection, EXIT_REFUSED, message, remedy)
             .source(source)
@@ -332,15 +47,14 @@ pub fn judge_result(
         return Err(refuse(
             "selection_abstained",
             format!(
-                "select in {source} returned {}, so it selected nothing",
-                language.nothing()
+                "select in {source} returned no result (the unit value `()`), so it selected nothing"
             ),
             format!("{shape}; ravel never picks a command for a policy that abstains"),
             "result",
         ));
     }
     let fields = match result.as_object() {
-        Some(fields) if !is_marker(&result) => fields,
+        Some(fields) => fields,
         _ => {
             return Err(malformed(
                 "result",
@@ -466,32 +180,17 @@ pub fn judge_result(
 /// refusal, reported as `select`'s is but at the context stage, and `select`
 /// is never asked. Anything else with a `status` is neither a context nor a
 /// refusal, and is refused where it sits.
-pub fn loader_refused(
-    fields: &Map<String, Value>,
-    kind: &str,
-    source: &str,
-    language: Language,
-) -> Refusal {
+pub fn loader_refused(fields: &Map<String, Value>, kind: &str, source: &str) -> Refusal {
     let malformed = |location: &str, message: String| {
         Refusal::new(
             "context_invalid",
             Stage::Context,
             EXIT_REFUSED,
+            format!("load_context in {source} returned neither a context nor a refusal: {message}"),
             format!(
-                "{} in {source} returned neither a context nor a refusal: {message}",
-                language.loader()
+                "return a version-1 context, or #{{ status: \"refused\", code, message, remedy }} \
+                 to decline, from load_context in {source}"
             ),
-            match language {
-                Language::TypeScript => format!(
-                    "return a version-1 context, or {{ status: \"refused\", code, message, remedy }} \
-                     to decline, from loadContext in {source}; the types in ravel/sdk \
-                     describe both"
-                ),
-                Language::Rhai => format!(
-                    "return a version-1 context, or #{{ status: \"refused\", code, message, remedy }} \
-                     to decline, from load_context in {source}"
-                ),
-            },
         )
         .source(source)
         .location(location)
@@ -541,69 +240,31 @@ pub fn loader_refused(
         "policy_refused",
         Stage::Context,
         EXIT_REFUSED,
-        format!(
-            "the policy {source} refused the selection in {}: {message}",
-            language.loader()
-        ),
+        format!("the policy {source} refused the selection in load_context: {message}"),
         remedy,
     )
     .policy_code(code)
     .input(format!("--kind {kind}"))
     .source(source)
-    .location(format!("policy.{}", language.loader()))
+    .location("policy.load_context")
 }
 
-/// A snapshot or result the worker would not send, because it encodes to more
-/// than the fixed protocol message bound. Nothing is cut to fit.
-pub fn message_too_large(stage: Stage, breach: &Breach, source: &str, limits: &Limits) -> Refusal {
+/// A result that exceeds the fixed protocol message bound is never truncated.
+pub fn message_too_large(actual: Option<u64>, source: &str, limits: &Limits) -> Refusal {
     let bound = limits.message.value;
-    let size = breach
-        .actual
+    let size = actual
         .map(|actual| format!("{actual} bytes"))
         .unwrap_or_else(|| "more".to_owned());
-    let (what, remedy) = if stage == Stage::Load {
-        (
-            format!("the policy {source}"),
-            "keep the exported policy object under 1 MiB of JSON",
-        )
-    } else if stage == Stage::Context {
-        (
-            format!("the failure loadContext in {source} reported"),
-            "throw a shorter error from loadContext, under 1 MiB of JSON",
-        )
-    } else {
-        (
-            format!("the result of select in {source}"),
-            "return a smaller result, under 1 MiB of JSON with its arguments and the prompt \
-             among them; a harness can read a long prompt from a file an argument names",
-        )
-    };
     Refusal::new(
         "message_too_large",
-        stage,
+        Stage::Selection,
         EXIT_REFUSED,
-        format!(
-            "{what} encodes to {size} as a protocol message, over the fixed bound of {bound} bytes"
-        ),
-        format!("{remedy}; ravel never truncates a message to fit"),
-    )
-    .source(source)
-    .bound(limits.message)
+        format!("the result of select in {source} encodes to {size} as a protocol message, over the fixed bound of {bound} bytes"),
+        "return a smaller result, under 1 MiB of JSON with its arguments and the prompt among them; a harness can read a long prompt from a file an argument names; ravel never truncates a message to fit",
+    ).source(source).bound(limits.message)
 }
 
-/// Whether a snapshot value is the marker for a JavaScript function.
-fn is_function(value: &Value) -> bool {
-    is_marker(value) && value["$ravel"] == "function"
-}
-
-fn is_marker(value: &Value) -> bool {
-    value
-        .as_object()
-        .is_some_and(|object| object.len() == 1 && object.contains_key("$ravel"))
-}
-
-/// A short description of a JSON value's type, for "found …" messages. A marker
-/// describes the JavaScript value the worker could not serialize.
+/// A short description of a JSON value for refusal messages.
 fn describe(value: &Value) -> String {
     match value {
         Value::Null => "null".to_owned(),
@@ -611,10 +272,7 @@ fn describe(value: &Value) -> String {
         Value::Number(_) => "a number".to_owned(),
         Value::String(_) => "a string".to_owned(),
         Value::Array(_) => "an array".to_owned(),
-        Value::Object(object) => match object.get("$ravel").and_then(Value::as_str) {
-            Some(kind) if object.len() == 1 => format!("a {kind}"),
-            _ => "an object".to_owned(),
-        },
+        Value::Object(_) => "an object".to_owned(),
     }
 }
 
@@ -631,14 +289,6 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn valid() -> Value {
-        json!({
-            "schemaVersion": 2,
-            "version": "v1",
-            "select": {"$ravel": "function"},
-        })
-    }
-
     fn limits() -> Limits {
         Limits::read(None, None, &crate::settings::Settings::default()).unwrap()
     }
@@ -651,127 +301,7 @@ mod tests {
     }
 
     fn judged(result: Value) -> Result<Command, Refusal> {
-        selected(Produced::Result(result), "impl", "/p.ts", &limits())
-    }
-
-    #[test]
-    fn a_policy_is_a_version_a_select_and_an_optional_loader() {
-        let policy = Validator::new("/p.ts").validate(&valid()).unwrap();
-        assert_eq!(policy.version, "v1");
-        assert!(!policy.loader);
-
-        let mut loading = valid();
-        loading["loadContext"] = json!({"$ravel": "function"});
-        assert!(Validator::new("/p.ts").validate(&loading).unwrap().loader);
-        loading["loadContext"] = Value::Null;
-        assert!(!Validator::new("/p.ts").validate(&loading).unwrap().loader);
-        loading["loadContext"] = json!("load");
-        let refusal = Validator::new("/p.ts").validate(&loading).unwrap_err();
-        assert_eq!(refusal.code, "policy_invalid");
-        assert_eq!(refusal.location.as_deref(), Some("policy.loadContext"));
-    }
-
-    #[test]
-    fn every_invalid_policy_names_where_it_is_wrong() {
-        let with = |field: &str, value: Value| {
-            let mut policy = valid();
-            if value.is_null() {
-                policy.as_object_mut().unwrap().remove(field);
-            } else {
-                policy[field] = value;
-            }
-            policy
-        };
-        let cases = [
-            (json!("policy"), "policy", "found a string"),
-            (json!({"$ravel": "function"}), "policy", "found a function"),
-            (
-                with("schemaVersion", Value::Null),
-                "policy.schemaVersion",
-                "missing",
-            ),
-            (
-                with("schemaVersion", json!("2")),
-                "policy.schemaVersion",
-                "found a string",
-            ),
-            (with("version", Value::Null), "policy.version", "missing"),
-            (with("version", json!(" ")), "policy.version", "blank"),
-            (
-                with("version", json!(3)),
-                "policy.version",
-                "found a number",
-            ),
-            (with("select", Value::Null), "policy.select", "missing"),
-            (
-                with("select", json!("choose")),
-                "policy.select",
-                "found a string",
-            ),
-            (
-                with("select", json!({"$ravel": "symbol"})),
-                "policy.select",
-                "found a symbol",
-            ),
-            (
-                with("select", json!({})),
-                "policy.select",
-                "found an object",
-            ),
-            (
-                with("catalog", json!([])),
-                "policy.catalog",
-                "unknown field `catalog`",
-            ),
-            (
-                with("routes", json!({})),
-                "policy.routes",
-                "unknown field `routes`",
-            ),
-        ];
-        for (policy, location, found) in cases {
-            let refusal = Validator::new("/p.ts").validate(&policy).unwrap_err();
-            assert_eq!(refusal.code, "policy_invalid", "{policy}");
-            assert_eq!(refusal.location.as_deref(), Some(location), "{policy}");
-            assert!(
-                refusal.message.contains(found),
-                "{policy}: {}",
-                refusal.message
-            );
-        }
-    }
-
-    #[test]
-    fn a_version_1_policy_refuses_with_the_rewrite_remedy_and_another_as_unsupported() {
-        let mut old = json!({
-            "schemaVersion": 1,
-            "version": "v1",
-            "catalog": [],
-            "routes": {},
-        });
-        let refusal = Validator::new("/p.ts").validate(&old).unwrap_err();
-        assert_eq!(refusal.code, "unsupported_version");
-        assert_eq!(refusal.location.as_deref(), Some("policy.schemaVersion"));
-        assert!(
-            refusal.message.contains("catalog contract"),
-            "{}",
-            refusal.message
-        );
-        assert!(
-            refusal.remedy.contains("rewrite /p.ts to schemaVersion 2")
-                && refusal.remedy.contains("nothing converts"),
-            "{}",
-            refusal.remedy
-        );
-
-        old["schemaVersion"] = 3.into();
-        let refusal = Validator::new("/p.ts").validate(&old).unwrap_err();
-        assert_eq!(refusal.code, "unsupported_version");
-        assert!(
-            refusal.remedy.contains("upgrade ravel"),
-            "{}",
-            refusal.remedy
-        );
+        judge_result(result, "impl", "/p.rhai")
     }
 
     #[test]
@@ -820,8 +350,8 @@ mod tests {
             (json!(["a"]), "result".to_owned(), "found an array"),
             (
                 json!({"$ravel": "function"}),
-                "result".to_owned(),
-                "found a function",
+                "result.status".to_owned(),
+                "missing",
             ),
             (
                 selected(json!({"status": null})),
@@ -907,7 +437,7 @@ mod tests {
             cases.push((
                 with(json!({"$ravel": "function"})),
                 location,
-                "found a function",
+                "found an object",
             ));
         }
         for (result, location, found) in cases {
@@ -923,40 +453,14 @@ mod tests {
                 "{result}: {}",
                 refusal.message
             );
-            assert_eq!(refusal.source.as_deref(), Some("/p.ts"));
+            assert_eq!(refusal.source.as_deref(), Some("/p.rhai"));
         }
     }
 
     #[test]
-    fn each_other_failure_of_select_has_its_own_code() {
-        let refused = |produced| selected(produced, "impl", "/p.ts", &limits()).unwrap_err();
-        let threw = refused(Produced::Threw {
-            name: "TypeError".into(),
-            message: "x is undefined".into(),
-        });
-        assert_eq!(threw.code, "selection_threw");
-        assert!(threw.message.contains("TypeError: x is undefined"));
-        assert_eq!(refused(Produced::Unsettled).code, "selection_unsettled");
-        let unserializable = refused(Produced::Unserializable {
-            name: "TypeError".into(),
-            message: "cyclic".into(),
-        });
-        assert_eq!(unserializable.code, "selection_malformed");
-        assert_eq!(
-            refused(Produced::Result(Value::Null)).code,
-            "selection_abstained"
-        );
-    }
-
-    #[test]
-    fn a_result_over_the_message_bound_refuses_by_name() {
-        let breach = Breach {
-            bound: "message".into(),
-            actual: Some(2_000_000),
-            source: None,
-            max_bytes: None,
-        };
-        let refusal = selected(Produced::Breach(breach), "impl", "/p.ts", &limits()).unwrap_err();
+    fn unit_abstains_and_an_oversized_result_refuses() {
+        assert_eq!(judged(Value::Null).unwrap_err().code, "selection_abstained");
+        let refusal = message_too_large(Some(2_000_000), "/p.rhai", &limits());
         assert_eq!(refusal.code, "message_too_large");
         assert_eq!(refusal.bound.map(|bound| bound.value), Some(1_048_576));
     }

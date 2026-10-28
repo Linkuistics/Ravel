@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One GNU/Linux target's whole support measurement, run inside its environment
+# One GNU/Linux target's current development checks, run inside its environment
 # (scripts/native-linux.sh campaign starts it). Everything it writes goes under
 # OUT, which must not exist: one writer, never reused.
 #
@@ -12,13 +12,15 @@
 #   2. the declared minimum Rust building and linting the workspace: build with
 #      every target (test binaries included), clippy with warnings denied, and
 #      rustfmt's check;
-#   3. the worker and probe builds the protected suite expects, then the Rhai
-#      policy worker's own tests (the frozen campaign selects only `native_`
-#      cases, so none of them is in its scope), then the frozen campaign
-#      (`task test:native-campaign`): subjects digested before and after, the
-#      three native selections and the incumbent baseline, rows reconciled item
-#      by item;
-#   4. R01 through the six existing Taskfile tasks, joined identity by identity.
+#   3. development setup, the Rhai worker tests and the current native-entry
+#      checks, including the private main-thread executable;
+#   4. the complete current check and test tasks, with source digests unchanged.
+#
+# The frozen TypeScript incumbent and its R01 identity inventory belong to the
+# archived native-entry campaign. Runtime contraction intentionally retires
+# their Bun-specific tests, and the incumbent cannot run current Rhai fixtures.
+# Keep its original evidence intact; this task measures the current product and
+# makes no new claim about conformance to that frozen campaign.
 #
 # Each step's exit status is recorded and the script continues, so a failing
 # step is read in full rather than hiding the steps after it; the script's own
@@ -59,6 +61,14 @@ step() {
   fi
 }
 
+fingerprint_sources() {
+  find Cargo.toml Cargo.lock rust-toolchain.toml Taskfile.yml .cargo .config scripts crates docs CONTEXT.md README.md \
+    -type f -not -path '*/node_modules/*' -not -path '*/target/*' -not -name '.DS_Store' -print0 |
+    LC_ALL=C sort -z | xargs -0 sha256sum
+}
+
+fingerprint_sources >"$out/subjects-before.sha256"
+
 # 1. The domain.
 {
   echo "== uname"
@@ -92,18 +102,22 @@ step rust-build cargo build --locked --workspace --all-targets
 step rust-clippy cargo clippy --locked --workspace --all-targets -- -D warnings
 step rust-fmt cargo fmt --all --check
 
-# 3. The frozen campaign. Its prerequisites are the worker (built by the
-# campaign itself) and, for the protected suite, the hostile-runtime probes.
+# 3. Current worker and native-entry checks. Delivery removal will also remove
+# the unused worker/probe build prerequisites from setup and the Taskfile.
 step worker-setup bash -c 'task setup && task worker && task probes'
 # The Rhai policy worker: its limits, role and policy tests and every unit test
 # that names it, through the real CLI. No nextest profile here writes junit, so
 # the summary line of OUT/rhai-worker.txt is the record.
 step rhai-worker cargo nextest run --locked -p ravel --no-fail-fast \
   -E 'binary(/^rhai_/) | test(/rhai/)'
-step campaign task test:native-campaign DIR="$out/campaign"
+step native-entry task test:native-entry
 
-# 4. R01.
-step r01 bash scripts/native-r01.sh run --out "$out/r01"
+# 4. The current workspace, including the CLI and retained hostile tests.
+step check task check
+step test task test
+
+fingerprint_sources >"$out/subjects-after.sha256"
+step subjects-unchanged diff -u "$out/subjects-before.sha256" "$out/subjects-after.sha256"
 
 printf 'measure: complete; failed=%s\n' "$failed"
 exit "$failed"

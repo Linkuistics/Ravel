@@ -12,7 +12,7 @@ use keyed_launch::{Argv, End, Escalation, Group, Launch, LaunchEvent};
 use ravel::{EXIT_FILE_VARIABLE, SessionChannel};
 use serde_json::json;
 
-use crate::choice::{self, Selected, WorkerReport};
+use crate::choice::{self, Selected};
 use crate::cli::RunArgs;
 use crate::environment::{LAUNCH_CONTROLS, POLICY_RUN};
 use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
@@ -109,20 +109,9 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 .map_err(|error| failed("session_channel_unavailable", error))?,
         );
         if args.json {
-            let (schema_version, worker) = match &choice.worker {
-                // (typescript)
-                WorkerReport::Bun(worker) => (
-                    1,
-                    json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "bunVersion": worker.bun_version}),
-                ),
-                // Schema version 2. `modules`, `reads`, `harnessRuns` and the
-                // budgets in `bounds` are added below. (rhai)
-                WorkerReport::Rhai(worker) => (
-                    2,
-                    json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "rhaiVersion": worker.rhai_version}),
-                ),
-            };
-            let mut notice = json!({"schemaVersion": schema_version, "selection": {
+            let worker = &choice.worker;
+            let worker = json!({"path": worker.path, "version": worker.package_version, "buildId": worker.build_id, "rhaiVersion": worker.rhai_version});
+            let mut notice = json!({"schemaVersion": 2, "selection": {
             "provider": choice.command.provider, "model": choice.command.model,
             "effort": choice.command.effort, "reason": choice.command.reason,
         }, "policy": {"path": choice.entry.path, "version": choice.version},
@@ -134,29 +123,26 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             crate::inputs::PromptSource::Argument => "argument".to_owned(),
             crate::inputs::PromptSource::File(path) => path.display().to_string(),
         }, "diagnostics": choice.diagnostics.to_json()});
-            if matches!(choice.worker, WorkerReport::Rhai(_)) {
-                // The entry and the modules it imported, and every measured read
-                // with the phase that made it. (rhai)
-                notice["policy"]["modules"] = choice
-                    .modules
-                    .iter()
-                    .map(crate::rhai_worker::Module::to_json)
-                    .collect();
-                notice["reads"] = choice
-                    .reads
-                    .iter()
-                    .map(crate::rhai_worker::Read::to_json)
-                    .collect();
-                notice["harnessRuns"] = choice
-                    .runs
-                    .iter()
-                    .map(crate::rhai_worker::harness::RunRecord::to_json)
-                    .collect();
-                // The budgets join the bounds of the notice. The 1.x path
-                // reports none.
-                for bound in choice.inputs.limits.budgets.bounds() {
-                    notice["bounds"][bound.name] = bound.to_json();
-                }
+            // The entry and the modules it imported, and every measured read
+            // with the phase that made it. (rhai)
+            notice["policy"]["modules"] = choice
+                .modules
+                .iter()
+                .map(crate::rhai_worker::Module::to_json)
+                .collect();
+            notice["reads"] = choice
+                .reads
+                .iter()
+                .map(crate::rhai_worker::Read::to_json)
+                .collect();
+            notice["harnessRuns"] = choice
+                .runs
+                .iter()
+                .map(crate::rhai_worker::harness::RunRecord::to_json)
+                .collect();
+            // The budgets join the bounds of the notice.
+            for bound in choice.inputs.limits.budgets.bounds() {
+                notice["bounds"][bound.name] = bound.to_json();
             }
             selection_notice = Some(notice);
         } else {
