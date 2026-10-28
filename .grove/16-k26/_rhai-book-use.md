@@ -3,7 +3,7 @@
 ## Goal
 
 Revise Parts I and II of the Ravel book for Ravel 2.0.0.
-The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edit, art and proof.
+The chapters teach Ravel configuration with Rhai directly. The pipeline is draft, copy-edit, art and proof.
 
 ## Done when
 
@@ -40,6 +40,25 @@ The chapters teach Rhai owner policies directly. The pipeline is draft, copy-edi
 - Copy-edit, art and proof follow both drafts.
 
 The two drafts share one stem. Refer to each by key.
+
+## Corrections before Part II
+
+The owner completed Part I on 2026-10-28 and then asked to apply all lessons before proceeding to Part II.
+This supersedes the earlier choice to collect the remaining notes first. The exact words and findings F9–F16 are in `rhai-book-use-k74`.
+The second correction run is explicitly authorised. Another substantial send-back requires escalation to the owner.
+
+The run is draft `rhai-book-use-k84`, copy-edit `rhai-book-use-k85`, art `rhai-book-use-k86` and proof `rhai-book-use-k87`.
+Each stage reads the whole of chapters 1–6 under its charter and finds its successor already standing.
+No stage adds another editorial tail. Proof cuts no checkpoint, and Read 1 stays live.
+
+Read the full current contract and `docs/documentation-lessons.md`.
+Apply all relevant lessons, including F1–F16, throughout both parts. The new quotations are examples of patterns, not a boundary around isolated sentences.
+The work includes concrete cases before general explanations, the complete caller task contract, configuration terms and descriptive headings.
+It also includes the worker's purpose, JSON descriptions, Grove links and familiar shell commands.
+
+After proof, Read 1 resumes at chapter 4. It gives the owner a correction recap and access to the amended Part I.
+The owner need not restart at chapter 1. The practical reader tasks still need the owner's results.
+Parts III and IV apply the same current lessons in their scheduled rewrite before Read 2.
 
 ## Pointers
 
@@ -80,7 +99,7 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
   Chapter 6 passes strict STE and prose-break checks. All 317 rendered links to or from it resolve.
   Mechanical figure reproduction does not discharge the art updates above.
 
-## Read 1 correction closure
+## First Read 1 correction closure
 
 Proof `rhai-book-use-k78` read chapters 1–6 after the correction run and
 checked the Read 1 patterns throughout. It corrected notice-time summaries,
@@ -93,5 +112,6 @@ checks and the book build passed. The local link check passed 762 targets,
 with a broken-anchor control. Safari in an isolated macOS guest supplied the
 local viewing evidence. The proof task records its precise scope and limits.
 
-The node's Done when holds. Read 1 remains live as `rhai-book-use-k74`, ready
-for the owner's re-review from chapter 1. No second checkpoint is cut.
+At that boundary, the node's Done when held. Read 1 stayed live as `rhai-book-use-k74`, ready
+for the owner's re-review from chapter 1. No second checkpoint was cut.
+The later findings now require the correction run above before the owner proceeds to Part II.

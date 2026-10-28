@@ -9,11 +9,14 @@ Record the owner's task performance and corrections before dependent drafting co
 ## Context
 
 - Section 4 of `docs/book/contract.md` requires this checkpoint after proof.
-  The proof is `rhai-book-use-k73`. Its task records coverage, visual evidence and mechanical checks.
-- Open the locally built book at chapter 1. Use `mise exec -- task docs:book` after `task setup`.
-  Check that the figures load before the read.
-- The book describes the agreed 2.0.0 design. The checkout still has the old-format path until `typescript-worker-cutover-k31`.
-  Complete Rhai examples already run through the built CLI. The release version remains a placeholder.
+  The initial proof is `rhai-book-use-k73`, and the first correction proof is `rhai-book-use-k78`.
+  The next resumption follows correction proof `rhai-book-use-k87`. Read its evidence and correction recap first.
+- The owner completed Part I on 2026-10-28 and asked for all lessons before Part II.
+  Resume at chapter 4 after the correction run. Make the amended Part I available without requiring a restart at chapter 1.
+- Refresh the local book with `mise exec -- task docs:book` after `task setup`. Check that its figures load.
+  Prepare and check the private reader shell again before the owner runs the outstanding tasks.
+- The book describes the agreed 2.0.0 design. Use the latest proof's dependency record for any difference from the checkout.
+  Complete Rhai examples run through the built CLI. The release still owns the version placeholder.
 - The final notice path belongs to `typescript-delivery-removal-k32`, then the whole-book reconciliation in `rhai-book-inside-k34`.
   Spec reconciliation owns the exact environment-scrub wording. These are recorded dependencies.
 
@@ -183,3 +186,200 @@ The root brief now tells each session to add its lessons to that file.
 Each leaf of the correction run and both drafts of Parts III and IV have that duty in “Done when”.
 The skill is under “On the horizon” in the root brief, because the owner has not named its home yet.
 A note in the memory of this harness also keeps the practice for later Claude Code sessions in Ravel.
+
+**Resume after the correction proof, 2026-10-28.** Evidence class: session preparation, not the owner's read.
+The subject is commit `3c80f840`, which retired proof `rhai-book-use-k78` and closed node `rhai-book-use-k26`.
+The working copy was empty at entry. The reader tasks and the two checkpoints remain agreed, so this session opens no requirements interview.
+
+`mise exec -- task setup` and `mise exec -- task build` passed.
+`mise exec -- task docs:book PORT=8796` built the book without a warning and serves it at `http://127.0.0.1:8796`.
+
+All twelve distinct figure paths from the rendered chapters 1–6 returned HTTP 200. An absent-image control returned 404.
+These responses establish file delivery, not browser rendering.
+
+The session opened chapter 1 in Dia and saw its routing, inherited-path and system-context figures.
+The screenshot of the inherited-path figure covered only its upper portion. This was a load check, not a new whole-book visual proof.
+The session left the browser at the start of chapter 1 for the owner.
+
+The fresh reader workspace is `/private/tmp/ravel-read1-k74-45lo88uC`.
+Its `enter` script starts zsh through `env -i`, with private `HOME` and `TMPDIR` directories and an empty `work` directory.
+Its private `bin/ravel` links to this checkout's `target/debug/ravel`.
+
+The remaining PATH entries are system directories. The shell found neither `claude` nor `codex`, and had neither `RAVEL_EXIT_FILE` nor `RAVEL_POLICY_RUN`.
+The version is still `ravel 1.1.0`, as expected before release. No reader exercise ran in this preparation.
+
+The graph CLI again refused to start because another, incompatible generation is active.
+This session used document reads and makes no graph-coverage claim.
+The owner now has the chapter 1 address and a request for their first observation, with the passage and heading.
+No new owner observation or task result is recorded yet. This leaf stays live, and Read 2 remains required.
+
+**Owner progress and findings F9–F14, 2026-10-28.** Evidence class: the owner's stand-in read.
+
+The owner said, “I have read all of Chapter 1.” This establishes completion of that chapter, not of the practical tasks.
+The owner reported no progress in chapters 2–6 and no fake-agent, refusal, cancellation or direct-reference task result.
+The session prepared Dia, but the owner did not state which viewing surface they used.
+Locations below name chapter 1 at commit `3c80f840`.
+
+**F9, the caller's complete task contract and the order of explanation.** The owner's proposed replacement for lines 27–30 follows.
+The owner also invited a better explanation and placement.
+
+<!-- tc: off because this is the owner's proposed wording and explanation -->
+
+> The orchestrator knows the work to be done (the files to review) and creates the prompt that instructs the harness/LLM what to do, and also instructs it to call `ravel end-session <result>` when the work has been done. The orchestrator knows what to do with the result it has instructed the harness/LLM to return. It will most likely give a number of options for the return result.
+>
+> However you might have a better way and place to explain this. It is always more useful I have found to use a concrete example/explanation and then abstract/broaden/generalise that, as opposed to introducing an abstract model and then concretising the concept.
+
+<!-- tc: on -->
+
+Disposition: accept the complete caller responsibility and the concrete-first pattern.
+The draft owns the opening example and the later generalisation. The contract owns the whole-book rule, and copy-edit checks its application.
+An illustrative review prompt can name files and give `approved` and `changes-needed` as result options.
+Those words belong to that caller, and Ravel does not interpret them. The example must also say what the caller does after each result.
+
+**F10, configuration terminology.** The owner's words follow.
+
+<!-- tc: off because this is the owner's terminology preference -->
+
+> I think the term "owner policy" is inferior to the term "configuration", which is more common and specific.
+
+<!-- tc: on -->
+
+Disposition: accept the replacement in reader-facing prose. Draft owns the glossary, chapter terms and their dependent explanations.
+The session proposes “configuration” for the overall setup, “configuration script” for the Rhai file, and “settings” for `settings.json`.
+This distinction is the session's interpretation, not a separate owner quotation.
+The correction must reconcile dependent terms, including “policy worker” and “policy context”, without hiding the distinction between the script and settings.
+The finding does not request changes to filenames, CLI options, JSON keys, error codes or Rust identifiers.
+
+**F11, JSON version labels.** The owner's words follow.
+
+> I don't think we need version-1/version-2 labels when we mention JSON.
+
+Disposition: remove incidental version labels from explanations, including chapter 1, line 241.
+Draft and copy-edit own that correction. Keep exact `schemaVersion` fields in executable examples and explain required values at the reference entry.
+This preserves the data contract while the narrative says “JSON document” or names its purpose, such as “routing notice”.
+
+**F12, why and how Ravel creates the worker.** The owner's words follow.
+
+<!-- tc: off because this is the owner's requested explanation -->
+
+> "The policy worker is the separate process that runs the owner policy" - we should explain that ravel forks itself to evaluate the policy for concurrency/safety reasons.
+
+<!-- tc: on -->
+
+Located: lines 382–387, after the nested-session example.
+Disposition: draft explains the process creation and its purpose at the first relevant mention. Art checks that the figure agrees with that explanation.
+
+Ravel creates a child process that runs its own executable in the worker role.
+The parent remains able to enforce the deadline and serve host requests.
+The process boundary keeps a script abort or exhausted worker heap from aborting the supervisor.
+The worker finishes before Ravel starts the final managed process.
+This is not concurrent evaluation and execution of that final program.
+
+Source check: `rhai_worker/front.rs`, `executable` and `launch`, identify the same executable and the worker role.
+`worker.rs`, `supervise`, constructs `Command`, sets the pre-exec controls and calls `spawn`.
+The ADR `policy-evaluation-precedes-the-launch` records the process boundary, hard deadline and failure-isolation reasons.
+These are direct source reads after graph access failed, not graph evidence.
+
+**F13, the Grove link.** The owner's words follow.
+
+> When we mention grove, we shoud make it a link to the repo.
+
+Located: lines 516–520. Disposition: draft links Grove to `https://github.com/Linkuistics/grove` where the book introduces it on each page.
+The repository page opened successfully on 2026-10-28. This check establishes the destination, not the current accuracy of its README.
+Proof owns the link checks.
+
+**F14, the final section heading.** The owner's words follow.
+
+> "Understand the evidence limits" is a bit opaque - we should use a more descriptive title to that.
+
+Located: line 571. Disposition: draft replaces the heading and reconciles every inbound anchor.
+The session proposes “See what we tested and what remains unchecked”.
+The section still distinguishes platform measurements, the owner's stand-in read, local rendering and unchecked publication surfaces.
+
+**Correction timing.** These findings would require a second correction run against `rhai-book-use-k26`.
+The editorial procedure requires escalation for that run. This session records the findings and prepares the contract changes before it cuts more editorial leaves.
+
+The owner completed chapter 1 and reported no inability to continue. The choice is a correction now or more reader findings before one combined correction.
+No chapter changed during this record, so later observations can still name the same text.
+
+**Owner decision: collect the remaining notes first, 2026-10-28.**
+The owner chose “Collect the remaining notes first (Recommended)” over “Apply corrections before chapter 2”.
+The read continues through the rest of Parts I and II against the existing chapter text.
+Then one combined correction run applies the collected findings before dependent drafting continues.
+This choice settles the timing of the second correction run. No additional timing confirmation is needed unless the scope or the owner's preference changes.
+
+Contract §2 records the new whole-book requirements, and the lessons record preserves their sources and interpretations.
+The terminology qualifiers and the replacement heading remain proposals for that correction.
+The prose checker passed the changed records with zero hard findings. No chapter or product source changed.
+
+**Owner reminder: generalise the feedback for a skill, 2026-10-28.**
+
+The owner's words: “Remember that we want to generalise this feedback to construct a skill”.
+The lessons record now states the extraction method: reader problem, trigger, corrective action, scope and a way to check the result.
+The future skill will combine related rules into a reusable procedure, with product-specific corrections and their evidence in supporting examples.
+Its scope remains all documentation and communication lessons from this grove, including later reader findings.
+The root brief carries that obligation. The read and the agreed combined correction sequence continue.
+
+**Owner progress and findings F15–F16, 2026-10-28.** Evidence class: the owner's stand-in read.
+
+The owner said, “Part I is full reviewed.” This records their review of chapters 1–3.
+The owner did not separately report practical task performance, Part II progress or their viewing surface.
+The pending tasks remain the fake-agent session, interpretation of refusal and cancellation, and use of a direct reference entry.
+
+**F15, the chapter 2 title.** The owner's words follow.
+
+<!-- tc: off because this is the owner's assessment of the chapter title -->
+
+> "The actors and their words" is an unusual phrase. I think we need something more descriptive, less shorthand. "their words" in particular is a jarring construct.
+
+<!-- tc: on -->
+
+Located: chapter 2's title and its entry in `SUMMARY.md` at commit `3c80f840`.
+Disposition: draft replaces the title with one that states the chapter's subject and reconciles the contents, chapter references and links.
+The session recommends “Who does what in a Ravel session”. Copy-edit checks that the title describes the whole chapter.
+The general lesson extends L61: headings name the subject or reader question, without unusual shorthand that requires explanation.
+
+**F16, the directory instruction.** The owner's words follow.
+
+> "... then make it the current directory." - "... and `cd` into it." is more appropriate.
+
+Located: chapter 3, lines 74–75, under “Run the first session”, at commit `3c80f840`.
+Disposition: draft uses the familiar `cd` command in the instruction. Copy-edit applies the same principle where a procedure uses the reader's stated prerequisites.
+The general lesson is L62: name a familiar command directly when it states the action more clearly than an abstract paraphrase.
+This does not make unexplained commands appropriate for a reader who does not know them.
+
+**Owner decision: apply all lessons before Part II, 2026-10-28.**
+
+The owner's words: “I would like you to apply all the lessons before I proceed to Part II.”
+This replaces the earlier timing choice to collect the remaining Parts I–II notes first.
+The second correction run is now authorised before the owner's Part II read. No further timing confirmation is needed.
+It reads chapters 1–6 against the full accumulated lessons and the current contract, including F1–F16 and their general patterns.
+
+The existing document node owns draft, copy-edit, art and proof in that order.
+Read 1 stays live. After the proof, the owner resumes at chapter 4, with the amended Part I available for inspection.
+The next requirements session gives a correction recap and prepares the private reader environment again.
+It does not restart the owner at chapter 1 or treat Part I review as proof of practical task performance.
+
+The contract and lessons record carry the new rules for the whole book.
+Parts III and IV retain their scheduled rewrite and apply all current lessons before Read 2.
+
+**Correction handover, 2026-10-28.**
+
+One `leaf-add` call cut the ordered run under `rhai-book-use-k26`: draft `rhai-book-use-k84`, copy-edit `rhai-book-use-k85`, art `rhai-book-use-k86` and proof `rhai-book-use-k87`.
+Each body gives its charter, the whole chapters 1–6 scope, the accumulated lessons and its specific checks.
+Every stage finds its later siblings already standing. Proof returns to this checkpoint and cuts nothing.
+
+The root and document briefs carry the latest timing choice.
+The later Parts III–IV brief and both drafts now point to F1–F16 and the complete lessons record.
+The shared contract states the new whole-book rules. The lessons record distinguishes each transferable rule from its Ravel example and the owner's exact words.
+
+The diagnostic `pick` names `rhai-book-use-k84`, before this live checkpoint.
+The new draft's path resolves through the root and document briefs. Its four stage bodies pass the prose checker with zero hard or advisory findings.
+The current task still resolves to its live path. It cannot retire until the remaining read and practical tasks meet its Done when.
+
+The next session drafts the corrections. The resumed checkpoint reads the final proof's recap, refreshes the local book and private shell, and opens chapter 4.
+Its recap includes the amended Part I so the owner can inspect those changes without repeating the completed read.
+
+Validation passed for all twelve changed records: zero hard prose findings, with existing advisories and declared exclusions retained.
+A comparison with `3c80f840` found no change under `docs/book/src`. The chapter corrections belong to the ordered run above.
+This session stopped its local book server before the handover. The resumed checkpoint must start a fresh server for the proofed text.

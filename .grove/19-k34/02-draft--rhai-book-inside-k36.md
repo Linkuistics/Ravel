@@ -8,6 +8,8 @@ Draft the changes to chapters 10 and 11 of the Ravel book. A reader can prepare 
 
 - The structure brief is `docs/book/contract.md`. Read the running log of `rhai-book-inside-k35` first.
 - Apply the owner's Read 1 patterns in section 2 of the contract on every page. The owner asked for them in the entire book on 2026-10-27.
+- Read all of `docs/documentation-lessons.md` and the later Part I findings F9–F16 in `rhai-book-use-k74`.
+  Apply the current rules throughout both chapters, including configuration terms, concrete examples, descriptive headings and familiar commands.
 - Chapter 10 describes a checkout, the setup with Bun, the worker build, the typecheck, the test seams and the evidence documents. Chapter 11 describes the versions, the identity, the installation, the archives, the formula and the release tasks.
 - The new facts come from the leaves `rhai-upgrade-task`, `rhai-harness-smoke`, `typescript-delivery-removal` and `rust-2024-toolchain`. They are the Rust 1.99.1 toolchain, the Rhai upgrade task, the opt-in smoke tasks, the notices task, and the new archive layout.
 - The book tools keep a checkout-local Bun. Say that they do, and that the release carries no Bun.

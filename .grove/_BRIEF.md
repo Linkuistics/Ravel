@@ -83,6 +83,9 @@ design needs the settled requirements.
 - A skill for documents and books in other groves, made from
   `docs/documentation-lessons.md`. The owner names its home when the lessons
   are complete.
+  It distils all documentation and communication feedback into reusable authoring decisions.
+  Each decision gives its trigger, action, scope and a way to check the result.
+  Ravel-specific corrections remain examples. Check transfer on material from another project.
 
 ## Notes
 
@@ -105,6 +108,14 @@ design needs the settled requirements.
   a failing link control, unchanged subject digests and the bounded Safari
   visual inspection. Read 1 resumes from chapter 1 under `rhai-book-use-k74`.
   The proof extends documentation lessons L16 and L40. Read 2 remains required.
+- On 2026-10-28, the owner completed Part I and supplied findings F9–F16 in `rhai-book-use-k74`.
+  They require a concrete example before the general model and the complete caller task contract.
+  They also prefer configuration terminology, fewer incidental JSON version labels, the reason for a separate worker, Grove links, descriptive headings and familiar commands.
+  Section 2 of `docs/book/contract.md` records these requirements for the whole book.
+  The owner then asked to apply all lessons before Part II, superseding the earlier choice to collect the remaining notes first.
+  This authorises the second correction run under `rhai-book-use-k26`: draft `rhai-book-use-k84`, copy-edit `rhai-book-use-k85`, art `rhai-book-use-k86` and proof `rhai-book-use-k87`.
+  Every stage reads chapters 1–6 against the full accumulated lessons. Read 1 stays live and resumes at chapter 4 after proof.
+  The required practical tasks still need the owner's results. Parts III and IV apply the same current lessons before Read 2.
 - Each later session adds its new documentation or communication lessons to [the shared record](../docs/documentation-lessons.md).
   Each rule keeps its source, evidence class and Ravel application.
   `documentation-lessons-k79` created the record from the whole grove. The owner wants these lessons as a skill for other groves.

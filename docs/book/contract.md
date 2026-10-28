@@ -576,6 +576,11 @@ The patterns add to STE. Each example below comes from the owner's comment on
 one of the six passages. The history of `rhai-book-use-k74` keeps the passages
 and the comments in full.
 
+- **Give a concrete example before the general case.** Show a
+  particular task, real values, the actions and the result before the abstract
+  roles or model. Then explain which parts apply to other tasks. Carry the
+  same example through the explanation so that the reader can connect each
+  general statement to something they already saw.
 - **Introduce a technology where the book first names it.** Say what it is
   and which of its characteristics matter to the reader. Show a short example.
   Link to the technology's own documentation. For Rhai, the owner's words were
@@ -625,6 +630,58 @@ and the comments in full.
   it. Address the reader as “you”. Ask the question that the reader has, then
   answer it. Give the reason before the detail. The STE rules still apply, so
   the book has no contractions, slang or jokes.
+
+The owner added the concrete-first rule after the complete chapter 1 read on
+2026-10-28. The owner's words were:
+
+<!-- tc: off because this is the owner's explanation of the teaching order -->
+
+> It is always more useful I have found to use a concrete example/explanation and then abstract/broaden/generalise that, as opposed to introducing an abstract model and then concretising the concept.
+
+<!-- tc: on -->
+
+That read also adds these requirements for the next correction of the book:
+
+- **Explain the caller's complete task contract.** The opening review example
+  names the files, the work and the prompt. Its prompt gives the permitted
+  results and the condition for each `ravel end-session` command. The example
+  then shows what the orchestrator does after each result. These values are
+  the caller's convention. Ravel assigns them no meaning.
+- **Prefer familiar configuration terms.** Replace “owner policy” in
+  reader-facing prose with “configuration”. Distinguish the executable Rhai
+  script from the JSON settings wherever the distinction matters. Reconcile
+  the glossary, related terms, headings and figures with that choice. The
+  correction preserves literal filenames, CLI options, JSON keys and
+  diagnostics unless a separate product change owns them.
+- **Explain JSON by its purpose.** Say “JSON document”, “routing notice” or
+  “failure document” where that description is sufficient. Do not attach a
+  version number to each mention of JSON. Exact examples keep required
+  `schemaVersion` fields. The reference explains their values where a reader
+  must construct or interpret a document.
+- **Explain why the worker is a separate process.** At the first relevant
+  mention, say that Ravel launches another copy of its own executable to
+  evaluate the configuration script. Explain that the parent can enforce a
+  deadline and handle requests while the worker evaluates the script.
+  Explain how the process boundary isolates a script failure. The final
+  managed launch still waits for the worker to finish.
+- **Link a named external project.** Link [Grove](https://github.com/Linkuistics/grove)
+  to its repository where each page introduces it. Keep the local explanation
+  of its role, so the reader need not follow that link.
+- **Use descriptive headings.** Name the subject, reader question or outcome
+  in familiar words. Avoid unusual shorthand that the reader must decode.
+  Replace “Understand the evidence limits” with a heading about the actual
+  checks and their scope. Replace “The actors and their words” with a title
+  about who does what in a Ravel session. Reconcile the contents, chapter
+  references and links when a title changes.
+- **Use commands that the reader already knows.** When the prerequisites
+  include a tool, name its familiar command in the procedure. Chapter 3 can
+  say “and `cd` into it”, because the book assumes everyday shell use.
+  Prefer that concrete instruction to “make it the current directory”.
+  Explain unfamiliar commands when the reader first needs them.
+
+Findings F9–F16 in `rhai-book-use-k74` preserve the owner's words and each
+finding's disposition. These requirements apply throughout the book.
+The later draft of Parts III and IV uses them, and its proof checks them.
 
 The house style's points, as this book takes them:
 

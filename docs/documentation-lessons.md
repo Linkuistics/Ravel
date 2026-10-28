@@ -9,6 +9,20 @@ Each later session adds its lessons here when they arise.
 Keep the rule, its source, its evidence class and its application together.
 The owner wants a skill for other groves. The skill waits until the owner names its home.
 
+The skill will distil the feedback into reusable decisions for authors and editors.
+For each finding, identify the underlying reader problem, when it occurs, the corrective action and how to check the result.
+State the scope and exceptions when a rule depends on the document's purpose or the reader's task.
+Keep product-specific names, commands and corrections in the supporting examples.
+
+For example, the terminology feedback becomes “prefer familiar terms and qualify them where precision matters”.
+It does not make “configuration” the right term in every product.
+The JSON feedback becomes “introduce format details when the reader needs to construct or interpret the data”.
+It does not remove required version fields from examples or reference entries.
+
+Combine overlapping lessons into a short procedure when the skill takes shape.
+Keep detailed evidence and examples in supporting references that need no Grove history to understand.
+Check the skill on material from another project before claiming that its rules transfer successfully.
+
 **Owner evidence** means a recorded quotation or choice. **Session evidence** means an observation, analysis or editorial decision by a session.
 **Background** means evidence from the earlier book grove, rather than a finding made in this grove.
 A later accepted decision replaces an incompatible earlier one.
@@ -107,6 +121,11 @@ Draft `rhai-book-use-k80` shows it in chapter 1, “How `end-session` finds its 
 Draft `rhai-book-use-k82` restates the mechanism in chapter 5, “Keep nested sessions separate”, with a table of both layers and a second real run.
 
 Draft `rhai-book-use-k83` restates it in chapter 6, “`end-session RESULT`” and “`RAVEL_EXIT_FILE`”. Chapter 6 also shows the mechanism of `ravel::env` and of a host call: the worker asks the Ravel CLI over a private socket.
+
+Owner F12, `rhai-book-use-k74`, 2026-10-28, extends the rule to process creation and its purpose.
+The owner asked why Ravel launches a separate copy of itself to evaluate the configuration.
+The next correction must connect that mechanism to the parent's deadline enforcement and the isolation of a script failure.
+The source and the process-boundary ADR support that explanation. They also keep worker evaluation before the final managed launch.
 
 ### L08. State the reader's goal before the capability
 
@@ -501,6 +520,11 @@ Draft `rhai-book-use-k82`'s first link script reported every same-page anchor of
 
 Draft `rhai-book-use-k83` found that mdBook gives the heading “`--exit-dir DIR`” the id `--exit-dir-dir`, with the two dashes of the option.
 
+Owner F13, `rhai-book-use-k74`, 2026-10-28, asks for a link when the book mentions Grove.
+Link each page's introduction of an external project to the authoritative entry point that its reader needs, such as its documentation or repository.
+Keep the local explanation of why the project appears.
+The Grove repository is `https://github.com/Linkuistics/grove`. The session opened that destination successfully on the same date.
+
 ### L40. Keep checker rules distinct from editorial judgement
 
 Check what a rule actually governs. Preserve quotations, code identifiers and historical records as such.
@@ -528,9 +552,11 @@ Label a stand-in reader and the limits of that substitution.
 Stop at an early comprehension failure instead of treating a passed proof as a reason to continue.
 
 **Source:** Background `book-read-one-k70`, 2026-10-16 to 2026-10-18. Owner agreement `rhai-book-use-k27`, 2026-10-26.
-Session `rhai-book-use-k74`, 2026-10-27.
+Session `rhai-book-use-k74`, 2026-10-27 to 2026-10-28.
+
 **Ravel application:** Contract §4 requires both reads after proof.
-The latest read has findings from chapter 1 but no reported task performance or declared viewing surface.
+The owner completed Part I, chapters 1–3, on 2026-10-28 and supplied findings F9–F16.
+The owner reported no Part II progress, practical task performance or viewing surface.
 It establishes no result for a developer new to Ravel.
 
 ### L42. Apply the pattern of a finding across its agreed scope
@@ -541,9 +567,13 @@ Route corrections to the stage that owns them and finish the correction pipeline
 
 **Source:** Owner, `rhai-book-use-k74`, 2026-10-27: “apply the patterns of these re-statements”.
 The owner later extended those patterns to the entire book and chose “Parts I–II first”.
-**Ravel application:** Contract §2 states ten patterns from eight findings.
+**Ravel application:** Contract §2 states the patterns from the owner's findings.
 `rhai-book-use-k75` through `k78` correct chapters 1–6. `rhai-book-inside-k34` applies them to chapters 7–11 before Read 2.
 Read 1 remains live for the re-review.
+
+On 2026-10-28, the owner first chose to collect the remaining Parts I–II notes before one combined correction.
+After the Part I review, the owner changed that choice: apply all lessons before the Part II read.
+The second correction run now precedes that read. Keep the earlier choice as history and make the latest choice explicit in the handover.
 
 ## Communicate decisions and hand work to the next session
 
@@ -620,6 +650,10 @@ Mark obsolete decisions beside their replacements.
 **Ravel application:** The root brief and book contract require later sessions to extend this file.
 The correction tasks and both later drafts repeat that duty.
 The skill remains an “On the horizon” item until the owner chooses its home.
+
+On 2026-10-28, the owner reiterated: “Remember that we want to generalise this feedback to construct a skill”.
+The record must supply reusable authoring decisions, their scope and ways to check them, as well as the original observations.
+The opening paragraphs state how to distil those decisions. The final skill covers the whole grove's lessons, including later reader findings.
 
 ### L49. Preserve source rights when recording a rule
 
@@ -721,6 +755,78 @@ The link check found the missing anchor.
 The draft then searched the built HTML for lines with a fence, a heading marker or an escaped `tc` comment as their first text.
 That search found the leak. After the edit that closed the fence, the same search found nothing.
 
+### L57. Teach one concrete case before the general model
+
+Give a particular task and real values first. Follow its actions to the result.
+Then name the general roles and explain which parts apply to other cases.
+Keep the same example through that transition, so the reader can connect each abstract statement to a known case.
+
+**Source:** Owner F9, `rhai-book-use-k74`, 2026-10-28.
+The owner explicitly preferred a concrete explanation followed by abstraction or generalisation.
+**Ravel application:** Contract §2 now makes this order a whole-book requirement.
+Chapter 1's next correction must show a complete review request before the role model.
+
+### L58. Explain the task, its completion instruction and the use of its result together
+
+When the reader needs to understand a caller's complete task, naming only the requested work leaves the result unexplained.
+Show the instruction, the possible results, the condition for each result and the caller's next action.
+Distinguish the task's chosen result words from meanings that the underlying tool enforces.
+
+**Source:** Owner F9, `rhai-book-use-k74`, 2026-10-28.
+**Ravel application:** The proposed review example names files and tells the LLM when to send `approved` or `changes-needed` with `ravel end-session`.
+The explanation then says what the orchestrator does after each result. These two words are the session's proposed example, not the owner's required vocabulary.
+
+### L59. Prefer familiar terms and qualify them where precision matters
+
+Use the reader's familiar term when it describes the concept accurately.
+Add a qualifier when two different artifacts would otherwise share one name.
+Reconcile the glossary and dependent terms when the preferred name changes.
+Keep literal interfaces exact, unless the product change also owns those interfaces.
+
+**Source:** Owner F10, `rhai-book-use-k74`, 2026-10-28, prefers “configuration” to “owner policy”.
+**Ravel application:** Contract §2 requires that replacement in reader-facing prose.
+The session proposes “configuration script” for the Rhai file and “settings” for the JSON values.
+The proposal preserves the distinction between executable choices and host limits.
+
+### L60. Put format versions where the reader needs them
+
+Do not attach a version label to each mention of a familiar data format.
+Name the document's purpose in the explanation. Put exact version fields in examples and in the entry that teaches their required values.
+This removes incidental detail without changing the interface that the reader must use.
+
+**Source:** Owner F11, `rhai-book-use-k74`, 2026-10-28.
+**Ravel application:** The next correction removes incidental “version-1 JSON” and “version-2 JSON” labels from prose.
+Exact `schemaVersion` values remain in executable examples and the reference.
+This boundary is the session's interpretation of the request, not a request to change the JSON protocol.
+
+### L61. Use headings that state their subject in familiar words
+
+A heading must help the reader predict the subject, question or outcome of its section.
+Name that subject in familiar words. Avoid unusual shorthand or metaphors that need the section's explanation before they make sense.
+For a section about limits, name the relevant checks and their scope.
+Read headings without their body text to check whether their subjects remain clear.
+When a heading changes, reconcile its contents entry and inbound links as part of the same edit.
+
+**Source:** Owner F14 and F15, `rhai-book-use-k74`, 2026-10-28.
+**Ravel application:** The chapter 1 section covers platform checks, reader observations and publication surfaces.
+The session proposes “See what we tested and what remains unchecked”. The draft owns the final title and its links.
+
+The owner also found “The actors and their words” unusual and called “their words” jarring.
+The session proposes “Who does what in a Ravel session” for chapter 2.
+Both examples support descriptive headings. They do not impose one grammatical form on every document.
+
+### L62. Name a familiar command instead of an abstract paraphrase
+
+When the stated reader already knows a tool, use its ordinary command name to give a precise instruction.
+Check the prerequisite agreement before treating the command as familiar.
+Keep the action, its object and any required condition clear. Explain a command when the reader does not yet know it.
+Plain language uses the reader's known vocabulary. It need not replace precise commands with longer descriptions.
+
+**Source:** Owner F16, `rhai-book-use-k74`, 2026-10-28.
+**Ravel application:** Chapter 3 says “then make it the current directory”.
+The owner prefers “and `cd` into it”. Everyday shell use is a stated prerequisite, so the command makes the instruction more direct.
+The correction belongs to the draft and copy-edit stages.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -736,6 +842,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L54 | The draft's decision log records the source of each reason that the text gives. Proof compares each reason with the normative documents. |
 | L55 | The examples check compares each multi-line claim byte for byte. Proof reads each order that the text states against a claim or a labelled fragment. |
 | L56 | A search of the built HTML for raw Markdown, and a count of headings against heading ids, follow an edit beside a code block. |
+| L57–L62 | Contract §2 records the Part I findings of 2026-10-28. Draft applies them throughout the book, and proof checks the explanations, exact interfaces and links. |
 
 ### Disposition of the task's candidate readings
 
@@ -765,7 +872,7 @@ A case-insensitive whole-word search for `owner` or `human` finds 97 segments.
 These are search matches, not 97 owner decisions.
 The complete reading also checks decisions without either word, including the “rest is agreed” consequences in k27.
 
-The following 20 entries are the distinct owner decisions or findings about documentation and communication in this grove.
+The following 20 entries are the distinct owner decisions or findings about documentation and communication at the audit baseline.
 One entry can settle several closely related requirements. Repeated reports of the same choice do not add entries.
 This count excludes the earlier grove's background decisions and this document's own statements.
 
@@ -893,3 +1000,32 @@ print(counts)
 The search count does not itself prove that the search found every semantic decision.
 The full reading and explicit dispositions supply that additional check.
 Future additions need their own date and audit scope rather than a silent change to this baseline count.
+
+## Read 1 addition, 2026-10-28
+
+This addition covers the owner's message after the resumed chapter 1 read in `rhai-book-use-k74`.
+It preserves that message's six findings as F9–F14 in the task's running log.
+It does not change the scope or counts of the baseline audit above.
+
+| Finding | Owner evidence | Disposition |
+|---|---|---|
+| F9 | Explain the prompt, completion instruction, possible results and caller's next action. Teach a concrete case before the general model. | L57–L58 and contract §2. |
+| F10 | Prefer “configuration” to “owner policy”. | L59. The session's proposed qualifiers remain distinct from the owner's words. |
+| F11 | Remove version labels at incidental JSON mentions. | L60. Preserve required fields in exact examples and reference entries. |
+| F12 | Explain the separate copy of Ravel and the reasons for it. | L07. Check the process mechanism and its purpose against the source and ADR. |
+| F13 | Link Grove to its repository. | L39. The session checked that destination. |
+| F14 | Replace the opaque heading about evidence limits. | L61. Preserve the section's distinct limits and reconcile its links. |
+
+The owner also said, “I have read all of Chapter 1.” L41 records that progress separately from the unreported practical tasks.
+
+The owner then chose “Collect the remaining notes first (Recommended)” before one combined correction run.
+L42 records that sequence. It settles the correction timing while the reader checkpoint remains live.
+
+The owner then reiterated the skill goal. L48 and this document's opening paragraphs now state the generalisation method and its limits.
+
+The owner later completed Part I, chapters 1–3, and supplied two more findings.
+F15 rejects the chapter 2 title's unusual shorthand. F16 prefers the familiar `cd` command to the abstract directory instruction.
+L61 and L62 preserve those general lessons, with the Ravel corrections as examples.
+
+The owner then said, “I would like you to apply all the lessons before I proceed to Part II.”
+That instruction replaces the earlier timing choice. L42 records the current sequence: correct chapters 1–6, then resume the Part II read.

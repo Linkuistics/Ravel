@@ -14,6 +14,8 @@ Revise Parts III and IV of the Ravel book for Ravel 2.0.0, and prove the whole b
 - The proof stage has read the whole book, Parts I to IV, as one reader would. It finds no stale TypeScript, Bun or `libexec` statement, no broken link and no unresolved term.
 - Chapters 7 to 11 follow the owner's Read 1 patterns in section 2 of `docs/book/contract.md`. The owner asked for the patterns in the entire book on 2026-10-27.
   The whole-book proof checks each pattern in all eleven chapters.
+- The drafts apply all relevant rules from `docs/documentation-lessons.md`, including the later Part I findings F9–F16.
+  Each new lesson preserves its source and gives its trigger, action, scope and a way to check the result for the future authoring skill.
 
 ## Decomposition
 
@@ -31,6 +33,10 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 ## Notes
 
+- The owner completed Part I on 2026-10-28 and requested all lessons before Part II.
+  The second correction run under `rhai-book-use-k26` ends at proof `rhai-book-use-k87` before Read 1 resumes.
+  These later drafts inherit the current contract and lessons, including configuration terms, concrete examples and descriptive headings.
+  Check shared figures against the corrected prose and keep exact interface tokens where the reader must use them.
 - Parts I and II proof passed the final notice-path choice to `typescript-delivery-removal-k32`.
   After that leaf settles the installed path, update chapter 6's installed-layout table and `installed-files.typ` with its SVG, layout record and alternative.
   The whole-book proof checks those entries against the final archive and installed layout.
