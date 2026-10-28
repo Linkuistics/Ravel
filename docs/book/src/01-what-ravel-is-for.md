@@ -268,10 +268,10 @@ its parent.
 
 Why a separate process? The parent stays in control while the script runs:
 
-- **The deadline.** Each evaluation has a deadline. At the deadline, the
-  parent stops the worker, whatever the script does. Rhai cannot interrupt
-  some of its own functions, such as `sleep`, but the parent can always stop a
-  process.
+- **The deadline.** Each evaluation has a deadline. When it expires, the
+  parent ends evaluation and can signal the worker process. Rhai cannot
+  interrupt some of its own functions, such as `sleep`. A kernel stall can
+  delay the worker's exit.
 - **Requests from the script.** The worker only computes. When the script
   reads a file or runs a harness, the worker asks the parent. The parent does
   the work and sends the data back.
@@ -512,7 +512,8 @@ ravel: end-session: no enclosing Ravel session (RAVEL_EXIT_FILE is unset or empt
 
 When the program sends the result, it requests the end of the session. This
 request does not prove that cleanup succeeded. A process group is an
-operating-system unit that contains the managed process and its descendants.
+operating-system unit that contains the managed process and the descendants
+that remain in its group.
 Ravel stops the harness and each other process that remains in that group.
 Then it completes the cleanup of the group.
 

@@ -89,6 +89,7 @@ design needs the settled requirements.
 
 ## Notes
 
+- Before requesting `grove-force-stop`, state the condition that prevents further work, the evidence, the remaining work, and why continuation or decomposition cannot resolve it. Record that explanation in the task's running log. An incomplete task alone is not a reason to force-stop. The owner requested this instruction on 2026-10-28 after two copy-edit sessions stopped without a visible reason to stop.
 - `rhai-book-use-k26` closed after the whole-document proof `rhai-book-use-k73`.
   Chapters 1–6 teach Rhai policies and both harness-call recipes.
   All 19 complete examples, nine excerpts, fourteen figure reproductions, strict checks for these chapters and the book build passed.

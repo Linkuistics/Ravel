@@ -138,7 +138,7 @@ Why a separate process? The parent stays in control while the script runs:
 
 | Reason | What the separate process permits |
 |---|---|
-| The deadline | The parent stops the worker at the deadline, whatever the script does. Rhai cannot interrupt some of its own functions, such as `sleep`, but the parent can always stop a process. |
+| The deadline | When the deadline expires, the parent ends evaluation and can signal the worker process. Rhai cannot interrupt some of its own functions, such as `sleep`. A kernel stall can delay the worker's exit. |
 | Requests from the script | The worker only computes. When the script reads a file or runs a harness, the worker asks the parent. The parent does the work and sends the data back. |
 | Isolation of a failure | If the script exhausts the memory of the worker or overflows its stack, only the worker stops. The parent continues, reports the failure to the caller and starts no program. |
 
@@ -293,9 +293,9 @@ What happened? Follow the request from the caller to the result:
 | 5 | The Ravel CLI | Stops `fake-agent` and the rest of its process group, then completes cleanup |
 | 6 | The Ravel CLI | Writes `Explain this change.` on standard output. This text is the result of `ravel start-session`. |
 
-A process group is the operating-system unit that holds the program and its
-descendants. Ravel stops each process that remains in that group before it
-returns the result.
+A process group is the operating-system unit that holds the program and the
+descendants that remain in its group. Ravel stops each process in that group
+before it returns the result.
 
 The `--` in `ravel end-session -- "$1"` ends the options of `end-session`.
 Thus, a result that starts with `-` stays a result and does not become an
@@ -1445,9 +1445,10 @@ goes to the program in `RAVEL_EXIT_FILE`. A harness run gets a result channel
 of its own. Thus, a run that uses `end-session` sends its value to the script,
 not to the session.
 
-The answer goes back to the script, not to the caller. The caller sees only
-the selection that the script makes after the run. The JSON routing notice
-also records each run, but not its prompt or its answer.
+The answer goes back to the script, not to the caller. The caller sees the
+script's selection in the routing notice and receives the final session's
+result after cleanup. The JSON routing notice also records each harness run,
+but not its prompt or its answer.
 
 Fragment: the `harnessRuns` member of the JSON routing notice, from a real run
 of the next section's Claude Code example with `--json`. This block omits the

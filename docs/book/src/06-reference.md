@@ -54,10 +54,10 @@ Why does Ravel evaluate the script in a separate process? The Ravel CLI
 launches a second copy of its own executable as a child process, the Rhai
 worker. The parent stays in control while the script runs:
 
-- **The deadline.** Each evaluation has a deadline. At the deadline, the
-  parent stops the worker, whatever the script does. Rhai cannot interrupt
-  some of its own functions, such as `sleep`, but the parent can always stop a
-  process.
+- **The deadline.** Each evaluation has a deadline. When it expires, the
+  parent ends evaluation and can signal the worker process. Rhai cannot
+  interrupt some of its own functions, such as `sleep`. A kernel stall can
+  delay the worker's exit.
 - **Requests from the script.** The worker only computes. When the script
   reads a file or runs a harness, the worker asks the parent. The parent does
   the work and sends the data back.
@@ -1117,7 +1117,8 @@ See [define a configuration script](04-writing-an-owner-policy.md#define-a-confi
 | Other explicit extension | Refuse with `policy_unreadable`, status 3. Supply a `.rhai` file. |
 
 Ravel evaluates the entry in the Rhai worker, a second copy of its own executable.
-Thus, the Ravel CLI can stop the worker at the deadline, and a memory or stack failure of the script stops only the worker.
+At the deadline, the Ravel CLI ends evaluation and can signal the worker.
+A kernel stall can delay its exit. A memory or stack failure of the script stops only the worker.
 The configuration script has no direct filesystem, network, process or environment access.
 It uses the [host capabilities](#host-capabilities) for permitted effects.
 
@@ -1926,7 +1927,7 @@ See [evaluation bounds](04-writing-an-owner-policy.md#set-bounds-and-environment
 Rhai checks container size when a call returns a value.
 An in-place change can exceed that container limit before such a check.
 The worker heap bound still applies.
-The whole evaluation deadline also stops a native call that does not yield, by termination of the worker.
+At the whole evaluation deadline, Ravel ends evaluation and terminates the worker, even if a native call does not yield.
 
 At cancellation or the whole deadline, Ravel abandons a read and does not wait for its reply.
 It stops an active harness run before it stops and reaps the worker.

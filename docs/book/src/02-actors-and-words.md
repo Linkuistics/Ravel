@@ -143,7 +143,7 @@ while the script runs:
 
 | Reason | What the separate process permits |
 |---|---|
-| The deadline | The parent stops the worker at the deadline, whatever the script does. Rhai cannot interrupt some of its own functions, such as `sleep`, but the parent can always stop a process. |
+| The deadline | When the deadline expires, the parent ends evaluation and can signal the worker process. Rhai cannot interrupt some of its own functions, such as `sleep`. A kernel stall can delay the worker's exit. |
 | Host requests | The worker only computes. The parent performs each read or harness run that the script asks for and sends the data back. |
 | Isolation of a failure | If the script exhausts the memory of the worker or overflows its stack, only the worker stops. The parent reports the failure and launches nothing. |
 

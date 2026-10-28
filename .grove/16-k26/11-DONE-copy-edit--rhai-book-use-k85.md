@@ -30,3 +30,15 @@ Make the prose clear, connected and consistent with the reader's knowledge and t
 
 Read the whole document under the copy-edit charter. Art owns figure changes, and draft owns structural or technical rewrites.
 This is the second correction run that the owner authorised. Escalate a further substantial send-back rather than growing an unattended repetition.
+
+## Decisions (running log)
+
+- **Deadline and process-group wording, 2026-10-28.** Four explanations said the parent can always stop a process at the deadline, but the reference also says a kernel stall can delay exit. They now describe the parent's control and its limit. The chapter 1 and 4 process-group explanations now say that descendants can leave the group, consistent with the operational limits.
+- **Harness answer and final result, 2026-10-28.** Chapter 4 said the caller sees only the selection after a harness run. It now also names the final session result, which the caller receives after cleanup.
+- **Cancellation condition, 2026-10-28.** Chapter 5's notice section implied that the cancellation status follows every harness cleanup failure. It now states that cancellation sets that status when it occurs.
+
+## Checks
+
+- Strict prose and prose-break checks passed for chapters 1–6, and the book built.
+- All nine exact excerpts passed. All 22 runnable examples passed with none skipped; 57 fragments were not run. The final edits after that run changed prose wrapping only.
+- The art and proof leaves already follow this stage. The document brief's art handoff now includes the limit on deadline enforcement.

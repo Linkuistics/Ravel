@@ -215,10 +215,11 @@ when `--config` is present. The private `home` of the example is empty, so the
 defaults apply.
 
 The Ravel CLI launches a second copy of its own binary, the Rhai worker, in
-the worker's empty private directory. A separate process lets the Ravel CLI
-stop the worker at the deadline, whatever the script does. A memory or stack
-failure of the script then ends only the worker. The Ravel CLI checks the identity of the
-worker before it sends the evaluation request.
+the worker's empty private directory. At the deadline, the Ravel CLI ends
+evaluation and can signal the separate worker. A kernel stall can delay the
+worker's exit. A memory or stack failure in the script ends only the worker.
+The Ravel CLI checks the identity of the worker before it sends the evaluation
+request.
 The worker receives an empty environment and no
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information),
 the `RAVEL_EXIT_FILE` path with which a program sends the session result.

@@ -69,7 +69,7 @@ Parts III and IV apply the same current lessons in their scheduled rewrite befor
   - `inherited-result-path.typ`, chapters 1, 5 and 6. The chapter 1 alt text already uses the new terms.
   - `system-context.typ`, chapter 1: “owner policy and settings” in the owner's description and relation.
   - `process-authority.typ`, chapter 2. F12 also applies: the figure must agree with the chapter 2 text.
-    That text says that the worker is a second copy of the executable. The parent stops it at the deadline, and the process isolates a script failure.
+    That text says that the worker is a second copy of the executable. At the deadline, the parent can signal it, and a kernel stall can delay its exit. The process isolates a script failure.
   - `successful-session.typ`, chapter 3, and `evaluation-harness.typ`, chapters 4 and 6.
   - `selection-cancellation.typ` and `settled-exit-status.typ`, chapter 5.
   - `source-components.typ` and `installed-files.typ`, chapter 6. Chapters 7 and 11 also show them, and `rhai-book-inside` owns that prose.

@@ -214,8 +214,8 @@ child is the
 evaluates the configuration script and sends the selection or the refusal to
 its parent. Chapter 1 gives three reasons for a separate process:
 
-- **The deadline.** At the deadline, the parent stops the worker, whatever
-  the script does.
+- **The deadline.** At the deadline, the parent ends evaluation and can
+  signal the worker. A kernel stall can delay the worker's exit.
 - **Requests from the script.** The worker only computes. When the script
   reads a file or runs a harness, the worker asks the parent, and the parent
   does the work.
@@ -1362,11 +1362,11 @@ An evaluation harness run has an exception. If its cleanup fails after the
 whole deadline expires, `harness_cleanup_failed` replaces `selection_timeout`.
 The status is then 5, not 124. Cancellation has precedence over both.
 
-Ravel then sets the cancellation
-status, keeps the original and cleanup diagnostics and returns no result to
-the caller. If required cleanup fails, Ravel also returns no result to the
-caller, even when everything else succeeds. Thus, keep the complete standard error
-stream, even after the caller classifies the exit status.
+If cancellation occurs, Ravel sets the cancellation status, keeps the original
+and cleanup diagnostics and returns no result to the caller. If required cleanup
+fails, Ravel also returns no result to the caller, even when everything else
+succeeds. Thus, keep the complete standard error stream, even after the caller
+classifies the exit status.
 
 ## Interpret the exit status
 
