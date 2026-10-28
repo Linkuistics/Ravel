@@ -15,7 +15,7 @@ Thus, the LLM runs `ravel end-session` to send its result and ask Ravel to end
 the session. This lets an interactive harness work as one part of the process
 of the orchestrator.
 
-The contract is loose. The policy selects a program, Ravel runs it, and a
+The contract is loose. The configuration script selects a program, Ravel runs it, and a
 program in the session sends one value with `end-session`. Ravel needs nothing
 more. The book expects a harness, but any program that runs `end-session` can
 stand where a harness stands.
@@ -26,8 +26,8 @@ parts are built and versioned together as one tool.
 
 Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
-The book is the guide to Ravel. It says what Ravel is for, how to write an
-owner policy and how to run sessions. It also explains the parts of Ravel, how
+The book is the guide to Ravel. It says what Ravel is for, how to write a
+configuration script and how to run sessions. It also explains the parts of Ravel, how
 to develop it and how to deliver it.
 
 The book is in this repository checkout under `docs/book/`. A release archive

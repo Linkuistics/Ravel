@@ -180,3 +180,15 @@ design needs the settled requirements.
   The existing removal and later book leaves retain the final layout, help/spec terminology, whole-book reconciliation and Read 2 duties.
 
 - `rhai-delivery-cutover-k110` delivers `bin/ravel` as the only executable, with `share/ravel/examples/{static,sample,llm}.rhai` and `share/ravel/notices/THIRD-PARTY-NOTICES.md`. Archives also keep LICENSE/README. `task notices` generates the notice at `target/notices/THIRD-PARTY-NOTICES.md`, and installation, archives and the Homebrew formula copy those bytes unchanged. `task install` uses `scripts/install.sh`; `task smoke` and target-floor checks use `scripts/installed-smoke.sh`. The worker/SDK/dispatcher, delivery Bun pin/notices and probes are removed; book Bun stays in `scripts/book-bun.sh`. k92 still owns configuration names; k33 owns spec reconciliation.
+
+- `rhai-spec-reconciliation-k33` closes `typescript-removal-k29`.
+  `docs/specs/policy-evaluation.md` now owns the current Rhai configuration rules and installed/archive delivery contract.
+  `session-execution.md` retains managed launches, result transport and confinement, with links to configuration rules.
+  `result-job-completion.md` retains detailed settlement and native-entry requirements and distinguishes historical receipts from current Rhai acceptance checks.
+  The ADRs, README and design views use the glossary terms. `CONTEXT.md` already matched and needed no change.
+  Existing literal interfaces, filenames and explicit old anchors remain for `configuration-names-k92`.
+  The spec distinguishes reserved environment-grant classes from the six exact launch controls and explains fresh harness-run markers and result paths.
+  Frozen comparison rules now state their exclusions and intentional language differences. Do not regenerate the original observations to remove those differences.
+  Current macOS `task check`, all four book example/excerpt tasks, scoped local links and prose checks pass.
+  k110 retains the three-target delivery and formula evidence. This leaf changes documentation only and does not rerun those delivery measurements.
+  The book nodes retain their existing broader narrative duties.

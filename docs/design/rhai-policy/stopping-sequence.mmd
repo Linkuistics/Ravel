@@ -2,7 +2,7 @@ sequenceDiagram
   participant S as Signal or deadline
   participant R as Ravel CLI
   participant H as Harness run group
-  participant W as Policy worker
+  participant W as Rhai worker
   S->>R: INT, TERM, HUP or the end of the deadline
   R->>R: record the first cause — a later cause does not repeat the stop
   alt a read is in progress

@@ -1,52 +1,53 @@
-# Policy evaluation
+<a id="policy-evaluation"></a>
 
-This specification describes how Ravel 2.0.0 evaluates an owner policy written
-in Rhai. It covers the policy entry, the policy worker, the host capabilities,
-the evaluation budgets, cancellation, the typed boundaries, the errors and the
-migration from TypeScript. The [session execution specification](session-execution.md)
-describes the released 1.x path. Its policy sections stay current until the
-2.0.0 cutover, and the work that removes the TypeScript path moves them here.
+# Configuration evaluation
 
-Three decisions bind this area. They are
-[the owner policy is a Rhai script](../adr/owner-policy-is-a-rhai-script.md),
-[policy evaluation precedes the launch](../adr/policy-evaluation-precedes-the-launch.md)
-and [a policy asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md).
+This specification describes the current Rhai configuration evaluation path for Ravel 2.0.0.
+It owns entry discovery, requests, selection context, selections, settings, host capabilities, evaluation bounds and delivery.
+The [session execution specification](session-execution.md) owns the managed launch and result contract.
+The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
+The migration section records the retired TypeScript correspondence.
+
+Three decisions bind this area:
+
+- [the configuration script uses Rhai](../adr/owner-policy-is-a-rhai-script.md).
+- [configuration evaluation precedes the launch](../adr/policy-evaluation-precedes-the-launch.md).
+- [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md).
+
 The decision that [the launched child is a job](../adr/the-launched-child-is-a-job.md)
-governs each harness run. The [glossary](../../CONTEXT.md) defines the terms.
-GitHub issue 2 states the requirements and the acceptance criteria. The
+governs each harness run.
+
+The [glossary](../../CONTEXT.md) defines the terms. GitHub issue 2 states the requirements and the acceptance criteria. The
 [design views](../design/rhai-policy/README.md) draw the processes, the
 evaluation sequence and the paths that stop an evaluation.
 
 ## Problem
 
-A Ravel 1.x owner policy is TypeScript. A compiled Bun worker evaluates it, so
-each release carries a JavaScript runtime, its notices, its startup controls
-and its target checks. Most policies are small tables that choose a harness, a
+Ravel 1.x evaluated a TypeScript configuration script. Its Bun worker required a JavaScript runtime, runtime notices, startup controls and target checks. Most configuration scripts are small tables that choose a harness, a
 model and an effort. They need none of that runtime.
 
-Owners also want a policy to ask a model a question, for example to classify a
-task before it chooses a route. A 1.x policy can do that only with its own code
-that launches a process or opens a connection. Ravel then controls neither the
-deadline nor the cleanup. The owner signs in to Claude Code and Codex with a
+Owners also want a configuration script to ask a model a question, for example to classify a
+task before it chooses a route. A 1.x script needed its own process or network code for that work. Ravel controlled neither its deadline nor its cleanup. The owner signs in to Claude Code and Codex with a
 subscription. A subscription sign-in is not an API key that another program can
 send.
 
 ## Solution
 
-An owner policy becomes a Rhai module. Ravel evaluates it in a policy worker,
-which is Ravel's own binary in an internal role. The worker only computes. It
-has an empty environment. It reads no file and launches no process. Ravel
-trusts the owner policy, so a policy can still receive a credential through a
+The configuration script is a Rhai module. Ravel evaluates it in a Rhai worker,
+which is Ravel's own binary in an internal role. The worker only computes.
+
+The worker has an empty environment. It reads no file and launches no process. Ravel
+trusts the configuration script, so a configuration script can still receive a credential through a
 host capability, as [credentials](#credentials) states.
 
-The policy asks the Ravel CLI for each host capability: measured reads,
+The configuration script asks the Ravel CLI for each host capability: measured reads,
 discovery and harness runs. The Ravel CLI performs each one and returns data.
 It runs a harness that the owner names in settings through the runner, as a job
 with a result channel of its own. The data helpers run in the worker.
 
-An LLM call is a harness run. The policy runs Claude Code or Codex
+An LLM call is a harness run. The configuration script runs Claude Code or Codex
 noninteractively, with the arguments of that harness. The harness uses the
-owner's own sign-in. The policy reads the answer from the output of the run or
+owner's own sign-in. The configuration script reads the answer from the output of the run or
 from its result. Ravel holds no model credential, opens no network connection
 and builds no argument that is specific to a harness.
 
@@ -62,8 +63,7 @@ progress, and nothing launches. On the path to a launch, each host call ends
 before the worker sends its result. The Ravel CLI reaps the worker before the
 managed process launches.
 
-Callers do not change. The `start-session` flags, the policy context schema, the
-result channel and the selection fields keep their meaning.
+The caller supplies the request and interprets the result. The script selects the command, and Ravel supervises it.
 
 ## Decisions
 
@@ -72,7 +72,7 @@ result channel and the selection fields keep their meaning.
 | Component | Pin | Role |
 |---|---|---|
 | Rust | 1.99.1, edition 2024 | The workspace floor and the toolchain file. It is the newest stable release at design time |
-| Rhai | `=1.27.0`, with the `compact_str` feature | The policy language in the worker |
+| Rhai | `=1.27.0`, with the `compact_str` feature | The configuration script language in the worker |
 | Tokio | 1, a current-thread runtime | The asynchronous runtime of the evaluation phase |
 
 The design relies only on Rhai interfaces that it checked against the source of
@@ -83,9 +83,9 @@ floor, and a later release may raise it through the upgrade checks.
 Ravel has no LLM client library. Rig, reqwest and rustls are not dependencies,
 because a [harness run](#llm-calls-through-a-harness) makes each LLM call.
 
-Rhai 1.27.1 is not released. It removes the endless loop of `pad` with an empty
-padding string (rhaiscript/rhai#1195). It also restores the imports of a closure
-that a host calls after the script ends (rhaiscript/rhai#1193). Ravel
+The design considered unreleased Rhai 1.27.1 changes for two issues.
+One removes the endless loop of `pad` with an empty padding string (rhaiscript/rhai#1195).
+The other restores imports for a closure that a host calls after the script ends (rhaiscript/rhai#1193). Ravel
 calls named functions and holds no closure, so the second issue does not reach
 it. A test guards the case.
 
@@ -94,7 +94,9 @@ build, the call depth and the two expression depths are 8, 32 and 16. A release
 build has 64, 64 and 32. Ravel sets every limit itself, so tests and releases
 agree.
 
-### Policy entry and discovery
+<a id="policy-entry-and-discovery"></a>
+
+### Configuration entry and discovery
 
 The default entry is `$HOME/.config/ravel/policy.rhai`, and `HOME` must be
 absolute. `--config PATH` names another entry, relative to the caller's working
@@ -114,10 +116,6 @@ Ravel admits a symlink by its real file. Imports then resolve from the directory
 of that real file. Settings stay at `$HOME/.config/ravel/settings.json`, also
 with `--config`.
 
-Until the increment that removes the TypeScript path, main keeps both paths.
-There the extension of the entry selects the path, and the default entry prefers
-`policy.rhai`. The released 2.0.0 has only the Rhai path.
-
 A module import has the form `import "PATH" as NAME;`. A relative path resolves
 from the directory of the importing file. Ravel appends `.rhai` when the path
 has no extension, and it accepts an absolute path. The Ravel CLI reads each
@@ -125,29 +123,31 @@ module with the file rules of the entry, and each module loads once per
 evaluation.
 
 A missing or unreadable module, a cycle or a 65th module refuses as
-`policy_import_failed`. The bound counts distinct files. An import of a loaded
+`policy_import_failed`. The bound counts distinct imported files, excluding the entry. An import of a loaded
 module is no new module, however many import statements run.
 
 Ravel measures the entry and every module. The routing notice lists each with
 its canonical name, its byte count and its SHA-256. Ravel 2.0.0 embeds no module
 of its own, so every import names a file.
 
-### The policy module
+<a id="the-policy-module"></a>
+
+### The configuration module
 
 | Export | Required | Meaning |
 |---|---|---|
 | `SCHEMA_VERSION` | Yes | The constant 3. Another value refuses as `unsupported_version` |
 | `VERSION` | Yes | A nonblank string that the owner maintains. The notice reports it |
 | `fn select(request, context)` | Yes | It returns a selection or a refusal |
-| `fn load_context(request)` | No | It returns a policy context or a refusal |
+| `fn load_context(request)` | No | It returns a selection context or a refusal |
 
 Ravel evaluates the entry as a module. Its top-level statements run once, before
 any of its functions. A missing export, a wrong arity or a blank version refuses
 as `policy_invalid`.
 
-Other functions and constants are helpers of the policy. A function reads a top-level constant through the `global::` namespace, such as
+Other functions and constants are helpers of the configuration script. A function reads a top-level constant through the `global::` namespace, such as
 `global::TABLE`. Rhai functions do not see the variables around them. A wrapper
-policy imports another module and calls its `select`. It can change the
+configuration script imports another module and calls its `select`. It can change the
 selection that comes back.
 
 The engine runs in a strict mode:
@@ -155,12 +155,26 @@ The engine runs in a strict mode:
 - An undefined variable fails when the script compiles.
 - An absent map property fails with a source location, so a mistyped field
   cannot read as `()`.
-- Ravel disables `eval`. A policy cannot run text as code, such as the answer
+- Ravel disables `eval`. A configuration script cannot run text as code, such as the answer
   of a model.
-- `print` writes to the captured policy stdout. `debug` writes to the captured
-  policy stderr.
+- `print` writes to the captured configuration script stdout. `debug` writes to the captured
+  configuration script stderr.
 
 ### Request, context and selection
+
+`kind` is an open nonempty caller token. Ravel derives no kind or identity from a task file or filename.
+`taskId` is optional nonempty UTF-8 of at most 1,024 bytes.
+`taskFile` is optional and becomes an absolute UTF-8 path relative to the caller's working directory.
+It need not exist, and Ravel does not read it automatically.
+
+The prompt requires exactly one of `--prompt` and `--prompt-file`.
+Ravel preserves its UTF-8 bytes, including empty text and newlines, and injects no instructions.
+The prompt bound is 1 MiB, although platform argument limits can refuse less.
+A prompt file resolves against the caller's working directory. Ravel never reads a prompt from terminal stdin.
+
+Each repeatable `--param NAME=VALUE` supplies caller data.
+A name must be nonempty, contain no `=` and occur once. The value is the exact text after the first `=`.
+All names and values together have a bound of 65,536 UTF-8 bytes.
 
 The request is a map. Every documented field is present. An optional field that
 the caller did not supply holds `()`.
@@ -178,16 +192,34 @@ the caller did not supply holds `()`.
 | `limits` | Map | The effective bounds, for reading |
 
 `limits` holds `selectionMs`, `contextBytes`, `sourceBytes`, `sources`,
-`messageBytes`, `diagnosticsBytes` and `harnessRuns`. A policy cannot raise any
-of them. Map keys keep the JSON names of the 1.x contract, so a value converts
-to JSON unchanged. Host functions use the snake-case names of Rhai.
+`messageBytes`, `diagnosticsBytes` and `harnessRuns`. A configuration script cannot raise any
+of them. Map keys keep their documented JSON names, so a value converts to JSON unchanged. Host functions use the snake-case names of Rhai.
 
-The policy context keeps schema version 1, its fields and its checks. Without
+The selection context uses schema version 1 and the checks below. Without
 `load_context`, `select` receives the caller's context with its measurement, or
 `()`. With `load_context`, `select` receives what it returns, with the measured
 sources attached. A `load_context` that returns `()` refuses as
 `context_invalid`. One that returns a refusal refuses as `policy_refused`, and
 `select` does not run.
+
+A selection context is a JSON object with these fields:
+
+| Field | Shape |
+|---|---|
+| `schemaVersion` | Required integer 1 |
+| `summary` | Optional string |
+| `acceptanceCriteria` | Optional array of strings |
+| `facts` | Optional object |
+| `assessments` | Optional object whose values contain only required `by` and `value` fields. `by` is nonblank text, and `value` is JSON data |
+| `sources` | Optional array of at most 256 source records |
+
+A source record has a nonblank `name` and at least one of `sha256` or `version`. `sha256` has 64 lowercase hexadecimal digits. `version` is nonblank text, and optional `bytes` is a nonnegative integer.
+
+A source record has no other field. Unknown or executable context fields refuse. The caller and loader cannot supply `measured`.
+
+Ravel attaches that list from its own reads, with the caller's document first. Attribution is data and supplies no execution authority or authentication. The delivered JSON encoding must fit the context budget.
+
+Ravel never truncates the delivered context.
 
 `select` returns one of two maps:
 
@@ -196,8 +228,13 @@ sources attached. A `load_context` that returns `()` refuses as
 | Selected | `status: "selected"`, `program`, `args`, `provider`, `model`, `effort` and `reason` |
 | Refused | `status: "refused"`, `code`, `message` and `remedy` |
 
-The 1.x selection checks apply unchanged. The strings are nonblank, `args` is an
-array of strings with no NUL, and no unknown field is present. A return of `()`
+All listed fields are required, and no unknown field is present. The strings are nonblank, except that an argument can be empty. `program` and every argument must contain no NUL.
+
+`args` is an array of UTF-8 strings. Ravel performs no shell expansion or word splitting. A shell runs only when the script selects one.
+
+Absolute paths, relative paths with separators and `PATH` names resolve in the caller's execution context. The labels are owner text, and Ravel assigns them no provider integration. A refusal launches nothing and carries the owner's code as `policyCode`.
+
+A return of `()`
 refuses as `selection_abstained`. An uncaught error refuses as
 `selection_threw`, with the file, the line and the column. Ravel never
 substitutes another route.
@@ -223,7 +260,9 @@ From JSON, an integer outside the signed 64-bit range becomes a float. A shared
 value that a closure captured converts as its current content. Arrays and
 maps nest at most 100 levels. A deeper value refuses at its location.
 
-### The policy worker
+<a id="the-policy-worker"></a>
+
+### The Rhai worker
 
 The Ravel CLI launches the worker when it re-executes its own binary in an
 internal role. On Linux it executes the running image itself. On macOS it
@@ -232,11 +271,19 @@ worker reports the build identity of its binary. The Ravel CLI
 refuses another identity as `worker_identity_mismatch`, and a worker that cannot
 launch as `worker_missing`.
 
-The 1.x worker hygiene stays. The worker gets a private mode-0700 empty
+The worker gets a private mode-0700 empty
 directory, null stdin, an empty environment and the private socket at fd 3. It
 inherits no other descriptor. The internal role accepts no command-line input,
 and without the expected socket and handshake it exits with status 2. It cannot
 launch a process or read a file, so it offers no bypass of selection.
+
+The private socket carries length-prefixed JSON frames, separately from stdout and stderr. The handshake checks protocol 1, package version, build identity and Rhai version before evaluation. The build identity hashes the Rust sources of Ravel and its runner, the crate manifest, build script and Cargo lockfile.
+
+It pairs the supervisor and worker builds. It does not authenticate the installation against its owner. The Ravel CLI drains and bounds worker stdout and stderr concurrently.
+
+Neither stream can supply a selection or an opaque result.
+
+Admission follows the [worker teardown contract](result-job-completion.md#worker-teardown-before-admission), including failure precedence and diagnostic retention.
 
 The worker evaluates the script on one thread with a stack of 64 MiB. Its engine
 limits are fixed:
@@ -266,7 +313,9 @@ holds.
 
 The worker replaces each of those functions. A replacement does what the
 original does. At the end of a pointer call it returns an error that `try`
-cannot catch as it is. It wraps every other error as before. So an ordinary
+cannot catch as it is.
+
+It wraps every other error as before. So an ordinary
 `throw` in a closure is still caught. A call-depth, data-size or variable breach
 ends the evaluation.
 
@@ -295,7 +344,7 @@ a container past its size limit with those calls, and the heap bound ends that
 growth.
 
 The worker exits after it sends its result. The Ravel CLI reaps it and removes
-its private directory before the managed process launches, as in 1.x.
+its private directory before the managed process launches.
 
 ### The bridge between the script and the CLI
 
@@ -378,14 +427,16 @@ in the script.
 #### Measured reads
 
 A read resolves a relative path against `request.cwd`. It reads a regular UTF-8
-file once. It opens the file without blocking, as in 1.x, so a FIFO cannot hold
+file once. It opens the file without blocking, so a FIFO cannot hold
 the read. It checks that the open file is a regular file, and it reads at most
 one byte beyond its bound.
 
 A read returns the content with a source record: the canonical `name`, the
 `bytes` that it read and their `sha256`. `max_bytes` defaults to `sourceBytes`
 and may rise to `contextBytes`. The bound of 256 sources counts the caller's
-context document and every read in the evaluation. A read counts once the file
+context document and every read in the evaluation.
+
+A read counts once the file
 gave its bytes, whether or not they decode. A file that is not UTF-8, is not JSON or
 nests too deep is therefore a source, and a script cannot retry it without
 limit. A read that finds no file to read is no source.
@@ -395,11 +446,10 @@ conversion rule. A deeper file is a data failure, `source_invalid_json`. Its
 message names the first level past the bound.
 
 Reads that `load_context` makes enter the `measured` list of the delivered
-context, as in 1.x. The caller's document comes first, when there is one. Ravel
+context. The caller's document comes first, when there is one. Ravel
 also measures the reads that `select` and the top level make, and the notice
 lists every read with its phase. A breach of a read
-bound refuses even if the script catches the error. The 1.x choice-file helper
-becomes a few lines of the shipped sample, with `read_text` and `split()`.
+bound refuses even if the script catches the error. The shipped sample reads a choice file with `read_text` and `split()`.
 
 #### Data helpers
 
@@ -418,7 +468,9 @@ Ravel:
 Equal values therefore give equal bytes. For a string that Rhai can hold,
 `json_encode` writes the bytes that `JSON.stringify` writes. A caller that needs
 a fixed member order, such as the provider receipt of Grove, therefore joins
-members that `json_encode` wrote. The `to_json` of Rhai writes strings with Rust
+members that `json_encode` wrote.
+
+The `to_json` of Rhai writes strings with Rust
 debug escapes, which are not JSON for control characters. The `parse_json` of
 Rhai reads Rhai syntax, so it accepts a trailing comma and a single-quoted
 string. Neither is part of the contract of Ravel.
@@ -453,7 +505,9 @@ breaks the rule, such as `schema.properties.a.format`.
 A keyword applies to the kinds of value that it describes. `required`,
 `properties` and `additionalProperties` say nothing about an array, and `items`
 says nothing about an object. A number with no fraction is an `integer`, so
-`3.0` matches. A value that does not match throws `json_mismatch`. Its message
+`3.0` matches.
+
+A value that does not match throws `json_mismatch`. Its message
 gives the location in the style of the conversion table, such as
 `value.items[1].name`. The location can include property names from the value,
 but the message omits property values.
@@ -476,7 +530,7 @@ slashes and the last segment, and the parent of `/` is `/`.
 
 For absolute inputs,
 both follow the rules of the `path.resolve` and `path.dirname` of Node, which
-the migration of the owner's policy needs. That includes the cases where
+the migration of the owner's configuration script needs. That includes the cases where
 `dirname` does not normalise: the parent of `/a//b` is `/a/`, the parent of
 `/a/./b` is `/a/.`, and the parent of `//a` is `//`. A relative `base` or a
 relative `path_parent` argument throws `path_not_absolute`, whatever the other
@@ -505,7 +559,9 @@ models that a harness offers there, such as `model:sonnet`.
 `remaining()` returns `ms`, `harnessRuns` and `sources`: what the evaluation
 still has. `ms` is the time to the whole deadline, and `harnessRuns` is the
 budget less the runs that the runner launched. `sources` is the bound of
-256 less the caller's document and every read that arrived. Discovery uses no
+256 less the caller's document and every read that arrived.
+
+Discovery uses no
 network and runs no harness. It reports availability, never a recommendation. A
 harness offers no model list that Ravel can read without a run, so Ravel lists
 only the labels that the owner writes.
@@ -513,7 +569,7 @@ only the labels that the owner writes.
 #### Harness runs
 
 `ravel::run_harness(request)` runs a harness that settings name, through the
-runner, and returns what happened. It never evaluates a policy.
+runner, and returns what happened. It never evaluates a configuration script.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
@@ -523,8 +579,7 @@ runner, and returns what happened. It never evaluates a policy.
 | `timeoutMs` | Integer | No | The deadline of this run. Ravel lowers it to the time that remains |
 
 The program of the run is the program of the entry, and the script supplies the
-arguments. That is the 1.x `program` and `args` contract, with the program fixed
-by the owner. The script decides where a prompt goes: into an argument or into
+arguments. The owner fixes the program, and the script supplies its argument vector. The script decides where a prompt goes: into an argument or into
 `stdin`. Ravel builds no argument that is specific to a harness.
 
 A harness run has these properties:
@@ -566,7 +621,7 @@ identifier that a harness prints reaches the script only in that output.
 
 An LLM call is a harness run whose program asks a model one question and prints
 the answer. The owner names Claude Code or Codex in a harness entry, and the
-policy supplies the noninteractive arguments of that harness. Ravel builds no
+configuration script supplies the noninteractive arguments of that harness. Ravel builds no
 argument that is specific to a harness, and it parses no output of a harness.
 The rules of [harness runs](#harness-runs) apply unchanged. They cover the
 budget, the deadlines, the output bounds, the environment and the stop.
@@ -606,13 +661,14 @@ and [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-
 
 A script cannot write a file. A Codex call with structured output therefore
 names a schema file that the owner keeps. The script reads the same file with
-`ravel::read_json`. It then checks the answer against the schema that Codex
-received. An unconfined run can read a schema file beside the policy.
-Confinement refuses a grant that overlaps the directory of the policy, so a
+`ravel::read_json`.
+
+It then checks the answer against the schema that Codex
+received. An unconfined run can read a schema file beside the configuration script. Confinement refuses a grant that overlaps the directory of the configuration script, so a
 confined run cannot read the file there.
 
 Ravel reports no usage and counts no token for an LLM call. The usage that a
-harness prints reaches only the script, and a policy that wants it in the
+harness prints reaches only the script, and a configuration script that wants it in the
 diagnostics prints it. The harness-run budget, the deadline of the run and the
 whole deadline bound the work instead. A subscription also has rate limits of
 its own, which Ravel cannot see.
@@ -628,10 +684,10 @@ there. The notice reports the delivered context.
 Ravel holds no model credential. It reads no API key and no sign-in, and it
 stores and sends none. Each harness finds its own sign-in or key.
 
-Ravel trusts the owner policy, because the owner writes it. The credential rules
-therefore do not defend against the policy. They keep Ravel itself from holding
+Ravel trusts the configuration script, because the owner writes it. The credential rules
+therefore do not defend against the configuration script. They keep Ravel itself from holding
 or passing on a credential, as the terms of the harnesses require. The data
-that a policy reads stays untrusted, such as a context document, a file or the
+that a configuration script reads stays untrusted, such as a context document, a file or the
 answer of a model. That is why Ravel disables `eval`.
 
 A harness run receives the environment of a managed process. That is the
@@ -643,15 +699,19 @@ Ravel does not scrub it, because a harness may authenticate with it.
 
 The confined environment keeps `HOME`. Confinement makes only the working
 directory and the private run directory writable. A harness that writes to its
-store can therefore fail, for example when it refreshes a token. Ravel does not
+store can therefore fail, for example when it refreshes a token.
+
+Ravel does not
 widen the confinement for a sign-in. Whether a harness can use its sign-in
 inside confinement depends on the harness and the platform. The smoke tasks run
 unconfined.
 
 Ravel reads its settings from `$HOME/.config/ravel` and has no override. A
 harness run receives the caller's `HOME`. A smoke task therefore cannot run in
-the owner's `HOME` without writing the owner's settings. It runs in a sandbox
-home with its own settings and policy. The sandbox home links the sign-in store
+the owner's `HOME` without writing the owner's settings.
+
+It runs in a sandbox
+home with its own settings and configuration script. The sandbox home links the sign-in store
 of the harness. That is `Library/Keychains` on macOS for Claude Code, `.claude`
 on Linux, and `.codex` for Codex.
 
@@ -661,17 +721,33 @@ also removes the API keys from the environment, so the call proves the sign-in.
 
 The credential boundary covers the caller variables that `ravel::env` serves. It
 is not a filesystem sandbox. A measured read is not confined by path, so a
-policy that reads a file that holds a credential receives the credential. The
+configuration script that reads a file that holds a credential receives the credential.
+
+The
 sign-in file of a harness, such as `~/.codex/auth.json`, can be such a file. On
 Linux, the
 environment file of a process under `/proc` can hold a credential. That includes
 the file of the Ravel CLI itself, which performs the read.
 
-Ravel accepts this exposure, because it trusts the policy. A list of refused
+Ravel accepts this exposure, because it trusts the configuration script. A list of refused
 paths would not remove the exposure in any case, because the other files and
 processes of the same user stay readable. An unconfined harness run that prints
 its environment also returns a credential of the caller's environment to the
 script in its output.
+
+### Settings and environment grants
+
+Settings remain at `$HOME/.config/ravel/settings.json`, including with an explicit `--config` entry. A missing settings file selects defaults. Without an absolute `HOME`, an explicit entry uses defaults.
+
+A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `policyEnv`, `harnesses` and `budgets`. Unknown keys refuse as `settings_invalid`, exit 2.
+
+No key opens a persistent store. Flags override the timeout and context bounds. `--policy-env` adds names to `policyEnv`, with duplicates counted once.
+
+`policyEnv` is an array of environment names. A grant must be nonempty UTF-8 and contain no `=`. Names in `LD_*`, `DYLD_*`, `RAVEL_*` and `HARNESS_DISPATCH_*` are reserved and refuse as `excluded_grant`, exit 2.
+
+Other malformed grants refuse as `malformed_input`, exit 2. Bun and Node variables are ordinary grantable names after runtime removal. Grants let `ravel::env` read caller values through the Ravel CLI.
+
+They do not populate the Rhai worker's empty environment. Diagnostics report grant names and presence, never values. The six exact controls scrubbed for a managed launch are a separate rule in the session spec.
 
 ### Harness entries
 
@@ -698,11 +774,11 @@ refusal.
 | One measured read | The smaller of 65,536 bytes and the context budget | `max_bytes`, up to the context budget | `source_too_large`, exit 3 |
 | Measured sources | 256 | Fixed | `too_many_sources`, exit 3 |
 | Worker messages | 1,048,576 bytes | Fixed | `message_too_large`, exit 3 |
-| Policy diagnostics | 262,144 bytes | Fixed | `output_limit`, exit 3 |
+| Configuration diagnostics | 262,144 bytes | Fixed | `output_limit`, exit 3 |
 | Harness runs | 0 | `budgets.harnessRuns`, from 0 to 16 | `harness_budget_exhausted`, exit 3 |
 | Harness output | 1,048,576 bytes for each stream | Fixed | The run ends as `output_limit` |
 | Host calls at one time | 1 | Fixed by the synchronous script | None |
-| Engine limits and worker heap | As in the policy worker section | Fixed | `script_limit` or `memory_limit`, exit 3 |
+| Engine limits and worker heap | As in the Rhai worker section | Fixed | `script_limit` or `memory_limit`, exit 3 |
 
 The bounds compose by these rules:
 
@@ -735,13 +811,19 @@ stops the evaluation in this order:
 
 1. The Ravel CLI records the first cause. A later cause does not repeat the
    stop.
-2. It abandons a read in progress, and it does not wait for it.
+2.
+
+It abandons a read in progress, and it does not wait for it.
 3. It asks the runner to stop a harness run in progress. The runner escalates
    from TERM to KILL, clears the group and reaps the child.
-4. It stops the worker with TERM, kills it if it is still there after one
+4.
+
+It stops the worker with TERM, kills it if it is still there after one
    second, and reaps it. The worker holds nothing that needs a graceful stop.
 5. It removes the private directories, and it reports every cleanup failure.
-6. It reads the cancellation latch again, and then it refuses.
+6.
+
+It reads the cancellation latch again, and then it refuses.
 
 Only one of steps 2 and 3 applies, because one host call runs at a time.
 
@@ -752,8 +834,7 @@ are the runner's bounds for a reap that fails and for the group to disappear.
 Ravel then ends the evaluation as `harness_cleanup_failed`.
 
 The final read of the latch applies the precedence of the
-[completion contract](result-job-completion.md#outcome-and-diagnostic-order), as
-in 1.x. A signal that Ravel consumed before that read wins over the deadline.
+[completion contract](result-job-completion.md#outcome-and-diagnostic-order), for every evaluation. A signal that Ravel consumed before that read wins over the deadline.
 The refusal is then `selection_cancelled` with 128 plus its number, and Ravel
 raises the same signal again. Among signals, the first consumed signal stays the
 cause. The report keeps an earlier deadline as the original failure.
@@ -761,7 +842,9 @@ cause. The report keeps an earlier deadline as the original failure.
 Without a signal, the deadline refuses as `selection_timeout`, exit 124. A run
 whose group survives, or whose reap fails, replaces the deadline: the refusal is
 `harness_cleanup_failed`, exit 5. The same final read follows every other
-refusal of the evaluation. A consumed signal therefore also wins over a breach
+refusal of the evaluation.
+
+A consumed signal therefore also wins over a breach
 of a bound and over a cleanup failure. The report keeps the replaced refusal as
 the original failure. No managed process launches after a stop.
 
@@ -777,16 +860,15 @@ request against the owner's plan. Ravel cannot withdraw such a request.
 
 ### Diagnostics, notices and results
 
-Stdout carries only the final result, as in 1.x. The output of a harness run
+Stdout carries only the final result. The output of a harness run
 returns to the script, and it reaches no stream unless the script prints it.
-The policy's `print` and `debug` output, the notices of Ravel and the runner
+The configuration script's `print` and `debug` output, the notices of Ravel and the runner
 reports go to stderr.
 
-The JSON routing notice moves to schema version 2:
+The JSON routing notice uses schema version 2:
 
-- `worker` reports `path`, `version`, `buildId` and `rhaiVersion`. `bunVersion`
-  is gone.
-- `policy` adds `modules`: the canonical name, bytes and SHA-256 of the entry and
+- `worker` reports `path`, `version`, `buildId` and `rhaiVersion`.
+- `policy.modules` lists the canonical name, bytes and SHA-256 of the entry and
   of each module. The entry comes first, and each module follows in the order
   of its first import.
 - `reads` lists every measured read with its `via`, its phase, its name, its
@@ -796,25 +878,40 @@ The JSON routing notice moves to schema version 2:
 - `harnessRuns` lists the harness, status, exit code or signal, elapsed time of
   each run, and whether it sent a result. An LLM call is one of these runs. The
   list also holds a call that launched nothing, with the status `unavailable`.
-- `bounds` adds `harnessRuns`.
+- `bounds` includes `harnessRuns`.
 
-The JSON failure document keeps schema version 1. For an error in a script, its
-`location` gains the form `LINE:COLUMN`, and its `source` names the file.
+The JSON failure document uses schema version 1. For an error in a script, its
+`location` has the form `LINE:COLUMN`, and its `source` names the file.
 
 ### Errors and refusals
 
-Ravel keeps every 1.x code that still has a cause. It removes
-`selection_unsettled` and `context_loader_unsettled`, because a Rhai function
-cannot leave a promise unsettled.
+The tables below name configuration refusals and worker failures.
+A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 
 | Code | Stage | Exit | Meaning |
 |---|---|---|---|
-| `policy_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Write a Rhai policy with chapter 4 of the book |
+| `home_unset` | `authority` | 3 | Default discovery lacks an absolute `HOME` |
+| `policy_missing` | `authority` | 3 | The selected Rhai entry does not exist |
+| `policy_unreadable` | `authority` | 3 | Entry admission, reading or extension checks failed |
+| `context_unreadable` | `context` | 3 | Ravel cannot read the caller's context document |
+| `context_invalid` | `context` | 3 | Caller or loader context failed shape checks |
+| `context_too_large` | `context` | 3 | Caller or delivered context exceeds its byte budget |
+| `source_too_large` | `context` | 3 | A measured source exceeds its read bound |
+| `too_many_sources` | `context` | 3 | The source count exceeds its bound |
+| `selection_abstained` | `selection` | 3 | `select` returned `()` |
+| `selection_malformed` | `selection` | 3 | The selected or refused map failed shape checks |
+| `policy_refused` | `context` or `selection` | 3 | The script refused, with its code in `policyCode` |
+| `message_too_large` | `selection` | 3 | A script result exceeds the message bound |
+| `output_limit` | `evaluation` | 3 | Worker diagnostics exceed their combined bound |
+| `selection_timeout` | `evaluation` | 124 | The whole evaluation deadline passed |
+| `selection_cancelled` | `evaluation` | 128 plus signal | INT, TERM or HUP cancelled evaluation |
+| `protocol_error` | `worker` | 5 | The private conversation violated its frame contract |
+| `policy_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Write a Rhai configuration script with chapter 4 of the book |
 | `policy_reentry_refused` | `authority` | 3 | `start-session` runs inside a harness run, where it cannot select |
 | `policy_parse_failed` | `load` | 3 | A syntax error in the entry or a module, with its file, line and column |
 | `policy_import_failed` | `load` | 3 | A module is missing, unreadable, too large, in a cycle or the 65th, or its top level failed |
 | `policy_invalid` | `validation` | 3 | An export is missing or has the wrong arity, or the version is blank |
-| `unsupported_version` | `validation` | 3 | `SCHEMA_VERSION` is not 3 |
+| `unsupported_version` | `validation` or `context` | 3 | Script `SCHEMA_VERSION` is not 3, or the selection context has an unsupported unsigned schema version instead of 1 |
 | `selection_threw` | `selection` | 3 | `select` raised an uncaught error. The report has its file, line and column |
 | `context_loader_failed` | `context` | 3 | `load_context` raised an uncaught error. The report has its file, line and column |
 | `host_request_invalid` | `load`, `context` or `selection` | 3 | A host function received a malformed request |
@@ -826,25 +923,28 @@ cannot leave a promise unsettled.
 | `worker_identity_mismatch` | `worker` | 5 | The re-executed binary reports another build |
 | `worker_failed` | `worker` | 5 | The worker died, broke the protocol or failed its teardown |
 
-Settings problems in the new keys use `settings_invalid`, exit 2. A policy
+Settings problems in the new keys use `settings_invalid`, exit 2. A configuration script
 refusal stays `policy_refused`, with the
 owner's `policyCode`. Ravel never selects a fallback after a failure. The
 defaults for the harness, the model, the effort and every recovery belong to the
-policy. The host defaults are the ones in this specification.
+configuration script. The host defaults are the ones in this specification.
 
 ### Re-entry and completion authority
 
 A harness run executes its harness directly, through the runner. It never
-invokes `start-session`, so it evaluates no policy. An LLM call is a harness
-run, and the same rule holds for it. A policy that wants the route of another
+invokes `start-session`, so it evaluates no configuration script. An LLM call is a harness
+run, and the same rule holds for it. A configuration script that wants the route of another
 kind for a question calls its own route function. It needs no second selection,
-as [a policy asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md)
+as [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md)
 records.
 
 `start-session` refuses as `policy_reentry_refused` when `RAVEL_POLICY_RUN` is in
-its environment. It refuses before it reads settings or a policy. The final
-managed process never receives the marker, because Ravel scrubs `RAVEL_*` names
-from it. Sessions that the final harness nests therefore stay allowed.
+its environment. It refuses before it reads settings or a configuration script. The final managed process cannot inherit that marker, because this refusal prevents its launch.
+
+Ravel scrubs only the six exact launch controls in the
+[managed-process contract](session-execution.md#managed-process-and-result). It does not scrub every `RAVEL_*` name. Each harness run receives its own fresh marker and result path.
+
+Sessions that the final harness nests therefore stay allowed.
 
 The refusal is cooperative. It is isolation by inherited context, as in the
 [session execution specification](session-execution.md#managed-process-and-result),
@@ -872,24 +972,40 @@ Completion authority stays separate:
 
 ### Installed layout and delivery
 
-The 2.0.0 installation holds these files:
+The installation holds these files:
 
-- `bin/ravel`, the only executable.
+- `bin/ravel`, the only executable. Its Rhai worker is the same binary in an internal role.
 - `share/ravel/examples/`, with `static.rhai`, `sample.rhai` and `llm.rhai`.
-- The third-party notices for the Rust dependency tree.
+- `share/ravel/notices/THIRD-PARTY-NOTICES.md`, the notices for the Rust dependency tree.
 
-The release removes `libexec/ravel`, the Bun worker and its source, the
-TypeScript SDK and its declarations, and the worker build script and source
-identity. It also removes the Bun pin and notices, and the typecheck, probe and
-Bun hostile-runtime tasks. The archive manifest, the formula and the formula
-test change to match. The formula test runs a Rhai policy.
+`task notices` uses pinned cargo-about 0.8.4 and locked Cargo metadata.
+It writes `target/notices/THIRD-PARTY-NOTICES.md` and refuses a licence outside the allowlist.
+Installation, archives and the Homebrew formula copy those bytes unchanged.
+Rhai lists `smartstring`, which is MPL-2.0, although `compact_str` keeps its code out of the build.
+The allowlist records that distinction.
 
-A Taskfile task generates the notices from the Cargo metadata with a pinned
-tool. It refuses a licence outside an allowlist. Rhai still lists `smartstring`,
-which is MPL-2.0, as a dependency, although `compact_str` keeps its code out of
-the build. The allowlist decision records that. The checks of the book run on a
-checkout-local Bun as development tools. They are not part of the policy worker,
-and the release carries no Bun.
+`task install PREFIX=/path` builds and verifies the installation from that prefix alone.
+`task smoke` exercises a disposable prefix through the executable directly and through a relative symlink.
+Neither path requires a host JavaScript runtime or caller binary.
+The book checks use a checkout-local Bun as a development tool, outside the installed product.
+The release carries no JavaScript runtime, SDK, declarations or separate worker executable.
+
+`task release:archives` builds unreleased archives for aarch64-apple-darwin,
+aarch64-unknown-linux-gnu and x86_64-unknown-linux-gnu.
+Each archive contains the installation above, README and LICENSE.
+An exact manifest refuses omissions, extras, probes and caller assets.
+The Linux build uses Zig's glibc 2.17 target.
+
+`task release:smoke` rebuilds and checks the archives on their target userlands. The macOS target runs natively. Linux targets run in pinned glibc 2.17 userlands.
+
+Floor and above-floor symbol probes check the libc boundary. QEMU models Nehalem and Cortex-A53 for CPU checks. Above-floor instructions must fail with SIGILL at the floor and run under `-cpu max`.
+
+The same direct/symlink installation check runs on every target. Containers and QEMU do not measure a kernel floor.
+
+The Homebrew formula installs the same files and requires no Grove dependency.
+Its temporary-prefix test imports the installed Rhai static example and checks exact result bytes through a symlink.
+These preparation tasks neither cut nor publish a release.
+The [delivery instructions](../book/src/11-deliver-ravel.md) own prerequisites, publication and recovery procedures.
 
 ### Migration
 
@@ -925,15 +1041,32 @@ the entry lets a Grove session that Ravel 1.1.0 launched keep reading
 The owner chose a one-off manual conversion of their configuration on
 2026-10-26. The book has no migration chapter and assumes no TypeScript
 knowledge. Its [chapter 4](../book/src/04-writing-an-owner-policy.md) teaches
-Rhai policy authoring directly. The translated examples and their equivalence
+Rhai configuration script authoring directly. The translated examples and their equivalence
 checks remain inputs to the manual conversion. The table above records the
 implementation correspondence, outside the book.
 
-While main holds both paths, a test runs each TypeScript policy and its
-translation through the command-line seam over one table of requests. It
-compares the routing notices, the argument vectors that a fake harness receives,
-the delivered contexts and the refusals. The increment that removes the
-TypeScript path first freezes those results as fixtures.
+Before removal, paired command-line runs compared TypeScript configurations with their Rhai translations over one request table.
+The observations covered routing notices, fake-harness argument vectors, delivered contexts and refusals.
+Those results are frozen fixtures. Current tests compare Rhai execution with those fixtures and never execute the retired worker.
+
+#### Frozen comparison rules
+
+The comparison checks routing choices, fake-harness argument vectors, delivered context values and refusal classifications.
+It normalises sandbox paths. It excludes notice versions, configuration and worker identities, timing, signal reports and fields that only Rhai reports.
+Those Rhai fields are measured reads, harness runs and their budget.
+
+Context digests differ across sandbox paths. Each live encoded-byte count is checked against its actual value before path normalisation.
+Runtime-specific decoder or system-error messages can differ while their refusal code, stage, exit status and remedy remain equal.
+
+The retained cases require these intentional differences:
+
+- A choice file beyond its read bound ends Rhai evaluation as `source_too_large`, rather than the former `choice_unreadable` refusal.
+- U+FEFF and U+0085 have different whitespace classifications in JavaScript and Rhai splitting or trimming.
+- An invalid UTF-8 jj store path refuses in Rhai, while TypeScript decoded it with replacement characters.
+
+The tests prove those differences and keep their reasons beside each case.
+Frozen TypeScript observations remain unchanged. Passing this comparison does not claim equality of every runtime field or every possible input.
+
 
 Grove's helpers move in Linkuistics/grove#24. They need these capabilities, and
 Ravel's own tests prove each one without Grove code:
@@ -953,7 +1086,7 @@ its firing control.
 
 A new release of Claude Code or Codex changes no code of Ravel. Ravel builds no
 argument that is specific to a harness, and it parses no output of a harness.
-The owner's policy holds the recipe of each call. The opt-in smoke tasks make one
+The owner's configuration script holds the recipe of each call. The opt-in smoke tasks make one
 real LLM call through each of the two harnesses, with the owner's sign-in. They
 are `task harness:smoke:claude` and `task harness:smoke:codex`.
 
@@ -964,18 +1097,18 @@ gives. Each call spends subscription usage.
 
 ### Requirement: Deterministic selection
 
-Ravel SHALL select from a Rhai policy that makes no host call, with no network
+Ravel SHALL select from a Rhai configuration script that makes no host call, with no network
 access and no harness entry configured.
 
 #### Scenario: Route table
 
-- **WHEN** a policy maps `kind` to a harness, a model and an effort in a table
+- **WHEN** a configuration script maps `kind` to a harness, a model and an effort in a table
 - **THEN** the fake harness receives the argument vector from the table, and
   the notice reports no harness run
 
 ### Requirement: Generic LLM interaction
 
-Ravel SHALL let a policy build a question, ask a model through a harness run and
+Ravel SHALL let a configuration script build a question, ask a model through a harness run and
 interpret the answer. Ravel SHALL build no argument that is specific to a
 harness.
 
@@ -995,14 +1128,14 @@ harness.
 #### Scenario: A structured answer that does not match
 
 - **WHEN** a fake harness prints a JSON answer that lacks a required property,
-  and the policy checks it with `ravel::json_check` under `try`
+  and the configuration script checks it with `ravel::json_check` under `try`
 - **THEN** the catch block receives `json_mismatch` with the location of the
-  property and no part of the answer, and the policy goes on
+  property and no part of the answer, and the configuration script goes on
 
 #### Scenario: A failed call and a fallback
 
 - **WHEN** the first fake harness exits 1 with a rate-limit message, and the
-  policy then runs a second harness
+  configuration script then runs a second harness
 - **THEN** the script sees `exited` with `exitCode` 1, and the session uses the
   answer of the second harness
 
@@ -1051,7 +1184,7 @@ location. It SHALL NOT launch from one.
 
 #### Scenario: Wrong argument type
 
-- **WHEN** a policy calls `ravel::run_harness` with an integer in `args`
+- **WHEN** a configuration script calls `ravel::run_harness` with an integer in `args`
 - **THEN** Ravel exits 3 with `host_request_invalid`, and the report names the
   field and the line of the script
 
@@ -1080,7 +1213,7 @@ SHALL end only the run. A cleanup failure SHALL end the evaluation.
 
 #### Scenario: Output bound
 
-- **WHEN** a fake harness writes 2 MiB to `stdout`, and the policy then selects
+- **WHEN** a fake harness writes 2 MiB to `stdout`, and the configuration script then selects
   a route
 - **THEN** `run_harness` returns `output_limit`, the process group of the run is
   gone, and Ravel launches the route
@@ -1088,7 +1221,7 @@ SHALL end only the run. A cleanup failure SHALL end the evaluation.
 #### Scenario: Deadline of one run
 
 - **WHEN** a fake harness never exits in a run with a `timeoutMs` of 1,000, and
-  the policy then selects a route
+  the configuration script then selects a route
 - **THEN** `run_harness` returns `timed_out`, the process group of the run is
   gone, and Ravel launches the route
 
@@ -1137,30 +1270,30 @@ script handles errors.
 
 #### Scenario: Caught budget breach
 
-- **WHEN** a policy with `budgets.harnessRuns` of 1 wraps a second harness run
+- **WHEN** a configuration script with `budgets.harnessRuns` of 1 wraps a second harness run
   in `try`
 - **THEN** Ravel exits 3 with `harness_budget_exhausted`
 
 #### Scenario: Memory
 
-- **WHEN** a policy grows an array of strings without end
+- **WHEN** a configuration script grows an array of strings without end
 - **THEN** Ravel exits 3 with `memory_limit` or `script_limit`, and the Ravel CLI
   survives to report it
 
 #### Scenario: A breach inside a function pointer under `try`
 
-- **WHEN** a policy wraps `[1].map(|x| ..)` in `try`, and the closure breaches
+- **WHEN** a configuration script wraps `[1].map(|x| ..)` in `try`, and the closure breaches
   the call depth, a data size or the variable bound
 - **THEN** Ravel exits 3 with `script_limit`, and nothing launches
 
 #### Scenario: An ordinary error inside a function pointer under `try`
 
-- **WHEN** a policy wraps `[1].map(|x| throw "boom")` in `try`
-- **THEN** the catch block runs with the thrown value, and the policy goes on
+- **WHEN** a configuration script wraps `[1].map(|x| throw "boom")` in `try`
+- **THEN** the catch block runs with the thrown value, and the configuration script goes on
 
 #### Scenario: A breach inside a comparer
 
-- **WHEN** a policy recurses past the call depth inside the comparer of `sort`,
+- **WHEN** a configuration script recurses past the call depth inside the comparer of `sort`,
   `order`, `order_by` or `dedup`
 - **THEN** Ravel exits 3 with `script_limit`, and nothing launches
 
@@ -1169,13 +1302,13 @@ script handles errors.
 Ravel SHALL hold no model credential. A harness run SHALL receive the environment
 of a managed process. `ravel::env` SHALL return no caller variable outside the
 readable names and the grants. Ravel SHALL remove no credential from a measured
-read or from the output of a harness run, because it trusts the owner policy.
+read or from the output of a harness run, because it trusts the configuration script.
 
 #### Scenario: Leak probes
 
 - **WHEN** the caller's environment holds a sentinel `ANTHROPIC_API_KEY` that
   no grant names
-- **AND** a policy that makes no measured read and runs no harness calls
+- **AND** a script that makes no measured read and runs no harness calls
   `ravel::env` with that name and prints every other value that it can reach
 - **THEN** `env` throws `env_not_granted`, and the sentinel appears in no
   diagnostic or notice
@@ -1189,14 +1322,16 @@ read or from the output of a harness run, because it trusts the owner policy.
 
 ### Requirement: Migration equivalence
 
-Each translated policy SHALL give the same choices, arguments, contexts and
-refusals as its TypeScript original.
+Each translated configuration SHALL satisfy the [frozen comparison rules](#frozen-comparison-rules) for choices, arguments, contexts and refusals.
+The comparison SHALL preserve its exclusions and prove each intentional difference.
 
-#### Scenario: The owner-shaped policy
+<a id="scenario-the-owner-shaped-policy"></a>
 
-- **WHEN** the translation of the owner-shaped policy runs in a secondary jj
+#### Scenario: The owner-shaped configuration script
+
+- **WHEN** the translation of the owner-shaped configuration script runs in a secondary jj
   workspace for every kind that it lists
-- **THEN** each argument vector equals that of the TypeScript policy, including
+- **THEN** each argument vector equals its frozen TypeScript observation, including
   the `--add-dir` grant of the main repository
 
 ### Requirement: Entry precedence
@@ -1212,20 +1347,21 @@ Ravel SHALL evaluate `policy.rhai` when it exists. It SHALL refuse a lone
 
 ## Test seams
 
-The owner agreed one command-line seam in the requirements session. Every test
-of this work runs the real `ravel start-session` against a sandbox home that
+The owner agreed one command-line seam in the requirements session. Acceptance tests run the real `ravel start-session` against a sandbox home that
 holds `policy.rhai` and `settings.json`. Fake harness scripts on a private `PATH`
 stand behind it, as the existing tests use. They serve the managed process and
 the harness runs, and with them the LLM calls. A fake harness for an LLM call
 prints a scripted answer, and it records its arguments and its `stdin` for the
 test.
 
-The real worker and the real runner run in every test. Opt-in Taskfile smoke
+Acceptance tests use the real Rhai worker and runner. Opt-in Taskfile smoke
 tasks make one real LLM call through Claude Code and one through Codex, with the
-owner's sign-in. The default test run never includes them. Each hostile class
-keeps a firing control in the same test, as in 1.x. Policies at the same seam
-test the pure functions, such as `json_encode`, `json_check` and `path_resolve`.
-There is no second, in-process seam and no fake model inside the binary.
+owner's sign-in. The default test run never includes them.
+
+Hostile checks retain their applicable firing controls. Configuration scripts at the same seam
+test the pure functions, such as `json_encode`, `json_check` and `path_resolve`. Engine unit tests supplement this seam.
+
+No fake model runs inside the binary.
 
 The seam cannot make the kernel hold a read. The nonblocking open removes the
 stalls that a test can make, such as a FIFO. The FIFO case proves the open, and
@@ -1241,15 +1377,15 @@ on the unit tests of the supervision.
 
 ## Out of scope
 
-- A verb that evaluates a policy without a launch. The owner kept it out of this
+- A verb that evaluates a configuration script without a launch. The owner kept it out of this
   workstream.
 - A call from Ravel itself to a model service, through Rig or another HTTP
   client. The owner removed it, because a subscription sign-in works only in
   its own harness.
-- A nested `start-session` inside a harness run. A policy calls its own route
+- A nested `start-session` inside a harness run. A configuration script calls its own route
   function instead.
 - Arguments or output parsing that are specific to a harness. The owner's
-  policy holds each recipe.
+  configuration script holds each recipe.
 - Usage accounting and a token budget for an LLM call. Ravel does not read the
   output of a harness.
 - Streaming answers to a script.

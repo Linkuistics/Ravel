@@ -1,11 +1,11 @@
-# A policy asks a model through a harness run
+# A configuration script asks a model through a harness run
 
-A policy asks a model a question with `ravel::run_harness`. The harness is
+A configuration script asks a model a question with `ravel::run_harness`. The harness is
 Claude Code or Codex, which the owner names in settings. The harness signs in
 with the owner's own subscription. Ravel holds no model credential, and it never
 calls a model service itself. It builds no argument that is specific to a
 harness, and it parses no output of a harness. The
-[policy evaluation specification](../specs/policy-evaluation.md#llm-calls-through-a-harness)
+[configuration evaluation specification](../specs/policy-evaluation.md#llm-calls-through-a-harness)
 states the rules.
 
 The trade-off is the sign-ins that the owner already uses against the weight of
@@ -43,8 +43,8 @@ The design rejected four other shapes:
   cannot reach the process group of the nested managed process, and both levels
   use a kill-grace of 5 seconds. The `ravel` on `PATH` can also be another
   version.
-- A host call that evaluates the policy again for a nested request. It keeps one
-  supervisor, but it is the most new code. The policy already holds its own
+- A host call that evaluates the configuration script again for a nested request. It keeps one
+  supervisor, but it is the most new code. The configuration script already holds its own
   route table, so it can call its route function directly.
 
 Reconsider when an owner needs a model service that has no harness. Reconsider

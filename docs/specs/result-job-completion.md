@@ -1,6 +1,11 @@
-<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
-
 # Result-job completion
+
+This contract applies to the current Rhai path.
+The linked acquisition, correction and native-entry receipts record earlier pinned revisions, including the retired TypeScript implementation.
+Their observations qualify those revisions and targets. They do not establish conformance of the current Rhai evaluator.
+Current command-line acceptance checks use a real Rhai configuration script and fake launched programs.
+
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
 An opaque result is a request to finish a managed job. A readable result file
 does not establish that the matching job was reaped, that its group is gone,
@@ -124,15 +129,16 @@ even when cancellation is the primary outcome.
 
 ### Worker teardown before admission
 
+<!-- tc: depart synonym-rotation because confirmed reap is an observed lifecycle fact and checked removal is a separate resource operation -->
 The evaluator SHALL require confirmed worker reap before returning a successful
-evaluation. A successful policy conversation plus a teardown wait error is worker failure, with exit 5.
+evaluation. A successful Rhai conversation plus a teardown wait error is worker failure, with exit 5.
 It cannot reach command resolution, successful selection or a managed launch. Any confirmed exit status meets the reap
-prerequisite. It need not be status zero. A timeout, policy refusal, protocol
+prerequisite. It need not be status zero. A timeout, configuration refusal, protocol
 failure or output-bound breach keeps its existing classification when cleanup
 also fails, except that cancellation still wins.
 
 Every teardown failure is
-reported alongside that primary outcome and the separately captured policy
+reported alongside that primary outcome and the separately captured configuration
 diagnostics. A message cannot say “reaped” without that confirmation.
 
 The evaluator closes its protocol end, attempts the existing bounded stop/kill
@@ -141,8 +147,8 @@ directory. No managed launch follows an unconfirmed reap or a failed required
 directory cleanup. An unconfirmed reap is uncertainty, not evidence that the
 worker remains alive or that it is gone. Failure reports the worker identity,
 failed operation and recovery advice without pretending that an unsuccessful
-wait can establish a successful cleanup. Detached policy children remain outside
-the existing worker guarantee.
+wait can establish a successful cleanup. The Rhai worker cannot launch a child. Harness-run cleanup follows the
+[configuration evaluation contract](policy-evaluation.md#cancellation-and-deadlines).
 
 <!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
@@ -213,13 +219,17 @@ an attempted-group record establishes neither exec nor a successful ending.
 
 ### Outcome and diagnostic order
 
+<!-- tc: on -->
+
 | Situation | Primary outcome | Other information that must survive |
 |---|---|---|
-| Any applicable cancellation, with or without an ending | Selected INT/TERM/HUP, propagated after cleanup attempts; no result | Original operational failure, every cleanup/recovery error, known group survivor or unconfirmed lifecycle fact |
-| No cancellation; acquisition, conversation, result, spawn or supervision already failed | Original failure and its existing code/stage/status | Every later cleanup/recovery failure; captured policy diagnostics remain policy output |
-| No cancellation; otherwise successful operation with cleanup/recovery failure | First required cleanup/recovery failure | All other cleanup/recovery failures; no candidate result escapes |
-| No earlier failure; a matching ending reports a surviving group | Group failure | Survivor identity; no result |
-| Matching reap/group/terminal/resource settlement succeeds, no cancellation | Exact published UTF-8 result | Empty publication differs from absence; child's later exit status is not decisive |
+| Any applicable cancellation, with or without an ending | Selected INT/TERM/HUP, propagated after cleanup attempts. No result | Original operational failure, every cleanup/recovery error, known group survivor or unconfirmed lifecycle fact |
+| No cancellation. Acquisition, conversation, result, spawn or supervision already failed | Original failure and its existing code/stage/status | Every later cleanup/recovery failure. Captured configuration diagnostics remain script output |
+| No cancellation. Otherwise successful operation with cleanup/recovery failure | First required cleanup/recovery failure | All other cleanup/recovery failures. No candidate result escapes |
+| No earlier failure. A matching ending reports a surviving group | Group failure | Survivor identity. No result |
+| Matching reap/group/terminal/resource settlement succeeds, no cancellation | Exact published UTF-8 result | Empty publication differs from absence. Child's later exit status is not decisive |
+
+<!-- tc: pending because the untouched completion sections exceed this reconciliation's prose-conversion scope -->
 
 The managed front retains mask restoration, channel close, confined-directory
 removal and output restoration order. Runner-owned reap/terminal failures and
@@ -263,14 +273,21 @@ signals blocked at executable entry are not reclassified as cancellation merely
 because they are pending. They remain blocked in the child. Nonignored signals
 delivered to the launcher follow its cancellation policy.
 
+<!-- tc: on -->
+
 The launcher must establish its child-watching state before **any** child it
-needs to reap, including a policy worker. Inherited ignored SIGCHLD or
+needs to reap, including the Rhai worker. Inherited ignored SIGCHLD or
 SA_NOCLDWAIT cannot silently remove the reap prerequisite. Any repair is host
-state owned for the launcher lifetime; the managed child's supplied entry values
+state owned for the launcher lifetime.
+
+The managed child's supplied entry values
 remain separate. Handler and mask transitions must be checked or retain their
-failure reports. The existing source's unchecked transitions are still premises
-to verify; the four counterexamples are not a proof that every OS failure is
+failure reports. The transition requirements below govern current checks.
+
+The four counterexamples are not a proof that every OS failure is
 covered.
+
+<!-- tc: pending because the untouched completion sections exceed this reconciliation's prose-conversion scope -->
 
 Auxiliary threads must remain ineligible to consume the launcher's handled
 signals during the handoff; masking only the calling thread is insufficient if
@@ -305,16 +322,23 @@ Child restoration checks every required action and mask operation. Host watching
 repair covers ignored SIGCHLD and independent no-child-wait state before either
 child, without changing the child's captured entry values.
 
-A single front-owned scope SHALL survive selection failure as well as success.
-Partial handler installation, reader creation and mask transitions retain their
+<!-- tc: on -->
+
+A single front-owned scope SHALL survive selection failure as well as success. Partial handler installation, reader creation and mask transitions retain their
 known protection and every failure report through explicit settlement. No new
-child is admitted after a failed transition. Output-reader shielding is checked
+child is admitted after a failed transition.
+
+Output-reader shielding is checked
 before creation and lasts until each thread exits. The file-reader thread of a
 Rhai evaluation takes the same shield. A failed block, creation or creator
-restore refuses the evaluation before any host call runs. Bounded diagnostic
-collection and an abandoned policy read may leave shielded readers alive until
-CLI exit; no unbounded join or additional policy-descendant supervision promise
+restore refuses the evaluation before any host call runs.
+
+Bounded diagnostic
+collection and an abandoned configuration read may leave shielded readers alive until
+CLI exit. No unbounded join or additional script-descendant supervision promise
 follows.
+
+<!-- tc: pending because the untouched completion sections exceed this reconciliation's prose-conversion scope -->
 
 Failure of the parent-mask transition after spawn SHALL enter runner-owned
 bounded teardown, actual wait and checked terminal recovery before returning.
@@ -393,7 +417,7 @@ independent adoption.
 
 ## Test seams for the repair contract
 
-Retain the agreed public CLI with real TypeScript policy and fake managed jobs,
+Retain the agreed public CLI with a real Rhai configuration script and fake managed jobs,
 transport/real-process boundary and runner/PTY boundary. Existing private process
 waiting is the enabling point for cancellation followed by observation or reap
 failure. The justified new private controls cover evaluator teardown reports before success admission, allocator-local post-creation failure and cleanup reports.
@@ -454,7 +478,7 @@ retain the closed comparison's funding/history and remaining cost, delivery,
 search, runtime and whole-replacement lifecycle questions. Association support
 does not establish complete settlement or runtime conformance.
 
-Use the already agreed CLI with real TypeScript policy and fake launched
+Use the already agreed CLI with a real Rhai configuration script and fake launched
 programs, transport/real-process tests, and runner/terminal tests. Any touched composition must retain first-writer and anchored-read checks, nesting and publication/cancellation overlap.
 It must retain combined result/cleanup failure diagnostics and precedence, late-signal handoff, descendant cleanup, reap and terminal recovery. An unrelated ending is a discriminating interface case. Source
 reasoning and diagrams establish no runtime preservation, external adoption

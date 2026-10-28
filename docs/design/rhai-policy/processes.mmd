@@ -7,7 +7,7 @@ flowchart TB
     reader["Reader thread<br/>entry · modules · measured reads<br/>program lookups"]
     runner["Runner<br/>jobs · group cleanup · reap"]
   end
-  subgraph worker["Policy worker — computes only"]
+  subgraph worker["Rhai worker — computes only"]
     direction TB
     rhai["Rhai 1.27.0 engine<br/>strict mode · fixed limits<br/>1 GiB heap"]
     mods["policy.rhai and<br/>imported modules"]

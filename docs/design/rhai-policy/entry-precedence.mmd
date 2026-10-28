@@ -1,12 +1,12 @@
 flowchart TD
-  start["Start here: start-session needs a policy entry"]
+  start["Start here: start-session needs a configuration entry"]
   reentry{"Is RAVEL_POLICY_RUN set?"}
   config{"Is --config given?"}
   ext{"What is the extension of --config?"}
   rhai{"Does ~/.config/ravel/policy.rhai exist?"}
   ts{"Does ~/.config/ravel/policy.ts exist?"}
   eval["Evaluate the .rhai entry"]
-  retired["Refuse: policy_format_retired, exit 3<br/>the remedy names the Rhai policy chapter"]
+  retired["Refuse: policy_format_retired, exit 3<br/>the remedy names the Rhai configuration chapter"]
   missing["Refuse: policy_missing, exit 3"]
   unreadable["Refuse: policy_unreadable, exit 3"]
   reent["Refuse: policy_reentry_refused, exit 3"]

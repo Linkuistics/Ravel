@@ -8,8 +8,8 @@ modes. The runner restores the entry signal masks and dispositions for the
 child, including ignores that a transparent wrapper inherited.
 
 Ravel uses this runner for the selected process and for each harness run that
-a policy requests. A harness run is noninteractive, so the runner gives it a new
-POSIX session with no terminal. The policy worker itself is not a job of the
+a configuration script requests. A harness run is noninteractive, so the runner gives it a new
+POSIX session with no terminal. The Rhai worker itself is not a job of the
 runner.
 
 The [acquisition evidence](../result-job-source-evidence.md#c4-interactive-pre-exec-handoff-followed-by-exec-failure)
@@ -23,7 +23,7 @@ exercise that behaviour on the measured host.
 Failed-spawn handback requires exclusive foreground authority. It also requires
 that no unrelated process reuses the recorded group ID through the handback.
 The record never authorises a signal to that ID after the reap. The lifetime of
-the CLI alone supplies neither premise. This conditional policy does not
+the CLI alone supplies neither premise. This conditional handback rule does not
 establish an atomic query and handback.
 
 The native-entry campaigns measured conformance on aarch64 macOS and aarch64

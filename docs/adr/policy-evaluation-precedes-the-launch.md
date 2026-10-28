@@ -1,13 +1,13 @@
-# Policy evaluation precedes the launch
+# Configuration evaluation precedes the launch
 
-Ravel evaluates the owner policy in a policy worker: a separate process that
+Ravel evaluates the configuration script in a Rhai worker: a separate process that
 Ravel reaps before the selected process launches. The worker is Ravel's own
 binary in an internal role, and it runs the Rhai script. It only computes. The
 Ravel CLI performs every host capability for it: measured reads, the
 environment and harness runs through the runner. An LLM call is a harness run.
-Owner policy never executes inside the process that supervises the session.
+The configuration script never executes inside the process that supervises the session.
 
-The [policy evaluation specification](../specs/policy-evaluation.md) owns the
+The [configuration evaluation specification](../specs/policy-evaluation.md) owns the
 protocol, the capabilities and the bounds. The ordering of worker and job stays
 required. The Ravel CLI admits a selection only after it reaped the worker and
 removed its private directory, as the
@@ -26,7 +26,7 @@ exhaustion or a stack overflow aborts the supervisor without cleanup.
 A process lets the Ravel CLI kill the worker at the deadline, whatever the
 script runs. It confines a memory bound, a stack overflow or an abort to the
 worker. The price is a request and reply protocol for every host call, and the
-worker lifecycle code that 1.x already carries. Reopen the thread design only
+worker lifecycle code. Reopen the thread design only
 when Rhai can interrupt every native call and Ravel can bound the heap of one
 thread.
 
