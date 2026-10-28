@@ -448,7 +448,7 @@ for the layout and the operational limits.
 > **Note:** The project measured inherited signal settings, cancellation,
 > cleanup and terminal recovery on aarch64 macOS and aarch64 GNU/Linux. For
 > x86_64 GNU/Linux, the project built Ravel and ran it only under emulation. Native x86-64 qualification is still open. The
-> [support limits](05-running-sessions.md#understand-the-operational-limits)
+> [support limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup)
 > give the scope of these measurements.
 
 ### `--runtime-read FILE`
@@ -664,7 +664,7 @@ cause a cancellation.
 > the final outcome. A signal that arrives after the final decision about
 > cancellation can interrupt the result write. Neither case confirms the
 > cleanup or that the caller received the complete result. A failed final write can leave a prefix on standard output.
-> The [operational limits](05-running-sessions.md#understand-the-operational-limits)
+> The [operational limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup)
 > describe these cases.
 
 ## Streams and notices
@@ -1039,7 +1039,7 @@ not use it as a persistent result location or as an address across sessions.
 The result channel separates ordinary sessions. It is not a defence against
 hostile code that runs as the same user. See
 [nested sessions](05-running-sessions.md#keep-nested-sessions-separate) and
-[operational limits](05-running-sessions.md#understand-the-operational-limits).
+[operational limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup).
 
 ## Policy entry and settings
 
@@ -1414,13 +1414,13 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | Code | Stage | Status | Meaning and remedy | Taught in |
 |---|---|---|---|---|
 | `cancellation_unavailable` | `exec` | 5 | The Ravel CLI cannot prepare for cancellation. Examine the reported OS error and the execution environment. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
-| `signal_state_unavailable` | `exec` | 5 | The capture of the signal state at entry, or a required transition of the signal state, failed. Retain all reports, and correct the execution environment. Do not treat any result as success. | [Signal and recovery limits](05-running-sessions.md#understand-the-operational-limits) |
+| `signal_state_unavailable` | `exec` | 5 | The capture of the signal state at entry, or a required transition of the signal state, failed. Retain all reports, and correct the execution environment. Do not treat any result as success. | [Signal and recovery limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup) |
 | `output_unavailable` | `exec` | 5 | Ravel cannot reserve or restore standard output for the result. Supply a writable output stream, and examine any error of the restoration. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_channel_unavailable` | `exec` | 5 | Ravel cannot allocate or prepare the private result channel. Correct the temporary storage or `--exit-dir`, and examine the reports of a partial cleanup. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |
 | `supervision_failed` | `exec` | 127, 126 or 5 | Before the runner reports the start, ENOENT gives 127, and other failures give 126. After the start, the status is 5. Check the executable and the interpreter, the execution environment and the retained reports of the runner and the terminal. | [Launch and supervision](05-running-sessions.md#interpret-the-exit-status) |
 | `session_result_missing` | `exec` | 1 | The managed process ended and sent no result, even if its own status was 0. Make the managed process call `end-session` when its work succeeds. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_result_invalid` | `exec` | 5 | Ravel cannot accept the sent entry in the result channel or the result bytes, for example because of an invalid encoding, type or size. Use `end-session` inside the live session, and send a result of 1 MiB or less. | [Result validity](05-running-sessions.md#accept-a-result-only-after-success) |
-| `session_cleanup_failed` | `exec` | 5 | The required cleanup of the result channel or of a private directory failed. Examine the named path and the ownership report before you remove any residue. Ravel returns no result to the caller. | [Cleanup limits](05-running-sessions.md#understand-the-operational-limits) |
+| `session_cleanup_failed` | `exec` | 5 | The required cleanup of the result channel or of a private directory failed. Examine the named path and the ownership report before you remove any residue. Ravel returns no result to the caller. | [Cleanup limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup) |
 | `process_group_survived` | `exec` | 5 | Ravel did not confirm the absence of the group when it decided the final outcome. Examine the reported group and the cleanup failures before you try again. The sent result alone is not sufficient. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM has priority when Ravel decides the final outcome, even after Ravel received the result. Ravel returns no result to the caller. Retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `result_write_failed` | `exec` | 5 | The final write or flush of the result failed after Ravel decided the outcome. Correct the output destination, and discard any prefix that Ravel already wrote. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
@@ -1978,5 +1978,5 @@ Ravel completes host calls, reaps the worker and removes its directory before th
 > [Chapter 1](01-what-ravel-is-for.md#choose-a-route-through-the-book) explains the supported integration route.
 
 > **Note:** Native x86-64 Linux qualification remains open.
-> The [platform limits](05-running-sessions.md#understand-the-operational-limits)
+> The [platform limits](05-running-sessions.md#know-when-ravel-cannot-guarantee-cleanup)
 > distinguish native measurements from emulation.

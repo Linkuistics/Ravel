@@ -391,6 +391,7 @@ Draft `rhai-book-use-k89`, 2026-10-28, added two terms and a sentence about lite
 The opening word list compared each term on the same attribute, so the draft made it a table. The table carries the same information and breaks the run.
 
 A list of parallel items can make a run too long. Then prefer a table that the layout rules permit. Do not add a decorative break.
+Draft `rhai-book-use-k90` made chapter 5's opening word list a table for the same reason. Its new column “In the review” carries information that the list did not have.
 
 ### L28. Keep one visual vocabulary and one editable source
 
@@ -506,6 +507,9 @@ Compare repeated runs item by item rather than comparing totals alone.
 **Source:** Sessions `rhai-llm-removal-k63`, `rhai-book-use-k27`, `k70`, `k71`, `k73` and `k74`, 2026-10-26.
 **Ravel application:** Book proofs recorded unchanged subject digests and per-example outcomes.
 Source changes during a run require a fresh measurement.
+
+Draft `rhai-book-use-k90`, 2026-10-28, found a digest that compared two errors. In zsh, an unquoted `$D` with several paths stays one word. Thus, `shasum` failed before and after the run, and `diff` reported no difference.
+Read the digest lines before you trust their comparison. An array, such as `"${files[@]}"`, gives one argument for each path.
 
 ### L38. Keep an unexplained failure unexplained
 
@@ -791,6 +795,10 @@ Then one sentence says that every evaluation follows the same order. The interac
 Reuse the earlier concrete case where a later page generalises it. The reader then meets known values, not a new example.
 Explain each term that the concrete trace uses before the trace, even when a fuller explanation follows it.
 
+Draft `rhai-book-use-k90`, 2026-10-28, opened chapter 5 with chapter 1's review: its command, its result, its status and the orchestrator's next action.
+The chapter's term table and order table then have a column “In the review”. Each general word and each row keeps a known value beside it.
+A column of the earlier case's values connects a general table to that case without a second explanation.
+
 ### L58. Explain the task, its completion instruction and the use of its result together
 
 When the reader needs to understand a caller's complete task, naming only the requested work leaves the result unexplained.
@@ -803,6 +811,10 @@ The explanation then says what the orchestrator does after each result. These tw
 
 Draft `rhai-book-use-k88` shows the prompt file, a table of its four parts and a real run with a fake agent.
 A table then gives the orchestrator's action for each outcome. The outcomes also cover an unexpected value and a failure status.
+
+Draft `rhai-book-use-k90`, 2026-10-28, made the caller's side executable in chapter 5.
+A complete example runs an orchestrator script. The script checks the status, reads the result and requests a `fix` session for `changes-needed`.
+When the example's command is the caller and not the product, say whose output the output block shows. The block then shows the orchestrator's lines, not Ravel's result stream.
 
 ### L59. Prefer familiar terms and qualify them where precision matters
 
@@ -887,6 +899,18 @@ Ravel's own diagnostic words, `VERSION` strings and labels stay, because they ar
 The renamed headings of chapter 4 changed 102 inbound anchors in four other chapters. The draft changed only the anchors there. The link texts that quote old titles belong to the drafts that own those chapters.
 **Check:** Search the old anchors in the whole repository. Run the same search on the parent revision as a control.
 
+### L64. Run a recorded fragment again when its example changes
+
+A fragment of a real run is not executed by the example check. Thus, a change to the example's files can make the fragment false, and every check still passes.
+When you change an input that a recorded fragment shows, run the example again. Then copy the new values into the fragment and record the run.
+Values such as a byte count, a digest, a duration or a source path change with the input.
+
+**Source:** Session evidence, `rhai-book-use-k90`, 2026-10-28.
+**Ravel application:** Chapter 5's notice example changed its refusal message and its prompt source for the review.
+The real-run fragment of the JSON routing notice still showed the old script's byte count, its digest and `"promptSource": "argument"`. A new run gave the values that the fragment now shows.
+
+**Check:** For each changed complete example, search the same section for a fragment that names a real run. Compare each value that depends on an input.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -904,6 +928,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L56 | A search of the built HTML for raw Markdown, and a count of headings against heading ids, follow an edit beside a code block. |
 | L57–L62 | Contract §2 records the Part I findings of 2026-10-28. Draft applies them throughout the book, and proof checks the explanations, exact interfaces and links. |
 | L63 | A search of each changed page for the old term, with each match classified. `ste.md` and `CONTEXT.md` hold the term map. |
+| L64 | A search of each changed example's section for a real-run fragment, and a new run when an input that it shows changed. |
 
 ### Disposition of the task's candidate readings
 
