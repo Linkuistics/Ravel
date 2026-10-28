@@ -12,7 +12,7 @@ flowchart TB
     rhai["Rhai 1.27.0 engine<br/>strict mode · fixed limits<br/>1 GiB heap"]
     mods["config.rhai and<br/>imported modules"]
   end
-  hrun["Harness run<br/>such as claude -p<br/>own result channel<br/>RAVEL_POLICY_RUN<br/>the owner's sign-in"]
+  hrun["Harness run<br/>such as claude -p<br/>own result channel<br/>RAVEL_CONFIG_RUN<br/>the owner's sign-in"]
   model[("Model service<br/>reached only<br/>by the harness")]
   start -->|"1 · flags, prompt, context"| auth
   auth -->|"2 · re-execute own binary"| eval

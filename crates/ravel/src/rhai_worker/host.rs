@@ -291,7 +291,7 @@ impl Host {
                 "env_not_granted",
                 format!(
                     "the variable {name} is not readable: a policy reads HOME, PATH, TMPDIR, \
-                     LANG, LC_* and the names that policyEnv or --policy-env grant"
+                     LANG, LC_* and the names that configEnv or --config-env grant"
                 ),
             ),
         }

@@ -518,7 +518,7 @@ fn env_returns_the_callers_value_of_a_base_name_or_a_granted_name_and_unit_when_
     let recorded = sandbox.recording_agent();
     support::write(
         &sandbox.home.join(".config/ravel/settings.json"),
-        r#"{"policyEnv": ["SEAM_SETTING", "SEAM_SETTING_UNSET"]}"#,
+        r#"{"configEnv": ["SEAM_SETTING", "SEAM_SETTING_UNSET", "SEAM_BOTH", "SEAM_BOTH"]}"#,
     );
     sandbox.personal_rhai(&selecting(
         r#"    let names = ["HOME", "TMPDIR", "LANG", "LC_ALL", "LC_SEAM_ANY", "LC_MESSAGES", "SEAM_FLAG",
@@ -542,13 +542,13 @@ fn env_returns_the_callers_value_of_a_base_name_or_a_granted_name_and_unit_when_
             ("SEAM_EMPTY", OsStr::new("")),
         ],
         &[
-            "--policy-env",
+            "--config-env",
             "SEAM_FLAG",
-            "--policy-env",
+            "--config-env",
             "SEAM_BOTH",
-            "--policy-env",
+            "--config-env",
             "SEAM_FLAG_UNSET",
-            "--policy-env",
+            "--config-env",
             "SEAM_EMPTY",
         ],
     );
@@ -572,6 +572,17 @@ fn env_returns_the_callers_value_of_a_base_name_or_a_granted_name_and_unit_when_
         ]
     );
     // The notice shows grants and never a value.
+    assert_eq!(
+        report["policyEnvironment"],
+        json!([
+            {"name": "SEAM_SETTING", "set": true},
+            {"name": "SEAM_SETTING_UNSET", "set": false},
+            {"name": "SEAM_BOTH", "set": true},
+            {"name": "SEAM_FLAG", "set": true},
+            {"name": "SEAM_FLAG_UNSET", "set": false},
+            {"name": "SEAM_EMPTY", "set": true}
+        ])
+    );
     assert!(!run.stderr.contains("from the flag"), "{}", run.stderr);
     assert!(!report.to_string().contains("granted twice"));
 }
@@ -623,7 +634,7 @@ fn env_throws_env_not_utf8_for_a_value_that_a_rhai_string_cannot_hold() {
             ("SEAM_BYTES", OsStr::from_bytes(b"caf\xe9")),
             ("SEAM_TEXT", OsStr::new("café")),
         ],
-        &["--policy-env", "SEAM_BYTES", "--policy-env", "SEAM_TEXT"],
+        &["--config-env", "SEAM_BYTES", "--config-env", "SEAM_TEXT"],
     )
     .report();
 

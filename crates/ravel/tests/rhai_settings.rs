@@ -81,6 +81,86 @@ fn refused(recorded: &Recorded, run: &Run) -> Value {
 }
 
 #[test]
+fn retired_environment_grant_spellings_refuse_before_evaluation() {
+    for json in [false, true] {
+        for setting in [true, false] {
+            let sandbox = Sandbox::new();
+            let recorded = sandbox.recording_agent();
+            sandbox.personal_rhai(&rhai::routing(r#"["must not launch"]"#));
+            let mut args = vec!["--kind", "check"];
+            if json {
+                args.push("--json");
+            }
+            if setting {
+                settings(&sandbox, r#"{"policyEnv": []}"#);
+            } else {
+                args.extend(["--policy-env", "RETIRED_GRANT"]);
+            }
+
+            let output = sandbox.start(&args);
+
+            assert_eq!(output.code, Some(2), "{}", output.stderr);
+            assert!(output.stdout.is_empty());
+            assert_eq!(recorded.argv(), None);
+            if json {
+                let error = output.refusal(2)["error"].clone();
+                assert_eq!(
+                    error["code"],
+                    if setting {
+                        "settings_invalid"
+                    } else {
+                        "malformed_input"
+                    }
+                );
+                if setting {
+                    assert_eq!(error["location"], "policyEnv");
+                }
+            }
+            assert!(
+                output
+                    .stderr
+                    .contains(if setting { "policyEnv" } else { "--policy-env" })
+            );
+        }
+    }
+}
+
+#[test]
+fn config_grants_refuse_reserved_and_malformed_names_from_flags_and_settings() {
+    for (name, code) in [
+        ("RAVEL_CONFIG_RUN", "excluded_grant"),
+        ("RAVEL_POLICY_RUN", "excluded_grant"),
+        ("RAVEL_EXIT_FILE", "excluded_grant"),
+        ("HARNESS_DISPATCH_EXIT_FILE", "excluded_grant"),
+        ("LD_PRELOAD", "excluded_grant"),
+        ("DYLD_INSERT_LIBRARIES", "excluded_grant"),
+        ("", "malformed_input"),
+        ("NAME=value", "malformed_input"),
+    ] {
+        for setting in [true, false] {
+            let sandbox = Sandbox::new();
+            let recorded = sandbox.recording_agent();
+            sandbox.personal_rhai(&rhai::routing(r#"["must not launch"]"#));
+            let args = if setting {
+                settings(&sandbox, &json!({"configEnv": [name]}).to_string());
+                vec![]
+            } else {
+                vec!["--config-env", name]
+            };
+
+            let error = refused(&recorded, &start_with(&sandbox, &[], &args));
+
+            assert_eq!(error["code"], code, "{name}: {error}");
+            if setting {
+                assert_eq!(error["location"], "configEnv");
+            } else {
+                assert_eq!(error["input"], "--config-env");
+            }
+        }
+    }
+}
+
+#[test]
 fn each_settings_failure_refuses_as_settings_invalid_with_exit_2_before_any_worker() {
     let long = "a".repeat(65);
     for (entries, location) in [
@@ -203,7 +283,7 @@ fn the_endpoints_key_is_an_unknown_key_and_the_refusal_names_it() {
 }
 
 /// The variable that an endpoint named as its credential is an ordinary name
-/// again: `--policy-env` grants it, and `ravel::env` reads it.
+/// again: `--config-env` grants it, and `ravel::env` reads it.
 #[test]
 fn a_variable_that_an_endpoint_once_named_as_its_credential_is_an_ordinary_grant() {
     let sandbox = Sandbox::new();
@@ -215,7 +295,7 @@ fn a_variable_that_an_endpoint_once_named_as_its_credential_is_an_ordinary_grant
     start_with(
         &sandbox,
         &[("MAIN_KEY", OsStr::new("granted-value"))],
-        &["--policy-env", "MAIN_KEY"],
+        &["--config-env", "MAIN_KEY"],
     )
     .report();
     assert_eq!(recorded.argv().unwrap(), ["granted-value"]);

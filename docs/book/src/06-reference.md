@@ -45,9 +45,9 @@ last column connects each word to the review:
 | [Result](02-actors-and-words.md#the-managed-process-and-its-result) | The text that a program in the session sends with `ravel end-session`. Ravel does not interpret it. Thus, the book calls it an opaque result. | `changes-needed` |
 | [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) | The `ravel` command-line program. It evaluates the configuration script in the Rhai worker, launches the selected program and returns the result. | The program that ran the review and returned `changes-needed` |
 
-Ravel's file names, options and error codes use the word “policy” for the
-configuration script, for example `policy.rhai`, `--policy-env` and
-`policy_refused`. Ravel's own diagnostic words, such as “the policy”, also
+Some Ravel file names and error codes use the word “policy” for the
+configuration script, for example `policy_refused`.
+Ravel's own diagnostic words, such as “the policy”, also
 name the configuration script.
 
 Why does Ravel evaluate the script in a separate process? The Ravel CLI
@@ -212,7 +212,7 @@ was 0. See [run a complete session](03-a-complete-session.md#run-the-first-sessi
 and [interpret the outcome](05-running-sessions.md#interpret-the-exit-status).
 
 All fifteen options below belong after `start-session`. Only `--param`,
-`--policy-env` and `--runtime-read` accept more than one occurrence. A
+`--config-env` and `--runtime-read` accept more than one occurrence. A
 repeated single-value option or switch is a command-line error. `-h` and
 `--help` are also available on this verb.
 
@@ -406,11 +406,13 @@ for a host source read. Ravel refuses data above a bound, and it does not
 truncate that data. `context_too_large` uses status 3. See [selection context](04-writing-an-owner-policy.md#supply-selection-context)
 and [bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
 
-### `--policy-env NAME`
+### `--config-env NAME`
 
 You may want the configuration script to read a variable of the caller, for
-example a mode that selects a different effort. `--policy-env` grants the
+example a mode that selects a different effort. `--config-env` grants the
 script one such variable. Repeat the option to grant more names.
+
+Ravel 2.0.0 refuses the old option `--policy-env` and settings key `policyEnv`.
 
 Why does the script need a grant? The Rhai worker has an empty environment.
 When the script calls `ravel::env(name)`, the worker sends the request to the
@@ -426,7 +428,7 @@ for the base names.
 
 | Grant property | Behaviour |
 |---|---|
-| Settings | The flags add to the `policyEnv` array of the settings. |
+| Settings | The flags add to the `configEnv` array of the settings. |
 | Duplicate names | Ravel merges them into one grant, in the order of their first occurrence. |
 | Value | A grant carries the caller's current value. An unset variable returns `()` through the helper. |
 | Recipient | The configuration script reads the value through `ravel::env`. This option changes no managed-process or harness-run environment. |
@@ -963,9 +965,9 @@ See [environment grants](04-writing-an-owner-policy.md#set-bounds-and-environmen
 | `PATH` | Resolves a bare program for a final selection or harness run. If unset, Ravel cannot search. An empty or relative entry resolves from the caller's working directory. The helper permits it. |
 | `TMPDIR` | Chooses the system temporary directory for private worker and run directories, and unconfined result channels without `--exit-dir`. The helper permits it. |
 | `LANG`, `LC_*` | Caller locale values that the helper permits. `LC_*` means every name with that case-sensitive prefix. |
-| Explicit grants | `policyEnv` and `--policy-env` add names that the helper permits. Duplicates count once. The caller supplies each value. |
+| Explicit grants | `configEnv` and `--config-env` add names that the helper permits. Duplicates count once. The caller supplies each value. |
 | `XDG_CONFIG_HOME` | Does not move the configuration script or the settings from `$HOME/.config/ravel`. It needs an explicit grant for `ravel::env`. |
-| `RAVEL_POLICY_RUN` | Marks an evaluation harness run. Its presence, even with an empty value, makes `start-session` refuse before it reads the settings or evaluates the configuration script. |
+| `RAVEL_CONFIG_RUN` | Marks an evaluation harness run. Its presence, even with an empty value, makes `start-session` refuse before it reads the settings or evaluates the configuration script. |
 
 A grant controls the helper, not file access or the environment of an unconfined
 harness run. The trusted configuration script can read a credential file through a measured read,
@@ -974,7 +976,7 @@ or receive credentials that a harness prints. Ravel does not redact that data.
 ### Names that an environment grant cannot use
 
 Some names are controls of a language runtime, of the dynamic loader or of
-Ravel itself. `policyEnv` and `--policy-env` do not accept these nine exact
+Ravel itself. `configEnv` and `--config-env` do not accept these nine exact
 names or prefix classes.
 
 The match is case-sensitive. `*` means any suffix, also the empty
@@ -1017,13 +1019,13 @@ above. An environment grant has no effect on that inheritance. See
 | `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG`, `LC_*` | Ravel retains the caller values when they are present. A retained `HOME` gives no filesystem access to that directory. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `TMPDIR`, `TMP`, `TEMP` | Ravel sets all three to the temporary directory of the private run. They replace the caller values. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `RAVEL_EXIT_FILE` | A new path for this session. Ravel supplies it after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
-| Every other caller variable | Absent. `--policy-env` grants only `ravel::env` access and adds no variable here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
+| Every other caller variable | Absent. `--config-env` grants only `ravel::env` access and adds no variable here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 
 The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
 `HARNESS_DISPATCH_EXIT_FILE`, `HARNESS_DISPATCH_RUN_ID` and
 `HARNESS_DISPATCH_STATE_DIR`. Ravel replaces the first with the new
 result-channel path. The other five stay absent. Each evaluation harness run uses the same rules,
-with its own result path and the additional `RAVEL_POLICY_RUN` marker.
+with its own result path and the additional `RAVEL_CONFIG_RUN` marker.
 
 A final managed process receives no marker, because an invocation that inherits
 it refuses before selection. These obsolete identity and
@@ -1141,7 +1143,7 @@ accepted on 2026-10-28. This block omits the configuration script and the
 program `fake-classifier`.
 
 ```json
-{"timeoutMs":60000,"policyEnv":["BOOK_EFFORT"],"harnesses":{"classifier":{"program":"fake-classifier","capabilities":["classify"]}},"budgets":{"harnessRuns":1}}
+{"timeoutMs":60000,"configEnv":["BOOK_EFFORT"],"harnesses":{"classifier":{"program":"fake-classifier","capabilities":["classify"]}},"budgets":{"harnessRuns":1}}
 ```
 
 These settings give evaluation 60 seconds and let the configuration script
@@ -1157,7 +1159,7 @@ a JSON object. `end-session` reads neither the settings nor the configuration sc
 |---|---|---|
 | `timeoutMs` | Optional whole number of milliseconds, 1,000–600,000 inclusive. The default is 30,000. `--timeout-ms` replaces the value after settings validation. It limits worker startup, module loads, the loader, selection and every host call. It does not limit the final managed process. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
 | `contextBytes` | Optional whole number of bytes, 1–8,388,608 inclusive. The default is 262,144. `--context-bytes` replaces it after validation. It limits the caller document and the delivered selection context. It is also the ceiling for a host read. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `policyEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `configEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
 | `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 | `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
 
@@ -1175,7 +1177,7 @@ These problems report `settings_invalid`, status 2:
 - an unknown key, also the obsolete `stateDir` and a `config` key
 - an unreadable or non-regular file
 - invalid JSON, or a document that is not an object
-- a `policyEnv` that is not an array of strings
+- a `configEnv` that is not an array of strings
 - a malformed `harnesses` entry or `budgets` object, also an invalid `harnessRuns` value
 
 Invalid `timeoutMs` or `contextBytes` values and malformed grant names use `malformed_input`, and
@@ -1457,7 +1459,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `selection_threw` | `selection` | 3 | An ordinary error escaped `select`. Correct the reported source location or handle the data error. To decline intentionally, return a refusal map. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
 | `policy_parse_failed` | `load` | 3 | The entry or an imported module does not compile. Correct the syntax or undefined variable at the source location. | [Validate with fake agents](04-writing-an-owner-policy.md#validate-a-configuration-script-with-fake-agents) |
 | `policy_format_retired` | `authority` | 3 | The selected entry uses a retired format. Supply a Rhai configuration script, as chapter 4 teaches. No compatibility path runs. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `policy_reentry_refused` | `authority` | 3 | `start-session` inherited `RAVEL_POLICY_RUN` from an evaluation harness run. Call the function of the route in the configuration script directly, not another session. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| `policy_reentry_refused` | `authority` | 3 | `start-session` inherited `RAVEL_CONFIG_RUN` from an evaluation harness run. Call the function of the route in the configuration script directly, not another session. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
 | `host_request_invalid` | `load, context or selection` | 3 | A host call has an invalid argument type, field or value. Correct the function and field at the reported location. This failure is not catchable. | [Data helpers](04-writing-an-owner-policy.md#check-json-with-the-data-helpers) |
 | `script_limit` | `evaluation` | 3 | The configuration script exceeded an engine bound. Reduce its operations, recursion or data size. A `try` block cannot suppress this failure. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
 | `memory_limit` | `evaluation` | 3 | The worker exceeded its 1 GiB heap bound. Reduce retained data. The worker exits, and no managed launch follows. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
@@ -1776,7 +1778,7 @@ The harness uses its own sign-in. Ravel holds no model credential or token budge
 
 Each run uses the caller's working directory, with a new POSIX session and no terminal.
 It uses the managed-process environment rules and the caller's confinement options.
-It receives `RAVEL_POLICY_RUN` and a fresh `RAVEL_EXIT_FILE` for its own result channel.
+It receives `RAVEL_CONFIG_RUN` and a fresh `RAVEL_EXIT_FILE` for its own result channel.
 A result sent there reaches only the configuration script, not the outer session's caller.
 
 Each launched run consumes one from `budgets.harnessRuns`.

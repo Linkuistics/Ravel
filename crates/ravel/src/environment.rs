@@ -18,7 +18,7 @@ struct Grant {
 }
 
 impl Grants {
-    /// The owner settings' names, already checked, then each `--policy-env`
+    /// The owner settings' names, already checked, then each `--config-env`
     /// name, refusing an excluded or malformed one.
     pub fn read(settings: &[String], flags: &[OsString]) -> Result<Grants, Refusal> {
         let mut grants: Vec<Grant> = Vec::new();
@@ -71,7 +71,7 @@ pub enum Lookup {
 
 /// The marker that a harness run carries, and that `start-session` refuses
 /// (`docs/specs/policy-evaluation.md`, *Re-entry and completion authority*).
-pub const POLICY_RUN: &str = "RAVEL_POLICY_RUN";
+pub const CONFIG_RUN: &str = "RAVEL_CONFIG_RUN";
 
 /// The variables that the managed process and each harness run never inherit:
 /// the launch controls of an enclosing session or driver. They would let the
@@ -107,7 +107,7 @@ fn excluded(name: &str) -> Option<&'static str> {
     }
 }
 
-/// What named a grant: a `--policy-env` flag, or `policyEnv` in the owner
+/// What named a grant: a `--config-env` flag, or `configEnv` in the owner
 /// settings file. One rule holds both, and a refusal says which it was.
 pub enum Named<'a> {
     Flag,
@@ -118,15 +118,15 @@ impl Named<'_> {
     /// How a message begins: the flag, or the key and its file.
     fn label(&self) -> String {
         match self {
-            Named::Flag => "--policy-env".to_owned(),
-            Named::Setting { file } => format!("policyEnv in the owner settings file {file}"),
+            Named::Flag => "--config-env".to_owned(),
+            Named::Setting { file } => format!("configEnv in the owner settings file {file}"),
         }
     }
 
     fn name(&self, refusal: Refusal) -> Refusal {
         match self {
-            Named::Flag => refusal.input("--policy-env"),
-            Named::Setting { file } => refusal.source(*file).location("policyEnv"),
+            Named::Flag => refusal.input("--config-env"),
+            Named::Setting { file } => refusal.source(*file).location("configEnv"),
         }
     }
 }
@@ -140,7 +140,7 @@ pub fn grantable(name: &str, named: &Named) -> Result<(), Refusal> {
             Stage::Cli,
             EXIT_MALFORMED,
             message,
-            "name one environment variable per grant, such as --policy-env ANTHROPIC_API_KEY; \
+            "name one environment variable per grant, such as --config-env ANTHROPIC_API_KEY; \
              its value comes from ravel's own environment and is never shown",
         ))
     };
@@ -165,18 +165,18 @@ pub fn grantable(name: &str, named: &Named) -> Result<(), Refusal> {
     Ok(())
 }
 
-/// A `--policy-env` name, which must also be UTF-8.
+/// A `--config-env` name, which must also be UTF-8.
 fn checked(name: &OsStr) -> Result<String, Refusal> {
     let name = name.to_str().ok_or_else(|| {
         Refusal::new(
             "malformed_input",
             Stage::Cli,
             EXIT_MALFORMED,
-            "a --policy-env name is not valid UTF-8",
-            "name one environment variable per --policy-env, such as --policy-env \
+            "a --config-env name is not valid UTF-8",
+            "name one environment variable per --config-env, such as --config-env \
              ANTHROPIC_API_KEY",
         )
-        .input("--policy-env")
+        .input("--config-env")
     })?;
     grantable(name, &Named::Flag)?;
     Ok(name.to_owned())
@@ -240,7 +240,7 @@ mod tests {
         ] {
             let refusal = Grants::read(&[], &[name.into()]).unwrap_err();
             assert_eq!(refusal.code, code, "{name}");
-            assert_eq!(refusal.input.as_deref(), Some("--policy-env"), "{name}");
+            assert_eq!(refusal.input.as_deref(), Some("--config-env"), "{name}");
         }
     }
 

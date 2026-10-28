@@ -44,9 +44,8 @@ last column connects each word to the review:
 | [Result](02-actors-and-words.md#the-managed-process-and-its-result) | The text that a program in the session sends with `ravel end-session`. Ravel does not interpret it. Thus, the book calls it an opaque result. | `changes-needed` |
 | [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) | The `ravel` command-line program. It evaluates the configuration script in a separate process, launches the selected program and returns the result. | The program that ran the review and returned `changes-needed` |
 
-Ravel's file names, options and error codes use the word “policy” for the
-configuration script, for example `policy.rhai`, `--policy-env` and
-`policy_refused`.
+Some Ravel file names and error codes use the word “policy” for the
+configuration script, for example `policy_refused`.
 
 <!-- tc: depart synonym-rotation because launch names process creation, while start also names the beginning of output -->
 What happens between your command and your result? The table restates the
@@ -783,7 +782,7 @@ back to the script, not to a caller. The harness entry in the settings names
 its program, so the script makes no selection for it.
 
 Ravel also gives a harness run the
-`RAVEL_POLICY_RUN` marker, an environment variable. If a program in that run
+`RAVEL_CONFIG_RUN` marker, an environment variable. If a program in that run
 calls `start-session`, Ravel refuses with `policy_reentry_refused`, status 3.
 The refusal occurs before Ravel reads the settings or the configuration script.
 
@@ -1009,7 +1008,7 @@ gives the managed process a new `RAVEL_EXIT_FILE`. The `HOME` variable does
 not give access to the directory that it names. The other caller variables are
 not in the environment.
 
-`--policy-env` grants a
+`--config-env` grants a
 variable to `ravel::env`, the environment helper of the configuration script.
 It adds no variable to a confined managed process or harness run.
 

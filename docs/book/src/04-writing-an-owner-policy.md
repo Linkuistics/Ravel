@@ -17,9 +17,8 @@ First, the words that this chapter uses on every page:
 | [Settings](02-actors-and-words.md#caller-and-owner) | Values in the JSON file `$HOME/.config/ravel/settings.json`, such as limits and the harnesses that the script can run. The script cannot change them. |
 | **Configuration** | The configuration script and the settings together |
 
-Ravel's file names, options and error codes use the word “policy” for the
-configuration script, for example `policy.rhai`, `--policy-env` and
-`policy_refused`. This chapter shows them unchanged.
+Some Ravel file names and error codes use the word “policy” for the
+configuration script, for example `policy_refused`.
 
 ## Know the Rhai language
 
@@ -1289,14 +1288,14 @@ An absent file sets nothing. Each key is optional, and Ravel refuses unknown key
 |---|---|
 | `timeoutMs` | Whole evaluation deadline, 1,000–600,000 ms. Default: 30,000. |
 | `contextBytes` | Context budget, 1–8,388,608 bytes. Default: 262,144. |
-| `policyEnv` | Additional caller environment names that `ravel::env` can read. |
+| `configEnv` | Additional caller environment names that `ravel::env` can read. |
 | `harnesses` | Named programs available to `ravel::run_harness`. |
 | `budgets` | An object whose optional `harnessRuns` is an integer from 0 to 16. Default: 0. |
 
 The caller can also change two bounds for one session.
 `--timeout-ms` and `--context-bytes` replace the settings of those bounds.
 Ravel checks the settings first, so a flag cannot override an invalid file.
-`--policy-env NAME` adds a grant to those in `policyEnv`.
+`--config-env NAME` adds a grant to those in `configEnv`.
 Duplicate grants count once.
 
 `request.limits` holds `selectionMs`, `contextBytes`, `sourceBytes`, `sources`,
@@ -1346,7 +1345,7 @@ The command installs settings only in the example's temporary home.
 **`settings.json`**
 
 ```json
-{"timeoutMs":5000,"contextBytes":4096,"policyEnv":["BOOK_EFFORT"]}
+{"timeoutMs":5000,"contextBytes":4096,"configEnv":["BOOK_EFFORT"]}
 ```
 
 **`policy.rhai`**
@@ -1535,7 +1534,7 @@ A per-run timeout or output overflow stops the run and returns its status.
 A cleanup failure ends evaluation as `harness_cleanup_failed`, exit status 5.
 
 Can a harness run start a Ravel session of its own? No. Ravel puts the
-marker `RAVEL_POLICY_RUN` in the environment of each harness run, and each
+marker `RAVEL_CONFIG_RUN` in the environment of each harness run, and each
 child of the run inherits it. `start-session` finds the marker and refuses as
 `policy_reentry_refused`, before it reads the settings or a configuration
 script. Thus, a harness run cannot start a second evaluation inside the first.

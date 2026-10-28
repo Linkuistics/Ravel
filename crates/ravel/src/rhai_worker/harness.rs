@@ -26,7 +26,7 @@ use serde_json::{Value, json};
 #[cfg(test)]
 use crate::completion::{EXIT_FILE_VARIABLE, SessionChannel};
 use crate::confinement::{Basis, Confined};
-use crate::environment::{LAUNCH_CONTROLS, POLICY_RUN};
+use crate::environment::{CONFIG_RUN, LAUNCH_CONTROLS};
 use crate::program;
 use crate::refusal::{EXIT_WORKER, Refusal, Stage};
 use crate::run::ESCALATION;
@@ -313,7 +313,7 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
     .with_arg0(OsString::from(&resolved.program));
     let scrub: Vec<&OsStr> = LAUNCH_CONTROLS.map(OsStr::new).into();
     let mut granted: Vec<(OsString, OsString)> =
-        vec![(OsString::from(POLICY_RUN), OsString::from("1"))];
+        vec![(OsString::from(CONFIG_RUN), OsString::from("1"))];
     if let Some(confined) = &confined {
         granted.extend(confined.environment());
     }

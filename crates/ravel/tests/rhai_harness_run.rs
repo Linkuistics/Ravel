@@ -241,7 +241,7 @@ fn a_run_gets_the_caller_environment_the_marker_and_a_channel_of_its_own() {
     harness(
         &sandbox,
         "env-agent",
-        "echo \"caller=${CALLER_VAR-unset}\"\necho \"marker=${RAVEL_POLICY_RUN-unset}\"\n\
+        "echo \"caller=${CALLER_VAR-unset}\"\necho \"marker=${RAVEL_CONFIG_RUN-unset}\"\n\
          echo \"run-id=${RAVEL_RUN_ID-unset}\"\necho \"exit-file=${RAVEL_EXIT_FILE-unset}\"",
     );
     settings(&sandbox, &["env-agent"], 1);
@@ -304,7 +304,7 @@ fn the_managed_process_never_receives_the_marker_or_the_channel_of_a_run() {
 
     let environment = fs::read_to_string(seen).unwrap();
     assert!(
-        !environment.contains("RAVEL_POLICY_RUN"),
+        !environment.contains("RAVEL_CONFIG_RUN"),
         "the managed process has the marker:\n{environment}"
     );
     // The control: the managed process does have the channel of its own session.
@@ -741,21 +741,23 @@ fn the_refusal_comes_before_settings_and_before_a_policy() {
     let control = run(&mut command);
     assert_eq!(control.refusal(2)["error"]["code"], "settings_invalid");
 
-    let mut command = sandbox.command();
-    command
-        .args([
-            "start-session",
-            "--prompt",
-            "p",
-            "--kind",
-            "check",
-            "--json",
-        ])
-        .env("RAVEL_POLICY_RUN", "1");
-    let refusal = run(&mut command).refusal(3);
+    for value in ["1", ""] {
+        let mut command = sandbox.command();
+        command
+            .args([
+                "start-session",
+                "--prompt",
+                "p",
+                "--kind",
+                "check",
+                "--json",
+            ])
+            .env("RAVEL_CONFIG_RUN", value);
+        let refusal = run(&mut command).refusal(3);
 
-    assert_eq!(refusal["error"]["code"], "policy_reentry_refused");
-    assert_eq!(refusal["error"]["stage"], "authority");
+        assert_eq!(refusal["error"]["code"], "policy_reentry_refused");
+        assert_eq!(refusal["error"]["stage"], "authority");
+    }
 }
 
 #[test]
@@ -876,6 +878,7 @@ fn a_confined_run_has_a_private_run_directory_and_the_confined_environment() {
             "touch ./inside || echo no-write-in-cwd > ./observed\n\
              touch \"$HOME/outside\" 2>/dev/null && echo wrote-home >> ./observed\n\
              echo \"token=${{PRIVATE_TOKEN-unset}}\" >> ./observed\n\
+             echo \"marker=${{RAVEL_CONFIG_RUN-unset}}\" >> ./observed\n\
              echo \"tmp=$TMPDIR\" >> ./observed\n\
              {FRONT:?} end-session confined-result"
         ),
@@ -915,6 +918,7 @@ fn a_confined_run_has_a_private_run_directory_and_the_confined_environment() {
     assert!(!observed.contains("no-write-in-cwd"), "{observed}");
     assert!(!observed.contains("wrote-home"), "{observed}");
     assert!(observed.contains("token=unset"), "{observed}");
+    assert!(observed.contains("marker=1"), "{observed}");
     // The temporary directory is the run's own, under the private run directory.
     let tmp = observed
         .lines()
@@ -944,6 +948,7 @@ fn a_confined_run_has_a_private_run_directory_and_the_confined_environment() {
     let observed = fs::read_to_string(sandbox.cwd.join("observed")).unwrap();
     assert!(observed.contains("wrote-home"), "{observed}");
     assert!(observed.contains("token=visible"), "{observed}");
+    assert!(observed.contains("marker=1"), "{observed}");
     assert!(sandbox.home.join("outside").exists());
 }
 

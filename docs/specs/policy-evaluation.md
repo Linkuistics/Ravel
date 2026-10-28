@@ -542,7 +542,7 @@ argument is.
 
 `env` returns the caller's value of a readable name, or `()` when that name is
 unset. The readable names are `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and the
-names that `policyEnv` or `--policy-env` grant. Any other name throws
+names that `configEnv` or `--config-env` grant. Any other name throws
 `env_not_granted`, whether or not the caller has set it, and the message never
 holds a value. A value that is not UTF-8 throws `env_not_utf8`, because a Rhai
 string holds UTF-8 only. The worker itself has no environment.
@@ -594,7 +594,7 @@ A harness run has these properties:
 - It receives the environment of a managed process. That is the caller's
   environment with the same scrub, or the confined environment.
 - It receives `RAVEL_EXIT_FILE` for a fresh result channel of its own, and the
-  marker `RAVEL_POLICY_RUN`.
+  marker `RAVEL_CONFIG_RUN`.
 - Ravel confines it, with a private run directory of its own, when the caller
   passed `--confine`.
 
@@ -743,11 +743,13 @@ script in its output.
 
 Settings remain at `$HOME/.config/ravel/settings.json`, including with an explicit `--config` entry. A missing settings file selects defaults. Without an absolute `HOME`, an explicit entry uses defaults.
 
-A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `policyEnv`, `harnesses` and `budgets`. Unknown keys refuse as `settings_invalid`, exit 2.
+A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `configEnv`, `harnesses` and `budgets`. Unknown keys refuse as `settings_invalid`, exit 2.
 
-No key opens a persistent store. Flags override the timeout and context bounds. `--policy-env` adds names to `policyEnv`, with duplicates counted once.
+No key opens a persistent store. Flags override the timeout and context bounds. `--config-env` adds names to `configEnv`, with duplicates counted once.
 
-`policyEnv` is an array of environment names. A grant must be nonempty UTF-8 and contain no `=`. Names in `LD_*`, `DYLD_*`, `RAVEL_*` and `HARNESS_DISPATCH_*` are reserved and refuse as `excluded_grant`, exit 2.
+Ravel 2.0.0 refuses `--policy-env` as an unknown option and `policyEnv` as an unknown settings key. Neither is an alias.
+
+`configEnv` is an array of environment names. A grant must be nonempty UTF-8 and contain no `=`. Names in `LD_*`, `DYLD_*`, `RAVEL_*` and `HARNESS_DISPATCH_*` are reserved and refuse as `excluded_grant`, exit 2.
 
 Other malformed grants refuse as `malformed_input`, exit 2. Bun and Node variables are ordinary grantable names after runtime removal. Grants let `ravel::env` read caller values through the Ravel CLI.
 
@@ -942,7 +944,7 @@ kind for a question calls its own route function. It needs no second selection,
 as [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md)
 records.
 
-`start-session` refuses as `policy_reentry_refused` when `RAVEL_POLICY_RUN` is in
+`start-session` refuses as `policy_reentry_refused` when `RAVEL_CONFIG_RUN` is in
 its environment. It refuses before it reads settings or a configuration script. The final managed process cannot inherit that marker, because this refusal prevents its launch.
 
 Ravel scrubs only the six exact launch controls in the

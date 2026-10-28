@@ -37,7 +37,7 @@ fn ambient_startup_files_do_not_supply_environment_or_preload_code() {
         "--prompt",
         "p",
         "--json",
-        "--policy-env",
+        "--config-env",
         "HOSTILE_DOTENV",
     ];
     let mut command = sandbox.command();

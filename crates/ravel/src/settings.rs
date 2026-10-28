@@ -26,7 +26,7 @@ pub const ORIGIN: &str = "settings.json";
 pub struct Settings {
     pub timeout_ms: Option<u64>,
     pub context_bytes: Option<u64>,
-    pub policy_env: Vec<String>,
+    pub config_env: Vec<String>,
     pub harnesses: Harnesses,
     pub budgets: BudgetSettings,
 }
@@ -82,11 +82,11 @@ impl Settings {
                     let range = CONTEXT_MIN_BYTES..=CONTEXT_MAX_BYTES;
                     settings.context_bytes = Some(bound(&file, key, value, "bytes", range)?);
                 }
-                "policyEnv" => {
+                "configEnv" => {
                     let names = value.as_array().ok_or_else(|| {
                         invalid(
                             &file,
-                            format!("holds a policyEnv, {value}, that is not an array"),
+                            format!("holds a configEnv, {value}, that is not an array"),
                         )
                         .location(key)
                     })?;
@@ -94,12 +94,12 @@ impl Settings {
                         let name = name.as_str().ok_or_else(|| {
                             invalid(
                                 &file,
-                                format!("holds {name} in policyEnv, which is not a string"),
+                                format!("holds {name} in configEnv, which is not a string"),
                             )
                             .location(key)
                         })?;
                         environment::grantable(name, &environment::Named::Setting { file: &file })?;
-                        settings.policy_env.push(name.to_owned());
+                        settings.config_env.push(name.to_owned());
                     }
                 }
                 "harnesses" => {
@@ -175,7 +175,7 @@ fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
         Stage::Cli,
         EXIT_MALFORMED,
         format!("the owner settings file {file} {what}"),
-        "make it one JSON object holding any of timeoutMs, contextBytes, policyEnv (an array of variable names), harnesses and budgets, or remove it to set nothing",
+        "make it one JSON object holding any of timeoutMs, contextBytes, configEnv (an array of variable names), harnesses and budgets, or remove it to set nothing",
     )
     .source(file)
 }
@@ -232,7 +232,7 @@ mod tests {
             let settings = Settings::read(home).unwrap();
             assert_eq!(settings.timeout_ms, None);
             assert_eq!(settings.context_bytes, None);
-            assert!(settings.policy_env.is_empty());
+            assert!(settings.config_env.is_empty());
         }
     }
 
@@ -240,11 +240,11 @@ mod tests {
     fn every_key_is_optional_and_each_is_read() {
         assert_eq!(read("{}").unwrap().timeout_ms, None);
         let settings =
-            read(r#"{ "timeoutMs": 600000, "contextBytes": 1, "policyEnv": ["A_TOKEN"] }"#)
+            read(r#"{ "timeoutMs": 600000, "contextBytes": 1, "configEnv": ["A_TOKEN"] }"#)
                 .unwrap();
         assert_eq!(settings.timeout_ms, Some(600_000));
         assert_eq!(settings.context_bytes, Some(1));
-        assert_eq!(settings.policy_env, ["A_TOKEN"]);
+        assert_eq!(settings.config_env, ["A_TOKEN"]);
     }
 
     #[test]
@@ -281,29 +281,29 @@ mod tests {
                 Some("contextBytes"),
             ),
             (
-                r#"{ "policyEnv": ["LD_PRELOAD"] }"#,
+                r#"{ "configEnv": ["LD_PRELOAD"] }"#,
                 "excluded_grant",
-                Some("policyEnv"),
+                Some("configEnv"),
             ),
             (
-                r#"{ "policyEnv": ["A=B"] }"#,
+                r#"{ "configEnv": ["A=B"] }"#,
                 "malformed_input",
-                Some("policyEnv"),
+                Some("configEnv"),
             ),
             (
-                r#"{ "policyEnv": [""] }"#,
+                r#"{ "configEnv": [""] }"#,
                 "malformed_input",
-                Some("policyEnv"),
+                Some("configEnv"),
             ),
             (
-                r#"{ "policyEnv": [7] }"#,
+                r#"{ "configEnv": [7] }"#,
                 "settings_invalid",
-                Some("policyEnv"),
+                Some("configEnv"),
             ),
             (
-                r#"{ "policyEnv": "A_TOKEN" }"#,
+                r#"{ "configEnv": "A_TOKEN" }"#,
                 "settings_invalid",
-                Some("policyEnv"),
+                Some("configEnv"),
             ),
             (
                 r#"{ "stateDir": "records" }"#,

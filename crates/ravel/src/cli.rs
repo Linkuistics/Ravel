@@ -88,9 +88,9 @@ pub struct SelectionArgs {
     #[arg(long, value_name = "BYTES")]
     pub context_bytes: Option<OsString>,
 
-    /// Let the Rhai policy read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the policyEnv owner setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
+    /// Let the configuration script read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the configEnv setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
     #[arg(long, value_name = "NAME")]
-    pub policy_env: Vec<OsString>,
+    pub config_env: Vec<OsString>,
 }
 
 impl SelectionArgs {

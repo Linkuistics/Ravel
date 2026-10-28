@@ -148,7 +148,7 @@ the **Configuration script** or its **Rhai worker**.
 - **"Provider"** means only the owner's model-origin label in a selection.
 - **"LLM call"** means a **Harness run** that asks a model a question. Ravel
   sends no request to a model service itself.
-- **"Policy"** in a literal name, such as `--policy-env` or a
+- **"Policy"** in a literal name, such as `policy_refused` or a
   `policy_*` code, means the **Configuration script**. It never means a
   security or sandbox policy. A restriction on a **Managed process** is
   confinement.

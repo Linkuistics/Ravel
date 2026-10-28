@@ -6,7 +6,7 @@
 //! from a file name, and a parameter's name and value mean nothing here. The
 //! prompt is read once and kept byte for byte, and the policy's `select`
 //! receives it as it is. Terminal stdin is never read. The caller's bounds,
-//! `--context` document and `--policy-env` grants are read here too, over the
+//! `--context` document and `--config-env` grants are read here too, over the
 //! owner's settings, so a malformed or excluded one refuses before any policy
 //! runs.
 
@@ -51,7 +51,7 @@ pub struct Inputs {
     /// Every bound in effect: the owner's settings, and the caller's
     /// `--timeout-ms` and `--context-bytes` over them.
     pub limits: Limits,
-    /// The names the owner settings and `--policy-env` grant the worker
+    /// The names the owner settings and `--config-env` grant the worker
     /// beyond its base set.
     pub grants: Grants,
     /// The owner's harness entries, which a Rhai policy discovers. (rhai)
@@ -109,7 +109,7 @@ impl Inputs {
                 .input("--prompt"));
             }
         };
-        let grants = Grants::read(&settings.policy_env, &args.policy_env)?;
+        let grants = Grants::read(&settings.config_env, &args.config_env)?;
         let limits = Limits::read(
             args.timeout_ms.as_deref(),
             args.context_bytes.as_deref(),

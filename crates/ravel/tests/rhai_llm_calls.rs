@@ -461,7 +461,7 @@ fn an_ungranted_credential_in_the_caller_environment_reaches_no_script_value_or_
     // The firing control: with a grant that names the sentinel's variable, the
     // same policy reads the sentinel, and the streams that were clean now hold
     // it. The checks above therefore read the streams that would carry a leak.
-    let (run, recorded, _keep) = probe(&["--policy-env", "ANTHROPIC_API_KEY"]);
+    let (run, recorded, _keep) = probe(&["--config-env", "ANTHROPIC_API_KEY"]);
     assert_eq!(recorded.argv().unwrap(), [format!("returned:{SENTINEL}")]);
     assert!(run.stderr.contains(SENTINEL), "{}", run.stderr);
 }

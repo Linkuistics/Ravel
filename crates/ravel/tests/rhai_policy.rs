@@ -436,7 +436,7 @@ fn bun_and_node_names_are_ordinary_environment_grants() {
             support::write(
                 &sandbox.home.join(".config/ravel/settings.json"),
                 &if setting {
-                    json!({"policyEnv": [name]}).to_string()
+                    json!({"configEnv": [name]}).to_string()
                 } else {
                     "{}".to_owned()
                 },
@@ -454,7 +454,7 @@ fn bun_and_node_names_are_ordinary_environment_grants() {
                 &format!("name={name}"),
             ]);
             if !setting {
-                command.args(["--policy-env", name]);
+                command.args(["--config-env", name]);
             }
             let output = command.output().unwrap();
             assert!(

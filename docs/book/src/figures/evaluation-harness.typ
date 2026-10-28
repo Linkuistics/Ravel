@@ -15,7 +15,7 @@
   msg("worker", "cli", [run_harness over private socket: claude, args and stdin]),
   msg("cli", "cli", [Find program. Check run budget]),
   msg("cli", "run", [Launch in a new POSIX session, \
-    with its own result channel and RAVEL_POLICY_RUN], create: true),
+    with its own result channel and RAVEL_CONFIG_RUN], create: true),
   msg("run", "run", [Read stdin, write answer on stdout, exit]),
   msg("cli", "cli", [Complete run group cleanup]),
   destroy("run"),

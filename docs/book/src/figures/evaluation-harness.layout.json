@@ -324,7 +324,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Launch in a new POSIX session,\nwith its own result channel and RAVEL_POLICY_RUN",
+      "text": "Launch in a new POSIX session,\nwith its own result channel and RAVEL_CONFIG_RUN",
       "x": 354.0859375,
       "y": 277.25781249999994,
       "anchor": "south",

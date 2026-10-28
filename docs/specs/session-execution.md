@@ -56,7 +56,7 @@ Ravel scrubs these six exact launch controls before supplying the fresh result p
 - `RAVEL_STATE_DIR`
 
 Other names in these classes remain ordinary caller variables.
-The separate [re-entry rule](policy-evaluation.md#re-entry-and-completion-authority) prevents an inherited `RAVEL_POLICY_RUN` from reaching a managed launch.
+The separate [re-entry rule](policy-evaluation.md#re-entry-and-completion-authority) prevents an inherited `RAVEL_CONFIG_RUN` from reaching a managed launch.
 Configuration environment grants have wider reserved classes, as the configuration spec states.
 
 `end-session` takes exactly one opaque UTF-8 argument, reads no configuration and accepts no target. It writes a complete temporary regular file, then publishes with a hard link that cannot replace an existing file. The first value wins.

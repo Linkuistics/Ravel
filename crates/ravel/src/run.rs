@@ -14,7 +14,7 @@ use serde_json::json;
 
 use crate::choice::{self, Selected};
 use crate::cli::RunArgs;
-use crate::environment::{LAUNCH_CONTROLS, POLICY_RUN};
+use crate::environment::{CONFIG_RUN, LAUNCH_CONTROLS};
 use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::harness::{ConfineSetup, RunSetup};
 use crate::signal_state;
@@ -38,13 +38,13 @@ fn failed(code: &'static str, message: impl std::fmt::Display) -> Refusal {
 pub fn run(args: &RunArgs) -> Result<(), Failure> {
     // Before settings or a policy: a harness run executes its harness directly,
     // so a `start-session` inside one has no selection to make.
-    if std::env::var_os(POLICY_RUN).is_some() {
+    if std::env::var_os(CONFIG_RUN).is_some() {
         return Err(Refusal::new(
             "policy_reentry_refused",
             Stage::Authority,
             EXIT_REFUSED,
             format!(
-                "start-session runs inside a harness run of a policy ({POLICY_RUN} is in its \
+                "start-session runs inside a harness run of a policy ({CONFIG_RUN} is in its \
                  environment), where it cannot select"
             ),
             "have the policy call its own route function for another question, and run the \

@@ -277,7 +277,7 @@ fn select(request, context) {
             "--config",
         ])
         .arg(path)
-        .args(["--policy-env", "TOKEN", "--param", "profile=exact\ntext"])
+        .args(["--config-env", "TOKEN", "--param", "profile=exact\ntext"])
         .env("TOKEN", "granted")
         .env("UNGRANTED", "private")
         .env(
@@ -340,7 +340,7 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
                 "--config",
             ])
             .arg(path)
-            .args(["--policy-env", name])
+            .args(["--config-env", name])
             .output()
             .unwrap();
         assert_eq!(
