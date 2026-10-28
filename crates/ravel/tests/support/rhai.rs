@@ -1,6 +1,6 @@
 //! The sandbox helper for Rhai policies at the real CLI seam.
 //!
-//! It adds to [`Sandbox`] the personal `policy.rhai`, entries by relative path
+//! It adds to [`Sandbox`] the personal `config.rhai`, entries by relative path
 //! and a harness that records the argument vector it was started with, so a
 //! test can read what a route table selected. The removal increment keeps this
 //! file: the Rhai path is the one that stays.
@@ -59,7 +59,7 @@ impl Recorded {
 
 impl Sandbox {
     pub fn personal_rhai_path(&self) -> PathBuf {
-        self.home.join(".config/ravel/policy.rhai")
+        self.home.join(".config/ravel/config.rhai")
     }
 
     pub fn personal_rhai(&self, source: &str) -> PathBuf {

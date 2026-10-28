@@ -72,7 +72,7 @@ pub struct SelectionArgs {
     /// The task's stable identity: opaque UTF-8, at most 1024 bytes
     #[arg(long, value_name = "ID", allow_hyphen_values = true)]
     pub task_id: Option<OsString>,
-    /// Evaluate this Rhai policy entry instead of ~/.config/ravel/policy.rhai; relative to the current directory
+    /// Evaluate this Rhai configuration entry instead of ~/.config/ravel/config.rhai; relative to the current directory
     #[arg(long, value_name = "PATH")]
     pub config: Option<PathBuf>,
     /// Caller data for the policy's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes

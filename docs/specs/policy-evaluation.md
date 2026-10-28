@@ -98,15 +98,19 @@ agree.
 
 ### Configuration entry and discovery
 
-The default entry is `$HOME/.config/ravel/policy.rhai`, and `HOME` must be
+The default entry is `$HOME/.config/ravel/config.rhai`, and `HOME` must be
 absolute. `--config PATH` names another entry, relative to the caller's working
 directory. There is no search, no environment override and no fallback.
 
+`policy.rhai` is not a default-path alias. An explicit `.rhai` entry may have
+any basename, including `policy.rhai`. The historical `policy.ts` probe below
+only produces a retired-format refusal; it never selects an entry.
+
 | Entry state | Result |
 |---|---|
-| `policy.rhai` exists | Ravel evaluates it, and it does not open `policy.ts` |
-| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the book's chapter 4, "Write a configuration script" |
-| Neither file exists | `policy_missing`, exit 3. The message names `policy.rhai` |
+| `config.rhai` exists | Ravel evaluates it, and it does not open `policy.ts` |
+| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `config.rhai` and the book's chapter 4, "Write a configuration script" |
+| Neither file exists | `policy_missing`, exit 3. The message names `config.rhai` |
 | `--config` names a `.rhai` file | Ravel evaluates it |
 | `--config` names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` file | `policy_format_retired`, exit 3 |
 | `--config` names any other file | `policy_unreadable`, exit 3. The remedy asks for a `.rhai` file |
@@ -1011,11 +1015,11 @@ The [delivery instructions](../book/src/11-deliver-ravel.md) own prerequisites, 
 
 Ravel 2.0.0 is a clean cutover with no compatibility period. The precedence of
 the entry lets a Grove session that Ravel 1.1.0 launched keep reading
-`policy.ts`, while 2.0.0 reads `policy.rhai`.
+`policy.ts`, while 2.0.0 reads `config.rhai`.
 
 | TypeScript 1.x | Rhai 2.0.0 |
 |---|---|
-| `~/.config/ravel/policy.ts` | `~/.config/ravel/policy.rhai` |
+| `~/.config/ravel/policy.ts` | `~/.config/ravel/config.rhai` |
 | `export const policy = definePolicy({ … })` | A module with `SCHEMA_VERSION`, `VERSION`, `select` and optionally `load_context` |
 | `schemaVersion: 2` | `export const SCHEMA_VERSION = 3;` |
 | `version` | `export const VERSION = "…";` |
@@ -1336,19 +1340,19 @@ The comparison SHALL preserve its exclusions and prove each intentional differen
 
 ### Requirement: Entry precedence
 
-Ravel SHALL evaluate `policy.rhai` when it exists. It SHALL refuse a lone
+Ravel SHALL evaluate `config.rhai` when it exists. It SHALL refuse a lone
 `policy.ts` with the migration remedy.
 
 #### Scenario: Both files
 
-- **WHEN** both `policy.rhai` and `policy.ts` exist in the configuration
+- **WHEN** both `config.rhai` and `policy.ts` exist in the configuration
   directory
-- **THEN** Ravel evaluates `policy.rhai` and does not open `policy.ts`
+- **THEN** Ravel evaluates `config.rhai` and does not open `policy.ts`
 
 ## Test seams
 
 The owner agreed one command-line seam in the requirements session. Acceptance tests run the real `ravel start-session` against a sandbox home that
-holds `policy.rhai` and `settings.json`. Fake harness scripts on a private `PATH`
+holds `config.rhai` and `settings.json`. Fake harness scripts on a private `PATH`
 stand behind it, as the existing tests use. They serve the managed process and
 the harness runs, and with them the LLM calls. A fake harness for an LLM call
 prints a scripted answer, and it records its arguments and its `stdin` for the

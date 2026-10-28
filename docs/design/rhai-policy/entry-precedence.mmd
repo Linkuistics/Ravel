@@ -3,7 +3,7 @@ flowchart TD
   reentry{"Is RAVEL_POLICY_RUN set?"}
   config{"Is --config given?"}
   ext{"What is the extension of --config?"}
-  rhai{"Does ~/.config/ravel/policy.rhai exist?"}
+  rhai{"Does ~/.config/ravel/config.rhai exist?"}
   ts{"Does ~/.config/ravel/policy.ts exist?"}
   eval["Evaluate the .rhai entry"]
   retired["Refuse: policy_format_retired, exit 3<br/>the remedy names the Rhai configuration chapter"]

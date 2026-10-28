@@ -5,7 +5,7 @@ sequenceDiagram
   participant W as Rhai worker
   participant H as Harness run (claude -p)
   C->>R: start-session --kind KIND --prompt TEXT
-  R->>R: read settings, resolve policy.rhai
+  R->>R: read settings, resolve config.rhai
   R->>W: re-execute own binary (empty environment, fd 3)
   W->>R: hello with build identity
   R->>W: request map and entry source

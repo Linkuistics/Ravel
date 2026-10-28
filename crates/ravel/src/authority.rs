@@ -7,7 +7,7 @@ use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 
 /// The personal default of the Rhai path, relative to HOME. `XDG_CONFIG_HOME`
 /// is deliberately not consulted: it would be an environment-selected entry.
-pub const PERSONAL_RHAI_DEFAULT: &str = ".config/ravel/policy.rhai";
+pub const PERSONAL_RHAI_DEFAULT: &str = ".config/ravel/config.rhai";
 
 /// The extension that takes the Rhai path. (rhai)
 const RHAI_EXTENSION: &str = "rhai";
@@ -75,7 +75,8 @@ pub fn resolve(
             // Only NotFound means absent; permission errors must not select a
             // different entry. symlink_metadata also preserves dangling links.
             if fs::symlink_metadata(&rhai).is_err_and(|error| error.kind() == ErrorKind::NotFound) {
-                let retired = rhai.with_extension("ts");
+                // This names the shipped 1.x default, not another 2.0 entry.
+                let retired = rhai.with_file_name("policy.ts");
                 if fs::symlink_metadata(&retired).is_ok() {
                     return Err(retired_format(&retired));
                 }
@@ -106,7 +107,7 @@ fn retired_format(path: &Path) -> Refusal {
         Stage::Authority,
         EXIT_REFUSED,
         format!("the selected policy entry {} is TypeScript or JavaScript, which this release no longer evaluates", path.display()),
-        "write policy.rhai using chapter 4 of the book, \"Write a configuration script\", and name a .rhai file with --config PATH if it is elsewhere",
+        "write config.rhai using chapter 4 of the book, \"Write a configuration script\", and name a .rhai file with --config PATH if it is elsewhere",
     ).source(path.to_string_lossy())
 }
 

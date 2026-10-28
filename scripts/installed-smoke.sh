@@ -41,7 +41,7 @@ for label in direct symlink; do
   printf '%s\n' '#!/bin/sh' 'for prompt in "$@"; do :; done' \
     'printf "fixture stdout\n"' 'exec "$SMOKE_FRONT" end-session -- "$prompt"' >"$dir/bin/my-agent-wrapper"
   chmod +x "$dir/bin/my-agent-wrapper"
-  cp "$prefix/share/ravel/examples/sample.rhai" "$dir/home/.config/ravel/policy.rhai"
+  cp "$prefix/share/ravel/examples/sample.rhai" "$dir/home/.config/ravel/config.rhai"
   cp "$prefix/share/ravel/examples/static.rhai" "$dir/home/.config/ravel/static.rhai"
   printf 'careful\n' >"$dir/cwd/.ravel-choice"
   for result in 'exact result' '' $'first\nsecond\n' '--help'; do

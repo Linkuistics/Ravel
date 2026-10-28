@@ -289,6 +289,81 @@ fn an_uncaught_error_refuses_with_its_file_line_and_column() {
 }
 
 #[test]
+fn configuration_default_runs_config_rhai_and_preserves_exact_result_bytes() {
+    let sandbox = Sandbox::new();
+    let entry = sandbox.home.join(".config/ravel/config.rhai");
+    support::write(&entry, rhai::ROUTED);
+    support::write(
+        &sandbox.home.join(".config/ravel/policy.rhai"),
+        "this old default must never be evaluated",
+    );
+    support::write(
+        &sandbox.bin.join("fake-agent"),
+        &format!(
+            "#!/bin/sh\nexec {:?} end-session -- \"$1\"\n",
+            support::FRONT
+        ),
+    );
+    for result in ["", "--policy-env\npolicy.rhai\n", "two words"] {
+        let run = sandbox.run(&["--kind", "check", "--prompt", result, "--json"]);
+        assert_eq!(run.code, Some(0), "{}", run.stderr);
+        assert_eq!(run.stdout.as_bytes(), result.as_bytes());
+        let notice: Value = serde_json::from_str(run.stderr.lines().next().unwrap()).unwrap();
+        assert_eq!(
+            notice["policy"]["path"],
+            text(&fs::canonicalize(&entry).unwrap())
+        );
+    }
+}
+
+#[test]
+fn configuration_default_does_not_alias_policy_rhai_but_explicit_paths_accept_it() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    let old = sandbox.home.join(".config/ravel/policy.rhai");
+    support::write(&old, &routing("[request.prompt]"));
+
+    let missing = refused(&start(&sandbox, &[]), "policy_missing", Some(&recorded));
+    assert_eq!(
+        missing["source"],
+        text(&sandbox.home.join(".config/ravel/config.rhai"))
+    );
+
+    let absolute = start(&sandbox, &["--config", &text(&old)]).report();
+    assert_eq!(
+        absolute["policy"]["path"],
+        text(&fs::canonicalize(&old).unwrap())
+    );
+    let relative = start(&sandbox, &["--config", "../home/.config/ravel/policy.rhai"]).report();
+    assert_eq!(relative["policy"], absolute["policy"]);
+    assert_eq!(recorded.argv().unwrap(), ["p"]);
+}
+
+#[test]
+fn an_unreadable_config_rhai_does_not_select_an_old_entry() {
+    for directory in [false, true] {
+        let sandbox = Sandbox::new();
+        let recorded = sandbox.recording_agent();
+        for old in ["policy.rhai", "policy.ts"] {
+            support::write(
+                &sandbox.home.join(".config/ravel").join(old),
+                &routing("[request.prompt]"),
+            );
+        }
+        let entry = sandbox.home.join(".config/ravel/config.rhai");
+        if directory {
+            fs::create_dir(&entry).unwrap();
+        } else {
+            support::write(&entry, &routing("[request.prompt]"));
+            fs::set_permissions(&entry, fs::Permissions::from_mode(0o000)).unwrap();
+        }
+
+        let error = refused(&start(&sandbox, &[]), "policy_unreadable", Some(&recorded));
+        assert_eq!(error["source"], text(&entry));
+    }
+}
+
+#[test]
 fn retired_policy_formats_refuse_before_opening_or_evaluating_them() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
@@ -308,7 +383,7 @@ fn retired_policy_formats_refuse_before_opening_or_evaluating_them() {
             assert_eq!(error["source"], text(&path));
             let remedy = error["remedy"].as_str().unwrap();
             assert!(
-                remedy.contains("policy.rhai") && remedy.contains("chapter 4"),
+                remedy.contains("config.rhai") && remedy.contains("chapter 4"),
                 "{error}"
             );
         }
@@ -393,7 +468,7 @@ fn bun_and_node_names_are_ordinary_environment_grants() {
 }
 
 #[test]
-fn both_files_prefer_policy_rhai_and_never_open_policy_ts() {
+fn both_files_prefer_config_rhai_and_never_open_policy_ts() {
     let sandbox = Sandbox::new();
     let typescript = sandbox.home.join(".config/ravel/policy.ts");
     support::write(&typescript, "this is not a policy");
@@ -437,7 +512,7 @@ fn the_entry_must_exist_and_be_a_regular_file() {
 
     let neither = refused(&start(&sandbox, &[]), "policy_missing", None);
     assert_eq!(neither["stage"], "authority");
-    assert!(neither["message"].as_str().unwrap().contains("policy.rhai"));
+    assert!(neither["message"].as_str().unwrap().contains("config.rhai"));
     assert_eq!(neither["source"], text(&sandbox.personal_rhai_path()));
 
     let named = refused(
@@ -460,7 +535,7 @@ fn the_entry_must_exist_and_be_a_regular_file() {
 }
 
 #[test]
-fn a_dangling_policy_rhai_is_missing_and_does_not_fall_back_to_policy_ts() {
+fn a_dangling_config_rhai_is_missing_and_does_not_fall_back_to_policy_ts() {
     let sandbox = Sandbox::new();
     support::write(
         &sandbox.home.join(".config/ravel/policy.ts"),

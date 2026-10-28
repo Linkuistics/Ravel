@@ -209,7 +209,7 @@ compares each output with the output that the book shows.
 
 Where does Ravel find your configuration script, and what must the file
 contain? Ravel looks in one place. The default script is
-`$HOME/.config/ravel/policy.rhai`. `HOME` must be absolute for that default.
+`$HOME/.config/ravel/config.rhai`. `HOME` must be absolute for that default.
 
 `--config PATH` selects another file, relative to the caller's working directory.
 Ravel searches no parent directory and tries no fallback script.
@@ -2124,7 +2124,7 @@ The examples are editable copies, not embedded imports.
 Before real use, replace placeholder commands and test every route with fake
 agents. Check that the script refuses unknown kinds as intended.
 Check that absent data and unsuccessful harness runs produce the outcome you chose.
-Then put the script at `$HOME/.config/ravel/policy.rhai`, or select it with
+Then put the script at `$HOME/.config/ravel/config.rhai`, or select it with
 `--config`.
 
 ## Review your configuration script before real use

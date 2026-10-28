@@ -1,4 +1,4 @@
-# configuration-names-k92
+# configuration-names-k92 — brief
 
 
 ## Goal
@@ -56,3 +56,27 @@ The owner asked to eliminate “policy” from filenames and arguments during Re
   Do not add `configEnv` to settings that the running 1.1.0 driver still reads.
 - If this proves too large, decompose explicitly and preserve working consumers at each boundary.
   Remove any temporary compatibility form before this node closes and the book correction uses the final interface.
+
+## Decomposition
+
+The interface crosses discovery, environment authority, serialized observations and
+the current documentation set. Each child completes one consumer-visible change
+with its tests and documentation; no compatibility alias is introduced.
+
+- `configuration-names-k111`: change default discovery to `config.rhai`, preserve
+  explicit arbitrary basenames and the historical TypeScript refusal, and update
+  default-path consumers.
+- `configuration-names-k112`: rename environment grants and the harness-run marker,
+  with settings/flag refusal, re-entry and scrubbing checks and current consumers.
+- `configuration-names-k113`: rename diagnostics and JSON fields, advance the
+  failure schema, and explicitly translate frozen comparison observations.
+- `configuration-names-k114`: reconcile remaining current source/document filenames
+  and prose, classify residual old tokens, and run the node's complete checks.
+
+## Decisions (running log)
+
+2026-10-28: Split the original leaf into four bounded implementation sessions.
+Discovery is an independent vertical slice: its flags and output fields keep their
+current names until their respective children change them. The node must satisfy
+the original full contract before the book correction runs. The installed 1.1.0
+driver and the owner's live configuration stay unchanged.

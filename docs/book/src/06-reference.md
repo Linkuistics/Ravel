@@ -288,7 +288,7 @@ both fields.
 You may want to try a configuration script before you install it, or use one
 script for one project. `--config` selects that script file, which the book
 calls the **entry**. The path is relative to the caller's working directory.
-Without the option, Ravel uses `$HOME/.config/ravel/policy.rhai`, which needs
+Without the option, Ravel uses `$HOME/.config/ravel/config.rhai`, which needs
 an absolute `HOME`. There is no repository search and no environment variable
 that selects a different configuration script.
 
@@ -1088,18 +1088,19 @@ the row for code of the same user in
 
 ## Configuration script and settings
 
-### `policy.rhai`
+### `config.rhai`
 
 Where does Ravel find the configuration script? The configuration script is a
 file of Rhai code that chooses the program for each session. The book calls
 the file that Ravel loads first the **entry**. The entry can import other
-Rhai files. The file name `policy.rhai` uses the word “policy” for the
-configuration script.
+Rhai files.
 
-`$HOME/.config/ravel/policy.rhai` is the default entry.
+`$HOME/.config/ravel/config.rhai` is the default entry.
 This default needs an absolute `HOME`.
 `--config PATH` chooses a different entry, relative to the caller's working directory.
 There is no repository search, environment override or fallback script.
+An explicit `.rhai` entry can have any file name, such as `policy.rhai`.
+Ravel does not select `policy.rhai` as a default.
 
 The entry must canonicalise to a readable regular UTF-8 file of at most 1 MiB.
 Its canonical path must also be UTF-8. A symlink selects its real file.
@@ -1110,7 +1111,7 @@ See [define a configuration script](04-writing-an-owner-policy.md#define-a-confi
 | Entry choice | Ravel 2.0.0 behaviour |
 |---|---|
 | Default Rhai entry exists | Evaluate it. Other formats of configuration script do not participate. |
-| Default Rhai entry absent, but `policy.ts` exists | Refuse with `policy_format_retired`, status 3. The remedy names `policy.rhai` and chapter 4, “Write a configuration script”. |
+| Default Rhai entry absent, but `policy.ts` exists | Refuse with `policy_format_retired`, status 3. The remedy names `config.rhai` and chapter 4, “Write a configuration script”. |
 | Neither default file exists | Refuse with `policy_missing`, status 3. |
 | Explicit `.rhai` entry | Evaluate it after file checks. |
 | Explicit `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` entry | Refuse with `policy_format_retired`, status 3. |

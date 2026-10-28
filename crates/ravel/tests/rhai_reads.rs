@@ -490,7 +490,7 @@ fn select(request, context) {{
     assert_eq!(
         names,
         [
-            json!(canonical("policy.rhai")),
+            json!(canonical("config.rhai")),
             json!(canonical("lib/helper.rhai")),
             json!(canonical("lib/sibling.rhai")),
         ]
@@ -594,7 +594,7 @@ fn a_missing_module_a_cycle_and_a_failing_top_level_refuse_as_policy_import_fail
         ("missing", None, "cannot be found", false),
         (
             "cycle",
-            Some("import \"policy\" as back;"),
+            Some("import \"config\" as back;"),
             "closes a cycle",
             true,
         ),

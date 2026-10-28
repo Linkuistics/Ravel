@@ -108,7 +108,7 @@
       "group": "configuration",
       "title": "Which configuration file Ravel evaluates",
       "source": "entry-precedence.mmd",
-      "caption": "policy.rhai wins when both files exist, so a 1.1.0 session can keep policy.ts during the local upgrade. A lone policy.ts refuses with the migration remedy. start-session inside a harness run refuses first."
+      "caption": "config.rhai wins when both files exist, so a 1.1.0 session can keep policy.ts during the local upgrade. A lone policy.ts refuses with the migration remedy. start-session inside a harness run refuses first."
     },
     {
       "id": "rejected-nested-session",

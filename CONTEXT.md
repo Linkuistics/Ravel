@@ -40,7 +40,7 @@ together.
 
 **Configuration script**: The owner's executable Rhai script that has the
 authority to select a command or refuse the caller's request. Its default file
-is `policy.rhai`. Its author controls how it routes requests.
+is `config.rhai`. Its author controls how it routes requests.
 _Avoid_: owner policy, policy (unqualified)
 
 **Settings**: The **Owner**'s values in `settings.json`, such as bounds, the
@@ -148,7 +148,7 @@ the **Configuration script** or its **Rhai worker**.
 - **"Provider"** means only the owner's model-origin label in a selection.
 - **"LLM call"** means a **Harness run** that asks a model a question. Ravel
   sends no request to a model service itself.
-- **"Policy"** in a literal name, such as `policy.rhai`, `--policy-env` or a
+- **"Policy"** in a literal name, such as `--policy-env` or a
   `policy_*` code, means the **Configuration script**. It never means a
   security or sandbox policy. A restriction on a **Managed process** is
   confinement.

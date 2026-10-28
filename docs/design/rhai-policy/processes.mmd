@@ -2,7 +2,7 @@ flowchart TB
   start["Start here: the caller runs ravel start-session"]
   subgraph cli["Ravel CLI process — holds all authority"]
     direction TB
-    auth["Entry and settings<br/>policy.rhai · harnesses<br/>budgets"]
+    auth["Entry and settings<br/>config.rhai · harnesses<br/>budgets"]
     eval["Evaluation runtime<br/>deadline · cancellation · bounds<br/>environment"]
     reader["Reader thread<br/>entry · modules · measured reads<br/>program lookups"]
     runner["Runner<br/>jobs · group cleanup · reap"]
@@ -10,7 +10,7 @@ flowchart TB
   subgraph worker["Rhai worker — computes only"]
     direction TB
     rhai["Rhai 1.27.0 engine<br/>strict mode · fixed limits<br/>1 GiB heap"]
-    mods["policy.rhai and<br/>imported modules"]
+    mods["config.rhai and<br/>imported modules"]
   end
   hrun["Harness run<br/>such as claude -p<br/>own result channel<br/>RAVEL_POLICY_RUN<br/>the owner's sign-in"]
   model[("Model service<br/>reached only<br/>by the harness")]

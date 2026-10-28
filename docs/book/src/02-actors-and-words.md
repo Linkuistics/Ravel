@@ -51,7 +51,7 @@ the account. The configuration has two parts:
 
 | Part | Default path | What it does |
 |---|---|---|
-| **Configuration script** | `$HOME/.config/ravel/policy.rhai` | Rhai code that selects a program and its arguments, or refuses the request |
+| **Configuration script** | `$HOME/.config/ravel/config.rhai` | Rhai code that selects a program and its arguments, or refuses the request |
 | **Settings** | `$HOME/.config/ravel/settings.json` | Values that the script cannot change, such as the deadline, limits, environment grants, harnesses and budgets |
 
 Ravel's file names, options and error codes use the word “policy” for the
@@ -81,7 +81,7 @@ shows a short configuration script and links to
 configuration script needs.
 
 By default, Ravel uses the account's configuration script,
-`$HOME/.config/ravel/policy.rhai`. `--config PATH` names a different script.
+`$HOME/.config/ravel/config.rhai`. `--config PATH` names a different script.
 Ravel resolves that path relative to the caller's working directory. Ravel
 does not search the caller's repository for a configuration script.
 
