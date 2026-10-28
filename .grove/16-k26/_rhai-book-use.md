@@ -74,6 +74,7 @@ Parts III and IV apply the same current lessons in their scheduled rewrite befor
   - `selection-cancellation.typ` and `settled-exit-status.typ`, chapter 5.
   - `source-components.typ` and `installed-files.typ`, chapter 6. Chapters 7 and 11 also show them, and `rhai-book-inside` owns that prose.
   Check each alt text and caption after the label change. Drafts `rhai-book-use-k89` to `k91` change the alt text of chapters 4–6.
+  Draft `rhai-book-use-k89` changed chapter 4's alt text and caption of `evaluation-harness.typ` to “Rhai worker” and “configuration script”. The figure labels still say “policy worker” and “policy”.
 - **Art (`rhai-book-use-k86`): the review flow of chapter 1.** “Follow one code review from request to result” gives the review as two tables.
   The tables give the order of actions and the orchestrator's action for each result. No figure shows that flow.
   Decide whether a figure helps the reader there, under the contract's “Give a diagram and a concrete example”.

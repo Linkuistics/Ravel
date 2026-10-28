@@ -11,6 +11,7 @@ Apply all lessons and the term map to chapter 5, “Run sessions”.
   Chapter 5 teaches the caller's side in full. Restate that example where the caller writes its prompt and acts on each result.
 - F11 applies in “Read notices separately from results”: name the routing notice and the failure document, not their versions.
 - Check every heading against L61, including “Understand the operational limits”.
+- Draft `rhai-book-use-k89` renamed twelve chapter 4 headings and changed their anchors in this chapter. Link texts that quote an old title or use the old terms remain, for example “supply policy context” and “set bounds”. Make each link text agree with the new chapter 4 heading or with the term map.
 
 ## Done when
 

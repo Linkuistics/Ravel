@@ -201,7 +201,7 @@ The final expression returns that map. Ravel checks its fields during evaluation
 
 The function accepts a request and selection context. This example needs only
 `request.prompt`, so it leaves the second argument unused.
-[Chapter 4](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request)
+[Chapter 4](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request)
 teaches the syntax and the other fields.
 
 ## Check the request and evaluate the configuration script

@@ -10,6 +10,7 @@ Apply all lessons and the term map to chapter 6, “Reference”. Then run the m
 - Chapter 6 is the lookup chapter. A reader can arrive at any entry, so each entry restates its terms.
 - Chapter 6 holds most of the JSON version labels (F11). Keep exact `schemaVersion` values in the entries that teach them.
 - Several headings use “Policy”, such as “Policy entry and settings”. Keep identifier headings, such as `SelectionRequest`, exact.
+- Draft `rhai-book-use-k89` renamed twelve chapter 4 headings and changed their 97 anchors in this chapter. Link texts that quote an old title or use the old terms remain, for example “Policy behaviour”, “Policy-context shape” and “copy a policy”. Make each link text agree with the new chapter 4 heading or with the term map. The new titles are in the running log of `rhai-book-use-k89`.
 
 ## Done when
 

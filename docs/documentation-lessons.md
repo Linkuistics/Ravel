@@ -214,6 +214,10 @@ Its signal-name rule preserves literal identifiers and diagnostics.
 
 The prose checker accepts the first word of a synonym group in a file and reports each other member. New text uses the verb that the page already uses. Chapter 4 says “start” for a process, where chapter 1 says “launch”.
 
+Draft `rhai-book-use-k89`, 2026-10-28, found the reverse case. An edit removed the first “check” from the opening of chapter 4. Then “validate” became the first word of its group, and an unchanged-looking heading with “check” became a finding.
+After an edit near the top of a file, run the checker on the whole file. A finding far from the edit can come from a change of the first occurrence.
+When you copy an explanation from another chapter, use the verbs of the page that receives it.
+
 ### L14. Prefer a familiar verb and a clear referent
 
 Name the actor when a pronoun could refer to a person or a program.
@@ -382,6 +386,11 @@ Keep the visual relevant to what the reader needs to understand.
 **Source:** Background owner R11, `book-read-one-k70`, 2026-10-18: “One screen, code counts”.
 **Ravel application:** Contract §2 sets a 450-word threshold at the 750-pixel column.
 `task docs:breaks -- --strict` reports longer runs. Its controls check the counting rules.
+
+Draft `rhai-book-use-k89`, 2026-10-28, added two terms and a sentence about literal names to the opening of chapter 4. The run before the first table grew to 485 words.
+The opening word list compared each term on the same attribute, so the draft made it a table. The table carries the same information and breaks the run.
+
+A list of parallel items can make a run too long. Then prefer a table that the layout rules permit. Do not add a decorative break.
 
 ### L28. Keep one visual vocabulary and one editable source
 
@@ -776,6 +785,12 @@ The owner explicitly preferred a concrete explanation followed by abstraction or
 Draft `rhai-book-use-k88` opens chapter 1 with “Follow one code review from request to result”, before the roles.
 The next section, “What the review shows about every session”, maps each general role to its part in the review. Chapter 2 opens with the same review.
 
+Draft `rhai-book-use-k89`, 2026-10-28, applied the rule to a general model in a later chapter. Chapter 4's order of an evaluation now follows chapter 1's review request, with its real kind, program and routing notice.
+Then one sentence says that every evaluation follows the same order. The interactive section carries the same review to its results, `approved` and `changes-needed`.
+
+Reuse the earlier concrete case where a later page generalises it. The reader then meets known values, not a new example.
+Explain each term that the concrete trace uses before the trace, even when a fuller explanation follows it.
+
 ### L58. Explain the task, its completion instruction and the use of its result together
 
 When the reader needs to understand a caller's complete task, naming only the requested work leaves the result unexplained.
@@ -865,6 +880,12 @@ The CLI option `--config` already matched the new term. `rhai-spec-reconciliatio
 The CLI help is a product change, so that leaf checks it with the owner. `rhai-book-inside` owns chapters 7–11.
 
 **Check:** Search each changed page for the old words. Classify each match as a literal, a quotation, a record of the decision or an omission.
+
+Draft `rhai-book-use-k89`, 2026-10-28, applied the map to text that the reader sees in an example's output. A refusal `message` in an example script appears on standard error. Thus, it is prose, and it follows the map. The expected output of the example changed with it.
+Ravel's own diagnostic words, `VERSION` strings and labels stay, because they are literals or identifiers.
+
+The renamed headings of chapter 4 changed 102 inbound anchors in four other chapters. The draft changed only the anchors there. The link texts that quote old titles belong to the drafts that own those chapters.
+**Check:** Search the old anchors in the whole repository. Run the same search on the parent revision as a control.
 
 The following checks apply the rules where a judgement has no standalone executable check.
 

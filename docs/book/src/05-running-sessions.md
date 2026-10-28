@@ -161,8 +161,8 @@ which is data that the policy uses to choose the route. The book uses the word
 | Working directory, `cwd` | The current directory of the caller | The selected program, which runs there |
 
 Chapter 4 teaches
-[policy context and loaders](04-writing-an-owner-policy.md#supply-policy-context)
-and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
+[policy context and loaders](04-writing-an-owner-policy.md#supply-selection-context)
+and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
 
 Ravel runs your policy in the
 [policy worker](02-actors-and-words.md#evaluation-and-supervision), a
@@ -1145,7 +1145,7 @@ These sections teach the subject of each row:
   and [Confine the managed process](#confine-the-managed-process)
 - status 3: chapter 4's [Select a command or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse)
 - status 5: [Read notices separately from results](#read-notices-separately-from-results)
-- status 124: chapter 4's [bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names)
+- status 124: chapter 4's [bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings)
 - statuses 126 and 127: program resolution, in
   [Supply the prompt and caller data](#supply-the-prompt-and-caller-data)
 - statuses 129, 130 and 143: [Cancel during selection or supervision](#cancel-during-selection-or-supervision)

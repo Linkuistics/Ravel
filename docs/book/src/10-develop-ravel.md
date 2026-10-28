@@ -451,7 +451,7 @@ The installed smoke script tests both the direct CLI path and a relative
 symlink from another prefix. It uses the installed SDK and sample policy with
 a fake program. Its checks cover ordinary, empty, multiline and option-like
 results, child output, TypeScript imports,
-[policy context](04-writing-an-owner-policy.md#supply-policy-context), parameters and absent
+[policy context](04-writing-an-owner-policy.md#supply-selection-context), parameters and absent
 session-result context. It also checks the required assets and temporary-file
 cleanup. The private `PATH` has selected system utilities and fixture programs,
 with no host Bun or Node.
