@@ -64,13 +64,13 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 - The book describes Ravel 2.0.0. The checkout still supports both policy formats until the cutover increment.
   The cutover leaf adds the example of a retired-format refusal.
 - Chapters 7–11 remain with `rhai-book-inside` after the removal increment.
-  Mechanical link fixes can precede that rewrite.
+  Mechanical link corrections can precede that rewrite.
 - Run `task setup` before the book checks. The checkout-local Bun remains a development tool after release.
 
 ## Draft closure
 
 - `rhai-book-use-k28` delivered chapters 1, 2, 3, 5 and 6 through its two drafts.
-  Chapter 6 is the lookup chapter, with Rhai host calls, harness settings and results, fixed bounds and notice schema 2.
+  Chapter 6 is the lookup chapter, with Rhai host calls, harness settings and results, constant bounds and notice schema 2.
   The example-convention note now uses a runnable Rhai sample and explains cancellation through a fake evaluation harness.
 - The book assumes no TypeScript knowledge. References to retired extensions and reserved environment names remain explicit interface rules.
   The default-entry refusal and final installed layout still depend on `typescript-worker-cutover-k31` and delivery removal.
@@ -91,6 +91,7 @@ new figures and regenerated their artifacts. No hand-forward entry remains.
 All 21 examples, nine excerpts, seventeen figure reproductions, strict prose
 checks and the book build passed. The local link check passed 762 targets,
 with a broken-anchor control. Safari in an isolated macOS guest supplied the
-local viewing evidence; the proof task records its precise scope and limits.
+local viewing evidence. The proof task records its precise scope and limits.
+
 The node's Done when holds. Read 1 remains live as `rhai-book-use-k74`, ready
 for the owner's re-review from chapter 1. No second checkpoint is cut.
