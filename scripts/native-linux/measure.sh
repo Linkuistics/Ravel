@@ -102,9 +102,8 @@ step rust-build cargo build --locked --workspace --all-targets
 step rust-clippy cargo clippy --locked --workspace --all-targets -- -D warnings
 step rust-fmt cargo fmt --all --check
 
-# 3. Current worker and native-entry checks. Delivery removal will also remove
-# the unused worker/probe build prerequisites from setup and the Taskfile.
-step worker-setup bash -c 'task setup && task worker && task probes'
+# 3. Current development setup, Rhai worker and native-entry checks.
+step development-setup task setup
 # The Rhai policy worker: its limits, role and policy tests and every unit test
 # that names it, through the real CLI. No nextest profile here writes junit, so
 # the summary line of OUT/rhai-worker.txt is the record.

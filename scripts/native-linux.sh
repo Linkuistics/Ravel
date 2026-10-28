@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Host-side launcher for the GNU/Linux native-entry support campaign (k49).
+# Host-side launcher for current GNU/Linux development checks.
 #
-# The campaign itself is the same Taskfile/driver the Darwin host runs
-# (task test:native-campaign); this script only provides the Linux environment
-# it runs in: an image per platform, a container holding a copy of the working
-# tree (never the host's target/), and the git objects the frozen incumbent
-# revision is exported from. Nothing here measures anything.
+# scripts/native-linux/measure.sh runs the current Taskfile checks; this script
+# provides their Linux environment: an image per platform and a container
+# holding a copy of the working tree (never the host's target/). The git object
+# mount remains available until the retired campaign tooling is removed.
+# Nothing here measures anything.
 #
 # linux/arm64 runs natively on the Docker VM's kernel. linux/amd64 runs under
 # user-mode emulation: that measurement is "emulated" and can show the code and

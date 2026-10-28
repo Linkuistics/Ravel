@@ -565,7 +565,7 @@ control_a_label_cannot_run_a_command() {
 
 control_stale_source() {
   # A scratch checkout controls each input's timestamp independently. Rust
-  # tests and the retiring worker are deliberately newer than the binary;
+  # tests and a retired-worker scratch fixture are deliberately newer than the binary;
   # neither is an input of the production Rust executable.
   # An ancestor named src must not turn integration tests into source inputs.
   local dir="$WORK/src/rust-inputs" path

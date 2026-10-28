@@ -280,7 +280,7 @@ control_untracked() {
 control_generated_and_grove_paths() {
   local dir path
   dir="$(repo generated "$SOURCE")"
-  for path in target/debug/gen.rs crates/ravel/worker/node_modules/pkg/index.js .grove/notes.md; do
+  for path in target/debug/gen.rs scripts/node_modules/pkg/index.js .grove/notes.md; do
     mkdir -p "$dir/$(dirname "$path")"
     cp "$dir/$SOURCE" "$dir/$path"
     git -C "$dir" add -f "$path"
@@ -288,7 +288,7 @@ control_generated_and_grove_paths() {
   CHECK_ROOT="$dir" expect_fail generated_target 'a build output directory' \
     "$(page gen-target "$(excerpt_md "$SOURCE" 2 9 rust | sed "s#$SOURCE#target/debug/gen.rs#")")" || return 1
   CHECK_ROOT="$dir" expect_fail generated_node_modules 'a build output directory' \
-    "$(page gen-node "$(excerpt_md "$SOURCE" 2 9 rust | sed "s#$SOURCE#crates/ravel/worker/node_modules/pkg/index.js#")")" || return 1
+    "$(page gen-node "$(excerpt_md "$SOURCE" 2 9 rust | sed "s#$SOURCE#scripts/node_modules/pkg/index.js#")")" || return 1
   CHECK_ROOT="$dir" expect_fail grove_path 'inside .grove' \
     "$(page grove "$(excerpt_md "$SOURCE" 2 9 rust | sed "s#$SOURCE#.grove/notes.md#")")"
 }

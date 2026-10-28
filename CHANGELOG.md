@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Remove retired TypeScript worker prerequisites from development setup, builds,
+  checks and native-entry checks. Keep the checkout-local Bun for book tools.
+
 ## v1.1.0
 
 - Correct five failure paths. Only the behaviour after a failure changes. The
