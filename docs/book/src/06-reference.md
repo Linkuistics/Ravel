@@ -75,10 +75,11 @@ launch the program that the script selected.
 What is Rhai? Rhai is a small computer language for programs that are written
 in Rust. Its engine is part of the `ravel` executable, so you install no
 separate language runtime. Rhai looks like a mix of JavaScript and Rust, and
-its values have dynamic types. A Rhai script changes things outside itself only
-through functions that the host program gives it. In Ravel, these are the
-`ravel::` functions, which the book calls
-[host capabilities](#host-capabilities).
+its values have dynamic types.
+
+A Rhai script changes things outside itself only through functions that the host program gives it. In Ravel, these are the
+`ravel::` functions. Some are [host capabilities](#host-capabilities), which
+ask the Ravel CLI to do work. Other helpers run in the worker.
 
 The [Rhai Book](https://rhai.rs/book/) documents the language, and its
 [language reference](https://rhai.rs/book/ref/) lists each statement and

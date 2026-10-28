@@ -80,7 +80,8 @@ No example needs an agent account or a model service.
 <!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
 First, follow chapter 3 to
 [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
-You need the installed `ravel` and a shell. No other tool is necessary.
+You need the installed `ravel` and a shell. The confined example also needs
+a sandbox tool, as its instructions explain.
 
 Each example has a name and a directory of its own. Put these directories in
 one workspace directory, `~/ravel-chapter-5`, in your home directory. Why a
@@ -1206,7 +1207,7 @@ confinement together with its effects on the environment and the terminal:
 | Property | Unconfined managed process | Confined managed process |
 |---|---|---|
 | Filesystem access | No Ravel confinement | Write access to the working directory and the private run directory. Read access to the runtime paths and the explicit grants. |
-| Caller environment | Inherited, without the five variables that Ravel removes | Only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*` |
+| Caller environment | Inherited, except for the five controls that stay absent and the replaced `RAVEL_EXIT_FILE` | Only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*` |
 | Temporary-path variables | Inherited | `TMPDIR`, `TMP` and `TEMP` set to the private run directory |
 | Session-result context | New `RAVEL_EXIT_FILE` | New `RAVEL_EXIT_FILE` |
 | Process group | New process group in the caller's POSIX session | New POSIX session |

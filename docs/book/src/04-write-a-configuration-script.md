@@ -101,9 +101,9 @@ the table.
 | 5 | The Ravel CLI | Reaps the worker, then checks the map that `select` returned |
 | 6 | The Ravel CLI | Writes `ravel: starting provider local, model fake, effort low for kind "review"` on the orchestrator's standard error, then starts `fake-agent` |
 
-Every evaluation follows the same order. Only the values change. A script can
-also define `load_context(request)`, which the worker calls between steps 3
-and 4. The section
+A successful selection follows this order. The values depend on the request
+and the script. A script can also define `load_context(request)`, which the
+worker calls between steps 3 and 4. The section
 [“Supply selection context”](#supply-selection-context) teaches it. With
 `--json`, the routing notice is a JSON document, and it follows the
 supervision attempt.
@@ -1860,7 +1860,7 @@ config_refused
 3
 ```
 
-Follow the first command from the script to the result:
+Follow the first command block from the script to the result:
 
 | Order | Who acts | What happens in this example |
 |---|---|---|
@@ -1870,7 +1870,7 @@ Follow the first command from the script to the result:
 | 4 | The configuration script | Parses `stdout`, checks `structured_output` against the schema and selects `fake-agent` with the argument `prime` |
 | 5 | `fake-agent` | Sends `prime` with `end-session`, and `prime` becomes the result of `ravel start-session` |
 
-The command then prints `call.args`, `call.prompt` and the result. Thus, the
+The first command block then prints `call.args`, `call.prompt` and the result. Thus, the
 output shows each argument that a real Claude Code would receive. In the
 second command, the fake answers `perhaps`. The schema permits only `yes` or
 `no`, so the script refuses.
@@ -2053,13 +2053,13 @@ config_refused
 3
 ```
 
-In the first command, the fake `codex` printed `{"prime":"yes"}`. The script
+In the first command block, the fake `codex` printed `{"prime":"yes"}`. The script
 checked that answer against the schema from `answer-schema.json`, and
 `fake-agent` sent `prime` as the result. The output also shows the full path of
 the schema file. The script made that path from `request.cwd`, so Codex can
-find the file from any directory.
+find the file when the caller runs the example from its directory.
 
-In the second command, the fake failed.
+In the second command block, the fake failed.
 The failed run returns `status: "exited"` and `exitCode: 1` to the script.
 The script then refuses. Ravel itself assigns no meaning to the harness's text.
 A retry would need another run in the budget and time before the whole deadline.

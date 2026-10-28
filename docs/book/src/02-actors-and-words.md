@@ -39,8 +39,7 @@ works on a prompt. The caller supplies the prompt, with the instructions to
 end the session. The caller also decides the next step after the session.
 
 A **session** is one `ravel start-session` invocation. It lasts from the
-request until Ravel reports the result or the failure of the selected
-program. A Ravel session is not a POSIX session that `setsid` creates. It is
+request until Ravel reports the result or another outcome. A Ravel session is not a POSIX session that `setsid` creates. It is
 also not a login session or the LLM session in a harness. Ravel supervises
 the harness process, not the conversation of the LLM.
 
