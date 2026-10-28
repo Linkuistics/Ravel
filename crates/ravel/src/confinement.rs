@@ -25,7 +25,7 @@ fn unusable(path: &Path, problem: impl std::fmt::Display) -> Refusal {
 }
 
 /// What a confined launch protects and grants, from the selection that it
-/// belongs to: the working directory, the policy entry and the owner settings.
+/// belongs to: the working directory, the configuration entry and the owner settings.
 /// The managed process and each harness run of one selection share it.
 #[derive(Clone, Debug)]
 pub struct Basis {
@@ -148,7 +148,7 @@ impl Confined {
                         return Err(Refusal::new(
                         "confinement_overlap", Stage::Cli, EXIT_MALFORMED,
                         format!("confinement grant {} overlaps protected path {}; nothing was selected", grant.display(), protected.display()),
-                        "use a working directory and grants separate from the policy directory, owner settings, owner settings",
+                        "use a working directory and grants separate from the configuration script directory, owner settings, owner settings",
                     ).input("--confine"));
                     }
                 }

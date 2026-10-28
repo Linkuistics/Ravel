@@ -91,10 +91,10 @@ $ ravel start-session --kind check --config policy.rhai --prompt "Review the cha
 **Standard error**
 
 ```text
-ravel: refused (policy_refused, stage selection): the policy <scratch>/work/policy.rhai refused the selection: no route for this kind
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: no route for this kind
   input: --kind check
   source: <scratch>/work/policy.rhai
-  policy code: no_route
+  config code: no_route
   remedy: choose a kind the policy routes
 ```
 

@@ -12,12 +12,12 @@
 //! The comparison leaves out these fields, because they must differ:
 //!
 //! - `schemaVersion` of the notice: 1 for TypeScript and 2 for Rhai.
-//! - `policy`: the path has another extension, the owner's version string
+//! - `config` (historically `policy`): the path has another extension, the owner's version string
 //!   moves with the language, and only Rhai lists its modules.
 //! - `worker`: the path and the build identity are those of another runtime.
 //! - `selectionMs` and `operationReports`: a time, and a report of the
 //!   environment's signals.
-//! - `reads` and `harnessRuns`: only the Rhai notice has them. A Rhai policy
+//! - `reads` and `harnessRuns`: only the Rhai notice has them. A Rhai configuration script
 //!   reads the choice file with `ravel::read_text`, which Ravel measures.
 //! - `bounds.harnessRuns`: only the Rhai bounds hold the harness-run budget.
 //! - `context.sha256`: it hashes the delivered context, which holds the path of
@@ -27,6 +27,11 @@
 //!   temporary root, whose length differs between machines. Each live count is
 //!   checked against the actual value before path normalization instead. The
 //!   captured fixtures retain their original byte counts unchanged.
+//!
+//! Frozen notice `policyEnvironment` and refusal `policyCode` are translated
+//! to their configuration names by `current_names`, along with the stable
+//! refusal code, its exact Ravel message prefix and two exact shipped remedies.
+//! All other strings remain exact, including owner codes and captured streams.
 //!
 //! A case that must differ says why, in `Expect::Differs`, and the test proves
 //! that it does.
@@ -53,7 +58,7 @@ const CONFIG: &str = ".config/ravel";
 // The policies, and the table of requests.
 // ---------------------------------------------------------------------------
 
-/// One Rhai policy, with the programs its routes start.
+/// One Rhai configuration script, with the programs its routes start.
 struct Policy {
     name: &'static str,
     rhai: String,
@@ -521,7 +526,7 @@ fn compared_notice(notice: &Value) -> Value {
         "bounds",
         "context",
         "diagnostics",
-        "policyEnvironment",
+        "configEnvironment",
         "promptSource",
         "resolution",
         "selection",
@@ -538,7 +543,7 @@ fn compared_notice(notice: &Value) -> Value {
     Value::Object(kept)
 }
 
-/// What a case gave, with the paths of the sandbox and of the policy file
+/// What a case gave, with the paths of the sandbox and of the configuration script file
 /// replaced, so that it compares with the frozen observation from another
 /// sandbox.
 fn observe_in(sandbox: &Sandbox, cwd: &Path, case: &Case) -> Value {
@@ -611,6 +616,109 @@ fn comparable(observation: &Value, expect: Expect) -> Value {
     copy
 }
 
+/// Translate the frozen pre-2.0 observation, never the live output. Only these
+/// contract fields and exact Ravel/shipped-example messages changed names.
+/// Owner labels, arguments, diagnostics and arbitrary refusal text stay exact.
+fn current_names(historical: &Value) -> Value {
+    let mut current = historical.clone();
+    if let Some(notice) = current["notice"].as_object_mut()
+        && let Some(grants) = notice.remove("policyEnvironment")
+    {
+        assert!(notice.insert("configEnvironment".into(), grants).is_none());
+    }
+    if let Some(error) = current
+        .get_mut("refusal")
+        .and_then(|refusal| refusal.get_mut("error"))
+        .and_then(Value::as_object_mut)
+    {
+        if let Some(code) = error.remove("policyCode") {
+            assert!(error.insert("configCode".into(), code).is_none());
+        }
+        if error.get("code") == Some(&json!("policy_refused")) {
+            error.insert("code".into(), json!("config_refused"));
+            if let Some(suffix) = error["message"].as_str().and_then(|message| {
+                message.strip_prefix("the policy <policy> refused the selection: ")
+            }) {
+                error.insert(
+                    "message".into(),
+                    json!(format!(
+                        "the configuration script <policy> refused the selection: {suffix}"
+                    )),
+                );
+            }
+            let remedy = match error.get("remedy").and_then(Value::as_str) {
+                Some("add a route for this kind in your copy of the policy") => {
+                    Some("add a route for this kind in your copy of the configuration script")
+                }
+                Some("add a mapping for this kind in your policy") => {
+                    Some("add a mapping for this kind in your configuration script")
+                }
+                _ => None,
+            };
+            if let Some(remedy) = remedy {
+                error.insert("remedy".into(), json!(remedy));
+            }
+        }
+    }
+    current
+}
+
+#[test]
+fn historical_name_translation_is_field_specific_and_preserves_owner_data() {
+    let no_refusal = json!({"notice": null, "refusal": null});
+    assert_eq!(current_names(&no_refusal), no_refusal);
+    let original = json!({
+        "notice": {"policyEnvironment": [{"name": "policy_token", "set": true}],
+                   "selection": {"reason": "policy_refused"}},
+        "refusal": {"error": {
+            "code": "policy_refused", "policyCode": "policy_owner",
+            "message": "the policy <policy> refused the selection: policy_refused policyCode",
+            "remedy": "owner policy_refused", "source": "<policy>",
+            "input": "--kind policy_refused"},
+            "diagnostics": {"stdout": "policy stdout: policy_refused"}},
+        "launched": {"args": ["policy_refused", "policyCode"]}
+    });
+    let mut expected = original.clone();
+    let notice = expected["notice"].as_object_mut().unwrap();
+    let grants = notice.remove("policyEnvironment").unwrap();
+    notice.insert("configEnvironment".into(), grants);
+    let error = expected["refusal"]["error"].as_object_mut().unwrap();
+    let code = error.remove("policyCode").unwrap();
+    error.insert("configCode".into(), code);
+    error.insert("code".into(), json!("config_refused"));
+    error.insert(
+        "message".into(),
+        json!("the configuration script <policy> refused the selection: policy_refused policyCode"),
+    );
+    assert_eq!(current_names(&original), expected);
+    assert_ne!(original, expected);
+
+    // Only the exact shipped remedies are translated. A changed remedy must
+    // remain changed so that the existing mutation comparison catches it.
+    for (old, new) in [
+        (
+            "add a route for this kind in your copy of the policy",
+            "add a route for this kind in your copy of the configuration script",
+        ),
+        (
+            "add a mapping for this kind in your policy",
+            "add a mapping for this kind in your configuration script",
+        ),
+    ] {
+        let mut historical = original.clone();
+        historical["refusal"]["error"]["remedy"] = json!(old);
+        assert_eq!(
+            current_names(&historical)["refusal"]["error"]["remedy"],
+            new
+        );
+        historical["refusal"]["error"]["remedy"] = json!(format!("{old} changed"));
+        assert_eq!(
+            current_names(&historical)["refusal"]["error"]["remedy"],
+            format!("{old} changed")
+        );
+    }
+}
+
 /// The failures of `cases` against `policy`, one text each. It runs the cases in
 /// parallel against the frozen fixture, without starting TypeScript.
 fn compare_with(policy: &Policy, cases: &[Case], fixture: &Value) -> Vec<String> {
@@ -655,7 +763,7 @@ fn check_case(policy: &Policy, case: &Case, fixture: &Value) -> Option<String> {
     );
     let rhai = observe(policy, case);
     let (left, right) = (
-        comparable(typescript, case.expect),
+        comparable(&current_names(typescript), case.expect),
         comparable(&rhai, case.expect),
     );
     match case.expect {
@@ -801,7 +909,7 @@ fn jj_workspaces(sandbox: &Sandbox) -> (PathBuf, PathBuf) {
     let main = sandbox.root.join("main");
     jj(sandbox, &main, &["workspace", "add", "../second"]);
     let second = sandbox.root.join("second");
-    // The store of the secondary workspace is a file, as the policy expects.
+    // The store of the secondary workspace is a file, as the configuration script expects.
     assert!(second.join(".jj/repo").is_file());
     assert!(main.join(".jj/repo").is_dir());
     (main.canonicalize().unwrap(), second.canonicalize().unwrap())
@@ -845,7 +953,13 @@ fn rhai_harness_table_matches_the_frozen_jj_workspace_observations() {
         return;
     }
     let fixture = fixture(&harness_table_policy());
-    assert_eq!(observe_workspaces(), fixture["workspaces"]);
+    let mut historical = fixture["workspaces"].clone();
+    for workspace in historical.as_object_mut().unwrap().values_mut() {
+        for observation in workspace.as_object_mut().unwrap().values_mut() {
+            *observation = current_names(observation);
+        }
+    }
+    assert_eq!(observe_workspaces(), historical);
 }
 
 #[test]
@@ -1073,7 +1187,7 @@ fn llm_rhai_falls_back_to_the_callers_kind_when_the_call_fails() {
     let other = llm_sandbox(1);
     fake_claude(&other, "exit 1");
     let refusal = session(&other, "triage").refusal(3);
-    assert_eq!(refusal["error"]["policyCode"], "incomplete_mapping");
+    assert_eq!(refusal["error"]["configCode"], "incomplete_mapping");
     assert!(launched(&other).is_none());
 }
 
@@ -1159,7 +1273,7 @@ fn llm_rhai_checks_the_answer_with_json_check_and_falls_back_on_any_other_answer
 #[test]
 fn llm_rhai_without_a_harness_run_budget_ends_the_evaluation() {
     // The default budget is 0 runs. The call then ends the evaluation, and the
-    // fallback never runs, because the policy cannot catch the breach.
+    // fallback never runs, because the configuration script cannot catch the breach.
     let sandbox = llm_sandbox(0);
     let claude = answering(&sandbox, r#"{"kind":"bugfix"}"#);
 

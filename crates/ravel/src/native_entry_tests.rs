@@ -1,4 +1,4 @@
-//! Private executable-entry fixtures: real policy worker, fake managed process.
+//! Private executable-entry fixtures: real Rhai worker, fake managed process.
 use std::cell::{Cell, RefCell};
 use std::fs::{self, File};
 use std::io::{self, Write as _};
@@ -1499,7 +1499,7 @@ fn finalised(
 }
 
 /// F04's final restore. The same front operation, at two finalisation
-/// boundaries: only the front's handlers installed (policy refusal) and the
+/// boundaries: only the front's handlers installed (configuration refusal) and the
 /// runner's handlers installed over them (a completed launch).
 #[test]
 #[ignore = "private real-main fixture; run task test:native-entry"]
@@ -1658,7 +1658,7 @@ fn native_f05_finalisation_failures_keep_the_original_and_never_write_a_result()
     }
 }
 
-/// The paired failure: the original policy refusal and the secondary final
+/// The paired failure: the original configuration refusal and the secondary final
 /// mask restore failure. The refusal's own code and exit status stay the
 /// reported failure; the restore failure is retained beside it, not instead.
 #[test]
@@ -1670,7 +1670,7 @@ fn native_paired_f05_refusal_keeps_its_exit_beside_the_final_restore_failure() {
     judged(ID, "repaired", || {
         let outcome = seen.outcome.as_ref().expect("a failure outcome");
         assert!(seen.settlement.clean() && seen.result_empty, "{seen:?}");
-        assert_eq!(outcome["error"]["code"], "policy_refused", "{outcome}");
+        assert_eq!(outcome["error"]["code"], "config_refused", "{outcome}");
         assert_eq!(outcome["error"]["exit"], 3, "{outcome}");
         assert!(
             seen.settlement.status.is_some_and(|s| s.code() == Some(3)),

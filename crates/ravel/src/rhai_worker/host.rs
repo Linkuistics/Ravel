@@ -49,7 +49,7 @@ pub(super) enum Answer {
     End(Box<ScriptFailure>),
 }
 
-/// Where in the policy a host call was made, as the worker reported it.
+/// Where in the configuration script a host call was made, as the worker reported it.
 #[derive(Clone, Debug, Default)]
 struct Site {
     file: Option<String>,
@@ -78,7 +78,7 @@ impl Site {
 /// What the evaluation runs in, beyond its bounds and its deadline.
 pub(super) struct Surroundings {
     pub cwd: PathBuf,
-    /// The variables of the caller's environment that the policy may read.
+    /// The variables of the caller's environment that the configuration script may read.
     pub grants: Grants,
     /// The harness entries that discovery reports on.
     pub directory: Directory,
@@ -93,7 +93,7 @@ pub(super) struct Host {
     reader: Reader,
     cwd: PathBuf,
     bounds: Bounds,
-    /// The variables of the caller's environment that the policy may read.
+    /// The variables of the caller's environment that the configuration script may read.
     grants: Grants,
     /// The harness entries that discovery reports on.
     directory: Directory,
@@ -290,7 +290,7 @@ impl Host {
             Lookup::NotReadable => failure(
                 "env_not_granted",
                 format!(
-                    "the variable {name} is not readable: a policy reads HOME, PATH, TMPDIR, \
+                    "the variable {name} is not readable: a configuration script reads HOME, PATH, TMPDIR, \
                      LANG, LC_* and the names that configEnv or --config-env grant"
                 ),
             ),
@@ -579,7 +579,7 @@ impl Host {
     async fn import(&mut self, given: &str, from: &str, phase: Phase, site: &Site) -> Answer {
         let refuse = |message: String| {
             Answer::End(Box::new(site.failure(
-                "policy_import_failed",
+                "config_import_failed",
                 phase,
                 message,
             )))

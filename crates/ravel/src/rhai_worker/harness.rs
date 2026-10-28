@@ -1,4 +1,4 @@
-//! The harness runs of a policy (`docs/specs/policy-evaluation.md`, *Harness
+//! The harness runs of a configuration script (`docs/specs/policy-evaluation.md`, *Harness
 //! runs*, *Evaluation budgets and their composition* and *Re-entry and
 //! completion authority*).
 //!

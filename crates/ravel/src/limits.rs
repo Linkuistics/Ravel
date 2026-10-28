@@ -4,10 +4,10 @@
 //! Two bounds are adjustable within a hard range: the whole-selection time and
 //! the context budget. The owner sets each in the owner settings (`settings`),
 //! and a caller's `--timeout-ms` or `--context-bytes` replaces that. The
-//! per-read bound follows the context budget, and a policy's read may set its own
+//! per-read bound follows the context budget, and a configuration script's read may set its own
 //! up to that budget. The source count, the protocol message and the diagnostics
 //! are fixed. The worker receives each effective value in its evaluate message
-//! and the policy sees them in `request.limits`, but nothing a policy does can
+//! and the configuration script sees them in `request.limits`, but nothing a configuration script does can
 //! raise one: the worker keeps its own copies, and the front checks what it
 //! receives against its own. No bound is met by truncating: each overflow
 //! refuses, naming the bound.
@@ -21,7 +21,7 @@ use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 use crate::settings::{self, Settings};
 
 /// The whole-selection bound, in milliseconds: its default and the range an
-/// owner or caller may choose. The default is short so that a policy which
+/// owner or caller may choose. The default is short so that a configuration script which
 /// only consults a table fails fast, and the ceiling admits one that waits
 /// minutes for a deciding agent.
 pub const SELECTION_DEFAULT_MS: u64 = 30_000;
@@ -49,7 +49,7 @@ pub const DIAGNOSTICS_BYTES: u64 = 256 * 1024;
 
 /// The harness-run budget of one evaluation (`docs/specs/policy-evaluation.md`,
 /// *Evaluation budgets and their composition*): the default and the range. Only
-/// the owner settings set it, and a policy can read it but not raise it.
+/// the owner settings set it, and a configuration script can read it but not raise it.
 pub const HARNESS_RUNS_DEFAULT: u64 = 0;
 pub const HARNESS_RUNS_MAX: u64 = 16;
 

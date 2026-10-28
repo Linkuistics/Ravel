@@ -34,7 +34,7 @@ const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The remedy for a worker that cannot run or is not this front's pair. The
 /// worker is the front's own binary, so a mismatch means the file changed under
 /// the running process.
-const REBUILD: &str = "reinstall ravel, and start the session again; the policy worker is \
+const REBUILD: &str = "reinstall ravel, and start the session again; the Rhai worker is \
      the ravel binary itself, so it differs only when that file was replaced while ravel ran";
 
 /// The largest hello: a few short fields.
@@ -112,9 +112,7 @@ pub fn executable() -> Result<PathBuf, Refusal> {
                     "worker_missing",
                     Stage::Worker,
                     EXIT_WORKER,
-                    format!(
-                        "cannot find the ravel executable to launch the policy worker: {error}"
-                    ),
+                    format!("cannot find the ravel executable to launch the Rhai worker: {error}"),
                     REBUILD,
                 )
             })
@@ -201,7 +199,7 @@ fn converse(
         broken_for(
             program,
             REBUILD,
-            format!("cannot start serving the policy worker: {what}: {error}"),
+            format!("cannot start serving the Rhai worker: {what}: {error}"),
         )
     };
     // The runtime takes the descriptor over in nonblocking mode, from a copy, so
@@ -283,7 +281,7 @@ fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {
             Stage::Worker,
             EXIT_WORKER,
             format!(
-                "the policy worker's first frame is not a hello: {}",
+                "the Rhai worker's first frame is not a hello: {}",
                 shown(hello)
             ),
             REBUILD,
@@ -302,7 +300,7 @@ fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {
             Stage::Worker,
             EXIT_WORKER,
             format!(
-                "the policy worker {} is not this front's pair: it reports protocol {protocol}, \
+                "the Rhai worker {} is not this front's pair: it reports protocol {protocol}, \
                  package {}, build {}, rhai {}; this front needs protocol {PROTOCOL}, package \
                  {PACKAGE_VERSION}, build {BUILD_ID}, rhai {RHAI_VERSION}",
                 program.display(),
@@ -409,7 +407,7 @@ mod tests {
 
     fn unreadable(what: &str) -> Refusal {
         Refusal::new(
-            "policy_unreadable",
+            "config_unreadable",
             Stage::Authority,
             3,
             format!("the entry {what}"),
@@ -467,7 +465,7 @@ mod tests {
             r#"export const SCHEMA_VERSION = 3;
 export const VERSION = "1";
 const TABLE = #{ impl: ["--print", "--fast"] };
-print("from the policy");
+print("from the configuration script");
 fn select(request, context) {
     debug("selecting");
     #{ status: "selected", program: "claude", args: global::TABLE[request.kind],
@@ -490,7 +488,10 @@ fn select(request, context) {
         assert_eq!(evaluated.worker.rhai_version, "1.27.0");
         let stdout = String::from_utf8_lossy(&evaluated.diagnostics.stdout);
         let stderr = String::from_utf8_lossy(&evaluated.diagnostics.stderr);
-        assert!(stdout.contains("from the policy\n"), "{stdout}");
+        assert!(
+            stdout.contains("from the configuration script\n"),
+            "{stdout}"
+        );
         assert!(
             stderr.contains("selecting") && !stdout.contains("selecting"),
             "{stderr}"

@@ -1,4 +1,4 @@
-//! A Rhai policy through the real `ravel start-session`
+//! A Rhai configuration script through the real `ravel start-session`
 //! (`docs/specs/policy-evaluation.md`, *Policy entry and discovery*, *The
 //! policy module*, *Request, context and selection* and *Diagnostics, notices
 //! and results*).
@@ -19,7 +19,7 @@ use support::{Run, Sandbox, text};
 /// launched no harness.
 fn refused(run: &Run, code: &str, recorded: Option<&Recorded>) -> Value {
     let document = run.refusal(3);
-    assert_eq!(document["schemaVersion"], 1, "{document}");
+    assert_eq!(document["schemaVersion"], 2, "{document}");
     assert_eq!(document["error"]["code"], code, "{document}");
     assert_eq!(document["error"]["exit"], 3, "{document}");
     if let Some(recorded) = recorded {
@@ -40,9 +40,9 @@ fn a_route_table_selects_and_the_harness_gets_the_argument_vector_of_the_table()
     let recorded = sandbox.recording_agent();
     let policy_path = sandbox.personal_rhai(&policy(
         r#"const TABLE = #{ check: ["--print", "--model", "fast", "two words"] };
-print("printed by the policy");
+print("printed by the configuration script");
 fn select(request, context) {
-    debug("debugged by the policy");
+    debug("debugged by the configuration script");
     #{ status: "selected", program: "recording-agent", args: global::TABLE[request.kind],
        provider: "table", model: "m", effort: "e", reason: "route table" }
 }"#,
@@ -60,8 +60,8 @@ fn select(request, context) {
         json!({ "provider": "table", "model": "m", "effort": "e", "reason": "route table" })
     );
     let canonical = fs::canonicalize(&policy_path).unwrap();
-    assert_eq!(report["policy"]["path"], text(&canonical));
-    assert_eq!(report["policy"]["version"], "rhai-seam-1");
+    assert_eq!(report["config"]["path"], text(&canonical));
+    assert_eq!(report["config"]["version"], "rhai-seam-1");
     // The members that exist: no Bun.
     let worker = report["worker"].as_object().unwrap();
     let mut names: Vec<_> = worker.keys().map(String::as_str).collect();
@@ -82,13 +82,19 @@ fn select(request, context) {
     for retired in ["llmCalls", "llmOutputTokens"] {
         assert!(!bounds.contains_key(retired), "{retired} in {report}");
     }
-    let modules = report["policy"]["modules"].as_array().unwrap();
+    let modules = report["config"]["modules"].as_array().unwrap();
     assert_eq!(modules.len(), 1, "{report}");
     assert_eq!(modules[0]["name"], text(&canonical));
-    assert_eq!(report["diagnostics"]["stdout"], "printed by the policy\n");
+    assert_eq!(
+        report["diagnostics"]["stdout"],
+        "printed by the configuration script\n"
+    );
     // `debug` names its position, so only its text is exact.
     let stderr = report["diagnostics"]["stderr"].as_str().unwrap();
-    assert!(stderr.contains("debugged by the policy"), "{stderr}");
+    assert!(
+        stderr.contains("debugged by the configuration script"),
+        "{stderr}"
+    );
 }
 
 #[test]
@@ -203,8 +209,8 @@ fn a_policy_that_refuses_is_a_policy_refusal_with_its_own_code() {
        remedy: "add one" }
 }"#,
     ));
-    let error = refused(&start(&sandbox, &[]), "policy_refused", Some(&recorded));
-    assert_eq!(error["policyCode"], "no_route");
+    let error = refused(&start(&sandbox, &[]), "config_refused", Some(&recorded));
+    assert_eq!(error["configCode"], "no_route");
     assert_eq!(error["input"], "--kind check");
     assert_eq!(error["remedy"], "add one");
 }
@@ -217,7 +223,7 @@ fn a_parse_failure_names_the_file_the_line_and_the_column() {
 
     let error = refused(
         &start(&sandbox, &[]),
-        "policy_parse_failed",
+        "config_parse_failed",
         Some(&recorded),
     );
 
@@ -235,7 +241,7 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
     let recorded = sandbox.recording_agent();
 
     sandbox.personal_rhai("export const SCHEMA_VERSION = 3;\nexport const VERSION = \"v\";\n");
-    let missing = refused(&start(&sandbox, &[]), "policy_invalid", Some(&recorded));
+    let missing = refused(&start(&sandbox, &[]), "config_invalid", Some(&recorded));
     assert_eq!(missing["stage"], "validation");
     assert!(missing["message"].as_str().unwrap().contains("select"));
 
@@ -254,7 +260,7 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
     sandbox.personal_rhai(
         "export const SCHEMA_VERSION = 3;\nexport const VERSION = \" \";\nfn select(r, c) { () }\n",
     );
-    let blank = refused(&start(&sandbox, &[]), "policy_invalid", Some(&recorded));
+    let blank = refused(&start(&sandbox, &[]), "config_invalid", Some(&recorded));
     assert!(blank["message"].as_str().unwrap().contains("blank"));
 }
 
@@ -310,7 +316,7 @@ fn configuration_default_runs_config_rhai_and_preserves_exact_result_bytes() {
         assert_eq!(run.stdout.as_bytes(), result.as_bytes());
         let notice: Value = serde_json::from_str(run.stderr.lines().next().unwrap()).unwrap();
         assert_eq!(
-            notice["policy"]["path"],
+            notice["config"]["path"],
             text(&fs::canonicalize(&entry).unwrap())
         );
     }
@@ -323,7 +329,7 @@ fn configuration_default_does_not_alias_policy_rhai_but_explicit_paths_accept_it
     let old = sandbox.home.join(".config/ravel/policy.rhai");
     support::write(&old, &routing("[request.prompt]"));
 
-    let missing = refused(&start(&sandbox, &[]), "policy_missing", Some(&recorded));
+    let missing = refused(&start(&sandbox, &[]), "config_missing", Some(&recorded));
     assert_eq!(
         missing["source"],
         text(&sandbox.home.join(".config/ravel/config.rhai"))
@@ -331,11 +337,11 @@ fn configuration_default_does_not_alias_policy_rhai_but_explicit_paths_accept_it
 
     let absolute = start(&sandbox, &["--config", &text(&old)]).report();
     assert_eq!(
-        absolute["policy"]["path"],
+        absolute["config"]["path"],
         text(&fs::canonicalize(&old).unwrap())
     );
     let relative = start(&sandbox, &["--config", "../home/.config/ravel/policy.rhai"]).report();
-    assert_eq!(relative["policy"], absolute["policy"]);
+    assert_eq!(relative["config"], absolute["config"]);
     assert_eq!(recorded.argv().unwrap(), ["p"]);
 }
 
@@ -358,7 +364,7 @@ fn an_unreadable_config_rhai_does_not_select_an_old_entry() {
             fs::set_permissions(&entry, fs::Permissions::from_mode(0o000)).unwrap();
         }
 
-        let error = refused(&start(&sandbox, &[]), "policy_unreadable", Some(&recorded));
+        let error = refused(&start(&sandbox, &[]), "config_unreadable", Some(&recorded));
         assert_eq!(error["source"], text(&entry));
     }
 }
@@ -376,7 +382,7 @@ fn retired_policy_formats_refuse_before_opening_or_evaluating_them() {
             }
             let error = refused(
                 &start(&sandbox, &["--config", &text(&path)]),
-                "policy_format_retired",
+                "config_format_retired",
                 Some(&recorded),
             );
             assert_eq!(error["stage"], "authority");
@@ -391,7 +397,7 @@ fn retired_policy_formats_refuse_before_opening_or_evaluating_them() {
     support::write(&sandbox.home.join(".config/ravel/policy.ts"), rhai::ROUTED);
     refused(
         &start(&sandbox, &[]),
-        "policy_format_retired",
+        "config_format_retired",
         Some(&recorded),
     );
 }
@@ -404,7 +410,7 @@ fn unsupported_policy_extensions_ask_for_a_rhai_file_without_evaluating() {
         let path = sandbox.file(name, rhai::ROUTED);
         let error = refused(
             &start(&sandbox, &["--config", &text(&path)]),
-            "policy_unreadable",
+            "config_unreadable",
             Some(&recorded),
         );
         assert_eq!(error["stage"], "authority");
@@ -471,7 +477,7 @@ fn bun_and_node_names_are_ordinary_environment_grants() {
 fn both_files_prefer_config_rhai_and_never_open_policy_ts() {
     let sandbox = Sandbox::new();
     let typescript = sandbox.home.join(".config/ravel/policy.ts");
-    support::write(&typescript, "this is not a policy");
+    support::write(&typescript, "this is not a configuration script");
     // An unreadable policy.ts refuses if Ravel opens it at all.
     fs::set_permissions(&typescript, fs::Permissions::from_mode(0o000)).unwrap();
     let entry = sandbox.personal_rhai(rhai::ROUTED);
@@ -480,7 +486,7 @@ fn both_files_prefer_config_rhai_and_never_open_policy_ts() {
 
     assert_eq!(report["schemaVersion"], 2);
     assert_eq!(
-        report["policy"]["path"],
+        report["config"]["path"],
         text(&fs::canonicalize(entry).unwrap())
     );
 }
@@ -498,26 +504,26 @@ fn a_rhai_file_given_to_config_takes_the_rhai_path_beside_a_policy_ts() {
 
     assert_eq!(report["schemaVersion"], 2);
     assert_eq!(
-        report["policy"]["path"],
+        report["config"]["path"],
         text(&fs::canonicalize(named).unwrap())
     );
     // A relative path resolves against the caller's directory.
     let relative = start(&sandbox, &["--config", "elsewhere/route.rhai"]).report();
-    assert_eq!(relative["policy"], report["policy"]);
+    assert_eq!(relative["config"], report["config"]);
 }
 
 #[test]
 fn the_entry_must_exist_and_be_a_regular_file() {
     let sandbox = Sandbox::new();
 
-    let neither = refused(&start(&sandbox, &[]), "policy_missing", None);
+    let neither = refused(&start(&sandbox, &[]), "config_missing", None);
     assert_eq!(neither["stage"], "authority");
     assert!(neither["message"].as_str().unwrap().contains("config.rhai"));
     assert_eq!(neither["source"], text(&sandbox.personal_rhai_path()));
 
     let named = refused(
         &start(&sandbox, &["--config", "absent.rhai"]),
-        "policy_missing",
+        "config_missing",
         None,
     );
     assert_eq!(named["source"], text(&sandbox.cwd.join("absent.rhai")));
@@ -525,7 +531,7 @@ fn the_entry_must_exist_and_be_a_regular_file() {
     fs::create_dir(sandbox.cwd.join("directory.rhai")).unwrap();
     let directory = refused(
         &start(&sandbox, &["--config", "directory.rhai"]),
-        "policy_unreadable",
+        "config_unreadable",
         None,
     );
     assert_eq!(
@@ -544,7 +550,7 @@ fn a_dangling_config_rhai_is_missing_and_does_not_fall_back_to_policy_ts() {
     let link = sandbox.personal_rhai_path();
     std::os::unix::fs::symlink(sandbox.root.join("nowhere.rhai"), &link).unwrap();
 
-    let error = refused(&start(&sandbox, &[]), "policy_missing", None);
+    let error = refused(&start(&sandbox, &[]), "config_missing", None);
 
     assert_eq!(error["source"], text(&link));
 }
@@ -556,7 +562,7 @@ fn the_entry_must_be_utf_8_and_at_most_one_mebibyte() {
     fs::write(sandbox.cwd.join("bytes.rhai"), b"// \xff\n").unwrap();
     let bytes = refused(
         &start(&sandbox, &["--config", "bytes.rhai"]),
-        "policy_unreadable",
+        "config_unreadable",
         None,
     );
     assert!(bytes["message"].as_str().unwrap().contains("UTF-8"));
@@ -577,7 +583,7 @@ fn the_entry_must_be_utf_8_and_at_most_one_mebibyte() {
     sandbox.file("over.rhai", &padded(1_048_577));
     let over = refused(
         &start(&sandbox, &["--config", "over.rhai"]),
-        "policy_unreadable",
+        "config_unreadable",
         None,
     );
     assert!(
@@ -595,7 +601,7 @@ fn a_symlink_is_admitted_by_its_real_file() {
     let report = start(&sandbox, &["--config", "link.rhai"]).report();
 
     assert_eq!(
-        report["policy"]["path"],
+        report["config"]["path"],
         text(&fs::canonicalize(real).unwrap())
     );
 }

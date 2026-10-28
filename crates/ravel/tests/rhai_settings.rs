@@ -1,4 +1,4 @@
-//! The owner settings of a Rhai policy through the real `ravel start-session`
+//! The owner settings of a Rhai configuration script through the real `ravel start-session`
 //! (`docs/specs/policy-evaluation.md`, *Harness entries*, *Evaluation budgets
 //! and their composition* and *Discovery*): the keys `harnesses` and `budgets`,
 //! and the functions `ravel::harnesses` and `ravel::remaining`.
@@ -56,7 +56,7 @@ fn select(request, context) {{
     ))
 }
 
-/// The one string that a policy with `body` computed, with `envs` in the
+/// The one string that a configuration script with `body` computed, with `envs` in the
 /// caller's environment, under the settings `contents`.
 fn computed_with(contents: &str, envs: &[(&str, &OsStr)], globals: &str, body: &str) -> String {
     let sandbox = Sandbox::new();
@@ -301,7 +301,7 @@ fn a_variable_that_an_endpoint_once_named_as_its_credential_is_an_ordinary_grant
     assert_eq!(recorded.argv().unwrap(), ["granted-value"]);
 }
 
-/// `ravel::endpoints()` is gone, so a policy that calls it fails as any call of
+/// `ravel::endpoints()` is gone, so a configuration script that calls it fails as any call of
 /// a function that the namespace lacks does. The control beside it calls a
 /// function that stays, in the same position, and succeeds.
 #[test]

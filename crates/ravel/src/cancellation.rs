@@ -401,7 +401,7 @@ pub fn check(source: &str) -> Result<(), Refusal> {
 pub fn refusal(signal: Signal, source: &str) -> Refusal {
     let name = signal.name();
     Refusal::new("selection_cancelled", Stage::Evaluation, signal.exit(),
-        format!("selection with the policy {source} was cancelled by {name}: worker teardown was attempted and nothing was launched"),
+        format!("selection with the configuration script {source} was cancelled by {name}: worker teardown was attempted and nothing was launched"),
         format!("nothing needs fixing if the signal was meant; otherwise run the same command again. ravel ends by re-raising {name}, so its caller sees that signal"))
         .source(source).signal(signal)
 }

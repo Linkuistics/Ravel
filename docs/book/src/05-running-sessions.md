@@ -44,9 +44,6 @@ last column connects each word to the review:
 | [Result](02-actors-and-words.md#the-managed-process-and-its-result) | The text that a program in the session sends with `ravel end-session`. Ravel does not interpret it. Thus, the book calls it an opaque result. | `changes-needed` |
 | [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) | The `ravel` command-line program. It evaluates the configuration script in a separate process, launches the selected program and returns the result. | The program that ran the review and returned `changes-needed` |
 
-Some Ravel file names and error codes use the word “policy” for the
-configuration script, for example `policy_refused`.
-
 <!-- tc: depart synonym-rotation because launch names process creation, while start also names the beginning of output -->
 What happens between your command and your result? The table restates the
 order from
@@ -783,7 +780,7 @@ its program, so the script makes no selection for it.
 
 Ravel also gives a harness run the
 `RAVEL_CONFIG_RUN` marker, an environment variable. If a program in that run
-calls `start-session`, Ravel refuses with `policy_reentry_refused`, status 3.
+calls `start-session`, Ravel refuses with `config_reentry_refused`, status 3.
 The refusal occurs before Ravel reads the settings or the configuration script.
 
 The final managed process receives no such marker and can start nested sessions.
@@ -1209,7 +1206,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"policy_refused","exit":3,"input":"--kind deploy","message":"the policy <scratch>/work/policy.rhai refused the selection: This configuration script has no rule for the kind deploy.","policyCode":"unknown_kind","remedy":"Use the kind review.","source":"<scratch>/work/policy.rhai","stage":"selection"},"schemaVersion":1}
+{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/policy.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/policy.rhai","stage":"selection"},"schemaVersion":2}
 ```
 
 **Exit status**
@@ -1240,13 +1237,13 @@ Fragment: standard error of the `--json` review command from a real run on
 macOS, in the directory `/tmp/ch5r`. Ravel writes the JSON document as one
 line. This block shows it on
 several lines and omits the members `bounds`, `context`, `diagnostics`,
-`operationReports`, `policyEnvironment`, `reads` and `worker`.
+`operationReports`, `configEnvironment`, `reads` and `worker`.
 
 ```text
 review-agent: the review is complete
 {
   "harnessRuns": [],
-  "policy": {
+  "config": {
     "modules": [
       {
         "bytes": 619,
@@ -1288,10 +1285,10 @@ mixed diagnostic stream, even with `--json`:
 | Standard output, standard error and optional result of an evaluation harness run | Return data for the configuration script | None. They reach a caller stream only if the script copies them into visible output. |
 | Routing notice and failure document of Ravel | The caller's standard error | JSON documents replace their text form |
 
-The JSON routing notice gives `selection`, `policy`, `worker`,
+The JSON routing notice gives `selection`, `config`, `worker`,
 `selectionMs`, the delivered `context` and the effective `bounds`. It also
-gives `policyEnvironment`, `resolution`, `promptSource` and the captured
-`diagnostics` of the configuration script. The member `policy` describes the
+gives `configEnvironment`, `resolution`, `promptSource` and the captured
+`diagnostics` of the configuration script. The member `config` describes the
 configuration script. The member `context` is the selection context, not the
 result channel. Grant diagnostics show the name of each environment variable
 and whether it is set. They never show its value.
@@ -1304,7 +1301,7 @@ The notice also records what evaluation used:
 | Field | Recorded data |
 |---|---|
 | `worker.rhaiVersion` | Version of the embedded Rhai engine |
-| `policy.modules` | Entry first, then imported modules, each with its canonical name, byte count and SHA-256 digest |
+| `config.modules` | Entry first, then imported modules, each with its canonical name, byte count and SHA-256 digest |
 | `reads` | Successful measured reads, with their operation, phase, canonical name, byte count and digest |
 | `harnessRuns` | Each harness run, with its harness name, status, exit code or signal, elapsed time and whether it sent a result |
 | `bounds.harnessRuns` | Effective run budget and its origin |
@@ -1329,9 +1326,9 @@ and the routing notice also does not. Check the final status.
 
 The failure document has an `error` object with `code`, `stage`, `message`,
 `remedy` and `exit`. It adds the fields that apply, such as `input`,
-`source`, `location`, `policyCode`, `bound` and `signal`. It also adds the
+`source`, `location`, `configCode`, `bound` and `signal`. It also adds the
 captured `diagnostics` of the configuration script when they are available.
-The refused command of the example above shows `policyCode`, the owner's own
+The refused command of the example above shows `configCode`, the owner's own
 code. Read the code and the stage together.
 [Chapter 6, “JSON failure document”](06-reference.md#json-failure-document),
 gives every field of the document and its values.
@@ -1341,7 +1338,7 @@ failures before and after launch:
 
 | Code | Stage | Meaning |
 |---|---|---|
-| `policy_refused` | `selection` | The configuration script refused the request. |
+| `config_refused` | `selection` | The configuration script refused the request. |
 | `worker_identity_mismatch` | `worker` | The re-executed Ravel binary reports another build. Ravel stops before it evaluates the configuration script. |
 | `harness_budget_exhausted` | `evaluation` | The configuration script requested a run with no run budget left. Evaluation ends. |
 | `harness_cleanup_failed` | `evaluation` | Ravel could not complete the cleanup of an evaluation harness run. No managed process starts. |
@@ -1397,7 +1394,7 @@ These sections teach the subject of each row:
 | `0` | `start-session` wrote the sent result unchanged to standard output after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
-| `3` | A refusal by the configuration script, or Ravel's refusal of the script. The script refused, or Ravel could not accept its entry, behaviour, shape, returned data or selection context. Script limits, the worker heap bound, exhausted evaluation budgets and a `start-session` from inside a harness run (`policy_reentry_refused`) also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `policy_refused`, examine the owner's `policyCode` and explanation. Change the request or the configuration script deliberately. Do not silently substitute a program. |
+| `3` | A refusal by the configuration script, or Ravel's refusal of the script. The script refused, or Ravel could not accept its entry, behaviour, shape, returned data or selection context. Script limits, the worker heap bound, exhausted evaluation budgets and a `start-session` from inside a harness run (`config_reentry_refused`) also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `config_refused`, examine the owner's `configCode` and explanation. Change the request or the configuration script deliberately. Do not silently substitute a program. |
 | `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A failed re-execution or worker identity mismatch also uses 5, as does `harness_cleanup_failed` during evaluation. | Keep the full diagnostics. Repair the installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
 | `124` | The whole evaluation deadline expired. It covers worker startup, module loads, the context loader, selection and every host call. Ravel launched no managed process. A failed harness cleanup replaces this outcome with status 5. Cancellation also has priority. | Examine the work of the configuration script. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer evaluation. A single harness run's `timed_out` status is data for the script. This is not a time limit for the managed process. |
 | `126` | Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file). | Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute. |
@@ -1525,7 +1522,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**

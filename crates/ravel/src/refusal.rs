@@ -19,7 +19,7 @@ pub const EXIT_NOT_FOUND: u8 = 127;
 pub enum Stage {
     /// The command line itself, and the owner settings its flags replace.
     Cli,
-    /// Choosing and opening the policy entry.
+    /// Choosing and opening the configuration entry.
     Authority,
     /// Finding, starting and verifying the compiled worker, and its protocol.
     Worker,
@@ -27,7 +27,7 @@ pub enum Stage {
     /// timeout names this stage, because the front cannot see which part of
     /// the evaluation was running when the bound ran out.
     Evaluation,
-    /// Importing the policy entry.
+    /// Importing the configuration entry.
     Load,
     /// Reading the caller's context document, or assembling, validating and
     /// measuring the context delivered to selection.
@@ -73,13 +73,13 @@ pub struct Details {
     pub exit: u8,
     /// The caller input involved, as the caller spelled it (`--kind impl`).
     pub input: Option<String>,
-    /// The file the refusal is about, usually the resolved policy entry.
+    /// The file the refusal is about, usually the resolved configuration entry.
     pub source: Option<String>,
-    /// Where inside `source` the problem is (`policy.select`, `result.args[2]`).
+    /// Where inside `source` the problem is (`config.select`, `result.args[2]`).
     pub location: Option<String>,
     /// A policy's own code for a refusal it returned, reported beside the
-    /// stable `policy_refused` rather than in its place.
-    pub policy_code: Option<String>,
+    /// stable `config_refused` rather than in its place.
+    pub config_code: Option<String>,
     /// The bound whose exhaustion this refusal reports.
     pub bound: Option<Bound>,
     pub signal: Option<Signal>,
@@ -110,7 +110,7 @@ impl Refusal {
             input: None,
             source: None,
             location: None,
-            policy_code: None,
+            config_code: None,
             bound: None,
             signal: None,
         }))
@@ -131,8 +131,8 @@ impl Refusal {
         self
     }
 
-    pub fn policy_code(mut self, code: impl Into<String>) -> Self {
-        self.0.policy_code = Some(code.into());
+    pub fn config_code(mut self, code: impl Into<String>) -> Self {
+        self.0.config_code = Some(code.into());
         self
     }
 
@@ -146,7 +146,7 @@ impl Refusal {
         self
     }
 
-    /// Operational context uses existing fields, never the policy byte streams.
+    /// Operational context uses existing fields, never the configuration script byte streams.
     pub fn report(mut self, message: &str, remedy: &str) -> Self {
         self.0.message.push('\n');
         self.0.message.push_str(message);
@@ -156,7 +156,7 @@ impl Refusal {
     }
 }
 
-/// What the policy printed while the worker evaluated it. Captured from the
+/// What the configuration script printed while the worker evaluated it. Captured from the
 /// worker's own stdout and stderr, which carry no protocol, and reported
 /// separately from any result.
 #[derive(Clone, Debug, Default)]
@@ -182,7 +182,7 @@ impl Diagnostics {
                 continue;
             }
             for line in captured.strip_suffix('\n').unwrap_or(&captured).split('\n') {
-                let _ = writeln!(text, "policy {stream}: {line}");
+                let _ = writeln!(text, "config {stream}: {line}");
             }
         }
         text
@@ -242,7 +242,7 @@ impl Failure {
             ("input", &refusal.input),
             ("source", &refusal.source),
             ("location", &refusal.location),
-            ("policyCode", &refusal.policy_code),
+            ("configCode", &refusal.config_code),
         ] {
             if let Some(value) = value {
                 error.insert(name.into(), value.clone().into());
@@ -259,7 +259,7 @@ impl Failure {
         error.insert("remedy".into(), refusal.remedy.clone().into());
         error.insert("exit".into(), refusal.exit.into());
         let mut document = Map::new();
-        document.insert("schemaVersion".into(), 1.into());
+        document.insert("schemaVersion".into(), 2.into());
         document.insert("error".into(), Value::Object(error));
         if let Some(diagnostics) = &self.diagnostics {
             document.insert("diagnostics".into(), diagnostics.to_json());
@@ -284,7 +284,7 @@ impl Failure {
             ("input", &refusal.input),
             ("source", &refusal.source),
             ("location", &refusal.location),
-            ("policy code", &refusal.policy_code),
+            ("config code", &refusal.config_code),
         ] {
             if let Some(value) = value {
                 let _ = writeln!(text, "  {label}: {value}");

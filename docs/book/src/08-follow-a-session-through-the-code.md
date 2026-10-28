@@ -372,7 +372,7 @@ worker failures and timeouts, so its name alone does not identify a policy
 Suppose the example's policy returns `status: "refused"` instead of a command.
 `choice::judge` passes that value to `policy::selected` in
 `crates/ravel/src/policy.rs`. That function checks the refusal fields and
-returns `policy_refused`, with the policy's own code beside it.
+returns `config_refused`, with the policy's own code beside it.
 `worker::evaluate` then attempts worker teardown and private-directory cleanup.
 It returns the failure to `choose_prepared`, so `run` never allocates the
 result channel or launches the fake.

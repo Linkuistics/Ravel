@@ -29,7 +29,7 @@ fn select_route(routes, request) {
             status: "refused",
             code: "incomplete_mapping",
             message: `the routes name no command for kind ${kind}`,
-            remedy: "add a route for this kind in your copy of the policy",
+            remedy: "add a route for this kind in your copy of the configuration script",
         };
     }
     let command = routes[request.kind].call(request);

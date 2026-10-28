@@ -40,7 +40,7 @@ const DESCRIPTORS: &str = "/proc/self/fd";
 const DESCRIPTORS: &str = "/dev/fd";
 
 /// How long to keep collecting diagnostics after the worker is reaped. A
-/// descendant the policy left holding its stdout could otherwise keep a drain
+/// descendant the configuration script left holding its stdout could otherwise keep a drain
 /// open forever; detached policy children are outside the contract, so their
 /// late output is not waited for. Both streams share the one grace.
 const DRAIN_GRACE: Duration = Duration::from_secs(1);
@@ -50,7 +50,7 @@ const DRAIN_GRACE: Duration = Duration::from_secs(1);
 const CLEANUP_GRACE: Duration = Duration::from_secs(1);
 
 /// The longest a channel read or write waits before it looks again at the
-/// diagnostics bound, so that a policy printing without end is stopped for
+/// diagnostics bound, so that a configuration script printing without end is stopped for
 /// that, promptly, rather than at the deadline.
 pub(crate) const POLL: Duration = Duration::from_millis(50);
 
@@ -85,7 +85,7 @@ pub(crate) struct Supervised<T> {
 /// bound counts. Whatever `converse` returns, the worker is stopped and
 /// reaped, its directory removed and its output collected before a success
 /// is returned, and a cancellation that arrived meanwhile wins over every
-/// other outcome. `entry` names the policy in the refusals about it.
+/// other outcome. `entry` names the configuration script in the refusals about it.
 pub(crate) fn supervise<T>(
     launch: Launch<'_>,
     entry: &str,
@@ -185,7 +185,7 @@ pub(crate) fn supervise<T>(
                 Stage::Worker,
                 EXIT_WORKER,
                 format!(
-                    "cannot list this process's open descriptors in {DESCRIPTORS}, so the policy \
+                    "cannot list this process's open descriptors in {DESCRIPTORS}, so the Rhai \
                  worker could inherit one it must not: {error}"
                 ),
                 format!("run ravel where {DESCRIPTORS} lists the process's descriptors"),
@@ -257,7 +257,7 @@ pub(crate) fn supervise<T>(
                     Stage::Worker,
                     EXIT_WORKER,
                     format!(
-                        "the policy worker {} cannot be started: {error}",
+                        "the Rhai worker {} cannot be started: {error}",
                         worker.display()
                     ),
                     rebuild,
@@ -265,7 +265,7 @@ pub(crate) fn supervise<T>(
                 .source(worker.to_string_lossy())
             } else {
                 failed(format!(
-                    "the policy worker {} cannot be started: {error}",
+                    "the Rhai worker {} cannot be started: {error}",
                     worker.display()
                 ))
             }
@@ -375,8 +375,7 @@ pub(crate) fn supervise<T>(
             (
                 None,
                 Some(failed(format!(
-                    "the policy worker ended without a result ({error}; {status}); \
-                 a policy that calls process.exit ends it the same way"
+                    "the Rhai worker ended without a result ({error}; {status})"
                 ))),
             )
         }
@@ -393,7 +392,7 @@ pub(crate) fn supervise<T>(
     }
     .or_else(|| {
         (!admitted).then(|| {
-            failed("policy conversation completed, but required worker teardown failed".into())
+            failed("configuration evaluation completed, but required worker teardown failed".into())
         })
     });
     if let Some(refusal) = refusal {
@@ -446,7 +445,7 @@ const TEARDOWN_REMEDY: &str = "inspect the named worker/OS operation before retr
 
 impl Teardown {
     fn describe(&self, worker: &Path) -> Vec<String> {
-        let identity = format!("policy worker {} (pid {})", worker.display(), self.pid);
+        let identity = format!("Rhai worker {} (pid {})", worker.display(), self.pid);
         let status = match &self.status {
             Ok(status) => format!("confirmed reap: {status}"),
             Err(error) => format!("wait: {error}; worker reap unconfirmed"),
@@ -502,7 +501,7 @@ pub(crate) fn receive_for(
         Err(error @ (FrameError::TooLarge(..) | FrameError::NotJson(_))) => Err(broken_for(
             worker,
             rebuild,
-            format!("the policy worker sent a malformed frame: {error}"),
+            format!("the Rhai worker sent a malformed frame: {error}"),
         )),
         other => other.map_err(|error| Conversation::failed(error, handed_over)),
     }
@@ -528,7 +527,7 @@ fn output_limit(entry: &str, limits: &Limits) -> Refusal {
         Stage::Evaluation,
         EXIT_REFUSED,
         format!(
-            "the policy {entry} printed more than {bound} bytes on stdout and stderr together, \
+            "the configuration script {entry} printed more than {bound} bytes on stdout and stderr together, \
              so worker teardown was attempted and nothing was launched; its first {bound} bytes are \
              kept, and the rest was read and discarded"
         ),
@@ -553,11 +552,11 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool, rebuild:
             Stage::Evaluation,
             EXIT_TIMEOUT,
             format!(
-                "the policy entry {entry} did not return a result within the selection bound \
+                "the configuration entry {entry} did not return a result within the selection bound \
                  of {limit}, so worker teardown was attempted and nothing was launched"
             ),
             format!(
-                "make the policy return sooner: a loop, or an await on work that never \
+                "make the configuration script return sooner: a loop, or an await on work that never \
                  settles, holds its evaluation; {raise}"
             ),
         )
@@ -568,7 +567,7 @@ fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool, rebuild:
             Stage::Evaluation,
             EXIT_TIMEOUT,
             format!(
-                "the policy worker {} was not ready for the policy within the selection bound \
+                "the Rhai worker {} was not ready for the configuration script within the selection bound \
                  of {limit}, so worker teardown was attempted and nothing was launched",
                 worker.display()
             ),
@@ -762,7 +761,7 @@ fn bounded_stop(child: &mut Child, signal: Option<libc::c_int>, graceful: bool) 
 /// The protocol channel with the deadline applied: each read or write waits
 /// only for the time left, and once none is left it fails with `TimedOut`. It
 /// waits in slices of at most `POLL`, and between slices it fails at once if
-/// the policy's output has passed its bound or a handled signal was received.
+/// the configuration script's output has passed its bound or a handled signal was received.
 #[derive(Clone, Copy)]
 pub(crate) struct Bounded<'a> {
     channel: &'a UnixStream,
@@ -772,7 +771,7 @@ pub(crate) struct Bounded<'a> {
 
 impl<'a> Bounded<'a> {
     /// The parts a runtime needs to take over the conversation: the channel,
-    /// the instant the evaluation ends, and the flag that the policy's output
+    /// the instant the evaluation ends, and the flag that the configuration script's output
     /// passed its bound. The handshake used this channel with timeouts, and
     /// the runtime keeps the same stops.
     pub(crate) fn parts(&self) -> (&'a UnixStream, Instant, &'a AtomicBool) {
@@ -785,7 +784,9 @@ impl Bounded<'_> {
     /// timeout, and rounds a sub-microsecond one up to a microsecond.
     fn slice(&self) -> io::Result<Duration> {
         if self.overflow.load(Ordering::SeqCst) {
-            return Err(io::Error::other("the policy's output passed its bound"));
+            return Err(io::Error::other(
+                "the configuration script's output passed its bound",
+            ));
         }
         if cancellation::received().is_some() {
             return Err(io::Error::other("a signal cancelled the selection"));

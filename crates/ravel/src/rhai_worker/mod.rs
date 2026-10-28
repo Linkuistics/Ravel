@@ -1,6 +1,6 @@
-//! The Rhai policy worker: Ravel's own binary in an internal role, the strict
+//! The Rhai Rhai worker: Ravel's own binary in an internal role, the strict
 //! Rhai engine behind a private socket (`docs/specs/policy-evaluation.md`,
-//! *The policy worker*).
+//! *The Rhai worker*).
 //!
 //! The front side (`front`) launches the role through `worker::supervise`. The
 //! role (`role`) is chosen by `arg0`, because it accepts no command-line input.
@@ -16,7 +16,7 @@
 //! | `reply` | front | The answer to one `host` frame: `status` `ok` with the value, or `error` with `code`, `message` and `name`. |
 //! | `context` | worker | `value`: what `load_context` returned, or `oversize`: its encoded size when that passes the context budget |
 //! | `delivered` | front | `context`: the context `select` receives, with its measured sources |
-//! | `selection` | worker | `version`: the policy's `VERSION`. `result`: the JSON form of what `select` returned |
+//! | `selection` | worker | `version`: the configuration script's `VERSION`. `result`: the JSON form of what `select` returned |
 //! | `failure` | worker | `failure`: a [`ScriptFailure`] |
 //!
 //! A host function is a blocking call in the worker. The worker sends one `host`
@@ -65,7 +65,7 @@ pub const BUILD_ID: &str = env!("RAVEL_BUILD_ID");
 pub const EXIT_ROLE_REFUSED: u8 = 2;
 
 /// An engine limit or the worker heap, one row of the table in the spec's
-/// *The policy worker*. The worker names the row it hit, and the front turns
+/// *The Rhai worker*. The worker names the row it hit, and the front turns
 /// the name back into the bound the refusal reports, so both read this table.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Limit {
@@ -140,7 +140,7 @@ impl Limit {
     }
 }
 
-/// The most modules a policy may import, besides the entry.
+/// The most modules a configuration script may import, besides the entry.
 pub const MAX_MODULES: usize = 64;
 
 /// The part of the evaluation a host call was made in, which is also the stage
@@ -208,8 +208,8 @@ impl Read {
 /// The expression depth that a function body allows.
 pub const EXPRESSION_DEPTH_IN_FUNCTION: u64 = 32;
 
-/// The effective bounds the policy reads in `request.limits`. The worker keeps
-/// its own copy, so nothing the policy does can raise one. The harness-run
+/// The effective bounds the configuration script reads in `request.limits`. The worker keeps
+/// its own copy, so nothing the configuration script does can raise one. The harness-run
 /// budget is the owner's setting, or the default of the spec.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Bounds {
@@ -222,7 +222,7 @@ pub struct Bounds {
     pub harness_runs: u64,
 }
 
-/// The names of the bounds as the policy and the wire know them, in the order
+/// The names of the bounds as the configuration script and the wire know them, in the order
 /// of [`Bounds::values`].
 const BOUND_NAMES: [&str; 7] = [
     "selectionMs",
@@ -306,8 +306,8 @@ impl Bounds {
 /// happened. The seam leaf joins it to the refusal the spec names.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ScriptFailure {
-    /// A code of the spec's table: `policy_parse_failed`, `policy_import_failed`,
-    /// `policy_invalid`, `unsupported_version`, `selection_threw`,
+    /// A code of the spec's table: `config_parse_failed`, `config_import_failed`,
+    /// `config_invalid`, `unsupported_version`, `selection_threw`,
     /// `selection_malformed`, `context_loader_failed`, `context_invalid`,
     /// `context_too_large`, `host_request_invalid`, `source_too_large`,
     /// `too_many_sources`, `message_too_large`, `script_limit`, `memory_limit`,
@@ -418,7 +418,7 @@ impl ScriptFailure {
 /// What the worker reports once it has evaluated the entry.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Reply {
-    /// What `select` returned, with the `VERSION` the policy declared. The
+    /// What `select` returned, with the `VERSION` the configuration script declared. The
     /// result is JSON, `null` for `()`. Judging it is the front's.
     Selection {
         version: String,

@@ -18,7 +18,7 @@ First, the words that this chapter uses on every page:
 | **Configuration** | The configuration script and the settings together |
 
 Some Ravel file names and error codes use the word “policy” for the
-configuration script, for example `policy_refused`.
+configuration script, for example `config_refused`.
 
 ## Know the Rhai language
 
@@ -396,8 +396,8 @@ string is nonblank:
 | `message` | A sentence that says what is wrong | The person who reads standard error |
 | `remedy` | A sentence that says what to change | The person who reads standard error |
 
-After a refusal, Ravel reports `policy_refused` with exit status 3.
-Your `code` appears separately as `policyCode` in the JSON failure document.
+After a refusal, Ravel reports `config_refused` with exit status 3.
+Your `code` appears separately as `configCode` in the JSON failure document.
 No managed process starts, and Ravel tries no other route.
 The caller receives no result.
 
@@ -468,10 +468,10 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-ravel: refused (policy_refused, stage selection): the policy <scratch>/work/policy.rhai refused the selection: This configuration script accepts question only.
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: This configuration script accepts question only.
   input: --kind unknown
   source: <scratch>/work/policy.rhai
-  policy code: unknown_kind
+  config code: unknown_kind
   remedy: Use --kind question.
 ```
 
@@ -495,10 +495,10 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-ravel: refused (policy_refused, stage selection): the policy <scratch>/work/policy.rhai refused the selection: The owner chooses the model.
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: The owner chooses the model.
   input: --kind question
   source: <scratch>/work/policy.rhai
-  policy code: owner_model
+  config code: owner_model
   remedy: Remove the model parameter.
 ```
 
@@ -514,16 +514,16 @@ standard error. The values come from the third command:
 
 | Line | What it tells you |
 |---|---|
-| `ravel: refused (policy_refused, stage selection)` | Ravel's code for the outcome, and the stage in which it occurred. The script refused during selection. |
+| `ravel: refused (config_refused, stage selection)` | Ravel's code for the outcome, and the stage in which it occurred. The script refused during selection. |
 | `the policy … refused the selection: The owner chooses the model.` | The file of the configuration script, then the script's `message` |
 | `input: --kind question` | The kind of the request |
 | `source: <scratch>/work/policy.rhai` | The file of the configuration script. `<scratch>` stands for the example's directory. |
-| `policy code: owner_model` | The script's own `code` |
+| `config code: owner_model` | The script's own `code` |
 | `remedy: Remove the model parameter.` | The script's `remedy`, which tells the caller what to change |
 
 The exit status 3 tells a caller program that a refusal occurred, without a
 read of the text. With `--json`, the same fields are in the JSON failure
-document, and the script's code is in `policyCode`.
+document, and the script's code is in `configCode`.
 
 `if` chooses a branch. `!=` compares values for inequality.
 `fn refuse(...)` is an ordinary helper function, with no special Ravel role.
@@ -556,7 +556,7 @@ You may also want to see values while the script runs. `print(text)` writes to
 the script's standard output, and `debug(text)` writes to the script's standard
 error. Ravel captures both streams of the Rhai worker. Then it writes the
 captured text on its own standard error, before the routing notice.
-Each line starts with `policy stdout:` or `policy stderr:`.
+Each line starts with `config stdout:` or `config stderr:`.
 
 These lines are diagnostics for you. They are not the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result) on
@@ -613,7 +613,7 @@ hello
 **Standard error includes**
 
 ```text
-policy stdout: kind is question
+config stdout: kind is question
 ```
 
 **Exit status**
@@ -636,7 +636,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-ravel: refused (policy_parse_failed, stage load): Expecting ',' to separate the items of this object map literal
+ravel: refused (config_parse_failed, stage load): Expecting ',' to separate the items of this object map literal
   source: <scratch>/work/broken.rhai
   location: 5:50
   remedy: fix the syntax error in <scratch>/work/broken.rhai, at the line and column the location names
@@ -659,10 +659,10 @@ The table says where to look for each outcome that a test can show:
 | Observation | What to examine |
 |---|---|
 | A parse failure | The source file, line and column in the diagnostic. |
-| `policy_invalid` | The exports, their types and the function parameter counts. |
+| `config_invalid` | The exports, their types and the function parameter counts. |
 | `selection_threw` | The property or expression at the reported location. |
 | `selection_malformed` | The shape and field types of the returned map. |
-| `policy_refused` | The `policyCode`, message and remedy of your script. |
+| `config_refused` | The `configCode`, message and remedy of your script. |
 | `selection_timeout` | The work before the selection and its whole deadline. |
 
 `debug(text)` also names the file, the line and the position of the call.
@@ -780,7 +780,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-policy_refused
+config_refused
 ```
 
 **Exit status**
@@ -821,11 +821,11 @@ directory. Thus, the same relative name can find two different files:
 Each distinct imported module loads once per evaluation.
 Ravel measures the entry and each module with its canonical path, byte count
 and SHA-256 digest. The JSON routing notice reports those measurements in
-`policy.modules`. Thus, the notice shows exactly which bytes of which files
+`config.modules`. Thus, the notice shows exactly which bytes of which files
 made the choice.
 
 A missing module, import cycle or 65th distinct imported module gives
-`policy_import_failed`.
+`config_import_failed`.
 Ravel embeds no Rhai module of its own. Imports name files, which can be
 copies of the shipped examples.
 
@@ -998,7 +998,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-policy_refused
+config_refused
 ```
 
 **Exit status**
@@ -1536,7 +1536,7 @@ A cleanup failure ends evaluation as `harness_cleanup_failed`, exit status 5.
 Can a harness run start a Ravel session of its own? No. Ravel puts the
 marker `RAVEL_CONFIG_RUN` in the environment of each harness run, and each
 child of the run inherits it. `start-session` finds the marker and refuses as
-`policy_reentry_refused`, before it reads the settings or a configuration
+`config_reentry_refused`, before it reads the settings or a configuration
 script. Thus, a harness run cannot start a second evaluation inside the first.
 
 Do you need the route of another kind during evaluation? Call that route's
@@ -1693,7 +1693,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-policy_refused
+config_refused
 ```
 
 **Exit status**
@@ -1872,7 +1872,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-policy_refused
+config_refused
 ```
 
 **Exit status**
@@ -2080,7 +2080,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-policy_refused
+config_refused
 ```
 
 **Exit status**

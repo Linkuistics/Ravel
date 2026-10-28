@@ -933,6 +933,15 @@ That draft retained Ravel's own diagnostic words, `VERSION` strings and labels a
 
 The later product rename changes Ravel-owned names. It does not rewrite arbitrary owner-supplied data.
 
+**Additional session evidence:** `configuration-names-k113`, 2026-10-29,
+changed diagnostic codes and JSON fields. Retained-name explanations in
+chapters 1, 2 and 5 then became false, including an example that used a new
+code to illustrate the old word. The implementation removed those explanations
+and reconciled the field names in summaries, tables and executable output.
+CLI checks carry old words through owner-supplied values unchanged. The frozen
+comparison translates named fields and exact known messages, rather than
+replacing words throughout the captured data.
+
 The renamed headings of chapter 4 changed 102 inbound anchors in four other chapters. The draft changed only the anchors there. The link texts that quote old titles belong to the drafts that own those chapters.
 **Check:** Search the old anchors in the whole repository. Run the same search on the parent revision as a control.
 

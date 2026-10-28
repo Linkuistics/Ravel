@@ -189,9 +189,6 @@ can run. The table gives the default path of each part:
 | Configuration script | `$HOME/.config/ravel/config.rhai` | Rhai code that selects a program or refuses the request. `--config PATH` names another script for one session. |
 | Settings | `$HOME/.config/ravel/settings.json` | The deadline, limits, environment grants, harnesses and budgets. The script cannot change them. |
 
-Ravel's file names, options and error codes use the word “policy” for the
-configuration script, for example `policy.rhai`.
-
 Ravel gives the request to the configuration script. Then the script selects
 a program and its arguments, or it refuses to launch a program.
 

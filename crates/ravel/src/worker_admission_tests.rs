@@ -752,7 +752,7 @@ fn worker_reap_admission_fixture() {
         ("selection_cancelled", "evaluation", 129)
     } else {
         match scenario.as_str() {
-            "refusal" => ("policy_refused", "selection", 3),
+            "refusal" => ("config_refused", "selection", 3),
             "timeout" | "pre-ready-timeout" => ("selection_timeout", "evaluation", 124),
             "protocol" => ("protocol_error", "worker", 5),
             "overflow" => ("output_limit", "evaluation", 3),
@@ -807,7 +807,7 @@ fn worker_reap_admission_fixture() {
             );
             assert!(text.contains("owner_declined"), "owner code lost: {text}");
             if scenario == "refusal" {
-                assert_eq!(document["error"]["policyCode"], "owner_declined");
+                assert_eq!(document["error"]["configCode"], "owner_declined");
             }
         }
         if ["timeout", "pre-ready-timeout"].contains(&scenario.as_str()) {

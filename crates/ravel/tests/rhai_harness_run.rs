@@ -755,7 +755,7 @@ fn the_refusal_comes_before_settings_and_before_a_policy() {
             .env("RAVEL_CONFIG_RUN", value);
         let refusal = run(&mut command).refusal(3);
 
-        assert_eq!(refusal["error"]["code"], "policy_reentry_refused");
+        assert_eq!(refusal["error"]["code"], "config_reentry_refused");
         assert_eq!(refusal["error"]["stage"], "authority");
     }
 }

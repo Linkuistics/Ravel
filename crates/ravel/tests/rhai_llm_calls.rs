@@ -114,7 +114,7 @@ fn start(sandbox: &Sandbox, prompt: &str, env: &[(&str, &str)], args: &[&str]) -
 }
 
 /// The routing notice of a session that ended with the managed process's value.
-/// Nothing but the notice reached stderr, so a policy that prints nothing leaves
+/// Nothing but the notice reached stderr, so a configuration script that prints nothing leaves
 /// no diagnostic behind.
 fn notice_of(run: &Run) -> Value {
     let notice = run.report();
@@ -154,7 +154,7 @@ fn without_context(notice: &Value) -> Value {
     rest
 }
 
-/// A route that the recording agent starts, from `name` and the policy's `args`.
+/// A route that the recording agent starts, from `name` and the configuration script's `args`.
 fn routed(body: &str, args: &str) -> String {
     policy(&format!(
         r#"{body}
@@ -267,7 +267,7 @@ fn load_context_runs_a_fake_harness_for_a_summary_and_select_receives_it() {
     );
     assert_runs(&notice, &[("summariser", "exited")]);
     assert_withheld(&without_context(&notice), &[PROMPT, "SUMMARY-text-a81f"]);
-    // The notice reports the context that the policy delivered, and the policy
+    // The notice reports the context that the configuration script delivered, and the configuration script
     // put the summary there. That is the one place the summary reaches it.
     assert_eq!(
         notice["context"]["value"]["facts"]["summary"], "SUMMARY-text-a81f",
@@ -401,7 +401,7 @@ fn select(request, context) {
     );
 
     // The firing control: a first call that succeeds leaves the second one
-    // unrun, so the fallback came from the failure and not from the policy's order.
+    // unrun, so the fallback came from the failure and not from the configuration script's order.
     let (notice, recorded, _, second, _keep) = attempt("echo ANSWER-first-5d20");
     assert_eq!(
         recorded.argv().unwrap(),

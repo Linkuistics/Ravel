@@ -1,5 +1,5 @@
-//! A hostile or careless Rhai policy through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *The policy worker*, *Evaluation budgets
+//! A hostile or careless Rhai configuration script through the real `ravel start-session`
+//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*, *Evaluation budgets
 //! and their composition* and *Cancellation and deadlines*).
 //!
 //! Every hostile class keeps a control in its own test: the same shape of policy
@@ -153,7 +153,7 @@ fn an_array_that_doubles_ends_at_the_array_size() {
 #[test]
 fn try_does_not_catch_a_breach_and_the_host_refuses_one_that_a_closure_call_wrapped() {
     // The control: `try` catches an ordinary error, also one that a closure call
-    // wraps, and the policy goes on to select.
+    // wraps, and the configuration script goes on to select.
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     survives(
@@ -247,7 +247,7 @@ fn a_breach_inside_a_function_pointer_call_ends_the_evaluation_although_try_surr
 fn a_breach_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_under_try() {
     // The deprecated forms `drain("f")` and `retain("f")` reach the Rust
     // originals, which wrap the error of `f` for `try`. The control names a
-    // function that stays under the bound, and the policy selects.
+    // function that stays under the bound, and the configuration script selects.
     for call in ["drain", "retain"] {
         let named = |body: &str| {
             policy(&format!(
@@ -274,7 +274,7 @@ fn a_breach_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_under
 fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() {
     // Rhai 1.27.0 discards the error of the comparer in `dedup`, `sort` and
     // `order`, so the worker replaces them. The control calls the same
-    // comparers with a depth that is under the bound, and the policy selects.
+    // comparers with a depth that is under the bound, and the configuration script selects.
     for call in ["dedup", "sort", "order", "order_by"] {
         let comparer = |depth: &str| {
             policy(&format!(
@@ -426,7 +426,7 @@ fn a_result_over_the_message_bound_ends_as_message_too_large() {
     assert_eq!(error["bound"]["name"], "message", "{error}");
 }
 
-/// A front that is evaluating a policy that sleeps for ten minutes.
+/// A front that is evaluating a configuration script that sleeps for ten minutes.
 fn sleeping_front(sandbox: &Sandbox) -> std::process::Child {
     sandbox.personal_rhai(&selecting("    sleep(600);", "\"r\""));
     sandbox

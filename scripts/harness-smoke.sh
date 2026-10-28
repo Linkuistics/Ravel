@@ -68,7 +68,7 @@ esac
 # call proves the sign-in and bills nothing else. The task may run inside a
 # harness session of a driver, where the environment holds the channel of that
 # session. RAVEL_EXIT_FILE would take the result of the nested session to it, and
-# RAVEL_CONFIG_RUN makes start-session refuse as policy_reentry_refused.
+# RAVEL_CONFIG_RUN makes start-session refuse as config_reentry_refused.
 sandboxed() {
   env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u OPENAI_API_KEY -u CODEX_API_KEY \
     -u RAVEL_EXIT_FILE -u RAVEL_CONFIG_RUN \

@@ -46,7 +46,7 @@ enum Probe {
     Unexecutable(String),
 }
 
-/// Resolve `program`, which the `select` of the policy at `source` returned,
+/// Resolve `program`, which the `select` of the configuration script at `source` returned,
 /// against the caller's `cwd` and `path` (the PATH value).
 pub fn resolve(
     program: &str,

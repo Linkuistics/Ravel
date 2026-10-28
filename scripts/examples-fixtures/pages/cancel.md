@@ -96,7 +96,7 @@ $ mkdir -p "$HOME/.config/ravel" && cp settings.json "$HOME/.config/ravel/settin
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**

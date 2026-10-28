@@ -1,7 +1,7 @@
 //! The harness entries of the owner settings
 //! (`docs/specs/policy-evaluation.md`, *Harness entries*).
 //!
-//! The owner names a harness outside the script, so a policy can pick an entry
+//! The owner names a harness outside the script, so a configuration script can pick an entry
 //! but never a program path of its own. This module checks the shape of one
 //! entry and holds what the checked entry says. It runs no program:
 //! `ravel::harnesses()` resolves the program from the front, at the time of the

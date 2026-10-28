@@ -89,7 +89,7 @@ RHAI
     "$front" start-session --kind check --config "$dir/policy/policy.ts" --prompt caller --json \
     >"$dir/refused.out" 2>"$dir/refused.err" || status=$?
   [[ "$status" == 3 && ! -s "$dir/refused.out" ]] || fail "$label accepted retired TypeScript"
-  grep -Fq '"code":"policy_format_retired"' "$dir/refused.err" || fail "$label wrong retired-format refusal"
+  grep -Fq '"code":"config_format_retired"' "$dir/refused.err" || fail "$label wrong retired-format refusal"
   if env -i HOME="$dir/home" PATH="$tools" "$front" end-session stale >"$dir/stale.out" 2>"$dir/stale.err"; then
     fail "$label accepted missing session context"
   fi

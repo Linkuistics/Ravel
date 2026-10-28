@@ -1,5 +1,5 @@
 //! The counting allocator behind the heap bound of the worker
-//! (`docs/specs/policy-evaluation.md`, *The policy worker*).
+//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*).
 //!
 //! The binary installs [`Counting`] as its global allocator and counts every
 //! live byte, in the front as in the role. The count stays harmless until the
@@ -55,7 +55,7 @@ fn report(bytes: usize) -> Vec<u8> {
     let failure = ScriptFailure::new(
         "memory_limit",
         "evaluation",
-        format!("the policy worker's heap reached the bound of {bytes} bytes"),
+        format!("the Rhai worker's heap reached the bound of {bytes} bytes"),
     )
     .bound(Limit::Heap);
     let body = serde_json::to_vec(&json!({ "type": "failure", "failure": failure.to_json() }))

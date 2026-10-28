@@ -1,4 +1,4 @@
-//! Compose the policy choice with its own ephemeral result channel and runner.
+//! Compose the configuration script choice with its own ephemeral result channel and runner.
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write as _};
 use std::os::fd::{AsRawFd as _, FromRawFd as _, OwnedFd};
@@ -36,18 +36,18 @@ fn failed(code: &'static str, message: impl std::fmt::Display) -> Refusal {
 }
 
 pub fn run(args: &RunArgs) -> Result<(), Failure> {
-    // Before settings or a policy: a harness run executes its harness directly,
+    // Before settings or a configuration script: a harness run executes its harness directly,
     // so a `start-session` inside one has no selection to make.
     if std::env::var_os(CONFIG_RUN).is_some() {
         return Err(Refusal::new(
-            "policy_reentry_refused",
+            "config_reentry_refused",
             Stage::Authority,
             EXIT_REFUSED,
             format!(
-                "start-session runs inside a harness run of a policy ({CONFIG_RUN} is in its \
+                "start-session runs inside a harness run of a configuration script ({CONFIG_RUN} is in its \
                  environment), where it cannot select"
             ),
-            "have the policy call its own route function for another question, and run the \
+            "have the configuration script call its own route function for another question, and run the \
              harness directly; a nested start-session is not supported",
         )
         .into());
@@ -114,10 +114,10 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             let mut notice = json!({"schemaVersion": 2, "selection": {
             "provider": choice.command.provider, "model": choice.command.model,
             "effort": choice.command.effort, "reason": choice.command.reason,
-        }, "policy": {"path": choice.entry.path, "version": choice.version},
+        }, "config": {"path": choice.entry.path, "version": choice.version},
         "worker": worker,
         "selectionMs": choice.elapsed.as_millis(), "context": choice.context.as_ref().map(|context| context.to_json(true)),
-        "bounds": choice.inputs.limits.to_json(), "policyEnvironment": choice.inputs.grants.to_json(),
+        "bounds": choice.inputs.limits.to_json(), "configEnvironment": choice.inputs.grants.to_json(),
         "resolution": choice.executable.to_text(),
         "promptSource": match &choice.inputs.prompt.source {
             crate::inputs::PromptSource::Argument => "argument".to_owned(),
@@ -125,7 +125,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         }, "diagnostics": choice.diagnostics.to_json()});
             // The entry and the modules it imported, and every measured read
             // with the phase that made it. (rhai)
-            notice["policy"]["modules"] = choice
+            notice["config"]["modules"] = choice
                 .modules
                 .iter()
                 .map(crate::rhai_worker::Module::to_json)
@@ -524,8 +524,8 @@ mod tests {
         assert!(diagnostics.contains("channel cannot be removed"));
         assert!(diagnostics.contains("sandbox cannot be removed"));
         assert!(diagnostics.contains("stdout is closed"));
-        assert!(diagnostics.contains("policy stdout: owner note"));
-        assert!(diagnostics.contains("policy stderr: owner warning"));
+        assert!(diagnostics.contains("config stdout: owner note"));
+        assert!(diagnostics.contains("config stderr: owner warning"));
     }
 
     #[test]

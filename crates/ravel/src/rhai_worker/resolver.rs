@@ -45,7 +45,7 @@ impl HostResolver {
     }
 
     fn failure(&self, from: &str, position: Position, message: String) -> ScriptFailure {
-        let mut failure = ScriptFailure::new("policy_import_failed", "load", message);
+        let mut failure = ScriptFailure::new("config_import_failed", "load", message);
         failure.file = Some(from.to_owned());
         failure.line = position.line().map(|line| line as u64);
         failure.column = position.position().map(|column| column as u64);

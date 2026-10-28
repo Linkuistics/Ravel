@@ -32,13 +32,13 @@ pub struct RhaiEntry {
 
 impl RhaiEntry {
     /// The refusal for an entry that cannot be read, where `what` completes the
-    /// sentence "the selected policy entry PATH ...".
+    /// sentence "the selected configuration entry PATH ...".
     pub fn unreadable(&self, what: &str) -> Refusal {
         Refusal::new(
-            "policy_unreadable",
+            "config_unreadable",
             Stage::Authority,
             EXIT_REFUSED,
-            format!("the selected policy entry {} {what}", self.shown),
+            format!("the selected configuration entry {} {what}", self.shown),
             self.remedy.clone(),
         )
         .source(self.shown.clone())
@@ -88,11 +88,11 @@ pub fn resolve(
         Some(RHAI_EXTENSION) => resolve_rhai(&candidate, &authority, cwd),
         Some("ts" | "mts" | "cts" | "js" | "mjs" | "cjs") => Err(retired_format(&candidate)),
         _ => Err(Refusal::new(
-            "policy_unreadable",
+            "config_unreadable",
             Stage::Authority,
             EXIT_REFUSED,
             format!(
-                "the selected policy entry {} has an unsupported extension",
+                "the selected configuration entry {} has an unsupported extension",
                 candidate.display()
             ),
             "name a .rhai file with --config PATH",
@@ -103,10 +103,10 @@ pub fn resolve(
 
 fn retired_format(path: &Path) -> Refusal {
     Refusal::new(
-        "policy_format_retired",
+        "config_format_retired",
         Stage::Authority,
         EXIT_REFUSED,
-        format!("the selected policy entry {} is TypeScript or JavaScript, which this release no longer evaluates", path.display()),
+        format!("the selected configuration entry {} is TypeScript or JavaScript, which this release no longer evaluates", path.display()),
         "write config.rhai using chapter 4 of the book, \"Write a configuration script\", and name a .rhai file with --config PATH if it is elsewhere",
     ).source(path.to_string_lossy())
 }
@@ -135,8 +135,8 @@ fn resolve_rhai(
     };
     let unreadable = |what: String| {
         refuse(
-            "policy_unreadable",
-            format!("the selected policy entry {shown} {what}"),
+            "config_unreadable",
+            format!("the selected configuration entry {shown} {what}"),
             remedy.clone(),
         )
     };
@@ -144,8 +144,8 @@ fn resolve_rhai(
     let metadata = fs::metadata(candidate).map_err(|error| {
         if error.kind() == ErrorKind::NotFound {
             refuse(
-                "policy_missing",
-                format!("the selected policy entry {shown} does not exist"),
+                "config_missing",
+                format!("the selected configuration entry {shown} does not exist"),
                 remedy.clone(),
             )
         } else {
@@ -188,7 +188,7 @@ fn personal_home(home: Option<&OsStr>) -> Result<&Path, Refusal> {
             Stage::Authority,
             EXIT_REFUSED,
             format!(
-                "HOME is not set, so the personal policy ~/{PERSONAL_RHAI_DEFAULT} has no location"
+                "HOME is not set, so the personal configuration script ~/{PERSONAL_RHAI_DEFAULT} has no location"
             ),
             remedy,
         )
@@ -203,7 +203,7 @@ fn personal_home(home: Option<&OsStr>) -> Result<&Path, Refusal> {
             Stage::Authority,
             EXIT_REFUSED,
             format!(
-                "HOME is the relative path {}, so the personal policy would depend on the current directory",
+                "HOME is the relative path {}, so the personal configuration script would depend on the current directory",
                 home.display()
             ),
             remedy,

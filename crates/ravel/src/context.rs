@@ -319,7 +319,7 @@ pub struct SourceBreach {
 pub fn source_too_large(limits: &Limits, breach: &SourceBreach, entry: &str) -> Refusal {
     let budget = limits.context.value;
     let name = &breach.name;
-    let reader = format!("the policy {entry}");
+    let reader = format!("the configuration script {entry}");
     let max_bytes = "max_bytes";
     let (message, remedy, bound) = match breach.requested {
         Some(requested) => (
@@ -493,7 +493,7 @@ impl<'a> Shape<'a> {
             let message = if EXECUTABLE.contains(&unknown.as_str()) {
                 format!(
                     "`{unknown}` would be an executable field, and a context is data: it supplies \
-                     no program, argument, environment or policy"
+                     no program, argument, environment or configuration script"
                 )
             } else if unknown == "measured" && matches!(self.author, Author::Loader) {
                 "`measured` is what ravel measured, and it attaches that itself; \

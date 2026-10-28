@@ -1,4 +1,4 @@
-//! Route and supervise a session through the generic policy worker.
+//! Route and supervise a session through the generic Rhai worker.
 mod authority;
 mod cancellation;
 mod choice;
@@ -40,7 +40,7 @@ fn main() -> ExitCode {
         native_entry_tests::run_role();
         unreachable!("the private main-thread fixture must exit explicitly");
     }
-    // The internal role of the Rhai policy worker is chosen by `arg0` alone,
+    // The internal role of the Rhai Rhai worker is chosen by `arg0` alone,
     // because it accepts no command-line input. It never parses a command.
     if std::env::args_os()
         .next()

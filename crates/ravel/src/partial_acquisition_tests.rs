@@ -772,7 +772,7 @@ fn partial_acquisition_cleanup_fixture() {
                 } else if role == "session" {
                     "session_channel_unavailable"
                 } else if route.contains("refusal") {
-                    "policy_refused"
+                    "config_refused"
                 } else if route.contains("timeout") {
                     "selection_timeout"
                 } else if route.contains("overflow") {

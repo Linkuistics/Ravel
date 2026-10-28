@@ -92,13 +92,13 @@ pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected,
 /// handled signal from here on is noted, and nothing yet acts on it.
 pub struct Selected {
     pub choice: Choice,
-    /// The policy entry, as a cancellation names it.
+    /// The configuration entry, as a cancellation names it.
     pub source: String,
 }
 
 /// A handled signal received before launch decides the outcome:
 /// a refusal reached meanwhile is reported as the cancellation, with whatever
-/// the policy printed.
+/// the configuration script printed.
 pub fn overruled(failure: Failure, source: &str) -> Failure {
     match cancellation::received() {
         None => failure,
@@ -106,7 +106,7 @@ pub fn overruled(failure: Failure, source: &str) -> Failure {
     }
 }
 
-/// Evaluate an entry of the Rhai path in the policy worker, judge what it
+/// Evaluate an entry of the Rhai path in the Rhai worker, judge what it
 /// reports and resolve the program it selected. (rhai)
 ///
 /// The worker reads no file, so the front reads the entry on its reader thread
@@ -211,7 +211,7 @@ fn evaluate_and_resolve_rhai(
 }
 
 /// Judge and measure the context that `load_context` returned. A result with a
-/// `status` is no context: it is the policy's refusal, or it is malformed. (rhai)
+/// `status` is no context: it is the configuration script's refusal, or it is malformed. (rhai)
 fn rhai_context(
     value: Value,
     sources: Vec<Measured>,
@@ -237,13 +237,13 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
         _ => None,
     };
     let (code, stage, remedy): (&'static str, Stage, String) = match failure.code.as_str() {
-        "policy_parse_failed" => (
-            "policy_parse_failed",
+        "config_parse_failed" => (
+            "config_parse_failed",
             Stage::Load,
             format!("fix the syntax error in {file}, at the line and column the location names"),
         ),
-        "policy_import_failed" => (
-            "policy_import_failed",
+        "config_import_failed" => (
+            "config_import_failed",
             Stage::Load,
             format!(
                 "fix {file}, or the module it imports: a module is a regular UTF-8 file of at \
@@ -325,7 +325,7 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
                 Stage::Evaluation,
                 EXIT_REFUSED,
                 failure.message.clone(),
-                "raise budgets.harnessRuns in the owner settings, up to 16, or make the policy \
+                "raise budgets.harnessRuns in the owner settings, up to 16, or make the configuration script \
                  run fewer harnesses; a script reads what remains with ravel::remaining() and \
                  cannot raise the budget or catch this refusal",
             )
@@ -358,8 +358,8 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
             )
             .source(file);
         }
-        "policy_invalid" => (
-            "policy_invalid",
+        "config_invalid" => (
+            "config_invalid",
             Stage::Validation,
             format!(
                 "define `export const SCHEMA_VERSION = 3;`, a nonblank `export const VERSION` \
@@ -394,7 +394,7 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
                 Stage::Worker,
                 EXIT_WORKER,
                 format!(
-                    "the policy worker reported the code {other}, which this front does not \
+                    "the Rhai worker reported the code {other}, which this front does not \
                      know: {}",
                     failure.message
                 ),
@@ -419,12 +419,12 @@ fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
     let (code, advice): (&'static str, &str) = if failure.code == "memory_limit" {
         (
             "memory_limit",
-            "make the policy hold less at one time; the worker ends at 1 GiB of heap",
+            "make the configuration script hold less at one time; the worker ends at 1 GiB of heap",
         )
     } else {
         (
             "script_limit",
-            "make the policy do less: the engine limits are fixed, and a script cannot raise one",
+            "make the configuration script do less: the engine limits are fixed, and a script cannot raise one",
         )
     };
     let Some(limit) = limit else {
@@ -433,7 +433,7 @@ fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
             Stage::Worker,
             EXIT_WORKER,
             format!(
-                "the policy worker reported {} without a bound this front knows: {}",
+                "the Rhai worker reported {} without a bound this front knows: {}",
                 failure.code, failure.message
             ),
             "reinstall ravel, and start the session again",

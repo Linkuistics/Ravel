@@ -44,12 +44,12 @@ pub(crate) fn install_role(program: &Path, discard_diagnostics: bool) {
 pub(crate) fn assert_owner_diagnostics(text: &str) {
     assert!(
         text.lines()
-            .any(|line| line == "policy stdout: owner stdout"),
+            .any(|line| line == "config stdout: owner stdout"),
         "owner stdout lost: {text}"
     );
     assert!(
-        text.lines().any(|line| line.starts_with("policy stderr: ")
-            && (line == "policy stderr: owner stderr" || line.ends_with("| \"owner stderr\""))),
+        text.lines().any(|line| line.starts_with("config stderr: ")
+            && (line == "config stderr: owner stderr" || line.ends_with("| \"owner stderr\""))),
         "owner stderr lost: {text}"
     );
 }

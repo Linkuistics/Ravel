@@ -18,14 +18,14 @@ pub struct Cli {
 }
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Route the prompt unchanged through an owner Rhai policy and supervise its selected process
+    /// Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
     #[command(
-        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, policy refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.rhai --param profile=careful --prompt 'Check and end with a result'"
+        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.rhai --param profile=careful --prompt 'Check and end with a result'"
     )]
     StartSession(Box<RunArgs>),
     /// Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
     #[command(
-        after_help = "The command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no Rhai policy.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
+        after_help = "The command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no Rhai configuration script.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''"
     )]
     EndSession {
         #[arg(value_name = "RESULT")]
@@ -45,17 +45,17 @@ pub struct RunArgs {
     /// Allocate the private session channel beneath this existing writable directory
     #[arg(long, value_name = "DIR")]
     pub exit_dir: Option<PathBuf>,
-    /// Render policy refusals and routing notices as JSON on stderr
+    /// Render configuration refusals and routing notices as JSON on stderr
     #[arg(long)]
     pub json: bool,
 }
 
 #[derive(Debug, Args)]
 pub struct SelectionArgs {
-    /// The caller's session kind: any nonempty token, given to the policy's select as it is
+    /// The caller's session kind: any nonempty token, given to the configuration script's select as it is
     #[arg(long, value_name = "TEXT")]
     pub kind: String,
-    /// The harness prompt, given to the policy's select byte for byte; run needs this or --prompt-file
+    /// The harness prompt, given to the configuration script's select byte for byte; run needs this or --prompt-file
     #[arg(
         long,
         value_name = "TEXT",
@@ -75,13 +75,13 @@ pub struct SelectionArgs {
     /// Evaluate this Rhai configuration entry instead of ~/.config/ravel/config.rhai; relative to the current directory
     #[arg(long, value_name = "PATH")]
     pub config: Option<PathBuf>,
-    /// Caller data for the policy's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes
+    /// Caller data for the configuration script's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes
     #[arg(long, value_name = "NAME=VALUE", allow_hyphen_values = true)]
     pub param: Vec<OsString>,
-    /// A version-1 JSON context document for the policy, read as data; relative to the current directory
+    /// A version-1 JSON context document for the configuration script, read as data; relative to the current directory
     #[arg(long, value_name = "PATH")]
     pub context: Option<PathBuf>,
-    /// Stop the policy and launch nothing (exit 124) if selection takes longer; 1000 to 600000, replacing the timeoutMs owner setting [default: 30000]
+    /// Stop the configuration script and launch nothing (exit 124) if selection takes longer; 1000 to 600000, replacing the timeoutMs owner setting [default: 30000]
     #[arg(long, value_name = "MS")]
     pub timeout_ms: Option<OsString>,
     /// Refuse a context delivered to selection that encodes to more bytes; 1 to 8388608, replacing the contextBytes owner setting [default: 262144]
@@ -117,7 +117,7 @@ impl SelectionArgs {
                 Stage::Cli,
                 EXIT_MALFORMED,
                 "--config must not be empty",
-                "name a policy entry, or omit --config to use the personal default",
+                "name a configuration entry, or omit --config to use the personal default",
             )
             .input("--config"));
         }

@@ -54,9 +54,6 @@ the account. The configuration has two parts:
 | **Configuration script** | `$HOME/.config/ravel/config.rhai` | Rhai code that selects a program and its arguments, or refuses the request |
 | **Settings** | `$HOME/.config/ravel/settings.json` | Values that the script cannot change, such as the deadline, limits, environment grants, harnesses and budgets |
 
-Some Ravel file names and error codes use the word “policy” for the
-configuration script, for example `policy_refused`.
-
 The caller and the owner can be the same person, but their roles stay
 different. The choice of the work does not set the rules that select a
 command. The table shows which decisions stay separate, even when one person

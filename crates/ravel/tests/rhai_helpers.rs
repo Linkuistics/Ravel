@@ -1,10 +1,10 @@
-//! The data helpers of a Rhai policy through the real `ravel start-session`
+//! The data helpers of a Rhai configuration script through the real `ravel start-session`
 //! (`docs/specs/policy-evaluation.md`, *Data helpers*, and the capability list of
 //! *Migration*): JSON, the UUID, the path functions and the environment read.
 //!
 //! The last part proves each capability that Grove's helpers need, with no Grove
 //! code. Everything runs in a sandbox home with fake harness scripts on a
-//! private `PATH`, and the policy hands what it computed to the recording
+//! private `PATH`, and the configuration script hands what it computed to the recording
 //! harness as arguments, so a test sees what the script saw.
 
 mod support;
@@ -55,7 +55,7 @@ fn select(request, context) {{
     ))
 }
 
-/// The arguments that a policy with `body` handed to the harness.
+/// The arguments that a configuration script with `body` handed to the harness.
 fn computed(body: &str) -> Vec<String> {
     computed_with("", body)
 }
@@ -573,7 +573,7 @@ fn env_returns_the_callers_value_of_a_base_name_or_a_granted_name_and_unit_when_
     );
     // The notice shows grants and never a value.
     assert_eq!(
-        report["policyEnvironment"],
+        report["configEnvironment"],
         json!([
             {"name": "SEAM_SETTING", "set": true},
             {"name": "SEAM_SETTING_UNSET", "set": false},
@@ -703,7 +703,7 @@ fn a_malformed_argument_to_a_data_helper_ends_the_evaluation_and_names_the_funct
 }
 
 // What Grove's helpers need (`docs/specs/policy-evaluation.md`, *Migration*), each
-// proved with a policy of this file and no Grove code.
+// proved with a configuration script of this file and no Grove code.
 
 fn sha256(bytes: &[u8]) -> String {
     Sha256::digest(bytes)
@@ -739,7 +739,7 @@ fn grove_needs_a_measured_read_of_a_task_file_within_its_limits() {
         }])
     );
 
-    // A task file past the limit that the policy states ends the evaluation.
+    // A task file past the limit that the configuration script states ends the evaluation.
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.file("task.md", TASK_FILE);
@@ -877,7 +877,7 @@ fn select(request, context) {
         json!({ "provider": "inner", "model": "wrapped-model", "effort": "low",
                 "reason": "wrapped inner" })
     );
-    let modules = report["policy"]["modules"].as_array().unwrap();
+    let modules = report["config"]["modules"].as_array().unwrap();
     assert_eq!(modules.len(), 2, "{modules:?}");
 }
 
@@ -899,5 +899,5 @@ fn grove_needs_a_module_import_by_a_relative_or_an_absolute_path() {
     let report = start(&sandbox, &[]).report();
 
     assert_eq!(recorded.argv().unwrap(), ["one", "two"]);
-    assert_eq!(report["policy"]["modules"].as_array().unwrap().len(), 3);
+    assert_eq!(report["config"]["modules"].as_array().unwrap().len(), 3);
 }

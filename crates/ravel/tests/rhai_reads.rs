@@ -1,4 +1,4 @@
-//! Measured reads, module imports and `load_context` of a Rhai policy through
+//! Measured reads, module imports and `load_context` of a Rhai configuration script through
 //! the real `ravel start-session` (`docs/specs/policy-evaluation.md`, *The
 //! bridge between the script and the CLI*, *Policy entry and discovery*,
 //! *Request, context and selection* and *Measured reads*).
@@ -87,7 +87,7 @@ fn a_read_in_select_returns_the_content_and_the_notice_lists_it_with_its_phase()
     // A read in `select` is in the notice, and in no delivered context.
     assert_eq!(report["context"], Value::Null);
     let policy_path = fs::canonicalize(sandbox.personal_rhai_path()).unwrap();
-    let modules = &report["policy"]["modules"];
+    let modules = &report["config"]["modules"];
     assert_eq!(modules.as_array().unwrap().len(), 1, "{modules}");
     assert_eq!(modules[0]["name"], text(&policy_path));
 }
@@ -481,7 +481,7 @@ fn select(request, context) {{
         report["diagnostics"]["stdout"], "helper loads\nsibling loads\n",
         "each module runs its top level once"
     );
-    let modules = report["policy"]["modules"].as_array().unwrap();
+    let modules = report["config"]["modules"].as_array().unwrap();
     let canonical = |relative: &str| text(&fs::canonicalize(config.join(relative)).unwrap());
     let names: Vec<_> = modules
         .iter()
@@ -566,7 +566,7 @@ fn select(request, context) {
 }
 
 #[test]
-fn a_syntax_error_in_a_module_refuses_as_policy_parse_failed_and_names_the_module() {
+fn a_syntax_error_in_a_module_refuses_as_config_parse_failed_and_names_the_module() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     let config = sandbox.home.join(".config/ravel");
@@ -575,7 +575,7 @@ fn a_syntax_error_in_a_module_refuses_as_policy_parse_failed_and_names_the_modul
         "import \"broken\" as broken;\nfn select(request, context) { () }",
     ));
 
-    let error = refused(&start(&sandbox, &[]), "policy_parse_failed", &recorded);
+    let error = refused(&start(&sandbox, &[]), "config_parse_failed", &recorded);
 
     let module = fs::canonicalize(config.join("broken.rhai")).unwrap();
     assert_eq!(error["source"], text(&module), "{error}");
@@ -587,7 +587,7 @@ fn a_syntax_error_in_a_module_refuses_as_policy_parse_failed_and_names_the_modul
 }
 
 #[test]
-fn a_missing_module_a_cycle_and_a_failing_top_level_refuse_as_policy_import_failed() {
+fn a_missing_module_a_cycle_and_a_failing_top_level_refuse_as_config_import_failed() {
     let entry = "import \"m\" as m;\nfn select(request, context) { () }";
     // (label, the module's source, a fragment of the message, the file named)
     for (label, module, fragment, names_module) in [
@@ -613,7 +613,7 @@ fn a_missing_module_a_cycle_and_a_failing_top_level_refuse_as_policy_import_fail
         }
         sandbox.personal_rhai(&policy(entry));
 
-        let error = refused(&start(&sandbox, &[]), "policy_import_failed", &recorded);
+        let error = refused(&start(&sandbox, &[]), "config_import_failed", &recorded);
 
         assert_eq!(error["stage"], "load", "{label}: {error}");
         assert!(
@@ -642,7 +642,7 @@ fn a_cycle_through_two_modules_is_found_and_the_error_names_the_chain() {
         "import \"a\" as a;\nfn select(request, context) { () }",
     ));
 
-    let error = refused(&start(&sandbox, &[]), "policy_import_failed", &recorded);
+    let error = refused(&start(&sandbox, &[]), "config_import_failed", &recorded);
 
     let message = error["message"].as_str().unwrap();
     assert!(
@@ -678,9 +678,9 @@ fn the_64th_module_loads_and_the_65th_refuses() {
         if accepted {
             let report = run.report();
             // The entry and the 64 modules.
-            assert_eq!(report["policy"]["modules"].as_array().unwrap().len(), 65);
+            assert_eq!(report["config"]["modules"].as_array().unwrap().len(), 65);
         } else {
-            let error = refused(&run, "policy_import_failed", &recorded);
+            let error = refused(&run, "config_import_failed", &recorded);
             assert_eq!(error["stage"], "load", "{error}");
         }
     }
@@ -720,12 +720,12 @@ fn the_bound_of_modules_counts_distinct_files_and_not_import_statements() {
 
     let (run, _) = graph(false);
     assert_eq!(
-        run.report()["policy"]["modules"].as_array().unwrap().len(),
+        run.report()["config"]["modules"].as_array().unwrap().len(),
         65,
         "the entry and 64 modules"
     );
     let (run, recorded) = graph(true);
-    let error = refused(&run, "policy_import_failed", &recorded);
+    let error = refused(&run, "config_import_failed", &recorded);
     assert_eq!(error["stage"], "load", "{error}");
     assert!(
         error["message"]
@@ -764,7 +764,7 @@ fn select(request, context) {{
     let report = start(&sandbox, &[]).report();
 
     assert_eq!(recorded.argv().unwrap(), ["w"]);
-    assert_eq!(report["policy"]["modules"].as_array().unwrap().len(), 2);
+    assert_eq!(report["config"]["modules"].as_array().unwrap().len(), 2);
 }
 
 #[test]
@@ -868,7 +868,7 @@ fn a_loader_that_returns_unit_refuses_as_context_invalid() {
 }
 
 #[test]
-fn a_loader_that_refuses_ends_as_policy_refused_and_select_does_not_run() {
+fn a_loader_that_refuses_ends_as_config_refused_and_select_does_not_run() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.personal_rhai(&policy(
@@ -878,9 +878,9 @@ fn a_loader_that_refuses_ends_as_policy_refused_and_select_does_not_run() {
 fn select(request, context) { throw "select ran"; }"#,
     ));
 
-    let error = refused(&start(&sandbox, &[]), "policy_refused", &recorded);
+    let error = refused(&start(&sandbox, &[]), "config_refused", &recorded);
 
-    assert_eq!(error["policyCode"], "no_task", "{error}");
+    assert_eq!(error["configCode"], "no_task", "{error}");
     assert_eq!(error["stage"], "context", "{error}");
     assert!(
         error["message"]
@@ -961,7 +961,7 @@ fn a_read_breach_in_load_context_refuses_in_the_words_of_the_rhai_path() {
     let error = refused(&start(&sandbox, &[]), "source_too_large", &recorded);
 
     let message = error["message"].as_str().unwrap();
-    assert!(message.contains("the policy "), "{error}");
+    assert!(message.contains("the configuration script "), "{error}");
     assert!(!message.contains("loadContext"), "{error}");
 }
 

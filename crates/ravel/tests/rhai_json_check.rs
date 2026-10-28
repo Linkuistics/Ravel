@@ -2,7 +2,7 @@
 //! (`docs/specs/policy-evaluation.md`, *Data helpers*).
 //!
 //! The helper runs in the worker and sends no message, and a data failure is a
-//! thrown map that the script can catch. Every case therefore runs in a policy
+//! thrown map that the script can catch. Every case therefore runs in a configuration script
 //! that catches the throw and hands the code and the message to the recording
 //! harness, so a test sees what the script saw. Each refusing case has a
 //! matching case beside it that must pass, so a helper that threw for every
@@ -45,7 +45,7 @@ fn run_policy(body: &str) -> (Sandbox, Recorded, Run) {
     (sandbox, recorded, run)
 }
 
-/// The arguments that a policy with `body` handed to the harness.
+/// The arguments that a configuration script with `body` handed to the harness.
 fn computed(body: &str) -> Vec<String> {
     let (_sandbox, recorded, run) = run_policy(body);
     run.report();

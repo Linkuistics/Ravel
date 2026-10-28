@@ -109,11 +109,11 @@ only produces a retired-format refusal; it never selects an entry.
 | Entry state | Result |
 |---|---|
 | `config.rhai` exists | Ravel evaluates it, and it does not open `policy.ts` |
-| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `config.rhai` and the book's chapter 4, "Write a configuration script" |
-| Neither file exists | `policy_missing`, exit 3. The message names `config.rhai` |
+| Only `policy.ts` exists | `config_format_retired`, exit 3. The remedy names `config.rhai` and the book's chapter 4, "Write a configuration script" |
+| Neither file exists | `config_missing`, exit 3. The message names `config.rhai` |
 | `--config` names a `.rhai` file | Ravel evaluates it |
-| `--config` names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` file | `policy_format_retired`, exit 3 |
-| `--config` names any other file | `policy_unreadable`, exit 3. The remedy asks for a `.rhai` file |
+| `--config` names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` file | `config_format_retired`, exit 3 |
+| `--config` names any other file | `config_unreadable`, exit 3. The remedy asks for a `.rhai` file |
 
 The entry must canonicalise to a readable regular UTF-8 file of at most 1 MiB.
 Ravel admits a symlink by its real file. Imports then resolve from the directory
@@ -127,7 +127,7 @@ module with the file rules of the entry, and each module loads once per
 evaluation.
 
 A missing or unreadable module, a cycle or a 65th module refuses as
-`policy_import_failed`. The bound counts distinct imported files, excluding the entry. An import of a loaded
+`config_import_failed`. The bound counts distinct imported files, excluding the entry. An import of a loaded
 module is no new module, however many import statements run.
 
 Ravel measures the entry and every module. The routing notice lists each with
@@ -147,7 +147,7 @@ of its own, so every import names a file.
 
 Ravel evaluates the entry as a module. Its top-level statements run once, before
 any of its functions. A missing export, a wrong arity or a blank version refuses
-as `policy_invalid`.
+as `config_invalid`.
 
 Other functions and constants are helpers of the configuration script. A function reads a top-level constant through the `global::` namespace, such as
 `global::TABLE`. Rhai functions do not see the variables around them. A wrapper
@@ -203,7 +203,7 @@ The selection context uses schema version 1 and the checks below. Without
 `load_context`, `select` receives the caller's context with its measurement, or
 `()`. With `load_context`, `select` receives what it returns, with the measured
 sources attached. A `load_context` that returns `()` refuses as
-`context_invalid`. One that returns a refusal refuses as `policy_refused`, and
+`context_invalid`. One that returns a refusal refuses as `config_refused`, and
 `select` does not run.
 
 A selection context is a JSON object with these fields:
@@ -236,7 +236,7 @@ All listed fields are required, and no unknown field is present. The strings are
 
 `args` is an array of UTF-8 strings. Ravel performs no shell expansion or word splitting. A shell runs only when the script selects one.
 
-Absolute paths, relative paths with separators and `PATH` names resolve in the caller's execution context. The labels are owner text, and Ravel assigns them no provider integration. A refusal launches nothing and carries the owner's code as `policyCode`.
+Absolute paths, relative paths with separators and `PATH` names resolve in the caller's execution context. The labels are owner text, and Ravel assigns them no provider integration. A refusal launches nothing and carries the owner's code as `configCode`.
 
 A return of `()`
 refuses as `selection_abstained`. An uncaught error refuses as
@@ -302,7 +302,7 @@ limits are fixed:
 | Object map, with nested properties counted | 1,048,576 | `script_limit` |
 | Variables at one time | 16,384 | `script_limit` |
 | Script functions | 4,096 | `script_limit` |
-| Modules | 64 | `policy_import_failed` |
+| Modules | 64 | `config_import_failed` |
 | Worker heap | 1 GiB | `memory_limit` |
 
 A counting allocator in the worker enforces the heap bound. It counts every live
@@ -874,7 +874,7 @@ reports go to stderr.
 The JSON routing notice uses schema version 2:
 
 - `worker` reports `path`, `version`, `buildId` and `rhaiVersion`.
-- `policy.modules` lists the canonical name, bytes and SHA-256 of the entry and
+- `config.modules` lists the canonical name, bytes and SHA-256 of the entry and
   of each module. The entry comes first, and each module follows in the order
   of its first import.
 - `reads` lists every measured read with its `via`, its phase, its name, its
@@ -886,7 +886,13 @@ The JSON routing notice uses schema version 2:
   list also holds a call that launched nothing, with the status `unavailable`.
 - `bounds` includes `harnessRuns`.
 
-The JSON failure document uses schema version 1. For an error in a script, its
+The JSON failure document uses schema version 2, with the owner refusal code
+in `configCode`. Routing notices retain version 2 and report `config` and
+`configEnvironment`; the script interface retains version 3. Text diagnostics
+use `config stdout:` and `config stderr:`. The former `policy_` prefix on
+Ravel-owned codes becomes `config_`, and the former `policy.` prefix on
+named script locations becomes `config.`. Owner strings and opaque results
+remain unchanged. For an error in a script, its
 `location` has the form `LINE:COLUMN`, and its `source` names the file.
 
 ### Errors and refusals
@@ -897,8 +903,8 @@ A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 | Code | Stage | Exit | Meaning |
 |---|---|---|---|
 | `home_unset` | `authority` | 3 | Default discovery lacks an absolute `HOME` |
-| `policy_missing` | `authority` | 3 | The selected Rhai entry does not exist |
-| `policy_unreadable` | `authority` | 3 | Entry admission, reading or extension checks failed |
+| `config_missing` | `authority` | 3 | The selected Rhai entry does not exist |
+| `config_unreadable` | `authority` | 3 | Entry admission, reading or extension checks failed |
 | `context_unreadable` | `context` | 3 | Ravel cannot read the caller's context document |
 | `context_invalid` | `context` | 3 | Caller or loader context failed shape checks |
 | `context_too_large` | `context` | 3 | Caller or delivered context exceeds its byte budget |
@@ -906,17 +912,17 @@ A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 | `too_many_sources` | `context` | 3 | The source count exceeds its bound |
 | `selection_abstained` | `selection` | 3 | `select` returned `()` |
 | `selection_malformed` | `selection` | 3 | The selected or refused map failed shape checks |
-| `policy_refused` | `context` or `selection` | 3 | The script refused, with its code in `policyCode` |
+| `config_refused` | `context` or `selection` | 3 | The script refused, with its code in `configCode` |
 | `message_too_large` | `selection` | 3 | A script result exceeds the message bound |
 | `output_limit` | `evaluation` | 3 | Worker diagnostics exceed their combined bound |
 | `selection_timeout` | `evaluation` | 124 | The whole evaluation deadline passed |
 | `selection_cancelled` | `evaluation` | 128 plus signal | INT, TERM or HUP cancelled evaluation |
 | `protocol_error` | `worker` | 5 | The private conversation violated its frame contract |
-| `policy_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Write a Rhai configuration script with chapter 4 of the book |
-| `policy_reentry_refused` | `authority` | 3 | `start-session` runs inside a harness run, where it cannot select |
-| `policy_parse_failed` | `load` | 3 | A syntax error in the entry or a module, with its file, line and column |
-| `policy_import_failed` | `load` | 3 | A module is missing, unreadable, too large, in a cycle or the 65th, or its top level failed |
-| `policy_invalid` | `validation` | 3 | An export is missing or has the wrong arity, or the version is blank |
+| `config_format_retired` | `authority` | 3 | The entry is TypeScript or JavaScript. Write a Rhai configuration script with chapter 4 of the book |
+| `config_reentry_refused` | `authority` | 3 | `start-session` runs inside a harness run, where it cannot select |
+| `config_parse_failed` | `load` | 3 | A syntax error in the entry or a module, with its file, line and column |
+| `config_import_failed` | `load` | 3 | A module is missing, unreadable, too large, in a cycle or the 65th, or its top level failed |
+| `config_invalid` | `validation` | 3 | An export is missing or has the wrong arity, or the version is blank |
 | `unsupported_version` | `validation` or `context` | 3 | Script `SCHEMA_VERSION` is not 3, or the selection context has an unsupported unsigned schema version instead of 1 |
 | `selection_threw` | `selection` | 3 | `select` raised an uncaught error. The report has its file, line and column |
 | `context_loader_failed` | `context` | 3 | `load_context` raised an uncaught error. The report has its file, line and column |
@@ -930,8 +936,8 @@ A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 | `worker_failed` | `worker` | 5 | The worker died, broke the protocol or failed its teardown |
 
 Settings problems in the new keys use `settings_invalid`, exit 2. A configuration script
-refusal stays `policy_refused`, with the
-owner's `policyCode`. Ravel never selects a fallback after a failure. The
+refusal stays `config_refused`, with the
+owner's `configCode`. Ravel never selects a fallback after a failure. The
 defaults for the harness, the model, the effort and every recovery belong to the
 configuration script. The host defaults are the ones in this specification.
 
@@ -944,7 +950,7 @@ kind for a question calls its own route function. It needs no second selection,
 as [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md)
 records.
 
-`start-session` refuses as `policy_reentry_refused` when `RAVEL_CONFIG_RUN` is in
+`start-session` refuses as `config_reentry_refused` when `RAVEL_CONFIG_RUN` is in
 its environment. It refuses before it reads settings or a configuration script. The final managed process cannot inherit that marker, because this refusal prevents its launch.
 
 Ravel scrubs only the six exact launch controls in the
@@ -1169,7 +1175,7 @@ SHALL refuse inside a harness run.
 #### Scenario: Re-entry attempt
 
 - **WHEN** a fake harness in a harness run invokes `ravel start-session`
-- **THEN** that invocation exits 3 with `policy_reentry_refused`, and the script
+- **THEN** that invocation exits 3 with `config_reentry_refused`, and the script
   receives the exit status of the run
 
 #### Scenario: Completion attempt
@@ -1202,7 +1208,7 @@ the line and the column.
 #### Scenario: Syntax error in a module
 
 - **WHEN** an imported module has a syntax error
-- **THEN** Ravel exits 3 with `policy_parse_failed`, and `source` names that
+- **THEN** Ravel exits 3 with `config_parse_failed`, and `source` names that
   module
 
 ### Requirement: Harness failures are data

@@ -112,7 +112,7 @@ fn select(request, context) {
         return refused(
             "incomplete_mapping",
             `no mapping for kind ${ravel::json_encode(request.kind)}`,
-            "add a mapping for this kind in your policy"
+            "add a mapping for this kind in your configuration script"
         );
     }
 

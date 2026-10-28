@@ -4,7 +4,7 @@
 //! The kind, the task file, the task identity and the parameters are caller
 //! data: the task file supplies neither kind nor identity, nothing is recovered
 //! from a file name, and a parameter's name and value mean nothing here. The
-//! prompt is read once and kept byte for byte, and the policy's `select`
+//! prompt is read once and kept byte for byte, and the configuration script's `select`
 //! receives it as it is. Terminal stdin is never read. The caller's bounds,
 //! `--context` document and `--config-env` grants are read here too, over the
 //! owner's settings, so a malformed or excluded one refuses before any policy
@@ -54,7 +54,7 @@ pub struct Inputs {
     /// The names the owner settings and `--config-env` grant the worker
     /// beyond its base set.
     pub grants: Grants,
-    /// The owner's harness entries, which a Rhai policy discovers. (rhai)
+    /// The owner's harness entries, which a Rhai configuration script discovers. (rhai)
     pub directory: Directory,
 }
 
@@ -193,7 +193,7 @@ fn task_id(id: OsString) -> Result<String, Refusal> {
 
 /// Every `--param NAME=VALUE`, by name. The name ends at the first `=`, so it
 /// holds none, and the value is the rest, exactly as given. Nothing here reads
-/// either: a parameter means what the policy makes of it.
+/// either: a parameter means what the configuration script makes of it.
 fn params(given: &[OsString]) -> Result<BTreeMap<String, String>, Refusal> {
     let remedy = "pass each parameter once as --param NAME=VALUE, with a nonempty name that \
                   holds no = and a UTF-8 value";
@@ -236,7 +236,7 @@ fn params(given: &[OsString]) -> Result<BTreeMap<String, String>, Refusal> {
                 "the parameters' names and values are {bytes} bytes together, over the \
                  {PARAMS_LIMIT}-byte limit"
             ),
-            "pass less in parameters; a policy can read a larger input from a file that a \
+            "pass less in parameters; a configuration script can read a larger input from a file that a \
              parameter names",
         ));
     }
@@ -294,7 +294,7 @@ fn prompt_bytes(bytes: Vec<u8>, input: &str, source: Option<&str>) -> Result<Str
             message,
             format!(
                 "supply the prompt as UTF-8 text of at most {PROMPT_LIMIT} bytes with no NUL; it \
-                 is given to the policy unchanged and never truncated"
+                 is given to the configuration script unchanged and never truncated"
             ),
         )
         .input(input);

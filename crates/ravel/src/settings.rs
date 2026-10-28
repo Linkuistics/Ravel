@@ -1,5 +1,5 @@
 //! Optional owner settings: selection bound, context budget, policy environment
-//! grants, and the harness entries and budget of a Rhai policy.
+//! grants, and the harness entries and budget of a Rhai configuration script.
 
 use std::ffi::OsStr;
 use std::fs;
@@ -16,7 +16,7 @@ use crate::limits::{
 };
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
 
-/// The settings file, relative to HOME, beside the personal policy.
+/// The settings file, relative to HOME, beside the personal configuration script.
 pub const SETTINGS_FILE: &str = ".config/ravel/settings.json";
 
 /// Where a value the file set is reported as coming from.
@@ -53,7 +53,7 @@ impl Settings {
         };
         let path = home.join(SETTINGS_FILE);
         let file = path.to_string_lossy().into_owned();
-        // A regular file only, as for the policy entry: a FIFO there would
+        // A regular file only, as for the configuration entry: a FIFO there would
         // hold every command before any bound applies.
         match fs::metadata(&path) {
             Err(error) if error.kind() == ErrorKind::NotFound => return Ok(Settings::default()),

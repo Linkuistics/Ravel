@@ -49,7 +49,9 @@ pub fn judge_result(result: Value, kind: &str, source: &str) -> Result<Command, 
             format!(
                 "select in {source} returned no result (the unit value `()`), so it selected nothing"
             ),
-            format!("{shape}; ravel never picks a command for a policy that abstains"),
+            format!(
+                "{shape}; ravel never picks a command for a configuration script that abstains"
+            ),
             "result",
         ));
     }
@@ -112,13 +114,13 @@ pub fn judge_result(result: Value, kind: &str, source: &str) -> Result<Command, 
         let (code, message, remedy) =
             (nonblank("code")?, nonblank("message")?, nonblank("remedy")?);
         return Err(Refusal::new(
-            "policy_refused",
+            "config_refused",
             Stage::Selection,
             EXIT_REFUSED,
-            format!("the policy {source} refused the selection: {message}"),
+            format!("the configuration script {source} refused the selection: {message}"),
             remedy,
         )
-        .policy_code(code)
+        .config_code(code)
         .input(format!("--kind {kind}"))
         .source(source));
     }
@@ -176,7 +178,7 @@ pub fn judge_result(result: Value, kind: &str, source: &str) -> Result<Command, 
 
 /// Judge what a loader returned in place of a context: an object with a
 /// `status`, which a version-1 context never has. `select`'s refusal shape,
-/// `{ status: "refused", code, message, remedy }`, is the policy's own
+/// `{ status: "refused", code, message, remedy }`, is the configuration script's own
 /// refusal, reported as `select`'s is but at the context stage, and `select`
 /// is never asked. Anything else with a `status` is neither a context nor a
 /// refusal, and is refused where it sits.
@@ -237,16 +239,18 @@ pub fn loader_refused(fields: &Map<String, Value>, kind: &str, source: &str) -> 
     }
     let [code, message, remedy]: [String; 3] = said.try_into().expect("three fields were said");
     Refusal::new(
-        "policy_refused",
+        "config_refused",
         Stage::Context,
         EXIT_REFUSED,
-        format!("the policy {source} refused the selection in load_context: {message}"),
+        format!(
+            "the configuration script {source} refused the selection in load_context: {message}"
+        ),
         remedy,
     )
-    .policy_code(code)
+    .config_code(code)
     .input(format!("--kind {kind}"))
     .source(source)
-    .location("policy.load_context")
+    .location("config.load_context")
 }
 
 /// A result that exceeds the fixed protocol message bound is never truncated.
@@ -471,8 +475,8 @@ mod tests {
             json!({"status": "refused", "code": "no_reviewer", "message": "nobody fits", "remedy": "declare one"}),
         )
         .unwrap_err();
-        assert_eq!(refusal.code, "policy_refused");
-        assert_eq!(refusal.policy_code.as_deref(), Some("no_reviewer"));
+        assert_eq!(refusal.code, "config_refused");
+        assert_eq!(refusal.config_code.as_deref(), Some("no_reviewer"));
         assert_eq!(refusal.stage, Stage::Selection);
         assert!(
             refusal.message.ends_with("nobody fits"),

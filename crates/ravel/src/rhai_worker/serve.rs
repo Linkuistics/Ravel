@@ -9,7 +9,7 @@
 //!
 //! The thread that runs the runtime makes no filesystem call. While a host call
 //! runs on the reader thread, [`serve`] keeps watching four things: the
-//! deadline, the cancellation latch, the bound on the policy's output and the
+//! deadline, the cancellation latch, the bound on the configuration script's output and the
 //! channel itself. A worker that sends a frame during a host call broke the
 //! protocol, and one whose end closed has died.
 
@@ -62,7 +62,7 @@ impl Stop {
                 "a signal cancelled the selection",
             ))),
             Stop::Output => Conversation::Ended(FrameError::Io(io::Error::other(
-                "the policy's output passed its bound",
+                "the configuration script's output passed its bound",
             ))),
         }
     }
@@ -177,7 +177,7 @@ pub(super) async fn serve(
             .await?
             .map_err(|error| match error {
                 error @ (FrameError::TooLarge(..) | FrameError::NotJson(_)) => {
-                    broken(format!("the policy worker sent a malformed frame: {error}"))
+                    broken(format!("the Rhai worker sent a malformed frame: {error}"))
                 }
                 other => Conversation::failed(other, true),
             })?;
@@ -282,10 +282,10 @@ async fn unexpected(stream: &UnixStream) -> Conversation {
                     "worker_failed",
                     Stage::Worker,
                     EXIT_WORKER,
-                    "the policy worker sent a message while a host call was in progress, \
+                    "the Rhai worker sent a message while a host call was in progress, \
                          which a synchronous script cannot do"
                         .to_owned(),
-                    "reinstall ravel, and start the session again; the policy worker is the \
+                    "reinstall ravel, and start the session again; the Rhai worker is the \
                          ravel binary itself, so it differs only when that file was replaced \
                          while ravel ran",
                 ));

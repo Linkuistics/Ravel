@@ -51,13 +51,13 @@ fn ambient_startup_files_do_not_supply_environment_or_preload_code() {
     run(&mut command).report();
     assert_eq!(recorded.argv().unwrap(), ["from-caller"]);
 
-    // The same preload is executable when explicitly imported by the policy.
+    // The same preload is executable when explicitly imported by the configuration script.
     sandbox.personal_rhai(&policy(&format!(
         "import {:?} as preload;\nfn select(request, context) {{ () }}",
         sandbox.cwd.join("preload.rhai").to_str().unwrap()
     )));
     let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
-    assert_eq!(refusal["error"]["code"], "policy_import_failed");
+    assert_eq!(refusal["error"]["code"], "config_import_failed");
     assert!(
         refusal["error"]["message"]
             .as_str()
@@ -160,7 +160,7 @@ fn imports_resolve_beside_the_entry_without_package_or_tsconfig_aliases() {
         ));
         let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
         assert_eq!(
-            refusal["error"]["code"], "policy_import_failed",
+            refusal["error"]["code"], "config_import_failed",
             "{specifier}: {refusal}"
         );
         assert_eq!(recorded.argv(), None);

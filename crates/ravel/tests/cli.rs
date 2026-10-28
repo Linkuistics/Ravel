@@ -662,7 +662,7 @@ fn select(request, context) {{ #{{ status: "selected", program: {:?}, args: [], 
         assert_eq!(after.c_lflag & !libc::PENDIN, saved.c_lflag & !libc::PENDIN);
         assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
         eprintln!(
-            "C4 public CLI {name}: real Rhai policy, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed"
+            "C4 public CLI {name}: real Rhai configuration script, failed exec {expected}, empty stdout, foreground/modes restored, private directory removed"
         );
     }
     assert_eq!(unsafe { libc::close(tty) }, 0);

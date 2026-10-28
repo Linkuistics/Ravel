@@ -30,7 +30,7 @@ const HOST_NAMESPACE: &str = "ravel";
 /// The module name under which the evaluated entry answers calls. Its functions
 /// run against the constants the top level declared, which a call on the AST
 /// would not reach.
-const ENTRY_MODULE: &str = "policy";
+const ENTRY_MODULE: &str = "config";
 
 /// What the host knows about the evaluation that Rhai errors cannot tell it.
 ///
@@ -158,7 +158,7 @@ pub fn evaluate_with(
 /// Every limit is set here, because Rhai's defaults differ between a debug and
 /// a release build (<https://docs.rs/rhai/1.27.0/rhai/struct.Engine.html#method.set_max_call_levels>
 /// and the siblings on the same page). The values are the table of the spec's
-/// *The policy worker*, in [`Limit`]. The operations bound is not set on the
+/// *The Rhai worker*, in [`Limit`]. The operations bound is not set on the
 /// engine: the progress hook counts and enforces it, across the top level and
 /// `select` together, and records the breach in the latch.
 fn engine(latch: &Latch, bridge: &Rc<Bridge>, entry: &Entry<'_>) -> Engine {
@@ -319,8 +319,8 @@ fn load_context(
     }
 }
 
-/// The exports a policy must have. The first export that fails refuses. It
-/// returns the `VERSION` the policy declared.
+/// The exports a configuration script must have. The first export that fails refuses. It
+/// returns the `VERSION` the configuration script declared.
 fn check_contract(
     entry: &Entry<'_>,
     ast: &rhai::AST,
@@ -328,7 +328,7 @@ fn check_contract(
 ) -> Result<(String, bool), Box<ScriptFailure>> {
     let invalid = |message: String, at: Option<locate::Position>| {
         Box::new(located(
-            ScriptFailure::new("policy_invalid", "validation", message),
+            ScriptFailure::new("config_invalid", "validation", message),
             entry,
             at,
         ))
@@ -339,7 +339,7 @@ fn check_contract(
         None => {
             return Err(invalid(
                 format!(
-                    "the policy does not export {SCHEMA_VERSION_NAME}; add \
+                    "the configuration script does not export {SCHEMA_VERSION_NAME}; add \
                      `export const {SCHEMA_VERSION_NAME} = {SCHEMA_VERSION};`"
                 ),
                 None,
@@ -377,7 +377,7 @@ fn check_contract(
         None => {
             return Err(invalid(
                 format!(
-                    "the policy does not export {VERSION_NAME}; add \
+                    "the configuration script does not export {VERSION_NAME}; add \
                      `export const {VERSION_NAME} = \"...\";`"
                 ),
                 None,
@@ -414,7 +414,7 @@ fn check_contract(
     {
         return Err(match selects.first() {
             None => invalid(
-                "the policy does not define `fn select(request, context)`".to_owned(),
+                "the configuration script does not define `fn select(request, context)`".to_owned(),
                 None,
             ),
             Some(&(2, _)) => invalid(
@@ -545,7 +545,7 @@ pub(super) fn limit_failure(
         "script_limit",
         "evaluation",
         format!(
-            "the policy exceeded the engine limit {} of {allowed}{detail}",
+            "the configuration script exceeded the engine limit {} of {allowed}{detail}",
             limit.name()
         ),
     )
@@ -575,7 +575,7 @@ pub(super) fn parse_failure(file: &str, error: &ParseError) -> ScriptFailure {
     }
     at(
         ScriptFailure::new(
-            "policy_parse_failed",
+            "config_parse_failed",
             "load",
             without_position(&error.to_string()),
         ),
@@ -601,9 +601,9 @@ pub(super) fn import_failure(file: &str, error: &EvalAltResult) -> ScriptFailure
     let what = without_position(&cause.to_string());
     at(
         ScriptFailure::new(
-            "policy_import_failed",
+            "config_import_failed",
             "load",
-            format!("the top level of the policy failed: {what}"),
+            format!("the top level of the configuration script failed: {what}"),
         ),
         file,
         position,
@@ -615,7 +615,7 @@ fn selection_failure(file: &str, error: &EvalAltResult) -> ScriptFailure {
     if let Some(limit) = limit_of(error) {
         // Rhai moves the position of a limit error to the call that entered the
         // function, and the call that entered `select` is the worker's own
-        // expression. That position names nothing in the policy, so it stays out.
+        // expression. That position names nothing in the configuration script, so it stays out.
         return limit_failure(
             file,
             limit,
@@ -851,7 +851,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn an_undefined_variable_fails_when_the_script_compiles() {
         let failure = failure(&policy("fn select(request, context) {\n    nope + 1\n}"));
-        assert_eq!(failure.code, "policy_parse_failed");
+        assert_eq!(failure.code, "config_parse_failed");
         assert_eq!(failure.stage, "load");
         assert_eq!(failure.file.as_deref(), Some("/home/o/policy.rhai"));
         assert_eq!((failure.line, failure.column), (Some(4), Some(5)));
@@ -861,7 +861,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn a_syntax_error_reports_its_line_and_column() {
         let failure = failure("export const SCHEMA_VERSION = 3;\nlet x = ;\n");
-        assert_eq!(failure.code, "policy_parse_failed");
+        assert_eq!(failure.code, "config_parse_failed");
         assert_eq!((failure.line, failure.column), (Some(2), Some(9)));
         assert!(!failure.message.contains("line"), "{}", failure.message);
     }
@@ -882,7 +882,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn eval_is_off() {
         let failure = failure(&policy(r#"fn select(request, context) { eval("1 + 1") }"#));
-        assert_eq!(failure.code, "policy_parse_failed");
+        assert_eq!(failure.code, "config_parse_failed");
         assert!(failure.message.contains("eval"), "{}", failure.message);
     }
 
@@ -891,7 +891,7 @@ fn select(request, context) { global::SEEN }"#,
         let failure = failure(&policy(
             "import \"/etc/hosts\" as hosts;\nfn select(request, context) { () }",
         ));
-        assert_eq!(failure.code, "policy_import_failed");
+        assert_eq!(failure.code, "config_import_failed");
         assert!(
             failure.message.contains("no Ravel CLI to ask"),
             "{}",
@@ -904,7 +904,7 @@ fn select(request, context) { global::SEEN }"#,
         let failure = failure(
             "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\nthrow \"early\";\nfn select(a, b) {}\n",
         );
-        assert_eq!(failure.code, "policy_import_failed");
+        assert_eq!(failure.code, "config_import_failed");
         assert_eq!((failure.line, failure.column), (Some(3), Some(1)));
         assert!(failure.message.contains("early"), "{}", failure.message);
     }
@@ -917,7 +917,7 @@ fn select(request, context) { global::SEEN }"#,
             (
                 "no SCHEMA_VERSION",
                 format!("export const VERSION = \"1\";\n{select}"),
-                "policy_invalid",
+                "config_invalid",
                 None,
             ),
             (
@@ -933,13 +933,13 @@ fn select(request, context) { global::SEEN }"#,
                 format!(
                     "export const SCHEMA_VERSION = \"3\";\nexport const VERSION = \"1\";\n{select}"
                 ),
-                "policy_invalid",
+                "config_invalid",
                 Some((1, 14)),
             ),
             (
                 "no VERSION",
                 format!("export const SCHEMA_VERSION = 3;\n{select}"),
-                "policy_invalid",
+                "config_invalid",
                 None,
             ),
             (
@@ -947,31 +947,31 @@ fn select(request, context) { global::SEEN }"#,
                 format!(
                     "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"  \";\n{select}"
                 ),
-                "policy_invalid",
+                "config_invalid",
                 Some((2, 14)),
             ),
             (
                 "VERSION a number",
                 format!("export const SCHEMA_VERSION = 3;\nexport const VERSION = 1;\n{select}"),
-                "policy_invalid",
+                "config_invalid",
                 Some((2, 14)),
             ),
             (
                 "no select",
                 policy("fn helper(a, b) { () }"),
-                "policy_invalid",
+                "config_invalid",
                 None,
             ),
             (
                 "select of one parameter",
                 policy("fn select(request) { () }"),
-                "policy_invalid",
+                "config_invalid",
                 Some((3, 4)),
             ),
             (
                 "private select",
                 policy("private fn select(request, context) { () }"),
-                "policy_invalid",
+                "config_invalid",
                 Some((3, 12)),
             ),
         ];
@@ -1005,7 +1005,7 @@ fn select(request, context) { global::SEEN }"#,
         let arity = failure(&policy(
             "fn select(request, context) { () }\nfn load_context(request, more) { #{} }",
         ));
-        assert_eq!(arity.code, "policy_invalid");
+        assert_eq!(arity.code, "config_invalid");
         assert_eq!(arity.stage, "validation");
         assert!(
             arity.message.contains("must take 1 parameter"),
@@ -1017,7 +1017,7 @@ fn select(request, context) { global::SEEN }"#,
         let hidden = failure(&policy(
             "fn select(request, context) { () }\nprivate fn load_context(request) { #{} }",
         ));
-        assert_eq!(hidden.code, "policy_invalid");
+        assert_eq!(hidden.code, "config_invalid");
         assert!(hidden.message.contains("is private"), "{}", hidden.message);
     }
 
@@ -1049,7 +1049,7 @@ fn select(request, context) { global::SEEN }"#,
         assert_eq!(failure.path.as_deref(), Some("result.args[1]"));
     }
 
-    /// The failure of a policy that must hit `limit`, with the fields every
+    /// The failure of a configuration script that must hit `limit`, with the fields every
     /// `script_limit` has.
     fn breach(source: &str, limit: Limit) -> ScriptFailure {
         let failure = failure(source);
@@ -1355,7 +1355,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn try_still_catches_what_a_function_pointer_call_fails_with_when_it_is_no_limit() {
         // The replacements wrap an error that `try` can catch, as Rhai does, so
-        // the catch block sees the error of the closure and the policy selects.
+        // the catch block sees the error of the closure and the configuration script selects.
         let caught = selecting(
             "    try { [1].map(|x| { throw \"boom\"; }); } catch (e) { }\n    \
              try { [1, 2].sort(|a, b| { throw \"boom\"; }); } catch (e) { }\n    \
@@ -1375,7 +1375,7 @@ fn select(request, context) { global::SEEN }"#,
      {
         // The deprecated forms `drain("f")` and `retain("f")` call the Rust
         // originals, which wrap the error of `f` for `try`. The control names a
-        // function that stays under the bound, and the policy selects.
+        // function that stays under the bound, and the configuration script selects.
         let doubles = "fn grow(x) { let s = \"x\"; for i in 0..ROUNDS { s += s; } true }\n";
         let under_try = |call: &str, functions: &str| {
             policy(&format!(

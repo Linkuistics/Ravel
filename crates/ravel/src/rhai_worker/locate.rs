@@ -1,4 +1,4 @@
-//! Where a top-level declaration sits in a policy source.
+//! Where a top-level declaration sits in a configuration script source.
 //!
 //! Rhai 1.27.0 reports the position of an error, but its public API gives no
 //! position for a declaration that is valid and merely wrong, such as

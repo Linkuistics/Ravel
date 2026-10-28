@@ -46,7 +46,7 @@ impl Grants {
         }
     }
 
-    /// Whether the policy may read `name`. This is the one place that decides.
+    /// Whether the configuration script may read `name`. This is the one place that decides.
     fn readable(&self, name: &str) -> bool {
         is_base(name.as_bytes()) || self.grants.iter().any(|grant| grant.name == name)
     }
@@ -87,7 +87,7 @@ pub const LAUNCH_CONTROLS: [&str; 6] = [
     "RAVEL_STATE_DIR",
 ];
 
-/// Whether the policy gets `name` without a grant: `HOME`, `PATH`, `TMPDIR`,
+/// Whether the configuration script gets `name` without a grant: `HOME`, `PATH`, `TMPDIR`,
 /// `LANG` and `LC_*`.
 pub fn is_base(name: &[u8]) -> bool {
     matches!(name, b"HOME" | b"PATH" | b"TMPDIR" | b"LANG") || name.starts_with(b"LC_")
@@ -157,7 +157,7 @@ pub fn grantable(name: &str, named: &Named) -> Result<(), Refusal> {
             "excluded_grant",
             Stage::Cli,
             EXIT_MALFORMED,
-            format!("{label} {name} is never granted to the policy worker: {why}"),
+            format!("{label} {name} is never granted to the Rhai worker: {why}"),
             "remove it; the worker's environment is HOME, PATH, TMPDIR, LANG and LC_* plus the \
              names you grant; LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_* are excluded from grants",
         )));

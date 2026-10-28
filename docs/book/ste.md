@@ -149,7 +149,7 @@ document explains the values that a reader must write or read.
 
 In text, write “standard output”, “standard error” and “standard input”, not
 stdout, stderr and stdin. Code font keeps an identifier exact, for example
-the `stdout` field of a harness-run result and the `policy stdout:` prefix.
+the `stdout` field of a harness-run result and the `config stdout:` prefix.
 A table column of stream names uses the full names too. Chapters 1–3 used
 these words first. Copy-edit of Parts I and II applied them to chapters 4–6
 on 2026-10-26. The check does not find the short words.

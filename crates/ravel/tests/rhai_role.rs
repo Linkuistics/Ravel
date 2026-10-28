@@ -1,5 +1,5 @@
-//! The internal role of the Rhai policy worker, driven as a real process
-//! (`docs/specs/policy-evaluation.md`, *The policy worker*).
+//! The internal role of the Rhai Rhai worker, driven as a real process
+//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*).
 //!
 //! The role is Ravel's own binary started with the `arg0` that marks it. These
 //! tests start the real binary that way, hold the front's end of the private
@@ -142,7 +142,7 @@ fn a_policy_failure_comes_back_as_a_frame_with_its_location() {
     );
     let reply = read_frame(&channel);
     assert_eq!(reply["type"], "failure");
-    assert_eq!(reply["failure"]["code"], "policy_parse_failed");
+    assert_eq!(reply["failure"]["code"], "config_parse_failed");
     assert_eq!(reply["failure"]["stage"], "load");
     assert_eq!(reply["failure"]["file"], "/home/o/policy.rhai");
     assert_eq!(reply["failure"]["line"], 2);
