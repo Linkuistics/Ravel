@@ -23,9 +23,13 @@ ravel start-session --kind review --prompt-file review-prompt.txt
 
 The prompt tells the LLM to run `ravel end-session approved` if it finds no
 problem. If it finds a problem, the LLM writes `review-notes.md` and runs
-`ravel end-session changes-needed`. In chapter 1's run, the LLM found a
-problem. Ravel wrote `changes-needed` on standard output, and
-`ravel start-session` exited with status 0. The orchestrator gives the two
+`ravel end-session changes-needed`.
+
+Chapter 1 shows a real run of this request. Its short configuration script selects a fake agent in place of
+Claude Code. The fake agent wrote `review-notes.md` and sent
+`changes-needed`, as the LLM does when it finds a problem. Ravel wrote
+`changes-needed` on standard output, and `ravel start-session` exited with
+status 0. The orchestrator gives the two
 values their meaning. Ravel does not.
 
 First, the words that this chapter uses on every page. The owner's
@@ -191,11 +195,13 @@ At row 6, Ravel writes the sent result unchanged to standard output. This write 
 absence of the process group and the required cleanup. Ravel does not
 interpret the result. Then `ravel start-session` exits with status 0.
 
-Fragment: the command and the standard error of the review session in
-chapter 5. This block omits the configuration script, the prompt file
-`review-prompt.txt`, the fake agent `review-agent` and the environment of the
-command. Chapter 5 runs this session as a complete example,
-and the book's example check compares these two lines.
+Fragment: the first command of the example `notices` in chapter 5, “Read
+notices separately from results”, and its standard error. That example runs
+the review of chapter 1 in the directory `~/ravel-chapter-5/notices`. This
+block omits the configuration script, the prompt file `review-prompt.txt`,
+the fake agent `review-agent` and the environment of the command. Chapter 5
+runs this session as a complete example, and the book's example check
+compares these two lines.
 
 ```console
 $ ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt
@@ -410,8 +416,6 @@ You may want the configuration script to read a variable of the caller, for
 example a mode that selects a different effort. `--config-env` grants the
 script one such variable. Repeat the option to grant more names.
 
-Ravel 2.0.0 refuses the old option `--policy-env` and settings key `policyEnv`.
-
 Why does the script need a grant? The Rhai worker has an empty environment.
 When the script calls `ravel::env(name)`, the worker sends the request to the
 Ravel CLI over a private socket. The Ravel CLI checks the name against the base
@@ -543,8 +547,10 @@ The time of the notice also changes. Ravel writes the text notice before the
 launch. Ravel writes the JSON notice after the supervision attempt, so the JSON
 document also records what happened during the session.
 
-Fragment: the `selection` member of the JSON routing notice of the review
-session in chapter 1. This block omits the other members of the document.
+Fragment: the `selection` member of the JSON routing notice of chapter 1's
+review request, run again with `--json`. The script of that run selects a fake
+agent, so the labels are `local`, `fake` and `low`. This block omits the other
+members of the document.
 
 ```json
 {"selection":{"effort":"low","model":"fake","provider":"local","reason":"Reviews go to the fake agent."}}
@@ -746,9 +752,9 @@ the caller what the script chose in the **routing notice**:
 - **Why:** this notice is the way in which Ravel tells the caller which
   harness, model and effort the configuration script chose.
 
-Fragment: the text routing notice of the review session in chapter 1, as
-Ravel writes it on standard error. This block omits the other lines on
-standard error.
+Fragment: the text routing notice of chapter 1's real run of the review, as
+Ravel writes it on standard error. The script of that run selects a fake
+agent, not Claude Code. This block omits the other lines on standard error.
 
 ```text
 ravel: starting provider local, model fake, effort low for kind "review"
@@ -798,11 +804,14 @@ or success. Standard error stays a mixed stream, and the managed process can pri
 text that looks like a Ravel document. See
 [read notices](05-running-sessions.md#read-notices-separately-from-results).
 
-Fragment: standard error of the review session of chapter 5 with `--json`,
-from a real run on macOS, in the directory `/tmp/ch5r`. Ravel writes the JSON
-document as one line. This
-block shows it on several lines and omits the members `bounds`, `context`,
+Fragment: standard error of the `--json` review command of the example
+`notices` in chapter 5, “Read notices separately from results”. It comes from
+a real run on macOS. The run used the directory `/tmp/ravel-chapter-5/notices` in
+place of `~/ravel-chapter-5/notices`, and macOS shows `/tmp` as
+`/private/tmp`. Ravel writes the JSON document as one line. This block shows
+it on several lines and omits the members `bounds`, `context`,
 `diagnostics`, `operationReports`, `configEnvironment`, `reads` and `worker`.
+The value of `selectionMs` changes in each run.
 
 ```text
 review-agent: the review is complete
@@ -812,15 +821,15 @@ review-agent: the review is complete
     "modules": [
       {
         "bytes": 619,
-        "name": "/private/tmp/ch5r/config.rhai",
+        "name": "/private/tmp/ravel-chapter-5/notices/config.rhai",
         "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
       }
     ],
-    "path": "/private/tmp/ch5r/config.rhai",
+    "path": "/private/tmp/ravel-chapter-5/notices/config.rhai",
     "version": "notice-demo"
   },
-  "promptSource": "/private/tmp/ch5r/review-prompt.txt",
-  "resolution": "/tmp/ch5r/bin/review-agent (found on PATH in /tmp/ch5r/bin)",
+  "promptSource": "/private/tmp/ravel-chapter-5/notices/review-prompt.txt",
+  "resolution": "/tmp/ravel-chapter-5/notices/bin/review-agent (found on PATH in /tmp/ravel-chapter-5/notices/bin)",
   "schemaVersion": 2,
   "selection": {
     "effort": "low",
@@ -828,7 +837,7 @@ review-agent: the review is complete
     "provider": "local",
     "reason": "Reviews go to the fake agent."
   },
-  "selectionMs": 9
+  "selectionMs": 3
 }
 ```
 
@@ -893,10 +902,12 @@ on the caller's standard error. Your program can read from it why the session
 failed and what to do next. A failed final write can leave a prefix of the
 result on standard output. Discard those bytes and use the failure status.
 
-Fragment: the failure document of a refused request from chapter 5, “Read
-notices separately from results”. The configuration script has no rule for
-the kind `deploy`. This block omits the command and its status, 3. `<scratch>` is the
-temporary directory of the example checker of the book.
+Fragment: the failure document of the third command of the example `notices`
+in chapter 5, “Read notices separately from results”. The configuration
+script has no rule for the kind `deploy`. This block omits the command and
+its status, 3. Here `<scratch>/work` stands for the example's directory. In
+your shell, the document shows the absolute path of that directory, for
+example `/Users/you/ravel-chapter-5/notices/config.rhai`.
 
 ```text
 {"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/config.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/config.rhai","stage":"selection"},"schemaVersion":2}
@@ -904,9 +915,12 @@ temporary directory of the example checker of the book.
 
 A JSON failure document has `schemaVersion: 2`, an `error` object and an
 optional top-level `diagnostics`. That object contains the `stdout` and
-`stderr` strings of the configuration script. The words “the configuration script” in the
-message are Ravel's own diagnostic words for the configuration script. Read `code` and `stage` together, and retain the complete
-standard error stream. Secondary operational reports can occur outside this document.
+`stderr` strings of the configuration script. Ravel supplies the first part of
+the `message`. The configuration script supplies the `configCode`, the words
+of the `message` after its colon and the `remedy`.
+
+Read `code` and `stage`
+together, and retain the complete standard error stream. Secondary operational reports can occur outside this document.
 See [read failure notices](05-running-sessions.md#read-notices-separately-from-results).
 
 | `error` field | Presence and meaning |
@@ -973,29 +987,24 @@ or receive credentials that a harness prints. Ravel does not redact that data.
 
 ### Names that an environment grant cannot use
 
-Some names are controls of a language runtime, of the dynamic loader or of
-Ravel itself. `configEnv` and `--config-env` do not accept these nine exact
-names or prefix classes.
+Some names control the dynamic loader or Ravel itself. `configEnv` and
+`--config-env` do not accept a name in these four prefix classes.
 
 The match is case-sensitive. `*` means any suffix, also the empty
 suffix. It is not shell expansion. A grant that names one of them reports
-`excluded_grant` with status 2.
+`excluded_grant` with status 2. Other names, such as `NODE_OPTIONS`, are
+names that you can grant.
 
 The reserved classes are rules for `ravel::env` grants. They do not tell which
 names Ravel removes from the environment of an unconfined managed process.
-The next section gives that shorter list. See
+The next section gives those six exact names. See
 [grant environment names](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
-| Name or class | Reserved purpose |
+| Class | Why Ravel reserves it |
 |---|---|
-| `BUN_*` | Runtime startup controls. They remain excluded from environment grants. |
-| `NODE_OPTIONS` | Options for the runtime and for the load of code. |
-| `NODE_PATH` | Module search path. |
-| `NODE_PRESERVE_SYMLINKS` | Resolver behaviour. |
-| `NODE_CHANNEL_*` | Runtime controls for IPC descriptors. |
-| `LD_*` | Dynamic-loader controls. |
-| `DYLD_*` | macOS dynamic-loader controls. |
-| `RAVEL_*` | Ravel's reserved controls. They include `RAVEL_EXIT_FILE`, the session-result context that the Rhai worker never receives. |
+| `LD_*` | Dynamic-loader controls. They can make a program load other libraries. |
+| `DYLD_*` | macOS dynamic-loader controls, with the same risk. |
+| `RAVEL_*` | Ravel's own controls. They include `RAVEL_EXIT_FILE`, the session-result context that the Rhai worker never receives. |
 | `HARNESS_DISPATCH_*` | Names of the earlier `harness-dispatch` command. Ravel reserves them with its own names. |
 
 ### Managed-process environment
@@ -1099,8 +1108,8 @@ Rhai files.
 This default needs an absolute `HOME`.
 `--config PATH` chooses a different entry, relative to the caller's working directory.
 There is no repository search, environment override or fallback script.
-An explicit `.rhai` entry can have any file name, such as `config.rhai`.
-Ravel does not select `config.rhai` as a default.
+An explicit entry can have any file name that ends in `.rhai`, such as
+`review.rhai`.
 
 The entry must canonicalise to a readable regular UTF-8 file of at most 1 MiB.
 Its canonical path must also be UTF-8. A symlink selects its real file.
@@ -1137,7 +1146,7 @@ can then replace some values for one session.
 `--config` does not move it, and `XDG_CONFIG_HOME` does not select it.
 
 Fragment: a settings file with four of the five keys, which the checkout build
-accepted on 2026-10-28. This block omits the configuration script and the
+accepted on 2026-10-29. This block omits the configuration script and the
 program `fake-classifier`.
 
 ```json
@@ -1234,7 +1243,7 @@ What must a configuration script contain? Its entry is a Rhai module. It
 exports two constants and defines a `select` function. Here is a short
 configuration script. It sends each `review` request to a fake agent and refuses every other kind.
 
-Fragment: the configuration script of the notice example in chapter 5, “Read notices
+Fragment: `config.rhai` of the example `notices` in chapter 5, “Read notices
 separately from results”. This block omits the fake agent `review-agent` and
 the command that runs the script. Chapter 5 runs this script as a complete
 example.
@@ -1392,8 +1401,9 @@ Ravel CLI writes each failure on the caller's standard error. Without
 and each detail follows on its own line.
 
 Fragment: standard error of a refused request, from the checkout build on
-2026-10-28. The configuration script refused the kind `deploy`. This block
-omits the
+2026-10-29. The configuration script of the
+[contents entry](#contents-of-a-configuration-script), saved as
+`refuse.rhai` in `/tmp/ch6`, refused the kind `deploy`. This block omits the
 command and its status, 3.
 
 ```text
@@ -1405,8 +1415,11 @@ ravel: refused (config_refused, stage selection): the configuration script /priv
 ```
 
 `config_refused` is Ravel's code. `unknown_kind` is the code of the owner,
-from the refusal map. The words “the configuration script” in the first line are Ravel's own
-diagnostic words for the configuration script. With `--json`, the same failure is a
+from the refusal map. Ravel supplies the first line up to “refused the
+selection:”, and the input and source lines. The configuration script
+supplies the rest of the first line, the config code and the remedy.
+
+With `--json`, the same failure is a
 [JSON failure document](#json-failure-document). In a JSON failure document,
 `error.code`, `error.stage` and `error.exit` identify a Ravel failure. These
 tables give the usual classification of each code.
@@ -1426,7 +1439,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `prompt_unreadable` | `cli` | 2 | Ravel cannot open or read the prompt file, or the file is a terminal. Supply a readable file that is not a terminal, or use `--prompt`. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `prompt_invalid` | `cli` | 2 | The prompt is invalid UTF-8, contains NUL or is larger than 1 MiB. Correct the encoding or the content, or make the prompt shorter. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `settings_invalid` | `cli` | 2 | The settings file, a key or a nested entry is invalid. Correct the named location to the five optional settings and their documented shapes. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
-| `excluded_grant` | `cli` | 2 | A grant in the settings or in a flag names a reserved variable or prefix. Remove the grant. A grant cannot replace the startup controls of the Rhai worker. | [Grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `excluded_grant` | `cli` | 2 | A grant in the settings or in a flag names a reserved variable or prefix: a dynamic-loader control or one of Ravel's own names. Remove the grant. | [Grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `confinement_unusable` | `cli` | 2 | Ravel cannot use the backend or the confinement inputs. Correct the named backend or path. No unconfined launch runs in its place. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
 | `confinement_overlap` | `cli` | 2 | A grant overlaps the directory of the configuration script or the settings. Separate the paths, also their canonical symlink targets. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
 | `exit_dir_unusable` | `cli` | 2 | The parent of the result channel is unusable. Name a writable directory that exists, or omit `--exit-dir`. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |
@@ -1927,7 +1940,7 @@ See [evaluation bounds](04-write-a-configuration-script.md#set-bounds-and-enviro
 Rhai checks container size when a call returns a value.
 An in-place change can exceed that container limit before such a check.
 The worker heap bound still applies.
-At the whole evaluation deadline, Ravel ends evaluation and terminates the worker, even if a native call does not yield.
+At the whole evaluation deadline, Ravel ends evaluation and stops the worker, even if a native call does not yield.
 
 At cancellation or the whole deadline, Ravel abandons a read and does not wait for its reply.
 It stops an active harness run before it stops and reaps the worker.
@@ -1945,6 +1958,7 @@ purpose.
 
 The examples are editable Rhai files under `share/ravel/examples/`.
 Their checkout source is `crates/ravel/examples/`.
+That directory also holds `harness-table.rhai`, an example for Ravel's own tests, which Ravel does not install.
 Copy the files that your chosen example imports, then replace the placeholder commands and labels.
 Ravel installs no personal configuration script and has no `init` command.
 See [copy a configuration script and its files](04-write-a-configuration-script.md#copy-a-configuration-script-and-its-files).
@@ -2002,8 +2016,9 @@ See [install Ravel](03-a-complete-session.md#install-ravel-and-check-its-version
 | `share/ravel/examples/static.rhai` | Editable starter table. |
 | `share/ravel/examples/sample.rhai` | Editable choice script, with an import of `static.rhai`. |
 | `share/ravel/examples/llm.rhai` | Editable model-assisted script, with an import of `static.rhai`. |
+| `share/ravel/notices/THIRD-PARTY-NOTICES.md` | The licence notices of the Rust dependencies inside `bin/ravel`. |
 
-The distribution also carries third-party notices for its Rust dependencies.
+The installation, the release archive and the Homebrew formula carry the same notice file.
 The archive carries the project `README.md` and `LICENSE` at its root.
 The [delivery chapter](11-deliver-ravel.md) gives release archive details.
 

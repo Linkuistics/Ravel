@@ -33,6 +33,14 @@ The chapters teach Ravel configuration with Rhai directly. The pipeline is draft
   Chapter 6 restates the words of every page, Rhai and chapter 1's real values, because a reader can enter it at any entry.
   The F2, F4 and F5 entries under “Handed forward” name each place for a figure. No draft placed an image.
 
+## Handed forward
+
+- **Art, `rhai-book-use-k95`: the installed-files figure.** Chapter 6, “Installed layout”, uses `docs/book/src/figures/installed-files.typ`.
+  The figure shows only the `share/ravel/examples` directory and states the notices in a note.
+  Its alt text says “The distribution also carries third-party notices”.
+  The table of that section now lists `share/ravel/notices/THIRD-PARTY-NOTICES.md`, which `stage_installation` in `scripts/release-common.sh` installs.
+  Decide whether the figure shows the `share/ravel/notices` directory, and keep the figure, the alt text and the table in agreement.
+
 ## Decomposition
 
 - `rhai-book-use-k27` rewrites chapter 4 and records the owner's revised contract.
@@ -162,3 +170,15 @@ The task states the visual bounds and the source-graph access limitation.
 The node's Done when holds at this correction boundary. Read 1 stays live as `rhai-book-use-k74` and resumes at chapter 4.
 Its correction recap makes amended Part I available without a repeat read. The owner's practical results remain outstanding.
 The root and later book brief retain the cutover, final installed-layout, whole-book proof and Read 2 responsibilities.
+
+## Third correction draft closure
+
+The draft node `rhai-book-use-k93` closed on 2026-10-29 after four drafts, `rhai-book-use-k115` to `rhai-book-use-k118`.
+Chapters 3, 4 and 5 name each example and show its workspace, paths, files and complete command before the table of its parts (F17).
+Chapters 1 and 2 say that their code blocks are fragments and name the first session that the reader runs.
+The chapters use the renamed interface, with no old-name explanation (F18). The default entry is `config.rhai`.
+Chapter 6 now names four reserved grant classes, lists the installed notice file and quotes the current examples of chapters 1 and 5.
+
+The last draft passed all 22 examples, nine excerpts, 18 figure reproductions and the book build.
+Strict prose and break checks passed for chapters 1–6. A local check of the built chapters resolved 613 links, and each planted fault failed it.
+The installed-files figure is under “Handed forward” for art. Copy-edit `rhai-book-use-k94` reads the new setup sections and the corrected entries next.

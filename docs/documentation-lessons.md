@@ -948,6 +948,13 @@ CLI checks carry old words through owner-supplied values unchanged. The frozen
 comparison translates named fields and exact known messages, rather than
 replacing words throughout the captured data.
 
+Draft `rhai-book-use-k118`, 2026-10-29, found two old-name explanations that the rename had made false. Each contained only new tokens.
+
+Chapter 6 said that the words “the configuration script” in a diagnostic are Ravel's words for the configuration script. Before the rename, the diagnostic said “policy”.
+It also said that Ravel does not select `config.rhai` as a default. Before the rename, the default was another file. Now `config.rhai` is the default.
+
+An old-token search cannot find such a sentence. Search for a sentence that names the new term twice, or that denies a property of the new name.
+
 The renamed headings of chapter 4 changed 102 inbound anchors in four other chapters. The draft changed only the anchors there. The link texts that quote old titles belong to the drafts that own those chapters.
 **Check:** Search the old anchors in the whole repository. Run the same search on the parent revision as a control.
 
@@ -1126,6 +1133,22 @@ The text now says that the run used the chapter's own short script at its defaul
 A label that said “the same session” for a separate `--json` run now says “the same request, run again with `--json`”.
 
 **Check:** For each real-run fragment, compare each value in it with the story around it. Where a value differs, find the sentence that names the input that changed it.
+
+### L72. Derive a reference list again from the code after a component is removed
+
+When a component leaves the product, a reference list can keep the entries that the component needed.
+A stale restriction does not fail an example, because no example uses the name that it refuses. Thus, every check still passes.
+After a removal, find the code that defines each list in the reference. Compare the list with that code, item by item.
+
+**Source:** Session evidence, `rhai-book-use-k118`, 2026-10-29.
+
+**Ravel application:** Chapter 6 listed nine classes of names that a grant cannot use. They included `BUN_*` and four `NODE_*` names of the removed Bun worker.
+`excluded` in `crates/ravel/src/environment.rs` refuses only `LD_*`, `DYLD_*`, `RAVEL_*` and `HARNESS_DISPATCH_*`. Its unit test asserts that the `BUN_*` and `NODE_*` names are grantable.
+The help and the specification already named the four classes. The chapter now names them too.
+
+The same read found that the installed-layout table lacked the notice file that the installation now places.
+
+**Check:** For each list in a reference entry, name the source that defines it, such as a function, a constant or a manifest. Compare each item. A test that asserts the complement, such as names that stay grantable, is direct evidence.
 
 ### Disposition of the task's candidate readings
 
