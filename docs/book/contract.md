@@ -42,16 +42,16 @@ stated prerequisites.
   The reader knows the diagram notations or consults their documentation.
   The book explains only its own figure conventions.
 - **Not assumed, and taught where the book first needs it:**
-  - Ravel's own domain: callers, owners, owner policy, sessions, kinds,
+  - Ravel's own domain: callers, owners, configuration script, sessions, kinds,
     results, and who holds which authority.
   - The job-control mechanics Ravel depends on: process groups, the
     controlling terminal and its foreground process group, saved terminal
     modes, reaping and why PID reuse makes it matter, signal dispositions and
     masks across exec, PTYs as the tests use them, and the confinement
     backends (`sandbox-exec` on macOS, bubblewrap on Linux).
-  - The Rhai syntax that policies need: constants, variables, maps, arrays,
+  - The Rhai syntax that configuration scripts need: constants, variables, maps, arrays,
     functions, conditions, loops, imports and error handling.
-    Chapter 4 teaches these through policies and fake agents.
+    Chapter 4 teaches these through configuration scripts and fake agents.
   - The restrictions of Ravel's Rhai engine and its host capabilities.
   - The `libc` job-control calls the runner makes.
 - **Never taught:** TypeScript, Rust language features, shell, Git, JSON,
@@ -61,10 +61,10 @@ stated prerequisites.
 
 ### What the reader can do afterwards
 
-- Configure and run a session. Write and validate a Rhai owner policy
+- Configure and run a session. Write and validate a Rhai configuration script
   with fake agents. Route kinds to real agent programs. Interpret every
   outcome and exit code.
-- Explain why Ravel has a separate Rhai policy worker and two Rust packages,
+- Explain why Ravel has a separate Rhai worker and two Rust packages,
   and what each part owns.
 - Follow successful, refused and cancelled sessions through the code.
   Find where a change belongs.
@@ -106,7 +106,7 @@ first describes Ravel. It names no price or plan. Each harness's own
 documentation covers its plans and terms.
 
 A **caller**, such as an orchestrator, asks for a session of some kind.
-The **owner's** executable Rhai policy chooses the harness command.
+The **owner's** executable Rhai configuration script chooses the harness command.
 Ravel launches that command as a supervised job. An interactive harness
 waits for more input when its LLM finishes the task.
 
@@ -134,10 +134,10 @@ is a very loose contract."
 
 <!-- tc: on -->
 
-The policy selects a program, and Ravel runs it. A program in the session
+The configuration script selects a program, and Ravel runs it. A program in the session
 then sends one value with `end-session`. Ravel needs nothing more from the
 selected program. `start-session` takes a prompt, and the book expects a
-harness to receive it. But the policy decides which program runs and whether
+harness to receive it. But the configuration script decides which program runs and whether
 that program receives the prompt. Thus, any program that runs `end-session`
 can stand where a harness stands.
 
@@ -167,9 +167,9 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | # | Chapter | After it, the reader can… |
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
-| 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. Say what Rhai is, read a short Rhai policy and find Rhai's own documentation. Explain how the routing notice tells the caller what the policy chose. Explain how `end-session` finds its session. |
+| 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. Say what Rhai is, read a short Rhai configuration script and find Rhai's own documentation. Explain how the routing notice tells the caller what the configuration script chose. Explain how `end-session` finds its session. |
 | 2 | Who does what in a Ravel session | name the caller, owner, configuration script, settings, Rhai worker, managed process and opaque result, and say who holds which authority |
-| 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and policy validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny policy and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
+| 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and configuration script validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny configuration script and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
 | 4 | Write a configuration script | Write and validate a Rhai configuration script with fake agents. Use refusals, selection context, host capabilities, settings and environment grants. Route to harnesses and ask a model through a harness run. |
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
@@ -194,12 +194,12 @@ Their files are `10-develop-ravel.md` and `11-deliver-ravel.md`.
 The owner agreed the Rhai revision on 2026-10-26. The book assumes no
 TypeScript knowledge and has no migration chapter. Chapter numbers stay unchanged.
 The owner's configuration conversion is a separate, one-off manual task.
-Chapter 4 teaches the Rhai that its policies need, without a separate language
+Chapter 4 teaches the Rhai that its configuration scripts need, without a separate language
 tutorial. Both reader checkpoints remain obligations.
 
 The owner's Read 1 findings of 2026-10-27 moved the first presentation of
 Rhai to chapter 1. Chapter 1 says what Rhai is and which of its
-characteristics matter to a policy. It shows a short policy and links to
+characteristics matter to a configuration script. It shows a short configuration script and links to
 Rhai's own documentation. That documentation is the Rhai Book,
 <https://rhai.rs/book/>, with its language reference,
 <https://rhai.rs/book/ref/>, and an online playground,
@@ -230,7 +230,7 @@ quotes source excerpts but does not cover the complete source.
 - **The learning route** reads chapters 1 to 11 in order.
 - **Running sessions from your own tool:** chapters 1–3, then 5, with 6 for
   lookup.
-- **Writing a policy:** chapters 1–3, then 4, with 6 for lookup.
+- **Writing a configuration script:** chapters 1–3, then 4, with 6 for lookup.
 - **Reuse from another program:** chapter 1 explains why no separate
   component is supported. Chapters 2, 3 and 5 teach the CLI caller interface.
   Chapters 7 and 9 explain the private runner and its limits.
@@ -244,7 +244,7 @@ quotes source excerpts but does not cover the complete source.
 ### Emphasis
 
 - **Why a harness, and how loose the contract is.** A harness lets a caller
-  use a subscription instead of paid API access. The policy can select any
+  use a subscription instead of paid API access. The configuration script can select any
   program, and Ravel needs only one value sent with `end-session`. A harness
   that receives the prompt is the expected use, not a requirement (the
   owner's findings R14 and R15 of 2026-10-18).
@@ -252,15 +252,15 @@ quotes source excerpts but does not cover the complete source.
   process has been reaped, its whole process group is gone, and cleanup has
   succeeded. Refusal, cancellation, natural exit without a result and cleanup
   failure are distinct, normal outcomes, not edge cases.
-- **Who holds which authority.** Owner policy is trusted code that chooses
+- **Who holds which authority.** Configuration script is trusted code that chooses
   the program but is given no result authority: it never receives a
   session-result context, and its worker is reaped before anything launches.
   Only the Ravel CLI supervises. Each managed process holds only its own
   result context.
 - **Validating with fake agents.** Every runnable example uses fake programs,
-  and a policy author learns to check every route and refusal that way.
+  and a configuration script author learns to check every route and refusal that way.
 - **The stated limits, said plainly:** same-user tampering, abrupt death of
-  the Ravel CLI, descendants that leave their process group, detached policy
+  the Ravel CLI, descendants that leave their process group, detached configuration script
   children, and the support statement (aarch64 macOS and aarch64 Linux are
   measured; x86_64 Linux is built and run only under emulation).
 
@@ -272,7 +272,7 @@ quotes source excerpts but does not cover the complete source.
   as evidence documents outside the book. The book states only the limits a
   reader needs, such as the support statement.
 - **Installing and configuring agents.** Chapter 4 shows routes to the agent
-  programs the owner's policy uses today, Claude Code (`claude`) and Codex
+  programs the owner's configuration script uses today, Claude Code (`claude`) and Codex
   (`codex`), with their actual command-line flags and the ending instructions a
   caller's prompt gives them. Installing those agents, their accounts and
   credentials are out of scope, with a pointer to each agent's own
@@ -281,7 +281,7 @@ quotes source excerpts but does not cover the complete source.
   owner's routing table, `docs/configuration-handoff-2026-10-12.md`, is not
   teaching material. It stays outside the book; it was kept, not deleted, when
   the owner configuration guide was folded in and removed.
-- **Policy migration.** The book teaches Rhai policies directly. The owner's
+- **Configuration script migration.** The book teaches Rhai configuration scripts directly. The owner's
   one-off manual conversion and comparisons with TypeScript stay outside it.
 - **Grove's conventions.** Grove may appear as one illustrative caller,
   labelled as such. Its task kinds and result values are never presented as
@@ -304,7 +304,7 @@ matters:
   inherited `RAVEL_EXIT_FILE` path. The *selection context* is the JSON
   data delivered to `select`. The caller's working directory is the request's
   `cwd`. The book never says "context" unqualified.
-- **Kind**: the caller's open token, interpreted only by owner policy. It is
+- **Kind**: the caller's open token, interpreted only by configuration script. It is
   not Grove's task kind, even when Grove passes its task kind as the session
   kind.
 - **Channel**: the result channel is Ravel's private directory and completion
@@ -315,14 +315,14 @@ matters:
   configuration script.
 - **Result**: the opaque bytes that `end-session` sends. It is never the
   managed process's exit status or the agent's work.
-- **Policy**: in a literal name, such as `policy.rhai` or a `policy_*` code,
-  the configuration script. Prose says “configuration script”. It is not a
-  security or sandbox policy; that is confinement.
+- **Configuration names**: `config.rhai`, `--config-env`, `configEnv` and
+  `config_*` diagnostic codes name the configuration script. A restriction
+  on a managed process is confinement.
 - **Harness**: the agent program, such as Claude Code or Codex, in which an
-  LLM session works on the prompt; owner policy selects it. It is not a test
+  LLM session works on the prompt; configuration script selects it. It is not a test
   harness.
-- **Refusal**: a decision not to launch, made by the owner policy or by Ravel
-  checking that policy's file, behaviour or data. It is not a worker or supervision
+- **Refusal**: a decision not to launch, made by the configuration script or by Ravel
+  checking that configuration script's file, behaviour or data. It is not a worker or supervision
   failure, nor a selection timeout.
 
 <!-- tc: on -->
@@ -343,13 +343,13 @@ help for `ravel`, `ravel start-session` and `ravel end-session`. Coverage includ
 - The stdout and stderr contract and the `--json` notices.
 - Every environment variable that Ravel reads, sets, passes on or refuses to grant.
 
-**Configuration inputs.** Sources are the policy evaluation specification,
+**Configuration inputs.** Sources are the configuration script evaluation specification,
 the Rhai engine, its host capabilities and the settings reader. Coverage includes:
 
-- The policy entry, its discovery and its checks.
+- The configuration script entry, its discovery and its checks.
 - Every settings key, the refusal of unknown keys and every bound.
-- The policy object's fields and the request, selection and refusal fields.
-- The policy context document's fields and the host operations.
+- The configuration script object's fields and the request, selection and refusal fields.
+- The selection context document's fields and the host operations.
 - The module exports, file imports, module-resolution rules and shipped examples.
 
 **Lifecycle and failure outcomes.** Sources are the session specification
@@ -363,7 +363,7 @@ and the result/job completion specification. At this agreement, coverage include
 - A natural exit without a result, including status 0.
 - `end-session` with missing, empty or stale context.
 - Malformed CLI input or settings.
-- A refusal by the policy or of the policy's file, behaviour or data.
+- A refusal by the configuration script or of the configuration script's file, behaviour or data.
 - A missing, stale or mismatched worker and other worker or supervision failures.
 - A selection timeout.
 - A selected program that Ravel cannot execute or find.
@@ -379,17 +379,17 @@ and the result/job completion specification. At this agreement, coverage include
 **Component obligations.** The session specification authorises these ten
 obligations. The component guide tabulated them before its removal:
 
-- Caller commands retain their meaning. The owner supplies a Rhai policy.
-- Policy execution has no session-result authority. Ravel reaps its worker
+- Caller commands retain their meaning. The owner supplies a Rhai configuration script.
+- Configuration script execution has no session-result authority. Ravel reaps its worker
   before the managed launch.
-- Ravel judges policy output without fallback.
+- Ravel judges configuration script output without fallback.
 - The selected program runs directly in the caller's context.
 - Ravel keeps the first complete result that it receives, unchanged.
 - Success requires reap and confirmed group cleanup.
 - Cancellation suppresses results.
 - Ravel recovers the terminal's foreground and modes.
 - Only result bytes reach stdout.
-- Installed execution uses one binary for the Ravel CLI and its policy worker.
+- Installed execution uses one binary for the Ravel CLI and its Rhai worker.
 
 **Contributor workflows.** The source is `task --list`. Coverage includes
 setup, build, tests, checks, install, smoke, release tasks and the book's tasks.
@@ -419,12 +419,12 @@ The book also states them wherever they matter:
 ### Examples policy
 
 - **Every complete example runs**, through the seam Ravel's CLI tests
-  already use: the built `ravel`, real Rhai policy evaluation, fake
+  already use: the built `ravel`, real Rhai configuration script evaluation, fake
   agent programs on a private PATH, a cleared environment and a temporary
   HOME and TMPDIR. A Taskfile task runs every complete example and compares
   its output exactly.
 - **No example launches a real agent or model**, and none uses a personal
-  policy or account. A route to a real agent program is validated through a
+  configuration script or account. A route to a real agent program is validated through a
   fake executable of the same name, and records the agent's version and the
   date its flags were checked against that agent's own help.
 - **The reader's Ravel**: chapter 3 tells the reader to install Ravel with
@@ -461,16 +461,16 @@ This checks visual consistency, not the reader's knowledge of notation.
 | Reader question | Level and notation | Where |
 |---|---|---|
 | Where does Ravel sit between a caller, such as an orchestrator, and the harness or other program it launches? | C4 system context | chapters 1–2 |
-| What does the policy return, and how does Ravel tell the caller which harness, model and effort the policy chose? | UML sequence, with a real routing notice as its example | chapter 1, then chapters 3 and 5 |
+| What does the configuration script return, and how does Ravel tell the caller which harness, model and effort the configuration script chose? | UML sequence, with a real routing notice as its example | chapter 1, then chapters 3 and 5 |
 | How does `ravel end-session`, which runs inside the harness, find the session that launched the harness, also when sessions nest? | Process tree with the inherited `RAVEL_EXIT_FILE` (C4 dynamic or UML object) | chapter 1, then chapters 2 and 5 |
-| How does an evaluation harness return data to the policy before the managed launch? | UML sequence | chapters 4 and 6 |
+| How does an evaluation harness return data to the configuration script before the managed launch? | UML sequence | chapters 4 and 6 |
 | Which processes exist during a session, and which holds which authority? | C4 container | chapters 2 and 7 |
 | What happens, in order, in a successful session? | UML sequence | chapter 3, then in full in chapter 8 |
 | What changes when cancellation arrives during selection versus during supervision? | UML sequence, one per phase | chapters 5 and 9 |
 | Which states does a session pass through to each outcome? | UML state machine | chapters 3 and 5 |
 | What is the timing after `end-session` sends the result (2-second grace, TERM, up to 5 seconds, KILL)? | UML timing | chapter 9 |
 | How is the terminal lent to the managed process and recovered? | UML sequence | chapter 9 |
-| How do the packages, the policy worker and the examples fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 11 |
+| How do the packages, the Rhai worker and the examples fit together in the source and in an installation? | C4 component and UML deployment | chapters 6, 7 and 11 |
 | How is the outcome chosen when failures and signals combine? | UML activity | chapter 8 |
 | How is a release built and checked? | UML activity | chapter 11 |
 
@@ -598,7 +598,7 @@ and the comments in full.
   and the reader of each output. When a write gives information to another
   actor, say that it is a means of communication. For example, Ravel writes
   the routing notice as one line on the caller's standard error. That line
-  tells the caller which harness, model and effort the policy chose.
+  tells the caller which harness, model and effort the configuration script chose.
 - **Show the mechanism.** When the text says that something is inherited,
   found, sent or chosen, explain how. For example, Ravel puts the path of the
   result file in the `RAVEL_EXIT_FILE` environment variable of the program
@@ -616,7 +616,7 @@ and the comments in full.
 - **Put the reader's goal first.** Before a capability, say why you may want
   it. Then say how to do it. For example: “You may want an LLM to choose the
   best harness, model, effort and prompt additions for a kind and a prompt.
-  You can do this with a harness run in your policy.”
+  You can do this with a harness run in your configuration script.”
 - **Follow an action to its result.** Name the actors in the order that they
   act, and end with what the caller receives. For example, the program that
   Ravel launched, usually a harness that runs an LLM, runs `ravel end-session`
@@ -699,7 +699,7 @@ The later draft of Parts III and IV uses them, and its proof checks them.
 The house style's points, as this book takes them:
 
 - **Task headings**: the first word of a task heading is a bare infinitive.
-  Write "Write a policy", not "Writing a policy" or "To write a policy".
+  Write "Write a configuration script", not "Writing a configuration script" or "To write a configuration script".
 - **Introducing steps**: a complete sentence introduces a procedure, or nothing
   does when its heading already says what it does. A fragment that the steps
   complete, such as "To install:", does not.
@@ -839,7 +839,7 @@ The house style's points, as this book takes them:
   Each result records that limit. A read can establish accuracy, coverage and
   the owner's own results. It cannot establish whether a developer new to
   Ravel can find, understand and use the book.
-- **Read 1** follows proof of Parts I and II. The tasks are to write a policy
+- **Read 1** follows proof of Parts I and II. The tasks are to write a configuration script
   for a fake agent and run a session. The reader interprets a refusal and a
   cancellation. The reader also uses one direct entry, such as an exit code
   or error message, without the preceding text. Corrections land before the

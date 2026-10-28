@@ -3,14 +3,14 @@
 This chapter follows the [session](02-actors-and-words.md#caller-and-owner)
 from chapter 3 through the code that returns `finished`.
 The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
-coordinates the path. The [policy worker](02-actors-and-words.md#evaluation-and-supervision)
-evaluates the [owner policy](02-actors-and-words.md#caller-and-owner).
+coordinates the path. The [Rhai worker](02-actors-and-words.md#evaluation-and-supervision)
+evaluates the [configuration script](02-actors-and-words.md#caller-and-owner).
 The [runner](02-actors-and-words.md#evaluation-and-supervision)
 controls the managed job inside the Ravel CLI process.
 
 This chapter is an orientation to one path. It does not cover the complete
 source. It omits the full
-[policy-context](02-actors-and-words.md#three-different-kinds-of-information)
+[selection-context](02-actors-and-words.md#three-different-kinds-of-information)
 protocol, [confinement](02-actors-and-words.md#trust-and-confinement)
 backends, platform system calls, test instruments and delivery code.
 [Chapter 7](07-the-parts-of-ravel.md) explains the parts and their boundaries.
@@ -19,10 +19,10 @@ Chapter 9, “Jobs, signals and the terminal”, explains the job-control detail
 ## Trace the example
 
 The [first session in chapter 3](03-a-complete-session.md#run-the-first-session)
-supplies `--kind demo`, `--config policy.ts` and a prompt argument.
-The policy chooses `fake-agent` and passes the prompt as one argument.
+supplies `--kind demo`, `--config config.rhai` and a prompt argument.
+The configuration script chooses `fake-agent` and passes the prompt as one argument.
 The fake agent prints the prompt, calls `ravel end-session -- "finished"`, then exits.
-No policy-context loader or confinement participates in this path.
+No selection-context loader or confinement participates in this path.
 
 The [caller](02-actors-and-words.md#caller-and-owner) receives `finished`
 without a newline on standard output and status 0.
@@ -37,8 +37,8 @@ Paths below are relative to the checkout root.
 | Step | Code location | What passes to the next step |
 |---|---|---|
 | Parse the command | `crates/ravel/src/main.rs`, `main` | `RunArgs` for `run::run` |
-| Check inputs and policy path | `crates/ravel/src/choice.rs`, `prepare` | `Prepared`, with inputs and the policy entry |
-| Evaluate and check the policy | `choice::choose_prepared`, `worker::evaluate` | A checked command after worker cleanup |
+| Check inputs and configuration script path | `crates/ravel/src/choice.rs`, `prepare` | `Prepared`, with inputs and the configuration script entry |
+| Evaluate and check the configuration script | `choice::choose_prepared`, `worker::evaluate` | A checked command after worker cleanup |
 | Find the program | `crates/ravel/src/program.rs`, `resolve` | The executable path and original program name |
 | Prepare output and channel | `crates/ravel/src/run.rs`, `run` | A `Launch` with arguments and its own [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
 | Launch and supervise | `crates/keyed-launch/src/run.rs` | `Ended`, after reap and terminal recovery, with group state |
@@ -52,7 +52,7 @@ Other signal names keep that prefix. Code and diagnostic text keep their literal
 The sequence shows why the sent result reaches the caller only after worker
 cleanup, managed-job cleanup and the final outcome decision.
 
-![The CLI checks and reaps the policy worker before it launches the managed process. A second CLI sends finished through the result channel. The runner stops the group before reap and checks the channel again after cleanup. Only successful cleanup and the final decision permit unchanged output.](figures/session-code-path.svg)
+![The CLI checks and reaps the Rhai worker before it launches the managed process. A second CLI sends finished through the result channel. The runner stops the group before reap and checks the channel again after cleanup. Only successful cleanup and the final decision permit unchanged output.](figures/session-code-path.svg)
 
 [Open the full session sequence at full size](figures/session-code-path.svg).
 The optional region applies when `watch` sees the result before child exit.
@@ -73,17 +73,17 @@ It does not return the result to the original caller or wait for job cleanup.
 `Cli::try_parse_from`. The definitions in `crates/ravel/src/cli.rs` distinguish
 `StartSession` from `EndSession`.
 For `start-session`, `main` calls `run::run`. For `end-session`, it calls
-`completion::end_session` directly, without policy evaluation.
+`completion::end_session` directly, without configuration script evaluation.
 
 `run` checks the saved entry signal state and installs the cancellation
 handlers with `handlers.begin()`.
 These handlers retain a signal that arrives during selection.
 Next, `choice::prepare` reads the settings, prepares the inputs and resolves
-the policy path. The order matters: settings supply defaults that input
+the configuration script path. The order matters: settings supply defaults that input
 validation needs before the worker exists.
 
 Excerpt from `crates/ravel/src/choice.rs`: these first statements of
-`prepare` establish the inputs and the policy entry.
+`prepare` establish the inputs and the configuration script entry.
 
 ```rust
     let home = std::env::var_os("HOME");
@@ -92,25 +92,25 @@ Excerpt from `crates/ravel/src/choice.rs`: these first statements of
     let entry = authority::resolve(args.config.as_deref(), &inputs.cwd, home.as_deref())?;
 ```
 
-`Prepared` holds these checked inputs and the entry. It contains no policy
-decision. In the example, `authority::resolve` resolves `policy.ts` relative
+`Prepared` holds these checked inputs and the entry. It contains no configuration script
+decision. In the example, `authority::resolve` resolves `config.rhai` relative
 to the caller's working directory. It requires a readable regular file and
 a real path that the worker can import exactly.
-It does not search for another policy when this path fails.
+It does not search for another configuration script when this path fails.
 
 The prompt remains caller data. The request that `choice::request` constructs
 contains the unchanged prompt, the
 [kind](02-actors-and-words.md#caller-and-owner), the working directory, parameters
 and effective limits. Ravel does not append instructions to end the session.
-The example's policy chooses to pass the prompt to the fake.
+The example's configuration script chooses to pass the prompt to the fake.
 
-## Evaluate and check the policy
+## Evaluate and check the configuration script
 
 `choice::choose_prepared` locates the worker that matches the CLI, then calls
 `evaluate_and_resolve`. That function calls `worker::evaluate` with the
 request and a callback, `choice::judge`, that checks the worker's responses.
 The Rust code of the Ravel CLI owns the checks. The TypeScript worker executes
-the policy.
+the configuration script.
 
 The code in `crates/ravel/src/worker.rs` is the worker coordinator.
 Its function `worker::evaluate` creates the worker's
@@ -125,17 +125,17 @@ The exchange has these steps in the example:
 | Order | Actor and function | Action |
 |---|---|---|
 | 1 | Worker, `crates/ravel/worker/src/main.ts` | Changes its working directory to `/`, registers embedded modules and sends `hello` |
-| 2 | Rust, `worker::converse` | Checks the worker identity, then sends the policy path and request |
-| 3 | Worker, `converse` via `load` | Imports the policy and sends its description |
+| 2 | Rust, `worker::converse` | Checks the worker identity, then sends the configuration script path and request |
+| 3 | Worker, `converse` via `load` | Imports the configuration script and sends its description |
 | 4 | Rust, `choice::judge` | Checks that description, then requests selection |
-| 5 | Worker, `converse` via `select` | Calls the policy's `select` and sends its returned value |
-| 6 | Rust, `choice::judge` | Checks the selected command with `policy::selected` |
+| 5 | Worker, `converse` via `select` | Calls the configuration script's `select` and sends its returned value |
+| 6 | Rust, `choice::judge` | Checks the selected command with `config::selected` |
 | 7 | Rust, `worker::evaluate` | Closes the socket, ends and reaps the worker, collects diagnostics and removes its private directory |
 
-The example has no [policy context](02-actors-and-words.md#three-different-kinds-of-information).
-Thus, `judge` skips the optional policy-context exchange.
-The worker supplies `undefined` as the policy's context argument.
-The policy returns `fake-agent` with the prompt in its argument array.
+The example has no [selection context](02-actors-and-words.md#three-different-kinds-of-information).
+Thus, `judge` skips the optional selection-context exchange.
+The worker supplies `undefined` as the configuration script's context argument.
+The configuration script returns `fake-agent` with the prompt in its argument array.
 
 <!-- tc: depart synonym-rotation because confirmation establishes a completed reap, while checks also cover input validation -->
 `worker::evaluate` returns success only after confirmed worker reap and
@@ -166,7 +166,7 @@ The excerpt shows the difference between the executable path and the
 original program name, which becomes argument zero.
 
 Excerpt from `crates/ravel/src/run.rs`: the argument vector uses the
-resolved path and each argument that the policy supplied.
+resolved path and each argument that the configuration script supplied.
 
 ```rust
         let argv = Argv::new(
@@ -366,17 +366,17 @@ the Ravel CLI during output. The write is not atomic with that decision.
 
 A failed choice prevents the call to the runner. The function that detects
 the problem supplies its classification. The Rust type `Refusal` also carries
-worker failures and timeouts, so its name alone does not identify a policy
+worker failures and timeouts, so its name alone does not identify a configuration script
 [refusal](02-actors-and-words.md#evaluation-and-supervision).
 
-Suppose the example's policy returns `status: "refused"` instead of a command.
-`choice::judge` passes that value to `policy::selected` in
-`crates/ravel/src/policy.rs`. That function checks the refusal fields and
-returns `config_refused`, with the policy's own code beside it.
+Suppose the example's configuration script returns `status: "refused"` instead of a command.
+`choice::judge` passes that value to `config::selected` in
+`crates/ravel/src/config.rs`. That function checks the refusal fields and
+returns `config_refused`, with the configuration script's own code beside it.
 `worker::evaluate` then attempts worker teardown and private-directory cleanup.
 It returns the failure to `choose_prepared`, so `run` never allocates the
 result channel or launches the fake.
-Ravel does not substitute another policy or command when selection fails.
+Ravel does not substitute another configuration script or command when selection fails.
 
 The table locates the other forks. Its statuses describe isolated failures
 without cancellation. A second table explains combined worker failures.
@@ -385,21 +385,21 @@ the caller.
 
 | Problem | Decision in the code | Status and point of failure |
 |---|---|---|
-| Missing or unreadable policy file | `authority::resolve` | 3, before worker evaluation |
-| Policy import, shape or policy context fails | `choice::judge`, `Validator::validate`, `choice::deliver` | 3, before executable lookup |
-| Policy refuses, throws, abstains or returns malformed selection data | `policy::selected` | 3, before executable lookup |
-| Policy data or diagnostic output exceeds a bound | Policy and policy-context validators, or `worker::evaluate` | 3, before executable lookup |
+| Missing or unreadable configuration script file | `authority::resolve` | 3, before worker evaluation |
+| Configuration script import, shape or selection context fails | `choice::judge`, `Validator::validate`, `choice::deliver` | 3, before executable lookup |
+| Configuration script refuses, throws, abstains or returns malformed selection data | `config::selected` | 3, before executable lookup |
+| Configuration script data or diagnostic output exceeds a bound | Configuration script and selection-context validators, or `worker::evaluate` | 3, before executable lookup |
 | Selection deadline expires | `worker::expired` | 124, before executable lookup |
 | Worker cannot start, has the wrong identity, or fails its protocol | Worker coordinator in `crates/ravel/src/worker.rs` | 5, before managed launch |
 | Worker conversation succeeds, but required teardown fails | `worker::evaluate` | 5, before managed launch |
 | Selected program is absent | `program::resolve` | 127, before runner invocation |
 | Selected file cannot execute, with no usable PATH candidate | `program::resolve` | 126, before runner invocation |
 
-The deadline covers worker startup and the policy exchange. A timeout can
-therefore occur before the worker receives the policy. It is not the policy's
-decision to refuse. A valid policy answer also cannot override an unconfirmed
+The deadline covers worker startup and the configuration script exchange. A timeout can
+therefore occur before the worker receives the configuration script. It is not the configuration script's
+decision to refuse. A valid configuration script answer also cannot override an unconfirmed
 worker reap or failed required cleanup. The evaluator retains the original
-failure, worker operation reports and separately captured policy output.
+failure, worker operation reports and separately captured configuration script output.
 
 Without cancellation, `worker::evaluate` uses this priority when failures
 combine. The table separates the primary failure from the reports that remain.
@@ -407,7 +407,7 @@ combine. The table separates the primary failure from the reports that remain.
 | First applicable condition | Primary failure | Other reports |
 |---|---|---|
 | Diagnostic output exceeds its bound | Output-limit refusal | Conversation failure and teardown problems remain |
-| Conversation fails | That failure keeps its classification, such as 3 for policy refusal or 124 for timeout | Teardown problems remain |
+| Conversation fails | That failure keeps its classification, such as 3 for configuration script refusal or 124 for timeout | Teardown problems remain |
 | Conversation succeeds, but required teardown fails | Worker failure, status 5 | Teardown problems remain |
 
 The executable check does not guarantee that a later spawn succeeds.
@@ -459,7 +459,7 @@ cleanup before it returns. `choose_prepared` checks the latch again before
 it returns a successful `Selected`. Its error path uses `overruled` to retain
 an earlier failure when cancellation takes priority.
 
-![During selection, the policy worker sends INT to the Ravel CLI. The CLI attempts worker teardown and directory cleanup, reports problems, and propagates cancellation without a managed launch.](figures/selection-cancellation.svg)
+![During selection, the Rhai worker sends INT to the Ravel CLI. The CLI attempts worker teardown and directory cleanup, reports problems, and propagates cancellation without a managed launch.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
 This is the direct-signal example from
@@ -623,7 +623,7 @@ Then exercise cancellation after a sent result, result failure plus cleanup
 failure, and cancellation plus cleanup failure. A status check alone cannot
 show that the original failure and every cleanup report survived.
 
-The owner policy's choice of program does not depend on the result's storage
+The configuration script's choice of program does not depend on the result's storage
 representation. Its behaviour can stay unchanged for this scenario.
 The source boundaries above explain where to inspect and test a change.
 They do not establish a supported public component interface.

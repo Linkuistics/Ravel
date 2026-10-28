@@ -1,4 +1,4 @@
-//! The opaque-result transport used by Ravel's policy-routed command front.
+//! The opaque-result transport used by Ravel's configuration script-routed command front.
 
 mod completion;
 

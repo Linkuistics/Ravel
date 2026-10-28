@@ -61,7 +61,7 @@ pub fn run() -> ExitCode {
 fn serve() -> Result<(), Stop> {
     let channel =
         take_channel().ok_or_else(|| Stop::refused("descriptor 3 is not the protocol socket"))?;
-    // Bound the heap before the first policy byte arrives, so no policy code
+    // Bound the heap before the first configuration script byte arrives, so no configuration script code
     // ever runs unbounded.
     heap::arm(usize::try_from(Limit::Heap.value()).unwrap_or(usize::MAX));
     let hello = json!({
@@ -86,7 +86,7 @@ fn serve() -> Result<(), Stop> {
         .map_err(|error| Stop::refused(format!("the channel could not be shared: {error}")))?;
 
     let evaluated = thread::Builder::new()
-        .name("rhai-policy".into())
+        .name("rhai-config".into())
         .stack_size(STACK_BYTES)
         .spawn(move || {
             let entry = Entry {

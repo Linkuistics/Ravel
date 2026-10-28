@@ -1,7 +1,7 @@
 # Develop Ravel
 
 A contributor changes the code and checks its behaviour through real processes.
-The tests use temporary [owner policies](04-writing-an-owner-policy.md) and
+The tests use temporary [owner configuration scripts](04-write-a-configuration-script.md) and
 fixture programs. They need no model account
 or other project checkout.
 
@@ -54,7 +54,7 @@ task typecheck
 
 Setup needs network access on its first run. It downloads the tools below into
 `target/tools`, then installs the development dependencies of the
-[policy worker](02-actors-and-words.md#evaluation-and-supervision). It does
+[Rhai worker](02-actors-and-words.md#evaluation-and-supervision). It does
 not install Rust, Task, ShellCheck or nextest.
 
 Setup has tool pins for macOS arm64, Linux aarch64 and Linux x86_64. Native
@@ -79,28 +79,25 @@ under `crates/ravel/worker`. These dependencies go into that directory's
 
 The checkout-local Bun takes precedence over a host Bun during worker builds.
 The built [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
-and policy worker need no host Bun or Node at run time.
+and Rhai worker need no host Bun or Node at run time.
 
-## Build the matched pair
+## Build the executable
 
-`task build` first compiles the policy worker and generates the SDK declarations.
-Then it runs `cargo build --locked --workspace` for both Rust packages. The
-Cargo lockfile pins the versions of the Rust dependencies. A first build can
-need network access for dependencies that the host Cargo cache does not hold.
-The table maps each build task to a change and its output or check.
+`task build` runs `cargo build --locked --workspace` for both Rust packages.
+The Rhai worker is part of the same executable as the CLI. The Cargo lockfile
+pins the Rust dependencies. A first build can need network access for dependencies
+that the host Cargo cache does not hold.
 
 | Task | Use it when | Output or check |
 |---|---|---|
-| `task build` | You need the matched CLI and worker | `target/debug/ravel` and `target/libexec/ravel/` |
-| `task worker` | You change worker or SDK source | Compiled `ravel-policy`, SDK declarations, examples and notices under `target/libexec/ravel/` |
-| `task typecheck` | You change TypeScript or its interface | Worker, SDK, examples, sample policy and consumers of generated declarations |
-| `task deps` | The worker dependency manifest or lockfile changes | Dependencies from the frozen Bun lockfile |
+| `task build` | You change Rust source or the Rhai worker | `target/debug/ravel` and the runner library |
+| `task check` | You need formatting, lint and the Rust tests | Checks the workspace and shell tooling |
+| `task rhai:upgrade-proof` | You change the Rhai pin | Engine and hostile-script checks through the CLI |
 
-These paths assume the default Cargo target directory. `task typecheck` needs
-the declarations from `task worker` or `task build`. It does not generate them.
+These paths assume the default Cargo target directory.
 After a worker change, run `task build` before command-boundary tests. Ravel
 checks the worker identity, so a new CLI with an old worker can refuse to run.
-[Chapter 7](07-the-parts-of-ravel.md#the-installed-pair-stays-together)
+[Chapter 7](07-the-parts-of-ravel.md#the-installed-executable-supplies-both-roles)
 explains this identity check.
 
 ## Find the source for a change
@@ -115,10 +112,10 @@ shows which code shares the CLI process and which runs in the separate worker.
 
 | Path from the checkout root | What a contributor finds there |
 |---|---|
-| `crates/ravel/src/` | CLI arguments, policy evaluation, [result](02-actors-and-words.md#the-managed-process-and-its-result) transport and final outcome choice |
+| `crates/ravel/src/` | CLI arguments, configuration script evaluation, [result](02-actors-and-words.md#the-managed-process-and-its-result) transport and final outcome choice |
 | `crates/ravel/worker/src/` | TypeScript worker implementation |
-| `crates/ravel/worker/sdk/` | Policy interface and helpers |
-| `crates/ravel/worker/examples/` and `crates/ravel/worker/sample/` | Example modules and the sample policy |
+| `crates/ravel/worker/sdk/` | Configuration script interface and helpers |
+| `crates/ravel/worker/examples/` and `crates/ravel/worker/sample/` | Example modules and the sample configuration script |
 | `crates/ravel/worker/typecheck/` | Consumers that check generated declarations |
 | `crates/keyed-launch/src/` | Process groups, signals, waits, terminal recovery and the completion channel |
 | `crates/ravel/tests/` | Tests across CLI, worker and environment boundaries |
@@ -128,7 +125,7 @@ shows which code shares the CLI process and which runs in the separate worker.
 The private [result channel](07-the-parts-of-ravel.md#the-result-channel-carries-the-value)
 combines the runner's completion signal with the contents of the result.
 `end-session` sends the result, and the complete result file appears in one
-atomic step. The CLI uses the result channel with the compiled policy
+atomic step. The CLI uses the result channel with the compiled configuration script
 evaluator. Subprocess fixtures check
 nested [session-result context](02-actors-and-words.md#three-different-kinds-of-information), cancellation, process
 cleanup, and empty and multiline results. A change to this boundary needs more
@@ -144,7 +141,7 @@ The table connects each behaviour to a test boundary and a focused command.
 | Behaviour to check | Seam and source | Focused task |
 |---|---|---|
 | A local conversion, parser or decision | Rust unit tests beside the CLI code | `task test:session -- --bin ravel` |
-| A result, [refusal](02-actors-and-words.md#evaluation-and-supervision) or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
+| A result, [refusal](02-actors-and-words.md#evaluation-and-supervision) or configuration script request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary configuration scripts and fixture processes | `task test:cli` |
 | Group cleanup, escalation or child exit status | Runner with real subprocesses under `crates/keyed-launch/tests/` | `task test:runner` |
 | Terminal foreground or modes | Linked runner in a fixture process on a private pseudo-terminal in `tests/job.rs` | `task test:runner -- --test job` |
 | Hostile runtime inputs | `crates/ravel/tests/hostile.rs`, with the real pair and controls that expose each unwanted effect | `task test:hostile`, after `task probes` |
@@ -152,16 +149,16 @@ The table connects each behaviour to a test boundary and a focused command.
 | Both Rust packages | Workspace tests under nextest | `task test` |
 
 The private result-transport tests (`task test:session -- --lib`) and the
-runner tests (`task test:runner`) need no policy worker. The complete Ravel
+runner tests (`task test:runner`) need no Rhai worker. The complete Ravel
 package suite (`task test:session`) includes the command-boundary tests and
 needs the built worker. `task test:cli` and `task test` also need it. Run
 `task build` before these tasks. The hostile-runtime tests also need the probe
 workers from `task probes`. `task test:hostile`, `task test:session` and
 `task test` include these tests.
 
-The test tasks compile Rust code, but they do not build the policy worker or
+The test tasks compile Rust code, but they do not build the Rhai worker or
 the probe workers. On a fresh checkout, if you run `task test:session` before
-`task build`, the tests that need the worker fail. When a test requests policy
+`task build`, the tests that need the worker fail. When a test requests configuration script
 evaluation without the worker, the CLI reports the
 [diagnostic code](06-reference.md#diagnostic-codes) `worker_missing`. All of
 these test tasks use the executables and fixtures of the checkout. They need
@@ -357,8 +354,8 @@ the change occurred before it checks recovery.
 
 In `crates/ravel/tests/cli.rs`, `Fixture` gives the executable an empty
 environment with a private `HOME`, `TMPDIR` and working directory. Its `PATH`
-contains `/usr/bin:/bin`. The `selecting` helper creates a TypeScript policy
-that selects `/bin/sh`. The real compiled worker evaluates that policy.
+contains `/usr/bin:/bin`. The `selecting` helper creates a Rhai configuration script
+that selects `/bin/sh`. The real compiled worker evaluates that configuration script.
 
 Fragment from the scratch copy of `crates/ravel/tests/cli.rs`: this test omits
 the imports and `Fixture` definition.
@@ -367,8 +364,8 @@ the imports and `Fixture` definition.
 #[test]
 fn book_result_keeps_spaces() {
     let fixture = Fixture::new();
-    let policy = fixture.selecting(r#""$1" end-session -- "$2""#, "  done  ");
-    let output = fixture.start(&policy, "Check spaces.");
+    let config = fixture.selecting(r#""$1" end-session -- "$2""#, "  done  ");
+    let output = fixture.start(&config, "Check spaces.");
 
     assert!(
         output.status.success(),
@@ -448,10 +445,10 @@ build outputs.
 | `task probes` | Four test workers with selected runtime safeguards removed | Probe executables under `target/probes/ravel/`, with the default Cargo target directory |
 
 The installed smoke script tests both the direct CLI path and a relative
-symlink from another prefix. It uses the installed SDK and sample policy with
+symlink from another prefix. It uses the installed SDK and sample configuration script with
 a fake program. Its checks cover ordinary, empty, multiline and option-like
 results, child output, TypeScript imports,
-[policy context](04-writing-an-owner-policy.md#supply-selection-context), parameters and absent
+[selection context](04-write-a-configuration-script.md#supply-selection-context), parameters and absent
 session-result context. It also checks the required assets and temporary-file
 cleanup. The private `PATH` has selected system utilities and fixture programs,
 with no host Bun or Node.
@@ -460,7 +457,7 @@ The probes let hostile-runtime tests show that their unwanted effect can occur.
 For example, the autoload probe permits dotenv and bunfig autoloading. Other
 probes permit tsconfig autoloading, omit embedded imports or retain the worker's
 initial directory. Each probe has a distinct identity, so no Ravel CLI
-accepts a probe as its policy worker. After a worker change, rebuild the pair
+accepts a probe as its Rhai worker. After a worker change, rebuild the pair
 and probes before `task test:hostile`.
 
 These three tasks passed on macOS 27.0.1 arm64 in this chapter's trial.
@@ -503,7 +500,7 @@ The [figure convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book
 the shared modules and visual checks. Equality with a fresh render does not
 establish that a diagram explains the right behaviour.
 
-The example check rebuilds the pair. It evaluates real TypeScript policies and
+The example check rebuilds the pair. It evaluates real TypeScript configuration scripts and
 runs fake programs with a private home, temporary directory and `PATH`. Standard
 input is `/dev/null`. It compares the declared streams and exit status, with
 only the scratch path normalised. Its summary reports a skipped example as a
@@ -586,8 +583,8 @@ The Cargo guards cover these names:
 
 An empty value disables the inherited authority. It does not redirect authority
 to another path. The runner helpers also protect direct subprocess invocations
-that do not pass through Cargo. The CLI fixtures create temporary policies, so
-tests do not need the developer's personal owner policy.
+that do not pass through Cargo. The CLI fixtures create temporary configuration scripts, so
+tests do not need the developer's personal configuration script.
 
 The `GROVE_*` and `HARNESS_DISPATCH_*` names deliberately remain in these
 guards. They protect tests from older enclosing-session controls. They are
@@ -612,7 +609,7 @@ The table connects each question to a note and the source of its observations.
 
 | Question about a change | Evidence to read | Source of its observations |
 |---|---|---|
-| Does a runtime upgrade preserve policy isolation and installed execution? | [Runtime evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/runtime-evidence.md) | `probes`, `test:hostile`, `runtime:integrity` and `smoke` |
+| Does a runtime upgrade preserve configuration script isolation and installed execution? | [Runtime evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/runtime-evidence.md) | `probes`, `test:hostile`, `runtime:integrity` and `smoke` |
 | Does an archive contain and run the required pair? | [Archive evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/archive-evidence.md) | `release:smoke`, `release:test` and `release:formula` |
 | Did a particular release reach its remote and installed destinations? | [Release and installation record](https://github.com/Linkuistics/Ravel/blob/main/docs/publication-evidence.md) | Release tasks, download comparisons and installed Homebrew checks |
 | Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive/formula checks |
@@ -669,7 +666,7 @@ state and replace an installation, so they are not chapter-check commands.
 | Task names | Destination |
 |---|---|
 | `setup` | [Prepare a checkout](#prepare-a-checkout) |
-| `build`, `worker`, `typecheck`, `deps` | [Build the matched pair](#build-the-matched-pair) |
+| `build`, `worker`, `typecheck`, `deps` | [Build the matched pair](#build-the-executable) |
 | `test`, `test:session`, `test:cli`, `test:runner`, `test:hostile`, `test:list` | [Choose a test seam](#choose-a-test-seam) |
 | `check`, `runtime:integrity`, `test:terminal-recovery` | [Run the checks before handoff](#run-the-checks-before-handoff) |
 | `install`, `smoke`, `probes` | [Install and test the installed pair](#install-and-test-the-installed-pair) |

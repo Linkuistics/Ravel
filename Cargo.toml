@@ -8,7 +8,7 @@ version = "1.1.0"
 edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/Linkuistics/Ravel"
-# The newest stable release when the policy design was written.
+# The newest stable release when the configuration design was written.
 # rust-toolchain.toml names the same release.
 rust-version = "1.99.1"
 

@@ -5,9 +5,9 @@
 #
 # Every example runs through the seam Ravel's CLI tests use (Fixture in
 # crates/ravel/tests/cli.rs): the built `ravel` binary re-executed as its Rhai
-# worker, real Rhai policy evaluation, fake agent programs, an empty
+# worker, real Rhai configuration script evaluation, fake agent programs, an empty
 # environment, a private HOME and TMPDIR and a PATH of `/usr/bin:/bin` plus the
-# one directory holding `ravel`. No real agent, model or personal policy is
+# one directory holding `ravel`. No real agent, model or personal configuration script is
 # reachable. The convention is written in docs/book/examples.md; the controls
 # for this script are scripts/examples.test.sh.
 #

@@ -47,7 +47,7 @@ pub const MESSAGE_BYTES: u64 = 1024 * 1024;
 /// The worker's stdout and stderr together, in bytes.
 pub const DIAGNOSTICS_BYTES: u64 = 256 * 1024;
 
-/// The harness-run budget of one evaluation (`docs/specs/policy-evaluation.md`,
+/// The harness-run budget of one evaluation (`docs/specs/configuration-evaluation.md`,
 /// *Evaluation budgets and their composition*): the default and the range. Only
 /// the owner settings set it, and a configuration script can read it but not raise it.
 pub const HARNESS_RUNS_DEFAULT: u64 = 0;

@@ -70,7 +70,7 @@ pub enum Lookup {
 }
 
 /// The marker that a harness run carries, and that `start-session` refuses
-/// (`docs/specs/policy-evaluation.md`, *Re-entry and completion authority*).
+/// (`docs/specs/configuration-evaluation.md`, *Re-entry and completion authority*).
 pub const CONFIG_RUN: &str = "RAVEL_CONFIG_RUN";
 
 /// The variables that the managed process and each harness run never inherit:

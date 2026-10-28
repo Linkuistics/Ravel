@@ -14,7 +14,7 @@ An optional HTML comment carries a platform requirement that rendered views hide
 Complete example: route every request to a fake `claude`, which sends
 `continue`.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -36,7 +36,7 @@ ravel end-session -- "continue"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/claude || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt "Review the change."
 ```
 
 **Standard output, without a final newline**
@@ -136,8 +136,8 @@ Each command runs in `work` through `/bin/sh -c`, with null stdin and `env -i`.
 Examples supply their own `PATH="$PWD/bin:$PATH" ravel ...` commands.
 The reader sees the commands that run.
 A route to `claude` or `codex` reaches only the fake that the example supplies.
-No personal policy or settings enter the run, and no real model receives a call.
-Real Rhai policy evaluation runs in the built Ravel binary, re-executed as its internal worker.
+No personal configuration script or settings enter the run, and no real model receives a call.
+Real Rhai configuration script evaluation runs in the built Ravel binary, re-executed as its internal worker.
 
 The checkout still builds the separate worker until the format-removal increment.
 That build dependency does not make the Rhai examples use the old worker.
@@ -155,7 +155,7 @@ Commands run in order and share the example's scratch directory.
 ## The one normalisation
 
 The checker replaces every scratch-directory path in stdout and stderr with `<scratch>` before comparison.
-A claimed path therefore reads `<scratch>/work/policy.rhai` instead of the temporary path of that run.
+A claimed path therefore reads `<scratch>/work/config.rhai` instead of the temporary path of that run.
 
 This substitution is not one-to-one.
 A command that prints literal `<scratch>` satisfies a claim that contains those characters.
@@ -191,9 +191,9 @@ Earlier stop-attempt lines contain a process-group ID and can vary.
 One sandboxed tool session also reported `Operation not permitted`, whose cause was not established.
 The example therefore uses `Standard error includes` for the refusal, not an exact stderr claim.
 
-During selection, the policy calls a configured fake through `ravel::run_harness`.
+During selection, the configuration script calls a configured fake through `ravel::run_harness`.
 The fake sends `kill -INT "$PPID"` to its parent, the Ravel CLI.
-The policy itself cannot send a signal.
+The configuration script itself cannot send a signal.
 Ravel stops the harness run before the worker and reports `selection_cancelled`, status 130.
 The example claims only the stable diagnostic line, because teardown details vary.
 
@@ -203,7 +203,7 @@ A chapter uses a Fragment label that identifies the omitted terminal interaction
 
 ## Real agent routes
 
-A policy fragment selects Claude Code or Codex.
+A configuration script fragment selects Claude Code or Codex.
 A complete example checks that route through a fake `bin/claude` or `bin/codex` that records its arguments.
 The chapter records the real agent's version and the date of the check against its own help.
 Those facts appear beside the route, so readers can assess their age.

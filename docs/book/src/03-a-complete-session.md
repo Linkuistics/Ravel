@@ -82,14 +82,13 @@ the two files below at the labelled paths.
 The command below creates private `home` and `tmp` directories and makes
 the fake executable. The command clears the environment (`env -i`) and gives
 an explicit `--config`. Thus, this session does not use your usual settings
-or configuration script. The file name `policy.rhai` uses the word “policy”,
-as Ravel's file names, options and error codes do for the configuration
-script.
+or configuration script. The explicit path `config.rhai` names the file in
+the example directory.
 
 Complete example: pass a prompt through a small configuration script to a
 fake agent. The fake prints the prompt and sends `finished`.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -120,7 +119,7 @@ ravel end-session -- "finished"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.rhai --prompt 'Print this prompt, then call ravel end-session -- "finished".'
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --prompt 'Print this prompt, then call ravel end-session -- "finished".'
 ```
 
 **Standard output, without a final newline**
@@ -201,13 +200,13 @@ The final expression returns that map. Ravel checks its fields during evaluation
 
 The function accepts a request and selection context. This example needs only
 `request.prompt`, so it leaves the second argument unused.
-[Chapter 4](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request)
+[Chapter 4](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request)
 teaches the syntax and the other fields.
 
 ## Check the request and evaluate the configuration script
 
 The Ravel CLI first reads the settings and the command-line inputs and checks
-the configuration script. `--config policy.rhai` names a file relative to the
+the configuration script. `--config config.rhai` names a file relative to the
 caller's working directory. Ravel resolves its real path and requires a
 readable regular file. It does not search the caller's repository for a
 different configuration script. Settings still come from `$HOME/.config/ravel/settings.json`, even
@@ -225,7 +224,7 @@ The worker receives an empty environment and no
 the `RAVEL_EXIT_FILE` path with which a program sends the session result.
 
 The `cwd` of the request keeps the caller's working directory.
-The configuration script has no direct filesystem access. Ravel reads `policy.rhai` and
+The configuration script has no direct filesystem access. Ravel reads `config.rhai` and
 sends its source to the worker, which evaluates it and calls `select`.
 
 The configuration script has no `load_context` function, and the caller
@@ -497,7 +496,7 @@ output. [Chapter 8](08-follow-a-session-through-the-code.md#choose-the-final-out
 gives the full outcome decision.
 
 To write rules in the configuration script beyond this single fake, continue with
-[chapter 4, “Write a configuration script”](04-writing-an-owner-policy.md).
+[chapter 4, “Write a configuration script”](04-write-a-configuration-script.md).
 To invoke Ravel from your own tool, continue with
 [chapter 5, “Run sessions”](05-running-sessions.md).
 [Chapter 8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), follows this

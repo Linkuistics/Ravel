@@ -1,5 +1,5 @@
 //! The data helpers of a Rhai configuration script through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *Data helpers*, and the capability list of
+//! (`docs/specs/configuration-evaluation.md`, *Data helpers*, and the capability list of
 //! *Migration*): JSON, the UUID, the path functions and the environment read.
 //!
 //! The last part proves each capability that Grove's helpers need, with no Grove
@@ -15,7 +15,7 @@ use std::os::unix::ffi::OsStrExt as _;
 
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
-use support::rhai::{self, Recorded, policy};
+use support::rhai::{self, Recorded, rhai_script};
 use support::{Run, Sandbox, run, text};
 
 fn refused(run: &Run, code: &str, recorded: &Recorded) -> Value {
@@ -45,7 +45,7 @@ fn selecting(body: &str) -> String {
 
 /// `selecting`, after the global functions in `globals`.
 fn selecting_with(globals: &str, body: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"{CAUGHT}{globals}
 fn select(request, context) {{
 {body}
@@ -649,7 +649,7 @@ fn env_works_in_load_context_and_at_the_top_level_of_a_module() {
         &sandbox.home.join(".config/ravel/lib/seen.rhai"),
         r#"export const LANG_AT_LOAD = ravel::env("LANG");"#,
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"import "lib/seen" as seen;
 fn load_context(request) { #{ schemaVersion: 1, facts: #{ lang: ravel::env("LANG") } } }
 fn select(request, context) {
@@ -702,7 +702,7 @@ fn a_malformed_argument_to_a_data_helper_ends_the_evaluation_and_names_the_funct
     }
 }
 
-// What Grove's helpers need (`docs/specs/policy-evaluation.md`, *Migration*), each
+// What Grove's helpers need (`docs/specs/configuration-evaluation.md`, *Migration*), each
 // proved with a configuration script of this file and no Grove code.
 
 fn sha256(bytes: &[u8]) -> String {
@@ -846,7 +846,7 @@ fn grove_needs_a_random_uuid_that_differs_between_evaluations() {
 }
 
 #[test]
-fn grove_needs_a_wrapper_policy_that_imports_a_module_calls_its_select_and_changes_the_selection() {
+fn grove_needs_a_wrapper_config_that_imports_a_module_calls_its_select_and_changes_the_selection() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     support::write(
@@ -858,7 +858,7 @@ fn grove_needs_a_wrapper_policy_that_imports_a_module_calls_its_select_and_chang
             rhai::HEADER
         ),
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"import "inner" as inner;
 fn select(request, context) {
     let selection = inner::select(request, context);

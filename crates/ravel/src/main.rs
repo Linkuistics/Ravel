@@ -3,6 +3,7 @@ mod authority;
 mod cancellation;
 mod choice;
 mod cli;
+mod config;
 mod confinement;
 mod context;
 mod environment;
@@ -15,7 +16,6 @@ mod limits;
 mod native_barrier;
 #[cfg(test)]
 mod native_entry_tests;
-mod policy;
 mod program;
 mod refusal;
 mod rhai_worker;

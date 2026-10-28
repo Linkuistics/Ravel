@@ -32,9 +32,9 @@ pub enum Stage {
     /// Reading the caller's context document, or assembling, validating and
     /// measuring the context delivered to selection.
     Context,
-    /// The policy's exported shape.
+    /// The configuration script's exported shape.
     Validation,
-    /// Calling a valid policy's `select` and judging what it returned.
+    /// Calling a valid configuration script's `select` and judging what it returned.
     Selection,
     /// Finding the selected command's program.
     Resolution,
@@ -77,7 +77,7 @@ pub struct Details {
     pub source: Option<String>,
     /// Where inside `source` the problem is (`config.select`, `result.args[2]`).
     pub location: Option<String>,
-    /// A policy's own code for a refusal it returned, reported beside the
+    /// A configuration script's own code for a refusal it returned, reported beside the
     /// stable `config_refused` rather than in its place.
     pub config_code: Option<String>,
     /// The bound whose exhaustion this refusal reports.
@@ -206,7 +206,7 @@ impl From<Refusal> for Failure {
 
 impl Failure {
     /// Preserve an earlier cancellation, or retain the superseded refusal's
-    /// full metadata and advice without labelling it as captured policy output.
+    /// full metadata and advice without labelling it as captured configuration script output.
     pub fn cancelled_by(self, signal: Signal, source: &str) -> Self {
         if self.refusal.signal.is_some() {
             return self;

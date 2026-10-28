@@ -1,11 +1,11 @@
 # Rhai configuration evaluation views
 
-Run `task docs:rhai-policy`, then open <http://127.0.0.1:8776/#discussion>.
-If that port is in use, run `task docs:rhai-policy PORT=8882` and open <http://127.0.0.1:8882/#discussion>.
+Run `task docs:rhai-configuration`, then open <http://127.0.0.1:8776/#discussion>.
+If that port is in use, run `task docs:rhai-configuration PORT=8882` and open <http://127.0.0.1:8882/#discussion>.
 Read each graph from its dark node, labelled `Start here`.
 Read each sequence from its first message. The sources remain editable beside the viewer.
 
-The [configuration evaluation specification](../../specs/policy-evaluation.md) is the authority for these views:
+The [configuration evaluation specification](../../specs/configuration-evaluation.md) is the authority for these views:
 
 - [Processes and authority](index.html#diagram-processes) shows the Ravel CLI, the Rhai worker, the reader thread and harness jobs.
 - [One LLM-assisted selection](index.html#diagram-evaluation-sequence) shows one request map sent to `ravel::run_harness`, followed by answer checks and selection.
@@ -16,6 +16,5 @@ The [configuration evaluation specification](../../specs/policy-evaluation.md) i
 - [Rejected nested session](index.html#diagram-rejected-nested-session) shows the separate group that an outer evaluation cannot stop.
 
 The viewer loads Mermaid 12.0.0, so these views need network access.
-`task docs:rhai-policy` serves the viewer. No generated SVG files are part of these views.
+`task docs:rhai-configuration` serves the viewer. No generated SVG files are part of these views.
 A rendered view proves diagram delivery. It does not prove executable behaviour.
-The directory and task names retain their existing identifiers until the coordinated configuration rename.

@@ -32,7 +32,7 @@ Draft the corrections across both parts, with concrete explanations that lead to
   Keep exact required fields in runnable examples, and explain their values in the reference.
 - Explain that Ravel launches its own executable as a separate worker to evaluate the configuration script.
   Explain the parent's continuing supervision and host service, the deadline and failure isolation, and the worker's completion before the final launch.
-  Check the account against `crates/ravel/src/rhai_worker/front.rs`, `crates/ravel/src/worker.rs` and the ADR `policy-evaluation-precedes-the-launch`.
+  Check the account against `crates/ravel/src/rhai_worker/front.rs`, `crates/ravel/src/worker.rs` and the ADR `configuration-evaluation-precedes-the-launch`.
 - Link Grove to `https://github.com/Linkuistics/grove` where each page introduces it.
   Keep enough local explanation for a reader who does not follow the link.
 - Replace unusual shorthand in headings with the subject or the reader's question. Check the whole set of headings.
@@ -90,7 +90,7 @@ Each page that shows such a literal says once that Ravel's file names, options a
 Titles:
 
 - Chapter 2: “Who does what in a Ravel session” (F15). The file name stays `02-actors-and-words.md`.
-- Chapter 4: “Write a configuration script”. The file name stays `04-writing-an-owner-policy.md`.
+- Chapter 4: “Write a configuration script”. The file name stays `04-write-a-configuration-script.md`.
 - Chapter 1, last section: “See what we tested and what remains unchecked” (F14).
 
 File names stay unchanged, because chapters 7–11, the README and outside documents link to them.

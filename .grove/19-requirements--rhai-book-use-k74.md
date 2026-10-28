@@ -278,7 +278,7 @@ This is not concurrent evaluation and execution of that final program.
 
 Source check: `rhai_worker/front.rs`, `executable` and `launch`, identify the same executable and the worker role.
 `worker.rs`, `supervise`, constructs `Command`, sets the pre-exec controls and calls `spawn`.
-The ADR `policy-evaluation-precedes-the-launch` records the process boundary, hard deadline and failure-isolation reasons.
+The ADR `configuration-evaluation-precedes-the-launch` records the process boundary, hard deadline and failure-isolation reasons.
 These are direct source reads after graph access failed, not graph evidence.
 
 **F13, the Grove link.** The owner's words follow.

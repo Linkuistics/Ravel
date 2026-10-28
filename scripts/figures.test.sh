@@ -424,11 +424,11 @@ cat >"$modules/engine.typ" <<'EOF'
     part("a", [caller]),
     part("b", [Ravel CLI \ (runner inside)], kind: "ravel"),
     part("c", [result channel], kind: "temporary", db: true),
-    part("d", [owner policy], kind: "owner"),
+    part("d", [configuration script], kind: "owner"),
   ),
   (
     msg("a", "b", [start-session: kind and prompt]),
-    msg("b", "b", [Check inputs and policy path]),
+    msg("b", "b", [Check inputs and script path]),
     div([Selection]),
     msg("b", "d", [Start in an empty private directory], create: true),
     msg("d", "b", [Identity; the CLI checks the match], dashed: true),

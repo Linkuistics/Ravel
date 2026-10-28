@@ -6,7 +6,7 @@ Make `ravel::llm` work end to end for the `anthropic` API type. A policy sends m
 
 ## Context
 
-- The input is `docs/specs/policy-evaluation.md`. Read "LLM calls", "LLM endpoints and credentials", "Rig upgrades" and the scenarios of the requirements "Generic LLM interaction", "Endpoint failures are data" and "Credential boundary".
+- The input is `docs/specs/configuration-evaluation.md`. Read "LLM calls", "LLM endpoints and credentials", "Rig upgrades" and the scenarios of the requirements "Generic LLM interaction", "Endpoint failures are data" and "Credential boundary".
 - The settings keys and the credential name rules exist after `rhai-settings-discovery`. The bridge and the reader thread exist after `rhai-measured-reads`.
 - The TLS crypto provider must build for all three archive targets with the existing Zig glibc 2.17 toolchain. The design prefers `ring`. Prove this with `task release:smoke` before anything relies on it.
 - If the build fails on a target, stop and escalate. State the target, the error and the options. Do not choose another provider without the owner.

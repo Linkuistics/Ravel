@@ -1,4 +1,4 @@
-//! The host calls the front answers (`docs/specs/policy-evaluation.md`, *Host
+//! The host calls the front answers (`docs/specs/configuration-evaluation.md`, *Host
 //! capabilities* and *Measured reads*): the measured reads and the module
 //! imports of the worker.
 //!
@@ -168,7 +168,7 @@ impl Host {
     }
 
     /// Read the entry, on the reader thread like every other file, and record it
-    /// as the first module. The error completes the sentence "the selected policy
+    /// as the first module. The error completes the sentence "the selected configuration script
     /// entry PATH ...".
     pub(super) async fn read_entry(&mut self, name: &str) -> Result<String, String> {
         let path = PathBuf::from(name);

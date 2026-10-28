@@ -1,16 +1,16 @@
-//! Read owner authority and inputs, evaluate policy, validate its selection and resolve its program.
+//! Read owner authority and inputs, evaluate the configuration script, validate its selection and resolve its program.
 
 use std::path::Path;
 
 use serde_json::{Map, Value};
 
-use crate::authority::{self, PolicyEntry};
+use crate::authority::{self, ConfigEntry};
 use crate::cancellation;
 use crate::cli::SelectionArgs;
+use crate::config::{self, Command};
 use crate::context::{self, Delivered, Measured, SourceBreach};
 use crate::inputs::Inputs;
 use crate::limits::{Bound, Limits, Origin};
-use crate::policy::{self, Command};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
@@ -24,7 +24,7 @@ pub struct Choice {
     pub worker: rhai_front::Identity,
     pub elapsed: std::time::Duration,
     pub inputs: Inputs,
-    pub entry: PolicyEntry,
+    pub entry: ConfigEntry,
     /// The command `select` returned, exactly.
     pub command: Command,
     /// The file its program resolved to.
@@ -42,10 +42,10 @@ pub struct Choice {
     pub operational: Vec<String>,
 }
 
-/// Resolve owner authority and inputs without evaluating any policy code.
+/// Resolve owner authority and inputs without evaluating any configuration script code.
 pub struct Prepared {
     pub inputs: Inputs,
-    pub entry: PolicyEntry,
+    pub entry: ConfigEntry,
     pub settings_path: Option<std::path::PathBuf>,
 }
 
@@ -114,7 +114,7 @@ pub fn overruled(failure: Failure, source: &str) -> Failure {
 /// with its measurement attached, which only this side can measure.
 fn evaluate_and_resolve_rhai(
     inputs: Inputs,
-    entry: PolicyEntry,
+    entry: ConfigEntry,
     setup: &RunSetup,
 ) -> Result<Choice, Failure> {
     let source = entry.display();
@@ -144,7 +144,7 @@ fn evaluate_and_resolve_rhai(
     // until the supervisor has admitted the successful reply.
     let reply_judge = |reply: &Reply| match reply {
         Reply::Selection { result, .. } => {
-            policy::judge_result(result.clone(), &inputs.kind, &source).map(|_| ())
+            config::judge_result(result.clone(), &inputs.kind, &source).map(|_| ())
         }
         Reply::Failure(failure) => Err(script_refusal(failure, &source, &inputs.limits)),
     };
@@ -186,7 +186,7 @@ fn evaluate_and_resolve_rhai(
             return Err(refuse(script_refusal(&failure, &source, &inputs.limits)));
         }
     };
-    let command = policy::judge_result(result, &inputs.kind, &source).map_err(refuse)?;
+    let command = config::judge_result(result, &inputs.kind, &source).map_err(refuse)?;
     cancellation::check(&source).map_err(refuse)?;
     let path = std::env::var_os("PATH");
     let executable = program::resolve(&command.program, &source, &inputs.cwd, path.as_deref())
@@ -222,7 +222,7 @@ fn rhai_context(
         .as_object()
         .filter(|fields| fields.contains_key("status"))
     {
-        return Err(policy::loader_refused(fields, &inputs.kind, source));
+        return Err(config::loader_refused(fields, &inputs.kind, source));
     }
     context::deliver(value, sources, true, &inputs.limits, source)
 }
@@ -382,11 +382,11 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
         "selection_malformed" => (
             "selection_malformed",
             Stage::Selection,
-            policy::shape(source),
+            config::shape(source),
         ),
         "script_limit" | "memory_limit" => return limit_refusal(failure, file),
         "message_too_large" => {
-            return policy::message_too_large(failure.actual, source, limits);
+            return config::message_too_large(failure.actual, source, limits);
         }
         other => {
             return Refusal::new(

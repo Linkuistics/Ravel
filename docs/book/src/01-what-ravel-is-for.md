@@ -392,7 +392,7 @@ session. Its result goes back to the script, not to the caller. Ravel
 supervises each harness run within the owner's
 [evaluation budget](02-actors-and-words.md#evaluation-and-supervision),
 which limits the work of one evaluation of the configuration script.
-[Chapter 4](04-writing-an-owner-policy.md) gives the recipes for Claude Code
+[Chapter 4](04-write-a-configuration-script.md) gives the recipes for Claude Code
 and Codex.
 
 ### Ravel runs the program, and the program sends a result
@@ -673,7 +673,7 @@ and the chapters for further detail.
 | Your task | Read in this order | Further detail |
 |---|---|---|
 | Call Ravel from your own tool | Chapters 1–3, then [chapter 5, “Run sessions”](05-running-sessions.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
-| Write a configuration script | Chapters 1–3, then [chapter 4, “Write a configuration script”](04-writing-an-owner-policy.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
+| Write a configuration script | Chapters 1–3, then [chapter 4, “Write a configuration script”](04-write-a-configuration-script.md) | [Chapter 6, “Reference”](06-reference.md), for lookup |
 | Change Ravel | Chapters 1–3, then [chapter 7, “The parts of Ravel”](07-the-parts-of-ravel.md), [8, “Follow a session through the code”](08-follow-a-session-through-the-code.md), and [10, “Develop Ravel”](10-develop-ravel.md) | [Chapter 9, “Jobs, signals and the terminal”](09-jobs-signals-and-the-terminal.md), and [chapter 11, “Deliver Ravel”](11-deliver-ravel.md) |
 | Reuse Ravel from another program | Ravel supports no separate component. Invoke the Ravel CLI as a child process. Chapters 2, 3 and [5](05-running-sessions.md) teach that interface. | [Chapters 7](07-the-parts-of-ravel.md) and [9](09-jobs-signals-and-the-terminal.md) explain the private runner and its limits |
 

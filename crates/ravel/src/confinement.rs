@@ -130,7 +130,7 @@ impl Confined {
             let mut protected = vec![prospective(
                 Path::new(&selection.entry)
                     .parent()
-                    .expect("absolute policy has a parent"),
+                    .expect("absolute configuration entry has a parent"),
             )?];
             if let Some(settings) = &selection.settings {
                 protected.push(prospective(settings)?);

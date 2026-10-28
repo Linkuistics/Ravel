@@ -27,8 +27,8 @@ Each leaf leaves main working. The cutover leaf can run before the delivery leaf
 
 ## Pointers
 
-- ADRs: `docs/adr/owner-policy-is-a-rhai-script.md` and `docs/adr/policy-evaluation-precedes-the-launch.md`.
-- Specs: `docs/specs/policy-evaluation.md` is the new design. Its sections "Installed layout and delivery" and "Migration" state the targets. `docs/specs/session-execution.md` holds the policy sections of 1.x.
+- ADRs: `docs/adr/configuration-script-uses-rhai.md` and `docs/adr/configuration-evaluation-precedes-the-launch.md`.
+- Specs: `docs/specs/configuration-evaluation.md` is the new design. Its sections "Installed layout and delivery" and "Migration" state the targets. `docs/specs/session-execution.md` holds the policy sections of 1.x.
 - The leaf `rhai-example-policies` and its running log hold the equivalence test and the list of language differences.
 - Skill for the reconciliation: `linkuistics:simplify-project`. It removes proven-dead code and artifacts, and it reconciles every consumer.
 - Glossary: Owner policy, Policy worker and Host capability.

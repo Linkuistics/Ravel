@@ -41,7 +41,7 @@ const DESCRIPTORS: &str = "/dev/fd";
 
 /// How long to keep collecting diagnostics after the worker is reaped. A
 /// descendant the configuration script left holding its stdout could otherwise keep a drain
-/// open forever; detached policy children are outside the contract, so their
+/// open forever; detached configuration script children are outside the contract, so their
 /// late output is not waited for. Both streams share the one grace.
 const DRAIN_GRACE: Duration = Duration::from_secs(1);
 
@@ -431,7 +431,7 @@ pub(crate) fn supervise<T>(
     }
 }
 
-// Local operation reports stay separate from the bounded policy byte streams.
+// Local operation reports stay separate from the bounded configuration script byte streams.
 struct Teardown {
     pid: u32,
     status: io::Result<ExitStatus>,
@@ -539,7 +539,7 @@ fn output_limit(entry: &str, limits: &Limits) -> Refusal {
 }
 
 /// The refusal when the deadline passes: after the entry was handed over, the
-/// policy held evaluation; before, the worker never became ready for it.
+/// configuration script held evaluation; before, the worker never became ready for it.
 fn expired(worker: &Path, entry: &str, bound: Bound, handed_over: bool, rebuild: &str) -> Refusal {
     let limit = bound.to_text();
     let raise = format!(
@@ -936,9 +936,9 @@ impl Capture {
             thread::Builder::new()
                 .name(
                     if stdout {
-                        "policy-stdout"
+                        "config-stdout"
                     } else {
-                        "policy-stderr"
+                        "config-stderr"
                     }
                     .into(),
                 )

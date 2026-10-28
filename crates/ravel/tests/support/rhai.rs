@@ -1,4 +1,4 @@
-//! The sandbox helper for Rhai policies at the real CLI seam.
+//! The sandbox helper for Rhai configuration scripts at the real CLI seam.
 //!
 //! It adds to [`Sandbox`] the personal `config.rhai`, entries by relative path
 //! and a harness that records the argument vector it was started with, so a
@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 
 use super::{FRONT, Sandbox, write};
 
-/// The header every policy of these tests starts with: the two constants the
+/// The header every configuration script of these tests starts with: the two constants the
 /// contract needs.
 pub const HEADER: &str =
     "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"rhai-seam-1\";\n";
@@ -27,15 +27,15 @@ fn select(request, context) {
 }
 "#;
 
-/// A policy that has `body` after the header.
-pub fn policy(body: &str) -> String {
+/// A configuration script that has `body` after the header.
+pub fn rhai_script(body: &str) -> String {
     format!("{HEADER}{body}\n")
 }
 
 /// A `select` that routes to the recording harness with `args`, a Rhai array
 /// expression, as its arguments.
 pub fn routing(args: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"fn select(request, context) {{
     #{{ status: "selected", program: "recording-agent", args: {args},
        provider: "fixture", model: "fixture", effort: "high", reason: "recorded" }}
@@ -85,7 +85,7 @@ impl Sandbox {
 }
 
 /// The `arg0` of the worker role, which `ps` shows as its command.
-const WORKER_ARG0: &str = "ravel-rhai-policy-worker";
+const WORKER_ARG0: &str = "ravel-rhai-config-worker";
 
 /// The pid of the worker that `front` launched, once it runs.
 pub fn worker_of(front: u32) -> i32 {

@@ -18,7 +18,7 @@ Remove the Bun worker, the TypeScript SDK and their build and release machinery.
 
 ## Context
 
-- The input is "Installed layout and delivery" in `docs/specs/policy-evaluation.md`.
+- The input is "Installed layout and delivery" in `docs/specs/configuration-evaluation.md`.
 - The files to remove include the directory `crates/ravel/worker` (source, SDK, declarations, sample, `bun.lock` and `package.json`), `scripts/worker-check.sh`, `crates/ravel/scripts/dispatch.sh`, `crates/ravel/scripts/installed-smoke.sh` and `scripts/runtime-integrity.test.sh`. Search first, because other files may depend on them.
 - Consumers to reconcile are the Taskfile (`setup`, `deps`, `worker`, `typecheck`, `build`, `probes`, `test:hostile`, `install`, `smoke`, `runtime:integrity`), `scripts/check.sh`, `scripts/installed-check.sh`, the release scripts (`release-build.sh`, `release-smoke*.sh`, `release-doctor.sh`, `release-common.sh`) and their tests. Also reconcile `scripts/templates/ravel.rb.tmpl`, `scripts/release-formula.test.rb`, `scripts/native-linux/Dockerfile` and `scripts/native-incumbent`.
 - The checkers of the book also depend on files that this leaf removes. `scripts/examples.test.sh` quotes `crates/ravel/worker/sdk/index.ts` as its excerpt fixture. `scripts/excerpts.test.sh` quotes the same file and a `node_modules` path under `crates/ravel/worker`. The comments of `scripts/book.sh` and `scripts/figures.sh` name `dispatch.sh`. Point each fixture at a file that survives, and keep its control firing.

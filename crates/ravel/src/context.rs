@@ -74,7 +74,7 @@ pub struct CallerContext {
 /// Read the `--context` document once, within the context budget, and check
 /// it against the version-1 shape. The path resolves against the caller's cwd
 /// and must name a regular file, which is opened without blocking, so that a
-/// FIFO cannot hold the invocation before its policy even starts.
+/// FIFO cannot hold the invocation before its configuration script even starts.
 pub fn read_caller(given: &Path, cwd: &Path, limits: &Limits) -> Result<CallerContext, Refusal> {
     let joined = cwd.join(given);
     let shown = joined.to_string_lossy().into_owned();
@@ -181,7 +181,7 @@ impl Delivered {
 }
 
 /// Where a context came from, for its refusals: the caller's document, or the
-/// policy's `load_context`.
+/// configuration script's `load_context`.
 #[derive(Clone, Copy)]
 enum Author {
     Caller,

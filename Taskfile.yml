@@ -10,12 +10,12 @@ tasks:
     cmds:
       - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/result-job
 
-  docs:rhai-policy:
-    desc: Serve the editable Rhai policy evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)
+  docs:rhai-configuration:
+    desc: Serve the editable Rhai configuration evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)
     vars:
       PORT: '{{.PORT | default "8776"}}'
     cmds:
-      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/rhai-policy
+      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/rhai-configuration
 
   docs:book:
     desc: Build the book, then serve it on localhost and rebuild on change (needs task setup)

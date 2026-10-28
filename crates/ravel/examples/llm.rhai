@@ -1,4 +1,4 @@
-// An LLM-assisted selection. The policy asks Claude Code which kind of work the
+// An LLM-assisted selection. The configuration script asks Claude Code which kind of work the
 // prompt describes, and then routes that kind through the starter table. When
 // the call gives no usable answer, the caller's own kind decides.
 //

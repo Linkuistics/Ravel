@@ -29,8 +29,8 @@ The harness run itself belongs to `rhai-harness-runs`. So do the tests of an LLM
 
 ## Pointers
 
-- ADR: `docs/adr/a-policy-asks-a-model-through-a-harness-run.md`.
-- Spec: `docs/specs/policy-evaluation.md`. The sections are "Data helpers", "LLM calls through a harness", "Credentials", "Evaluation budgets and their composition" and "Upgrades".
+- ADR: `docs/adr/a-configuration-script-asks-a-model-through-a-harness-run.md`.
+- Spec: `docs/specs/configuration-evaluation.md`. The sections are "Data helpers", "LLM calls through a harness", "Credentials", "Evaluation budgets and their composition" and "Upgrades".
 - The running log of `llm-calls-through-harnesses-k58` holds the owner's decisions.
 - Glossary: LLM call, Harness run, Provider and Evaluation budget.
 - Test seam: the real `ravel start-session` against a sandbox home, with fake harness scripts on a private `PATH`.

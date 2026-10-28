@@ -154,7 +154,7 @@ F6 asks that “the result becomes the value returned as the Ravel result”.
 **Ravel application:** Contract §1 and §2 follow `end-session`, group cleanup and the return from `start-session`.
 The first-result rule also needs the race and shutdown explanation.
 Draft `rhai-book-use-k81` gives chapter 4 order tables for an evaluation and the first example.
-Other order tables follow policy context, a harness run, the Claude Code recipe and an interactive route.
+Other order tables follow selection context, a harness run, the Claude Code recipe and an interactive route.
 
 Draft `rhai-book-use-k82` opens chapter 5 with chapter 1's order table and a column for the section of each row. A table after each complete example ends with what the caller receives.
 Draft `rhai-book-use-k83` gives chapter 6 order tables for `start-session` and a harness run. The `end-session` and refusal entries end with what the caller receives.
@@ -209,7 +209,7 @@ Resolve ambiguous domain words in the glossary and record shared wording decisio
 **Source:** Owner choice in `rhai-policy-k2`, 2026-10-24 to 2026-10-25, resolves `plan-k1`'s concern that “Provider” needs one meaning.
 Session evidence: `rhai-book-use-k69`, 2026-10-26.
 **Ravel application:** `CONTEXT.md` keeps Provider as the owner's model-origin label.
-[Word decisions](book/ste.md) keep “policy”, “policy worker”, “harness run” and the full standard-stream names consistent.
+[Word decisions](book/ste.md) keep “configuration script”, “Rhai worker”, “harness run” and the full standard-stream names consistent.
 Its signal-name rule preserves literal identifiers and diagnostics.
 
 The prose checker accepts the first word of a synonym group in a file and reports each other member. New text uses the verb that the page already uses. Chapter 4 says “start” for a process, where chapter 1 says “launch”.
@@ -236,7 +236,7 @@ Distinguish a bound on one operation from a bound on the whole evaluation.
 State accepted escape paths and the evidence that the available test cannot supply.
 
 **Source:** Session findings and integrations `rhai-policy-k4`/`k5`, `rhai-measured-reads-k52`/`k53` and `llm-calls-through-harnesses-k59`/`k61`, 2026-10-25 to 2026-10-26.
-**Ravel application:** The policy spec separates run output limits from evaluation stops, and `env` grants from deliberate credential reads.
+**Ravel application:** The configuration evaluation spec separates run output limits from evaluation stops, and `env` grants from deliberate credential reads.
 It limits cleanup to the supervised group and distinguishes abandonable reads from a promise to stop a kernel call.
 
 ### L16. Correct summaries and tables with their detailed rule
@@ -726,7 +726,7 @@ Before a live call, state its purpose and cost and ask for the required permissi
 **Source:** Sessions `rhai-example-policies-k25`, `rhai-llm-call-scenarios-k67` and `rhai-harness-smoke-k66`, 2026-10-26.
 The owner approved “Yes, one call per harness”.
 **Ravel application:** Contract §1, “Examples policy”, keeps default examples on fakes.
-The owner-shaped policy uses invented programs. The credential probes share a sentinel and read no real sign-in.
+The owner-shaped configuration script uses invented programs. The credential probes share a sentinel and read no real sign-in.
 The real-call record preserves only the agreed answer shape and the information needed to reproduce the recipe.
 
 ### L51. Separate a prose conversion from a change of meaning
@@ -932,6 +932,12 @@ Draft `rhai-book-use-k89`, 2026-10-28, applied the map to text that the reader s
 That draft retained Ravel's own diagnostic words, `VERSION` strings and labels as literals or identifiers.
 
 The later product rename changes Ravel-owned names. It does not rewrite arbitrary owner-supplied data.
+
+Session `configuration-names-k114`, 2026-10-29, extends this rule to comments and overloaded words.
+Classify what each occurrence names before replacing it. An operating-system cancellation policy is not an owner configuration script.
+A comment that names a historical JSON field or a deliberately rejected filename must retain that exact identifier.
+Check both the remaining old tokens and the new replacement phrases: an old-token search cannot find a wrong new phrase.
+The session reviewer found these errors in comments, the reference opening and a cancellation table; the mechanical corrections retain the existing contract.
 
 **Additional session evidence:** `configuration-names-k113`, 2026-10-29,
 changed diagnostic codes and JSON fields. Retained-name explanations in

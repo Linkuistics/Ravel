@@ -1,10 +1,10 @@
 //! Measured reads, module imports and `load_context` of a Rhai configuration script through
-//! the real `ravel start-session` (`docs/specs/policy-evaluation.md`, *The
-//! bridge between the script and the CLI*, *Policy entry and discovery*,
+//! the real `ravel start-session` (`docs/specs/configuration-evaluation.md`, *The
+//! bridge between the script and the CLI*, *Configuration entry and discovery*,
 //! *Request, context and selection* and *Measured reads*).
 //!
 //! Everything runs in a sandbox home with fake harness scripts on a private
-//! `PATH`. The policy hands what it read to the recording harness as arguments,
+//! `PATH`. The configuration script hands what it read to the recording harness as arguments,
 //! so a test sees what the script saw.
 
 mod support;
@@ -17,7 +17,7 @@ use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
-use support::rhai::{self, Recorded, policy};
+use support::rhai::{self, Recorded, rhai_script};
 use support::{Run, Sandbox, text};
 
 fn refused(run: &Run, code: &str, recorded: &Recorded) -> Value {
@@ -42,7 +42,7 @@ fn sha256(bytes: &[u8]) -> String {
 
 /// A `select` whose `body` computes `args`, an array of strings.
 fn selecting(body: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"fn select(request, context) {{
 {body}
     #{{ status: "selected", program: "recording-agent", args: args, provider: "p", model: "m",
@@ -86,10 +86,10 @@ fn a_read_in_select_returns_the_content_and_the_notice_lists_it_with_its_phase()
     );
     // A read in `select` is in the notice, and in no delivered context.
     assert_eq!(report["context"], Value::Null);
-    let policy_path = fs::canonicalize(sandbox.personal_rhai_path()).unwrap();
+    let config_path = fs::canonicalize(sandbox.personal_rhai_path()).unwrap();
     let modules = &report["config"]["modules"];
     assert_eq!(modules.as_array().unwrap().len(), 1, "{modules}");
-    assert_eq!(modules[0]["name"], text(&policy_path));
+    assert_eq!(modules[0]["name"], text(&config_path));
 }
 
 #[test]
@@ -237,12 +237,12 @@ fn a_read_over_its_bound_ends_the_evaluation_although_the_script_catches_the_err
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     let big = sandbox.file("big.txt", &"x".repeat(70_000));
-    let policy_text = selecting(
+    let config_text = selecting(
         r#"    let args = [];
     try { ravel::read_text("big.txt"); args.push("read"); }
     catch (error) { args.push("caught"); }"#,
     );
-    sandbox.personal_rhai(&policy_text);
+    sandbox.personal_rhai(&config_text);
 
     let error = refused(&start(&sandbox, &[]), "source_too_large", &recorded);
 
@@ -463,7 +463,7 @@ fn shout(word) { sibling::wrap(word.to_upper()) }"#,
     );
     // An absolute path is accepted, and the same module is not loaded twice.
     let absolute = fs::canonicalize(config.join("lib/sibling.rhai")).unwrap();
-    sandbox.personal_rhai(&policy(&format!(
+    sandbox.personal_rhai(&rhai_script(&format!(
         r#"import "lib/helper" as helper;
 import "{}" as again;
 fn select(request, context) {{
@@ -501,7 +501,7 @@ fn select(request, context) {{
 }
 
 #[test]
-fn a_wrapper_policy_imports_another_and_changes_its_selection() {
+fn a_wrapper_config_imports_another_and_changes_its_selection() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     let config = sandbox.home.join(".config/ravel");
@@ -512,7 +512,7 @@ fn a_wrapper_policy_imports_another_and_changes_its_selection() {
        provider: "base", model: "m", effort: "e", reason: "base route" }
 }"#,
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"import "base" as base;
 fn select(request, context) {
     let chosen = base::select(request, context);
@@ -540,7 +540,7 @@ fn a_module_reads_at_its_top_level_and_in_its_functions_with_the_phase_of_each()
         r#"export const route = ravel::read_json("table.json").value.route;
 fn late() { ravel::read_text("late.txt").text }"#,
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"import "reader" as reader;
 fn select(request, context) {
     #{ status: "selected", program: "recording-agent", args: [reader::route, reader::late()],
@@ -571,7 +571,7 @@ fn a_syntax_error_in_a_module_refuses_as_config_parse_failed_and_names_the_modul
     let recorded = sandbox.recording_agent();
     let config = sandbox.home.join(".config/ravel");
     support::write(&config.join("broken.rhai"), "fn oops( {\n}\n");
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         "import \"broken\" as broken;\nfn select(request, context) { () }",
     ));
 
@@ -611,7 +611,7 @@ fn a_missing_module_a_cycle_and_a_failing_top_level_refuse_as_config_import_fail
         if let Some(module) = module {
             support::write(&config.join("m.rhai"), module);
         }
-        sandbox.personal_rhai(&policy(entry));
+        sandbox.personal_rhai(&rhai_script(entry));
 
         let error = refused(&start(&sandbox, &[]), "config_import_failed", &recorded);
 
@@ -638,7 +638,7 @@ fn a_cycle_through_two_modules_is_found_and_the_error_names_the_chain() {
     let config = sandbox.home.join(".config/ravel");
     support::write(&config.join("a.rhai"), "import \"b\" as b;");
     support::write(&config.join("b.rhai"), "import \"a\" as a;");
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         "import \"a\" as a;\nfn select(request, context) { () }",
     ));
 
@@ -750,7 +750,7 @@ fn an_import_of_a_loaded_module_is_not_a_new_module_however_often_it_runs() {
     let recorded = sandbox.recording_agent();
     let config = sandbox.home.join(".config/ravel");
     support::write(&config.join("helper.rhai"), "fn word() { \"w\" }");
-    sandbox.personal_rhai(&policy(&format!(
+    sandbox.personal_rhai(&rhai_script(&format!(
         r#"{}
 fn select(request, context) {{
 {}
@@ -773,7 +773,7 @@ fn load_context_assembles_the_context_that_select_receives_with_its_measured_sou
     let recorded = sandbox.recording_agent();
     let task = sandbox.file("task.json", r#"{"title":"build the bridge"}"#);
     let extra = sandbox.file("extra.txt", "extra facts");
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn load_context(request) {
     let task = ravel::read_json("task.json");
     let extra = ravel::read_text("extra.txt");
@@ -828,7 +828,7 @@ fn the_callers_document_heads_the_measured_list_of_a_loaders_context() {
     let recorded = sandbox.recording_agent();
     sandbox.file("more.txt", "more");
     let document = sandbox.file("caller.json", r#"{"schemaVersion":1,"summary":"caller"}"#);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn load_context(request) {
     ravel::read_text("more.txt");
     #{ schemaVersion: 1, summary: request.context.summary + " and loader" }
@@ -852,7 +852,7 @@ fn select(request, context) {
 fn a_loader_that_returns_unit_refuses_as_context_invalid() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         "fn load_context(request) { }\nfn select(request, context) { throw \"select ran\"; }",
     ));
 
@@ -871,7 +871,7 @@ fn a_loader_that_returns_unit_refuses_as_context_invalid() {
 fn a_loader_that_refuses_ends_as_config_refused_and_select_does_not_run() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn load_context(request) {
     #{ status: "refused", code: "no_task", message: "there is no task", remedy: "pass a task" }
 }
@@ -894,7 +894,7 @@ fn select(request, context) { throw "select ran"; }"#,
 fn an_uncaught_error_in_load_context_refuses_with_its_file_line_and_column() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let entry = sandbox.personal_rhai(&policy(
+    let entry = sandbox.personal_rhai(&rhai_script(
         "fn load_context(request) {\n    throw \"no task\";\n}\nfn select(request, context) { () }",
     ));
 
@@ -917,7 +917,7 @@ fn an_uncaught_error_in_load_context_refuses_with_its_file_line_and_column() {
 fn a_context_over_the_budget_refuses_as_context_too_large() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn load_context(request) {
     let text = "x";
     for i in 0..19 { text += text; }
@@ -935,7 +935,7 @@ fn select(request, context) { () }"#,
 fn a_context_with_an_invalid_shape_refuses_as_context_invalid_in_the_words_of_the_loader() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         "fn load_context(request) { #{ schemaVersion: 1, program: \"sh\" } }\nfn select(request, context) { () }",
     ));
 
@@ -954,7 +954,7 @@ fn a_read_breach_in_load_context_refuses_in_the_words_of_the_rhai_path() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.file("big.txt", &"x".repeat(70_000));
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         "fn load_context(request) { ravel::read_text(\"big.txt\"); #{ schemaVersion: 1 } }\nfn select(request, context) { () }",
     ));
 

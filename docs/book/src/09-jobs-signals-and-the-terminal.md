@@ -106,11 +106,11 @@ inside it. Save these files at the labelled paths.
 
 The fake ignores TERM before it sends the result. It then stays alive.
 Ravel's escalation must reach KILL to end it. The command uses an empty private
-HOME, an explicit policy and a cleared environment.
+HOME, an explicit configuration script and a cleared environment.
 
 Complete example: a fake sends a result and then ignores TERM.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -143,7 +143,7 @@ done
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.rhai --prompt 'Send finished, then wait.'
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --prompt 'Send finished, then wait.'
 ```
 
 **Standard output, without a final newline**
@@ -221,7 +221,7 @@ The CLI also checks signals around supervision and final cleanup.
 
 | Where cancellation occurs | Process action | Result |
 |---|---|---|
-| During policy selection | Stop and wait for the [policy worker](02-actors-and-words.md#evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
+| During configuration script selection | Stop and wait for the [Rhai worker](02-actors-and-words.md#evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
 | During unconfined supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
 | During confined supervision | Attempt KILL immediately on the group and the direct child | Complete cleanup attempts, report cancellation, and return no result |
 
@@ -263,15 +263,15 @@ A new POSIX session removes the inherited controlling terminal relationship.
 It does not restrict file access, and a descendant can still move to another
 group. The confinement backend supplies filesystem restrictions separately.
 These distinctions explain why the runner hides process mechanics behind
-separate launch interfaces, while the CLI owns policy and result decisions.
+separate launch interfaces, while the CLI owns configuration script and result decisions.
 
 ## Apply filesystem confinement
 
 [Confinement](02-actors-and-words.md#trust-and-confinement) restricts the managed
 process and its descendants. It does not restrict the trusted
-[owner policy](02-actors-and-words.md#caller-and-owner) or its
-[policy worker](02-actors-and-words.md#evaluation-and-supervision).
-The CLI checks the grants and probes the backend before policy selection.
+[configuration script](02-actors-and-words.md#caller-and-owner) or its
+[Rhai worker](02-actors-and-words.md#evaluation-and-supervision).
+The CLI checks the grants and probes the backend before configuration script selection.
 If the backend is absent or cannot establish its restrictions, the invocation
 stops with `confinement_unusable` and status 2.
 There is no unconfined fallback.
@@ -285,7 +285,7 @@ There is no unconfined fallback.
 | System runtime resources | Reads from the backend's platform list, such as system programs, libraries and certificate files |
 | Other file contents | No grant. File metadata can remain visible on macOS |
 
-Ravel rejects canonical grants that overlap the policy directory or owner
+Ravel rejects canonical grants that overlap the configuration script directory or owner
 settings. A runtime grant names one regular file, not a directory.
 The environment starts empty. Ravel adds HOME, USER, LOGNAME, PATH, LANG and
 LC_* values, private temporary-directory values, and this launch's result path.
@@ -475,7 +475,7 @@ The CLI and the runner also need signal state of their own. An ignored SIGCHLD o
 `SA_NOCLDWAIT` flag can let the system discard child status without a parent
 reap. That would remove both the wait result and the identity reservation
 needed for group cleanup. The CLI checks and repairs this state before the
-policy worker starts. The runner checks it before its managed child starts.
+Rhai worker starts. The runner checks it before its managed child starts.
 These repairs do not change the immutable child entry values.
 
 The runner installs handlers for nonignored TERM and HUP. It also handles
@@ -510,7 +510,7 @@ recovery. It does not return early with an abandoned child.
 before exec and still produce that event. Only an actual wait produces
 `Reaped`.
 
-Policy-output reader threads retain a mask that blocks INT, TERM and HUP
+Configuration-output reader threads retain a mask that blocks INT, TERM and HUP
 until those threads exit. A block on only the main thread would leave another
 thread able to consume a signal during handoff. A bounded output drain can
 leave such a reader thread alive until CLI exit.
@@ -548,7 +548,7 @@ every descendant or hostile same-user process is absent.
 | Ravel returns a result only after that launch's child reap, confirmed group absence and successful required cleanup | Group membership defines the cleanup scope. A descendant that leaves the group lies outside it |
 | Ravel supervises shutdown while the CLI remains alive | Abrupt death of the CLI, for example from KILL, can orphan the managed job. Such death is not successful completion |
 | Ravel keeps the first complete result through a private inherited channel and rejects invalid result files | The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic |
-| Ravel verifies and reaps the policy worker before the managed launch | Owner policy remains trusted executable code. Detached policy children lie outside worker cleanup |
+| Ravel verifies and reaps the Rhai worker before the managed launch | Configuration script remains trusted executable code. Detached configuration script children lie outside worker cleanup |
 | Ravel checks terminal recovery under the holder rules above | Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller |
 | Ravel retains failure reports and attempts required cleanup | A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result |
 | Cancellation observed by the final decision suppresses the result | A new signal can arrive after that decision. There is no atomic operation across signal delivery and the final output write |

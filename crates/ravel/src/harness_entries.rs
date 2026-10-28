@@ -1,5 +1,5 @@
 //! The harness entries of the owner settings
-//! (`docs/specs/policy-evaluation.md`, *Harness entries*).
+//! (`docs/specs/configuration-evaluation.md`, *Harness entries*).
 //!
 //! The owner names a harness outside the script, so a configuration script can pick an entry
 //! but never a program path of its own. This module checks the shape of one

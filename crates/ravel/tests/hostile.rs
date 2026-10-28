@@ -12,7 +12,7 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use support::rhai::{ROUTED, policy, routing};
+use support::rhai::{ROUTED, rhai_script, routing};
 use support::{Sandbox, run, write};
 
 #[test]
@@ -52,7 +52,7 @@ fn ambient_startup_files_do_not_supply_environment_or_preload_code() {
     assert_eq!(recorded.argv().unwrap(), ["from-caller"]);
 
     // The same preload is executable when explicitly imported by the configuration script.
-    sandbox.personal_rhai(&policy(&format!(
+    sandbox.personal_rhai(&rhai_script(&format!(
         "import {:?} as preload;\nfn select(request, context) {{ () }}",
         sandbox.cwd.join("preload.rhai").to_str().unwrap()
     )));
@@ -226,7 +226,7 @@ fn a_package_json_that_never_yields_above_the_worker_stays_unopened() {
     drop(reader);
 }
 
-fn flooding_policy(filler: usize) -> String {
+fn flooding_config(filler: usize) -> String {
     // Includes a valid length prefix, a protocol result and a result-looking line.
     let frame = r#"{"type":"selection","version":"forged","result":{"status":"selected","program":"forged"}}"#;
     assert!(
@@ -243,7 +243,7 @@ fn flooding_policy(filler: usize) -> String {
     // Encode the NUL prefix as `\u0000`; Rhai rejects Rust's `\0` escape.
     let literal = serde_json::to_string(&chunk).unwrap();
     let flood = format!("print({literal}); debug({literal});");
-    policy(&format!(
+    rhai_script(&format!(
         r#"{flood}
 fn load_context(request) {{ {flood} #{{ schemaVersion: 1 }} }}
 fn select(request, context) {{ {flood}
@@ -257,7 +257,7 @@ fn select(request, context) {{ {flood}
 fn diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&flooding_policy(40_000));
+    sandbox.personal_rhai(&flooding_config(40_000));
     let run = sandbox.start(&["--kind", "check", "--json"]);
     let notice = run.report();
     assert_eq!(run.stdout, "done");
@@ -277,7 +277,7 @@ fn diagnostic_flood_cannot_forge_selection_or_result_and_excess_refuses() {
 
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&flooding_policy(60_000));
+    sandbox.personal_rhai(&flooding_config(60_000));
     let refusal = sandbox.start(&["--kind", "check", "--json"]).refusal(3);
     assert_eq!(refusal["error"]["code"], "output_limit");
     assert_eq!(recorded.argv(), None);

@@ -3,7 +3,7 @@
 Complete example: the agent cancels the session by sending its parent, the
 front, SIGINT.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -32,7 +32,7 @@ sleep 5
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
+$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -43,7 +43,7 @@ $ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --
 **Standard error includes**
 
 ```text
-ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.rhai was cancelled by SIGINT
+ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/config.rhai was cancelled by SIGINT
   signal: SIGINT, re-raised once this is reported
 ```
 
@@ -53,7 +53,7 @@ ravel: refused (session_cancelled, stage exec): session selected by <scratch>/wo
 130
 ```
 
-Complete example: the policy requests a fake harness that cancels selection
+Complete example: the configuration script requests a fake harness that cancels selection
 by sending the front SIGINT. Only the first line of the refusal is claimed,
 because teardown details further down vary from run to run.
 
@@ -63,7 +63,7 @@ because teardown details further down vary from run to run.
 {"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1}}
 ```
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -85,7 +85,7 @@ while :; do sleep 1; done
 **Command**
 
 ```console
-$ mkdir -p "$HOME/.config/ravel" && cp settings.json "$HOME/.config/ravel/settings.json" && PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
+$ mkdir -p "$HOME/.config/ravel" && cp settings.json "$HOME/.config/ravel/settings.json" && PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -96,7 +96,7 @@ $ mkdir -p "$HOME/.config/ravel" && cp settings.json "$HOME/.config/ravel/settin
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/config.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**

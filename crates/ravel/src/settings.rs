@@ -1,4 +1,4 @@
-//! Optional owner settings: selection bound, context budget, policy environment
+//! Optional owner settings: selection bound, context budget, configuration script environment
 //! grants, and the harness entries and budget of a Rhai configuration script.
 
 use std::ffi::OsStr;
@@ -335,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn the_two_keys_of_a_rhai_policy_are_read_and_default_to_nothing() {
+    fn the_two_keys_of_a_rhai_config_are_read_and_default_to_nothing() {
         let none = read("{}").unwrap();
         assert!(none.harnesses.is_empty());
         assert_eq!(none.budgets.harness_runs, None);

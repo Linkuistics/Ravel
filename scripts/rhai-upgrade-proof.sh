@@ -3,7 +3,7 @@
 # tests, then run the hostile classes in a fixed order. Only the `rhai_*` test
 # targets of crates/ravel run, and every case starts the real `ravel
 # start-session`. The task changes no pin. An owner who upgrades Rhai edits the
-# pin, then runs it (docs/specs/policy-evaluation.md, "Upgrades").
+# pin, then runs it (docs/specs/configuration-evaluation.md, "Upgrades").
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -15,12 +15,15 @@ tests_dir=crates/ravel/tests
 
 # The engine tests, in order. Each is a `rhai_*` test target.
 engine_targets=(
-  rhai_policy
+  rhai_config
   rhai_settings
   rhai_helpers
   rhai_json_check
   rhai_reads
   rhai_role
+  rhai_harness_run
+  rhai_llm_calls
+  rhai_examples
 )
 
 # The hostile target and its classes, in order. The firing control of each class
@@ -37,9 +40,9 @@ hostile_tests=(
   a_breach_inside_a_function_pointer_call_ends_the_evaluation_although_try_surrounds_it
   a_breach_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_under_try
   a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved
-  a_policy_that_fills_the_heap_ends_at_the_heap_bound_and_the_cli_reports_it
+  a_config_that_fills_the_heap_ends_at_the_heap_bound_and_the_cli_reports_it
   a_native_call_that_does_not_yield_stops_at_the_deadline
-  a_policy_that_prints_without_end_ends_as_output_limit
+  a_config_that_prints_without_end_ends_as_output_limit
   a_result_over_the_message_bound_ends_as_message_too_large
   a_signal_during_the_evaluation_kills_and_reaps_the_worker_and_launches_nothing
   a_worker_killed_from_outside_refuses_as_worker_failed

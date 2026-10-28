@@ -1,7 +1,7 @@
 # The parts of Ravel
 
 Ravel separates the choice of a command from the supervision of that command.
-The [owner policy](02-actors-and-words.md#caller-and-owner) chooses a program.
+The [configuration script](02-actors-and-words.md#caller-and-owner) chooses a program.
 The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
 checks that choice, runs the program and decides the final outcome.
 The [caller](02-actors-and-words.md#caller-and-owner) interprets the result.
@@ -9,25 +9,25 @@ A [session](02-actors-and-words.md#caller-and-owner) is one
 `start-session` invocation, from the request to the reported outcome.
 
 This chapter explains the parts of the source that hold those roles. After it, you
-can locate each part and explain why Ravel uses TypeScript and two Rust
+can locate each part and explain why Ravel uses Rhai and two Rust
 packages. Chapter 8 follows one session through the functions. Chapter 9
 explains the process and terminal mechanics.
 
 The workspace contains two Rust packages: `ravel` and `keyed-launch`.
-The policy worker is a separate TypeScript build within `crates/ravel`.
+The Rhai worker is a separate process of the same `ravel` executable.
 The table separates source locations from process boundaries: a package or
 library does not always correspond to a separate process.
 
 | Part | Source location | Where it runs | Responsibility |
 |---|---|---|---|
 | Ravel CLI | `crates/ravel/src/main.rs`, with the other executable modules | The `ravel` process | Check the request, coordinate the parts and report the outcome |
-| [Policy worker](02-actors-and-words.md#evaluation-and-supervision) | `crates/ravel/worker/src/` | A separate `ravel-policy` process | Evaluate the owner's TypeScript policy |
-| Policy SDK | `crates/ravel/worker/sdk/index.ts` | Within the policy worker | Supply the types and helpers that a policy imports |
+| [Rhai worker](02-actors-and-words.md#evaluation-and-supervision) | `crates/ravel/src/rhai_worker/` | A second `ravel` process | Evaluate the owner's Rhai configuration script |
+| Host capabilities and data helpers | `crates/ravel/src/rhai_worker/host.rs`, `helpers.rs` | The Ravel CLI performs effects; the Rhai worker computes | Supply the operations in the `ravel` namespace |
 | [Local runner](02-actors-and-words.md#evaluation-and-supervision) | `crates/keyed-launch/src/` | Within the Ravel CLI | Launch and supervise a local job |
 | [Result channel](02-actors-and-words.md#the-managed-process-and-its-result) | `crates/ravel/src/completion.rs`, exported by `lib.rs` | Within the Ravel CLI and the separate `end-session` invocation | Carry one result through temporary files |
 
 The [source-responsibility figure in chapter 6](06-reference.md#installed-layout)
-shows the packages, the worker and the embedded SDK. The
+shows the packages, the worker and the host capabilities. The
 [process-and-authority figure in chapter 2](02-actors-and-words.md#the-managed-process-and-its-result)
 shows their process boundaries. The runner is library code, not another
 service. `end-session` is another invocation of the same `ravel` executable,
@@ -35,23 +35,23 @@ not a request to a persistent daemon.
 
 ## The Ravel CLI coordinates the session
 
-The CLI connects the policy's selection to the supervision of the job. Its
-`choice.rs` prepares the request and obtains a checked policy response.
+The CLI connects the configuration script's selection to the supervision of the job. Its
+`choice.rs` prepares the request and obtains a checked configuration script response.
 Its `run.rs` creates a fresh result channel and gives that channel to the
 runner with the selected command. After supervision, the CLI combines the
 result, cancellation and cleanup reports before it writes to standard output.
 
 The `ravel` process keeps the caller's environment and the authority over the
-terminal while policy code runs in the worker. It also reserves standard output
+terminal while configuration script code runs in the worker. It also reserves standard output
 for the result. The standard output of the
 [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
-and Ravel's diagnostics go to standard error. A policy response cannot write the session's final result.
+and Ravel's diagnostics go to standard error. A configuration script response cannot write the session's final result.
 
 The package has a library target as well as an executable target. The
 library exports `SessionChannel`, `publish_result` and `end_session`, with
 the result constants. The executable uses this library and `keyed-launch`.
 This division lets the result-channel tests compose a channel with a runner
-without policy evaluation.
+without configuration script evaluation.
 
 The CLI retains a coordination cost. Neither the worker nor the runner
 knows all the conditions for a successful Ravel session. For example, a
@@ -64,119 +64,57 @@ so each decision has one owner.
 
 | Decision | Owner | Information at the boundary |
 |---|---|---|
-| Which program to select | Owner policy | A command or a [refusal](02-actors-and-words.md#evaluation-and-supervision) |
-| Whether the policy response is valid | Ravel CLI | A checked command, or no launch |
+| Which program to select | Configuration script | A command or a [refusal](02-actors-and-words.md#evaluation-and-supervision) |
+| Whether the configuration script response is valid | Ravel CLI | A checked command, or no launch |
 | How to launch and stop the job | Runner | Launch options from the CLI |
 | Whether to return the result | Ravel CLI | Job observations and cleanup reports |
 | What the result means | Caller | The result, unchanged |
 
-## The worker executes TypeScript before the launch
+## The worker evaluates Rhai before the launch
 
-Owner configuration is executable TypeScript. A policy can import modules,
-use asynchronous functions and read files or network services. A static
-table parser cannot preserve that contract. Bun supplies the language runtime
-and module support. Ravel does not implement another TypeScript engine.
+The configuration script is a Rhai module. The Ravel CLI starts a second copy
+of its own executable in an internal worker role. The role name
+`ravel-rhai-config-worker` is an internal process identity, not an installed
+filename or a command for owners to invoke.
 
-The build compiles the worker and its Bun runtime into `ravel-policy`.
-An installed Ravel therefore needs no separate Bun or Node.js installation.
-Rust owns supervision, while TypeScript supplies the policy execution
-environment. This choice costs a second build tool, a larger executable,
-the licence notices of the Bun runtime and checks on each delivery target.
+The worker has an empty environment, null standard input and a private socket
+at file descriptor 3. It only computes. The Ravel CLI performs measured reads,
+environment access and harness runs when the script requests a host capability.
+The worker receives no session-result context. Its standard output and standard
+error carry bounded diagnostics, and length-prefixed JSON frames carry the
+protocol on the socket.
 
-<!-- tc: depart synonym-rotation because start here creates a worker, while managed launch names a separate lifecycle phase -->
-The worker is a separate process so owner code does not execute inside the
-process that supervises the session. In `worker.rs`, the CLI starts it with
-a cleared environment, null standard input and a private socket at file
-descriptor 3. The worker's standard output and standard error carry bounded
-diagnostics. Length-prefixed JSON messages on the socket carry the protocol.
+The CLI checks the worker identity before it sends the entry and request.
+It checks the returned data through `config::judge_result`. The worker must
+end and be reaped, and its private directory must be removed, before a managed
+process can launch. Failed required cleanup prevents that launch.
 
-The CLI supplies the base environment and permitted grants.
-It also sets `BUN_RUNTIME_TRANSPILER_CACHE_PATH=0` to disable Bun's runtime transpiler cache.
-`environment.rs` excludes `RAVEL_*` from grants, so a nested caller cannot
-pass its `RAVEL_EXIT_FILE` to the worker through this path. The CLI allocates
-the new session's result channel only after policy evaluation succeeds.
-Thus, the worker receives neither session's
-[session-result context](02-actors-and-words.md#three-different-kinds-of-information).
+The separate process lets the CLI stop evaluation at its deadline and keeps a
+worker abort or heap exhaustion outside the supervisor. The script remains
+trusted executable configuration: host reads can expose owner data to it.
+[Chapter 4](04-write-a-configuration-script.md) explains the language and its
+operations. [Chapter 2](02-actors-and-words.md#trust-and-confinement) separates this authority
+from the confinement of a managed process.
 
-<!-- tc: depart synonym-rotation because confirmation establishes a successful reap, while checks also cover input validation -->
-The worker stops before the managed process starts. A valid response does
-not let it continue beside the managed process. The CLI closes the protocol
-socket, ends the worker and confirms its reap. A parent reaps a child when it
-collects the exit status of that child. The CLI also removes the worker's
-private directory.
+## The Rhai module defines the configuration interface
 
-The table connects each worker check to the code that prevents a managed
-launch after an invalid response or failed cleanup.
+The module exports `SCHEMA_VERSION`, `VERSION`, `select` and an optional
+`load_context`. There is no TypeScript SDK or installed declaration file.
+The worker supplies the data helpers in the `ravel` namespace. Effects cross
+the socket to the Ravel CLI as host capabilities.
 
-| Condition at the worker boundary | Source that enforces it | Consequence |
+| Interface | Purpose | Limit |
 |---|---|---|
-| The worker's identity matches before the policy request | `worker.rs`: `converse`, `verify_hello` | An incompatible worker receives no policy request |
-| Response passes the checks | `choice.rs`: `judge` | Invalid data does not become a command |
-| Worker reap and directory removal succeed, with no failed stop operation | `worker.rs`: `evaluate` | Failed required cleanup prevents a managed launch |
-| Evaluation succeeds before executable resolution and launch | `choice.rs`: `evaluate_and_resolve`, then `run.rs`: `run` | The worker and the managed process do not run at the same time on this path |
+| `select(request, context)` | Select a command or refuse | Ravel checks the returned map before any launch |
+| `load_context(request)` | Assemble selection context | Selection context grants no result authority |
+| `ravel::read_text`, `ravel::read_json` | Ask the CLI to read and measure a file | Settings bound the reads and delivered data |
+| `ravel::run_harness` | Ask the CLI to supervise a configured harness | Settings name the harness and bound its runs |
+| `ravel::json_check` | Check data against a schema | It supplies no execution authority |
 
-This order closes the policy phase before the job phase starts. Thus the
-worker's protocol messages and diagnostics cannot occur during the managed
-launch. The order also lets the CLI stop the session when worker cleanup
-fails, before the selected program can act.
-
-The separate process is not a sandbox for hostile owner code. Policy is
-trusted code. It can start detached children, which the worker cleanup
-guarantee does not cover. Same-user code can also tamper with files.
-Chapter 2 explains how these controls differ from the
-[confinement of a managed process](02-actors-and-words.md#trust-and-confinement).
-
-Three parts of Ravel control the worker's startup. The CLI filters
-environment variables before the worker starts. The worker build disables dotenv, bunfig and
-tsconfig autoloading. The worker starts in a private empty directory, then
-changes to `/` before it registers embedded imports or loads owner policy.
-These controls limit the files and variables that can change policy
-evaluation without a request from the policy.
-
-Package imports still need Bun's resolver. The build keeps package
-autoloading enabled. `/package.json` and `/node_modules` stay reachable
-inputs for the resolver.
-The [module-resolution reference](06-reference.md#import-resolution)
-gives the supported import rules and their limits. A runtime replacement
-needs to preserve those rules as well as TypeScript syntax.
-
-## The SDK describes the policy interface
-
-The SDK supplies the types for a policy, its request and its
-[policy context](02-actors-and-words.md#three-different-kinds-of-information).
-It also supplies types for the selected command or refusal.
-`definePolicy` returns its argument unchanged.
-Its purpose is to let the TypeScript checker check a policy object and infer
-the parameter types. The CLI still checks the data that crosses the worker
-socket at runtime.
-
-The table pairs each SDK facility with its limit, so a policy author can
-distinguish type support from runtime checks and authority.
-
-| SDK surface | Purpose | Limit |
-|---|---|---|
-| `Policy`, `SelectionRequest`, `Selected`, `Refused` | Describe selection inputs and outputs | Types do not replace runtime checks |
-| Policy context and host types | Describe policy data and the host operations | Policy context grants no result authority |
-| `definePolicy` | Check a policy object's TypeScript shape | It does not execute the policy |
-| `readChoice` | Read names that the policy offers from `.ravel-choice` | The policy gives those names their command meanings |
-
-The worker embeds `ravel/sdk` and `ravel/examples/static`. Exact imports of
-those names use the embedded modules. The installation also supplies source
-and declarations for configuration authors. An edit to those installed
-source files does not replace the embedded modules.
-
-The compatibility promise includes the supported owner policies, SDK use,
-settings and policy discovery. The CLI still uses the default policy path
-or an explicit `--config` path. Settings stay at their account path when
-the explicit policy path changes. The
-[policy chapter](04-writing-an-owner-policy.md) teaches this interface.
-A change to Ravel's internal structure does not justify a new configuration
-format.
-
-A new command choice usually belongs in owner policy alone. A new SDK
-field crosses more boundaries: its TypeScript declaration, worker messages
-and Rust validation need to agree. The split leaves that coordination cost
-with Ravel's developers.
+The default entry is `config.rhai`, or `--config` names an explicit Rhai file.
+Settings stay at their account path when the explicit entry changes. A new
+route usually belongs in the configuration script alone. A new host capability
+crosses the worker protocol, CLI implementation and validation boundaries.
 
 ## The runner owns the local job mechanics
 
@@ -188,7 +126,7 @@ and grants, an optional completion channel, signal state and escalation
 durations. The runner spawns the command directly. A shell participates only
 when the command selects one.
 
-The runner does not choose a policy or interpret provider and model labels.
+The runner does not choose a configuration script or interpret provider and model labels.
 It also does not read the Ravel result. Its completion channel tells it only
 that a file appeared. Its Rust result is `Ended` or `LaunchError`, not the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
@@ -207,9 +145,9 @@ launch controls and receives job observations.
 | `Ended` | Report child status, the cause of its end, channel appearance, group state and retained operation reports |
 
 The separate Rust package lets developers exercise job mechanics without
-the TypeScript worker or Ravel's policy conventions. Its only production
+the TypeScript worker or Ravel's configuration script conventions. Its only production
 dependency is `libc`, which supplies operating-system calls. A correction to
-terminal recovery can stay inside the runner while the policy interface
+terminal recovery can stay inside the runner while the configuration script interface
 stays unchanged. Chapter 9 explains those mechanics and their limits.
 
 The code that calls the runner is its consumer. In Ravel, the Ravel CLI is
@@ -257,21 +195,21 @@ A readable file alone cannot establish success.
 
 A change to result storage therefore affects the result channel, the
 runner's observation and the CLI's coordination. It does not require a new
-policy choice. The result channel keeps its file format private, so owner
-policy and callers do not depend on it. But the CLI still needs to combine
+configuration script choice. The result channel keeps its file format private, so owner
+configuration script and callers do not depend on it. But the CLI still needs to combine
 these observations in the correct order.
 Chapter 8 follows that order and the failure paths.
 
 ## The program contract stays loose
 
-The policy selects a program, Ravel runs it, and a program in the session
+The configuration script selects a program, Ravel runs it, and a program in the session
 sends one value with `end-session`. Ravel expects a
 [harness](02-actors-and-words.md#the-managed-process-and-its-result) in normal use,
 but it requires no model-provider interface from the selected program.
-The policy decides whether the command receives the prompt.
+The configuration script decides whether the command receives the prompt.
 
 This separation appears in the code, not only in the examples. Rust checks
-the selection's shape in `policy.rs`. Then `run.rs` constructs `Argv` from
+the selection's shape in `config.rs`. Then `run.rs` constructs `Argv` from
 the selected executable and argument words. The runner adds no prompt
 argument. `end_session` accepts text and uses the inherited path.
 The final CLI write returns that text unchanged after successful cleanup.
@@ -281,8 +219,8 @@ the interfaces between the parts stay unchanged.
 
 | Change | Part that owns the decision | Boundary that stays unchanged |
 |---|---|---|
-| Select a different harness or ordinary program | Owner policy | The runner still receives a program and argument words |
-| Pass the prompt differently | Owner policy | Ravel still gives the caller's prompt to the policy unchanged |
+| Select a different harness or ordinary program | Configuration script | The runner still receives a program and argument words |
+| Pass the prompt differently | Configuration script | Ravel still gives the caller's prompt to the configuration script unchanged |
 | Give a result a new task meaning | Caller | Ravel still carries one opaque value |
 
 The command still needs to be executable, and a successful session still
@@ -291,34 +229,20 @@ zero without a result does not complete that contract. The
 [complete example in chapter 3](03-a-complete-session.md)
 uses a fake agent to demonstrate the contract without a real model.
 
-## The installed pair stays together
+## The installed executable supplies both roles
 
-An installation contains `bin/ravel` and
-`libexec/ravel/ravel-policy`. The CLI locates the worker relative to its own
-canonical executable path. A symlink to the CLI therefore keeps the same
-worker. The CLI does not select the worker through `PATH`.
+An installation contains one executable, `bin/ravel`. The CLI resolves its own
+executable to start the Rhai worker, so a symlink to the CLI uses the same
+binary for both roles. The worker is not selected through `PATH`.
 
-Before it sends the policy request, the CLI checks the worker's protocol,
-package version and source identity. The source identity is a SHA-256 digest
-that both builds derive from the same worker sources and build inputs.
-A missing or incompatible worker stops selection. This check pairs builds.
-It does not authenticate files against the owner of the installation.
+The initial worker message carries its protocol, package version and source
+identity. The CLI checks those values before it sends the configuration request.
+The identity detects a worker mismatch; it does not authenticate the installation
+against its owner. A change to the Rhai worker needs one rebuilt executable.
 
-The table shows how shared build inputs and identity checks keep the pair
-together, while the compiled runtime removes a host dependency.
-
-| Build input or output | How the parts stay together |
-|---|---|
-| Worker TypeScript, SDK, examples, two tsconfigs and worker build script | Rust `build.rs` and the worker build hash the same sorted input set |
-| Protocol, package version and source identity | The worker sends them in its first message, and the CLI checks them |
-| Installed SDK source and declarations | Configuration authors use the supplied interface alongside the embedded modules |
-| Compiled Bun runtime | Installed execution needs no host TypeScript runtime |
-
-This arrangement keeps an installed Ravel independent of another project's
-installation. It also means that a worker-source change needs a rebuilt
-pair. Chapter 11 explains delivery. The
+Chapter 11 explains delivery. The
 [installed layout in chapter 6](06-reference.md#installed-layout)
-lists the files and shows their deployment figure.
+lists the executable, example scripts and Rust notices.
 
 This chapter checks the source boundaries and their stated obligations.
 It does not establish compatibility with every owner helper, independent

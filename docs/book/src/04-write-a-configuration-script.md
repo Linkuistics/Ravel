@@ -17,8 +17,8 @@ First, the words that this chapter uses on every page:
 | [Settings](02-actors-and-words.md#caller-and-owner) | Values in the JSON file `$HOME/.config/ravel/settings.json`, such as limits and the harnesses that the script can run. The script cannot change them. |
 | **Configuration** | The configuration script and the settings together |
 
-Some Ravel file names and error codes use the word “policy” for the
-configuration script, for example `config_refused`.
+Ravel uses configuration names in its file paths, options and diagnostic codes,
+for example `config.rhai`, `--config-env` and `config_refused`.
 
 ## Know the Rhai language
 
@@ -198,7 +198,7 @@ has these parts:
 | `env -i` | Starts the command with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
 | `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Thus, your own configuration script and settings do not enter the example. |
 | `PATH="$PWD/bin:$PATH"` | Puts the fake programs first on the search path |
-| `ravel start-session --config policy.rhai` | Runs a session with the configuration script of the example |
+| `ravel start-session --config config.rhai` | Runs a session with the configuration script of the example |
 
 The book checker runs the same examples through the
 [CLI test environment](03-a-complete-session.md), with the built Ravel CLI. It
@@ -236,7 +236,7 @@ Top-level statements run once before the functions.
 
 Complete example: pass the caller's prompt to a fake agent.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -266,7 +266,7 @@ ravel end-session -- "$1"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "Explain this change."
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "Explain this change."
 ```
 
 **Standard output, without a final newline**
@@ -404,7 +404,7 @@ The caller receives no result.
 Complete example: accept one kind and refuse an unknown kind or a forbidden
 parameter.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -439,7 +439,7 @@ ravel end-session -- "$1"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -457,7 +457,7 @@ hello
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind unknown --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind unknown --prompt "hello"
 ```
 
 **Standard output**
@@ -468,9 +468,9 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: This configuration script accepts question only.
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/config.rhai refused the selection: This configuration script accepts question only.
   input: --kind unknown
-  source: <scratch>/work/policy.rhai
+  source: <scratch>/work/config.rhai
   config code: unknown_kind
   remedy: Use --kind question.
 ```
@@ -484,7 +484,7 @@ ravel: refused (config_refused, stage selection): the configuration script <scra
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --param model=other --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --param model=other --prompt "hello"
 ```
 
 **Standard output**
@@ -495,9 +495,9 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: The owner chooses the model.
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/config.rhai refused the selection: The owner chooses the model.
   input: --kind question
-  source: <scratch>/work/policy.rhai
+  source: <scratch>/work/config.rhai
   config code: owner_model
   remedy: Remove the model parameter.
 ```
@@ -515,9 +515,9 @@ standard error. The values come from the third command:
 | Line | What it tells you |
 |---|---|
 | `ravel: refused (config_refused, stage selection)` | Ravel's code for the outcome, and the stage in which it occurred. The script refused during selection. |
-| `the policy … refused the selection: The owner chooses the model.` | The file of the configuration script, then the script's `message` |
+| `the configuration script … refused the selection: The owner chooses the model.` | The file of the configuration script, then the script's `message` |
 | `input: --kind question` | The kind of the request |
-| `source: <scratch>/work/policy.rhai` | The file of the configuration script. `<scratch>` stands for the example's directory. |
+| `source: <scratch>/work/config.rhai` | The file of the configuration script. `<scratch>` stands for the example's directory. |
 | `config code: owner_model` | The script's own `code` |
 | `remedy: Remove the model parameter.` | The script's `remedy`, which tells the caller what to change |
 
@@ -566,7 +566,7 @@ holds the captured text in its `diagnostics` member.
 
 Complete example: print a value from the script, then find a syntax error.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -601,7 +601,7 @@ ravel end-session -- "$1"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -703,7 +703,7 @@ shows. `let` declares a local variable that the script can change.
 
 Complete example: route two kinds through a local table.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -733,7 +733,7 @@ ravel end-session -- "$1|$2"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -751,7 +751,7 @@ low|hello
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind feature --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind feature --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -769,7 +769,7 @@ high|hello
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind other --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind other --prompt "hello"
 ```
 
 **Standard output**
@@ -816,7 +816,7 @@ directory. Thus, the same relative name can find two different files:
 | `import "routes" as routes;` | The directory of the file that imports it. |
 | `ravel::read_text("choice.txt")` | The caller's `request.cwd`. |
 | `ravel::read_json("choice.json")` | The caller's `request.cwd`. |
-| `--config policy.rhai` | The caller's working directory. |
+| `--config config.rhai` | The caller's working directory. |
 
 Each distinct imported module loads once per evaluation.
 Ravel measures the entry and each module with its canonical path, byte count
@@ -831,7 +831,7 @@ copies of the shipped examples.
 
 Complete example: call an imported function and use its exported constant.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 import "routes" as routes;
@@ -865,7 +865,7 @@ ravel end-session -- "$1|$2"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -913,7 +913,7 @@ The next example uses a smaller choice rule so you can test every branch.
 Complete example: accept `careful`, use a default when absent, and refuse any
 other text.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -949,7 +949,7 @@ ravel end-session -- "$1"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -968,7 +968,7 @@ low
 
 ```console
 $ printf 'careful\n' > .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -987,7 +987,7 @@ high
 
 ```console
 $ printf 'other\n' > .ravel-choice
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output**
@@ -1090,7 +1090,7 @@ Neither measurement establishes that a claim is true.
 Complete example: read task data, build selection context, and use it in the
 selection.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1128,7 +1128,7 @@ ravel end-session -- "$1|$2|$3"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind review --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind review --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -1200,7 +1200,7 @@ A JSON integer outside the signed 64-bit range becomes a float.
 
 Complete example: check data, handle a failed check, and encode the result.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1232,7 +1232,7 @@ ravel end-session -- "$1"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -1348,7 +1348,7 @@ The command installs settings only in the example's temporary home.
 {"timeoutMs":5000,"contextBytes":4096,"configEnv":["BOOK_EFFORT"]}
 ```
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1377,7 +1377,7 @@ ravel end-session -- "$1|$2|$3"
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" BOOK_EFFORT=high BOOK_HIDDEN=unused PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --timeout-ms 10000 --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" BOOK_EFFORT=high BOOK_HIDDEN=unused PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --timeout-ms 10000 --prompt "hello"
 ```
 
 **Standard output, without a final newline**
@@ -1590,7 +1590,7 @@ Complete example: ask through a fake Claude Code and refuse an invalid answer.
 {"harnesses":{"claude":{"program":"claude"}},"budgets":{"harnessRuns":1}}
 ```
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1652,7 +1652,7 @@ ravel end-session -- "$1"
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
 ```
 
 **Standard output, without a final newline**
@@ -1682,7 +1682,7 @@ prime
 
 ```console
 $ touch invalid-answer
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output**
@@ -1775,7 +1775,7 @@ argument.
 {"type":"object","properties":{"prime":{"type":"string","enum":["yes","no"]}},"required":["prime"],"additionalProperties":false}
 ```
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1831,7 +1831,7 @@ ravel end-session -- "$1"
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
 ```
 
 **Standard output, without a final newline**
@@ -1861,7 +1861,7 @@ prime
 
 ```console
 $ touch failed-call
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind question --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
 **Standard output**
@@ -1983,7 +1983,7 @@ is outside its cleanup.
 Complete example: pass an instruction to end the session to two fake interactive
 harnesses.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -2036,7 +2036,7 @@ ravel end-session -- "$result"
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
 $ for kind in claude-demo codex-demo; do
     printf '%s\n' "$kind"
-    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind "$kind" --prompt 'Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.' || exit "$?"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind "$kind" --prompt 'Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.' || exit "$?"
     printf '\n'
   done
 ```
@@ -2069,7 +2069,7 @@ codex-demo
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config policy.rhai --kind other --prompt "hello"
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind other --prompt "hello"
 ```
 
 **Standard output**

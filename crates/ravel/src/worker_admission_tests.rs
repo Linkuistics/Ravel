@@ -55,7 +55,7 @@ pub(super) fn reported_teardown(report: &mut Teardown, child: &mut Child) {
 
 // Each fixture is a separate process, including global signals, HOME, output
 // descriptors and the actual locate() path. Environment controls exist only in
-// this ignored test role, never in the product or owner policy contract.
+// this ignored test role, never in the product or configuration script contract.
 pub(super) fn cases(scenarios: &[&str], faults: &[&str], routes: &[&str]) {
     let exe = std::env::current_exe().unwrap();
     for scenario in scenarios {
@@ -513,8 +513,8 @@ fn worker_reap_admission_fixture() {
         "overflow" => "loop { print(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"); }".to_owned(),
         _ => format!("return ravel::json_parse({});", json!(command.to_string())),
     };
-    let policy = root.join("policy.rhai");
-    fs::write(&policy, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    let script_path = root.join("policy.rhai");
+    fs::write(&script_path, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
     let worker = root.join("bin/rhai-role");
     crate::rhai_worker::fixtures::install_role(&worker, scenario == "native-reader");
     crate::rhai_worker::fixtures::use_executable(worker.clone());
@@ -543,7 +543,7 @@ fn worker_reap_admission_fixture() {
         "--prompt",
         "input",
         "--config",
-        policy.to_str().unwrap(),
+        script_path.to_str().unwrap(),
         "--json",
     ])
     .unwrap();
@@ -734,7 +734,7 @@ fn worker_reap_admission_fixture() {
     if scenario == "late-refusal" {
         let _handlers = cancellation::Handlers::install().unwrap();
         assert_eq!(unsafe { libc::raise(libc::SIGHUP) }, 0);
-        failure = crate::choice::overruled(failure, policy.to_str().unwrap());
+        failure = crate::choice::overruled(failure, script_path.to_str().unwrap());
     }
     let (code, stage, exit) = if scenario == "teardown-cancel" {
         ("session_cancelled", "exec", 129)
@@ -831,7 +831,7 @@ fn worker_reap_admission_fixture() {
         assert!(diagnostics.stdout.len() + diagnostics.stderr.len() <= 262_144);
         assert!(
             !diagnostics.to_text().contains("os error"),
-            "operations contaminated policy output"
+            "operations contaminated configuration output"
         );
         if !["pre-ready-timeout", "eof", "protocol", "overflow"].contains(&scenario.as_str()) {
             crate::rhai_worker::fixtures::assert_owner_diagnostics(&text);

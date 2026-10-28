@@ -1,5 +1,5 @@
-//! The strict Rhai engine and the module contract (`docs/specs/policy-evaluation.md`,
-//! *The policy module* and *Request, context and selection*).
+//! The strict Rhai engine and the module contract (`docs/specs/configuration-evaluation.md`,
+//! *The configuration module* and *Request, context and selection*).
 //!
 //! The worker hands this module one entry source and one request. It compiles
 //! the source, runs its top level once as a module, checks the exports and calls
@@ -87,7 +87,7 @@ pub struct Entry<'a> {
 }
 
 /// Evaluate `entry` for `request`. A request that does not have the shape the
-/// front sends is an `Err`: it breaks the protocol, and no policy can cause it.
+/// front sends is an `Err`: it breaks the protocol, and no configuration script can cause it.
 ///
 /// `select_context` is the second argument of `select`. The front sends the
 /// caller's document with its measurement there, because the front owns the
@@ -144,7 +144,7 @@ pub fn evaluate_with(
     })
 }
 
-/// The engine every policy runs in.
+/// The engine every configuration script runs in.
 ///
 /// The default `Engine` installs a file module resolver, which would read any
 /// path a script names; this worker reads no file, so it takes a resolver that
@@ -730,7 +730,7 @@ mod tests {
         evaluate(&entry, request, None, &bounds()).unwrap()
     }
 
-    /// What a successful evaluation of the `policy` helper's source reports.
+    /// What a successful evaluation of the `config` helper's source reports.
     fn selection(result: Value) -> Reply {
         Reply::Selection {
             version: "1.0".to_owned(),
@@ -749,13 +749,13 @@ mod tests {
         }
     }
 
-    fn policy(body: &str) -> String {
+    fn config(body: &str) -> String {
         format!("export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1.0\";\n{body}\n")
     }
 
     #[test]
     fn a_route_table_selects() {
-        let source = policy(
+        let source = config(
             r#"const TABLE = #{ impl: #{ program: "claude", args: ["--print"] } };
 fn select(request, context) {
     let route = global::TABLE[request.kind];
@@ -774,7 +774,7 @@ fn select(request, context) {
 
     #[test]
     fn the_top_level_runs_once_before_select_and_select_runs_against_its_constants() {
-        let source = policy(
+        let source = config(
             r#"const SEEN = [1 + 1];
 fn select(request, context) { global::SEEN }"#,
         );
@@ -783,7 +783,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn the_request_map_has_every_documented_field() {
-        let source = policy(
+        let source = config(
             r#"fn select(request, context) {
     let names = request.keys();
     names.sort();
@@ -803,7 +803,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn the_given_optional_fields_reach_the_request_and_the_context_argument() {
-        let source = policy(
+        let source = config(
             r#"fn select(request, context) {
     #{ file: request.taskFile, id: request.taskId, same: request.context == context,
        facts: context.facts }
@@ -824,12 +824,12 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn limits_holds_the_effective_bounds() {
-        let source = policy("fn select(request, context) { request.limits }");
+        let source = config("fn select(request, context) { request.limits }");
         assert_eq!(reply(&source), selection(bounds().to_json()));
     }
 
     #[test]
-    fn a_malformed_request_breaks_the_protocol_and_is_no_policy_failure() {
+    fn a_malformed_request_breaks_the_protocol_and_is_no_config_failure() {
         let entry = Entry {
             name: "p.rhai",
             source: "",
@@ -850,7 +850,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn an_undefined_variable_fails_when_the_script_compiles() {
-        let failure = failure(&policy("fn select(request, context) {\n    nope + 1\n}"));
+        let failure = failure(&config("fn select(request, context) {\n    nope + 1\n}"));
         assert_eq!(failure.code, "config_parse_failed");
         assert_eq!(failure.stage, "load");
         assert_eq!(failure.file.as_deref(), Some("/home/o/policy.rhai"));
@@ -868,27 +868,27 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn an_absent_map_property_fails_with_a_location_and_a_unit_property_is_readable() {
-        let failure = failure(&policy(
+        let failure = failure(&config(
             "fn select(request, context) {\n    request.params.nope\n}",
         ));
         assert_eq!(failure.code, "selection_threw");
         assert_eq!((failure.line, failure.column), (Some(4), Some(20)));
         assert!(failure.message.contains("nope"), "{}", failure.message);
 
-        let readable = policy("fn select(request, context) { request.taskFile }");
+        let readable = config("fn select(request, context) { request.taskFile }");
         assert_eq!(reply(&readable), selection(Value::Null));
     }
 
     #[test]
     fn eval_is_off() {
-        let failure = failure(&policy(r#"fn select(request, context) { eval("1 + 1") }"#));
+        let failure = failure(&config(r#"fn select(request, context) { eval("1 + 1") }"#));
         assert_eq!(failure.code, "config_parse_failed");
         assert!(failure.message.contains("eval"), "{}", failure.message);
     }
 
     #[test]
     fn an_import_asks_the_front_and_a_worker_without_one_cannot_resolve_it() {
-        let failure = failure(&policy(
+        let failure = failure(&config(
             "import \"/etc/hosts\" as hosts;\nfn select(request, context) { () }",
         ));
         assert_eq!(failure.code, "config_import_failed");
@@ -958,19 +958,19 @@ fn select(request, context) { global::SEEN }"#,
             ),
             (
                 "no select",
-                policy("fn helper(a, b) { () }"),
+                config("fn helper(a, b) { () }"),
                 "config_invalid",
                 None,
             ),
             (
                 "select of one parameter",
-                policy("fn select(request) { () }"),
+                config("fn select(request) { () }"),
                 "config_invalid",
                 Some((3, 4)),
             ),
             (
                 "private select",
-                policy("private fn select(request, context) { () }"),
+                config("private fn select(request, context) { () }"),
                 "config_invalid",
                 Some((3, 12)),
             ),
@@ -1002,7 +1002,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn a_load_context_must_be_public_and_take_the_request_alone() {
-        let arity = failure(&policy(
+        let arity = failure(&config(
             "fn select(request, context) { () }\nfn load_context(request, more) { #{} }",
         ));
         assert_eq!(arity.code, "config_invalid");
@@ -1014,7 +1014,7 @@ fn select(request, context) { global::SEEN }"#,
         );
         assert_eq!((arity.line, arity.column), (Some(4), Some(4)));
 
-        let hidden = failure(&policy(
+        let hidden = failure(&config(
             "fn select(request, context) { () }\nprivate fn load_context(request) { #{} }",
         ));
         assert_eq!(hidden.code, "config_invalid");
@@ -1023,13 +1023,13 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn a_return_of_unit_is_data_for_the_judge() {
-        let source = policy("fn select(request, context) { () }");
+        let source = config("fn select(request, context) { () }");
         assert_eq!(reply(&source), selection(Value::Null));
     }
 
     #[test]
     fn an_uncaught_error_in_a_nested_call_reports_the_line_that_threw() {
-        let failure = failure(&policy(
+        let failure = failure(&config(
             "fn inner(x) {\n    throw `bad ${x}`;\n}\nfn select(request, context) {\n    inner(request.kind)\n}",
         ));
         assert_eq!(failure.code, "selection_threw");
@@ -1041,7 +1041,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn a_result_that_does_not_convert_is_named_by_its_location() {
-        let failure = failure(&policy(
+        let failure = failure(&config(
             "fn select(request, context) { #{ args: [\"a\", 'c'] } }",
         ));
         assert_eq!(failure.code, "selection_malformed");
@@ -1065,10 +1065,10 @@ fn select(request, context) { global::SEEN }"#,
         failure
     }
 
-    /// A policy whose `select` runs `body` and then selects, so that a body
+    /// A configuration script whose `select` runs `body` and then selects, so that a body
     /// that survives its hostile step is seen to survive.
     fn selecting(body: &str) -> String {
-        policy(&format!(
+        config(&format!(
             "fn select(request, context) {{\n{body}\n    #{{ status: \"selected\" }}\n}}"
         ))
     }
@@ -1108,7 +1108,7 @@ fn select(request, context) { global::SEEN }"#,
             "the control loop must finish"
         );
         let failure = breach(
-            &policy("fn select(request, context) { loop {} }"),
+            &config("fn select(request, context) { loop {} }"),
             Limit::Operations,
         );
         assert!(failure.message.contains("100000000"), "{}", failure.message);
@@ -1126,7 +1126,7 @@ fn select(request, context) { global::SEEN }"#,
             let spin = |name: &str| {
                 format!("let {name} = 0;\nwhile {name} < {ITERATIONS} {{ {name} += 1; }}")
             };
-            policy(&format!(
+            config(&format!(
                 "{}\nfn select(request, context) {{\n{}\n    #{{ status: \"selected\" }}\n}}",
                 if top { spin("i") } else { String::new() },
                 if within { spin("j") } else { String::new() },
@@ -1152,13 +1152,13 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn unbounded_recursion_ends_at_the_call_depth_and_a_shallow_one_does_not() {
-        let shallow = policy(
+        let shallow = config(
             "fn down(n) { if n == 0 { 0 } else { down(n - 1) } }\n\
              fn select(request, context) { down(40); #{ status: \"selected\" } }",
         );
         assert_eq!(reply(&shallow), selection(json!({ "status": "selected" })));
         breach(
-            &policy("fn up(n) { up(n + 1) }\nfn select(request, context) { up(0) }"),
+            &config("fn up(n) { up(n + 1) }\nfn select(request, context) { up(0) }"),
             Limit::CallDepth,
         );
     }
@@ -1168,7 +1168,7 @@ fn select(request, context) { global::SEEN }"#,
         let small = selecting("    let s = \"x\";\n    for i in 0..10 { s += s; }");
         assert_eq!(reply(&small), selection(json!({ "status": "selected" })));
         breach(
-            &policy("fn select(request, context) { let s = \"x\"; loop { s += s; } }"),
+            &config("fn select(request, context) { let s = \"x\"; loop { s += s; } }"),
             Limit::StringSize,
         );
         breach(
@@ -1182,7 +1182,7 @@ fn select(request, context) { global::SEEN }"#,
         let small = selecting("    let a = [1];\n    for i in 0..10 { a = a + a; }");
         assert_eq!(reply(&small), selection(json!({ "status": "selected" })));
         breach(
-            &policy("fn select(request, context) { let a = [1]; loop { a = a + a; } }"),
+            &config("fn select(request, context) { let a = [1]; loop { a = a + a; } }"),
             Limit::ArraySize,
         );
         breach(
@@ -1232,7 +1232,7 @@ fn select(request, context) { global::SEEN }"#,
                 .collect::<Vec<_>>()
                 .join("\n")
         };
-        let source = |count| policy(&format!("{}\nfn select(a, b) {{ () }}", functions(count)));
+        let source = |count| config(&format!("{}\nfn select(a, b) {{ () }}", functions(count)));
         assert_eq!(reply(&source(50)), selection(Value::Null));
         breach(&source(4_200), Limit::ScriptFunctions);
     }
@@ -1243,12 +1243,12 @@ fn select(request, context) { global::SEEN }"#,
         // level allows 64 levels and a function body 32.
         let nested = |depth: usize| format!("{}1{}", "(".repeat(depth), ")".repeat(depth));
         let top = |depth| {
-            policy(&format!(
+            config(&format!(
                 "const X = {};\nfn select(a, b) {{ () }}",
                 nested(depth)
             ))
         };
-        let inside = |depth| policy(&format!("fn select(a, b) {{ {} }}", nested(depth)));
+        let inside = |depth| config(&format!("fn select(a, b) {{ {} }}", nested(depth)));
         assert_eq!(reply(&top(10)), selection(Value::Null));
         assert_eq!(reply(&inside(8)), selection(json!(1)));
         breach(&top(40), Limit::ExpressionDepth);
@@ -1271,7 +1271,7 @@ fn select(request, context) { global::SEEN }"#,
             Limit::StringSize,
         );
         breach(
-            &policy("fn up(n) { up(n + 1) }\nfn select(a, b) { try { up(0) } catch (e) { } }"),
+            &config("fn up(n) { up(n + 1) }\nfn select(a, b) { try { up(0) } catch (e) { } }"),
             Limit::CallDepth,
         );
         breach(
@@ -1310,7 +1310,7 @@ fn select(request, context) { global::SEEN }"#,
                 .join(" ")
         };
         let under_try = |closure: &str| {
-            policy(&format!(
+            config(&format!(
                 "{RECURSE}fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
                  fn select(request, context) {{\n    try {{ [1].map({closure}); }} catch (e) {{ }}\n    \
                  #{{ status: \"selected\" }}\n}}"
@@ -1378,7 +1378,7 @@ fn select(request, context) { global::SEEN }"#,
         // function that stays under the bound, and the configuration script selects.
         let doubles = "fn grow(x) { let s = \"x\"; for i in 0..ROUNDS { s += s; } true }\n";
         let under_try = |call: &str, functions: &str| {
-            policy(&format!(
+            config(&format!(
                 "{RECURSE}fn down(n) {{ if n == 0 {{ true }} else {{ down(n - 1) }} }}\n{functions}\
                  fn select(request, context) {{\n    let a = [1];\n    \
                  try {{ a.{call}; }} catch (e) {{ }}\n    #{{ status: \"selected\" }}\n}}"
@@ -1459,13 +1459,13 @@ fn select(request, context) { global::SEEN }"#,
         // the breach in the comparer used to leave the selection standing. Each
         // hostile case has a control with the same shape that selects.
         let recurses = |call: &str, depth: &str| {
-            policy(&format!(
+            config(&format!(
                 "{RECURSE}fn select(request, context) {{\n    let a = [1, 2];\n    \
                  a.{call}(|x, y| {{ {depth}; 0 }});\n    #{{ status: \"selected\" }}\n}}"
             ))
         };
         let doubles = |call: &str, rounds: &str| {
-            policy(&format!(
+            config(&format!(
                 "fn select(request, context) {{\n    let a = [1, 2];\n    \
                  a.{call}(|x, y| {{ let s = \"x\"; for i in 0..{rounds} {{ s += s; }} 0 }});\n    \
                  #{{ status: \"selected\" }}\n}}"
@@ -1491,7 +1491,7 @@ fn select(request, context) { global::SEEN }"#,
     fn a_stop_ends_a_cooperative_script_at_its_next_operation() {
         let latch = Latch::default();
         let stop = latch.stop_flag();
-        let source = policy("fn select(request, context) { loop { } }");
+        let source = config("fn select(request, context) { loop { } }");
         let halted = std::thread::spawn(move || {
             let entry = Entry {
                 name: "/home/o/policy.rhai",
@@ -1517,10 +1517,10 @@ fn select(request, context) { global::SEEN }"#,
     fn a_closure_has_no_json_form_so_no_host_call_of_one_can_follow() {
         // rhaiscript/rhai#1193: Rhai 1.27.0 loses the imports of a closure that
         // a host calls after the script ended. The engine here only ever calls
-        // `policy::select`, a named function, and the converter refuses every
+        // `config::select`, a named function, and the converter refuses every
         // function pointer, so nothing a script returns can be called later.
         for returned in ["|x| x + 1", "Fn(\"select\")", "curry(Fn(\"select\"), 1)"] {
-            let failure = failure(&policy(&format!(
+            let failure = failure(&config(&format!(
                 "fn select(request, context) {{ #{{ args: [{returned}] }} }}"
             )));
             assert_eq!(failure.code, "selection_malformed", "{returned}");
@@ -1530,7 +1530,7 @@ fn select(request, context) { global::SEEN }"#,
                 "{returned}"
             );
         }
-        let kept = failure(&policy(
+        let kept = failure(&config(
             "const KEEP = |x| x + 1;\nfn select(request, context) { global::KEEP }",
         ));
         assert_eq!(kept.code, "selection_malformed");

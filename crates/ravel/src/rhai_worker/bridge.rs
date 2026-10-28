@@ -1,5 +1,5 @@
 //! The worker's side of the bridge to the Ravel CLI
-//! (`docs/specs/policy-evaluation.md`, *The bridge between the script and the
+//! (`docs/specs/configuration-evaluation.md`, *The bridge between the script and the
 //! CLI* and *Host capabilities*).
 //!
 //! A host function sends one frame over the private socket and blocks until the

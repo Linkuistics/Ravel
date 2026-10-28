@@ -1,4 +1,4 @@
-//! The one converter between Rhai values and JSON (`docs/specs/policy-evaluation.md`,
+//! The one converter between Rhai values and JSON (`docs/specs/configuration-evaluation.md`,
 //! *Conversion at the boundary*).
 //!
 //! Every value that crosses between the script and the front is JSON data, and

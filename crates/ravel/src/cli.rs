@@ -20,7 +20,7 @@ pub struct Cli {
 pub enum Command {
     /// Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
     #[command(
-        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./policy.rhai --param profile=careful --prompt 'Check and end with a result'"
+        after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./config.rhai --param profile=careful --prompt 'Check and end with a result'"
     )]
     StartSession(Box<RunArgs>),
     /// Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
@@ -36,7 +36,7 @@ pub enum Command {
 pub struct RunArgs {
     #[command(flatten)]
     pub selection: SelectionArgs,
-    /// Confine the managed process; policy selection remains outside the sandbox
+    /// Confine the managed process; configuration script selection remains outside the sandbox
     #[arg(long)]
     pub confine: bool,
     /// Grant a regular runtime file read-only to a confined process; repeatable

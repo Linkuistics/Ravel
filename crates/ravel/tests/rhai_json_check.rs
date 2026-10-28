@@ -1,5 +1,5 @@
 //! `ravel::json_check` through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *Data helpers*).
+//! (`docs/specs/configuration-evaluation.md`, *Data helpers*).
 //!
 //! The helper runs in the worker and sends no message, and a data failure is a
 //! thrown map that the script can catch. Every case therefore runs in a configuration script
@@ -10,7 +10,7 @@
 
 mod support;
 
-use support::rhai::{Recorded, policy};
+use support::rhai::{Recorded, rhai_script};
 use support::{Run, Sandbox};
 
 fn start(sandbox: &Sandbox) -> Run {
@@ -27,7 +27,7 @@ const VERDICT: &str = r#"fn verdict(attempt) {
 
 /// A `select` whose `body` computes `args`, an array of strings.
 fn selecting(body: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"{VERDICT}
 fn select(request, context) {{
 {body}
@@ -37,7 +37,7 @@ fn select(request, context) {{
     ))
 }
 
-fn run_policy(body: &str) -> (Sandbox, Recorded, Run) {
+fn run_config(body: &str) -> (Sandbox, Recorded, Run) {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.personal_rhai(&selecting(body));
@@ -47,7 +47,7 @@ fn run_policy(body: &str) -> (Sandbox, Recorded, Run) {
 
 /// The arguments that a configuration script with `body` handed to the harness.
 fn computed(body: &str) -> Vec<String> {
-    let (_sandbox, recorded, run) = run_policy(body);
+    let (_sandbox, recorded, run) = run_config(body);
     run.report();
     recorded.argv().unwrap()
 }
@@ -438,7 +438,7 @@ fn an_uncaught_throw_ends_the_evaluation_and_starts_no_harness() {
         ["routed"]
     );
 
-    let (_sandbox, recorded, run) = run_policy(
+    let (_sandbox, recorded, run) = run_config(
         r#"    ravel::json_check(1, #{ type: "string" });
     let args = [];"#,
     );

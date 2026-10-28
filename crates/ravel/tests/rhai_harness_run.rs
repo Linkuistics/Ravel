@@ -1,12 +1,12 @@
 //! `ravel::run_harness` through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *Harness runs*, *Re-entry and completion
+//! (`docs/specs/configuration-evaluation.md`, *Harness runs*, *Re-entry and completion
 //! authority*, *Harness failures are data* and *Resource exhaustion*).
 //!
 //! Everything runs in a sandbox home with fake harness scripts on a private
-//! `PATH`. A policy runs a harness that the settings name, and then hands what
+//! `PATH`. A configuration script runs a harness that the settings name, and then hands what
 //! it got to the recording agent as arguments, so a test sees what the script
 //! saw. The real worker and the real runner run in every test. Each case that
-//! proves a stop or a refusal has a firing control: the same policy under a
+//! proves a stop or a refusal has a firing control: the same configuration script under a
 //! change that makes it succeed.
 
 mod support;
@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
-use support::rhai::{self, Recorded, gone, policy};
+use support::rhai::{self, Recorded, gone, rhai_script};
 use support::{FRONT, Run, Sandbox, run};
 
 const SETTINGS: &str = ".config/ravel/settings.json";
@@ -40,10 +40,10 @@ fn harness(sandbox: &Sandbox, name: &str, body: &str) -> PathBuf {
     script
 }
 
-/// A policy whose `select` runs `request` and routes to the recording agent with
+/// A configuration script whose `select` runs `request` and routes to the recording agent with
 /// `args`, a Rhai array expression over `run`.
 fn running(request: &str, args: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"fn select(request, context) {{
     let run = ravel::run_harness({request});
     #{{ status: "selected", program: "recording-agent", args: {args}, provider: "p",
@@ -292,7 +292,7 @@ fn the_managed_process_never_receives_the_marker_or_the_channel_of_a_run() {
         &format!("env > {seen:?}\nexec {FRONT:?} end-session done"),
     );
     settings(&sandbox, &["quiet-agent"], 1);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let run = ravel::run_harness(#{ harness: "quiet-agent", args: [] });
     #{ status: "selected", program: "env-dumping-agent", args: [], provider: "p",
@@ -324,7 +324,7 @@ fn a_missing_program_is_data_and_uses_no_budget() {
     );
     // The budget is 1: if the missing program had used it, the second run would
     // end the evaluation.
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let missing = ravel::run_harness(#{ harness: "absent-agent", args: [] });
     let remaining = ravel::remaining().harnessRuns;
@@ -379,7 +379,7 @@ fn an_unknown_harness_and_a_program_that_cannot_run_are_data_with_their_own_code
         }, "budgets": { "harnessRuns": 1 } })
         .to_string(),
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let unknown = ravel::run_harness(#{ harness: "nobody", args: [] });
     let flat = ravel::run_harness(#{ harness: "flat", args: [] });
@@ -534,7 +534,7 @@ fn the_budget_counts_launched_runs_and_remaining_reports_it() {
     let recorded = sandbox.recording_agent();
     harness(&sandbox, "brisk-agent", "echo brisk");
     settings(&sandbox, &["brisk-agent"], 3);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let before = ravel::remaining().harnessRuns;
     ravel::run_harness(#{ harness: "brisk-agent", args: [] });
@@ -561,7 +561,7 @@ fn a_breach_of_the_budget_ends_the_evaluation_and_try_cannot_catch_it() {
     harness(&sandbox, "brisk-agent", "echo brisk");
     settings(&sandbox, &["brisk-agent"], 1);
     let source = |budget_note: &str| {
-        policy(&format!(
+        rhai_script(&format!(
             r#"fn select(request, context) {{
     ravel::run_harness(#{{ harness: "brisk-agent", args: [] }});
     try {{
@@ -591,7 +591,7 @@ fn a_breach_of_the_budget_ends_the_evaluation_and_try_cannot_catch_it() {
     assert_eq!(error["bound"]["runs"], 1);
     assert_eq!(error["bound"]["from"], "settings.json");
 
-    // The firing control: with a budget of 2 the same policy goes on.
+    // The firing control: with a budget of 2 the same configuration script goes on.
     settings(&sandbox, &["brisk-agent"], 2);
     start(&sandbox, &[]).report();
     assert_eq!(recorded.argv().unwrap(), ["went on"]);
@@ -724,8 +724,8 @@ fn start_session_inside_a_run_is_refused_and_the_script_gets_the_status() {
 }
 
 #[test]
-fn the_refusal_comes_before_settings_and_before_a_policy() {
-    // No policy exists, and the settings file is malformed. Without the marker
+fn the_refusal_comes_before_settings_and_before_a_config() {
+    // No configuration script exists, and the settings file is malformed. Without the marker
     // the settings are what refuses.
     let sandbox = Sandbox::new();
     support::write(&sandbox.home.join(SETTINGS), "not json");
@@ -806,7 +806,7 @@ fn the_worker_has_no_completion_channel_to_read() {
     let recorded = sandbox.recording_agent();
     harness(&sandbox, "brisk-agent", "echo brisk");
     settings(&sandbox, &["brisk-agent"], 1);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     ravel::run_harness(#{ harness: "brisk-agent", args: [] });
     let seen = "readable";
@@ -884,7 +884,7 @@ fn a_confined_run_has_a_private_run_directory_and_the_confined_environment() {
         ),
     );
     settings(&sandbox, &["confined-agent"], 1);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let run = ravel::run_harness(#{ harness: "confined-agent", args: [] });
     if run.status != "exited" || run.result != "confined-result" {
@@ -988,7 +988,7 @@ fn runs_are_listed_in_the_order_they_ran_and_a_run_in_load_context_counts() {
     harness(&sandbox, "first-agent", "echo one");
     harness(&sandbox, "second-agent", "echo two");
     settings(&sandbox, &["first-agent", "second-agent"], 2);
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn load_context(request) {
     #{ schemaVersion: 1,
        facts: #{ loaded: ravel::run_harness(#{ harness: "first-agent", args: [] }).stdout } }
@@ -1103,7 +1103,7 @@ fn the_largest_reply_of_a_run_still_reaches_the_script() {
     assert_eq!(run["resultBytes"], 1024 * 1024);
 }
 
-// The ordered stop of an evaluation (`docs/specs/policy-evaluation.md`,
+// The ordered stop of an evaluation (`docs/specs/configuration-evaluation.md`,
 // *Cancellation and deadlines*). The runner stops a run with TERM and escalates
 // to KILL after its kill-grace, which is 5 seconds.
 

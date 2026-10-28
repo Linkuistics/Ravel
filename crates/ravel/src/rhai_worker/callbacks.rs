@@ -3,7 +3,7 @@
 //! Rhai 1.27.0 gives `dedup`, `sort` and `order` a comparer closure and discards
 //! what the closure fails with: `dedup` turns an error into `false`, and `sort`
 //! and `order` turn it into a comparison by type (`src/packages/array_basic.rs`).
-//! A policy that breaches a call-depth, string-size or variable bound inside
+//! A configuration script that breaches a call-depth, string-size or variable bound inside
 //! such a closure would then go on to select, with no `try` at all. Every other function of the
 //! array and map packages that calls a closure returns the closure's error, but
 //! wrapped in one that `try` catches.

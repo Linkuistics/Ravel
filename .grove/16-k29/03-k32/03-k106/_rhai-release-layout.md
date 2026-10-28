@@ -6,7 +6,7 @@ Deliver only `bin/ravel`, the three Rhai examples and Rust dependency notices; r
 
 ## Context
 
-The parent k32 retains the original full file/consumer inventory and acceptance contract. Read it and `docs/specs/policy-evaluation.md` under “Installed layout and delivery”. k104 preserves book Bun setup in `scripts/book-bun.sh`; k105 removes development prerequisites. This child owns the remaining cohesive layout change: install/smoke, release-build/smoke/doctor/common, exact archive manifest and controls, formula template/test, pinned Cargo-notice generation with licence allowlist (including the explicit smartstring MPL-2.0 decision), and deletion of retired artifacts once consumers move.
+The parent k32 retains the original full file/consumer inventory and acceptance contract. Read it and `docs/specs/configuration-evaluation.md` under “Installed layout and delivery”. k104 preserves book Bun setup in `scripts/book-bun.sh`; k105 removes development prerequisites. This child owns the remaining cohesive layout change: install/smoke, release-build/smoke/doctor/common, exact archive manifest and controls, formula template/test, pinned Cargo-notice generation with licence allowlist (including the explicit smartstring MPL-2.0 decision), and deletion of retired artifacts once consumers move.
 
 Remove `crates/ravel/worker`, dispatcher, old installed smoke and wrapper/runtime integrity helpers only after consumers move. Remove obsolete native incumbent/campaign/R01 executable tooling and reconcile Dockerfile dependencies and live references. Keep historical campaign receipts. Search docs evidence files and delete only when uncited and describing no surviving mechanism. Keep checkout-local Bun for book tools; releases carry no Bun.
 

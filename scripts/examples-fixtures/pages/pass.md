@@ -7,7 +7,7 @@ This page is a control for `scripts/examples.sh`. It is not part of the book.
 Complete example: route every request to a fake `claude`, which publishes
 `continue`.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -36,7 +36,7 @@ ravel end-session -- "continue"
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
+$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt "Review the change."
 ```
 
 **Standard output, without a final newline**
@@ -60,9 +60,9 @@ ravel: starting provider fixture, model fixture, effort fixture for kind "check"
 
 ## A refusal
 
-Complete example: a policy that refuses every request, and the refusal text.
+Complete example: a configuration script that refuses every request, and the refusal text.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -80,7 +80,7 @@ fn select(request, context) {
 **Command**
 
 ```console
-$ ravel start-session --kind check --config policy.rhai --prompt "Review the change."
+$ ravel start-session --kind check --config config.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -91,9 +91,9 @@ $ ravel start-session --kind check --config policy.rhai --prompt "Review the cha
 **Standard error**
 
 ```text
-ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/policy.rhai refused the selection: no route for this kind
+ravel: refused (config_refused, stage selection): the configuration script <scratch>/work/config.rhai refused the selection: no route for this kind
   input: --kind check
-  source: <scratch>/work/policy.rhai
+  source: <scratch>/work/config.rhai
   config code: no_route
   remedy: choose a kind the policy routes
 ```

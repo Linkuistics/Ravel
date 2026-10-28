@@ -1,12 +1,12 @@
 //! An LLM call is a harness run, and a harness run keeps the credential
-//! boundary (`docs/specs/policy-evaluation.md`, *LLM calls through a harness*,
+//! boundary (`docs/specs/configuration-evaluation.md`, *LLM calls through a harness*,
 //! *Credentials*, *Generic LLM interaction* and *Credential boundary*).
 //!
 //! Everything goes through the real `ravel start-session` against a sandbox
 //! home. A fake harness script on the private `PATH` plays the model: it prints
 //! a scripted answer, and it records its arguments and its standard input for
 //! the test. The real worker and the real runner run in every test. Each case
-//! has a firing control in the same test: the same policy under a change that
+//! has a firing control in the same test: the same configuration script under a change that
 //! makes the opposite result appear, so a check that read clean for every input
 //! would fail.
 
@@ -18,7 +18,7 @@ use std::os::unix::fs::PermissionsExt as _;
 use std::path::PathBuf;
 
 use serde_json::{Value, json};
-use support::rhai::policy;
+use support::rhai::rhai_script;
 use support::{Run, Sandbox, run, write};
 
 const SETTINGS: &str = ".config/ravel/settings.json";
@@ -145,7 +145,7 @@ fn assert_withheld(notice: &Value, texts: &[&str]) {
     }
 }
 
-/// The notice without the report of the delivered context. A policy that
+/// The notice without the report of the delivered context. A configuration script that
 /// copies an answer into the context it delivers publishes it there, and the
 /// notice has always reported that context.
 fn without_context(notice: &Value) -> Value {
@@ -156,7 +156,7 @@ fn without_context(notice: &Value) -> Value {
 
 /// A route that the recording agent starts, from `name` and the configuration script's `args`.
 fn routed(body: &str, args: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"{body}
 fn select(request, context) {{
     let args = {args};
@@ -166,7 +166,7 @@ fn select(request, context) {{
     ))
 }
 
-/// The policy of "LLM-assisted selection": it asks the model `classifier` to
+/// The configuration script of "LLM-assisted selection": it asks the model `classifier` to
 /// classify the prompt, and maps the answer to a route.
 const SELECTION: &str = r#"fn select(request, context) {
     let routes = #{
@@ -201,7 +201,7 @@ fn an_llm_assisted_selection_launches_the_route_that_the_answer_maps_to() {
         let stdin = sandbox.root.join("classifier.stdin");
         let model = classify(&sandbox, stdin.to_str().unwrap());
         settings(&sandbox, &["classifier"], 1);
-        sandbox.personal_rhai(&policy(SELECTION));
+        sandbox.personal_rhai(&rhai_script(SELECTION));
         let run = start(&sandbox, prompt, &[], &[]);
         (notice_of(&run), recorded, model, sandbox)
     };
@@ -235,7 +235,7 @@ fn an_llm_assisted_selection_launches_the_route_that_the_answer_maps_to() {
 
 #[test]
 fn load_context_runs_a_fake_harness_for_a_summary_and_select_receives_it() {
-    let policy_source = routed(
+    let config_source = routed(
         r#"fn load_context(request) {
     let run = ravel::run_harness(#{
         harness: "summariser",
@@ -251,7 +251,7 @@ fn load_context_runs_a_fake_harness_for_a_summary_and_select_receives_it() {
         let recorded = sandbox.recording_agent();
         let model = fake_model(&sandbox, "summariser", &format!("printf '%s' {summary:?}"));
         settings(&sandbox, &["summariser"], 1);
-        sandbox.personal_rhai(&policy_source);
+        sandbox.personal_rhai(&config_source);
         let run = start(&sandbox, PROMPT, &[], &[]);
         (notice_of(&run), recorded, model, sandbox)
     };
@@ -286,9 +286,9 @@ fn load_context_runs_a_fake_harness_for_a_summary_and_select_receives_it() {
 
 #[test]
 fn a_structured_answer_that_lacks_a_property_is_json_mismatch_without_the_answer() {
-    // The policy checks the answer with `json_check` under `try`, and goes on
+    // The configuration script checks the answer with `json_check` under `try`, and goes on
     // with the verdict when the check throws.
-    let source = policy(
+    let source = rhai_script(
         r#"fn judged(request) {
     let run = ravel::run_harness(#{ harness: "judge", args: ["--json"], stdin: request.prompt });
     let schema = #{ type: "object",
@@ -349,8 +349,8 @@ fn select(request, context) {
 }
 
 #[test]
-fn a_failed_call_is_data_and_the_policy_falls_back_to_a_second_harness() {
-    let source = policy(
+fn a_failed_call_is_data_and_the_config_falls_back_to_a_second_harness() {
+    let source = rhai_script(
         r#"fn ask(name, prompt) {
     ravel::run_harness(#{ harness: name, args: ["-p"], stdin: prompt })
 }
@@ -411,7 +411,7 @@ fn select(request, context) {
     assert_runs(&notice, &[("primary", "exited")]);
 }
 
-/// A policy that makes no measured read and runs no harness. It asks for the
+/// A configuration script that makes no measured read and runs no harness. It asks for the
 /// credential by name, prints every other value that it can reach, and prints
 /// the credential too when `ravel::env` returns it.
 const PROBE: &str = r#"fn select(request, context) {
@@ -438,7 +438,7 @@ fn an_ungranted_credential_in_the_caller_environment_reaches_no_script_value_or_
     let probe = |grants: &[&str]| {
         let sandbox = Sandbox::new();
         let recorded = sandbox.recording_agent();
-        sandbox.personal_rhai(&policy(PROBE));
+        sandbox.personal_rhai(&rhai_script(PROBE));
         let run = start(&sandbox, PROMPT, &[("ANTHROPIC_API_KEY", SENTINEL)], grants);
         // The route started, and the session ended with the managed process's
         // value, so nothing but the probe's own prints is a diagnostic.
@@ -459,7 +459,7 @@ fn an_ungranted_credential_in_the_caller_environment_reaches_no_script_value_or_
     assert!(!run.stdout.contains(SENTINEL), "{}", run.stdout);
 
     // The firing control: with a grant that names the sentinel's variable, the
-    // same policy reads the sentinel, and the streams that were clean now hold
+    // same configuration script reads the sentinel, and the streams that were clean now hold
     // it. The checks above therefore read the streams that would carry a leak.
     let (run, recorded, _keep) = probe(&["--config-env", "ANTHROPIC_API_KEY"]);
     assert_eq!(recorded.argv().unwrap(), [format!("returned:{SENTINEL}")]);
@@ -468,7 +468,7 @@ fn an_ungranted_credential_in_the_caller_environment_reaches_no_script_value_or_
 
 #[test]
 fn an_unconfined_run_gets_the_caller_home_and_the_ungranted_credential_unchanged() {
-    let source = policy(
+    let source = rhai_script(
         r#"fn select(request, context) {
     let probe = "";
     try { ravel::env("ANTHROPIC_API_KEY"); probe = "returned"; }

@@ -1,4 +1,4 @@
-// An owner policy to copy and edit. It adds one choice to the starter table:
+// An configuration script to copy and edit. It adds one choice to the starter table:
 // a `.ravel-choice` file in the caller's directory picks the `default` route
 // or the `careful` one. Copy `static.rhai` beside this file, because the
 // import below names it by its path.
@@ -13,7 +13,7 @@ const OFFERED = ["default", "careful"];
 
 /// The names in the choice file of `directory`, separated by whitespace, or `()`
 /// when there is no such file. A file that cannot be read, and a name that the
-/// policy does not offer, give a refusal map.
+/// configuration script does not offer, give a refusal map.
 fn read_choice(directory) {
     let file = ravel::path_resolve(directory, global::CHOICE_FILE);
     let text = "";
@@ -42,7 +42,7 @@ fn read_choice(directory) {
     names
 }
 
-/// The names that the policy offers, as one text.
+/// The names that the configuration script offers, as one text.
 fn offered_text() {
     let text = "";
     for name in global::OFFERED {

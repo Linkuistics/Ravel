@@ -605,9 +605,9 @@ fn partial_acquisition_cleanup_fixture() {
         PathBuf::from("/bin/sh")
     };
     let command = serde_json::json!({"status":"selected","program":program,"args":["-c","echo started > \"$1\"; \"$2\" end-session -- \"$3\"; exit 7","fixture",root.join("work/started"),std::env::var("C3_FRONT").unwrap(),value],"provider":"fixture","model":"fixture","effort":"fixture","reason":"cleanup"});
-    let policy_dir = root.join("owner");
-    fs::create_dir(&policy_dir).unwrap();
-    let policy = policy_dir.join("policy.rhai");
+    let config_dir = root.join("owner");
+    fs::create_dir(&config_dir).unwrap();
+    let config = config_dir.join("policy.rhai");
     let body = if route.contains("refusal") {
         "return #{status: \"refused\", code: \"owner_declined\", message: \"owner original detail\", remedy: \"owner original remedy\"};".to_owned()
     } else if route.contains("timeout") {
@@ -621,7 +621,7 @@ fn partial_acquisition_cleanup_fixture() {
             serde_json::json!(command.to_string())
         )
     };
-    fs::write(&policy,format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    fs::write(&config,format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
     let worker = root.join("bin/rhai-role");
     crate::rhai_worker::fixtures::install_role(&worker, false);
     crate::rhai_worker::fixtures::use_executable(worker.clone());
@@ -646,7 +646,7 @@ fn partial_acquisition_cleanup_fixture() {
         "--prompt".into(),
         "input".into(),
         "--config".into(),
-        policy.to_str().unwrap().into(),
+        config.to_str().unwrap().into(),
         "--json".into(),
     ];
     if role == "session" {
@@ -747,7 +747,7 @@ fn partial_acquisition_cleanup_fixture() {
             if route.ends_with("late-choice") {
                 let _handlers = crate::cancellation::Handlers::install().unwrap();
                 assert_eq!(unsafe { libc::raise(libc::SIGHUP) }, 0);
-                let e = crate::choice::overruled(e, policy.to_str().unwrap());
+                let e = crate::choice::overruled(e, config.to_str().unwrap());
                 assert_eq!(e.refusal.code, "selection_cancelled");
                 e.to_text()
             } else {

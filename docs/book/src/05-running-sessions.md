@@ -56,7 +56,7 @@ the sections in order, or go to the row that you need:
 | Order | Who acts | What happens | In the review | Section that teaches it |
 |---|---|---|---|---|
 | 1 | The caller | Runs `ravel start-session` with a kind, a prompt and optional caller data | `--kind review --prompt-file review-prompt.txt` | [Supply the prompt and caller data](#supply-the-prompt-and-caller-data) |
-| 2 | The configuration script | Selects a program and its arguments, or refuses the request | Selects the harness for the kind `review` | [Chapter 4](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| 2 | The configuration script | Selects a program and its arguments, or refuses the request | Selects the harness for the kind `review` | [Chapter 4](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | 3 | The Ravel CLI | Writes the text routing notice on the caller's standard error. With `--json`, the notice follows the supervision attempt. | `ravel: starting provider local, model fake, effort low for kind "review"` | [Read notices separately from results](#read-notices-separately-from-results) |
 | 4 | The Ravel CLI | Launches the selected program, with or without confinement, and supervises it | Launches the harness without confinement | [Confine the managed process](#confine-the-managed-process) |
 | 5 | The selected program | Does its work, which can include an inner session, and sends a result with `ravel end-session` | Writes `review-notes.md` and sends `changes-needed` | [Keep nested sessions separate](#keep-nested-sessions-separate) |
@@ -91,7 +91,7 @@ line has these parts:
 | `env -i` | Runs the command with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
 | `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Thus, your own configuration script and settings do not enter the example. |
 | `PATH="$PWD/bin:$PATH"` | Puts the fake programs first on the search path |
-| `ravel start-session --config policy.rhai` | Runs a session with the configuration script of the example |
+| `ravel start-session --config config.rhai` | Runs a session with the configuration script of the example |
 
 The book checker runs the same examples with the built Ravel CLI. It compares
 each output with the output that the book shows.
@@ -199,9 +199,9 @@ things, and it always names which one:
 | Working directory, `cwd` | The current directory of the caller | The selected program, which runs there |
 
 Chapter 4 teaches
-[selection context and loaders](04-writing-an-owner-policy.md#supply-selection-context)
+[selection context and loaders](04-write-a-configuration-script.md#supply-selection-context)
 and how to
-[set bounds and environment grants in the settings](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+[set bounds and environment grants in the settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 Ravel does not run your configuration script in the Ravel CLI's own process.
 It launches a second copy of the `ravel` executable as a child process. That
@@ -280,7 +280,7 @@ the result, so the result shows what the agent received. Create the
 labelled files in a new directory. Make `bin/echo-prompt` executable before
 you run the command.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -328,7 +328,7 @@ When you finish, send the agreed result.
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.rhai --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
 ```
 
 **Standard output**
@@ -423,7 +423,7 @@ the program sends an empty result. In the third, it sends no result and exits
 naturally with status 0. Create these files in a new directory and make
 `bin/outcome` executable.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -459,7 +459,7 @@ exit 7
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.rhai --prompt '--help'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config config.rhai --prompt '--help'
 ```
 
 **Standard output, without a final newline**
@@ -477,7 +477,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config policy.rhai --prompt ''
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config config.rhai --prompt ''
 ```
 
 **Standard output**
@@ -494,7 +494,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind natural --config policy.rhai --prompt ''
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind natural --config config.rhai --prompt ''
 ```
 
 **Standard output**
@@ -562,7 +562,7 @@ outcome. The file `review-prompt.txt` is the prompt of chapter 1.
 `fixed`. Create these files in a new directory and make the files under
 `bin/` executable.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -623,7 +623,7 @@ When the review is complete, end this session with one command:
 ```sh
 #!/bin/sh
 set -u
-if ravel start-session --kind review --config policy.rhai --prompt-file review-prompt.txt >result.txt; then
+if ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt >result.txt; then
   status=0
 else
   status=$?
@@ -644,7 +644,7 @@ case $(cat result.txt) in
       cat review-notes.md
       echo "When the fix is complete, run: ravel end-session fixed"
     } >fix-prompt.txt
-    ravel start-session --kind fix --config policy.rhai --prompt-file fix-prompt.txt >fix-result.txt || exit "$?"
+    ravel start-session --kind fix --config config.rhai --prompt-file fix-prompt.txt >fix-result.txt || exit "$?"
     echo "orchestrator: the fix session sent $(cat fix-result.txt)"
     ;;
   *)
@@ -794,7 +794,7 @@ uses that result in `inner|outer`. Create these files in a new directory and
 make both files under `bin/` executable. These values have no trailing
 newlines, so command substitution keeps them unchanged.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -804,7 +804,7 @@ fn select(request, context) {
     #{
         status: "selected",
         program: if request.kind == "outer" { "outer" } else { "inner" },
-        args: [ravel::path_resolve(request.cwd, "policy.rhai")],
+        args: [ravel::path_resolve(request.cwd, "config.rhai")],
         provider: "local",
         model: "fake",
         effort: "none",
@@ -836,7 +836,7 @@ ravel end-session -- "$result|outer"
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config policy.rhai --prompt 'Run the inner session. Then add |outer to its result and send it.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config config.rhai --prompt 'Run the inner session. Then add |outer to its result and send it.'
 ```
 
 **Standard output, without a final newline**
@@ -936,7 +936,7 @@ Keep the directory of the configuration script and the settings outside every
 filesystem grant. Ravel makes each path canonical. If paths overlap, Ravel
 stops with an error before it evaluates the script. This check also finds overlaps
 through symlinks or through the system runtime grants. For example, if you
-run `--confine --config ./policy.rhai` from the directory that contains that
+run `--confine --config ./config.rhai` from the directory that contains that
 script, the script overlaps the writable working directory. Put the script in
 a separate owner directory, and run Ravel from the project directory.
 
@@ -955,7 +955,7 @@ contain the script.
 
 <!-- example: requires confinement -->
 
-**`owner/policy.rhai`**
+**`owner/config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -979,7 +979,7 @@ fn select(request, context) {
 ```console
 $ mkdir -p home tmp project || exit "$?"
 $ example_home="$PWD/home" && example_tmp="$PWD/tmp" && cd project || exit "$?"
-$ env -i HOME="$example_home" TMPDIR="$example_tmp" PATH="$PATH" ravel start-session --kind check --config ../owner/policy.rhai --confine --prompt 'Send confined.'
+$ env -i HOME="$example_home" TMPDIR="$example_tmp" PATH="$PATH" ravel start-session --kind check --config ../owner/config.rhai --confine --prompt 'Send confined.'
 ```
 
 **Standard output, without a final newline**
@@ -1094,7 +1094,7 @@ and the prompt are those of chapter 1. The fake agent writes one line, then
 sends `changes-needed`. Create these files in a new directory and make
 `bin/review-agent` executable.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1146,7 +1146,7 @@ When the review is complete, end this session with one command:
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config policy.rhai --prompt-file review-prompt.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt
 ```
 
 **Standard output, without a final newline**
@@ -1171,7 +1171,7 @@ review-agent: the review is complete
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind review --config policy.rhai --prompt-file review-prompt.txt
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind review --config config.rhai --prompt-file review-prompt.txt
 ```
 
 **Standard output, without a final newline**
@@ -1195,7 +1195,7 @@ changes-needed
 **Command**
 
 ```console
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind deploy --config policy.rhai --prompt 'Deploy the last commit.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --json --kind deploy --config config.rhai --prompt 'Deploy the last commit.'
 ```
 
 **Standard output**
@@ -1206,7 +1206,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error**
 
 ```text
-{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/policy.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/policy.rhai","stage":"selection"},"schemaVersion":2}
+{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/config.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/config.rhai","stage":"selection"},"schemaVersion":2}
 ```
 
 **Exit status**
@@ -1217,8 +1217,8 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 
 Here `<scratch>` is the temporary directory that the example checker of the
 book uses. A manual run shows the actual absolute path of your configuration
-script. The words “the policy” in the message are Ravel's own diagnostic
-words for the configuration script.
+script. Ravel supplies the diagnostic prefix. The configuration script
+supplies the refusal code, message and remedy.
 
 The table follows the three commands to what the caller receives:
 
@@ -1247,11 +1247,11 @@ review-agent: the review is complete
     "modules": [
       {
         "bytes": 619,
-        "name": "/private/tmp/ch5r/policy.rhai",
+        "name": "/private/tmp/ch5r/config.rhai",
         "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
       }
     ],
-    "path": "/private/tmp/ch5r/policy.rhai",
+    "path": "/private/tmp/ch5r/config.rhai",
     "version": "notice-demo"
   },
   "promptSource": "/private/tmp/ch5r/review-prompt.txt",
@@ -1382,9 +1382,9 @@ These sections teach the subject of each row:
 - statuses 0 and 1: [Accept a result only after success](#accept-a-result-only-after-success)
 - status 2: [Supply the prompt and caller data](#supply-the-prompt-and-caller-data)
   and [Confine the managed process](#confine-the-managed-process)
-- status 3: chapter 4's [Select a command or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse)
+- status 3: chapter 4's [Select a command or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse)
 - status 5: [Read notices separately from results](#read-notices-separately-from-results)
-- status 124: chapter 4's [Set bounds and environment grants in the settings](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings)
+- status 124: chapter 4's [Set bounds and environment grants in the settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings)
 - statuses 126 and 127: program resolution, in
   [Supply the prompt and caller data](#supply-the-prompt-and-caller-data)
 - statuses 129, 130 and 143: [Cancel during selection or supervision](#cancel-during-selection-or-supervision)
@@ -1483,7 +1483,7 @@ starts.
 {"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1}}
 ```
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1511,7 +1511,7 @@ while :; do sleep 1; done
 ```console
 $ mkdir -p home/.config/ravel tmp && chmod +x bin/* || exit "$?"
 $ cp settings.json home/.config/ravel/settings.json || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt 'No managed process should launch.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt 'No managed process should launch.'
 ```
 
 **Standard output**
@@ -1522,7 +1522,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script <scratch>/work/config.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**
@@ -1542,7 +1542,7 @@ The evaluation harness did run before cancellation.
 The owner enables this call in the settings, with a named harness entry and
 a run budget of one.
 The run has no terminal, so its signal does not depend on keyboard input.
-[Chapter 4](04-writing-an-owner-policy.md#run-a-harness-during-evaluation)
+[Chapter 4](04-write-a-configuration-script.md#run-a-harness-during-evaluation)
 explains the call's inputs and output.
 
 The table follows this example to what the caller receives:
@@ -1585,7 +1585,7 @@ directly to the Ravel CLI. Then it stays alive until the supervisor stops the
 job. Create the files in a new directory and make `bin/cancel-after-result`
 executable.
 
-**`policy.rhai`**
+**`config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION = 3;
@@ -1618,7 +1618,7 @@ while :; do sleep 1; done
 
 ```console
 $ mkdir -p home tmp && chmod +x bin/* || exit "$?"
-$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt 'Show cancellation after a sent result.'
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt 'Show cancellation after a sent result.'
 ```
 
 **Standard output**
@@ -1629,7 +1629,7 @@ $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-se
 **Standard error includes**
 
 ```text
-ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.rhai was cancelled by SIGINT
+ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/config.rhai was cancelled by SIGINT
 ```
 
 **Exit status**
@@ -1661,7 +1661,7 @@ interaction with the terminal. The automated examples do not test keyboard
 delivery or foreground recovery.
 
 ```sh
-ravel start-session --kind interactive --config policy.rhai --prompt-file prompt.txt
+ravel start-session --kind interactive --config config.rhai --prompt-file prompt.txt
 ```
 
 ## Know when Ravel cannot guarantee cleanup

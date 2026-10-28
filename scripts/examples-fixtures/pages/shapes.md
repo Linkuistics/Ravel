@@ -68,7 +68,7 @@ $ printf '```\n'
 0
 ````
 
-Fragment: the policy's first constant only, without the version or functions.
+Fragment: the configuration script's first constant only, without the version or functions.
 
 ```rhai
 export const SCHEMA_VERSION = 3;

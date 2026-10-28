@@ -129,10 +129,10 @@ keep the executable script apart from the settings.
 
 A prose-only correction keeps literal names exact against the implemented
 interface. The owner extended the change to filenames and arguments in F18
-on 2026-10-28. `configuration-names-k92` now owns the product rename.
-The following book correction uses its final names for files, options,
-settings, JSON fields and diagnostics. It removes the explanations for the
-earlier retained names. Historical inputs and quotations remain exact.
+on 2026-10-28. The product and current documentation use configuration names
+for files, options, settings, JSON fields and diagnostics. Remove explanations
+that justify an old product name after that name changes. Historical inputs,
+quotations and arbitrary owner-supplied values remain exact.
 
 The word “policy” alone never names a security or sandbox rule. A restriction
 on a managed process is confinement.

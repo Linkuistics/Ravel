@@ -1,6 +1,6 @@
 {
   "title": "Rhai configuration evaluation for Ravel 2.0.0",
-  "intro": "How Ravel 2.0.0 evaluates a Rhai configuration script: a separate Rhai worker computes, and the Ravel CLI performs every host capability. An LLM call is a harness run of Claude Code or Codex, which signs in with the owner's own sign-in. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. Sequences start at their first message, and the state view starts at its initial pseudo-state. The specification docs/specs/policy-evaluation.md is the authority for every rule drawn here.",
+  "intro": "How Ravel 2.0.0 evaluates a Rhai configuration script: a separate Rhai worker computes, and the Ravel CLI performs every host capability. An LLM call is a harness run of Claude Code or Codex, which signs in with the owner's own sign-in. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. Sequences start at their first message, and the state view starts at its initial pseudo-state. The specification docs/specs/configuration-evaluation.md is the authority for every rule drawn here.",
   "groups": [
     {
       "id": "processes",

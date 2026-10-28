@@ -1,5 +1,5 @@
-//! The module resolver of the worker (`docs/specs/policy-evaluation.md`,
-//! *Policy entry and discovery*).
+//! The module resolver of the worker (`docs/specs/configuration-evaluation.md`,
+//! *Configuration entry and discovery*).
 //!
 //! Rhai calls its resolver on the evaluation thread, so a resolution is one more
 //! host call: the worker sends the path and the importing file, and the front

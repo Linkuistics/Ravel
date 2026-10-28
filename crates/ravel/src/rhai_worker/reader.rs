@@ -1,5 +1,5 @@
 //! The reader thread: every filesystem call of the host functions
-//! (`docs/specs/policy-evaluation.md`, *The bridge between the script and the CLI*).
+//! (`docs/specs/configuration-evaluation.md`, *The bridge between the script and the CLI*).
 //!
 //! The runtime thread that serves the worker makes no filesystem call. It hands
 //! a closure to the reader and awaits the answer, so the deadline, the

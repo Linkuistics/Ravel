@@ -8,7 +8,7 @@
 
 # Part II: Use Ravel
 
-- [Write a configuration script](04-writing-an-owner-policy.md)
+- [Write a configuration script](04-write-a-configuration-script.md)
 - [Run sessions](05-running-sessions.md)
 - [Reference](06-reference.md)
 

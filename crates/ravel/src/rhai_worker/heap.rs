@@ -1,5 +1,5 @@
 //! The counting allocator behind the heap bound of the worker
-//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*).
+//! (`docs/specs/configuration-evaluation.md`, *The Rhai worker*).
 //!
 //! The binary installs [`Counting`] as its global allocator and counts every
 //! live byte, in the front as in the role. The count stays harmless until the
@@ -41,7 +41,7 @@ static REPORT_LEN: AtomicUsize = AtomicUsize::new(0);
 static BREACHED: AtomicBool = AtomicBool::new(false);
 
 /// Bound the live bytes of this process to `bytes` from now on. The role calls
-/// it once, before it runs any policy code.
+/// it once, before it runs any configuration script code.
 pub fn arm(bytes: usize) {
     let frame = Box::leak(report(bytes).into_boxed_slice());
     REPORT_LEN.store(frame.len(), Relaxed);

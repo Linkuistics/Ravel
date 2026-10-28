@@ -26,10 +26,10 @@ The second leaf tests the stop of a run that the first leaf creates. The third o
 ## Pointers
 
 - ADR: `docs/adr/the-launched-child-is-a-job.md` governs each harness run. `docs/adr/ravel-supervises-the-session.md` governs the session.
-- Spec: `docs/specs/policy-evaluation.md`. The sections are "Harness runs", "Harness entries", "Cancellation and deadlines", "Re-entry and completion authority" and "Errors and refusals".
+- Spec: `docs/specs/configuration-evaluation.md`. The sections are "Harness runs", "Harness entries", "Cancellation and deadlines", "Re-entry and completion authority" and "Errors and refusals".
 - Spec: `docs/specs/result-job-completion.md` owns the outcome order and the cancellation precedence that the stop must keep. `docs/specs/session-execution.md` describes the managed process.
 - Review finding F4 of `rhai-policy-k4` and its integration in `rhai-policy-k5`. Find both with `grove-llm resolve`.
-- Spec sections for the LLM leaves: "LLM calls through a harness" and "Credentials". ADR: `docs/adr/a-policy-asks-a-model-through-a-harness-run.md`.
+- Spec sections for the LLM leaves: "LLM calls through a harness" and "Credentials". ADR: `docs/adr/a-configuration-script-asks-a-model-through-a-harness-run.md`.
 - Glossary: Harness run, LLM call, Harness, Evaluation budget and Host capability.
 - Test seam: the real `ravel start-session` against a sandbox home. Fake harness scripts on a private `PATH` serve both the managed process and the harness runs.
 

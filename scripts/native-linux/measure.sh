@@ -104,7 +104,7 @@ step rust-fmt cargo fmt --all --check
 
 # 3. Current development setup, Rhai worker and native-entry checks.
 step development-setup task setup
-# The Rhai policy worker: its limits, role and policy tests and every unit test
+# The Rhai worker: its limits, role and configuration script tests and every unit test
 # that names it, through the real CLI. No nextest profile here writes junit, so
 # the summary line of OUT/rhai-worker.txt is the record.
 step rhai-worker cargo nextest run --locked -p ravel --no-fail-fast \

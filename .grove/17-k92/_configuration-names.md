@@ -35,7 +35,7 @@ The owner asked to eliminate “policy” from filenames and arguments during Re
   Routing-notice schema version 2 and Rhai script schema version 3 retain their numbers: those new interfaces have not shipped.
   Reconcile every producer, consumer, example and schema statement.
 - Current Ravel-owned source and documentation filenames that name this concept use configuration terms.
-  Include the retained `policy.rs` module, policy-evaluation spec, affected ADR slugs, design paths and chapter 4's filename.
+  Include the retained `policy.rs` module, configuration-evaluation spec, affected ADR slugs, design paths and chapter 4's filename.
   Use `04-write-a-configuration-script.md` for the chapter. Reconcile current links, citations, tasks and excerpt paths.
 - Current prose, examples, release checks, help and public names agree. Classify residual old terms by ownership and meaning.
   Historical evidence, old-input refusal cases, third-party identifiers and stable Grove handles remain exact.

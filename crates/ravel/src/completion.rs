@@ -29,7 +29,7 @@ pub struct SessionChannel {
 impl SessionChannel {
     /// Allocate beneath an existing caller-selected directory, so a sandbox
     /// can grant this location. The child receives the channel path, not a
-    /// policy-controlled destination. The path is absolute even for a relative parent.
+    /// configuration script-controlled destination. The path is absolute even for a relative parent.
     pub fn allocate(parent: &Path) -> io::Result<Self> {
         let parent = fs::canonicalize(parent)?;
         #[cfg(test)]

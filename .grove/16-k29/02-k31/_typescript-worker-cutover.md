@@ -6,7 +6,7 @@ Remove the TypeScript path from the Rust code and the tests. Ravel evaluates onl
 
 ## Context
 
-- The input is "Policy entry and discovery", "Errors and refusals" and "Migration" in `docs/specs/policy-evaluation.md`.
+- The input is "Policy entry and discovery", "Errors and refusals" and "Migration" in `docs/specs/configuration-evaluation.md`.
 - The TypeScript path lives in `crates/ravel/src/worker.rs`, `policy.rs`, `build.rs`, parts of `run.rs`, `environment.rs` and `cli.rs`, and in the tests. The Rhai path was added beside it, and the earlier leaves marked the new code.
 - The tests in `crates/ravel/tests` and the unit tests use TypeScript policies as fixtures. Port each of them to a Rhai policy, or remove a test that only proves a TypeScript property. State each removal in the running log.
 - The hostile classes of the Bun worker die with it. The Rhai hostile classes already exist, so check that each old class has a Rhai peer.

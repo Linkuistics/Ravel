@@ -1,5 +1,5 @@
 //! The internal role of the Rhai Rhai worker, driven as a real process
-//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*).
+//! (`docs/specs/configuration-evaluation.md`, *The Rhai worker*).
 //!
 //! The role is Ravel's own binary started with the `arg0` that marks it. These
 //! tests start the real binary that way, hold the front's end of the private
@@ -17,9 +17,9 @@ use serde_json::{Value, json};
 use support::FRONT;
 
 /// The `arg0` that marks the role (`rhai_worker::ARG0`).
-const ARG0: &str = "ravel-rhai-policy-worker";
+const ARG0: &str = "ravel-rhai-config-worker";
 
-const POLICY: &str = r#"export const SCHEMA_VERSION = 3;
+const CONFIG: &str = r#"export const SCHEMA_VERSION = 3;
 export const VERSION = "role-test";
 const TABLE = #{ impl: ["--print"] };
 print("printed at the top level");
@@ -111,7 +111,7 @@ fn the_role_says_hello_evaluates_the_source_and_exits_after_its_result() {
     let build = hello["buildId"].as_str().unwrap();
     assert!(build.len() == 64 && build.bytes().all(|b| b.is_ascii_hexdigit()));
 
-    write_frame(&channel, &evaluate(POLICY));
+    write_frame(&channel, &evaluate(CONFIG));
     let reply = read_frame(&channel);
     assert_eq!(
         reply,
@@ -133,7 +133,7 @@ fn the_role_says_hello_evaluates_the_source_and_exits_after_its_result() {
 }
 
 #[test]
-fn a_policy_failure_comes_back_as_a_frame_with_its_location() {
+fn a_config_failure_comes_back_as_a_frame_with_its_location() {
     let (child, channel) = start(&[], true);
     read_frame(&channel);
     write_frame(
@@ -259,7 +259,7 @@ fn a_front_that_closes_the_socket_during_the_evaluation_stops_a_cooperative_scri
     read_frame(&channel);
     write_frame(
         &channel,
-        &evaluate(&POLICY.replace("debug(\"debugged in select\");", "loop { }")),
+        &evaluate(&CONFIG.replace("debug(\"debugged in select\");", "loop { }")),
     );
 
     std::thread::sleep(std::time::Duration::from_millis(300));

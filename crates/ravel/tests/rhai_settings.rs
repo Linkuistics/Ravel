@@ -1,11 +1,11 @@
 //! The owner settings of a Rhai configuration script through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *Harness entries*, *Evaluation budgets
+//! (`docs/specs/configuration-evaluation.md`, *Harness entries*, *Evaluation budgets
 //! and their composition* and *Discovery*): the keys `harnesses` and `budgets`,
 //! and the functions `ravel::harnesses` and `ravel::remaining`.
 //!
 //! Everything runs in a sandbox home with fake harness scripts on a private
 //! `PATH`. No test makes a network call, and none could: Ravel has no HTTP
-//! client. The policy hands what it computed to the recording harness as
+//! client. The configuration script hands what it computed to the recording harness as
 //! arguments, so a test sees what the script saw.
 
 mod support;
@@ -15,7 +15,7 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt as _;
 
 use serde_json::{Value, json};
-use support::rhai::{self, Recorded, policy};
+use support::rhai::{self, Recorded, rhai_script};
 use support::{Run, Sandbox, run, text};
 
 const SETTINGS: &str = ".config/ravel/settings.json";
@@ -46,7 +46,7 @@ fn start_with(sandbox: &Sandbox, envs: &[(&str, &OsStr)], args: &[&str]) -> Run 
 /// A `select` whose `body` computes `args`, an array of strings, after the
 /// global functions in `globals`.
 fn selecting(globals: &str, body: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"{globals}
 fn select(request, context) {{
 {body}
@@ -235,7 +235,7 @@ fn each_settings_failure_refuses_as_settings_invalid_with_exit_2_before_any_work
 }
 
 /// The two budgets of `ravel::llm` are gone, so a settings file that still sets
-/// one refuses as an unknown budget, and no policy starts.
+/// one refuses as an unknown budget, and no configuration script starts.
 #[test]
 fn the_budgets_of_the_removed_llm_call_are_unknown_budgets() {
     for key in ["llmCalls", "llmOutputTokens"] {
@@ -305,7 +305,7 @@ fn a_variable_that_an_endpoint_once_named_as_its_credential_is_an_ordinary_grant
 /// a function that the namespace lacks does. The control beside it calls a
 /// function that stays, in the same position, and succeeds.
 #[test]
-fn a_policy_that_calls_ravel_endpoints_fails_with_an_unknown_function() {
+fn a_config_that_calls_ravel_endpoints_fails_with_an_unknown_function() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.personal_rhai(&selecting(
@@ -461,7 +461,7 @@ fn remaining_counts_down_the_time_and_the_sources_and_reports_the_owners_budgets
 }
 
 #[test]
-fn a_policy_cannot_raise_a_budget_it_reads() {
+fn a_config_cannot_raise_a_budget_it_reads() {
     let value = computed_value(
         r#"{ "budgets": { "harnessRuns": 2 } }"#,
         &[],
@@ -489,7 +489,7 @@ fn the_discovery_functions_are_available_at_the_top_of_a_module_and_in_load_cont
         "policy-lib.rhai",
         r#"export const AT_TOP = [ravel::harnesses().len(), ravel::remaining().harnessRuns];"#,
     );
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"import "policy-lib" as lib;
 fn load_context(request) {
     #{ schemaVersion: 1, facts: #{ harnesses: ravel::harnesses().len(),

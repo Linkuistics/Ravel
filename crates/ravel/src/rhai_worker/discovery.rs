@@ -1,4 +1,4 @@
-//! The discovery calls of the `ravel` namespace (`docs/specs/policy-evaluation.md`,
+//! The discovery calls of the `ravel` namespace (`docs/specs/configuration-evaluation.md`,
 //! *Discovery*): what the owner configured, whether it is available now, and what
 //! the evaluation still has.
 //!

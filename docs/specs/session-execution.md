@@ -5,36 +5,33 @@ Its public boundary is [start-session and end-session](../book/src/06-reference.
 Caller prompts, result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable. The [glossary](../../CONTEXT.md) defines its terms.
 
-The [configuration evaluation specification](policy-evaluation.md) owns discovery, requests, selection context, selections, settings, evaluation and delivery.
+The [configuration evaluation specification](configuration-evaluation.md) owns discovery, requests, selection context, selections, settings, evaluation and delivery.
 The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
 The [component explanation](../book/src/07-the-parts-of-ravel.md) describes the participants.
 These specifications remain the behavioural authority for that explanation.
 
 ## Installed boundary
 
-The [installed layout and delivery contract](policy-evaluation.md#installed-layout-and-delivery) owns the executable, examples, notices and installation checks.
+The [installed layout and delivery contract](configuration-evaluation.md#installed-layout-and-delivery) owns the executable, examples, notices and installation checks.
 The Rhai worker is the Ravel executable in an internal role.
 
-<!-- tc: depart synonym-rotation because launch names process admission while start occurs in the retained worker-contract anchor -->
+<!-- tc: depart synonym-rotation because launch names process admission while start describes creating the worker -->
 It must finish evaluation and required cleanup before the managed launch.
-The [worker contract](policy-evaluation.md#the-policy-worker) owns its protocol, identity, isolation and admission rules.
+The [worker contract](configuration-evaluation.md#the-rhai-worker) owns its protocol, identity, isolation and admission rules.
 
 ## Archives and platform floors
 
-The [delivery contract](policy-evaluation.md#installed-layout-and-delivery) owns archive contents, formula checks and measured platform floors.
+The [delivery contract](configuration-evaluation.md#installed-layout-and-delivery) owns archive contents, formula checks and measured platform floors.
 The [delivery instructions](../book/src/11-deliver-ravel.md) describe prerequisites and publication procedures.
-
-<a id="policy-authority-and-runtime-discovery"></a>
 
 ## Configuration authority and discovery
 
-The [entry and discovery contract](policy-evaluation.md#policy-entry-and-discovery) owns configuration authority and file admission.
-The [settings and environment rules](policy-evaluation.md#settings-and-environment-grants) own settings and grants.
-The explicit anchor preserves existing references until the coordinated configuration rename.
+The [entry and discovery contract](configuration-evaluation.md#configuration-entry-and-discovery) owns configuration authority and file admission.
+The [settings and environment rules](configuration-evaluation.md#settings-and-environment-grants) own settings and grants.
 
 ## Request, context and selection
 
-The [request, context and selection contract](policy-evaluation.md#request-context-and-selection) owns caller input checks and script results.
+The [request, context and selection contract](configuration-evaluation.md#request-context-and-selection) owns caller input checks and script results.
 A successful selection identifies a command. The worker and every host call must finish before that command launches.
 A refusal launches nothing. Ravel substitutes no route after a failure.
 
@@ -56,7 +53,7 @@ Ravel scrubs these six exact launch controls before supplying the fresh result p
 - `RAVEL_STATE_DIR`
 
 Other names in these classes remain ordinary caller variables.
-The separate [re-entry rule](policy-evaluation.md#re-entry-and-completion-authority) prevents an inherited `RAVEL_CONFIG_RUN` from reaching a managed launch.
+The separate [re-entry rule](configuration-evaluation.md#re-entry-and-completion-authority) prevents an inherited `RAVEL_CONFIG_RUN` from reaching a managed launch.
 Configuration environment grants have wider reserved classes, as the configuration spec states.
 
 `end-session` takes exactly one opaque UTF-8 argument, reads no configuration and accepts no target. It writes a complete temporary regular file, then publishes with a hard link that cannot replace an existing file. The first value wins.
@@ -109,7 +106,7 @@ The Taskfile owns reusable checks. `task check` checks formatting, shell scripts
 
 Private subprocess roles run through acceptance tests. `task smoke` verifies an installation. `task release:smoke` verifies archives on their target userlands.
 
-The [configuration test seam](policy-evaluation.md#test-seams) owns Rhai acceptance checks and opt-in real harness calls. Default checks need no models, owner credentials, personal configuration or old store.
+The [configuration test seam](configuration-evaluation.md#test-seams) owns Rhai acceptance checks and opt-in real harness calls. Default checks need no models, owner credentials, personal configuration or old store.
 
 Ravel has no persistence, run identity, observation API, history API, importer, caller adapter or public direct-command bypass.
 Abrupt death can leave ephemeral debris.

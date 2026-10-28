@@ -74,7 +74,7 @@ Ravel also limits how long a script runs and how much data it makes.
 [Chapter 1](01-what-ravel-is-for.md#the-configuration-script-chooses-a-program)
 shows a short configuration script and links to
 [the Rhai Book](https://rhai.rs/book/), Rhai's own manual.
-[Chapter 4](04-writing-an-owner-policy.md) teaches the Rhai that a
+[Chapter 4](04-write-a-configuration-script.md) teaches the Rhai that a
 configuration script needs.
 
 By default, Ravel uses the account's configuration script,

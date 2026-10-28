@@ -284,10 +284,10 @@ control_file_after_command() {
 
 control_path_escape() {
   local page
-  page="$(mutated escape '**`policy.rhai`**
+  page="$(mutated escape '**`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION' '**`../policy.rhai`**
+export const SCHEMA_VERSION' '**`../config.rhai`**
 
 ```rhai
 export const SCHEMA_VERSION')"
@@ -296,7 +296,7 @@ export const SCHEMA_VERSION')"
 
 control_duplicate_file() {
   local page
-  page="$(mutated duplicate '**`bin/claude`**' '**`policy.rhai`**')"
+  page="$(mutated duplicate '**`bin/claude`**' '**`config.rhai`**')"
   expect_fail duplicate_file 'is given twice' "$page"
 }
 
@@ -595,7 +595,7 @@ control_stale_source() {
 }
 
 control_cancellation_is_deterministic() {
-  # A cancellation by signal that the fake agent or the policy itself sends the
+  # A cancellation by signal that the fake agent or the configuration script itself sends the
   # front runs without a terminal, and gives the same claim every time. The
   # signal number is part of the claim: SIGINT is 130, not 143.
   local i

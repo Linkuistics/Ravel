@@ -1,5 +1,5 @@
 //! The Rhai Rhai worker: Ravel's own binary in an internal role, the strict
-//! Rhai engine behind a private socket (`docs/specs/policy-evaluation.md`,
+//! Rhai engine behind a private socket (`docs/specs/configuration-evaluation.md`,
 //! *The Rhai worker*).
 //!
 //! The front side (`front`) launches the role through `worker::supervise`. The
@@ -49,7 +49,7 @@ use crate::limits::Limits;
 
 /// The `arg0` that marks the role. The front sets it, and `main` compares the
 /// whole of `argv[0]` to it, so a path that ends in this name is no role.
-pub const ARG0: &str = "ravel-rhai-policy-worker";
+pub const ARG0: &str = "ravel-rhai-config-worker";
 
 /// The version of the internal worker protocol.
 pub const PROTOCOL: u64 = 1;

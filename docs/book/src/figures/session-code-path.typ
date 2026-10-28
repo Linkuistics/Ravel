@@ -7,7 +7,7 @@
 #let parts = (
   part("caller", [caller]),
   part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
-  part("worker", [policy \ worker], kind: "ravel"),
+  part("worker", [Rhai \ worker], kind: "ravel"),
   part("managed", [managed \ process]),
   part("end", [Ravel CLI \ (end-session)], kind: "ravel"),
   part("channel", [result \ channel], kind: "temporary", db: true),
@@ -15,18 +15,18 @@
 
 #let rows = (
   msg("caller", "cli", [start-session \ kind and prompt]),
-  msg("cli", "cli", [main → run \ Check inputs and policy path]),
-  div([Policy evaluation]),
+  msg("cli", "cli", [main → run \ Check inputs and script path]),
+  div([Configuration evaluation]),
   msg("cli", "worker", [Start in private directory], create: true),
   msg("worker", "worker", [Change to / \ Register embedded modules]),
   msg("worker", "cli", [hello: worker identity], dashed: true),
   msg("cli", "cli", [Check worker identity]),
-  msg("cli", "worker", [evaluate: policy path \ and request]),
-  msg("worker", "worker", [Import owner policy]),
-  msg("worker", "cli", [Policy description], dashed: true),
+  msg("cli", "worker", [evaluate: script path \ and request]),
+  msg("worker", "worker", [Import configuration script]),
+  msg("worker", "cli", [Script description], dashed: true),
   msg("cli", "cli", [judge: check description]),
   msg("cli", "worker", [select: request command]),
-  msg("worker", "worker", [Call policy select]),
+  msg("worker", "worker", [Call script select]),
   msg("worker", "cli", [Selected command], dashed: true),
   msg("cli", "cli", [judge: check command]),
   msg("cli", "worker", [Close socket. End and reap]),
@@ -72,6 +72,6 @@
 #render(sequence([The session code path — UML sequence], parts, rows, (
   [Blue: Ravel. Grey: external processes. Gold: files. Green: result.],
   [X: confirmed reap or removal. Second CLI exit/reap omitted.],
-  [Unconfined example, without policy context or a terminal.],
+  [Unconfined example, without selection context or a terminal.],
   [Early child exit skips the optional region. Later checks still find the result.],
 ), max-label: 90))

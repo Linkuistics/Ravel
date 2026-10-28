@@ -2,7 +2,7 @@
 
 ## Goal
 
-Replace Ravel's TypeScript owner policy with embedded Rhai scripts, as GitHub
+Replace Ravel's TypeScript configuration scripts with embedded Rhai scripts, as GitHub
 issue 2 asks. Rhai scripts ask a model through a harness run of Claude Code or
 Codex, with the owner's own sign-in, and Ravel keeps execution authority. The
 owner amended issue 2 for that in `llm-calls-through-harnesses-k58`, and Ravel
@@ -14,7 +14,7 @@ local upgrade.
 - Every acceptance criterion in issue 2 holds, as the owner amended it, and
   tests through the agreed seam prove each one. The amendment is a comment on
   the issue and the running log of `llm-calls-through-harnesses-k58`.
-- Rhai is the only format of owner policy. The Bun policy worker, the
+- Rhai is the only configuration script format. The Bun worker, the
   TypeScript SDK, their declarations, and their build and release steps are
   gone.
 - The book, the README, the CLI help and the installation documents describe
@@ -32,7 +32,7 @@ local upgrade.
 - `rhai-policy-increments-k3` (planning) cuts that design into increments.
   Each increment leaves main working. The increments follow, in order.
   - `rust-2024-toolchain` moves the workspace to Rust 1.99.1 and edition 2024.
-  - `rhai-route-table` makes a deterministic Rhai policy work, and it makes the
+  - `rhai-route-table` makes a deterministic Rhai configuration script work, and it makes the
     worker safe against a hostile script.
   - `rhai-local-capabilities` adds reads, imports, `load_context`, the data
     helpers, the three settings keys and discovery.
@@ -64,16 +64,16 @@ design needs the settled requirements.
 - GitHub issue 2 states the work in the owner's words.
 - The running log of `plan-k1` holds the settled requirements. Find its file
   with `grove-llm resolve plan-k1`.
-- ADRs in play: `owner-policy-is-a-rhai-script`,
-  `policy-evaluation-precedes-the-launch`,
-  `a-policy-asks-a-model-through-a-harness-run`, `ravel-supervises-the-session`
+- ADRs in play: `configuration-script-uses-rhai`,
+  `configuration-evaluation-precedes-the-launch`,
+  `a-configuration-script-asks-a-model-through-a-harness-run`, `ravel-supervises-the-session`
   and `the-launched-child-is-a-job`.
-- Specs in play: `policy-evaluation`, which is the 2.0.0 design, and
+- Specs in play: `configuration-evaluation`, which is the 2.0.0 design, and
   `session-execution` and `result-job-completion`.
-- Glossary terms in play: Owner policy, Policy worker, Host capability, LLM
-  call and Provider. Also Harness run, Evaluation budget, Policy context,
+- Glossary terms in play: Configuration script, Rhai worker, Host capability, LLM
+  call and Provider. Also Harness run, Evaluation budget, Selection context,
   Harness, Refusal, Caller and Owner. See `CONTEXT.md`.
-- `task docs:rhai-policy` serves the design views in `docs/design/rhai-policy/`.
+- `task docs:rhai-configuration` serves the design views in `docs/design/rhai-configuration/`.
 - The test seam: the real `ravel start-session` against a sandbox home. Fake
   harness scripts stand behind it, also for an LLM call.
 
@@ -182,7 +182,7 @@ design needs the settled requirements.
 - `rhai-delivery-cutover-k110` delivers `bin/ravel` as the only executable, with `share/ravel/examples/{static,sample,llm}.rhai` and `share/ravel/notices/THIRD-PARTY-NOTICES.md`. Archives also keep LICENSE/README. `task notices` generates the notice at `target/notices/THIRD-PARTY-NOTICES.md`, and installation, archives and the Homebrew formula copy those bytes unchanged. `task install` uses `scripts/install.sh`; `task smoke` and target-floor checks use `scripts/installed-smoke.sh`. The worker/SDK/dispatcher, delivery Bun pin/notices and probes are removed; book Bun stays in `scripts/book-bun.sh`. k92 still owns configuration names; k33 owns spec reconciliation.
 
 - `rhai-spec-reconciliation-k33` closes `typescript-removal-k29`.
-  `docs/specs/policy-evaluation.md` now owns the current Rhai configuration rules and installed/archive delivery contract.
+  `docs/specs/configuration-evaluation.md` now owns the current Rhai configuration rules and installed/archive delivery contract.
   `session-execution.md` retains managed launches, result transport and confinement, with links to configuration rules.
   `result-job-completion.md` retains detailed settlement and native-entry requirements and distinguishes historical receipts from current Rhai acceptance checks.
   The ADRs, README and design views use the glossary terms. `CONTEXT.md` already matched and needed no change.
@@ -192,3 +192,30 @@ design needs the settled requirements.
   Current macOS `task check`, all four book example/excerpt tasks, scoped local links and prose checks pass.
   k110 retains the three-target delivery and formula evidence. This leaf changes documentation only and does not rerun those delivery measurements.
   The book nodes retain their existing broader narrative duties.
+
+- `configuration-names-k114` closes `configuration-names-k92` after checking the
+  original contract against k111–k114. Current code uses `config.rhai`,
+  `--config-env`, `configEnv`, `RAVEL_CONFIG_RUN`, configuration JSON/diagnostic
+  names and failure schema 2 (routing schema 2 and script schema 3 stay).
+  There are no old-name aliases. The retained Rust module is `config.rs`;
+  the spec is `docs/specs/configuration-evaluation.md`; ADR slugs are
+  `configuration-script-uses-rhai`, `configuration-evaluation-precedes-the-launch`
+  and `a-configuration-script-asks-a-model-through-a-harness-run`.
+  Design views are in `docs/design/rhai-configuration/`, served by
+  `task docs:rhai-configuration`. Chapter 4 is
+  `04-write-a-configuration-script.md`.
+  Historical observations, rejected old inputs, arbitrary caller data and
+  filenames, owner labels/refusal text, third-party names and stable Grove
+  handles retain their exact spellings. The old-token inventory classifies
+  every residual; firing content/path controls and unchanged frozen fixtures
+  support the audit. L63 now also requires checking replacement phrases and
+  distinguishing a generic cancellation policy from an owner script.
+  Final macOS checks passed 611 enabled Rust tests, all 22 complete examples,
+  checker controls/mutants, nine excerpts, 18 figures, the book build, local
+  book links, installed smoke, the archive/formula checks and native E06.
+  Fresh archives cross-compiled both Linux targets; no new Linux runtime/floor
+  campaign or signed-in harness call ran. No live installation or owner file
+  changed. The dependent book correction still owns F17 and explanatory
+  restructuring. Parts III–IV retain their full source-walkthrough and delivery
+  reconciliation, whole-book proof and Read 2; this naming close does not finish
+  that narrative work or the live Read 1 checkpoint.

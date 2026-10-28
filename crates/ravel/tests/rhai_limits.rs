@@ -1,8 +1,8 @@
 //! A hostile or careless Rhai configuration script through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *The Rhai worker*, *Evaluation budgets
+//! (`docs/specs/configuration-evaluation.md`, *The Rhai worker*, *Evaluation budgets
 //! and their composition* and *Cancellation and deadlines*).
 //!
-//! Every hostile class keeps a control in its own test: the same shape of policy
+//! Every hostile class keeps a control in its own test: the same shape of configuration script
 //! with a harmless amount of the hostile step runs to a selection and starts the
 //! harness. A breach therefore comes from the amount, and the refusal comes from
 //! the bound that the test names. The engine limits that need no process (the
@@ -16,13 +16,13 @@ use std::process::Stdio;
 use std::time::{Duration, Instant};
 
 use serde_json::Value;
-use support::rhai::{Recorded, gone, policy, worker_of};
+use support::rhai::{Recorded, gone, rhai_script, worker_of};
 use support::{Run, Sandbox};
 
-/// A policy whose `select` runs `body`, and then routes to the recording harness
+/// A configuration script whose `select` runs `body`, and then routes to the recording harness
 /// with `reason` as the reason.
 fn selecting(body: &str, reason: &str) -> String {
-    policy(&format!(
+    rhai_script(&format!(
         r#"fn select(request, context) {{
 {body}
     #{{ status: "selected", program: "recording-agent", args: [], provider: "p",
@@ -87,7 +87,7 @@ fn an_endless_loop_ends_at_the_operations_bound() {
 fn unbounded_recursion_ends_at_the_call_depth() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let control = policy(
+    let control = rhai_script(
         "fn down(n) { if n == 0 { 0 } else { down(n - 1) } }\n\
          fn select(request, context) { down(40); #{ status: \"selected\", program: \"recording-agent\", \
          args: [], provider: \"p\", model: \"m\", effort: \"e\", reason: \"r\" } }",
@@ -97,7 +97,7 @@ fn unbounded_recursion_ends_at_the_call_depth() {
     let recorded = sandbox.recording_agent();
     let run = start(
         &sandbox,
-        &policy("fn up(n) { up(n + 1) }\nfn select(request, context) { up(0) }"),
+        &rhai_script("fn up(n) { up(n + 1) }\nfn select(request, context) { up(0) }"),
         &[],
     );
     let error = limit(&run, "call depth", &recorded);
@@ -203,7 +203,7 @@ fn a_breach_inside_a_function_pointer_call_ends_the_evaluation_although_try_surr
             .join(" ")
     };
     let under_try = |closure: &str| {
-        policy(&format!(
+        rhai_script(&format!(
             "fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
              fn up(n) {{ up(n + 1) }}\n\
              fn select(request, context) {{\n    try {{ [1].map({closure}); }} catch (e) {{ }}\n    \
@@ -250,7 +250,7 @@ fn a_breach_inside_a_function_named_by_drain_or_retain_ends_the_evaluation_under
     // function that stays under the bound, and the configuration script selects.
     for call in ["drain", "retain"] {
         let named = |body: &str| {
-            policy(&format!(
+            rhai_script(&format!(
                 "fn down(n) {{ if n == 0 {{ true }} else {{ down(n - 1) }} }}\n\
                  fn up(n) {{ up(n + 1) }}\n\
                  fn pick(x) {{ {body} }}\n\
@@ -277,7 +277,7 @@ fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() 
     // comparers with a depth that is under the bound, and the configuration script selects.
     for call in ["dedup", "sort", "order", "order_by"] {
         let comparer = |depth: &str| {
-            policy(&format!(
+            rhai_script(&format!(
                 "fn down(n) {{ if n == 0 {{ 0 }} else {{ down(n - 1) }} }}\n\
                  fn up(n) {{ up(n + 1) }}\n\
                  fn select(request, context) {{\n    [1, 2].{call}(|x, y| {{ {depth}; 0 }});\n    \
@@ -297,7 +297,7 @@ fn a_breach_inside_a_comparer_ends_the_evaluation_although_no_try_is_involved() 
 }
 
 #[test]
-fn a_policy_that_fills_the_heap_ends_at_the_heap_bound_and_the_cli_reports_it() {
+fn a_config_that_fills_the_heap_ends_at_the_heap_bound_and_the_cli_reports_it() {
     // Each variable holds a copy of an array that is under the array size, and
     // no single value, and no one array with its nested elements counted, passes
     // a size limit. Only the sum of the copies reaches the heap bound.
@@ -386,7 +386,7 @@ fn a_native_call_that_does_not_yield_stops_at_the_deadline() {
 }
 
 #[test]
-fn a_policy_that_prints_without_end_ends_as_output_limit() {
+fn a_config_that_prints_without_end_ends_as_output_limit() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     let run = start(
@@ -513,7 +513,7 @@ fn nothing_a_script_returns_can_be_called_after_it_ends() {
     for returned in ["|x| x + 1", "Fn(\"select\")"] {
         let sandbox = Sandbox::new();
         let recorded = sandbox.recording_agent();
-        let source = policy(&format!(
+        let source = rhai_script(&format!(
             "fn select(request, context) {{\n    #{{ status: \"selected\", program: \"recording-agent\", \
              args: [{returned}], provider: \"p\", model: \"m\", effort: \"e\", reason: \"r\" }}\n}}"
         ));

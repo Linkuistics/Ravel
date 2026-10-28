@@ -7,7 +7,7 @@ Ravel CLI performs every host capability for it: measured reads, the
 environment and harness runs through the runner. An LLM call is a harness run.
 The configuration script never executes inside the process that supervises the session.
 
-The [configuration evaluation specification](../specs/policy-evaluation.md) owns the
+The [configuration evaluation specification](../specs/configuration-evaluation.md) owns the
 protocol, the capabilities and the bounds. The ordering of worker and job stays
 required. The Ravel CLI admits a selection only after it reaped the worker and
 removed its private directory, as the

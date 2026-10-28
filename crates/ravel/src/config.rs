@@ -470,7 +470,7 @@ mod tests {
     }
 
     #[test]
-    fn a_policys_refusal_keeps_its_code_beside_the_stable_one() {
+    fn a_configs_refusal_keeps_its_code_beside_the_stable_one() {
         let refusal = judged(
             json!({"status": "refused", "code": "no_reviewer", "message": "nobody fits", "remedy": "declare one"}),
         )

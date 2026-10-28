@@ -6,7 +6,7 @@ Make a Rhai route table work end to end through the real `ravel start-session`. 
 
 ## Context
 
-- The input is `docs/specs/policy-evaluation.md`. Read these sections first: "Policy entry and discovery", "The policy module", "Request, context and selection", "Conversion at the boundary", "The policy worker" and "Errors and refusals".
+- The input is `docs/specs/configuration-evaluation.md`. Read these sections first: "Policy entry and discovery", "The policy module", "Request, context and selection", "Conversion at the boundary", "The policy worker" and "Errors and refusals".
 - The TypeScript path in `crates/ravel/src/worker.rs`, `policy.rs` and `run.rs` stays. The Rhai path is new code beside it. The existing frame protocol in `frame.rs` and the supervision of the worker (the private socket, the bounded stop, the diagnostics bound) are the starting point.
 - Check first how much of `worker::evaluate` serves both workers. If the supervision cannot serve the Rhai worker as it stands, decompose this leaf. Make the first child a behaviour-preserving extraction that the TypeScript tests keep green.
 - The worker re-executes Ravel's own binary. On Linux it executes the running image. On macOS it executes the canonical path of the Ravel executable. The role accepts no command-line input, and without the socket and the handshake it exits with status 2.

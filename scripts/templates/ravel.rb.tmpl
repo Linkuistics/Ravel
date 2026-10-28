@@ -1,7 +1,7 @@
 require "shellwords"
 
 class Ravel < Formula
-  desc "Policy router and session process manager"
+  desc "Configuration router and session process manager"
   homepage "https://github.com/Linkuistics/Ravel"
   version "@VERSION@"
   license "Apache-2.0"
@@ -42,7 +42,7 @@ class Ravel < Formula
       exec "$1" end-session -- "$2"
     SH
     (testpath/"fake-agent").chmod 0755
-    (testpath/"policy.rhai").write <<~RHAI
+    (testpath/"config.rhai").write <<~RHAI
       import "#{(share/"ravel/examples/static").to_s}" as starter;
       export const SCHEMA_VERSION = 3;
       export const VERSION = "brew-test";
@@ -61,7 +61,7 @@ class Ravel < Formula
       command = ["/usr/bin/env", "-i", "PATH=/usr/bin:/bin",
                  "HOME=#{testpath}/home", "TMPDIR=#{testpath}/tmp",
                  (testpath/"ravel").to_s, "start-session", "--kind", "check",
-                 "--config", (testpath/"policy.rhai").to_s, "--prompt", result]
+                 "--config", (testpath/"config.rhai").to_s, "--prompt", result]
       assert_equal result, shell_output(command.shelljoin)
     end
     assert_equal [], Dir.children(testpath/"tmp")

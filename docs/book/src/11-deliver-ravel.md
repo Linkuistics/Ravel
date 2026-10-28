@@ -1,65 +1,33 @@
 # Deliver Ravel
 
-A release carries a matched pair: the
+A release carries one executable, `bin/ravel`, which supplies the
 [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) and its
-[policy worker](02-actors-and-words.md#evaluation-and-supervision).
-[Chapter 7](07-the-parts-of-ravel.md#the-installed-pair-stays-together)
-explains why the pair stays together. An archive check establishes that this
-pair has the right files and can run outside the checkout. A version number
-alone establishes neither fact.
+[Rhai worker](02-actors-and-words.md#evaluation-and-supervision).
+[Chapter 7](07-the-parts-of-ravel.md#the-installed-executable-supplies-both-roles)
+explains the shared executable. Archive checks establish that its files have
+the required layout and that the program runs outside the checkout. A version
+number alone establishes neither fact.
 
-The book that a release carries teaches this pair as one delivered tool.
-Ravel supports no separate component. The private
-[runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
-serves the Ravel CLI, which supervises one session and then exits. The
-runner's return does not restore process-wide signal state. Thus, another
-program invokes the Ravel CLI as a child process. The book explains that
-interface and the limits of the private package.
+The private runner serves the Ravel CLI, which supervises one session and exits.
+Ravel supports no separately installed worker or SDK. Another program invokes
+the Ravel CLI as a child process.
 
 Start with [chapter 10's install and smoke tasks](10-develop-ravel.md#install-and-test-the-installed-pair).
 Those tasks test a local installation. This chapter extends that check to
 archives and the environments where their programs run.
 
-## Keep the version and pair together
+## Keep the version and executable together
 
-The workspace has one Ravel version, independent of the version of any
-[caller](02-actors-and-words.md#caller-and-owner).
-`Cargo.toml` supplies it to both Rust packages, and the worker build reads the
-Ravel package version. The checkout used for this chapter has version 1.0.0.
-Its local tags include `v0.1.0` and `v1.0.0`, and `CHANGELOG.md` describes both.
+The workspace has one Ravel version, independent of any caller.
+`Cargo.toml` supplies it to both Rust packages. An unreleased archive uses the
+checkout's version even when its source differs from that version's release tag.
+The archive name alone does not make it a released artifact.
 
-An unreleased archive uses the checkout's version even when its source differs
-from that version's release tag. Thus, a local archive named with `v1.0.0`
-can contain later changes. Its name does not make it the released artifact.
-
-Before the Ravel CLI sends the
-[owner policy](02-actors-and-words.md#caller-and-owner) for evaluation, it
-checks three worker values:
-
-| Value | What it establishes |
-|---|---|
-| Protocol number | Both programs use protocol 1 |
-| Package version | Both programs report the same Ravel version |
-| Source identity | Both builds used the same worker source inputs |
-
-The source identity is a SHA-256 digest. Relative to `crates/ravel`, its inputs
-are the TypeScript files under `worker/src`, `worker/sdk` and `worker/examples`,
-both worker tsconfigs, and `scripts/dispatch.sh`.
-Both builds sort those paths, hash each file, then hash the
-same list of paths and digests.
-
-The source identity shows that two builds belong together. It does not
-authenticate an installation or cover every Rust source file. A worker with a
-different protocol, version or identity causes `worker_identity_mismatch`, with
-exit status 5, before policy evaluation. A probe worker that the tests build
-also has a different identity, and causes the same failure. To correct a
-mismatch, rebuild and install the pair together.
-
-The CLI finds `libexec/ravel/ravel-policy` relative to its own canonical path,
-which is its path with all symlinks resolved.
-A symlink to the CLI therefore still reaches that CLI's worker. Another worker
-on `PATH` cannot replace it. The worker contains Bun 1.4.2, so an installation
-needs no separate Bun or Node runtime.
+Before it sends the configuration request, the CLI checks the worker's protocol,
+package version and source identity. The Rhai worker is a second invocation of
+the same executable. A mismatch causes `worker_identity_mismatch`, exit 5,
+before evaluation. A symlink to the CLI still uses the same resolved executable
+for the worker. Installed execution needs no Bun or Node runtime.
 
 ## Build archives before a release
 
@@ -86,10 +54,9 @@ private `binfmt_misc` instance, which Linux 6.7 and later gives each user
 namespace. Thus, the registration does not change the Docker host's own. The
 requirement applies to the test environment. It is not Ravel's minimum kernel.
 
-`task setup` supplies the checkout's pinned Bun and development dependencies.
-The worker build checks each target's Bun
-runtime against a committed SHA-256 digest before compilation. It also generates
-the SDK declarations.
+`task setup` supplies the checkout-local book tools. The Rust build uses
+the pinned Rhai dependency in `Cargo.toml` and `Cargo.lock`. Bun is a book
+tool only; it is not part of an installed Ravel.
 
 The release build prefers rustup's tools on `PATH` when its shims exist.
 Those shims read `rust-toolchain.toml`, which selects Rust 1.99.1 with the
@@ -135,18 +102,16 @@ exactly these files and their directories:
 
 | Path below the prefix | Purpose |
 |---|---|
-| `bin/ravel` | Ravel CLI executable |
-| `libexec/ravel/ravel-policy` | Matched policy worker executable |
-| `libexec/ravel/sdk/index.ts`, `sdk/index.d.ts` | SDK source and declarations, both under `libexec/ravel` |
-| `libexec/ravel/examples/static.ts`, `examples/static.d.ts` | Static example source and declarations, both under `libexec/ravel` |
-| `libexec/ravel/examples/sample.ts` | Sample that an owner can copy and edit |
-| `libexec/ravel/notices/NOTICES.md`, `notices/bun-LICENSE.md` | Runtime notices, both under `libexec/ravel` |
+| `bin/ravel` | Ravel CLI and its internal Rhai worker role |
+| `share/ravel/examples/static.rhai` | Starter configuration script |
+| `share/ravel/examples/sample.rhai` | Example that an owner can copy and edit |
+| `share/ravel/examples/llm.rhai` | Harness-assisted selection example |
+| `share/ravel/notices/THIRD-PARTY-NOTICES.md` | Rust dependency notices |
 | `README.md`, `LICENSE` | Project entry and licence |
 
 [Chapter 6's installed-layout view](06-reference.md#installed-layout) shows
-how the CLI, worker, SDK and examples fit together. In the checkout, the runtime
-notices are under `crates/ravel/notices/`. In an installation, they are under
-`PREFIX/libexec/ravel/notices/`.
+the executable and data files. `task notices` generates the notice file under
+`target/notices/`. Installation and archive staging copy those bytes unchanged.
 
 The manifest check rejects extra files and directories, missing files,
 symlinks in place of files, and executables without execute permission. Caller programs,
@@ -155,7 +120,7 @@ and probe directories do not belong in an archive. The pack step also excludes
 macOS extended attributes and their AppleDouble metadata files.
 
 `task release:test` tests the manifest check. It compares the manifest with a
-fresh production worker build, then uses deliberately incorrect archives. Each
+fresh Ravel build, then uses deliberately incorrect archives. Each
 omitted file causes a failure. Other controls add unwanted assets, change types
 or permissions, and add macOS metadata. The task needs no Docker, but its
 metadata controls use macOS tools.
@@ -167,12 +132,10 @@ task release:test
 ```
 
 The manifest check examines layout, types and execute permission. It does not
-prove that the file at the worker path is the right program.
-
-The installed smoke test checks the pair through a real policy. The
-hostile-runtime suite separately puts probe workers at the worker path. It checks that each probe causes
-`worker_identity_mismatch`. Those tests need the probe workers that
-`task probes` builds. `task check` runs that build too.
+prove that the executable behaves correctly. The installed smoke test runs
+real Rhai configuration scripts through the installed executable, both directly
+and through a symlink. It checks imports, context, parameters, retired-format
+refusal and exact results in a private prefix.
 
 ## Test the installed archive
 
@@ -193,7 +156,7 @@ That script tests both the direct CLI path and a relative symlink from another
 prefix. Its private utility `PATH` has no Bun, Node or Grove. It supplies a
 fresh home and temporary directory through a cleared environment.
 
-The test uses a shell fake agent, a real policy worker and installed assets.
+The test uses a shell fake agent, a real Rhai worker and installed assets.
 Each [session](02-actors-and-words.md#caller-and-owner) returns the
 [opaque result](02-actors-and-words.md#the-managed-process-and-its-result)
 that the fake agent sends with `end-session`:
@@ -203,12 +166,12 @@ that the fake agent sends with `end-session`:
 | SDK, static example and copied sample | The sample uses the selected choice and starts the fake agent |
 | Result values | Ordinary, empty, multiline and option-like values return unchanged |
 | Child output | Child standard output goes to diagnostics, separate from the result |
-| TypeScript imports | A relative helper and a declared package load from the test policy |
-| Policy inputs | Measured policy context and `--param` values reach the policy |
+| TypeScript imports | A relative helper and a declared package load from the test configuration script |
+| Configuration script inputs | Measured selection context and `--param` values reach the configuration script |
 | Missing [session-result context](02-actors-and-words.md#three-different-kinds-of-information) | `end-session` fails and writes no result |
 | Temporary resources | The sample sessions leave no resources in their temporary directory |
 
-No model or personal policy runs.
+No model or personal configuration script runs.
 The test does not exercise an interactive terminal or all lifecycle failures.
 [Chapter 9](09-jobs-signals-and-the-terminal.md) explains those separate obligations.
 
@@ -291,7 +254,7 @@ Homebrew's directory for one installed version.
 | Formula check | What it establishes |
 |---|---|
 | Installed paths | The temporary prefix has exactly the archive's `bin` and `libexec` contents |
-| Real policy and shell fake agent | The SDK and static example work through a symlink to the installed CLI |
+| Real configuration script and shell fake agent | The SDK and static example work through a symlink to the installed CLI |
 | Result comparisons | Ordinary, empty, multiline and option-like results return unchanged |
 | Cleared environment | The session uses private home and temporary directories, with no host TypeScript runtime |
 | Temporary resources | The formula's sessions leave their temporary directory empty |

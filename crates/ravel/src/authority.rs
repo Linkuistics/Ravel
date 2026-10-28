@@ -46,14 +46,14 @@ impl RhaiEntry {
 }
 
 #[derive(Debug)]
-pub struct PolicyEntry {
+pub struct ConfigEntry {
     /// The canonical path; symlinks are resolved, so this is the file whose
     /// directory relative imports start from.
     pub path: String,
     pub admitted: RhaiEntry,
 }
 
-impl PolicyEntry {
+impl ConfigEntry {
     pub fn display(&self) -> String {
         self.path.clone()
     }
@@ -67,7 +67,7 @@ pub fn resolve(
     config: Option<&Path>,
     cwd: &Path,
     home: Option<&OsStr>,
-) -> Result<PolicyEntry, Refusal> {
+) -> Result<ConfigEntry, Refusal> {
     let (candidate, authority) = match config {
         Some(config) => (cwd.join(config), Authority::Explicit),
         None => {
@@ -118,7 +118,7 @@ fn resolve_rhai(
     candidate: &Path,
     authority: &Authority,
     cwd: &Path,
-) -> Result<PolicyEntry, Refusal> {
+) -> Result<ConfigEntry, Refusal> {
     let shown = candidate.to_string_lossy().into_owned();
     let remedy = match authority {
         Authority::Personal => format!(
@@ -167,7 +167,7 @@ fn resolve_rhai(
         })?
         .to_owned();
 
-    Ok(PolicyEntry {
+    Ok(ConfigEntry {
         path,
         admitted: RhaiEntry { shown, remedy },
     })

@@ -88,7 +88,7 @@ while IFS= read -r entry; do
   refused_archive "$top" "missing $top/$entry"
 done < <(archive_manifest)
 
-# Caller binaries, adapters, policy and choice files never belong in the archive.
+# Caller binaries, adapters, configuration script and choice files never belong in the archive.
 for extra in bin/grove bin/grove-llm bin/harness-dispatch \
   libexec/ravel/grove/index.ts libexec/ravel/policy.ts .ravel-choice; do
   stage_archive "$top"
@@ -137,8 +137,8 @@ refused_archive "$top" "top level is not exactly $top/:"
 # bsdtar hides when it reads; the check must see it. pack_archive must leave
 # both the member and the attribute out.
 stage_archive "$top"
-policy="bin/ravel"
-xattr -w org.linkuistics.ravel.probe fixture "$scratch/archive/stage/$top/$policy"
+executable="bin/ravel"
+xattr -w org.linkuistics.ravel.probe fixture "$scratch/archive/stage/$top/$executable"
 tar -C "$scratch/archive/stage" -cJf "$scratch/archive/$top.tar.xz" "$top"
 refused_archive "$top" "unexpected $top/bin/._ravel"
 pack_fixture "$top"
@@ -146,7 +146,7 @@ assert_archive "$scratch/archive/$top.tar.xz" "$top" >"$scratch/archive/output" 
   fail "pack_archive kept macOS metadata: $(cat "$scratch/archive/output")"
 mkdir "$scratch/archive/restored"
 tar -xJf "$scratch/archive/$top.tar.xz" -C "$scratch/archive/restored" --xattrs
-if xattr -p org.linkuistics.ravel.probe "$scratch/archive/restored/$top/$policy" >/dev/null 2>&1; then
+if xattr -p org.linkuistics.ravel.probe "$scratch/archive/restored/$top/$executable" >/dev/null 2>&1; then
   fail 'pack_archive kept an extended attribute'
 fi
 

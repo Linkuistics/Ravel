@@ -1,5 +1,5 @@
 //! The Tokio current-thread runtime that serves the worker while it evaluates
-//! (`docs/specs/policy-evaluation.md`, *The bridge between the script and the
+//! (`docs/specs/configuration-evaluation.md`, *The bridge between the script and the
 //! CLI*).
 //!
 //! The runtime exists for the evaluation phase only. [`front`](super::front)

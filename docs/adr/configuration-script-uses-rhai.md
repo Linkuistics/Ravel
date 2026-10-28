@@ -12,7 +12,7 @@ Ravel 2.0.0 is a clean cutover, and no release runs both formats. A lone
 files exist, `config.rhai` wins. The owner chose the cutover over a
 compatibility period in 1.x. All known TypeScript configuration scripts are the owner's, and
 coexistence keeps the costs of the Bun worker. The
-[configuration evaluation specification](../specs/policy-evaluation.md) states the
+[configuration evaluation specification](../specs/configuration-evaluation.md) states the
 entry rules and the historical migration map.
 
 The trade-off is a small embedded language against a typed one with packages.

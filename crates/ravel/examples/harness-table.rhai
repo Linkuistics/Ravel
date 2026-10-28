@@ -1,4 +1,4 @@
-// A policy with the shape of a working owner's: a table from the caller's kind
+// A configuration script with the shape of a working owner's: a table from the caller's kind
 // to a harness, and the grant of the main repository to a harness that runs in
 // a secondary jj workspace. The names are invented. Two programs share the work
 // by role: a lead writes and integrates, and a reviewer checks.

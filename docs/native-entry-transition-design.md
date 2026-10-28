@@ -22,7 +22,7 @@ ordered operation reports). Repairing the launcher never edits the child record.
 The initializer records failures using fixed storage without allocation or
 formatting; main converts the stored operation/signal/error into a refusal.
 
-The launcher front owns a signal scope before policy evaluation and retains it
+The launcher front owns a signal scope before configuration evaluation and retains it
 through selection failure, managed supervision and final reporting. Choice
 returns evaluation data or failure without destroying that scope. The scope
 does not require an allocator/channel to exist. It therefore covers early
@@ -80,7 +80,7 @@ OS failure: uncertainty is reported, a numeric nonzero fallback exits, and the
 process lifetime ends. No new child is admitted after any failed transition.
 
 At no point does a surviving reader become eligible: shielding is permanent
-for that thread. Collection may time out when a policy descendant holds a pipe;
+for that thread. Collection may time out when a configuration-script descendant holds a pipe;
 the CLI settles and exits, terminating its own reader threads. It does not promise
 to reap that descendant. Receipts must distinguish completed readers from still
 blocked readers and prove the creating thread regained its mask.
@@ -88,8 +88,8 @@ blocked readers and prove the creating thread regained its mask.
 ## Alternatives and reason for the choice
 
 Keeping the unchecked incumbent cannot support the stated failure contract.
-Moving all cancellation and policy execution into the runner would require the
-runner to know policy refusal, output/channel cleanup and CLI result precedence.
+Moving all cancellation and configuration execution into the runner would require the
+runner to know configuration refusal, output/channel cleanup and CLI result precedence.
 The chosen owner-local checks and one common front finaliser retain current
 responsibilities and the existing worker/runner seams. A dedicated signal thread
 would introduce another lifetime and routing protocol without removing the
@@ -112,7 +112,7 @@ Rust files; this is best effort, not completeness or execution evidence.
   [the shield](../crates/ravel/src/cancellation.rs#L191) checks neither mask call.
   Collection at its existing deadline does not join potentially live readers.
 - [Runner startup](../crates/keyed-launch/src/run.rs#L1031) installs handlers and
-  repairs SIGCHLD after policy evaluation. Its repair tests ignore, not the
+  repairs SIGCHLD after configuration evaluation. Its repair tests ignore, not the
   independent flag; [child reinstatement](../crates/keyed-launch/src/run.rs#L464)
   discards action/set-building failures. Runner handler stores currently replace
   an earlier signal.
@@ -156,7 +156,7 @@ row identities are the same on every target, and where a kernel's premise
 differs the campaign plan carries a per-platform expectation with its reason.
 The producer froze their expansion before red/green, with one immutable row per
 concrete parameter.
-Use public CLI/real policy/fake jobs for end-to-end cases; owner-local forked
+Use public CLI/real configuration scripts/fake jobs for end-to-end cases; owner-local forked
 processes for unreachable transitions; existing real-process/PTY seams for jobs.
 
 | IDs and parameters | Required receipts and meaningful broken control |
@@ -388,7 +388,7 @@ native-entry-complete-funding-k26; construction is commissioned in the complete
 native-entry-complete-repair-k28 producer. Existing F03/F05 real-process/PTY controls cover
 the healthy cleanup path; S adds only the missing uncertainty discriminators.
 Controls are private fixed enums at Process/worker/Lease owners, never installed
-switches or a generic syscall facade. Use the existing CLI with real policy/fake
+switches or a generic syscall facade. Use the existing CLI with real configuration scripts/fake
 job, real-process and PTY boundaries. Each row records actual physical operation,
 substituted report, monotonic timestamps, PID/group reservation state, cancellation,
 all reports, Reaped count, foreground/modes and fixture cleanup separately.

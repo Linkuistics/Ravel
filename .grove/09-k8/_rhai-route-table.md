@@ -20,8 +20,8 @@ The first leaf must come first, because the second one tests the worker that the
 
 ## Pointers
 
-- ADRs: `docs/adr/owner-policy-is-a-rhai-script.md`, `docs/adr/policy-evaluation-precedes-the-launch.md` and `docs/adr/ravel-supervises-the-session.md`.
-- Spec: `docs/specs/policy-evaluation.md`. Read the sections "Policy entry and discovery", "The policy module", "Request, context and selection", "Conversion at the boundary", "The policy worker" and "Cancellation and deadlines".
+- ADRs: `docs/adr/configuration-script-uses-rhai.md`, `docs/adr/configuration-evaluation-precedes-the-launch.md` and `docs/adr/ravel-supervises-the-session.md`.
+- Spec: `docs/specs/configuration-evaluation.md`. Read the sections "Policy entry and discovery", "The policy module", "Request, context and selection", "Conversion at the boundary", "The policy worker" and "Cancellation and deadlines".
 - Spec of the TypeScript path: `docs/specs/session-execution.md`. Its policy sections stay current until the cutover.
 - Glossary: Owner policy, Policy worker, Policy context, Refusal and Evaluation budget, in `CONTEXT.md`.
 - Test seam: the real `ravel start-session` against a sandbox home. Fake harness scripts on a private `PATH` stand behind it. The existing `crates/ravel/tests/support` and `crates/ravel/tests/hostile.rs` show the pattern, including the firing control.

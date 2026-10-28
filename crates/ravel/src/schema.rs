@@ -1,5 +1,5 @@
 //! The schema subset and the check of a value against it
-//! (`docs/specs/policy-evaluation.md`, *Data helpers*).
+//! (`docs/specs/configuration-evaluation.md`, *Data helpers*).
 //!
 //! A [`Schema`] is a tree of the keywords that Ravel checks. `ravel::json_check`
 //! checks a value against that tree.

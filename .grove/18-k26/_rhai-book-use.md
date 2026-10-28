@@ -86,7 +86,7 @@ After proof, Read 1 resumes at the interrupted setup section. The owner need not
 - Structure brief and prose contract: `docs/book/contract.md`.
   It states the reader, ordered section plan, emphasis and exclusions.
 - Mechanics: `docs/book/examples.md`, `docs/book/excerpts.md`, `docs/book/figures.md` and `docs/book/ste.md`.
-- Technical sources: `docs/specs/policy-evaluation.md`, `CONTEXT.md`, the source and the built CLI.
+- Technical sources: `docs/specs/configuration-evaluation.md`, `CONTEXT.md`, the source and the built CLI.
 - Example policies and equivalence evidence: `rhai-example-policies-k25`.
 - Measured model-call arguments and versions: the running log of `rhai-harness-smoke-k66`.
 

@@ -334,8 +334,8 @@ pub(crate) fn run_role() {
     }
     // E08's private worker returns this verbatim; the real worker reads policy.rhai.
     fs::write(directory.join("e08-selection.json"), selected.to_string()).unwrap();
-    let policy = directory.join("policy.rhai");
-    fs::write(&policy, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"native-entry\"; fn select(request, context) {{ ravel::json_parse({}) }}", json!(selected.to_string()))).unwrap();
+    let config = directory.join("policy.rhai");
+    fs::write(&config, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"native-entry\"; fn select(request, context) {{ ravel::json_parse({}) }}", json!(selected.to_string()))).unwrap();
     if family() == "E08" {
         crate::rhai_worker::fixtures::use_executable(directory.join("bin/e08-worker"));
     }
@@ -353,7 +353,7 @@ pub(crate) fn run_role() {
         "--prompt",
         "native entry",
         "--config",
-        policy.to_str().unwrap(),
+        config.to_str().unwrap(),
         "--json",
     ])
     .unwrap();
@@ -1117,7 +1117,7 @@ fn judge(boundary: &str, signal: i32, seen: &Boundary) -> Axes {
             owner(ready, sig).as_deref() == Some("front")
                 && ack.is_some_and(|v| v["frontLatch"] == name)
                 && !seen.managed_started
-                && seen.diagnostics.contains("policy code: owner_declined")
+                && seen.diagnostics.contains("config code: owner_declined")
         }
         // Handled signals are still blocked, so the signal can only be pending;
         // the runner's handler then consumes it when the mask is restored.

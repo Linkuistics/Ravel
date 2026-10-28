@@ -138,7 +138,7 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 Chapters 1–6 also use page-native tables for the sent result through cleanup and
 return, responsibilities, result versus
 exit status versus work, platform evidence, nested result authority, worker
-startup, policy evaluation order, policy-context delivery, environment grants,
+startup, configuration evaluation order, selection-context delivery, environment grants,
 confinement, streams, route choices, import resolution and lookup fields.
 Their adjacent sentences state the comparison, mapping or sequence the reader
 can use. They need no separate figure source.
@@ -379,10 +379,9 @@ face), each enclosure holding children in a `row` or a `col` with a `gap` and a
 automatic**, unlike the C4 layout, because an enclosure is a container: the module
 measures every artifact's text, sizes each enclosure from the inside out and
 places the boxes, so no figure source holds a coordinate. A row aligns its
-children on the centre of the first artifact each one holds, which makes the
-dependency from `bin/ravel` to `ravel-policy` a straight line although the worker
-sits inside `libexec/ravel`; where the two centres are further apart than the
-source's side allows, the arrow is a Z. A directory's name is inside its tab and
+children on the centre of the first artifact each one holds. A dependency
+between artifacts with aligned centres is a straight line. Where the two
+centres are further apart than the source's side allows, the arrow is a Z. A directory's name is inside its tab and
 the tab is as wide as the name, so no outline crosses a name; the enclosure is
 at least as wide as its tab. An artifact's width is its text plus room for the
 icon, so a long first line never meets the icon. A line wider than an artifact's

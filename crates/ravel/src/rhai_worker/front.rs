@@ -525,7 +525,7 @@ fn select(request, context) {
     }
 
     #[test]
-    fn a_policy_failure_is_a_reply_and_the_worker_is_reaped_either_way() {
+    fn a_config_failure_is_a_reply_and_the_worker_is_reaped_either_way() {
         let evaluated = run(
             "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\nfn select(request, context) { throw \"no\"; }",
             &request(),

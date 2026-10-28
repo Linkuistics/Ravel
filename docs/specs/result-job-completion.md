@@ -148,7 +148,7 @@ directory cleanup. An unconfirmed reap is uncertainty, not evidence that the
 worker remains alive or that it is gone. Failure reports the worker identity,
 failed operation and recovery advice without pretending that an unsuccessful
 wait can establish a successful cleanup. The Rhai worker cannot launch a child. Harness-run cleanup follows the
-[configuration evaluation contract](policy-evaluation.md#cancellation-and-deadlines).
+[configuration evaluation contract](configuration-evaluation.md#cancellation-and-deadlines).
 
 <!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 

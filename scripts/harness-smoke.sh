@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Make one real LLM call through a harness, with the owner's sign-in, and prove
-# the recipe of the book at the command-line seam (docs/specs/policy-evaluation.md,
+# the recipe of the book at the command-line seam (docs/specs/configuration-evaluation.md,
 # "LLM calls through a harness", "Credentials" and "Upgrades"). The real
-# `ravel start-session` evaluates a Rhai policy in a sandbox home. The policy
+# `ravel start-session` evaluates a Rhai configuration script in a sandbox home. The configuration script
 # asks the harness one question with a fixed answer shape, parses the answer
 # with ravel::json_parse, checks it with ravel::json_check, and selects a
 # harmless fake program as the route. This script checks the route and the
@@ -40,7 +40,7 @@ version="$("$program" --version 2>&1 | head -n 1)" || fail "$program --version f
 
 # The sandbox. Ravel reads its settings from $HOME/.config/ravel and has no
 # override, and a harness run receives the caller's HOME. The sandbox home
-# therefore holds the settings and the policy, and a link to the sign-in store of
+# therefore holds the settings and the configuration script, and a link to the sign-in store of
 # each harness. A link is no read: the harness opens its own store.
 sandbox="$(mktemp -d "${TMPDIR:-/tmp}/harness-smoke.XXXXXX")"
 trap 'rm -rf "$sandbox"' EXIT
@@ -111,7 +111,7 @@ chmod +x "$bin/smoke-route"
 schema='{"type":"object","properties":{"prime":{"type":"string","enum":["yes","no"]}},"required":["prime"],"additionalProperties":false}'
 question='Is 17 a prime number? Answer with the JSON object only.'
 
-# What the policy calls differs by harness. The rest is the same.
+# What the configuration script calls differs by harness. The rest is the same.
 case "$harness" in
   claude)
     # The schema travels as text in the argument. The value of the answer is in

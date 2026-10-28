@@ -3,7 +3,7 @@
 mod support;
 
 use serde_json::json;
-use support::rhai::{policy, routing};
+use support::rhai::{rhai_script, routing};
 use support::{Sandbox, text};
 
 const OWNER_TEXT: &str = "policy_owner policy.select policyCode";
@@ -18,7 +18,7 @@ fn configuration_refusals_use_schema_two_and_preserve_owner_values() {
         } else {
             "select(request, context)"
         };
-        sandbox.personal_rhai(&policy(&(format!(
+        sandbox.personal_rhai(&rhai_script(&(format!(
             "fn {function} {{ #{{ status: \"refused\", code: {OWNER_TEXT:?}, message: {OWNER_TEXT:?}, remedy: {OWNER_TEXT:?} }} }}"
         ) + if loader { "\nfn select(request, context) { throw \"never select\"; }" } else { "" })));
         let document = sandbox.start(&["--kind", OWNER_TEXT, "--json"]).refusal(3);

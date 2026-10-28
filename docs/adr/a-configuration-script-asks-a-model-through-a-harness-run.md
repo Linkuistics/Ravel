@@ -5,7 +5,7 @@ Claude Code or Codex, which the owner names in settings. The harness signs in
 with the owner's own subscription. Ravel holds no model credential, and it never
 calls a model service itself. It builds no argument that is specific to a
 harness, and it parses no output of a harness. The
-[configuration evaluation specification](../specs/policy-evaluation.md#llm-calls-through-a-harness)
+[configuration evaluation specification](../specs/configuration-evaluation.md#llm-calls-through-a-harness)
 states the rules.
 
 The trade-off is the sign-ins that the owner already uses against the weight of

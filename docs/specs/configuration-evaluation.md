@@ -1,4 +1,4 @@
-<a id="policy-evaluation"></a>
+<a id="configuration-evaluation"></a>
 
 # Configuration evaluation
 
@@ -10,15 +10,15 @@ The migration section records the retired TypeScript correspondence.
 
 Three decisions bind this area:
 
-- [the configuration script uses Rhai](../adr/owner-policy-is-a-rhai-script.md).
-- [configuration evaluation precedes the launch](../adr/policy-evaluation-precedes-the-launch.md).
-- [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md).
+- [the configuration script uses Rhai](../adr/configuration-script-uses-rhai.md).
+- [configuration evaluation precedes the launch](../adr/configuration-evaluation-precedes-the-launch.md).
+- [a configuration script asks a model through a harness run](../adr/a-configuration-script-asks-a-model-through-a-harness-run.md).
 
 The decision that [the launched child is a job](../adr/the-launched-child-is-a-job.md)
 governs each harness run.
 
 The [glossary](../../CONTEXT.md) defines the terms. GitHub issue 2 states the requirements and the acceptance criteria. The
-[design views](../design/rhai-policy/README.md) draw the processes, the
+[design views](../design/rhai-configuration/README.md) draw the processes, the
 evaluation sequence and the paths that stop an evaluation.
 
 ## Problem
@@ -94,8 +94,6 @@ build, the call depth and the two expression depths are 8, 32 and 16. A release
 build has 64, 64 and 32. Ravel sets every limit itself, so tests and releases
 agree.
 
-<a id="policy-entry-and-discovery"></a>
-
 ### Configuration entry and discovery
 
 The default entry is `$HOME/.config/ravel/config.rhai`, and `HOME` must be
@@ -133,8 +131,6 @@ module is no new module, however many import statements run.
 Ravel measures the entry and every module. The routing notice lists each with
 its canonical name, its byte count and its SHA-256. Ravel 2.0.0 embeds no module
 of its own, so every import names a file.
-
-<a id="the-policy-module"></a>
 
 ### The configuration module
 
@@ -263,8 +259,6 @@ each value that it refuses, such as `result.args[2]`.
 From JSON, an integer outside the signed 64-bit range becomes a float. A shared
 value that a closure captured converts as its current content. Arrays and
 maps nest at most 100 levels. A deeper value refuses at its location.
-
-<a id="the-policy-worker"></a>
 
 ### The Rhai worker
 
@@ -947,7 +941,7 @@ A harness run executes its harness directly, through the runner. It never
 invokes `start-session`, so it evaluates no configuration script. An LLM call is a harness
 run, and the same rule holds for it. A configuration script that wants the route of another
 kind for a question calls its own route function. It needs no second selection,
-as [a configuration script asks a model through a harness run](../adr/a-policy-asks-a-model-through-a-harness-run.md)
+as [a configuration script asks a model through a harness run](../adr/a-configuration-script-asks-a-model-through-a-harness-run.md)
 records.
 
 `start-session` refuses as `config_reentry_refused` when `RAVEL_CONFIG_RUN` is in
@@ -1052,7 +1046,7 @@ the entry lets a Grove session that Ravel 1.1.0 launched keep reading
 
 The owner chose a one-off manual conversion of their configuration on
 2026-10-26. The book has no migration chapter and assumes no TypeScript
-knowledge. Its [chapter 4](../book/src/04-writing-an-owner-policy.md) teaches
+knowledge. Its [chapter 4](../book/src/04-write-a-configuration-script.md) teaches
 Rhai configuration script authoring directly. The translated examples and their equivalence
 checks remain inputs to the manual conversion. The table above records the
 implementation correspondence, outside the book.
@@ -1336,8 +1330,6 @@ read or from the output of a harness run, because it trusts the configuration sc
 
 Each translated configuration SHALL satisfy the [frozen comparison rules](#frozen-comparison-rules) for choices, arguments, contexts and refusals.
 The comparison SHALL preserve its exclusions and prove each intentional difference.
-
-<a id="scenario-the-owner-shaped-policy"></a>
 
 #### Scenario: The owner-shaped configuration script
 

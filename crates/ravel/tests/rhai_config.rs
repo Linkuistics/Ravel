@@ -1,6 +1,6 @@
 //! A Rhai configuration script through the real `ravel start-session`
-//! (`docs/specs/policy-evaluation.md`, *Policy entry and discovery*, *The
-//! policy module*, *Request, context and selection* and *Diagnostics, notices
+//! (`docs/specs/configuration-evaluation.md`, *Configuration entry and discovery*, *The
+//! configuration module*, *Request, context and selection* and *Diagnostics, notices
 //! and results*).
 //!
 //! Everything runs in a sandbox home, with fake harness scripts on a private
@@ -12,7 +12,7 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt as _;
 
 use serde_json::{Value, json};
-use support::rhai::{self, Recorded, policy, routing};
+use support::rhai::{self, Recorded, rhai_script, routing};
 use support::{Run, Sandbox, text};
 
 /// The refusal document of `run`, which must have failed with `code` and
@@ -38,7 +38,7 @@ fn start(sandbox: &Sandbox, args: &[&str]) -> Run {
 fn a_route_table_selects_and_the_harness_gets_the_argument_vector_of_the_table() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let policy_path = sandbox.personal_rhai(&policy(
+    let config_path = sandbox.personal_rhai(&rhai_script(
         r#"const TABLE = #{ check: ["--print", "--model", "fast", "two words"] };
 print("printed by the configuration script");
 fn select(request, context) {
@@ -59,7 +59,7 @@ fn select(request, context) {
         report["selection"],
         json!({ "provider": "table", "model": "m", "effort": "e", "reason": "route table" })
     );
-    let canonical = fs::canonicalize(&policy_path).unwrap();
+    let canonical = fs::canonicalize(&config_path).unwrap();
     assert_eq!(report["config"]["path"], text(&canonical));
     assert_eq!(report["config"]["version"], "rhai-seam-1");
     // The members that exist: no Bun.
@@ -70,9 +70,9 @@ fn select(request, context) {
     assert_eq!(worker["rhaiVersion"], "1.27.0");
     assert_eq!(worker["version"], env!("CARGO_PKG_VERSION"));
     assert!(report.get("modules").is_none(), "modules in {report}");
-    // The policy ran no harness, so the notice lists none.
+    // The configuration script ran no harness, so the notice lists none.
     assert_eq!(report["harnessRuns"], json!([]));
-    // The policy made no host call, so it read nothing, and the entry is its only
+    // The configuration script made no host call, so it read nothing, and the entry is its only
     // module. The notice has no member for an LLM call, which is a harness run.
     assert_eq!(report["reads"], json!([]));
     assert!(report.get("llmCalls").is_none(), "llmCalls in {report}");
@@ -131,7 +131,7 @@ fn the_request_has_every_field_and_an_absent_optional_one_is_unit() {
 fn the_caller_context_reaches_select_with_its_measurement() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     let where_from = if request.context.contains("measured") { "in request" } else { "not in request" };
     let args = [context.facts.answer, context.measured[0].via,
@@ -165,7 +165,7 @@ fn the_caller_context_reaches_select_with_its_measurement() {
 fn an_unknown_field_refuses_with_its_location_and_launches_nothing() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let entry = sandbox.personal_rhai(&policy(
+    let entry = sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     #{ status: "selected", program: "recording-agent", args: [], provider: "p", model: "m",
        effort: "e", reason: "r", extra: 1 }
@@ -189,7 +189,7 @@ fn an_unknown_field_refuses_with_its_location_and_launches_nothing() {
 #[test]
 fn a_value_that_cannot_cross_is_refused_at_its_location() {
     let sandbox = Sandbox::new();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     #{ status: "selected", program: "recording-agent", args: ["ok", 'c'], provider: "p",
        model: "m", effort: "e", reason: "r" }
@@ -200,10 +200,10 @@ fn a_value_that_cannot_cross_is_refused_at_its_location() {
 }
 
 #[test]
-fn a_policy_that_refuses_is_a_policy_refusal_with_its_own_code() {
+fn a_config_that_refuses_is_a_config_refusal_with_its_own_code() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     #{ status: "refused", code: "no_route", message: "no route for " + request.kind,
        remedy: "add one" }
@@ -219,7 +219,7 @@ fn a_policy_that_refuses_is_a_policy_refusal_with_its_own_code() {
 fn a_parse_failure_names_the_file_the_line_and_the_column() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let entry = sandbox.personal_rhai(&policy("let x = ;"));
+    let entry = sandbox.personal_rhai(&rhai_script("let x = ;"));
 
     let error = refused(
         &start(&sandbox, &[]),
@@ -268,7 +268,7 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
 fn abstention_refuses_and_ravel_picks_nothing_in_its_place() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    sandbox.personal_rhai(&policy("fn select(request, context) { () }"));
+    sandbox.personal_rhai(&rhai_script("fn select(request, context) { () }"));
     let error = refused(
         &start(&sandbox, &[]),
         "selection_abstained",
@@ -282,7 +282,7 @@ fn abstention_refuses_and_ravel_picks_nothing_in_its_place() {
 fn an_uncaught_error_refuses_with_its_file_line_and_column() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
-    let entry = sandbox.personal_rhai(&policy(
+    let entry = sandbox.personal_rhai(&rhai_script(
         "fn select(request, context) {\n    throw \"no route\";\n}",
     ));
 
@@ -607,9 +607,9 @@ fn a_symlink_is_admitted_by_its_real_file() {
 }
 
 #[test]
-fn a_policy_that_names_no_program_on_the_path_refuses_at_resolution() {
+fn a_config_that_names_no_program_on_the_path_refuses_at_resolution() {
     let sandbox = Sandbox::new();
-    sandbox.personal_rhai(&policy(
+    sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
     #{ status: "selected", program: "no-such-harness", args: [], provider: "p", model: "m",
        effort: "e", reason: "r" }

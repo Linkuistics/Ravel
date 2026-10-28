@@ -1,5 +1,5 @@
-//! The shipped example policies, checked against frozen TypeScript observations
-//! (`docs/specs/policy-evaluation.md`, *Migration* and *Migration equivalence*).
+//! The shipped example configuration scripts, checked against frozen TypeScript observations
+//! (`docs/specs/configuration-evaluation.md`, *Migration* and *Migration equivalence*).
 //!
 //! Every case goes through the real `ravel start-session` against a sandbox
 //! home. A fake agent on the private `PATH` records the argument vector that it
@@ -55,11 +55,11 @@ const RHAI_LLM: &str = include_str!("../examples/llm.rhai");
 const CONFIG: &str = ".config/ravel";
 
 // ---------------------------------------------------------------------------
-// The policies, and the table of requests.
+// The configuration scripts, and the table of requests.
 // ---------------------------------------------------------------------------
 
 /// One Rhai configuration script, with the programs its routes start.
-struct Policy {
+struct Config {
     name: &'static str,
     rhai: String,
     /// Files that the Rhai entry imports, beside it.
@@ -67,8 +67,8 @@ struct Policy {
     programs: &'static [&'static str],
 }
 
-fn static_policy() -> Policy {
-    Policy {
+fn static_config() -> Config {
+    Config {
         name: "static",
         rhai: RHAI_STATIC.to_owned(),
         rhai_modules: vec![],
@@ -76,8 +76,8 @@ fn static_policy() -> Policy {
     }
 }
 
-fn sample_policy() -> Policy {
-    Policy {
+fn sample_config() -> Config {
+    Config {
         name: "sample",
         rhai: RHAI_SAMPLE.to_owned(),
         rhai_modules: vec![("static.rhai", RHAI_STATIC)],
@@ -85,8 +85,8 @@ fn sample_policy() -> Policy {
     }
 }
 
-fn harness_table_policy() -> Policy {
-    Policy {
+fn harness_table_config() -> Config {
+    Config {
         name: "harness-table",
         rhai: RHAI_HARNESS_TABLE.to_owned(),
         rhai_modules: vec![],
@@ -403,8 +403,8 @@ fn harness_table_cases() -> Vec<Case> {
     cases
 }
 
-fn cases_of(policy: &Policy) -> Vec<Case> {
-    match policy.name {
+fn cases_of(config: &Config) -> Vec<Case> {
+    match config.name {
         "static" => static_cases(),
         "sample" => sample_cases(),
         "harness-table" => harness_table_cases(),
@@ -452,12 +452,12 @@ fn launched(sandbox: &Sandbox) -> Option<Value> {
     Some(json!({ "program": program, "args": fields }))
 }
 
-fn install(sandbox: &Sandbox, policy: &Policy) {
-    sandbox.personal_rhai(&policy.rhai);
-    for (name, source) in &policy.rhai_modules {
+fn install(sandbox: &Sandbox, config: &Config) {
+    sandbox.personal_rhai(&config.rhai);
+    for (name, source) in &config.rhai_modules {
         write(&sandbox.home.join(CONFIG).join(name), source);
     }
-    for program in policy.programs {
+    for program in config.programs {
         recording_agent(sandbox, program);
     }
 }
@@ -593,9 +593,9 @@ fn observe_in(sandbox: &Sandbox, cwd: &Path, case: &Case) -> Value {
     observation
 }
 
-fn observe(policy: &Policy, case: &Case) -> Value {
+fn observe(config: &Config, case: &Case) -> Value {
     let sandbox = Sandbox::new();
-    install(&sandbox, policy);
+    install(&sandbox, config);
     for step in &case.steps {
         apply(&sandbox, step);
     }
@@ -719,9 +719,9 @@ fn historical_name_translation_is_field_specific_and_preserves_owner_data() {
     }
 }
 
-/// The failures of `cases` against `policy`, one text each. It runs the cases in
+/// The failures of `cases` against `config`, one text each. It runs the cases in
 /// parallel against the frozen fixture, without starting TypeScript.
-fn compare_with(policy: &Policy, cases: &[Case], fixture: &Value) -> Vec<String> {
+fn compare_with(config: &Config, cases: &[Case], fixture: &Value) -> Vec<String> {
     let next = AtomicUsize::new(0);
     let failures = std::sync::Mutex::new(vec![]);
     std::thread::scope(|scope| {
@@ -730,7 +730,7 @@ fn compare_with(policy: &Policy, cases: &[Case], fixture: &Value) -> Vec<String>
                 loop {
                     let index = next.fetch_add(1, Ordering::SeqCst);
                     let Some(case) = cases.get(index) else { break };
-                    if let Some(failure) = check_case(policy, case, fixture) {
+                    if let Some(failure) = check_case(config, case, fixture) {
                         failures.lock().unwrap().push(failure);
                     }
                 }
@@ -742,7 +742,7 @@ fn compare_with(policy: &Policy, cases: &[Case], fixture: &Value) -> Vec<String>
     failures
 }
 
-fn check_case(policy: &Policy, case: &Case, fixture: &Value) -> Option<String> {
+fn check_case(config: &Config, case: &Case, fixture: &Value) -> Option<String> {
     let unreadable = case.steps.iter().any(|step| {
         matches!(
             step,
@@ -761,7 +761,7 @@ fn check_case(policy: &Policy, case: &Case, fixture: &Value) -> Option<String> {
         "missing fixture case: {}",
         case.name
     );
-    let rhai = observe(policy, case);
+    let rhai = observe(config, case);
     let (left, right) = (
         comparable(&current_names(typescript), case.expect),
         comparable(&rhai, case.expect),
@@ -774,44 +774,44 @@ fn check_case(policy: &Policy, case: &Case, fixture: &Value) -> Option<String> {
             };
             format!(
                 "{} / {}: the results differ{note}\n  typescript: {typescript}\n  rhai:       {rhai}",
-                policy.name, case.name
+                config.name, case.name
             )
         }),
         Expect::Differs(reason) => (left == right).then(|| {
             format!(
                 "{} / {}: the results are equal, but the case records a difference ({reason})\n  both: {rhai}",
-                policy.name, case.name
+                config.name, case.name
             )
         }),
     }
 }
 
-fn fixture(policy: &Policy) -> Value {
+fn fixture(config: &Config) -> Value {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/equivalence/fixtures")
-        .join(format!("{}.json", policy.name));
+        .join(format!("{}.json", config.name));
     let bytes = fs::read(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()));
     serde_json::from_slice(&bytes).expect("a frozen TypeScript observation document")
 }
 
 #[test]
 fn rhai_examples_match_the_frozen_typescript_observations() {
-    for policy in [static_policy(), sample_policy(), harness_table_policy()] {
-        let fixture = fixture(&policy);
-        let cases = cases_of(&policy);
+    for config in [static_config(), sample_config(), harness_table_config()] {
+        let fixture = fixture(&config);
+        let cases = cases_of(&config);
         // Missing and extra cases both fail: changing the table needs an
         // explicit decision, never regeneration of the historical reference.
         assert_eq!(fixture["cases"].as_object().unwrap().len(), cases.len());
-        let failures = compare_with(&policy, &cases, &fixture["cases"]);
+        let failures = compare_with(&config, &cases, &fixture["cases"]);
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 }
 
 #[test]
 fn the_fixture_comparison_fails_on_a_changed_fixture() {
-    let policy = static_policy();
-    let fixture = fixture(&policy);
-    let cases: Vec<Case> = cases_of(&policy)
+    let config = static_config();
+    let fixture = fixture(&config);
+    let cases: Vec<Case> = cases_of(&config)
         .into_iter()
         .filter(|case| {
             ["route bugfix", "unlisted \"nope\"", "a context document"]
@@ -819,7 +819,7 @@ fn the_fixture_comparison_fails_on_a_changed_fixture() {
         })
         .collect();
     assert_eq!(cases.len(), 3);
-    assert!(compare_with(&policy, &cases, &fixture["cases"]).is_empty());
+    assert!(compare_with(&config, &cases, &fixture["cases"]).is_empty());
 
     for (name, field) in [
         ("route bugfix", "/notice/selection/effort"),
@@ -831,7 +831,7 @@ fn the_fixture_comparison_fails_on_a_changed_fixture() {
             .pointer_mut(field)
             .expect("an existing fixture field") = json!("changed");
         assert_ne!(changed, fixture["cases"]);
-        let failures = compare_with(&policy, &cases, &changed);
+        let failures = compare_with(&config, &cases, &changed);
         assert_eq!(failures.len(), 1, "{field}: {failures:?}");
         assert!(failures[0].contains(name), "{failures:?}");
         assert!(failures[0].contains("the results differ"), "{failures:?}");
@@ -844,20 +844,20 @@ fn the_fixture_comparison_fails_on_a_changed_translation() {
     // effort, and one that changes one refusal, must not compare equal.
     let case = Case::new("route bugfix", "bugfix");
     let unlisted = Case::new("unlisted \"nope\"", "nope");
-    let original = static_policy();
+    let original = static_config();
     let fixture = fixture(&original);
-    let effort = Policy {
+    let effort = Config {
         rhai: RHAI_STATIC.replace("bugfix: agent(\"medium\")", "bugfix: agent(\"high\")"),
-        ..static_policy()
+        ..static_config()
     };
     assert_ne!(effort.rhai, original.rhai);
     let failures = compare_with(&effort, std::slice::from_ref(&case), &fixture["cases"]);
     assert_eq!(failures.len(), 1, "{failures:?}");
     assert!(failures[0].contains("the results differ"), "{failures:?}");
 
-    let remedy = Policy {
+    let remedy = Config {
         rhai: RHAI_STATIC.replace("add a route for this kind", "add a kind"),
-        ..static_policy()
+        ..static_config()
     };
     assert_ne!(remedy.rhai, original.rhai);
     let failures = compare_with(&remedy, std::slice::from_ref(&unlisted), &fixture["cases"]);
@@ -869,7 +869,7 @@ fn the_fixture_comparison_fails_on_a_changed_translation() {
 }
 
 // ---------------------------------------------------------------------------
-// The owner-shaped policy in a secondary jj workspace.
+// The owner-shaped configuration script in a secondary jj workspace.
 // ---------------------------------------------------------------------------
 
 fn jj_available() -> bool {
@@ -916,9 +916,9 @@ fn jj_workspaces(sandbox: &Sandbox) -> (PathBuf, PathBuf) {
 }
 
 fn observe_workspaces() -> Value {
-    let policy = harness_table_policy();
+    let config = harness_table_config();
     let sandbox = Sandbox::new();
-    install(&sandbox, &policy);
+    install(&sandbox, &config);
     let (main, second) = jj_workspaces(&sandbox);
     let mut secondary = Map::new();
     for kind in TABLE_KINDS {
@@ -952,7 +952,7 @@ fn rhai_harness_table_matches_the_frozen_jj_workspace_observations() {
         eprintln!("SKIPPED: jj is not installed, and this test needs a secondary jj workspace");
         return;
     }
-    let fixture = fixture(&harness_table_policy());
+    let fixture = fixture(&harness_table_config());
     let mut historical = fixture["workspaces"].clone();
     for workspace in historical.as_object_mut().unwrap().values_mut() {
         for observation in workspace.as_object_mut().unwrap().values_mut() {
@@ -967,9 +967,9 @@ fn the_harness_table_grants_the_store_that_the_file_of_a_secondary_workspace_nam
     // The firing control of the jj test: a grant that came from the store file
     // and not from a default. A second main repository, named by a hand-made
     // store file, gives another grant.
-    let policy = harness_table_policy();
+    let config = harness_table_config();
     let sandbox = Sandbox::new();
-    install(&sandbox, &policy);
+    install(&sandbox, &config);
     write(&sandbox.cwd.join(JJ_STORE), "../../moved/.jj/repo\n");
     let case = Case::new("hand-made store", "build");
     let observation = observe_in(&sandbox, &sandbox.cwd, &case);

@@ -1,4 +1,4 @@
-//! The data helpers of the `ravel` namespace (`docs/specs/policy-evaluation.md`,
+//! The data helpers of the `ravel` namespace (`docs/specs/configuration-evaluation.md`,
 //! *Data helpers*): JSON, the version 4 UUID and the lexical path functions.
 //!
 //! They run in the worker and send no frame. The encoder may write any string

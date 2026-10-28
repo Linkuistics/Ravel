@@ -1,4 +1,4 @@
-//! The caller's data inputs, read and checked once, before any policy runs
+//! The caller's data inputs, read and checked once, before any configuration script runs
 //! (`docs/specs/session-execution.md`, *Command interface*).
 //!
 //! The kind, the task file, the task identity and the parameters are caller
@@ -7,7 +7,7 @@
 //! prompt is read once and kept byte for byte, and the configuration script's `select`
 //! receives it as it is. Terminal stdin is never read. The caller's bounds,
 //! `--context` document and `--config-env` grants are read here too, over the
-//! owner's settings, so a malformed or excluded one refuses before any policy
+//! owner's settings, so a malformed or excluded one refuses before any configuration script
 //! runs.
 
 use crate::cli::SelectionArgs;

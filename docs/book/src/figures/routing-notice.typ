@@ -1,4 +1,4 @@
-// The review policy's selection and routing notice — UML sequence.
+// The review configuration script's selection and routing notice — UML sequence.
 #import "_sequence.typ": *
 #import "_draw.typ": render
 

@@ -45,10 +45,9 @@ last column connects each word to the review:
 | [Result](02-actors-and-words.md#the-managed-process-and-its-result) | The text that a program in the session sends with `ravel end-session`. Ravel does not interpret it. Thus, the book calls it an opaque result. | `changes-needed` |
 | [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) | The `ravel` command-line program. It evaluates the configuration script in the Rhai worker, launches the selected program and returns the result. | The program that ran the review and returned `changes-needed` |
 
-Some Ravel file names and error codes use the word “policy” for the
-configuration script, for example `config_refused`.
-Ravel's own diagnostic words, such as “the policy”, also
-name the configuration script.
+Ravel uses `config` in file names, options and diagnostic codes, such as
+`config.rhai`, `--config-env` and `config_refused`. Its diagnostic prose uses
+“configuration script”.
 
 Why does Ravel evaluate the script in a separate process? The Ravel CLI
 launches a second copy of its own executable as a child process, the Rhai
@@ -81,7 +80,7 @@ The [Rhai Book](https://rhai.rs/book/) documents the language, and its
 [language reference](https://rhai.rs/book/ref/) lists each statement and
 operator. The [online playground](https://rhai.rs/playground/stable/) runs
 Rhai code in your browser. It does not have the `ravel::` functions or Ravel's
-limits. [Chapter 4](04-writing-an-owner-policy.md#know-the-rhai-language)
+limits. [Chapter 4](04-write-a-configuration-script.md#know-the-rhai-language)
 teaches the Rhai that a configuration script needs.
 
 Which entry answers your question? Use the table, or the headings of this
@@ -123,7 +122,7 @@ version requests.
 | `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on standard output. `-h` is the short option on all three command lines. | `0` |
 | `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
 
-Fragment: the output of `ravel --help` from the checkout build on 2026-10-28.
+Fragment: the output of `ravel --help` from the checkout build on 2026-10-29.
 This block omits the command and its status, 0.
 
 ```text
@@ -132,7 +131,7 @@ Route and supervise a session, returning its opaque result
 Usage: ravel <COMMAND>
 
 Commands:
-  start-session  Route the prompt unchanged through owner policy and supervise its selected process
+  start-session  Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
   end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
 
 Options:
@@ -144,7 +143,6 @@ Examples:
   ravel end-session done
 ```
 
-The help says “owner policy” for the configuration script.
 Help and version text is informational output, never an opaque result.
 See [the first complete session](03-a-complete-session.md#run-the-first-session)
 for the two verbs in use.
@@ -200,7 +198,7 @@ command. Chapter 5 runs this session as a complete example,
 and the book's example check compares these two lines.
 
 ```console
-$ ravel start-session --kind review --config policy.rhai --prompt-file review-prompt.txt
+$ ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt
 ravel: starting provider local, model fake, effort low for kind "review"
 review-agent: the review is complete
 ```
@@ -298,8 +296,8 @@ real file, and the directory of that file is the base for relative imports.
 An empty option value is malformed input, status 2. If Ravel cannot accept
 the entry file, the status is 3. A different entry does not move the settings
 file from `$HOME/.config/ravel/settings.json`. See
-[define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request)
-and [import other Rhai files](04-writing-an-owner-policy.md#import-other-rhai-files).
+[define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request)
+and [import other Rhai files](04-write-a-configuration-script.md#import-other-rhai-files).
 
 ### `--param NAME=VALUE`
 
@@ -359,7 +357,7 @@ and no loader, `select` receives `()` as its selection-context argument.
 Ravel refuses an unreadable, invalid or oversized document with status 3.
 Malformed command-line syntax still gives status 2. This option supplies
 selection context, never a
-[session-result context](02-actors-and-words.md#three-different-kinds-of-information). See [supply selection context](04-writing-an-owner-policy.md#supply-selection-context).
+[session-result context](02-actors-and-words.md#three-different-kinds-of-information). See [supply selection context](04-write-a-configuration-script.md#supply-selection-context).
 
 ### `--timeout-ms MS`
 
@@ -388,7 +386,7 @@ unless cancellation or failed harness cleanup takes precedence. Cleanup time is 
 
 The deadline does not limit the time that the managed process
 works. See
-[set bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+[set bounds and environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 ### `--context-bytes BYTES`
 
@@ -403,8 +401,8 @@ Thus, an invalid setting fails even with a valid flag.
 The budget limits the caller document and the encoded selection context that
 selection receives, with the measured source records. It is also the maximum
 for a host source read. Ravel refuses data above a bound, and it does not
-truncate that data. `context_too_large` uses status 3. See [selection context](04-writing-an-owner-policy.md#supply-selection-context)
-and [bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+truncate that data. `context_too_large` uses status 3. See [selection context](04-write-a-configuration-script.md#supply-selection-context)
+and [bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 ### `--config-env NAME`
 
@@ -438,7 +436,7 @@ A name is nonempty UTF-8 and contains no `=`. It cannot match a
 `malformed_input`, and a reserved name reports `excluded_grant`. Both give
 status 2.
 Grant diagnostics show each name and whether it is set, never its value.
-See [set bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+See [set bounds and environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 ### `--confine`
 
@@ -640,7 +638,7 @@ error, it exits 2. The operating system can set a smaller argument limit
 before the executable runs.
 
 Fragment: standard error of `ravel end-session changes-needed` in a shell outside
-any session, from the checkout build on 2026-10-28. This block omits the
+any session, from the checkout build on 2026-10-29. This block omits the
 command and its status, 1.
 
 ```text
@@ -684,9 +682,9 @@ reports stay as diagnostics. See
 | `0` | `start-session` wrote the sent result unchanged to standard output and flushed it. This occurs after the reap, the confirmed absence of the group and the required cleanup. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Ravel does not interpret the result. Interpret it with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also gives status 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. For `end-session`, status 1 means that it could not send the result. For example, the session-result context was missing, empty or stale, or the value was too large. Check that the call occurs inside a live session. A missing result is not an empty result. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, or confinement inputs that are unusable or overlap. Without a verb, `ravel` prints help with this status. Correct the named input or setting before you try again. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
-| `3` | The configuration script refused, or Ravel could not accept its entry, behaviour, shape or selection result, or the selection context. Evaluation bounds and a `start-session` inside an evaluation harness run also use 3. No fallback route runs. Read the code, the stage and the remedy. For `config_refused`, also read `configCode`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `3` | The configuration script refused, or Ravel could not accept its entry, behaviour, shape or selection result, or the selection context. Evaluation bounds and a `start-session` inside an evaluation harness run also use 3. No fallback route runs. Read the code, the stage and the remedy. For `config_refused`, also read `configCode`. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `5` | A worker or supervision failed, or the result was invalid. Required cleanup or terminal recovery failed, a group survived, or the result output failed. A failed worker re-execution, identity mismatch or evaluation harness cleanup also gives 5. Retain the diagnostics, repair the installation or the named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-separately-from-results) <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
-| `124` | The evaluation of the configuration script timed out, and Ravel launched no managed process. Examine the work of the script before you increase `timeoutMs` or `--timeout-ms`. Failed harness cleanup or cancellation can replace this outcome. The deadline does not limit the managed process. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `124` | The evaluation of the configuration script timed out, and Ravel launched no managed process. Examine the work of the script before you increase `timeoutMs` or `--timeout-ms`. Failed harness cleanup or cancellation can replace this outcome. The deadline does not limit the managed process. | [Bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `126` | The selected program is not executable, or the launch failed before the runner reported the start, for a reason other than ENOENT. Check the permissions, the format, the interpreter and the execution environment. Retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) <!-- tc: depart synonym-rotation because the start is the runner's named report, while launch names process creation --> |
 | `127` | Ravel did not find the selected program, or the launch failed with ENOENT before the start. A script that exists can have a missing interpreter. Check `PATH`, the selected path and the interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) <!-- tc: depart synonym-rotation because the start is the runner's named report, while launch names process creation --> |
 | `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
@@ -727,7 +725,7 @@ standard stream of `ravel start-session`.
 |---|---|---|
 | Standard output | `start-session` writes only the result of a successful session, unchanged and with no added newline. Ravel does not interpret it. An empty sent result is zero bytes. A failed final write can leave a prefix, so check the status. `end-session` writes nothing to standard output. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | Standard error | The standard output and standard error of the managed process, Ravel notices and failures, captured diagnostics of the configuration script and operational reports. Without `--json`, each runner operation report has the form `ravel: <report>`. `--json` changes only Ravel's routing notice and failure document. | [Read notices](05-running-sessions.md#read-notices-separately-from-results) and [runner operation reports](08-follow-a-session-through-the-code.md#complete-cleanup-and-write-the-result) |
-| Evaluation harness output | Captured standard output, standard error and optional result return to the configuration script as data. They reach a caller stream only if the script copies them into visible output. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| Evaluation harness output | Captured standard output, standard error and optional result return to the configuration script as data. They reach a caller stream only if the script copies them into visible output. | [Harness runs](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
 | Standard input | Ravel does not implicitly read a prompt from standard input. The worker receives a null standard input. A harness run receives its requested text or EOF. An unconfined managed process can use the caller's standard input, and a confined one receives EOF. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [confinement](05-running-sessions.md#confine-the-managed-process) |
 
 What does the configuration script give back to Ravel? It gives back a
@@ -814,11 +812,11 @@ review-agent: the review is complete
     "modules": [
       {
         "bytes": 619,
-        "name": "/private/tmp/ch5r/policy.rhai",
+        "name": "/private/tmp/ch5r/config.rhai",
         "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
       }
     ],
-    "path": "/private/tmp/ch5r/policy.rhai",
+    "path": "/private/tmp/ch5r/config.rhai",
     "version": "notice-demo"
   },
   "promptSource": "/private/tmp/ch5r/review-prompt.txt",
@@ -872,7 +870,7 @@ An unavailable call has null exit code and signal, zero elapsed time and `sentRe
 See [harness-run outcomes](#harness-run-result) for the meaning of each status.
 
 The non-null `context` report has six fields. They describe the data that
-selection receives. [Chapter 4's selection-context section](04-writing-an-owner-policy.md#supply-selection-context)
+selection receives. [Chapter 4's selection-context section](04-write-a-configuration-script.md#supply-selection-context)
 teaches where they come from.
 
 | Selection-context report field | Meaning |
@@ -901,12 +899,12 @@ the kind `deploy`. This block omits the command and its status, 3. `<scratch>` i
 temporary directory of the example checker of the book.
 
 ```text
-{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/policy.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/policy.rhai","stage":"selection"},"schemaVersion":2}
+{"diagnostics":{"stderr":"","stdout":""},"error":{"code":"config_refused","configCode":"unknown_kind","exit":3,"input":"--kind deploy","message":"the configuration script <scratch>/work/config.rhai refused the selection: This configuration script has no rule for the kind deploy.","remedy":"Use the kind review.","source":"<scratch>/work/config.rhai","stage":"selection"},"schemaVersion":2}
 ```
 
 A JSON failure document has `schemaVersion: 2`, an `error` object and an
 optional top-level `diagnostics`. That object contains the `stdout` and
-`stderr` strings of the configuration script. The words “the policy” in the
+`stderr` strings of the configuration script. The words “the configuration script” in the
 message are Ravel's own diagnostic words for the configuration script. Read `code` and `stage` together, and retain the complete
 standard error stream. Secondary operational reports can occur outside this document.
 See [read failure notices](05-running-sessions.md#read-notices-separately-from-results).
@@ -931,14 +929,14 @@ CLI cannot see which operation of the script ran at expiry.
 
 | Stage | Scope | Taught in |
 |---|---|---|
-| `cli` | The command line and the settings. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `authority` | The choice of the entry of the configuration script and the attempt to open it, or the query for the caller's working directory. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
+| `cli` | The command line and the settings. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `authority` | The choice of the entry of the configuration script and the attempt to open it, or the query for the caller's working directory. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `worker` | The re-execution of Ravel as its Rhai worker, or the check of the worker and its protocol. | [Check and evaluate](03-a-complete-session.md#check-the-request-and-evaluate-the-configuration-script) |
-| `evaluation` | The evaluation by the worker as a whole, with the deadline and the cancellation of selection. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings), [cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `load` | The import of the entry of the configuration script and of each module that it imports. | [Import other Rhai files](04-writing-an-owner-policy.md#import-other-rhai-files) |
-| `context` | The read, assembly, validation and measurement of the selection context. | [Supply selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `validation` | The check of the exports and the function parameter counts of the configuration script. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `selection` | The call to `select` and the check of the data that it returns. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `evaluation` | The evaluation by the worker as a whole, with the deadline and the cancellation of selection. | [Bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings), [cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `load` | The import of the entry of the configuration script and of each module that it imports. | [Import other Rhai files](04-write-a-configuration-script.md#import-other-rhai-files) |
+| `context` | The read, assembly, validation and measurement of the selection context. | [Supply selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `validation` | The check of the exports and the function parameter counts of the configuration script. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `selection` | The call to `select` and the check of the data that it returns. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `resolution` | The search for the selected program. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `exec` | The preparation and supervision of the managed launch, and the decision about its outcome. This stage also covers failures of the result output or the result channel before the spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-separately-from-results) |
 
@@ -957,7 +955,7 @@ A permitted but unset name returns `()`, Rhai's empty value.
 
 An ungranted name throws `env_not_granted`, even when unset.
 A value outside UTF-8 throws `env_not_utf8`.
-See [environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+See [environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Variable or class | Meaning and effect |
 |---|---|
@@ -986,7 +984,7 @@ suffix. It is not shell expansion. A grant that names one of them reports
 The reserved classes are rules for `ravel::env` grants. They do not tell which
 names Ravel removes from the environment of an unconfined managed process.
 The next section gives that shorter list. See
-[grant environment names](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+[grant environment names](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Name or class | Reserved purpose |
 |---|---|
@@ -1101,14 +1099,14 @@ Rhai files.
 This default needs an absolute `HOME`.
 `--config PATH` chooses a different entry, relative to the caller's working directory.
 There is no repository search, environment override or fallback script.
-An explicit `.rhai` entry can have any file name, such as `policy.rhai`.
-Ravel does not select `policy.rhai` as a default.
+An explicit `.rhai` entry can have any file name, such as `config.rhai`.
+Ravel does not select `config.rhai` as a default.
 
 The entry must canonicalise to a readable regular UTF-8 file of at most 1 MiB.
 Its canonical path must also be UTF-8. A symlink selects its real file.
 Imports resolve from the directory of that real file.
 An unacceptable entry gives status 3 before the script runs.
-See [define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request).
+See [define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request).
 
 | Entry choice | Ravel 2.0.0 behaviour |
 |---|---|
@@ -1153,15 +1151,15 @@ for each session. `contextBytes` is absent, so its default applies.
 A missing file, an absent or relative `HOME` or an empty JSON object supplies
 no settings. A file that exists must be a readable regular file that contains
 a JSON object. `end-session` reads neither the settings nor the configuration script. See
-[set bounds and grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+[set bounds and grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Key | Accepted value, default and consequence | Taught in |
 |---|---|---|
-| `timeoutMs` | Optional whole number of milliseconds, 1,000–600,000 inclusive. The default is 30,000. `--timeout-ms` replaces the value after settings validation. It limits worker startup, module loads, the loader, selection and every host call. It does not limit the final managed process. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `contextBytes` | Optional whole number of bytes, 1–8,388,608 inclusive. The default is 262,144. `--context-bytes` replaces it after validation. It limits the caller document and the delivered selection context. It is also the ceiling for a host read. | [Set bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `configEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
-| `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `timeoutMs` | Optional whole number of milliseconds, 1,000–600,000 inclusive. The default is 30,000. `--timeout-ms` replaces the value after settings validation. It limits worker startup, module loads, the loader, selection and every host call. It does not limit the final managed process. | [Set bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `contextBytes` | Optional whole number of bytes, 1–8,388,608 inclusive. The default is 262,144. `--context-bytes` replaces it after validation. It limits the caller document and the delivered selection context. It is also the ceiling for a host read. | [Set bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `configEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
+| `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 
 A harness name contains 1–64 lowercase ASCII letters, digits or dashes.
 The first character is a letter or digit. Ravel refuses unknown nested fields.
@@ -1184,7 +1182,7 @@ Invalid `timeoutMs` or `contextBytes` values and malformed grant names use `malf
 excluded grants use `excluded_grant`. Both have status 2. Ravel validates the
 whole file before flags replace values. Thus, an invalid setting fails even
 with a valid flag. No setting opens persistent storage. See
-[settings validation](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+[settings validation](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 ## Bounds
 
@@ -1210,23 +1208,23 @@ Evaluation bounds end selection, even inside `try`. A harness run
 can instead return its own timeout or output-limit status as data. The JSON notice names each bound separately and
 records its origin.
 
-See [set bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+See [set bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Request field / notice name | Default or fixed value | Adjustment and consequence | Taught in <!-- tc: depart synonym-rotation because fixed describes an immutable bound, not an action to correct an error --> |
 |---|---:|---|---|
-| `selectionMs` / `selection` | 30,000 ms | `timeoutMs`, then `--timeout-ms`, within 1,000–600,000. Ravel measures it from the worker spawn through the startup, the import, the loader and the selection. Expiry is `selection_timeout`, status 124, unless cancellation or failed harness cleanup takes precedence. The teardown time is additional. | [Selection deadline](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `contextBytes` / `context` | 262,144 bytes | `contextBytes`, then `--context-bytes`, within 1–8,388,608. The caller file and the compact delivered JSON with `measured` must both fit. If one does not fit, the code is `context_too_large`, status 3. | [Selection-context budget](04-writing-an-owner-policy.md#supply-selection-context) |
-| `sourceBytes` / `source` | The smaller of 65,536 bytes and `contextBytes` | A positive whole-number `max_bytes` of a host read can replace the default, up to `contextBytes`. Too many bytes, or a requested limit that is too large, cause `source_too_large`, status 3. No script `try` can prevent this refusal. | [Host reads](04-writing-an-owner-policy.md#supply-selection-context) |
-| `sources` / `sources` | Fixed 256 | It applies separately to the measured reads, with the caller document and reads in every phase, and to the attributed `sources` array of the document. If either has more, the code is `too_many_sources`, status 3. A caught exception for a read bound still causes the refusal. | [Measured and attributed sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `messageBytes` / `message` | Fixed 1,048,576 bytes | It limits a host request, selection result or failure report from the worker. A message that is too large gives `message_too_large`, status 3. A delivered document has the selection-context budget instead. | [Protocol bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `diagnosticsBytes` / `diagnostics` | Fixed 262,144 bytes | The combined standard output and standard error of the worker, with `print` and `debug` output. Output above the limit gives `output_limit`, status 3. Ravel retains the first 262,144 bytes and discards the rest while it stops the worker. | [Output bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `harnessRuns` / `harnessRuns` | 0 runs | Only `budgets.harnessRuns` changes it, within 0–16. A launched run consumes one. Exhaustion gives `harness_budget_exhausted`, status 3. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| `selectionMs` / `selection` | 30,000 ms | `timeoutMs`, then `--timeout-ms`, within 1,000–600,000. Ravel measures it from the worker spawn through the startup, the import, the loader and the selection. Expiry is `selection_timeout`, status 124, unless cancellation or failed harness cleanup takes precedence. The teardown time is additional. | [Selection deadline](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `contextBytes` / `context` | 262,144 bytes | `contextBytes`, then `--context-bytes`, within 1–8,388,608. The caller file and the compact delivered JSON with `measured` must both fit. If one does not fit, the code is `context_too_large`, status 3. | [Selection-context budget](04-write-a-configuration-script.md#supply-selection-context) |
+| `sourceBytes` / `source` | The smaller of 65,536 bytes and `contextBytes` | A positive whole-number `max_bytes` of a host read can replace the default, up to `contextBytes`. Too many bytes, or a requested limit that is too large, cause `source_too_large`, status 3. No script `try` can prevent this refusal. | [Host reads](04-write-a-configuration-script.md#supply-selection-context) |
+| `sources` / `sources` | Fixed 256 | It applies separately to the measured reads, with the caller document and reads in every phase, and to the attributed `sources` array of the document. If either has more, the code is `too_many_sources`, status 3. A caught exception for a read bound still causes the refusal. | [Measured and attributed sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `messageBytes` / `message` | Fixed 1,048,576 bytes | It limits a host request, selection result or failure report from the worker. A message that is too large gives `message_too_large`, status 3. A delivered document has the selection-context budget instead. | [Protocol bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `diagnosticsBytes` / `diagnostics` | Fixed 262,144 bytes | The combined standard output and standard error of the worker, with `print` and `debug` output. Output above the limit gives `output_limit`, status 3. Ravel retains the first 262,144 bytes and discards the rest while it stops the worker. | [Output bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `harnessRuns` / `harnessRuns` | 0 runs | Only `budgets.harnessRuns` changes it, within 0–16. A launched run consumes one. Exhaustion gives `harness_budget_exhausted`, status 3. | [Harness runs](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
 
 `from` in a reported bound is `default`, `fixed`, `settings.json` or the flag
 that set the bound. If the selection-context budget makes a source limit lower,
 that limit gets the origin of the budget. If a read gave its own limit, a
 source-bound refusal reports `max_bytes` as its `from`. The report uses `ms`,
-`bytes`, `sources` or `runs` for its numeric field. See [bounds and their inputs](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+`bytes`, `sources` or `runs` for its numeric field. See [bounds and their inputs](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 ## Configuration script and request
 
@@ -1273,7 +1271,7 @@ kind is not `review`.
 The entry exports constants and defines public functions with the parameter counts below.
 Other constants and functions can serve as helpers.
 Top-level statements run once before the loader and selection.
-See [define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request).
+See [define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request).
 
 | Declaration | Contract |
 |---|---|
@@ -1300,7 +1298,7 @@ The selection request is a Rhai map. Every documented field is present.
 An absent optional input has the value `()`, Rhai's empty value, not an empty
 string. The request carries data and limits, never the session-result context.
 
-Fragment: a real request, from the checkout build on 2026-10-28. The
+Fragment: a real request, from the checkout build on 2026-10-29. The
 configuration script printed `ravel::json_encode(request)`, and the Ravel CLI wrote that line on
 standard error. This block omits the other lines and the command.
 
@@ -1312,19 +1310,19 @@ The caller gave `--kind review`, `--param repo=ravel`, `--task-id T-17` and
 `--prompt-file review-prompt.txt`, the prompt file of chapter 1's review. The
 prompt keeps each newline of the file, also the last one, which JSON shows as
 `\n`. JSON shows each `()` as `null`, so `context` and `taskFile` were `()` in
-the script. See [read the request](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request).
+the script. See [read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request).
 
 | Field | Value and limits | Taught in |
 |---|---|---|
-| `schemaVersion` | Always the integer `3`, the version of the interface between Ravel and the configuration script. The selection context has its own `schemaVersion`, `1`. | [Read the request](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
+| `schemaVersion` | Always the integer `3`, the version of the interface between Ravel and the configuration script. The selection context has its own `schemaVersion`, `1`. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `kind` | Required nonempty caller token, unchanged from `--kind`. Ravel defines no catalogue. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `prompt` | Required UTF-8 string, possibly empty, with a maximum of 1,048,576 bytes and no NUL. The caller bytes and newlines stay unchanged. The configuration script chooses how to give them to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `cwd` | The caller's working directory as data. Relative input paths and selected program paths resolve from it. The worker starts in a private directory. The script cannot change that directory or read files directly. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `params` | String values by caller-supplied name, or `#{}` if there are none. Names are nonempty without `=`. Ravel refuses a duplicate name. All names and values together have a maximum of 65,536 bytes. | [Caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskFile` | Absolute UTF-8 path from `--task-file`, or `()`. Ravel does not canonicalise or read it, and the file does not have to exist. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskId` | Nonempty opaque UTF-8 string of at most 1,024 bytes, or `()`. It names no Ravel record. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `context` | The caller's checked selection context, or `()`, before Ravel attaches `measured`. A loader sees this input, also when it returns different data for `select`. | [Caller and delivered documents](04-writing-an-owner-policy.md#supply-selection-context) |
-| `limits` | Required map with the seven effective fields in [Bounds](#bounds). A change to this map cannot change enforcement. | [Effective bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `context` | The caller's checked selection context, or `()`, before Ravel attaches `measured`. A loader sees this input, also when it returns different data for `select`. | [Caller and delivered documents](04-write-a-configuration-script.md#supply-selection-context) |
+| `limits` | Required map with the seven effective fields in [Bounds](#bounds). A change to this map cannot change enforcement. | [Effective bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 
 ## Selection and refusal
 
@@ -1346,17 +1344,17 @@ All seven fields are required, and Ravel refuses unknown fields. Ravel
 validates the shape, then resolves the program. It does not check that the
 prompt is in the arguments or that the labels describe the actual program.
 The [contents entry](#contents-of-a-configuration-script) shows a real selection, and the table
-gives its values. See [select a command](04-writing-an-owner-policy.md#select-a-command-or-refuse).
+gives its values. See [select a command](04-write-a-configuration-script.md#select-a-command-or-refuse).
 
 | Field | Accepted value and effect | Taught in |
 |---|---|---|
-| `status` | Literal `"selected"`. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `status` | Literal `"selected"`. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `program` | Nonblank string without NUL. It is an absolute path, a path relative to the caller that contains `/`, or a bare name that Ravel finds through the caller's `PATH`. It also supplies `argv[0]`. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `args` | Array of strings after `program`. Ravel accepts an empty array and empty strings, but not NUL. Each string is one argument. Ravel does no word splitting, shell expansion or template interpretation. | [Construct arguments](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `provider` | Nonblank owner label for the model origin. Ravel reports it as given. Ravel does not infer it or use it to contact a provider. | [Selection labels](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `model` | Nonblank owner label. It does not have to occur in `args`, and it does not configure the selected program by itself. | [Selection labels](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `effort` | Nonblank owner label. Ravel defines no effort levels and does not change this label into a flag. | [Selection labels](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `reason` | Nonblank explanation by the owner. Ravel reports it verbatim in routing diagnostics. | [Selection labels](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `args` | Array of strings after `program`. Ravel accepts an empty array and empty strings, but not NUL. Each string is one argument. Ravel does no word splitting, shell expansion or template interpretation. | [Construct arguments](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `provider` | Nonblank owner label for the model origin. Ravel reports it as given. Ravel does not infer it or use it to contact a provider. | [Selection labels](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `model` | Nonblank owner label. It does not have to occur in `args`, and it does not configure the selected program by itself. | [Selection labels](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `effort` | Nonblank owner label. Ravel defines no effort levels and does not change this label into a flag. | [Selection labels](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `reason` | Nonblank explanation by the owner. Ravel reports it verbatim in routing diagnostics. | [Selection labels](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 
 ### `Refused`
 
@@ -1368,15 +1366,15 @@ managed process and tries no other route.
 
 A valid refusal reports Ravel's `config_refused`,
 status 3, with the owner's code beside it as `configCode`. The stage is
-`selection` for `select` and `context` for `load_context`. See [return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse)
-and [refuse from a loader](04-writing-an-owner-policy.md#supply-selection-context).
+`selection` for `select` and `context` for `load_context`. See [return a refusal](04-write-a-configuration-script.md#select-a-command-or-refuse)
+and [refuse from a loader](04-write-a-configuration-script.md#supply-selection-context).
 
 | Field | Accepted value and effect | Taught in |
 |---|---|---|
-| `status` | Literal `"refused"`. | [Return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `code` | Nonblank owner-defined string. It is separate from the namespace of Ravel's diagnostic codes. | [Return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `message` | Nonblank explanation of what prevents selection. | [Return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `remedy` | Nonblank action that the caller or owner can take. | [Return a refusal](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
+| `status` | Literal `"refused"`. | [Return a refusal](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `code` | Nonblank owner-defined string. It is separate from the namespace of Ravel's diagnostic codes. | [Return a refusal](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `message` | Nonblank explanation of what prevents selection. | [Return a refusal](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `remedy` | Nonblank action that the caller or owner can take. | [Return a refusal](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 
 What does the caller receive after a refusal? The configuration script of the
 [contents entry](#contents-of-a-configuration-script) refuses the kind `deploy` with the code
@@ -1399,7 +1397,7 @@ omits the
 command and its status, 3.
 
 ```text
-ravel: refused (config_refused, stage selection): the policy /private/tmp/ch6/refuse.rhai refused the selection: This configuration script has no rule for the kind deploy.
+ravel: refused (config_refused, stage selection): the configuration script /private/tmp/ch6/refuse.rhai refused the selection: This configuration script has no rule for the kind deploy.
   input: --kind deploy
   source: /private/tmp/ch6/refuse.rhai
   config code: unknown_kind
@@ -1407,7 +1405,7 @@ ravel: refused (config_refused, stage selection): the policy /private/tmp/ch6/re
 ```
 
 `config_refused` is Ravel's code. `unknown_kind` is the code of the owner,
-from the refusal map. The words “the policy” in the first line are Ravel's own
+from the refusal map. The words “the configuration script” in the first line are Ravel's own
 diagnostic words for the configuration script. With `--json`, the same failure is a
 [JSON failure document](#json-failure-document). In a JSON failure document,
 `error.code`, `error.stage` and `error.exit` identify a Ravel failure. These
@@ -1424,47 +1422,47 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 
 | Code | Stage | Status | Meaning and remedy | Taught in |
 |---|---|---|---|---|
-| `malformed_input` | `cli` | 2 | Invalid CLI input, numeric setting or grant name. Correct the named input and range. An invalid setting fails even with a valid flag. | [Inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `malformed_input` | `cli` | 2 | Invalid CLI input, numeric setting or grant name. Correct the named input and range. An invalid setting fails even with a valid flag. | [Inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `prompt_unreadable` | `cli` | 2 | Ravel cannot open or read the prompt file, or the file is a terminal. Supply a readable file that is not a terminal, or use `--prompt`. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `prompt_invalid` | `cli` | 2 | The prompt is invalid UTF-8, contains NUL or is larger than 1 MiB. Correct the encoding or the content, or make the prompt shorter. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `settings_invalid` | `cli` | 2 | The settings file, a key or a nested entry is invalid. Correct the named location to the five optional settings and their documented shapes. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `excluded_grant` | `cli` | 2 | A grant in the settings or in a flag names a reserved variable or prefix. Remove the grant. A grant cannot replace the startup controls of the Rhai worker. | [Grants](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `settings_invalid` | `cli` | 2 | The settings file, a key or a nested entry is invalid. Correct the named location to the five optional settings and their documented shapes. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `excluded_grant` | `cli` | 2 | A grant in the settings or in a flag names a reserved variable or prefix. Remove the grant. A grant cannot replace the startup controls of the Rhai worker. | [Grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `confinement_unusable` | `cli` | 2 | Ravel cannot use the backend or the confinement inputs. Correct the named backend or path. No unconfined launch runs in its place. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
 | `confinement_overlap` | `cli` | 2 | A grant overlaps the directory of the configuration script or the settings. Separate the paths, also their canonical symlink targets. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
 | `exit_dir_unusable` | `cli` | 2 | The parent of the result channel is unusable. Name a writable directory that exists, or omit `--exit-dir`. | [Channel placement](05-running-sessions.md#confine-the-managed-process) |
 | `cwd_unavailable` | `authority` | 3 | Ravel cannot get the caller's directory. Run from a readable directory that exists. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `home_unset` | `authority` | 3 | The default entry has no absolute `HOME`. Set an absolute `HOME` or use `--config`. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `config_missing` | `authority` | 3 | The chosen entry does not exist. Create it or correct `--config`. Ravel does no search. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `config_unreadable` | `authority` | 3 | The entry is not a readable regular UTF-8 file within 1 MiB, or its path or extension is unusable. Supply a valid `.rhai` entry. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `worker_missing` | `worker` | 5 | Ravel cannot locate or re-execute its own binary as the Rhai worker. Repair the installation or execute permissions. | [Validate with fake agents](04-writing-an-owner-policy.md#validate-a-configuration-script-with-fake-agents) |
-| `worker_identity_mismatch` | `worker` | 5 | The re-executed worker reports a different protocol, package, build or Rhai identity. Reinstall Ravel and start a new invocation. | [Validate with fake agents](04-writing-an-owner-policy.md#validate-a-configuration-script-with-fake-agents) |
+| `home_unset` | `authority` | 3 | The default entry has no absolute `HOME`. Set an absolute `HOME` or use `--config`. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `config_missing` | `authority` | 3 | The chosen entry does not exist. Create it or correct `--config`. Ravel does no search. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `config_unreadable` | `authority` | 3 | The entry is not a readable regular UTF-8 file within 1 MiB, or its path or extension is unusable. Supply a valid `.rhai` entry. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `worker_missing` | `worker` | 5 | Ravel cannot locate or re-execute its own binary as the Rhai worker. Repair the installation or execute permissions. | [Validate with fake agents](04-write-a-configuration-script.md#validate-a-configuration-script-with-fake-agents) |
+| `worker_identity_mismatch` | `worker` | 5 | The re-executed worker reports a different protocol, package, build or Rhai identity. Reinstall Ravel and start a new invocation. | [Validate with fake agents](04-write-a-configuration-script.md#validate-a-configuration-script-with-fake-agents) |
 | `worker_failed` | `worker` | 5 | The preparation, execution or required teardown of the worker failed. Examine the retained operation details, and repair the installation or the named resource. | [Operational failures](05-running-sessions.md#read-notices-separately-from-results) |
-| `protocol_error` | `worker` | 5 | The private worker conversation is malformed or closed unexpectedly. Retain the diagnostics and reinstall or rebuild Ravel. | [Validate with fake agents](04-writing-an-owner-policy.md#validate-a-configuration-script-with-fake-agents) |
-| `selection_timeout` | `evaluation` | 124 | The whole deadline expired during worker startup, imports, loader, selection or host calls. Reduce the work or increase the permitted deadline. Failed harness cleanup can replace this outcome. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
+| `protocol_error` | `worker` | 5 | The private worker conversation is malformed or closed unexpectedly. Retain the diagnostics and reinstall or rebuild Ravel. | [Validate with fake agents](04-write-a-configuration-script.md#validate-a-configuration-script-with-fake-agents) |
+| `selection_timeout` | `evaluation` | 124 | The whole deadline expired during worker startup, imports, loader, selection or host calls. Reduce the work or increase the permitted deadline. Failed harness cleanup can replace this outcome. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `selection_cancelled` | `evaluation` | 129/130/143 | HUP, INT or TERM ended the selection. Retain the teardown reports, and try again only if the caller still wants the work. Termination by the signal is the usual outcome at the process level. | [Selection cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `output_limit` | `evaluation` | 3 | The standard output and standard error of the worker together are larger than 262,144 bytes (256 KiB). Print less. The retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `config_import_failed` | `load` | 3 | A module read, import cycle, module-count breach or top-level execution failed. Correct the file, import chain or top-level code. | [Import other Rhai files](04-writing-an-owner-policy.md#import-other-rhai-files) |
-| `config_invalid` | `validation` | 3 | A required export is absent or mistyped, or a function is private or has the wrong parameter count. Supply the exports and functions of [the contents entry](#contents-of-a-configuration-script). | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `unsupported_version` | `validation or context` | 3 | The `SCHEMA_VERSION` of the configuration script is not 3, or the `schemaVersion` of the selection context is not 1. Supply the supported shape, not only its version number. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `message_too_large` | `selection` | 3 | A host request, selection result or failure frame exceeds the 1 MiB worker-message bound. Reduce the data. The delivered selection context has its separate budget. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `context_unreadable` | `context` | 3 | Ravel cannot read the caller document as a regular file with a canonical UTF-8 path. Correct `--context` or omit it. | [Selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `context_invalid` | `context` | 3 | The caller or loader document is invalid JSON, or it has invalid fields or data. Or the loader returned nothing, unserialisable data or a malformed refusal. Correct the named location to valid selection context or a valid refusal. | [Selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `context_too_large` | `context` | 3 | The caller bytes, or the delivered JSON with the measurements, are larger than the budget. Deliver less, or increase `contextBytes` or `--context-bytes` within its range. | [Selection-context budget](04-writing-an-owner-policy.md#supply-selection-context) |
-| `context_loader_failed` | `context` | 3 | An ordinary error escaped `load_context`. Correct the source or handle the data error. No selection follows without the required selection context. | [Selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `source_too_large` | `context` | 3 | A source exceeds its read limit, or `max_bytes` exceeds the context budget. Read less or use an allowed limit. No `try` can prevent refusal. | [Selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `too_many_sources` | `context` | 3 | Measured reads, with the caller document and failed UTF-8 or JSON conversion, exhausted 256 sources. Or attributed sources exceed 256. Read or attribute fewer sources. | [Selection context](04-writing-an-owner-policy.md#supply-selection-context) |
-| `config_refused` | `selection` or `context` | 3 | `select` or the loader returned a valid refusal. Follow its `configCode`, message and remedy, which the owner supplied. No alternative route runs. | [Refusals](04-writing-an-owner-policy.md#select-a-command-or-refuse), [loader refusals](04-writing-an-owner-policy.md#supply-selection-context) |
-| `selection_abstained` | `selection` | 3 | `select` returned `()`. Return a selected or refused map on every path. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `selection_malformed` | `selection` | 3 | The result has the wrong shape, fields or types, or contains NUL, or Ravel cannot serialise it. Correct the named location to `Selected` or `Refused`. | [Selection shape](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `selection_threw` | `selection` | 3 | An ordinary error escaped `select`. Correct the reported source location or handle the data error. To decline intentionally, return a refusal map. | [Select or refuse](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| `config_parse_failed` | `load` | 3 | The entry or an imported module does not compile. Correct the syntax or undefined variable at the source location. | [Validate with fake agents](04-writing-an-owner-policy.md#validate-a-configuration-script-with-fake-agents) |
-| `config_format_retired` | `authority` | 3 | The selected entry uses a retired format. Supply a Rhai configuration script, as chapter 4 teaches. No compatibility path runs. | [Define a configuration script](04-writing-an-owner-policy.md#define-a-configuration-script-and-read-the-request) |
-| `config_reentry_refused` | `authority` | 3 | `start-session` inherited `RAVEL_CONFIG_RUN` from an evaluation harness run. Call the function of the route in the configuration script directly, not another session. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
-| `host_request_invalid` | `load, context or selection` | 3 | A host call has an invalid argument type, field or value. Correct the function and field at the reported location. This failure is not catchable. | [Data helpers](04-writing-an-owner-policy.md#check-json-with-the-data-helpers) |
-| `script_limit` | `evaluation` | 3 | The configuration script exceeded an engine bound. Reduce its operations, recursion or data size. A `try` block cannot suppress this failure. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `memory_limit` | `evaluation` | 3 | The worker exceeded its 1 GiB heap bound. Reduce retained data. The worker exits, and no managed launch follows. | [Settings and bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings) |
-| `harness_budget_exhausted` | `evaluation` | 3 | The configuration script requested a harness run with no runs left. Reduce calls or raise `budgets.harnessRuns` in the settings, at most to 16. No caller flag raises it. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
-| `harness_cleanup_failed` | `evaluation` | 5 | A harness run left a group, failed reap or failed required cleanup. Retain the reports and inspect the named resources. This failure replaces an evaluation deadline. | [Harness runs](04-writing-an-owner-policy.md#run-a-harness-during-evaluation) |
+| `output_limit` | `evaluation` | 3 | The standard output and standard error of the worker together are larger than 262,144 bytes (256 KiB). Print less. The retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `config_import_failed` | `load` | 3 | A module read, import cycle, module-count breach or top-level execution failed. Correct the file, import chain or top-level code. | [Import other Rhai files](04-write-a-configuration-script.md#import-other-rhai-files) |
+| `config_invalid` | `validation` | 3 | A required export is absent or mistyped, or a function is private or has the wrong parameter count. Supply the exports and functions of [the contents entry](#contents-of-a-configuration-script). | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `unsupported_version` | `validation or context` | 3 | The `SCHEMA_VERSION` of the configuration script is not 3, or the `schemaVersion` of the selection context is not 1. Supply the supported shape, not only its version number. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `message_too_large` | `selection` | 3 | A host request, selection result or failure frame exceeds the 1 MiB worker-message bound. Reduce the data. The delivered selection context has its separate budget. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `context_unreadable` | `context` | 3 | Ravel cannot read the caller document as a regular file with a canonical UTF-8 path. Correct `--context` or omit it. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `context_invalid` | `context` | 3 | The caller or loader document is invalid JSON, or it has invalid fields or data. Or the loader returned nothing, unserialisable data or a malformed refusal. Correct the named location to valid selection context or a valid refusal. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `context_too_large` | `context` | 3 | The caller bytes, or the delivered JSON with the measurements, are larger than the budget. Deliver less, or increase `contextBytes` or `--context-bytes` within its range. | [Selection-context budget](04-write-a-configuration-script.md#supply-selection-context) |
+| `context_loader_failed` | `context` | 3 | An ordinary error escaped `load_context`. Correct the source or handle the data error. No selection follows without the required selection context. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `source_too_large` | `context` | 3 | A source exceeds its read limit, or `max_bytes` exceeds the context budget. Read less or use an allowed limit. No `try` can prevent refusal. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `too_many_sources` | `context` | 3 | Measured reads, with the caller document and failed UTF-8 or JSON conversion, exhausted 256 sources. Or attributed sources exceed 256. Read or attribute fewer sources. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
+| `config_refused` | `selection` or `context` | 3 | `select` or the loader returned a valid refusal. Follow its `configCode`, message and remedy, which the owner supplied. No alternative route runs. | [Refusals](04-write-a-configuration-script.md#select-a-command-or-refuse), [loader refusals](04-write-a-configuration-script.md#supply-selection-context) |
+| `selection_abstained` | `selection` | 3 | `select` returned `()`. Return a selected or refused map on every path. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `selection_malformed` | `selection` | 3 | The result has the wrong shape, fields or types, or contains NUL, or Ravel cannot serialise it. Correct the named location to `Selected` or `Refused`. | [Selection shape](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `selection_threw` | `selection` | 3 | An ordinary error escaped `select`. Correct the reported source location or handle the data error. To decline intentionally, return a refusal map. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `config_parse_failed` | `load` | 3 | The entry or an imported module does not compile. Correct the syntax or undefined variable at the source location. | [Validate with fake agents](04-write-a-configuration-script.md#validate-a-configuration-script-with-fake-agents) |
+| `config_format_retired` | `authority` | 3 | The selected entry uses a retired format. Supply a Rhai configuration script, as chapter 4 teaches. No compatibility path runs. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `config_reentry_refused` | `authority` | 3 | `start-session` inherited `RAVEL_CONFIG_RUN` from an evaluation harness run. Call the function of the route in the configuration script directly, not another session. | [Harness runs](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
+| `host_request_invalid` | `load, context or selection` | 3 | A host call has an invalid argument type, field or value. Correct the function and field at the reported location. This failure is not catchable. | [Data helpers](04-write-a-configuration-script.md#check-json-with-the-data-helpers) |
+| `script_limit` | `evaluation` | 3 | The configuration script exceeded an engine bound. Reduce its operations, recursion or data size. A `try` block cannot suppress this failure. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `memory_limit` | `evaluation` | 3 | The worker exceeded its 1 GiB heap bound. Reduce retained data. The worker exits, and no managed launch follows. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `harness_budget_exhausted` | `evaluation` | 3 | The configuration script requested a harness run with no runs left. Reduce calls or raise `budgets.harnessRuns` in the settings, at most to 16. No caller flag raises it. | [Harness runs](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
+| `harness_cleanup_failed` | `evaluation` | 5 | A harness run left a group, failed reap or failed required cleanup. Retain the reports and inspect the named resources. This failure replaces an evaluation deadline. | [Harness runs](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
 | `program_not_found` | `resolution` | 127 | The selected path does not exist, or no entry of the caller's `PATH` has the bare name. Correct the path or `PATH`. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `program_unexecutable` | `resolution` | 126 | The selected file is not an executable regular file, or Ravel cannot search the caller's `PATH` for a bare name. Correct the permissions, the file or `PATH`. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 
@@ -1498,7 +1496,7 @@ not authority to execute a command. Do not confuse it with the
 session-result context, the path in `RAVEL_EXIT_FILE`.
 
 Fragment: a real caller document and the delivered selection context that
-`select` received, from the checkout build on 2026-10-28. The caller gave
+`select` received, from the checkout build on 2026-10-29. The caller gave
 `--context context.json`, and the configuration script printed
 `ravel::json_encode(context)`. This block omits the command and the other
 lines on standard error.
@@ -1519,16 +1517,16 @@ Selection context is a JSON document. `--context` supplies it, or
 known empty object, array or string. Ravel refuses unknown top-level fields,
 for example `program`, `args`, `argv`, `command`, `select`, `load_context`, `env`,
 `environment`, `exec`, `shell` and `script`. These names inside free-form JSON
-facts stay data. See [supply selection context](04-writing-an-owner-policy.md#supply-selection-context).
+facts stay data. See [supply selection context](04-write-a-configuration-script.md#supply-selection-context).
 
 | Field | Accepted value | Taught in |
 |---|---|---|
-| `schemaVersion` | Required number `1`. The selection request has its own `schemaVersion`, `3`. | [Selection-context shape](04-writing-an-owner-policy.md#supply-selection-context) |
-| `summary` | Optional string, which can be empty. | [Selection-context shape](04-writing-an-owner-policy.md#supply-selection-context) |
-| `acceptanceCriteria` | Optional array of strings. The array and the strings can be empty. | [Selection-context shape](04-writing-an-owner-policy.md#supply-selection-context) |
-| `facts` | Optional object that maps names to JSON values. A fact is data. Ravel never runs it as a command. | [Selection-context shape](04-writing-an-owner-policy.md#supply-selection-context) |
-| `assessments` | Optional object that maps names to attributed `{ by, value }` objects. | [Attributed judgements](04-writing-an-owner-policy.md#supply-selection-context) |
-| `sources` | Optional array of 256 or fewer attributed source records. These records are separate from measured reads. A record does not cause the read of a file. | [Source attribution](04-writing-an-owner-policy.md#supply-selection-context) |
+| `schemaVersion` | Required number `1`. The selection request has its own `schemaVersion`, `3`. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
+| `summary` | Optional string, which can be empty. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
+| `acceptanceCriteria` | Optional array of strings. The array and the strings can be empty. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
+| `facts` | Optional object that maps names to JSON values. A fact is data. Ravel never runs it as a command. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
+| `assessments` | Optional object that maps names to attributed `{ by, value }` objects. | [Attributed judgements](04-write-a-configuration-script.md#supply-selection-context) |
+| `sources` | Optional array of 256 or fewer attributed source records. These records are separate from measured reads. A record does not cause the read of a file. | [Source attribution](04-write-a-configuration-script.md#supply-selection-context) |
 
 The delivered selection-context map adds `measured` to the accepted document. Neither the caller nor the loader supplies that field.
 Without a loader, selection receives the caller document with the
@@ -1537,7 +1535,7 @@ measurements, or `()` if there is no document.
 A loader replaces the document that `select` receives, but `request.context`
 still gives the caller's original input. Ravel does not merge the two
 automatically. Ravel refuses a loader that returns nothing. See
-[caller and delivered documents](04-writing-an-owner-policy.md#supply-selection-context).
+[caller and delivered documents](04-write-a-configuration-script.md#supply-selection-context).
 
 `measured` holds the successful reads in order. The caller's `--context`
 document comes first when present, then successful `load_context` reads,
@@ -1548,7 +1546,7 @@ The separate limit of this list is 256 records. The
 compact encoding of the whole delivered document, with this list, must fit
 `contextBytes`. Source attribution and measurement do not prove who the
 author was or that a claim is true. See
-[measurement and its limits](04-writing-an-owner-policy.md#supply-selection-context).
+[measurement and its limits](04-write-a-configuration-script.md#supply-selection-context).
 
 ### Nested data and measured records
 
@@ -1559,23 +1557,23 @@ document as `context_invalid` and names a field.
 JSON data allows null, booleans, finite numbers, strings, arrays and objects of
 JSON values. Ravel cannot deliver cycles, executable values or other values
 that are not JSON. An object whose only key is `$ravel` is ordinary JSON data. See
-[JSON data in selection context](04-writing-an-owner-policy.md#supply-selection-context).
+[JSON data in selection context](04-write-a-configuration-script.md#supply-selection-context).
 
 | Type and field | Accepted value or meaning | Taught in |
 |---|---|---|
-| `Assessment.by` | Required nonblank string that names who made the judgement. | [Assessments](04-writing-an-owner-policy.md#supply-selection-context) |
-| `Assessment.value` | Required JSON value. Null is valid. Ravel refuses unknown assessment fields. | [Assessments](04-writing-an-owner-policy.md#supply-selection-context) |
-| `SourceRecord.name` | Required nonblank name, such as a path, URL or evidence label. It does not cause a read. | [Attributed sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `SourceRecord.sha256` | Optional digest of exactly 64 lowercase hexadecimal digits. At least this field or `version` is required. | [Attributed sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `SourceRecord.version` | Optional nonblank version string. At least this field or `sha256` is required. Ravel accepts both. | [Attributed sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `SourceRecord.bytes` | Optional nonnegative whole-number byte count. Ravel refuses unknown source-record fields. | [Attributed sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `MeasuredSource.name` | Required canonical file path of the source that Ravel measured. | [Measured sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `MeasuredSource.via` | Required `"--context"`, `"read_text"` or `"read_json"`. It identifies the read. | [Measured sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `MeasuredSource.bytes` | Required count of the bytes that Ravel actually read, before it parses any JSON. | [Measured sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `MeasuredSource.sha256` | Required lowercase SHA-256 digest of those bytes. | [Measured sources](04-writing-an-owner-policy.md#supply-selection-context) |
-| `ReadSource.name` | Required canonical file path that the host returns beside the content of a read. | [Host reads](04-writing-an-owner-policy.md#supply-selection-context) |
-| `ReadSource.bytes` | Required actual byte count that the host returns. | [Host reads](04-writing-an-owner-policy.md#supply-selection-context) |
-| `ReadSource.sha256` | Required lowercase SHA-256 of the bytes that the host read. The configuration script can put the three-field object in the attributed `sources`. | [Host reads](04-writing-an-owner-policy.md#supply-selection-context) |
+| `Assessment.by` | Required nonblank string that names who made the judgement. | [Assessments](04-write-a-configuration-script.md#supply-selection-context) |
+| `Assessment.value` | Required JSON value. Null is valid. Ravel refuses unknown assessment fields. | [Assessments](04-write-a-configuration-script.md#supply-selection-context) |
+| `SourceRecord.name` | Required nonblank name, such as a path, URL or evidence label. It does not cause a read. | [Attributed sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `SourceRecord.sha256` | Optional digest of exactly 64 lowercase hexadecimal digits. At least this field or `version` is required. | [Attributed sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `SourceRecord.version` | Optional nonblank version string. At least this field or `sha256` is required. Ravel accepts both. | [Attributed sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `SourceRecord.bytes` | Optional nonnegative whole-number byte count. Ravel refuses unknown source-record fields. | [Attributed sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `MeasuredSource.name` | Required canonical file path of the source that Ravel measured. | [Measured sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `MeasuredSource.via` | Required `"--context"`, `"read_text"` or `"read_json"`. It identifies the read. | [Measured sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `MeasuredSource.bytes` | Required count of the bytes that Ravel actually read, before it parses any JSON. | [Measured sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `MeasuredSource.sha256` | Required lowercase SHA-256 digest of those bytes. | [Measured sources](04-write-a-configuration-script.md#supply-selection-context) |
+| `ReadSource.name` | Required canonical file path that the host returns beside the content of a read. | [Host reads](04-write-a-configuration-script.md#supply-selection-context) |
+| `ReadSource.bytes` | Required actual byte count that the host returns. | [Host reads](04-write-a-configuration-script.md#supply-selection-context) |
+| `ReadSource.sha256` | Required lowercase SHA-256 of the bytes that the host read. The configuration script can put the three-field object in the attributed `sources`. | [Host reads](04-write-a-configuration-script.md#supply-selection-context) |
 
 ### Host capabilities
 
@@ -1595,7 +1593,7 @@ worker and send no request.
 The `ravel` namespace supplies the functions below at the module's top level,
 in `load_context` and in `select`.
 Calls are synchronous, so only one host call runs at a time.
-See [host capabilities](04-writing-an-owner-policy.md#check-json-with-the-data-helpers).
+See [host capabilities](04-write-a-configuration-script.md#check-json-with-the-data-helpers).
 
 | Function | Arguments, return value and failure |
 |---|---|
@@ -1634,7 +1632,7 @@ The source-count check occurs before the read, also a request for an absent file
 The path helpers read no file and resolve no symlink.
 `path_resolve` removes empty and `.` segments and applies `..` without a step above `/`.
 `path_parent` keeps the spelling that remains: `/a//b` gives `/a/`, and `/a/./b` gives `/a/.`.
-See [data helpers](04-writing-an-owner-policy.md#check-json-with-the-data-helpers) for their use.
+See [data helpers](04-write-a-configuration-script.md#check-json-with-the-data-helpers) for their use.
 
 ### JSON values and schema checks
 
@@ -1647,7 +1645,7 @@ keywords that the check accepts.
 Values that cross between the configuration script and Ravel use this conversion.
 Arrays and maps nest at most 100 levels.
 A conversion failure identifies the value's location, such as `result.args[2]`.
-See [data conversion](04-writing-an-owner-policy.md#check-json-with-the-data-helpers).
+See [data conversion](04-write-a-configuration-script.md#check-json-with-the-data-helpers).
 
 | Rhai value | JSON value or outcome |
 |---|---|
@@ -1696,7 +1694,7 @@ selected program, and it tells the script whether it found an executable file.
 It reports availability, not a recommendation or live model list.
 
 Fragment: the value that `ravel::harnesses()` returned with the settings of
-the [settings entry](#settingsjson), from the checkout build on 2026-10-28.
+the [settings entry](#settingsjson), from the checkout build on 2026-10-29.
 The configuration script printed it with `ravel::json_encode`. This block omits the command
 and the other lines.
 
@@ -1705,7 +1703,7 @@ config stdout: [{"available":true,"capabilities":["classify"],"name":"classifier
 ```
 
 Each map contains these fields.
-See [discover harnesses](04-writing-an-owner-policy.md#run-a-harness-during-evaluation).
+See [discover harnesses](04-write-a-configuration-script.md#run-a-harness-during-evaluation).
 
 | Field | Value |
 |---|---|
@@ -1719,7 +1717,7 @@ See [discover harnesses](04-writing-an-owner-policy.md#run-a-harness-during-eval
 You may want the configuration script to decide whether it has time and budget for one more
 harness run. `ravel::remaining()` returns the following map for this evaluation.
 It changes no budget. Each nested session in the final managed process has its own budgets.
-See [evaluation bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+See [evaluation bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Field | Value |
 |---|---|
@@ -1762,7 +1760,7 @@ the configuration script.
 `ravel::run_harness(request)` executes a program that the `harnesses` settings name.
 It evaluates no configuration script and selects no final command.
 The request is a map with these fields and no others.
-See [run a harness](04-writing-an-owner-policy.md#run-a-harness-during-evaluation).
+See [run a harness](04-write-a-configuration-script.md#run-a-harness-during-evaluation).
 
 | Field | Contract |
 |---|---|
@@ -1794,7 +1792,7 @@ A natural exit does not need an `end-session` value.
 The configuration script interprets the status, output and optional result.
 
 Fragment: the map that `ravel::run_harness` returned for a fake classifier,
-from the checkout build on 2026-10-28. The classifier wrote `review` and
+from the checkout build on 2026-10-29. The classifier wrote `review` and
 exited. The configuration script printed the map with `ravel::json_encode`. This block omits
 the command and the other lines.
 
@@ -1807,7 +1805,7 @@ The run exited with status 0 after 389 milliseconds. It did not use
 was on standard output. The value of `elapsedMs` changes in each run.
 
 Every returned map has the following fields.
-See [interpret harness results](04-writing-an-owner-policy.md#run-a-harness-during-evaluation).
+See [interpret harness results](04-write-a-configuration-script.md#run-a-harness-during-evaluation).
 
 | Field | Value and meaning |
 |---|---|
@@ -1843,7 +1841,7 @@ These codes reach the script as data. They have no independent CLI exit status.
 A thrown helper error can reach `catch`.
 If it escapes, Ravel reports `config_import_failed`, `context_loader_failed` or `selection_threw`, as the evaluation phase requires.
 Unavailable-run errors instead appear in `run.error`.
-See [catchable errors](04-writing-an-owner-policy.md#let-a-repository-choose-an-arrangement) and [harness outcomes](04-writing-an-owner-policy.md#run-a-harness-during-evaluation).
+See [catchable errors](04-write-a-configuration-script.md#let-a-repository-choose-an-arrangement) and [harness outcomes](04-write-a-configuration-script.md#run-a-harness-during-evaluation).
 
 | Code | Origin and remedy |
 |---|---|
@@ -1876,7 +1874,7 @@ from several configuration scripts. A Rhai `import` statement does this.
 A relative import resolves from the directory of the file that imports it.
 An absolute import uses its own path.
 An entry that is a symlink uses the directory of its real file.
-See [import other Rhai files](04-writing-an-owner-policy.md#import-other-rhai-files).
+See [import other Rhai files](04-write-a-configuration-script.md#import-other-rhai-files).
 
 | Import property | Rule |
 |---|---|
@@ -1903,7 +1901,7 @@ Ravel uses the same bounds in both development and release builds.
 An engine limit ends evaluation as `script_limit`, status 3.
 The worker heap bound gives `memory_limit`, status 3.
 A `try` block cannot catch either, also inside an array or map callback.
-See [evaluation bounds](04-writing-an-owner-policy.md#set-bounds-and-environment-grants-in-the-settings).
+See [evaluation bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings).
 
 | Bound | Fixed value and consequence |
 |---|---|
@@ -1949,7 +1947,7 @@ The examples are editable Rhai files under `share/ravel/examples/`.
 Their checkout source is `crates/ravel/examples/`.
 Copy the files that your chosen example imports, then replace the placeholder commands and labels.
 Ravel installs no personal configuration script and has no `init` command.
-See [copy a configuration script and its files](04-writing-an-owner-policy.md#copy-a-configuration-script-and-its-files).
+See [copy a configuration script and its files](04-write-a-configuration-script.md#copy-a-configuration-script-and-its-files).
 
 | File | Behaviour and dependencies |
 |---|---|
@@ -1967,7 +1965,7 @@ These names belong to the sample, not Ravel's vocabulary.
 The choice sample reads at most 4,096 bytes and splits names at whitespace.
 It preserves their order and duplicates, and searches no parent directory.
 Successful reads appear in the notice.
-See [let a repository choose an arrangement](04-writing-an-owner-policy.md#let-a-repository-choose-an-arrangement).
+See [let a repository choose an arrangement](04-write-a-configuration-script.md#let-a-repository-choose-an-arrangement).
 
 | Choice input | Outcome |
 |---|---|
@@ -1983,8 +1981,8 @@ See [let a repository choose an arrangement](04-writing-an-owner-policy.md#let-a
 It accepts only an allowed table key from a successful structured answer.
 After an unavailable, unsuccessful or invalid answer, it uses the caller's kind instead.
 An exhausted budget or whole deadline still ends evaluation.
-The [Claude Code recipe](04-writing-an-owner-policy.md#ask-a-model-through-claude-code)
-teaches that call, and the [Codex recipe](04-writing-an-owner-policy.md#ask-a-model-through-codex)
+The [Claude Code recipe](04-write-a-configuration-script.md#ask-a-model-through-claude-code)
+teaches that call, and the [Codex recipe](04-write-a-configuration-script.md#ask-a-model-through-codex)
 teaches its file-based schema alternative.
 
 ## Installed layout

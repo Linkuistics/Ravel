@@ -1,4 +1,4 @@
-//! Actual command boundary: temporary policies and fixture processes only.
+//! Actual command boundary: temporary configuration scripts and fixture processes only.
 use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Output};
@@ -32,9 +32,9 @@ impl Fixture {
             .current_dir(self.root.join("work"));
         command
     }
-    fn start(&self, policy: &str, prompt: &str) -> Output {
+    fn start(&self, config: &str, prompt: &str) -> Output {
         let path = self.root.join("policy.rhai");
-        fs::write(&path, policy).unwrap();
+        fs::write(&path, config).unwrap();
         self.command()
             .args(["start-session", "--kind", "check", "--config"])
             .arg(path)
@@ -78,9 +78,9 @@ fn select(request, context) {{
  if barrier.status != "exited" || barrier.exitCode != 0 { throw "barrier failed"; }
  while ravel::read_text("release").text != "ready" { sleep(1); }"#,
         );
-        let policy = self.root.join("owner/policy.rhai");
-        fs::create_dir_all(policy.parent().unwrap()).unwrap();
-        fs::write(&policy, source).unwrap();
+        let config = self.root.join("owner/policy.rhai");
+        fs::create_dir_all(config.parent().unwrap()).unwrap();
+        fs::write(&config, source).unwrap();
         let diagnostics = self.root.join("diagnostics");
         let mut command = self.command();
         command
@@ -93,7 +93,7 @@ fn select(request, context) {{
                 "--confine",
                 "--config",
             ])
-            .arg(policy)
+            .arg(config)
             .stdout(std::process::Stdio::piped())
             .stderr(fs::File::create(&diagnostics).unwrap());
         if closed_stdout {
@@ -184,9 +184,9 @@ fn routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate() {
         let fixture = Fixture::new();
         let script =
             r#"printf 'child output\n'; printf '%s' "$3" >&2; "$1" end-session -- "$2"; exit 7"#;
-        let policy = fixture.selecting(script, result);
+        let config = fixture.selecting(script, result);
         let prompt = "unaltered\n prompt 🪶 --help\n";
-        let output = fixture.start(&policy, prompt);
+        let output = fixture.start(&config, prompt);
         assert!(
             output.status.success(),
             "{}",
@@ -200,10 +200,10 @@ fn routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate() {
 }
 
 #[test]
-fn refused_policy_never_launches_and_unreported_exit_is_failure() {
+fn refused_config_never_launches_and_unreported_exit_is_failure() {
     let fixture = Fixture::new();
     let refused = fixture.start(
-        &rhai::policy(
+        &rhai::rhai_script(
             r#"fn select(request, context) {
 #{status: "refused", code: "no_route", message: "no route", remedy: "choose a route"} }"#,
         ),
@@ -241,13 +241,13 @@ fn end_requires_one_result_and_live_inherited_context() {
 }
 
 #[test]
-fn context_reads_params_choice_and_environment_grants_reach_policy() {
+fn context_reads_params_choice_and_environment_grants_reach_config() {
     let fixture = Fixture::new();
     let file = fixture.root.join("work/data.json");
     fs::write(file, r#"{"answer":"from context"}"#).unwrap();
     fs::write(fixture.root.join("work/.ravel-choice"), "careful").unwrap();
-    let mut policy = fixture.selecting(r#""$1" end-session "$2""#, "unused");
-    policy = policy.replace("fn select(request, context) {", r#"fn load_context(request) {
+    let mut config = fixture.selecting(r#""$1" end-session "$2""#, "unused");
+    config = config.replace("fn select(request, context) {", r#"fn load_context(request) {
  let read = ravel::read_json("data.json");
  #{schemaVersion: 1, facts: read.value, sources: [read.source]}
 }
@@ -265,7 +265,7 @@ fn select(request, context) {
  print("policy stdout"); debug("policy stderr");"#)
         .replace("\"unused\", request.prompt", "context.facts.answer, request.prompt");
     let path = fixture.root.join("policy.rhai");
-    fs::write(&path, policy).unwrap();
+    fs::write(&path, config).unwrap();
     let output = fixture
         .command()
         .args([
@@ -305,11 +305,11 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
     let config = fixture.root.join("home/.config/ravel");
     fs::create_dir_all(&config).unwrap();
     fs::write(config.join("settings.json"), r#"{"contextBytes": 1}"#).unwrap();
-    let policy = fixture.selecting("exit 0", "unused").replace(
+    let source = fixture.selecting("exit 0", "unused").replace(
         "fn select(request, context)",
         "fn load_context(request) { #{ schemaVersion: 1, facts: #{} } } fn select(request, context)",
     );
-    let output = fixture.start(&policy, "caller");
+    let output = fixture.start(&source, "caller");
     assert_eq!(output.status.code(), Some(3));
     assert!(output.stdout.is_empty());
     assert!(String::from_utf8_lossy(&output.stderr).contains("context_too_large"));
@@ -318,7 +318,7 @@ fn settings_bounds_and_discarded_storage_refuse_without_launching() {
         format!(r#"{{"stateDir":{:?}}}"#, fixture.root.join("records")),
     )
     .unwrap();
-    let output = fixture.start(&policy, "caller");
+    let output = fixture.start(&source, "caller");
     assert_eq!(output.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&output.stderr).contains("settings_invalid"));
     assert!(!fixture.root.join("records").exists());
@@ -372,10 +372,10 @@ fn cancellation_during_selection_launches_nothing_and_during_session_reaps_group
         let fixture = Fixture::new();
         let marker = fixture.root.join("ready");
         let path = fixture.root.join("policy.rhai");
-        let policy = if selection {
+        let config = if selection {
             fixture.allow_barrier();
             let ready = format!("echo ready > {marker:?}");
-            rhai::policy(&format!(
+            rhai::rhai_script(&format!(
                 r#"fn select(request, context) {{
     let barrier = ravel::run_harness(#{{ harness: "barrier", args: ["-c", {ready:?}] }});
     if barrier.status != "exited" || barrier.exitCode != 0 {{ throw "barrier failed"; }}
@@ -388,7 +388,7 @@ fn cancellation_during_selection_launches_nothing_and_during_session_reaps_group
                 "unused",
             )
         };
-        fs::write(&path, policy).unwrap();
+        fs::write(&path, config).unwrap();
         let front = fixture
             .command()
             .args([
@@ -434,11 +434,11 @@ fn cancellation_during_selection_launches_nothing_and_during_session_reaps_group
 fn nested_command_context_is_isolated_and_first_result_wins() {
     let fixture = Fixture::new();
     let inner = fixture.root.join("inner.rhai");
-    let inner_policy = fixture.selecting(
+    let inner_config = fixture.selecting(
         r#""$1" end-session inner; "$1" end-session ignored"#,
         "unused",
     );
-    fs::write(&inner, inner_policy).unwrap();
+    fs::write(&inner, inner_config).unwrap();
     let script = r#"original=$RAVEL_EXIT_FILE; result=$("$1" start-session --kind check --config "$2" --prompt nested) || exit 91; [ "$original" = "$RAVEL_EXIT_FILE" ] || exit 92; "$1" end-session "$result|outer""#;
     let output = fixture.start(&fixture.selecting(script, inner.to_str().unwrap()), "outer");
     assert!(
@@ -451,13 +451,13 @@ fn nested_command_context_is_isolated_and_first_result_wins() {
 }
 
 #[test]
-fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_policy() {
+fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_config() {
     let fixture = Fixture::new();
     let owner = fixture.root.join("owner");
     fs::create_dir(&owner).unwrap();
-    let policy = owner.join("policy.rhai");
+    let config = owner.join("policy.rhai");
     fs::write(
-        &policy,
+        &config,
         fixture.selecting(
             r#"[ -z "${PRIVATE_TOKEN-}" ] || exit 91; "$1" end-session "$2""#,
             "confined",
@@ -475,7 +475,7 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
             "--confine",
             "--config",
         ])
-        .arg(&policy)
+        .arg(&config)
         .env("PRIVATE_TOKEN", "must not reach confined child")
         .output()
         .unwrap();
@@ -497,7 +497,7 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
             "--confine",
             "--config",
         ])
-        .arg(policy)
+        .arg(config)
         .args(["--runtime-read"])
         .arg(owner.join("policy.rhai"))
         .output()
@@ -510,10 +510,10 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_poli
 #[test]
 fn selection_deadline_stops_real_worker() {
     let fixture = Fixture::new();
-    let policy = fixture.root.join("policy.rhai");
+    let config = fixture.root.join("policy.rhai");
     fs::write(
-        &policy,
-        rhai::policy("fn select(request, context) { sleep(600); }"),
+        &config,
+        rhai::rhai_script("fn select(request, context) { sleep(600); }"),
     )
     .unwrap();
     let output = fixture
@@ -528,7 +528,7 @@ fn selection_deadline_stops_real_worker() {
             "1000",
             "--config",
         ])
-        .arg(policy)
+        .arg(config)
         .output()
         .unwrap();
     assert_eq!(output.status.code(), Some(124));
@@ -629,13 +629,13 @@ fn terminal_recovery_cli_role() {
         let script = fixture.root.join("executable");
         fs::write(&script, format!("#!{}\n", interpreter.display())).unwrap();
         fs::set_permissions(&script, fs::Permissions::from_mode(0o700)).unwrap();
-        let policy = format!(
+        let config = format!(
             r#"export const SCHEMA_VERSION = 3;
 export const VERSION = "C4-cli";
 fn select(request, context) {{ #{{ status: "selected", program: {:?}, args: [], provider: "fixture", model: "fixture", effort: "fixture", reason: "C4 real failed exec" }} }}"#,
             script.to_str().unwrap()
         );
-        let output = fixture.start(&policy, "C4 no model service");
+        let output = fixture.start(&config, "C4 no model service");
         let foreground = unsafe { libc::tcgetpgrp(tty) };
         let mut after: libc::termios = unsafe { std::mem::zeroed() };
         let read_modes = unsafe { libc::tcgetattr(tty, &mut after) };
