@@ -1,6 +1,6 @@
 {
-  "w": 852.4921875,
-  "h": 1534.3867187499998,
+  "w": 882.173828125,
+  "h": 1552.7234374999998,
   "elements": [
     {
       "id": "title",
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "How end-session finds its session — process tree",
-      "x": 336.24609375,
+      "x": 351.0869140625,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -313,7 +313,7 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "RAVEL_EXIT_FILE: outer path; writes result there",
+      "text": "RAVEL_EXIT_FILE: outer path. Writes result there",
       "x": 100,
       "y": 936.91640625,
       "anchor": "center",
@@ -466,7 +466,7 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "RAVEL_EXIT_FILE: inner path; writes result there",
+      "text": "RAVEL_EXIT_FILE: inner path. Writes result there",
       "x": 600,
       "y": 1386.91640625,
       "anchor": "center",
@@ -563,13 +563,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; sets outer path",
-      "x": 435.89208984375,
+      "text": "starts with outer path",
+      "x": 434.03955078125,
       "y": 350.111328125,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
-      "w": 155.7841796875,
+      "w": 152.0791015625,
       "h": 10.63671875
     },
     {
@@ -594,13 +594,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; inherits",
-      "x": 408.873046875,
+      "text": "starts with inherited path",
+      "x": 446.8330078125,
       "y": 570.111328125,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
-      "w": 101.74609375,
+      "w": 177.666015625,
       "h": 10.63671875
     },
     {
@@ -629,14 +629,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; inherits",
+      "text": "starts with inherited path",
       "x": 153.0,
       "y": 778.1337890625,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
       "w": 90.0,
-      "h": 28.9734375
+      "h": 47.31015625
     },
     {
       "id": "rel-shell-inner",
@@ -664,14 +664,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; inherits",
+      "text": "starts with inherited path",
       "x": 653.0,
       "y": 778.1337890625,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
       "w": 90.0,
-      "h": 28.9734375
+      "h": 47.31015625
     },
     {
       "id": "rel-inner-agent",
@@ -695,13 +695,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; sets inner path",
-      "x": 685.24609375,
+      "text": "starts with new inner path",
+      "x": 700.0869140625,
       "y": 1025.111328125,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
-      "w": 154.4921875,
+      "w": 184.173828125,
       "h": 10.63671875
     },
     {
@@ -726,37 +726,37 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "starts; inherits",
-      "x": 658.873046875,
+      "text": "starts with inherited path",
+      "x": 696.8330078125,
       "y": 1250.111328125,
       "anchor": "center",
       "align": "left",
       "wrapped": false,
-      "w": 101.74609375,
+      "w": 177.666015625,
       "h": 10.63671875
     },
     {
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 48.94873046875,
+      "x0": 63.78955078125,
       "y0": 1430.4031249999998,
-      "x1": 623.54345703125,
-      "y1": 1534.3867187499998
+      "x1": 638.38427734375,
+      "y1": 1552.7234374999998
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: session supervisors and worker. Grey: caller and managed descendants.\nOuter path: /private/tmp/ravel-session-mlcN86/signal-c7d5…\nInner path: /private/tmp/ravel-session-QpztGn/signal-b643…\nAn evaluation harness run gets its own path; its result returns to the policy.\nThe inner launch changes its child’s environment, not the outer harness’s.",
-      "x": 336.24609375,
-      "y": 1482.394921875,
+      "text": "Blue: session supervisors and worker. Grey: caller and managed descendants.\nOuter path: /private/tmp/ravel-session-mlcN86/signal-c7d5…\nInner path: /private/tmp/ravel-session-QpztGn/signal-b643…\nChildren inherit the path unless their parent changes the environment.\nAn evaluation harness run gets its own path. Its result returns to the policy.\nThe inner launch changes its child’s environment, not the outer harness’s.",
+      "x": 351.0869140625,
+      "y": 1491.5632812499998,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 546.5947265625,
-      "h": 83.98359375
+      "h": 102.3203125
     }
   ]
 }

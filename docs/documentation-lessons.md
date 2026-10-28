@@ -224,6 +224,13 @@ The chapter drafts corrected cleanup precedence, budget-check order and settleme
 Proof corrected chapter 4's deadline summary after chapters 5 and 6 already stated the exception.
 Draft `rhai-book-use-k82` found its own new order tables in chapter 5 saying “stops” where the detailed text says that Ravel attempts the stop. The tables now say “attempts”.
 
+Proof `rhai-book-use-k78`, 2026-10-28, found new summaries that omitted the
+JSON notice's later time, evaluation harness runs before refusal and partial
+output after a failed final write. Repeated figure introductions also lost
+the condition that a parent can change its child's environment.
+These are session findings, not new owner decisions. Check each repeated
+statement against its exceptions, even when the detailed entry is correct.
+
 ### L17. Separate a new contract from delivered behaviour
 
 Say which release a document describes and which implementation steps remain.
@@ -504,6 +511,14 @@ The word `binding` appeared on a glossary `_Avoid_` line that names a rejected w
 **Ravel application:** `ste.md` records that the two word checks exempt those lines while other rules still apply.
 The checker has a control and a mutation for that exemption.
 Book-specific and general prose checkers cover different surfaces.
+
+Proof `rhai-book-use-k78`, 2026-10-28, checked the figure layout records as
+well as the chapters. The chapters passed, but the new figure labels still
+had semicolons. The figure text also repeated a literal diagnostic whose
+words the checker treated as prose. The correction kept the full diagnostic
+in the chapter and put the concrete selection labels in the figure.
+Apply the prose contract to every delivered medium, and preserve literal
+output where the medium can identify it as code.
 
 ### L41. Keep reader evidence separate from mechanical and model evidence
 

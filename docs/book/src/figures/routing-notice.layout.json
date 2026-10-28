@@ -1,6 +1,6 @@
 {
   "w": 685.11328125,
-  "h": 514.9296875,
+  "h": 533.26640625,
   "elements": [
     {
       "id": "title",
@@ -27,7 +27,7 @@
         ],
         [
           41.99609375,
-          441.61953125
+          459.95625
         ]
       ],
       "dashed": true,
@@ -44,7 +44,7 @@
         ],
         [
           221.99609375,
-          441.61953125
+          459.95625
         ]
       ],
       "dashed": true,
@@ -74,11 +74,11 @@
       "pts": [
         [
           619.3125,
-          396.9828125
+          415.31953125
         ],
         [
           619.3125,
-          441.61953125
+          459.95625
         ]
       ],
       "dashed": true,
@@ -237,7 +237,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Selection: program fake-agent, args;\nprovider local, model fake, effort low",
+      "text": "Selection: program fake-agent, args.\nprovider local, model fake, effort low",
       "x": 347.875,
       "y": 207.64765625,
       "anchor": "south",
@@ -326,11 +326,11 @@
       "pts": [
         [
           221.99609375,
-          358.26796875
+          376.6046875
         ],
         [
           41.99609375,
-          358.26796875
+          376.6046875
         ]
       ],
       "dashed": false,
@@ -341,14 +341,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "standard error: ravel: starting provider local,\nmodel fake, effort low for kind \"review\"",
+      "text": "Text routing notice on standard error: provider local,\nmodel fake, effort low for kind \"review\"",
       "x": 131.99609375,
-      "y": 354.26796875,
+      "y": 372.6046875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
       "w": 168.0,
-      "h": 65.64687500000001
+      "h": 83.98359375
     },
     {
       "id": "msg-6",
@@ -357,11 +357,11 @@
       "pts": [
         [
           221.99609375,
-          384.9046875
+          403.24140625
         ],
         [
           559.51171875,
-          384.9046875
+          403.24140625
         ]
       ],
       "dashed": false,
@@ -374,7 +374,7 @@
       "face": "body",
       "text": "Launch fake-agent with args",
       "x": 390.75390625,
-      "y": 380.9046875,
+      "y": 399.24140625,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -386,9 +386,9 @@
       "shape": "box",
       "role": "external",
       "x0": 559.51171875,
-      "y0": 372.8265625,
+      "y0": 391.16328125,
       "x1": 679.11328125,
-      "y1": 396.9828125
+      "y1": 415.31953125
     },
     {
       "id": "head-agent-label",
@@ -397,7 +397,7 @@
       "face": "name",
       "text": "fake-agent",
       "x": 619.3125,
-      "y": 384.9046875,
+      "y": 403.24140625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -411,23 +411,23 @@
       "pts": [
         [
           169.32421875,
-          404.9828125
+          423.31953125
         ],
         [
           669.11328125,
-          404.9828125
+          423.31953125
         ],
         [
           679.11328125,
-          414.9828125
+          433.31953125
         ],
         [
           679.11328125,
-          429.61953125
+          447.95625
         ],
         [
           169.32421875,
-          429.61953125
+          447.95625
         ]
       ]
     },
@@ -438,15 +438,15 @@
       "pts": [
         [
           669.11328125,
-          404.9828125
+          423.31953125
         ],
         [
           669.11328125,
-          414.9828125
+          433.31953125
         ],
         [
           679.11328125,
-          414.9828125
+          433.31953125
         ]
       ],
       "dashed": false,
@@ -459,7 +459,7 @@
       "face": "body",
       "text": "Labels go to the notice, not to the program.",
       "x": 424.21875,
-      "y": 417.301171875,
+      "y": 435.637890625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -471,9 +471,9 @@
       "shape": "box",
       "role": "key",
       "x0": 64.18701171875,
-      "y0": 447.61953125,
+      "y0": 465.95625,
       "x1": 620.92626953125,
-      "y1": 514.9296875
+      "y1": 533.26640625
     },
     {
       "id": "key-text",
@@ -482,7 +482,7 @@
       "face": "body",
       "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the worker lifetime after reap.\nWith --json, the JSON notice replaces the line after the supervision attempt.",
       "x": 342.556640625,
-      "y": 481.274609375,
+      "y": 499.611328125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,

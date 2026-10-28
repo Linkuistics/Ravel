@@ -1,6 +1,6 @@
 {
   "w": 891.673828125,
-  "h": 813.18515625,
+  "h": 849.85859375,
   "elements": [
     {
       "id": "title",
@@ -27,7 +27,7 @@
         ],
         [
           41.99609375,
-          703.2015625
+          721.53828125
         ]
       ],
       "dashed": true,
@@ -44,7 +44,7 @@
         ],
         [
           201.99609375,
-          703.2015625
+          721.53828125
         ]
       ],
       "dashed": true,
@@ -91,11 +91,11 @@
       "pts": [
         [
           795.322265625,
-          697.2015625
+          715.53828125
         ],
         [
           795.322265625,
-          703.2015625
+          721.53828125
         ]
       ],
       "dashed": true,
@@ -293,7 +293,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Find program; check run budget",
+      "text": "Find program. Check run budget",
       "x": 229.99609375,
       "y": 203.4609375,
       "anchor": "west",
@@ -649,11 +649,11 @@
       "pts": [
         [
           201.99609375,
-          658.48671875
+          676.8234375
         ],
         [
           41.99609375,
-          658.48671875
+          676.8234375
         ]
       ],
       "dashed": false,
@@ -664,14 +664,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Write routing notice on standard error",
+      "text": "Write text routing notice on standard error",
       "x": 121.99609375,
-      "y": 654.48671875,
+      "y": 672.8234375,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
       "w": 148.0,
-      "h": 28.9734375
+      "h": 47.31015625
     },
     {
       "id": "msg-13",
@@ -680,11 +680,11 @@
       "pts": [
         [
           201.99609375,
-          685.1234375
+          703.46015625
         ],
         [
           704.970703125,
-          685.1234375
+          703.46015625
         ]
       ],
       "dashed": false,
@@ -697,7 +697,7 @@
       "face": "body",
       "text": "Launch selected program",
       "x": 453.4833984375,
-      "y": 681.1234375,
+      "y": 699.46015625,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -709,9 +709,9 @@
       "shape": "box",
       "role": "external",
       "x0": 704.970703125,
-      "y0": 673.0453125,
+      "y0": 691.38203125,
       "x1": 885.673828125,
-      "y1": 697.2015625
+      "y1": 715.53828125
     },
     {
       "id": "head-managed-label",
@@ -720,7 +720,7 @@
       "face": "name",
       "text": "managed process",
       "x": 795.322265625,
-      "y": 685.1234375,
+      "y": 703.46015625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -732,23 +732,23 @@
       "shape": "box",
       "role": "key",
       "x0": 165.34814453125,
-      "y0": 709.2015625,
+      "y0": 727.53828125,
       "x1": 726.32568359375,
-      "y1": 813.18515625
+      "y1": 849.85859375
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the pictured lifetime after cleanup or reap.\nThe run’s answer goes to the policy. The managed process is a later launch.\nIn the Claude example the run exits 0; it sends no end-session result.\nThe later managed process sends the final result prime.",
+      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the pictured lifetime after cleanup or reap.\nThe run’s answer goes to the policy. The managed process is a later launch.\nIn the Claude example the run exits 0. It sends no end-session result.\nThe later managed process sends the final result prime.\nWith --json, the notice follows the supervision attempt.",
       "x": 445.8369140625,
-      "y": 761.193359375,
+      "y": 788.6984375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
       "w": 532.9775390625,
-      "h": 83.98359375
+      "h": 102.3203125
     }
   ]
 }

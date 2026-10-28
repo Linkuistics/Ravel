@@ -94,7 +94,7 @@ start of the selected program:
 | 4 | The policy worker | Calls `load_context(request)`, if the policy has this function |
 | 5 | The policy worker | Calls `select(request, context)`, which returns a selection or a refusal |
 | 6 | The Ravel CLI | Reaps the worker, then checks the map that `select` returned |
-| 7 | The Ravel CLI | Writes the routing notice on the caller's standard error and starts the selected program |
+| 7 | The Ravel CLI | Writes the text routing notice on the caller's standard error and starts the selected program. With `--json`, the notice follows the supervision attempt. |
 
 To reap a child process, its parent collects the exit status of that child.
 Ravel reaps the worker before it starts the selected program. Thus, the policy
@@ -103,7 +103,7 @@ worker no longer runs when the selected program starts.
 A **selection** is the map that `select` returns when it chooses a program.
 It holds the program, its arguments and labels for the provider, model and
 effort. A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision)
-is a map that says why Ravel starts no program. The **routing notice** is
+is a map that says why Ravel starts no final managed process. The **routing notice** is
 the line that tells the caller which provider, model and effort the policy
 chose. [Chapter 1, “The selection and the routing notice”](01-what-ravel-is-for.md#the-selection-and-the-routing-notice),
 shows both with real values.
@@ -299,7 +299,7 @@ The documented request fields themselves are always present.
 ## Select a command or refuse
 
 Your policy gives one of two answers to each request. A selection tells Ravel
-which program to start. A refusal tells Ravel to start nothing. Why refuse?
+which program to start. A refusal prevents the final managed launch. Why refuse?
 You may want a request that does not fit your routes to stop with a clear
 message, and not go to the wrong harness.
 
@@ -342,8 +342,9 @@ error. This block omits the command and the result on standard output.
 ravel: starting provider example, model fake, effort low for kind "question"
 ```
 
-With `--json`, a JSON document replaces this line. That document also gives
-the `reason`. [Chapter 5, “Read notices separately from results”](05-running-sessions.md#read-notices-separately-from-results),
+With `--json`, a JSON document replaces this line after the supervision
+attempt. That document also gives the `reason`.
+[Chapter 5, “Read notices separately from results”](05-running-sessions.md#read-notices-separately-from-results),
 teaches both forms.
 
 A refusal is a map with `status: "refused"` and three more strings. Each
@@ -2077,9 +2078,10 @@ granted environment variables and run harnesses through `ravel::` functions.
 Each of these host capabilities asks the Ravel CLI to do the work. Then
 `select` returns a selection or a refusal.
 
-After a selection, Ravel reaps the worker and writes the routing notice on the
-caller's standard error. Then it starts the selected program as the managed
-process. That program sends a result with `ravel end-session`. After cleanup,
+After a selection, Ravel reaps the worker and starts the selected program as
+the managed process. Ravel writes the routing notice on the caller's standard
+error. The text notice precedes the launch, and the JSON notice follows the
+supervision attempt. The program sends a result with `ravel end-session`. After cleanup,
 the result becomes the result of `ravel start-session`.
 
 Before you use a policy with real harnesses, test each of these points with

@@ -1507,3 +1507,29 @@ of redrawing each relation. That is an editorial choice: the shared figure
 shows chapter 1's run, and the other examples can use different program names
 or random paths. The contract does not forbid another figure and the medium
 can carry one.
+
+### Read 1 correction proof (`rhai-book-use-k78`, 2026-10-28)
+
+Proof replaced the semicolons in the three new figures and retained the
+selection's concrete labels. The complete literal routing notice stays in
+the chapter's code block. The evaluation sequence now names the text notice
+and states the later time of the JSON notice. The process tree's key states
+that a parent can change the environment that its child inherits.
+
+Safari in an isolated macOS 27.0.1 TestAnyware guest displayed the rebuilt
+book at `http://127.0.0.1:8789`, on a 1467-by-1000 display. The light theme
+used the ordinary 750-pixel chapter column. The inspection covered chapter
+1's selection and inherited-path explanations, chapter 4's harness-run table
+and figure, and chapter 6's JSON-failure entry and field table. Separate
+750-pixel HTML views displayed all twelve distinct figures from chapters
+1–6. Scroll continuations exposed the lower labels and keys of long figures.
+No missing figure, clipped label or label overlap was visible in these views.
+Screenshots remain under `/tmp/k78-*.png` on the proof host. The guest was
+stopped after inspection.
+
+The initial host-side headless Chrome screenshots were blank and supply no
+visual evidence. Raw Markdown supplied the whole-document prose read. This
+pass did not inspect every rendered chapter region, an editor preview,
+GitHub's source view, the released Pages site, another theme, a narrower
+viewport or another operating system. Browser layout and figure reproduction
+do not establish reader comprehension. Read 1 remains the owner's checkpoint.

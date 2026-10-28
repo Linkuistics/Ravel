@@ -83,7 +83,7 @@ shell expansion or word splitting. A shell runs only if the policy selects
 one.
 
 Then why does a selection have labels? They tell the caller what the policy
-chose. After selection and before the launch, the Ravel CLI writes the
+chose. After selection and before the launch, the Ravel CLI writes the text
 **routing notice** as one line on the caller's standard error. The caller, or
 the person who watches the terminal, reads the choice there. Standard output
 stays free for the result. For example, a policy that returns `provider:

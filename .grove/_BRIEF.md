@@ -98,6 +98,13 @@ design needs the settled requirements.
   Section 2 of `docs/book/contract.md` now states those patterns for the whole book. Thus, the drafts of Parts III and IV use them too.
   The run under `rhai-book-use-k26` is draft `rhai-book-use-k75`, copy-edit `rhai-book-use-k76`, art `rhai-book-use-k77` and proof `rhai-book-use-k78`.
   Read 1 resumes after that proof.
+- The correction proof `rhai-book-use-k78` closed `rhai-book-use-k26` again on
+  2026-10-28. Chapters 1–6 passed all 21 example checks, nine excerpts,
+  seventeen figure reproductions, strict prose checks, the book build and
+  762 local link targets. Its task records fresh source-derived inventories,
+  a failing link control, unchanged subject digests and the bounded Safari
+  visual inspection. Read 1 resumes from chapter 1 under `rhai-book-use-k74`.
+  The proof extends documentation lessons L16 and L40. Read 2 remains required.
 - Each later session adds its new documentation or communication lessons to [the shared record](../docs/documentation-lessons.md).
   Each rule keeps its source, evidence class and Ravel application.
   `documentation-lessons-k79` created the record from the whole grove. The owner wants these lessons as a skill for other groves.

@@ -13,6 +13,11 @@ session and interprets its result. You write the rule in the owner policy,
 supply the prompt and choose the result that you expect. The fake is an ordinary shell program. It needs no
 model service or agent account.
 
+The fake is the **managed process**, the program that the policy selects.
+Its **process group** holds it and the descendants that stay in that group.
+Ravel can signal all members together. To **reap** its child, Ravel collects
+the child's exit status from the operating system.
+
 The example returns `finished`. That word is your convention, not a Ravel
 command to continue or stop other work. Ravel returns this word only after it
 reaps the [managed process](02-actors-and-words.md#the-managed-process-and-its-result),

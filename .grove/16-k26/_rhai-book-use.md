@@ -79,3 +79,18 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 - The final draft checks passed: all 19 book examples and the separate convention sample, nine excerpts, 14 figure reproductions and the book build.
   Chapter 6 passes strict STE and prose-break checks. All 317 rendered links to or from it resolve.
   Mechanical figure reproduction does not discharge the art updates above.
+
+## Read 1 correction closure
+
+Proof `rhai-book-use-k78` read chapters 1–6 after the correction run and
+checked the Read 1 patterns throughout. It corrected notice-time summaries,
+the final-launch scope of refusals and bounds, a partial-output claim and
+repeated inheritance explanations. It also corrected the prose of the three
+new figures and regenerated their artifacts. No hand-forward entry remains.
+
+All 21 examples, nine excerpts, seventeen figure reproductions, strict prose
+checks and the book build passed. The local link check passed 762 targets,
+with a broken-anchor control. Safari in an isolated macOS guest supplied the
+local viewing evidence; the proof task records its precise scope and limits.
+The node's Done when holds. Read 1 remains live as `rhai-book-use-k74`, ready
+for the owner's re-review from chapter 1. No second checkpoint is cut.

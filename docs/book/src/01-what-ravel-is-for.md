@@ -52,7 +52,7 @@ table, with a real example.
 |---|---|---|
 | 1 | The caller | Runs `ravel start-session` with a kind and a prompt |
 | 2 | The owner policy | Selects a program and its arguments, or refuses the request |
-| 3 | Ravel | Writes the routing notice, which tells the caller what the policy chose |
+| 3 | Ravel | Writes the text routing notice, which tells the caller what the policy chose. With `--json`, the notice follows the supervision attempt. |
 | 4 | Ravel | Launches the selected program and supervises it |
 | 5 | The selected program | Sends a result with `ravel end-session` |
 | 6 | Ravel | Stops the program, completes cleanup and returns the result to the caller |
@@ -184,8 +184,11 @@ What does the policy give back to Ravel? It gives back a selection or a
 refusal. A **selection** is the map that `select` returns when it chooses a
 program. Its `status` field is `"selected"`. A
 [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) is a map
-with `status: "refused"`. After a refusal, Ravel launches nothing and returns
-no result to the caller.
+with `status: "refused"`.
+
+After a refusal, Ravel launches no final managed
+process and returns no result to the caller. Evaluation harness runs can occur
+before the refusal.
 
 The selection of the review example has these fields:
 
@@ -212,7 +215,8 @@ tells the caller in the **routing notice**:
 - **Who writes it:** the
   [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), the
   `ravel` command-line program.
-- **When:** after the policy selects a program, and before Ravel launches it.
+- **When:** in text form, after selection and before the launch. In JSON form,
+  after the supervision attempt.
 - **Where:** one line on the caller's standard error. Standard output carries
   only the result.
 - **Who reads it:** the caller, or the person who watches the terminal.
@@ -298,6 +302,10 @@ waits for more input. Thus, the caller's prompt tells the LLM to run
 placeholder for the text to send. The caller's prompt gives the permitted
 values and tells the LLM when to use each value.
 
+A **process group** is a set of processes that the operating system can
+signal together. Ravel puts the selected program in a new group. Its children
+stay in that group unless they leave it.
+
 For example, the caller can choose the text `continue` as a result value. The
 prompt of the review example tells the LLM to run `ravel end-session continue`
 when the review is complete. The program that Ravel launched, usually a
@@ -340,7 +348,8 @@ and writes the result to that file.
 | A shell for a command of the LLM | The harness | The same path, inherited from the harness |
 | `ravel end-session continue` | That shell | The same path, inherited from the shell. The command writes the result there. |
 
-Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+Each child inherits its parent's path unless its parent changes it.
+Ravel sets a new path for the inner harness.
 
 ![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
 

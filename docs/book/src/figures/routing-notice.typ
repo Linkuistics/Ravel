@@ -11,11 +11,11 @@
 #let rows = (
   msg("caller", "cli", [start-session: kind review and prompt]),
   msg("cli", "worker", [Evaluate owner policy], create: true),
-  msg("worker", "cli", [Selection: program fake-agent, args; \
+  msg("worker", "cli", [Selection: program fake-agent, args. \
     provider local, model fake, effort low], dashed: true),
   msg("cli", "cli", [Check selection and reap worker]),
   destroy("worker"),
-  msg("cli", "caller", [standard error: ravel: starting provider local, \
+  msg("cli", "caller", [Text routing notice on standard error: provider local, \
     model fake, effort low for kind \"review\"]),
   msg("cli", "agent", [Launch fake-agent with args], create: true),
   note("cli", "agent", [Labels go to the notice, not to the program.]),

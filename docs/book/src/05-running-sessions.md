@@ -53,7 +53,7 @@ sections in order, or go to the row that you need:
 |---|---|---|---|
 | 1 | The caller | Runs `ravel start-session` with a kind, a prompt and optional caller data | [Supply the prompt and caller data](#supply-the-prompt-and-caller-data) |
 | 2 | The owner policy | Selects a program and its arguments, or refuses the request | [Chapter 4](04-writing-an-owner-policy.md#select-a-command-or-refuse) |
-| 3 | The Ravel CLI | Writes the routing notice on the caller's standard error | [Read notices separately from results](#read-notices-separately-from-results) |
+| 3 | The Ravel CLI | Writes the text routing notice on the caller's standard error. With `--json`, the notice follows the supervision attempt. | [Read notices separately from results](#read-notices-separately-from-results) |
 | 4 | The Ravel CLI | Launches the selected program, with or without confinement, and supervises it | [Confine the managed process](#confine-the-managed-process) |
 | 5 | The selected program | Does its work, which can include an inner session, and sends a result with `ravel end-session` | [Keep nested sessions separate](#keep-nested-sessions-separate) |
 | 6 | The Ravel CLI | Stops the program and its process group, completes cleanup, writes the result on standard output and exits with a status | [Accept a result only after success](#accept-a-result-only-after-success) and [Interpret the exit status](#interpret-the-exit-status) |
@@ -533,7 +533,8 @@ only to its own managed process:
 
 The figure uses the paths of the separate run in chapter 1.
 
-Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+Each child inherits its parent's path unless its parent changes it.
+Ravel sets a new path for the inner harness.
 
 ![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
 

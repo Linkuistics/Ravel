@@ -136,7 +136,7 @@ session from your command to your result:
 | 1 | The caller | Runs `ravel start-session` with a kind, a prompt and optional caller data |
 | 2 | The Ravel CLI | Reads the owner settings, checks the policy file and runs its own binary again as the policy worker |
 | 3 | The owner policy | Runs in the policy worker and returns a selection: a program, its arguments and labels |
-| 4 | The Ravel CLI | Reaps the worker, writes the routing notice on the caller's standard error and launches the selected program |
+| 4 | The Ravel CLI | Reaps the worker, writes the text routing notice on the caller's standard error and launches the selected program. With `--json`, the notice follows the supervision attempt. |
 | 5 | The managed process | Does the work, then runs `ravel end-session RESULT` |
 | 6 | The Ravel CLI | Stops the program and the rest of its process group, completes cleanup and writes the result on standard output |
 
@@ -545,7 +545,8 @@ the parent changes it. The table shows the path when each parent leaves it uncha
 | A shell for a command of the LLM | The harness | The same path, inherited from the harness |
 | `ravel end-session continue` | That shell | The same path, inherited from the shell. The command writes the result there. |
 
-Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+Each child inherits its parent's path unless its parent changes it.
+Ravel sets a new path for the inner harness.
 
 ![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
 
@@ -846,7 +847,8 @@ teaches where they come from.
 
 When a session fails with `--json`, the Ravel CLI writes a failure document
 on the caller's standard error. Your program can read from it why the session
-failed and what to do next. Ravel writes no result on standard output then.
+failed and what to do next. A failed final write can leave a prefix of the
+result on standard output. Discard those bytes and use the failure status.
 
 Fragment: the failure document of a refused request from chapter 5, “Read
 notices separately from results”. The policy has no rule for the kind
@@ -1019,7 +1021,8 @@ outer-agent: the inner session returned inner-done
 outer-agent: RAVEL_EXIT_FILE=/private/tmp/ravel-session-mlcN86/signal-c7d5f2eed4198eb768996f7b4868bbcc
 ```
 
-Each child inherits its parent's path unless Ravel sets a new path for the inner harness.
+Each child inherits its parent's path unless its parent changes it.
+Ravel sets a new path for the inner harness.
 
 ![A caller starts outer start-session without a result path, and its policy worker has no path. Ravel gives the outer harness an outer path, which its shell and end-session inherit. The shell starts inner start-session with the outer path. The inner harness receives a new inner path, which its end-session inherits. Each end-session writes to its own path. An evaluation harness run gets a separate path and returns its result to the policy.](figures/inherited-result-path.svg)
 
@@ -1134,7 +1137,8 @@ with a valid flag. No setting opens persistent storage. See
 
 A **bound** is a limit on evaluation: on its time, on the data that it reads
 or on the harness runs that it makes. When a bound stops evaluation, Ravel
-launches nothing. You can change some bounds in the settings or on the
+launches no final managed process. Harness runs can occur before that stop.
+You can change some bounds in the settings or on the
 command line. Ravel sets the others, and you cannot change them.
 
 The policy can read the effective bounds in `request.limits`. For example,
@@ -1157,7 +1161,7 @@ See [set bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-
 
 | Request field / notice name | Default or fixed value | Adjustment and consequence | Taught in <!-- tc: depart synonym-rotation because fixed describes an immutable bound, not an action to correct an error --> |
 |---|---:|---|---|
-| `selectionMs` / `selection` | 30,000 ms | `timeoutMs`, then `--timeout-ms`, within 1,000–600,000. Ravel measures it from the worker spawn through the startup, the import, the loader and the selection. Expiry is `selection_timeout`, status 124. The teardown time is additional. | [Selection deadline](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
+| `selectionMs` / `selection` | 30,000 ms | `timeoutMs`, then `--timeout-ms`, within 1,000–600,000. Ravel measures it from the worker spawn through the startup, the import, the loader and the selection. Expiry is `selection_timeout`, status 124, unless cancellation or failed harness cleanup takes precedence. The teardown time is additional. | [Selection deadline](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `contextBytes` / `context` | 262,144 bytes | `contextBytes`, then `--context-bytes`, within 1–8,388,608. The caller file and the compact delivered JSON with `measured` must both fit. If one does not fit, the code is `context_too_large`, status 3. | [Policy-context budget](04-writing-an-owner-policy.md#supply-policy-context) |
 | `sourceBytes` / `source` | The smaller of 65,536 bytes and `contextBytes` | A positive whole-number `max_bytes` of a host read can replace the default, up to `contextBytes`. Too many bytes, or a requested limit that is too large, cause `source_too_large`, status 3. No script `try` can prevent this refusal. | [Host reads](04-writing-an-owner-policy.md#supply-policy-context) |
 | `sources` / `sources` | Fixed 256 | It applies separately to the measured reads, with the caller document and reads in every phase, and to the attributed `sources` array of the document. If either has more, the code is `too_many_sources`, status 3. A caught exception for a read bound still causes the refusal. | [Measured and attributed sources](04-writing-an-owner-policy.md#supply-policy-context) |
@@ -1837,7 +1841,7 @@ The importer cannot catch a failed host import and continue selection.
 What stops a policy that loops for ever or makes too much data? The Rhai
 engine counts the operations, the call depth and the size of the data of a
 policy. Ravel sets a limit for each of these counts. When the policy reaches a
-limit, evaluation ends and Ravel launches nothing.
+limit, evaluation ends and Ravel launches no final managed process.
 
 Ravel uses the same bounds in both development and release builds.
 An engine limit ends evaluation as `script_limit`, status 3.
