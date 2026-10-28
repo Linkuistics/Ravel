@@ -384,7 +384,8 @@ That distinction is session analysis, not a new quotation from the owner.
 A concrete example can need both a sequence and an outcome mapping. Draw the sequence when it connects an initial request to a later action across participants. Keep the table when it distinguishes alternatives that the sequence does not show. Check both against the same example.
 
 **Source:** Art `rhai-book-use-k86`, 2026-10-28, applies owner findings F9 and F11.
-**Ravel application:** Chapter 1 now follows the review through `changes-needed`; its table also states the caller’s action for `approved`, an unexpected value and a failed session.
+**Ravel application:** Chapter 1 now follows the review through `changes-needed`.
+Its table also states the caller’s action for `approved`, an unexpected value and a failed session.
 
 ### L27. Break a long prose run with useful information
 
@@ -975,12 +976,14 @@ The following checks apply the rules where a judgement has no standalone executa
 ### L66. Explain why unfinished work must stop
 
 Before stopping unfinished work, state the condition that prevents further progress, its evidence, and the work that remains.
-An incomplete task explains why it is not complete; it does not explain why the session cannot continue.
+An incomplete task explains why it is not complete. It does not explain why the session cannot continue.
 Record the explanation where the next session can find it. A crash can prevent the explanation, so retain independent exit evidence too.
 
 **Source:** Owner question in `rhai-book-use-k85`, 2026-10-28, after two copy-edit sessions requested `grove-force-stop` with incomplete reads.
 The visible transcripts stated that the reads were incomplete but did not say why the sessions could not continue. The owner asked for a way to debug that decision and requested the added instruction for this continuation.
+
 **Ravel application:** A future force-stop explanation names the preventing condition, evidence, remaining work and why continuation or decomposition cannot resolve it. The task's running log preserves it.
+
 **Check:** Read the explanation without the preceding conversation. It must distinguish the observed condition from an inferred cause and identify the next action.
 
 ### Disposition of the task's candidate readings
