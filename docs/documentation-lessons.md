@@ -127,6 +127,10 @@ The owner asked why Ravel launches a separate copy of itself to evaluate the con
 The next correction must connect that mechanism to the parent's deadline enforcement and the isolation of a script failure.
 The source and the process-boundary ADR support that explanation. They also keep worker evaluation before the final managed launch.
 
+Draft `rhai-book-use-k88` explains it in chapter 1, “The configuration script chooses a program”.
+The three reasons are the deadline, host requests and the isolation of a failure.
+Chapters 2 and 3 restate the reasons, and each says that the worker ends before the launch.
+
 ### L08. State the reader's goal before the capability
 
 Give the reason why the reader might want the operation.
@@ -524,6 +528,7 @@ Owner F13, `rhai-book-use-k74`, 2026-10-28, asks for a link when the book mentio
 Link each page's introduction of an external project to the authoritative entry point that its reader needs, such as its documentation or repository.
 Keep the local explanation of why the project appears.
 The Grove repository is `https://github.com/Linkuistics/grove`. The session opened that destination successfully on the same date.
+Draft `rhai-book-use-k88` links Grove in chapter 1, the only page of chapters 1–3 that names it.
 
 ### L40. Keep checker rules distinct from editorial judgement
 
@@ -536,6 +541,10 @@ The word `binding` appeared on a glossary `_Avoid_` line that names a rejected w
 **Ravel application:** `ste.md` records that the two word checks exempt those lines while other rules still apply.
 The checker has a control and a mutation for that exemption.
 Book-specific and general prose checkers cover different surfaces.
+
+Draft `rhai-book-use-k88`, 2026-10-28, found that the general prose checker applies a departure marker to one line's scope.
+A marker before a table covers only the header row. A problem in a later row stays reported. A reworded line moves the report to the next occurrence.
+Put the marker at the reported line, with the reason, or reword where the meaning permits.
 
 Proof `rhai-book-use-k78`, 2026-10-28, checked the figure layout records as
 well as the chapters. The chapters passed, but the new figure labels still
@@ -764,7 +773,8 @@ Keep the same example through that transition, so the reader can connect each ab
 **Source:** Owner F9, `rhai-book-use-k74`, 2026-10-28.
 The owner explicitly preferred a concrete explanation followed by abstraction or generalisation.
 **Ravel application:** Contract §2 now makes this order a whole-book requirement.
-Chapter 1's next correction must show a complete review request before the role model.
+Draft `rhai-book-use-k88` opens chapter 1 with “Follow one code review from request to result”, before the roles.
+The next section, “What the review shows about every session”, maps each general role to its part in the review. Chapter 2 opens with the same review.
 
 ### L58. Explain the task, its completion instruction and the use of its result together
 
@@ -775,6 +785,9 @@ Distinguish the task's chosen result words from meanings that the underlying too
 **Source:** Owner F9, `rhai-book-use-k74`, 2026-10-28.
 **Ravel application:** The proposed review example names files and tells the LLM when to send `approved` or `changes-needed` with `ravel end-session`.
 The explanation then says what the orchestrator does after each result. These two words are the session's proposed example, not the owner's required vocabulary.
+
+Draft `rhai-book-use-k88` shows the prompt file, a table of its four parts and a real run with a fake agent.
+A table then gives the orchestrator's action for each outcome. The outcomes also cover an unexpected value and a failure status.
 
 ### L59. Prefer familiar terms and qualify them where precision matters
 
@@ -787,12 +800,14 @@ Keep literal interfaces exact, unless the product change also owns those interfa
 **Ravel application:** Contract §2 requires that replacement in reader-facing prose.
 The session proposes “configuration script” for the Rhai file and “settings” for the JSON values.
 The proposal preserves the distinction between executable choices and host limits.
+Draft `rhai-book-use-k88` adopted those words, with “Rhai worker” and “selection context”. L63 gives the reasons and the scope.
 
 ### L60. Put format versions where the reader needs them
 
 Do not attach a version label to each mention of a familiar data format.
 Name the document's purpose in the explanation. Put exact version fields in examples and in the entry that teaches their required values.
 This removes incidental detail without changing the interface that the reader must use.
+Draft `rhai-book-use-k88` recorded the rule in `ste.md`, “JSON documents”. Chapters 1–3 now say “JSON routing notice” and “JSON data”.
 
 **Source:** Owner F11, `rhai-book-use-k74`, 2026-10-28.
 **Ravel application:** The next correction removes incidental “version-1 JSON” and “version-2 JSON” labels from prose.
@@ -815,6 +830,9 @@ The owner also found “The actors and their words” unusual and called “thei
 The session proposes “Who does what in a Ravel session” for chapter 2.
 Both examples support descriptive headings. They do not impose one grammatical form on every document.
 
+Draft `rhai-book-use-k88` adopted both proposals. It also renamed “Policy evaluation and supervision” and three other headings for the new terms.
+It changed every inbound anchor in the book and the spec's citation of the chapter 4 title. A link check with a planted old anchor showed the change.
+
 ### L62. Name a familiar command instead of an abstract paraphrase
 
 When the stated reader already knows a tool, use its ordinary command name to give a precise instruction.
@@ -826,6 +844,27 @@ Plain language uses the reader's known vocabulary. It need not replace precise c
 **Ravel application:** Chapter 3 says “then make it the current directory”.
 The owner prefers “and `cd` into it”. Everyday shell use is a stated prerequisite, so the command makes the instruction more direct.
 The correction belongs to the draft and copy-edit stages.
+Draft `rhai-book-use-k88` writes “Create an empty directory for the example and `cd` into it.”
+
+### L63. Rename a term everywhere that names the concept, and say where a literal keeps the old word
+
+When a name that the reader sees changes, find every form that names the concept. Include its short form.
+In Ravel, the bare word “policy” named the same concept as “owner policy”. A change of the phrase alone would give one concept two names.
+
+Choose each qualified term in one shared record before any chapter changes.
+Then each later draft uses the same words.
+Keep literal file names, options, codes and help text exact. On each page that shows such a literal, say once why it keeps the old word.
+Route each other surface to its owner. A glossary, a specification and command help can have different owners.
+
+
+**Source:** Session evidence, `rhai-book-use-k88`, 2026-10-28, after owner F10.
+The owner's words were “configuration” in place of “owner policy”. The qualifiers are the session's choice.
+
+**Ravel application:** “Policy” occurred about 1,250 times in chapters 1–6. `ste.md`, “Configuration words”, and `CONTEXT.md` hold the term map.
+The CLI option `--config` already matched the new term. `rhai-spec-reconciliation-k33` owns the specs, ADRs and README.
+The CLI help is a product change, so that leaf checks it with the owner. `rhai-book-inside` owns chapters 7–11.
+
+**Check:** Search each changed page for the old words. Classify each match as a literal, a quotation, a record of the decision or an omission.
 
 The following checks apply the rules where a judgement has no standalone executable check.
 
@@ -843,6 +882,7 @@ The following checks apply the rules where a judgement has no standalone executa
 | L55 | The examples check compares each multi-line claim byte for byte. Proof reads each order that the text states against a claim or a labelled fragment. |
 | L56 | A search of the built HTML for raw Markdown, and a count of headings against heading ids, follow an edit beside a code block. |
 | L57–L62 | Contract §2 records the Part I findings of 2026-10-28. Draft applies them throughout the book, and proof checks the explanations, exact interfaces and links. |
+| L63 | A search of each changed page for the old term, with each match classified. `ste.md` and `CONTEXT.md` hold the term map. |
 
 ### Disposition of the task's candidate readings
 

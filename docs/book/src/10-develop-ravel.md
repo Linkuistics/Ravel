@@ -54,7 +54,7 @@ task typecheck
 
 Setup needs network access on its first run. It downloads the tools below into
 `target/tools`, then installs the development dependencies of the
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). It does
+[policy worker](02-actors-and-words.md#evaluation-and-supervision). It does
 not install Rust, Task, ShellCheck or nextest.
 
 Setup has tool pins for macOS arm64, Linux aarch64 and Linux x86_64. Native
@@ -78,7 +78,7 @@ under `crates/ravel/worker`. These dependencies go into that directory's
 `node_modules`.
 
 The checkout-local Bun takes precedence over a host Bun during worker builds.
-The built [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
+The built [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
 and policy worker need no host Bun or Node at run time.
 
 ## Build the matched pair
@@ -144,7 +144,7 @@ The table connects each behaviour to a test boundary and a focused command.
 | Behaviour to check | Seam and source | Focused task |
 |---|---|---|
 | A local conversion, parser or decision | Rust unit tests beside the CLI code | `task test:session -- --bin ravel` |
-| A result, [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
+| A result, [refusal](02-actors-and-words.md#evaluation-and-supervision) or policy request through the executable | `crates/ravel/tests/cli.rs`, with real workers, temporary policies and fixture processes | `task test:cli` |
 | Group cleanup, escalation or child exit status | Runner with real subprocesses under `crates/keyed-launch/tests/` | `task test:runner` |
 | Terminal foreground or modes | Linked runner in a fixture process on a private pseudo-terminal in `tests/job.rs` | `task test:runner -- --test job` |
 | Hostile runtime inputs | `crates/ravel/tests/hostile.rs`, with the real pair and controls that expose each unwanted effect | `task test:hostile`, after `task probes` |

@@ -150,8 +150,9 @@ The book keeps these roles apart:
 
 - the **caller**, which invokes Ravel, supplies the prompt and its ending
   instructions, and interprets the result.
-- the **owner**, who writes the policy and settings for their account.
-- **Ravel** itself: the Ravel CLI, the policy worker, the runner and the
+- the **owner**, who writes the configuration script and settings for their
+  account.
+- **Ravel** itself: the Ravel CLI, the Rhai worker, the runner and the
   result channel.
 - the **managed process**, the selected program and its descendants: a
   harness running an LLM session, or a program standing in for one.
@@ -167,10 +168,10 @@ every other page. Each chapter's purpose is what the reader can do after it.
 |---|---|---|
 | **Part I** | **Ravel and its session** | |
 | 1 | What Ravel is for | Say what Ravel solves and whether it fits their need. Explain harness subscriptions, `end-session`, and caller responsibilities. Ravel supplies no store, task meaning or model integration. Say what Rhai is, read a short Rhai policy and find Rhai's own documentation. Explain how the routing notice tells the caller what the policy chose. Explain how `end-session` finds its session. |
-| 2 | The actors and their words | name the caller, owner, owner policy, policy worker, managed process and opaque result, and say who holds which authority |
+| 2 | Who does what in a Ravel session | name the caller, owner, configuration script, settings, Rhai worker, managed process and opaque result, and say who holds which authority |
 | 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and policy validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny policy and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
-| 4 | Write an owner policy | Write and validate a Rhai policy with fake agents. Use refusals, policy context, host capabilities, settings and environment grants. Route to harnesses and ask a model through a harness run. |
+| 4 | Write a configuration script | Write and validate a Rhai configuration script with fake agents. Use refusals, selection context, host capabilities, settings and environment grants. Route to harnesses and ask a model through a harness run. |
 | 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
@@ -300,7 +301,7 @@ matters:
   unconfined managed process stays in the caller's POSIX session, in a process
   group of its own; a confined launch starts a new POSIX session.
 - **Context**: three different things. The *session-result context* is the
-  inherited `RAVEL_EXIT_FILE` path. The *policy context* is the version-1 JSON
+  inherited `RAVEL_EXIT_FILE` path. The *selection context* is the JSON
   data delivered to `select`. The caller's working directory is the request's
   `cwd`. The book never says "context" unqualified.
 - **Kind**: the caller's open token, interpreted only by owner policy. It is
@@ -309,12 +310,14 @@ matters:
 - **Channel**: the result channel is Ravel's private directory and completion
   file, through which `end-session` sends the result. It is built on the runner's
   completion `Channel`, which only signals that a file appeared.
-- **Worker**: the policy worker is a separate process, not a thread.
-  The Ravel CLI starts its own binary in an internal role to evaluate Rhai.
+- **Worker**: the Rhai worker is a separate process, not a thread.
+  The Ravel CLI starts its own binary in an internal role to evaluate the
+  configuration script.
 - **Result**: the opaque bytes that `end-session` sends. It is never the
   managed process's exit status or the agent's work.
-- **Policy**: the owner's routing code. It is not a security or sandbox
-  policy; that is confinement.
+- **Policy**: in a literal name, such as `policy.rhai` or a `policy_*` code,
+  the configuration script. Prose says “configuration script”. It is not a
+  security or sandbox policy; that is confinement.
 - **Harness**: the agent program, such as Claude Code or Codex, in which an
   LLM session works on the prompt; owner policy selects it. It is not a test
   harness.
@@ -652,7 +655,9 @@ That read also adds these requirements for the next correction of the book:
   script from the JSON settings wherever the distinction matters. Reconcile
   the glossary, related terms, headings and figures with that choice. The
   correction preserves literal filenames, CLI options, JSON keys and
-  diagnostics unless a separate product change owns them.
+  diagnostics unless a separate product change owns them. Draft
+  `rhai-book-use-k88` chose “configuration script”, “settings”, “Rhai worker”
+  and “selection context”. The table is in `ste.md`, “Configuration words”.
 - **Explain JSON by its purpose.** Say “JSON document”, “routing notice” or
   “failure document” where that description is sufficient. Do not attach a
   version number to each mention of JSON. Exact examples keep required

@@ -103,7 +103,7 @@ directory. There is no search, no environment override and no fallback.
 | Entry state | Result |
 |---|---|
 | `policy.rhai` exists | Ravel evaluates it, and it does not open `policy.ts` |
-| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the book's chapter 4, "Write an owner policy" |
+| Only `policy.ts` exists | `policy_format_retired`, exit 3. The remedy names `policy.rhai` and the book's chapter 4, "Write a configuration script" |
 | Neither file exists | `policy_missing`, exit 3. The message names `policy.rhai` |
 | `--config` names a `.rhai` file | Ravel evaluates it |
 | `--config` names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs` or `.cjs` file | `policy_format_retired`, exit 3 |

@@ -2,10 +2,10 @@
 
 This chapter follows the [session](02-actors-and-words.md#caller-and-owner)
 from chapter 3 through the code that returns `finished`.
-The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
-coordinates the path. The [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
+The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
+coordinates the path. The [policy worker](02-actors-and-words.md#evaluation-and-supervision)
 evaluates the [owner policy](02-actors-and-words.md#caller-and-owner).
-The [runner](02-actors-and-words.md#policy-evaluation-and-supervision)
+The [runner](02-actors-and-words.md#evaluation-and-supervision)
 controls the managed job inside the Ravel CLI process.
 
 This chapter is an orientation to one path. It does not cover the complete
@@ -367,7 +367,7 @@ the Ravel CLI during output. The write is not atomic with that decision.
 A failed choice prevents the call to the runner. The function that detects
 the problem supplies its classification. The Rust type `Refusal` also carries
 worker failures and timeouts, so its name alone does not identify a policy
-[refusal](02-actors-and-words.md#policy-evaluation-and-supervision).
+[refusal](02-actors-and-words.md#evaluation-and-supervision).
 
 Suppose the example's policy returns `status: "refused"` instead of a command.
 `choice::judge` passes that value to `policy::selected` in

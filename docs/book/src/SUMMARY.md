@@ -3,12 +3,12 @@
 # Part I: Ravel and its session
 
 - [What Ravel is for](01-what-ravel-is-for.md)
-- [The actors and their words](02-actors-and-words.md)
+- [Who does what in a Ravel session](02-actors-and-words.md)
 - [A complete session, end to end](03-a-complete-session.md)
 
 # Part II: Use Ravel
 
-- [Write an owner policy](04-writing-an-owner-policy.md)
+- [Write a configuration script](04-writing-an-owner-policy.md)
 - [Run sessions](05-running-sessions.md)
 - [Reference](06-reference.md)
 

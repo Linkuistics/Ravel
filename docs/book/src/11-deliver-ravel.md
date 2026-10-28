@@ -1,8 +1,8 @@
 # Deliver Ravel
 
 A release carries a matched pair: the
-[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) and its
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+[Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) and its
+[policy worker](02-actors-and-words.md#evaluation-and-supervision).
 [Chapter 7](07-the-parts-of-ravel.md#the-installed-pair-stays-together)
 explains why the pair stays together. An archive check establishes that this
 pair has the right files and can run outside the checkout. A version number

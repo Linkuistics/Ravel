@@ -60,6 +60,24 @@ After proof, Read 1 resumes at chapter 4. It gives the owner a correction recap 
 The owner need not restart at chapter 1. The practical reader tasks still need the owner's results.
 Parts III and IV apply the same current lessons in their scheduled rewrite before Read 2.
 
+## Handed forward
+
+- **Art (`rhai-book-use-k86`): figure labels with the old terms.** Draft `rhai-book-use-k88` changed the prose to the term map in the brief of `rhai-book-use-k84`.
+  The figure sources below still say “policy worker”, “owner policy” or “policy” for the configuration script.
+  Use “Rhai worker”, “configuration script” and “settings”. Keep the literal `RAVEL_POLICY_RUN`.
+  - `routing-notice.typ`, chapters 1 and 6. The chapter 1 alt text already says “Rhai worker”.
+  - `inherited-result-path.typ`, chapters 1, 5 and 6. The chapter 1 alt text already uses the new terms.
+  - `system-context.typ`, chapter 1: “owner policy and settings” in the owner's description and relation.
+  - `process-authority.typ`, chapter 2. F12 also applies: the figure must agree with the chapter 2 text.
+    That text says that the worker is a second copy of the executable. The parent stops it at the deadline, and the process isolates a script failure.
+  - `successful-session.typ`, chapter 3, and `evaluation-harness.typ`, chapters 4 and 6.
+  - `selection-cancellation.typ` and `settled-exit-status.typ`, chapter 5.
+  - `source-components.typ` and `installed-files.typ`, chapter 6. Chapters 7 and 11 also show them, and `rhai-book-inside` owns that prose.
+  Check each alt text and caption after the label change. Drafts `rhai-book-use-k89` to `k91` change the alt text of chapters 4–6.
+- **Art (`rhai-book-use-k86`): the review flow of chapter 1.** “Follow one code review from request to result” gives the review as two tables.
+  The tables give the order of actions and the orchestrator's action for each result. No figure shows that flow.
+  Decide whether a figure helps the reader there, under the contract's “Give a diagram and a concrete example”.
+
 ## Pointers
 
 - Structure brief and prose contract: `docs/book/contract.md`.

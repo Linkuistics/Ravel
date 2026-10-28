@@ -91,7 +91,8 @@ These titles replace the earlier titles:
 | Earlier title | Title |
 |---|---|
 | Part II: Using Ravel | Use Ravel |
-| Writing an owner policy | Write an owner policy |
+| Writing an owner policy, Write an owner policy | Write a configuration script |
+| The actors and their words | Who does what in a Ravel session |
 | Running sessions | Run sessions |
 | How Ravel is built | The parts of Ravel |
 | Following a session through the code | Follow a session through the code |
@@ -103,6 +104,45 @@ The file names for chapters 1–6 do not change. Chapter 7 uses
 `07-the-parts-of-ravel.md`. Its title is a noun phrase, which avoids passive
 voice with a known agent (Rule 3.6). A link text or a sentence that gives a
 chapter title uses the new title.
+
+The owner found “The actors and their words” unusual on 2026-10-28 (finding
+F15 of Read 1). Chapter 2's title now names its subject. The chapter 4 title
+follows the configuration words below. Chapter 1's last section is “See what
+we tested and what remains unchecked” (finding F14).
+
+## Configuration words
+
+The owner prefers “configuration” to “owner policy” (finding F10 of Read 1,
+2026-10-28): “I think the term "owner policy" is inferior to the term
+"configuration", which is more common and specific.” The qualifiers in the
+table are the choice of draft `rhai-book-use-k88`, not the owner's words. They
+keep the executable script apart from the settings.
+
+| Earlier words | Words to use | What the words name |
+|---|---|---|
+| owner policy, policy (the owner's code) | configuration script | The Rhai file that selects a program or refuses |
+| owner settings | settings | The values in `settings.json` |
+| the policy and the settings together | configuration | The configuration script and the settings |
+| policy worker | Rhai worker | The second copy of the `ravel` executable that evaluates the configuration script |
+| policy context | selection context | The JSON data that `select` receives as `context` |
+| policy author | owner, or you | The person who writes the configuration script |
+
+Literal names keep the word “policy”: `policy.rhai`, `--policy-env`,
+`policyEnv`, `RAVEL_POLICY_RUN`, the `policy_*` diagnostic codes, the CLI help
+and quoted diagnostics. A page that shows such a literal says one time that
+Ravel's file names, options and codes use “policy” for the configuration
+script.
+
+The word “policy” alone never names a security or sandbox rule. A restriction
+on a managed process is confinement.
+
+## JSON documents
+
+Name a JSON document by its purpose, for example “the JSON routing notice”,
+“the failure document” or “the context document”. Do not put a version label,
+such as “version-2 JSON”, on each mention (finding F11 of Read 1). Complete
+examples keep their exact `schemaVersion` fields. The chapter 6 entry of each
+document explains the values that a reader must write or read.
 
 ## Standard streams
 
@@ -153,8 +193,8 @@ running program”.
 | nothing, anything, something, everything | not a verb form |
 | thing, things | not a verb form |
 | ceiling | not a verb form |
-| meaning | technical noun: the meaning that a caller or an owner policy gives to data |
-| setting, settings | technical noun: an owner setting |
+| meaning | technical noun: the meaning that a caller or a configuration script gives to data |
+| setting, settings | technical noun: a value in `settings.json` |
 | heading, headings | technical noun: a heading of a page |
 | spelling | technical noun: the spelling of a word |
 | encoding | technical noun: a text encoding, such as UTF-8 |
@@ -183,4 +223,4 @@ keep them. Use the same words in each chapter:
 | Phrase | Use |
 |---|---|
 | ending instructions, ending instruction | the instructions to end the session |
-| routing (a noun for the work of the owner policy), routing code, routing rule | The choice of command, the policy decisions (with refusals and arguments), the policy code, or a rule in the owner policy. As a verb: “the policy selects a command” |
+| routing (a noun for the work of the configuration script), routing code, routing rule | The choice of command, the decisions of the configuration script (with refusals and arguments), or a rule in the configuration script. As a verb: “the configuration script selects a command” |

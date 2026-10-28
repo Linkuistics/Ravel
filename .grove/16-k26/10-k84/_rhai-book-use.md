@@ -1,4 +1,4 @@
-# rhai-book-use-k84
+# rhai-book-use-k84 — brief
 
 ## Goal
 
@@ -56,3 +56,57 @@ Draft the corrections across both parts, with concrete explanations that lead to
 If the draft needs more than one session, decompose it by coherent chapter groups.
 The existing later stages remain the only editorial sequence. Do not add another tail below a draft subtree.
 Parts III and IV apply the same lessons in their scheduled rewrite before Read 2.
+
+## Decomposition
+
+- `rhai-book-use-k88` settles the shared terms and applies all lessons to Part I, chapters 1–3.
+  It writes the new explanations in chapter 1: the concrete review task, the caller's complete task contract and the separate worker.
+- `rhai-book-use-k89` applies all lessons and the term map to chapter 4.
+- `rhai-book-use-k90` applies all lessons and the term map to chapter 5.
+- `rhai-book-use-k91` applies all lessons and the term map to chapter 6, the lookup chapter.
+  It also runs the mechanical gates for all of chapters 1–6, and it closes this node.
+
+The four drafts share the stem `rhai-book-use`. Refer to each by key.
+Copy-edit `rhai-book-use-k85` follows this node. No draft cuts a later stage.
+
+## Term map
+
+This map is the draft's decision under F10. The owner's words were “configuration” in place of “owner policy”.
+The qualifiers are this draft's choice, not a separate owner quotation. `docs/book/ste.md` and `CONTEXT.md` hold the same map.
+
+| Earlier words in prose | Words to use | What the words name |
+|---|---|---|
+| owner policy, policy (the owner's code) | configuration script | The Rhai file that selects a program or refuses |
+| owner settings, settings of the owner | settings | The values in `settings.json` |
+| the owner's policy and settings together | configuration | The configuration script and the settings |
+| policy worker | Rhai worker | The second copy of the `ravel` executable that evaluates the configuration script |
+| policy context | selection context | The JSON data that `select` receives as `context` |
+| policy evaluation | evaluation of the configuration script, or evaluation | The run of the configuration script by the Rhai worker |
+| policy author | owner, or you | The person who writes the configuration script |
+
+Literal interfaces keep the word “policy”: `policy.rhai`, `--policy-env`, `policyEnv`, `RAVEL_POLICY_RUN`, the `policy_*` diagnostic codes, the CLI help and quoted diagnostics.
+Each page that shows such a literal says once that Ravel's file names, options and codes use “policy” for the configuration script.
+
+Titles:
+
+- Chapter 2: “Who does what in a Ravel session” (F15). The file name stays `02-actors-and-words.md`.
+- Chapter 4: “Write a configuration script”. The file name stays `04-writing-an-owner-policy.md`.
+- Chapter 1, last section: “See what we tested and what remains unchecked” (F14).
+
+File names stay unchanged, because chapters 7–11, the README and outside documents link to them.
+
+## Decisions (running log)
+
+- **Four drafts, 2026-10-28.** Chapters 1–6 have about 7,050 lines, against 4,870 at the first correction run.
+  The term map changes most paragraphs: “policy” occurs about 1,250 times in the six chapters.
+  Part I is one draft, because chapter 1 holds the new explanations and the owner reviewed Part I as one unit.
+  Chapters 4, 5 and 6 each get a draft of their own, as in the first correction run (L53).
+- **One term map before any chapter edit, 2026-10-28.** L13 asks for shared terms before independent chapter edits.
+  The bare word “policy” names the same concept as “owner policy”. If only the two-word phrase changed, one concept would have two names.
+  Thus, the map replaces both. The CLI option for the script is already `--config`, so the new term matches an interface that the reader types.
+- **“Rhai worker”, not “configuration worker”, 2026-10-28.** The source module is `crates/ravel/src/rhai_worker/`.
+  Contract §1 already says “separate Rhai worker” in the chapter 7 row and in Read 2.
+- **“Selection context”, not “configuration context”, 2026-10-28.** The data describes the request, not the configuration.
+  “Selection” ties the data to `select`, which receives it, and keeps “context” qualified, as the term risks require.
+- **Specifications, ADRs, README and CLI help, 2026-10-28.** They still say “owner policy”. That reconciliation is outside the book.
+  The live leaf `rhai-spec-reconciliation-k33` already owns the specs, ADRs, glossary and README after the TypeScript removal. Its body now carries this case.

@@ -33,3 +33,8 @@ Make the spec set, the ADR set, the glossary and the README describe the one rem
 - The design views in `docs/design/rhai-policy` stay. Check that they still match the spec.
 - Do not edit the book. The nodes `rhai-book-use` and `rhai-book-inside` own it.
 - The changelog entry for 2.0.0 belongs to the release leaf.
+- Draft `rhai-book-use-k88` changed the reader-facing terms in `CONTEXT.md` and the book on 2026-10-28, after owner finding F10.
+  “Owner policy” is now “configuration script”, “policy worker” is “Rhai worker” and “policy context” is “selection context”.
+  The term map is in the brief of `rhai-book-use-k84`. Bring the specs, ADRs and README to the same terms, or record why one keeps the old term.
+  Literal names stay: `policy.rhai`, `--policy-env`, `policyEnv`, `RAVEL_POLICY_RUN` and the `policy_*` codes.
+  The CLI help also says “owner policy”. A change to that text is a product change, so check it with the owner first.

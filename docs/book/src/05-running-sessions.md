@@ -38,7 +38,7 @@ First, the words that this chapter uses on every page:
 - The [result](02-actors-and-words.md#the-managed-process-and-its-result) is
   the text that a program in the session sends with `ravel end-session`. Ravel
   does not interpret it. Thus, the book calls it an opaque result.
-- The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) is
+- The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) is
   the `ravel` command-line program. It evaluates the policy in a separate
   process, launches the selected program and returns the result.
 
@@ -165,16 +165,16 @@ Chapter 4 teaches
 and [bounds and environment grants](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names).
 
 Ravel runs your policy in the
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision), a
+[policy worker](02-actors-and-words.md#evaluation-and-supervision), a
 separate process. This work is policy evaluation. The policy can ask the Ravel
 CLI to do work for it, for example to read a file or to run a harness. It does this through a
-[host capability](02-actors-and-words.md#policy-evaluation-and-supervision), a
+[host capability](02-actors-and-words.md#evaluation-and-supervision), a
 `ravel::` function such as `ravel::read_text` or `ravel::run_harness`. Each such
 request is a **host call**.
 
 How long can evaluation take? The evaluation deadline defaults to 30 seconds
 and covers every host call. An
-[LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) is a
+[LLM call](02-actors-and-words.md#evaluation-and-supervision) is a
 harness run that asks a model a question. It uses that same deadline.
 
 The owner can set `timeoutMs` in settings. For one invocation, `--timeout-ms`
@@ -182,7 +182,7 @@ replaces that value. The permitted range is 1,000–600,000 ms. This bound
 applies to policy evaluation, not to the time that the managed process works.
 
 The owner also sets `budgets.harnessRuns`, from 0 to 16, in settings. This
-[evaluation budget](02-actors-and-words.md#policy-evaluation-and-supervision)
+[evaluation budget](02-actors-and-words.md#evaluation-and-supervision)
 limits the number of harness runs in one evaluation. Its default is 0, and
 callers have no flag that raises it.
 
@@ -568,7 +568,7 @@ result. The outer process does this itself. When the inner process sends its
 result, the outer session does not finish.
 
 An evaluation
-[harness run](02-actors-and-words.md#policy-evaluation-and-supervision) is
+[harness run](02-actors-and-words.md#evaluation-and-supervision) is
 different. A harness run is a program that the policy starts with
 `ravel::run_harness` during evaluation, to ask a question before it chooses.
 Ravel gives that run a result path of its own, so its result goes back to the
@@ -582,7 +582,7 @@ The refusal occurs before Ravel reads settings or policy.
 
 The final managed process receives no such marker and can start nested sessions.
 Each nested session has its own
-[evaluation budgets](02-actors-and-words.md#policy-evaluation-and-supervision).
+[evaluation budgets](02-actors-and-words.md#evaluation-and-supervision).
 The marker does not protect against code that removes it: such code escapes the refusal.
 Such an escape can leave a separate process group outside the outer cleanup.
 
@@ -699,7 +699,7 @@ with `confinement_unusable` and status 2. Ravel does not then launch the
 process without confinement.
 
 The owner policy and its
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
+[policy worker](02-actors-and-words.md#evaluation-and-supervision)
 stay outside the confinement. A **measured read** is a read of a file through
 `ravel::read_text` or `ravel::read_json`. The policy's measured reads can
 still reach any regular file that the user can read. Evaluation harness runs
@@ -1078,7 +1078,7 @@ The policy can still expose that data through its own diagnostics or context.
 
 Ravel writes this JSON notice after the supervision attempt and before it
 decides the final outcome. The
-[runner](02-actors-and-words.md#policy-evaluation-and-supervision) is the part
+[runner](02-actors-and-words.md#evaluation-and-supervision) is the part
 of the Ravel CLI that launches and supervises the managed process. If the
 runner completed supervision and returned its record of how the job ended,
 `operationReports` holds the operational reports that the runner kept. The
@@ -1108,7 +1108,7 @@ before and after launch:
 The text form of each failure starts with `ravel: refused`, also when no
 policy refused the request. The code and the status show the difference
 between a policy
-[refusal](02-actors-and-words.md#policy-evaluation-and-supervision) and an
+[refusal](02-actors-and-words.md#evaluation-and-supervision) and an
 operational failure.
 
 For worker teardown and final-session cleanup, an original failure keeps its

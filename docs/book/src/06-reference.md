@@ -22,7 +22,7 @@ First, the words that this chapter uses on every page:
   Rhai code that the owner writes. Rhai is a small computer language that
   Ravel contains. Ravel gives the request to the policy. The policy then
   selects a program and its arguments, or it refuses the request.
-- The [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision)
+- The [policy worker](02-actors-and-words.md#evaluation-and-supervision)
   is the separate process that runs the owner policy. Each session has a new
   worker, and it ends before Ravel launches the selected program.
 - The
@@ -33,7 +33,7 @@ First, the words that this chapter uses on every page:
 - The [result](02-actors-and-words.md#the-managed-process-and-its-result) is
   the text that a program in the session sends with `ravel end-session`. Ravel
   does not interpret it. Thus, the book calls it an opaque result.
-- The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) is
+- The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) is
   the `ravel` command-line program. It evaluates the policy in the policy
   worker, launches the selected program and returns the result.
 
@@ -88,7 +88,7 @@ version requests.
 |---|---|---|
 | `ravel` without a verb | Help on standard error. | `2` |
 | `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on standard output. `-h` is the short option on all three command lines. | `0` |
-| `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
+| `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
 
 Fragment: the output of `ravel --help` from the checkout build on 2026-10-28.
 This block omits the command and its status, 0.
@@ -148,7 +148,7 @@ the managed process is in that group too, unless the child leaves it. The
 harness, model and effort the policy chose.
 
 At row 3, the policy can also refuse. After a
-[refusal](02-actors-and-words.md#policy-evaluation-and-supervision), Ravel
+[refusal](02-actors-and-words.md#evaluation-and-supervision), Ravel
 launches no final managed process and tries no alternative route. Before it
 returns, the policy can run harnesses of its own. These
 [harness runs](#harness-run-request) return their output to the policy, not to
@@ -343,7 +343,7 @@ Ravel validates the settings before the flag replaces a value. Thus, an
 invalid owner setting fails even with a valid flag.
 
 <!-- tc: depart synonym-rotation because launch names process creation, while begin names the first moment of a deadline -->
-The deadline begins when the Ravel CLI spawns the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+The deadline begins when the Ravel CLI spawns the [policy worker](02-actors-and-words.md#evaluation-and-supervision).
 It covers the worker startup, the policy import, the policy-context loader
 and the selection, with every host call. At expiry, Ravel stops any evaluation
 harness run, then the worker. It reports `selection_timeout`, status 124,
@@ -805,7 +805,7 @@ after the supervision attempt. The tables below give each member.
 | `resolution` | A string that gives the resolved executable path and the base of the resolution: an absolute path, the caller's working directory or a `PATH` entry. |
 | `promptSource` | `argument` for `--prompt`. For `--prompt-file`, the file path joined to the caller's working directory. |
 | `diagnostics` | An object with `stdout` and `stderr`, the captured policy streams as strings. Invalid UTF-8 bytes show as replacement characters. |
-| `operationReports` | An array of the report strings that the [runner](02-actors-and-words.md#policy-evaluation-and-supervision) retained. It is present only when the runner returned its account of how the job ended. It is empty when there are no reports. A failed stop attempt in this list does not alone decide the final status. |
+| `operationReports` | An array of the report strings that the [runner](02-actors-and-words.md#evaluation-and-supervision) retained. It is present only when the runner returned its account of how the job ended. It is empty when there are no reports. A failed stop attempt in this list does not alone decide the final status. |
 
 The following arrays describe evaluation activity. They can be empty.
 Each record has all the fields in its row.
@@ -887,7 +887,7 @@ CLI cannot see which policy operation ran at expiry.
 |---|---|---|
 | `cli` | The command line and the owner settings. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names) |
 | `authority` | The choice of the policy entry and the attempt to open it, or the query for the caller's working directory. | [Define a policy](04-writing-an-owner-policy.md#define-a-policy-and-read-the-request) |
-| `worker` | The re-execution of Ravel as its worker, or the check of the worker and its protocol. | [Check and evaluate](03-a-complete-session.md#check-the-request-and-evaluate-the-policy) |
+| `worker` | The re-execution of Ravel as its worker, or the check of the worker and its protocol. | [Check and evaluate](03-a-complete-session.md#check-the-request-and-evaluate-the-configuration-script) |
 | `evaluation` | The evaluation by the worker as a whole, with the deadline and the cancellation of selection. | [Bounds](04-writing-an-owner-policy.md#set-bounds-and-grant-environment-names), [cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `load` | The import of the policy entry. | [Resolve imports](04-writing-an-owner-policy.md#resolve-policy-imports) |
 | `context` | The read, assembly, validation and measurement of policy context. | [Supply policy context](04-writing-an-owner-policy.md#supply-policy-context) |
@@ -1717,7 +1717,7 @@ See [run a harness](04-writing-an-owner-policy.md#run-a-harness-during-evaluatio
 
 The policy supplies every argument and decides whether the prompt belongs in an argument or standard input.
 Ravel builds no harness-specific argument and parses no harness output.
-An [LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) uses this same operation.
+An [LLM call](02-actors-and-words.md#evaluation-and-supervision) uses this same operation.
 The harness uses its own sign-in. Ravel holds no model credential or token budget.
 
 Each run uses the caller's working directory, with a new POSIX session and no terminal.

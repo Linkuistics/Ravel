@@ -2,7 +2,7 @@
 
 Ravel separates the choice of a command from the supervision of that command.
 The [owner policy](02-actors-and-words.md#caller-and-owner) chooses a program.
-The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision)
+The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision)
 checks that choice, runs the program and decides the final outcome.
 The [caller](02-actors-and-words.md#caller-and-owner) interprets the result.
 A [session](02-actors-and-words.md#caller-and-owner) is one
@@ -21,9 +21,9 @@ library does not always correspond to a separate process.
 | Part | Source location | Where it runs | Responsibility |
 |---|---|---|---|
 | Ravel CLI | `crates/ravel/src/main.rs`, with the other executable modules | The `ravel` process | Check the request, coordinate the parts and report the outcome |
-| [Policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) | `crates/ravel/worker/src/` | A separate `ravel-policy` process | Evaluate the owner's TypeScript policy |
+| [Policy worker](02-actors-and-words.md#evaluation-and-supervision) | `crates/ravel/worker/src/` | A separate `ravel-policy` process | Evaluate the owner's TypeScript policy |
 | Policy SDK | `crates/ravel/worker/sdk/index.ts` | Within the policy worker | Supply the types and helpers that a policy imports |
-| [Local runner](02-actors-and-words.md#policy-evaluation-and-supervision) | `crates/keyed-launch/src/` | Within the Ravel CLI | Launch and supervise a local job |
+| [Local runner](02-actors-and-words.md#evaluation-and-supervision) | `crates/keyed-launch/src/` | Within the Ravel CLI | Launch and supervise a local job |
 | [Result channel](02-actors-and-words.md#the-managed-process-and-its-result) | `crates/ravel/src/completion.rs`, exported by `lib.rs` | Within the Ravel CLI and the separate `end-session` invocation | Carry one result through temporary files |
 
 The [source-responsibility figure in chapter 6](06-reference.md#installed-layout)
@@ -64,7 +64,7 @@ so each decision has one owner.
 
 | Decision | Owner | Information at the boundary |
 |---|---|---|
-| Which program to select | Owner policy | A command or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision) |
+| Which program to select | Owner policy | A command or a [refusal](02-actors-and-words.md#evaluation-and-supervision) |
 | Whether the policy response is valid | Ravel CLI | A checked command, or no launch |
 | How to launch and stop the job | Runner | Launch options from the CLI |
 | Whether to return the result | Ravel CLI | Job observations and cleanup reports |
@@ -323,6 +323,6 @@ lists the files and shows their deployment figure.
 This chapter checks the source boundaries and their stated obligations.
 It does not establish compatibility with every owner helper, independent
 component use or safe concurrent use within another host. The
-[evidence limits in chapter 1](01-what-ravel-is-for.md#understand-the-evidence-limits)
+[evidence limits in chapter 1](01-what-ravel-is-for.md#see-what-we-tested-and-what-remains-unchecked)
 separate measured platforms from unqualified ones. Chapter 9 gives the
 process and terminal guarantees within those limits.

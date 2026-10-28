@@ -1,4 +1,4 @@
-# Write an owner policy
+# Write a configuration script
 
 A caller asks Ravel to run a session, one `start-session` invocation. The
 caller gives a kind, a token that names the work. You choose the program for
@@ -25,7 +25,7 @@ First, the words that this chapter uses on every page:
 What is Rhai? Rhai is a small computer language for programs in the Rust
 language. The Rhai engine is part of the `ravel` executable. Thus, you install
 no separate language runtime for your policy.
-[Chapter 1](01-what-ravel-is-for.md#the-owner-policy-chooses-a-program)
+[Chapter 1](01-what-ravel-is-for.md#the-configuration-script-chooses-a-program)
 introduces Rhai with a short policy. These characteristics of Rhai are
 important for a policy:
 
@@ -76,9 +76,9 @@ policy choose. Read them in order, or go to the task that you need:
 
 What happens between the caller's command and the start of a program? Ravel
 evaluates your policy in the
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). The
+[policy worker](02-actors-and-words.md#evaluation-and-supervision). The
 policy worker is a separate process. The
-[Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision), the
+[Ravel CLI](02-actors-and-words.md#evaluation-and-supervision), the
 `ravel` command-line program, starts its own executable a second time, in an
 internal role, to run the Rhai engine. The worker has an empty environment. It has no
 direct access to files, the network or other programs.
@@ -102,7 +102,7 @@ worker no longer runs when the selected program starts.
 
 A **selection** is the map that `select` returns when it chooses a program.
 It holds the program, its arguments and labels for the provider, model and
-effort. A [refusal](02-actors-and-words.md#policy-evaluation-and-supervision)
+effort. A [refusal](02-actors-and-words.md#evaluation-and-supervision)
 is a map that says why Ravel starts no final managed process. The **routing notice** is
 the line that tells the caller which provider, model and effort the policy
 chose. [Chapter 1, “The selection and the routing notice”](01-what-ravel-is-for.md#the-selection-and-the-routing-notice),
@@ -110,7 +110,7 @@ shows both with real values.
 
 How does the policy read a file or start a program, if the worker cannot? It
 asks the Ravel CLI. A
-[host capability](02-actors-and-words.md#policy-evaluation-and-supervision) is
+[host capability](02-actors-and-words.md#evaluation-and-supervision) is
 an operation that the policy asks Ravel to perform. Each host capability is a
 function in the `ravel` namespace, such as `ravel::read_text`.
 
@@ -133,7 +133,7 @@ policy can use a harness in two different ways:
 
 | Use of the harness | When it runs | Where its answer goes |
 |---|---|---|
-| A [harness run](02-actors-and-words.md#policy-evaluation-and-supervision) | During evaluation, when the policy calls `ravel::run_harness` | Back to the policy, as data for its choice |
+| A [harness run](02-actors-and-words.md#evaluation-and-supervision) | During evaluation, when the policy calls `ravel::run_harness` | Back to the policy, as data for its choice |
 | The [managed process](02-actors-and-words.md#the-managed-process-and-its-result) | After evaluation, when the policy selects the harness | To the caller, as the result of the session |
 
 The managed process is the program that Ravel starts and supervises for the
@@ -188,7 +188,7 @@ constants and defines a function:
 |---|---|
 | `export const SCHEMA_VERSION = 3;` | Select the policy interface version. |
 | `export const VERSION = "my-policy-1";` | Give the policy an owner-maintained version for the notice. |
-| `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#policy-evaluation-and-supervision). |
+| `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#evaluation-and-supervision). |
 | `fn load_context(request)` | Optionally assemble policy context before `select`. |
 
 `SCHEMA_VERSION` is independent of the Ravel release and the policy context
@@ -1286,7 +1286,7 @@ variable, for example a name for the effort that it wants, and the policy can
 use it in the choice.
 
 But the
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision) has
+[policy worker](02-actors-and-words.md#evaluation-and-supervision) has
 an empty environment. Thus, the policy asks the Ravel CLI: `ravel::env` is a
 host capability that returns the caller's value of one variable.
 It permits `HOME`, `PATH`, `TMPDIR`, `LANG`, `LC_*` and explicit grants.
@@ -1502,7 +1502,7 @@ A descendant that leaves the process group is outside group cleanup.
 
 Do you want an LLM in Claude Code to help your policy choose? This section
 gives the recipe. An
-[LLM call](02-actors-and-words.md#policy-evaluation-and-supervision) is a
+[LLM call](02-actors-and-words.md#evaluation-and-supervision) is a
 harness run that asks a model a question. Claude Code runs the call under your
 own sign-in, so the call can use your subscription. Ravel stores no model
 credential.
@@ -1674,7 +1674,7 @@ The map check and `contains` test protect the read of `structured_output`.
 The schema rejects `perhaps`, and the policy returns its own refusal.
 A different policy could choose a fixed fallback after an unusable answer.
 It still cannot catch an exhausted
-[evaluation budget](02-actors-and-words.md#policy-evaluation-and-supervision).
+[evaluation budget](02-actors-and-words.md#evaluation-and-supervision).
 An evaluation budget is a limit that the owner sets for one evaluation, such
 as the number of harness runs in `budgets.harnessRuns`.
 

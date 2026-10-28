@@ -1,7 +1,7 @@
 # Jobs, signals and the terminal
 
 A [result](02-actors-and-words.md#the-managed-process-and-its-result) requests the end of a job. It does not prove that the job has ended.
-The [Ravel CLI](02-actors-and-words.md#policy-evaluation-and-supervision) stays alive to supervise that end
+The [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) stays alive to supervise that end
 before it returns the result to the [caller](02-actors-and-words.md#caller-and-owner).
 The [runner](07-the-parts-of-ravel.md#the-runner-owns-the-local-job-mechanics)
 inside the CLI supplies the process and terminal operations.
@@ -225,7 +225,7 @@ The CLI also checks signals around supervision and final cleanup.
 
 | Where cancellation occurs | Process action | Result |
 |---|---|---|
-| During policy selection | Stop and wait for the [policy worker](02-actors-and-words.md#policy-evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
+| During policy selection | Stop and wait for the [policy worker](02-actors-and-words.md#evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
 | During unconfined supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
 | During confined supervision | Attempt KILL immediately on the group and the direct child | Complete cleanup attempts, report cancellation, and return no result |
 
@@ -274,7 +274,7 @@ separate launch interfaces, while the CLI owns policy and result decisions.
 [Confinement](02-actors-and-words.md#trust-and-confinement) restricts the managed
 process and its descendants. It does not restrict the trusted
 [owner policy](02-actors-and-words.md#caller-and-owner) or its
-[policy worker](02-actors-and-words.md#policy-evaluation-and-supervision).
+[policy worker](02-actors-and-words.md#evaluation-and-supervision).
 The CLI checks the grants and probes the backend before policy selection.
 If the backend is absent or cannot establish its restrictions, the invocation
 stops with `confinement_unusable` and status 2.
