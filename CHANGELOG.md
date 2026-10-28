@@ -4,6 +4,9 @@
 
 - Remove retired TypeScript worker prerequisites from development setup, builds,
   checks and native-entry checks. Keep the checkout-local Bun for book tools.
+- Retire the frozen native-entry campaign drivers and their Linux Git-object
+  staging. Preserve historical receipts and current Rust, Rhai and native-entry
+  checks.
 
 ## v1.1.0
 

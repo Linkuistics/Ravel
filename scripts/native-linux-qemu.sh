@@ -20,7 +20,7 @@
 # Unlike the release smoke, this environment is kept running: after the guest's
 # address space and vDSO are checked it writes /run/native-qemu.ready and holds
 # the namespace with `sleep`, so native-linux.sh can enter it repeatedly with
-# nsenter (build, campaign, R01) and a failed run can be inspected.
+# nsenter (build and current development checks) and a failed run can be inspected.
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -91,9 +91,8 @@ outside() {
 # product's bubblewrap confinement cannot run in this environment at all.
 in_namespace() {
   local inputs="$1" cpu="$2" binfmt="$FLOOR/run/binfmt" maps line end vdso=0
-  mkdir -p "$binfmt" "$FLOOR/srv/git" "$FLOOR/oldroot"
+  mkdir -p "$binfmt" "$FLOOR/oldroot"
   mount -t binfmt_misc binfmt_misc "$binfmt" || die "cannot mount a private binfmt_misc instance"
-  mount --bind /srv/git "$FLOOR/srv/git"
   mount --rbind /proc "$FLOOR/proc"
   mount --rbind /dev "$FLOOR/dev"
   # The guest resolves names through the helper's resolver and sees its network.

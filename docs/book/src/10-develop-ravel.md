@@ -620,7 +620,7 @@ The table connects each question to a note and the source of its observations.
 | Which resource and failure paths motivated the later repairs? | [Result/job source evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
 | Which checks distinguish the completion-failure repairs? | [Completion failure evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/completion-failure-design-evidence.md) | Focused runner/CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
 | Why does native entry follow this protocol? | [Native-entry design](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
-| What did the native-entry instruments measure? | [Native-entry evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) | The development, incumbent, campaign and Linux instruments below |
+| What did the native-entry instruments measure? | [Native-entry evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) | Current native-entry and Linux checks, plus archived campaign receipts |
 | Where are the run records? | [Evidence directory](https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/) | The linked note identifies each receipt set, its command and source revision |
 
 Start with the note's source revision and measured platform. Then read the
@@ -628,24 +628,23 @@ section that matches the claim. Earlier sections can describe work that later
 sections complete. A design proposal is not an observed run, and an old failure
 does not establish that the current source still fails.
 
-The native-entry instruments examine executable entry state and cleanup. The
-**incumbent** is the frozen product before the repair, with private test seams.
-Its observations let a contributor distinguish a prior behaviour from a
-repair. The table below names the instruments so that a contributor can find
-their records.
-Campaign plans and execution procedures remain in the evidence documents.
+The current native-entry instruments examine executable entry state and cleanup.
+The archived campaign compared a frozen product from before the repair, called
+the **incumbent**, with the repaired product. Its drivers and protected-test
+comparison, R01, were retired during the Rhai cutover. The historical
+[campaign records](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43)
+retain their measured source revisions, plans and receipts. Those observations
+do not establish that the current source still has the same behaviour.
+The table below names the available instruments.
 
 | Instrument | Tasks, purpose and evidence |
 |---|---|
 | Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) |
-| Incumbent | `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls`<br>Build and measure the pre-repair subject, and check its allowed differences. Read the [incumbent subject section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#incumbent-subject-and-front-baseline-k44) |
-| Campaign | `test:native-campaign`<br>`test:native-campaign-controls`<br>Freeze inputs, collect case records and reconcile the finite case set. Read the [campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
-| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and collect its support measurements. Read the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
-| R01 controls | `test:native-r01-controls`<br>Check that the protected-test comparison rejects invalid evidence. Read the R01 account in the [campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43) |
+| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and run current Rust, Rhai and native-entry checks, with unchanged source digests. Earlier target measurements remain in the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
 
-The instrument tasks call `scripts/native-incumbent.sh`, `native-campaign.sh`,
-`native-linux.sh` and `native-r01.sh` for their respective instrument families.
-The native-entry tasks build and select Rust tests directly. A development
+The Linux tasks call `scripts/native-linux.sh` to stage and check the current
+working tree without the host's Git objects. The native-entry tasks build and
+select Rust tests directly. A development
 test pass alone does not establish the complete campaign or a new platform's
 support. The measured support covers aarch64 macOS and aarch64 Linux.
 x86_64 Linux is built and run only under emulation, with native qualification
@@ -679,8 +678,7 @@ state and replace an installation, so they are not chapter-check commands.
 | `docs:ste`, `docs:ste:test`, `docs:breaks`, `docs:breaks:test`, `book:integrity` | [Check the book](#check-the-book) |
 | `docs:result-job` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `native-incumbent:build`<br>`test:native-incumbent`<br>`test:native-incumbent-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
-| `test:native-campaign`<br>`test:native-campaign-controls`<br>`native-linux:image`<br>`test:native-linux`<br>`test:native-r01-controls` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
+| `native-linux:image`<br>`test:native-linux` | [Read the evidence for a change](#read-the-evidence-for-a-change) |
 | `release:archives`, `release:smoke`, `release:test`, `release:formula` | Chapter 11, “Deliver Ravel”: archive and formula checks |
 | `release:doctor`, `release:notes`, `release:lifecycle:test` | Chapter 11, “Deliver Ravel”: preparation and procedure checks |
 | `release:patch`, `release:minor`, `release:major` | Chapter 11, “Deliver Ravel”: version cut and delivery |

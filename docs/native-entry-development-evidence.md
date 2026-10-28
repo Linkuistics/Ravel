@@ -1,5 +1,14 @@
 # Native-entry development evidence and remaining qualification
 
+The frozen TypeScript incumbent, campaign and R01 drivers were retired during
+the Rhai cutover. Their command names below identify historical measurements;
+they are no longer available in the current checkout. The case manifest,
+campaign plan and original receipts remain unchanged. To reproduce a historical
+measurement, use its recorded source revision and environment. Current checks
+use `task test:native-entry` and `task test:native-linux`; they do not compare
+the current product with the frozen incumbent. The Linux environment stages
+only the current working tree and does not mount the host's Git objects.
+
 K28 remains open as the complete repair node. Its development child,
 `native-entry-development-k30`, delivers working source across executable capture,
 the launcher front, worker and runner with partial development instruments. It

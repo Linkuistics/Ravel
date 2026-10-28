@@ -1,4 +1,4 @@
-# rhai-installed-layout-k108
+# rhai-installed-layout-k108 — brief
 
 
 ## Goal
@@ -19,3 +19,13 @@ k107's final repository check passed all 602 tests, with 48 skipped. The notice 
 - Promote final installed layout and notice path to the brief chain for k34. Reconcile removed consumers and any evidence-document links.
 
 ## Notes
+
+## Decomposition
+
+- `retire-frozen-native-tooling-k109` removes the disconnected incumbent/campaign/R01 executables and their Linux staging/profile consumers, keeping the historical receipts and current checks.
+- `rhai-delivery-cutover-k110` retains the complete coordinated install/archive/formula/smoke change, worker removal and all original delivery acceptance criteria. It consumes k107's notices unchanged.
+
+## Decisions (running log)
+
+- 2026-10-28: The retired campaign is independently removable: k101 already disconnected it from current checks, and the remaining consumers are private scripts, campaign-only nextest profiles, Linux object mounts and historical documentation. Complete this boundary as k109 before the cohesive delivery cutover in k110. This decomposition changes no acceptance criterion and does not close k108.
+- 2026-10-28: k109 removes the disconnected campaign executables/overlay, campaign-only nextest profiles and Linux host-object staging. Current macOS and Linux arm64 checks and all required book checks pass; rebuilt amd64 emulated staging/tool smoke also passes. Original receipts, equivalence fixtures and case/plan JSON remain unchanged. k110 still owns every coordinated delivery change and target-floor check, along with the remaining delivery-worker deletion and docs-evidence inventory.

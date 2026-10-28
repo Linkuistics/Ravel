@@ -1,4 +1,4 @@
-# The GNU/Linux subject environment for the native-entry support campaign (k49).
+# The GNU/Linux environment for current Rust, Rhai and native-entry checks.
 #
 # One image per platform: linux/arm64 runs natively on the Docker VM's kernel;
 # linux/amd64 runs under the VM's user-mode emulator and is recorded as emulated.
@@ -24,12 +24,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/opt/cargo/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # The packages the build, the instruments and the Taskfile tasks themselves use:
-# a C linker, git/patch/perl/tar for the incumbent assembly, jq and shasum for the
-# driver, shellcheck for `task check`, procps for process observation, curl for
-# the toolchain fetches below, and unzip/xz for the pinned Bun runtime fetch.
+# a C linker, Git/Perl for checkout-aware book tools, jq and shasum for the
+# checks, shellcheck for `task check`, procps for process observation, curl for
+# toolchain fetches below, and unzip/xz for checkout-local book tools.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      bubblewrap build-essential ca-certificates curl git jq patch perl procps \
+      bubblewrap build-essential ca-certificates curl git jq perl procps \
       python3 shellcheck unzip util-linux xz-utils bash coreutils findutils \
  && rm -rf /var/lib/apt/lists/*
 

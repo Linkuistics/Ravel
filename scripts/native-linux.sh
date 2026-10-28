@@ -3,8 +3,7 @@
 #
 # scripts/native-linux/measure.sh runs the current Taskfile checks; this script
 # provides their Linux environment: an image per platform and a container
-# holding a copy of the working tree (never the host's target/). The git object
-# mount remains available until the retired campaign tooling is removed.
+# holding a copy of the working tree (never the host's target/ or Git objects).
 # Nothing here measures anything.
 #
 # linux/arm64 runs natively on the Docker VM's kernel. linux/amd64 runs under
@@ -51,13 +50,6 @@ arch_of() {
     arm64 | amd64) printf '%s' "$1" ;;
     *) usage ;;
   esac
-}
-
-# The git directory holding the objects of the incumbent revision. A jj
-# secondary workspace's .git is a file naming the worktree's directory inside
-# the common one; the common directory holds the objects.
-git_common_dir() {
-  git -C "$root" rev-parse --path-format=absolute --git-common-dir
 }
 
 name_of() { printf 'ravel-native-linux-%s' "$1"; }
@@ -118,8 +110,7 @@ stage_git() {
     git config --global user.name native-linux
     git config --global user.email native-linux@localhost
     cd /work
-    git init -q .
-    echo /srv/git/objects > .git/objects/info/alternates'
+    git init -q .'
 }
 
 # The container's security options, and why each is needed. Used by both routes
@@ -178,10 +169,9 @@ stage_qemu_inputs() {
 }
 
 cmd_up() {
-  local arch name common options=()
+  local arch name options=()
   arch="$(arch_of "${1:-}")"
   name="$(name_of "$arch")"
-  common="$(git_common_dir)"
   docker image inspect "ravel-native-linux:$arch" >/dev/null 2>&1 ||
     die "no image for $arch (run: native-linux.sh image $arch)"
   docker rm -f "$name" >/dev/null 2>&1 || true
@@ -189,7 +179,6 @@ cmd_up() {
 
   if [ "$arch" = arm64 ]; then
     docker run -d --name "$name" --platform linux/arm64 "${options[@]}" \
-      --volume "$common:/srv/git:ro" \
       "ravel-native-linux:arm64" sleep infinity >/dev/null
   else
     docker image inspect "ravel-native-linux:arm64" >/dev/null 2>&1 ||
@@ -198,9 +187,9 @@ cmd_up() {
     mkdir -p "$root/target"
     stage_qemu_inputs "$inputs"
     # The helper is Docker's own architecture, as root, holding the guest's
-    # namespace; it carries the checkout's git objects for the guest to read.
+    # namespace; the guest receives only the staged working tree.
     docker run -d --name "$name" --platform linux/arm64 --user root "${options[@]}" \
-      --volume "$inputs:/inputs:ro" --volume "$common:/srv/git:ro" \
+      --volume "$inputs:/inputs:ro" \
       "ravel-native-linux:arm64" sleep infinity >/dev/null
     docker exec -d "$name" bash -c \
       'exec bash /inputs/native-linux-qemu.sh serve /inputs "$0" >/run/native-qemu.log 2>&1' "$CPU"
