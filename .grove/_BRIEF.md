@@ -147,3 +147,13 @@ design needs the settled requirements.
   `native_` cases, so it runs no Rhai test. The `rhai-worker` step of
   `scripts/native-linux/measure.sh` runs the Rhai tests, and
   `native-incumbent-guard-build-rs-k51` corrects the campaign step.
+
+- The second correction proof `rhai-book-use-k87` closed `rhai-book-use-k26` on 2026-10-28.
+  The complete review task now precedes the general model, and chapters 1–6 use the shared configuration terms.
+  The worker mechanism, descriptive headings, figures and reference fragments agree.
+  All 22 examples, nine excerpts, 18 figure reproductions, strict prose checks and the book build passed.
+  Link checks passed 2,075 local HTML targets and nine README links, with failing controls.
+  Fresh Safari inspection covered the six openings and all 13 figures at chapter width. The proof records its inventories, subject digests and limits.
+  `rhai-book-use-k74` has the correction recap and resumes at chapter 4 after it refreshes its local book and private shell.
+  The practical tasks still need the owner's results. No new checkpoint or editorial tail was cut.
+  The existing removal and later book leaves retain the final layout, help/spec terminology, whole-book reconciliation and Read 2 duties.

@@ -440,7 +440,8 @@ outcomes. Each one is different from the successful example and from the
 others. A caller needs to recognise each one.
 
 - A [refusal](02-actors-and-words.md#evaluation-and-supervision) occurs
-  before the launch. It occurs when the configuration script declines the
+  before the final managed launch. Evaluation harness runs can occur before
+  the refusal. It occurs when the configuration script declines the
   request, or when Ravel cannot accept the file, behaviour or data of the
   script. Ravel
   does not try a different route and returns no result to the caller.

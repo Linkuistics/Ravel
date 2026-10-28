@@ -258,6 +258,10 @@ the condition that a parent can change its child's environment.
 These are session findings, not new owner decisions. Check each repeated
 statement against its exceptions, even when the detailed entry is correct.
 
+Proof `rhai-book-use-k87`, 2026-10-28, found another summary with the same refusal ambiguity in chapter 3.
+Chapter 6 also called the environment helper's base variables the worker's variables, although the Rhai worker has an empty environment.
+Check summaries against the current mechanism after a terminology change. A familiar old description can retain the wrong recipient.
+
 ### L17. Separate a new contract from delivered behaviour
 
 Say which release a document describes and which implementation steps remain.
@@ -502,6 +506,11 @@ Do not truncate lines before matching or rely on a growing list of suspected wor
 Its first search cut lines at 200 characters and missed obsolete CLI help.
 **Ravel application:** The later token inventory found that help text.
 This file's audit enumerates every running log, then classifies all owner/human matches.
+
+Proof `rhai-book-use-k87`, 2026-10-28, corrected its inventory pattern before it relied on the result.
+The first pattern allowed letters and underscores, so it omitted the codes `source_not_utf8` and `env_not_utf8`.
+Include every character that the subject's identifiers permit. Test the extractor with an identifier from each character class, including digits.
+This is evidence about the inventory instrument, not a missing reference entry. Both codes were already in chapter 6.
 
 ### L37. Freeze inputs before measuring
 

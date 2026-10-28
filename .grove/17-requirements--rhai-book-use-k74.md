@@ -383,3 +383,31 @@ Its recap includes the amended Part I so the owner can inspect those changes wit
 Validation passed for all twelve changed records: zero hard prose findings, with existing advisories and declared exclusions retained.
 A comparison with `3c80f840` found no change under `docs/book/src`. The chapter corrections belong to the ordered run above.
 This session stopped its local book server before the handover. The resumed checkpoint must start a fresh server for the proofed text.
+
+## Correction recap for the Part II read, 2026-10-28
+
+Proof `rhai-book-use-k87` completed the authorised correction run of chapters 1–6.
+Resume at chapter 4 after a fresh local build, server and private reader shell. The owner already reviewed Part I and need not restart it.
+The amended Part I remains available through its normal contents entries for inspection.
+
+- Chapter 1 now begins with one complete review: its files, prompt, permitted results, completion commands and the orchestrator's next action.
+  A sequence connects that request to the result and the next task. The general roles follow the concrete case.
+- Chapters 1–6 use “configuration script”, “settings”, “Rhai worker” and “selection context”. Literal names, flags, fields and diagnostics stay exact.
+  Each chapter restates its terms and carries the same review into its explanations.
+- The worker explanation names the second copy of `ravel`, the deadline, host requests and failure isolation.
+  It states that worker cleanup precedes the final managed launch. Figures agree with that order.
+- Chapter 2's title is “Who does what in a Ravel session”. Chapter 1's final heading names the checks and what remains unchecked.
+  Chapter 3 uses the familiar `cd` instruction. JSON descriptions name their purpose, and Grove links to its repository.
+- Chapter 5 now runs the caller's side as an executable example. The orchestrator checks the status, reads `changes-needed` and requests a `fix` session.
+  Chapter 6's fragments agree with that revised review. Its links describe their current destinations.
+
+Proof corrected two remaining summaries: chapter 3's refusal concerns the final managed launch, and chapter 6's permitted environment variables belong to the helper.
+The Rhai worker's environment stays empty. Lessons L16 and L36 retain the transferable findings and the inventory-instrument correction.
+
+All 22 examples, nine excerpts, 18 figure reproductions, strict prose checks and the book build passed.
+Local checks passed 2,075 HTML targets and nine README links, with failing controls. All eleven external destinations responded successfully.
+Fresh Safari inspection covered the six openings and all 13 figures at chapter width. The proof task records its source inventories, subject digests and visual limits.
+
+The practical tasks remain outstanding: a fake-agent session, refusal and cancellation interpretation, and one direct reference entry.
+The proof and the completed Part I review supply no practical-task result. Record the owner's results separately as this checkpoint resumes.
+Read 2 remains required after the later whole-book proof.

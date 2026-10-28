@@ -125,3 +125,19 @@ Each chapter opens with chapter 1's review, and chapter 6 restates the worker's 
 The last draft passed all 22 examples, nine excerpts, seventeen figure reproductions and the book build.
 Strict prose and break checks passed for chapters 1–6. A local link check of the built book and the README passed, with failing controls.
 The figure labels with the old terms remain under “Handed forward” for art.
+
+## Second correction proof closure
+
+Proof `rhai-book-use-k87` read chapters 1–6 against the current contract, F1–F16 and all accumulated documentation lessons.
+It corrected chapter 3's refusal summary and chapter 6's description of environment-helper grants.
+The whole correction run now teaches the concrete review and the caller's complete task before the general roles.
+Configuration terms, headings, contents and figures agree. No hand-forward item remains for these parts.
+
+All 22 examples, nine excerpts, 18 figure reproductions, strict prose checks and the book build passed.
+Local link checks passed 2,075 HTML targets and nine README links, with failing controls. The proof records fresh source inventories and unchanged subject digests.
+Safari inspection covered the six openings and all 13 figures at chapter width, including the lower parts and keys of tall figures.
+The task states the visual bounds and the source-graph access limitation.
+
+The node's Done when holds at this correction boundary. Read 1 stays live as `rhai-book-use-k74` and resumes at chapter 4.
+Its correction recap makes amended Part I available without a repeat read. The owner's practical results remain outstanding.
+The root and later book brief retain the cutover, final installed-layout, whole-book proof and Read 2 responsibilities.
