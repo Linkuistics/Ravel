@@ -1,3 +1,5 @@
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
+
 # Result-job completion
 
 An opaque result is a request to finish a managed job. A readable result file
@@ -118,15 +120,18 @@ launcher reports failures and propagates the selected signal after required
 cleanup attempts. Supervision/reap and recovery failures remain diagnostics
 even when cancellation is the primary outcome.
 
+<!-- tc: on -->
+
 ### Worker teardown before admission
 
 The evaluator SHALL require confirmed worker reap before returning a successful
-evaluation. A successful policy conversation plus a teardown wait error is
-worker failure, with exit 5, and cannot reach command resolution, successful
-selection or a managed launch. Any confirmed exit status meets the reap
-prerequisite; it need not be status zero. A timeout, policy refusal, protocol
+evaluation. A successful policy conversation plus a teardown wait error is worker failure, with exit 5.
+It cannot reach command resolution, successful selection or a managed launch. Any confirmed exit status meets the reap
+prerequisite. It need not be status zero. A timeout, policy refusal, protocol
 failure or output-bound breach keeps its existing classification when cleanup
-also fails, except that cancellation still wins. Every teardown failure is
+also fails, except that cancellation still wins.
+
+Every teardown failure is
 reported alongside that primary outcome and the separately captured policy
 diagnostics. A message cannot say “reaped” without that confirmation.
 
@@ -138,6 +143,8 @@ worker remains alive or that it is gone. Failure reports the worker identity,
 failed operation and recovery advice without pretending that an unsuccessful
 wait can establish a successful cleanup. Detached policy children remain outside
 the existing worker guarantee.
+
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
 ### Cleanup after partial acquisition
 
@@ -382,27 +389,31 @@ x86-64 kernel is deferred, not rejected, and tracked in
 unmeasured: any other kernel, libc or Rust version, a returning host and
 independent adoption.
 
+<!-- tc: on -->
+
 ## Test seams for the repair contract
 
 Retain the agreed public CLI with real TypeScript policy and fake managed jobs,
 transport/real-process boundary and runner/PTY boundary. Existing private process
 waiting is the enabling point for cancellation followed by observation or reap
-failure. The justified new private controls are evaluator teardown-report
-substitution before success admission, allocator-local post-creation failure and
-cleanup-report controls, and a restricted terminal-recovery outcome control where
-a real PTY alone cannot force recovery failure. Actual fixture processes are
-still waited for; a reported failure is not permission to leak the fixture.
+failure. The justified new private controls cover evaluator teardown reports before success admission, allocator-local post-creation failure and cleanup reports.
+A restricted terminal-recovery control covers outcomes that a real PTY alone cannot force. Actual fixture processes are
+still waited for. A reported failure is not permission to leak the fixture.
 
 The [discriminating matrix](../completion-failure-design-evidence.md#discriminating-checks)
-names the before/after expectations and controls. Keep protected fixed-reference
-expectations outside the repair: configuration, CLI classification, exact results,
-first-writer publication, nesting, combined-failure precedence/diagnostics, late
-cancellation, descendant/group cleanup, reap, terminal recovery and final-write
-behavior. Private fault controls cannot become public CLI switches or an
-unbounded syscall abstraction. No behavioral instrument was built or executed
-for the original design. C1 now has the separate checked observations linked
-above; its recovery-report control does not establish actual checked terminal
+names the before/after expectations and controls. The repair must preserve the reference expectations for configuration, CLI classification, exact results, first-writer publication and nesting.
+It must preserve combined-failure precedence/diagnostics, late cancellation, descendant/group cleanup, reap, terminal recovery and final-write behaviour.
+
+Private fault controls cannot become public CLI switches or an
+unbounded syscall abstraction. No behavioural instrument was built or executed
+for the original design.
+
+<!-- tc: depart synonym-rotation because checked observations name scoped tests and confirmation names an observed lifecycle fact -->
+C1 now has the separate checked observations linked
+above. Its recovery-report control does not establish actual terminal
 recovery.
+
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
 ## Boundary criterion
 
@@ -425,8 +436,11 @@ limits, rather than a universal transfer guarantee. Resolving those limits,
 recurring support cost and a working migration route still need assessment.
 Public packaging and independent consumer execution remain separate questions.
 
+<!-- tc: on -->
+
 ## Evidence and checks
 
+<!-- tc: depart synonym-rotation because fixed implementation reference names a revision and repair names corrective work -->
 The nominal completion path is source-supported at the fixed implementation
 reference named in the [component evidence](../component-evidence.md#source-reference-and-discovery).
 The existing exact-result CLI case, cancellation CLI case and publish-before-
@@ -441,10 +455,7 @@ search, runtime and whole-replacement lifecycle questions. Association support
 does not establish complete settlement or runtime conformance.
 
 Use the already agreed CLI with real TypeScript policy and fake launched
-programs, transport/real-process tests, and runner/terminal tests. Any touched
-composition must retain first-writer and anchored-read checks, nesting,
-publication/cancellation overlap, combined result/cleanup failure diagnostics
-and precedence, late-signal handoff, descendant cleanup, reap and terminal
-recovery. An unrelated ending is a discriminating interface case. Source
+programs, transport/real-process tests, and runner/terminal tests. Any touched composition must retain first-writer and anchored-read checks, nesting and publication/cancellation overlap.
+It must retain combined result/cleanup failure diagnostics and precedence, late-signal handoff, descendant cleanup, reap and terminal recovery. An unrelated ending is a discriminating interface case. Source
 reasoning and diagrams establish no runtime preservation, external adoption
 or human comprehension result.

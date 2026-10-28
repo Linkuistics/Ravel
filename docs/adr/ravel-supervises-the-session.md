@@ -2,7 +2,7 @@
 
 start-session stays parent of its selected process until termination/reap and
 process-group cleanup. end-session publishes one opaque value using inherited
-context; Ravel gives that value no task-tree or continuation meaning. The caller
+context. Ravel gives that value no task-tree or continuation meaning. The caller
 supplies ending instructions and interprets the returned value. There is no
 persistent run record or observation protocol in Ravel.
 
@@ -18,7 +18,7 @@ The ephemeral channel carries a result rather than interpreting an exit status:
 a natural child exit 0 conveys no opaque result and refuses. Atomic first-writer
 publication preserves empty/multiline values and nested process context. An explicit
 session target was rejected because it turns an enclosing-context action into
-cross-session addressing. A persistent store was rejected by product scope;
-caller provenance remains caller-owned. These constraints bind the
+cross-session addressing. A persistent store was rejected by product scope.
+Caller provenance remains caller-owned. These constraints bind the
 [executable specification](../specs/session-execution.md) and
 [session channel](../book/src/07-the-parts-of-ravel.md#the-result-channel-carries-the-value).
