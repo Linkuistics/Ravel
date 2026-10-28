@@ -5,8 +5,8 @@
 # each figure's layout record with its committed .layout.json. The layout on disk
 # and the reasons for each choice below are in docs/book/figures.md.
 #
-# Like scripts/book.sh this is separate from crates/ravel/scripts/dispatch.sh,
-# whose bytes decide the compiled worker's identity; the book is not product.
+# Like scripts/book.sh and scripts/book-bun.sh, this owns checkout development
+# tools separately from the installed product.
 set -euo pipefail
 IFS=$'\n\t'
 

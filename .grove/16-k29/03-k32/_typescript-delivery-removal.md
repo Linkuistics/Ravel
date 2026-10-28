@@ -1,8 +1,19 @@
-# typescript-delivery-removal-k32
+# typescript-delivery-removal-k32 — brief
 
 ## Goal
 
 Remove the Bun worker, the TypeScript SDK and their build and release machinery. Install the Rhai examples and generate the third-party notices of the Rust dependency tree. Make the archives, the formula and the smoke tests match.
+
+## Decomposition
+
+- `book-bun-toolchain-k104` moves the checkout-local Bun fetch out of the worker dispatcher, with offline integrity controls. It preserves the book tools before their current fetch owner is removed.
+- `typescript-build-removal-k105` removes worker prerequisites from normal setup/build/check and native Linux checks, and moves the book checker fixtures off retired source paths. Delivery consumers may retain the unused worker until the next child.
+- `rhai-release-layout-k106` changes installation, archives, notices, smoke tests and the formula together, then removes the worker/SDK/dispatcher and retired campaign tooling after reconciling their last consumers.
+
+## Decisions (running log)
+
+- 2026-10-28: Split at the actual dependency boundaries above. The book fetch is a verified first increment; build/check removal and the installed-layout change each require their own fresh session. This session implements only k104. Keep frozen equivalence observations and historical campaign receipts unchanged.
+- 2026-10-28: k104 delivers `scripts/book-bun.sh` and `book:bun:integrity`; setup uses that book-owned fetch. It preserves Bun 1.4.2, the existing three package digests and the default `target/tools/bun` path, with `BOOK_TOOLS_DIR` support. Setup/build, all requested book checks and repository check pass (602 tests passed, 48 skipped). The worker dispatcher is unchanged. k105 now removes development prerequisites; k106 removes the remaining dispatcher, its delivery-only Bun pins/notices and the old installed layout. The final Rust-notice path is still k106's decision and must reach k34.
 
 ## Context
 

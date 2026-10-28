@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # The book's toolchain: fetch and verify the pinned mdBook, then build or serve
-# docs/book. It is separate from crates/ravel/scripts/dispatch.sh on purpose:
-# that script's bytes decide the compiled worker's identity, and the book is
-# not part of the product.
+# docs/book. scripts/book-bun.sh owns the checkout-local Bun used by the book
+# checks; these development tools are separate from the installed product.
 set -euo pipefail
 IFS=$'\n\t'
 

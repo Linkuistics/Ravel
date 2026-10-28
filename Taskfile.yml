@@ -108,10 +108,16 @@ tasks:
     cmds:
       - bash scripts/book-integrity.test.sh
 
+  book:bun:integrity:
+    desc: Verify the checkout-local book Bun fetch, cache recovery and refusal of corrupt downloads offline
+    silent: true
+    cmds:
+      - bash scripts/book-bun.test.sh
+
   setup:
     desc: Fetch and verify the pinned checkout-local Bun, mdBook, Typst with CeTZ and the figure fonts, then install worker dependencies
     cmds:
-      - bash crates/ravel/scripts/dispatch.sh setup
+      - bash scripts/book-bun.sh setup
       - bash scripts/book.sh setup
       - bash scripts/figures.sh setup
       - task: deps
