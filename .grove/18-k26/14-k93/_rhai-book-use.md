@@ -1,4 +1,4 @@
-# rhai-book-use-k93
+# rhai-book-use-k93 — brief
 
 
 ## Goal
@@ -40,3 +40,18 @@ Resolve F17 and F18 before the owner resumes the interrupted chapter 4 read.
   The fake-agent, refusal, cancellation and direct-reference task results remain required.
 - The first LLM trial ran the example but did not identify the owner's setup confusion.
   Its model evidence does not reject F17 or establish novice comprehension.
+
+## Decomposition
+
+Chapters 1–6 have about 7,640 lines and 417 KB. One session cannot read them in full, edit them and run the checks.
+The two earlier correction drafts split at the same size. This node uses four drafts by chapter group.
+
+- `rhai-book-use-k115` takes chapters 3 and 4. Chapter 3 has the book's first procedure, and chapter 4 has the F17 setup section.
+  It writes the new setup pattern first: a named example, its workspace and files, then the complete command, then the parts.
+- `rhai-book-use-k116` takes chapter 5. Its “Run the examples of this chapter” section has the same shape as chapter 4's F17 section.
+- `rhai-book-use-k117` takes chapters 1 and 2. They have no complete example, but they show real-run fragments and configuration names.
+- `rhai-book-use-k118` takes chapter 6, because it quotes the examples of the other chapters (L64).
+  It also runs the mechanical gates for all of chapters 1–6, and it closes this node.
+
+The four drafts share the stem `rhai-book-use`. Refer to each by key.
+Copy-edit `rhai-book-use-k94` follows this node. No draft cuts a later stage.

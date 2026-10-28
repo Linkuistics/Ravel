@@ -75,15 +75,53 @@ details.
 
 ## Run the first session
 
-Use the shell where `ravel --version` succeeded. Create an empty directory
-for the example and `cd` into it. Create a `bin` subdirectory in it. Then save
-the two files below at the labelled paths.
+The example of this chapter is the first session. Its directory is
+`~/ravel-first-session`, in your home directory. It holds a configuration script that selects one fake
+agent for every request. The fake prints the prompt that it receives and
+sends the result `finished`.
 
-The command below creates private `home` and `tmp` directories and makes
-the fake executable. The command clears the environment (`env -i`) and gives
-an explicit `--config`. Thus, this session does not use your usual settings
-or configuration script. The explicit path `config.rhai` names the file in
-the example directory.
+When you finish the steps, the directory holds these paths:
+
+```text
+~/ravel-first-session/
+├── config.rhai        you save it
+├── bin/               you make it
+│   └── fake-agent     you save it
+├── home/              the command makes it
+└── tmp/               the command makes it
+```
+
+Each path has one purpose in the session:
+
+| Path | Who makes it | Purpose |
+|---|---|---|
+| `config.rhai` | You | The configuration script. The option `--config config.rhai` selects it. |
+| `bin/fake-agent` | You | The fake agent, a shell script that the configuration script selects. It stands where a harness stands. |
+| `home/` | The command | An empty home directory for Ravel. Ravel finds no settings file there, so the default settings apply. |
+| `tmp/` | The command | A private temporary directory. Ravel makes the result channel of the session here. |
+
+Do these steps in the shell where `ravel --version` succeeded:
+
+1. Make the example directory and its `bin` subdirectory, then `cd` into the
+   example directory. The fragment after these steps gives the two commands.
+2. Save the two files of the complete example at their labelled paths. Each
+   label is a path in `ravel-first-session`.
+3. Type the command of the complete example without its first `$ `, which
+   stands for the prompt of your shell.
+4. Run `echo "$?"` immediately after the command to see its exit status.
+   Compare the output and the status with the example.
+
+Fragment: make the example directory and `cd` into it. This block omits the
+two files, which you save next. The book checker makes its own directory for
+each example and does not run this block.
+
+```sh
+mkdir -p ~/ravel-first-session/bin
+cd ~/ravel-first-session
+```
+
+The `~` stands for your home directory, so these commands work from any
+current directory.
 
 Complete example: pass a prompt through a small configuration script to a
 fake agent. The fake prints the prompt and sends `finished`.
@@ -140,6 +178,31 @@ fake-agent received: Print this prompt, then call ravel end-session -- "finished
 ```text
 0
 ```
+
+In your terminal, the lines of standard output and standard error appear
+together. The book shows each stream in its own block. Ravel writes the
+lines of the second block before the result.
+
+What did the command do? It is one line with three commands, joined by `&&`.
+Each command runs only if the command before it succeeded. These are its
+parts:
+
+| Part of the command | What it does in `ravel-first-session` |
+|---|---|
+| `mkdir -p home tmp` | Makes `home` and `tmp`. With `-p`, `mkdir` gives no error when they exist already. |
+| `chmod +x bin/fake-agent` | Makes the fake executable, so that Ravel can run it as a program |
+| `env -i` | Runs the rest of the line with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the session. |
+| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Your shell expands `$PWD` before `env` runs, so each value is an absolute path. |
+| `PATH="$PWD/bin:$PATH"` | Puts `bin` first on the search path. Your shell expands `$PATH` before `env -i` clears the environment, so your installed `ravel` stays on the path. |
+| `ravel start-session` | Asks Ravel for one session |
+| `--kind demo` | Gives the caller's kind. This configuration script does not examine it. |
+| `--config config.rhai` | Selects the configuration script of the example, relative to the current directory |
+| `--prompt '…'` | Gives the caller's prompt. The script passes it unchanged to the fake. |
+
+The private home and the explicit `--config` keep your usual settings and
+configuration script out of this session. Without `--config`, Ravel looks
+for the default script `home/.config/ravel/config.rhai`. That file does not
+exist, so Ravel refuses with `config_missing` and exit status 3.
 
 <!-- tc: depart synonym-rotation because the start of a shell prompt is a text position, not a process launch -->
 Ravel writes the result unchanged to standard output. Here, the output is

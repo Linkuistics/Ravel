@@ -1058,6 +1058,29 @@ The trial also read beyond its stopping boundary during a later citation lookup.
 Prove that a validator notices a missing setup step, a reordered dependency, an absent required tool and an incorrect output claim.
 Separate observed execution from model judgements about prerequisite knowledge and from human-reader evidence.
 
+Draft `rhai-book-use-k115`, 2026-10-29, applied the rule to chapters 3 and 4.
+Each example now has a named directory, a tree of its paths, and a table of who makes each path and why. Numbered steps and a labelled fragment for `mkdir` and `cd` follow.
+The table of the command's parts now follows the complete command. Each later example of chapter 4 has a paragraph that names its directory and its differences from the first example.
+
+That draft also followed the visible steps in zsh, the default macOS shell. It saved the files without the executable bit, as a text editor does, and ran each example's blocks in one shell process.
+Twelve of 13 examples matched exactly. The other differed only in the `<scratch>/work` substitution, which the page now explains.
+
+A control that omitted `chmod` failed with status 126. This mechanical walk shows that the visible steps are executable. It is not evidence that a reader understands them.
+
+### L68. Write each example command for the reader's shell
+
+An example checker often runs each block in a noninteractive shell. A reader types the same lines into an interactive shell, where some commands behave differently.
+For example, `|| exit "$?"` stops a failed `sh -c` block early. In a reader's interactive shell, the same `exit` closes the shell.
+
+Write each command so that it is safe and correct when the reader types it. Keep the checker's failure detection through the expected output and status.
+Name the reader's shell when its behaviour matters, such as a continuation prompt for a multi-line loop.
+
+**Source:** Session evidence, `rhai-book-use-k115`, 2026-10-29, during the F17 correction.
+**Ravel application:** Chapter 4 removed `|| exit "$?"` from eleven preparation lines. Its interactive-routes loop now uses `|| break`.
+A failed preparation still changes the next command's output, so the check still fails.
+
+**Check:** Run the visible commands in the reader's default shell, after only the preparation that the page states. Then plant one omitted step and see that run fail.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.

@@ -187,52 +187,58 @@ them. Thus, the result of an example shows you what the script chose. The fake
 harnesses for an LLM call print a fixed answer. No example needs a model
 account or a real harness.
 
-Create an empty directory for each example and `cd` into it. Create the
-listed files there, then run the commands of the example. Each command line
-has these parts:
+Each example has a name and a directory of its own. Put these directories in
+one workspace directory, `~/ravel-chapter-4`, in your home directory. Why a
+new directory for each example? Several examples use the same
+file names, such as `config.rhai` and `bin/fake-agent`, with different
+contents. Some commands also write files, such as `.ravel-choice`, that
+change the result of the next command.
 
-| Part of the command | What it does |
-|---|---|
-| `mkdir -p home tmp` | Makes a private home directory and a private temporary directory |
-| `chmod +x bin/*` | Makes the fake programs executable |
-| `env -i` | Starts the command with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
-| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Thus, your own configuration script and settings do not enter the example. |
-| `PATH="$PWD/bin:$PATH"` | Puts the fake programs first on the search path |
-| `ravel start-session --config config.rhai` | Runs a session with the configuration script of the example |
+The first example is `fixed-route`. Its configuration script selects one fake
+agent for every request. The fake sends the caller's prompt back as the
+result. When you finish the steps, the directory holds these paths:
 
-The book checker runs the same examples through the
-[CLI test environment](03-a-complete-session.md), with the built Ravel CLI. It
-compares each output with the output that the book shows.
+```text
+~/ravel-chapter-4/
+└── fixed-route/
+    ├── config.rhai        you save it
+    ├── bin/               you make it
+    │   └── fake-agent     you save it
+    ├── home/              the first command line makes it
+    └── tmp/               the first command line makes it
+```
 
-## Define a configuration script and read the request
+Each path has one purpose in the example:
 
-Where does Ravel find your configuration script, and what must the file
-contain? Ravel looks in one place. The default script is
-`$HOME/.config/ravel/config.rhai`. `HOME` must be absolute for that default.
+| Path in `fixed-route` | Who makes it | Purpose |
+|---|---|---|
+| `config.rhai` | You | The configuration script. The option `--config config.rhai` selects it. |
+| `bin/fake-agent` | You | The fake agent that the configuration script selects. It sends its first argument as the result. |
+| `home/` | The first command line | An empty home directory for Ravel. Ravel finds no settings file there, so the default settings apply. |
+| `tmp/` | The first command line | A private temporary directory. Ravel makes the result channel of the session here. |
 
-`--config PATH` selects another file, relative to the caller's working directory.
-Ravel searches no parent directory and tries no fallback script.
-Thus, a missing script is an error.
-It is not a silent change of route.
+Do these steps in a shell where `ravel --version` succeeds:
 
-The file must be readable UTF-8, regular, and at most 1 MiB.
-A symlink identifies its canonical real file.
+1. Make the example directory and its `bin` subdirectory, then `cd` into the
+   example directory. The fragment after these steps gives the two commands.
+2. Save the two files of the complete example at their labelled paths. Each
+   label is a path in `fixed-route`.
+3. Type each command line of the example without its first `$ `, which
+   stands for the prompt of your shell.
+4. Run `echo "$?"` immediately after the second line to see its exit status.
+   Compare the output and the status with the example.
 
-A configuration script is a Rhai module. A module is one file of Rhai code,
-which can export constants for other code to read. Your script exports two
-constants and defines a function:
+Fragment: make the directory of `fixed-route` and `cd` into it. This block
+omits the two files, which you save next. The book checker makes its own
+directory for each example and does not run this block.
 
-| Declaration | Purpose |
-|---|---|
-| `export const SCHEMA_VERSION = 3;` | Name the version of the interface between Ravel and the script that this file uses. |
-| `export const VERSION = "my-policy-1";` | Name this revision of your script. The JSON routing notice shows it. |
-| `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#evaluation-and-supervision). |
-| `fn load_context(request)` | Optionally assemble selection context before `select`. |
+```sh
+mkdir -p ~/ravel-chapter-4/fixed-route/bin
+cd ~/ravel-chapter-4/fixed-route
+```
 
-`SCHEMA_VERSION` is independent of the Ravel release and of the version of
-the context document. `VERSION` is a nonblank string that you change when your
-script changes. The functions need the parameter counts shown above.
-Top-level statements run once before the functions.
+The `~` stands for your home directory, so these commands work from any
+current directory.
 
 Complete example: pass the caller's prompt to a fake agent.
 
@@ -240,7 +246,7 @@ Complete example: pass the caller's prompt to a fake agent.
 
 ```rhai
 export const SCHEMA_VERSION = 3;
-export const VERSION = "first-policy-1";
+export const VERSION = "fixed-route-1";
 
 fn select(request, context) {
     #{
@@ -265,7 +271,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "Explain this change."
 ```
 
@@ -281,7 +287,30 @@ Explain this change.
 0
 ```
 
-What happened? Follow the request from the caller to the result:
+In your terminal, standard error also shows the routing notice and can show
+reports of cleanup operations. The book makes no claim about standard error
+in this example.
+
+What did the two command lines do? The first line prepares the directory. The
+second line runs the session. These are their parts:
+
+| Part of the command | What it does in `fixed-route` |
+|---|---|
+| `mkdir -p home tmp` | Makes `home` and `tmp`. With `-p`, `mkdir` gives no error when they exist already. |
+| `chmod +x bin/*` | Makes each file in `bin`, here only `fake-agent`, executable |
+| `env -i` | Runs the rest of the line with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
+| `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Your shell expands `$PWD` before `env` runs, so each value is an absolute path. |
+| `PATH="$PWD/bin:$PATH"` | Puts `bin` first on the search path. Your shell expands `$PATH` before `env -i` clears the environment, so your installed `ravel` stays on the path. |
+| `ravel start-session` | Asks Ravel for one session |
+| `--config config.rhai` | Selects the configuration script of the example, relative to the current directory |
+| `--kind question` | Gives the caller's kind. This configuration script does not examine it. |
+| `--prompt "Explain this change."` | Gives the caller's prompt. The script passes it to the fake as its first argument. |
+
+The private home and the explicit `--config` keep your own settings and
+configuration script out of the example.
+
+What happened in the session? Follow the request from the caller to the
+result:
 
 | Order | Who acts | What happens in this example |
 |---|---|---|
@@ -299,9 +328,57 @@ before it returns the result.
 The `--` in `ravel end-session -- "$1"` ends the options of `end-session`.
 Thus, a result that starts with `-` stays a result and does not become an
 option. Ravel writes the result unchanged and adds no newline. This is why the
-label says “without a final newline”.
+label says “without a final newline”, and why your next shell prompt can start
+on the same line as the result.
 
-The script used this Rhai:
+Each later example of this chapter uses the same four steps in a new
+directory under `~/ravel-chapter-4`. For example, step 1 of the next example,
+`refusals`, is `mkdir -p ~/ravel-chapter-4/refusals/bin`, then
+`cd ~/ravel-chapter-4/refusals`. Before its complete example, a paragraph
+names the directory and says how the example is different from `fixed-route`.
+An example can have more files, more command lines or different options. The
+first line, `mkdir -p home tmp && chmod +x bin/*`, appears only in the first
+command block of each example. A later block uses the directories that the
+first block made.
+
+The book checker runs the same files and commands with the built Ravel CLI.
+For each example, it makes a new directory, saves the labelled files and makes
+the files in `bin` executable. Then it runs the command blocks in order and
+compares each output with the output that the book shows. You do the
+preparation by hand, in the steps above.
+
+## Define a configuration script and read the request
+
+The `config.rhai` of `fixed-route` has two `export const` lines and one
+function. What must a configuration script contain, and where does Ravel find
+it? Ravel looks in one place. The default script is
+`$HOME/.config/ravel/config.rhai`. `HOME` must be absolute for that default.
+
+`--config PATH` selects another file, relative to the caller's working directory.
+Ravel searches no parent directory and tries no fallback script.
+Thus, a missing script is an error.
+It is not a silent change of route.
+
+The file must be readable UTF-8, regular, and at most 1 MiB.
+A symlink identifies its canonical real file.
+
+A configuration script is a Rhai module. A module is one file of Rhai code,
+which can export constants for other code to read. Your script exports two
+constants and defines a function:
+
+| Declaration | Purpose |
+|---|---|
+| `export const SCHEMA_VERSION = 3;` | Name the version of the interface between Ravel and the script that this file uses. |
+| `export const VERSION = "fixed-route-1";` | Name this revision of your script. The JSON routing notice shows it. |
+| `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#evaluation-and-supervision). |
+| `fn load_context(request)` | Optionally assemble selection context before `select`. |
+
+`SCHEMA_VERSION` is independent of the Ravel release and of the version of
+the context document. `VERSION` is a nonblank string that you change when your
+script changes. The functions need the parameter counts shown above.
+Top-level statements run once before the functions.
+
+The `select` function of `fixed-route` used this Rhai:
 
 - `#{ ... }` makes a map, which is a set of named fields.
 - `request.prompt` reads the field `prompt` of the map `request`.
@@ -373,10 +450,12 @@ Your script sets both, and Ravel does not compare them.
 Why have labels, then? The caller usually wants to know what the script chose,
 but the caller does not read your script. Ravel tells the caller in the routing
 notice. Before it starts the program, the Ravel CLI writes one line on the
-caller's standard error. For the first example of this chapter, that line was:
+caller's standard error. For the first example of this chapter,
+`fixed-route`, that line was:
 
-Fragment: the routing notice of the first example in this chapter, on standard
-error. This block omits the command and the result on standard output.
+Fragment: the routing notice of `fixed-route`, on standard error. This block
+omits the command, the reports of cleanup operations and the result on
+standard output.
 
 ```text
 ravel: starting provider example, model fake, effort low for kind "question"
@@ -400,6 +479,15 @@ After a refusal, Ravel reports `config_refused` with exit status 3.
 Your `code` appears separately as `configCode` in the JSON failure document.
 No managed process starts, and Ravel tries no other route.
 The caller receives no result.
+
+The next example is `refusals`. Make its directory as for `fixed-route`:
+`~/ravel-chapter-4/refusals`, with a `bin` subdirectory. It has the same two
+file paths. `bin/fake-agent` has the same contents, but `config.rhai` is
+different. The example has three command blocks. Run them in order:
+
+- The first block makes `home` and `tmp`, then asks with the kind `question`.
+- The second block asks with the kind `unknown`.
+- The third block asks with the kind `question` and adds `--param model=other`.
 
 Complete example: accept one kind and refuse an unknown kind or a forbidden
 parameter.
@@ -438,7 +526,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -517,7 +605,7 @@ standard error. The values come from the third command:
 | `ravel: refused (config_refused, stage selection)` | Ravel's code for the outcome, and the stage in which it occurred. The script refused during selection. |
 | `the configuration script … refused the selection: The owner chooses the model.` | The file of the configuration script, then the script's `message` |
 | `input: --kind question` | The kind of the request |
-| `source: <scratch>/work/config.rhai` | The file of the configuration script. `<scratch>` stands for the example's directory. |
+| `source: <scratch>/work/config.rhai` | The file of the configuration script. `<scratch>/work` stands for the example's directory. In your shell, the line shows the absolute path of your `refusals` directory. |
 | `config code: owner_model` | The script's own `code` |
 | `remedy: Remove the model parameter.` | The script's `remedy`, which tells the caller what to change |
 
@@ -564,6 +652,12 @@ Ravel's standard output, which Ravel does not interpret. The managed process
 sends that result with `end-session`. With `--json`, the JSON routing notice
 holds the captured text in its `diagnostics` member.
 
+The next example is `print-and-parse`, in `~/ravel-chapter-4/print-and-parse`
+with a `bin` subdirectory. It has a third file, `broken.rhai`, beside
+`config.rhai`. `broken.rhai` is a second configuration script with a syntax
+error. `bin/fake-agent` is the same as in `fixed-route`. The second command
+block selects `broken.rhai` with `--config broken.rhai`.
+
 Complete example: print a value from the script, then find a syntax error.
 
 **`config.rhai`**
@@ -600,7 +694,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -701,6 +795,12 @@ A smaller table can store strings directly.
 A function reads a top-level constant through `global::`, as the next example
 shows. `let` declares a local variable that the script can change.
 
+The next example is `route-table`, in `~/ravel-chapter-4/route-table` with a
+`bin` subdirectory. It has the same two file paths as `fixed-route`, but both
+files are different. This `bin/fake-agent` sends its first two arguments,
+joined by `|`. The three command blocks ask with the kinds `question`,
+`feature` and `other`.
+
 Complete example: route two kinds through a local table.
 
 **`config.rhai`**
@@ -732,7 +832,7 @@ ravel end-session -- "$1|$2"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -829,6 +929,12 @@ A missing module, import cycle or 65th distinct imported module gives
 Ravel embeds no Rhai module of its own. Imports name files, which can be
 copies of the shipped examples.
 
+The next example is `imports`, in `~/ravel-chapter-4/imports` with a `bin`
+subdirectory. It has a third file, `routes.rhai`, beside `config.rhai`.
+`routes.rhai` is the module that `config.rhai` imports. `bin/fake-agent` is
+the same as in `route-table`. The command is the same as in `fixed-route`,
+with the prompt `hello`.
+
 Complete example: call an imported function and use its exported constant.
 
 **`config.rhai`**
@@ -864,7 +970,7 @@ ravel end-session -- "$1|$2"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -910,6 +1016,19 @@ The sample implements this behaviour with `ravel::read_text` and ordinary
 Rhai string operations. No special choice-file API is necessary.
 The next example uses a smaller choice rule so you can test every branch.
 
+The next example is `checkout-choice`, in `~/ravel-chapter-4/checkout-choice`
+with a `bin` subdirectory. It has the same two file paths as `fixed-route`.
+`bin/fake-agent` has the same contents, but `config.rhai` is different. The
+example directory stands for the caller's repository. Do not save a
+`.ravel-choice` file:
+
+- The first command block runs without `.ravel-choice`.
+- The second block first writes `careful` to `.ravel-choice` with `printf`.
+- The third block replaces that text with `other`.
+
+Run the three blocks in order, because each block uses the file that the
+block before it left.
+
 Complete example: accept `careful`, use a default when absent, and refuse any
 other text.
 
@@ -948,7 +1067,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -1087,6 +1206,13 @@ A read in `select` appears in the routing notice but changes no delivered contex
 Attributed `sources` describe claims. `measured` records the bytes Ravel read.
 Neither measurement establishes that a claim is true.
 
+The next example is `selection-context`, in
+`~/ravel-chapter-4/selection-context` with a `bin` subdirectory. It has a third
+file, `task.json`, beside `config.rhai`. `task.json` holds the task data that
+the loader reads from the caller's working directory. This `bin/fake-agent`
+sends its first three arguments, joined by `|`. The command uses the kind
+`review`.
+
 Complete example: read task data, build selection context, and use it in the
 selection.
 
@@ -1127,7 +1253,7 @@ ravel end-session -- "$1|$2|$3"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind review --prompt "hello"
 ```
 
@@ -1198,6 +1324,11 @@ Characters, function pointers, ranges and other non-JSON types do not cross.
 Ravel also refuses non-finite numbers. Arrays and maps nest at most 100 levels.
 A JSON integer outside the signed 64-bit range becomes a float.
 
+The next example is `data-helpers`, in `~/ravel-chapter-4/data-helpers` with a
+`bin` subdirectory. It has the same two file paths as `fixed-route`.
+`bin/fake-agent` has the same contents, but `config.rhai` is different. The
+command is the same as in `fixed-route`, with the prompt `hello`.
+
 Complete example: check data, handle a failed check, and encode the result.
 
 **`config.rhai`**
@@ -1231,7 +1362,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
 ```
 
@@ -1339,8 +1470,19 @@ An unset permitted name returns `()`.
 An ungranted name throws `env_not_granted`, even if it is unset.
 A value outside UTF-8 throws `env_not_utf8`.
 
+The next example is `settings-grants`, in `~/ravel-chapter-4/settings-grants`
+with a `bin` subdirectory. It has a third file, `settings.json`, at the top
+of the example directory. This `bin/fake-agent` sends its first three
+arguments, joined by `|`. The command block has three lines:
+
+- The first line is the same as in `fixed-route`.
+- The second line copies `settings.json` into `home/.config/ravel/`. Ravel
+  reads the settings only from that path in the private home.
+- The third line sets `BOOK_EFFORT` and `BOOK_HIDDEN` after `env -i`, and
+  adds `--timeout-ms 10000`.
+
 Complete example: grant one variable and observe a CLI bound replacement.
-The command installs settings only in the example's temporary home.
+The command installs settings only in the example's private home.
 
 **`settings.json`**
 
@@ -1375,7 +1517,7 @@ ravel end-session -- "$1|$2|$3"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" BOOK_EFFORT=high BOOK_HIDDEN=unused PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --timeout-ms 10000 --prompt "hello"
 ```
@@ -1582,6 +1724,22 @@ It then checks `structured_output` against the same schema.
 The fixed answer permits only `yes` or `no`.
 It never supplies a program name or arbitrary command argument.
 
+The next example is `claude-question`, in `~/ravel-chapter-4/claude-question`
+with a `bin` subdirectory. It has four files:
+
+| Path in `claude-question` | Purpose |
+|---|---|
+| `settings.json` | Names the harness entry `claude` and permits one harness run. The first command block copies it into the private home. |
+| `config.rhai` | Asks the harness run a question, checks the answer and selects `fake-agent` |
+| `bin/claude` | A fake Claude Code. `bin` comes first on the search path, so a real Claude Code does not run. |
+| `bin/fake-agent` | The same fake agent as in `fixed-route` |
+
+The fake `claude` writes two files when it runs: `call.args` and
+`call.prompt`. The first command block also writes the result to a file,
+`result`. Then it prints the three files. The second command block first makes
+an empty file, `invalid-answer`, with `touch`. That file makes the fake give
+an answer that the schema does not permit.
+
 Complete example: ask through a fake Claude Code and refuse an invalid answer.
 
 **`settings.json`**
@@ -1650,7 +1808,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
 ```
@@ -1760,6 +1918,20 @@ This recipe does not use `--json`, which selects JSON Lines events instead.
 | `--output-schema PATH` | Read the answer schema from a file. |
 | `-` | Read the prompt from standard input. |
 
+The next example is `codex-question`, in `~/ravel-chapter-4/codex-question`
+with a `bin` subdirectory. It has the shape of `claude-question`, with two
+differences:
+
+- `settings.json` names the harness entry `codex`, and `bin/codex` is a fake
+  Codex in place of `bin/claude`.
+- A fifth file, `answer-schema.json`, holds the schema of the answer. The
+  configuration script reads it, and the fake Codex receives its path.
+
+The second command block makes an empty file, `failed-call`, with `touch`.
+That file makes the fake Codex fail. In the output of the first block,
+`<scratch>/work` stands for the example's directory. In your shell, the line
+shows the absolute path of your `codex-question` directory.
+
 Complete example: ask through a fake Codex, check the schema and inspect every
 argument.
 
@@ -1829,7 +2001,7 @@ ravel end-session -- "$1"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ mkdir -p home/.config/ravel && cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" > result && cat call.args && cat call.prompt && printf '\n' && cat result
 ```
@@ -1898,10 +2070,13 @@ in a Ravel checkout prove the recipes with real calls:
 
 | Task | What it proves | What it needs |
 |---|---|---|
-| `task harness:smoke:claude` | The Claude Code recipe, with a real call | An installed Claude Code with the owner's sign-in. The call spends subscription usage. |
-| `task harness:smoke:codex` | The Codex recipe, with a real call | An installed Codex with the owner's sign-in. The call spends subscription usage. |
+| `task harness:smoke:claude` | The Claude Code recipe, with a real call | An installed Claude Code with the owner's sign-in. Task and the Rust toolchain, because the task builds Ravel from the checkout. The call spends subscription usage. |
+| `task harness:smoke:codex` | The Codex recipe, with a real call | An installed Codex with the owner's sign-in. Task and the Rust toolchain, because the task builds Ravel from the checkout. The call spends subscription usage. |
 
-Run the appropriate task after a harness upgrade.
+Run the appropriate task in the root directory of the checkout after a
+harness upgrade.
+[Chapter 10, “Prepare a checkout”](10-develop-ravel.md#prepare-a-checkout),
+gives the tools that a checkout needs.
 
 Those tasks use a temporary configuration and links to the harness's sign-in
 store. They do not need edits to your own settings.
@@ -1980,6 +2155,18 @@ Codex's `--no-daemon` makes Codex run without its shared background server.
 Ravel supervises the selected process group. A process that leaves that group
 is outside its cleanup.
 
+The next example is `interactive-routes`, in
+`~/ravel-chapter-4/interactive-routes` with a `bin` subdirectory. It has three
+files: `config.rhai`, a fake Claude Code at `bin/claude` and a fake Codex at
+`bin/codex`. `bin` comes first on the search path, so neither real harness
+runs. Each fake sends all its arguments as the result, one per line, each in
+`<` and `>`.
+
+The first command block is a `for` loop over two kinds, `claude-demo` and
+`codex-demo`. Type it as one command over five lines. Your shell shows a
+continuation prompt for the second to fifth lines. The second block asks with
+the kind `other`.
+
 Complete example: pass an instruction to end the session to two fake interactive
 harnesses.
 
@@ -2033,10 +2220,10 @@ ravel end-session -- "$result"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/* || exit "$?"
+$ mkdir -p home tmp && chmod +x bin/*
 $ for kind in claude-demo codex-demo; do
     printf '%s\n' "$kind"
-    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind "$kind" --prompt 'Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.' || exit "$?"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind "$kind" --prompt 'Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.' || break
     printf '\n'
   done
 ```
