@@ -1,18 +1,11 @@
-//! Command/probe fixtures use private resources and an empty spawn environment.
+//! Command fixtures use private resources and an empty spawn environment.
 #![allow(dead_code)] // each integration binary uses its own subset
-pub mod direct;
 pub mod rhai;
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 pub const FRONT: &str = env!("CARGO_BIN_EXE_ravel");
-// Retained for the pending hostile-suite port; ordinary routes use rhai::ROUTED.
-pub const TYPESCRIPT_SELECTION: &str = r#"{ status: "selected", program: "fake-agent", args: [request.prompt], provider: "fixture", model: "fixture", effort: "high", reason: "the fixture agent" }"#;
-pub const TYPESCRIPT_ROUTED: &str = r#"export const policy = {
- schemaVersion: 2, version: "seam-1",
- select(request) { return { status: "selected", program: "fake-agent", args: [request.prompt], provider: "fixture", model: "fixture", effort: "high", reason: "fixture route" }; }
-};"#;
 pub struct Sandbox {
     _dir: tempfile::TempDir,
     pub root: PathBuf,
@@ -50,14 +43,6 @@ impl Sandbox {
             tmp,
             bin,
         }
-    }
-    pub fn personal_typescript_path(&self) -> PathBuf {
-        self.home.join(".config/ravel/policy.ts")
-    }
-    pub fn personal_typescript(&self, source: &str) -> PathBuf {
-        let path = self.personal_typescript_path();
-        write(&path, source);
-        path
     }
     pub fn file(&self, relative: &str, source: &str) -> PathBuf {
         let path = self.cwd.join(relative);

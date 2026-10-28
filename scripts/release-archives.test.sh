@@ -118,8 +118,8 @@ refused_archive "$top" "unexpected $top/libexec/ravel/node_modules/"
 # A probe build (`dispatch.sh probes`) is a test instrument and never ships.
 # Beside the worker, the manifest refuses it by path. In the worker's own
 # place it passes the manifest but not the installed smoke test, whose front
-# refuses a probe's identity (tests/hostile.rs,
-# a_probe_build_is_never_accepted_as_an_installations_worker).
+# refuses a probe's identity (scripts/release-formula.test.rb retains the
+# installed Bun probe checks until the delivery-removal leaf).
 stage_archive "$top"
 mkdir -p "$scratch/archive/stage/$top/libexec/ravel/probes/unregistered"
 printf 'fixture probe\n' >"$scratch/archive/stage/$top/libexec/ravel/probes/unregistered/ravel-policy"
