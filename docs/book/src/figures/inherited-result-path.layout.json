@@ -146,13 +146,13 @@
       "shape": "text",
       "role": "ravel",
       "face": "name",
-      "text": "policy worker",
+      "text": "Rhai worker",
       "x": 30,
       "y": 456.3515625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 121.515625,
+      "w": 108.1796875,
       "h": 12.15625
     },
     {
@@ -739,9 +739,9 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 63.78955078125,
+      "x0": 24.57177734375,
       "y0": 1430.4031249999998,
-      "x1": 638.38427734375,
+      "x1": 677.60205078125,
       "y1": 1552.7234374999998
     },
     {
@@ -749,13 +749,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: session supervisors and worker. Grey: caller and managed descendants.\nOuter path: /private/tmp/ravel-session-mlcN86/signal-c7d5…\nInner path: /private/tmp/ravel-session-QpztGn/signal-b643…\nChildren inherit the path unless their parent changes the environment.\nAn evaluation harness run gets its own path. Its result returns to the policy.\nThe inner launch changes its child’s environment, not the outer harness’s.",
+      "text": "Blue: session supervisors and worker. Grey: caller and managed descendants.\nOuter path: /private/tmp/ravel-session-mlcN86/signal-c7d5…\nInner path: /private/tmp/ravel-session-QpztGn/signal-b643…\nChildren inherit the path unless their parent changes the environment.\nAn evaluation harness run gets its own path. Its result returns to the configuration script.\nThe inner launch changes its child’s environment, not the outer harness’s.",
       "x": 351.0869140625,
       "y": 1491.5632812499998,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 546.5947265625,
+      "w": 625.0302734375,
       "h": 102.3203125
     }
   ]

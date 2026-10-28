@@ -1,6 +1,6 @@
 {
   "w": 812.0,
-  "h": 1359.75390625,
+  "h": 1378.0906250000003,
   "elements": [
     {
       "id": "title",
@@ -217,13 +217,13 @@
       "shape": "text",
       "role": "ravel",
       "face": "name",
-      "text": "policy worker",
+      "text": "Rhai worker",
       "x": 80,
       "y": 648.3515625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 121.515625,
+      "w": 108.1796875,
       "h": 12.15625
     },
     {
@@ -245,7 +245,7 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Evaluates Rhai owner policy. Empty environment. No session-result context.",
+      "text": "Evaluates configuration script. Empty environment. No session-result context.",
       "x": 80,
       "y": 726.0875,
       "anchor": "center",
@@ -487,7 +487,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Host calls and policy response",
+      "text": "Host calls and script response",
       "x": 193.0,
       "y": 501.10703125,
       "anchor": "center",
@@ -692,24 +692,24 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 64.9716796875,
+      "x0": 49.73779296875,
       "y0": 1090.73984375,
-      "x1": 645.0283203125,
-      "y1": 1359.75390625
+      "x1": 660.26220703125,
+      "y1": 1378.0906250000003
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel processes. Grey: external participants. Gold: temporary channel.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session.\nThe managed process’s children inherit its session-result context.\nThe sent result asks Ravel to stop. Ravel returns only after successful cleanup.\n1 precedes 2: the worker and managed process are not concurrent phases.\nBefore 2: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends before 2. Harness runs complete their required cleanup.\nEvaluation harness runs and their separate result channels are omitted here.\nTheir output and results return to the policy as data, not to the caller.\nA valid selection alone is insufficient for launch.\nThe runner is library code inside the Ravel CLI, not another process.\nThe outer outline is software membership, not a sandbox.\nBoundaries do not authenticate same-user code or contain detached children.",
+      "text": "Blue: Ravel processes. Grey: external participants. Gold: temporary channel.\nGreen arrows carry the opaque result.\nThe LLM asks its harness to run end-session.\nThe managed process’s children inherit its session-result context.\nThe sent result asks Ravel to stop. Ravel returns only after successful cleanup.\n1 precedes 2: the worker and managed process are not concurrent phases.\nBefore 2: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends before 2. Harness runs complete their required cleanup.\nEvaluation harness runs and their separate result channels are omitted here.\nTheir output and results return to the configuration script as data, not to the caller.\nA separate process isolates script failure. At the deadline the CLI can signal it.\nA kernel stall can delay worker exit. A valid selection alone cannot permit launch.\nThe runner is library code inside the Ravel CLI, not another process.\nThe outer outline is software membership, not a sandbox.\nBoundaries do not authenticate same-user code or contain detached children.",
       "x": 355.0,
-      "y": 1225.246875,
+      "y": 1234.4152343750002,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 552.056640625,
-      "h": 249.01406250000005
+      "w": 582.5244140625,
+      "h": 267.35078125000007
     }
   ]
 }

@@ -5,12 +5,12 @@
 #let parts = (
   part("caller", [caller]),
   part("cli", [Ravel CLI], kind: "ravel"),
-  part("worker", [policy worker], kind: "ravel"),
+  part("worker", [Rhai worker], kind: "ravel"),
   part("agent", [fake-agent]),
 )
 #let rows = (
   msg("caller", "cli", [start-session: kind review and prompt]),
-  msg("cli", "worker", [Evaluate owner policy], create: true),
+  msg("cli", "worker", [Evaluate configuration script], create: true),
   msg("worker", "cli", [Selection: program fake-agent, args. \
     provider local, model fake, effort low], dashed: true),
   msg("cli", "cli", [Check selection and reap worker]),

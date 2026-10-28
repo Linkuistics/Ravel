@@ -1,5 +1,5 @@
 {
-  "w": 891.673828125,
+  "w": 901.51953125,
   "h": 849.85859375,
   "elements": [
     {
@@ -8,7 +8,7 @@
       "role": "label",
       "face": "title",
       "text": "Harness run during evaluation — UML sequence",
-      "x": 445.8369140625,
+      "x": 450.759765625,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
@@ -56,11 +56,11 @@
       "role": "lifeline",
       "pts": [
         [
-          410.572265625,
-          115.6640625
+          427.0859375,
+          134.00078125
         ],
         [
-          410.572265625,
+          427.0859375,
           605.51328125
         ]
       ],
@@ -73,12 +73,12 @@
       "role": "lifeline",
       "pts": [
         [
-          593.650390625,
-          293.3359375
+          603.49609375,
+          293.33593749999994
         ],
         [
-          593.650390625,
-          407.61953124999997
+          603.49609375,
+          407.6195312499999
         ]
       ],
       "dashed": true,
@@ -90,11 +90,11 @@
       "role": "lifeline",
       "pts": [
         [
-          795.322265625,
+          805.16796875,
           715.53828125
         ],
         [
-          795.322265625,
+          805.16796875,
           721.53828125
         ]
       ],
@@ -185,11 +185,11 @@
       "pts": [
         [
           201.99609375,
-          103.5859375
+          121.92265625
         ],
         [
-          338.814453125,
-          103.5859375
+          361.99609375,
+          121.92265625
         ]
       ],
       "dashed": false,
@@ -200,36 +200,36 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Evaluate policy",
-      "x": 270.4052734375,
-      "y": 99.5859375,
+      "text": "Evaluate configuration script",
+      "x": 281.99609375,
+      "y": 117.92265625,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 108.818359375,
-      "h": 10.63671875
+      "w": 148.0,
+      "h": 28.9734375
     },
     {
       "id": "head-worker",
       "shape": "box",
       "role": "ravel",
-      "x0": 338.814453125,
-      "y0": 91.5078125,
-      "x1": 482.330078125,
-      "y1": 115.6640625
+      "x0": 361.99609375,
+      "y0": 109.84453125,
+      "x1": 492.17578125,
+      "y1": 134.00078125
     },
     {
       "id": "head-worker-label",
       "shape": "text",
       "role": "ravel",
       "face": "name",
-      "text": "policy worker",
-      "x": 410.572265625,
-      "y": 103.5859375,
+      "text": "Rhai worker",
+      "x": 427.0859375,
+      "y": 121.92265625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 121.515625,
+      "w": 108.1796875,
       "h": 12.15625
     },
     {
@@ -238,12 +238,12 @@
       "role": "relation",
       "pts": [
         [
-          410.572265625,
-          174.97421875
+          427.0859375,
+          174.97421874999998
         ],
         [
           201.99609375,
-          174.97421875
+          174.97421874999998
         ]
       ],
       "dashed": false,
@@ -255,13 +255,13 @@
       "role": "label",
       "face": "body",
       "text": "run_harness over private socket: claude, args and stdin",
-      "x": 306.2841796875,
-      "y": 170.97421875,
+      "x": 314.541015625,
+      "y": 170.97421874999998,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 196.576171875,
-      "h": 47.31015625
+      "w": 213.08984375,
+      "h": 28.9734375
     },
     {
       "id": "msg-4",
@@ -270,19 +270,19 @@
       "pts": [
         [
           201.99609375,
-          194.4609375
+          194.46093749999997
         ],
         [
           223.99609375,
-          194.4609375
+          194.46093749999997
         ],
         [
           223.99609375,
-          212.4609375
+          212.46093749999997
         ],
         [
           201.99609375,
-          212.4609375
+          212.46093749999997
         ]
       ],
       "dashed": false,
@@ -295,7 +295,7 @@
       "face": "body",
       "text": "Find program. Check run budget",
       "x": 229.99609375,
-      "y": 203.4609375,
+      "y": 203.46093749999997,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -309,11 +309,11 @@
       "pts": [
         [
           201.99609375,
-          281.2578125
+          281.25781249999994
         ],
         [
-          496.330078125,
-          281.2578125
+          506.17578125,
+          281.25781249999994
         ]
       ],
       "dashed": false,
@@ -325,22 +325,22 @@
       "role": "label",
       "face": "body",
       "text": "Launch in a new POSIX session,\nwith its own result channel and RAVEL_POLICY_RUN",
-      "x": 349.1630859375,
-      "y": 277.2578125,
+      "x": 354.0859375,
+      "y": 277.25781249999994,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 282.333984375,
+      "w": 292.1796875,
       "h": 47.31015625
     },
     {
       "id": "head-run",
       "shape": "box",
       "role": "external",
-      "x0": 496.330078125,
-      "y0": 269.1796875,
-      "x1": 690.970703125,
-      "y1": 293.3359375
+      "x0": 506.17578125,
+      "y0": 269.17968749999994,
+      "x1": 700.81640625,
+      "y1": 293.33593749999994
     },
     {
       "id": "head-run-label",
@@ -348,8 +348,8 @@
       "role": "external",
       "face": "name",
       "text": "claude harness run",
-      "x": 593.650390625,
-      "y": 281.2578125,
+      "x": 603.49609375,
+      "y": 281.25781249999994,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -362,20 +362,20 @@
       "role": "relation",
       "pts": [
         [
-          593.650390625,
-          317.991015625
+          603.49609375,
+          317.99101562499993
         ],
         [
-          615.650390625,
-          317.991015625
+          625.49609375,
+          317.99101562499993
         ],
         [
-          615.650390625,
-          335.991015625
+          625.49609375,
+          335.99101562499993
         ],
         [
-          593.650390625,
-          335.991015625
+          603.49609375,
+          335.99101562499993
         ]
       ],
       "dashed": false,
@@ -387,8 +387,8 @@
       "role": "label",
       "face": "body",
       "text": "Read stdin, write answer on stdout, exit",
-      "x": 621.650390625,
-      "y": 326.991015625,
+      "x": 631.49609375,
+      "y": 326.99101562499993,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -402,19 +402,19 @@
       "pts": [
         [
           201.99609375,
-          370.1328125
+          370.13281249999994
         ],
         [
           223.99609375,
-          370.1328125
+          370.13281249999994
         ],
         [
           223.99609375,
-          388.1328125
+          388.13281249999994
         ],
         [
           201.99609375,
-          388.1328125
+          388.13281249999994
         ]
       ],
       "dashed": false,
@@ -427,7 +427,7 @@
       "face": "body",
       "text": "Complete run group cleanup",
       "x": 229.99609375,
-      "y": 379.1328125,
+      "y": 379.13281249999994,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -440,12 +440,12 @@
       "role": "end",
       "pts": [
         [
-          585.650390625,
-          399.61953124999997
+          595.49609375,
+          399.6195312499999
         ],
         [
-          601.650390625,
-          415.61953124999997
+          611.49609375,
+          415.6195312499999
         ]
       ],
       "dashed": false,
@@ -457,12 +457,12 @@
       "role": "end",
       "pts": [
         [
-          585.650390625,
-          415.61953124999997
+          595.49609375,
+          415.6195312499999
         ],
         [
-          601.650390625,
-          399.61953124999997
+          611.49609375,
+          399.6195312499999
         ]
       ],
       "dashed": false,
@@ -475,11 +475,11 @@
       "pts": [
         [
           201.99609375,
-          460.59296874999995
+          460.5929687499999
         ],
         [
-          410.572265625,
-          460.59296874999995
+          427.0859375,
+          460.5929687499999
         ]
       ],
       "dashed": true,
@@ -491,12 +491,12 @@
       "role": "label",
       "face": "body",
       "text": "Return status, exitCode and stdout as a map",
-      "x": 306.2841796875,
-      "y": 456.59296874999995,
+      "x": 314.541015625,
+      "y": 456.5929687499999,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 196.576171875,
+      "w": 213.08984375,
       "h": 28.9734375
     },
     {
@@ -505,20 +505,20 @@
       "role": "relation",
       "pts": [
         [
-          410.572265625,
-          489.24804687499994
+          427.0859375,
+          489.2480468749999
         ],
         [
-          432.572265625,
-          489.24804687499994
+          449.0859375,
+          489.2480468749999
         ],
         [
-          432.572265625,
-          507.24804687499994
+          449.0859375,
+          507.2480468749999
         ],
         [
-          410.572265625,
-          507.24804687499994
+          427.0859375,
+          507.2480468749999
         ]
       ],
       "dashed": false,
@@ -529,9 +529,9 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Policy reads answer and selects",
-      "x": 438.572265625,
-      "y": 498.24804687499994,
+      "text": "Script reads answer and selects",
+      "x": 455.0859375,
+      "y": 498.2480468749999,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -544,7 +544,7 @@
       "role": "relation",
       "pts": [
         [
-          410.572265625,
+          427.0859375,
           548.5398437499999
         ],
         [
@@ -561,7 +561,7 @@
       "role": "label",
       "face": "body",
       "text": "Selection",
-      "x": 306.2841796875,
+      "x": 314.541015625,
       "y": 544.5398437499999,
       "anchor": "south",
       "align": "center",
@@ -614,11 +614,11 @@
       "role": "end",
       "pts": [
         [
-          402.572265625,
+          419.0859375,
           597.51328125
         ],
         [
-          418.572265625,
+          435.0859375,
           613.51328125
         ]
       ],
@@ -631,11 +631,11 @@
       "role": "end",
       "pts": [
         [
-          402.572265625,
+          419.0859375,
           613.51328125
         ],
         [
-          418.572265625,
+          435.0859375,
           597.51328125
         ]
       ],
@@ -683,7 +683,7 @@
           703.46015625
         ],
         [
-          704.970703125,
+          714.81640625,
           703.46015625
         ]
       ],
@@ -696,7 +696,7 @@
       "role": "label",
       "face": "body",
       "text": "Launch selected program",
-      "x": 453.4833984375,
+      "x": 458.40625,
       "y": 699.46015625,
       "anchor": "south",
       "align": "center",
@@ -708,9 +708,9 @@
       "id": "head-managed",
       "shape": "box",
       "role": "external",
-      "x0": 704.970703125,
+      "x0": 714.81640625,
       "y0": 691.38203125,
-      "x1": 885.673828125,
+      "x1": 895.51953125,
       "y1": 715.53828125
     },
     {
@@ -719,7 +719,7 @@
       "role": "external",
       "face": "name",
       "text": "managed process",
-      "x": 795.322265625,
+      "x": 805.16796875,
       "y": 703.46015625,
       "anchor": "center",
       "align": "center",
@@ -731,9 +731,9 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 165.34814453125,
+      "x0": 121.71533203125,
       "y0": 727.53828125,
-      "x1": 726.32568359375,
+      "x1": 779.80419921875,
       "y1": 849.85859375
     },
     {
@@ -741,13 +741,13 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the pictured lifetime after cleanup or reap.\nThe run’s answer goes to the policy. The managed process is a later launch.\nIn the Claude example the run exits 0. It sends no end-session result.\nThe later managed process sends the final result prime.\nWith --json, the notice follows the supervision attempt.",
-      "x": 445.8369140625,
+      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the pictured lifetime after cleanup or reap.\nThe run’s answer goes to the configuration script. The managed process is a later launch.\nIn the Claude example the run exits 0. It sends no end-session result.\nThe later managed process sends the final result prime.\nWith --json, the notice follows the supervision attempt.",
+      "x": 450.759765625,
       "y": 788.6984375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 532.9775390625,
+      "w": 630.0888671875,
       "h": 102.3203125
     }
   ]

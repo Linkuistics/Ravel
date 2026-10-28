@@ -6,17 +6,17 @@
 #let parts = (
   part("caller", [caller]),
   part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
-  part("worker", [policy \ worker], kind: "ravel"),
+  part("worker", [Rhai \ worker], kind: "ravel"),
   part("harness", [evaluation \ harness]),
 )
 
 #let rows = (
   msg("caller", "cli", [start-session]),
   msg("cli", "worker", [Start worker. Check identity. Send request], create: true),
-  note("cli", "worker", [The worker evaluates trusted owner policy. \ It has no session-result context.]),
+  note("cli", "worker", [The worker evaluates trusted configuration script. \ It has no session-result context.]),
   msg("worker", "cli", [Host call: run_harness]),
   msg("cli", "harness", [Start harness run with its own result channel], create: true),
-  note("worker", "harness", [The policy waits for data. The harness has no terminal. \ Its result channel cannot complete the outer session.]),
+  note("worker", "harness", [The script waits for data. The harness has no terminal. \ Its result channel cannot complete the outer session.]),
   div([Cancellation reaches the Ravel CLI]),
   msg("harness", "cli", [INT (the fake harness sends it to its parent)]),
   msg("cli", "harness", [Attempt to stop the harness run's group]),

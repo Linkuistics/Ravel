@@ -80,7 +80,7 @@
       "x0": 0.0,
       "y0": 112.38593750000001,
       "x1": 260.0,
-      "y1": 251.04296875
+      "y1": 269.37968750000005
     },
     {
       "id": "front-stereo",
@@ -89,7 +89,7 @@
       "face": "qual",
       "text": "«component»",
       "x": 130,
-      "y": 127.94453125000001,
+      "y": 127.94453125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -129,23 +129,23 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "Controls host calls. Checks owner policy and its response. Decides the final outcome.",
+      "text": "Controls host calls. Checks configuration script and its response. Decides the final outcome.",
       "x": 130,
-      "y": 216.387890625,
+      "y": 225.55625000000003,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 236.0,
-      "h": 47.31015625
+      "h": 65.64687500000001
     },
     {
       "id": "worker",
       "shape": "box",
       "role": "ravel",
       "x0": 475.0,
-      "y0": 122.8640625,
+      "y0": 132.032421875,
       "x1": 725.0,
-      "y1": 240.56484375000002
+      "y1": 249.73320312500002
     },
     {
       "id": "worker-stereo",
@@ -154,7 +154,7 @@
       "face": "qual",
       "text": "«container»",
       "x": 600,
-      "y": 138.42265625,
+      "y": 147.591015625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -166,13 +166,13 @@
       "shape": "text",
       "role": "ravel",
       "face": "name",
-      "text": "policy worker",
+      "text": "Rhai worker",
       "x": 600,
-      "y": 153.059375,
+      "y": 162.227734375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 121.515625,
+      "w": 108.1796875,
       "h": 12.15625
     },
     {
@@ -182,7 +182,7 @@
       "face": "qual",
       "text": "[Separate process: same bin/ravel]",
       "x": 600,
-      "y": 167.69609375,
+      "y": 176.864453125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -194,9 +194,9 @@
       "shape": "text",
       "role": "ravel",
       "face": "body",
-      "text": "crates/ravel/src/rhai_worker\nEvaluates Rhai owner policy and requests host capabilities.",
+      "text": "crates/ravel/src/rhai_worker\nEvaluates configuration script and requests host capabilities.",
       "x": 600,
-      "y": 205.90976562499998,
+      "y": 215.078125,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -310,7 +310,7 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "Program from owner settings. Returns data to the policy. Own result channel.",
+      "text": "Program from settings. Returns data to the configuration script. Own result channel.",
       "x": 600,
       "y": 588.04140625,
       "anchor": "center",
@@ -361,7 +361,7 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "Program that owner policy selects",
+      "text": "Program that configuration script selects",
       "x": 600,
       "y": 913.1460937500001,
       "anchor": "center",
@@ -377,11 +377,11 @@
       "pts": [
         [
           260.0,
-          181.714453125
+          190.8828125
         ],
         [
           475.0,
-          181.714453125
+          190.8828125
         ]
       ],
       "dashed": false,
@@ -392,14 +392,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Evaluates owner policy",
+      "text": "Evaluates configuration script",
       "x": 377.5,
       "y": 144.56171875,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 170.0,
-      "h": 10.63671875
+      "h": 28.9734375
     },
     {
       "id": "rel-front-worker-tech",
@@ -408,7 +408,7 @@
       "face": "qual",
       "text": "[request, host calls and replies on private socket]",
       "x": 377.5,
-      "y": 165.29726562500002,
+      "y": 174.46562500000002,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -422,7 +422,7 @@
       "pts": [
         [
           130,
-          251.04296875
+          269.37968750000005
         ],
         [
           130,
@@ -439,7 +439,7 @@
       "face": "body",
       "text": "Uses for each launch",
       "x": 193.0,
-      "y": 362.797265625,
+      "y": 371.965625,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
@@ -453,7 +453,7 @@
       "face": "qual",
       "text": "[Rust library interface]",
       "x": 193.0,
-      "y": 392.70117187500006,
+      "y": 401.86953125,
       "anchor": "center",
       "align": "left",
       "wrapped": true,
@@ -568,7 +568,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel code or process. Grey: external programs.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nC4 components here are internal code. Ravel supports no separate component.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends first. Each harness run completes its required cleanup.\nHarness-run data returns to the policy. It cannot complete the final session.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nThe CLI and policy worker are separate processes of the same installed executable.",
+      "text": "Blue: Ravel code or process. Grey: external programs.\nDashed outline: components inside the Ravel CLI, not a sandbox.\nC4 components here are internal code. Ravel supports no separate component.\nThe runner has no separate process or installed executable.\nArrows name use or supervision, not a complete chronology.\nBefore managed launch: the worker ends. Ravel reaps it and removes its private directory.\nEvery host call ends first. Each harness run completes its required cleanup.\nHarness-run data returns to the configuration script. It cannot complete the final session.\nThe worker never receives the session-result context.\nTwo Rust packages: crates/ravel and crates/keyed-launch.\nThe CLI and Rhai worker are separate processes of the same installed executable.",
       "x": 349.5,
       "y": 1063.634765625,
       "anchor": "center",

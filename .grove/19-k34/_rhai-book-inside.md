@@ -51,3 +51,5 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 - Run the checks of the book with `task setup` done first.
 - The book's term map changed on 2026-10-28, after owner finding F10. See “Configuration words” in `docs/book/ste.md`.
   Chapters 7–11 and their figures, such as `session-code-path.typ`, still use “owner policy” and “policy worker”.
+
+- Art `rhai-book-use-k86` updated the shared process, source and installed-file figures to “Rhai worker”, “configuration script” and “settings”. The chapter 7 and 11 prose, captions and alternatives still need reconciliation against those figures during their scheduled drafts.

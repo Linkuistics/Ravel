@@ -60,29 +60,6 @@ After proof, Read 1 resumes at chapter 4. It gives the owner a correction recap 
 The owner need not restart at chapter 1. The practical reader tasks still need the owner's results.
 Parts III and IV apply the same current lessons in their scheduled rewrite before Read 2.
 
-## Handed forward
-
-- **Art (`rhai-book-use-k86`): figure labels with the old terms.** Draft `rhai-book-use-k88` changed the prose to the term map in the brief of `rhai-book-use-k84`.
-  The figure sources below still say “policy worker”, “owner policy” or “policy” for the configuration script.
-  Use “Rhai worker”, “configuration script” and “settings”. Keep the literal `RAVEL_POLICY_RUN`.
-  - `routing-notice.typ`, chapters 1 and 6. The chapter 1 alt text already says “Rhai worker”.
-  - `inherited-result-path.typ`, chapters 1, 5 and 6. The chapter 1 alt text already uses the new terms.
-  - `system-context.typ`, chapter 1: “owner policy and settings” in the owner's description and relation.
-  - `process-authority.typ`, chapter 2. F12 also applies: the figure must agree with the chapter 2 text.
-    That text says that the worker is a second copy of the executable. At the deadline, the parent can signal it, and a kernel stall can delay its exit. The process isolates a script failure.
-  - `successful-session.typ`, chapter 3, and `evaluation-harness.typ`, chapters 4 and 6.
-  - `selection-cancellation.typ` and `settled-exit-status.typ`, chapter 5.
-  - `source-components.typ` and `installed-files.typ`, chapter 6. Chapters 7 and 11 also show them, and `rhai-book-inside` owns that prose.
-  Check each alt text and caption after the label change. Drafts `rhai-book-use-k89` to `k91` change the alt text of chapters 4–6.
-  Draft `rhai-book-use-k89` changed chapter 4's alt text and caption of `evaluation-harness.typ` to “Rhai worker” and “configuration script”. The figure labels still say “policy worker” and “policy”.
-  Draft `rhai-book-use-k90` changed chapter 5's alt text of `inherited-result-path.typ` to chapter 1's words and the alt text of `selection-cancellation.typ` to “Rhai worker”. The figure labels still use the old terms.
-  Draft `rhai-book-use-k91` changed chapter 6's alt text of `routing-notice.typ`, `inherited-result-path.typ` and `evaluation-harness.typ` to the words of chapters 1 and 4.
-  It also changed the alt text and the captions of `source-components.typ` and `installed-files.typ` to “Rhai worker” and “configuration script”. The labels of all five figures still use the old terms.
-- **Art (`rhai-book-use-k86`): the review flow of chapter 1.** “Follow one code review from request to result” gives the review as two tables.
-  The tables give the order of actions and the orchestrator's action for each result. No figure shows that flow.
-  Decide whether a figure helps the reader there, under the contract's “Give a diagram and a concrete example”.
-  Chapter 5, “Accept a result only after success”, now has the same action table and a complete example in which an orchestrator script acts on each outcome. Decide the figure question for both places together.
-
 ## Pointers
 
 - Structure brief and prose contract: `docs/book/contract.md`.

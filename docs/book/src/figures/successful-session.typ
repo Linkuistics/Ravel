@@ -7,20 +7,20 @@
 #let parts = (
   part("caller", [caller]),
   part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
-  part("worker", [policy \ worker], kind: "ravel"),
+  part("worker", [Rhai \ worker], kind: "ravel"),
   part("managed", [managed \ process]),
   part("channel", [result channel \ (temporary files)], kind: "temporary", db: true),
 )
 
 #let rows = (
   msg("caller", "cli", [start-session: kind and prompt]),
-  msg("cli", "cli", [Check inputs and policy path]),
+  msg("cli", "cli", [Check inputs and configuration script path]),
   div([Selection]),
   msg("cli", "worker", [Start in empty private directory], create: true),
   msg("worker", "cli", [Identity. Ravel CLI checks the match], dashed: true),
-  msg("cli", "worker", [Send policy request (no session-result context)]),
-  msg("worker", "worker", [Import owner policy and select]),
-  msg("worker", "cli", [Policy response on private socket], dashed: true),
+  msg("cli", "worker", [Send evaluation request (no session-result context)]),
+  msg("worker", "worker", [Import configuration script and select]),
+  msg("worker", "cli", [Script response on private socket], dashed: true),
   msg("cli", "cli", [Check response and confirm worker reap. \ Remove the private directory of the worker]),
   destroy("worker"),
   msg("cli", "cli", [Resolve selected executable]),
@@ -46,6 +46,6 @@
   [Blue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.],
   [Green arrows carry the opaque result.],
   [Successful unconfined path only. Recover the terminal only if Ravel lent it.],
-  [This chapter's policy makes no host call or evaluation harness run.],
+  [This chapter's configuration script makes no host call or evaluation harness run.],
   [The sent result precedes cleanup. Only the last arrow delivers the result to the caller.],
 ), max-label: 125))

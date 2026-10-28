@@ -176,7 +176,7 @@
       "shape": "text",
       "role": "outcome",
       "face": "body",
-      "text": "Original failure:\n1: no result.\n2: invalid inputs or settings.\n3: refusal by policy, or of its\nfile, behaviour or data.\n5: worker, supervision or result failure.\n124: selection deadline.\n126: pre-start execution failure.\n127: program or interpreter not found.",
+      "text": "Original failure:\n1: no result.\n2: invalid inputs or settings.\n3: refusal by the script, or of its\nfile, behaviour or data.\n5: worker, supervision or result failure.\n124: selection deadline.\n126: pre-start execution failure.\n127: program or interpreter not found.",
       "x": 631.447265625,
       "y": 327.46835937500003,
       "anchor": "center",

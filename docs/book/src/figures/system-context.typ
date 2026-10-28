@@ -6,7 +6,7 @@
 
 #let ents = (
   ent("owner", "owner", [owner], [«person»], cx: 550, top: 0, w: 260,
-    desc: [Controls the account's owner policy and settings]),
+    desc: [Controls the account's configuration script and settings]),
   ent("ravel", "ravel", [Ravel], [«system»], cx: 550, top: 200, w: 260,
     desc: [Routes one request, supervises the selected program and decides the final outcome]),
   ent("caller", "external", [caller], [«external_system»], cx: 100, cy-of: "ravel", w: 200,
@@ -16,7 +16,7 @@
 )
 
 #let rels = (
-  rel("owner", "ravel", [Configures command selection], tech: [owner policy and settings], w: 160),
+  rel("owner", "ravel", [Configures command selection], tech: [configuration script and settings], w: 160),
   rel("caller", "ravel", [Requests a session], tech: [start-session: kind and prompt], out: ("right", -30), into: ("left", -30), w: 190),
   rel("ravel", "caller", [Returns opaque result after successful cleanup], tech: [standard output], role: "result",
     out: ("left", 30), into: ("right", 30), side: "below", w: 200),

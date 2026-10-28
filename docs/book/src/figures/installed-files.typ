@@ -17,7 +17,7 @@
 #render(deployment([Installed executable and examples — UML deployment view], tree, (), (
   [Blue: the executable. Grey: editable examples. Outlines group directories.],
   [The file group lists separate files relative to share/ravel/examples.],
-  [The CLI starts the same bin/ravel as a separate policy worker and checks its identity.],
+  [The CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.],
   [The worker is a process role, not another installed executable.],
   [The owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.],
   [Installed execution needs no separate language runtime or source checkout.],

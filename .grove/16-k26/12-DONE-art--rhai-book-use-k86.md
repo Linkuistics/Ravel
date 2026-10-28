@@ -33,3 +33,16 @@ Use the contract's figure medium and check the result at the book's actual readi
 Apply the whole accumulated figure guidance, not only the latest wording changes.
 Shared figures may also appear in Parts III and IV. Record any dependent prose reconciliation for their scheduled drafts.
 This is the second authorised correction run. Escalate any further substantial send-back.
+
+## Decisions (running log)
+
+- **Configuration terminology, 2026-10-28.** The figure labels use “Rhai worker”, “configuration script” and “settings”, while retaining literal interface names. The process view names the second copy of `ravel`, the isolation it supplies and the deadline limit.
+- **Review flow, 2026-10-28.** A sequence diagram connects the concrete review request, result and next action in chapter 1. The outcome table maps all four cases. Chapter 5 repeats that mapping beside an executable example and an outcome view. A second diagram there was declined as an editorial judgement: it would repeat the mapping without adding a reader distinction. This is not a limitation of the medium.
+
+## Checks
+
+- The changed figure sources and their layout records, alternatives and local captions use the term map. The chapter 1 review sequence gives the concrete `changes-needed` path; the tables give the other caller actions. The Parts III and IV brief carries the shared-figure prose reconciliation.
+- The local mdBook in Safari on an isolated macOS guest was viewed in its light theme at a 1920 × 1080 display and a 750-pixel chapter column. The review, routing notice, inherited paths, system context, process authority, successful session, evaluation harness, selection cancellation, settled exit status, source components and installed files were inspected, including the keys and the lower parts of tall diagrams. Temporary scroll aids in the generated HTML placed the figures in view; they did not change the source or figures.
+- At that column width, ordinary text in the inherited-path and evaluation-harness figures calculates to 11.7 and 11.6 pixels respectively, close to the approximate 12-pixel target. The other changed figures calculate to at least 12.7 pixels. This inspection does not establish readability in other browsers, themes or smaller viewports, or with a new reader.
+- The proof sibling `rhai-book-use-k87` already stands. No successor was added.
+- `mise exec -- task setup` completed. `task docs:figures` reproduced all 18 figures, `task docs:book:build` built the book, and strict `task docs:ste` reported zero problems in chapters 1–6.

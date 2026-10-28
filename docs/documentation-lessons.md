@@ -377,6 +377,11 @@ R8 identified the same colour description before the diagram and in its key.
 The contract interprets F7 as permission to repeat explanations while retaining R8 for keys.
 That distinction is session analysis, not a new quotation from the owner.
 
+A concrete example can need both a sequence and an outcome mapping. Draw the sequence when it connects an initial request to a later action across participants. Keep the table when it distinguishes alternatives that the sequence does not show. Check both against the same example.
+
+**Source:** Art `rhai-book-use-k86`, 2026-10-28, applies owner findings F9 and F11.
+**Ravel application:** Chapter 1 now follows the review through `changes-needed`; its table also states the caller’s action for `approved`, an unexpected value and a failed session.
+
 ### L27. Break a long prose run with useful information
 
 Introduce a figure, table or code block before the agreed screen of prose becomes too long.

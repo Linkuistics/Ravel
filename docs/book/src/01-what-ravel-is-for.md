@@ -69,6 +69,14 @@ LLM finds a problem.
 | 6 | Ravel | Stops Claude Code and the other processes that remain in its process group, the set of processes that Ravel can signal together. Then Ravel completes cleanup. |
 | 7 | Ravel | Writes `changes-needed` on standard output. `ravel start-session` exits with status 0. |
 
+The sequence connects the review request to the orchestrator’s next action.
+
+![The orchestrator sends the review kind and prompt to Ravel. The configuration selects Claude Code. Ravel launches it, and the review writes notes and sends changes-needed. After successful cleanup, Ravel returns status 0 and changes-needed. The orchestrator reads the notes and requests a fix.](figures/review-flow.svg)
+
+*Figure: The orchestrator acts on the result only after Ravel completes cleanup.*
+
+[Open the review sequence at full size](figures/review-flow.svg).
+
 Here is a real run of this request. A fake agent stood in for Claude Code. It
 wrote `review-notes.md` and sent `changes-needed`, as the LLM did in step 5.
 The run used the checkout build on macOS. Its standard error also had two

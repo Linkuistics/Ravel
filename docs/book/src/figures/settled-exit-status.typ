@@ -14,7 +14,7 @@
   state("succeeded", "outcome", [0: Ravel returns the result unchanged], col: 0, row: 5),
   state("cancelled", "outcome", [Cancelled \ 129: HUP \ 130: INT \ 143: TERM], col: 1, row: 1),
   state("failure", "outcome", [Original failure: \ 1: no result. \ 2: invalid inputs or settings. \
-    3: refusal by policy, or of its \ file, behaviour or data. \
+    3: refusal by the script, or of its \ file, behaviour or data. \
     5: worker, supervision or result failure. \ 124: selection deadline. \
     126: pre-start execution failure. \ 127: program or interpreter not found.], col: 1, row: 2, limit: 320),
   state("cleanup-failed", "outcome", [5: cleanup, recovery or group failure], col: 1, row: 3, limit: 320),

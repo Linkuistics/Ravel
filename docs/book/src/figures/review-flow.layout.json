@@ -1,0 +1,505 @@
+{
+  "w": 682.8759765625,
+  "h": 532.125,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "One code review — UML sequence",
+      "x": 341.43798828125,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 307.671875,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          73.5,
+          50.3125
+        ],
+        [
+          73.5,
+          458.81484374999997
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-ravel",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          260.5,
+          50.3125
+        ],
+        [
+          260.5,
+          458.81484374999997
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-harness",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          497.8759765625,
+          233.94765625000002
+        ],
+        [
+          497.8759765625,
+          458.81484374999997
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 141.0,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "orchestrator",
+      "x": 73.5,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 113.0,
+      "h": 12.15625
+    },
+    {
+      "id": "head-ravel",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 207.828125,
+      "y0": 26.15625,
+      "x1": 313.171875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-ravel-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI",
+      "x": 260.5,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          73.5,
+          95.2859375
+        ],
+        [
+          260.5,
+          95.2859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "start-session: review and prompt",
+      "x": 167.0,
+      "y": 91.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 175.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "note-10",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          6.0,
+          107.2859375
+        ],
+        [
+          303.171875,
+          107.2859375
+        ],
+        [
+          313.171875,
+          117.2859375
+        ],
+        [
+          313.171875,
+          150.259375
+        ],
+        [
+          6.0,
+          150.259375
+        ]
+      ]
+    },
+    {
+      "id": "note-10-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          303.171875,
+          107.2859375
+        ],
+        [
+          303.171875,
+          117.2859375
+        ],
+        [
+          313.171875,
+          117.2859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "The prompt permits approved or changes-needed.",
+      "x": 159.5859375,
+      "y": 128.77265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 287.171875,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          260.5,
+          171.74609375
+        ],
+        [
+          282.5,
+          171.74609375
+        ],
+        [
+          282.5,
+          189.74609375
+        ],
+        [
+          260.5,
+          189.74609375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Configuration selects Claude Code",
+      "x": 288.5,
+      "y": 180.74609375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          260.5,
+          221.86953125000002
+        ],
+        [
+          430.7119140625,
+          221.86953125000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launch with prompt",
+      "x": 345.60595703125,
+      "y": 217.86953125000002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 142.2119140625,
+      "h": 10.63671875
+    },
+    {
+      "id": "head-harness",
+      "shape": "box",
+      "role": "external",
+      "x0": 430.7119140625,
+      "y0": 209.79140625000002,
+      "x1": 565.0400390625,
+      "y1": 233.94765625000002
+    },
+    {
+      "id": "head-harness-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "Claude Code",
+      "x": 497.8759765625,
+      "y": 221.86953125000002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 112.328125,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          497.8759765625,
+          258.602734375
+        ],
+        [
+          519.8759765625,
+          258.602734375
+        ],
+        [
+          519.8759765625,
+          276.602734375
+        ],
+        [
+          497.8759765625,
+          276.602734375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Review files and write review-notes.md",
+      "x": 525.8759765625,
+      "y": 267.602734375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          497.8759765625,
+          317.89453125
+        ],
+        [
+          260.5,
+          317.89453125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "end-session changes-needed",
+      "x": 379.18798828125,
+      "y": 313.89453125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 206.052734375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          260.5,
+          337.38125
+        ],
+        [
+          282.5,
+          337.38125
+        ],
+        [
+          282.5,
+          355.38125
+        ],
+        [
+          260.5,
+          355.38125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Stop group and complete cleanup",
+      "x": 288.5,
+      "y": 346.38125,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          260.5,
+          405.84140625
+        ],
+        [
+          73.5,
+          405.84140625
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Status 0 and changes-needed",
+      "x": 167.0,
+      "y": 401.84140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 175.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          73.5,
+          425.328125
+        ],
+        [
+          95.5,
+          425.328125
+        ],
+        [
+          95.5,
+          443.328125
+        ],
+        [
+          73.5,
+          443.328125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Read notes and request fix",
+      "x": 101.5,
+      "y": 434.328125,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 44.337890625,
+      "y0": 464.81484374999997,
+      "x1": 638.5380859375,
+      "y1": 532.125
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel. Grey: caller and harness. Green: the sent and returned result.\nThe prompt also permits approved. The caller chooses what either result means.\nRavel returns a result only after successful cleanup.",
+      "x": 341.43798828125,
+      "y": 498.46992187499995,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 566.2001953125,
+      "h": 47.31015625
+    }
+  ]
+}
