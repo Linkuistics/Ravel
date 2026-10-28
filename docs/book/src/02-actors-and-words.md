@@ -24,6 +24,10 @@ the outcome of a session. You do not confuse a response from the
 configuration script with a completed session. This chapter names each
 participant and each term that the book uses for it.
 
+You do not run anything in this chapter. Each code block is a fragment of the
+review, and its label says what it omits. Chapter 3 gives the first session
+that you run.
+
 ## Caller and owner
 
 The **caller** is the person or program that invokes Ravel and interprets the
@@ -250,6 +254,10 @@ a problem. This block omits the prompt and the harness.
 ravel end-session changes-needed
 ```
 
+The LLM runs this command in a shell that the harness starts. That shell
+inherits the path of the session's result file. In your own shell outside a
+session, the same command fails with status 1, because it finds no such path.
+
 The result is separate from the exit status of the managed process. It is
 also separate from the files or other work that the program produced, such as
 `review-notes.md`. A program can send an empty result. If no program sends a
@@ -434,5 +442,6 @@ caller is correct.
 
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md), uses
 these roles in one session with a small configuration script and a fake agent.
+You make its directory, `~/ravel-first-session`, and save its two files in it.
 The fake agent makes the selected command, the sent result and the cleanup
 visible. It needs no agent account and no model service.

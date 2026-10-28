@@ -1100,6 +1100,33 @@ Check each qualifier against the source. Remove it when the behaviour has no suc
 
 **Check:** For each “never”, “only” or “always” statement with a qualifier, find the code that enforces it. Read whether the code has the qualifier too.
 
+Draft `rhai-book-use-k117`, 2026-10-29, found the same defect in a fragment label without a qualifier. Chapter 1 said that Ravel “does not read the words” of the prompt file. Ravel reads the file and gives its text unchanged to the configuration script. The label now says that Ravel does not interpret the text.
+
+### L70. Say when a command is not yet for the reader to run
+
+A conceptual page before the installation can show commands as fragments. A reader who sees a command can try to type it, and the command then fails for a reason that the page does not give.
+Near the top of the page, say that it has nothing to run. Name the first procedure that the reader runs.
+At a command that looks complete, say what it needs before the reader can type it.
+
+**Source:** Session evidence, `rhai-book-use-k117`, 2026-10-29, during the F17 correction.
+**Ravel application:** Chapters 1 and 2 now say that each code block is a fragment. They name chapter 3, “Run the first session”, and its directory `~/ravel-first-session`.
+Chapter 1's review request now says what it needs: an installed Ravel, the prompt file and a script with a rule for `review`.
+Chapter 2 says that `ravel end-session changes-needed` fails with status 1 in the reader's own shell, because that shell has no result path.
+
+**Check:** Read each command block of a page that comes before the installation. For each block, find the sentence that says whether, where and when the reader runs it.
+
+### L71. Name the inputs of a real run when its values differ from the story
+
+A real-run fragment can replace a part of the story that the book cannot run. For example, a fake agent replaces a real harness.
+Its output then shows values that differ from the story. Say which inputs produced the run, and say which value each input changed.
+
+**Source:** Session evidence, `rhai-book-use-k117`, 2026-10-29.
+**Ravel application:** Chapter 1's review story says that the configuration chooses Claude Code. The real run's routing notice names the provider `local` and the model `fake`.
+The text now says that the run used the chapter's own short script at its default path, and that this script selects a fake agent.
+A label that said “the same session” for a separate `--json` run now says “the same request, run again with `--json`”.
+
+**Check:** For each real-run fragment, compare each value in it with the story around it. Where a value differs, find the sentence that names the input that changed it.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.

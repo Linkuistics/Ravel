@@ -5,6 +5,12 @@ own work. This chapter opens with one such step, a code review. It follows
 that review from the request to the result. Then it explains which parts of
 the review apply to every use of Ravel.
 
+You do not run anything in this chapter. Each code block is a fragment, a part
+of the review or of a real run, and its label says what it omits.
+[Chapter 3, “Run the first session”](03-a-complete-session.md#run-the-first-session),
+gives the first session that you run. It names the directory, each file and
+each command.
+
 ## Follow one code review from request to result
 
 An **orchestrator** is a program that runs LLM work as steps of its own work.
@@ -17,8 +23,10 @@ First, the orchestrator writes a prompt. The prompt is the text that tells the
 LLM what to do. This prompt also tells the LLM how to report the outcome of
 the review.
 
-Fragment: the prompt file `review-prompt.txt` of the review example. The
-orchestrator writes this file. Ravel does not read the words in it.
+Fragment: the whole prompt file `review-prompt.txt` of the review example.
+This block omits the code of the orchestrator that writes the file. Ravel
+gives the text to the configuration script unchanged and does not interpret
+it.
 
 ```text
 Review the changes to src/parse.rs and tests/parse.rs in the last commit.
@@ -49,6 +57,11 @@ orchestrator that runs the command.
 ravel start-session --kind review --prompt-file review-prompt.txt
 ```
 
+Do not type this command now. It needs an installed Ravel, the file
+`review-prompt.txt` in the current directory and a configuration script with
+a rule for the kind `review`. Chapter 3 installs Ravel. Then it gives you the
+files and the command of a simpler first session.
+
 Ravel gives the kind and the prompt to the owner's configuration. The
 **owner** is the person who controls Ravel's configuration for an account. The
 configuration chooses a harness for each kind. A **harness** is the program in
@@ -77,10 +90,16 @@ The sequence connects the review request to the orchestrator’s next action.
 
 [Open the review sequence at full size](figures/review-flow.svg).
 
-Here is a real run of this request. A fake agent stood in for Claude Code. It
-wrote `review-notes.md` and sent `changes-needed`, as the LLM did in step 5.
-The run used the checkout build on macOS. Its standard error also had two
-cleanup reports, which the table omits.
+Here is a real run of this request, with the checkout build on macOS. Its
+configuration script was the short script in
+[“The configuration script chooses a program”](#the-configuration-script-chooses-a-program),
+below, at the default path of a private home directory. That script selects a
+fake agent in place of Claude Code. Thus, the routing notice names the
+provider `local` and the model `fake`.
+
+The fake agent wrote `review-notes.md` and sent `changes-needed`, as the LLM
+did in step 5. The table omits the environment of the run and two cleanup
+reports on standard error.
 
 | Output of the run | Value | Who reads it |
 |---|---|---|
@@ -221,7 +240,8 @@ examples must run without a real harness. Thus, this script selects
 kind except `review`.
 
 Fragment: a short configuration script for the review example. This block
-omits the program `fake-agent` and the command that runs the script.
+omits the program `fake-agent` and the command that runs the script. You read
+this script here, and you save nothing.
 [Chapter 3](03-a-complete-session.md#run-the-first-session) runs a script of
 this sort with a fake agent.
 
@@ -366,7 +386,8 @@ that Ravel found. Ravel writes this document after the supervision attempt,
 not before the launch.
 
 Fragment: the `selection` member of the JSON routing notice of the same
-session. This block omits the other members of the document.
+request, run again with `--json`. This block omits the other members of the
+document.
 
 ```json
 {"selection":{"effort":"low","model":"fake","provider":"local","reason":"Reviews go to the fake agent."}}
@@ -482,7 +503,8 @@ was the caller of a second, inner session. The inner fake agent printed its
 value, and the outer fake agent printed its value again.
 
 Fragment: standard error of a real nested session on macOS with
-`TMPDIR=/tmp`. This block omits the cleanup reports. The random parts of each
+`TMPDIR=/tmp`. This block omits the configuration script, the two fake agents
+and the cleanup reports. The random parts of each
 path change in each run. macOS gives `/tmp` the real path `/private/tmp`.
 
 ```text
@@ -586,7 +608,7 @@ status or a changed file with the result that the caller requested.
 
 | What the session produces | What it tells the caller | What it does not prove |
 |---|---|---|
-| Opaque result | The value sent with `end-session`, returned after successful supervision and cleanup | That the requested work is correct |
+| Opaque result | The value sent with `end-session`, returned after successful supervision and cleanup | <!-- tc: depart synonym-rotation because "correct" describes the work, while `fix` is the literal kind of a later session --> That the requested work is correct |
 | Managed process's exit status | How that process ended | That it sent a result or that the session succeeded |
 | Work, such as changed files | What the selected program changed, such as `review-notes.md` | That it sent a result or that the cleanup completed |
 
@@ -686,7 +708,11 @@ a program that needs supervised harness sessions invokes the Ravel CLI as a
 child process. The Ravel CLI supervises one session and then exits.
 
 The learning route is to read the chapters in order. The first practical
-session uses a small configuration script and a fake agent. A fake agent is
+session, in chapter 3, uses a small configuration script and a fake agent.
+Its directory is `~/ravel-first-session`, and the chapter gives each file and
+command.
+
+A fake agent is
 an ordinary program that sends a result with `end-session`. It takes the
 place of a harness that runs an LLM session. Thus, you can learn the protocol
 without a model service or a personal agent account. The installation and
