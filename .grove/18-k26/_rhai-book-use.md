@@ -33,14 +33,6 @@ The chapters teach Ravel configuration with Rhai directly. The pipeline is draft
   Chapter 6 restates the words of every page, Rhai and chapter 1's real values, because a reader can enter it at any entry.
   The F2, F4 and F5 entries under “Handed forward” name each place for a figure. No draft placed an image.
 
-## Handed forward
-
-- **Art, `rhai-book-use-k95`: the installed-files figure.** Chapter 6, “Installed layout”, uses `docs/book/src/figures/installed-files.typ`.
-  The figure shows only the `share/ravel/examples` directory and states the notices in a note.
-  Its alt text says “The distribution also carries third-party notices”.
-  The table of that section now lists `share/ravel/notices/THIRD-PARTY-NOTICES.md`, which `stage_installation` in `scripts/release-common.sh` installs.
-  Decide whether the figure shows the `share/ravel/notices` directory, and keep the figure, the alt text and the table in agreement.
-
 ## Decomposition
 
 - `rhai-book-use-k27` rewrites chapter 4 and records the owner's revised contract.

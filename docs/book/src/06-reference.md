@@ -2040,7 +2040,7 @@ Ravel completes host calls, reaps the worker and removes its directory before th
 > One executable supplies both the CLI and the separate Rhai worker. The three Rhai examples remain editable files.
 > Directory outlines do not show concurrent process lifetimes.
 
-![Installed files: bin/ravel contains the CLI, linked runner and Rhai engine. The CLI starts that same binary as a separate Rhai worker. share/ravel/examples contains static.rhai, sample.rhai and llm.rhai as editable files. The distribution also carries third-party notices. The archive adds README.md and LICENSE at its root.](figures/installed-files.svg)
+![Installed files: bin/ravel contains the CLI, linked runner and Rhai engine. The CLI starts the same binary as a Rhai worker. Under share/ravel, examples holds three editable files: static.rhai, sample.rhai and llm.rhai. The notices directory holds THIRD-PARTY-NOTICES.md for Rust dependencies. The archive adds README.md and LICENSE at its root.](figures/installed-files.svg)
 
 > **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
 

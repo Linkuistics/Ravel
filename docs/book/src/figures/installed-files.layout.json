@@ -1,19 +1,19 @@
 {
   "w": 640.359375,
-  "h": 462.92890624999995,
+  "h": 641.878125,
   "elements": [
     {
       "id": "title",
       "shape": "text",
       "role": "label",
       "face": "title",
-      "text": "Installed executable and examples — UML deployment view",
+      "text": "Installed files — UML deployment view",
       "x": 320.1796875,
       "y": 6.078125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 540.1875,
+      "w": 348.0390625,
       "h": 12.15625
     },
     {
@@ -22,28 +22,28 @@
       "role": "note",
       "pts": [
         [
-          53.3876953125,
+          4.7509765625,
           40.15625
         ],
         [
-          67.3876953125,
+          18.7509765625,
           26.15625
         ],
         [
-          586.9716796875,
+          635.6083984375,
           26.15625
         ],
         [
-          586.9716796875,
-          271.93515625
+          635.6083984375,
+          450.884375
         ],
         [
-          572.9716796875,
-          285.93515625
+          621.6083984375,
+          464.884375
         ],
         [
-          53.3876953125,
-          285.93515625
+          4.7509765625,
+          464.884375
         ]
       ]
     },
@@ -53,20 +53,20 @@
       "role": "note",
       "pts": [
         [
-          53.3876953125,
+          4.7509765625,
           40.15625
         ],
         [
-          572.9716796875,
+          621.6083984375,
           40.15625
         ],
         [
-          572.9716796875,
-          285.93515625
+          621.6083984375,
+          464.884375
         ],
         [
-          53.3876953125,
-          285.93515625
+          4.7509765625,
+          464.884375
         ]
       ]
     },
@@ -76,11 +76,11 @@
       "role": "boundary",
       "pts": [
         [
-          572.9716796875,
+          621.6083984375,
           40.15625
         ],
         [
-          586.9716796875,
+          635.6083984375,
           26.15625
         ]
       ],
@@ -107,28 +107,28 @@
       "role": "note",
       "pts": [
         [
-          71.3876953125,
+          22.7509765625,
           78.3125
         ],
         [
-          333.7236328125,
+          285.0869140625,
           78.3125
         ],
         [
-          341.7236328125,
+          293.0869140625,
           102.46875
         ],
         [
-          554.9716796875,
+          603.6083984375,
           102.46875
         ],
         [
-          554.9716796875,
-          267.93515625
+          603.6083984375,
+          446.884375
         ],
         [
-          71.3876953125,
-          267.93515625
+          22.7509765625,
+          446.884375
         ]
       ]
     },
@@ -138,7 +138,7 @@
       "role": "label",
       "face": "head",
       "text": "PREFIX (installation directory)",
-      "x": 202.5556640625,
+      "x": 153.9189453125,
       "y": 90.390625,
       "anchor": "center",
       "align": "center",
@@ -150,10 +150,10 @@
       "id": "front",
       "shape": "box",
       "role": "ravel",
-      "x0": 89.3876953125,
-      "y0": 153.456640625,
-      "x1": 262.4951171875,
-      "y1": 241.103515625
+      "x0": 40.7509765625,
+      "y0": 195.612890625,
+      "x1": 213.8583984375,
+      "y1": 283.259765625
     },
     {
       "id": "front-icon",
@@ -161,24 +161,24 @@
       "role": "ravel",
       "pts": [
         [
-          243.4951171875,
-          160.456640625
+          194.8583984375,
+          202.612890625
         ],
         [
-          250.4951171875,
-          160.456640625
+          201.8583984375,
+          202.612890625
         ],
         [
-          255.4951171875,
-          165.456640625
+          206.8583984375,
+          207.612890625
         ],
         [
-          255.4951171875,
-          176.456640625
+          206.8583984375,
+          218.612890625
         ],
         [
-          243.4951171875,
-          176.456640625
+          194.8583984375,
+          218.612890625
         ]
       ]
     },
@@ -188,16 +188,16 @@
       "role": "fold",
       "pts": [
         [
-          250.4951171875,
-          160.456640625
+          201.8583984375,
+          202.612890625
         ],
         [
-          250.4951171875,
-          165.456640625
+          201.8583984375,
+          207.612890625
         ],
         [
-          255.4951171875,
-          165.456640625
+          206.8583984375,
+          207.612890625
         ]
       ],
       "dashed": false,
@@ -209,8 +209,8 @@
       "role": "ravel",
       "face": "body",
       "text": "bin/ravel\nRavel CLI\nwith linked runner\nand Rhai engine",
-      "x": 175.94140625,
-      "y": 197.28007812500002,
+      "x": 127.3046875,
+      "y": 239.43632812500002,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -218,33 +218,78 @@
       "h": 65.64687500000001
     },
     {
+      "id": "share",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          283.8583984375,
+          120.46875
+        ],
+        [
+          397.7412109375,
+          120.46875
+        ],
+        [
+          405.7412109375,
+          144.625
+        ],
+        [
+          585.6083984375,
+          144.625
+        ],
+        [
+          585.6083984375,
+          428.884375
+        ],
+        [
+          283.8583984375,
+          428.884375
+        ]
+      ]
+    },
+    {
+      "id": "share-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "share/ravel",
+      "x": 340.7998046875,
+      "y": 132.546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 89.8828125,
+      "h": 12.15625
+    },
+    {
       "id": "examples-dir",
       "shape": "polygon",
       "role": "note",
       "pts": [
         [
-          332.4951171875,
-          120.46875
+          352.63232421875,
+          162.625
         ],
         [
-          528.9716796875,
-          120.46875
+          453.83544921875,
+          162.625
         ],
         [
-          536.9716796875,
-          144.625
+          461.83544921875,
+          186.78125
         ],
         [
-          536.9716796875,
-          144.625
+          516.83447265625,
+          186.78125
         ],
         [
-          536.9716796875,
-          249.93515625
+          516.83447265625,
+          292.09140625
         ],
         [
-          332.4951171875,
-          249.93515625
+          352.63232421875,
+          292.09140625
         ]
       ]
     },
@@ -253,13 +298,13 @@
       "shape": "text",
       "role": "label",
       "face": "head",
-      "text": "share/ravel/examples",
-      "x": 430.7333984375,
-      "y": 132.546875,
+      "text": "examples",
+      "x": 403.23388671875,
+      "y": 174.703125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 172.4765625,
+      "w": 77.203125,
       "h": 12.15625
     },
     {
@@ -267,9 +312,9 @@
       "shape": "box",
       "role": "external",
       "x0": 370.63232421875,
-      "y0": 162.625,
+      "y0": 204.78125,
       "x1": 498.83447265625,
-      "y1": 231.93515625
+      "y1": 274.09140625
     },
     {
       "id": "examples-icon",
@@ -278,23 +323,23 @@
       "pts": [
         [
           479.83447265625,
-          169.625
+          211.78125
         ],
         [
           486.83447265625,
-          169.625
+          211.78125
         ],
         [
           491.83447265625,
-          174.625
+          216.78125
         ],
         [
           491.83447265625,
-          185.625
+          227.78125
         ],
         [
           479.83447265625,
-          185.625
+          227.78125
         ]
       ]
     },
@@ -305,15 +350,15 @@
       "pts": [
         [
           486.83447265625,
-          169.625
+          211.78125
         ],
         [
           486.83447265625,
-          174.625
+          216.78125
         ],
         [
           491.83447265625,
-          174.625
+          216.78125
         ]
       ],
       "dashed": false,
@@ -326,7 +371,7 @@
       "face": "body",
       "text": "static.rhai\nsample.rhai\nllm.rhai",
       "x": 434.7333984375,
-      "y": 197.280078125,
+      "y": 239.436328125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -334,22 +379,138 @@
       "h": 47.31015625
     },
     {
+      "id": "notices-dir",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          301.8583984375,
+          318.09140625
+        ],
+        [
+          383.4833984375,
+          318.09140625
+        ],
+        [
+          391.4833984375,
+          342.24765625
+        ],
+        [
+          567.6083984375,
+          342.24765625
+        ],
+        [
+          567.6083984375,
+          410.884375
+        ],
+        [
+          301.8583984375,
+          410.884375
+        ]
+      ]
+    },
+    {
+      "id": "notices-dir-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "notices",
+      "x": 342.6708984375,
+      "y": 330.16953125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 57.625,
+      "h": 12.15625
+    },
+    {
+      "id": "notices",
+      "shape": "box",
+      "role": "external",
+      "x0": 319.8583984375,
+      "y0": 360.24765625,
+      "x1": 549.6083984375,
+      "y1": 392.884375
+    },
+    {
+      "id": "notices-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          530.6083984375,
+          367.24765625
+        ],
+        [
+          537.6083984375,
+          367.24765625
+        ],
+        [
+          542.6083984375,
+          372.24765625
+        ],
+        [
+          542.6083984375,
+          383.24765625
+        ],
+        [
+          530.6083984375,
+          383.24765625
+        ]
+      ]
+    },
+    {
+      "id": "notices-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          537.6083984375,
+          367.24765625
+        ],
+        [
+          537.6083984375,
+          372.24765625
+        ],
+        [
+          542.6083984375,
+          372.24765625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "notices-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "THIRD-PARTY-NOTICES.md",
+      "x": 434.7333984375,
+      "y": 376.566015625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 183.75,
+      "h": 10.63671875
+    },
+    {
       "id": "key",
       "shape": "box",
       "role": "key",
       "x0": 6.0,
-      "y0": 303.93515625,
+      "y0": 482.884375,
       "x1": 634.359375,
-      "y1": 462.92890624999995
+      "y1": 641.878125
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: the executable. Grey: editable examples. Outlines group directories.\nThe file group lists separate files relative to share/ravel/examples.\nThe CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.\nThe worker is a process role, not another installed executable.\nThe owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.\nInstalled execution needs no separate language runtime or source checkout.\nThe distribution also carries third-party notices for Rust dependencies.\nRelease archives additionally carry README.md and LICENSE at their root.",
+      "text": "Blue: the executable. Grey: supporting files. Outlines group directories.\nThe file group lists separate files relative to share/ravel/examples.\nThe CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.\nThe worker is a process role, not another installed executable.\nThe owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.\nInstalled execution needs no separate language runtime or source checkout.\nTHIRD-PARTY-NOTICES.md lists notices for Rust dependencies.\nRelease archives additionally carry README.md and LICENSE at their root.",
       "x": 320.1796875,
-      "y": 383.43203124999997,
+      "y": 562.38125,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
