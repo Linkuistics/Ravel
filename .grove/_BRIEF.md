@@ -96,6 +96,8 @@ design needs the settled requirements.
 
 ## Notes
 
+- The release-layout node fixes the final Rust notice path at `share/ravel/notices/THIRD-PARTY-NOTICES.md`. `task notices` generates it as `target/notices/THIRD-PARTY-NOTICES.md`; `rhai-installed-layout-k108` installs and archives it. `rhai-book-inside-k34` uses that path in chapter 6 and the shared installed-file figure after k108 lands.
+
 - The owner reached chapter 4's example-setup section and reported F17: its files and table lack context.
   They also requested removal of “policy” from filenames and arguments (F18), then asked the session to continue.
   `configuration-names-k92` owns the consistent public-interface rename. Its map is the requirements session's interpretation.

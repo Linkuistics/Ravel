@@ -35,6 +35,8 @@ Each leaf leaves main working. The cutover leaf can run before the delivery leaf
 
 ## Notes
 
+- The delivery children set the final Rust notice path to `share/ravel/notices/THIRD-PARTY-NOTICES.md`. `task notices` generates `target/notices/THIRD-PARTY-NOTICES.md`; k108 integrates it with installation, archives and the formula. `rhai-book-inside-k34` reconciles chapter 6 and the shared installed-file figure with this path after the layout lands.
+
 - `typescript-worker-cutover-k31` closes with k101. Runtime evaluation is Rhai-only, with the complete retired-extension/default-discovery table, ordinary Bun/Node grants, routing schema 2 and source-sensitive Rhai identity. Frozen equivalence observations are unchanged; current runtime tests and all complete book examples use Rhai. macOS check/test pass 602 cases each, both book checkers and their controls pass, and Linux arm64 passes current Rhai/native-entry/check/test tasks. The real jj workspace comparison runs on macOS; the Linux image uses its documented no-jj skip. The old incumbent/R01 campaign was retired from `test:native-linux` after it failed on the intentional runtime/test contraction; original campaign receipts remain untouched. k32 owns the unused delivery worker, SDK, build/release machinery, installed-smoke/formula TypeScript fixtures and obsolete campaign tools. k33 owns spec reconciliation. k101 also removes chapter 6's obsolete JSON-marker reservation and stale frame-source pointers as direct runtime-removal consequences; later book leaves keep their wider narrative duties.
 
 - F18 in `rhai-book-use-k74` adds `configuration-names-k92` immediately after this node.

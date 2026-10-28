@@ -1,0 +1,15 @@
+# cargo-about 0.8.4 configuration and SPDX acceptance order:
+# https://github.com/EmbarkStudios/cargo-about/blob/0.8.4/docs/src/cli/generate/config.md
+accepted = ["MIT", "Apache-2.0", "Unicode-3.0", "Zlib", "CC0-1.0"]
+ignore-dev-dependencies = true
+# Include build dependencies and transitive dependencies. Generation supplies
+# the release targets from release-common.sh, rather than duplicating them here.
+no-clearly-defined = true
+
+# Rhai 1.27.0 depends on smartstring even with its compact_str feature enabled.
+# compact_str keeps smartstring's implementation out of the Rhai build, but
+# Cargo's dependency metadata still includes the crate. Keep its notice and
+# approve MPL-2.0 for this crate only; do not permit it for arbitrary additions.
+# https://docs.rs/crate/rhai/1.27.0/source/src/lib.rs (SmartString aliases)
+[smartstring]
+accepted = ["MPL-2.0"]

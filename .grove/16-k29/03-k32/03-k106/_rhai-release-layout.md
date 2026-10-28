@@ -1,4 +1,4 @@
-# rhai-release-layout-k106
+# rhai-release-layout-k106 — brief
 
 
 ## Goal
@@ -21,3 +21,13 @@ The three installed examples are `static.rhai`, `sample.rhai` and `llm.rhai`. Re
 - The final notice path reaches the later book node through the brief chain; frozen observations and historical receipts remain intact.
 
 ## Notes
+
+## Decomposition
+
+- `cargo-notices-k107` supplies the pinned Cargo notice generator, its allowlist and executable refusal controls. It is independently usable before the installed layout changes.
+- `rhai-installed-layout-k108` moves install, archives, formula and smoke tests together, consumes the generated notice, and removes the retired delivery/campaign artifacts after reconciling their consumers. All original delivery acceptance criteria above remain here.
+
+## Decisions (running log)
+
+- 2026-10-28: The consumer inventory spans the dispatcher, installed smoke, archive manifest and controls, formula, target-floor smoke, doctor and historical campaign tooling. Split the independently verifiable Cargo notice generator from that coordinated layout change. This session implements only the first child. No delivery surface is removed until k108.
+- 2026-10-28: k107 establishes `share/ravel/notices/THIRD-PARTY-NOTICES.md` as the installed notice path. Run `task notices` to generate `target/notices/THIRD-PARTY-NOTICES.md`, then copy that file unchanged into the staged archive/install prefix. k108 reconciles the exact manifest, formula, installed smoke, README and book handoff with that path. Existing Bun notices stay until the coordinated removal.

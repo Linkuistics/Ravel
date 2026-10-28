@@ -114,6 +114,23 @@ tasks:
     cmds:
       - bash scripts/book-bun.test.sh
 
+  notices:setup:
+    desc: Install checkout-local cargo-about 0.8.4 and fetch locked Cargo sources for licence scanning
+    cmds:
+      - bash scripts/notices.sh setup
+
+  notices:
+    desc: Generate Rust dependency notices from the locked release graph; refuse unapproved licences
+    cmds:
+      - task: notices:setup
+      - bash scripts/notices.sh generate
+
+  notices:test:
+    desc: Exercise real Cargo notice acceptance, refusal, atomic output and tool-version controls
+    cmds:
+      - task: notices:setup
+      - bash scripts/notices.test.sh
+
   setup:
     desc: Fetch and verify the pinned checkout-local book tools (Bun, mdBook, Typst with CeTZ and figure fonts)
     cmds:
