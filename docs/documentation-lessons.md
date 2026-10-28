@@ -582,6 +582,9 @@ in the chapter and put the concrete selection labels in the figure.
 Apply the prose contract to every delivered medium, and preserve literal
 output where the medium can identify it as code.
 
+Proof `rhai-book-use-k96`, 2026-10-29, found a disallowed “-ing” word in the new installed-files key.
+The chapter text passed, but the figure layout record failed. Include generated figure text in the strict prose gate after a label changes.
+
 Session `rhai-executable-book-examples-k100`, 2026-10-28, applies this scope rule to an example checker's build precondition.
 The retiring worker's digest and installed path blocked examples that used only the Rust binary.
 Scanning all Rust files also treated a newer integration test as a stale production binary, although Cargo could reuse that binary.
@@ -1061,6 +1064,12 @@ Thus, procedural executability and instructional sufficiency need separate judge
 
 The trial also read beyond its stopping boundary during a later citation lookup. Supply a physically bounded corpus when that boundary matters.
 
+Proof `rhai-book-use-k96`, 2026-10-29, used physically bounded copies for a second trial in a separate leaf.
+The LLM ran the revised first example once and reported no instruction gap. The supervisor checked the captured result and unchanged inputs separately.
+The reader's first report described standard error before it read the captured output. Its unedited report and separate correction preserve that error.
+Read each observation before reporting it. A plausible diagnostic is not evidence of the actual stream.
+This trial supplies one model judgement and one execution result. It does not replace the owner's resumed read or establish novice comprehension.
+
 **Check:** Follow the visible instructions from the declared initial environment, recording the source of every action and the resulting state.
 Prove that a validator notices a missing setup step, a reordered dependency, an absent required tool and an incorrect output claim.
 Separate observed execution from model judgements about prerequisite knowledge and from human-reader evidence.
@@ -1108,6 +1117,9 @@ Check each qualifier against the source. Remove it when the behaviour has no suc
 **Check:** For each “never”, “only” or “always” statement with a qualifier, find the code that enforces it. Read whether the code has the qualifier too.
 
 Draft `rhai-book-use-k117`, 2026-10-29, found the same defect in a fragment label without a qualifier. Chapter 1 said that Ravel “does not read the words” of the prompt file. Ravel reads the file and gives its text unchanged to the configuration script. The label now says that Ravel does not interpret the text.
+
+Proof `rhai-book-use-k96`, 2026-10-29, found the same false label in chapter 5's repeated review prompt.
+The chapter 1 correction had not reached that copy. Distinguish a byte read from semantic interpretation in every repetition, including fragment labels.
 
 ### L70. Say when a command is not yet for the reader to run
 

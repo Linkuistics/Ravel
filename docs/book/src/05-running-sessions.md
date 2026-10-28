@@ -147,7 +147,8 @@ First, look at the prompt. The orchestrator of the review wrote this file
 before it ran `start-session`:
 
 Fragment: the prompt file `review-prompt.txt` of chapter 1's review. The
-orchestrator writes this file. Ravel does not read the words in it.
+orchestrator writes this file. Ravel reads its text and gives it unchanged to
+the configuration script. Ravel does not interpret the text.
 
 ```text
 Review the changes to src/parse.rs and tests/parse.rs in the last commit.

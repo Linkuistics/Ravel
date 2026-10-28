@@ -609,3 +609,34 @@ The proof and the completed Part I review supply no practical-task result. Recor
 Read 2 remains required after the later whole-book proof.
 
 <!-- tc: on -->
+
+## Correction recap after F17–F18, 2026-10-29
+
+Proof `rhai-book-use-k96` completes the owner-directed third correction run of chapters 1–6.
+Resume at chapter 4, “Run the examples of this chapter”, the setup section where this read stopped.
+Refresh the local book build/server and private reader shell first. This remains the same live checkpoint.
+The owner completed Part I and need not read it again. Its revised pages remain available through the normal contents entries.
+
+- Chapters 3–5 now name each example and its workspace, saved files, generated paths and purpose before the actions.
+  Chapter 4 starts with `~/ravel-chapter-4/fixed-route`, its tree, two files and complete command. The command table follows that command.
+  Later examples name their differences and dependent blocks. Chapter 5 restates its own preparation and sandbox prerequisite.
+- Chapters 1–2 explicitly have nothing to run and point to chapter 3's first session.
+- The implemented interface now uses `config.rhai`, `--config-env`, `configEnv`, `RAVEL_CONFIG_RUN`, configuration diagnostics and JSON fields.
+  Failure documents have schema 2; routing schema 2 and script/request schema 3 remain distinct. Arbitrary caller data and the rejected historical filename stay exact.
+- Chapter 6 and the shared installed-file figure include `share/ravel/notices/THIRD-PARTY-NOTICES.md`.
+  The final cutover, naming and notice-path dependencies are resolved for these parts. Release-version substitution remains with the release.
+- Proof corrected chapter 5's repeated prompt label, distinguishing file reading from interpretation, and one word in the installed-files key.
+  Lessons L40, L67 and L69 retain the transferable observations.
+
+Final mechanical checks passed all 22 complete book examples, nine excerpts, 18 figure reproductions, strict prose and break checks, the build and local links.
+The proof task records the fresh source inventories, 43 example-checker controls, failing link/prose controls, unchanged subjects and viewing limits.
+Safari inspection covered the revised chapter 4 setup and the installed-layout table and figure at the 750-pixel column.
+
+One fresh LLM reader received physically bounded chapter copies, ordinary prerequisites and an empty private home with the checkout executable.
+It manually ran the first chapter 4 example once. Captured output was exactly `Explain this change.`, without newline, and status 0.
+It reported no missing instruction, but its first report described standard error before inspecting it. The captured stream and a separate correction preserve that error.
+This is one model judgement and one execution result, not evidence of novice comprehension or the owner's task performance.
+The trial did not implement TestSubject or replace this read.
+
+The practical tasks remain outstanding: write a fake-agent script and run a session, interpret refusal and cancellation, and use one direct reference entry.
+Record the owner's results separately. Later whole-book proof and Read 2 remain required.

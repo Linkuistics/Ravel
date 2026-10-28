@@ -41,9 +41,8 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
   The second correction run under `rhai-book-use-k26` ends at proof `rhai-book-use-k87` before Read 1 resumes.
   These later drafts inherit the current contract and lessons, including configuration terms, concrete examples and descriptive headings.
   Check shared figures against the corrected prose and keep exact interface tokens where the reader must use them.
-- Parts I and II proof passed the final notice-path choice to `typescript-delivery-removal-k32`.
-  After that leaf settles the installed path, update chapter 6's installed-layout table and `installed-files.typ` with its SVG, layout record and alternative.
-  The whole-book proof checks those entries against the final archive and installed layout.
+- Parts I and II proof `rhai-book-use-k96` reconciled chapter 6's installed-layout table and `installed-files.typ`, SVG, layout record and alternative against the final notice path.
+  The whole-book proof still checks those entries against the final archive and installed layout.
 - `rhai-book-use-k72` updated the shared figures for Rhai in Parts I and II.
   Chapter 8 still embeds `selection-cancellation.svg` beside its old worker-signal example and alternative.
   Reconcile that example, alternative and surrounding explanation during the first draft.
@@ -58,4 +57,4 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 
 - Art `rhai-book-use-k86` updated the shared process, source and installed-file figures to “Rhai worker”, “configuration script” and “settings”. The chapter 7 and 11 prose, captions and alternatives still need reconciliation against those figures during their scheduled drafts.
 
-- The delivery cutover is implemented in `rhai-delivery-cutover-k110`: the installed notice is `share/ravel/notices/THIRD-PARTY-NOTICES.md`, the three examples are under `share/ravel/examples/`, and `bin/ravel` is the only executable. Reconcile chapter 6, `installed-files.typ`, chapters 7–11 and their tables against `scripts/release-common.sh`'s exact manifest. `scripts/install.sh` and `scripts/installed-smoke.sh` replace the removed dispatcher and installed smoke path. The formula installs `bin` and `share/ravel`; `deps` and `probes` tasks are gone. Runtime/component evidence is explicitly historical and links removed source at its retained revision; archive/publication/lifecycle receipts remain historical. Keep the existing narrative/proof ownership rather than treating those receipts as current delivery instructions.
+- The delivery cutover is implemented in `rhai-delivery-cutover-k110`: the installed notice is `share/ravel/notices/THIRD-PARTY-NOTICES.md`, the three examples are under `share/ravel/examples/`, and `bin/ravel` is the only executable. `rhai-book-use-k96` reconciled chapter 6 and `installed-files.typ`. Reconcile chapters 7–11 and their tables against `scripts/release-common.sh`'s exact manifest, and include the shared entries in whole-book proof. `scripts/install.sh` and `scripts/installed-smoke.sh` replace the removed dispatcher and installed smoke path. The formula installs `bin` and `share/ravel`; `deps` and `probes` tasks are gone. Runtime/component evidence is explicitly historical and links removed source at its retained revision; archive/publication/lifecycle receipts remain historical. Keep the existing narrative/proof ownership rather than treating those receipts as current delivery instructions.

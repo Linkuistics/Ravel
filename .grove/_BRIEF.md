@@ -96,7 +96,7 @@ design needs the settled requirements.
 
 ## Notes
 
-- The release-layout node fixes the final Rust notice path at `share/ravel/notices/THIRD-PARTY-NOTICES.md`. `task notices` generates it as `target/notices/THIRD-PARTY-NOTICES.md`; `rhai-installed-layout-k108` installs and archives it. `rhai-book-inside-k34` uses that path in chapter 6 and the shared installed-file figure after k108 lands.
+- The final Rust notice path is `share/ravel/notices/THIRD-PARTY-NOTICES.md`. `task notices` generates it as `target/notices/THIRD-PARTY-NOTICES.md`; delivery installs and archives it. `rhai-book-use-k96` reconciled chapter 6 and the shared installed-file figure. `rhai-book-inside-k34` retains the later narrative and whole-book checks.
 
 - The owner reached chapter 4's example-setup section and reported F17: its files and table lack context.
   They also requested removal of “policy” from filenames and arguments (F18), then asked the session to continue.
@@ -138,10 +138,10 @@ design needs the settled requirements.
 - Each later session adds its new documentation or communication lessons to [the shared record](../docs/documentation-lessons.md).
   Each rule keeps its source, evidence class and Ravel application.
   `documentation-lessons-k79` created the record from the whole grove. The owner wants these lessons as a skill for other groves.
-- Parts I and II describe the agreed 2.0.0 design before the default-entry cutover and delivery removal.
+- Parts I and II describe the implemented 2.0.0 configuration and delivery layout after cutover, removal and the configuration-name correction.
   The release retains responsibility for replacing chapter 3's version placeholder before publication.
-  `typescript-delivery-removal-k32` supplies the final notice path to `rhai-book-inside-k34`, which reconciles chapter 6 and the shared installed-file figure.
-  `rhai-spec-reconciliation-k33` corrects the spec's broad environment-scrub claim to the six exact launch controls.
+  `rhai-book-use-k96` reconciled the final notice path in chapter 6 and the shared installed-file figure.
+  `rhai-spec-reconciliation-k33` corrected the spec's broad environment-scrub claim to the six exact launch controls.
   The Parts III and IV brief also owns chapter 8's old cancellation example and alternative beside the revised figure.
 - `rhai-executable-book-examples-k100` mechanically ported chapter 9's “Run a fake that ignores TERM” complete example for `rhai-book-inside-k35` and `rhai-book-inside-k36`.
   Its Rhai selection preserves `finished` and status 0. Only its policy file/block and `--config` argument changed; prose still awaits those drafts.
@@ -219,3 +219,12 @@ design needs the settled requirements.
   restructuring. Parts III–IV retain their full source-walkthrough and delivery
   reconciliation, whole-book proof and Read 2; this naming close does not finish
   that narrative work or the live Read 1 checkpoint.
+
+- Proof `rhai-book-use-k96` closes `rhai-book-use-k26` after the owner-directed F17–F18 correction.
+  Chapters 1–6 now supply named example workspaces, files and complete commands before their explanations, using the implemented configuration interface.
+  Chapter 6 and the shared installed-file figure include the final Rust notice path. No hand-forward item remains for these parts.
+  Final gates pass 22 examples, nine excerpts, 18 figure reproductions, strict prose/break checks, the build and local links, with failing controls and unchanged subjects.
+  One physically bounded LLM reader completed the first chapter 4 example and reported no instruction gap. Its first stream report needed a correction, which remains preserved separately from the measured output.
+  That trial does not establish novice comprehension or the owner's practical results.
+  The existing `rhai-book-use-k74` resumes at chapter 4, “Run the examples of this chapter”, after refreshing the local book and private shell.
+  Part I need not be repeated. Release-version substitution, the later whole-book proof and Read 2 remain required.

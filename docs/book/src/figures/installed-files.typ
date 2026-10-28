@@ -20,7 +20,7 @@
 )
 
 #render(deployment([Installed files — UML deployment view], tree, (), (
-  [Blue: the executable. Grey: supporting files. Outlines group directories.],
+  [Blue: the executable. Grey: other files. Outlines group directories.],
   [The file group lists separate files relative to share/ravel/examples.],
   [The CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.],
   [The worker is a process role, not another installed executable.],

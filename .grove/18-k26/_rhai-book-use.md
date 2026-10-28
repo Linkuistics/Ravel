@@ -101,8 +101,8 @@ The owner settled these changes in `rhai-book-use-k27` on 2026-10-26:
 
 ## Notes
 
-- The book describes Ravel 2.0.0. The checkout still supports both policy formats until the cutover increment.
-  The cutover leaf adds the example of a retired-format refusal.
+- The book describes Ravel 2.0.0. Cutover and delivery removal have landed, followed by the configuration-name correction.
+  Chapter 6 describes the retired-format refusal and the final notice path. The release still supplies the version placeholder.
 - Chapters 7–11 remain with `rhai-book-inside` after the removal increment.
   Mechanical link corrections can precede that rewrite.
 - Run `task setup` before the book checks. The checkout-local Bun remains a development tool after release.
@@ -174,3 +174,28 @@ Chapter 6 now names four reserved grant classes, lists the installed notice file
 The last draft passed all 22 examples, nine excerpts, 18 figure reproductions and the book build.
 Strict prose and break checks passed for chapters 1–6. A local check of the built chapters resolved 613 links, and each planted fault failed it.
 The installed-files figure is under “Handed forward” for art. Copy-edit `rhai-book-use-k94` reads the new setup sections and the corrected entries next.
+
+## Third correction proof closure
+
+Proof `rhai-book-use-k96` read chapters 1–6 against the current contract and all lessons through L72.
+The setup sequences now name their examples, directories, saved files and generated paths before the actions.
+The complete command precedes its explanation. Current configuration names agree with the implementation and CLI help.
+Chapter 6 and the installed-files figure now include `share/ravel/notices/THIRD-PARTY-NOTICES.md`, closing that delivery dependency.
+
+The proof corrected chapter 5's repeated prompt label: Ravel reads the file but does not interpret its text.
+It also corrected one word in the installed-files figure's key, then regenerated and inspected the figure at 750 pixels.
+No Handed forward entry remains. No correction run or new checkpoint is necessary.
+
+The final gates passed all 22 complete book examples, nine exact excerpts, 18 figure reproductions, strict prose and break checks, the book build and local links.
+The proof task records fresh source inventories, failing controls, unchanged subjects and the viewing limits.
+One physically bounded LLM reader ran chapter 4's first example successfully and reported no instruction gap.
+Its first report misstated standard error before inspecting it; the captured stream and separate correction preserve that limitation.
+Neither that model judgement nor mechanical execution establishes novice comprehension or replaces the owner's read.
+
+The node's Done when holds at this correction boundary. Read 1 remains live as `rhai-book-use-k74`.
+Resume at chapter 4, “Run the examples of this chapter”, after refreshing the local book and private reader shell.
+Part I need not be repeated. The owner's practical tasks and the later whole-book proof and Read 2 remain required.
+
+## Handed forward
+
+None.

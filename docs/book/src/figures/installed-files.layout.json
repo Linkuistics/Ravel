@@ -508,7 +508,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: the executable. Grey: supporting files. Outlines group directories.\nThe file group lists separate files relative to share/ravel/examples.\nThe CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.\nThe worker is a process role, not another installed executable.\nThe owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.\nInstalled execution needs no separate language runtime or source checkout.\nTHIRD-PARTY-NOTICES.md lists notices for Rust dependencies.\nRelease archives additionally carry README.md and LICENSE at their root.",
+      "text": "Blue: the executable. Grey: other files. Outlines group directories.\nThe file group lists separate files relative to share/ravel/examples.\nThe CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.\nThe worker is a process role, not another installed executable.\nThe owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.\nInstalled execution needs no separate language runtime or source checkout.\nTHIRD-PARTY-NOTICES.md lists notices for Rust dependencies.\nRelease archives additionally carry README.md and LICENSE at their root.",
       "x": 320.1796875,
       "y": 562.38125,
       "anchor": "center",
