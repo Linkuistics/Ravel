@@ -76,6 +76,8 @@ Parts III and IV apply the same current lessons in their scheduled rewrite befor
   Check each alt text and caption after the label change. Drafts `rhai-book-use-k89` to `k91` change the alt text of chapters 4–6.
   Draft `rhai-book-use-k89` changed chapter 4's alt text and caption of `evaluation-harness.typ` to “Rhai worker” and “configuration script”. The figure labels still say “policy worker” and “policy”.
   Draft `rhai-book-use-k90` changed chapter 5's alt text of `inherited-result-path.typ` to chapter 1's words and the alt text of `selection-cancellation.typ` to “Rhai worker”. The figure labels still use the old terms.
+  Draft `rhai-book-use-k91` changed chapter 6's alt text of `routing-notice.typ`, `inherited-result-path.typ` and `evaluation-harness.typ` to the words of chapters 1 and 4.
+  It also changed the alt text and the captions of `source-components.typ` and `installed-files.typ` to “Rhai worker” and “configuration script”. The labels of all five figures still use the old terms.
 - **Art (`rhai-book-use-k86`): the review flow of chapter 1.** “Follow one code review from request to result” gives the review as two tables.
   The tables give the order of actions and the orchestrator's action for each result. No figure shows that flow.
   Decide whether a figure helps the reader there, under the contract's “Give a diagram and a concrete example”.
@@ -136,3 +138,13 @@ local viewing evidence. The proof task records its precise scope and limits.
 At that boundary, the node's Done when held. Read 1 stayed live as `rhai-book-use-k74`, ready
 for the owner's re-review from chapter 1. No second checkpoint was cut.
 The later findings now require the correction run above before the owner proceeds to Part II.
+
+## Second correction draft closure
+
+The draft node `rhai-book-use-k84` closed on 2026-10-28 after four drafts, `rhai-book-use-k88` to `rhai-book-use-k91`.
+Chapters 1–6 use the term map of `ste.md`, “Configuration words”. Outside code and link targets, “policy” remains only where a page explains Ravel's literal names, help and diagnostic words.
+Each chapter opens with chapter 1's review, and chapter 6 restates the worker's three reasons. JSON version labels stay only in examples and in the entries that teach their values.
+
+The last draft passed all 22 examples, nine excerpts, seventeen figure reproductions and the book build.
+Strict prose and break checks passed for chapters 1–6. A local link check of the built book and the README passed, with failing controls.
+The figure labels with the old terms remain under “Handed forward” for art.

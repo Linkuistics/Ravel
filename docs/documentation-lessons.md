@@ -799,6 +799,9 @@ Draft `rhai-book-use-k90`, 2026-10-28, opened chapter 5 with chapter 1's review:
 The chapter's term table and order table then have a column “In the review”. Each general word and each row keeps a known value beside it.
 A column of the earlier case's values connects a general table to that case without a second explanation.
 
+Draft `rhai-book-use-k91`, 2026-10-28, applied the rule to the lookup chapter. Chapter 6 opens with chapter 1's review request and its result, then gives its word table with the column “In the review”.
+Its fragments now show the review's prompt file and result. Thus, a reader who enters at any entry meets the same values as in chapters 1 and 5.
+
 ### L58. Explain the task, its completion instruction and the use of its result together
 
 When the reader needs to understand a caller's complete task, naming only the requested work leaves the result unexplained.
@@ -911,6 +914,30 @@ The real-run fragment of the JSON routing notice still showed the old script's b
 
 **Check:** For each changed complete example, search the same section for a fragment that names a real run. Compare each value that depends on an input.
 
+Draft `rhai-book-use-k91`, 2026-10-28, found the same defect in another chapter. Chapter 6 quoted chapter 5's review run in four fragments: the command, the script, the JSON routing notice and the failure document.
+Draft `rhai-book-use-k90` changed that run and checked its own section. Chapter 6 still showed the old prompt, the result `continue`, 605 bytes and `"promptSource": "argument"`.
+A reference page often quotes the examples of the teaching chapters. Thus, the search for a stale fragment covers the whole document, not only the changed section.
+
+**Check:** Search the whole document for each name of the changed example. Search for its file names and its result too, for example “the review session of chapter 5”, `review-prompt.txt` and `changes-needed`.
+Compare each fragment that a search finds.
+
+### L65. Make a link text agree with what its destination now says
+
+A link text names or describes its destination. When the destination changes, the link text can become false while the link still resolves.
+
+After a heading changes, give each inbound link the new heading. Alternatively, name the part that it points to, such as a row of a table.
+Replace a generic label that many links share, such as “Policy behaviour”, with the subject of each destination. The reader then knows where each link goes before following it.
+When the text says that the destination describes something, read the destination and check that claim.
+
+**Source:** Session evidence, `rhai-book-use-k91`, 2026-10-28.
+**Ravel application:** Chapter 6 had six links to a renamed chapter 5 section with five different texts, such as “operational limits” and “platform limits”. Each now names the section or its row.
+
+A note said that the linked section describes two cases. That section describes only one of them. The note now links each case to its own section.
+Many table rows of chapter 6 used the label “Policy behaviour” for eight different sections of chapter 4. Each label now names its section.
+
+**Check:** For each changed heading, list the inbound link texts. Classify each as the new heading, a named part or a stale description.
+For a link text that states what the destination contains, read the destination.
+
 The following checks apply the rules where a judgement has no standalone executable check.
 
 | Rules | Contract section or check in Ravel |
@@ -928,7 +955,8 @@ The following checks apply the rules where a judgement has no standalone executa
 | L56 | A search of the built HTML for raw Markdown, and a count of headings against heading ids, follow an edit beside a code block. |
 | L57–L62 | Contract §2 records the Part I findings of 2026-10-28. Draft applies them throughout the book, and proof checks the explanations, exact interfaces and links. |
 | L63 | A search of each changed page for the old term, with each match classified. `ste.md` and `CONTEXT.md` hold the term map. |
-| L64 | A search of each changed example's section for a real-run fragment, and a new run when an input that it shows changed. |
+| L64 | A search of the whole document for real-run fragments of each changed example, and a new run when an input that it shows changed. |
+| L65 | A list of the inbound link texts of each changed heading, each classified, and a read of each destination that a link text describes. |
 
 ### Disposition of the task's candidate readings
 
