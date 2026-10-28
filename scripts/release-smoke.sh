@@ -26,7 +26,7 @@
 # scripts/release-smoke-target.sh runs inside each environment: it asserts the
 # environment, extracts the archive with that environment's tar into a fresh
 # prefix, checks the versions, and runs ravel's installed-layout
-# cases, crates/ravel/scripts/installed-smoke.sh.
+# cases, scripts/installed-smoke.sh.
 #
 # WHY A CONTROL. A userland that is not really at the floor passes everything a
 # floor userland passes. So each Linux run also executes a pair of probes built
@@ -38,23 +38,22 @@
 #
 # WHY OUR OWN QEMU. Docker Desktop on Apple silicon emulates amd64 with QEMU
 # 8.1.5, which gives x86-64 guests no vDSO, and CentOS 7's glibc then crashes
-# (docs/runtime-evidence.md, *Installed
-# smoke*). QEMU 10.2.3 supplies the vDSO, but with no reserved address space it
+# (historical target observations: docs/archive-evidence.md). QEMU 10.2.3
+# supplies the vDSO, but with no reserved address space it
 # bounds a 64-bit guest by nothing, so on an arm64 kernel with 48-bit addresses
 # it maps the guest above 2^47, where no x86-64 kernel maps a process; the
-# worker's JavaScriptCore heap then cannot allocate. Reserving the space (-R)
+# original JavaScriptCore worker could not allocate. Reserving the space (-R)
 # fails, because QEMU maps the vsyscall page at 0xffffffffff600000. A guest base
 # of 2^47 (-B 0x800000000000) maps the host's upper half onto the guest's
-# [0, 2^47) instead. The worker's front scrubs QEMU_* from its environment, so
+# [0, 2^47) instead. Ravel scrubs QEMU_* from the worker environment, so
 # the options reach QEMU through a native interpreter registered in
 # binfmt_misc, and scripts/release-smoke-qemu.sh registers it in a private
 # instance, leaving the Docker host's own registration alone.
 #
 # WHY A CPU MODEL. A binary built for a newer CPU than the floor passes every
-# test on a newer CPU, and Bun's x64 runtime chooses AVX2 code paths when the
-# CPU has them. So each Linux target's smoke test runs under QEMU emulating the
-# floor's CPU: Nehalem for x86_64, the Cortex-A53 for aarch64, the models Bun's
-# own baseline verification emulates. A model that accepted newer instructions
+# test on a newer CPU. Each Linux target's smoke test runs under QEMU
+# emulating the retained floor: Nehalem for x86_64 and Cortex-A53 for aarch64.
+# A model that accepted newer instructions
 # would pass everything, so before the smoke test a probe that executes one
 # instruction beyond the model (AVX2 on x86_64, an Armv8.1 LSE atomic on
 # aarch64) must be killed by SIGILL under it, and must run under the same QEMU
@@ -65,9 +64,7 @@
 #
 # The Linux environments see only their inputs, read only, and run the smoke
 # test as an unprivileged user with no network. Neither a container nor
-# user-mode emulation observes the kernel floor, which is Bun's documented
-# range; see docs/specs/session-execution.md, *Delivery and
-# release*.
+# user-mode emulation establishes a kernel-version floor.
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -76,7 +73,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly REPO_ROOT
 readonly TARGET_SCRIPT="$REPO_ROOT/scripts/release-smoke-target.sh"
 readonly QEMU_SCRIPT="$REPO_ROOT/scripts/release-smoke-qemu.sh"
-readonly CASES="$REPO_ROOT/crates/ravel/scripts/installed-smoke.sh"
+readonly CASES="$REPO_ROOT/scripts/installed-smoke.sh"
 
 # TARGETS, the release target list, and assert_archive, the manifest check.
 # shellcheck source=scripts/release-common.sh

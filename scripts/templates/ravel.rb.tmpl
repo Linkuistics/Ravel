@@ -26,10 +26,9 @@ class Ravel < Formula
 
   def install
     # Homebrew prefix/test helpers: https://docs.brew.sh/Formula-Cookbook
-    # Resolve the matching private worker from the front's real path, including
-    # Homebrew's bin symlink. The pair needs no host Bun, Node or Grove.
+    # Rhai is embedded in the executable; examples and Rust notices are data.
     bin.install "bin/ravel"
-    libexec.install "libexec/ravel"
+    (share/"ravel").install "share/ravel/examples", "share/ravel/notices"
   end
 
   test do
@@ -43,26 +42,26 @@ class Ravel < Formula
       exec "$1" end-session -- "$2"
     SH
     (testpath/"fake-agent").chmod 0755
-    (testpath/"policy.ts").write <<~TS
-      import { definePolicy } from "ravel/sdk";
-      import { selectRoute } from "ravel/examples/static";
-      const routes = { check: request => ({
-        program: #{(testpath/"fake-agent").to_s.inspect},
-        args: [#{(testpath/"ravel").to_s.inspect}, request.prompt],
-        provider: "fixture", model: "none", effort: "none"
-      }) };
-      export const policy = definePolicy({
-        schemaVersion: 2, version: "brew-test",
-        select: request => selectRoute(routes, request)
-      });
-    TS
+    (testpath/"policy.rhai").write <<~RHAI
+      import "#{(share/"ravel/examples/static").to_s}" as starter;
+      export const SCHEMA_VERSION = 3;
+      export const VERSION = "brew-test";
+      fn select(request, context) {
+        let routes = \#{ check: |request| \#{
+          program: #{(testpath/"fake-agent").to_s.inspect},
+          args: [#{(testpath/"ravel").to_s.inspect}, request.prompt],
+          provider: "fixture", model: "none", effort: "none"
+        } };
+        starter::select_route(routes, request)
+      }
+    RHAI
     # Scrub live authority and configuration. The child ends this fixture's
     # session and its output must not contaminate the opaque result stream.
     ["exact result", "", "first\nsecond\n", "--help"].each do |result|
       command = ["/usr/bin/env", "-i", "PATH=/usr/bin:/bin",
                  "HOME=#{testpath}/home", "TMPDIR=#{testpath}/tmp",
                  (testpath/"ravel").to_s, "start-session", "--kind", "check",
-                 "--config", (testpath/"policy.ts").to_s, "--prompt", result]
+                 "--config", (testpath/"policy.rhai").to_s, "--prompt", result]
       assert_equal result, shell_output(command.shelljoin)
     end
     assert_equal [], Dir.children(testpath/"tmp")

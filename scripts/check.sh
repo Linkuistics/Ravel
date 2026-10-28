@@ -22,7 +22,7 @@ run_check() {
 }
 
 run_check formatting cargo fmt --all --check
-run_check scripts shellcheck scripts/*.sh crates/ravel/scripts/*.sh
+run_check scripts shellcheck scripts/*.sh
 run_check book-bun-integrity bash scripts/book-bun.test.sh
 run_check harness-smoke-fakes bash scripts/harness-smoke.test.sh
 run_check lint cargo clippy --locked --workspace --all-targets

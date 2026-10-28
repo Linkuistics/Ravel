@@ -30,6 +30,6 @@ mkdir "$scratch/prefix café" "$scratch/test"
 # https://docs.brew.sh/rubydoc/Formula.html#prefix-instance_method
 HOMEBREW_NO_AUTO_UPDATE=1 brew ruby "$root/scripts/release-formula.test.rb" \
   "$formula" "$scratch/ravel-v$version-aarch64-apple-darwin" \
-  "$scratch/prefix café" "$scratch/test" "$root/target/probes/ravel"
+  "$scratch/prefix café" "$scratch/test"
 mv "$formula" "$dir/ravel.rb"
 echo "release-formula: rendered and tested $dir/ravel.rb (unpublished)"

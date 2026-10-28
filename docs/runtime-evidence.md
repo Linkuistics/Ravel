@@ -1,8 +1,15 @@
 # Pinned runtime evidence
 
+This document records the earlier TypeScript delivery. Ravel now embeds Rhai
+in `bin/ravel`; the worker/SDK delivery paths and Bun controls below are retired.
+Source links for removed files point to their last retained revision. The
+current installation and archive checks are `task smoke`, `task release:test`,
+`task release:formula` and `task release:smoke`. The book's Bun tool is separate.
+
+
 The active worker uses Bun **1.4.2**, with TypeScript **7.0.2** and @types/bun
 **1.4.2** frozen in worker/package.json and bun.lock. The runtime and package
-mechanics are in [dispatch.sh](../crates/ravel/scripts/dispatch.sh). This document
+mechanics are in [dispatch.sh](https://github.com/Linkuistics/Ravel/blob/eeea291a36a3ebbee800597033990cb4fb06ccd2/crates/ravel/scripts/dispatch.sh). This document
 retains applicable source findings from the extracted evaluator and identifies
 which instruments now exercise Ravel. It does not claim earlier archive runs
 were runs of this independent product.

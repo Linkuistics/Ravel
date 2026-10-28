@@ -138,13 +138,6 @@ tasks:
       - bash scripts/book.sh setup
       - bash scripts/figures.sh setup
 
-  # Delivery-only prerequisites, retained for release-build.sh and
-  # release:formula until the installed layout changes in k106.
-  deps:
-    desc: Install retired-worker dependencies for the pending release-layout transition (requires Bun 1.4.2)
-    cmds:
-      - bash crates/ravel/scripts/dispatch.sh deps
-
   test:cli:
     desc: Run command-boundary tests (optional nextest arguments)
     cmds:
@@ -246,12 +239,6 @@ tasks:
     cmds:
       - bash scripts/check.sh
 
-  probes:
-    desc: Build retired-worker probes for the pending release-layout transition (never installed)
-    silent: true
-    cmds:
-      - bash scripts/worker-check.sh probes
-
   rhai:upgrade-proof:
     desc: Prove a Rhai upgrade. Print the pin, run the rhai_* engine tests, then each hostile class in a fixed order, and fail on a missing or empty target
     cmds:
@@ -273,12 +260,12 @@ tasks:
       - bash scripts/harness-smoke.test.sh
 
   install:
-    desc: Install and verify the matched pair and SDK under PREFIX (default ~/.local)
+    desc: Install and verify Ravel, Rhai examples and Rust notices under PREFIX (default ~/.local)
     silent: true
     vars:
       PREFIX: '{{.PREFIX | default (printf "%s/.local" .HOME)}}'
     cmds:
-      - bash scripts/worker-check.sh install "{{.PREFIX}}"
+      - bash scripts/install.sh "{{.PREFIX}}"
 
   smoke:
     desc: Build, install and smoke-test a fresh temporary prefix, direct and symlinked
@@ -309,7 +296,6 @@ tasks:
     desc: Render and test an unpublished formula from the three unreleased archives
     silent: true
     cmds:
-      - task: probes
       - bash scripts/release-check.sh formula
 
   release:patch:

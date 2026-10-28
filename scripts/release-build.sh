@@ -3,9 +3,8 @@
 # Build exact independent archives from a clean release tag or working copy.
 # Usage: scripts/release-build.sh [--unreleased [TARGET...]]
 # A target override still clears target/archives, so stale archives cannot pass.
-# The working-copy workspace version determines the archive/front/worker version.
-# The pinned Bun runtime and declarations come from crates/ravel/scripts/dispatch.sh;
-# runtime provenance and supported floors: docs/runtime-evidence.md.
+# The working-copy workspace version determines the archive/executable version.
+# Rhai examples and generated Rust notices are staged by release-common.sh.
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -13,7 +12,6 @@ IFS=$'\n\t'
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly REPO_ROOT
 readonly ARCHIVES_DIR="$REPO_ROOT/target/archives"
-readonly DISPATCH="$REPO_ROOT/crates/ravel/scripts/dispatch.sh"
 
 # TARGETS, pin_rust_toolchain, archive_manifest and assert_archive — shared
 # with the release tests, so the tests check this build's layout.
@@ -35,17 +33,6 @@ workspace_version() {
   local id
   id="$(cargo pkgid --quiet -p ravel)" || die "cannot read ravel's package version"
   echo "${id##*[#@]}"
-}
-
-# The Bun compile target whose pinned runtime the worker for a release target
-# is built from (see `runtime_package` in dispatch.sh).
-bun_target() {
-  case "$1" in
-    aarch64-apple-darwin) echo bun-darwin-arm64 ;;
-    aarch64-unknown-linux-gnu) echo bun-linux-arm64 ;;
-    x86_64-unknown-linux-gnu) echo bun-linux-x64 ;;
-    *) die "no Bun target for $1" ;;
-  esac
 }
 
 build_target() {
@@ -72,13 +59,10 @@ build_target() {
       ;;
   esac
 
-  local top="ravel-v${version}-${target}" bun
+  local top="ravel-v${version}-${target}"
   local stage="$out_dir/staging/$top"
-  mkdir -p "$stage/bin" || return 1
-  cp "$REPO_ROOT/target/$target/release/ravel" "$stage/bin/ravel" || return 1
-  bun="$(bun_target "$target")" || return 1
-  bash "$DISPATCH" build --target "$bun" "$stage/libexec/ravel" >&2 || return 1
-  cp "$REPO_ROOT/LICENSE" "$REPO_ROOT/README.md" "$stage/" || return 1
+  stage_installation "$REPO_ROOT" "$REPO_ROOT/target/$target/release/ravel" "$stage" || return 1
+  install -m 0644 "$REPO_ROOT/LICENSE" "$REPO_ROOT/README.md" "$stage/" || return 1
 
   local archive="$out_dir/$top.tar.xz"
   if ! pack_archive "$out_dir/staging" "$top" "$archive.partial" ||
@@ -126,8 +110,8 @@ main() {
   fi
   rm -rf "$out_dir"
 
-  # The worker build emits its SDK declarations with the pinned type checker.
-  task --dir "$REPO_ROOT" deps
+  # Generate once for the locked three-target release graph, then copy unchanged.
+  task --dir "$REPO_ROOT" notices
 
   mkdir -p "$out_dir/staging"
 
@@ -146,7 +130,6 @@ main() {
   rm -rf "$out_dir/staging"
 
   if ((release)); then
-    task --dir "$REPO_ROOT" probes
     bash "$REPO_ROOT/scripts/release-formula.sh" "$out_dir"
   fi
 

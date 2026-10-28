@@ -12,7 +12,7 @@
 # ravel-v<version>-<target>.tar.xz, into a fresh prefix with this environment's
 # own tar, checks that ravel report that
 # version, and hands the prefix to ravel's installed-layout cases,
-# CASES (crates/ravel/scripts/installed-smoke.sh). Like those cases,
+# CASES (scripts/installed-smoke.sh). Like those cases,
 # it needs only bash 3.2, coreutils, grep and cmp, because macOS's /bin/bash
 # and CentOS 7's both run it.
 

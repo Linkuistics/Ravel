@@ -28,7 +28,7 @@
 # Before the smoke test, the guest's own /proc/self/maps must show a vDSO and
 # no mapping at or above the target's user address limit but the vsyscall
 # page. Docker Desktop's QEMU 8.1.5 gives x86-64 guests no vDSO, and QEMU
-# 10.2.3 without a guest base maps them above 2^47 (docs/runtime-evidence.md,
+# 10.2.3 without a guest base maps them above 2^47 (docs/archive-evidence.md,
 # *Source findings retained with the implementation*); either
 # would otherwise run the smoke test in an environment no x86-64 kernel makes.
 # Then the CPU model must be seen to refuse an instruction beyond it, which
@@ -124,9 +124,9 @@ outside() {
 
 # Every ELF file in the archive must match MAGIC under MASK, or it would run
 # on the helper's own CPU, out of the model's reach, and pass untested. HEADERS
-# lists each file's first 20 bytes; it must include the front and the worker.
+# lists each file's first 20 bytes; it must include the sole executable.
 assert_archive_matches() {
-  local headers="$1" magic mask header path i count=0 front=0 worker=0
+  local headers="$1" magic mask header path i count=0 front=0
   # A registration's escapes as hex; a pipe carries their NUL bytes.
   magic="$(printf '%b' "$2" | od -An -tx1 | tr -d ' \n')"
   mask="$(printf '%b' "$3" | od -An -tx1 | tr -d ' \n')"
@@ -140,10 +140,9 @@ assert_archive_matches() {
     count=$((count + 1))
     case "$path" in
       */bin/ravel) front=1 ;;
-      */libexec/ravel/ravel-policy) worker=1 ;;
     esac
   done <"$headers"
-  ((front && worker)) || die "$headers lists no ravel front or worker: $(cat "$headers")"
+  ((front && count == 1)) || die "$headers must list only bin/ravel: $(cat "$headers")"
   note "all $count ELF files in the archive match the registration, so they run under the model"
 }
 

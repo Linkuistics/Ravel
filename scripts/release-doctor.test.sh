@@ -6,15 +6,15 @@ IFS=$'\n\t'
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
-mkdir -p "$scratch/repo/scripts" "$scratch/repo/crates/ravel/scripts" "$scratch/bin" "$scratch/repo/target/tools"
+mkdir -p "$scratch/repo/scripts" "$scratch/bin" "$scratch/repo/target/tools"
 cp "$root/scripts/release-doctor.sh" "$root/scripts/release-common.sh" "$scratch/repo/scripts/"
-cp "$root/crates/ravel/scripts/dispatch.sh" "$scratch/repo/crates/ravel/scripts/"
+cp "$root/scripts/book-bun.sh" "$scratch/repo/scripts/"
 cp "$root/scripts/release-book-version.sh" "$root/scripts/release-book.sh" "$root/scripts/book.sh" "$scratch/repo/scripts/"
 page=docs/book/src/03-a-complete-session.md
 mkdir -p "$scratch/repo/$(dirname "$page")"
 cp "$root/$page" "$scratch/repo/$page"
 printf '#!/bin/sh\nexit 70\n' >"$scratch/bin/gh"
-printf '#!/bin/sh\necho 1.4.2\n' >"$scratch/repo/target/tools/bun"
+printf '#!/bin/sh\necho %s\n' "$(bash "$root/scripts/book-bun.sh" version)" >"$scratch/repo/target/tools/bun"
 printf '#!/bin/sh\necho "mdbook v%s"\n' "$(bash "$root/scripts/book.sh" version)" >"$scratch/repo/target/tools/mdbook"
 chmod +x "$scratch/bin/gh" "$scratch/repo/target/tools/bun" "$scratch/repo/target/tools/mdbook"
 export PATH="$scratch/bin:$PATH"
@@ -25,6 +25,15 @@ fi
 grep -Fq 'gh: not authenticated' "$scratch/output"
 grep -Fq '✓ book version line' "$scratch/output"
 grep -Fq '✓ checkout-local mdBook' "$scratch/output"
+grep -Fq '✓ checkout-local book Bun' "$scratch/output"
+printf '#!/bin/sh\necho 0.0.0\n' >"$scratch/repo/target/tools/bun"
+if bash "$scratch/repo/scripts/release-doctor.sh" >"$scratch/wrong-bun" 2>&1; then
+  echo 'FAIL: doctor accepted the wrong book Bun' >&2
+  exit 1
+fi
+grep -Fq '✗ checkout-local book Bun' "$scratch/wrong-bun"
+printf '#!/bin/sh\necho %s\n' "$(bash "$root/scripts/book-bun.sh" version)" >"$scratch/repo/target/tools/bun"
+
 # Unreadable Pages setting is a failure, and so is a missing or wrong mdBook.
 grep -Fq '✗ book on Pages: cannot read the Pages configuration' "$scratch/output"
 echo '#!/bin/sh

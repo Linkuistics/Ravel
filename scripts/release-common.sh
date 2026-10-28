@@ -24,35 +24,35 @@ TARGETS=(
   x86_64-unknown-linux-gnu
 )
 
-# Every file a release archive holds, relative to its one top directory
-# `ravel-v<version>-<target>/`, and nothing else. That directory is an
-# installation prefix: ravel finds its worker at
-# ../libexec/ravel/ from its own real path
-# (docs/specs/session-execution.md, *Archives and platform floors*), and
-# the Homebrew formula installs the same two directories into its keg. A later
-# change that ships another file adds it here in the same change.
+# Exact release payload plus archive-only licence and orientation files.
+# Rhai is embedded in bin/ravel; all other payload files are data.
 archive_manifest() {
   cat <<'EOF'
 LICENSE
 README.md
 bin/ravel
-libexec/ravel/examples/sample.ts
-libexec/ravel/examples/static.d.ts
-libexec/ravel/examples/static.ts
-libexec/ravel/notices/NOTICES.md
-libexec/ravel/notices/bun-LICENSE.md
-libexec/ravel/ravel-policy
-libexec/ravel/sdk/index.d.ts
-libexec/ravel/sdk/index.ts
+share/ravel/examples/llm.rhai
+share/ravel/examples/sample.rhai
+share/ravel/examples/static.rhai
+share/ravel/notices/THIRD-PARTY-NOTICES.md
 EOF
 }
 
-# The manifest entries that must be executable.
 archive_executables() {
-  cat <<'EOF'
-bin/ravel
-libexec/ravel/ravel-policy
-EOF
+  echo bin/ravel
+}
+
+# Shared by task install and release-build. The caller builds the executable
+# and generates notices first; failure cannot silently reuse missing inputs.
+stage_installation() {
+  local root="$1" binary="$2" prefix="$3" example
+  mkdir -p "$prefix/bin" "$prefix/share/ravel/examples" "$prefix/share/ravel/notices" || return 1
+  install -m 0755 "$binary" "$prefix/bin/ravel" || return 1
+  for example in static sample llm; do
+    install -m 0644 "$root/crates/ravel/examples/$example.rhai" "$prefix/share/ravel/examples/$example.rhai" || return 1
+  done
+  install -m 0644 "$root/target/notices/THIRD-PARTY-NOTICES.md" \
+    "$prefix/share/ravel/notices/THIRD-PARTY-NOTICES.md"
 }
 
 # The manifest's files and every directory holding them, directories with a
@@ -142,6 +142,12 @@ assert_archive() {
       status=1
     fi
   done < <(archive_executables)
+  while IFS= read -r entry; do
+    if [[ "$entry" != bin/ravel && -f "$scratch/$top/$entry" && -x "$scratch/$top/$entry" ]]; then
+      echo "$archive: $top/$entry is unexpectedly executable"
+      status=1
+    fi
+  done < <(archive_manifest)
   rm -rf "$scratch"
   return "$status"
 }

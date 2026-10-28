@@ -14,7 +14,7 @@
 # registration goes into a
 # private binfmt_misc instance, which the kernel (6.7 and later) gives each user
 # namespace that mounts one, so the Docker host's own registration (which every
-# other container uses, and which cannot run rustc: docs/runtime-evidence.md
+# other container uses, and which cannot run rustc: docs/archive-evidence.md
 # records the guest-address-space finding) is left alone.
 #
 # Unlike the release smoke, this environment is kept running: after the guest's

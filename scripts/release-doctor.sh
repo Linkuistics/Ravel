@@ -153,18 +153,15 @@ check_gh_auth() {
   fi
 }
 
-# `scripts/check.sh`, which the release runs, compiles ravel's
-# policy worker with exactly one Bun release. The pin lives in the worker's
-# build script, and is read from there rather than restated here.
-check_bun() {
+# Bun belongs only to the checkout's book tools; it never ships.
+check_book_bun() {
   local pinned version
-  pinned="$(sed -n 's/^readonly BUN_VERSION="\(.*\)"$/\1/p' \
-    "$REPO_ROOT/crates/ravel/scripts/dispatch.sh")"
+  pinned="$(bash "$REPO_ROOT/scripts/book-bun.sh" version)"
   local runtime="$REPO_ROOT/target/tools/bun"
   if [[ -x "$runtime" ]] && version="$("$runtime" --version)" && [[ "$version" == "$pinned" ]]; then
-    mark_pass "checkout-local Bun: $version"
+    mark_pass "checkout-local book Bun: $version"
   else
-    mark_fail "checkout-local Bun $pinned unavailable; no host Bun is required"
+    mark_fail "checkout-local book Bun $pinned unavailable; no host Bun is required"
     remediation "task setup"
   fi
 }
@@ -287,7 +284,7 @@ main() {
   check_zig
   check_cargo_zigbuild
   check_gh_auth
-  check_bun
+  check_book_bun
   check_smoke_hosts
   check_book_version
   check_book_toolchain

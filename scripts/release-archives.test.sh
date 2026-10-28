@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Transferred exact-manifest controls; build the real worker, never a model.
+# Exact-manifest controls against the real Rhai delivery staging function.
 set -euo pipefail
 IFS=$'\n\t'
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -42,40 +42,33 @@ refused_archive() {
     fail "the manifest check did not report '$2': $(cat "$scratch/archive/output")"
 }
 
-# The layout the spec places ravel in, stated independently of the
-# manifest so that dropping an entry cannot quietly narrow what ships.
-for required in bin/ravel \
-  libexec/ravel/ravel-policy \
-  libexec/ravel/sdk/index.d.ts libexec/ravel/sdk/index.ts \
-  libexec/ravel/examples/sample.ts \
-  libexec/ravel/notices/NOTICES.md libexec/ravel/notices/bun-LICENSE.md; do
-  archive_manifest | grep -Fxq -- "$required" || fail "the archive manifest omits $required"
-done
-archive_executables | while IFS= read -r entry; do
-  archive_manifest | grep -Fxq -- "$entry" || fail "executable $entry is not in the archive manifest"
-done
+# Independent contract: changing the manifest cannot quietly narrow delivery.
+expected_manifest='LICENSE
+README.md
+bin/ravel
+share/ravel/examples/llm.rhai
+share/ravel/examples/sample.rhai
+share/ravel/examples/static.rhai
+share/ravel/notices/THIRD-PARTY-NOTICES.md'
+[[ "$(archive_manifest)" == "$expected_manifest" ]] || fail 'archive manifest differs from the Rhai delivery contract'
+[[ "$(archive_executables)" == bin/ravel ]] || fail 'bin/ravel must be the only executable'
 
-# The manifest's ravel files are exactly what `dispatch.sh build`
-# emits, so a file that build starts shipping without a manifest entry, or
-# stops shipping, fails here rather than at release time. This is the build
-# itself, not a restatement of its rules.
-bash "$repo_root/crates/ravel/scripts/dispatch.sh" build "$scratch/dispatch-out" >/dev/null
-(cd "$scratch/dispatch-out" && find . ! -type d | sed 's|^\./||' | LC_ALL=C sort) >"$scratch/dispatch-built"
-archive_manifest | sed -n 's|^libexec/ravel/||p' | LC_ALL=C sort >"$scratch/dispatch-manifest"
-diff -u "$scratch/dispatch-built" "$scratch/dispatch-manifest" >&2 ||
-  fail "the archive manifest's ravel files differ from what dispatch.sh build emits"
+# Stage actual built assets through the same entry point as installation and
+# release-build; compare contents as well as the independent path contract.
+task --dir "$repo_root" build notices
+stage_installation "$repo_root" "$repo_root/target/debug/ravel" "$scratch/installed"
+(cd "$scratch/installed" && find . ! -type d | sed 's|^\./||' | LC_ALL=C sort) >"$scratch/staged"
+printf '%s\n' "$expected_manifest" | sed '/^[^/]*$/d' >"$scratch/expected"
+diff -u "$scratch/expected" "$scratch/staged" || fail 'staged payload differs from the manifest'
+for example in static sample llm; do
+  cmp "$repo_root/crates/ravel/examples/$example.rhai" "$scratch/installed/share/ravel/examples/$example.rhai"
+done
+cmp "$repo_root/target/notices/THIRD-PARTY-NOTICES.md" "$scratch/installed/share/ravel/notices/THIRD-PARTY-NOTICES.md"
 
-# The formula installs exactly the manifest's executables and its one libexec
-# directory; everything else it ships is a top-level metafile.
+# Homebrew's real install/test is also exercised by task release:formula.
 template="$repo_root/scripts/templates/ravel.rb.tmpl"
-formula_bins="$(sed -n 's/^ *bin\.install //p' "$template" | tr -d '"' | tr ',' '\n' | tr -d ' ' | LC_ALL=C sort)"
-[[ "$formula_bins" == "$(archive_manifest | grep '^bin/' | LC_ALL=C sort)" ]] ||
-  fail "the formula's bin.install ($formula_bins) differs from the manifest's bin/ entries"
-grep -Fxq '    libexec.install "libexec/ravel"' "$template" ||
-  fail 'the formula does not install libexec/ravel'
-if archive_manifest | grep -v -e '^bin/' -e '^libexec/ravel/' | grep -q /; then
-  fail 'the manifest ships a directory the formula does not install'
-fi
+grep -Fxq '    bin.install "bin/ravel"' "$template" || fail 'formula does not install bin/ravel'
+grep -Fxq '    (share/"ravel").install "share/ravel/examples", "share/ravel/notices"' "$template" || fail 'formula does not install the data directories'
 
 for target in "${TARGETS[@]}"; do
   top="ravel-v1.2.3-$target"
@@ -95,7 +88,7 @@ while IFS= read -r entry; do
   refused_archive "$top" "missing $top/$entry"
 done < <(archive_manifest)
 
-# Caller binaries, adapters, policy and choice files never belong in the pair.
+# Caller binaries, adapters, policy and choice files never belong in the archive.
 for extra in bin/grove bin/grove-llm bin/harness-dispatch \
   libexec/ravel/grove/index.ts libexec/ravel/policy.ts .ravel-choice; do
   stage_archive "$top"
@@ -105,36 +98,34 @@ for extra in bin/grove bin/grove-llm bin/harness-dispatch \
   refused_archive "$top" "unexpected $top/$extra"
 done
 
-stage_archive "$top"
-touch "$scratch/archive/stage/$top/libexec/ravel/bun-darwin-aarch64-v1.4.2"
-pack_fixture "$top"
-refused_archive "$top" "unexpected $top/libexec/ravel/bun-darwin-aarch64-v1.4.2"
+# Retired delivery files and test instruments must never re-enter the archive.
+for extra in libexec/ravel/ravel-policy libexec/ravel/notices/bun-LICENSE.md \
+  libexec/ravel/sdk/index.ts libexec/ravel/probes/unregistered/ravel-policy; do
+  stage_archive "$top"
+  mkdir -p "$(dirname "$scratch/archive/stage/$top/$extra")"
+  touch "$scratch/archive/stage/$top/$extra"
+  pack_fixture "$top"
+  refused_archive "$top" "unexpected $top/$extra"
+done
 
 stage_archive "$top"
-mkdir -p "$scratch/archive/stage/$top/libexec/ravel/node_modules/.cache"
+chmod -x "$scratch/archive/stage/$top/bin/ravel"
 pack_fixture "$top"
-refused_archive "$top" "unexpected $top/libexec/ravel/node_modules/"
-
-# A probe build (`dispatch.sh probes`) is a test instrument and never ships.
-# Beside the worker, the manifest refuses it by path. In the worker's own
-# place it passes the manifest but not the installed smoke test, whose front
-# refuses a probe's identity (scripts/release-formula.test.rb retains the
-# installed Bun probe checks until the delivery-removal leaf).
-stage_archive "$top"
-mkdir -p "$scratch/archive/stage/$top/libexec/ravel/probes/unregistered"
-printf 'fixture probe\n' >"$scratch/archive/stage/$top/libexec/ravel/probes/unregistered/ravel-policy"
-pack_fixture "$top"
-refused_archive "$top" "unexpected $top/libexec/ravel/probes/"
+refused_archive "$top" "$top/bin/ravel is not executable"
 
 stage_archive "$top"
-chmod -x "$scratch/archive/stage/$top/libexec/ravel/ravel-policy"
+chmod +x "$scratch/archive/stage/$top/share/ravel/examples/static.rhai"
 pack_fixture "$top"
-refused_archive "$top" "$top/libexec/ravel/ravel-policy is not executable"
+refused_archive "$top" "$top/share/ravel/examples/static.rhai is unexpectedly executable"
 
-stage_archive "$top"
-ln -sf ../../bin/ravel "$scratch/archive/stage/$top/libexec/ravel/ravel-policy"
-pack_fixture "$top"
-refused_archive "$top" "$top/libexec/ravel/ravel-policy is not a regular file"
+# Every payload/metafile must be regular, including data files.
+while IFS= read -r entry; do
+  stage_archive "$top"
+  rm "$scratch/archive/stage/$top/$entry"
+  ln -s /dev/null "$scratch/archive/stage/$top/$entry"
+  pack_fixture "$top"
+  refused_archive "$top" "$top/$entry is not a regular file"
+done < <(archive_manifest)
 
 stage_archive "$top"
 mkdir "$scratch/archive/stage/stray"
@@ -146,10 +137,10 @@ refused_archive "$top" "top level is not exactly $top/:"
 # bsdtar hides when it reads; the check must see it. pack_archive must leave
 # both the member and the attribute out.
 stage_archive "$top"
-policy="libexec/ravel/ravel-policy"
+policy="bin/ravel"
 xattr -w org.linkuistics.ravel.probe fixture "$scratch/archive/stage/$top/$policy"
 tar -C "$scratch/archive/stage" -cJf "$scratch/archive/$top.tar.xz" "$top"
-refused_archive "$top" "unexpected $top/libexec/ravel/._ravel-policy"
+refused_archive "$top" "unexpected $top/bin/._ravel"
 pack_fixture "$top"
 assert_archive "$scratch/archive/$top.tar.xz" "$top" >"$scratch/archive/output" ||
   fail "pack_archive kept macOS metadata: $(cat "$scratch/archive/output")"

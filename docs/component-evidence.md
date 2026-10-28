@@ -1,5 +1,12 @@
 # Component source and observation evidence
 
+This document records the earlier TypeScript delivery. Ravel now embeds Rhai
+in `bin/ravel`; the worker/SDK delivery paths and Bun controls below are retired.
+Source links for removed files point to their last retained revision. The
+current installation and archive checks are `task smoke`, `task release:test`,
+`task release:formula` and `task release:smoke`. The book's Bun tool is separate.
+
+
 This document is an evidence record. It does not teach. It keeps the source
 references and the observed runs from a read of Ravel's components on
 2026-10-14. It also keeps the provenance of the local runner.
@@ -41,11 +48,11 @@ functions that the read used. Line ranges are in parentheses.
 | Area | Files and functions |
 |---|---|
 | E1: Request checks | [choice.rs](../crates/ravel/src/choice.rs): `prepare` (43–58). [authority.rs](../crates/ravel/src/authority.rs): `resolve` (34–117). [settings.rs](../crates/ravel/src/settings.rs): `Settings::read` (30–93). [inputs.rs](../crates/ravel/src/inputs.rs): `Inputs::read` (73–132). [environment.rs](../crates/ravel/src/environment.rs): `Grants` and the grant exclusions |
-| E2: Policy | [choice.rs](../crates/ravel/src/choice.rs): `choose_prepared`, `evaluate_and_resolve` and `judge`. [worker.rs](../crates/ravel/src/worker.rs): `locate` and `evaluate` (316–529). Also `converse` (572–628) and `verify_hello`. [worker main.ts](../crates/ravel/worker/src/main.ts): startup (1–80), `converse`, `load` (196–223), `assemble` and `select` (304–330) |
+| E2: Policy | [choice.rs](../crates/ravel/src/choice.rs): `choose_prepared`, `evaluate_and_resolve` and `judge`. [worker.rs](../crates/ravel/src/worker.rs): `locate` and `evaluate` (316–529). Also `converse` (572–628) and `verify_hello`. [worker main.ts](https://github.com/Linkuistics/Ravel/blob/eeea291a36a3ebbee800597033990cb4fb06ccd2/crates/ravel/worker/src/main.ts): startup (1–80), `converse`, `load` (196–223), `assemble` and `select` (304–330) |
 | E3: Composition | [main.rs](../crates/ravel/src/main.rs): `main` (29–57) routes both verbs. [run.rs](../crates/ravel/src/run.rs): `run` (32–247), `settle` (250–294), and the output reservation and restoration. [program.rs](../crates/ravel/src/program.rs): `resolve`. [confinement.rs](../crates/ravel/src/confinement.rs): `Confined::prepare` |
 | E4: Job | [runner lib.rs](../crates/keyed-launch/src/lib.rs): the public contract. [runner run.rs](../crates/keyed-launch/src/run.rs): `Launch`, `Ended`, `run_observed`, `run_noninteractive`, `run_confined_observed`, `supervise` (1160–1195) and `watch` (1197–1307) |
 | E5: Result | [ravel lib.rs](../crates/ravel/src/lib.rs): the exports. [completion.rs](../crates/ravel/src/completion.rs): `SessionChannel`, `result_after` (56–70), the cleanup and read functions, `end_session` (135–145), `publish_result` (150–188) and the regular-file bounds |
-| E6: Delivery | The [workspace manifest](../Cargo.toml), the [ravel manifest](../crates/ravel/Cargo.toml) and the [runner manifest](../crates/keyed-launch/Cargo.toml). [build.rs](../crates/ravel/build.rs), [dispatch.sh](../crates/ravel/scripts/dispatch.sh) and the [Taskfile](../Taskfile.yml). The check of the worker identity |
+| E6: Delivery | The [workspace manifest](../Cargo.toml), the [ravel manifest](../crates/ravel/Cargo.toml) and the [runner manifest](../crates/keyed-launch/Cargo.toml). [build.rs](../crates/ravel/build.rs), [dispatch.sh](https://github.com/Linkuistics/Ravel/blob/eeea291a36a3ebbee800597033990cb4fb06ccd2/crates/ravel/scripts/dispatch.sh) and the [Taskfile](../Taskfile.yml). The check of the worker identity |
 | E7: Change footprint | [run.rs](../crates/ravel/src/run.rs) composes the product. [session_process.rs](../crates/ravel/tests/session_process.rs) `supervisor_fixture` (134–193) composes the transport and the runner without policy evaluation |
 
 The [runtime evidence](runtime-evidence.md) owns the results of the resolver and

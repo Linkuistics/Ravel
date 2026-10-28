@@ -178,3 +178,5 @@ design needs the settled requirements.
   `rhai-book-use-k74` has the correction recap and resumes at chapter 4 after it refreshes its local book and private shell.
   The practical tasks still need the owner's results. No new checkpoint or editorial tail was cut.
   The existing removal and later book leaves retain the final layout, help/spec terminology, whole-book reconciliation and Read 2 duties.
+
+- `rhai-delivery-cutover-k110` delivers `bin/ravel` as the only executable, with `share/ravel/examples/{static,sample,llm}.rhai` and `share/ravel/notices/THIRD-PARTY-NOTICES.md`. Archives also keep LICENSE/README. `task notices` generates the notice at `target/notices/THIRD-PARTY-NOTICES.md`, and installation, archives and the Homebrew formula copy those bytes unchanged. `task install` uses `scripts/install.sh`; `task smoke` and target-floor checks use `scripts/installed-smoke.sh`. The worker/SDK/dispatcher, delivery Bun pin/notices and probes are removed; book Bun stays in `scripts/book-bun.sh`. k92 still owns configuration names; k33 owns spec reconciliation.

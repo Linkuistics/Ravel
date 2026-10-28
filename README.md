@@ -2,7 +2,7 @@
 
 Ravel runs LLM sessions in agent harnesses, such as Claude Code and Codex, as
 supervised parts of another program. A caller, such as an orchestrator, asks
-for work by kind. The TypeScript policy of the owner chooses the command to
+for work by kind. The Rhai configuration script of the owner chooses the command to
 run, which is normally a harness. Ravel runs that command under supervision.
 After cleanup succeeds, Ravel returns the result that the session sent.
 
@@ -20,8 +20,9 @@ program in the session sends one value with `end-session`. Ravel needs nothing
 more. The book expects a harness, but any program that runs `end-session` can
 stand where a harness stands.
 
-The Ravel CLI, the policy worker and the local runner are built and versioned
-together as one tool.
+The Ravel CLI embeds Rhai and starts a second copy of itself to evaluate the
+configuration script. Its local runner supervises the selected process. These
+parts are built and versioned together as one tool.
 
 Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
 
@@ -49,9 +50,11 @@ runner can change process-wide signal state, and its return does not restore
 that state. A program that needs supervised harness sessions invokes the Ravel
 CLI as a child process.
 
-The runtime notices are
-[`crates/ravel/notices/NOTICES.md`](crates/ravel/notices/NOTICES.md) in a
-checkout and `libexec/ravel/notices/` in an installation.
+An installation contains `bin/ravel`, three Rhai examples in
+`share/ravel/examples/`, and Rust dependency notices at
+`share/ravel/notices/THIRD-PARTY-NOTICES.md`. From a checkout, `task notices`
+generates those notices at `target/notices/THIRD-PARTY-NOTICES.md`.
+The release carries no JavaScript runtime or SDK.
 
 ## Retired project
 
