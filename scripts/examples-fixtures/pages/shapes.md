@@ -68,10 +68,10 @@ $ printf '```\n'
 0
 ````
 
-Fragment: the policy's first line only, without the export.
+Fragment: the policy's first constant only, without the version or functions.
 
-```ts
-import { definePolicy } from "ravel/sdk";
+```rhai
+export const SCHEMA_VERSION = 3;
 ```
 
 A block in a language that is never an example needs no label.

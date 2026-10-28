@@ -3,16 +3,13 @@
 Complete example: the agent cancels the session by sending its parent, the
 front, SIGINT.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-example",
-  select() {
-    return {
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "book-example";
+fn select(request, context) {
+    #{
       status: "selected",
       program: "claude",
       args: [],
@@ -20,9 +17,8 @@ export const policy = definePolicy({
       model: "fixture",
       effort: "fixture",
       reason: "route every request to the fake claude",
-    };
-  },
-});
+    }
+}
 ```
 
 **`bin/claude`**
@@ -36,7 +32,7 @@ sleep 5
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --prompt "Review the change."
+$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -47,7 +43,7 @@ $ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --pr
 **Standard error includes**
 
 ```text
-ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.ts was cancelled by SIGINT
+ravel: refused (session_cancelled, stage exec): session selected by <scratch>/work/policy.rhai was cancelled by SIGINT
   signal: SIGINT, re-raised once this is reported
 ```
 
@@ -57,27 +53,39 @@ ravel: refused (session_cancelled, stage exec): session selected by <scratch>/wo
 130
 ```
 
-Complete example: the policy cancels the selection by sending the front
-SIGINT. Only the first line of the refusal is claimed, because the worker's
-reap detail further down varies from run to run.
+Complete example: the policy requests a fake harness that cancels selection
+by sending the front SIGINT. Only the first line of the refusal is claimed,
+because teardown details further down vary from run to run.
 
-**`policy.ts`**
+**`settings.json`**
 
-```ts
-export const policy = {
-  schemaVersion: 2,
-  version: "book-example",
-  select() {
-    process.kill(process.ppid, "SIGINT");
-    return { status: "refused", code: "unreachable", message: "unreachable", remedy: "none" };
-  },
-};
+```json
+{"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1}}
+```
+
+**`policy.rhai`**
+
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "book-example";
+fn select(request, context) {
+    ravel::run_harness(#{ harness: "cancel", args: [] });
+    #{ status: "refused", code: "unreachable", message: "unreachable", remedy: "none" }
+}
+```
+
+**`bin/cancel-selection`**
+
+```sh
+#!/bin/sh
+kill -INT "$PPID"
+while :; do sleep 1; done
 ```
 
 **Command**
 
 ```console
-$ ravel start-session --kind check --config policy.ts --prompt "Review the change."
+$ mkdir -p "$HOME/.config/ravel" && cp settings.json "$HOME/.config/ravel/settings.json" && PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -88,7 +96,7 @@ $ ravel start-session --kind check --config policy.ts --prompt "Review the chang
 **Standard error includes**
 
 ```text
-ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.ts was cancelled by SIGINT: worker teardown was attempted and nothing was launched
+ravel: refused (selection_cancelled, stage evaluation): selection with the policy <scratch>/work/policy.rhai was cancelled by SIGINT: worker teardown was attempted and nothing was launched
 ```
 
 **Exit status**

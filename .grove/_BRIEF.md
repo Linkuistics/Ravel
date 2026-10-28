@@ -141,6 +141,9 @@ design needs the settled requirements.
   `typescript-delivery-removal-k32` supplies the final notice path to `rhai-book-inside-k34`, which reconciles chapter 6 and the shared installed-file figure.
   `rhai-spec-reconciliation-k33` corrects the spec's broad environment-scrub claim to the six exact launch controls.
   The Parts III and IV brief also owns chapter 8's old cancellation example and alternative beside the revised figure.
+- `rhai-executable-book-examples-k100` mechanically ported chapter 9's “Run a fake that ignores TERM” complete example for `rhai-book-inside-k35` and `rhai-book-inside-k36`.
+  Its Rhai selection preserves `finished` and status 0. Only its policy file/block and `--config` argument changed; prose still awaits those drafts.
+  No other complete example in chapters 7–11 needed a policy port, and all nine current source excerpts still match.
 - <https://github.com/Linkuistics/grove/issues/24> carries the port of Grove's
   policy helpers to Rhai. Ravel 2.0.0 does not wait for it.
 - The Homebrew upgrade runs inside a Grove session that Ravel 1.1.0 launched.

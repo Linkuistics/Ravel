@@ -7,7 +7,7 @@
 #   scripts/examples.test.sh mutants    break the checker one safeguard at a time and show the
 #                                       control that notices each break
 #
-# Needs a built front and worker (task build); examples.sh refuses a stale pair.
+# Needs a built Ravel binary (task build); examples.sh refuses stale Rust inputs.
 # The fixtures and mutations below are literal Markdown and shell text, quoted
 # on purpose; nothing in a single-quoted string here is meant to expand.
 # shellcheck disable=SC2016
@@ -36,7 +36,7 @@ indent() { sed 's/^/    /'; }
 
 # Run the checker under test; output and status are left for the caller.
 checker() {
-  EXAMPLES_ROOT="$ROOT" EXAMPLES_EXTRACT="$EXTRACT" RAVEL_FRONT="${CONTROL_FRONT:-$FRONT}" \
+  EXAMPLES_ROOT="${CONTROL_ROOT:-$ROOT}" EXAMPLES_EXTRACT="$EXTRACT" RAVEL_FRONT="${CONTROL_FRONT:-$FRONT}" \
     bash "$SCRIPT" check "$@"
 }
 
@@ -168,27 +168,13 @@ ravel end-session -- "continue"
   fi
 }
 
-control_stale_front() {
-  # A front copy whose embedded worker digest is another one: what a front
-  # built before the last worker source change looks like.
-  local dir="$WORK/stale-front" id other real
-  real="$(cd "$(dirname "$FRONT")" && pwd -P)"
-  id="$(bash "$ROOT/crates/ravel/scripts/dispatch.sh" build-id)"
-  other="$(printf '%s' "$id" | tr '0-9a-f' '1-9a-f0')"
-  [[ "$other" != "$id" ]] || die "cannot derive a different digest"
-  mkdir -p "$dir/bin" "$dir/libexec/ravel"
-  ID="$id" OTHER="$other" perl -0777 -pe 's/\Q$ENV{ID}\E/$ENV{OTHER}/g' "$real/ravel" >"$dir/bin/ravel"
-  chmod +x "$dir/bin/ravel"
-  cp "$real/../libexec/ravel/ravel-policy" "$dir/libexec/ravel/ravel-policy"
-  CONTROL_FRONT="$dir/bin/ravel" expect_fail stale_front 'stale build: the front' "$PAGES/pass.md" || return 1
-
-  # And the worker: the same refusal from its side.
-  local wdir="$WORK/stale-worker"
-  mkdir -p "$wdir/bin" "$wdir/libexec/ravel"
-  cp "$real/ravel" "$wdir/bin/ravel"
-  ID="$id" OTHER="$other" perl -0777 -pe 's/\Q$ENV{ID}\E/$ENV{OTHER}/g' "$real/../libexec/ravel/ravel-policy" >"$wdir/libexec/ravel/ravel-policy"
-  chmod +x "$wdir/libexec/ravel/ravel-policy"
-  CONTROL_FRONT="$wdir/bin/ravel" expect_fail stale_worker 'stale build: the worker' "$PAGES/pass.md"
+control_without_worker() {
+  # Re-executing this binary must be sufficient for Rhai examples: the copied
+  # binary has no libexec neighbour and no worker source digest is required.
+  local dir="$WORK/standalone"
+  mkdir -p "$dir/bin"
+  cp "$FRONT" "$dir/bin/ravel"
+  CONTROL_FRONT="$dir/bin/ravel" expect_pass without_worker '^examples: 3 passed, 0 failed' "$PAGES/pass.md"
 }
 
 control_missing_front() {
@@ -298,19 +284,19 @@ control_file_after_command() {
 
 control_path_escape() {
   local page
-  page="$(mutated escape '**`policy.ts`**
+  page="$(mutated escape '**`policy.rhai`**
 
-```ts
-export const policy' '**`../policy.ts`**
+```rhai
+export const SCHEMA_VERSION' '**`../policy.rhai`**
 
-```ts
-export const policy')"
+```rhai
+export const SCHEMA_VERSION')"
   expect_fail path_escape 'is not a plain relative path' "$page"
 }
 
 control_duplicate_file() {
   local page
-  page="$(mutated duplicate '**`bin/claude`**' '**`policy.ts`**')"
+  page="$(mutated duplicate '**`bin/claude`**' '**`policy.rhai`**')"
   expect_fail duplicate_file 'is given twice' "$page"
 }
 
@@ -439,13 +425,13 @@ control_unknown_and_bare_languages() {
 # The excerpt convention (docs/book/excerpts.md) shares this extractor: a block
 # under an excerpt label is read by scripts/excerpts.sh and is not an example,
 # so it needs no language on the never-an-example list. A scratch page holds an
-# example, a fragment and a TypeScript excerpt of a real file; both checks pass
+# example, a fragment and a Rust excerpt of a real file; both checks pass
 # it. It is built from the file as it is now, so it cannot go stale.
 excerpt_page() {
-  local out="$WORK/excerpt-page.md" source=crates/ravel/worker/sdk/index.ts
+  local out="$WORK/excerpt-page.md" source=crates/ravel/src/run.rs
   cp "$PAGES/pass.md" "$out"
   {
-    printf '\n## A source excerpt\n\nExcerpt from `%s`: the first lines of the file.\n\n```ts\n' "$source"
+    printf '\n## A source excerpt\n\nExcerpt from `%s`: the first lines of the file.\n\n```rust\n' "$source"
     sed -n '2,9p' "$ROOT/$source"
     printf '```\n'
   } >>"$out"
@@ -578,15 +564,34 @@ control_a_label_cannot_run_a_command() {
 }
 
 control_stale_source() {
-  # A front and worker with today's digest but older than the Rust and worker
-  # sources: a build made before the last edit that did not touch the digest.
-  local dir="$WORK/old-build" real
-  real="$(cd "$(dirname "$FRONT")" && pwd -P)"
-  mkdir -p "$dir/bin" "$dir/libexec/ravel"
-  cp "$real/ravel" "$dir/bin/ravel"
-  cp "$real/../libexec/ravel/ravel-policy" "$dir/libexec/ravel/ravel-policy"
-  touch -t 200001010000 "$dir/bin/ravel" "$dir/libexec/ravel/ravel-policy"
-  CONTROL_FRONT="$dir/bin/ravel" expect_fail stale_source 'stale build: .* is newer than the built front or worker' "$PAGES/pass.md"
+  # A scratch checkout controls each input's timestamp independently. Rust
+  # tests and the retiring worker are deliberately newer than the binary;
+  # neither is an input of the production Rust executable.
+  # An ancestor named src must not turn integration tests into source inputs.
+  local dir="$WORK/src/rust-inputs" path
+  local inputs=(crates/ravel/src/main.rs crates/ravel/src/nested/module.rs
+    crates/keyed-launch/src/lib.rs crates/ravel/build.rs
+    crates/ravel/Cargo.toml crates/keyed-launch/Cargo.toml
+    Cargo.toml Cargo.lock rust-toolchain.toml .cargo/config.toml)
+  mkdir -p "$dir/bin" "$dir/crates/ravel/tests" "$dir/crates/ravel/worker/src"
+  cp "$FRONT" "$dir/bin/ravel"
+  touch -t 200101010000 "$dir/bin/ravel"
+  for path in "${inputs[@]}"; do
+    mkdir -p "$dir/$(dirname "$path")"
+    printf 'input\n' >"$dir/$path"
+    touch -t 200001010000 "$dir/$path"
+  done
+  printf 'test only\n' >"$dir/crates/ravel/tests/cli.rs"
+  printf 'retired worker\n' >"$dir/crates/ravel/worker/src/main.ts"
+  printf '# Prose only\n' >"$dir/page.md"
+  CONTROL_ROOT="$dir" CONTROL_FRONT="$dir/bin/ravel" \
+    expect_pass fresh_source '^examples: 0 passed, 0 failed' "$dir/page.md" || return 1
+  for path in "${inputs[@]}"; do
+    touch -t 200201010000 "$dir/$path"
+    CONTROL_ROOT="$dir" CONTROL_FRONT="$dir/bin/ravel" \
+      expect_fail "stale_source ($path)" "stale build: .*${path//./\\.} is newer than the built ravel" "$dir/page.md" || return 1
+    touch -t 200001010000 "$dir/$path"
+  done
 }
 
 control_cancellation_is_deterministic() {
@@ -640,7 +645,7 @@ control_seam_drift_is_noticed() {
 
 CONTROLS=(
   pass stdout_changed status_changed no_expected_output no_exit_status
-  missing_fake_program stale_front missing_front unlabelled_runnable_block
+  missing_fake_program without_worker missing_front unlabelled_runnable_block
   unlabelled_block_in_example unknown_label stderr_changed
   stderr_partial_is_not_exact stderr_includes_absent newline_mode
   only_the_scratch_root_is_normalised skip_is_not_a_pass unknown_requirement
@@ -686,7 +691,7 @@ mutants() {
   local killed=0 total=0
   # A control that already fails would "kill" any mutant aimed at it, so each
   # named control is first run against the unmutated checker.
-  local baseline=(status_changed stdout_changed stderr_includes_absent stale_front stale_source
+  local baseline=(status_changed stdout_changed stderr_includes_absent stale_source
     unknown_and_bare_languages environment_is_cleared skip_is_not_a_pass timeout
     unlabelled_runnable_block pass commands_run_in_numeric_order fragment_covers_one_block
     prose_between_label_and_block shapes_are_read
@@ -717,10 +722,12 @@ mutants() {
     'if ! cmp -s "$expected" "$actual"; then' 'if false; then' stdout_changed
   try_mutant includes-always examples.sh \
     'if ! perl -0777 -e' 'if false && ! perl -0777 -e' stderr_includes_absent
-  try_mutant stale-front-accepted examples.sh \
-    'grep -aqF -- "$id" "$front" ||' 'true ||' stale_front
   try_mutant stale-source-accepted examples.sh \
     '[[ -z "$newer" ]] ||' 'true ||' stale_source
+  try_mutant rust-source-ignored examples.sh \
+    "-name '*.rs'" "-name '__not_a_rust_source__'" stale_source
+  try_mutant integration-tests-make-binary-stale examples.sh \
+    '"$ROOT"/crates/*/src' '"$ROOT"/crates' stale_source
   try_mutant unlabelled-allowed examples-extract.awk \
     'else if (!(lang in nonrunnable))' 'else if (0)' unknown_and_bare_languages
   try_mutant rust-and-toml-allowed-bare examples-extract.awk \

@@ -141,6 +141,11 @@ Real Rhai policy evaluation runs in the built Ravel binary, re-executed as its i
 
 The checkout still builds the separate worker until the format-removal increment.
 That build dependency does not make the Rhai examples use the old worker.
+The checker needs only the Rust binary; it does not look for a separate worker or its source digest.
+Before extracting examples, it refuses a binary older than a production Rust source,
+a build script, a Cargo manifest or lockfile, `rust-toolchain.toml`, or `.cargo/config.toml` when present.
+Integration-test source files do not make the production binary stale.
+Cargo can rebuild those tests without replacing that binary.
 
 Each command runs in its own process group for at most 60 seconds.
 After that time, the checker kills the group and records a failure.
@@ -235,8 +240,8 @@ The controls exercise these conditions and report the first failure line:
 
 - Changed expected stdout or exit status, missing stdout or exit status.
 - A fake program absent from the example. A caller-PATH program of the same name records any accidental execution.
-- A CLI or worker built from different worker source. Another control uses a matching digest with a build older than Rust or worker sources.
-- A digest covers the worker's TypeScript. A modification-time check finds a CLI built before a Rust edit. A source timestamp change causes refusal.
+- A standalone CLI without a separate worker passes the Rhai fixtures.
+- A scratch checkout tests each production build-input class with a newer timestamp and requires a stale-build refusal. Newer integration tests and worker TypeScript do not cause refusal.
 - An unlabelled executable, unknown-language, Rust, TOML or untagged block.
 - An indented transcript, a fence on a list-item line, or a CRLF page.
 - An unlabelled block inside an example, intervening prose, or a fragment label followed by two blocks.
@@ -245,7 +250,7 @@ The controls exercise these conditions and report the first failure line:
 - Eleven commands that run in order.
 - Changed stderr, an omitted trailing line in an exact claim, or absent text in a partial claim.
 - Incorrect final-newline claims or an unnormalised path in an expected stream.
-- A page with an example, fragment and exact TypeScript excerpt. Both checkers pass it, and the example checker still refuses an unlabelled block after the excerpt.
+- A page with an example, fragment and exact Rust excerpt. Both checkers pass it, and the example checker still refuses an unlabelled block after the excerpt.
 - A skipped example, an unknown requirement, a file after a command, an escaped or repeated path, and a command timeout.
 - The fixture's `HOME`, `TMPDIR` and `PATH`, with the caller's variables and stdin absent.
 - A caller with invalid personal settings and recording fakes for `claude`, `codex` and `ravel`. The examples pass, and no caller fake runs.

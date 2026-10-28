@@ -582,6 +582,19 @@ in the chapter and put the concrete selection labels in the figure.
 Apply the prose contract to every delivered medium, and preserve literal
 output where the medium can identify it as code.
 
+Session `rhai-executable-book-examples-k100`, 2026-10-28, applies this scope rule to an example checker's build precondition.
+The retiring worker's digest and installed path blocked examples that used only the Rust binary.
+Scanning all Rust files also treated a newer integration test as a stale production binary, although Cargo could reuse that binary.
+Define freshness by the inputs of the executable that the example actually runs.
+Check both sides: a newer production input must refuse, and an unrelated newer test must pass.
+The controls use a scratch checkout with independent timestamps, so they do not alter the source they are measuring.
+The fresh review found that a path pattern could include tests when the checkout had an ancestor named `src`.
+Placing the scratch checkout under such an ancestor reproduced the false refusal.
+Include the surrounding path in a control when a check uses path patterns; selecting source directories before traversal avoids this dependency.
+The excerpt-checker controls also assumed that chapters 1–6 contained no excerpts after chapter 4 had gained one.
+A control over a changing document should require valid excerpts without freezing their count.
+Use a fixed fixture for the separate case of a document with no excerpts.
+
 ### L41. Keep reader evidence separate from mechanical and model evidence
 
 Record the reader's words, location, progress, task performance and unreached material.

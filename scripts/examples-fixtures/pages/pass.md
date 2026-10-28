@@ -7,16 +7,13 @@ This page is a control for `scripts/examples.sh`. It is not part of the book.
 Complete example: route every request to a fake `claude`, which publishes
 `continue`.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "book-example",
-  select(request) {
-    return {
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "book-example";
+fn select(request, context) {
+    #{
       status: "selected",
       program: "claude",
       args: ["-p", request.prompt],
@@ -24,9 +21,8 @@ export const policy = definePolicy({
       model: "fixture",
       effort: "fixture",
       reason: "route every request to the fake claude",
-    };
-  },
-});
+    }
+}
 ```
 
 **`bin/claude`**
@@ -40,7 +36,7 @@ ravel end-session -- "continue"
 **Command**
 
 ```console
-$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.ts --prompt "Review the change."
+$ PATH="$PWD/bin:$PATH" ravel start-session --kind check --config policy.rhai --prompt "Review the change."
 ```
 
 **Standard output, without a final newline**
@@ -66,27 +62,25 @@ ravel: starting provider fixture, model fixture, effort fixture for kind "check"
 
 Complete example: a policy that refuses every request, and the refusal text.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-export const policy = {
-  schemaVersion: 2,
-  version: "book-example",
-  select() {
-    return {
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "book-example";
+fn select(request, context) {
+    #{
       status: "refused",
       code: "no_route",
       message: "no route for this kind",
       remedy: "choose a kind the policy routes",
-    };
-  },
-};
+    }
+}
 ```
 
 **Command**
 
 ```console
-$ ravel start-session --kind check --config policy.ts --prompt "Review the change."
+$ ravel start-session --kind check --config policy.rhai --prompt "Review the change."
 ```
 
 **Standard output**
@@ -97,9 +91,9 @@ $ ravel start-session --kind check --config policy.ts --prompt "Review the chang
 **Standard error**
 
 ```text
-ravel: refused (policy_refused, stage selection): the policy <scratch>/work/policy.ts refused the selection: no route for this kind
+ravel: refused (policy_refused, stage selection): the policy <scratch>/work/policy.rhai refused the selection: no route for this kind
   input: --kind check
-  source: <scratch>/work/policy.ts
+  source: <scratch>/work/policy.rhai
   policy code: no_route
   remedy: choose a kind the policy routes
 ```
@@ -133,11 +127,10 @@ two
 0
 ```
 
-Fragment: the selection function alone, without the import or the policy
-export.
+Fragment: the selection function alone, without the exported constants.
 
-```ts
-select(request) {
-  return { status: "refused", code: "no_route", message: "", remedy: "" };
+```rhai
+fn select(request, context) {
+  #{ status: "refused", code: "no_route", message: "", remedy: "" }
 }
 ```

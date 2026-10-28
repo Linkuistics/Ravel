@@ -155,18 +155,23 @@ nonblank_k() {
 # ---------------------------------------------------------------- the controls
 
 control_languages_pass() {
-  local ts rust toml sh
+  local rhai rust toml sh
   rust="$(excerpt_md crates/ravel/src/run.rs 2 9 rust)"
-  ts="$(excerpt_md crates/ravel/worker/sdk/index.ts 2 9 ts)"
+  rhai="$(excerpt_md crates/ravel/examples/static.rhai 2 9 rhai)"
   toml="$(excerpt_md Cargo.toml 2 9 toml)"
   sh="$(excerpt_md scripts/examples.sh 2 9 sh)"
   expect_pass languages_pass '^excerpts: 4 passed, 0 failed; 0 page error\(s\)$' \
-    "$(page languages "$rust" "" "$ts" "" "$toml" "" "$sh")"
+    "$(page languages "$rust" "" "$rhai" "" "$toml" "" "$sh")"
 }
 
 control_chapters_one_to_six_pass() {
-  # The chapters that were drafted before the excerpt check hold no excerpt.
-  expect_pass chapters_one_to_six '^excerpts: 0 passed, 0 failed; 0 page error\(s\)$' "$ROOT"/docs/book/src/0[1-6]-*.md
+  # Chapters may gain excerpts as they are revised; all must remain current.
+  expect_pass chapters_one_to_six '^excerpts: [0-9]+ passed, 0 failed; 0 page error\(s\)$' "$ROOT"/docs/book/src/0[1-6]-*.md
+}
+
+control_page_without_excerpts() {
+  expect_pass page_without_excerpts '^excerpts: 0 passed, 0 failed; 0 page error\(s\)$' \
+    "$(page no-excerpts 'Plain prose without source excerpts.')"
 }
 
 control_excerpt_byte_changed() {
@@ -395,7 +400,7 @@ control_directory_argument_and_missing_page() {
 control_excerpt_blocks_are_not_examples() {
   local errors
   errors="$(extractor_errors "$(page agree \
-    "$(excerpt_md crates/ravel/worker/sdk/index.ts 2 9 ts)" "" \
+    "$(excerpt_md crates/ravel/examples/static.rhai 2 9 rhai)" "" \
     "$(excerpt_md scripts/examples.sh 2 9 sh)" "" \
     "$(excerpt_md crates/ravel/src/run.rs 2 9 '')" "" \
     "$(excerpt_md scripts/examples.sh 2 9 console)")")"
@@ -427,7 +432,7 @@ control_other_blocks_fail_closed() {
 }
 
 CONTROLS=(
-  languages_pass chapters_one_to_six_pass excerpt_byte_changed source_byte_changed
+  languages_pass chapters_one_to_six_pass page_without_excerpts excerpt_byte_changed source_byte_changed
   source_moved_or_deleted page_crlf trailing_whitespace label_without_block
   two_blocks_under_one_label path_forms missing_path directory symlink untracked
   generated_and_grove_paths not_a_git_checkout substring_of_a_line

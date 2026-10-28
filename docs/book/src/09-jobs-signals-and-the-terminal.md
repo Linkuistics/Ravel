@@ -110,16 +110,13 @@ HOME, an explicit policy and a cleared environment.
 
 Complete example: a fake sends a result and then ignores TERM.
 
-**`policy.ts`**
+**`policy.rhai`**
 
-```ts
-import { definePolicy } from "ravel/sdk";
-
-export const policy = definePolicy({
-  schemaVersion: 2,
-  version: "job-escalation",
-  select() {
-    return {
+```rhai
+export const SCHEMA_VERSION = 3;
+export const VERSION = "job-escalation";
+fn select(request, context) {
+    #{
       status: "selected",
       program: "fake-agent",
       args: [],
@@ -127,9 +124,8 @@ export const policy = definePolicy({
       model: "fake",
       effort: "none",
       reason: "Observe the end of a job without a model service.",
-    };
-  },
-});
+    }
+}
 ```
 
 **`bin/fake-agent`**
@@ -147,7 +143,7 @@ done
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.ts --prompt 'Send finished, then wait.'
+$ mkdir -p home tmp && chmod +x bin/fake-agent && env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config policy.rhai --prompt 'Send finished, then wait.'
 ```
 
 **Standard output, without a final newline**

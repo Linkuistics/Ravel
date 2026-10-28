@@ -4,16 +4,15 @@
 #   scripts/examples.sh check [PAGE-OR-DIR...]   (default: docs/book/src)
 #
 # Every example runs through the seam Ravel's CLI tests use (Fixture in
-# crates/ravel/tests/cli.rs): the built `ravel` front and its paired worker,
-# real TypeScript policy evaluation, fake agent programs, an empty
+# crates/ravel/tests/cli.rs): the built `ravel` binary re-executed as its Rhai
+# worker, real Rhai policy evaluation, fake agent programs, an empty
 # environment, a private HOME and TMPDIR and a PATH of `/usr/bin:/bin` plus the
 # one directory holding `ravel`. No real agent, model or personal policy is
 # reachable. The convention is written in docs/book/examples.md; the controls
 # for this script are scripts/examples.test.sh.
 #
 # Environment (used by the controls; callers normally set none):
-#   RAVEL_FRONT                    the front to run (default target/debug/ravel);
-#                                  its worker is found beside it as the product finds it
+#   RAVEL_FRONT                    the binary to run (default target/debug/ravel)
 #   EXAMPLES_TIMEOUT               seconds one command may run (default 60)
 #   EXAMPLES_ASSUME_MISSING        feature names to treat as absent on this host
 #   EXAMPLES_ROOT, EXAMPLES_EXTRACT  the checkout and extractor of a mutated copy
@@ -66,44 +65,34 @@ feature_missing() {
   return 1
 }
 
-# Refuse a front and worker that are not both built from the current worker
-# source. build.rs embeds the digest of that source in the front and
-# dispatch.sh embeds it in the worker, so a front or worker built before the
-# last source change does not contain today's digest. The product refuses a
-# mismatched pair at run time as well; this refuses before any example runs,
-# and names the cause.
+# Refuse a binary older than its production Rust inputs before any example
+# runs. Rhai re-executes this binary, so there is no separate worker to pair.
+# A touched input causes refusal, which is the safe direction. Integration
+# tests are not inputs: Cargo can rebuild those without replacing the binary.
 require_fresh_build() {
-  local front="$1" id dir worker
+  local front="$1" newer
   [[ -f "$front" && -x "$front" ]] || die "no built ravel at $front; run task build (or use task docs:examples, which builds)"
-  id="$(bash "$ROOT/crates/ravel/scripts/dispatch.sh" build-id)" || die "cannot compute the worker source digest"
-  dir="$(cd "$(dirname "$front")" && pwd -P)"
-  worker="$dir/../libexec/ravel/ravel-policy"
-  [[ -f "$worker" ]] || die "no policy worker at $worker beside the front; run task worker"
-  grep -aqF -- "$id" "$front" || die "stale build: the front $front was built from different worker source than the checkout's (digest $id); run task build"
-  grep -aqF -- "$id" "$worker" || die "stale build: the worker $worker was built from different source than the checkout's (digest $id); run task worker"
-  # The digest covers the worker's TypeScript. A front built before a Rust edit,
-  # or a worker before a manifest edit, carries today's digest too, so the
-  # sources are also compared by modification time with what was built from
-  # them. A touched file makes this refuse, which is the safe direction.
-  local newer
-  newer="$(newer_source "$front" "$worker")"
-  [[ -z "$newer" ]] || die "stale build: $newer is newer than the built front or worker; run task build"
+  newer="$(newer_source "$front")" || die "cannot inspect Rust build inputs"
+  [[ -z "$newer" ]] || die "stale build: $newer is newer than the built ravel; run task build"
 }
 
-# The first source file newer than FRONT (Rust, Cargo manifests and lock) or
-# newer than WORKER (the worker's TypeScript, configuration, manifest, lock and
-# its build script). Prints nothing when none is.
+# The first production Rust input newer than FRONT. Tests and the retiring
+# TypeScript worker do not contribute to the executable. Prints nothing when
+# no input is newer; traversal errors remain failures, never a clean result.
 newer_source() {
-  local front="$1" worker="$2" found
-  found="$(find "$ROOT/crates" "$ROOT/Cargo.toml" "$ROOT/Cargo.lock" \
+  local front="$1" input
+  local inputs=("$ROOT/Cargo.toml" "$ROOT/Cargo.lock" "$ROOT/rust-toolchain.toml")
+  # Select crate roots with shell globs, where * cannot cross a slash. A find
+  # -path '*/src/*.rs' would also match tests beneath a checkout inside ~/src.
+  for input in "$ROOT"/crates/*/src "$ROOT"/crates/*/build.rs \
+    "$ROOT"/crates/*/Cargo.toml "$ROOT"/crates/*/Cargo.lock; do
+    [[ ! -e "$input" ]] || inputs+=("$input")
+  done
+  [[ ! -f "$ROOT/.cargo/config.toml" ]] || inputs+=("$ROOT/.cargo/config.toml")
+  find "${inputs[@]}" \
     -path '*/node_modules' -prune -o -path '*/target' -prune -o \
-    -type f \( -name '*.rs' -o -name 'Cargo.toml' -o -name 'Cargo.lock' \) -newer "$front" -print 2>/dev/null | head -n 1)"
-  if [[ -z "$found" ]]; then
-    found="$(find "$ROOT/crates/ravel/worker" "$ROOT/crates/ravel/scripts" \
-      -path '*/node_modules' -prune -o \
-      -type f \( -name '*.ts' -o -name 'tsconfig*.json' -o -name 'package.json' -o -name 'bun.lock' -o -name 'dispatch.sh' \) -newer "$worker" -print 2>/dev/null | head -n 1)"
-  fi
-  printf '%s' "$found"
+    -type f \( -name '*.rs' -o -name 'build.rs' -o -name 'Cargo.toml' -o -name 'Cargo.lock' \
+    -o -name 'rust-toolchain.toml' -o -path "$ROOT/.cargo/config.toml" \) -newer "$front" -print -quit
 }
 
 # Replace the example's scratch root with <scratch> in a stream file. The one
