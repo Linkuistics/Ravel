@@ -8,6 +8,9 @@ The [session execution specification](session-execution.md) owns the managed lau
 The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
 The migration section records the retired TypeScript correspondence.
 
+The [skill discovery specification](skill-discovery.md) owns skill directory delivery.
+It defines the request fields `originalPrompt`, `prompt` and `skills`, and the settings key `skills`.
+
 Three decisions bind this area:
 
 - [the configuration script uses Rhai](../adr/configuration-script-uses-rhai.md).
@@ -102,7 +105,7 @@ directory. There is no search, no environment override and no fallback.
 
 `policy.rhai` is not a default-path alias. An explicit `.rhai` entry may have
 any basename, including `policy.rhai`. The historical `policy.ts` probe below
-only produces a retired-format refusal; it never selects an entry.
+only produces a retired-format refusal. It never selects an entry.
 
 | Entry state | Result |
 |---|---|
@@ -136,7 +139,7 @@ of its own, so every import names a file.
 
 | Export | Required | Meaning |
 |---|---|---|
-| `SCHEMA_VERSION` | Yes | The constant 3. Another value refuses as `unsupported_version` |
+| `SCHEMA_VERSION` | Yes | The constant 4. Another value, including 3, refuses as `unsupported_version` |
 | `VERSION` | Yes | A nonblank string that the owner maintains. The notice reports it |
 | `fn select(request, context)` | Yes | It returns a selection or a refusal |
 | `fn load_context(request)` | No | It returns a selection context or a refusal |
@@ -168,9 +171,12 @@ The engine runs in a strict mode:
 It need not exist, and Ravel does not read it automatically.
 
 The prompt requires exactly one of `--prompt` and `--prompt-file`.
-Ravel preserves its UTF-8 bytes, including empty text and newlines, and injects no instructions.
+Ravel preserves its UTF-8 bytes, including empty text and newlines, in `originalPrompt`.
 The prompt bound is 1 MiB, although platform argument limits can refuse less.
 A prompt file resolves against the caller's working directory. Ravel never reads a prompt from terminal stdin.
+
+With skill delivery disabled, `prompt` holds the same bytes as `originalPrompt`, and Ravel adds no instructions.
+With delivery enabled, `prompt` is the [prepared prompt](skill-discovery.md#the-prepared-prompt).
 
 Each repeatable `--param NAME=VALUE` supplies caller data.
 A name must be nonempty, contain no `=` and occur once. The value is the exact text after the first `=`.
@@ -181,14 +187,16 @@ the caller did not supply holds `()`.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `schemaVersion` | The integer 3 | The version of this request shape |
+| `schemaVersion` | The integer 4 | The version of this request shape |
 | `kind` | String | The caller's kind |
-| `prompt` | String | The caller's prompt, unchanged |
+| `originalPrompt` | String | The caller's prompt, unchanged |
+| `prompt` | String | The prompt to deliver. It equals `originalPrompt` unless skill delivery prepared it |
 | `cwd` | String | The caller's working directory, as data |
 | `params` | Map of strings | Each `--param NAME=VALUE` |
 | `taskFile` | String or `()` | The caller's `--task-file`, absolute. Ravel does not read it |
 | `taskId` | String or `()` | The caller's `--task-id` |
 | `context` | Map or `()` | The caller's `--context` document, checked |
+| `skills` | Map or `()` | The resolved skill directories, or `()` with delivery disabled. The skill discovery specification defines the map |
 | `limits` | Map | The effective bounds, for reading |
 
 `limits` holds `selectionMs`, `contextBytes`, `sourceBytes`, `sources`,
@@ -380,6 +388,54 @@ before the managed process launches.
 Each message from the worker is at most `messageBytes`, 1 MiB, except a
 delivered context, which has the context budget. A reply from the Ravel CLI has
 the bound of its capability.
+
+#### Frame bounds
+
+A frame is a four-byte length and that many bytes of JSON. One constant bounds
+every frame that the Ravel CLI sends and the worker reads. The largest such
+frames are the evaluate frame and the reply to a harness run.
+
+The evaluate frame carries the entry source and the request, with both prompts
+and `skills`. It also carries the caller's context twice: in `request.context`,
+and as the delivered context in `selectContext`. Its bound comes from the
+public bounds at the largest JSON escape. A control character escapes to six
+bytes. A parameter adds at most six bytes of quotes and separators, beside the
+escape of its name and value.
+
+```text
+6 × (entry 1 MiB + original prompt 1 MiB + prepared prompt 1 MiB + task ID 1,024 bytes)
++ 12 × parameters 65,536 bytes
++ 2 × context budget maximum 8 MiB
++ descriptor 1 MiB
++ envelope 1 MiB
+= 38,541,312 bytes
+```
+
+The reply to a harness run holds three strings of at most 1 MiB each, escaped
+six-fold. One more message bound covers the rest of the map. That is 19 MiB. The
+frame bound is the larger value, 38,541,312 bytes.
+
+Every request within the public bounds therefore fits. Only an exceptionally
+long kind, working directory or task-file path can pass the bound, because
+Ravel does not bound those three values itself. Before it sends the evaluate
+frame, the Ravel CLI compares the encoded frame with the frame bound. A larger
+frame refuses as `malformed_input`, stage `cli`, exit 2. The refusal names the
+encoded size and the largest members of the request.
+
+Ravel then stops and reaps the worker, and it evaluates nothing. A frame over
+the bound is never a `protocol_error` or a `worker_failed`.
+
+The worker checks each of its own messages against `messageBytes` before it
+sends it. A script result over that bound refuses as `message_too_large`,
+exit 3. A selection that carries the prepared prompt in `args` uses part of
+that bound. The argument limit of the platform can refuse a smaller selection
+when the program launches.
+
+Tests at the command-line seam send a request at every public bound, with the
+largest escape. It must fit, and a control that lowers the frame bound by one
+byte must fail. A long kind that passes the bound refuses as `malformed_input`
+before evaluation. A selection over the message bound refuses as
+`message_too_large`.
 
 A stop does not wait for a read in progress. The Ravel CLI abandons the read and
 its reply, and nothing launches after the stop. The reader thread keeps the
@@ -589,6 +645,10 @@ A harness run has these properties:
   environment with the same scrub, or the confined environment.
 - It receives `RAVEL_EXIT_FILE` for a fresh result channel of its own, and the
   marker `RAVEL_CONFIG_RUN`.
+- It receives `RAVEL_SKILL_DIRECTORIES` and, under `--confine`, the read grants
+  of the skill resources, as the
+  [skill discovery specification](skill-discovery.md#ravel_skill_directories)
+  states.
 - Ravel confines it, with a private run directory of its own, when the caller
   passed `--confine`.
 
@@ -704,18 +764,41 @@ widen the confinement for a sign-in. Whether a harness can use its sign-in
 inside confinement depends on the harness and the platform. The smoke tasks run
 unconfined.
 
+#### Sandbox home for real harness runs
+
 Ravel reads its settings from `$HOME/.config/ravel` and has no override. A
-harness run receives the caller's `HOME`. A smoke task therefore cannot run in
-the owner's `HOME` without writing the owner's settings.
+harness run receives the caller's `HOME`. A smoke task or a skill trial
+therefore cannot run in the owner's `HOME` without writing the owner's
+settings.
 
-It runs in a sandbox
-home with its own settings and configuration script. The sandbox home links the sign-in store
-of the harness. That is `Library/Keychains` on macOS for Claude Code, `.claude`
-on Linux, and `.codex` for Codex.
+Each such run uses a sandbox home with its own settings and configuration
+script. The sandbox home reuses only the sign-in store of each harness from the
+real home. Sign-in and harness configuration have different owners, so no link
+joins them.
 
-Claude Code finds its macOS sign-in through `HOME`, and the link supplies it there.
-The task reads no sign-in, because the harness opens its own store. The task
-also removes the API keys from the environment, so the call proves the sign-in.
+| Harness | The one linked path in the sandbox home | State that the sandbox home owns |
+|---|---|---|
+| Claude Code on macOS | `Library/Keychains`, the login keychain that Claude Code finds through `HOME` | `.claude` and `.claude.json` |
+| Claude Code on Linux | `.claude/.credentials.json`, the sign-in file | The rest of `.claude`, and `.claude.json` |
+| Codex | `.codex/auth.json`. Each run sets `CODEX_HOME` to the sandbox `.codex` | The configuration, hooks, agents, plugins and skills of the sandbox `.codex` |
+
+A link to the whole `.codex` or `.claude` tree is not permitted. It exposes the
+real configuration, hooks, plugins and skills. A configuration write in the
+sandbox would also change the real files.
+
+Before the harness launches, each run lists every link in the sandbox home. The
+list holds only the path of the table for that harness. The run records the
+effective `CODEX_HOME`, and it refuses an inherited value that points into the
+real home. After the run, it checks that each linked path is still a link.
+
+A harness can replace the sign-in link with a file when it refreshes a token.
+The run then fails. Its remedy is to sign in again in the real home, because
+the real store can hold a revoked token.
+
+The smoke tasks `task harness:smoke:claude` and `task harness:smoke:codex` use
+this technique. The task reads no sign-in, because the harness opens its own
+store. The task also removes the API keys from the environment, so the call
+proves the sign-in.
 
 The credential boundary covers the caller variables that `ravel::env` serves. It
 is not a filesystem sandbox. A measured read is not confined by path, so a
@@ -737,7 +820,9 @@ script in its output.
 
 Settings remain at `$HOME/.config/ravel/settings.json`, including with an explicit `--config` entry. A missing settings file selects defaults. Without an absolute `HOME`, an explicit entry uses defaults.
 
-A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `configEnv`, `harnesses` and `budgets`. Unknown keys refuse as `settings_invalid`, exit 2.
+A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `configEnv`, `harnesses`, `budgets` and `skills`. Unknown keys refuse as `settings_invalid`, exit 2.
+
+A member name that repeats in any object of the file refuses the same way. The [skill discovery specification](skill-discovery.md#settings) owns the `skills` object.
 
 No key opens a persistent store. Flags override the timeout and context bounds. `--config-env` adds names to `configEnv`, with duplicates counted once.
 
@@ -879,10 +964,14 @@ The JSON routing notice uses schema version 2:
   each run, and whether it sent a result. An LLM call is one of these runs. The
   list also holds a call that launched nothing, with the status `unavailable`.
 - `bounds` includes `harnessRuns`.
+- `skills` reports skill delivery, or `null` when delivery is disabled. The
+  [skill discovery specification](skill-discovery.md#diagnostics) defines it.
 
 The JSON failure document uses schema version 2, with the owner refusal code
 in `configCode`. Routing notices retain version 2 and report `config` and
-`configEnvironment`; the script interface retains version 3. Text diagnostics
+`configEnvironment`. The script interface has version 4.
+
+Text diagnostics
 use `config stdout:` and `config stderr:`. The former `policy_` prefix on
 Ravel-owned codes becomes `config_`, and the former `policy.` prefix on
 named script locations becomes `config.`. Owner strings and opaque results
@@ -917,7 +1006,7 @@ A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 | `config_parse_failed` | `load` | 3 | A syntax error in the entry or a module, with its file, line and column |
 | `config_import_failed` | `load` | 3 | A module is missing, unreadable, too large, in a cycle or the 65th, or its top level failed |
 | `config_invalid` | `validation` | 3 | An export is missing or has the wrong arity, or the version is blank |
-| `unsupported_version` | `validation` or `context` | 3 | Script `SCHEMA_VERSION` is not 3, or the selection context has an unsupported unsigned schema version instead of 1 |
+| `unsupported_version` | `validation` or `context` | 3 | Script `SCHEMA_VERSION` is not 4, or the selection context has an unsupported unsigned schema version instead of 1 |
 | `selection_threw` | `selection` | 3 | `select` raised an uncaught error. The report has its file, line and column |
 | `context_loader_failed` | `context` | 3 | `load_context` raised an uncaught error. The report has its file, line and column |
 | `host_request_invalid` | `load`, `context` or `selection` | 3 | A host function received a malformed request |
@@ -993,6 +1082,7 @@ The allowlist records that distinction.
 `task install PREFIX=/path` builds and verifies the installation from that prefix alone.
 `task smoke` exercises a disposable prefix through the executable directly and through a relative symlink.
 Neither path requires a host JavaScript runtime or caller binary.
+A Git cache miss of skill delivery needs Git, as the [skill discovery specification](skill-discovery.md#exact-git-acquisition-and-offline-reuse) states.
 The book checks use a checkout-local Bun as a development tool, outside the installed product.
 The release carries no JavaScript runtime, SDK, declarations or separate worker executable.
 
@@ -1023,10 +1113,11 @@ the entry lets a Grove session that Ravel 1.1.0 launched keep reading
 |---|---|
 | `~/.config/ravel/policy.ts` | `~/.config/ravel/config.rhai` |
 | `export const policy = definePolicy({ … })` | A module with `SCHEMA_VERSION`, `VERSION`, `select` and optionally `load_context` |
-| `schemaVersion: 2` | `export const SCHEMA_VERSION = 3;` |
+| `schemaVersion: 2` | `export const SCHEMA_VERSION = 4;` |
 | `version` | `export const VERSION = "…";` |
 | `select(request, context, host)` | `fn select(request, context)` |
 | `loadContext(request, host)` | `fn load_context(request)` |
+| `request.prompt`, the caller's prompt | `request.originalPrompt`. `request.prompt` is the prompt to deliver |
 | `host.readText`, `host.readJson` | `ravel::read_text`, `ravel::read_json`, now in every phase |
 | `host.diagnostic(text)` | `debug(text)` |
 | `host.signal` | Nothing. The worker stops the script itself |
@@ -1042,7 +1133,7 @@ the entry lets a Grove session that Ravel 1.1.0 launched keep reading
 | `fetch` to a model API | `ravel::run_harness` with a harness entry for Claude Code or Codex, which uses its own sign-in |
 | Code that launches a process | `ravel::run_harness`, with a harness entry in settings |
 | `async` and `await` | Ordinary calls |
-| `settings.json` keys | Unchanged, plus `harnesses` and `budgets` |
+| `settings.json` keys | Unchanged, plus `harnesses`, `budgets` and `skills` |
 
 The owner chose a one-off manual conversion of their configuration on
 2026-10-26. The book has no migration chapter and assumes no TypeScript
@@ -1348,6 +1439,26 @@ Ravel SHALL evaluate `config.rhai` when it exists. It SHALL refuse a lone
 - **WHEN** both `config.rhai` and `policy.ts` exist in the configuration
   directory
 - **THEN** Ravel evaluates `config.rhai` and does not open `policy.ts`
+
+### Requirement: Request schema 4
+
+Ravel SHALL evaluate only a configuration script that exports `SCHEMA_VERSION`
+4. With skill delivery disabled, `request.prompt` SHALL equal
+`request.originalPrompt`.
+
+#### Scenario: A schema-3 script
+
+- **WHEN** a configuration script exports `SCHEMA_VERSION` 3, and no settings
+  file exists
+- **THEN** Ravel exits 3 with `unsupported_version`, and the remedy names
+  `originalPrompt`
+
+#### Scenario: Disabled delivery
+
+- **WHEN** a schema-4 script prints the request, and the settings hold no
+  `skills` key
+- **THEN** `prompt` and `originalPrompt` hold the caller's bytes, and `skills`
+  is `()`
 
 ## Test seams
 

@@ -1,0 +1,85 @@
+{
+  "title": "Skill directories for Ravel 2.0.0",
+  "intro": "Directory delivery on the skill-directory-delivery line, repaired for the Rhai configuration path. Implementation and acceptance remain ahead. Graph views start at the dark node labelled Start here, and numbered edge labels give the order of steps. The sequence starts at its first message. Ravel supplies directories, and the agent finds the skills. The specification docs/specs/skill-discovery.md is the authority for every rule drawn here.",
+  "groups": [
+    {
+      "id": "preparation",
+      "title": "Preparation",
+      "description": "The Ravel CLI resolves sources before the Rhai worker launches."
+    },
+    {
+      "id": "frames",
+      "title": "Prompt bounds and frames",
+      "description": "Where the prepared prompt travels, and which bound applies at each step."
+    },
+    {
+      "id": "lifetime",
+      "title": "Lifetime",
+      "description": "Readers keep one immutable resource view."
+    },
+    {
+      "id": "permissions",
+      "title": "Permissions",
+      "description": "Read grants do not remove inherited ending authority."
+    }
+  ],
+  "discussion": {
+    "title": "Repair the directory contract for Rhai main",
+    "status": "Proposed repair, for a focused design review before dependent work",
+    "summary": "The combined Ravel 2.0.0 carries the feature with script and request schema 4. A schema-3 script refuses, also with delivery disabled. The Ravel CLI resolves sources before the worker launches, and load_context and select each receive a copy of one request. Descriptor reads are ordinary measured reads. The evaluate-frame bound comes from the public bounds, and only a long kind, cwd or task-file path can pass it. Harness runs receive the same skill variable and read grants as the managed process.",
+    "diagramIds": [
+      "preparation",
+      "frames",
+      "lifetime",
+      "permissions"
+    ],
+    "updatedDiagrams": [
+      {
+        "id": "preparation",
+        "summary": "Replaced the policy worker with the Ravel CLI and the Rhai worker. Resolution now ends before the worker launches, and the request has schema 4."
+      },
+      {
+        "id": "frames",
+        "summary": "Added the view of the prompt bound, the derived evaluate-frame bound and the script-result bound."
+      },
+      {
+        "id": "lifetime",
+        "summary": "Renamed the resolver to the Ravel CLI. The recovery rules did not change."
+      },
+      {
+        "id": "permissions",
+        "summary": "Added harness runs during evaluation, which receive the same read grants and variable as the managed harness."
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "preparation",
+      "group": "preparation",
+      "title": "Prepare before the worker launches",
+      "source": "preparation.mmd",
+      "caption": "No configured sources means no preamble and no cache work. A source failure refuses at stage skills, before the worker launches. The script puts request.prompt into the harness arguments and reads request.originalPrompt for task analysis. Mandatory reads precede caller actions, and callers qualify first accordingly."
+    },
+    {
+      "id": "frames",
+      "group": "frames",
+      "title": "Where the prompt travels and which bound applies",
+      "source": "frames.mmd",
+      "caption": "The evaluate-frame bound is the sum of the public bounds at the largest JSON escape, so a request within those bounds fits. Ravel does not bound the kind, the working directory or the task-file path, so an exceptional value refuses as malformed_input before evaluation. The script result keeps its 1 MiB bound, and the platform argument limit can refuse less at launch."
+    },
+    {
+      "id": "lifetime",
+      "group": "lifetime",
+      "title": "Keep the reader's directories",
+      "source": "lifetime.mmd",
+      "caption": "RAVEL_SKILL_DIRECTORIES keeps the same descriptor path, but it cannot keep an instruction to recover it. Whole-preamble loss needs an unprompted harness trial. Detached readers can outlive the managed group, and manual removal requires every affected reader to stop."
+    },
+    {
+      "id": "permissions",
+      "group": "permissions",
+      "title": "Read resources and state the authority limit",
+      "source": "permissions.mmd",
+      "caption": "The managed harness and each harness run receive the same read-only grants. Ordinary delegates can inherit the result context, and the instructions forbid them to use it. An adapter that controls the environment and grants removes that context, and a trial measures its isolation. Ravel cannot intercept arbitrary delegation interfaces of a harness."
+    }
+  ]
+}

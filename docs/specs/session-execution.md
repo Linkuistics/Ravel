@@ -2,11 +2,13 @@
 
 Ravel routes a caller's request through the owner's configuration script and supervises the selected process.
 Its public boundary is [start-session and end-session](../book/src/06-reference.md#command-line).
+The source acquisition command `skills resolve` of [skill discovery](skill-discovery.md#ravel-skills-resolve) is also public.
 Caller prompts, result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable. The [glossary](../../CONTEXT.md) defines its terms.
 
 The [configuration evaluation specification](configuration-evaluation.md) owns discovery, requests, selection context, selections, settings, evaluation and delivery.
 The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
+The [skill discovery specification](skill-discovery.md) owns skill sources, the prepared prompt and their read grants.
 The [component explanation](../book/src/07-the-parts-of-ravel.md) describes the participants.
 These specifications remain the behavioural authority for that explanation.
 
@@ -35,6 +37,9 @@ The [request, context and selection contract](configuration-evaluation.md#reques
 A successful selection identifies a command. The worker and every host call must finish before that command launches.
 A refusal launches nothing. Ravel substitutes no route after a failure.
 
+With skill delivery enabled, the Ravel CLI resolves the skill sources and prepares the prompt before the worker launches.
+A skill refusal launches neither the worker nor the managed process.
+
 ## Managed process and result
 
 Each launch allocates a fresh private session directory and result path.
@@ -53,6 +58,7 @@ Ravel scrubs these six exact launch controls before supplying the fresh result p
 - `RAVEL_STATE_DIR`
 
 Other names in these classes remain ordinary caller variables.
+Ravel also sets or removes `RAVEL_SKILL_DIRECTORIES`, as the [skill discovery specification](skill-discovery.md#ravel_skill_directories) states.
 The separate [re-entry rule](configuration-evaluation.md#re-entry-and-completion-authority) prevents an inherited `RAVEL_CONFIG_RUN` from reaching a managed launch.
 Configuration environment grants have wider reserved classes, as the configuration spec states.
 
@@ -83,8 +89,10 @@ Ravel propagates that signal after required cleanup attempts. A cleanup or super
 |---|---|
 | CLI input failure | 2 |
 | Configuration refusal | 3 |
+| Skill-source refusal, stage `skills` | 3 |
 | Worker or supervision failure | 5 |
 | Whole evaluation timeout | 124 |
+| Skill resolution deadline | 124 |
 | Selected program cannot start | 126 or 127 |
 
 ### Confinement
@@ -97,6 +105,8 @@ Canonical working directory and a private run directory are writable.
 
 `--runtime-read` grants repeatable regular files read-only and requires confinement. System runtime reads and the canonical Ravel executable are admitted. Canonical grants must not overlap the configuration directory or settings file.
 
+With skill delivery enabled, Ravel also grants the descriptor and the snapshot trees read-only, as [read access and delegation](skill-discovery.md#read-access-and-delegation) states.
+
 The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. The backend's filesystem contract and platform limits live in
 [the runner explanation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).
 
@@ -108,6 +118,7 @@ Private subprocess roles run through acceptance tests. `task smoke` verifies an 
 
 The [configuration test seam](configuration-evaluation.md#test-seams) owns Rhai acceptance checks and opt-in real harness calls. Default checks need no models, owner credentials, personal configuration or old store.
 
-Ravel has no persistence, run identity, observation API, history API, importer, caller adapter or public direct-command bypass.
+Ravel has no session persistence, run identity, observation API, history API, importer, caller adapter or public direct-command bypass.
+The retained skill-content cache of [skill discovery](skill-discovery.md#publication-concurrency-and-cleanup) is its one persistence surface. It holds no run identity or result.
 Abrupt death can leave ephemeral debris.
 The [retired-project retrieval record](../retired-project.md) remains independent.

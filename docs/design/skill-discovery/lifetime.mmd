@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant Owner as Owner source
+  participant CLI as Ravel CLI
+  participant Cache as Snapshots
+  participant Parent as Session A
+  participant Reader as Detached reader
+  participant Next as Session B
+  CLI->>Owner: Capture local tree or exact commit
+  CLI->>Cache: Publish snapshots and descriptor X
+  CLI->>Parent: Add directories to the prompt<br/>RAVEL_SKILL_DIRECTORIES names X
+  Parent->>Reader: Forward X and obligations<br/>with read access
+  Note over Parent,Reader: Ordinary descendants end with A<br/>this reader is outside its group
+  Parent->>Cache: With the recovery instruction kept<br/>recover X through the variable
+  Note over Parent,Cache: Whole-preamble loss needs an unprompted trial<br/>a kept path does not keep instructions
+  Owner->>Owner: Edit source or configured pin
+  Next->>CLI: Independent resolution
+  CLI->>Cache: Publish snapshots and descriptor Y
+  CLI->>Next: Add the new directory set Y
+  Reader->>Cache: Read X and resources after A exits
+  Note over Cache,Reader: No automatic pruning<br/>stop affected readers before removal

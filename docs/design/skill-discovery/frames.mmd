@@ -1,0 +1,15 @@
+flowchart TD
+  inputs["Start here: caller inputs<br/>original prompt at most 1 MiB"]:::start
+  prep["Prepared prompt at most 1 MiB<br/>else skill_limit_exceeded, exit 3"]
+  frame["Evaluate frame at most 38,541,312 bytes<br/>entry, both prompts, skills, context twice"]
+  over["Long kind, cwd or task file:<br/>malformed_input, exit 2, no evaluation"]
+  worker["Rhai worker runs<br/>load_context and select"]
+  result["Script result at most messageBytes 1 MiB<br/>else message_too_large, exit 3"]
+  argv["Platform argument limit<br/>when the program launches"]
+  inputs -->|1. prepare| prep
+  prep -->|2. originalPrompt and prompt| frame
+  frame -.->|encoded frame over the bound| over
+  frame -->|3. evaluate| worker
+  worker -->|4. args carry the prompt| result
+  result -->|5. launch| argv
+  classDef start fill:#173451,color:#fff,stroke:#102a43,font-weight:bold

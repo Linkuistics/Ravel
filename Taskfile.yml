@@ -10,6 +10,13 @@ tasks:
     cmds:
       - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/result-job
 
+  docs:skills:
+    desc: Serve the editable skill directory delivery views of the 2.0.0 design on localhost (Mermaid needs network access)
+    vars:
+      PORT: '{{.PORT | default "8778"}}'
+    cmds:
+      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/skill-discovery
+
   docs:rhai-configuration:
     desc: Serve the editable Rhai configuration evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)
     vars:

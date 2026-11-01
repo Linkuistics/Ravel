@@ -129,6 +129,42 @@ checks and reads the result.
 of a **Managed process** or a **Harness run**. Confinement does not apply to
 the **Configuration script** or its **Rhai worker**.
 
+## Skill delivery
+
+**Skill source**: A local directory, or an exact Git commit and subdirectory,
+that the **Owner** names in the **Settings**. It supplies skill guidance and
+the resources of that guidance.
+
+**Skill directories**: The absolute search directories that Ravel adds to the
+prompt. They are in retained copies of the **Skill sources**. The agent finds
+the applicable skills there. Ravel keeps no index of skill names or
+descriptions.
+
+**Directory descriptor**: The immutable record of one prepared set of **Skill
+directories**. It holds the source provenance, the search directories and the
+ordered **Mandatory guidance**. Ravel supplies its absolute path in the prompt
+and in `RAVEL_SKILL_DIRECTORIES`. It grants no read access, and it gives no
+authority to end a **Session**.
+
+**Mandatory guidance**: Files that the **Owner** names by their path in a
+**Skill source**. The agent reads them before optional discovery and before
+task actions. They are file references, not skill names.
+
+**Original prompt**: The caller's exact prompt, in the request field
+`originalPrompt`. It includes the caller's instructions that end the
+**Session**.
+
+**Prepared prompt**: The `prompt` of the request when skill delivery is
+enabled. It holds the **Skill directories** and the instructions that tell the
+agent how to read skills. Then it holds the **Original prompt**, intact, in a
+block of its own. It gives configured content no system authority.
+
+**Delegate**: An agent that a **Harness** creates for delegated work. It reuses
+the **Skill directories** and the **Directory descriptor** of its parent. Ravel
+does not intercept its creation, so it can inherit the **Session-result
+context** of its parent. The instructions in the prompt forbid it to use that
+context. A nested **Session** is not a delegate.
+
 ## Flagged ambiguities
 
 - **"Session"** alone means a Ravel **Session**. It never means a POSIX session
@@ -152,6 +188,9 @@ the **Configuration script** or its **Rhai worker**.
   A restriction on a **Managed process** is confinement.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
   exit status or the work a **Harness** did.
+- **"Prompt"** alone is ambiguous when skill delivery is enabled. Say
+  **Original prompt** for the caller's bytes and **Prepared prompt** for the
+  text that the harness receives. With delivery disabled, the two are equal.
 
 ## Example dialogue
 

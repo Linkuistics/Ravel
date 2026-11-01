@@ -1,0 +1,17 @@
+flowchart TD
+  owner["Start here: configured<br/>source boundaries"]:::start
+  acquire["Ravel CLI checks origin and capture<br/>outside every confinement"]
+  snapshot["Immutable source trees<br/>and directory descriptor"]
+  run["Harness run during evaluation:<br/>same read grants and variable"]
+  parent["Managed harness: read grants<br/>and its own result context"]
+  delegate["Ordinary delegate: same directories<br/>may inherit the parent result context"]
+  adapter["Controlled adapter: forward reads<br/>and scrub the parent result context"]
+  protected["Configuration directory, settings<br/>and result channels"]
+  owner -->|1. canonical boundaries| acquire
+  acquire -->|2. publish the complete set| snapshot
+  snapshot -->|3a. read-only grants| run
+  snapshot -->|3b. read-only grants| parent
+  parent -->|4. forward paths, forbid the parent ending| delegate
+  parent -->|alternative: measure isolation| adapter
+  protected -.->|overlap refuses, never copied or granted| acquire
+  classDef start fill:#173451,color:#fff,stroke:#102a43,font-weight:bold
