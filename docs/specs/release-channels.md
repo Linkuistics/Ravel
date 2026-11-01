@@ -1,9 +1,10 @@
 # Release channels for a caller transition
 
-The owner acknowledged that the coordinating Grove workstream alone remains
-live through cutover. It owns the combined 2.0.0 release and owner upgrade. This
-design awaits focused review and implementation. Existing release tasks still
-publish unversioned `ravel` and must change before using this route.
+Grove's coordinated-release specification names the one release owner for the
+2.0.0 transition and owns the order between products. The focused design review
+of this document and its integration are complete. Implementation remains ahead.
+Existing release tasks still publish unversioned `ravel` and must change before
+using this route.
 
 ## One release, two formula channels
 
@@ -14,6 +15,8 @@ selects no different build or archive layout.
 Ravel 2.0.0 combines Rhai and complete directory delivery. Publish it
 first as keg-only `ravel@2`, leaving unversioned `ravel` at 1.1.0. Grove's
 coordinated-release specification owns when its consumers permit promotion.
+[A caller transition publishes a versioned formula first](../adr/a-caller-transition-publishes-a-versioned-formula-first.md)
+records the reason and the rejected alternatives.
 
 | Channel | Formula | Installed verification |
 | --- | --- | --- |
@@ -36,8 +39,15 @@ Callers do not coordinate three independent arguments.
 
 Preparation distinguishes the baseline channel from the publication target.
 The first 2.0.0 cut verifies baseline 1.1.0 against unversioned `ravel`, then
-publishes `ravel@2`. Later 2.x cuts verify their baseline against `ravel@2`,
-even while unversioned remains 1.1.0. Preserve incomplete-baseline refusal.
+publishes `ravel@2`. Until promotion, a later 2.x cut verifies its baseline
+against `ravel@2` and publishes `ravel@2` again. Unversioned `ravel` stays at
+1.1.0 meanwhile. Preserve incomplete-baseline refusal.
+
+After promotion, unversioned `ravel` is the only publication channel. A later
+cut selects `CHANNEL=unversioned`, verifies its baseline against unversioned
+`ravel` and publishes there. The task refuses `CHANNEL=versioned-2` once
+unversioned `ravel` has major 2. `ravel@2` stays at the promoted version as a
+transition formula and receives no later release.
 
 Resume modes retain the selection. `--tap-only` must not silently default to
 unversioned. Verify class, keg-only behaviour, destination and prefix together.
@@ -49,8 +59,9 @@ targets. Push source/tag, publish GitHub assets, and publish and verify the
 book. Then publish the selected formula. Verify installed behaviour and the live
 book.
 
-Keep the release lock and the clean-tap verification. The acknowledged
-coordinating owner prevents a competing workstream from cutting another release.
+Keep the release lock and the clean-tap verification. The lock does not
+prevent a later cut by another operator. Grove's coordinated-release
+specification names the one release owner from the first cut through promotion.
 
 ## Promotion without another release
 
@@ -60,9 +71,17 @@ archives, creates no tag/release and rewrites no book. Before tap mutation,
 verify public tag, exact asset digests, book identity, versioned formula and
 consumer readiness evidence. Missing evidence refuses with a remedy.
 
-Render and test the unversioned class from those same verified assets. Then
-publish only the unversioned formula through jj. Retain `ravel@2`. Verify the
-unversioned installation with cleanup suppressed.
+Promotion also moves every default-channel user to Rhai configuration. Ravel
+2.0.0 refuses a HOME that holds only `policy.ts` with `config_format_retired`
+and exit 3, as [the configuration script uses Rhai](../adr/configuration-script-uses-rhai.md)
+records. The tagged 2.0.0 changelog must name that format change, the refusal
+and book chapter 4, which the refusal's remedy cites.
+
+Render and test the unversioned class from those same verified assets. In the
+same tap commit, mark `ravel@2` deprecated in favour of unversioned `ravel`, and
+change nothing else in it. Publish that one commit through jj. `ravel@2` stays
+installable at the promoted version. Verify the unversioned installation with
+cleanup suppressed.
 
 On retry, the task verifies and retains a matching existing formula, commit or
 installation. Report mismatches. Do not overwrite them to make a retry pass.
@@ -92,6 +111,13 @@ to every package mutation, and do no explicit cleanup of active readers. The
 [Homebrew manual](https://docs.brew.sh/Manpage#environment) describes automatic
 cleanup suppression. It does not protect against explicit uninstall or cleanup.
 
+That variable protects only the mutations that set it. Any other install,
+upgrade or reinstall can run Homebrew's periodic full cleanup, which removes old
+versions. After the unversioned upgrade, the 1.1.0 keg is such an old version.
+From that upgrade until its last reader ends, add `ravel` to
+`HOMEBREW_NO_CLEANUP_FORMULAE` and keep the existing entries. Set it where every
+Homebrew invocation on the machine reads it, such as Homebrew's user `brew.env`.
+
 The operator owns activation separately. Prefixes can coexist while settings
 under one HOME remain incompatible. Private formula tests do not change that.
 
@@ -99,7 +125,8 @@ under one HOME remain incompatible. Private formula tests do not change that.
 
 Extend release-lifecycle fixtures and actual formula install/test methods.
 Cover baseline versus target channel, resume exits, wrong-channel refusal,
-unchanged unversioned formula during versioned delivery, unchanged archives
+`versioned-2` refusal after promotion, and unchanged unversioned formula during
+versioned delivery. Cover unchanged archives and the `ravel@2` deprecation
 during promotion, idempotent retries and preserved old prefixes. Full release
 still needs current Rust, book, archive/platform and public installed
 verification. Schema reconciliation and real directory acceptance are release
