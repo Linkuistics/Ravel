@@ -431,11 +431,37 @@ exit 3. A selection that carries the prepared prompt in `args` uses part of
 that bound. The argument limit of the platform can refuse a smaller selection
 when the program launches.
 
-Tests at the command-line seam send a request at every public bound, with the
-largest escape. It must fit, and a control that lowers the frame bound by one
-byte must fail. A long kind that passes the bound refuses as `malformed_input`
-before evaluation. A selection over the message bound refuses as
-`message_too_large`.
+The frame bound is a conservative sum, not the encoded size of one request.
+Its envelope allowance of 1 MiB is much larger than the other members of an
+ordinary request. With delivery enabled, the prepared prompt contains the
+original prompt. With delivery disabled, no descriptor exists. The two prompts
+and the descriptor therefore cannot all fill their allowances.
+
+A request at every public bound thus encodes to less than the frame bound. A
+bound that is one byte lower still admits that request. Such a control cannot
+show whether the check runs.
+
+Three tests cover the bound and its check:
+
+1. At the command-line seam, a request at every public bound, with the largest
+   escape, fits and evaluates.
+2. The check compares the encoded frame with a limit that it receives as an
+   argument. A unit test encodes a known evaluate frame. The frame passes at a
+   limit equal to its encoded size, and it refuses at a limit one byte lower.
+   The test also shows that the production limit is 38,541,312 bytes.
+3. At the command-line seam, a request fills the public bounds. A long kind
+   takes its encoded frame over the frame bound. The request refuses as
+   `malformed_input` before evaluation. A removed check gives another failure
+   or an evaluation, so this test also detects that removal.
+
+The argument limit of the platform bounds the kind and the task-file path. The
+platform also bounds the working directory. On a platform with small limits, no
+request can then pass the frame bound. The local stage establishes on which
+release platforms test 3 can run. It records each platform where test 3 cannot
+run. There, test 2 alone covers the comparison.
+
+No test needs a public flag that changes the frame bound. A selection over the
+message bound refuses as `message_too_large`.
 
 A stop does not wait for a read in progress. The Ravel CLI abandons the read and
 its reply, and nothing launches after the stop. The reader thread keeps the
@@ -786,10 +812,44 @@ A link to the whole `.codex` or `.claude` tree is not permitted. It exposes the
 real configuration, hooks, plugins and skills. A configuration write in the
 sandbox would also change the real files.
 
+The Claude Code rows hold for the default locations only. Claude Code reads
+`CLAUDE_CONFIG_DIR` in place of `$HOME/.claude`. That variable also moves the
+sign-in. The sign-in file and the macOS Keychain entry then belong to that
+directory.
+
+Three more variables add Claude Code plugin locations:
+`CLAUDE_CODE_PLUGIN_CACHE_DIR`, `CLAUDE_CODE_PLUGIN_DIRS` and
+`CLAUDE_CODE_PLUGIN_SEED_DIR`. Ravel scrubs none of these four names from the
+environment of a managed process or a harness run.
+
+A Claude Code run refuses before the harness launches when its inherited
+environment holds one of the four names. An inherited value can expose a real configuration
+or plugin tree that no link check sees. The remedy is to launch the run without
+that variable.
+
+The run does not remove such a variable. After a removal, the linked default
+sign-in can belong to another account. The run also does not set
+`CLAUDE_CONFIG_DIR` to the sandbox, because that value moves the sign-in away
+from the linked path.
+
 Before the harness launches, each run lists every link in the sandbox home. The
 list holds only the path of the table for that harness. The run records the
-effective `CODEX_HOME`, and it refuses an inherited value that points into the
-real home. After the run, it checks that each linked path is still a link.
+effective configuration directory of the harness. For Claude Code, that is the
+sandbox `.claude`. For Codex, it is the effective `CODEX_HOME`, and the run
+refuses an inherited value that points into the real home. After the run, it
+checks that each linked path is still a link.
+
+A Claude Code sign-in with a claude.ai account also downloads the skills of
+that account into the sandbox `.claude/skills/synced`. These skills are
+platform-managed residue, not a native copy from the real home. A trial records
+them with the other skills that the session lists.
+
+Each wrapper that builds a sandbox home has isolation controls with fake
+harnesses. An inherited `CLAUDE_CONFIG_DIR` that names a decoy real directory
+must refuse before the fake harness launches. Each plugin-location variable
+must refuse in the same way. So must an inherited `CODEX_HOME` in the real
+home. `task harness:smoke:test` runs these controls for the smoke tasks. Actual
+trials rely on the sandbox only after these controls pass.
 
 A harness can replace the sign-in link with a file when it refreshes a token.
 The run then fails. Its remedy is to sign in again in the real home, because

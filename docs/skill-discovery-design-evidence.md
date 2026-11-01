@@ -35,14 +35,38 @@ Observed on 2026-11-02 through `jj git fetch` and local reads.
 | A cancellation before evaluation settles as `session_cancelled`, stage `exec` | `run.rs`, `settle` | Resolution has its own code, so that the stage names the phase |
 | The prompt bound is 1 MiB, the task ID bound is 1,024 bytes and the parameter bound is 64 KiB. A prompt with NUL refuses | `crates/ravel/src/inputs.rs` | The inputs of the frame derivation |
 | The smoke script links `Library/Keychains` on macOS, the whole `.claude` on Linux and the whole `.codex` for Codex | `scripts/harness-smoke.sh`, `link_store` | The smoke tasks adopt the narrower sandbox home |
+| `LAUNCH_CONTROLS` holds six names, and `CLAUDE_CONFIG_DIR` is not one of them. The `sandboxed` function of the smoke script removes only four credential names and two Ravel names | `crates/ravel/src/environment.rs`. `crates/ravel/src/rhai_worker/harness.rs`, `execute`. `scripts/harness-smoke.sh`, `sandboxed` | An inherited Claude Code override reaches the harness. The sandbox wrapper must control it |
+| `read_frame` takes its bound as an argument, and its unit test refuses a 16-byte frame at a bound of 15 | `crates/ravel/src/frame.rs` | The new check can receive its limit in the same way. A unit test can then cross a known frame size by one byte |
+| `context::deliver` measures the compact encoding of the caller's document before the evaluate frame, also when the script has a `load_context`. A caller document cannot hold `measured`, so that encoding includes every caller member | `choice.rs`, `evaluate_and_resolve_rhai`. `crates/ravel/src/context.rs`, `deliver` | `request.context` encodes to at most the context budget, as the frame derivation assumes |
+| `--kind` and `--task-file` are command-line arguments. The working directory comes from the process | `crates/ravel/src/cli.rs`. `crates/ravel/src/inputs.rs` | The argument and path limits of the platform bound the three values that Ravel does not bound |
 | `llm.rhai` sends `request.prompt` to a classifier in `stdin` | `crates/ravel/examples/llm.rhai` | Under schema 4, the example reads `originalPrompt` |
 | `docs:result-job` uses port 8774, and `docs:rhai-configuration` uses port 8776 | `Taskfile.yml` | The skill views use port 8778 |
 | Book chapter 10 lists TypeScript check stages, such as `worker-types`, that `scripts/check.sh` no longer runs | `docs/book/src/10-develop-ravel.md`, `scripts/check.sh` | The Rhai book work is unfinished. This line does not assume that it is complete |
 
-The session read these files at `main` through `jj file show` and in the new
-workspace. It used no knowledge-graph result, so this record makes no claim of
-graph completeness. The positions above name functions, not line numbers,
+The design session read these files at `main` through `jj file show` and in the
+new workspace. The review integration read the source of four added rows in
+this workspace, whose source matches `main`. Neither session used a
+knowledge-graph result, so this record makes no claim of graph completeness. The positions above name functions, not line numbers,
 because the line will move them.
+
+## Harness observations
+
+The review integration read the Claude Code
+[environment reference](https://code.claude.com/docs/en/env-vars),
+[authentication page](https://code.claude.com/docs/en/authentication#credential-management)
+and [skills page](https://code.claude.com/docs/en/skills) on 2026-11-02. These
+pages describe the published interface. No harness trial measured them.
+
+| Observation | Consequence for the sandbox home |
+| --- | --- |
+| `CLAUDE_CONFIG_DIR` replaces `~/.claude`. Settings, session history and plugins move with it | An inherited value can expose a real configuration |
+| With `CLAUDE_CONFIG_DIR`, the sign-in file moves under that directory. The macOS Keychain entry is keyed to that directory | A default-path sign-in link need not supply the account of an override. A sandbox value would move the sign-in away from the link |
+| `CLAUDE_CODE_PLUGIN_CACHE_DIR` sets the plugins root. `CLAUDE_CODE_PLUGIN_DIRS` loads plugin directories. `CLAUDE_CODE_PLUGIN_SEED_DIR` adds seed directories | Each inherited value can expose real plugins and their skills |
+| A terminal session with a claude.ai sign-in downloads the account's skills into `~/.claude/skills/synced/` | The sandbox `.claude` receives these platform-managed skills |
+| On macOS, Claude Code writes `~/.claude/.credentials.json` when the Keychain refuses the write | The sandbox links the keychain only. The sign-in check of the run then fails, and the owner moves the sign-in back to the Keychain |
+
+The local stage checks the installed Claude Code against these rows before it
+changes the smoke script. A published page is not a measurement of that build.
 
 ## Records
 
@@ -73,9 +97,12 @@ implementation.
 3. The local stage implements schema 4, the `skills` settings object, local
    capture, publication, the descriptor and prompt preparation. It also
    implements `RAVEL_SKILL_DIRECTORIES`, the read grants, the frame bound and
-   its check, `skills resolve`, the notice member, the stage and the codes. It
-   moves the smoke tasks to the narrow sandbox home. It migrates the examples,
-   the book and the changelog with that behaviour.
+   its check, `skills resolve`, the notice member, the stage and the codes. The
+   check receives its limit as an argument, for the three frame-bound tests.
+   The stage moves the smoke tasks to the narrow sandbox home. That home
+   refuses the inherited Claude Code location variables, and fake-harness
+   controls prove each refusal. The stage migrates the examples, the book and
+   the changelog with that behaviour.
 4. The local build refuses a valid Git source before configuration evaluation.
    The remedy names the unfinished pinned stage. The refusal has no stable
    public code, and it is not `settings_invalid`.
@@ -103,9 +130,11 @@ release preparation tasks are `task release:test`, `task release:formula` and
 opt-in `task harness:smoke:claude` and `task harness:smoke:codex` spend
 subscription usage.
 
-The local stage checks one fact before it changes the smoke script. Claude
-Code on Linux keeps its sign-in in `.claude/.credentials.json`. The stage reads
-the installed Claude Code to establish that path before it links it.
+The local stage establishes two facts before it changes the smoke script and
+the frame tests. First, it reads the installed Claude Code on Linux to
+establish the sign-in path `.claude/.credentials.json` before it links it.
+Second, it establishes on which release platforms a request can pass the
+frame bound. It records each platform where no request can pass it.
 
 ## Consumer handoff
 
@@ -131,6 +160,25 @@ Grove's adoption design, `grove-rhai-skill-delivery-k35`, consumes these facts:
 - Until promotion, the directory route selects the keg-only `ravel@2` by its
   prefix, as Ravel's [release channels](specs/release-channels.md) state.
 
+## Review integration
+
+Grove's `ravel-rhai-skill-delivery-k49` reviewed commit `fc87cb41a422` and
+reported two findings. Grove's `ravel-rhai-skill-delivery-k50` integrated
+both findings in the next commit of this line. Its task record holds the
+triage.
+
+- The sandbox home now controls `CLAUDE_CONFIG_DIR` and the three Claude Code
+  plugin-location variables. A wrapper refuses an inherited value, records
+  the effective configuration directory and proves each refusal with a
+  fake-harness control.
+- The frame bound keeps its value of 38,541,312 bytes. Three tests replace
+  the one-byte control: a public-bound fit, a unit test at a reduced limit
+  and a long-kind refusal where the platform admits one.
+
+The integration changed no rule of the discovery contract other than these
+two. The views show neither the frame tests nor the sandbox home, so they did
+not change.
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and
@@ -138,6 +186,12 @@ changed documents. Ravel's own `scripts/ste.sh --strict` passes `CONTEXT.md`
 with the pinned book tools. A planted control file fails the same command.
 Local links and anchors resolve, and the view manifest parses. The rendered
 views and their inspection are in Grove's task record.
+
+The review integration ran the technical-communication checker on the three
+changed documents, with no hard finding. It checked 91 local links and
+anchors in the changed specifications, this record, the session
+specification, the two new decision records and the views index. All
+resolved, and a planted control failed. The view manifest still parses.
 
 These checks cover the documents only. No product test, installed check or
 real harness trial ran. The design claims no acquisition, confinement,
