@@ -13,6 +13,7 @@ use crate::inputs::Inputs;
 use crate::limits::{Bound, Limits, Origin};
 use crate::program::{self, Executable};
 use crate::refusal::{Diagnostics, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
+use crate::rhai_worker::engine::SCHEMA_VERSION;
 use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
 use crate::rhai_worker::harness::{RunRecord, RunSetup};
 use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
@@ -362,14 +363,19 @@ fn script_refusal(failure: &ScriptFailure, source: &str, limits: &Limits) -> Ref
             "config_invalid",
             Stage::Validation,
             format!(
-                "define `export const SCHEMA_VERSION = 3;`, a nonblank `export const VERSION` \
-                 and `fn select(request, context)` in {file}"
+                "define `export const SCHEMA_VERSION = {SCHEMA_VERSION};`, a nonblank \
+                 `export const VERSION` and `fn select(request, context)` in {file}"
             ),
         ),
         "unsupported_version" => (
             "unsupported_version",
             Stage::Validation,
-            format!("set `export const SCHEMA_VERSION = 3;` in {file}; this release reads only 3"),
+            format!(
+                "set `export const SCHEMA_VERSION = {SCHEMA_VERSION};` in {file}, and read \
+                 `request.originalPrompt` wherever the script analyses the task; \
+                 `request.prompt` is the text to deliver to the harness. This release \
+                 reads only {SCHEMA_VERSION}"
+            ),
         ),
         "selection_threw" => (
             "selection_threw",
@@ -461,11 +467,16 @@ fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
     }
 }
 
-/// The request of the Rhai path: the fields of the caller, with the 3 that
+/// The request of the Rhai path: the fields of the caller, with the two that
 /// the worker adds itself, `schemaVersion` and `limits`, left out. (rhai)
+///
+/// Skill delivery is not built yet, so `prompt` holds the bytes of
+/// `originalPrompt` and `skills` is null (`docs/specs/skill-discovery.md`,
+/// *Request and configuration script*).
 fn rhai_request(inputs: &Inputs) -> Value {
     let mut request = Map::new();
     request.insert("kind".into(), inputs.kind.clone().into());
+    request.insert("originalPrompt".into(), inputs.prompt.text.clone().into());
     request.insert("prompt".into(), inputs.prompt.text.clone().into());
     request.insert("cwd".into(), inputs.cwd.to_string_lossy().into());
     let params: Map<String, Value> = inputs
@@ -483,6 +494,7 @@ fn rhai_request(inputs: &Inputs) -> Value {
     if let Some(context) = &inputs.context {
         request.insert("context".into(), context.value.clone());
     }
+    request.insert("skills".into(), Value::Null);
     Value::Object(request)
 }
 
@@ -525,10 +537,11 @@ mod tests {
         assert_eq!(
             request,
             serde_json::json!({
-                "kind": "impl", "prompt": "the prompt text\n", "cwd": "/work",
+                "kind": "impl", "originalPrompt": "the prompt text\n",
+                "prompt": "the prompt text\n", "cwd": "/work",
                 "params": { "repo": "/work", "session_name": "a b\n" },
                 "taskFile": "/work/task.md", "taskId": "T-1",
-                "context": { "schemaVersion": 1, "facts": {} },
+                "context": { "schemaVersion": 1, "facts": {} }, "skills": null,
             })
         );
         let absent = Inputs {
@@ -543,8 +556,20 @@ mod tests {
         // serde_json's `preserve_order`, so the keys are compared as a set.
         let mut keys = request.as_object().unwrap().keys().collect::<Vec<_>>();
         keys.sort();
-        assert_eq!(keys, ["cwd", "kind", "params", "prompt"]);
+        assert_eq!(
+            keys,
+            [
+                "cwd",
+                "kind",
+                "originalPrompt",
+                "params",
+                "prompt",
+                "skills"
+            ]
+        );
         assert_eq!(request["params"], serde_json::json!({}));
         assert_eq!(request["prompt"], "the prompt text\n");
+        assert_eq!(request["originalPrompt"], request["prompt"]);
+        assert_eq!(request["skills"], Value::Null);
     }
 }

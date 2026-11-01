@@ -44,7 +44,7 @@ class Ravel < Formula
     (testpath/"fake-agent").chmod 0755
     (testpath/"config.rhai").write <<~RHAI
       import "#{(share/"ravel/examples/static").to_s}" as starter;
-      export const SCHEMA_VERSION = 3;
+      export const SCHEMA_VERSION = 4;
       export const VERSION = "brew-test";
       fn select(request, context) {
         let routes = \#{ check: |request| \#{

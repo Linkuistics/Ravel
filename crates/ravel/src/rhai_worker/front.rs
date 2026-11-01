@@ -402,7 +402,10 @@ mod tests {
     }
 
     fn request() -> Value {
-        json!({ "kind": "impl", "prompt": "go", "cwd": "/work", "params": { "k": "v" } })
+        json!({
+            "kind": "impl", "originalPrompt": "go", "prompt": "go", "cwd": "/work",
+            "params": { "k": "v" }, "skills": null,
+        })
     }
 
     fn unreadable(what: &str) -> Refusal {
@@ -462,7 +465,7 @@ mod tests {
     #[test]
     fn one_conversation_runs_a_route_table_through_supervise() {
         let evaluated = run(
-            r#"export const SCHEMA_VERSION = 3;
+            r#"export const SCHEMA_VERSION = 4;
 export const VERSION = "1";
 const TABLE = #{ impl: ["--print", "--fast"] };
 print("from the configuration script");
@@ -527,7 +530,7 @@ fn select(request, context) {
     #[test]
     fn a_config_failure_is_a_reply_and_the_worker_is_reaped_either_way() {
         let evaluated = run(
-            "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\nfn select(request, context) { throw \"no\"; }",
+            "export const SCHEMA_VERSION = 4;\nexport const VERSION = \"1\";\nfn select(request, context) { throw \"no\"; }",
             &request(),
         )
         .unwrap();

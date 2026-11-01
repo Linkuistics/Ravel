@@ -71,7 +71,7 @@ $ printf '```\n'
 Fragment: the configuration script's first constant only, without the version or functions.
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 ```
 
 A block in a language that is never an example needs no label.

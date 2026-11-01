@@ -140,6 +140,9 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 .iter()
                 .map(crate::rhai_worker::harness::RunRecord::to_json)
                 .collect();
+            // Skill delivery is not built yet, so the member is null
+            // (`docs/specs/skill-discovery.md`, *Diagnostics*).
+            notice["skills"] = serde_json::Value::Null;
             // The budgets join the bounds of the notice.
             for bound in choice.inputs.limits.budgets.bounds() {
                 notice["bounds"][bound.name] = bound.to_json();

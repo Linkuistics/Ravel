@@ -5,7 +5,7 @@
 
 import "static" as starter;
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "owner-choice-1";
 
 const CHOICE_FILE = ".ravel-choice";

@@ -15,11 +15,11 @@ use super::{FRONT, Sandbox, write};
 /// The header every configuration script of these tests starts with: the two constants the
 /// contract needs.
 pub const HEADER: &str =
-    "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"rhai-seam-1\";\n";
+    "export const SCHEMA_VERSION = 4;\nexport const VERSION = \"rhai-seam-1\";\n";
 
 /// A `select` that routes to the plain fake harness with the prompt as its
 /// only argument.
-pub const ROUTED: &str = r#"export const SCHEMA_VERSION = 3;
+pub const ROUTED: &str = r#"export const SCHEMA_VERSION = 4;
 export const VERSION = "rhai-seam-1";
 fn select(request, context) {
     #{ status: "selected", program: "fake-agent", args: [request.prompt],

@@ -621,7 +621,7 @@ fn partial_acquisition_cleanup_fixture() {
             serde_json::json!(command.to_string())
         )
     };
-    fs::write(&config,format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    fs::write(&config,format!("export const SCHEMA_VERSION = 4; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
     let worker = root.join("bin/rhai-role");
     crate::rhai_worker::fixtures::install_role(&worker, false);
     crate::rhai_worker::fixtures::use_executable(worker.clone());

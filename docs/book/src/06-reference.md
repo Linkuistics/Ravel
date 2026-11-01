@@ -246,14 +246,14 @@ no instructions to end the session. Thus, your prompt gives them.
 
 Exactly one of these two prompt inputs is required.
 
-| Option | Source of `request.prompt` |
+| Option | Source of `request.originalPrompt` and `request.prompt` |
 |---|---|
 | `--prompt TEXT` | The argument text, also when its first character is `-`. |
 | `--prompt-file PATH` | One read of the file, relative to the caller's working directory. |
 
 The prompt can be empty. It contains no NUL, is valid UTF-8 and has a maximum
 of 1,048,576 bytes (1 MiB). Ravel puts its bytes unchanged in
-`request.prompt`, with trailing newlines. The configuration script decides how to give that
+`request.originalPrompt` and in `request.prompt`, with trailing newlines. The configuration script decides how to give that
 text to its selected program. Usually the script puts it in an argument of the
 harness, and the script can add text before or after it.
 
@@ -823,7 +823,7 @@ review-agent: the review is complete
       {
         "bytes": 619,
         "name": "/private/tmp/ravel-chapter-5/notices/config.rhai",
-        "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
+        "sha256": "9d4526b5db2b7f9d9c8812bfc183a841133f1b2b18b20981049770e90efb1b91"
       }
     ],
     "path": "/private/tmp/ravel-chapter-5/notices/config.rhai",
@@ -838,7 +838,8 @@ review-agent: the review is complete
     "provider": "local",
     "reason": "Reviews go to the fake agent."
   },
-  "selectionMs": 3
+  "selectionMs": 3,
+  "skills": null
 }
 ```
 
@@ -852,6 +853,7 @@ after the supervision attempt. The tables below give each member.
 | `config` | The configuration script: `path`, the canonical path of its entry, `version`, the owner's `VERSION` string, and `modules`, the file measurements described below. |
 | `worker` | `path`, the re-executed binary, `version`, its package version, `buildId`, its build identity, and `rhaiVersion`, its Rhai version. Ravel checks the worker identity before evaluation. This is not code signing. |
 | `selectionMs` | The elapsed time of the evaluation of the configuration script, in milliseconds. |
+| `skills` | `null`. The member is reserved for skill directories. |
 | `context` | `null` when there is no delivered selection context. Otherwise, the report in the next table. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message`, `diagnostics` and `harnessRuns`. Each has its field for the value with a unit (`ms`, `bytes`, `sources` or `runs`) and `from`. `from` gives `default`, `fixed`, `settings.json` or the flag that set the value. |
 | `configEnvironment` | An array of `{name, set}` grants. `set` is a boolean that shows whether the caller has the variable, never its value. Ravel does not add the [base variables](#variables-that-ravel-and-the-configuration-script-read) that `ravel::env` permits to this list. |
@@ -1250,7 +1252,7 @@ the command that runs the script. Chapter 5 runs this script as a complete
 example.
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "notice-demo";
 
 fn select(request, context) {
@@ -1285,7 +1287,7 @@ See [define a configuration script](04-write-a-configuration-script.md#define-a-
 
 | Declaration | Contract |
 |---|---|
-| `export const SCHEMA_VERSION = 3;` | Required integer 3. Another integer gives `unsupported_version`. A missing or mistyped export gives `config_invalid`, status 3. |
+| `export const SCHEMA_VERSION = 4;` | Required integer 4. Another integer, such as 3, gives `unsupported_version`. A missing or mistyped export gives `config_invalid`, status 3. |
 | `export const VERSION = "...";` | Required nonblank owner-maintained string. The notice reports it independently of Ravel's package version. |
 | `fn select(request, context)` | Required public function with two parameters. Returns a selected or refused map. The second argument is the delivered selection context or `()`. |
 | `fn load_context(request)` | Optional public function with one parameter. Returns selection context or a refusal before `select`. A return of `()` gives `context_invalid`. |
@@ -1308,30 +1310,33 @@ The selection request is a Rhai map. Every documented field is present.
 An absent optional input has the value `()`, Rhai's empty value, not an empty
 string. The request carries data and limits, never the session-result context.
 
-Fragment: a real request, from the checkout build on 2026-10-29. The
+Fragment: a real request, from the checkout build on 2026-11-02. The
 configuration script printed `ravel::json_encode(request)`, and the Ravel CLI wrote that line on
-standard error. This block omits the other lines and the command.
+standard error. This block omits the other lines and the command. It shows
+the working directory of the other fragments of this chapter.
 
 ```text
-config stdout: {"context":null,"cwd":"/private/tmp/ch6","kind":"review","limits":{"contextBytes":262144,"diagnosticsBytes":262144,"harnessRuns":0,"messageBytes":1048576,"selectionMs":30000,"sourceBytes":65536,"sources":256},"params":{"repo":"ravel"},"prompt":"Review the changes to src/parse.rs and tests/parse.rs in the last commit.\nCheck that the code is correct and that the tests cover each change.\n\nWhen the review is complete, end this session with one command:\n- If you found no problem, run: ravel end-session approved\n- If you found a problem, write your findings to review-notes.md.\n  Then run: ravel end-session changes-needed\n","schemaVersion":3,"taskFile":null,"taskId":"T-17"}
+config stdout: {"context":null,"cwd":"/private/tmp/ch6","kind":"review","limits":{"contextBytes":262144,"diagnosticsBytes":262144,"harnessRuns":0,"messageBytes":1048576,"selectionMs":30000,"sourceBytes":65536,"sources":256},"originalPrompt":"Review the changes to src/parse.rs and tests/parse.rs in the last commit.\nCheck that the code is correct and that the tests cover each change.\n\nWhen the review is complete, end this session with one command:\n- If you found no problem, run: ravel end-session approved\n- If you found a problem, write your findings to review-notes.md.\n  Then run: ravel end-session changes-needed\n","params":{"repo":"ravel"},"prompt":"Review the changes to src/parse.rs and tests/parse.rs in the last commit.\nCheck that the code is correct and that the tests cover each change.\n\nWhen the review is complete, end this session with one command:\n- If you found no problem, run: ravel end-session approved\n- If you found a problem, write your findings to review-notes.md.\n  Then run: ravel end-session changes-needed\n","schemaVersion":4,"skills":null,"taskFile":null,"taskId":"T-17"}
 ```
 
 The caller gave `--kind review`, `--param repo=ravel`, `--task-id T-17` and
 `--prompt-file review-prompt.txt`, the prompt file of chapter 1's review. The
 prompt keeps each newline of the file, also the last one, which JSON shows as
-`\n`. JSON shows each `()` as `null`, so `context` and `taskFile` were `()` in
-the script. See [read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request).
+`\n`. JSON shows each `()` as `null`, so `context`, `skills` and `taskFile`
+were `()` in the script. See [read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request).
 
 | Field | Value and limits | Taught in |
 |---|---|---|
-| `schemaVersion` | Always the integer `3`, the version of the interface between Ravel and the configuration script. The selection context has its own `schemaVersion`, `1`. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `schemaVersion` | Always the integer `4`, the version of the interface between Ravel and the configuration script. The selection context has its own `schemaVersion`, `1`. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `kind` | Required nonempty caller token, unchanged from `--kind`. Ravel defines no catalogue. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `prompt` | Required UTF-8 string, possibly empty, with a maximum of 1,048,576 bytes and no NUL. The caller bytes and newlines stay unchanged. The configuration script chooses how to give them to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
+| `originalPrompt` | Required UTF-8 string, possibly empty, with a maximum of 1,048,576 bytes and no NUL. The caller bytes and newlines stay unchanged. Read this field when the script examines the task. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
+| `prompt` | Required UTF-8 string: the prompt to give to the program. It holds the same bytes as `originalPrompt`. The configuration script chooses how to give them to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `cwd` | The caller's working directory as data. Relative input paths and selected program paths resolve from it. The worker starts in a private directory. The script cannot change that directory or read files directly. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `params` | String values by caller-supplied name, or `#{}` if there are none. Names are nonempty without `=`. Ravel refuses a duplicate name. All names and values together have a maximum of 65,536 bytes. | [Caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskFile` | Absolute UTF-8 path from `--task-file`, or `()`. Ravel does not canonicalise or read it, and the file does not have to exist. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskId` | Nonempty opaque UTF-8 string of at most 1,024 bytes, or `()`. It names no Ravel record. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `context` | The caller's checked selection context, or `()`, before Ravel attaches `measured`. A loader sees this input, also when it returns different data for `select`. | [Caller and delivered documents](04-write-a-configuration-script.md#supply-selection-context) |
+| `skills` | Always `()`. The field is reserved for skill directories. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `limits` | Required map with the seven effective fields in [Bounds](#bounds). A change to this map cannot change enforcement. | [Effective bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 
 ## Selection and refusal
@@ -1457,7 +1462,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `output_limit` | `evaluation` | 3 | The standard output and standard error of the worker together are larger than 262,144 bytes (256 KiB). Print less. The retained prefix is diagnostic evidence, not an accepted selection. | [Output bound](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `config_import_failed` | `load` | 3 | A module read, import cycle, module-count breach or top-level execution failed. Correct the file, import chain or top-level code. | [Import other Rhai files](04-write-a-configuration-script.md#import-other-rhai-files) |
 | `config_invalid` | `validation` | 3 | A required export is absent or mistyped, or a function is private or has the wrong parameter count. Supply the exports and functions of [the contents entry](#contents-of-a-configuration-script). | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
-| `unsupported_version` | `validation or context` | 3 | The `SCHEMA_VERSION` of the configuration script is not 3, or the `schemaVersion` of the selection context is not 1. Supply the supported shape, not only its version number. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `unsupported_version` | `validation or context` | 3 | The `SCHEMA_VERSION` of the configuration script is not 4, or the `schemaVersion` of the selection context is not 1. Supply the supported shape, not only its version number. | [Define a configuration script](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `message_too_large` | `selection` | 3 | A host request, selection result or failure frame exceeds the 1 MiB worker-message bound. Reduce the data. The delivered selection context has its separate budget. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `context_unreadable` | `context` | 3 | Ravel cannot read the caller document as a regular file with a canonical UTF-8 path. Correct `--context` or omit it. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
 | `context_invalid` | `context` | 3 | The caller or loader document is invalid JSON, or it has invalid fields or data. Or the loader returned nothing, unserialisable data or a malformed refusal. Correct the named location to valid selection context or a valid refusal. | [Selection context](04-write-a-configuration-script.md#supply-selection-context) |
@@ -1535,7 +1540,7 @@ facts stay data. See [supply selection context](04-write-a-configuration-script.
 
 | Field | Accepted value | Taught in |
 |---|---|---|
-| `schemaVersion` | Required number `1`. The selection request has its own `schemaVersion`, `3`. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
+| `schemaVersion` | Required number `1`. The selection request has its own `schemaVersion`, `4`. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
 | `summary` | Optional string, which can be empty. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
 | `acceptanceCriteria` | Optional array of strings. The array and the strings can be empty. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
 | `facts` | Optional object that maps names to JSON values. A fact is data. Ravel never runs it as a command. | [Selection-context shape](04-write-a-configuration-script.md#supply-selection-context) |
@@ -1966,7 +1971,7 @@ See [copy a configuration script and its files](04-write-a-configuration-script.
 
 | File | Behaviour and dependencies |
 |---|---|
-| `static.rhai` | Exports `SCHEMA_VERSION` 3, `VERSION` `ravel/examples/static 3` and `ROUTES`. `agent(effort)` constructs a route, and `select_route(routes, request)` applies it. `select` uses the exported table. |
+| `static.rhai` | Exports `SCHEMA_VERSION` 4, `VERSION` `ravel/examples/static 3` and `ROUTES`. `agent(effort)` constructs a route, and `select_route(routes, request)` applies it. `select` uses the exported table. |
 | `sample.rhai` | Imports adjacent `static.rhai`. Version `owner-choice-1`. Reads `.ravel-choice` in `request.cwd` and applies the choices below. |
 | `llm.rhai` | Imports adjacent `static.rhai`. Version `llm-triage-1`. Calls the `claude` harness entry with a 20,000 ms timeout and a schema restricted to table keys. |
 

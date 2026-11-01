@@ -17,7 +17,7 @@
 
 import "static" as starter;
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "llm-triage-1";
 
 /// The kinds that the table routes, in name order.
@@ -52,7 +52,7 @@ fn ask(request) {
         // holds in `structured_output`.
         args: ["-p", "--model", "haiku", "--tools", "", "--no-session-persistence",
                "--output-format", "json", "--json-schema", ravel::json_encode(schema)],
-        stdin: "Which kind of work does this request describe? Answer with the JSON object only.\n\n" + request.prompt,
+        stdin: "Which kind of work does this request describe? Answer with the JSON object only.\n\n" + request.originalPrompt,
         timeoutMs: 20000,
     });
     if run.status != "exited" || run.exitCode != 0 {

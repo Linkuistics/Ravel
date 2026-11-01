@@ -246,7 +246,7 @@ this script here, and you save nothing.
 this sort with a fake agent.
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "chapter-1";
 
 fn select(request, context) {
@@ -275,7 +275,7 @@ does:
 
 | Part of the script | What it does |
 |---|---|
-| `export const SCHEMA_VERSION = 3;` | Names the version of the interface between Ravel and the script that this file uses |
+| `export const SCHEMA_VERSION = 4;` | Names the version of the interface between Ravel and the script that this file uses |
 | `export const VERSION = "chapter-1";` | Names this revision of the owner's script |
 | `fn select(request, context)` | Defines the function that Ravel calls. `request` holds the kind, the prompt and other data of the request. `context` holds optional selection context, which is data for the choice. |
 | `if request.kind == "review"` | Applies the first rule only to the kind `review` |

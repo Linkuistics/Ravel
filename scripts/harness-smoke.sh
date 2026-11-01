@@ -143,7 +143,7 @@ case "$harness" in
 esac
 
 cat >"$home/.config/ravel/config.rhai" <<EOF
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "harness-smoke-$harness";
 
 fn select(request, context) {

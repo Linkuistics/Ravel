@@ -21,8 +21,10 @@ use super::locate;
 use super::resolver::HostResolver;
 use super::{Bounds, EXPRESSION_DEPTH_IN_FUNCTION, Limit, Phase, Reply, ScriptFailure};
 
-/// The value of `SCHEMA_VERSION` this release reads.
-pub const SCHEMA_VERSION: i64 = 3;
+/// The value of `SCHEMA_VERSION` this release reads. Schema 4 adds
+/// `originalPrompt` and `skills` to the request (`docs/specs/skill-discovery.md`,
+/// *Request and configuration script*). Ravel does not reinterpret schema 3.
+pub const SCHEMA_VERSION: i64 = 4;
 
 /// The name of the namespace that holds the host functions.
 const HOST_NAMESPACE: &str = "ravel";
@@ -458,7 +460,7 @@ fn request_map(request: &Value, bounds: &Bounds) -> Result<rhai::Map, String> {
     let object = request.as_object().ok_or("the request is not an object")?;
     let mut map = rhai::Map::new();
     map.insert("schemaVersion".into(), Dynamic::from(SCHEMA_VERSION));
-    for field in ["kind", "prompt", "cwd"] {
+    for field in ["kind", "originalPrompt", "prompt", "cwd"] {
         let text = object
             .get(field)
             .filter(|value| value.is_string())
@@ -483,6 +485,12 @@ fn request_map(request: &Value, bounds: &Bounds) -> Result<rhai::Map, String> {
         return Err("the request field context is not an object or null".to_owned());
     }
     map.insert("context".into(), from_json(context));
+    // The resolved skill directories, or `()` with delivery disabled.
+    let skills = object.get("skills").unwrap_or(&Value::Null);
+    if !skills.is_null() && !skills.is_object() {
+        return Err("the request field skills is not an object or null".to_owned());
+    }
+    map.insert("skills".into(), from_json(skills));
     map.insert("limits".into(), from_json(&bounds.to_json()));
     Ok(map)
 }
@@ -717,8 +725,8 @@ mod tests {
 
     fn request() -> Value {
         json!({
-            "kind": "impl", "prompt": "do it", "cwd": "/work",
-            "params": { "mode": "fast" },
+            "kind": "impl", "originalPrompt": "do it", "prompt": "do it", "cwd": "/work",
+            "params": { "mode": "fast" }, "skills": null,
         })
     }
 
@@ -750,7 +758,7 @@ mod tests {
     }
 
     fn config(body: &str) -> String {
-        format!("export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1.0\";\n{body}\n")
+        format!("export const SCHEMA_VERSION = 4;\nexport const VERSION = \"1.0\";\n{body}\n")
     }
 
     #[test]
@@ -788,15 +796,17 @@ fn select(request, context) { global::SEEN }"#,
     let names = request.keys();
     names.sort();
     #{ names: names, task_file: request.taskFile, task_id: request.taskId,
-       context: context, schema: request.schemaVersion }
+       context: context, schema: request.schemaVersion, skills: request.skills,
+       original: request.originalPrompt, prompt: request.prompt }
 }"#,
         );
         assert_eq!(
             reply(&source),
             selection(json!({
-                "names": ["context", "cwd", "kind", "limits", "params", "prompt",
-                          "schemaVersion", "taskFile", "taskId"],
-                "task_file": null, "task_id": null, "context": null, "schema": 3,
+                "names": ["context", "cwd", "kind", "limits", "originalPrompt", "params",
+                          "prompt", "schemaVersion", "skills", "taskFile", "taskId"],
+                "task_file": null, "task_id": null, "context": null, "schema": 4,
+                "skills": null, "original": "do it", "prompt": "do it",
             }))
         );
     }
@@ -810,7 +820,7 @@ fn select(request, context) { global::SEEN }"#,
 }"#,
         );
         let request = json!({
-            "kind": "impl", "prompt": "p", "cwd": "/w", "params": {},
+            "kind": "impl", "originalPrompt": "p", "prompt": "p", "cwd": "/w", "params": {},
             "taskFile": "/w/t.md", "taskId": "T-1",
             "context": { "schemaVersion": 1, "facts": { "a": 1 } },
         });
@@ -836,10 +846,14 @@ fn select(request, context) { global::SEEN }"#,
         };
         for request in [
             json!([]),
-            json!({ "kind": 1, "prompt": "", "cwd": "", "params": {} }),
-            json!({ "kind": "k", "prompt": "", "cwd": "", "params": { "a": 1 } }),
-            json!({ "kind": "k", "prompt": "", "cwd": "", "params": {}, "taskId": 4 }),
-            json!({ "kind": "k", "prompt": "", "cwd": "", "params": {}, "context": [] }),
+            json!({ "kind": 1, "originalPrompt": "", "prompt": "", "cwd": "", "params": {} }),
+            json!({ "kind": "k", "prompt": "", "cwd": "", "params": {} }),
+            json!({ "kind": "k", "originalPrompt": 1, "prompt": "", "cwd": "", "params": {} }),
+            json!({ "kind": "k", "originalPrompt": "", "cwd": "", "params": {} }),
+            json!({ "kind": "k", "originalPrompt": "", "prompt": "", "cwd": "", "params": { "a": 1 } }),
+            json!({ "kind": "k", "originalPrompt": "", "prompt": "", "cwd": "", "params": {}, "taskId": 4 }),
+            json!({ "kind": "k", "originalPrompt": "", "prompt": "", "cwd": "", "params": {}, "context": [] }),
+            json!({ "kind": "k", "originalPrompt": "", "prompt": "", "cwd": "", "params": {}, "skills": "x" }),
         ] {
             assert!(
                 evaluate(&entry, &request, None, &bounds()).is_err(),
@@ -860,7 +874,7 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn a_syntax_error_reports_its_line_and_column() {
-        let failure = failure("export const SCHEMA_VERSION = 3;\nlet x = ;\n");
+        let failure = failure("export const SCHEMA_VERSION = 4;\nlet x = ;\n");
         assert_eq!(failure.code, "config_parse_failed");
         assert_eq!((failure.line, failure.column), (Some(2), Some(9)));
         assert!(!failure.message.contains("line"), "{}", failure.message);
@@ -902,7 +916,7 @@ fn select(request, context) { global::SEEN }"#,
     #[test]
     fn a_failing_top_level_is_an_import_failure_with_its_location() {
         let failure = failure(
-            "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\nthrow \"early\";\nfn select(a, b) {}\n",
+            "export const SCHEMA_VERSION = 4;\nexport const VERSION = \"1\";\nthrow \"early\";\nfn select(a, b) {}\n",
         );
         assert_eq!(failure.code, "config_import_failed");
         assert_eq!((failure.line, failure.column), (Some(3), Some(1)));
@@ -921,9 +935,9 @@ fn select(request, context) { global::SEEN }"#,
                 None,
             ),
             (
-                "SCHEMA_VERSION 2",
+                "SCHEMA_VERSION 3",
                 format!(
-                    "export const SCHEMA_VERSION = 2;\nexport const VERSION = \"1\";\n{select}"
+                    "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"1\";\n{select}"
                 ),
                 "unsupported_version",
                 Some((1, 14)),
@@ -931,28 +945,28 @@ fn select(request, context) { global::SEEN }"#,
             (
                 "SCHEMA_VERSION a string",
                 format!(
-                    "export const SCHEMA_VERSION = \"3\";\nexport const VERSION = \"1\";\n{select}"
+                    "export const SCHEMA_VERSION = \"4\";\nexport const VERSION = \"1\";\n{select}"
                 ),
                 "config_invalid",
                 Some((1, 14)),
             ),
             (
                 "no VERSION",
-                format!("export const SCHEMA_VERSION = 3;\n{select}"),
+                format!("export const SCHEMA_VERSION = 4;\n{select}"),
                 "config_invalid",
                 None,
             ),
             (
                 "blank VERSION",
                 format!(
-                    "export const SCHEMA_VERSION = 3;\nexport const VERSION = \"  \";\n{select}"
+                    "export const SCHEMA_VERSION = 4;\nexport const VERSION = \"  \";\n{select}"
                 ),
                 "config_invalid",
                 Some((2, 14)),
             ),
             (
                 "VERSION a number",
-                format!("export const SCHEMA_VERSION = 3;\nexport const VERSION = 1;\n{select}"),
+                format!("export const SCHEMA_VERSION = 4;\nexport const VERSION = 1;\n{select}"),
                 "config_invalid",
                 Some((2, 14)),
             ),
@@ -995,9 +1009,9 @@ fn select(request, context) { global::SEEN }"#,
 
     #[test]
     fn a_wrong_version_message_names_both_versions() {
-        let failure = failure("export const SCHEMA_VERSION = 2;\n");
+        let failure = failure("export const SCHEMA_VERSION = 3;\n");
         assert_eq!(failure.code, "unsupported_version");
-        assert!(failure.message.contains("2") && failure.message.contains("3"));
+        assert!(failure.message.contains("3") && failure.message.contains("4"));
     }
 
     #[test]

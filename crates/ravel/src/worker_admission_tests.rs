@@ -514,7 +514,7 @@ fn worker_reap_admission_fixture() {
         _ => format!("return ravel::json_parse({});", json!(command.to_string())),
     };
     let script_path = root.join("policy.rhai");
-    fs::write(&script_path, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
+    fs::write(&script_path, format!("export const SCHEMA_VERSION = 4; export const VERSION = \"fixture\"; print(\"owner stdout\"); debug(\"owner stderr\"); fn select(request, context) {{ {body} }}")).unwrap();
     let worker = root.join("bin/rhai-role");
     crate::rhai_worker::fixtures::install_role(&worker, scenario == "native-reader");
     crate::rhai_worker::fixtures::use_executable(worker.clone());

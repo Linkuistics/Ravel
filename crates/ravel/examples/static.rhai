@@ -1,5 +1,5 @@
 // The starter route table: a kind maps to one command, exactly.
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "ravel/examples/static 3";
 
 /// One harness and model at `effort`, with the prompt as its last argument.

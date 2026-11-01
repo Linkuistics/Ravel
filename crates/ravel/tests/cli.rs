@@ -45,7 +45,7 @@ impl Fixture {
     fn selecting(&self, script: &str, result: &str) -> String {
         let front = format!("{:?}", Self::front().to_str().unwrap());
         format!(
-            r#"export const SCHEMA_VERSION = 3;
+            r#"export const SCHEMA_VERSION = 4;
 export const VERSION = "cli-test";
 fn select(request, context) {{
  #{{ status: "selected", program: "/bin/sh",
@@ -630,7 +630,7 @@ fn terminal_recovery_cli_role() {
         fs::write(&script, format!("#!{}\n", interpreter.display())).unwrap();
         fs::set_permissions(&script, fs::Permissions::from_mode(0o700)).unwrap();
         let config = format!(
-            r#"export const SCHEMA_VERSION = 3;
+            r#"export const SCHEMA_VERSION = 4;
 export const VERSION = "C4-cli";
 fn select(request, context) {{ #{{ status: "selected", program: {:?}, args: [], provider: "fixture", model: "fixture", effort: "fixture", reason: "C4 real failed exec" }} }}"#,
             script.to_str().unwrap()

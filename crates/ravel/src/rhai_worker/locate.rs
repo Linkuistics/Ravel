@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn a_declaration_is_found_after_export_and_private() {
-        let source = "// c\nexport const SCHEMA_VERSION = 3;\n  export const VERSION = \"\";\nprivate fn helper() {}\nfn select(a) {}\n";
+        let source = "// c\nexport const SCHEMA_VERSION = 4;\n  export const VERSION = \"\";\nprivate fn helper() {}\nfn select(a) {}\n";
         assert_eq!(declaration(source, "const", "SCHEMA_VERSION"), at(2, 14));
         assert_eq!(declaration(source, "const", "VERSION"), at(3, 16));
         assert_eq!(declaration(source, "fn", "select"), at(5, 4));

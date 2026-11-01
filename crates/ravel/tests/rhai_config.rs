@@ -102,9 +102,10 @@ fn the_request_has_every_field_and_an_absent_optional_one_is_unit() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     sandbox.personal_rhai(&routing(
-        r#"[request.schemaVersion.to_string(), request.kind, request.prompt, request.cwd,
-            request.params.mode, type_of(request.taskFile), request.taskId,
-            type_of(request.context), request.limits.selectionMs.to_string(),
+        r#"[request.schemaVersion.to_string(), request.kind, request.prompt,
+            request.originalPrompt, request.cwd, request.params.mode,
+            type_of(request.taskFile), request.taskId, type_of(request.context),
+            type_of(request.skills), request.limits.selectionMs.to_string(),
             request.limits.harnessRuns.to_string()]"#,
     ));
 
@@ -113,13 +114,15 @@ fn the_request_has_every_field_and_an_absent_optional_one_is_unit() {
     assert_eq!(
         recorded.argv().unwrap(),
         [
-            "3",
+            "4",
             "check",
+            "p",
             "p",
             &text(&sandbox.cwd),
             "fast",
             "()",
             "T-9",
+            "()",
             "()",
             "30000",
             "0",
@@ -240,7 +243,7 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
 
-    sandbox.personal_rhai("export const SCHEMA_VERSION = 3;\nexport const VERSION = \"v\";\n");
+    sandbox.personal_rhai("export const SCHEMA_VERSION = 4;\nexport const VERSION = \"v\";\n");
     let missing = refused(&start(&sandbox, &[]), "config_invalid", Some(&recorded));
     assert_eq!(missing["stage"], "validation");
     assert!(missing["message"].as_str().unwrap().contains("select"));
@@ -258,7 +261,7 @@ fn a_missing_export_a_wrong_version_and_a_blank_version_refuse_by_name() {
     assert_eq!(wrong["location"], "1:14");
 
     sandbox.personal_rhai(
-        "export const SCHEMA_VERSION = 3;\nexport const VERSION = \" \";\nfn select(r, c) { () }\n",
+        "export const SCHEMA_VERSION = 4;\nexport const VERSION = \" \";\nfn select(r, c) { () }\n",
     );
     let blank = refused(&start(&sandbox, &[]), "config_invalid", Some(&recorded));
     assert!(blank["message"].as_str().unwrap().contains("blank"));

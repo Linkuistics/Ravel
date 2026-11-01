@@ -7,3 +7,11 @@
 filter = "test(worker_reap_admission) | test(partial_acquisition_cleanup)"
 threads-required = "num-test-threads"
 
+
+# Each frame-bound test of `rhai_request` encodes an evaluate frame of about
+# 38 MB in both processes. Running it beside the wall-clock controls of
+# `rhai_limits` can delay a control past its one-second limit, so it takes the
+# whole run's slots in the same way.
+[[profile.default.overrides]]
+filter = "binary(rhai_request) & test(/frame/)"
+threads-required = "num-test-threads"

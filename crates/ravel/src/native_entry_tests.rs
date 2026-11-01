@@ -335,7 +335,7 @@ pub(crate) fn run_role() {
     // E08's private worker returns this verbatim; the real worker reads policy.rhai.
     fs::write(directory.join("e08-selection.json"), selected.to_string()).unwrap();
     let config = directory.join("policy.rhai");
-    fs::write(&config, format!("export const SCHEMA_VERSION = 3; export const VERSION = \"native-entry\"; fn select(request, context) {{ ravel::json_parse({}) }}", json!(selected.to_string()))).unwrap();
+    fs::write(&config, format!("export const SCHEMA_VERSION = 4; export const VERSION = \"native-entry\"; fn select(request, context) {{ ravel::json_parse({}) }}", json!(selected.to_string()))).unwrap();
     if family() == "E08" {
         crate::rhai_worker::fixtures::use_executable(directory.join("bin/e08-worker"));
     }

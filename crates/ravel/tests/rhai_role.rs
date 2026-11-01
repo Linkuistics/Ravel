@@ -19,7 +19,7 @@ use support::FRONT;
 /// The `arg0` that marks the role (`rhai_worker::ARG0`).
 const ARG0: &str = "ravel-rhai-config-worker";
 
-const CONFIG: &str = r#"export const SCHEMA_VERSION = 3;
+const CONFIG: &str = r#"export const SCHEMA_VERSION = 4;
 export const VERSION = "role-test";
 const TABLE = #{ impl: ["--print"] };
 print("printed at the top level");
@@ -40,7 +40,8 @@ fn bounds() -> Value {
 fn evaluate(source: &str) -> Value {
     json!({
         "type": "evaluate", "protocol": 1, "entry": "/home/o/policy.rhai", "source": source,
-        "request": { "kind": "impl", "prompt": "go", "cwd": "/work", "params": {} },
+        "request": { "kind": "impl", "originalPrompt": "go", "prompt": "go", "cwd": "/work",
+                     "params": {}, "skills": null },
         "bounds": bounds(),
     })
 }
@@ -138,7 +139,7 @@ fn a_config_failure_comes_back_as_a_frame_with_its_location() {
     read_frame(&channel);
     write_frame(
         &channel,
-        &evaluate("export const SCHEMA_VERSION = 3;\nlet x = ;\n"),
+        &evaluate("export const SCHEMA_VERSION = 4;\nlet x = ;\n"),
     );
     let reply = read_frame(&channel);
     assert_eq!(reply["type"], "failure");

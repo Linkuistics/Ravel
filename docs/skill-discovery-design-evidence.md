@@ -38,7 +38,7 @@ Observed on 2026-11-02 through `jj git fetch` and local reads.
 | `LAUNCH_CONTROLS` holds six names, and `CLAUDE_CONFIG_DIR` is not one of them. The `sandboxed` function of the smoke script removes only four credential names and two Ravel names | `crates/ravel/src/environment.rs`. `crates/ravel/src/rhai_worker/harness.rs`, `execute`. `scripts/harness-smoke.sh`, `sandboxed` | An inherited Claude Code override reaches the harness. The sandbox wrapper must control it |
 | `read_frame` takes its bound as an argument, and its unit test refuses a 16-byte frame at a bound of 15 | `crates/ravel/src/frame.rs` | The new check can receive its limit in the same way. A unit test can then cross a known frame size by one byte |
 | `context::deliver` measures the compact encoding of the caller's document before the evaluate frame, also when the script has a `load_context`. A caller document cannot hold `measured`, so that encoding includes every caller member | `choice.rs`, `evaluate_and_resolve_rhai`. `crates/ravel/src/context.rs`, `deliver` | `request.context` encodes to at most the context budget, as the frame derivation assumes |
-| `--kind` and `--task-file` are command-line arguments. The working directory comes from the process | `crates/ravel/src/cli.rs`. `crates/ravel/src/inputs.rs` | The argument and path limits of the platform bound the three values that Ravel does not bound |
+| `--kind` and `--task-file` are command-line arguments. The working directory comes from the process | `crates/ravel/src/cli.rs`. `crates/ravel/src/inputs.rs` | The argument limit of the platform bounds the kind and the task-file path. The [frame-bound platforms](#frame-bound-platforms) show that the platform does not bound the working directory at these sizes |
 | `llm.rhai` sends `request.prompt` to a classifier in `stdin` | `crates/ravel/examples/llm.rhai` | Under schema 4, the example reads `originalPrompt` |
 | `docs:result-job` uses port 8774, and `docs:rhai-configuration` uses port 8776 | `Taskfile.yml` | The skill views use port 8778 |
 | Book chapter 10 lists TypeScript check stages, such as `worker-types`, that `scripts/check.sh` no longer runs | `docs/book/src/10-develop-ravel.md`, `scripts/check.sh` | The Rhai book work is unfinished. This line does not assume that it is complete |
@@ -67,6 +67,40 @@ pages describe the published interface. No harness trial measured them.
 
 The local stage checks the installed Claude Code against these rows before it
 changes the smoke script. A published page is not a measurement of that build.
+
+## Frame-bound platforms
+
+The local stage `ravel-schema-four-k53` measured these limits on 2026-11-02.
+A probe program found the largest single argument that `exec` admits. It then
+entered 2,344 nested directories, one level at a time, and read the working
+directory with the `current_dir` function of Rust. Each directory name was 255
+bytes of U+0001, the byte that JSON escapes to six bytes.
+
+The request of test 1 fills every public bound with that byte, with delivery
+disabled. Its evaluate frame encodes to 36,048,481 bytes. The refused frame of
+test 3 encodes to 39,648,476 bytes. Its kind encodes to 3,600,002 bytes, and
+the kind `"check"` of test 1 encodes to 7 bytes.
+
+The request of test 1 thus has 2,492,831 bytes of room under the frame bound.
+Short parameters can encode to at most 393,216 bytes more than its one long
+parameter. Every request within the public bounds therefore has at least
+2,099,615 bytes of room.
+
+| Platform | Largest single argument | Working directory read | Test 3, long kind | Variant, deep working directory |
+| --- | --- | --- | --- | --- |
+| aarch64 macOS, Darwin 27.0.0, `kern.argmax` 1,048,576 | 1,039,252 bytes | 600,218 bytes | Runs and passes. A kind of 600,000 bytes encodes to 3,600,002 bytes | Runs and passes |
+| aarch64 GNU/Linux, Docker image `ravel-native-linux:arm64`, kernel 7.0.14-linuxkit, 4 KiB pages, glibc 2.43 | 131,071 bytes | 600,073 bytes | Cannot run. A kind encodes to at most 786,428 bytes, and a task-file path to about as much. Together they stay under the room of 2,099,615 bytes | Runs and passes |
+| x86-64 GNU/Linux | Not measured. The Rust toolchain of the emulated image stopped with a segmentation fault under QEMU | Not measured | Cannot run, by derivation. Linux limits one argument to 32 pages, which is 131,072 bytes with the NUL at the 4 KiB pages of x86-64 | Not run |
+
+The two macOS fixtures are compiled only on macOS. The arm64 Linux run used
+`cargo nextest run --locked -p ravel --test rhai_request` in the image above,
+and all seven tests that Linux compiles passed. Test 2, the unit test of the
+check at a reduced limit, runs on every platform.
+
+The x86-64 row is a derivation, not a measurement. The frame check is the same
+code on each platform, so only the platform limits differ. An aarch64 Linux
+kernel with 64 KiB pages admits one argument of 2 MiB. Test 3 could then run
+there, but no such kernel was measured.
 
 ## Records
 
@@ -134,7 +168,9 @@ The local stage establishes two facts before it changes the smoke script and
 the frame tests. First, it reads the installed Claude Code on Linux to
 establish the sign-in path `.claude/.credentials.json` before it links it.
 Second, it establishes on which release platforms a request can pass the
-frame bound. It records each platform where no request can pass it.
+frame bound. It records each platform where no request can pass it. The
+[frame-bound platforms](#frame-bound-platforms) record the result of
+`ravel-schema-four-k53`.
 
 ## Consumer handoff
 

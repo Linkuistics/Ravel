@@ -113,7 +113,7 @@ Complete example: a fake sends a result and then ignores TERM.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "job-escalation";
 fn select(request, context) {
     #{

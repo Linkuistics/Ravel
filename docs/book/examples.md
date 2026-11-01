@@ -17,7 +17,7 @@ Complete example: route every request to a fake `claude`, which sends
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "convention-example";
 fn select(request, context) {
     #{ status: "selected", program: "claude", args: [],

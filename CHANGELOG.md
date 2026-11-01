@@ -12,6 +12,18 @@
 - Retire the frozen native-entry campaign drivers and their Linux Git-object
   staging. Preserve historical receipts and current Rust, Rhai and native-entry
   checks.
+- Move configuration scripts and their request to schema 4. The request gains
+  `originalPrompt`, the caller's prompt unchanged, and `skills`, which is `()`.
+  `prompt` holds the same bytes as `originalPrompt`. A script that exports
+  `SCHEMA_VERSION` 3 refuses as `unsupported_version`, exit 3. Export 4, and
+  read `request.originalPrompt` where the script analyses the task. The
+  shipped `llm.rhai` sends `originalPrompt` to its classifier. The JSON routing
+  notice gains the member `skills`, which is `null`.
+- Check the evaluate frame before the worker receives it. The frame bound is
+  38,541,312 bytes, and every request within the public bounds fits it. A
+  larger frame refuses as `malformed_input`, stage `cli`, exit 2, and the
+  refusal names the largest members. Only a very long kind, working directory
+  or task-file path can pass the bound.
 
 ## v1.1.0
 

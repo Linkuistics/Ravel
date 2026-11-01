@@ -28,7 +28,7 @@ use super::{Bounds, Module, Read, Reply, ScriptFailure};
 use crate::cancellation;
 use crate::context::{Delivered, Measured};
 use crate::frame::{FRONT_FRAME_BYTES, FrameError};
-use crate::refusal::{EXIT_WORKER, Refusal, Stage};
+use crate::refusal::{EXIT_MALFORMED, EXIT_WORKER, Refusal, Stage};
 use crate::worker::{Conversation, POLL, broken_for};
 
 /// What a frame carries beyond the value it names.
@@ -161,6 +161,9 @@ pub(super) async fn serve(
         evaluate["selectContext"] = context.clone();
     }
     let body = serde_json::to_vec(&evaluate).expect("a JSON value always encodes");
+    // A frame over the bound is the caller's input, not a broken conversation.
+    // The refusal stops and reaps the worker, which has evaluated nothing.
+    evaluate_fits(&evaluate, body.len(), FRONT_FRAME_BYTES).map_err(Conversation::Refused)?;
     watch
         .until(write_body(&mut stream, &body))
         .await?
@@ -242,6 +245,67 @@ pub(super) async fn serve(
             }
         }
     }
+}
+
+/// The members of the evaluate frame that the refusal names, largest first.
+const NAMED_MEMBERS: usize = 3;
+
+/// The members of the request that Ravel does not bound itself. Only these can
+/// take a request within the public bounds over the frame bound.
+const UNBOUNDED: [&str; 3] = ["request.kind", "request.cwd", "request.taskFile"];
+
+/// Refuse an evaluate frame that encodes to more than `limit` bytes
+/// (`docs/specs/configuration-evaluation.md`, *Frame bounds*). The front calls
+/// it with the frame bound before it sends the frame. The limit is an argument,
+/// so that a unit test can cross the size of a known frame by one byte.
+///
+/// Every request within the public bounds fits. Only an exceptionally long
+/// kind, working directory or task-file path can pass the bound, because Ravel
+/// does not bound those three values itself.
+pub(super) fn evaluate_fits(evaluate: &Value, encoded: usize, limit: usize) -> Result<(), Refusal> {
+    if encoded <= limit {
+        return Ok(());
+    }
+    let size = |value: &Value| serde_json::to_vec(value).map_or(0, |bytes| bytes.len());
+    let mut members = Vec::new();
+    for (name, value) in evaluate.as_object().into_iter().flatten() {
+        match value.as_object() {
+            Some(request) if name == "request" => members.extend(
+                request
+                    .iter()
+                    .map(|(field, value)| (format!("request.{field}"), size(value))),
+            ),
+            _ => members.push((name.clone(), size(value))),
+        }
+    }
+    let shown = |members: &mut dyn Iterator<Item = &(String, usize)>| {
+        members
+            .map(|(name, bytes)| format!("{name} ({bytes} bytes)"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    // The culprit is one of the members that Ravel does not bound, and it need
+    // not be among the largest, so the refusal names those members too.
+    let unbounded = shown(
+        &mut UNBOUNDED
+            .iter()
+            .filter_map(|name| members.iter().find(|(member, _)| member == name)),
+    );
+    members.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+    let largest = shown(&mut members.iter().take(NAMED_MEMBERS));
+    Err(Refusal::new(
+        "malformed_input",
+        Stage::Cli,
+        EXIT_MALFORMED,
+        format!(
+            "the evaluate frame encodes to {encoded} bytes, over the frame bound of {limit} \
+             bytes; its largest members are {largest}; the members that Ravel does not bound \
+             are {unbounded}"
+        ),
+        "shorten the largest members; every request within the public bounds fits, and \
+         only a very long --kind, working directory or --task-file path can pass the bound, \
+         because Ravel does not bound those three values itself",
+    ))
 }
 
 fn finish(reply: Reply, delivered: Option<Delivered>, host: Host) -> Result<Served, Conversation> {
@@ -357,6 +421,40 @@ mod tests {
         let (ours, theirs) = StdStream::pair().unwrap();
         ours.set_nonblocking(true).unwrap();
         (ours, theirs)
+    }
+
+    /// Test 2 of *Frame bounds*: a known evaluate frame passes at a limit equal
+    /// to its encoded size and refuses at one byte less. The production limit
+    /// is the derived bound.
+    #[test]
+    fn the_evaluate_frame_check_compares_the_encoded_frame_with_its_limit() {
+        let evaluate = json!({
+            "type": "evaluate", "protocol": 1, "entry": "/home/o/config.rhai",
+            "source": "export const SCHEMA_VERSION = 4;",
+            "request": {
+                "kind": "k".repeat(300), "originalPrompt": "\u{1}".repeat(40),
+                "prompt": "\u{1}".repeat(40), "cwd": "/work", "params": {}, "skills": null,
+            },
+            "bounds": {},
+        });
+        let encoded = serde_json::to_vec(&evaluate).unwrap().len();
+        assert!(evaluate_fits(&evaluate, encoded, encoded).is_ok());
+        let refusal = evaluate_fits(&evaluate, encoded, encoded - 1).unwrap_err();
+        assert_eq!(
+            (refusal.code, refusal.stage, refusal.exit),
+            ("malformed_input", Stage::Cli, EXIT_MALFORMED)
+        );
+        // The refusal names the encoded size, the limit and the largest
+        // members, largest first: each prompt escapes to 240 bytes and more.
+        let expected = format!(
+            "the evaluate frame encodes to {encoded} bytes, over the frame bound of {} bytes; \
+             its largest members are request.kind (302 bytes), request.originalPrompt (242 \
+             bytes), request.prompt (242 bytes); the members that Ravel does not bound are \
+             request.kind (302 bytes), request.cwd (7 bytes)",
+            encoded - 1
+        );
+        assert_eq!(refusal.message, expected);
+        assert_eq!(FRONT_FRAME_BYTES, 38_541_312);
     }
 
     #[test]

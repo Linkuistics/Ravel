@@ -245,7 +245,7 @@ Complete example: pass the caller's prompt to a fake agent.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "fixed-route-1";
 
 fn select(request, context) {
@@ -368,7 +368,7 @@ constants and defines a function:
 
 | Declaration | Purpose |
 |---|---|
-| `export const SCHEMA_VERSION = 3;` | Name the version of the interface between Ravel and the script that this file uses. |
+| `export const SCHEMA_VERSION = 4;` | Name the version of the interface between Ravel and the script that this file uses. |
 | `export const VERSION = "fixed-route-1";` | Name this revision of your script. The JSON routing notice shows it. |
 | `fn select(request, context)` | Return a selection or a [refusal](02-actors-and-words.md#evaluation-and-supervision). |
 | `fn load_context(request)` | Optionally assemble selection context before `select`. |
@@ -392,15 +392,21 @@ means “no value”, and it becomes `null` in JSON.
 
 | Field | Value |
 |---|---|
-| `schemaVersion` | The integer `3`. |
+| `schemaVersion` | The integer `4`. |
 | `kind` | The caller's [kind](02-actors-and-words.md#caller-and-owner) token, from `--kind`. |
-| `prompt` | The caller's prompt, unchanged. |
+| `originalPrompt` | The caller's prompt, unchanged. |
+| `prompt` | The prompt to give to the harness. It holds the same bytes as `originalPrompt`. |
 | `cwd` | The caller's working directory. |
 | `params` | A map of strings from `--param NAME=VALUE`. |
 | `taskFile` | The absolute `--task-file` path, or `()`. Ravel does not read it. |
 | `taskId` | The `--task-id` string, or `()`. |
 | `context` | The caller's checked context document, or `()`. |
+| `skills` | Always `()`. The field is reserved for skill directories. |
 | `limits` | The effective bounds that the script can read. |
+
+Put `request.prompt` into the arguments of the harness. Read
+`request.originalPrompt` when the script examines the task, for example when
+it asks a model to classify the task.
 
 The second argument, `context`, is the delivered
 [selection context](#supply-selection-context): JSON data for the choice. A
@@ -495,7 +501,7 @@ parameter.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "checked-route-1";
 
 fn refuse(code, message, remedy) {
@@ -663,7 +669,7 @@ Complete example: print a value from the script, then find a syntax error.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "print-1";
 
 fn select(request, context) {
@@ -676,7 +682,7 @@ fn select(request, context) {
 **`broken.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "broken-1";
 
 fn select(request, context) {
@@ -806,7 +812,7 @@ Complete example: route two kinds through a local table.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "table-1";
 const EFFORTS = #{ question: "low", feature: "high" };
 
@@ -941,7 +947,7 @@ Complete example: call an imported function and use its exported constant.
 
 ```rhai
 import "routes" as routes;
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "import-1";
 
 fn select(request, context) {
@@ -1035,7 +1041,7 @@ other text.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "choice-1";
 
 fn select(request, context) {
@@ -1219,7 +1225,7 @@ selection.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "context-1";
 
 fn load_context(request) {
@@ -1334,7 +1340,7 @@ Complete example: check data, handle a failed check, and encode the result.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "data-1";
 
 fn select(request, context) {
@@ -1493,7 +1499,7 @@ The command installs settings only in the example's private home.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "settings-1";
 
 fn select(request, context) {
@@ -1751,7 +1757,7 @@ Complete example: ask through a fake Claude Code and refuse an invalid answer.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "claude-question-1";
 
 fn refuse() {
@@ -1884,7 +1890,8 @@ It still cannot catch an exhausted
 An evaluation budget is a limit that you set in the settings for one
 evaluation, such as the number of harness runs in `budgets.harnessRuns`.
 
-The shipped `llm.rhai` asks Claude Code to classify the caller's prompt.
+The shipped `llm.rhai` asks Claude Code to classify the caller's prompt. It
+sends `request.originalPrompt` to the classifier.
 It limits the answer to keys from the route table of `static.rhai`.
 After an unusable answer, it uses the caller's kind instead.
 It imports `static.rhai`, so both files must be present.
@@ -1950,7 +1957,7 @@ argument.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "codex-question-1";
 
 fn refuse() {
@@ -2173,7 +2180,7 @@ harnesses.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "interactive-1";
 
 fn select(request, context) {

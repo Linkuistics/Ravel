@@ -63,7 +63,7 @@ export const SUFFIX = "relative";
 RHAI
   cat >"$dir/policy/policy.rhai" <<'RHAI'
 import "helper" as helper;
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "installed-rhai";
 fn load_context(request) {
     let read = ravel::read_text("context.txt", 4096);

@@ -10,7 +10,7 @@
 // nothing more is granted. Test the routing with temporary fake agents on a
 // private PATH: start-session launches the selected program.
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "harness-table 3";
 
 /// A command line, and the labels it is recorded under. `style` names the

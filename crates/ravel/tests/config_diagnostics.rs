@@ -96,7 +96,7 @@ fn entry_and_engine_refusals_use_configuration_codes() {
         (None, "config_missing"),
         (Some("not valid Rhai !!!"), "config_parse_failed"),
         (
-            Some("export const SCHEMA_VERSION = 3; export const VERSION = \"v\";"),
+            Some("export const SCHEMA_VERSION = 4; export const VERSION = \"v\";"),
             "config_invalid",
         ),
         (

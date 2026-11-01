@@ -6,7 +6,7 @@ front, SIGINT.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "book-example";
 fn select(request, context) {
     #{
@@ -66,7 +66,7 @@ because teardown details further down vary from run to run.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "book-example";
 fn select(request, context) {
     ravel::run_harness(#{ harness: "cancel", args: [] });

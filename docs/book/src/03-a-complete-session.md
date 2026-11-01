@@ -129,7 +129,7 @@ fake agent. The fake prints the prompt and sends `finished`.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "first-session";
 
 fn select(request, context) {

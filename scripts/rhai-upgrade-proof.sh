@@ -16,6 +16,7 @@ tests_dir=crates/ravel/tests
 # The engine tests, in order. Each is a `rhai_*` test target.
 engine_targets=(
   rhai_config
+  rhai_request
   rhai_settings
   rhai_helpers
   rhai_json_check

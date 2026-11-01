@@ -369,7 +369,7 @@ not use the task fields or the selection context.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "prompt-demo";
 
 fn select(request, context) {
@@ -544,7 +544,7 @@ naturally with status 0.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "outcome-demo";
 
 fn select(request, context) {
@@ -700,7 +700,7 @@ outcome.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "review-caller";
 
 fn select(request, context) {
@@ -943,7 +943,7 @@ command substitution keeps them unchanged.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "nested-demo";
 
 fn select(request, context) {
@@ -1133,7 +1133,7 @@ agent.
 **`owner/config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "confined-demo";
 
 fn select(request, context) {
@@ -1281,7 +1281,7 @@ and the prompt are those of chapter 1.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "notice-demo";
 
 fn select(request, context) {
@@ -1435,7 +1435,7 @@ review-agent: the review is complete
       {
         "bytes": 619,
         "name": "/private/tmp/ravel-chapter-5/notices/config.rhai",
-        "sha256": "813135dac982142b7d78e7ee5c1ae800e970ecc3e730de300f73ec5cc0b98246"
+        "sha256": "9d4526b5db2b7f9d9c8812bfc183a841133f1b2b18b20981049770e90efb1b91"
       }
     ],
     "path": "/private/tmp/ravel-chapter-5/notices/config.rhai",
@@ -1450,7 +1450,8 @@ review-agent: the review is complete
     "provider": "local",
     "reason": "Reviews go to the fake agent."
   },
-  "selectionMs": 3
+  "selectionMs": 3,
+  "skills": null
 }
 ```
 
@@ -1474,9 +1475,9 @@ mixed diagnostic stream, even with `--json`:
 
 The JSON routing notice gives `selection`, `config`, `worker`,
 `selectionMs`, the delivered `context` and the effective `bounds`. It also
-gives `configEnvironment`, `resolution`, `promptSource` and the captured
-`diagnostics` of the configuration script. The member `config` describes the
-configuration script. The member `context` is the selection context, not the
+gives `configEnvironment`, `resolution`, `promptSource`, the captured
+`diagnostics` of the configuration script and `skills`, which is `null`. The
+member `config` describes the configuration script. The member `context` is the selection context, not the
 result channel. Grant diagnostics show the name of each environment variable
 and whether it is set. They never show its value.
 
@@ -1689,7 +1690,7 @@ starts.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "cancel-selection";
 
 fn select(request, context) {
@@ -1799,7 +1800,7 @@ job.
 **`config.rhai`**
 
 ```rhai
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const VERSION = "cancel-session";
 
 fn select(request, context) {

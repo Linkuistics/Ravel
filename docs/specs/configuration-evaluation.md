@@ -455,10 +455,15 @@ Three tests cover the bound and its check:
    or an evaluation, so this test also detects that removal.
 
 The argument limit of the platform bounds the kind and the task-file path. The
-platform also bounds the working directory. On a platform with small limits, no
-request can then pass the frame bound. The local stage establishes on which
-release platforms test 3 can run. It records each platform where test 3 cannot
-run. There, test 2 alone covers the comparison.
+platform does not bound the working directory at these sizes. On macOS and on
+GNU/Linux, Ravel can read a working directory of 600,000 bytes. A deep working
+directory can therefore pass the frame bound on each release platform.
+
+Test 3 runs where the argument limit admits a long enough kind. A variant of
+test 3 takes the frame over the bound with a deep working directory, and it runs
+on each release platform. The
+[design evidence](../skill-discovery-design-evidence.md#frame-bound-platforms)
+records the measurements and each platform where test 3 cannot run.
 
 No test needs a public flag that changes the frame bound. A selection over the
 message bound refuses as `message_too_large`.

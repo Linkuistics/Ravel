@@ -14,23 +14,48 @@ use std::io::{self, Read, Write};
 
 use serde_json::Value;
 
+use crate::authority::RHAI_ENTRY_BYTES;
+use crate::inputs::{PARAMS_LIMIT, PROMPT_LIMIT, TASK_ID_LIMIT};
 use crate::limits::{CONTEXT_MAX_BYTES, MESSAGE_BYTES};
 
-/// The largest reply to a harness run. It holds three strings of 1 MiB each,
-/// the output, the error output and the result. JSON writes a control byte as
-/// six bytes, such as `\u0001`. One more message bound is room for the rest of
-/// the map.
-const HARNESS_REPLY_BYTES: u64 = 3 * 6 * MESSAGE_BYTES + MESSAGE_BYTES;
+/// The factor of the largest JSON escape. JSON writes a control byte as six
+/// bytes, such as `\u0001`.
+const ESCAPE: u64 = 6;
 
-/// The largest frame the front sends. Its evaluate message carries the
-/// caller's context, which the front re-encodes, beside the request, whose
-/// prompt and parameters the factor of two leaves room for. A reply to a
-/// harness run can be larger, and then it sets the bound. The worker accepts
-/// the same bound in `rhai_worker::role`.
+/// The descriptor of the resolved skill directories, which `request.skills`
+/// holds (`docs/specs/skill-discovery.md`, *Bounds*).
+const DESCRIPTOR_BYTES: u64 = 1024 * 1024;
+
+/// The allowance for everything else in the evaluate frame: the member names,
+/// the bounds and the values that Ravel does not bound itself.
+const EVALUATE_ENVELOPE_BYTES: u64 = 1024 * 1024;
+
+/// The largest evaluate frame within the public bounds
+/// (`docs/specs/configuration-evaluation.md`, *Frame bounds*). The entry, the
+/// two prompts and the task ID can each escape six-fold. A parameter adds at
+/// most six bytes of quotes and separators beside the escape of its name and
+/// value. The caller's context travels twice: in `request.context` and as the
+/// delivered context in `selectContext`. Each encodes to at most the context
+/// budget, so it does not escape again.
+const EVALUATE_BYTES: u64 = ESCAPE
+    * (RHAI_ENTRY_BYTES + 2 * PROMPT_LIMIT as u64 + TASK_ID_LIMIT as u64)
+    + 2 * ESCAPE * PARAMS_LIMIT as u64
+    + 2 * CONTEXT_MAX_BYTES
+    + DESCRIPTOR_BYTES
+    + EVALUATE_ENVELOPE_BYTES;
+
+/// The largest reply to a harness run. It holds three strings of 1 MiB each,
+/// the output, the error output and the result, each escaped six-fold. One
+/// more message bound is room for the rest of the map.
+const HARNESS_REPLY_BYTES: u64 = 3 * ESCAPE * MESSAGE_BYTES + MESSAGE_BYTES;
+
+/// The frame bound: the largest frame the front sends and the worker reads. It
+/// is the larger of the evaluate frame and the reply to a harness run. The
+/// worker accepts the same bound in `rhai_worker::role`, and the front checks
+/// its evaluate frame against it before it sends the frame.
 pub const FRONT_FRAME_BYTES: usize = {
-    let evaluate = 2 * CONTEXT_MAX_BYTES + MESSAGE_BYTES;
-    (if evaluate > HARNESS_REPLY_BYTES {
-        evaluate
+    (if EVALUATE_BYTES > HARNESS_REPLY_BYTES {
+        EVALUATE_BYTES
     } else {
         HARNESS_REPLY_BYTES
     }) as usize
@@ -99,6 +124,13 @@ fn read_exact(reader: &mut impl Read, buffer: &mut [u8]) -> Result<(), FrameErro
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn the_frame_bound_is_the_derived_evaluate_frame() {
+        assert_eq!(EVALUATE_BYTES, 38_541_312);
+        assert_eq!(HARNESS_REPLY_BYTES, 19 * 1024 * 1024);
+        assert_eq!(FRONT_FRAME_BYTES, 38_541_312);
+    }
 
     #[test]
     fn a_frame_round_trips_with_a_big_endian_length() {
