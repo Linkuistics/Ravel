@@ -618,6 +618,21 @@ The owner authorises advancing `main` and pushing the current work before the re
 This publication preserves the live checkpoint. It supplies no reader observation or practical-task result.
 The current book build passed without warnings before publication. The owner still needs to complete Read 1, and Read 2 remains required.
 
+**Owner direction: stop for reconfiguration, 2026-11-01.**
+
+The owner said, “I want to stop this grove so I can do some reconfiguration and then restart it”.
+This explicit stop request prevents further work in this session. Continuing or decomposing the task would not satisfy that request.
+The session will send `grove-force-stop` through the exact versioned Ravel command in its original mandate.
+The leaf remains live. The session records no teardown.
+
+The earlier publication succeeded. Remote `main` matched `24a545236185b0910ba6117fe8f9e8b2e2c8a748`, and the working copy was clean after the push.
+The remaining work is the owner's Part II read, fake-agent session, refusal and cancellation interpretation, and direct-reference task.
+The owner reported no new reader result since the last preparation. Read 2 remains required.
+
+After reconfiguration, rerun `grove` from this working tree to resume the live checkpoint.
+Refresh the local book and private reader shell before resuming chapter 4 at “Run the examples of this chapter”.
+Part I remains complete. No personal configuration change is part of this stop.
+
 <!-- tc: off because this recap records the completed k87 proof before the owner's F17 and F18 findings -->
 
 ## Correction recap for the Part II read, 2026-10-28
