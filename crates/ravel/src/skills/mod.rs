@@ -648,6 +648,9 @@ pub(crate) mod faults {
         /// After the check of a staging name, just before its rename, with
         /// the staging path.
         pub renaming: Option<PathHook>,
+        /// In place of the rename of a staging name, with the staging path.
+        /// An error stands for a failed rename, which then does not happen.
+        pub renamed: Option<FailHook>,
         /// Before the removal of a staging tree, with its path. An error
         /// stands for a failed removal.
         pub removing: Option<FailHook>,
@@ -696,6 +699,10 @@ pub(crate) mod faults {
 
     pub fn renaming(path: &Path) {
         fire(|hooks| &mut hooks.renaming, |hook| hook(path));
+    }
+
+    pub fn renamed(path: &Path) -> io::Result<()> {
+        fire(|hooks| &mut hooks.renamed, |hook| hook(path)).unwrap_or(Ok(()))
     }
 
     pub fn limits() -> Option<super::bounds::Limits> {

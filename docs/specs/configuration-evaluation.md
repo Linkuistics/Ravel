@@ -1176,6 +1176,7 @@ The Linux build uses Zig's glibc 2.17 target.
 Floor and above-floor symbol probes check the libc boundary. QEMU models Nehalem and Cortex-A53 for CPU checks. Above-floor instructions must fail with SIGILL at the floor and run under `-cpu max`.
 
 The same direct/symlink installation check runs on every target. Containers and QEMU do not measure a kernel floor.
+Skill publication needs a kernel and a cache filesystem with a rename that does not replace, as the [skill discovery specification](skill-discovery.md#publication-concurrency-and-cleanup) states.
 
 The Homebrew formula installs the same files and requires no Grove dependency.
 Its temporary-prefix test imports the installed Rhai static example and checks exact result bytes through a symlink.

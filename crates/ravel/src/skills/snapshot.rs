@@ -1133,8 +1133,29 @@ pub fn publish(
                 }
             }
         }
+        Err(error) if dir::noreplace_unsupported(&error) => {
+            let refusal = noreplace_unsupported(&object, &error);
+            Err(after_cleanup(refusal, &mut staging))
+        }
         Err(error) => Err(after_cleanup(unavailable(&object, &error), &mut staging)),
     }
+}
+
+/// The kernel or the file system of the cache has no rename that refuses an
+/// existing name. A plain rename can replace an empty directory, so Ravel does
+/// not publish with one (docs/specs/skill-discovery.md#publication-concurrency-and-cleanup).
+fn noreplace_unsupported(object: &Path, error: &io::Error) -> Refusal {
+    refuse(
+        "skill_cache_unavailable",
+        format!(
+            "Ravel cannot publish {} because the cache filesystem or the kernel has no rename \
+             that refuses an existing name: {error}",
+            object.display()
+        ),
+        "keep ~/.cache/ravel/skills/v1 on a local filesystem that supports a rename without \
+         replacement, on Linux 3.15 or later, then resolve again",
+    )
+    .source(object.display().to_string())
 }
 
 /// The staging name held another directory when Ravel published it. With

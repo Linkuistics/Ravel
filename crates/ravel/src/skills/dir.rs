@@ -331,6 +331,8 @@ impl Dir {
     /// Rename `name` in this directory to `to_name` in `to`, failing with
     /// `EEXIST` or `ENOTEMPTY` when the destination exists.
     pub fn rename_noreplace(&self, name: &OsStr, to: &Dir, to_name: &OsStr) -> io::Result<()> {
+        #[cfg(test)]
+        super::faults::renamed(&self.path.join(name))?;
         let (from, dest) = (c_name(name)?, c_name(to_name)?);
         rename_noreplace(self.fd.as_raw_fd(), &from, to.fd.as_raw_fd(), &dest)
     }
@@ -405,6 +407,9 @@ fn rename_noreplace(
 }
 
 // https://man7.org/linux/man-pages/man2/renameat2.2.html
+// The release links against glibc 2.17, and glibc added its `renameat2`
+// wrapper in 2.28, so Ravel enters the system call itself. Linux added the
+// call in 3.15.
 #[cfg(target_os = "linux")]
 fn rename_noreplace(
     from_fd: libc::c_int,
@@ -413,15 +418,84 @@ fn rename_noreplace(
     to: &CString,
 ) -> io::Result<()> {
     // SAFETY: both descriptors are open and both names are valid
-    // NUL-terminated strings.
-    checked(unsafe {
-        libc::renameat2(
-            from_fd,
+    // NUL-terminated strings. Each argument is widened to the register width
+    // that the kernel reads.
+    let result = unsafe {
+        libc::syscall(
+            libc::SYS_renameat2,
+            libc::c_long::from(from_fd),
             from.as_ptr(),
-            to_fd,
+            libc::c_long::from(to_fd),
             to.as_ptr(),
-            libc::RENAME_NOREPLACE,
+            libc::c_long::from(libc::RENAME_NOREPLACE),
         )
-    })
-    .map(drop)
+    };
+    if result < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+/// Whether `error` from [`Dir::rename_noreplace`] says that the kernel or the
+/// file system has no rename without replacement. A plain rename can replace
+/// an empty directory, so Ravel has no substitute for it.
+#[cfg(target_os = "linux")]
+pub fn noreplace_unsupported(error: &io::Error) -> bool {
+    // ENOSYS: a kernel before 3.15. EINVAL: a file system without the flag.
+    matches!(error.raw_os_error(), Some(libc::ENOSYS | libc::EINVAL))
+}
+
+/// Whether `error` from [`Dir::rename_noreplace`] says that the file system
+/// has no rename without replacement.
+#[cfg(target_os = "macos")]
+pub fn noreplace_unsupported(error: &io::Error) -> bool {
+    matches!(error.raw_os_error(), Some(libc::ENOTSUP))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ffi::OsStr;
+    use std::fs;
+
+    use super::Dir;
+
+    /// A plain `rename` replaces an empty destination directory. This rename
+    /// must not, so the empty case tells the two apart.
+    #[test]
+    fn rename_noreplace_moves_to_a_free_name_and_never_replaces_a_directory() {
+        let root = tempfile::tempdir().unwrap();
+        for name in ["from", "empty", "full"] {
+            fs::create_dir(root.path().join(name)).unwrap();
+        }
+        fs::write(root.path().join("from/kept"), "kept").unwrap();
+        fs::write(root.path().join("full/held"), "held").unwrap();
+        let dir = Dir::open(root.path()).unwrap();
+        let from = dir.stat_at(OsStr::new("from")).unwrap().identity();
+
+        for taken in ["empty", "full"] {
+            let error = dir
+                .rename_noreplace(OsStr::new("from"), &dir, OsStr::new(taken))
+                .unwrap_err();
+            assert!(
+                matches!(error.raw_os_error(), Some(libc::EEXIST | libc::ENOTEMPTY)),
+                "{taken}: {error}"
+            );
+            assert_eq!(dir.stat_at(OsStr::new("from")).unwrap().identity(), from);
+            assert_ne!(dir.stat_at(OsStr::new(taken)).unwrap().identity(), from);
+        }
+        assert_eq!(
+            fs::read_to_string(root.path().join("full/held")).unwrap(),
+            "held"
+        );
+
+        dir.rename_noreplace(OsStr::new("from"), &dir, OsStr::new("free"))
+            .unwrap();
+        assert_eq!(dir.stat_at(OsStr::new("free")).unwrap().identity(), from);
+        assert_eq!(
+            fs::read_to_string(root.path().join("free/kept")).unwrap(),
+            "kept"
+        );
+        assert!(dir.stat_at(OsStr::new("from")).is_err());
+    }
 }

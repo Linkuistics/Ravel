@@ -395,6 +395,12 @@ a concurrent publisher or an earlier resolution wrote it. Ravel reads the
 winner back in full before it removes its private copy, and it reuses the
 winner only when the content agrees.
 
+On Linux the operation is the `renameat2` system call with `RENAME_NOREPLACE`,
+which Linux added in 3.15. On macOS it is `renameatx_np` with `RENAME_EXCL`. A
+kernel or a cache filesystem without the operation refuses as
+`skill_cache_unavailable`. A plain rename can replace an empty directory, so
+Ravel does not use one in its place.
+
 A winner whose content differs is corrupt, and the refusal is
 `skill_cache_corrupt`. The remedy is to stop the readers of the object, then to
 move it out of the cache or remove it, and to resolve again. Ravel does not
@@ -933,7 +939,7 @@ installed-pair part of "Version transition".
 | LFS pointer bytes | A pointer file in a local checkout is captured byte for byte, with no contact with LFS storage. A materialised payload is captured as ordinary bytes |
 | Local freshness | A content change with no VCS change gives a new snapshot. Old readers keep old bytes. Controlled concurrent edits refuse with no partial descriptor |
 | Corrupt object | A tampered snapshot refuses as `skill_cache_corrupt`, with its remedy. No worker or job launches, and the object stays as it was |
-| Concurrent publication | Publishers behind a barrier and an existing reader see no partial object. The losing publisher checks the winner. A killed publisher cannot publish a partial descriptor |
+| Concurrent publication | Publishers behind a barrier and an existing reader see no partial object. The losing publisher checks the winner. A killed publisher cannot publish a partial descriptor. The rename refuses an existing empty directory. A platform without that rename refuses as `skill_cache_unavailable` and leaves no object |
 | Lifetime | Independent and detached readers keep their directories and resources after the parent exits, the source goes and the settings change. Ordinary managed descendants are reaped with the group. After a quiet manual removal, the next resolution publishes the present source again and uses no neighbour object |
 | Request and evaluation | `load_context` and `select` receive the same request, and a change to the copy in `load_context` does not reach `select`. Top-level code sees no request. The caller byte range is exact for non-ASCII text, every line ending and text that resembles a delimiter. `skills` has no offset fields. The label and delimiters occur only in the wrapper. A quoted path cannot become prompt structure |
 | Host reads | A read of the descriptor with `ravel::read_text` is a measured read in the notice. `ravel::env("RAVEL_SKILL_DIRECTORIES")` throws `env_not_granted`, and a grant of that name refuses as `excluded_grant` |

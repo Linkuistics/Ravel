@@ -1,7 +1,8 @@
 //! Internal fault seams of capture and publication: controlled source edits
 //! at fixed points of the scan, a cache link or cache directory replaced
 //! before publication, a staging directory replaced before or during its
-//! rename, a planted winner and a failed removal of staging. The public fixtures in
+//! rename, a planted winner, a rename that the platform does not support and a
+//! failed removal of staging. The public fixtures in
 //! `tests/skills_publication.rs` cover what the CLI can show without a seam.
 //!
 //! These edits are controlled, so each refusal here is certain. They do not
@@ -554,6 +555,58 @@ fn a_staging_replaced_just_before_its_rename_refuses_after_the_rename() {
     assert!(home.names("descriptors").is_empty());
     let aside = home.cache().join("staging/aside");
     assert_eq!(fs::read_dir(aside).unwrap().count(), 0);
+}
+
+/// The errors with which this platform reports that it has no rename without
+/// replacement.
+#[cfg(target_os = "linux")]
+const NOREPLACE_UNSUPPORTED: [i32; 2] = [libc::ENOSYS, libc::EINVAL];
+#[cfg(target_os = "macos")]
+const NOREPLACE_UNSUPPORTED: [i32; 1] = [libc::ENOTSUP];
+
+#[test]
+fn a_cache_without_a_rename_that_refuses_an_existing_name_refuses_and_publishes_nothing() {
+    for errno in NOREPLACE_UNSUPPORTED {
+        let home = Home::new();
+        install(Hooks {
+            renamed: Some(Box::new(move |_| {
+                Err(std::io::Error::from_raw_os_error(errno))
+            })),
+            ..Hooks::default()
+        });
+        let refusal = refused_cleanly(&home, "skill_cache_unavailable");
+        assert!(
+            refusal
+                .message
+                .contains("no rename that refuses an existing name"),
+            "{errno}: {}",
+            refusal.message
+        );
+        assert!(
+            refusal.remedy.contains("rename without replacement"),
+            "{errno}: {}",
+            refusal.remedy
+        );
+        assert!(home.names("snapshots").is_empty());
+        // Nothing stays from the refusal, so the next resolution publishes.
+        home.resolve().unwrap();
+        assert_eq!(home.names("snapshots").len(), 1);
+    }
+
+    // Another failed rename keeps the general remedy of the cache.
+    let home = Home::new();
+    install(Hooks {
+        renamed: Some(Box::new(|_| {
+            Err(std::io::Error::from_raw_os_error(libc::EIO))
+        })),
+        ..Hooks::default()
+    });
+    let refusal = refused_cleanly(&home, "skill_cache_unavailable");
+    assert!(
+        !refusal.remedy.contains("rename without replacement"),
+        "{}",
+        refusal.remedy
+    );
 }
 
 #[test]
