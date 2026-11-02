@@ -84,7 +84,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         let setup = RunSetup {
             entry: signal_state::entry(),
             confine: args.confine.then(|| ConfineSetup {
-                basis: crate::confinement::Basis::from(&prepared),
+                basis: crate::confinement::Basis::from(&prepared).holding(confined.as_ref()),
                 runtime_read: args.runtime_read.clone(),
             }),
             exit_dir: exit_dir.clone(),

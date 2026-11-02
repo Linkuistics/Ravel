@@ -1142,7 +1142,15 @@ Ravel refuses a granted directory that overlaps the configuration directory,
 the settings file or the result channel of an enclosing session. Before the
 launch, Ravel lists each granted directory inside the sandbox. Each of these
 failures is `skill_access_unavailable`, with status 3. Ravel then launches no
-worker and no managed process.
+worker and no managed process. Also keep each skill source outside the result
+channel of an enclosing session. Ravel refuses such a source before it copies
+the source, with or without confinement.
+
+Ravel grants the directories that it checked, and no other directory at the
+same path. If something replaces a granted directory after the check, Ravel
+does not run the program. A harness run reports
+`harness_launch_failed` to the script. The managed process reports
+`supervision_failed`, with status 126.
 
 `confinement_overlap` reports the paths that overlap. `confinement_unusable`
 reports a resource or a backend that Ravel cannot use. Both use status 2.

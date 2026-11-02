@@ -51,7 +51,77 @@ pub struct FilesystemGrants<'a> {
     /// Directories granted read-only with every entry beneath them. A tree
     /// neither lies inside a writable directory nor holds one, so no write
     /// grant reaches into it.
-    pub read_trees: &'a [PathBuf],
+    pub read_trees: &'a [ReadTree],
+}
+
+/// A read-only directory tree, held by the canonical path and the identity
+/// that its caller checked. The probe and the launch grant the tree only
+/// while its path still resolves to that path and that directory. A path
+/// that something replaced, also with a link to another directory, then
+/// refuses instead of granting the new destination.
+///
+/// Both backends name the tree by its path. The interval between the last
+/// check and the bind of the backend stays open, and Seatbelt matches the
+/// path at each access after the launch.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ReadTree {
+    path: PathBuf,
+    identity: (u64, u64),
+}
+
+impl ReadTree {
+    /// Resolve `path` to its canonical directory, other than `/`, and record
+    /// the device and inode of that directory.
+    pub fn hold(path: &Path) -> Result<Self, LaunchError> {
+        let canonical = canonical(path)?;
+        let identity = directory_identity(&canonical)?;
+        Ok(Self {
+            path: canonical,
+            identity,
+        })
+    }
+
+    /// The canonical path of the tree.
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// Refuse unless the path still resolves to itself and to the directory
+    /// that [`ReadTree::hold`] recorded.
+    pub fn verify(&self) -> Result<(), LaunchError> {
+        let resolved = canonical(&self.path)?;
+        if resolved != self.path {
+            return Err(LaunchError::new(format!(
+                "read-only tree {} changed after its check: it now resolves to {}",
+                self.path.display(),
+                resolved.display()
+            )));
+        }
+        if directory_identity(&resolved)? != self.identity {
+            return Err(LaunchError::new(format!(
+                "read-only tree {} changed after its check: another directory now has its path",
+                self.path.display()
+            )));
+        }
+        Ok(())
+    }
+}
+
+fn directory_identity(path: &Path) -> Result<(u64, u64), LaunchError> {
+    use std::os::unix::fs::MetadataExt as _;
+    let metadata = std::fs::metadata(path).map_err(|error| {
+        LaunchError::new(format!(
+            "cannot resolve sandbox resource {}: {error}; supply an existing resource",
+            path.display()
+        ))
+    })?;
+    if !metadata.is_dir() || path.parent().is_none() {
+        return Err(LaunchError::new(format!(
+            "read-only tree {} must be a directory other than /",
+            path.display()
+        )));
+    }
+    Ok((metadata.dev(), metadata.ino()))
 }
 
 /// System filesystem resources exposed by the native backend. A caller that
@@ -125,8 +195,9 @@ pub fn confinement_available() -> Result<(), LaunchError> {
 
 /// List each tree inside a sandbox that grants only `trees` and the system
 /// reads. Success shows that the backend gives the read of each tree, not
-/// only that it accepted the policy.
-pub fn confinement_reads_available(trees: &[PathBuf]) -> Result<(), LaunchError> {
+/// only that it accepted the policy. A tree that changed after its hold
+/// refuses before the probe runs.
+pub fn confinement_reads_available(trees: &[ReadTree]) -> Result<(), LaunchError> {
     let trees = read_trees(trees, &[])?;
     let lister = ["/bin/ls", "/usr/bin/ls"]
         .into_iter()
@@ -203,18 +274,14 @@ pub(crate) fn command_with_grants(
     Ok(command)
 }
 
-/// The canonical directory of each tree, which no writable root overlaps.
-fn read_trees(trees: &[PathBuf], roots: &[PathBuf]) -> Result<Vec<PathBuf>, LaunchError> {
+/// The canonical directory of each held tree, unchanged since its hold,
+/// which no writable root overlaps.
+fn read_trees(trees: &[ReadTree], roots: &[PathBuf]) -> Result<Vec<PathBuf>, LaunchError> {
     trees
         .iter()
-        .map(|tree| {
-            let tree = canonical(tree)?;
-            if !tree.is_dir() || tree.parent().is_none() {
-                return Err(LaunchError::new(format!(
-                    "read-only tree {} must be a directory other than /",
-                    tree.display()
-                )));
-            }
+        .map(|held| {
+            held.verify()?;
+            let tree = held.path.clone();
             if let Some(root) = roots
                 .iter()
                 .find(|root| tree.starts_with(root) || root.starts_with(&tree))

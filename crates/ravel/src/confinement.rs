@@ -16,8 +16,8 @@ pub struct Confined {
     private: crate::private_directory::PrivateDirectory,
     pub writable: Vec<PathBuf>,
     pub runtime_read: Vec<PathBuf>,
-    /// The canonical descriptor directory and snapshot trees, read-only.
-    pub read_trees: Vec<PathBuf>,
+    /// The held descriptor directory and snapshot trees, read-only.
+    pub read_trees: Vec<keyed_launch::ReadTree>,
     executable: PathBuf,
     temporary: PathBuf,
 }
@@ -50,6 +50,10 @@ pub struct SkillReads {
     pub trees: Vec<PathBuf>,
     /// The cache root, which no writable grant may overlap.
     pub cache: PathBuf,
+    /// The trees that the managed process checked and probed, by canonical
+    /// path and identity. A harness run grants these objects or refuses; it
+    /// never resolves `trees` again.
+    pub held: Option<Vec<keyed_launch::ReadTree>>,
 }
 
 impl From<&Prepared> for Basis {
@@ -61,9 +65,31 @@ impl From<&Prepared> for Basis {
             skills: selection.skills.as_ref().map(|delivery| SkillReads {
                 trees: delivery.read_trees(),
                 cache: delivery.cache_root.clone(),
+                held: None,
             }),
         }
     }
+}
+
+impl Basis {
+    /// The basis of each harness run: the trees that the managed `confined`
+    /// checked and probed, held by their identity.
+    pub fn holding(mut self, confined: Option<&Confined>) -> Self {
+        if let (Some(skills), Some(confined)) = (self.skills.as_mut(), confined) {
+            skills.held = Some(confined.read_trees.clone());
+        }
+        self
+    }
+}
+
+/// The result channel of an enclosing session, from an absolute non-empty
+/// `RAVEL_EXIT_FILE`. Source acquisition and the snapshot grants both keep
+/// clear of it (docs/specs/skill-discovery.md, "Read access and delegation").
+pub fn inherited_channel() -> Option<PathBuf> {
+    std::env::var_os(EXIT_FILE_VARIABLE)
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
 }
 
 impl Confined {
@@ -255,46 +281,53 @@ fn inaccessible(message: String, path: &Path) -> Refusal {
     .input("--confine")
 }
 
-/// The canonical trees of a skill delivery, checked against the protected
+/// The held trees of a skill delivery, checked against the protected
 /// paths, a known result channel and every writable grant, and, with
 /// `probe`, listed inside the backend (docs/specs/skill-discovery.md, "Read
-/// access and delegation").
+/// access and delegation"). Trees that the managed process held already
+/// must still be the same objects.
 fn skill_trees(
     skills: &SkillReads,
     writable: &[PathBuf],
     protected: &[PathBuf],
     probe: bool,
-) -> Result<Vec<PathBuf>, Refusal> {
-    let mut trees = Vec::with_capacity(skills.trees.len());
-    for tree in &skills.trees {
-        let canonical = tree.canonicalize().map_err(|error| {
-            inaccessible(
-                format!(
-                    "the confinement cannot grant the skill directory {}: {error}",
-                    tree.display()
-                ),
-                tree,
-            )
-        })?;
-        if !canonical.is_dir() {
-            return Err(inaccessible(
-                format!(
-                    "the skill directory {} is not a directory",
-                    canonical.display()
-                ),
-                &canonical,
-            ));
+) -> Result<Vec<keyed_launch::ReadTree>, Refusal> {
+    let held = match &skills.held {
+        Some(held) => {
+            for tree in held {
+                tree.verify().map_err(|error| {
+                    inaccessible(
+                        format!(
+                            "the confinement cannot grant the skill directory {}: {error}",
+                            tree.path().display()
+                        ),
+                        tree.path(),
+                    )
+                })?;
+            }
+            held.clone()
         }
-        trees.push(canonical);
-    }
+        None => skills
+            .trees
+            .iter()
+            .map(|tree| {
+                keyed_launch::ReadTree::hold(tree).map_err(|error| {
+                    inaccessible(
+                        format!(
+                            "the confinement cannot grant the skill directory {}: {error}",
+                            tree.display()
+                        ),
+                        tree,
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?,
+    };
+    let trees: Vec<PathBuf> = held.iter().map(|tree| tree.path().to_owned()).collect();
     // The channel of an enclosing session is a known result channel too.
-    let mut channels = Vec::new();
-    if let Some(inherited) = std::env::var_os(EXIT_FILE_VARIABLE).filter(|path| !path.is_empty()) {
-        let inherited = PathBuf::from(inherited);
-        if inherited.is_absolute() {
-            channels.push(prospective(&inherited)?);
-        }
-    }
+    let channels = inherited_channel()
+        .map(|inherited| prospective(&inherited))
+        .transpose()?;
     for tree in &trees {
         for guarded in protected.iter().chain(&channels) {
             if tree.starts_with(guarded) || guarded.starts_with(tree) {
@@ -328,21 +361,21 @@ fn skill_trees(
         }
     }
     if probe {
-        keyed_launch::confinement_reads_available(&trees).map_err(|error| {
+        keyed_launch::confinement_reads_available(&held).map_err(|error| {
             inaccessible(
                 format!("the confinement backend cannot give the reads of the skill directories: {error}"),
                 &trees[0],
             )
         })?;
     }
-    Ok(trees)
+    Ok(held)
 }
 
 /// Canonicalize every existing component, retaining a normalized absent tail.
 /// Settings can be absent on first use; symlinked ancestors and `..`
 /// still refer to their actual filesystem locations. A dangling symlink is an
 /// unusable path rather than a missing ordinary component.
-fn prospective(path: &Path) -> Result<PathBuf, Refusal> {
+pub fn prospective(path: &Path) -> Result<PathBuf, Refusal> {
     let mut resolved = PathBuf::new();
     for component in path.components() {
         match component {
@@ -385,6 +418,7 @@ mod tests {
             skills: Some(SkillReads {
                 trees,
                 cache: root.join("cache"),
+                held: None,
             }),
         }
     }
@@ -416,7 +450,8 @@ mod tests {
             true,
         )
         .unwrap();
-        assert_eq!(granted.read_trees, [readable.clone(), closed.clone()]);
+        let paths: Vec<_> = granted.read_trees.iter().map(|tree| tree.path()).collect();
+        assert_eq!(paths, [readable.as_path(), closed.as_path()]);
         granted.remove().unwrap();
 
         let refused = refusal(&basis(&root, vec![readable.clone(), root.join("gone")]));
@@ -439,5 +474,57 @@ mod tests {
             refused.message
         );
         assert!(refused.remedy.contains("unconfined"), "{}", refused.remedy);
+    }
+
+    /// A harness run grants the trees that the managed process held, or it
+    /// refuses. A tree whose path now names another directory, through a
+    /// link or as a fresh directory, refuses without a probe. Without the
+    /// hold, the same preparation grants the new destination, which is the
+    /// widening that the hold closes.
+    #[test]
+    fn a_harness_run_refuses_a_tree_that_changed_after_the_managed_check() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let tree = root.join("cache/snapshots/s/tree");
+        let other = root.join("other");
+        std::fs::create_dir_all(&tree).unwrap();
+        std::fs::create_dir_all(&other).unwrap();
+        let unheld = basis(&root, vec![tree.clone()]);
+        let managed = Confined::prepare_for(&unheld, None, &[], true).unwrap();
+        let held = unheld.clone().holding(Some(&managed));
+        Confined::prepare_for(&held, None, &[], false)
+            .unwrap()
+            .remove()
+            .unwrap();
+
+        std::fs::rename(&tree, root.join("aside")).unwrap();
+        std::os::unix::fs::symlink(&other, &tree).unwrap();
+        let refused = match Confined::prepare_for(&held, None, &[], false) {
+            Ok(_) => panic!("the harness run granted a changed tree"),
+            Err(refusal) => refusal,
+        };
+        assert_eq!(refused.code, "skill_access_unavailable");
+        assert!(
+            refused.message.contains("now resolves to"),
+            "{}",
+            refused.message
+        );
+        let widened = Confined::prepare_for(&unheld, None, &[], false).unwrap();
+        let paths: Vec<_> = widened.read_trees.iter().map(|tree| tree.path()).collect();
+        assert_eq!(paths, [other.as_path()]);
+        widened.remove().unwrap();
+
+        std::fs::remove_file(&tree).unwrap();
+        std::fs::create_dir(&tree).unwrap();
+        let refused = match Confined::prepare_for(&held, None, &[], false) {
+            Ok(_) => panic!("the harness run granted a fresh directory"),
+            Err(refusal) => refusal,
+        };
+        assert!(
+            refused.message.contains("another directory"),
+            "{}",
+            refused.message
+        );
+        managed.remove().unwrap();
     }
 }

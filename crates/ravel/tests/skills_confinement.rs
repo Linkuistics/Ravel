@@ -484,6 +484,77 @@ fn a_grant_that_overlaps_the_configuration_or_a_result_channel_refuses_also_thro
     assert!(marker.exists());
 }
 
+/// A source that holds the result channel of an enclosing session refuses
+/// before capture, also through an alias of the source. `skills resolve`, an
+/// unconfined launch and a confined launch each refuse, no managed process
+/// runs and no snapshot exists. Without the inherited channel the same
+/// source captures and launches.
+#[test]
+fn a_source_that_holds_the_inherited_result_channel_refuses_before_capture() {
+    let fixture = Fixture::new();
+    let source = fixture.pack();
+    write(&source.join("channel/result"), "outer result");
+    fixture.deliver(&source, json!({}));
+    let (agent, marker) = marking_agent(&fixture);
+    let alias = fixture.root.join("source-alias");
+    symlink(&source, &alias).unwrap();
+    let canonical = text(&source.canonicalize().unwrap());
+    let check = |launch: &Run, name: &str| {
+        let refusal = launch.refusal(3);
+        let error = &refusal["error"];
+        assert_eq!(error["code"], "skill_access_unavailable", "{name}: {error}");
+        assert_eq!(error["stage"], "skills", "{name}: {error}");
+        let message = error["message"].as_str().unwrap();
+        assert!(message.contains(&canonical), "{name}: {error}");
+        assert!(message.contains("channel/result"), "{name}: {error}");
+        assert!(
+            error["remedy"]
+                .as_str()
+                .unwrap()
+                .contains("RAVEL_EXIT_FILE"),
+            "{name}: {error}"
+        );
+        assert!(!marker.exists(), "{name}: the managed process ran");
+        assert!(
+            !fixture.home.join(CACHE).join("snapshots").exists(),
+            "{name}: a snapshot exists"
+        );
+        assert!(
+            fixture.left_in_tmp().is_empty(),
+            "{name}: {:?}",
+            fixture.left_in_tmp()
+        );
+    };
+    for channel in [source.join("channel/result"), alias.join("channel/result")] {
+        let mut resolve = fixture.command();
+        resolve
+            .args(["skills", "resolve", "--json"])
+            .env("RAVEL_EXIT_FILE", &channel);
+        check(&run(&mut resolve), "skills resolve");
+
+        let mut unconfined = fixture.command();
+        unconfined
+            .args([
+                "start-session",
+                "--kind",
+                "mark",
+                "--json",
+                "--prompt",
+                "task",
+            ])
+            .env("RAVEL_EXIT_FILE", &channel);
+        check(&run(&mut unconfined), "an unconfined launch");
+
+        let mut confined = fixture.confined("mark", &[&agent], &[]);
+        confined.env("RAVEL_EXIT_FILE", &channel);
+        check(&run(&mut confined), "a confined launch");
+    }
+
+    let launch = run(&mut fixture.confined("mark", &[&agent], &[]));
+    assert_eq!(notice(&launch)["skills"]["sources"][0]["id"], "pack");
+    assert!(marker.exists());
+}
+
 #[test]
 fn a_writable_grant_that_overlaps_the_cache_refuses() {
     let fixture = Fixture::new();

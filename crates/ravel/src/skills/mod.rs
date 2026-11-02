@@ -343,8 +343,9 @@ fn refuse_git(skills: &SkillSettings) -> Result<(), Refusal> {
     .location(format!("skills.sources[{index}]")))
 }
 
-/// The protected configuration: the configuration directory and the settings
-/// file, each in its canonical form when it exists.
+/// The protected paths: the configuration directory, the settings file, the
+/// cache and the inherited result channel, each also in its canonical form
+/// when it exists.
 struct Protected {
     paths: Vec<PathBuf>,
 }
@@ -370,6 +371,12 @@ impl Protected {
                 paths.push(canonical);
             }
             paths.push(path);
+        }
+        // A source that holds the result channel of an enclosing session
+        // could capture what that channel holds.
+        if let Some(channel) = crate::confinement::inherited_channel() {
+            paths.extend(crate::confinement::prospective(&channel).ok());
+            paths.push(channel);
         }
         Protected { paths }
     }
@@ -426,8 +433,8 @@ fn origin(
                 protected.display()
             ),
             "move the skill source outside ~/.config/ravel, the directory of the selected \
-             configuration entry and the skill cache, and keep the settings file out of every \
-             source directory",
+             configuration entry, the skill cache and the inherited RAVEL_EXIT_FILE channel, and \
+             keep the settings file out of every source directory",
         )
         .source(canonical.display().to_string())
         .location(at));

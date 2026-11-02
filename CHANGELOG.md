@@ -63,6 +63,13 @@
   writable grant that overlaps the skill cache, and a granted directory that
   the sandbox cannot list. Ravel never retries unconfined. A nested
   `start-session` in a confined parent cannot read the owner settings.
+  Ravel holds each granted directory by its path and identity. A harness run
+  grants the directories that the managed process checked. A directory whose
+  path changed after its check gives no grant: a harness run reports
+  `harness_launch_failed`, and the managed launch stops as
+  `supervision_failed`, exit 126. A source that holds the inherited
+  `RAVEL_EXIT_FILE` refuses as `skill_access_unavailable` before capture, also
+  without confinement and in `skills resolve`.
 - Check each local capture and each cache object. A source that changes while
   Ravel copies it refuses as `skill_source_changed`, with a remedy to try
   again. Ravel reads back each copy, and names that the filesystem of the cache

@@ -326,7 +326,7 @@ The runner tests add direct process checks:
 | `launch.rs` | Grace and KILL branches, ordinary descendants gone on return, and an unrelated process left untouched |
 | `internal/wait_events.rs` | Cleanup order, a reported survivor, and cancellation across wait failures through a private process substitute |
 | `noninteractive.rs` | EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and immediate confined cancellation |
-| `confinement.rs` | Denied reads and writes through a child and descendant, denied symlink access, read-only files and trees, relative links in a tree, and the tree probe |
+| `confinement.rs` | Denied reads and writes through a child and descendant, denied symlink access, read-only files and trees, relative links in a tree, and the tree probe. A held tree whose path changed refuses |
 | `job.rs` | Terminal foreground and mode behaviour through pseudo-terminals |
 
 A selection of these process, isolation and Seatbelt tests passed on

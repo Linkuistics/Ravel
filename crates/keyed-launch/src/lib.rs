@@ -49,8 +49,8 @@ pub use argv::Argv;
 pub use capture::StopRequest;
 pub use channel::{Channel, signal};
 pub use confinement::{
-    FilesystemGrants, confinement_available, confinement_reads_available, confinement_system_reads,
-    regular_file_at,
+    FilesystemGrants, ReadTree, confinement_available, confinement_reads_available,
+    confinement_system_reads, regular_file_at,
 };
 pub use error::LaunchError;
 /// Private fixture seam: absent unless the `native-faults` feature is enabled,

@@ -736,11 +736,14 @@ admitted links inside a source, with no write access to their targets.
 
 Ravel refuses a source boundary or a snapshot grant that overlaps the
 configuration directory, the settings file or a known session-result channel.
-That includes an overlap through a canonical alias. `skills resolve` protects
-the default configuration directory `$HOME/.config/ravel`. A launch also checks
-its actual `--config` directory against the origin record of each snapshot
-that it would reuse. A copy of a protected file in the cache cannot pass a
-grant that the original would fail.
+That includes an overlap through a canonical alias. The inherited
+`RAVEL_EXIT_FILE` of an enclosing session is a known channel. A source that
+holds it refuses before capture, with or without confinement.
+
+`skills resolve` protects the default configuration directory
+`$HOME/.config/ravel`. A launch also checks its actual `--config` directory
+against the origin record of each snapshot that it would reuse. A copy of a
+protected file in the cache cannot pass a grant that the original would fail.
 
 A source that holds the cache root refuses too, also before the cache exists.
 Ravel checks the real path that the opening of the cache would reach.
@@ -753,6 +756,21 @@ directory. That check covers the whole cache root, because a writable staging
 area could change a publication in progress. Before the launch, Ravel lists
 each granted directory inside the backend. Each refusal in this section is
 `skill_access_unavailable`, with no unconfined fallback.
+
+The check holds each granted directory by its canonical path and its device
+and inode. Each harness run and the managed process grant only those held
+directories. A harness run does not resolve the descriptor paths again.
+
+A held path that now resolves to another path, or names another directory,
+gives no grant. Ravel then does not launch the harness run, and the script
+receives `harness_launch_failed`. A change after the check of the managed
+process refuses its launch as `supervision_failed`, exit 126. The managed
+process does not run.
+
+Both backends name a directory by its path. The interval between the last
+check and the bind of the backend stays open. Seatbelt also matches the path
+at each access after the launch. A replacement inside the cache needs code of
+the same user, and the cache does not authenticate against that code.
 
 The harness and its ordinary children inherit the read grant from their
 confinement. A delegate can run in a separate sandbox, a remote worker, another

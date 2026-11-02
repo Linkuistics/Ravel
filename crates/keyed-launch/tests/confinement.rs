@@ -2,11 +2,12 @@
 mod support;
 
 use std::fs;
+use std::path::Path;
 use std::time::Duration;
 
 use std::ffi::OsString;
 
-use keyed_launch::{Argv, Channel, Escalation, Launch};
+use keyed_launch::{Argv, Channel, Escalation, Launch, ReadTree};
 
 #[test]
 fn confined_child_and_descendants_cannot_read_or_write_outside_the_invocation() {
@@ -227,7 +228,7 @@ fn a_read_only_tree_reads_through_links_and_denies_every_write() {
         &keyed_launch::FilesystemGrants {
             writable: std::slice::from_ref(&work),
             runtime_read: &[],
-            read_trees: std::slice::from_ref(&tree),
+            read_trees: &[ReadTree::hold(&tree).unwrap()],
         },
         &mut |_| {},
     )
@@ -254,7 +255,7 @@ fn a_read_only_tree_reads_through_links_and_denies_every_write() {
 }
 
 /// A tree that a writable directory holds, or that holds one, refuses before
-/// the launch, as do a missing tree and a file.
+/// the launch. A missing tree and a file refuse when they are held.
 #[test]
 fn a_read_only_tree_that_overlaps_a_writable_directory_or_is_no_directory_refuses() {
     let dir = tempfile::tempdir().unwrap();
@@ -271,33 +272,88 @@ fn a_read_only_tree_that_overlaps_a_writable_directory_or_is_no_directory_refuse
         (root.join("absent"), "cannot resolve sandbox resource"),
         (root.join("file"), "must be a directory"),
     ] {
-        let argv = Argv::new(
-            OsString::from("/bin/sh"),
-            vec![script.clone().into_os_string()],
-        );
-        let channel = Channel::allocate(&work).unwrap();
-        let error = keyed_launch::run_confined_observed(
-            Launch {
-                argv: &argv,
-                channel: Some((&channel, "TEST_CHANNEL")),
-                scrub: support::controls(),
-                grant: &[],
-                transparent: None,
-                cwd: Some(&work),
-                escalation: quick(),
-            },
-            &keyed_launch::FilesystemGrants {
-                writable: std::slice::from_ref(&work),
-                runtime_read: std::slice::from_ref(&script),
-                read_trees: std::slice::from_ref(&tree),
-            },
-            &mut |_| {},
-        )
-        .unwrap_err()
-        .to_string();
+        let error = match ReadTree::hold(&tree) {
+            Ok(held) => launch_with_tree(&work, &script, held).unwrap_err(),
+            Err(error) => error.to_string(),
+        };
         assert!(error.contains(expected), "{}: {error}", tree.display());
         assert!(!marker.exists());
     }
+}
+
+/// Run `script` confined in `work` with the one read tree `tree`.
+fn launch_with_tree(work: &Path, script: &Path, tree: ReadTree) -> Result<(), String> {
+    let argv = Argv::new(
+        OsString::from("/bin/sh"),
+        vec![script.as_os_str().to_owned()],
+    );
+    let channel = Channel::allocate(work).unwrap();
+    keyed_launch::run_confined_observed(
+        Launch {
+            argv: &argv,
+            channel: Some((&channel, "TEST_CHANNEL")),
+            scrub: support::controls(),
+            grant: &[],
+            transparent: None,
+            cwd: Some(work),
+            escalation: quick(),
+        },
+        &keyed_launch::FilesystemGrants {
+            writable: &[work.to_owned()],
+            runtime_read: &[script.to_owned()],
+            read_trees: &[tree],
+        },
+        &mut |_| {},
+    )
+    .map(|ended| assert!(ended.status.success(), "{:?}", ended.status))
+    .map_err(|error| error.to_string())
+}
+
+/// A held tree whose path now names another directory refuses in the probe
+/// and at the launch, and nothing runs. A link to a protected directory is
+/// not granted as the new destination, and a fresh directory at the same
+/// path is not the directory that the caller checked. The unchanged tree
+/// launches, so the refusal comes from the change.
+#[test]
+fn a_held_tree_whose_path_changed_refuses_in_the_probe_and_the_launch() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().canonicalize().unwrap();
+    let work = root.join("work");
+    let protected = root.join("protected");
+    let tree = root.join("tree");
+    let aside = root.join("aside");
+    fs::create_dir_all(&work).unwrap();
+    fs::create_dir_all(&protected).unwrap();
+    fs::create_dir_all(&tree).unwrap();
+    let marker = work.join("ran");
+    let script = root.join("probe.sh");
+    fs::write(&script, ": > ran\n: > \"$TEST_CHANNEL\"\n").unwrap();
+
+    let held = ReadTree::hold(&tree).unwrap();
+    launch_with_tree(&work, &script, held.clone()).unwrap();
+    assert!(marker.is_file());
+    fs::remove_file(&marker).unwrap();
+
+    fs::rename(&tree, &aside).unwrap();
+    std::os::unix::fs::symlink(&protected, &tree).unwrap();
+    let error = launch_with_tree(&work, &script, held.clone()).unwrap_err();
+    assert!(error.contains("now resolves to"), "{error}");
+    assert!(error.contains(&*protected.to_string_lossy()), "{error}");
+    let error = keyed_launch::confinement_reads_available(std::slice::from_ref(&held))
+        .unwrap_err()
+        .to_string();
+    assert!(error.contains("now resolves to"), "{error}");
+    assert!(!marker.exists());
+
+    fs::remove_file(&tree).unwrap();
+    fs::create_dir(&tree).unwrap();
+    let error = launch_with_tree(&work, &script, held.clone()).unwrap_err();
+    assert!(error.contains("another directory"), "{error}");
+    let error = keyed_launch::confinement_reads_available(std::slice::from_ref(&held))
+        .unwrap_err()
+        .to_string();
+    assert!(error.contains("another directory"), "{error}");
+    assert!(!marker.exists());
 }
 
 /// The read probe lists each tree inside the sandbox. A tree that the
@@ -311,16 +367,20 @@ fn the_read_probe_lists_each_tree_inside_the_sandbox() {
     let closed = root.join("closed");
     fs::create_dir_all(readable.join("a")).unwrap();
     fs::create_dir_all(&closed).unwrap();
-    keyed_launch::confinement_reads_available(std::slice::from_ref(&readable)).unwrap();
+    let held = ReadTree::hold(&readable).unwrap();
+    keyed_launch::confinement_reads_available(std::slice::from_ref(&held)).unwrap();
     // Traversal without listing: a path inside still opens, but the backend
     // cannot give the read of the directory.
     fs::set_permissions(&closed, fs::Permissions::from_mode(0o100)).unwrap();
-    let error = keyed_launch::confinement_reads_available(&[readable.clone(), closed.clone()])
-        .unwrap_err()
-        .to_string();
+    let error = keyed_launch::confinement_reads_available(&[
+        held.clone(),
+        ReadTree::hold(&closed).unwrap(),
+    ])
+    .unwrap_err()
+    .to_string();
     fs::set_permissions(&closed, fs::Permissions::from_mode(0o755)).unwrap();
     assert!(error.contains("probe"), "{error}");
-    let error = keyed_launch::confinement_reads_available(&[root.join("absent")])
+    let error = ReadTree::hold(&root.join("absent"))
         .unwrap_err()
         .to_string();
     assert!(error.contains("cannot resolve sandbox resource"), "{error}");
