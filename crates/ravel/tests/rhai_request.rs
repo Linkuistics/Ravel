@@ -12,7 +12,9 @@ mod support;
 
 use std::fs;
 use std::os::unix::fs::PermissionsExt as _;
-use std::path::{Path, PathBuf};
+#[cfg(target_os = "macos")]
+use std::path::Path;
+use std::path::PathBuf;
 
 use serde_json::{Value, json};
 use support::rhai::{Recorded, rhai_script};

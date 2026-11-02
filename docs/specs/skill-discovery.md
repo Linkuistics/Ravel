@@ -728,8 +728,10 @@ These checks cover the explicit overlap of sources and grants. They do not
 cover secret text that an owner puts inside a source. Ravel also refuses a
 writable grant that overlaps a published snapshot or the descriptor. Then
 confinement cannot make an immutable object writable through the working
-directory. Each refusal in this section is `skill_access_unavailable`, with no
-unconfined fallback.
+directory. That check covers the whole cache root, because a writable staging
+area could change a publication in progress. Before the launch, Ravel lists
+each granted directory inside the backend. Each refusal in this section is
+`skill_access_unavailable`, with no unconfined fallback.
 
 The harness and its ordinary children inherit the read grant from their
 confinement. A delegate can run in a separate sandbox, a remote worker, another
@@ -769,8 +771,11 @@ and write its cache. It replaces the result context only for its own managed
 process. The parent keeps its directories and its channel.
 
 A nested launch inside a confined parent does not escape the sandbox of the
-parent. The nested launch refuses when its settings, its configuration script,
-the transport or cache writes are unavailable. Ravel does not open the
+parent. The nested launch refuses when its configuration script, the
+transport or cache writes are unavailable. On macOS the settings file is
+visible and unreadable, so the nested launch refuses as `settings_invalid`.
+On Linux the namespace holds no settings file. The nested launch then has
+delivery disabled, and it runs when it can read its configuration script. Ravel does not open the
 protected configuration directory to permit it. A harness delegate can reuse
 the retained descriptor without a nested launch. A privileged broker for nested
 launches is outside scope. A `start-session` inside a harness run still refuses

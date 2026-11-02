@@ -331,10 +331,11 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
     let grants = confined
         .as_ref()
         .zip(reads.as_ref())
-        .map(|(confined, reads)| (confined.writable.as_slice(), reads.as_slice()));
-    let filesystem = grants.map(|(writable, runtime_read)| FilesystemGrants {
-        writable,
+        .map(|(confined, reads)| (confined, reads.as_slice()));
+    let filesystem = grants.map(|(confined, runtime_read)| FilesystemGrants {
+        writable: &confined.writable,
         runtime_read,
+        read_trees: &confined.read_trees,
     });
     let working = confined
         .as_ref()

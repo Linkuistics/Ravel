@@ -1110,6 +1110,7 @@ These paths have different grants for the confined managed process:
 | System runtime paths, selected executable and real executable file of the Ravel CLI | Read-only | Ravel grants them for each confined launch. |
 | One additional regular file that exists | Read-only | `--runtime-read FILE`. Repeat it for each file. It requires `--confine` and grants no directory tree. |
 | Parent of the result directory | Read and write | `--exit-dir DIR`. The directory must exist and be writable. |
+| Descriptor directory and snapshot trees of [skill delivery](06-reference.md#skill-delivery-at-launch) | Read-only, with each entry inside them | Ravel grants them when the settings enable skill delivery. |
 
 If the managed process needs a full directory, copy the task data into the
 working directory. A read-only runtime grant stays read-only, even inside a
@@ -1131,6 +1132,17 @@ through symlinks or through the system runtime grants. For example, if you
 run `--confine --config ./config.rhai` from the directory that contains that
 script, the script overlaps the writable working directory. Put the script in
 a separate owner directory, and run Ravel from the project directory.
+
+With skill delivery enabled, keep every writable grant outside the skill
+cache `~/.cache/ravel/skills/v1`. That includes the working directory, the
+`--exit-dir` and `TMPDIR`. Ravel grants the descriptor directory and each
+snapshot tree, and nothing else in the cache.
+
+Ravel refuses a granted directory that overlaps the configuration directory,
+the settings file or the result channel of an enclosing session. Before the
+launch, Ravel lists each granted directory inside the sandbox. Each of these
+failures is `skill_access_unavailable`, with status 3. Ravel then launches no
+worker and no managed process.
 
 `confinement_overlap` reports the paths that overlap. `confinement_unusable`
 reports a resource or a backend that Ravel cannot use. Both use status 2.

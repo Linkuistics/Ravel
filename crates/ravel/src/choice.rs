@@ -59,7 +59,7 @@ pub struct Prepared {
 /// sources and prepare the prompt. A skill refusal comes before confinement,
 /// the worker and the result channel
 /// (docs/specs/skill-discovery.md, "Ownership and order").
-pub fn prepare(args: &SelectionArgs, confine: bool) -> Result<Prepared, Failure> {
+pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
     let home = std::env::var_os("HOME");
     let settings = Settings::read(home.as_deref())?;
     let inputs = Inputs::read(args, &settings)?;
@@ -72,7 +72,6 @@ pub fn prepare(args: &SelectionArgs, confine: bool) -> Result<Prepared, Failure>
         &settings,
         config_dir,
         &inputs.prompt.text,
-        confine,
     )?;
     let settings_path = home
         .as_deref()

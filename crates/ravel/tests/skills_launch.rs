@@ -785,33 +785,6 @@ fn a_harness_run_sees_this_sessions_descriptor_and_disabled_delivery_removes_the
 }
 
 #[test]
-fn a_confined_launch_with_delivery_enabled_refuses_until_the_confinement_stage() {
-    let fixture = Fixture::new();
-    let source = fixture.source("a", &[("s/x/SKILL.md", "x")]);
-    fixture.personal_rhai(&route("fake-agent", "[]"));
-    let confined = &[
-        "--confine",
-        "--runtime-read",
-        &text(&fixture.bin.join("fake-agent")),
-    ];
-    fixture.skills(skills(vec![local("a", &source, &["s"])], vec![]));
-    let refused = fixture.start_with(confined, "p");
-    let error = refused.refusal(3)["error"].clone();
-    assert_eq!(error["code"], "skill_access_unavailable", "{error}");
-    assert_eq!(error["stage"], "skills", "{error}");
-    assert!(
-        error["remedy"].as_str().unwrap().contains("unfinished"),
-        "{error}"
-    );
-    assert!(!fixture.home.join(".cache").exists());
-    assert!(fixture.left_in_tmp().is_empty());
-    // Confined launches with delivery disabled do not change.
-    fixture.skills(skills(vec![], vec![]));
-    let notice = fixture.start_with(confined, "p").report();
-    assert_eq!(notice["skills"], Value::Null);
-}
-
-#[test]
 fn a_prepared_prompt_over_one_mebibyte_refuses_with_both_counts() {
     let fixture = Fixture::new();
     let source = fixture.source("a", &[("s/x/SKILL.md", "x")]);

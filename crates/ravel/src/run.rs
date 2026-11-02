@@ -69,7 +69,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .begin()
             .map_err(|error| failed("cancellation_unavailable", error))?;
         let exit_dir = args.exit_dir.as_deref().map(exit_dir).transpose()?;
-        let prepared = choice::prepare(&args.selection, args.confine)?;
+        let prepared = choice::prepare(&args.selection)?;
         source = prepared.entry.display();
         confined = args
             .confine
@@ -255,6 +255,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 &keyed_launch::FilesystemGrants {
                     writable: &confined.writable,
                     runtime_read: &confined.reads(),
+                    read_trees: &confined.read_trees,
                 },
                 &mut observe,
                 &mut start_check,

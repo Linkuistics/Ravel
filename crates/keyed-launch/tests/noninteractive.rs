@@ -228,6 +228,7 @@ fn confined_supervisor(kill_grace: Duration, expected_signal: i32) {
         &keyed_launch::FilesystemGrants {
             writable: std::slice::from_ref(&work),
             runtime_read: &[],
+            read_trees: &[],
         },
         &mut |_| {},
     )

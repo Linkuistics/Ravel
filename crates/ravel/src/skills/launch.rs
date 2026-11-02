@@ -3,7 +3,7 @@
 //! before the worker (docs/specs/skill-discovery.md, "Ownership and order" and
 //! "The prepared prompt").
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use serde_json::{Map, Value, json};
@@ -33,9 +33,30 @@ pub struct Delivery {
     /// The preamble, the label and the caller block.
     pub prompt: String,
     pub resolution_ms: u128,
+    /// The real path of the cache root. No writable grant of a confined
+    /// session may overlap it.
+    pub cache_root: PathBuf,
 }
 
 impl Delivery {
+    /// The trees that a confined session reads: the directory of the
+    /// descriptor, then the snapshot tree of each source. They exclude the
+    /// staging area and the mutable sources (docs/specs/skill-discovery.md,
+    /// "Read access and delegation").
+    pub fn read_trees(&self) -> Vec<PathBuf> {
+        let descriptor = Path::new(&self.descriptor_path)
+            .parent()
+            .expect("a descriptor file lies in its directory")
+            .to_owned();
+        let snapshots = self.descriptor["sources"]
+            .as_array()
+            .map_or(&[][..], Vec::as_slice)
+            .iter()
+            .filter_map(|source| source["snapshotRoot"].as_str())
+            .map(PathBuf::from);
+        std::iter::once(descriptor).chain(snapshots).collect()
+    }
+
     /// `request.skills`: the descriptor fields and its path, and no offsets.
     pub fn request(&self) -> Value {
         json!({
@@ -85,15 +106,13 @@ fn measure(text: &str) -> Value {
 /// Resolve the sources of `settings` for a launch whose configuration entry
 /// lies in `config_dir`, and prepare the prompt around `original`.
 ///
-/// `None` means that delivery is disabled. A confined launch with delivery
-/// enabled refuses before acquisition until the confinement stage grants the
-/// snapshot reads.
+/// `None` means that delivery is disabled. Confinement grants the reads of
+/// the delivery after this step.
 pub fn prepare(
     home: Option<&Path>,
     settings: &Settings,
     config_dir: &Path,
     original: &str,
-    confine: bool,
 ) -> Result<Option<Delivery>, Refusal> {
     let enabled = home.is_some_and(Path::is_absolute)
         && settings
@@ -102,17 +121,6 @@ pub fn prepare(
             .is_some_and(super::settings::SkillSettings::enabled);
     if !enabled {
         return Ok(None);
-    }
-    if confine {
-        return Err(refuse(
-            "skill_access_unavailable",
-            "the owner settings enable skill delivery, and this build of Ravel cannot yet grant \
-             a confined session read access to the skill snapshots",
-            "confined read grants for skill directories are unfinished in this build; launch \
-             without --confine, or empty the skills arrays to launch confined without directory \
-             delivery",
-        )
-        .input("--confine"));
     }
     let started = Instant::now();
     let resolved = match resolve_protecting(home, settings, &[config_dir])? {
@@ -131,6 +139,7 @@ pub fn prepare(
         descriptor: resolved.descriptor,
         prompt,
         resolution_ms: started.elapsed().as_millis(),
+        cache_root: resolved.cache_root,
     }))
 }
 

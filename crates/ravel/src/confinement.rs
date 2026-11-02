@@ -6,12 +6,18 @@ use std::os::unix::fs::PermissionsExt as _;
 use std::path::{Component, Path, PathBuf};
 
 use crate::choice::Prepared;
+#[cfg(test)]
+use crate::completion::EXIT_FILE_VARIABLE;
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
+#[cfg(not(test))]
+use ravel::EXIT_FILE_VARIABLE;
 
 pub struct Confined {
     private: crate::private_directory::PrivateDirectory,
     pub writable: Vec<PathBuf>,
     pub runtime_read: Vec<PathBuf>,
+    /// The canonical descriptor directory and snapshot trees, read-only.
+    pub read_trees: Vec<PathBuf>,
     executable: PathBuf,
     temporary: PathBuf,
 }
@@ -25,13 +31,25 @@ fn unusable(path: &Path, problem: impl std::fmt::Display) -> Refusal {
 }
 
 /// What a confined launch protects and grants, from the selection that it
-/// belongs to: the working directory, the configuration entry and the owner settings.
+/// belongs to: the working directory, the configuration entry, the owner
+/// settings and the skill delivery.
 /// The managed process and each harness run of one selection share it.
 #[derive(Clone, Debug)]
 pub struct Basis {
     pub cwd: PathBuf,
     pub entry: String,
     pub settings: Option<PathBuf>,
+    /// `None` with skill delivery disabled.
+    pub skills: Option<SkillReads>,
+}
+
+/// The read grants of a skill delivery.
+#[derive(Clone, Debug)]
+pub struct SkillReads {
+    /// The descriptor directory, then each snapshot tree.
+    pub trees: Vec<PathBuf>,
+    /// The cache root, which no writable grant may overlap.
+    pub cache: PathBuf,
 }
 
 impl From<&Prepared> for Basis {
@@ -40,6 +58,10 @@ impl From<&Prepared> for Basis {
             cwd: selection.inputs.cwd.clone(),
             entry: selection.entry.path.clone(),
             settings: selection.settings_path.clone(),
+            skills: selection.skills.as_ref().map(|delivery| SkillReads {
+                trees: delivery.read_trees(),
+                cache: delivery.cache_root.clone(),
+            }),
         }
     }
 }
@@ -153,6 +175,10 @@ impl Confined {
                     }
                 }
             }
+            let read_trees = match &selection.skills {
+                Some(skills) => skill_trees(skills, &writable, &protected, probe)?,
+                None => Vec::new(),
+            };
             let executable = std::env::current_exe()
                 .and_then(std::fs::canonicalize)
                 .map_err(|error| unusable(Path::new("ravel"), error))?;
@@ -161,13 +187,14 @@ impl Confined {
             #[cfg(test)]
             crate::directory_control::operation("confined", "temporary", private.path(), Ok(()))
                 .map_err(|e| unusable(private.path(), e))?;
-            Ok((writable, reads, executable, temporary))
+            Ok((writable, reads, read_trees, executable, temporary))
         })();
         match prepared {
-            Ok((writable, runtime_read, executable, temporary)) => Ok(Self {
+            Ok((writable, runtime_read, read_trees, executable, temporary)) => Ok(Self {
                 private,
                 writable,
                 runtime_read,
+                read_trees,
                 executable,
                 temporary,
             }),
@@ -214,6 +241,103 @@ impl Confined {
     }
 }
 
+/// A refusal of the read grants of a skill delivery: stage `skills`, exit 3,
+/// and never an unconfined fallback.
+fn inaccessible(message: String, path: &Path) -> Refusal {
+    crate::skills::refuse(
+        "skill_access_unavailable",
+        message,
+        "keep the working directory, --exit-dir and the temporary directory outside the skill \
+         cache, and keep the configuration directory, the settings file and result channels \
+         outside the cache; Ravel does not launch the session unconfined",
+    )
+    .source(path.display().to_string())
+    .input("--confine")
+}
+
+/// The canonical trees of a skill delivery, checked against the protected
+/// paths, a known result channel and every writable grant, and, with
+/// `probe`, listed inside the backend (docs/specs/skill-discovery.md, "Read
+/// access and delegation").
+fn skill_trees(
+    skills: &SkillReads,
+    writable: &[PathBuf],
+    protected: &[PathBuf],
+    probe: bool,
+) -> Result<Vec<PathBuf>, Refusal> {
+    let mut trees = Vec::with_capacity(skills.trees.len());
+    for tree in &skills.trees {
+        let canonical = tree.canonicalize().map_err(|error| {
+            inaccessible(
+                format!(
+                    "the confinement cannot grant the skill directory {}: {error}",
+                    tree.display()
+                ),
+                tree,
+            )
+        })?;
+        if !canonical.is_dir() {
+            return Err(inaccessible(
+                format!(
+                    "the skill directory {} is not a directory",
+                    canonical.display()
+                ),
+                &canonical,
+            ));
+        }
+        trees.push(canonical);
+    }
+    // The channel of an enclosing session is a known result channel too.
+    let mut channels = Vec::new();
+    if let Some(inherited) = std::env::var_os(EXIT_FILE_VARIABLE).filter(|path| !path.is_empty()) {
+        let inherited = PathBuf::from(inherited);
+        if inherited.is_absolute() {
+            channels.push(prospective(&inherited)?);
+        }
+    }
+    for tree in &trees {
+        for guarded in protected.iter().chain(&channels) {
+            if tree.starts_with(guarded) || guarded.starts_with(tree) {
+                return Err(inaccessible(
+                    format!(
+                        "the skill directory {} overlaps the protected path {}",
+                        tree.display(),
+                        guarded.display()
+                    ),
+                    tree,
+                ));
+            }
+        }
+    }
+    // The cache root holds every published object and the staging area, so
+    // a writable grant that overlaps it could change a snapshot or a
+    // publication in progress.
+    let cache = prospective(&skills.cache)?;
+    for grant in writable {
+        for object in std::iter::once(&cache).chain(&trees) {
+            if grant.starts_with(object) || object.starts_with(grant) {
+                return Err(inaccessible(
+                    format!(
+                        "the writable confinement grant {} overlaps the skill cache object {}",
+                        grant.display(),
+                        object.display()
+                    ),
+                    grant,
+                ));
+            }
+        }
+    }
+    if probe {
+        keyed_launch::confinement_reads_available(&trees).map_err(|error| {
+            inaccessible(
+                format!("the confinement backend cannot give the reads of the skill directories: {error}"),
+                &trees[0],
+            )
+        })?;
+    }
+    Ok(trees)
+}
+
 /// Canonicalize every existing component, retaining a normalized absent tail.
 /// Settings can be absent on first use; symlinked ancestors and `..`
 /// still refer to their actual filesystem locations. A dangling symlink is an
@@ -243,4 +367,77 @@ fn prospective(path: &Path) -> Result<PathBuf, Refusal> {
         }
     }
     Ok(resolved)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A selection whose skill delivery grants `trees`, with a cache beside
+    /// them and the working directory and configuration elsewhere.
+    fn basis(root: &Path, trees: Vec<PathBuf>) -> Basis {
+        let cwd = root.join("work");
+        std::fs::create_dir_all(&cwd).unwrap();
+        Basis {
+            cwd,
+            entry: root.join("conf/config.rhai").display().to_string(),
+            settings: None,
+            skills: Some(SkillReads {
+                trees,
+                cache: root.join("cache"),
+            }),
+        }
+    }
+
+    fn refusal(basis: &Basis) -> Refusal {
+        match Confined::prepare_for(basis, None, &[], true) {
+            Ok(_) => panic!("the confinement granted the reads"),
+            Err(refusal) => refusal,
+        }
+    }
+
+    /// A tree that the backend cannot read, because it is gone or because
+    /// it admits no listing, refuses as `skill_access_unavailable` before
+    /// any launch. A public launch cannot reach these failures, because its
+    /// resolution checks the same objects first.
+    #[test]
+    fn a_read_that_the_backend_cannot_give_refuses() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let readable = root.join("cache/descriptors/d");
+        let closed = root.join("cache/snapshots/s/tree");
+        std::fs::create_dir_all(&readable).unwrap();
+        std::fs::create_dir_all(&closed).unwrap();
+
+        let granted = Confined::prepare_for(
+            &basis(&root, vec![readable.clone(), closed.clone()]),
+            None,
+            &[],
+            true,
+        )
+        .unwrap();
+        assert_eq!(granted.read_trees, [readable.clone(), closed.clone()]);
+        granted.remove().unwrap();
+
+        let refused = refusal(&basis(&root, vec![readable.clone(), root.join("gone")]));
+        assert_eq!(refused.code, "skill_access_unavailable");
+        assert_eq!(refused.stage, Stage::Skills);
+        assert_eq!(refused.exit, crate::refusal::EXIT_REFUSED);
+        assert!(
+            refused.message.contains("cannot grant"),
+            "{}",
+            refused.message
+        );
+
+        std::fs::set_permissions(&closed, std::fs::Permissions::from_mode(0o100)).unwrap();
+        let refused = refusal(&basis(&root, vec![readable, closed.clone()]));
+        std::fs::set_permissions(&closed, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert_eq!(refused.code, "skill_access_unavailable");
+        assert!(
+            refused.message.contains("cannot give the reads"),
+            "{}",
+            refused.message
+        );
+        assert!(refused.remedy.contains("unconfined"), "{}", refused.remedy);
+    }
 }

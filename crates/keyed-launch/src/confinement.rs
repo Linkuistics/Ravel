@@ -42,11 +42,16 @@ pub fn regular_file_at(directory: &File, name: &OsStr) -> std::io::Result<File> 
     Ok(file)
 }
 
-/// Multiple writable directories and literal read-only runtime files. The
-/// caller decides which owner resources must remain outside these grants.
+/// Multiple writable directories, literal read-only runtime files and
+/// read-only directory trees. The caller decides which owner resources must
+/// remain outside these grants.
 pub struct FilesystemGrants<'a> {
     pub writable: &'a [PathBuf],
     pub runtime_read: &'a [PathBuf],
+    /// Directories granted read-only with every entry beneath them. A tree
+    /// neither lies inside a writable directory nor holds one, so no write
+    /// grant reaches into it.
+    pub read_trees: &'a [PathBuf],
 }
 
 /// System filesystem resources exposed by the native backend. A caller that
@@ -115,9 +120,29 @@ pub fn confinement_system_reads() -> &'static [&'static str] {
 /// Establish an empty native sandbox around a system no-op before selection.
 /// Presence alone does not prove that the backend can apply its policy.
 pub fn confinement_available() -> Result<(), LaunchError> {
-    let mut command = platform_command(&[], &[])?;
+    probe(&[], &[OsStr::new("/usr/bin/true")])
+}
+
+/// List each tree inside a sandbox that grants only `trees` and the system
+/// reads. Success shows that the backend gives the read of each tree, not
+/// only that it accepted the policy.
+pub fn confinement_reads_available(trees: &[PathBuf]) -> Result<(), LaunchError> {
+    let trees = read_trees(trees, &[])?;
+    let lister = ["/bin/ls", "/usr/bin/ls"]
+        .into_iter()
+        .find(|path| Path::new(path).is_file())
+        .ok_or_else(|| {
+            LaunchError::new("cannot probe the read grants: no ls at /bin/ls or /usr/bin/ls")
+        })?;
+    let mut argv = vec![OsStr::new(lister), OsStr::new("-a"), OsStr::new("--")];
+    argv.extend(trees.iter().map(|tree| tree.as_os_str()));
+    probe(&trees, &argv)
+}
+
+fn probe(trees: &[PathBuf], argv: &[&OsStr]) -> Result<(), LaunchError> {
+    let mut command = platform_command(&[], &[], trees)?;
     command
-        .arg("/usr/bin/true")
+        .args(argv)
         .env_clear()
         .current_dir("/")
         .stdin(std::process::Stdio::null());
@@ -172,9 +197,37 @@ pub(crate) fn command_with_grants(
         }
         reads.push(path);
     }
-    let mut command = platform_command(&roots, &reads)?;
+    let trees = read_trees(policy.read_trees, &roots)?;
+    let mut command = platform_command(&roots, &reads, &trees)?;
     command.arg(program).args(argv.args());
     Ok(command)
+}
+
+/// The canonical directory of each tree, which no writable root overlaps.
+fn read_trees(trees: &[PathBuf], roots: &[PathBuf]) -> Result<Vec<PathBuf>, LaunchError> {
+    trees
+        .iter()
+        .map(|tree| {
+            let tree = canonical(tree)?;
+            if !tree.is_dir() || tree.parent().is_none() {
+                return Err(LaunchError::new(format!(
+                    "read-only tree {} must be a directory other than /",
+                    tree.display()
+                )));
+            }
+            if let Some(root) = roots
+                .iter()
+                .find(|root| tree.starts_with(root) || root.starts_with(&tree))
+            {
+                return Err(LaunchError::new(format!(
+                    "read-only tree {} overlaps writable directory {}",
+                    tree.display(),
+                    root.display()
+                )));
+            }
+            Ok(tree)
+        })
+        .collect()
 }
 
 fn canonical(path: &Path) -> Result<PathBuf, LaunchError> {
@@ -201,7 +254,11 @@ fn executable(program: &OsStr) -> Result<PathBuf, LaunchError> {
 }
 
 #[cfg(target_os = "macos")]
-fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, LaunchError> {
+fn platform_command(
+    roots: &[PathBuf],
+    reads: &[PathBuf],
+    trees: &[PathBuf],
+) -> Result<Command, LaunchError> {
     // Seatbelt is inherited by descendants. Parameters keep path text out of
     // the policy language, including quotes and newlines in native filenames.
     // Reference: OpenAI's upstream seatbelt_base_policy.sbpl (Apache-2.0),
@@ -267,6 +324,17 @@ fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, Lau
             command.arg("-D").arg(parameter(&anchor, ancestor));
         }
     }
+    // A subpath covers the tree and each entry beneath it. Seatbelt checks
+    // the resolved path, so a link inside the tree reads its target there.
+    // The default deny keeps the tree read-only, because no writable root
+    // overlaps it.
+    for (index, tree) in trees.iter().enumerate() {
+        let name = format!("TREE_{index}");
+        profile.push_str(&format!(
+            "(allow file-read* file-map-executable (subpath (param \"{name}\")))\n"
+        ));
+        command.arg("-D").arg(parameter(&name, tree));
+    }
     command.args(["-p", &profile, "--"]);
     Ok(command)
 }
@@ -279,7 +347,11 @@ fn parameter(name: &str, path: &Path) -> std::ffi::OsString {
 }
 
 #[cfg(target_os = "linux")]
-fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, LaunchError> {
+fn platform_command(
+    roots: &[PathBuf],
+    reads: &[PathBuf],
+    trees: &[PathBuf],
+) -> Result<Command, LaunchError> {
     // Start with an empty mount namespace, never a read-only bind of `/`.
     // https://github.com/containers/bubblewrap/blob/main/README.md
     let backend = ["/usr/bin/bwrap", "/bin/bwrap"].into_iter().find(|path| Path::new(path).is_file())
@@ -306,6 +378,11 @@ fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, Lau
     for path in reads {
         command.arg("--ro-bind").arg(path).arg(path);
     }
+    // A read-only bind of a tree covers each entry beneath it, and a
+    // relative link inside the tree resolves inside the same mount.
+    for tree in trees {
+        command.arg("--ro-bind").arg(tree).arg(tree);
+    }
     // Auto-created parent directories belong to the namespace's tmpfs root.
     // Freeze that root too, leaving only the invocation bind writable.
     command.args([
@@ -321,7 +398,7 @@ fn platform_command(roots: &[PathBuf], reads: &[PathBuf]) -> Result<Command, Lau
 }
 
 #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-fn platform_command(_: &[PathBuf], _: &[PathBuf]) -> Result<Command, LaunchError> {
+fn platform_command(_: &[PathBuf], _: &[PathBuf], _: &[PathBuf]) -> Result<Command, LaunchError> {
     Err(LaunchError::new(
         "standalone confinement is unavailable on this platform; the task was not launched",
     ))

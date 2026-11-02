@@ -282,6 +282,7 @@ There is no unconfined fallback.
 | An explicit `--exit-dir` | Read and write to that channel parent directory |
 | Selected executable and the real Ravel executable | Read and execute |
 | Each regular file named with `--runtime-read` | Read only, even under a writable directory |
+| The descriptor directory and the snapshot trees of skill delivery | Read only, with each entry inside them. No writable grant overlaps them |
 | System runtime resources | Reads from the backend's platform list, such as system programs, libraries and certificate files |
 | Other file contents | No grant. File metadata can remain visible on macOS |
 
@@ -293,18 +294,21 @@ HOME's presence does not grant access to all files under it.
 
 On macOS, `/usr/bin/sandbox-exec` applies a Seatbelt profile. Descendants
 inherit the restrictions. The profile allows the declared writable roots,
-read-only runtime files and system reads. It also allows network access.
+read-only runtime files, read-only directory trees and system reads. It also allows network access.
 The system reads include `/opt/homebrew/Cellar`, so confinement is not a claim
 that only explicitly named runtime files are readable.
 
 On Linux, bubblewrap starts from an empty mount namespace: a filesystem view
 with only the mounts the backend supplies. Ravel adds system read-only mounts,
-writable roots and explicit read-only file mounts. It supplies private `/proc`
+writable roots, explicit read-only file mounts and read-only directory mounts. It supplies private `/proc`
 and `/dev` views and makes their mounts read-only.
 Bubblewrap also uses user, PID, IPC and UTS namespaces. These separate user
 identity, process IDs, interprocess communication and hostname state.
 Ravel does not request a network namespace, so confinement does not disable
 network access.
+
+Bubblewrap makes the parent directories of each mount in an empty root. Thus,
+`ls` of a parent directory shows only the path to the mount.
 
 The runner calls `setsid` before the backend executes. The confined launch
 needs no terminal handoff, and its new POSIX session avoids the caller's
@@ -322,7 +326,7 @@ The runner tests add direct process checks:
 | `launch.rs` | Grace and KILL branches, ordinary descendants gone on return, and an unrelated process left untouched |
 | `internal/wait_events.rs` | Cleanup order, a reported survivor, and cancellation across wait failures through a private process substitute |
 | `noninteractive.rs` | EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and immediate confined cancellation |
-| `confinement.rs` | Denied file reads and writes through a child and descendant, denied symlink access, and read-only runtime files |
+| `confinement.rs` | Denied reads and writes through a child and descendant, denied symlink access, read-only files and trees, relative links in a tree, and the tree probe |
 | `job.rs` | Terminal foreground and mode behaviour through pseudo-terminals |
 
 A selection of these process, isolation and Seatbelt tests passed on

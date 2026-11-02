@@ -892,11 +892,12 @@ Ravel sets [`RAVEL_SKILL_DIRECTORIES`](#managed-process-environment) to the
 descriptor path. The JSON routing notice gives the
 [`skills` member](#json-routing-notice).
 
-> **Note:** This build cannot give a confined session read access to the
-> snapshots. Thus, `--confine` with delivery enabled refuses as
-> `skill_access_unavailable`, stage `skills`, status 3. The refusal comes
-> before Ravel stores a snapshot. Its remedy tells you that confined grants
-> are unfinished. Confined launches with delivery disabled do not change.
+With `--confine`, the managed process and each harness run can read the
+descriptor directory and each snapshot tree. The grants are read-only. They
+do not include the temporary objects of the cache, the manifest of a snapshot
+or the source directories. [Confine the managed process](05-running-sessions.md#confine-the-managed-process)
+gives the overlaps that refuse as `skill_access_unavailable`, status 3.
+Confined launches with delivery disabled do not change.
 
 ## Exit statuses
 
@@ -1272,7 +1273,7 @@ above. An environment grant has no effect on that inheritance. See
 | `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG`, `LC_*` | Ravel retains the caller values when they are present. A retained `HOME` gives no filesystem access to that directory. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `TMPDIR`, `TMP`, `TEMP` | Ravel sets all three to the temporary directory of the private run. They replace the caller values. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `RAVEL_EXIT_FILE` | A new path for this session. Ravel supplies it after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
-| `RAVEL_SKILL_DIRECTORIES` | The descriptor path of this session when skill delivery is enabled. In this build, a confined launch with delivery enabled refuses. | [Skill delivery at launch](#skill-delivery-at-launch) |
+| `RAVEL_SKILL_DIRECTORIES` | The descriptor path of this session when skill delivery is enabled. The confinement grants the read of the descriptor and the snapshots. | [Skill delivery at launch](#skill-delivery-at-launch) |
 | Every other caller variable | Absent. `--config-env` grants only `ravel::env` access and adds no variable here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 
 The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
@@ -1775,7 +1776,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Restore it, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
-| `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration, the directory of the configuration entry or the skill cache. Move the source. In this build, `--confine` with delivery enabled also refuses. | [Skill delivery at launch](#skill-delivery-at-launch) |
+| `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration, the directory of the configuration entry or the skill cache. Move the source. With `--confine`, a skill grant overlaps the configuration or a result channel. Or a writable grant overlaps the skill cache, or the sandbox cannot list a grant. Move the path. | [Skill delivery at launch](#skill-delivery-at-launch) |
 | `skill_limit_exceeded` | `skills` | 3 | A count or a size passes a bound of a resolution, or the prepared prompt is more than 1,048,576 bytes. Configure fewer or smaller sources, or give a smaller task that refers to other files. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |
 | `skill_resolution_timeout` | `skills` | 124 | The resolution passed `skills.resolutionTimeoutMs`. Raise the setting, or address the latency of the storage of the source. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |
 | `skill_resolution_cancelled` | `skills` | 129/130/143 | HUP, INT or TERM arrived during the resolution. Ravel removed its private temporary directory and raises the same signal again. Try again only if the caller still wants the work. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |

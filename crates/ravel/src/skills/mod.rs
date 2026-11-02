@@ -75,6 +75,8 @@ pub struct Resolved {
     pub descriptor: Value,
     /// The preamble, without a final newline.
     pub instructions: String,
+    /// The real path of the cache root that holds the published objects.
+    pub cache_root: PathBuf,
 }
 
 impl Resolved {
@@ -287,6 +289,7 @@ fn watched(
         descriptor_path,
         descriptor,
         instructions,
+        cache_root: cache.path.clone(),
     })
 }
 

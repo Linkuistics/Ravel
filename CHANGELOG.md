@@ -47,10 +47,18 @@
   with prompt byte counts and digests. A prepared
   prompt over 1 MiB refuses as `skill_limit_exceeded`. A source that overlaps
   the directory of the configuration entry refuses as
-  `skill_access_unavailable`. In this build, `--confine` with delivery enabled
-  also refuses as `skill_access_unavailable`. A later stage of this release
-  adds the confined read grants. The example `harness-table.rhai` gives its
+  `skill_access_unavailable`. The example `harness-table.rhai` gives its
   lead harness each snapshot root.
+- Grant confined sessions the reads of skill delivery. Under `--confine`, the
+  managed process and each harness run read the descriptor directory and each
+  snapshot tree, read-only, on macOS `sandbox-exec` and Linux bubblewrap. The
+  grants exclude the staging area, the snapshot manifests and the sources.
+  A granted directory that overlaps the configuration directory, the settings
+  file or the result channel of an enclosing session refuses as
+  `skill_access_unavailable`, exit 3, also through an alias. So does a
+  writable grant that overlaps the skill cache, and a granted directory that
+  the sandbox cannot list. Ravel never retries unconfined. A nested
+  `start-session` in a confined parent cannot read the owner settings.
 - Check each local capture and each cache object. A source that changes while
   Ravel copies it refuses as `skill_source_changed`, with a remedy to try
   again. Ravel reads back each copy, and names that the filesystem of the cache

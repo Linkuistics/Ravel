@@ -105,7 +105,9 @@ Canonical working directory and a private run directory are writable.
 
 `--runtime-read` grants repeatable regular files read-only and requires confinement. System runtime reads and the canonical Ravel executable are admitted. Canonical grants must not overlap the configuration directory or settings file.
 
-With skill delivery enabled, Ravel also grants the descriptor and the snapshot trees read-only, as [read access and delegation](skill-discovery.md#read-access-and-delegation) states.
+With skill delivery enabled, Ravel also grants the descriptor directory and the snapshot trees read-only, as [read access and delegation](skill-discovery.md#read-access-and-delegation) states.
+A granted directory that overlaps the configuration directory, the settings file or a known result channel refuses as `skill_access_unavailable`, exit 3.
+So does a writable grant that overlaps the skill cache, and a granted directory that the backend cannot list.
 
 The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. The backend's filesystem contract and platform limits live in
 [the runner explanation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).
