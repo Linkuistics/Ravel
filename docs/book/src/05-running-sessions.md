@@ -195,9 +195,9 @@ the arguments of the selected program.
 Why is a file safer for exact text? Shell command substitution removes
 trailing newlines. Thus, `--prompt "$(cat prompt.txt)"` can change the text
 before Ravel receives it. `--prompt-file prompt.txt` reads the file directly.
-Ravel changes no text before the configuration script receives it. Then the
-script makes the arguments of the selected command and decides how to give
-the prompt to that program.
+With skill delivery disabled, Ravel changes no text before the configuration
+script receives it. Then the script makes the arguments of the selected
+command and decides how to give the prompt to that program.
 
 The [kind](02-actors-and-words.md#caller-and-owner) is a required caller
 token that is not empty. Ravel has no catalogue of kinds and does not get a
@@ -475,6 +475,33 @@ The final newline came from `prompt.txt`. Ravel added no newline. The
 `printf` output of the fake agent goes to the caller's standard error, because
 Ravel uses standard output only for the result. This example does not need a
 `tasks/check.md` file.
+
+### Give the agent the owner's skill directories
+
+The owner can configure skill sources in the `skills` object of the settings.
+Then each `start-session` prepares those sources before it evaluates the
+configuration script. The caller and the configuration script need no new
+input for this. Ravel finds no skill and gives no meaning to a skill name. The
+agent finds and reads the skills that apply to its work.
+
+Ravel puts the discovery instructions before the caller's prompt in
+`request.prompt`. The caller's bytes follow, unchanged, between two delimiter
+lines. `request.originalPrompt` keeps the caller's prompt alone. Your
+instructions to end the session stay exact, because Ravel does not read or
+change them. A caller
+instruction to load a skill "first" comes after the mandatory reads. Write
+"after any mandatory guidance" when that order matters to you.
+
+The managed process and each harness run also receive
+`RAVEL_SKILL_DIRECTORIES`, the path of the descriptor of the directory set. An
+agent that loses the path from its prompt can read it there. With delivery
+disabled, Ravel removes that name from their environment.
+
+A skill refusal stops the launch before the worker starts. For example, a
+missing source or a missing mandatory file refuses with status 3, and no
+managed process starts. [Skill delivery at launch](06-reference.md#skill-delivery-at-launch)
+gives the parts of the prepared prompt, the refusals and the current limit
+for `--confine`.
 
 ## Accept a result only after success
 
@@ -1476,7 +1503,11 @@ mixed diagnostic stream, even with `--json`:
 The JSON routing notice gives `selection`, `config`, `worker`,
 `selectionMs`, the delivered `context` and the effective `bounds`. It also
 gives `configEnvironment`, `resolution`, `promptSource`, the captured
-`diagnostics` of the configuration script and `skills`, which is `null`. The
+`diagnostics` of the configuration script and `skills`.
+
+The member `skills` is `null` with skill delivery disabled. Otherwise it
+gives the descriptor path, the sources, the resolution time and the byte
+count and digest of each prompt. The
 member `config` describes the configuration script. The member `context` is the selection context, not the
 result channel. Grant diagnostics show the name of each environment variable
 and whether it is set. They never show its value.

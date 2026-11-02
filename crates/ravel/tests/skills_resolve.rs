@@ -738,56 +738,6 @@ fn a_failure_prints_text_without_json_and_nothing_on_stdout() {
 }
 
 #[test]
-fn start_session_refuses_enabled_delivery_until_the_launch_stage() {
-    let fixture = Fixture::new();
-    let source = fixture.source("pack", &[("SKILL.md", "x")]);
-    let marker = fixture.root.join("launched");
-    let config = fixture.root.join("config.rhai");
-    fs::write(
-        &config,
-        format!(
-            r#"export const SCHEMA_VERSION = 4;
-export const VERSION = "skills";
-fn select(request, context) {{
- #{{ status: "selected", program: "/bin/sh", args: ["-c", "touch {0}; exec {1} end-session done"],
-   provider: "p", model: "m", effort: "e", reason: "r" }}
-}}"#,
-            marker.display(),
-            FRONT
-        ),
-    )
-    .unwrap();
-    let start = || {
-        fixture
-            .command()
-            .args([
-                "start-session",
-                "--kind",
-                "check",
-                "--json",
-                "--prompt",
-                "task",
-                "--config",
-            ])
-            .arg(&config)
-            .output()
-            .unwrap()
-    };
-    fixture.skills(skills(vec![local("pack", &source, &["."])], vec![]));
-    let output = start();
-    assert_eq!(output.status.code(), Some(3), "{}", stderr(&output));
-    let document: Value = serde_json::from_slice(&output.stderr).unwrap();
-    assert_eq!(document["error"]["code"], "skill_launch_unsupported");
-    assert!(!marker.exists());
-    // Disabled delivery launches as before.
-    fixture.skills(skills(vec![], vec![]));
-    let output = start();
-    assert_eq!(output.status.code(), Some(0), "{}", stderr(&output));
-    assert_eq!(output.stdout, b"done");
-    assert!(marker.exists());
-}
-
-#[test]
 fn the_help_shows_both_forms_the_disabled_result_and_the_cache_side_effect() {
     let fixture = Fixture::new();
     let output = fixture

@@ -37,7 +37,7 @@ Paths below are relative to the checkout root.
 | Step | Code location | What passes to the next step |
 |---|---|---|
 | Parse the command | `crates/ravel/src/main.rs`, `main` | `RunArgs` for `run::run` |
-| Check inputs and configuration script path | `crates/ravel/src/choice.rs`, `prepare` | `Prepared`, with inputs and the configuration script entry |
+| Check inputs and configuration script path, and prepare skill delivery | `crates/ravel/src/choice.rs`, `prepare` | `Prepared`, with inputs, the configuration script entry and any prepared skill delivery |
 | Evaluate and check the configuration script | `choice::choose_prepared`, `worker::evaluate` | A checked command after worker cleanup |
 | Find the program | `crates/ravel/src/program.rs`, `resolve` | The executable path and original program name |
 | Prepare output and channel | `crates/ravel/src/run.rs`, `run` | A `Launch` with arguments and its own [result channel](02-actors-and-words.md#the-managed-process-and-its-result) |
@@ -98,11 +98,42 @@ to the caller's working directory. It requires a readable regular file and
 a real path that the worker can import exactly.
 It does not search for another configuration script when this path fails.
 
-The prompt remains caller data. The request that `choice::request` constructs
-contains the unchanged prompt, the
-[kind](02-actors-and-words.md#caller-and-owner), the working directory, parameters
-and effective limits. Ravel does not append instructions to end the session.
-The example's configuration script chooses to pass the prompt to the fake.
+Then `prepare` resolves the skill sources and prepares the prompt. This step
+comes before confinement and before the worker. Thus, a skill refusal starts
+no worker and allocates no result channel.
+
+Excerpt from `crates/ravel/src/choice.rs`: the call that follows the entry in
+`prepare`. `config_dir` is the directory of the canonical entry, which the
+resolver protects.
+
+```rust
+    let skills = crate::skills::launch::prepare(
+        home.as_deref().map(Path::new),
+        &settings,
+        config_dir,
+        &inputs.prompt.text,
+        confine,
+    )?;
+```
+
+The example has no `skills` settings, so this call returns `None`. Then the
+request holds the caller's prompt unchanged in both `originalPrompt` and
+`prompt`. With delivery enabled, `skills::launch::wrap` puts the discovery
+instructions before the caller's bytes, and `request.prompt` holds that
+prepared text. The request also holds the
+[kind](02-actors-and-words.md#caller-and-owner), the working directory,
+parameters and effective limits. Ravel does not append instructions to end
+the session. The example's configuration script chooses to pass the prompt to
+the fake.
+
+Excerpt from `crates/ravel/src/run.rs`: the environment of the managed
+process. The descriptor path replaces an inherited `RAVEL_SKILL_DIRECTORIES`,
+and `scrubbed` removes that name when delivery is disabled.
+
+```rust
+        let directories = setup.skill_directories.as_ref();
+        environment.extend(skill_environment(directories));
+```
 
 ## Evaluate and check the configuration script
 

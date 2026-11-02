@@ -717,7 +717,7 @@ fn partial_acquisition_cleanup_fixture() {
             }
         }
     } else if route == "direct" && role == "confined" {
-        let prepared = crate::choice::prepare(&args.selection).unwrap();
+        let prepared = crate::choice::prepare(&args.selection, args.confine).unwrap();
         crate::confinement::Confined::prepare(&prepared, None, &[])
             .map_err(|e| crate::refusal::Failure::from(e).to_text())
             .and_then(|c| c.remove())
@@ -726,7 +726,7 @@ fn partial_acquisition_cleanup_fixture() {
         || (route == "direct" && role == "worker")
     {
         let selected = crate::choice::choose_prepared(
-            crate::choice::prepare(&args.selection).unwrap(),
+            crate::choice::prepare(&args.selection, args.confine).unwrap(),
             &crate::rhai_worker::harness::RunSetup::default(),
         );
         eprintln!("Selected={}", selected.is_ok());

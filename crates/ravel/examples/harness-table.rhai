@@ -9,9 +9,16 @@
 // repository with `--add-dir`. In a primary workspace, or anywhere else,
 // nothing more is granted. Test the routing with temporary fake agents on a
 // private PATH: start-session launches the selected program.
+//
+// SKILL DIRECTORIES. When the owner settings enable skill delivery,
+// `request.prompt` holds the directories and the loading instructions before
+// the caller's task, and `request.skills` names the retained snapshots. The
+// lead reads only its cwd and the directories that `--add-dir` names, so it is
+// given each snapshot root. The reviewer runs with full access and reads every
+// path, so it needs no grant. The snapshots are read-only.
 
 export const SCHEMA_VERSION = 4;
-export const VERSION = "harness-table 3";
+export const VERSION = "harness-table 4";
 
 /// A command line, and the labels it is recorded under. `style` names the
 /// layout of its arguments, which `harness_args` builds.
@@ -24,8 +31,9 @@ fn review_agent(model, effort) {
 }
 
 /// The arguments of `harness` for `prompt`. `grants` are the directories beyond
-/// the cwd that the harness may write.
-fn harness_args(harness, prompt, grants) {
+/// the cwd that the harness may write, and `reads` the directories that it
+/// must be able to read.
+fn harness_args(harness, prompt, grants, reads) {
     let args = [];
     if harness.style == "review" {
         args += ["--model", harness.model, "-c", `reasoning_effort=${harness.effort}`,
@@ -33,6 +41,7 @@ fn harness_args(harness, prompt, grants) {
         for grant in grants { args += ["--add-dir", grant]; }
     } else {
         for grant in grants { args += ["--add-dir", grant]; }
+        for read in reads { args += ["--add-dir", read]; }
         args += ["--model", harness.model, "--effort", harness.effort];
     }
     args.push(prompt);
@@ -68,6 +77,15 @@ fn select_harness(kind) {
 
         _ => (),
     }
+}
+
+/// The root of each retained skill snapshot, or an empty list when skill
+/// delivery is disabled and `request.skills` is `()`.
+fn skill_reads(skills) {
+    if skills == () { return []; }
+    let reads = [];
+    for source in skills.sources { reads.push(source.snapshotRoot); }
+    reads
 }
 
 fn refused(code, message, remedy) {
@@ -122,7 +140,7 @@ fn select(request, context) {
     #{
         status: "selected",
         program: harness.program,
-        args: harness_args(harness, request.prompt, grants),
+        args: harness_args(harness, request.prompt, grants, skill_reads(request.skills)),
         provider: harness.provider,
         model: harness.model,
         effort: harness.effort,

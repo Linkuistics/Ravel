@@ -18,6 +18,7 @@ use crate::environment::{CONFIG_RUN, LAUNCH_CONTROLS};
 use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
 use crate::rhai_worker::harness::{ConfineSetup, RunSetup};
 use crate::signal_state;
+use crate::skills::launch::SKILL_DIRECTORIES;
 
 /// The waits of the managed process and of each harness run.
 pub(crate) const ESCALATION: Escalation = Escalation {
@@ -68,7 +69,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             .begin()
             .map_err(|error| failed("cancellation_unavailable", error))?;
         let exit_dir = args.exit_dir.as_deref().map(exit_dir).transpose()?;
-        let prepared = choice::prepare(&args.selection)?;
+        let prepared = choice::prepare(&args.selection, args.confine)?;
         source = prepared.entry.display();
         confined = args
             .confine
@@ -87,6 +88,10 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 runtime_read: args.runtime_read.clone(),
             }),
             exit_dir: exit_dir.clone(),
+            skill_directories: prepared
+                .skills
+                .as_ref()
+                .map(|skills| OsString::from(&skills.descriptor_path)),
         };
         let Selected {
             choice,
@@ -140,9 +145,14 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                 .iter()
                 .map(crate::rhai_worker::harness::RunRecord::to_json)
                 .collect();
-            // Skill delivery is not built yet, so the member is null
+            // Counts and digests of both prompts, never their text
             // (`docs/specs/skill-discovery.md`, *Diagnostics*).
-            notice["skills"] = serde_json::Value::Null;
+            notice["skills"] = choice
+                .skills
+                .as_ref()
+                .map_or(serde_json::Value::Null, |skills| {
+                    skills.notice(&choice.inputs.prompt.text)
+                });
             // The budgets join the bounds of the notice.
             for bound in choice.inputs.limits.budgets.bounds() {
                 notice["bounds"][bound.name] = bound.to_json();
@@ -181,14 +191,16 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             choice.command.args.iter().map(OsString::from).collect(),
         )
         .with_arg0(OsString::from(&choice.executable.program));
-        let environment = confined
+        let mut environment = confined
             .as_ref()
             .map_or_else(Vec::new, crate::confinement::Confined::environment);
+        let directories = setup.skill_directories.as_ref();
+        environment.extend(skill_environment(directories));
         let grant: Vec<_> = environment
             .iter()
             .map(|(name, value)| (name.as_os_str(), value.as_os_str()))
             .collect();
-        let scrub: Vec<_> = LAUNCH_CONTROLS.map(OsStr::new).into();
+        let scrub = scrubbed(directories);
         #[cfg(test)]
         crate::native_entry_tests::before_managed();
         let entry = signal_state::entry();
@@ -343,6 +355,25 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         .and_then(|()| io::stdout().flush())
         .map_err(|error| failed("result_write_failed", error))?;
     Ok(())
+}
+
+/// The descriptor path under `RAVEL_SKILL_DIRECTORIES`, which replaces a stale
+/// inherited value. With delivery disabled, nothing is granted.
+pub(crate) fn skill_environment(directories: Option<&OsString>) -> Vec<(OsString, OsString)> {
+    directories
+        .map(|path| (OsString::from(SKILL_DIRECTORIES), path.clone()))
+        .into_iter()
+        .collect()
+}
+
+/// The names that a managed process or a harness run never inherits: the
+/// launch controls, and `RAVEL_SKILL_DIRECTORIES` with delivery disabled.
+pub(crate) fn scrubbed(directories: Option<&OsString>) -> Vec<&'static OsStr> {
+    let mut scrub: Vec<&OsStr> = LAUNCH_CONTROLS.map(OsStr::new).into();
+    if directories.is_none() {
+        scrub.push(OsStr::new(SKILL_DIRECTORIES));
+    }
+    scrub
 }
 
 // Keep runner outcome data before converting its opaque error. The numeric

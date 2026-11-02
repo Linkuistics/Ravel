@@ -18,6 +18,7 @@ use crate::rhai_worker::front::{self as rhai_front, Admitted, Session};
 use crate::rhai_worker::harness::{RunRecord, RunSetup};
 use crate::rhai_worker::{Limit, Module, Read, Reply, ScriptFailure};
 use crate::settings::Settings;
+use crate::skills::launch::Delivery;
 
 #[derive(Debug)]
 pub struct Choice {
@@ -39,6 +40,8 @@ pub struct Choice {
     pub reads: Vec<Read>,
     /// Every harness run of the Rhai path, in order. (rhai)
     pub runs: Vec<RunRecord>,
+    /// The prepared skill delivery, or `None` with delivery disabled.
+    pub skills: Option<Delivery>,
     pub diagnostics: Diagnostics,
     pub operational: Vec<String>,
 }
@@ -48,14 +51,29 @@ pub struct Prepared {
     pub inputs: Inputs,
     pub entry: ConfigEntry,
     pub settings_path: Option<std::path::PathBuf>,
+    /// The prepared skill delivery, or `None` with delivery disabled.
+    pub skills: Option<Delivery>,
 }
 
-pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
+/// Read the settings, the caller inputs and the entry, then resolve the skill
+/// sources and prepare the prompt. A skill refusal comes before confinement,
+/// the worker and the result channel
+/// (docs/specs/skill-discovery.md, "Ownership and order").
+pub fn prepare(args: &SelectionArgs, confine: bool) -> Result<Prepared, Failure> {
     let home = std::env::var_os("HOME");
     let settings = Settings::read(home.as_deref())?;
     let inputs = Inputs::read(args, &settings)?;
     let entry = authority::resolve(args.config.as_deref(), &inputs.cwd, home.as_deref())?;
-    refuse_enabled_delivery(&settings)?;
+    let config_dir = Path::new(&entry.path)
+        .parent()
+        .expect("a canonical configuration entry has a parent");
+    let skills = crate::skills::launch::prepare(
+        home.as_deref().map(Path::new),
+        &settings,
+        config_dir,
+        &inputs.prompt.text,
+        confine,
+    )?;
     let settings_path = home
         .as_deref()
         .map(Path::new)
@@ -65,36 +83,19 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
         inputs,
         entry,
         settings_path,
+        skills,
     })
 }
 
-/// This build resolves skill sources only through `ravel skills resolve`. A
-/// launch with delivery enabled refuses before any worker starts, so it never
-/// silently drops the owner's guidance. The launch stage removes this refusal,
-/// which has no stable public code.
-fn refuse_enabled_delivery(settings: &Settings) -> Result<(), Refusal> {
-    if settings
-        .skills
-        .as_ref()
-        .is_some_and(crate::skills::settings::SkillSettings::enabled)
-    {
-        return Err(crate::skills::refuse(
-            "skill_launch_unsupported",
-            "the owner settings enable skill delivery, but this build of Ravel prepares no \
-             launch prompt with skill directories",
-            "launch preparation arrives with the unfinished launch stage; use ravel skills \
-             resolve and pass its output to the harness yourself, or empty the skills arrays to \
-             launch without directory delivery",
-        )
-        .location("skills"));
-    }
-    Ok(())
-}
-
 pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected, Failure> {
-    let Prepared { inputs, entry, .. } = prepared;
+    let Prepared {
+        inputs,
+        entry,
+        skills,
+        ..
+    } = prepared;
     let source = entry.display();
-    let evaluated = evaluate_and_resolve_rhai(inputs, entry, setup);
+    let evaluated = evaluate_and_resolve_rhai(inputs, entry, skills, setup);
 
     match evaluated {
         // The program is resolved, and the handlers stay: the caller decides
@@ -140,6 +141,7 @@ pub fn overruled(failure: Failure, source: &str) -> Failure {
 fn evaluate_and_resolve_rhai(
     inputs: Inputs,
     entry: ConfigEntry,
+    skills: Option<Delivery>,
     setup: &RunSetup,
 ) -> Result<Choice, Failure> {
     let source = entry.display();
@@ -178,7 +180,7 @@ fn evaluate_and_resolve_rhai(
             name: &entry.path,
             unreadable: &unreadable,
         },
-        &rhai_request(&inputs),
+        &rhai_request(&inputs, skills.as_ref()),
         context.as_ref().map(|delivered| &delivered.value),
         launch,
         &inputs.limits,
@@ -230,6 +232,7 @@ fn evaluate_and_resolve_rhai(
         modules: evaluation.modules,
         reads: evaluation.reads,
         runs: evaluation.runs,
+        skills,
         diagnostics,
         operational: evaluation.operational,
     })
@@ -494,14 +497,15 @@ fn limit_refusal(failure: &ScriptFailure, file: &str) -> Refusal {
 /// The request of the Rhai path: the fields of the caller, with the two that
 /// the worker adds itself, `schemaVersion` and `limits`, left out. (rhai)
 ///
-/// Skill delivery is not built yet, so `prompt` holds the bytes of
-/// `originalPrompt` and `skills` is null (`docs/specs/skill-discovery.md`,
-/// *Request and configuration script*).
-fn rhai_request(inputs: &Inputs) -> Value {
+/// With delivery disabled, `prompt` holds the bytes of `originalPrompt` and
+/// `skills` is null (`docs/specs/skill-discovery.md`, *Request and
+/// configuration script*).
+fn rhai_request(inputs: &Inputs, skills: Option<&Delivery>) -> Value {
     let mut request = Map::new();
     request.insert("kind".into(), inputs.kind.clone().into());
     request.insert("originalPrompt".into(), inputs.prompt.text.clone().into());
-    request.insert("prompt".into(), inputs.prompt.text.clone().into());
+    let prompt = skills.map_or(&inputs.prompt.text, |skills| &skills.prompt);
+    request.insert("prompt".into(), prompt.clone().into());
     request.insert("cwd".into(), inputs.cwd.to_string_lossy().into());
     let params: Map<String, Value> = inputs
         .params
@@ -518,7 +522,10 @@ fn rhai_request(inputs: &Inputs) -> Value {
     if let Some(context) = &inputs.context {
         request.insert("context".into(), context.value.clone());
     }
-    request.insert("skills".into(), Value::Null);
+    request.insert(
+        "skills".into(),
+        skills.map_or(Value::Null, Delivery::request),
+    );
     Value::Object(request)
 }
 
@@ -557,7 +564,7 @@ mod tests {
             grants: crate::environment::Grants::default(),
             directory: crate::settings::Directory::default(),
         };
-        let request = rhai_request(&inputs);
+        let request = rhai_request(&inputs, None);
         assert_eq!(
             request,
             serde_json::json!({
@@ -575,7 +582,7 @@ mod tests {
             context: None,
             ..inputs
         };
-        let request = super::rhai_request(&absent);
+        let request = super::rhai_request(&absent, None);
         // The order of keys is the order of insertion when a crate turns on
         // serde_json's `preserve_order`, so the keys are compared as a set.
         let mut keys = request.as_object().unwrap().keys().collect::<Vec<_>>();

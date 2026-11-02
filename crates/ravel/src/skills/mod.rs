@@ -6,6 +6,7 @@
 //! checks files, and it shows directories.
 
 pub mod command;
+pub mod launch;
 mod preamble;
 pub mod settings;
 mod snapshot;
@@ -85,6 +86,17 @@ impl Resolved {
 
 /// Resolve the configured sources of `settings`, read from `home`.
 pub fn resolve(home: Option<&Path>, settings: &Settings) -> Result<Resolution, Refusal> {
+    resolve_protecting(home, settings, &[])
+}
+
+/// Resolve as [`resolve`] does, and also protect `also`. A launch protects the
+/// directory of its configuration entry, which `--config` can move away from
+/// `$HOME/.config/ravel`.
+pub fn resolve_protecting(
+    home: Option<&Path>,
+    settings: &Settings,
+    also: &[&Path],
+) -> Result<Resolution, Refusal> {
     let (Some(home), Some(skills)) = (
         home.filter(|home| home.is_absolute()),
         settings.skills.as_ref().filter(|skills| skills.enabled()),
@@ -92,7 +104,7 @@ pub fn resolve(home: Option<&Path>, settings: &Settings) -> Result<Resolution, R
         return Ok(Resolution::Disabled);
     };
     refuse_git(skills)?;
-    let protected = Protected::new(home);
+    let protected = Protected::new(home, also);
     let origins = skills
         .sources
         .iter()
@@ -203,7 +215,7 @@ struct Protected {
 }
 
 impl Protected {
-    fn new(home: &Path) -> Self {
+    fn new(home: &Path, also: &[&Path]) -> Self {
         let mut paths = Vec::new();
         // The cache is a writable overlap: a source that holds it would
         // capture its own staging.
@@ -216,7 +228,10 @@ impl Protected {
             home.join(SETTINGS_FILE),
             home.join(CACHE_ROOT),
             cache,
-        ] {
+        ]
+        .into_iter()
+        .chain(also.iter().map(|path| path.to_path_buf()))
+        {
             if let Ok(canonical) = path.canonicalize() {
                 paths.push(canonical);
             }
@@ -276,8 +291,9 @@ fn origin(
                 canonical.display(),
                 protected.display()
             ),
-            "move the skill source outside ~/.config/ravel and the skill cache, and keep the \
-             settings file out of every source directory",
+            "move the skill source outside ~/.config/ravel, the directory of the selected \
+             configuration entry and the skill cache, and keep the settings file out of every \
+             source directory",
         )
         .source(canonical.display().to_string())
         .location(at));

@@ -395,18 +395,41 @@ means “no value”, and it becomes `null` in JSON.
 | `schemaVersion` | The integer `4`. |
 | `kind` | The caller's [kind](02-actors-and-words.md#caller-and-owner) token, from `--kind`. |
 | `originalPrompt` | The caller's prompt, unchanged. |
-| `prompt` | The prompt to give to the harness. It holds the same bytes as `originalPrompt`. |
+| `prompt` | The prompt to give to the harness. With skill delivery disabled, it holds the same bytes as `originalPrompt`. With delivery enabled, it holds the discovery instructions, then the caller's prompt in one delimited block. |
 | `cwd` | The caller's working directory. |
 | `params` | A map of strings from `--param NAME=VALUE`. |
 | `taskFile` | The absolute `--task-file` path, or `()`. Ravel does not read it. |
 | `taskId` | The `--task-id` string, or `()`. |
 | `context` | The caller's checked context document, or `()`. |
-| `skills` | Always `()`. The field is reserved for skill directories. |
+| `skills` | `()` with skill delivery disabled. Otherwise a map with `descriptorPath`, `sources`, `directories` and `mandatory`. |
 | `limits` | The effective bounds that the script can read. |
 
 Put `request.prompt` into the arguments of the harness. Read
 `request.originalPrompt` when the script examines the task, for example when
 it asks a model to classify the task.
+
+The owner can enable skill delivery in the settings. Then `request.prompt`
+also holds the skill directories and the discovery instructions, and the
+script needs no change for them. A harness that reads only some directories
+needs a read grant for the skill snapshots. Make that grant from
+`request.skills`, for example one argument for each `snapshotRoot`. The
+shipped example `harness-table.rhai` does this for its lead harness.
+
+Excerpt from `crates/ravel/examples/harness-table.rhai`: the function that
+lists the snapshot roots. The function `harness_args` puts each root after
+`--add-dir`.
+
+```rhai
+fn skill_reads(skills) {
+    if skills == () { return []; }
+    let reads = [];
+    for source in skills.sources { reads.push(source.snapshotRoot); }
+    reads
+}
+```
+
+[Skill delivery at launch](06-reference.md#skill-delivery-at-launch) gives the
+parts of the prepared prompt and the members of `request.skills`.
 
 The second argument, `context`, is the delivered
 [selection context](#supply-selection-context): JSON data for the choice. A

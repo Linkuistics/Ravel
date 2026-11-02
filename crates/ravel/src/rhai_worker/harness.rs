@@ -26,7 +26,7 @@ use serde_json::{Value, json};
 #[cfg(test)]
 use crate::completion::{EXIT_FILE_VARIABLE, SessionChannel};
 use crate::confinement::{Basis, Confined};
-use crate::environment::{CONFIG_RUN, LAUNCH_CONTROLS};
+use crate::environment::CONFIG_RUN;
 use crate::program;
 use crate::refusal::{EXIT_WORKER, Refusal, Stage};
 use crate::run::ESCALATION;
@@ -47,6 +47,9 @@ pub struct RunSetup {
     pub confine: Option<ConfineSetup>,
     /// The `--exit-dir`, beneath which the channel of a run is allocated.
     pub exit_dir: Option<PathBuf>,
+    /// The descriptor path of this session's skill delivery, or `None` with
+    /// delivery disabled. A run receives it as `RAVEL_SKILL_DIRECTORIES`.
+    pub skill_directories: Option<OsString>,
 }
 
 /// What a confined run is granted, and what it is kept from.
@@ -311,12 +314,15 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
         args.iter().map(OsString::from).collect(),
     )
     .with_arg0(OsString::from(&resolved.program));
-    let scrub: Vec<&OsStr> = LAUNCH_CONTROLS.map(OsStr::new).into();
+    let scrub = crate::run::scrubbed(setup.skill_directories.as_ref());
     let mut granted: Vec<(OsString, OsString)> =
         vec![(OsString::from(CONFIG_RUN), OsString::from("1"))];
     if let Some(confined) = &confined {
         granted.extend(confined.environment());
     }
+    granted.extend(crate::run::skill_environment(
+        setup.skill_directories.as_ref(),
+    ));
     let grant: Vec<(&OsStr, &OsStr)> = granted
         .iter()
         .map(|(name, value)| (name.as_os_str(), value.as_os_str()))

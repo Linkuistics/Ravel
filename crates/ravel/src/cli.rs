@@ -18,7 +18,7 @@ pub struct Cli {
 }
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
+    /// Route the prompt, with any configured skill directories, through an owner Rhai configuration script and supervise its selected process
     #[command(
         after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./config.rhai --param profile=careful --prompt 'Check and end with a result'"
     )]
@@ -73,7 +73,7 @@ pub struct SelectionArgs {
     /// The caller's session kind: any nonempty token, given to the configuration script's select as it is
     #[arg(long, value_name = "TEXT")]
     pub kind: String,
-    /// The harness prompt, given to the configuration script's select byte for byte; run needs this or --prompt-file
+    /// The harness prompt, given to the configuration script's select byte for byte as originalPrompt; run needs this or --prompt-file
     #[arg(
         long,
         value_name = "TEXT",

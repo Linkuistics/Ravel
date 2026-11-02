@@ -595,7 +595,7 @@ fn worker_reap_admission_fixture() {
         crate::run::run(&args)
     } else {
         let selected = crate::choice::choose_prepared(
-            crate::choice::prepare(&args.selection).unwrap(),
+            crate::choice::prepare(&args.selection, args.confine).unwrap(),
             &crate::rhai_worker::harness::RunSetup::default(),
         );
         eprintln!("Selected={}", selected.is_ok());

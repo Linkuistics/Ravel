@@ -136,7 +136,7 @@ Route and supervise a session, returning its opaque result
 Usage: ravel <COMMAND>
 
 Commands:
-  start-session  Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
+  start-session  Route the prompt, with any configured skill directories, through an owner Rhai configuration script and supervise its selected process
   end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
   skills         Resolve the skill sources of the owner settings, without a configuration script or a harness
 
@@ -255,7 +255,11 @@ Exactly one of these two prompt inputs is required.
 
 The prompt can be empty. It contains no NUL, is valid UTF-8 and has a maximum
 of 1,048,576 bytes (1 MiB). Ravel puts its bytes unchanged in
-`request.originalPrompt` and in `request.prompt`, with trailing newlines. The configuration script decides how to give that
+`request.originalPrompt`, with trailing newlines.
+
+With skill delivery
+disabled, `request.prompt` holds the same bytes. With delivery enabled, it
+holds the [prepared prompt](#skill-delivery-at-launch). The configuration script decides how to give that
 text to its selected program. Usually the script puts it in an argument of the
 harness, and the script can add text before or after it.
 
@@ -738,7 +742,8 @@ These skill refusals have stage `skills` and status 3:
 | `skill_source_missing` | A source directory or a configured search directory does not exist. | Restore the directory, or change the settings deliberately. |
 | `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
 | `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. | Repair or remove the named entry. |
-| `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. | Move the source. |
+| `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. A launch also refuses a source that overlaps the directory of its configuration entry. | Move the source. |
+| `skill_limit_exceeded` | At launch, the prepared prompt is more than 1,048,576 bytes. | Give a smaller task that refers to other files, or configure fewer directories. |
 | `skill_cache_unavailable` | Ravel cannot write the cache, for example because of a permission or full storage. | Make the cache writable, or free storage. |
 | `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then remove it and resolve again. |
 
@@ -748,9 +753,56 @@ A failure of that removal is `skill_cleanup_failed`, status 5.
 
 > **Note:** This build acquires local sources only. A valid Git source refuses
 > before any acquisition, with status 3. Its remedy names the unfinished
-> pinned-delivery stage. The refusal has no stable public code. A
-> `start-session` with delivery enabled also refuses, with status 3, before
-> it starts the worker. The launch stage removes that refusal.
+> pinned-delivery stage. The refusal has no stable public code.
+
+### Skill delivery at launch
+
+When the settings enable skill delivery, `start-session` prepares the sources
+before it evaluates the configuration script. It runs the same capture and
+checks as [`skills resolve`](#skills-resolve). This step comes after Ravel
+reads the settings, the caller inputs and the configuration script entry. It
+comes before confinement, the worker and the result channel. Thus, a skill
+refusal starts no worker and no managed process.
+
+A launch also protects the directory of the selected configuration entry. A
+source that overlaps that directory refuses as `skill_access_unavailable`.
+With `--config`, that directory can be outside `$HOME/.config/ravel`.
+
+The prepared prompt has these parts, in this order:
+
+1. The discovery instructions that `skills resolve` prints.
+2. An empty line, then the line `Caller task`.
+3. The line `BEGIN RAVEL CALLER TASK NONCE`.
+4. The bytes of the caller's prompt, unchanged.
+5. A newline, then the line `END RAVEL CALLER TASK NONCE`, with a final
+   newline.
+
+`NONCE` is 32 lowercase hexadecimal digits from the random source of the
+operating system. The nonce occurs only in the two delimiter lines. When it
+occurs elsewhere in the prompt, Ravel chooses a new nonce. The newline before
+the last delimiter line belongs to the wrapper, also when the caller's prompt ends
+with a newline. An empty caller prompt gives an empty block, and the discovery
+instructions stay.
+
+The prepared prompt has a maximum of 1,048,576 bytes. A larger prepared
+prompt refuses as `skill_limit_exceeded`, and the message gives both byte
+counts. Ravel never truncates the task and never omits a directory.
+
+The configuration script receives the prepared prompt in `request.prompt` and
+the caller's prompt in `request.originalPrompt`. `request.skills` holds
+`descriptorPath`, `sources`, `directories` and `mandatory`, as in the
+descriptor. Ravel does not change the arguments that the script selects. A
+script that ignores `request.prompt` does not deliver the directories.
+
+Ravel sets [`RAVEL_SKILL_DIRECTORIES`](#managed-process-environment) to the
+descriptor path. The JSON routing notice gives the
+[`skills` member](#json-routing-notice).
+
+> **Note:** This build cannot give a confined session read access to the
+> snapshots. Thus, `--confine` with delivery enabled refuses as
+> `skill_access_unavailable`, stage `skills`, status 3. The refusal comes
+> before Ravel stores a snapshot. Its remedy tells you that confined grants
+> are unfinished. Confined launches with delivery disabled do not change.
 
 ## Exit statuses
 
@@ -948,7 +1000,7 @@ after the supervision attempt. The tables below give each member.
 | `config` | The configuration script: `path`, the canonical path of its entry, `version`, the owner's `VERSION` string, and `modules`, the file measurements described below. |
 | `worker` | `path`, the re-executed binary, `version`, its package version, `buildId`, its build identity, and `rhaiVersion`, its Rhai version. Ravel checks the worker identity before evaluation. This is not code signing. |
 | `selectionMs` | The elapsed time of the evaluation of the configuration script, in milliseconds. |
-| `skills` | `null`. The member is reserved for skill directories. |
+| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured` for a local source. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
 | `context` | `null` when there is no delivered selection context. Otherwise, the report in the next table. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message`, `diagnostics` and `harnessRuns`. Each has its field for the value with a unit (`ms`, `bytes`, `sources` or `runs`) and `from`. `from` gives `default`, `fixed`, `settings.json` or the flag that set the value. |
 | `configEnvironment` | An array of `{name, set}` grants. `set` is a boolean that shows whether the caller has the variable, never its value. Ravel does not add the [base variables](#variables-that-ravel-and-the-configuration-script-read) that `ravel::env` permits to this list. |
@@ -1051,7 +1103,7 @@ CLI cannot see which operation of the script ran at expiry.
 | `selection` | The call to `select` and the check of the data that it returns. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `resolution` | The search for the selected program. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `exec` | The preparation and supervision of the managed launch, and the decision about its outcome. This stage also covers failures of the result output or the result channel before the spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-separately-from-results) |
-| `skills` | The capture, checks and storage of skill sources. A settings problem keeps the stage `cli`. | [`skills resolve`](#skills-resolve) |
+| `skills` | The capture, checks and storage of skill sources, and the prepared prompt of a launch. A settings problem keeps the stage `cli`. | [`skills resolve`](#skills-resolve) |
 
 ## Environment variables
 
@@ -1111,7 +1163,8 @@ The next section gives those six exact names. See
 Which variables does the managed process receive? When a process starts a
 child, the child gets a copy of the environment of its parent, unless the
 parent changes the copy. The Ravel CLI changes the copy for the managed process
-in two ways. It removes six exact names, and it adds a new `RAVEL_EXIT_FILE`.
+in three ways. It removes six exact names, and it adds a new `RAVEL_EXIT_FILE`.
+It also sets or removes `RAVEL_SKILL_DIRECTORIES`.
 
 An unconfined managed process inherits the caller's environment, except for
 six exact names that Ravel removes. The list of these names is below. Ravel
@@ -1125,6 +1178,7 @@ above. An environment grant has no effect on that inheritance. See
 | `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG`, `LC_*` | Ravel retains the caller values when they are present. A retained `HOME` gives no filesystem access to that directory. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `TMPDIR`, `TMP`, `TEMP` | Ravel sets all three to the temporary directory of the private run. They replace the caller values. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 | `RAVEL_EXIT_FILE` | A new path for this session. Ravel supplies it after the environment grants. | [Nested sessions](05-running-sessions.md#keep-nested-sessions-separate) |
+| `RAVEL_SKILL_DIRECTORIES` | The descriptor path of this session when skill delivery is enabled. In this build, a confined launch with delivery enabled refuses. | [Skill delivery at launch](#skill-delivery-at-launch) |
 | Every other caller variable | Absent. `--config-env` grants only `ravel::env` access and adds no variable here. | [Confined environment](05-running-sessions.md#confine-the-managed-process) |
 
 The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`,
@@ -1132,6 +1186,16 @@ The removed names are exactly `RAVEL_EXIT_FILE`, `RAVEL_RUN_ID`, `RAVEL_STATE_DI
 `HARNESS_DISPATCH_STATE_DIR`. Ravel replaces the first with the new
 result-channel path. The other five stay absent. Each evaluation harness run uses the same rules,
 with its own result path and the additional `RAVEL_CONFIG_RUN` marker.
+
+With skill delivery enabled, Ravel sets `RAVEL_SKILL_DIRECTORIES` to the
+absolute descriptor path in the managed process and in each harness run. That
+value replaces an inherited value. With delivery disabled, Ravel removes the
+name from both. The Rhai worker never receives it.
+
+The name is in the reserved class `RAVEL_*`, so a grant of it refuses as
+`excluded_grant`, and `ravel::env` of it throws `env_not_granted`. A script
+reads `request.skills` instead. The variable grants no read access and no
+authority to end a session.
 
 A final managed process receives no marker, because an invocation that inherits
 it refuses before selection. These obsolete identity and
@@ -1442,13 +1506,13 @@ were `()` in the script. See [read the request](04-write-a-configuration-script.
 | `schemaVersion` | Always the integer `4`, the version of the interface between Ravel and the configuration script. The selection context has its own `schemaVersion`, `1`. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `kind` | Required nonempty caller token, unchanged from `--kind`. Ravel defines no catalogue. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `originalPrompt` | Required UTF-8 string, possibly empty, with a maximum of 1,048,576 bytes and no NUL. The caller bytes and newlines stay unchanged. Read this field when the script examines the task. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `prompt` | Required UTF-8 string: the prompt to give to the program. It holds the same bytes as `originalPrompt`. The configuration script chooses how to give them to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
+| `prompt` | Required UTF-8 string: the prompt to give to the program. With skill delivery disabled, it holds the same bytes as `originalPrompt`. With delivery enabled, it is the [prepared prompt](#skill-delivery-at-launch). The configuration script chooses how to give it to its program. | [Prompt delivery](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `cwd` | The caller's working directory as data. Relative input paths and selected program paths resolve from it. The worker starts in a private directory. The script cannot change that directory or read files directly. | [Caller directory](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `params` | String values by caller-supplied name, or `#{}` if there are none. Names are nonempty without `=`. Ravel refuses a duplicate name. All names and values together have a maximum of 65,536 bytes. | [Caller parameters](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskFile` | Absolute UTF-8 path from `--task-file`, or `()`. Ravel does not canonicalise or read it, and the file does not have to exist. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `taskId` | Nonempty opaque UTF-8 string of at most 1,024 bytes, or `()`. It names no Ravel record. | [Caller data](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `context` | The caller's checked selection context, or `()`, before Ravel attaches `measured`. A loader sees this input, also when it returns different data for `select`. | [Caller and delivered documents](04-write-a-configuration-script.md#supply-selection-context) |
-| `skills` | Always `()`. The field is reserved for skill directories. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
+| `skills` | `()` with skill delivery disabled. Otherwise a map with exactly `descriptorPath`, `sources`, `directories` and `mandatory`, as in the descriptor. It holds no prompt offsets. | [Read the request](04-write-a-configuration-script.md#define-a-configuration-script-and-read-the-request) |
 | `limits` | Required map with the seven effective fields in [Bounds](#bounds). A change to this map cannot change enforcement. | [Effective bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 
 ## Selection and refusal
@@ -1616,10 +1680,12 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Restore it, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
-| `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration or the skill cache. Move the source. | [`skills resolve`](#skills-resolve) |
+| `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration, the directory of the configuration entry or the skill cache. Move the source. In this build, `--confine` with delivery enabled also refuses. | [Skill delivery at launch](#skill-delivery-at-launch) |
+| `skill_limit_exceeded` | `skills` | 3 | The prepared prompt is more than 1,048,576 bytes. Give a smaller task that refers to other files. | [Skill delivery at launch](#skill-delivery-at-launch) |
 | `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache, because of a permission or full storage. Make the cache writable, or free storage. | [`skills resolve`](#skills-resolve) |
 | `skill_cache_corrupt` | `skills` | 3 | A cached object fails its check. Stop its readers, then remove it and resolve again. | [`skills resolve`](#skills-resolve) |
 | `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its own private temporary directory. Remove the named directory when no resolution runs. | [`skills resolve`](#skills-resolve) |
+| `random_unavailable` | `skills` | 5 | The operating system gave no random bytes for the nonce of the caller block. Repair the random source, then start the session again. | [Skill delivery at launch](#skill-delivery-at-launch) |
 
 An `end-session` failure is a plain `ravel: end-session:` message with
 status 1. It is not an entry in the JSON code table. A missing, empty or stale

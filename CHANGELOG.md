@@ -30,8 +30,22 @@
   snapshot under `~/.cache/ravel/skills/v1`, publishes a directory descriptor
   and prints the loading instructions. `--json` prints one object. With
   delivery disabled, the command prints nothing and creates no cache. In this
-  build, a Git source refuses, and so does `start-session` with delivery
-  enabled. Later stages of this release add both.
+  build, a Git source refuses. A later stage of this release adds it.
+- Deliver skill directories in `start-session`. With delivery enabled, Ravel
+  resolves the sources after it reads the settings, the inputs and the entry,
+  and before confinement and the worker. `request.prompt` holds the discovery
+  instructions, the line `Caller task` and the caller's bytes, unchanged,
+  between two delimiter lines with a random nonce. `request.originalPrompt`
+  keeps the caller's prompt, and `request.skills` holds `descriptorPath`,
+  `sources`, `directories` and `mandatory`. The managed process and each
+  harness run receive `RAVEL_SKILL_DIRECTORIES`, and the JSON routing notice
+  gives the `skills` object with prompt byte counts and digests. A prepared
+  prompt over 1 MiB refuses as `skill_limit_exceeded`. A source that overlaps
+  the directory of the configuration entry refuses as
+  `skill_access_unavailable`. In this build, `--confine` with delivery enabled
+  also refuses as `skill_access_unavailable`. A later stage of this release
+  adds the confined read grants. The example `harness-table.rhai` gives its
+  lead harness each snapshot root.
 - Refuse a settings file that repeats a member name in any object, as
   `settings_invalid`, stage `cli`, exit 2. The `location` names the repeated
   member.
