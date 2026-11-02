@@ -15,6 +15,7 @@ use std::ffi::{OsStr, OsString};
 use std::fs::File;
 use std::io::{self, ErrorKind, Read as _, Write as _};
 use std::os::unix::ffi::OsStrExt as _;
+use std::os::unix::fs::MetadataExt as _;
 use std::path::{Path, PathBuf};
 
 use sha2::{Digest as _, Sha256};
@@ -632,6 +633,13 @@ impl Walk<'_> {
                         }
                         Err(error) => return Err(self.unreadable(&reached, &error)),
                     };
+                    if self.reserved_alias(&reached, name, &metadata)? {
+                        return Err(self.link_refused(
+                            origin,
+                            &target,
+                            "reaches an entry that capture leaves out",
+                        ));
+                    }
                     if metadata.file_type().is_symlink() {
                         hops += 1;
                         if hops > LINK_HOPS {
@@ -651,6 +659,38 @@ impl Walk<'_> {
             }
         }
         Ok(target)
+    }
+
+    /// Whether the entry `reached`, which a link names `name`, is a reserved
+    /// entry of its directory under another spelling. A case-insensitive or
+    /// normalising filesystem resolves such a spelling, but capture leaves
+    /// the stored entry out. A listed entry with the exact name is a distinct
+    /// entry, such as a hard link to a reserved file, and capture keeps it.
+    fn reserved_alias(
+        &self,
+        reached: &Path,
+        name: &str,
+        metadata: &std::fs::Metadata,
+    ) -> Result<bool, Refusal> {
+        let Some(parent) = reached.parent() else {
+            return Ok(false);
+        };
+        let identity = (metadata.dev(), metadata.ino());
+        let reserved = RESERVED.iter().any(|reserved| {
+            std::fs::symlink_metadata(parent.join(reserved))
+                .is_ok_and(|entry| (entry.dev(), entry.ino()) == identity)
+        });
+        if !reserved {
+            return Ok(false);
+        }
+        let listing = std::fs::read_dir(parent).map_err(|error| self.unreadable(parent, &error))?;
+        for entry in listing {
+            let entry = entry.map_err(|error| self.unreadable(parent, &error))?;
+            if entry.file_name().as_bytes() == name.as_bytes() {
+                return Ok(false);
+            }
+        }
+        Ok(true)
     }
 
     fn link_text(&self, origin: &Path, target: &OsStr) -> Result<String, Refusal> {

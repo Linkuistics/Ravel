@@ -156,8 +156,13 @@ reference must reach a readable UTF-8 regular file in the captured source. An
 admitted symlink inside the source can lead to it. The file can be outside the
 search roots, but never outside its source.
 
-Two references to the same file refuse. Ravel translates each reference to an
-absolute path in the snapshot. It does not resolve a skill name, and it does
+Two references to the same file refuse. A repeated identical reference refuses
+as `settings_invalid`, exit 2. Two other references can reach one retained file
+through an admitted link. Two sources with identical contents also share one
+snapshot. Such references refuse as `skill_mandatory_invalid`, exit 3, at the
+later reference.
+
+Ravel translates each reference to an absolute path in the snapshot. It does not resolve a skill name, and it does
 not interpret the file. The agent remains responsible for the supporting reads
 that a mandatory file requires. No Grove or personal guidance is a default.
 
@@ -242,7 +247,8 @@ A resolved source is a retained immutable copy of the whole configured source
 directory. It is not a pointer into a mutable checkout. Ravel excludes the
 reserved `.git` and `.jj` entries at every level, with their administrative
 files. It includes every other regular file and directory, whatever an ignore
-file says.
+file says. A link that reaches a reserved entry refuses. That includes a
+different spelling that a case-insensitive source filesystem resolves to it.
 
 A pack chooses a narrow source directory. A project root with build
 output is usually a bad source. Ravel runs no pack script, hook, submodule
@@ -672,7 +678,7 @@ the script-result bound or the argument limit of the platform.
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured root does not exist. Restore it, or change the settings deliberately |
 | `skill_source_changed` | `skills` | 3 | A local source changed during capture. Keep it quiet and try again |
 | `skill_revision_unavailable` | `skills` | 3 | Git cannot supply the exact commit or `subdir`. Restore access, make the commit available, seed the cache online or change the pin |
-| `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, nonregular or not UTF-8 |
+| `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, nonregular or not UTF-8, or two references reach one retained file |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly |
 | `skill_cache_corrupt` | `skills` | 3 | A cached object fails its checks. Quarantine or remove it, then fetch it again |
 | `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache root, because of an unsafe link, a permission or full storage |
@@ -723,6 +729,9 @@ the default configuration directory `$HOME/.config/ravel`. A launch also checks
 its actual `--config` directory against the origin record of each snapshot
 that it would reuse. A copy of a protected file in the cache cannot pass a
 grant that the original would fail.
+
+A source that holds the cache root refuses too, also before the cache exists.
+Ravel checks the real path that the opening of the cache would reach.
 
 These checks cover the explicit overlap of sources and grants. They do not
 cover secret text that an owner puts inside a source. Ravel also refuses a

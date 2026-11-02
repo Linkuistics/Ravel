@@ -17,7 +17,7 @@ pub mod settings;
 mod snapshot;
 pub mod watch;
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -170,16 +170,25 @@ fn watched(
         total_bytes: 0,
     };
     let mut records = Vec::with_capacity(origins.len());
+    // The retained file of each mandatory reference so far, by its snapshot
+    // and its real path in the tree, with the position of that reference.
+    let mut reached = BTreeMap::new();
     for (index, (source, origin)) in skills.sources.iter().zip(&origins).enumerate() {
         let located = Located {
             id: source.id.clone(),
             location: format!("skills.sources[{index}]"),
         };
+        // A link can lead a reference to its file, so capture also knows the
+        // real path of each one. An unreadable target then reports as
+        // mandatory guidance.
         let mandatory: BTreeSet<String> = skills
             .mandatory
             .iter()
             .filter(|reference| reference.source == index)
-            .map(|reference| reference.path.clone())
+            .flat_map(|reference| {
+                let real = real_inside(&origin.canonical, &reference.path);
+                [Some(reference.path.clone()), real].into_iter().flatten()
+            })
             .collect();
         watch.enter("capture", Some(&located));
         let mut capture = snapshot::capture(
@@ -211,6 +220,14 @@ fn watched(
                             &located,
                             position,
                             limits.mandatory_file_bytes,
+                        )?;
+                        check_distinct(
+                            &mut reached,
+                            &capture.digest,
+                            &capture.tree(),
+                            &reference.path,
+                            origin,
+                            position,
                         )
                     })
             });
@@ -336,11 +353,10 @@ impl Protected {
     fn new(home: &Path, also: &[&Path]) -> Self {
         let mut paths = Vec::new();
         // The cache is a writable overlap: a source that holds it would
-        // capture its own staging.
-        let cache = home
-            .canonicalize()
-            .unwrap_or_else(|_| home.to_owned())
-            .join(CACHE_ROOT);
+        // capture its own staging. The cache can still be absent below an
+        // aliased or dangling segment, so protect the real path that opening
+        // it would reach.
+        let cache = cache::projected(&home.join(CACHE_ROOT));
         for path in [
             home.join(CONFIG_DIR),
             home.join(SETTINGS_FILE),
@@ -515,6 +531,49 @@ fn check_mandatory(
         .source(path.display().to_string())
         .location(at)),
     }
+}
+
+/// The real path of `relative` inside `root`, as text with `/` separators.
+/// None when it is absent, outside `root` or not exact UTF-8.
+fn real_inside(root: &Path, relative: &str) -> Option<String> {
+    let root = root.canonicalize().ok()?;
+    let real = root.join(relative).canonicalize().ok()?;
+    let inside = real.strip_prefix(&root).ok()?;
+    let text = inside.to_str()?;
+    Some(if text.is_empty() {
+        ".".to_owned()
+    } else {
+        text.to_owned()
+    })
+}
+
+/// Two mandatory references must not reach one retained file: the same file
+/// through two sources with one path, through an admitted link, or through
+/// two sources with identical contents, which share one snapshot.
+fn check_distinct(
+    reached: &mut BTreeMap<(String, String), usize>,
+    digest: &str,
+    tree: &Path,
+    relative: &str,
+    origin: &LocalOrigin,
+    position: usize,
+) -> Result<(), Refusal> {
+    let real = real_inside(tree, relative).unwrap_or_else(|| relative.to_owned());
+    let Some(&first) = reached.get(&(digest.to_owned(), real.clone())) else {
+        reached.insert((digest.to_owned(), real), position);
+        return Ok(());
+    };
+    let path = origin.canonical.join(relative);
+    Err(refuse(
+        "skill_mandatory_invalid",
+        format!(
+            "the mandatory references skills.mandatory[{first}] and skills.mandatory[{position}] \
+             reach the same retained file {real:?}, so the agent would read it twice"
+        ),
+        "remove one of the two mandatory references, or point it at a different file",
+    )
+    .source(path.display().to_string())
+    .location(format!("skills.mandatory[{position}]")))
 }
 
 fn utf8(path: &Path) -> Result<String, Refusal> {

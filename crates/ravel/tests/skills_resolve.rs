@@ -610,9 +610,64 @@ fn an_unreadable_mandatory_file_is_mandatory_guidance_and_another_file_a_resourc
         vec![mandatory("pack", "secret.md")],
     ));
     assert_eq!(fixture.refused(3)["code"], "skill_mandatory_invalid");
+    // A link can lead the mandatory reference to the unreadable file.
+    symlink("secret.md", source.join("mandatory.md")).unwrap();
+    fixture.skills(skills(
+        vec![local("pack", &source, &["."])],
+        vec![mandatory("pack", "mandatory.md")],
+    ));
+    assert_eq!(fixture.refused(3)["code"], "skill_mandatory_invalid");
     fixture.skills(skills(vec![local("pack", &source, &["."])], vec![]));
     assert_eq!(fixture.refused(3)["code"], "skill_resource_invalid");
     fs::set_permissions(source.join("secret.md"), fs::Permissions::from_mode(0o644)).unwrap();
+}
+
+#[test]
+fn two_mandatory_references_to_one_retained_file_refuse() {
+    let fixture = Fixture::new();
+    let source = fixture.source("pack", &[("SKILL.md", "x"), ("other.md", "y")]);
+    symlink("SKILL.md", source.join("alias.md")).unwrap();
+    let twin = fixture.source("twin", &[("SKILL.md", "x"), ("other.md", "y")]);
+    symlink("SKILL.md", twin.join("alias.md")).unwrap();
+    let pack = |id: &str| local(id, &source, &["."]);
+    for (name, skills_value) in [
+        (
+            "one source path under two IDs",
+            skills(
+                vec![pack("a"), pack("b")],
+                vec![mandatory("a", "SKILL.md"), mandatory("b", "SKILL.md")],
+            ),
+        ),
+        (
+            "an admitted link",
+            skills(
+                vec![pack("a")],
+                vec![mandatory("a", "SKILL.md"), mandatory("a", "alias.md")],
+            ),
+        ),
+        // Identical contents share one snapshot, so both references name one
+        // retained path.
+        (
+            "two sources with identical contents",
+            skills(
+                vec![pack("a"), local("b", &twin, &["."])],
+                vec![mandatory("a", "SKILL.md"), mandatory("b", "SKILL.md")],
+            ),
+        ),
+    ] {
+        fixture.skills(skills_value);
+        let error = fixture.refused(3);
+        assert_eq!(error["code"], "skill_mandatory_invalid", "{name}: {error}");
+        assert_eq!(error["location"], "skills.mandatory[1]", "{name}");
+        assert!(fixture.entries("staging").is_empty(), "{name}");
+        assert!(fixture.entries("descriptors").is_empty(), "{name}");
+    }
+    // Distinct files of one source remain valid.
+    fixture.skills(skills(
+        vec![pack("a")],
+        vec![mandatory("a", "SKILL.md"), mandatory("a", "other.md")],
+    ));
+    assert_eq!(paths(&fixture.resolved()["mandatory"]).len(), 2);
 }
 
 #[test]
@@ -669,6 +724,77 @@ fn links_and_objects_that_a_snapshot_cannot_keep_refuse() {
         assert!(fixture.entries("staging").is_empty(), "{name}");
         assert!(fixture.entries("snapshots").is_empty(), "{name}");
         assert!(fixture.entries("descriptors").is_empty(), "{name}");
+    }
+}
+
+#[test]
+fn a_link_to_another_spelling_of_a_reserved_entry_refuses() {
+    for reserved in [".git", ".jj"] {
+        let fixture = Fixture::new();
+        let source = fixture.source("pack", &[("SKILL.md", "x")]);
+        fs::create_dir(source.join(reserved)).unwrap();
+        fs::write(source.join(reserved).join("HEAD"), "x").unwrap();
+        let alias = reserved.to_uppercase();
+        if fs::metadata(source.join(&alias).join("HEAD")).is_err() {
+            // A case-sensitive filesystem has no such alias.
+            return;
+        }
+        symlink(format!("{alias}/HEAD"), source.join("bad")).unwrap();
+        fixture.skills(skills(vec![local("pack", &source, &["."])], vec![]));
+        let error = fixture.refused(3);
+        assert_eq!(
+            error["code"], "skill_resource_invalid",
+            "{reserved}: {error}"
+        );
+        assert!(fixture.entries("snapshots").is_empty(), "{reserved}");
+    }
+}
+
+#[test]
+fn a_link_to_a_hard_link_of_a_reserved_file_resolves() {
+    // A worktree keeps `.git` as a file. Its hard link under another name is
+    // an entry that capture keeps, so a link to that name is not dangling.
+    let fixture = Fixture::new();
+    let source = fixture.source("pack", &[("SKILL.md", "x"), (".git", "gitdir: x")]);
+    fs::hard_link(source.join(".git"), source.join("gitfile.md")).unwrap();
+    symlink("gitfile.md", source.join("good")).unwrap();
+    fixture.skills(skills(vec![local("pack", &source, &["."])], vec![]));
+    let root = PathBuf::from(
+        fixture.resolved()["sources"][0]["snapshotRoot"]
+            .as_str()
+            .unwrap(),
+    );
+    assert_eq!(fs::read_to_string(root.join("good")).unwrap(), "gitdir: x");
+    assert!(!root.join(".git").exists());
+}
+
+#[test]
+fn a_cold_cache_below_an_aliased_segment_cannot_lie_inside_a_source() {
+    // An aliased `.cache`, and a dangling link at `.cache/ravel`: the cache
+    // walk would create the absent cache inside the source in both cases.
+    type Setup = fn(&Path, &Path);
+    let cases: [(&str, Setup); 2] = [
+        ("an aliased ancestor", |home, outside| {
+            symlink(outside, home.join(".cache")).unwrap();
+        }),
+        ("a dangling segment", |home, outside| {
+            fs::create_dir(home.join(".cache")).unwrap();
+            symlink(outside.join("held"), home.join(".cache/ravel")).unwrap();
+        }),
+    ];
+    for (name, setup) in cases {
+        let fixture = Fixture::new();
+        let outside = fixture.source("outside", &[("SKILL.md", "x")]);
+        setup(&fixture.home, &outside);
+        fixture.skills(skills(vec![local("pack", &outside, &["."])], vec![]));
+        let error = fixture.refused(3);
+        assert_eq!(error["code"], "skill_access_unavailable", "{name}: {error}");
+        let mut listed: Vec<String> = fs::read_dir(&outside)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+            .collect();
+        listed.sort();
+        assert_eq!(listed, ["SKILL.md"], "{name}: the refusal created no cache");
     }
 }
 

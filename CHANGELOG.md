@@ -34,6 +34,10 @@
   of the source and after a change of the settings. Ravel has no collector
   and no prune command. In this
   build, a Git source refuses. A later stage of this release adds it.
+  Two mandatory references that reach one retained file refuse as
+  `skill_mandatory_invalid`. A link to another spelling of `.git` or `.jj`
+  refuses as `skill_resource_invalid`. A source that holds the cache path
+  refuses as `skill_access_unavailable`, also before the cache exists.
 - Deliver skill directories in `start-session`. With delivery enabled, Ravel
   resolves the sources after it reads the settings, the inputs and the entry,
   and before confinement and the worker. `request.prompt` holds the discovery

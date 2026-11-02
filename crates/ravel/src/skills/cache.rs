@@ -235,6 +235,55 @@ fn walk(lexical: &Path) -> Result<(Dir, PathBuf), Refusal> {
     Ok((current, path))
 }
 
+/// The real path that [`walk`] would reach for `lexical`, with no writes. The
+/// walk follows each link by hand and creates each absent segment as a
+/// directory, also at the target of a dangling link. So the projection
+/// follows the links of the existing prefix and appends the rest unchanged.
+/// A path that the walk would refuse projects to its prefix and the rest.
+pub fn projected(lexical: &Path) -> PathBuf {
+    let mut current = PathBuf::from("/");
+    let mut pending: VecDeque<OsString> = segments(lexical);
+    let mut hops = 0;
+    while let Some(name) = pending.pop_front() {
+        if name == ".." {
+            current.pop();
+            continue;
+        }
+        let path = current.join(&name);
+        match std::fs::symlink_metadata(&path) {
+            Ok(metadata) if metadata.file_type().is_symlink() && hops < LINK_HOPS => {
+                hops += 1;
+                let Ok(target) = std::fs::read_link(&path) else {
+                    pending.push_front(name);
+                    break;
+                };
+                if target.is_absolute() {
+                    current = PathBuf::from("/");
+                }
+                for segment in segments(&target).into_iter().rev() {
+                    pending.push_front(segment);
+                }
+            }
+            Ok(metadata) if metadata.is_dir() => current = path,
+            _ => {
+                pending.push_front(name);
+                break;
+            }
+        }
+    }
+    // The existing prefix in the spelling that the filesystem stores, as a
+    // canonical source path has it.
+    let mut path = current.canonicalize().unwrap_or(current);
+    for segment in pending {
+        if segment == ".." {
+            path.pop();
+        } else {
+            path.push(segment);
+        }
+    }
+    path
+}
+
 /// The normal segments of `path`, with `..` kept and `.` and `/` left out.
 fn segments(path: &Path) -> VecDeque<OsString> {
     path.components()
