@@ -495,7 +495,16 @@ instruction to load a skill "first" comes after the mandatory reads. Write
 The managed process and each harness run also receive
 `RAVEL_SKILL_DIRECTORIES`, the path of the descriptor of the directory set. An
 agent that loses the path from its prompt can read it there. With delivery
-disabled, Ravel removes that name from their environment.
+disabled, Ravel removes that name from their environment. When the agent loses
+both paths, it reports that the discovery context is missing. Ravel supplies
+no other path, and the cache holds no pointer to a latest descriptor.
+
+The snapshots and the descriptor stay after the session. At the end of the
+session, Ravel stops only the processes in the process group of the managed
+process. A delegate that left that group can read the resources after the
+session ends. So can a harness that you start with the output of
+`ravel skills resolve`. The resources also stay after a change or removal of
+the source and after a change of the settings.
 
 A skill refusal stops the launch before the worker starts. For example, a
 missing source or a missing mandatory file refuses with status 3, and no
@@ -933,6 +942,14 @@ When the inner invocation returns, the outer process decides what to send for
 the outer session. Ravel does not change the inner result into an outer
 result. The outer process does this itself. When the inner process sends its
 result, the outer session does not finish.
+
+With [skill delivery](#give-the-agent-the-owners-skill-directories) enabled,
+the inner `start-session` also prepares the skill sources again. It copies the
+current bytes of each local source, so the inner agent sees a source change
+that the outer agent does not see. Ravel gives the descriptor path of the
+inner session in `RAVEL_SKILL_DIRECTORIES` only to the inner managed process.
+The outer managed process keeps its descriptor path, its directories and its
+result path, and its snapshots do not change.
 
 An evaluation
 [harness run](02-actors-and-words.md#evaluation-and-supervision) is

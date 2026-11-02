@@ -686,9 +686,14 @@ in the repository, `docs/specs/skill-discovery.md`, owns the complete contract.
 
 > **Note:** Each run writes to the cache `$HOME/.cache/ravel/skills/v1`.
 > Ravel keeps the snapshots and the descriptors after the command, the session
-> and an upgrade. It has no automatic collector and no prune command. A
-> snapshot has no write permission. Remove an object manually only when no
-> reader of it runs.
+> and an upgrade. They also stay after a change or removal of the source and
+> after a change of the settings. Ravel has no automatic collector and no prune
+> command.
+
+> **Note:** A snapshot has no write permission. Remove an object manually only
+> when no reader of it runs. After the removal, the next resolution copies the
+> source again. When the source is gone, the resolution refuses as
+> `skill_source_missing`. It does not use another snapshot of that source.
 
 The table gives the inputs and the outputs.
 
@@ -1279,7 +1284,8 @@ with its own result path and the additional `RAVEL_CONFIG_RUN` marker.
 With skill delivery enabled, Ravel sets `RAVEL_SKILL_DIRECTORIES` to the
 absolute descriptor path in the managed process and in each harness run. That
 value replaces an inherited value. With delivery disabled, Ravel removes the
-name from both. The Rhai worker never receives it.
+name from both. The Rhai worker never receives it. A nested `start-session`
+sets the value of its own session only for its own managed process.
 
 The name is in the reserved class `RAVEL_*`, so a grant of it refuses as
 `excluded_grant`, and `ravel::env` of it throws `env_not_granted`. A script

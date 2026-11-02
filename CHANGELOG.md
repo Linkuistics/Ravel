@@ -29,7 +29,10 @@
   `resolutionTimeoutMs`. Ravel copies each local source into an immutable
   snapshot under `~/.cache/ravel/skills/v1`, publishes a directory descriptor
   and prints the loading instructions. `--json` prints one object. With
-  delivery disabled, the command prints nothing and creates no cache. In this
+  delivery disabled, the command prints nothing and creates no cache. The
+  snapshots and descriptors stay after the session, after a change or removal
+  of the source and after a change of the settings. Ravel has no collector
+  and no prune command. In this
   build, a Git source refuses. A later stage of this release adds it.
 - Deliver skill directories in `start-session`. With delivery enabled, Ravel
   resolves the sources after it reads the settings, the inputs and the entry,
@@ -38,8 +41,10 @@
   between two delimiter lines with a random nonce. `request.originalPrompt`
   keeps the caller's prompt, and `request.skills` holds `descriptorPath`,
   `sources`, `directories` and `mandatory`. The managed process and each
-  harness run receive `RAVEL_SKILL_DIRECTORIES`, and the JSON routing notice
-  gives the `skills` object with prompt byte counts and digests. A prepared
+  harness run receive `RAVEL_SKILL_DIRECTORIES`. That value replaces an
+  inherited one, and a nested `start-session` gives its own value only to its
+  own managed process. The JSON routing notice gives the `skills` object
+  with prompt byte counts and digests. A prepared
   prompt over 1 MiB refuses as `skill_limit_exceeded`. A source that overlaps
   the directory of the configuration entry refuses as
   `skill_access_unavailable`. In this build, `--confine` with delivery enabled
