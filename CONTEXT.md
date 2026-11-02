@@ -133,7 +133,8 @@ the **Configuration script** or its **Rhai worker**.
 
 **Skill source**: A local directory, or an exact Git commit and subdirectory,
 that the **Owner** names in the **Settings**. It supplies skill guidance and
-the resources of that guidance.
+the resources of that guidance. The local stage of the feature refuses a Git
+source until the pinned-delivery stage adds acquisition.
 
 **Skill directories**: The absolute search directories that Ravel adds to the
 prompt. They are in retained copies of the **Skill sources**. The agent finds

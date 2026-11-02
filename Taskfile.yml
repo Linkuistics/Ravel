@@ -280,6 +280,16 @@ tasks:
     cmds:
       - bash scripts/installed-check.sh
 
+  smoke:pair:
+    desc: "macOS: run the installed Ravel 1.1 executable OLD and the installation under NEW at the same time, each under its own temporary HOME"
+    silent: true
+    requires:
+      vars:
+        - name: OLD
+        - name: NEW
+    cmds:
+      - bash scripts/installed-pair-smoke.sh "{{.OLD}}" "{{.NEW}}"
+
   release:archives:
     desc: Build exact unreleased target archives (optional TARGETS), with no version cut
     cmds:

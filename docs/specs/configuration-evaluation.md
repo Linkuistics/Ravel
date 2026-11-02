@@ -1162,6 +1162,10 @@ A Git cache miss of skill delivery needs Git, as the [skill discovery specificat
 The book checks use a checkout-local Bun as a development tool, outside the installed product.
 The release carries no JavaScript runtime, SDK, declarations or separate worker executable.
 
+The local stage of skill delivery refuses every Git source, so its build needs no Git.
+On macOS, `task smoke:pair OLD=<1.1 executable> NEW=<prefix>` runs an installed 1.1 release and the installation under `NEW` at the same time.
+Each run has its own temporary home, and a guard denies both runs the real home.
+
 `task release:archives` builds unreleased archives for aarch64-apple-darwin,
 aarch64-unknown-linux-gnu and x86_64-unknown-linux-gnu.
 Each archive contains the installation above, README and LICENSE.

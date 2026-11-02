@@ -442,6 +442,7 @@ build outputs.
 |---|---|---|
 | `task install PREFIX=…` | Release pair, then installed smoke checks | Installed files at the chosen prefix, plus build outputs and a worker log |
 | `task smoke` | The same install workflow in a fresh prefix whose name contains spaces and Unicode | Build outputs and a worker log. The script removes its temporary prefix on exit |
+| `task smoke:pair OLD=… NEW=…` | On macOS, the installed Ravel 1.1 executable `OLD` and the installation under `NEW` at the same time. Each has its own temporary home, and a guard denies both the real home | Nothing. The script removes its temporary homes on exit |
 | `task probes` | Four test workers with selected runtime safeguards removed | Probe executables under `target/probes/ravel/`, with the default Cargo target directory |
 
 The installed smoke script tests both the direct CLI path and a relative

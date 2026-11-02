@@ -118,6 +118,13 @@
 - List the links and the configuration directory of each smoke run. Fail the
   run when the harness replaces the sign-in link. `task harness:smoke:test`
   proves each refusal with fake harnesses in a fake real home.
+- Add `task smoke:pair OLD=<executable> NEW=<prefix>` for macOS. It runs an
+  installed Ravel 1.1 release and the installation under `NEW` at the same
+  time, with fake managed programs. The 1.1 release makes a native-only
+  launch, and the new installation makes a directory launch. Each run has its
+  own temporary home, and `sandbox-exec` denies both runs the real home. The
+  task also checks that 1.1 refuses settings with `skills` with status 2. It
+  fails when the installations or the real Ravel settings and cache change.
 
 ## v1.1.0
 

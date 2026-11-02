@@ -11,9 +11,17 @@ instructions.
 
 This specification states the directory-delivery contract of the combined
 Ravel 2.0.0. It is the contract of the `skill-directory-delivery` line. Ravel
-`main` does not hold this feature. Implementation and acceptance on that line
-remain ahead. The [design evidence](../skill-discovery-design-evidence.md)
-records the source observations, the exact base of the line and the handoff.
+`main` does not hold this feature, and no release contains it.
+
+The local stage of the line implements delivery from local sources. It does
+not implement [exact Git acquisition and offline reuse](#exact-git-acquisition-and-offline-reuse).
+A build of this stage refuses a valid Git source before configuration
+evaluation, with status 3 and no stable public code. The remedy names the
+unfinished pinned-delivery stage. The rules and acceptance cases that need a
+Git source wait for that stage, and so do the
+[actual harness trials](#actual-harness-trials). The
+[design evidence](../skill-discovery-design-evidence.md) records the source
+observations, the exact base of the line and the handoff of each stage.
 
 Each rule has one owner:
 
@@ -311,6 +319,9 @@ boundary. A successful retry does not prove atomicity against every writer.
 
 ### Exact Git acquisition and offline reuse
 
+The pinned-delivery stage implements this section. Until then, a valid Git
+source refuses, as the [status](#status-and-ownership) states.
+
 The Git acquisition key is a versioned tuple. It holds the exact repository
 locator of the owner, the object format, the full commit ID and `subdir`. Two
 spellings of one remote are two acquisition identities. Ravel infers no
@@ -548,7 +559,8 @@ the source or location where it applies, the message and the remedy.
 
 An independent harness can receive that preamble explicitly. The command cannot
 change the environment of its caller, and it installs no hook. Each run captures
-current local bytes and reuses exact checked Git pins. A failure can leave
+current local bytes. After the pinned-delivery stage, it also reuses exact
+checked Git pins. A failure can leave
 complete useful cache objects. It prints no preamble and no partial JSON.
 
 The help text shows the plain and JSON forms and the disabled result. It
@@ -913,6 +925,14 @@ the resources. It sends an opaque result through its own channel.
 Configuration-script fixtures record what `load_context` and `select` receive.
 Fault injection stays behind internal seams. Tests also use real cache
 filesystems and real confinement backends.
+
+Some cases need a Git source, and the pinned-delivery stage adds them. They are
+the committed pointer of "Git LFS object bytes", "Exact Git" and "Offline
+reuse". They also include the commit, `subdir` and object cases of "Missing or
+corrupt revision" and the transport of "Cancellation". Until that stage, a
+fixture proves that a valid Git source refuses at both public boundaries.
+On macOS, `task smoke:pair OLD=<1.1 executable> NEW=<prefix>` runs the
+installed-pair part of "Version transition".
 
 | Case | Observable acceptance at the public seam |
 | --- | --- |
