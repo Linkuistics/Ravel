@@ -934,3 +934,105 @@ fn sha256(bytes: &[u8]) -> String {
         .map(|byte| format!("{byte:02x}"))
         .collect()
 }
+
+#[test]
+fn a_tampered_snapshot_and_an_unsafe_cache_path_refuse_the_launch_before_the_worker() {
+    let fixture = Fixture::new();
+    let source = fixture.source("a", &[("s/x/SKILL.md", "x")]);
+    fixture.skills(skills(vec![local("a", &source, &["s"])], vec![]));
+    fixture.personal_rhai(UNPARSED);
+    let resolved = fixture.resolve_json();
+    let tree = PathBuf::from(resolved["sources"][0]["snapshotRoot"].as_str().unwrap());
+    let file = tree.join("s/x/SKILL.md");
+    fs::set_permissions(&file, fs::Permissions::from_mode(0o600)).unwrap();
+    fs::write(&file, "tampered").unwrap();
+    let refused = fixture.start_with(&[], "p");
+    let document = refused.refusal(3);
+    assert_eq!(
+        document["error"]["code"], "skill_cache_corrupt",
+        "{document}"
+    );
+    assert_eq!(document["error"]["stage"], "skills");
+    assert_eq!(refused.stderr.lines().count(), 1, "{}", refused.stderr);
+    assert!(fixture.left_in_tmp().is_empty());
+    assert_eq!(fs::read_to_string(&file).unwrap(), "tampered");
+
+    // A cache reached through a directory that every account can write.
+    let fixture = Fixture::new();
+    let source = fixture.source("a", &[("s/x/SKILL.md", "x")]);
+    fixture.skills(skills(vec![local("a", &source, &["s"])], vec![]));
+    fixture.personal_rhai(UNPARSED);
+    let shared = fixture.root.join("shared");
+    fs::create_dir_all(shared.join("cache")).unwrap();
+    fs::set_permissions(&shared, fs::Permissions::from_mode(0o777)).unwrap();
+    symlink(shared.join("cache"), fixture.home.join(".cache")).unwrap();
+    let refused = fixture.start_with(&[], "p");
+    let document = refused.refusal(3);
+    assert_eq!(
+        document["error"]["code"], "skill_cache_unavailable",
+        "{document}"
+    );
+    assert!(fixture.left_in_tmp().is_empty());
+    // The control: a private target launches as far as the parse error.
+    fs::set_permissions(&shared, fs::Permissions::from_mode(0o755)).unwrap();
+    let refused = fixture.start_with(&[], "p");
+    assert_eq!(refused.refusal(3)["error"]["code"], "config_parse_failed");
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn a_case_collision_on_the_cache_filesystem_refuses_the_launch_and_names_both_paths() {
+    struct Image(PathBuf);
+    impl Drop for Image {
+        fn drop(&mut self) {
+            let _ = Command::new("hdiutil")
+                .args(["detach", "-quiet", "-force"])
+                .arg(&self.0)
+                .status();
+        }
+    }
+    let fixture = Fixture::new();
+    let dmg = fixture.root.join("source.dmg");
+    let mount = fixture.root.join("source-volume");
+    let created = Command::new("hdiutil")
+        .args([
+            "create",
+            "-quiet",
+            "-size",
+            "16m",
+            "-fs",
+            "Case-sensitive APFS",
+        ])
+        .args(["-volname", "source"])
+        .arg(&dmg)
+        .status()
+        .unwrap();
+    assert!(created.success());
+    let attached = Command::new("hdiutil")
+        .args(["attach", "-quiet", "-nobrowse", "-mountpoint"])
+        .arg(&mount)
+        .arg(&dmg)
+        .status()
+        .unwrap();
+    assert!(attached.success());
+    let _image = Image(mount.clone());
+    let source = mount.canonicalize().unwrap().join("src");
+    write(&source.join("s/x/SKILL.md"), "upper");
+    write(&source.join("s/x/skill.md"), "lower");
+    fixture.skills(skills(vec![local("a", &source, &["s"])], vec![]));
+    fixture.personal_rhai(UNPARSED);
+    let refused = fixture.start_with(&[], "p");
+    let document = refused.refusal(3);
+    assert_eq!(
+        document["error"]["code"], "skill_resource_invalid",
+        "{document}"
+    );
+    let message = document["error"]["message"].as_str().unwrap();
+    for path in ["s/x/SKILL.md", "s/x/skill.md"] {
+        assert!(
+            message.contains(source.join(path).to_str().unwrap()),
+            "{message}"
+        );
+    }
+    assert!(fixture.left_in_tmp().is_empty());
+}

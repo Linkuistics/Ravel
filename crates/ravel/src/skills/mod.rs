@@ -5,16 +5,19 @@
 //! Ravel reads no `SKILL.md`, frontmatter or skill name here. It copies and
 //! checks files, and it shows directories.
 
+mod cache;
 pub mod command;
+mod dir;
 pub mod launch;
 mod preamble;
+#[cfg(test)]
+mod publication_tests;
 pub mod settings;
 mod snapshot;
 
 use std::collections::BTreeSet;
 use std::fs;
 use std::io::ErrorKind;
-use std::os::unix::fs::DirBuilderExt as _;
 use std::path::{Path, PathBuf};
 
 use serde_json::{Value, json};
@@ -22,8 +25,9 @@ use sha2::{Digest as _, Sha256};
 
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 use crate::settings::{SETTINGS_FILE, Settings};
+use cache::Cache;
 use settings::{Origin, SkillSettings};
-use snapshot::{MANIFEST_FILE, TREE_DIR};
+use snapshot::{Expected, MANIFEST_FILE, TREE_DIR};
 
 /// The cache root, relative to HOME. A later cache format uses a new
 /// directory and keeps this one.
@@ -112,6 +116,7 @@ pub fn resolve_protecting(
         .map(|(index, source)| origin(index, source, &protected))
         .collect::<Result<Vec<_>, _>>()?;
     let cache = Cache::open(home)?;
+    utf8(&cache.path)?;
 
     let mut records = Vec::with_capacity(origins.len());
     for (index, (source, origin)) in skills.sources.iter().zip(&origins).enumerate() {
@@ -125,8 +130,7 @@ pub fn resolve_protecting(
             .filter(|reference| reference.source == index)
             .map(|reference| reference.path.clone())
             .collect();
-        let mut capture =
-            snapshot::capture(&origin.canonical, &cache.staging, &located, &mandatory)?;
+        let mut capture = snapshot::capture(&origin.canonical, &cache, &located, &mandatory)?;
         let checked = check_roots(&capture.tree(), source, origin, &located).and_then(|()| {
             skills
                 .mandatory
@@ -145,12 +149,19 @@ pub fn resolve_protecting(
             manifest,
             digest,
         } = capture;
-        if let Err(error) = fs::write(staging.path().join(MANIFEST_FILE), &manifest) {
-            let refusal = snapshot::unavailable(staging.path(), &error);
+        if let Err(error) = snapshot::write_new(&staging, MANIFEST_FILE, &manifest) {
+            let refusal = cache::unavailable(staging.path(), &error);
             return Err(snapshot::after_cleanup(refusal, &mut staging));
         }
-        let (object, _) =
-            snapshot::publish(staging, &cache.snapshots, &digest, MANIFEST_FILE, &manifest)?;
+        let (object, _) = snapshot::publish(
+            staging,
+            &cache,
+            &cache.snapshots,
+            &digest,
+            &Expected::Snapshot {
+                manifest: &manifest,
+            },
+        )?;
         records.push(Record {
             id: source.id.clone(),
             digest,
@@ -162,19 +173,23 @@ pub fn resolve_protecting(
     let descriptor = descriptor(skills, &records);
     let bytes = serde_json::to_vec(&descriptor).expect("a JSON value encodes");
     let digest = snapshot::hex(&Sha256::digest(&bytes));
-    let mut staging = snapshot::Staging::new(&cache.staging, "descriptor-")
-        .map_err(|error| snapshot::unavailable(&cache.staging, &error))?;
-    if let Err(error) = fs::write(staging.path().join(DESCRIPTOR_FILE), &bytes) {
-        let refusal = snapshot::unavailable(staging.path(), &error);
+    let mut staging = snapshot::Staging::new(&cache, "descriptor-")?;
+    if let Err(error) = snapshot::write_new(&staging, DESCRIPTOR_FILE, &bytes) {
+        let refusal = cache::unavailable(staging.path(), &error);
         return Err(snapshot::after_cleanup(refusal, &mut staging));
     }
     let (directory, _) = snapshot::publish(
         staging,
+        &cache,
         &cache.descriptors,
         &digest,
-        DESCRIPTOR_FILE,
-        &bytes,
+        &Expected::Descriptor {
+            name: DESCRIPTOR_FILE,
+            bytes: &bytes,
+        },
     )?;
+    // The reported paths must still name the held objects.
+    cache.check()?;
     let descriptor_path = utf8(&directory.join(DESCRIPTOR_FILE))?;
     let instructions = preamble::render(&descriptor, &descriptor_path);
     Ok(Resolution::Resolved(Resolved {
@@ -382,36 +397,6 @@ fn check_mandatory(
     }
 }
 
-/// The private cache directories, created when absent.
-struct Cache {
-    staging: PathBuf,
-    snapshots: PathBuf,
-    descriptors: PathBuf,
-}
-
-impl Cache {
-    fn open(home: &Path) -> Result<Cache, Refusal> {
-        let root = home.join(CACHE_ROOT);
-        let mut builder = fs::DirBuilder::new();
-        builder.recursive(true).mode(0o700);
-        for name in ["staging", "snapshots", "descriptors"] {
-            let path = root.join(name);
-            builder
-                .create(&path)
-                .map_err(|error| snapshot::unavailable(&path, &error))?;
-        }
-        let root = root
-            .canonicalize()
-            .map_err(|error| snapshot::unavailable(&root, &error))?;
-        utf8(&root)?;
-        Ok(Cache {
-            staging: root.join("staging"),
-            snapshots: root.join("snapshots"),
-            descriptors: root.join("descriptors"),
-        })
-    }
-}
-
 fn utf8(path: &Path) -> Result<String, Refusal> {
     path.to_str().map(str::to_owned).ok_or_else(|| {
         refuse(
@@ -476,5 +461,73 @@ fn joined(root: &str, relative: &str) -> String {
         root.to_owned()
     } else {
         format!("{root}/{relative}")
+    }
+}
+
+/// Internal fault seams for the unit tests: each hook runs in the thread that
+/// installed it, at one named point of a resolution.
+#[cfg(test)]
+pub(crate) mod faults {
+    use std::cell::RefCell;
+    use std::io;
+    use std::path::Path;
+
+    /// A hook that observes a path.
+    pub type PathHook = Box<dyn FnMut(&Path)>;
+    /// A hook whose error stands for a failed operation.
+    pub type FailHook = Box<dyn FnMut(&Path) -> io::Result<()>>;
+
+    /// One installed hook for each point.
+    #[derive(Default)]
+    pub struct Hooks {
+        /// After capture copies the bytes of a file, before its second look.
+        pub copied: Option<PathHook>,
+        /// After capture lists and copies a directory, before its second look.
+        pub listed: Option<PathHook>,
+        /// Before each check of the held cache root, with the cache path.
+        pub publishing: Option<PathHook>,
+        /// Before the removal of a staging tree, with its path. An error
+        /// stands for a failed removal.
+        pub removing: Option<FailHook>,
+    }
+
+    thread_local! { pub static HOOKS: RefCell<Hooks> = RefCell::new(Hooks::default()); }
+
+    pub fn install(hooks: Hooks) {
+        HOOKS.with(|cell| *cell.borrow_mut() = hooks);
+    }
+
+    /// Take a hook out while it runs, so that it can resolve again.
+    fn fire<T: ?Sized, R>(
+        slot: fn(&mut Hooks) -> &mut Option<Box<T>>,
+        call: impl FnOnce(&mut Box<T>) -> R,
+    ) -> Option<R> {
+        let taken = HOOKS.with(|cell| slot(&mut cell.borrow_mut()).take());
+        let mut hook = taken?;
+        let result = call(&mut hook);
+        HOOKS.with(|cell| {
+            let mut hooks = cell.borrow_mut();
+            let place = slot(&mut hooks);
+            if place.is_none() {
+                *place = Some(hook);
+            }
+        });
+        Some(result)
+    }
+
+    pub fn copied(path: &Path) {
+        fire(|hooks| &mut hooks.copied, |hook| hook(path));
+    }
+
+    pub fn listed(path: &Path) {
+        fire(|hooks| &mut hooks.listed, |hook| hook(path));
+    }
+
+    pub fn publishing(path: &Path) {
+        fire(|hooks| &mut hooks.publishing, |hook| hook(path));
+    }
+
+    pub fn removing(path: &Path) -> io::Result<()> {
+        fire(|hooks| &mut hooks.removing, |hook| hook(path)).unwrap_or(Ok(()))
     }
 }

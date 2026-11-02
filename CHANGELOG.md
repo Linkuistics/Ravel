@@ -46,6 +46,16 @@
   also refuses as `skill_access_unavailable`. A later stage of this release
   adds the confined read grants. The example `harness-table.rhai` gives its
   lead harness each snapshot root.
+- Check each local capture and each cache object. A source that changes while
+  Ravel copies it refuses as `skill_source_changed`, with a remedy to try
+  again. Ravel reads back each copy, and names that the filesystem of the cache
+  cannot keep apart or spell exactly refuse as `skill_resource_invalid`. A run
+  that finds an object with the same name reads it again in full, and a
+  tampered object refuses as `skill_cache_corrupt`. Ravel examines each
+  directory on the path to the cache and keeps the cache open while it writes.
+  An unsafe or changed path refuses as `skill_cache_unavailable`. A failed removal of its own
+  temporary directory after a successful run refuses as
+  `skill_cleanup_failed`, exit 5.
 - Refuse a settings file that repeats a member name in any object, as
   `settings_invalid`, stage `cli`, exit 2. The `location` names the repeated
   member.

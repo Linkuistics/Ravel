@@ -1,21 +1,26 @@
-//! Capture of one local source into private staging, its manifest, and the
-//! atomic publication of retained objects
+//! Capture of one local source into private staging, its manifest, the check
+//! of the written tree and the atomic publication of retained objects
 //! (docs/specs/skill-discovery.md#sources-and-retained-resources).
 //!
-//! Detection of concurrent source edits, path-identity collisions on the cache
-//! filesystem, cache tampering and unsafe cache roots belongs to a later stage.
-//! Its checks attach to `capture` and `publish` here.
+//! Capture reads the source through held directory descriptors and looks at
+//! each entry twice: when it lists the entry and after it copies the entry
+//! and its directory. An observable change of entry, type, identity, size or
+//! change time between the two looks refuses as `skill_source_changed`. This
+//! is not an atomic snapshot against every concurrent writer: a writer that
+//! restores the size and both change times between the looks is not
+//! observable, and a successful retry proves nothing about atomicity.
 
 use std::collections::BTreeSet;
-use std::ffi::CString;
-use std::fs::{self, File, OpenOptions};
+use std::ffi::{OsStr, OsString};
+use std::fs::File;
 use std::io::{self, ErrorKind, Read as _, Write as _};
 use std::os::unix::ffi::OsStrExt as _;
-use std::os::unix::fs::{DirBuilderExt as _, OpenOptionsExt as _, PermissionsExt as _};
 use std::path::{Path, PathBuf};
 
 use sha2::{Digest as _, Sha256};
 
+use super::cache::{Cache, unavailable};
+use super::dir::{self, Dir, Stat, Type};
 use super::{Located, refuse};
 use crate::refusal::Refusal;
 
@@ -29,52 +34,76 @@ pub const MANIFEST_FILE: &str = "manifest";
 /// The captured tree in a snapshot object.
 pub const TREE_DIR: &str = "tree";
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Kind {
     Directory,
     File { executable: bool, digest: String },
     Link { target: String },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Entry {
     path: String,
     kind: Kind,
 }
 
-/// A private staging directory that the resolver which made it removes.
+/// A private staging directory that the resolver which made it removes. It
+/// holds its parent and its own directory open.
 #[derive(Debug)]
 pub struct Staging {
-    path: PathBuf,
+    parent: Dir,
+    name: OsString,
+    dir: Dir,
     armed: bool,
 }
 
 impl Staging {
-    /// A new directory beneath `parent` that only the owner can open.
-    pub fn new(parent: &Path, prefix: &str) -> io::Result<Staging> {
-        let directory = tempfile::Builder::new()
-            .prefix(prefix)
-            .permissions(fs::Permissions::from_mode(0o700))
-            .tempdir_in(parent)?;
-        Ok(Staging {
-            path: directory.keep(),
-            armed: true,
-        })
+    /// A new directory in the staging directory of `cache` that only the
+    /// owner can open. Its name is `prefix` and 32 random hexadecimal digits.
+    pub fn new(cache: &Cache, prefix: &str) -> Result<Staging, Refusal> {
+        let parent = cache
+            .staging
+            .try_clone()
+            .map_err(|error| unavailable(cache.staging.path(), &error))?;
+        loop {
+            let mut bytes = [0u8; 16];
+            getrandom::fill(&mut bytes).map_err(|error| {
+                refuse(
+                    "skill_cache_unavailable",
+                    format!("the random source of the operating system failed: {error}"),
+                    "repair the random source of the operating system, then resolve again",
+                )
+            })?;
+            let name = OsString::from(format!("{prefix}{}", hex(&bytes)));
+            let path = parent.path().join(&name);
+            match parent.mkdir(&name, 0o700) {
+                Ok(()) => {}
+                Err(error) if error.kind() == ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(unavailable(&path, &error)),
+            }
+            let dir = parent
+                .open_dir(&name)
+                .map_err(|error| unavailable(&path, &error))?;
+            return Ok(Staging {
+                parent,
+                name,
+                dir,
+                armed: true,
+            });
+        }
     }
 
     pub fn path(&self) -> &Path {
-        &self.path
+        self.dir.path()
     }
 
-    /// Remove the staging tree, restoring write permission where publication
-    /// had already removed it.
+    /// Remove this staging tree, and nothing else.
     pub fn cleanup(&mut self) -> io::Result<()> {
         if !self.armed {
             return Ok(());
         }
         self.armed = false;
-        writable(&self.path)?;
-        fs::remove_dir_all(&self.path)
+        self.parent.remove_tree(&self.name)
     }
 
     /// The directory is published, so it is not staging any longer.
@@ -91,17 +120,6 @@ impl Drop for Staging {
     }
 }
 
-fn writable(path: &Path) -> io::Result<()> {
-    let metadata = fs::symlink_metadata(path)?;
-    if metadata.is_dir() {
-        fs::set_permissions(path, fs::Permissions::from_mode(0o700))?;
-        for entry in fs::read_dir(path)? {
-            writable(&entry?.path())?;
-        }
-    }
-    Ok(())
-}
-
 /// One captured source, staged and checked, ready for publication.
 #[derive(Debug)]
 pub struct Capture {
@@ -113,49 +131,129 @@ pub struct Capture {
 
 impl Capture {
     pub fn tree(&self) -> PathBuf {
-        self.staging.path.join(TREE_DIR)
+        self.staging.path().join(TREE_DIR)
     }
 }
 
-/// Copy the whole canonical source directory `root` into new staging beneath
-/// `staging_parent`. `mandatory` holds the configured mandatory paths of this
-/// source, so that an unreadable one reports as mandatory guidance.
+/// Copy the whole canonical source directory `root` into new staging in
+/// `cache`, then check the written tree against the manifest. `mandatory`
+/// holds the configured mandatory paths of this source, so that an unreadable
+/// one reports as mandatory guidance.
 pub fn capture(
     root: &Path,
-    staging_parent: &Path,
+    cache: &Cache,
     source: &Located,
     mandatory: &BTreeSet<String>,
 ) -> Result<Capture, Refusal> {
-    let mut staging = Staging::new(staging_parent, "capture-").map_err(|error| {
-        refuse(
-            "skill_cache_unavailable",
-            format!(
-                "Ravel cannot create private staging beneath {}: {error}",
-                staging_parent.display()
-            ),
-            "make the cache root a writable private directory of this account, or free storage",
-        )
-        .source(staging_parent.display().to_string())
-    })?;
-    let tree = staging.path.join(TREE_DIR);
+    let mut staging = Staging::new(cache, "capture-")?;
+    match staged(root, &staging, source, mandatory) {
+        Ok((manifest, digest)) => Ok(Capture {
+            staging,
+            manifest,
+            digest,
+        }),
+        Err(refusal) => Err(after_cleanup(refusal, &mut staging)),
+    }
+}
+
+fn staged(
+    root: &Path,
+    staging: &Staging,
+    source: &Located,
+    mandatory: &BTreeSet<String>,
+) -> Result<(Vec<u8>, String), Refusal> {
     let mut walk = Walk {
         root,
         source,
         mandatory,
         entries: Vec::new(),
     };
-    if let Err(refusal) = walk.directory(root, "", &tree) {
-        return Err(after_cleanup(refusal, &mut staging));
+    let from = Dir::open(root).map_err(|error| walk.unreadable(root, &error))?;
+    let first = std::fs::symlink_metadata(root).map_err(|error| walk.unreadable(root, &error))?;
+    let held = from.stat().map_err(|error| walk.unreadable(root, &error))?;
+    let identity = (
+        std::os::unix::fs::MetadataExt::dev(&first),
+        std::os::unix::fs::MetadataExt::ino(&first),
+    );
+    if !first.is_dir() || identity != held.identity() {
+        return Err(walk.changed(root, "was replaced when Ravel opened it"));
     }
-    let mut entries = walk.entries;
+    let tree = OsStr::new(TREE_DIR);
+    staging
+        .dir
+        .mkdir(tree, 0o700)
+        .map_err(|error| walk.staging_failed(&staging.path().join(tree), &error))?;
+    let to = staging
+        .dir
+        .open_dir(tree)
+        .map_err(|error| walk.staging_failed(&staging.path().join(tree), &error))?;
+    walk.directory(&from, "", &to)?;
+    let mut entries = std::mem::take(&mut walk.entries);
     entries.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
     let manifest = manifest(&entries);
+
+    // The written tree must hold exactly the entries of the manifest, with
+    // every directory segment, or the cache filesystem did not keep them.
+    let mut written = Vec::new();
+    read_tree(&to, "", &mut written).map_err(|error| walk.staging_failed(to.path(), &error))?;
+    written.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
+    if written != entries {
+        return Err(not_kept(root, source, &entries, &written));
+    }
     let digest = hex(&Sha256::digest(&manifest));
-    Ok(Capture {
-        staging,
-        manifest,
-        digest,
-    })
+    Ok((manifest, digest))
+}
+
+/// The refusal for a written tree that differs from the source manifest: a
+/// path that the cache filesystem stored with another spelling, or bytes
+/// that storage did not keep.
+fn not_kept(root: &Path, source: &Located, entries: &[Entry], written: &[Entry]) -> Refusal {
+    let paths = |list: &[Entry]| -> BTreeSet<String> {
+        list.iter().map(|entry| entry.path.clone()).collect()
+    };
+    let (expected, actual) = (paths(entries), paths(written));
+    if let Some(missing) = expected.difference(&actual).next() {
+        let stored = actual
+            .difference(&expected)
+            .next()
+            .map_or_else(String::new, |stored| {
+                format!("; the cache holds {stored:?} in its place")
+            });
+        let path = root.join(missing);
+        return refuse(
+            "skill_resource_invalid",
+            format!(
+                "the cache filesystem does not keep the exact spelling of the path {} in the \
+                 source {:?}{stored}",
+                path.display(),
+                source.id
+            ),
+            "rename the entry in the source so that its spelling survives on the filesystem of \
+             ~/.cache/ravel/skills/v1, or keep the cache on a filesystem that keeps names \
+             exactly; Ravel never normalises a name",
+        )
+        .source(path.display().to_string())
+        .location(source.location.clone());
+    }
+    refuse(
+        "skill_cache_unavailable",
+        format!(
+            "the staged copy of the source {:?} does not hold the bytes that Ravel read",
+            source.id
+        ),
+        "check the storage of ~/.cache/ravel/skills/v1, then resolve again",
+    )
+    .location(source.location.clone())
+}
+
+/// The second look at an entry differs from the first in a way that a change
+/// would show.
+fn moved(first: &Stat, second: &Stat) -> bool {
+    first.identity() != second.identity()
+        || first.kind() != second.kind()
+        || first.size != second.size
+        || first.mtime != second.mtime
+        || first.ctime != second.ctime
 }
 
 struct Walk<'a> {
@@ -166,129 +264,247 @@ struct Walk<'a> {
 }
 
 impl Walk<'_> {
-    fn directory(&mut self, from: &Path, relative: &str, to: &Path) -> Result<(), Refusal> {
-        fs::DirBuilder::new()
-            .mode(0o700)
-            .create(to)
-            .map_err(|error| self.staging_failed(to, &error))?;
-        let listing = fs::read_dir(from).map_err(|error| self.unreadable(from, &error))?;
-        for entry in listing {
-            let entry = entry.map_err(|error| self.unreadable(from, &error))?;
-            let raw = entry.file_name();
+    fn directory(&mut self, from: &Dir, relative: &str, to: &Dir) -> Result<(), Refusal> {
+        let here = self.root.join(relative);
+        let before = from
+            .stat()
+            .map_err(|error| self.unreadable(&here, &error))?;
+        let names = from
+            .list()
+            .map_err(|error| self.unreadable(&here, &error))?;
+        // The first look at each entry, and the identity of what Ravel wrote
+        // for it, so that a collision can name the entry that it met.
+        let mut looks: Vec<(OsString, Stat)> = Vec::with_capacity(names.len());
+        let mut written: Vec<(String, (u64, u64))> = Vec::with_capacity(names.len());
+        for raw in names {
+            let origin = here.join(&raw);
             let Some(name) = raw.to_str() else {
-                return Err(self.invalid(
-                    &entry.path(),
-                    "has a name that is not exact UTF-8".to_owned(),
-                ));
+                return Err(self.invalid(&origin, "has a name that is not exact UTF-8".to_owned()));
             };
             if name.chars().any(char::is_control) {
                 return Err(self.invalid(
-                    &entry.path(),
+                    &origin,
                     "has a name that holds a control character".to_owned(),
                 ));
             }
             if RESERVED.contains(&name) {
                 continue;
             }
+            let name = name.to_owned();
             let path = if relative.is_empty() {
-                name.to_owned()
+                name.clone()
             } else {
                 format!("{relative}/{name}")
             };
-            let origin = entry.path();
-            let target = to.join(name);
-            let metadata =
-                fs::symlink_metadata(&origin).map_err(|error| self.unreadable(&origin, &error))?;
-            let kind = metadata.file_type();
-            if kind.is_dir() {
-                self.entries.push(Entry {
-                    path: path.clone(),
-                    kind: Kind::Directory,
-                });
-                self.directory(&origin, &path, &target)?;
-            } else if kind.is_file() {
-                let executable = metadata.permissions().mode() & 0o111 != 0;
-                let digest = self.copy(&origin, &path, &target, executable)?;
-                self.entries.push(Entry {
-                    path,
-                    kind: Kind::File { executable, digest },
-                });
-            } else if kind.is_symlink() {
-                let link = self.link(&origin, &path)?;
-                std::os::unix::fs::symlink(&link, &target)
-                    .map_err(|error| self.staging_failed(&target, &error))?;
-                self.entries.push(Entry {
-                    path,
-                    kind: Kind::Link { target: link },
-                });
-            } else {
-                return Err(self.invalid(
-                    &origin,
-                    "is not a regular file, a directory or a symbolic link".to_owned(),
-                ));
+            let first = match from.stat_at(&raw) {
+                Ok(first) => first,
+                Err(error) if error.kind() == ErrorKind::NotFound => {
+                    return Err(self.changed(&origin, "was removed during capture"));
+                }
+                Err(error) => return Err(self.unreadable(&origin, &error)),
+            };
+            let made = match first.kind() {
+                Type::Directory => {
+                    self.entries.push(Entry {
+                        path: path.clone(),
+                        kind: Kind::Directory,
+                    });
+                    let made = to.mkdir(&raw, 0o700);
+                    if made.is_ok() {
+                        let inner_from = from.open_dir(&raw).map_err(|error| {
+                            self.changed(&origin, &format!("is no longer a directory: {error}"))
+                        })?;
+                        let opened = inner_from
+                            .stat()
+                            .map_err(|error| self.unreadable(&origin, &error))?;
+                        if opened.identity() != first.identity() {
+                            return Err(self.changed(&origin, "was replaced during capture"));
+                        }
+                        let inner_to = to
+                            .open_dir(&raw)
+                            .map_err(|error| self.staging_failed(&to.path().join(&raw), &error))?;
+                        self.directory(&inner_from, &path, &inner_to)?;
+                    }
+                    made
+                }
+                Type::File => {
+                    let made = self.copy(from, to, &raw, &origin, &path, &first);
+                    match made {
+                        Ok(entry) => {
+                            self.entries.push(entry);
+                            Ok(())
+                        }
+                        Err(Copy::Exists(error)) => Err(error),
+                        Err(Copy::Refused(refusal)) => return Err(refusal),
+                    }
+                }
+                Type::Link => {
+                    let target = from
+                        .read_link(&raw)
+                        .map_err(|error| self.unreadable(&origin, &error))?;
+                    let link = self.link(&origin, &path, &target)?;
+                    let made = to.symlink(OsStr::new(&link), &raw);
+                    self.entries.push(Entry {
+                        path: path.clone(),
+                        kind: Kind::Link { target: link },
+                    });
+                    made
+                }
+                Type::Other => {
+                    return Err(self.invalid(
+                        &origin,
+                        "is not a regular file, a directory or a symbolic link".to_owned(),
+                    ));
+                }
+            };
+            match made {
+                Ok(()) => {}
+                Err(error) if error.kind() == ErrorKind::AlreadyExists => {
+                    return Err(self.collision(to, &raw, &path, &written));
+                }
+                Err(error) => return Err(self.staging_failed(&to.path().join(&raw), &error)),
             }
+            let identity = to
+                .stat_at(&raw)
+                .map_err(|error| self.staging_failed(&to.path().join(&raw), &error))?
+                .identity();
+            written.push((path, identity));
+            looks.push((raw, first));
+        }
+        #[cfg(test)]
+        super::faults::listed(&here);
+
+        // The second look: the same names, and each entry and the directory
+        // itself unchanged since the first look.
+        let again = from
+            .list()
+            .map_err(|error| self.unreadable(&here, &error))?;
+        let kept: Vec<&OsString> = again
+            .iter()
+            .filter(|name| {
+                !RESERVED
+                    .iter()
+                    .any(|reserved| name.as_bytes() == reserved.as_bytes())
+            })
+            .collect();
+        if kept.len() != looks.len()
+            || kept
+                .iter()
+                .zip(&looks)
+                .any(|(name, (seen, _))| *name != seen)
+        {
+            return Err(self.changed(&here, "gained or lost an entry during capture"));
+        }
+        for (raw, first) in &looks {
+            let origin = here.join(raw);
+            let second = from
+                .stat_at(raw)
+                .map_err(|_| self.changed(&origin, "was removed during capture"))?;
+            if moved(first, &second) {
+                return Err(self.changed(&origin, "changed during capture"));
+            }
+        }
+        let after = from
+            .stat()
+            .map_err(|error| self.unreadable(&here, &error))?;
+        if moved(&before, &after) {
+            return Err(self.changed(&here, "changed during capture"));
         }
         Ok(())
     }
 
-    /// Copy the bytes of one regular file and return their digest. Capture
+    /// Copy the bytes of one regular file and return its entry. Capture
     /// copies bytes, so a hard link in the source never backs a snapshot.
     fn copy(
         &self,
-        from: &Path,
+        from: &Dir,
+        to: &Dir,
+        raw: &OsStr,
+        origin: &Path,
         relative: &str,
-        to: &Path,
-        executable: bool,
-    ) -> Result<String, Refusal> {
-        let mut input = File::open(from).map_err(|error| {
-            if self.mandatory.contains(relative) {
-                refuse(
+        first: &Stat,
+    ) -> Result<Entry, Copy> {
+        let mut input = from.open_file(raw).map_err(|error| {
+            Copy::Refused(match error.raw_os_error() {
+                Some(libc::ELOOP | libc::ENOENT) => {
+                    self.changed(origin, "was replaced or removed during capture")
+                }
+                _ if self.mandatory.contains(relative) => refuse(
                     "skill_mandatory_invalid",
                     format!(
                         "the mandatory file {} of the source {:?} cannot be read: {error}",
-                        from.display(),
+                        origin.display(),
                         self.source.id
                     ),
-                    "make the mandatory file readable, or change the mandatory reference deliberately",
+                    "make the mandatory file readable, or change the mandatory reference \
+                     deliberately",
                 )
-                .source(from.display().to_string())
-                .location(self.source.location.clone())
-            } else {
-                self.unreadable(from, &error)
-            }
+                .source(origin.display().to_string())
+                .location(self.source.location.clone()),
+                _ => self.unreadable(origin, &error),
+            })
         })?;
-        let mut output = OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            // The staged mode carries the normalised executable bit to `seal`.
-            .mode(if executable { 0o700 } else { 0o600 })
-            .open(to)
-            .map_err(|error| self.staging_failed(to, &error))?;
+        let opened = dir::stat_file(&input)
+            .map_err(|error| Copy::Refused(self.unreadable(origin, &error)))?;
+        if moved(first, &opened) {
+            return Err(Copy::Refused(
+                self.changed(origin, "changed when Ravel opened it"),
+            ));
+        }
+        let executable = first.permissions() & 0o111 != 0;
+        // The staged mode carries the normalised executable bit to `seal`.
+        let mut output = match to.create(raw, if executable { 0o700 } else { 0o600 }) {
+            Ok(output) => output,
+            Err(error) if error.kind() == ErrorKind::AlreadyExists => {
+                return Err(Copy::Exists(error));
+            }
+            Err(error) => {
+                return Err(Copy::Refused(
+                    self.staging_failed(&to.path().join(raw), &error),
+                ));
+            }
+        };
         let mut hasher = Sha256::new();
         let mut buffer = vec![0; 64 * 1024];
+        let mut copied: u64 = 0;
         loop {
             let read = input
                 .read(&mut buffer)
-                .map_err(|error| self.unreadable(from, &error))?;
+                .map_err(|error| Copy::Refused(self.unreadable(origin, &error)))?;
             if read == 0 {
                 break;
             }
+            copied += read as u64;
             hasher.update(&buffer[..read]);
-            output
-                .write_all(&buffer[..read])
-                .map_err(|error| self.staging_failed(to, &error))?;
+            output.write_all(&buffer[..read]).map_err(|error| {
+                Copy::Refused(self.staging_failed(&to.path().join(raw), &error))
+            })?;
         }
         output
             .sync_all()
-            .map_err(|error| self.staging_failed(to, &error))?;
-        Ok(hex(&hasher.finalize()))
+            .map_err(|error| Copy::Refused(self.staging_failed(&to.path().join(raw), &error)))?;
+        #[cfg(test)]
+        super::faults::copied(origin);
+        let after = dir::stat_file(&input)
+            .map_err(|error| Copy::Refused(self.unreadable(origin, &error)))?;
+        if moved(first, &after) || u64::try_from(after.size).ok() != Some(copied) {
+            return Err(Copy::Refused(
+                self.changed(origin, "changed while Ravel copied it"),
+            ));
+        }
+        Ok(Entry {
+            path: relative.to_owned(),
+            kind: Kind::File {
+                executable,
+                digest: hex(&hasher.finalize()),
+            },
+        })
     }
 
     /// Admit a relative link whose whole chain of targets ends inside the
     /// source, with no cycle and no reserved entry, and return its target.
-    fn link(&self, origin: &Path, relative: &str) -> Result<String, Refusal> {
-        let target = fs::read_link(origin).map_err(|error| self.unreadable(origin, &error))?;
-        let target = self.link_text(origin, &target)?;
+    fn link(&self, origin: &Path, relative: &str, target: &OsStr) -> Result<String, Refusal> {
+        let target = self.link_text(origin, target)?;
         let mut current: Vec<String> = relative.split('/').map(str::to_owned).collect();
         current.pop();
         let mut pending: Vec<String> = segments(&target);
@@ -312,7 +528,7 @@ impl Walk<'_> {
                     }
                     current.push(name.to_owned());
                     let reached = self.root.join(current.join("/"));
-                    let metadata = match fs::symlink_metadata(&reached) {
+                    let metadata = match std::fs::symlink_metadata(&reached) {
                         Ok(metadata) => metadata,
                         Err(error) if error.kind() == ErrorKind::NotFound => {
                             return Err(self.link_refused(origin, &target, "is dangling"));
@@ -324,9 +540,9 @@ impl Walk<'_> {
                         if hops > LINK_HOPS {
                             return Err(self.link_refused(origin, &target, "is a cycle"));
                         }
-                        let next = fs::read_link(&reached)
+                        let next = std::fs::read_link(&reached)
                             .map_err(|error| self.unreadable(&reached, &error))?;
-                        let next = self.link_text(&reached, &next)?;
+                        let next = self.link_text(&reached, next.as_os_str())?;
                         current.pop();
                         let mut chained = segments(&next);
                         chained.extend(pending);
@@ -340,7 +556,7 @@ impl Walk<'_> {
         Ok(target)
     }
 
-    fn link_text(&self, origin: &Path, target: &Path) -> Result<String, Refusal> {
+    fn link_text(&self, origin: &Path, target: &OsStr) -> Result<String, Refusal> {
         let Some(text) = target.to_str() else {
             return Err(self.invalid(
                 origin,
@@ -357,6 +573,50 @@ impl Walk<'_> {
             return Err(self.link_refused(origin, text, "is absolute"));
         }
         Ok(text.to_owned())
+    }
+
+    /// Two source entries met one name on the cache filesystem. Name both.
+    fn collision(
+        &self,
+        to: &Dir,
+        raw: &OsStr,
+        path: &str,
+        written: &[(String, (u64, u64))],
+    ) -> Refusal {
+        let met = to
+            .stat_at(raw)
+            .ok()
+            .and_then(|stat| {
+                written
+                    .iter()
+                    .find(|(_, identity)| *identity == stat.identity())
+            })
+            .map(|(other, _)| other.clone());
+        let this = self.root.join(path);
+        let message = match &met {
+            Some(other) => format!(
+                "the paths {} and {} in the source {:?} are distinct, but the cache filesystem \
+                 cannot keep both",
+                self.root.join(other).display(),
+                this.display(),
+                self.source.id
+            ),
+            None => format!(
+                "the cache filesystem cannot keep the path {} in the source {:?} apart from \
+                 another entry",
+                this.display(),
+                self.source.id
+            ),
+        };
+        refuse(
+            "skill_resource_invalid",
+            message,
+            "rename one of the entries in the source so that their names differ in more than \
+             case or Unicode normalisation, or keep the cache on a filesystem that keeps both; \
+             Ravel never writes one entry over another",
+        )
+        .source(this.display().to_string())
+        .location(self.source.location.clone())
     }
 
     fn link_refused(&self, origin: &Path, target: &str, why: &str) -> Refusal {
@@ -378,27 +638,89 @@ impl Walk<'_> {
         .location(self.source.location.clone())
     }
 
+    fn changed(&self, path: &Path, what: &str) -> Refusal {
+        refuse(
+            "skill_source_changed",
+            format!(
+                "the path {} in the source {:?} {what}",
+                path.display(),
+                self.source.id
+            ),
+            "keep the source directory quiet while Ravel captures it, then try again",
+        )
+        .source(path.display().to_string())
+        .location(self.source.location.clone())
+    }
+
     fn unreadable(&self, path: &Path, error: &io::Error) -> Refusal {
         self.invalid(path, format!("cannot be read: {error}"))
     }
 
     fn staging_failed(&self, path: &Path, error: &io::Error) -> Refusal {
-        refuse(
-            "skill_cache_unavailable",
-            format!(
-                "Ravel cannot write the private staging path {} for the source {:?}: {error}",
-                path.display(),
-                self.source.id
-            ),
-            "make the cache root writable for this account, or free storage",
-        )
-        .source(path.display().to_string())
-        .location(self.source.location.clone())
+        unavailable(path, error).location(self.source.location.clone())
     }
+}
+
+/// A file copy that met an existing name, or that refused.
+enum Copy {
+    Exists(io::Error),
+    Refused(Refusal),
 }
 
 fn segments(text: &str) -> Vec<String> {
     text.split('/').map(str::to_owned).collect()
+}
+
+/// The entries of a written tree, with the content digest of each file read
+/// back from storage. A name that is not UTF-8 keeps its lossy spelling, which
+/// can match no manifest path.
+fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>) -> io::Result<()> {
+    for raw in dir.list()? {
+        let name = String::from_utf8_lossy(raw.as_bytes());
+        let path = if relative.is_empty() {
+            name.into_owned()
+        } else {
+            format!("{relative}/{name}")
+        };
+        let stat = dir.stat_at(&raw)?;
+        match stat.kind() {
+            Type::Directory => {
+                entries.push(Entry {
+                    path: path.clone(),
+                    kind: Kind::Directory,
+                });
+                read_tree(&dir.open_dir(&raw)?, &path, entries)?;
+            }
+            Type::File => {
+                let mut file = dir.open_file(&raw)?;
+                let mut hasher = Sha256::new();
+                io::copy(&mut file, &mut hasher)?;
+                entries.push(Entry {
+                    path,
+                    kind: Kind::File {
+                        executable: stat.permissions() & 0o111 != 0,
+                        digest: hex(&hasher.finalize()),
+                    },
+                });
+            }
+            Type::Link => {
+                let target = dir.read_link(&raw)?;
+                entries.push(Entry {
+                    path,
+                    kind: Kind::Link {
+                        target: String::from_utf8_lossy(target.as_bytes()).into_owned(),
+                    },
+                });
+            }
+            Type::Other => entries.push(Entry {
+                path,
+                kind: Kind::Link {
+                    target: "\0special".to_owned(),
+                },
+            }),
+        }
+    }
+    Ok(())
 }
 
 /// The versioned, sorted and length-delimited manifest: one line for each
@@ -433,26 +755,26 @@ pub fn hex(bytes: &[u8]) -> String {
     })
 }
 
-/// Remove write permission and set-ID bits from a staged tree, deepest first.
-/// A file keeps the difference between executable and not.
-fn seal(path: &Path) -> io::Result<()> {
-    let metadata = fs::symlink_metadata(path)?;
-    let kind = metadata.file_type();
-    if kind.is_dir() {
-        for entry in fs::read_dir(path)? {
-            seal(&entry?.path())?;
+/// Remove write permission and set-ID bits from every entry beneath `dir`,
+/// deepest first, but not from `dir`, which the rename must still be able to
+/// move. A file keeps the difference between executable and not.
+fn seal_contents(dir: &Dir) -> io::Result<()> {
+    for raw in dir.list()? {
+        match dir.stat_at(&raw)?.kind() {
+            Type::Directory => {
+                let inner = dir.open_dir(&raw)?;
+                seal_contents(&inner)?;
+                inner.chmod(0o555)?;
+            }
+            Type::File => {
+                let file = dir.open_file(&raw)?;
+                let executable = dir::stat_file(&file)?.permissions() & 0o111 != 0;
+                dir::chmod_file(&file, if executable { 0o555 } else { 0o444 })?;
+            }
+            Type::Link | Type::Other => {}
         }
-        fs::set_permissions(path, fs::Permissions::from_mode(0o555))
-    } else if kind.is_file() {
-        let mode = if metadata.permissions().mode() & 0o111 != 0 {
-            0o555
-        } else {
-            0o444
-        };
-        fs::set_permissions(path, fs::Permissions::from_mode(mode))
-    } else {
-        Ok(())
     }
+    Ok(())
 }
 
 /// Where a published object came from: a new publication or an existing
@@ -463,69 +785,105 @@ pub enum Published {
     Existing,
 }
 
-/// Publish a staged object directory as `parent/name`, with an atomic rename
-/// that never replaces an existing object. `marker` is the file inside the
-/// object whose bytes identify it, and `expected` its bytes. An existing
-/// object with the same bytes is reused, and one with other bytes is corrupt.
+/// What an object must hold: a snapshot with its manifest and tree, or a
+/// descriptor directory with its one file.
+pub enum Expected<'a> {
+    Snapshot { manifest: &'a [u8] },
+    Descriptor { name: &'a str, bytes: &'a [u8] },
+}
+
+impl Expected<'_> {
+    /// Whether the object `dir` holds exactly what it must, read back in
+    /// full.
+    fn holds(&self, dir: &Dir) -> io::Result<bool> {
+        let names = dir.list()?;
+        let read = |name: &str| -> io::Result<Vec<u8>> {
+            let mut bytes = Vec::new();
+            dir.open_file(OsStr::new(name))?.read_to_end(&mut bytes)?;
+            Ok(bytes)
+        };
+        match self {
+            Expected::Snapshot { manifest: expected } => {
+                if names != [OsStr::new(MANIFEST_FILE), OsStr::new(TREE_DIR)] {
+                    return Ok(false);
+                }
+                if read(MANIFEST_FILE)? != *expected {
+                    return Ok(false);
+                }
+                let mut entries = Vec::new();
+                read_tree(&dir.open_dir(OsStr::new(TREE_DIR))?, "", &mut entries)?;
+                entries.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
+                Ok(manifest(&entries) == *expected)
+            }
+            Expected::Descriptor { name, bytes } => {
+                Ok(names == [OsStr::new(name)] && read(name)? == *bytes)
+            }
+        }
+    }
+}
+
+/// Publish a staged object directory as `name` in `parent`, with an atomic
+/// rename that never replaces an existing object. An existing object is a
+/// winner: the loser reads it back in full and reuses it when it holds what
+/// `expected` describes, or refuses it as corrupt. Ravel never repairs it.
 pub fn publish(
     mut staging: Staging,
-    parent: &Path,
+    cache: &Cache,
+    parent: &Dir,
     name: &str,
-    marker: &str,
-    expected: &[u8],
+    expected: &Expected<'_>,
 ) -> Result<(PathBuf, Published), Refusal> {
-    let object = parent.join(name);
-    let sealed = seal_contents(staging.path());
-    let renamed = sealed.and_then(|()| rename_noreplace(staging.path(), &object));
+    let object = parent.path().join(name);
+    if let Err(error) = seal_contents(&staging.dir) {
+        return Err(after_cleanup(
+            unavailable(staging.path(), &error),
+            &mut staging,
+        ));
+    }
+    if let Err(refusal) = cache.check() {
+        return Err(after_cleanup(refusal, &mut staging));
+    }
+    let renamed = staging
+        .parent
+        .rename_noreplace(&staging.name, parent, OsStr::new(name));
     match renamed {
         Ok(()) => {
             staging.disarm();
-            fs::set_permissions(&object, fs::Permissions::from_mode(0o555))
+            staging
+                .dir
+                .chmod(0o555)
                 .map_err(|error| unavailable(&object, &error))?;
             Ok((object, Published::New))
         }
         Err(error) if matches!(error.raw_os_error(), Some(libc::EEXIST | libc::ENOTEMPTY)) => {
-            let existing = fs::read(object.join(marker));
-            if existing.as_deref().ok() != Some(expected) {
-                let failure = refuse(
-                    "skill_cache_corrupt",
-                    format!(
-                        "the cached object {} does not hold the content that its name identifies",
-                        object.display()
-                    ),
-                    "stop the readers of the object, then quarantine or remove it and resolve again",
-                )
-                .source(object.display().to_string());
-                return Err(after_cleanup(failure, &mut staging));
+            let holds = parent
+                .open_dir(OsStr::new(name))
+                .and_then(|winner| expected.holds(&winner));
+            match holds {
+                Ok(true) => {
+                    staging
+                        .cleanup()
+                        .map_err(|error| cleanup_failed(staging.path(), &error))?;
+                    Ok((object, Published::Existing))
+                }
+                Ok(false) | Err(_) => {
+                    let failure = refuse(
+                        "skill_cache_corrupt",
+                        format!(
+                            "the cached object {} does not hold the content that its name \
+                             identifies",
+                            object.display()
+                        ),
+                        "stop the readers of the object, then move it out of the cache to \
+                         quarantine it, or remove it, and resolve again",
+                    )
+                    .source(object.display().to_string());
+                    Err(after_cleanup(failure, &mut staging))
+                }
             }
-            staging
-                .cleanup()
-                .map_err(|error| cleanup_failed(staging.path(), &error))?;
-            Ok((object, Published::Existing))
         }
         Err(error) => Err(after_cleanup(unavailable(&object, &error), &mut staging)),
     }
-}
-
-/// Seal every entry inside the staged object, but not the object directory,
-/// which the rename must still be able to move.
-fn seal_contents(path: &Path) -> io::Result<()> {
-    for entry in fs::read_dir(path)? {
-        seal(&entry?.path())?;
-    }
-    Ok(())
-}
-
-pub fn unavailable(path: &Path, error: &io::Error) -> Refusal {
-    refuse(
-        "skill_cache_unavailable",
-        format!(
-            "Ravel cannot use the cache path {}: {error}",
-            path.display()
-        ),
-        "make the cache root a writable private directory of this account, or free storage",
-    )
-    .source(path.display().to_string())
 }
 
 /// Remove the staging of a refused resolution. A cleanup failure joins the
@@ -557,45 +915,11 @@ pub fn cleanup_failed(path: &Path, error: &io::Error) -> Refusal {
     .source(path.display().to_string())
 }
 
-fn c_path(path: &Path) -> io::Result<CString> {
-    CString::new(path.as_os_str().as_bytes())
-        .map_err(|_| io::Error::new(ErrorKind::InvalidInput, "a path holds NUL"))
-}
-
-/// Rename `from` to `to`, failing with `EEXIST` when `to` exists.
-// https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/renamex_np.2.html
-#[cfg(target_os = "macos")]
-fn rename_noreplace(from: &Path, to: &Path) -> io::Result<()> {
-    let (from, to) = (c_path(from)?, c_path(to)?);
-    // SAFETY: both arguments are valid NUL-terminated paths for this call.
-    let result = unsafe { libc::renamex_np(from.as_ptr(), to.as_ptr(), libc::RENAME_EXCL) };
-    if result == 0 {
-        Ok(())
-    } else {
-        Err(io::Error::last_os_error())
-    }
-}
-
-/// Rename `from` to `to`, failing with `EEXIST` when `to` exists.
-// https://man7.org/linux/man-pages/man2/renameat2.2.html
-#[cfg(target_os = "linux")]
-fn rename_noreplace(from: &Path, to: &Path) -> io::Result<()> {
-    let (from, to) = (c_path(from)?, c_path(to)?);
-    // SAFETY: both arguments are valid NUL-terminated paths for this call.
-    let result = unsafe {
-        libc::renameat2(
-            libc::AT_FDCWD,
-            from.as_ptr(),
-            libc::AT_FDCWD,
-            to.as_ptr(),
-            libc::RENAME_NOREPLACE,
-        )
-    };
-    if result == 0 {
-        Ok(())
-    } else {
-        Err(io::Error::last_os_error())
-    }
+/// Write `bytes` as the new file `name` in the staging directory.
+pub fn write_new(staging: &Staging, name: &str, bytes: &[u8]) -> io::Result<()> {
+    let mut file: File = staging.dir.create(OsStr::new(name), 0o600)?;
+    file.write_all(bytes)?;
+    file.sync_all()
 }
 
 #[cfg(test)]
@@ -631,25 +955,51 @@ mod tests {
 
     #[test]
     fn publication_never_replaces_an_existing_object() {
-        let cache = tempfile::tempdir().unwrap();
+        let home = tempfile::tempdir().unwrap();
+        let home = home.path().canonicalize().unwrap();
+        let cache = Cache::open(&home).unwrap();
         let stage = |text: &[u8]| {
-            let staging = Staging::new(cache.path(), "s-").unwrap();
-            fs::write(staging.path().join("m"), text).unwrap();
+            let staging = Staging::new(&cache, "s-").unwrap();
+            write_new(&staging, "m", text).unwrap();
             staging
         };
-        let (object, how) = publish(stage(b"one"), cache.path(), "obj", "m", b"one").unwrap();
+        let expect = |bytes| Expected::Descriptor { name: "m", bytes };
+        let (object, how) = publish(
+            stage(b"one"),
+            &cache,
+            &cache.descriptors,
+            "obj",
+            &expect(b"one"),
+        )
+        .unwrap();
         assert_eq!(how, Published::New);
-        let (again, how) = publish(stage(b"one"), cache.path(), "obj", "m", b"one").unwrap();
+        let (again, how) = publish(
+            stage(b"one"),
+            &cache,
+            &cache.descriptors,
+            "obj",
+            &expect(b"one"),
+        )
+        .unwrap();
         assert_eq!((again, how), (object.clone(), Published::Existing));
-        let refusal = publish(stage(b"two"), cache.path(), "obj", "m", b"two").unwrap_err();
+        let refusal = publish(
+            stage(b"two"),
+            &cache,
+            &cache.descriptors,
+            "obj",
+            &expect(b"two"),
+        )
+        .unwrap_err();
         assert_eq!(refusal.code, "skill_cache_corrupt");
-        assert_eq!(fs::read(object.join("m")).unwrap(), b"one");
-        // Only the published object remains: each loser removed its staging.
-        let names: Vec<_> = fs::read_dir(cache.path())
-            .unwrap()
-            .map(|e| e.unwrap().file_name())
-            .collect();
-        assert_eq!(names, ["obj"]);
-        writable(&object).unwrap();
+        assert_eq!(std::fs::read(object.join("m")).unwrap(), b"one");
+        // Only the published object remains, and each loser removed its own
+        // staging.
+        assert_eq!(cache.descriptors.list().unwrap(), [OsStr::new("obj")]);
+        assert!(cache.staging.list().unwrap().is_empty());
+        let _ = std::process::Command::new("chmod")
+            .arg("-R")
+            .arg("u+w")
+            .arg(&home)
+            .status();
     }
 }

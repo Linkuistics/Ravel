@@ -735,21 +735,57 @@ Each run captures current bytes. A run reuses a stored snapshot only when the
 new copy has the same content digest. An edit of a local source therefore
 gives a new snapshot, and an earlier snapshot keeps its bytes.
 
+Keep a local source quiet while Ravel copies it. Ravel examines each entry
+two times: when it lists the entry, and after it copies the entry and its
+directory. When the entry, its type, its identity, its size or a change time
+is different, the run refuses as `skill_source_changed`. Then try again.
+
+This check does not make a copy atomic. An edit that restores the size and both
+change times is not visible to it. A successful second run does not prove that
+the first copy was atomic.
+
+Ravel reads back the copy in the cache and compares it with the source. The
+filesystem of the cache can fail to keep two names apart, for example `A.md`
+and `a.md` on the default macOS volume. It can also change the spelling of a
+name, for example to another Unicode normalisation form. Then the run refuses
+as `skill_resource_invalid` and names the paths. Ravel never writes one entry
+over another, and it never changes a name. A filesystem that keeps both names
+keeps both.
+
+Ravel examines each directory on the path to the cache. Each directory must
+belong to your account or to root. Other accounts must not write a directory
+on the path, unless the directory is sticky and your account owns its entry.
+The cache root and its directories must give other accounts no access. Ravel
+keeps the cache directories open while it writes. Before it adds an object, it
+makes sure that the path still reaches the same directory.
+
+Two runs can add the same object at the same time. A reader sees no object or
+a complete object. A run that finds an object with the same name reads all of
+it again.
+When the object holds other content, the run refuses as `skill_cache_corrupt`.
+Ravel does not repair the object, because other readers can use it.
+
 These skill refusals have stage `skills` and status 3:
 
 | Code | Cause | Remedy |
 |---|---|---|
 | `skill_source_missing` | A source directory or a configured search directory does not exist. | Restore the directory, or change the settings deliberately. |
+| `skill_source_changed` | A local source changed while Ravel copied it. | Keep the source quiet, then try again. |
 | `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
-| `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. | Repair or remove the named entry. |
+| `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. So do two names that the filesystem of the cache cannot keep apart, and a name whose spelling it changes. | Repair, rename or remove the named entry. |
 | `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. A launch also refuses a source that overlaps the directory of its configuration entry. | Move the source. |
 | `skill_limit_exceeded` | At launch, the prepared prompt is more than 1,048,576 bytes. | Give a smaller task that refers to other files, or configure fewer directories. |
-| `skill_cache_unavailable` | Ravel cannot write the cache, for example because of a permission or full storage. | Make the cache writable, or free storage. |
-| `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then remove it and resolve again. |
+| `skill_cache_unavailable` | Ravel cannot use the cache. Examples are a permission and full storage. A directory on the path that another account can write, and a link on the path that changed during the run, also refuse. | Make the cache a private writable directory of your account, or free storage. |
+| `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then move it out of the cache or remove it, and resolve again. |
 
 A refusal never stores a descriptor. It can leave complete snapshots that a
-later resolution reuses. Ravel removes its own private temporary directories.
-A failure of that removal is `skill_cleanup_failed`, status 5.
+later resolution reuses. Ravel removes its own private temporary directories,
+and no other temporary directories. A failure of that removal after a
+successful run is `skill_cleanup_failed`, status 5. After a refusal, the
+refusal keeps its code and also reports the failure.
+
+A run that stops because of a signal such as KILL can leave a temporary
+directory. Remove it only when no Ravel run is active.
 
 > **Note:** This build acquires local sources only. A valid Git source refuses
 > before any acquisition, with status 3. Its remedy names the unfinished
