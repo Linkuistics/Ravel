@@ -836,10 +836,12 @@ operating-system call that storage holds. The refusal then comes after that
 call returns.
 
 An INT, TERM or HUP signal during a resolution stops it at the next
-examination. Ravel removes its private temporary directory and stores no
-descriptor. The refusal is `skill_resolution_cancelled`, with status 128 plus
-the signal number: 130 for INT, 143 for TERM and 129 for HUP. Ravel then
-raises the same signal again, so the caller sees that signal.
+examination. Ravel removes its private temporary directory, and it never
+leaves a partial descriptor. A signal that arrives after Ravel stores the
+descriptor still cancels the resolution. The complete descriptor then stays,
+as after any other refusal. The refusal is `skill_resolution_cancelled`,
+with status 128 plus the signal number: 130 for INT, 143 for TERM and 129 for
+HUP. Ravel then raises the same signal again, so the caller sees that signal.
 
 A signal that arrives before another refusal wins over that refusal. The
 report keeps the other refusal as the original failure. A launch applies the

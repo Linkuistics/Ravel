@@ -6,7 +6,8 @@
 //!
 //! A controlled delay stops the resolver with SIGSTOP while its capture
 //! staging exists and before it writes a manifest, so the delay and a signal
-//! act during capture. The descriptor and preamble bounds cannot be reached
+//! act during capture. The fixture confirms the stop before it examines the
+//! staging, and it tries again when the stop missed the capture. The descriptor and preamble bounds cannot be reached
 //! on macOS within the other bounds, so the unit tests in
 //! `skills::publication_tests` cross them with smaller limits.
 
@@ -146,47 +147,180 @@ impl Fixture {
             .collect()
     }
 
-    /// Start `command` and stop it with SIGSTOP while its capture staging
-    /// exists and holds no manifest, which capture writes only at its end.
-    fn stopped_in_capture(&self, mut command: Command) -> Child {
+    /// Start the command that `command` builds, and stop it with SIGSTOP
+    /// while its capture staging exists and holds no manifest. Capture
+    /// writes its manifest only at its end.
+    ///
+    /// The staging is examined only after `waitpid` reports the stop, so the
+    /// resolver cannot write or rename while the fixture looks. A stop that
+    /// misses the capture, or a resolver that ends before the fixture sees
+    /// it, kills that resolver and resets the cache. Then the fixture tries
+    /// again, within a bound of attempts.
+    fn stopped_in_capture(&self, command: impl Fn() -> Command) -> Stopped {
+        const ATTEMPTS: usize = 5;
         let staging = self.home.join(CACHE).join("staging");
-        let mut child = command
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .unwrap();
         let started = Instant::now();
-        loop {
-            let capturing = fs::read_dir(&staging).ok().and_then(|entries| {
-                entries
-                    .filter_map(Result::ok)
-                    .find(|entry| entry.file_name().to_string_lossy().starts_with("capture-"))
-            });
-            if let Some(entry) = capturing {
-                signal(&child, libc::SIGSTOP);
+        let mut missed = Vec::new();
+        for _ in 0..ATTEMPTS {
+            let mut child = Stopped::spawn(command());
+            let capture = loop {
+                let capturing = fs::read_dir(&staging).ok().and_then(|entries| {
+                    entries
+                        .filter_map(Result::ok)
+                        .find(|entry| entry.file_name().to_string_lossy().starts_with("capture-"))
+                });
+                if let Some(entry) = capturing {
+                    child.signal(libc::SIGSTOP);
+                    if child.confirm_stop() {
+                        break Some(entry.path());
+                    }
+                    missed.push("the resolver ended before its stop".to_owned());
+                    break None;
+                }
+                if let Some(status) = child.ended() {
+                    missed.push(format!("the resolver ended first: {status}"));
+                    break None;
+                }
                 assert!(
-                    !entry.path().join("manifest").exists(),
-                    "the resolver was stopped after its capture"
+                    started.elapsed() < Duration::from_secs(60),
+                    "no capture began; missed: {missed:?}"
                 );
-                assert!(self.names("snapshots").is_empty());
-                return child;
+                thread::sleep(Duration::from_micros(200));
+            };
+            match capture {
+                Some(capture)
+                    if capture.is_dir()
+                        && !capture.join("manifest").exists()
+                        && self.names("snapshots").is_empty() =>
+                {
+                    return child;
+                }
+                Some(_) => missed.push("the stop came after the capture".to_owned()),
+                None => {}
             }
-            if let Ok(Some(status)) = child.try_wait() {
-                panic!("the resolver ended before its capture was seen: {status}");
-            }
-            assert!(
-                started.elapsed() < Duration::from_secs(60),
-                "no capture began"
-            );
-            thread::sleep(Duration::from_micros(200));
+            drop(child);
+            self.reset_cache();
+        }
+        panic!("no stop came during a capture in {ATTEMPTS} attempts: {missed:?}");
+    }
+
+    /// Remove the cache, whose snapshots are read-only.
+    fn reset_cache(&self) {
+        let cache = self.home.join(".cache");
+        if cache.exists() {
+            let _ = Command::new("chmod")
+                .arg("-R")
+                .arg("u+w")
+                .arg(&cache)
+                .status();
+            fs::remove_dir_all(&cache).unwrap();
         }
     }
 }
 
-fn signal(child: &Child, number: libc::c_int) {
-    let pid = libc::pid_t::try_from(child.id()).unwrap();
-    // SAFETY: the child is not reaped yet, so its process ID is still its own.
-    assert_eq!(unsafe { libc::kill(pid, number) }, 0);
+/// A resolver process that a fixture controls with signals. It is killed and
+/// reaped on every path that does not collect it, also when a test fails.
+struct Stopped {
+    child: Child,
+    /// The process was reaped, so its process ID can name another process.
+    reaped: bool,
+}
+
+impl Stopped {
+    fn spawn(mut command: Command) -> Self {
+        let child = command
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        Stopped {
+            child,
+            reaped: false,
+        }
+    }
+
+    fn pid(&self) -> libc::pid_t {
+        assert!(!self.reaped, "the resolver was reaped");
+        libc::pid_t::try_from(self.child.id()).unwrap()
+    }
+
+    fn signal(&self, number: libc::c_int) {
+        // SAFETY: the child is not reaped yet, so its process ID is still its own.
+        assert_eq!(unsafe { libc::kill(self.pid(), number) }, 0);
+    }
+
+    /// The status of a resolver that ended, which reaps it.
+    fn ended(&mut self) -> Option<std::process::ExitStatus> {
+        let status = self.child.try_wait().unwrap();
+        self.reaped |= status.is_some();
+        status
+    }
+
+    /// Wait until the process is stopped. False when it ended instead, which
+    /// reaps it.
+    fn confirm_stop(&mut self) -> bool {
+        let pid = self.pid();
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            let mut status = 0;
+            // SAFETY: `pid` is the unreaped child, and `status` is a valid
+            // destination.
+            let waited =
+                unsafe { libc::waitpid(pid, &mut status, libc::WUNTRACED | libc::WNOHANG) };
+            if waited == pid {
+                if libc::WIFSTOPPED(status) {
+                    return true;
+                }
+                self.reaped = true;
+                return false;
+            }
+            if waited < 0 {
+                let error = std::io::Error::last_os_error();
+                assert_eq!(error.kind(), std::io::ErrorKind::Interrupted, "{error}");
+            }
+            assert!(Instant::now() < deadline, "the resolver did not stop");
+            thread::sleep(Duration::from_millis(1));
+        }
+    }
+
+    /// Continue the process, and collect it and its output within 60 seconds.
+    fn finish(mut self) -> Output {
+        self.signal(libc::SIGCONT);
+        let mut stdout = self.child.stdout.take().unwrap();
+        let mut stderr = self.child.stderr.take().unwrap();
+        let out = thread::spawn(move || {
+            let mut bytes = Vec::new();
+            std::io::Read::read_to_end(&mut stdout, &mut bytes).map(|_| bytes)
+        });
+        let err = thread::spawn(move || {
+            let mut bytes = Vec::new();
+            std::io::Read::read_to_end(&mut stderr, &mut bytes).map(|_| bytes)
+        });
+        let deadline = Instant::now() + Duration::from_secs(60);
+        let status = loop {
+            if let Some(status) = self.ended() {
+                break status;
+            }
+            assert!(Instant::now() < deadline, "the resolver did not end");
+            thread::sleep(Duration::from_millis(5));
+        };
+        Output {
+            status,
+            stdout: out.join().unwrap().unwrap(),
+            stderr: err.join().unwrap().unwrap(),
+        }
+    }
+}
+
+impl Drop for Stopped {
+    fn drop(&mut self) {
+        if !self.reaped {
+            // SAFETY: the child is not reaped yet, so its process ID is still
+            // its own. KILL also ends a stopped process.
+            unsafe { libc::kill(self.pid(), libc::SIGKILL) };
+            let _ = self.child.wait();
+        }
+    }
 }
 
 fn stderr(output: &Output) -> String {
@@ -481,10 +615,9 @@ fn a_controlled_delay_times_out_and_a_larger_deadline_succeeds_with_every_check(
     };
 
     fixture.skills(settings(1_000));
-    let child = fixture.stopped_in_capture(fixture.resolve_command());
+    let child = fixture.stopped_in_capture(|| fixture.resolve_command());
     thread::sleep(Duration::from_millis(1_300));
-    signal(&child, libc::SIGCONT);
-    let output = child.wait_with_output().unwrap();
+    let output = child.finish();
     assert_eq!(output.status.code(), Some(124), "{}", stderr(&output));
     assert!(output.stdout.is_empty());
     let error = refusal(&output);
@@ -515,10 +648,9 @@ fn a_controlled_delay_times_out_and_a_larger_deadline_succeeds_with_every_check(
     // The same delay within a larger deadline resolves, and the snapshot
     // holds every file.
     fixture.skills(settings(60_000));
-    let child = fixture.stopped_in_capture(fixture.resolve_command());
+    let child = fixture.stopped_in_capture(|| fixture.resolve_command());
     thread::sleep(Duration::from_millis(1_300));
-    signal(&child, libc::SIGCONT);
-    let output = child.wait_with_output().unwrap();
+    let output = child.finish();
     assert_eq!(output.status.code(), Some(0), "{}", stderr(&output));
     let resolved: Value = serde_json::from_slice(&output.stdout).unwrap();
     let root = PathBuf::from(resolved["sources"][0]["snapshotRoot"].as_str().unwrap());
@@ -549,12 +681,11 @@ fn int_term_and_hup_during_capture_cancel_remove_the_staging_and_are_raised_agai
         (libc::SIGTERM, "SIGTERM"),
         (libc::SIGHUP, "SIGHUP"),
     ] {
-        let child = fixture.stopped_in_capture(fixture.resolve_command());
+        let child = fixture.stopped_in_capture(|| fixture.resolve_command());
         // The signal waits while the resolver is stopped, and arrives during
         // its capture when it continues.
-        signal(&child, number);
-        signal(&child, libc::SIGCONT);
-        let output = child.wait_with_output().unwrap();
+        child.signal(number);
+        let output = child.finish();
         assert_eq!(output.status.signal(), Some(number), "{}", stderr(&output));
         assert!(output.stdout.is_empty());
         let error = refusal(&output);
@@ -583,10 +714,9 @@ fn a_launch_cancels_or_times_out_during_capture_before_the_worker_and_the_channe
     settings["resolutionTimeoutMs"] = json!(1_000);
     fixture.skills(settings);
 
-    let child = fixture.stopped_in_capture(fixture.start_command());
-    signal(&child, libc::SIGTERM);
-    signal(&child, libc::SIGCONT);
-    let output = child.wait_with_output().unwrap();
+    let child = fixture.stopped_in_capture(|| fixture.start_command());
+    child.signal(libc::SIGTERM);
+    let output = child.finish();
     assert_eq!(
         output.status.signal(),
         Some(libc::SIGTERM),
@@ -603,10 +733,9 @@ fn a_launch_cancels_or_times_out_during_capture_before_the_worker_and_the_channe
     assert!(fixture.left_in_tmp().is_empty());
     fixture.clean(0);
 
-    let child = fixture.stopped_in_capture(fixture.start_command());
+    let child = fixture.stopped_in_capture(|| fixture.start_command());
     thread::sleep(Duration::from_millis(1_300));
-    signal(&child, libc::SIGCONT);
-    let output = child.wait_with_output().unwrap();
+    let output = child.finish();
     assert_eq!(output.status.code(), Some(124), "{}", stderr(&output));
     assert!(output.stdout.is_empty());
     let error = refusal(&output);
