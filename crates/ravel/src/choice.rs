@@ -55,6 +55,7 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
     let settings = Settings::read(home.as_deref())?;
     let inputs = Inputs::read(args, &settings)?;
     let entry = authority::resolve(args.config.as_deref(), &inputs.cwd, home.as_deref())?;
+    refuse_enabled_delivery(&settings)?;
     let settings_path = home
         .as_deref()
         .map(Path::new)
@@ -65,6 +66,29 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
         entry,
         settings_path,
     })
+}
+
+/// This build resolves skill sources only through `ravel skills resolve`. A
+/// launch with delivery enabled refuses before any worker starts, so it never
+/// silently drops the owner's guidance. The launch stage removes this refusal,
+/// which has no stable public code.
+fn refuse_enabled_delivery(settings: &Settings) -> Result<(), Refusal> {
+    if settings
+        .skills
+        .as_ref()
+        .is_some_and(crate::skills::settings::SkillSettings::enabled)
+    {
+        return Err(crate::skills::refuse(
+            "skill_launch_unsupported",
+            "the owner settings enable skill delivery, but this build of Ravel prepares no \
+             launch prompt with skill directories",
+            "launch preparation arrives with the unfinished launch stage; use ravel skills \
+             resolve and pass its output to the harness yourself, or empty the skills arrays to \
+             launch without directory delivery",
+        )
+        .location("skills"));
+    }
+    Ok(())
 }
 
 pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected, Failure> {

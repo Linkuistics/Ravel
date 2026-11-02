@@ -24,6 +24,17 @@
   larger frame refuses as `malformed_input`, stage `cli`, exit 2, and the
   refusal names the largest members. Only a very long kind, working directory
   or task-file path can pass the bound.
+- Add `ravel skills resolve` for local skill sources. The settings file accepts
+  a `skills` object, with `schemaVersion` 1, `sources`, `mandatory` and
+  `resolutionTimeoutMs`. Ravel copies each local source into an immutable
+  snapshot under `~/.cache/ravel/skills/v1`, publishes a directory descriptor
+  and prints the loading instructions. `--json` prints one object. With
+  delivery disabled, the command prints nothing and creates no cache. In this
+  build, a Git source refuses, and so does `start-session` with delivery
+  enabled. Later stages of this release add both.
+- Refuse a settings file that repeats a member name in any object, as
+  `settings_invalid`, stage `cli`, exit 2. The `location` names the repeated
+  member.
 
 ## v1.1.0
 

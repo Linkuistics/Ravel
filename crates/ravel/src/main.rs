@@ -23,6 +23,8 @@ mod run;
 mod schema;
 mod settings;
 mod signal_state;
+mod skills;
+mod strict_json;
 mod worker;
 
 use std::ffi::OsString;
@@ -31,7 +33,7 @@ use std::process::ExitCode;
 use clap::Parser as _;
 use clap::error::{ContextKind, ContextValue, ErrorKind};
 
-use crate::cli::{Cli, Command};
+use crate::cli::{Cli, Command, SkillsCommand};
 use crate::refusal::{EXIT_MALFORMED, Failure, Refusal, Stage};
 
 fn main() -> ExitCode {
@@ -73,6 +75,12 @@ fn main() -> ExitCode {
         Command::StartSession(args) => match run::run(args) {
             Ok(()) => ExitCode::SUCCESS,
             Err(failure) => report_failure(&failure, args.json),
+        },
+        Command::Skills {
+            command: SkillsCommand::Resolve { json },
+        } => match skills::command::run(*json) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(failure) => report_failure(&failure, *json),
         },
     }
 }
@@ -186,6 +194,8 @@ fn command_path(arguments: &[OsString]) -> String {
         .collect();
     match words.as_slice() {
         [command @ ("start-session" | "end-session"), ..] => format!("ravel {command}"),
+        ["skills", "resolve", ..] => "ravel skills resolve".to_owned(),
+        ["skills", ..] => "ravel skills".to_owned(),
         _ => "ravel".to_owned(),
     }
 }

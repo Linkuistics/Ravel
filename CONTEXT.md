@@ -146,6 +146,15 @@ ordered **Mandatory guidance**. Ravel supplies its absolute path in the prompt
 and in `RAVEL_SKILL_DIRECTORIES`. It grants no read access, and it gives no
 authority to end a **Session**.
 
+**Skill snapshot**: The retained, immutable copy of one whole **Skill
+source**, without its `.git` and `.jj` entries. Ravel names it by the digest
+of its manifest. A later edit of the source does not change it.
+
+**Source resolution**: The capture, check and storage of each **Skill
+source** and of the **Directory descriptor**. `ravel skills resolve` runs it
+without a **Session** and prints the discovery instructions. It reads no skill
+name.
+
 **Mandatory guidance**: Files that the **Owner** names by their path in a
 **Skill source**. The agent reads them before optional discovery and before
 task actions. They are file references, not skill names.

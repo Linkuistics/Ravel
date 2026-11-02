@@ -117,17 +117,17 @@ Other signal names keep that prefix. Code and diagnostic text keep their literal
 ### `ravel`, help and version
 
 Do you want to know which verbs Ravel has, or which version you installed?
-Ask the Ravel CLI. `ravel` takes one of two verbs: `start-session` or
-`end-session`. It has no `help` subcommand. The table gives the help and
-version requests.
+Ask the Ravel CLI. `ravel` takes one of three commands: `start-session`,
+`end-session` or `skills resolve`. It has no `help` subcommand. The table gives
+the help and version requests.
 
 | Request | Output | Status |
 |---|---|---|
 | `ravel` without a verb | Help on standard error. | `2` |
-| `ravel --help`, `ravel start-session --help`, `ravel end-session --help` | Help on standard output. `-h` is the short option on all three command lines. | `0` |
+| `ravel --help`, `ravel start-session --help`, `ravel end-session --help`, `ravel skills resolve --help` | Help on standard output. `-h` is the short option on each of these command lines. | `0` |
 | `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
 
-Fragment: the output of `ravel --help` from the checkout build on 2026-10-29.
+Fragment: the output of `ravel --help` from the checkout build on 2026-11-02.
 This block omits the command and its status, 0.
 
 ```text
@@ -138,6 +138,7 @@ Usage: ravel <COMMAND>
 Commands:
   start-session  Route the prompt unchanged through an owner Rhai configuration script and supervise its selected process
   end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
+  skills         Resolve the skill sources of the owner settings, without a configuration script or a harness
 
 Options:
   -h, --help     Print help
@@ -146,6 +147,7 @@ Options:
 Examples:
   ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'
   ravel end-session done
+  ravel skills resolve
 ```
 
 Help and version text is informational output, never an opaque result.
@@ -660,12 +662,105 @@ See [accept a result only after success](05-running-sessions.md#accept-a-result-
 > before the reap, with no new grace period. Ravel can stop code that
 > runs after `end-session`.
 
+### `skills resolve`
+
+Do you want an agent to read the skill sources of the owner, but outside a
+session? `ravel skills resolve` prepares those sources and prints the discovery
+instructions. You then give that text to an independent harness.
+
+The command reads the [`skills` object](#settingsjson) of the settings. It
+evaluates no configuration script, creates no result channel and launches no
+harness. It takes no skill name, task, prompt or source override. Ravel reads
+no `SKILL.md` file, no frontmatter and no skill name.
+
+For each configured local source, the command copies the current bytes of the
+whole source directory. The copy leaves out each `.git` and `.jj` entry, at
+every level. The command checks each search directory and each mandatory file
+in the copy. Then it stores an immutable snapshot of the copy in the cache. It
+also stores an immutable descriptor of the directory set. The skill discovery specification
+in the repository, `docs/specs/skill-discovery.md`, owns the complete contract.
+
+> **Note:** Each run writes to the cache `$HOME/.cache/ravel/skills/v1`.
+> Ravel keeps the snapshots and the descriptors after the command, the session
+> and an upgrade. It has no automatic collector and no prune command. A
+> snapshot has no write permission. Remove an object manually only when no
+> reader of it runs.
+
+The table gives the inputs and the outputs.
+
+| Form or result | Standard output | Status |
+|---|---|---|
+| `ravel skills resolve`, delivery enabled | The discovery instructions, with a final newline. | `0` |
+| `ravel skills resolve --json`, delivery enabled | One JSON object, with a final newline. | `0` |
+| Delivery disabled, plain form | Nothing. | `0` |
+| Delivery disabled, `--json` | `{"schemaVersion":1,"status":"disabled"}`, with a final newline. | `0` |
+| A settings problem | Nothing. The refusal goes to standard error. | `2` |
+| A skill refusal | Nothing. The refusal goes to standard error. | `3` |
+| An internal failure, such as `skill_cleanup_failed` | Nothing. The refusal goes to standard error. | `5` |
+
+Delivery is disabled when the settings file is absent, when it has no `skills`
+key, or when `sources` and `mandatory` are both empty. Delivery is also
+disabled without an absolute `HOME`. A disabled resolution creates no cache.
+
+With `--json`, a resolved object holds these members:
+
+| Member | Value |
+|---|---|
+| `schemaVersion` | `1`. |
+| `status` | `"resolved"`. A disabled object holds only `schemaVersion` and `status`. |
+| `descriptorPath` | The absolute path of the retained `directories.json`. |
+| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest`, `snapshotRoot` and, for a local source, `originPath`. |
+| `directories` | One record for each search directory: `source` and the absolute `path`. A repeated path appears once, at its first position. |
+| `mandatory` | One record for each mandatory file, in configured order: `source` and the absolute `path`. |
+| `instructions` | The discovery instructions, without the final newline of the plain form. |
+
+The descriptor holds the same `schemaVersion`, `sources`, `directories` and
+`mandatory`. The name of its directory is the SHA-256 digest of its bytes. The
+`resourceDigest` of a source is the SHA-256 digest of the manifest of its
+snapshot. Two sources with the same content share one snapshot, and each
+source keeps its own record.
+
+The discovery instructions give each path as a JSON string literal. They list
+the search directories, the mandatory files in order and the descriptor path.
+Then they tell the agent how to read mandatory files, find skills, report
+problems, recover after a compaction and brief a delegate. They hold no task,
+and no instruction that ends a session. The instructions are the same text that a launch
+puts before the task of the caller.
+
+Each run captures current bytes. A run reuses a stored snapshot only when the
+new copy has the same content digest. An edit of a local source therefore
+gives a new snapshot, and an earlier snapshot keeps its bytes.
+
+These skill refusals have stage `skills` and status 3:
+
+| Code | Cause | Remedy |
+|---|---|---|
+| `skill_source_missing` | A source directory or a configured search directory does not exist. | Restore the directory, or change the settings deliberately. |
+| `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
+| `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. | Repair or remove the named entry. |
+| `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. | Move the source. |
+| `skill_cache_unavailable` | Ravel cannot write the cache, for example because of a permission or full storage. | Make the cache writable, or free storage. |
+| `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then remove it and resolve again. |
+
+A refusal never stores a descriptor. It can leave complete snapshots that a
+later resolution reuses. Ravel removes its own private temporary directories.
+A failure of that removal is `skill_cleanup_failed`, status 5.
+
+> **Note:** This build acquires local sources only. A valid Git source refuses
+> before any acquisition, with status 3. Its remedy names the unfinished
+> pinned-delivery stage. The refusal has no stable public code. A
+> `start-session` with delivery enabled also refuses, with status 3, before
+> it starts the worker. The launch stage removes that refusal.
+
 ## Exit statuses
 
 Your program ran `ravel start-session` or `ravel end-session` and received an
 exit status. What does it mean, and what do you do next? Find the status in
 the table below. The status is the exit status of the Ravel CLI, not the exit
 status of the managed process.
+
+`ravel skills resolve` uses only 0, 2, 3 and 5, with the meanings in
+[its section](#skills-resolve).
 
 For `start-session`, accept the result on standard output only when the final status
 is 0. Neither the exit status of the managed process nor an earlier
@@ -956,6 +1051,7 @@ CLI cannot see which operation of the script ran at expiry.
 | `selection` | The call to `select` and the check of the data that it returns. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `resolution` | The search for the selected program. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `exec` | The preparation and supervision of the managed launch, and the decision about its outcome. This stage also covers failures of the result output or the result channel before the spawn. | [Results](05-running-sessions.md#accept-a-result-only-after-success), [notices](05-running-sessions.md#read-notices-separately-from-results) |
+| `skills` | The capture, checks and storage of skill sources. A settings problem keeps the stage `cli`. | [`skills resolve`](#skills-resolve) |
 
 ## Environment variables
 
@@ -1172,6 +1268,7 @@ a JSON object. `end-session` reads neither the settings nor the configuration sc
 | `configEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
 | `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `skills` | Optional object with exactly `schemaVersion`, `sources`, `mandatory` and the optional `resolutionTimeoutMs`. Without it, skill delivery is disabled. The fields are below. | [`skills resolve`](#skills-resolve) |
 
 A harness name contains 1–64 lowercase ASCII letters, digits or dashes.
 The first character is a letter or digit. Ravel refuses unknown nested fields.
@@ -1181,6 +1278,19 @@ The first character is a letter or digit. Ravel refuses unknown nested fields.
 | `harnesses.NAME.program` | Required nonempty string without NUL. An absolute path, a relative path with `/`, or a bare `PATH` name. Resolution uses the caller's directory and environment. |
 | `harnesses.NAME.capabilities` | Optional array of nonempty strings. Default: empty. Discovery repeats these owner labels without interpretation. |
 | `budgets.harnessRuns` | Optional integer from 0 to 16 inclusive. Default: 0. Only settings can raise it. Each launched harness run consumes one. |
+| `skills.schemaVersion` | Required. The integer `1`. |
+| `skills.sources` | Required array of source records, in the order of presentation. An empty array and an empty `mandatory` array disable delivery. |
+| `skills.sources[N].id` | Required unique token of 1 to 64 lowercase ASCII letters and digits. Single hyphens separate groups, and the first character is a letter. |
+| `skills.sources[N].type` | Required. `local`, or `git` for an exact commit. |
+| `skills.sources[N].path` | Local only, and required. An absolute UTF-8 directory path. Ravel expands no tilde and no environment variable. |
+| `skills.sources[N].url`, `.revision`, `.subdir` | Git only, and required. An HTTPS, SSH or `file://` URL without credentials, or an absolute path. A full lowercase commit ID of 40 or 64 hexadecimal digits. A normalised directory in the repository, `.` for its root. |
+| `skills.sources[N].roots` | Required nonempty array of search directories, relative to the source. `.` is the source itself. A repeated root refuses. |
+| `skills.mandatory` | Required array of records with exactly `source` and `path`, in the order to read them. `source` names a configured source ID. `path` is a file, relative to that source, and `.` is not a file. A repeated reference refuses. |
+| `skills.resolutionTimeoutMs` | Optional integer from 1,000 to 3,600,000. Default: 120,000. It bounds one complete resolution. |
+
+A relative path in `skills` is normalised. It has no absolute start, no empty
+segment, no `.` or `..` segment, no backslash, no control character and no
+separator at the end.
 
 These problems report `settings_invalid`, status 2:
 
@@ -1189,6 +1299,8 @@ These problems report `settings_invalid`, status 2:
 - invalid JSON, or a document that is not an object
 - a `configEnv` that is not an array of strings
 - a malformed `harnesses` entry or `budgets` object, also an invalid `harnessRuns` value
+- a malformed `skills` object, an unknown field in it, or a mandatory record that names an unknown source
+- a repeated member name in any object of the file, for every key
 
 Invalid `timeoutMs` or `contextBytes` values and malformed grant names use `malformed_input`, and
 excluded grants use `excluded_grant`. Both have status 2. Ravel validates the
@@ -1444,7 +1556,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `malformed_input` | `cli` | 2 | Invalid CLI input, numeric setting or grant name. Correct the named input and range. An invalid setting fails even with a valid flag. | [Inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `prompt_unreadable` | `cli` | 2 | Ravel cannot open or read the prompt file, or the file is a terminal. Supply a readable file that is not a terminal, or use `--prompt`. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
 | `prompt_invalid` | `cli` | 2 | The prompt is invalid UTF-8, contains NUL or is larger than 1 MiB. Correct the encoding or the content, or make the prompt shorter. | [Prompt inputs](05-running-sessions.md#supply-the-prompt-and-caller-data) |
-| `settings_invalid` | `cli` | 2 | The settings file, a key or a nested entry is invalid. Correct the named location to the five optional settings and their documented shapes. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `settings_invalid` | `cli` | 2 | The settings file, a key or a nested entry is invalid, or an object repeats a member name. Correct the named location to the six optional settings and their documented shapes. | [Settings and bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `excluded_grant` | `cli` | 2 | A grant in the settings or in a flag names a reserved variable or prefix: a dynamic-loader control or one of Ravel's own names. Remove the grant. | [Grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `confinement_unusable` | `cli` | 2 | Ravel cannot use the backend or the confinement inputs. Correct the named backend or path. No unconfined launch runs in its place. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
 | `confinement_overlap` | `cli` | 2 | A grant overlaps the directory of the configuration script or the settings. Separate the paths, also their canonical symlink targets. | [Confinement](05-running-sessions.md#confine-the-managed-process) |
@@ -1498,6 +1610,16 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `process_group_survived` | `exec` | 5 | Ravel did not confirm the absence of the group when it decided the final outcome. Examine the reported group and the cleanup failures before you try again. The sent result alone is not sufficient. | [Cleanup and success](05-running-sessions.md#accept-a-result-only-after-success) |
 | `session_cancelled` | `exec` | 129/130/143 | HUP, INT or TERM has priority when Ravel decides the final outcome, even after Ravel received the result. Ravel returns no result to the caller. Retain the original and cleanup errors. Try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 | `result_write_failed` | `exec` | 5 | The final write or flush of the result failed after Ravel decided the outcome. Correct the output destination, and discard any prefix that Ravel already wrote. | [Result output](05-running-sessions.md#accept-a-result-only-after-success) |
+
+| Code | Stage | Status | Meaning and remedy | Taught in |
+|---|---|---|---|---|
+| `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Restore it, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
+| `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
+| `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
+| `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration or the skill cache. Move the source. | [`skills resolve`](#skills-resolve) |
+| `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache, because of a permission or full storage. Make the cache writable, or free storage. | [`skills resolve`](#skills-resolve) |
+| `skill_cache_corrupt` | `skills` | 3 | A cached object fails its check. Stop its readers, then remove it and resolve again. | [`skills resolve`](#skills-resolve) |
+| `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its own private temporary directory. Remove the named directory when no resolution runs. | [`skills resolve`](#skills-resolve) |
 
 An `end-session` failure is a plain `ravel: end-session:` message with
 status 1. It is not an entry in the JSON code table. A missing, empty or stale

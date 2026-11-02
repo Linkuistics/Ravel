@@ -9,6 +9,9 @@ use std::path::Path;
 
 use serde_json::Value;
 
+use crate::skills::settings::{self as skill_settings, SkillSettings};
+use crate::strict_json;
+
 use crate::environment;
 use crate::harness_entries::{self, Harnesses, Problem};
 use crate::limits::{
@@ -29,6 +32,8 @@ pub struct Settings {
     pub config_env: Vec<String>,
     pub harnesses: Harnesses,
     pub budgets: BudgetSettings,
+    /// The `skills` object, when the file holds one.
+    pub skills: Option<SkillSettings>,
 }
 
 /// The owner's choices for the budgets, each within the range of the spec table.
@@ -65,8 +70,13 @@ impl Settings {
         }
         let bytes =
             fs::read(&path).map_err(|error| invalid(&file, format!("cannot be read: {error}")))?;
-        let document: Value = serde_json::from_slice(&bytes)
-            .map_err(|error| invalid(&file, format!("is not JSON: {error}")))?;
+        let document = strict_json::parse(&bytes).map_err(|error| {
+            let refusal = invalid(&file, &error);
+            match error {
+                strict_json::Error::Repeated { location } => refusal.location(location),
+                strict_json::Error::Syntax(_) => refusal,
+            }
+        })?;
         let Value::Object(document) = document else {
             return Err(invalid(&file, "is not a JSON object"));
         };
@@ -107,6 +117,15 @@ impl Settings {
                         harness_entries::parse_harnesses(value).map_err(|p| problem(&file, p))?;
                 }
                 "budgets" => settings.budgets = budgets(&file, value)?,
+                "skills" => {
+                    settings.skills = Some(skill_settings::parse(value).map_err(|problem| {
+                        invalid(
+                            &file,
+                            format!("is invalid at {}: it {}", problem.location, problem.what),
+                        )
+                        .location(problem.location)
+                    })?);
+                }
                 _ => {
                     return Err(
                         invalid(&file, format!("holds the unknown key {key:?}")).location(key)
@@ -175,7 +194,7 @@ fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
         Stage::Cli,
         EXIT_MALFORMED,
         format!("the owner settings file {file} {what}"),
-        "make it one JSON object holding any of timeoutMs, contextBytes, configEnv (an array of variable names), harnesses and budgets, or remove it to set nothing",
+        "make it one JSON object, with no repeated member name, holding any of timeoutMs, contextBytes, configEnv (an array of variable names), harnesses, budgets and skills, or remove it to set nothing",
     )
     .source(file)
 }

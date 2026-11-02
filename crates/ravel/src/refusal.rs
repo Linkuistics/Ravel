@@ -19,6 +19,8 @@ pub const EXIT_NOT_FOUND: u8 = 127;
 pub enum Stage {
     /// The command line itself, and the owner settings its flags replace.
     Cli,
+    /// Acquiring, checking and publishing skill sources.
+    Skills,
     /// Choosing and opening the configuration entry.
     Authority,
     /// Finding, starting and verifying the compiled worker, and its protocol.
@@ -46,6 +48,7 @@ impl Stage {
     pub fn as_str(self) -> &'static str {
         match self {
             Stage::Cli => "cli",
+            Stage::Skills => "skills",
             Stage::Authority => "authority",
             Stage::Worker => "worker",
             Stage::Evaluation => "evaluation",

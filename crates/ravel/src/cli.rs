@@ -10,7 +10,7 @@ use std::path::PathBuf;
     version,
     disable_help_subcommand = true,
     about = "Route and supervise a session, returning its opaque result",
-    after_help = "Examples:\n  ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'\n  ravel end-session done"
+    after_help = "Examples:\n  ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'\n  ravel end-session done\n  ravel skills resolve"
 )]
 pub struct Cli {
     #[command(subcommand)]
@@ -30,6 +30,24 @@ pub enum Command {
     EndSession {
         #[arg(value_name = "RESULT")]
         result: String,
+    },
+    /// Resolve the skill sources of the owner settings, without a configuration script or a harness
+    Skills {
+        #[command(subcommand)]
+        command: SkillsCommand,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum SkillsCommand {
+    /// Capture the configured skill sources, store their snapshots and print the discovery instructions
+    #[command(
+        after_help = "The command reads the skills object of ~/.config/ravel/settings.json. It evaluates no configuration script, creates no result channel and launches no harness. It takes no skill name, task or source override.\n\nCache side effect: each run copies the current bytes of every local source and stores immutable snapshots and a directory descriptor under ~/.cache/ravel/skills/v1. Ravel never removes them automatically. A failure can leave complete snapshots, but never a partial descriptor.\n\nOutput: the discovery instructions, with a final newline. With --json, one object with schemaVersion 1 and status \"resolved\", and descriptorPath, sources, directories, mandatory and instructions. When delivery is disabled, the plain output is empty, --json prints {\"schemaVersion\":1,\"status\":\"disabled\"}, and the status is 0. A failure goes to stderr with a nonzero status and prints no instructions: 2 for a command-line or settings problem, 3 for a skill refusal, 5 for an internal failure.\n\nExamples:\n  ravel skills resolve\n  ravel skills resolve --json"
+    )]
+    Resolve {
+        /// Print one JSON object, and render a failure as a JSON failure document on stderr
+        #[arg(long)]
+        json: bool,
     },
 }
 #[derive(Debug, Args)]
