@@ -127,10 +127,10 @@ Diagnostics report the
 effective deadline. On a timeout they report the active source and operation.
 An owner raises the bound for valid sources on slow storage or a slow transport.
 
-Ravel examines the deadline and the cancellation latch between operations: at
-each entry, at each block of a copy and at each entry of a check or a seal. It
-cannot interrupt one system call that storage holds. The refusal then comes
-after that call returns.
+Ravel examines the deadline and the cancellation latch between operations. It
+examines them at each entry, at each block of a copy and at each entry of a
+check or a seal. It cannot interrupt one system call that storage holds. The
+refusal then comes after that call returns.
 
 Each source record has these fields. An unknown field refuses.
 
@@ -678,15 +678,18 @@ A breach of a byte or count bound refuses as `skill_limit_exceeded`. The
 refusal reports the actual value, the bound and the subject. A value equal to
 a bound passes. The search-directory bound counts the configured roots of all
 sources, before the descriptor joins repeated paths. Ravel checks the three
-configured counts before acquisition. Capture stops at the first entry or file
-that passes a bound, so a refusal of the entries or the bytes of a source
-reports the count at that point as "at least" that value. The bytes of all
-sources count each configured source, also two that name one directory. Ravel
-checks the descriptor and the preamble before it publishes the descriptor. For the prepared
-prompt, it reports both prompt byte counts. It suggests a smaller task with
-references to supporting files. Ravel never truncates caller instructions,
-omits a configured directory, omits mandatory guidance or disables delivery to
-meet a bound.
+configured counts before acquisition.
+
+Capture stops at the first entry or file that passes a bound. A refusal of the
+entries or the bytes of a source therefore reports the count at that point as
+"at least" that value. The bytes of all sources count each configured source,
+also two that name one directory.
+
+Ravel checks the descriptor and the preamble before it publishes the
+descriptor. For the prepared prompt, it reports both prompt byte counts. It
+suggests a smaller task with references to supporting files. Ravel never
+truncates caller instructions, omits a configured directory, omits mandatory
+guidance or disables delivery to meet a bound.
 
 The prepared prompt travels to the worker in the evaluate frame. It returns in
 the script result when the script puts it into `args`.
@@ -761,13 +764,14 @@ A source that holds the cache root refuses too, also before the cache exists.
 Ravel checks the real path that the opening of the cache would reach.
 
 These checks cover the explicit overlap of sources and grants. They do not
-cover secret text that an owner puts inside a source. Ravel also refuses a
-writable grant that overlaps a published snapshot or the descriptor. Then
-confinement cannot make an immutable object writable through the working
-directory. That check covers the whole cache root, because a writable staging
-area could change a publication in progress. Before the launch, Ravel lists
-each granted directory inside the backend. Each refusal in this section is
-`skill_access_unavailable`, with no unconfined fallback.
+cover secret text that an owner puts inside a source.
+
+Ravel also refuses a writable grant that overlaps a published snapshot or the
+descriptor. Then confinement cannot make an immutable object writable through
+the working directory. That check covers the whole cache root, because a
+writable staging area could change a publication in progress. Before the
+launch, Ravel lists each granted directory inside the backend. Each refusal in
+this section is `skill_access_unavailable`, with no unconfined fallback.
 
 The check holds each granted directory by its canonical path and its device
 and inode. Each harness run and the managed process grant only those held
@@ -826,11 +830,12 @@ parent. The nested launch refuses when its configuration script, the
 transport or cache writes are unavailable. On macOS the settings file is
 visible and unreadable, so the nested launch refuses as `settings_invalid`.
 On Linux the namespace holds no settings file. The nested launch then has
-delivery disabled, and it runs when it can read its configuration script. Ravel does not open the
-protected configuration directory to permit it. A harness delegate can reuse
-the retained descriptor without a nested launch. A privileged broker for nested
-launches is outside scope. A `start-session` inside a harness run still refuses
-as `config_reentry_refused`.
+delivery disabled, and it runs when it can read its configuration script.
+
+Ravel does not open the protected configuration directory to permit a nested
+launch. A harness delegate can reuse the retained descriptor without a nested
+launch. A privileged broker for nested launches is outside scope. A
+`start-session` inside a harness run still refuses as `config_reentry_refused`.
 
 ## Compatibility and transition
 
