@@ -820,17 +820,19 @@ sandbox would also change the real files.
 The Claude Code rows hold for the default locations only. Claude Code reads
 `CLAUDE_CONFIG_DIR` in place of `$HOME/.claude`. That variable also moves the
 sign-in. The sign-in file and the macOS Keychain entry then belong to that
-directory.
+directory. `CLAUDE_SECURESTORAGE_CONFIG_DIR` moves only the sign-in store, the
+file and the Keychain entry, and leaves the configuration directory in place.
 
 Three more variables add Claude Code plugin locations:
 `CLAUDE_CODE_PLUGIN_CACHE_DIR`, `CLAUDE_CODE_PLUGIN_DIRS` and
-`CLAUDE_CODE_PLUGIN_SEED_DIR`. Ravel scrubs none of these four names from the
+`CLAUDE_CODE_PLUGIN_SEED_DIR`. Ravel scrubs none of these five names from the
 environment of a managed process or a harness run.
 
 A Claude Code run refuses before the harness launches when its inherited
-environment holds one of the four names. An inherited value can expose a real configuration
-or plugin tree that no link check sees. The remedy is to launch the run without
-that variable.
+environment holds one of the five names, also with an empty value. An inherited
+value can expose a real configuration, plugin tree or sign-in store that no
+link check sees. The remedy is to launch the run without that variable. No
+launch of the harness precedes this check, including the version probe.
 
 The run does not remove such a variable. After a removal, the linked default
 sign-in can belong to another account. The run also does not set
@@ -840,9 +842,17 @@ from the linked path.
 Before the harness launches, each run lists every link in the sandbox home. The
 list holds only the path of the table for that harness. The run records the
 effective configuration directory of the harness. For Claude Code, that is the
-sandbox `.claude`. For Codex, it is the effective `CODEX_HOME`, and the run
-refuses an inherited value that points into the real home. After the run, it
-checks that each linked path is still a link.
+sandbox `.claude`. The sign-in check of a real Claude Code run compares it with
+the `configDirectory` that `claude auth status` reports.
+
+For Codex, the effective configuration directory is the sandbox `.codex`. The
+run refuses an inherited `CODEX_HOME` that points into the real home before the
+harness launches. The test uses the physical path, so an alias of the real home
+also refuses. An empty value selects the default in the real home and refuses
+too. The run replaces an inherited value outside the real home with the sandbox
+`.codex` and reports the replacement.
+
+After each launch, the run checks that each linked path is still the same link.
 
 A Claude Code sign-in with a claude.ai account also downloads the skills of
 that account into the sandbox `.claude/skills/synced`. These skills are
@@ -851,10 +861,11 @@ them with the other skills that the session lists.
 
 Each wrapper that builds a sandbox home has isolation controls with fake
 harnesses. An inherited `CLAUDE_CONFIG_DIR` that names a decoy real directory
-must refuse before the fake harness launches. Each plugin-location variable
-must refuse in the same way. So must an inherited `CODEX_HOME` in the real
-home. `task harness:smoke:test` runs these controls for the smoke tasks. Actual
-trials rely on the sandbox only after these controls pass.
+must refuse before the fake harness launches. `CLAUDE_SECURESTORAGE_CONFIG_DIR`
+and each plugin-location variable must refuse in the same way. So must an
+inherited `CODEX_HOME` in the real home. `task harness:smoke:test` runs these
+controls for the smoke tasks, in a fake real home. Actual trials rely on the
+sandbox only after these controls pass.
 
 A harness can replace the sign-in link with a file when it refreshes a token.
 The run then fails. Its remedy is to sign in again in the real home, because

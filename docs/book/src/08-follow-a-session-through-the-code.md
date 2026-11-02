@@ -112,7 +112,6 @@ resolver protects.
         &settings,
         config_dir,
         &inputs.prompt.text,
-        confine,
     )?;
 ```
 

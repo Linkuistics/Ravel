@@ -2108,13 +2108,26 @@ harness upgrade.
 [Chapter 10, “Prepare a checkout”](10-develop-ravel.md#prepare-a-checkout),
 gives the tools that a checkout needs.
 
-Those tasks use a temporary configuration and links to the harness's sign-in
-store. They do not need edits to your own settings.
+Those tasks use a temporary home with its own configuration. The home holds
+one link to your real home: the sign-in store of the harness.
+
+| Harness | The one link to your real home |
+|---|---|
+| Claude Code on macOS | `Library/Keychains` |
+| Claude Code on Linux | `.claude/.credentials.json` |
+| Codex | `.codex/auth.json`. The task sets `CODEX_HOME` to the temporary `.codex` |
+
+The tasks do not need edits to your own settings.
 They run unconfined. Confinement can deny writes to a harness's sign-in
 store, and Ravel does not widen confinement for authentication.
 A schema beside the configuration script is also unsuitable for a confined
 harness run, because confinement refuses grants that overlap the directory of
 the script.
+
+A Claude Code task stops before it runs Claude Code if your environment holds
+`CLAUDE_CONFIG_DIR`, `CLAUDE_SECURESTORAGE_CONFIG_DIR` or one of the three
+`CLAUDE_CODE_PLUGIN_*` location variables. A Codex task stops if `CODEX_HOME`
+names a directory in your real home. Run the task again without that variable.
 
 The harness owns its authentication.
 See the [Claude Code setup documentation](https://code.claude.com/docs/en/setup)

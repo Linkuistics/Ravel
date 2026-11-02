@@ -68,6 +68,58 @@ pages describe the published interface. No harness trial measured them.
 The local stage checks the installed Claude Code against these rows before it
 changes the smoke script. A published page is not a measurement of that build.
 
+### Measured by the local stage
+
+`ravel-smoke-sandbox-home-k60` measured these facts on 2026-11-02, before it
+changed the smoke script. It read the minified source in each binary, and it
+ran `auth status` or `login status`, which make no model call.
+
+| Harness and platform | Build |
+| --- | --- |
+| Claude Code 2.1.316, aarch64 macOS, Darwin 27.0.0 | Native install, binary SHA-256 `64c327e92b2c5e0f78c0a980c5a518121e1f0d140ca771ca5dd4488d1a2dcb3f` |
+| Claude Code 2.1.316, aarch64 GNU/Linux, a container from `ravel-native-linux:arm64`, kernel 7.0.14-linuxkit | The official installer, binary SHA-256 `55cdb8e162d190432696ea54010e0fca2e18d06fa7a7127fd563b9ffd4f22624` |
+| Codex 0.166.0, aarch64 macOS | Homebrew |
+
+The Linux sign-in path is `.claude/.credentials.json`. The source joins
+`.credentials.json` to the store directory. The store directory is
+`CLAUDE_SECURESTORAGE_CONFIG_DIR` when that variable is set, and otherwise the
+configuration directory. With a fake token, `auth status` reports a claude.ai
+sign-in for a regular file in the default location. It reports the same for a
+sandbox `.claude/.credentials.json` that links to that file, and for the file
+under `CLAUDE_CONFIG_DIR`. When `CLAUDE_CONFIG_DIR` names a directory without
+the file, it reports no sign-in.
+
+Each row of the table above holds for 2.1.316:
+
+| Row | Measurement |
+| --- | --- |
+| `CLAUDE_CONFIG_DIR` replaces `~/.claude` | `auth status` reports that directory as `configDirectory` on both platforms |
+| The sign-in moves with `CLAUDE_CONFIG_DIR` | Linux: the file moves, as above. macOS: the Keychain service is `Claude Code-credentials`, with a suffix of eight hexadecimal digits of the SHA-256 of the directory when the variable is set. With the Keychain link and the variable, `auth status` reports no sign-in |
+| Three plugin variables | The source reads `CLAUDE_CODE_PLUGIN_CACHE_DIR` as the plugins root, `CLAUDE_CODE_PLUGIN_DIRS` as plugin directories and `CLAUDE_CODE_PLUGIN_SEED_DIR` as a list of seed directories |
+| Account skills in `skills/synced` | The source names the directory `synced` and marks those skills `syncedSkills`. This stage ran no claude.ai session in a sandbox, so it did not see the download |
+| macOS writes `.credentials.json` when the Keychain refuses | The macOS store is a Keychain store with a plaintext fallback. It reads `.credentials.json` in the configuration directory when the Keychain holds no item |
+
+Three more facts change or qualify the sandbox home:
+
+- `CLAUDE_SECURESTORAGE_CONFIG_DIR` moves only the sign-in store on both
+  platforms. With it set to a real `.claude` and an empty home, `auth status`
+  reports a sign-in. The published environment reference does not list it.
+  The smoke run refuses it with the other four names.
+- The Linux binary also holds a second store reader. It opens the file with
+  `O_NOFOLLOW` and treats a link as the state `refused-symlink`, which reads
+  as no sign-in. A gate that the minified source does not name selects it.
+  `auth status` in 2.1.316 accepts the link. A later build that selects this
+  reader would refuse the Linux sign-in link, and the smoke run would fail at
+  its sign-in check.
+- Codex 0.166.0 reports a ChatGPT sign-in when `CODEX_HOME` names a sandbox
+  `.codex` that holds only a link to the real `auth.json`. It writes `tmp/`
+  beside the link and leaves the link in place.
+
+Token variables such as `CLAUDE_CODE_OAUTH_TOKEN`, and the host-gateway file
+`CLAUDE_CODE_HOST_CREDS_FILE`, are other sign-in routes. They move no
+configuration, and the smoke run neither refuses nor removes them. This stage
+made no real call on Linux, because the owner has no Linux sign-in.
+
 ## Frame-bound platforms
 
 The local stage `ravel-schema-four-k53` measured these limits on 2026-11-02.
@@ -167,6 +219,8 @@ subscription usage.
 The local stage establishes two facts before it changes the smoke script and
 the frame tests. First, it reads the installed Claude Code on Linux to
 establish the sign-in path `.claude/.credentials.json` before it links it.
+[Measured by the local stage](#measured-by-the-local-stage) records the result
+of `ravel-smoke-sandbox-home-k60`.
 Second, it establishes on which release platforms a request can pass the
 frame bound. It records each platform where no request can pass it. The
 [frame-bound platforms](#frame-bound-platforms) record the result of

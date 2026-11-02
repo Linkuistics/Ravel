@@ -90,6 +90,19 @@
 - Refuse a settings file that repeats a member name in any object, as
   `settings_invalid`, stage `cli`, exit 2. The `location` names the repeated
   member.
+- Narrow the sandbox home of `task harness:smoke:claude` and
+  `task harness:smoke:codex`. The home links one sign-in path from the real
+  home: `Library/Keychains` for Claude Code on macOS,
+  `.claude/.credentials.json` on Linux and `.codex/auth.json` for Codex. A
+  Codex run sets `CODEX_HOME` to the sandbox `.codex`. A Claude Code run
+  refuses before any launch of the harness when the environment holds
+  `CLAUDE_CONFIG_DIR`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`,
+  `CLAUDE_CODE_PLUGIN_CACHE_DIR`, `CLAUDE_CODE_PLUGIN_DIRS` or
+  `CLAUDE_CODE_PLUGIN_SEED_DIR`. A Codex run refuses a `CODEX_HOME` in the
+  real home.
+- List the links and the configuration directory of each smoke run. Fail the
+  run when the harness replaces the sign-in link. `task harness:smoke:test`
+  proves each refusal with fake harnesses in a fake real home.
 
 ## v1.1.0
 

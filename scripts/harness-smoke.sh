@@ -14,6 +14,8 @@
 #   HARNESS_SMOKE_PROGRAM  the harness program, instead of the one on PATH. It
 #                          also skips the sign-in check, because a fake has none.
 #   HARNESS_SMOKE_RAVEL    the Ravel binary, instead of a build of this checkout.
+# The tests also set HOME to a fake real home, so that no test links the owner's
+# sign-in store.
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -31,56 +33,135 @@ case "$harness" in
   *) fail "unknown harness '$harness' (expected claude or codex)" ;;
 esac
 
-# The program of the harness, and its sign-in.
+# The sandbox home (docs/specs/configuration-evaluation.md, "Sandbox home for
+# real harness runs"). Ravel reads its settings from $HOME/.config/ravel and has
+# no override, and a harness run receives the caller's HOME. The sandbox home
+# therefore holds the settings and the configuration script. It reuses exactly
+# one path from the real home: the sign-in store of the harness. A link is no
+# read, because the harness opens its own store.
+owner_home="${HOME:?HOME is unset}"
+owner_home_physical="$(cd "$owner_home" && pwd -P)" || fail "HOME ($owner_home) is not a directory"
+
+# The physical form of a path. A missing tail keeps its spelling.
+physical() {
+  local path="$1" tail=""
+  [[ "$path" == /* ]] || path="$PWD/$path"
+  while [[ ! -d "$path" ]]; do
+    tail="/$(basename "$path")$tail"
+    path="$(dirname "$path")"
+  done
+  printf '%s%s' "$(cd "$path" && pwd -P)" "$tail"
+}
+
+in_owner_home() {
+  local path
+  [[ -n "$1" ]] || return 0 # an empty value selects the default in the real home
+  path="$(physical "$1")"
+  [[ "$path" == "$owner_home_physical" || "$path" == "$owner_home_physical"/* ]]
+}
+
+# The refusals come before any launch of the harness, including --version. An
+# inherited value can expose a real configuration, plugin tree or sign-in that
+# no link check sees. The run removes and sets none of these names, because a
+# removal can select the default sign-in of another account.
+case "$harness" in
+  claude)
+    for name in CLAUDE_CONFIG_DIR CLAUDE_SECURESTORAGE_CONFIG_DIR \
+      CLAUDE_CODE_PLUGIN_CACHE_DIR CLAUDE_CODE_PLUGIN_DIRS CLAUDE_CODE_PLUGIN_SEED_DIR; do
+      [[ -z "${!name+x}" ]] ||
+        fail "the environment holds $name, which can expose a real Claude Code configuration, plugin tree or sign-in; run this task again without $name"
+    done
+    ;;
+  codex)
+    if [[ -n "${CODEX_HOME+x}" ]] && in_owner_home "$CODEX_HOME"; then
+      fail "the environment holds CODEX_HOME='$CODEX_HOME', which is in the real home $owner_home and exposes its configuration, hooks, plugins and skills; run this task again without CODEX_HOME"
+    fi
+    ;;
+esac
+
+# The program of the harness. Nothing launches it yet.
 program="${HARNESS_SMOKE_PROGRAM:-$(command -v "$harness" || true)}"
 [[ -n "$program" && -x "$program" ]] ||
   fail "no '$harness' program found on PATH; install it, or put it on PATH, before this task can make a call"
 program="$(cd "$(dirname "$program")" && pwd)/$(basename "$program")"
-version="$("$program" --version 2>&1 | head -n 1)" || fail "$program --version failed"
 
-# The sandbox. Ravel reads its settings from $HOME/.config/ravel and has no
-# override, and a harness run receives the caller's HOME. The sandbox home
-# therefore holds the settings and the configuration script, and a link to the sign-in store of
-# each harness. A link is no read: the harness opens its own store.
-sandbox="$(mktemp -d "${TMPDIR:-/tmp}/harness-smoke.XXXXXX")"
-trap 'rm -rf "$sandbox"' EXIT
-home="$sandbox/home" work="$sandbox/work" bin="$sandbox/bin"
-mkdir -p "$home/.config/ravel" "$work" "$bin" "$sandbox/tmp"
-
-owner_home="${HOME:?HOME is unset}"
-link_store() {
-  local relative="$1"
-  if [[ -e "$owner_home/$relative" ]]; then
-    mkdir -p "$(dirname "$home/$relative")"
-    ln -s "$owner_home/$relative" "$home/$relative"
-  fi
-}
+# The one linked path. macOS keeps the Claude Code sign-in in the login
+# keychain, which Claude Code finds through HOME. Linux keeps it in the file
+# .claude/.credentials.json. Codex keeps it in .codex/auth.json. The sandbox owns
+# the rest of .claude, .claude.json and the rest of .codex.
 case "$harness" in
   claude)
-    # macOS keeps the sign-in in the login keychain, which Claude Code finds
-    # through HOME. Linux keeps it under ~/.claude.
-    if [[ "$(uname -s)" == Darwin ]]; then link_store Library/Keychains; else link_store .claude; fi
+    if [[ "$(uname -s)" == Darwin ]]; then store=Library/Keychains; else store=.claude/.credentials.json; fi
     ;;
-  codex) link_store .codex ;;
+  codex) store=.codex/auth.json ;;
 esac
+[[ -e "$owner_home/$store" ]] ||
+  fail "no sign-in store at $owner_home/$store; sign in to $harness as the owner and run this task again"
+
+tmp="${TMPDIR:-/tmp}"
+sandbox="$(mktemp -d "${tmp%/}/harness-smoke.XXXXXX")"
+trap 'rm -rf "$sandbox"' EXIT # rm removes a link, never its target
+home="$sandbox/home" work="$sandbox/work" bin="$sandbox/bin"
+mkdir -p "$home/.config/ravel" "$work" "$bin" "$sandbox/tmp" "$(dirname "$home/$store")"
+ln -s "$owner_home/$store" "$home/$store"
+
+# Before the first launch, list every link in the sandbox home. The list holds
+# only the path of the table for this harness.
+links="$(cd "$home" && find . -type l | sed 's|^\./||' | LC_ALL=C sort)"
+while IFS= read -r link; do
+  printf 'harness-smoke: link %s -> %s\n' "$link" "$(readlink "$home/$link")"
+done <<<"$links"
+[[ "$links" == "$store" ]] || fail "the sandbox home holds the links '$(tr '\n' ' ' <<<"$links")', not only $store"
+
+# The effective configuration directory of the harness. A Codex run sets
+# CODEX_HOME to the sandbox .codex, and a Claude Code run keeps the default.
+case "$harness" in
+  claude) config_dir="$home/.claude" ;;
+  codex)
+    config_dir="$home/.codex"
+    [[ -z "${CODEX_HOME+x}" ]] ||
+      printf 'harness-smoke: the inherited CODEX_HOME %s is outside the real home; this run uses the sandbox .codex\n' "$CODEX_HOME"
+    ;;
+esac
+printf 'harness-smoke: configuration directory %s\n' "$config_dir"
+
+# After each launch, each linked path must still be the same link. A harness
+# can replace the link with a file when it refreshes a token.
+check_links() {
+  [[ -L "$home/$store" && "$(readlink "$home/$store")" == "$owner_home/$store" ]] ||
+    fail "$harness replaced the sign-in link $home/$store, probably when it refreshed a token; the real store can hold a revoked token, so sign in to $harness again in the real home and run this task again"
+}
 
 # Run with the sandbox home, and with no API key in the environment, so that the
 # call proves the sign-in and bills nothing else. The task may run inside a
 # harness session of a driver, where the environment holds the channel of that
 # session. RAVEL_EXIT_FILE would take the result of the nested session to it, and
 # RAVEL_CONFIG_RUN makes start-session refuse as config_reentry_refused.
+sandbox_env=(HOME="$home" TMPDIR="$sandbox/tmp")
+[[ "$harness" != codex ]] || sandbox_env+=(CODEX_HOME="$config_dir")
 sandboxed() {
   env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u OPENAI_API_KEY -u CODEX_API_KEY \
     -u RAVEL_EXIT_FILE -u RAVEL_CONFIG_RUN \
-    HOME="$home" TMPDIR="$sandbox/tmp" "$@"
+    "${sandbox_env[@]}" "$@"
 }
+
+version="$(cd "$work" && sandboxed "$program" --version 2>&1 | head -n 1)" || fail "$program --version failed"
+check_links
 
 if [[ -z "${HARNESS_SMOKE_PROGRAM:-}" ]]; then
   signed_in=0
   case "$harness" in
-    claude) sandboxed "$program" auth status >/dev/null 2>&1 && signed_in=1 ;;
-    codex) sandboxed "$program" login status >/dev/null 2>&1 && signed_in=1 ;;
+    claude)
+      auth="$(cd "$work" && sandboxed "$program" auth status 2>/dev/null)" && signed_in=1
+      if [[ "$signed_in" == 1 ]]; then
+        reported="$(jq -r '.configDirectory // empty' <<<"$auth" 2>/dev/null || true)"
+        [[ -n "$reported" && "$(physical "$reported")" == "$(physical "$config_dir")" ]] ||
+          fail "Claude Code reports the configuration directory '$reported', not the sandbox $config_dir"
+      fi
+      ;;
+    codex) (cd "$work" && sandboxed "$program" login status >/dev/null 2>&1) && signed_in=1 ;;
   esac
+  check_links
   [[ "$signed_in" == 1 ]] ||
     fail "$harness has no sign-in; sign in to $harness as the owner and run this task again"
 fi
@@ -169,8 +250,9 @@ status=0
 if [[ "$status" != 0 ]]; then
   printf 'harness-smoke: ravel exited %s\n' "$status" >&2
   cat "$sandbox/stderr" >&2
-  fail "the call did not end in a session"
 fi
+check_links
+[[ "$status" == 0 ]] || fail "the call did not end in a session"
 
 # The checks: the session ended with the route's value, the route got the fixed
 # answer, and the notice lists one run of this harness that exited.
