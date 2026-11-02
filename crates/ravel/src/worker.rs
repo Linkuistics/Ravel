@@ -35,9 +35,9 @@ pub(crate) const CHANNEL_FD: RawFd = 3;
 
 /// The directory listing this process's open descriptors.
 #[cfg(target_os = "linux")]
-pub(crate) const DESCRIPTORS: &str = "/proc/self/fd";
+const DESCRIPTORS: &str = "/proc/self/fd";
 #[cfg(not(target_os = "linux"))]
-pub(crate) const DESCRIPTORS: &str = "/dev/fd";
+const DESCRIPTORS: &str = "/dev/fd";
 
 /// How long to keep collecting diagnostics after the worker is reaped. A
 /// descendant the configuration script left holding its stdout could otherwise keep a drain
@@ -860,7 +860,7 @@ fn above_stdio(stream: &UnixStream) -> std::io::Result<OwnedFd> {
 /// sweep must mark were all inherited, and all are listed here before the
 /// worker's fork. The listing includes its own directory's descriptor, closed
 /// again by then, which the sweep passes over as `EBADF`.
-pub(crate) fn held_descriptors() -> io::Result<Vec<RawFd>> {
+fn held_descriptors() -> io::Result<Vec<RawFd>> {
     let mut held = Vec::new();
     for entry in fs::read_dir(DESCRIPTORS)? {
         let name = entry?.file_name();

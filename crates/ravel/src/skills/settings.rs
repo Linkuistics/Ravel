@@ -286,7 +286,7 @@ fn source_id(id: &str) -> bool {
 }
 
 /// An HTTPS, SSH or `file://` URL with no password, an scp-style SSH locator,
-/// or an absolute path. `skills::git` acquires them; this parser only
+/// or an absolute path. The pinned stage acquires them; this stage only
 /// checks their shape.
 fn git_url(url: &str) -> bool {
     if url.is_empty() || has_control(url) || url.contains(char::is_whitespace) {

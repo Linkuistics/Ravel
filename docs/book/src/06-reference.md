@@ -684,25 +684,6 @@ in the copy. Then it stores an immutable snapshot of the copy in the cache. It
 also stores an immutable descriptor of the directory set. The skill discovery specification
 in the repository, `docs/specs/skill-discovery.md`, owns the complete contract.
 
-For each Git source, the command fetches the configured commit into a private
-repository in the cache. It uses the `git` executable on its `PATH`. The
-commit must be a commit object, and `subdir` must be a directory in it. Ravel
-never uses a branch tip, a tag or another commit in its place.
-
-Ravel then writes the files of `subdir` directly from the Git objects. It runs no hook,
-no filter and no checkout. A Git LFS pointer stays the pointer text. The
-written tree then has the same checks and storage as a local source. In this
-build, each run fetches the commit again.
-
-Each Git command that Ravel runs obeys these rules:
-
-| Subject | Rule |
-|---|---|
-| Terminal and standard input | The command has neither. A prompt for a password or a host key fails at once. |
-| Variables of the caller | No `GIT_*`, `RAVEL_*` or `HARNESS_DISPATCH_*` variable reaches the command. Configure the transport in your Git configuration, not in a `GIT_*` variable. |
-| Git configuration | Your system and global configuration stay in effect. A credential helper or an SSH key that needs no prompt works. |
-| Hooks, filters and submodules | None of them runs. |
-
 > **Note:** Each run writes to the cache `$HOME/.cache/ravel/skills/v1`.
 > Ravel keeps the snapshots and the descriptors after the command, the session
 > and an upgrade. They also stay after a change or removal of the source and
@@ -739,7 +720,7 @@ With `--json`, a resolved object holds these members:
 | `schemaVersion` | `1`. |
 | `status` | `"resolved"`. A disabled object holds only `schemaVersion` and `status`. |
 | `descriptorPath` | The absolute path of the retained `directories.json`. |
-| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest` and `snapshotRoot`. A local source adds `originPath`. A Git source adds `url`, `revision` and `subdir`. |
+| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest`, `snapshotRoot` and, for a local source, `originPath`. |
 | `directories` | One record for each search directory: `source` and the absolute `path`. A repeated path appears once, at its first position. |
 | `mandatory` | One record for each mandatory file, in configured order: `source` and the absolute `path`. |
 | `instructions` | The discovery instructions, without the final newline of the plain form. |
@@ -797,10 +778,9 @@ These skill refusals have stage `skills` and status 3:
 |---|---|---|
 | `skill_source_missing` | A source directory or a configured search directory does not exist. | Restore the directory, or change the settings deliberately. |
 | `skill_source_changed` | A local source changed while Ravel copied it. | Keep the source quiet, then try again. |
-| `skill_revision_unavailable` | Git cannot supply the exact commit or `subdir`. Examples are a missing `git` executable, a failed fetch, a commit that the repository does not hold and a pin of the other object format. A missing `subdir` and a pin of a tag or another object type also refuse. | Restore access to the repository, make the commit available or put `git` on the `PATH`. Otherwise change the pin deliberately. |
 | `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
-| `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. So do two names that the filesystem of the cache cannot keep apart, and a name whose spelling it changes. A Git submodule entry refuses too. | Repair, rename or remove the named entry. |
-| `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. The same rule applies to the local repository of a Git source. A launch also refuses a source that overlaps the directory of its configuration entry. | Move the source. |
+| `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. So do two names that the filesystem of the cache cannot keep apart, and a name whose spelling it changes. | Repair, rename or remove the named entry. |
+| `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. A launch also refuses a source that overlaps the directory of its configuration entry. | Move the source. |
 | `skill_limit_exceeded` | A count or a size passes a [bound of a resolution](#bounds-deadline-and-cancellation). At launch, the prepared prompt is more than 1,048,576 bytes. | Configure fewer or smaller sources, files or directories, or give a smaller task that refers to other files. |
 | `skill_cache_unavailable` | Ravel cannot use the cache. Examples are a permission and full storage. A directory on the path that another account can write, and a link on the path that changed during the run, also refuse. | Make the cache a private writable directory of your account, or free storage. |
 | `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then move it out of the cache or remove it, and resolve again. |
@@ -867,8 +847,9 @@ A signal that arrives before another refusal wins over that refusal. The
 report keeps the other refusal as the original failure. A launch applies the
 same deadline and the same cancellation before its worker starts.
 
-> **Note:** In this build, the deadline does not stop a Git command that
-> runs. The refusal comes after that command ends.
+> **Note:** This build acquires local sources only. A valid Git source refuses
+> before any acquisition, with status 3. Its remedy names the unfinished
+> pinned-delivery stage. The refusal has no stable public code.
 
 ### Skill delivery at launch
 
@@ -1116,7 +1097,7 @@ after the supervision attempt. The tables below give each member.
 | `config` | The configuration script: `path`, the canonical path of its entry, `version`, the owner's `VERSION` string, and `modules`, the file measurements described below. |
 | `worker` | `path`, the re-executed binary, `version`, its package version, `buildId`, its build identity, and `rhaiVersion`, its Rhai version. Ravel checks the worker identity before evaluation. This is not code signing. |
 | `selectionMs` | The elapsed time of the evaluation of the configuration script, in milliseconds. |
-| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`. A Git source also holds `revision`. The disposition is `captured` for a local source and `acquired` for a Git source. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
+| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured` for a local source. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
 | `context` | `null` when there is no delivered selection context. Otherwise, the report in the next table. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message`, `diagnostics` and `harnessRuns`. Each has its field for the value with a unit (`ms`, `bytes`, `sources` or `runs`) and `from`. `from` gives `default`, `fixed`, `settings.json` or the flag that set the value. |
 | `configEnvironment` | An array of `{name, set}` grants. `set` is a boolean that shows whether the caller has the variable, never its value. Ravel does not add the [base variables](#variables-that-ravel-and-the-configuration-script-read) that `ravel::env` permits to this list. |
@@ -1795,7 +1776,6 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | Code | Stage | Status | Meaning and remedy | Taught in |
 |---|---|---|---|---|
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Restore it, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
-| `skill_revision_unavailable` | `skills` | 3 | Git cannot supply the exact commit or `subdir` of a Git source. Restore access, make the commit available or put `git` on the `PATH`. Otherwise change the pin deliberately. | [`skills resolve`](#skills-resolve) |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
 | `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration, the directory of the configuration entry or the skill cache. Move the source. With `--confine`, a skill grant overlaps the configuration or a result channel. Or a writable grant overlaps the skill cache, or the sandbox cannot list a grant. Move the path. | [Skill delivery at launch](#skill-delivery-at-launch) |

@@ -28,7 +28,7 @@ use super::{Located, refuse};
 use crate::refusal::Refusal;
 
 /// The names that capture leaves out at every level.
-pub const RESERVED: [&str; 2] = [".git", ".jj"];
+const RESERVED: [&str; 2] = [".git", ".jj"];
 /// More link hops than this in one chain is a cycle.
 const LINK_HOPS: usize = 40;
 const MANIFEST_HEADER: &[u8] = b"ravel-skill-manifest\n1\n";
@@ -166,15 +166,12 @@ pub struct Budget {
 }
 
 /// Copy the whole canonical source directory `root` into new staging in
-/// `cache`, then check the written tree against the manifest. Refusals name
-/// each path below `shown` in place of `root`: the source itself for a local
-/// source, and the pin for an extracted Git tree. `mandatory`
+/// `cache`, then check the written tree against the manifest. `mandatory`
 /// holds the configured mandatory paths of this source, so that an unreadable
 /// one reports as mandatory guidance. The bytes of this source join
 /// `budget` when the capture succeeds.
 pub fn capture(
     root: &Path,
-    shown: &Path,
     cache: &Cache,
     source: &Located,
     mandatory: &BTreeSet<String>,
@@ -182,7 +179,7 @@ pub fn capture(
     budget: &mut Budget,
 ) -> Result<Capture, Refusal> {
     let mut staging = Staging::new(cache, "capture-")?;
-    match staged(root, shown, &staging, source, mandatory, watch, budget) {
+    match staged(root, &staging, source, mandatory, watch, budget) {
         Ok((manifest, digest)) => Ok(Capture {
             staging,
             manifest,
@@ -194,7 +191,6 @@ pub fn capture(
 
 fn staged(
     root: &Path,
-    shown: &Path,
     staging: &Staging,
     source: &Located,
     mandatory: &BTreeSet<String>,
@@ -203,7 +199,6 @@ fn staged(
 ) -> Result<(Vec<u8>, String), Refusal> {
     let mut walk = Walk {
         root,
-        shown,
         source,
         mandatory,
         watch,
@@ -244,7 +239,7 @@ fn staged(
     })?;
     written.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
     if written != entries {
-        return Err(not_kept(shown, source, &entries, &written));
+        return Err(not_kept(root, source, &entries, &written));
     }
     // Each admitted link must work in the written tree too. A case-insensitive
     // or normalising source filesystem can reach a target through another
@@ -328,8 +323,6 @@ fn moved(first: &Stat, second: &Stat) -> bool {
 
 struct Walk<'a> {
     root: &'a Path,
-    /// What refusals show in place of `root`.
-    shown: &'a Path,
     source: &'a Located,
     mandatory: &'a BTreeSet<String>,
     watch: &'a Watch,
@@ -636,16 +629,6 @@ impl Walk<'_> {
         Ok(())
     }
 
-    /// The path that a refusal shows for `path`, which lies below `root` or
-    /// is a path of the cache.
-    fn display(&self, path: &Path) -> PathBuf {
-        match path.strip_prefix(self.root) {
-            Ok(rest) if rest.as_os_str().is_empty() => self.shown.to_owned(),
-            Ok(rest) => self.shown.join(rest),
-            Err(_) => path.to_owned(),
-        }
-    }
-
     fn exceeded(
         &self,
         subject: bounds::Subject,
@@ -654,12 +637,7 @@ impl Walk<'_> {
         what: &str,
         path: &Path,
     ) -> Refusal {
-        let path = self.display(path);
-        let what = what.replace(
-            &self.root.display().to_string(),
-            &self.shown.display().to_string(),
-        );
-        bounds::exceeded(subject, bound, actual, &what)
+        bounds::exceeded(subject, bound, actual, what)
             .source(path.display().to_string())
             .location(self.source.location.clone())
     }
@@ -767,12 +745,12 @@ impl Walk<'_> {
                     .find(|(_, identity)| *identity == stat.identity())
             })
             .map(|(other, _)| other.clone());
-        let this = self.shown.join(path);
+        let this = self.root.join(path);
         let message = match &met {
             Some(other) => format!(
                 "the paths {} and {} in the source {:?} are distinct, but the cache filesystem \
                  cannot keep both",
-                self.shown.join(other).display(),
+                self.root.join(other).display(),
                 this.display(),
                 self.source.id
             ),
@@ -799,7 +777,6 @@ impl Walk<'_> {
     }
 
     fn invalid(&self, path: &Path, what: String) -> Refusal {
-        let path = self.display(path);
         refuse(
             "skill_resource_invalid",
             format!(
@@ -815,7 +792,6 @@ impl Walk<'_> {
     }
 
     fn changed(&self, path: &Path, what: &str) -> Refusal {
-        let path = self.display(path);
         refuse(
             "skill_source_changed",
             format!(
@@ -834,7 +810,7 @@ impl Walk<'_> {
     }
 
     fn staging_failed(&self, path: &Path, error: &io::Error) -> Refusal {
-        unavailable(&self.display(path), error).location(self.source.location.clone())
+        unavailable(path, error).location(self.source.location.clone())
     }
 }
 

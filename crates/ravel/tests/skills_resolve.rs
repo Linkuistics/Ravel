@@ -821,6 +821,31 @@ fn a_source_that_overlaps_the_protected_configuration_or_the_cache_refuses() {
 }
 
 #[test]
+fn a_valid_git_source_refuses_before_any_acquisition_without_a_settings_code() {
+    let fixture = Fixture::new();
+    let source = fixture.source("pack", &[("SKILL.md", "x")]);
+    fixture.skills(skills(
+        vec![
+            local("pack", &source, &["."]),
+            json!({"id": "pinned", "type": "git", "url": "https://example.com/p.git",
+                   "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".", "roots": ["."]}),
+        ],
+        vec![],
+    ));
+    let error = fixture.refused(3);
+    assert_eq!(error["code"], "skill_git_unsupported");
+    assert_eq!(error["stage"], "skills");
+    assert_eq!(error["location"], "skills.sources[1]");
+    assert!(
+        error["remedy"]
+            .as_str()
+            .unwrap()
+            .contains("pinned-delivery stage")
+    );
+    assert!(!fixture.home.join(".cache").exists());
+}
+
+#[test]
 fn a_failure_prints_text_without_json_and_nothing_on_stdout() {
     let fixture = Fixture::new();
     fixture.skills(skills(

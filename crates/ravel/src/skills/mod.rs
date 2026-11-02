@@ -1,5 +1,5 @@
-//! Skill source resolution: the configured local and pinned Git sources,
-//! their retained snapshots, the directory descriptor and the preamble. The skill discovery
+//! Skill source resolution: the configured local sources, their retained
+//! snapshots, the directory descriptor and the preamble. The skill discovery
 //! specification owns the contract (docs/specs/skill-discovery.md).
 //!
 //! Ravel reads no `SKILL.md`, frontmatter or skill name here. It copies and
@@ -9,7 +9,6 @@ mod bounds;
 mod cache;
 pub mod command;
 mod dir;
-mod git;
 pub mod launch;
 mod preamble;
 #[cfg(test)]
@@ -153,12 +152,13 @@ fn watched(
         "the configured mandatory files",
     )
     .map_err(|refusal| refusal.location("skills.mandatory"))?;
+    refuse_git(skills)?;
     let protected = Protected::new(home, also);
-    let planned = skills
+    let origins = skills
         .sources
         .iter()
         .enumerate()
-        .map(|(index, source)| plan(index, source, &protected))
+        .map(|(index, source)| origin(index, source, &protected))
         .collect::<Result<Vec<_>, _>>()?;
     watch.enter("the opening of the cache", None);
     watch.check()?;
@@ -169,42 +169,14 @@ fn watched(
         limits,
         total_bytes: 0,
     };
-    let mut records = Vec::with_capacity(planned.len());
+    let mut records = Vec::with_capacity(origins.len());
     // The retained file of each mandatory reference so far, by its snapshot
     // and its real path in the tree, with the position of that reference.
     let mut reached = BTreeMap::new();
-    for (index, (source, planned)) in skills.sources.iter().zip(planned).enumerate() {
+    for (index, (source, origin)) in skills.sources.iter().zip(&origins).enumerate() {
         let located = Located {
             id: source.id.clone(),
             location: format!("skills.sources[{index}]"),
-        };
-        // A Git source is acquired into private staging, which stays until
-        // its capture ends.
-        let (origin, mut acquired) = match planned {
-            Planned::Local(origin) => (origin, None),
-            Planned::Git(provenance) => {
-                let Provenance::Git {
-                    url,
-                    revision,
-                    subdir,
-                } = &provenance
-                else {
-                    unreachable!("a planned Git source has a Git provenance");
-                };
-                let pin = git::Pin {
-                    url,
-                    revision,
-                    subdir,
-                };
-                watch.enter("the Git acquisition", Some(&located));
-                let acquired = git::acquire(&cache, &pin, &located, watch)?;
-                let origin = SourceOrigin {
-                    root: acquired.tree.clone(),
-                    shown: pin.shown(),
-                    provenance,
-                };
-                (origin, Some(acquired))
-            }
         };
         // A link can lead a reference to its file, so capture also knows the
         // real path of each one. An unreadable target then reports as
@@ -214,42 +186,26 @@ fn watched(
             .iter()
             .filter(|reference| reference.source == index)
             .flat_map(|reference| {
-                let real = real_inside(&origin.root, &reference.path);
+                let real = real_inside(&origin.canonical, &reference.path);
                 [Some(reference.path.clone()), real].into_iter().flatten()
             })
             .collect();
         watch.enter("capture", Some(&located));
-        let captured = snapshot::capture(
-            &origin.root,
-            &origin.shown,
+        let mut capture = snapshot::capture(
+            &origin.canonical,
             &cache,
             &located,
             &mandatory,
             watch,
             &mut budget,
-        );
-        let mut capture = match (captured, acquired.take()) {
-            (Ok(capture), None) => capture,
-            (Err(refusal), None) => return Err(refusal),
-            (Err(refusal), Some(mut acquired)) => {
-                return Err(snapshot::after_cleanup(refusal, &mut acquired.staging));
-            }
-            // The capture holds its own copy, so the acquisition staging goes.
-            (Ok(mut capture), Some(mut acquired)) => {
-                if let Err(error) = acquired.staging.cleanup() {
-                    let refusal = snapshot::cleanup_failed(acquired.staging.path(), &error);
-                    return Err(snapshot::after_cleanup(refusal, &mut capture.staging));
-                }
-                capture
-            }
-        };
+        )?;
         watch.enter(
             "the check of the roots and the mandatory files",
             Some(&located),
         );
         let checked = watch
             .check()
-            .and_then(|()| check_roots(&capture.tree(), source, &origin, &located))
+            .and_then(|()| check_roots(&capture.tree(), source, origin, &located))
             .and_then(|()| {
                 skills
                     .mandatory
@@ -260,7 +216,7 @@ fn watched(
                         check_mandatory(
                             &capture.tree(),
                             &reference.path,
-                            &origin,
+                            origin,
                             &located,
                             position,
                             limits.mandatory_file_bytes,
@@ -270,7 +226,7 @@ fn watched(
                             &capture.digest,
                             &capture.tree(),
                             &reference.path,
-                            &origin,
+                            origin,
                             position,
                         )
                     })
@@ -302,7 +258,7 @@ fn watched(
             id: source.id.clone(),
             digest,
             root: utf8(&object.join(TREE_DIR))?,
-            provenance: origin.provenance,
+            origin: origin.text.clone(),
         });
     }
 
@@ -363,6 +319,30 @@ fn bounded(subject: bounds::Subject, bound: u64, bytes: usize, what: &str) -> Re
     Ok(())
 }
 
+/// The local build acquires no Git source. It refuses a valid one before any
+/// acquisition, with no stable public code, until the pinned stage lands.
+fn refuse_git(skills: &SkillSettings) -> Result<(), Refusal> {
+    let Some((index, source)) = skills
+        .sources
+        .iter()
+        .enumerate()
+        .find(|(_, source)| matches!(source.origin, Origin::Git { .. }))
+    else {
+        return Ok(());
+    };
+    Err(refuse(
+        "skill_git_unsupported",
+        format!(
+            "the source {:?} is a valid Git source, but this build of Ravel acquires local \
+             sources only",
+            source.id
+        ),
+        "Git acquisition arrives with the unfinished pinned-delivery stage; use a local source \
+         for now, or remove the Git source from the settings",
+    )
+    .location(format!("skills.sources[{index}]")))
+}
+
 /// The protected paths: the configuration directory, the settings file, the
 /// cache and the inherited result channel, each also in its canonical form
 /// when it exists.
@@ -410,74 +390,20 @@ impl Protected {
     }
 }
 
-/// Where capture reads one source, how its refusals name its paths and the
-/// provenance that its source record carries.
-struct SourceOrigin {
-    /// The canonical local directory, or the tree that acquisition extracted.
-    root: PathBuf,
-    /// The canonical local directory, or `<url>@<revision>` and `subdir`.
-    shown: PathBuf,
-    provenance: Provenance,
+struct LocalOrigin {
+    canonical: PathBuf,
+    text: String,
 }
 
-/// The type-specific fields of a source record.
-enum Provenance {
-    /// The canonical absolute source directory at capture.
-    Local { origin: String },
-    Git {
-        url: String,
-        revision: String,
-        subdir: String,
-    },
-}
-
-/// A source before the cache opens: a checked local directory, or a Git pin
-/// whose local repository path, if it has one, passed the overlap rules.
-enum Planned {
-    Local(SourceOrigin),
-    Git(Provenance),
-}
-
-fn plan(
+fn origin(
     index: usize,
     source: &settings::SourceSetting,
     protected: &Protected,
-) -> Result<Planned, Refusal> {
-    let at = format!("skills.sources[{index}]");
-    let path = match &source.origin {
-        Origin::Local { path } => path,
-        Origin::Git {
-            url,
-            revision,
-            subdir,
-        } => {
-            // A repository that holds the protected configuration, the cache
-            // or the result channel could expose them through a commit.
-            if let Some(canonical) = git::local_path(url).and_then(|path| path.canonicalize().ok())
-                && let Some(protected) = protected.overlap(&canonical)
-            {
-                return Err(refuse(
-                    "skill_access_unavailable",
-                    format!(
-                        "the repository of the source {:?} at {} overlaps the protected path {}",
-                        source.id,
-                        canonical.display(),
-                        protected.display()
-                    ),
-                    "move the repository outside ~/.config/ravel, the directory of the selected \
-                     configuration entry, the skill cache and the inherited RAVEL_EXIT_FILE \
-                     channel",
-                )
-                .source(canonical.display().to_string())
-                .location(format!("{at}.url")));
-            }
-            return Ok(Planned::Git(Provenance::Git {
-                url: url.clone(),
-                revision: revision.clone(),
-                subdir: subdir.clone(),
-            }));
-        }
+) -> Result<LocalOrigin, Refusal> {
+    let Origin::Local { path } = &source.origin else {
+        unreachable!("Git sources refuse before this point");
     };
+    let at = format!("skills.sources[{index}]");
     let missing = |what: String| {
         refuse(
             "skill_source_missing",
@@ -526,25 +452,21 @@ fn plan(
         .source(canonical.display().to_string())
         .location(at.clone())
     })?;
-    Ok(Planned::Local(SourceOrigin {
-        root: canonical.clone(),
-        shown: canonical,
-        provenance: Provenance::Local { origin: text },
-    }))
+    Ok(LocalOrigin { canonical, text })
 }
 
 /// Each root must be a directory in the captured tree. An empty one is valid.
 fn check_roots(
     tree: &Path,
     source: &settings::SourceSetting,
-    origin: &SourceOrigin,
+    origin: &LocalOrigin,
     located: &Located,
 ) -> Result<(), Refusal> {
     for (index, root) in source.roots.iter().enumerate() {
         if fs::metadata(tree.join(root)).is_ok_and(|metadata| metadata.is_dir()) {
             continue;
         }
-        let path = origin.shown.join(root);
+        let path = origin.canonical.join(root);
         return Err(refuse(
             "skill_source_missing",
             format!(
@@ -565,12 +487,12 @@ fn check_roots(
 fn check_mandatory(
     tree: &Path,
     relative: &str,
-    origin: &SourceOrigin,
+    origin: &LocalOrigin,
     located: &Located,
     position: usize,
     bound: u64,
 ) -> Result<(), Refusal> {
-    let path = origin.shown.join(relative);
+    let path = origin.canonical.join(relative);
     let staged = tree.join(relative);
     let at = format!("skills.mandatory[{position}]");
     // A link inside the source can reach the file, so its size counts here
@@ -640,7 +562,7 @@ fn check_distinct(
     digest: &str,
     tree: &Path,
     relative: &str,
-    origin: &SourceOrigin,
+    origin: &LocalOrigin,
     position: usize,
 ) -> Result<(), Refusal> {
     let real = real_inside(tree, relative).unwrap_or_else(|| relative.to_owned());
@@ -648,7 +570,7 @@ fn check_distinct(
         reached.insert((digest.to_owned(), real), position);
         return Ok(());
     };
-    let path = origin.shown.join(relative);
+    let path = origin.canonical.join(relative);
     Err(refuse(
         "skill_mandatory_invalid",
         format!(
@@ -676,7 +598,7 @@ struct Record {
     id: String,
     digest: String,
     root: String,
-    provenance: Provenance,
+    origin: String,
 }
 
 /// The descriptor value. Its member order is canonical, because a
@@ -684,27 +606,14 @@ struct Record {
 fn descriptor(skills: &SkillSettings, records: &[Record]) -> Value {
     let sources: Vec<Value> = records
         .iter()
-        .map(|record| match &record.provenance {
-            Provenance::Local { origin } => json!({
+        .map(|record| {
+            json!({
                 "id": record.id,
                 "type": "local",
                 "resourceDigest": record.digest,
                 "snapshotRoot": record.root,
-                "originPath": origin,
-            }),
-            Provenance::Git {
-                url,
-                revision,
-                subdir,
-            } => json!({
-                "id": record.id,
-                "type": "git",
-                "resourceDigest": record.digest,
-                "snapshotRoot": record.root,
-                "url": url,
-                "revision": revision,
-                "subdir": subdir,
-            }),
+                "originPath": record.origin,
+            })
         })
         .collect();
     let mut seen = BTreeSet::new();
