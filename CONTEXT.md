@@ -131,10 +131,10 @@ the **Configuration script** or its **Rhai worker**.
 
 ## Skill delivery
 
-**Skill source**: A local directory, or an exact Git commit and subdirectory,
-that the **Owner** names in the **Settings**. It supplies skill guidance and
-the resources of that guidance. The local stage of the feature refuses a Git
-source until the pinned-delivery stage adds acquisition.
+**Skill source**: A local directory that the **Owner** names in the
+**Settings**. It supplies skill guidance and the resources of that guidance.
+Ravel reads it and never fetches, installs or updates it. A tool outside Ravel
+puts it in place, for example as a checkout of a repository.
 
 **Skill directories**: The absolute search directories that Ravel adds to the
 prompt. They are in retained copies of the **Skill sources**. The agent finds

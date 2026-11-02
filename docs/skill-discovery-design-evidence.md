@@ -4,7 +4,8 @@ The [specification](specs/skill-discovery.md) states the proposed directory
 contract of the `skill-directory-delivery` line. This record gives the source
 observations behind it, the exact base of the line, the stage handoff and the
 checks of these documents. It also records the
-[handoff of the local stage](#local-stage-record). The design session read
+[handoff of the local stage](#local-stage-record) and the
+[withdrawal of Git acquisition](#withdrawal-of-git-acquisition). The design session read
 Ravel source at `main` and changed no product code. The decision records own the decisions, and this
 record adds no second decision register.
 
@@ -169,6 +170,9 @@ gains schema 4, the `skills` settings key, the frame bounds and the sandbox
 home. The [session execution specification](specs/session-execution.md) links
 to the new rules.
 
+[Skill sources are local directories](adr/skill-sources-are-local-directories.md)
+records the later withdrawal of Git acquisition.
+
 ## Feature line and stage handoff
 
 This grove is the one executor of the Ravel release and of the owner cutover.
@@ -191,12 +195,13 @@ implementation.
    controls prove each refusal. The stage migrates the examples, the book and
    the changelog with that behaviour.
 4. The local build refuses a valid Git source before configuration evaluation.
-   The remedy names the unfinished pinned stage. The refusal has no stable
-   public code, and it is not `settings_invalid`.
-5. The pinned stage, `ravel-pinned-delivery-k25`, rebases at entry in the same
-   way. It implements Git acquisition and offline reuse. It decides whether
-   the Homebrew formula declares Git. It removes the temporary refusal and its
-   fixture.
+   The remedy names the pinned stage. The refusal has no stable public code,
+   and it is not `settings_invalid`. This refusal is temporary.
+5. The owner withdrew the pinned stage, `ravel-pinned-delivery-k25`. Ravel
+   reads local sources only, and its formula declares no Git. The next
+   implementation stage rebases at entry in the same way. It replaces the
+   temporary refusal and its fixture, as the
+   [implementation handoff](#implementation-handoff) lists.
 6. Grove's `common-loading-acceptance-k29` runs the actual harness trials in
    sandbox homes. Rollout, under Grove's `discovery-rollout-k6`, owns the final
    rebase, the full checks, the landing on `main` and the 2.0.0 release
@@ -229,8 +234,8 @@ frame bound. It records each platform where no request can pass it. The
 
 ## Local stage record
 
-Grove's `ravel-local-handoff-k61` closed the local stage on 2026-11-02. The
-pinned stage and Grove's dual-Ravel stage use this build as their base. Nobody
+Grove's `ravel-local-handoff-k61` closed the local stage on 2026-11-02. The next
+implementation stage and Grove's dual-Ravel stage use this build as their base. Nobody
 pushed the line, and no release consumes it.
 
 | Subject | Record |
@@ -289,6 +294,57 @@ The pair smoke runs on macOS only, because its guard uses `sandbox-exec`.
 This stage ran no installed release of 1.1.0 on Linux. The local build refuses
 every Git source, so it needs no Git executable.
 
+## Withdrawal of Git acquisition
+
+Grove's `ravel-git-acquire-k70` implemented online exact Git acquisition on
+this line as commit `1898dc8603a0`. Grove's review `ravel-git-acquire-k76`
+reported six findings against it. During the integration
+`ravel-git-acquire-k77` on 2026-11-02, the owner withdrew Git acquisition from
+Ravel. Their words: "The process of 'installing' skills and keeping them up to
+date should not be part of Ravel."
+[Skill sources are local directories](adr/skill-sources-are-local-directories.md)
+records the decision.
+
+The integration reproduced each finding before the decision. A scratch probe
+ran each counterexample with an isolated `HOME`, against Apple Git 2.54 and
+Homebrew Git 2.56. Both versions behaved the same.
+
+| Finding | Reproduced behaviour |
+| --- | --- |
+| F1 | Git fetched a protected bare repository through four local routes. One is a percent-encoded `file://` locator. Another is a missing path beside a link with the suffix `.git`. The others are a directory whose `.git` file names the repository, and an HTTPS locator that a global `insteadOf` rule rewrites |
+| F2 | The locator parser admitted a query and a fragment, and its refusal showed the complete URL |
+| F3 | A global `protocol.ext.allow=always` with a rewrite to `ext::` ran the helper |
+| F4 | A global `fetch.bundleURI` imported the pinned commit from a bundle when the configured repository did not hold it |
+| F5 | Git removes `GIT_CONFIG_PARAMETERS` before it runs a local `upload-pack`. No setting that Ravel passed on the command line reached that server side |
+| F6 | Protocol 0 reports an object-format mismatch as "Server does not support this repository's object format", and Ravel gave the transport remedy |
+
+The integration applied none of its partial fixes. The removal of the Git path
+resolves all six findings, because no Git child remains. A jj backout of
+`1898dc8603a0` is commit `c2e24d371db2`. Its tree equals the local stage output
+`1d50dae5d29e`, so the checks of the [local stage record](#local-stage-record)
+cover it. Ravel `main` stays at `24a545236185`.
+
+### Implementation handoff
+
+The specification now states the permanent outcome of a Git record. The next
+implementation stage changes the build to match it:
+
+1. Make `type` accept only `local`, and check it before the other fields of a
+   record.
+2. Refuse any other value as `settings_invalid`, exit 2, at
+   `skills.sources[N].type`, with the checkout remedy.
+3. Remove the Git record parser, its locator check, the Git source origin and
+   their unit tests.
+4. Remove each branch that reads a Git record, such as the notice `revision`
+   member and an unreachable Git branch.
+5. Remove `refuse_git`, its internal code `skill_git_unsupported` and the
+   launch fixture of that refusal.
+6. Add the fixtures of the "Local sources only" acceptance case at both public
+   boundaries.
+7. Make the public tamper test check the remedy of `skill_cache_corrupt`.
+8. Remove the Git parts of the book and of `CHANGELOG.md`.
+9. Remove the pinned-stage notes in code comments and tests.
+
 ## Consumer handoff
 
 Grove's adoption design, `grove-rhai-skill-delivery-k35`, consumes these facts:
@@ -345,6 +401,13 @@ changed documents, with no hard finding. It checked 91 local links and
 anchors in the changed specifications, this record, the session
 specification, the two new decision records and the views index. All
 resolved, and a planted control failed. The view manifest still parses.
+
+The narrowing of Grove's `ravel-local-sources-k78` ran the same two prose
+checkers on its changed documents, with no hard finding. Planted controls
+failed both checkers. Its local links and anchors resolve, and a stale Git
+anchor fails the link check. A sweep for the Git vocabulary that the
+narrowing removed found no remaining requirement for Ravel to run Git. The two
+changed views render in a browser.
 
 These checks cover the documents only. No product test, installed check or
 real harness trial ran. The design claims no acquisition, confinement,

@@ -36,7 +36,7 @@ authorised source set, controlled by the configuration script.
   Directory delivery leaves those content judgements with the agent and pack
   conformance. It costs enumeration by the agent and its handling of
   ambiguity. Reopen a metadata index only when measured discovery failures
-  require it and the owner changes this boundary. Source acquisition alone is
+  require it and the owner changes this boundary. Source resolution alone is
   not that evidence.
 - **Mandatory skill names instead of file references.** The design rejected
   them, because they restore the metadata and ambiguity rules that directory

@@ -1,6 +1,6 @@
 # Skill resources outlive sessions
 
-Ravel retains acquired skill sources and directory descriptors as immutable
+Ravel retains captured skill sources and directory descriptors as immutable
 content objects, beyond any session. It has no automatic collection and no
 prune command. The
 [skill discovery specification](../specs/skill-discovery.md#publication-concurrency-and-cleanup)
@@ -9,9 +9,8 @@ owns their format, publication, integrity and manual removal.
 Readers include detached delegates and harness sessions that the owner opens
 independently. Ravel tracks neither. Retention commits the cache format to old
 resource paths that stay readable across upgrades. Copies and abandoned objects
-cost disk space. An owner stops the affected readers before a manual removal,
-and the removal gives up offline reuse. This content cache is not a session log
-or a result store.
+cost disk space. An owner stops the affected readers before a manual removal.
+This content cache is not a session log or a result store.
 
 ## Considered options
 

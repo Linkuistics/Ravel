@@ -13,19 +13,27 @@ This specification states the directory-delivery contract of the combined
 Ravel 2.0.0. It is the contract of the `skill-directory-delivery` line. Ravel
 `main` does not hold this feature, and no release contains it.
 
-The local stage of the line implements delivery from local sources. It does
-not implement [exact Git acquisition and offline reuse](#exact-git-acquisition-and-offline-reuse).
-A build of this stage refuses a valid Git source before configuration
-evaluation, with status 3 and no stable public code. The remedy names the
-unfinished pinned-delivery stage. The rules and acceptance cases that need a
-Git source wait for that stage, and so do the
-[actual harness trials](#actual-harness-trials). The
-[design evidence](../skill-discovery-design-evidence.md) records the source
-observations, the exact base of the line and the handoff of each stage.
+Skill sources are local directories. Ravel reads them, and it does not fetch,
+install or update them, as
+[skill sources are local directories](../adr/skill-sources-are-local-directories.md)
+records.
+
+The local stage of the line implements this contract, except the refusal of a
+source `type` other than `local`. Its build refuses a valid Git record with
+status 3 and the internal code `skill_git_unsupported`. It refuses a malformed
+Git record at the malformed field, and another type with the generic settings
+remedy. Its book and changelog still describe Git sources. The next
+implementation stage replaces all of these with the rule in
+[settings](#settings).
+
+The [actual harness trials](#actual-harness-trials) are still ahead.
+The [design evidence](../skill-discovery-design-evidence.md)
+records the source observations, the exact base of the line and the handoff of
+each stage.
 
 Each rule has one owner:
 
-- This specification owns the `skills` settings object, source acquisition,
+- This specification owns the `skills` settings object, source resolution,
   the retained resources and the directory descriptor. It also owns the
   prepared prompt, `ravel skills resolve`, `RAVEL_SKILL_DIRECTORIES`, the skill
   bounds and failures, the skill read grants and the acceptance cases of this
@@ -37,9 +45,11 @@ Each rule has one owner:
 - The [session execution specification](session-execution.md) owns the
   managed process, the result channel and confinement in general.
 
-Three decision records bind this feature.
+Four decision records bind this feature.
 [Skill preparation precedes evaluation](../adr/skill-preparation-precedes-evaluation.md)
 records the boundary and the schema change.
+[Skill sources are local directories](../adr/skill-sources-are-local-directories.md)
+records why Ravel installs no source.
 [Skill resources outlive sessions](../adr/skill-resources-outlive-sessions.md)
 records retention.
 [Ravel supervises the session](../adr/ravel-supervises-the-session.md) records
@@ -83,7 +93,7 @@ still binds.
 
 | Boundary | Guarantee | Decisions hidden from its consumer |
 | --- | --- | --- |
-| Source resolver | A complete, checked and immutable resource set, or a refusal | Local capture, exact Git acquisition, staging and publication |
+| Source resolver | A complete, checked and immutable resource set, or a refusal | Local capture, staging and publication |
 | Prompt preparation | The original task, intact, with the directories and loading instructions | Path rendering, the block delimiters and byte accounting |
 | Request | The original prompt, the prepared prompt and the descriptor fields | Source I/O and cache coordination |
 | Managed launch and harness runs | Read access to the exact published resources under their confinement | Read grants that are specific to a backend |
@@ -115,17 +125,17 @@ every key, not only to `skills`.
 optional `resolutionTimeoutMs`. `schemaVersion` is the integer 1. `sources`
 and `mandatory` are required arrays. An unknown key, a duplicate source ID or
 a malformed value refuses as `settings_invalid`, exit 2. Its `location` names
-the value, such as `skills.sources[2].revision`. The other settings keys keep
+the value, such as `skills.sources[2].path`. The other settings keys keep
 their meanings.
 
 `resolutionTimeoutMs` is an integer from 1,000 to 3,600,000, and its default
-is 120,000. It bounds one complete resolution: capture, cache checks, transport
-and publication. It is independent of `timeoutMs`, which bounds evaluation. No
+is 120,000. It bounds one complete resolution: capture, cache checks and
+publication. It is independent of `timeoutMs`, which bounds evaluation. No
 flag overrides it, and no value removes the bound.
 
-Diagnostics report the
-effective deadline. On a timeout they report the active source and operation.
-An owner raises the bound for valid sources on slow storage or a slow transport.
+Diagnostics report the effective deadline. On a timeout they report the active
+source and operation. An owner raises the bound for valid sources on slow
+storage.
 
 Ravel examines the deadline and the cancellation latch between operations. It
 examines them at each entry, at each block of a copy and at each entry of a
@@ -137,16 +147,30 @@ Each source record has these fields. An unknown field refuses.
 | Field | Meaning |
 | --- | --- |
 | `id` | A unique owner token of 1 to 64 lowercase ASCII letters and digits, in groups that single hyphens separate. Its first character is a letter |
-| `type` | `local` or `git` |
-| `path` | Local only. An absolute UTF-8 directory path, with no tilde or environment expansion |
-| `url` | Git only. An HTTPS, SSH or `file://` URL, or the absolute path of a local repository |
-| `revision` | Git only. A full lowercase commit object ID of 40 or 64 hexadecimal digits, in the object format of the repository. A ref, a tag, an abbreviated ID and a revision expression refuse |
-| `subdir` | Git only. A normalised source directory, relative to the repository root. `.` means the root |
+| `type` | `local`, the only source type |
+| `path` | The source directory. An absolute UTF-8 directory path, with no tilde or environment expansion |
 | `roots` | A nonempty array of normalised search directories, relative to the source directory. `.` is permitted |
 
-`subdir` and each root contain no absolute path, empty segment, `..`,
-backslash or trailing separator. A repeated identical root in one source
-refuses as a configuration mistake. Overlapping roots are valid. Each root must
+Within a source record, Ravel reads `type` before the other fields. A missing
+`type`, or a value other than the string `local`, refuses as
+`settings_invalid`, stage `cli`, exit 2. The `location` is
+`skills.sources[N].type`, and Ravel checks no other field of that record. The
+repeated-member rule above still applies to the whole file first.
+
+The remedy states that `type` accepts only `local`, so it also covers a
+misspelt value. It then tells the owner to make any checkout of a repository
+with a tool outside Ravel. The owner names the directory of that checkout in a
+`local` record with `path`.
+
+A record with `type: "git"` receives this refusal, as every other value does.
+No release of Ravel accepted a Git source. The refusal comes before capture,
+before cache work and before the worker, at both public boundaries.
+[Sources outside Ravel](#sources-outside-ravel) states what the owner's tool
+does.
+
+Each root contains no absolute path, empty segment, `..`, backslash or
+trailing separator. A repeated identical root in one source refuses as a
+configuration mistake. Overlapping roots are valid. Each root must
 exist as a directory in the captured source, and an empty directory is valid.
 
 Ravel does not search for `SKILL.md`. It does not parse frontmatter, names,
@@ -175,14 +199,14 @@ not interpret the file. The agent remains responsible for the supporting reads
 that a mandatory file requires. No Grove or personal guidance is a default.
 
 An unknown `source` ID refuses as `settings_invalid`, exit 2, before
-acquisition. A known source with a missing, unreadable, nonregular or non-UTF-8
+capture. A known source with a missing, unreadable, nonregular or non-UTF-8
 mandatory file refuses as `skill_mandatory_invalid`, exit 3. An empty
 `mandatory` array is valid.
 
 Delivery is disabled when the settings file is absent or has no `skills` key.
 It is also disabled when `sources` and `mandatory` are both empty. Without an
 absolute `HOME`, Ravel reads no settings, so delivery is disabled. A disabled
-resolution creates no cache, makes no network request and adds no prompt text.
+resolution creates no cache and adds no prompt text.
 A nonempty `mandatory` array with no sources refuses as `settings_invalid`. A
 fresh installation has delivery disabled, and native harness skills work
 without it.
@@ -264,8 +288,8 @@ update or Git LFS filter.
 
 Ravel admits a relative symlink only when its complete chain of targets ends
 inside the source boundary, with no cycle. The snapshot keeps the link. An
-absolute, dangling, cyclic or escaping link refuses. A Git submodule entry and
-every nonregular filesystem object refuse too. A source path can itself be a
+absolute, dangling, cyclic or escaping link refuses. Every nonregular
+filesystem object refuses too. A source path can itself be a
 symlink. Ravel canonicalises the source root once, then applies the boundary
 to every captured entry.
 
@@ -317,62 +341,31 @@ copied. It never pairs paths of the live tree with a different capture. Digests
 before and after the capture, and controlled concurrent edits, test this
 boundary. A successful retry does not prove atomicity against every writer.
 
-### Exact Git acquisition and offline reuse
+### Sources outside Ravel
 
-The pinned-delivery stage implements this section. Until then, a valid Git
-source refuses, as the [status](#status-and-ownership) states.
+Ravel reads a local source directory. It does not fetch, install or update
+the directory. Skill delivery runs no VCS command and makes no network
+request, so it needs no Git executable and no network.
+[Skill sources are local directories](../adr/skill-sources-are-local-directories.md)
+records why.
 
-The Git acquisition key is a versioned tuple. It holds the exact repository
-locator of the owner, the object format, the full commit ID and `subdir`. Two
-spellings of one remote are two acquisition identities. Ravel infers no
-equivalence between hosts, mirrors, transports or credential contexts. The
-source ID labels the settings and the diagnostics. It is not a skill identity,
-and it is not part of the key.
+A tool outside Ravel puts each source directory in place and chooses its
+contents. A checkout of a Git or jj repository is an ordinary local source.
+Ravel captures its current files, with uncommitted changes, and leaves out the
+reserved `.git` and `.jj` entries. Ravel reads no VCS revision and records
+none. The descriptor identifies a capture by its resource digest and its
+origin path.
 
-Ravel refuses a locator that embeds a password, a credential in a query or
-fragment, or a relative local path. It uses the ordinary noninteractive
-transport authentication of the owner. No credential enters a manifest or a
-diagnostic. A transport child receives no session-result context and no caller
-completion descriptor. When authentication needs interactive input, it fails at
-once. A source fetch never uses the caller's terminal.
+Ravel does not initialise or update a submodule. A submodule directory in a
+checkout holds ordinary files, and capture includes them without the reserved
+entry of the submodule. Ravel captures a Git LFS pointer file as its literal
+bytes, not as the payload that it describes. Ravel neither detects nor hydrates
+such pointers, and its read guarantee covers only the captured file. A pack
+that needs an LFS payload materialises it in the source directory.
 
-Ravel first looks in the cache for a complete checked resolution of the exact
-key. When it finds one, it checks the manifest and the content. It then reuses
-the resolution with **no network operation**, not even a freshness check. A
-cache hit needs no Git executable and no source repository. A changed pin is a
-different key, so it cannot change an existing reader.
-
-A corrupt cache entry refuses as `skill_cache_corrupt`. Its remedy is to
-quarantine or remove the entry, then fetch it again. Ravel does not accept the
-entry, and it does not repair it under its readers.
-
-On a miss, Ravel acquires the commit in isolated temporary Git storage. It
-checks that the exact object is a commit, not a tag that peels to another
-object. It checks that `subdir` is a tree in that commit. A fetch can take
-advertised refs to reach a commit that the remote does not advertise. Ravel
-still extracts only the configured full commit ID. It never falls back to a
-branch tip, a near ancestor, an earlier cache entry, the default branch or
-another source with the same ID.
-
-Some failures refuse as `skill_revision_unavailable`: a failed transport, a
-missing Git executable, an unreachable commit or a missing `subdir`. The
-refusal names the source and the required revision. The remedies are to
-restore access, to make that commit available, to seed its exact cache while
-online, or to change the pin deliberately.
-
-Acquisition runs no Git hook or filter of a working tree. Ravel extracts the
-tracked object contents directly. It refuses a gitlink, and it fetches no
-submodule. Ravel captures a Git LFS pointer file as its literal bytes, not as
-the payload that it describes. Ravel neither detects nor hydrates such
-pointers, and its read guarantee covers only the captured file. A pack that
-needs an LFS payload materialises it in a local source or stores an ordinary
-Git blob.
-
-Ravel bounds network work. It stops and reaps acquisition children at the
-deadline and on cancellation. A cache miss needs Git on the `PATH` of the Ravel
-CLI. The installation documentation and the installed checks state and test
-that requirement. The pinned stage decides whether the Homebrew formula
-declares Git. Ravel needs no other runtime.
+When a source directory is missing, resolution refuses as
+`skill_source_missing`. The owner's tool restores the directory outside the
+failing session.
 
 ### Publication, concurrency and cleanup
 
@@ -402,9 +395,15 @@ private content out of source directories.
 
 Ravel publishes the complete source directory and its manifest with an atomic
 operation that does not replace an existing object. A reader sees no object or
-a complete checked object. When two publishers race, the loser checks the
-winner before it removes its private copy. A winner whose content differs is
-corruption.
+a complete checked object. An existing object with the same name wins, whether
+a concurrent publisher or an earlier resolution wrote it. Ravel reads the
+winner back in full before it removes its private copy, and it reuses the
+winner only when the content agrees.
+
+A winner whose content differs is corrupt, and the refusal is
+`skill_cache_corrupt`. The remedy is to stop the readers of the object, then to
+move it out of the cache or remove it, and to resolve again. Ravel does not
+accept the object, and it does not repair it under its readers.
 
 Ravel publishes the descriptor only after every source and every configured
 path passes its checks. A failed launch can leave useful source objects. It
@@ -422,8 +421,9 @@ holds the same directory.
 
 Ravel has **no automatic collector and no prune command**. Manual removal
 requires that no affected reader runs. Removal of staging also requires that no
-resolver of that staging runs. Removal gives up offline reuse and the
-guarantees of existing readers.
+resolver of that staging runs. Removal gives up the guarantees of existing
+readers. The next resolution captures the present source and publishes it
+again. It never substitutes another object of the same source ID.
 
 When storage is full, the refusal is
 `skill_cache_unavailable` with this remedy. Read-only permissions prevent
@@ -434,19 +434,15 @@ accidents. They do not prevent deliberate changes by the same user.
 One immutable `directories.json` records the prepared directory set. It holds
 `schemaVersion: 1`, `sources`, `directories` and `mandatory`, and no skill
 entries. The descriptor, the request and `skills resolve --json` use the same
-source record. Every value of a source record is a string. A field that applies
-only to the other type is absent.
+source record. Every value of a source record is a string.
 
 | Source-record field | Contract |
 | --- | --- |
 | `id` | The configured source ID |
-| `type` | `local` or `git` |
+| `type` | `local` |
 | `resourceDigest` | The lowercase SHA-256 digest of the snapshot manifest, 64 hexadecimal digits |
 | `snapshotRoot` | The absolute path of the retained snapshot directory |
-| `originPath` | Local only. The canonical absolute source directory at capture |
-| `url` | Git only. The configured locator, free of credentials, that the acquisition key uses |
-| `revision` | Git only. The exact full commit object ID |
-| `subdir` | Git only. The configured source directory in the repository |
+| `originPath` | The canonical absolute source directory at capture |
 
 A directory record holds `source` and the absolute `path`. A mandatory record
 holds `source` and the absolute file `path`, in configured order. Directory
@@ -455,8 +451,7 @@ once, at its first position. Every path points into a complete retained
 snapshot.
 
 Source provenance stays per configured source, also when two sources share
-stored content. A later launch can therefore check the original protected
-boundaries again.
+stored content.
 
 The identity of the descriptor is the SHA-256 of its versioned canonical JSON
 bytes. Its retained directory has the name of that digest. The descriptor holds
@@ -507,8 +502,8 @@ the environment of the managed process and the environment of each harness run
 of the evaluation, confined or not. The value replaces a stale inherited value.
 When delivery is disabled, Ravel removes the name from those environments.
 
-The name is absent from the Rhai worker and from acquisition children. It
-grants no read permission and no ending authority. Ordinary children inherit
+The name is absent from the Rhai worker. It grants no read permission and no
+ending authority. Ordinary children inherit
 it. A nested `start-session` changes it only for its own managed process. An
 adapter whose delegates do not inherit the environment forwards the descriptor
 path itself.
@@ -530,10 +525,10 @@ trials measure both cases. A fixture proves only delivery and readability.
 
 ### `ravel skills resolve`
 
-`ravel skills resolve` is a **source acquisition** command. It evaluates no
+`ravel skills resolve` is a **source resolution** command. It evaluates no
 configuration script. It takes no skill name, task, kind, prompt, source
-override or ending token. It reads the settings and runs the same acquisition
-and checks as a launch. It imports no configuration script, creates no result
+override or ending token. It reads the settings and runs the same capture and
+checks as a launch. It imports no configuration script, creates no result
 channel and launches no harness. It is permitted inside a harness run, because
 it selects nothing.
 
@@ -559,9 +554,8 @@ the source or location where it applies, the message and the remedy.
 
 An independent harness can receive that preamble explicitly. The command cannot
 change the environment of its caller, and it installs no hook. Each run captures
-current local bytes. After the pinned-delivery stage, it also reuses exact
-checked Git pins. A failure can leave
-complete useful cache objects. It prints no preamble and no partial JSON.
+current local bytes. A failure can leave complete useful cache objects. It
+prints no preamble and no partial JSON.
 
 The help text shows the plain and JSON forms and the disabled result. It
 explains the cache side effect. Source resolution is optional setup. It is never
@@ -646,9 +640,7 @@ disabled. Otherwise it is an object with these members:
 
 - `descriptorPath` and `resolutionMs`.
 - `sources`, with one record for each source. A record holds `id`, `type`,
-  `resourceDigest`, `revision` for a Git source, and `disposition`. The
-  disposition is `captured` for a local source, `reused` for a Git cache hit
-  and `acquired` for a Git fetch.
+  `resourceDigest` and `disposition`. The disposition is `captured`.
 - `originalPrompt` and `prompt`. Each holds `bytes` and `sha256`.
 
 No diagnostic shows a prompt, a skill body, a credential or an environment
@@ -672,13 +664,13 @@ are constant, and the owner sets the resolution deadline.
 | Entries in one source, with directories and links | 20,000 |
 | Descriptor / preamble | 1 MiB each |
 | Original prompt / prepared prompt | 1 MiB each |
-| One resolution, with capture, checks, transport and publication | `resolutionTimeoutMs`: 120,000 ms by default, from 1,000 to 3,600,000 |
+| One resolution, with capture, checks and publication | `resolutionTimeoutMs`: 120,000 ms by default, from 1,000 to 3,600,000 |
 
 A breach of a byte or count bound refuses as `skill_limit_exceeded`. The
 refusal reports the actual value, the bound and the subject. A value equal to
 a bound passes. The search-directory bound counts the configured roots of all
 sources, before the descriptor joins repeated paths. Ravel checks the three
-configured counts before acquisition.
+configured counts before capture.
 
 Capture stops at the first entry or file that passes a bound. A refusal of the
 entries or the bytes of a source therefore reports the count at that point as
@@ -701,37 +693,34 @@ the script-result bound or the argument limit of the platform.
 
 | Code | Stage | Exit | Meaning and remedy |
 | --- | --- | --- | --- |
-| `settings_invalid` | `cli` | 2 | A malformed `skills` object, an unknown mandatory source ID or a repeated member name. Repair the settings at the reported `location` |
+| `settings_invalid` | `cli` | 2 | A malformed `skills` object, a source `type` other than `local`, an unknown mandatory source ID or a repeated member name. Repair the settings at the reported `location`. A source `type` is `local`. Make any checkout of a repository with a tool outside Ravel |
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured root does not exist. Restore it, or change the settings deliberately |
 | `skill_source_changed` | `skills` | 3 | A local source changed during capture. Keep it quiet and try again |
-| `skill_revision_unavailable` | `skills` | 3 | Git cannot supply the exact commit or `subdir`. Restore access, make the commit available, seed the cache online or change the pin |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, nonregular or not UTF-8, or two references reach one retained file |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly |
-| `skill_cache_corrupt` | `skills` | 3 | A cached object fails its checks. Quarantine or remove it, then fetch it again |
+| `skill_cache_corrupt` | `skills` | 3 | A cached object fails its checks. Stop its readers, move it out of the cache or remove it, then resolve again |
 | `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache root, because of an unsafe link, a permission or full storage |
 | `skill_limit_exceeded` | `skills` | 3 | A count or byte bound of this specification |
 | `skill_access_unavailable` | `skills` | 3 | Ravel cannot set up the required reads, because of a protected or writable overlap, or a grant that the backend cannot give |
-| `skill_resolution_timeout` | `skills` | 124 | The resolution deadline passed. Raise `resolutionTimeoutMs`, or address the latency of storage or transport |
+| `skill_resolution_timeout` | `skills` | 124 | The resolution deadline passed. Raise `resolutionTimeoutMs`, or address the latency of storage |
 | `skill_resolution_cancelled` | `skills` | 128 plus the signal number | INT, TERM or HUP arrived during resolution |
-| `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its staging or reap an acquisition child |
+| `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its staging |
 
-The failure document gains the stage `skills`. It covers the acquisition,
-checks and publication of skill sources, the prepared prompt and the read
-grants of the resources. A settings problem keeps the stage `cli`.
+The failure document gains the stage `skills`. It covers the capture, checks
+and publication of skill sources, the prepared prompt and the read grants of
+the resources. A settings problem keeps the stage `cli`.
 
-Each refusal names the exact revision or path that its remedy addresses. No
-remedy recommends a revision that the owner did not configure. A timeout
-reports the effective deadline and the active operation. It does not report an
-unavailable revision only because time ran out. Ravel bounds Git diagnostic
-output to 256 KiB and redacts it before it shows it.
+Each refusal names the exact source or path that its remedy addresses. No
+remedy offers another snapshot or directory as a substitute for a configured
+source. A timeout reports the effective deadline and the active operation.
 
 `skill_access_unavailable` does not claim to detect a later failure of the
 agent to read. No failure in this table gives a successful result. Each
 refusal launches no worker and no managed process.
 
-A consumed INT, TERM or HUP during resolution stops the acquisition children
-with TERM, then KILL, and reaps them. Ravel removes the private staging. The
-refusal is `skill_resolution_cancelled`, and Ravel raises the same signal again.
+After a consumed INT, TERM or HUP during resolution, Ravel removes the private
+staging. The refusal is `skill_resolution_cancelled`, and Ravel raises the same
+signal again.
 A consumed signal wins over a resolution refusal, as in the
 [completion contract](result-job-completion.md#outcome-and-diagnostic-order).
 The report then keeps that refusal as the original failure.
@@ -741,8 +730,8 @@ The report then keeps that refusal as the original failure.
 The managed process and each harness run can read the descriptor and every
 captured resource, also outside the working directory. With `--confine`, Ravel
 grants the exact published descriptor directory and snapshot trees read-only
-to both. It grants neither the private staging area of the cache, nor the
-acquisition storage, nor the mutable source directories.
+to both. It grants neither the private staging area of the cache nor the
+mutable source directories.
 
 This grant set is internal. The public `--runtime-read` flag keeps its meaning
 of one regular file. Ravel never grants the whole home directory or the whole
@@ -756,9 +745,10 @@ That includes an overlap through a canonical alias. The inherited
 holds it refuses before capture, with or without confinement.
 
 `skills resolve` protects the default configuration directory
-`$HOME/.config/ravel`. A launch also checks its actual `--config` directory
-against the origin record of each snapshot that it would reuse. A copy of a
-protected file in the cache cannot pass a grant that the original would fail.
+`$HOME/.config/ravel`. A launch also checks each source against the directory
+of its actual `--config` entry, before capture. Every launch captures its
+sources again. A copy of a protected file in the cache therefore cannot pass a
+grant that the original would fail.
 
 A source that holds the cache root refuses too, also before the cache exists.
 Ravel checks the real path that the opening of the cache would reach.
@@ -826,8 +816,8 @@ and write its cache. It replaces the result context only for its own managed
 process. The parent keeps its directories and its channel.
 
 A nested launch inside a confined parent does not escape the sandbox of the
-parent. The nested launch refuses when its configuration script, the
-transport or cache writes are unavailable. On macOS the settings file is
+parent. The nested launch refuses when its configuration script or cache
+writes are unavailable. On macOS the settings file is
 visible and unreadable, so the nested launch refuses as `settings_invalid`.
 On Linux the namespace holds no settings file. The nested launch then has
 delivery disabled, and it runs when it can read its configuration script.
@@ -918,54 +908,50 @@ This feature adds no default skill corpus, native installer, skill execution
 engine, caller-kind registry or provider integration. It adds no task parser,
 result-token interpreter or persistent session database. The retained content
 cache is the one new persistence surface. The feature manages no marketplace,
-removes no native hook, runs no source code and edits no settings.
+fetches no source, removes no native hook, runs no source code and edits no
+settings.
 
 ## Test seams and acceptance
 
 Use the public `ravel skills resolve` and `start-session` boundaries. Supply
-temporary `HOME`, working, cache and configuration directories and local Git
-fixtures. A fake managed program reads the delivered prompt, the descriptor and
-the resources. It sends an opaque result through its own channel.
+temporary `HOME`, working, cache and configuration directories and local
+source fixtures. A fake managed program reads the delivered prompt, the
+descriptor and the resources. It sends an opaque result through its own
+channel.
 
 Configuration-script fixtures record what `load_context` and `select` receive.
 Fault injection stays behind internal seams. Tests also use real cache
 filesystems and real confinement backends.
 
-Some cases need a Git source, and the pinned-delivery stage adds them. They are
-the committed pointer of "Git LFS object bytes", "Exact Git" and "Offline
-reuse". They also include the commit, `subdir` and object cases of "Missing or
-corrupt revision" and the transport of "Cancellation". Until that stage, a
-fixture proves that a valid Git source refuses at both public boundaries.
 On macOS, `task smoke:pair OLD=<1.1 executable> NEW=<prefix>` runs the
 installed-pair part of "Version transition".
 
 | Case | Observable acceptance at the public seam |
 | --- | --- |
-| Disabled delivery | A missing settings file, an absent key and empty arrays do no cache or network work. Empty, newline and Unicode prompts stay exact. `skills` is `()`, and `prompt` equals `originalPrompt`. Native-only Grove sessions need no directory setup |
+| Disabled delivery | A missing settings file, an absent key and empty arrays do no cache work. Empty, newline and Unicode prompts stay exact. `skills` is `()`, and `prompt` equals `originalPrompt`. Native-only Grove sessions need no directory setup |
 | Directory delivery | Local roots outside the working directory appear as absolute retained paths in the preamble. The order of sources, roots and mandatory files agrees with the descriptor and the request |
 | Filesystem versus skill semantics | Empty roots, duplicate skill names, invalid optional frontmatter and unusual directory names resolve and launch. A fixture agent reports missing or ambiguous guidance, and Ravel chooses no skill |
-| Settings and bootstrap | An unknown mandatory source ID refuses as `settings_invalid`, exit 2, before acquisition. So do a repeated member name, a malformed path and an unknown field. A missing or non-UTF-8 mandatory file refuses as `skill_mandatory_invalid`, exit 3. A missing source or root refuses as `skill_source_missing`. No worker launches |
-| Relative resources | The managed program reads sibling and parent-relative files from the whole source. Admitted links work. Escaping, dangling and cyclic links, special files and gitlinks refuse |
+| Settings and bootstrap | An unknown mandatory source ID refuses as `settings_invalid`, exit 2, before capture. So do a repeated member name, a malformed path and an unknown field. A missing or non-UTF-8 mandatory file refuses as `skill_mandatory_invalid`, exit 3. A missing source or root refuses as `skill_source_missing`. No worker launches |
+| Local sources only | A record with `type: "git"` and valid Git fields refuses as `settings_invalid`, exit 2, at `skills.sources[N].type`, with the checkout remedy. That happens at both public boundaries, with no cache object and no worker. A spy `git` first on `PATH` sees no call while a checkout with uncommitted changes resolves and launches, and the snapshot holds those changes |
+| Relative resources | The managed program reads sibling and parent-relative files from the whole source. Admitted links work. Escaping, dangling and cyclic links and special files refuse |
 | Path identity | Paths that differ only in case or normalisation refuse when the cache filesystem cannot keep them. A filesystem that keeps them keeps both. No entry is written over another or normalised |
-| Git LFS object bytes | A committed pointer is captured byte for byte, with no contact with LFS storage. A materialised local payload is captured as ordinary bytes |
+| LFS pointer bytes | A pointer file in a local checkout is captured byte for byte, with no contact with LFS storage. A materialised payload is captured as ordinary bytes |
 | Local freshness | A content change with no VCS change gives a new snapshot. Old readers keep old bytes. Controlled concurrent edits refuse with no partial descriptor |
-| Exact Git | With two commits and a moved tag, Ravel extracts only the full pin. Refs, abbreviations and tag objects refuse |
-| Offline reuse | Warm the exact cache, then remove remote access and Git from `PATH`. Resolution and launch succeed, and a transport spy sees zero calls. A cold absent pin cannot use a cached neighbour |
-| Missing or corrupt revision | A missing commit or `subdir`, a bad object type, a timeout and a tampered snapshot have distinct remedies. None of them launches a worker or a job |
+| Corrupt object | A tampered snapshot refuses as `skill_cache_corrupt`, with its remedy. No worker or job launches, and the object stays as it was |
 | Concurrent publication | Publishers behind a barrier and an existing reader see no partial object. The losing publisher checks the winner. A killed publisher cannot publish a partial descriptor |
-| Lifetime | Independent and detached readers keep their directories and resources after the parent exits, the source goes and the settings change. Ordinary managed descendants are reaped with the group. Quiet manual removal loses offline reuse |
+| Lifetime | Independent and detached readers keep their directories and resources after the parent exits, the source goes and the settings change. Ordinary managed descendants are reaped with the group. After a quiet manual removal, the next resolution publishes the present source again and uses no neighbour object |
 | Request and evaluation | `load_context` and `select` receive the same request, and a change to the copy in `load_context` does not reach `select`. Top-level code sees no request. The caller byte range is exact for non-ASCII text, every line ending and text that resembles a delimiter. `skills` has no offset fields. The label and delimiters occur only in the wrapper. A quoted path cannot become prompt structure |
 | Host reads | A read of the descriptor with `ravel::read_text` is a measured read in the notice. `ravel::env("RAVEL_SKILL_DIRECTORIES")` throws `env_not_granted`, and a grant of that name refuses as `excluded_grant` |
 | Harness runs | A fake harness in a harness run sees this session's descriptor in `RAVEL_SKILL_DIRECTORIES` when delivery is enabled, and no variable when it is disabled. Under `--confine` it reads the resources |
 | Bounds and frames | Enabled delivery with an empty task still bootstraps. Each count and byte bound refuses at its limit and passes below it, with controls that remove the bound. The three tests of [frame bounds](configuration-evaluation.md#frame-bounds) pass where their platform admits them |
 | Slow valid source | A controlled delay times out with the effective deadline and the settings remedy. A larger valid deadline succeeds with every check. A malformed deadline refuses |
-| Cancellation | TERM during a controlled transport refuses as `skill_resolution_cancelled`, exit 143. The transport child is reaped, and no staging stays |
+| Cancellation | INT, TERM or HUP during a controlled capture refuses as `skill_resolution_cancelled`, exit 128 plus the signal number. No staging stays, and Ravel raises the same signal again |
 | Real confinement | A child and its descendants read resources outside the working directory. They cannot write them or read the protected configuration. Grant failures, protected aliases and writable overlap refuse as `skill_access_unavailable`, exit 3, with no fallback, on macOS and Linux |
 | Delegate authority | Disposable trials tell inherited context that can send an early result from an adapter whose scrubbed delegate cannot. First-writer behaviour has its own check. Each trial names its adapter |
 | Directory recovery | With the instructions retained, the prompt path is lost and the agent recovers the same descriptor through `RAVEL_SKILL_DIRECTORIES`. Stale values are replaced, and disabled delivery removes the name. A nested child alone receives a new value. Loss of both path channels gives a report of missing context |
 | Nested sessions | A nested resolution sees current sources and returns only its own result. The paths and channel of the parent stay intact. Confinement can refuse unavailable settings or cache writes |
 | Version transition | Schema 3 refuses with and without sources. Schema 4 works with and without sources. A mismatched pair refuses. Ravel 1.1.0 refuses shared settings that hold `skills`, exit 2, and separate prefixes cannot prevent it. Ravel 2.0.0 refuses `policyEnv`. An isolated `HOME` permits 1.1 native-only and 2.0 directory launches at the same time. Existing ending commands stay usable |
-| Standalone acquisition | No configuration script, channel or harness. The plain preamble and the JSON describe the same directories as a launch. Disabled and failed outputs differ. Retries keep only complete useful objects |
+| Standalone resolution | No configuration script, channel or harness. The plain preamble and the JSON describe the same directories as a launch. Disabled and failed outputs differ. Retries keep only complete useful objects |
 
 ### Actual harness trials
 
@@ -1007,8 +993,8 @@ the confinement mode and the order of reads and actions. It records native start
 text that the harness added already. It records the inherited ending context of
 each real delegate and whether the delegate obeyed the instruction not to end.
 
-Result attempts belong only in disposable trials. A fetch fixture cannot prove
-LLM compliance. A prompt transcript cannot prove permissions. An unavailable
+Result attempts belong only in disposable trials. A fixture program cannot
+prove LLM compliance. A prompt transcript cannot prove permissions. An unavailable
 compaction, delegate or confinement mechanism is an explicit gap in the
 measurements. Grove checks its native-only compatibility separately from these
 trials.
@@ -1021,5 +1007,6 @@ trials.
 - A garbage collector or a prune command.
 - Management of native installations, hooks or marketplaces.
 - A host function for skills.
-- Git LFS hydration and submodules.
+- Fetch, installation or update of a source, and every VCS command.
+- Git LFS hydration and submodule updates.
 - A source override for one launch.

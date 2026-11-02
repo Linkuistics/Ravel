@@ -12,12 +12,11 @@ authority for these views. They show the contract of the
 [design evidence](../../skill-discovery-design-evidence.md) separates source
 observations from proposed acceptance cases.
 
-- [Preparation → Prepare before the worker launches](index.html#diagram-preparation) — Replaced the policy worker with the Ravel CLI and the Rhai worker, and moved resolution before the worker launch.
-- [Prompt bounds and frames → Where the prompt travels and which bound applies](index.html#diagram-frames) — Added the prompt bound, the derived evaluate-frame bound and the script-result bound.
-- [Lifetime → Keep the reader's directories](index.html#diagram-lifetime) — Renamed the resolver to the Ravel CLI, with no change to the recovery rules.
-- [Permissions → Read resources and state the authority limit](index.html#diagram-permissions) — Added harness runs, which receive the same read grants and variable as the managed harness.
-- [Request and configuration script](../../specs/skill-discovery.md#request-and-configuration-script) — Defined schema 4, the copy of one request for each phase and ordinary measured descriptor reads.
-- [Frame bounds](../../specs/configuration-evaluation.md#frame-bounds) — Derived the evaluate-frame bound and turned an oversized frame into a refusal of the caller input.
+- [Preparation → Prepare before the worker launches](index.html#diagram-preparation) — Removed Git acquisition, so the Ravel CLI only captures local bytes.
+- [Lifetime → Keep the reader's directories](index.html#diagram-lifetime) — Capture now reads the local tree, and the owner edits the source or its checkout instead of a pin.
+- [Settings](../../specs/skill-discovery.md#settings) — Limited `type` to `local`, and stated the `settings_invalid` refusal of every other type.
+- [Sources outside Ravel](../../specs/skill-discovery.md#sources-outside-ravel) — Replaced exact Git acquisition and offline reuse with the capture of a checkout that a tool outside Ravel installs.
+- [Skill sources are local directories](../../adr/skill-sources-are-local-directories.md) — Recorded the decision, the withdrawn Git acquisition and the conditions that would reopen it.
 
 The viewer loads Mermaid 12.0.0, so these views need network access. No
 generated SVG files are part of these views. A rendered view proves diagram

@@ -2,7 +2,7 @@
 
 Ravel routes a caller's request through the owner's configuration script and supervises the selected process.
 Its public boundary is [start-session and end-session](../book/src/06-reference.md#command-line).
-The source acquisition command `skills resolve` of [skill discovery](skill-discovery.md#ravel-skills-resolve) is also public.
+The source resolution command `skills resolve` of [skill discovery](skill-discovery.md#ravel-skills-resolve) is also public.
 Caller prompts, result meanings, task conventions and durable provenance belong to callers.
 This specification describes the active executable. The [glossary](../../CONTEXT.md) defines its terms.
 

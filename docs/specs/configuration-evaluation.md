@@ -1158,11 +1158,10 @@ The allowlist records that distinction.
 `task install PREFIX=/path` builds and verifies the installation from that prefix alone.
 `task smoke` exercises a disposable prefix through the executable directly and through a relative symlink.
 Neither path requires a host JavaScript runtime or caller binary.
-A Git cache miss of skill delivery needs Git, as the [skill discovery specification](skill-discovery.md#exact-git-acquisition-and-offline-reuse) states.
+Skill delivery reads local directories only, so the installation needs no Git, as the [skill discovery specification](skill-discovery.md#sources-outside-ravel) states.
 The book checks use a checkout-local Bun as a development tool, outside the installed product.
 The release carries no JavaScript runtime, SDK, declarations or separate worker executable.
 
-The local stage of skill delivery refuses every Git source, so its build needs no Git.
 On macOS, `task smoke:pair OLD=<1.1 executable> NEW=<prefix>` runs an installed 1.1 release and the installation under `NEW` at the same time.
 Each run has its own temporary home, and a guard denies both runs the real home.
 
