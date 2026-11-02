@@ -397,6 +397,59 @@ unknown fields before `type` failed the unit test and the resolve fixture.
 The generic remedy in place of the checkout remedy failed both public
 fixtures. The spy recorded a call when it ran.
 
+## Linux floor repair record
+
+Grove's `grove-linux-two-lane-k103` repaired the Linux link of the directory
+build on 2026-11-03. The local-sources build did not link at glibc 2.17,
+because `rename_noreplace` called the glibc `renameat2` wrapper, which glibc
+added in 2.28. Grove's dual-Ravel stage uses this repair as its directory
+build. Nobody pushed the line, and no release consumes it.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185b0910ba6117fe8f9e8b2e2c8a748`. `jj git fetch` reported no change, so the line needed no rebase. The stage worked above `4f831feb4d0f`, the output commit of Grove's `ravel-local-sources-k90` |
+| Build commit | `23e50ce9003740f573e9e997a74bba180b303405`, with the parent `4f831feb4d0f`. Every check below ran on this commit, with an empty working copy |
+| Output commit | The child of the build commit. It changes only this record |
+| Build identity | `ef5857e989e6d99da51631ae0295685c8961c1b01bac58d865e6fb789ae71deb`. A script that applies the rule of `crates/ravel/build.rs` computed it, and each of the three executables holds it. The same script gives `9feb86b7…` for the tree of `4f831feb` |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1, `rustc` commit `58cf8f9c3` of 2026-10-13. The SHA-256 of `Cargo.lock` is `a06e97c65ecca6d1490180467621834d4cd1c4a7d7fcffb142d4c86566e07266`, the same as at the local stage |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| Archives | `task release:archives` linked all three targets. The SHA-256 values are `6fd7e44ac0a1d345456faef2aeeede2bb695944098dc5f42b7ade52944b0d928` for aarch64-apple-darwin, `331008d4c2aa005061b6e61d505bac131d4f4473cc9520eeba765e089b1cb32d` for aarch64-unknown-linux-gnu and `2a7e62f78a5a6600e6d4d2186bc2cbf11db7edae57ef4176f06623ceddad3b04` for x86_64-unknown-linux-gnu. Grove's 2.0 lane records these archives. A rebuild gives byte-identical files with other tar member times, so its archive digests differ |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `8e10e311c50c81ca60ac4f393d17408982d0aafcfe46cccfbc46130465290ae2`, the same bytes as in the macOS archive |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 730 of 730 run tests passed, and 48 were skipped |
+| `task test:cli` | Exit 0. 14 of 14 run tests passed, and 1 was skipped |
+| `task harness:smoke:test` | Exit 0 |
+| The book tasks | `docs:excerpts`, `docs:excerpts:test`, `docs:examples`, `docs:examples:test`, `docs:figures:test`, `docs:ste:test`, `docs:breaks` and `docs:book:build` each exit 0 |
+| `task test:native-linux PLATFORM=arm64` | Exit 0, with `failed=0` and unchanged subjects. 723 of 723 run tests passed, and 48 were skipped. The image is `ravel-native-linux:arm64`, Ubuntu 26.04.1, on kernel 7.0.14-linuxkit |
+| `task test:native-linux PLATFORM=amd64` | Exit 1, under QEMU user-mode emulation. The full suite then ran with `--no-fail-fast` in the same environment on the build commit and on `4f831feb`. Each run failed the same 94 tests, item by item: confinement, namespace and signal tests that the emulator does not reproduce. The build commit ran 723 tests and `4f831feb` ran 721. Both new tests passed |
+| `task release:smoke` | Exit 0 on all three targets. Each Linux target ran at glibc 2.17, natively or under QEMU, with the GLIBC_2.25 refusal and the SIGILL CPU control |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link |
+| `task smoke:pair` | Exit 0, against the Homebrew release at `/opt/homebrew/Cellar/ravel/1.1.0`. The 1.1.0 release refused the `skills` settings with status 2. The tree digests of the 1.1.0 installation, the feature installation and the real `~/.config/ravel` were the same before and after. The real `~/.cache/ravel` was absent before and after |
+
+On Linux, `rename_noreplace` now enters the `renameat2` system call through
+`libc::syscall`, with `RENAME_NOREPLACE`. The glibc 2.28 wrapper only enters
+the same call, so the behaviour does not change. A kernel before 3.15 returns
+`ENOSYS`, and a file system without the flag returns `EINVAL`.
+
+Each of these errors refuses as
+`skill_cache_unavailable`, with a remedy that names the requirement. macOS
+`ENOTSUP` takes the same refusal. A plain rename can replace an empty
+directory, so Ravel has no fallback. The skill discovery specification owns
+the rule.
+
+A new unit test renames onto an empty directory and onto a full one, and
+requires a refusal both times. A new `renamed` fault hook stands for a failed
+rename. A publication test requires the precise refusal, no object and no
+staging for each unsupported error, and the general remedy for `EIO`.
+
+Controls failed as expected. With the flag set to 0, the unit test failed on
+macOS and in the arm64 Linux container. The plain rename replaced the empty
+directory. With the new refusal branch disabled, the publication test
+failed.
+
 ## Consumer handoff
 
 Grove's adoption design, `grove-rhai-skill-delivery-k35`, consumes these facts:
