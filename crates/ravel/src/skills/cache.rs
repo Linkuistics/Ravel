@@ -5,7 +5,8 @@
 //! checks each directory that it passes, so that another account cannot
 //! substitute a segment. It then holds the root and its three directories
 //! open. Every later cache write goes through those descriptors, and each
-//! publication first checks that the cache path still reaches the held root.
+//! publication first checks that the cache path still reaches the held root
+//! and each held directory.
 
 use std::collections::VecDeque;
 use std::ffi::{OsStr, OsString};
@@ -32,6 +33,9 @@ pub struct Cache {
     /// The real path of the root that Ravel holds.
     pub path: PathBuf,
     identity: (u64, u64),
+    /// The name and identity of each held directory, which the reported
+    /// paths must reach.
+    children: [(&'static str, (u64, u64)); 3],
     pub staging: Dir,
     pub snapshots: Dir,
     pub descriptors: Dir,
@@ -44,7 +48,7 @@ impl Cache {
         let (root, path) = walk(&lexical)?;
         let stat = root.stat().map_err(|error| unavailable(&path, &error))?;
         private(&path, &stat)?;
-        let open = |name: &str| -> Result<Dir, Refusal> {
+        let open = |name: &'static str| -> Result<(Dir, (u64, u64)), Refusal> {
             let name = OsStr::new(name);
             let at = path.join(name);
             match root.mkdir(name, 0o700) {
@@ -66,14 +70,20 @@ impl Cache {
                 return Err(replaced(&at));
             }
             private(&at, &held)?;
-            Ok(dir)
+            Ok((dir, held.identity()))
         };
-        let (staging, snapshots, descriptors) =
-            (open(STAGING)?, open(SNAPSHOTS)?, open(DESCRIPTORS)?);
+        let (staging, staging_identity) = open(STAGING)?;
+        let (snapshots, snapshots_identity) = open(SNAPSHOTS)?;
+        let (descriptors, descriptors_identity) = open(DESCRIPTORS)?;
         Ok(Cache {
             lexical,
             path,
             identity: stat.identity(),
+            children: [
+                (STAGING, staging_identity),
+                (SNAPSHOTS, snapshots_identity),
+                (DESCRIPTORS, descriptors_identity),
+            ],
             staging,
             snapshots,
             descriptors,
@@ -81,17 +91,26 @@ impl Cache {
     }
 
     /// Check that the cache path of the account and the real path that
-    /// Ravel reports both still reach the held root.
+    /// Ravel reports both still reach the held root and each held directory.
+    /// A held directory that was moved away keeps receiving writes, so a
+    /// reported path below its replacement would name nothing.
     pub fn check(&self) -> Result<(), Refusal> {
         #[cfg(test)]
         super::faults::publishing(&self.lexical);
-        for path in [&self.lexical, &self.path] {
-            let reached = std::fs::metadata(path).map(|reached| {
-                use std::os::unix::fs::MetadataExt as _;
-                (reached.dev(), reached.ino())
-            });
-            if reached.ok() != Some(self.identity) {
-                return Err(replaced(path));
+        for base in [&self.lexical, &self.path] {
+            let held = std::iter::once((base.clone(), self.identity)).chain(
+                self.children
+                    .iter()
+                    .map(|(name, identity)| (base.join(name), *identity)),
+            );
+            for (path, identity) in held {
+                let reached = std::fs::metadata(&path).map(|reached| {
+                    use std::os::unix::fs::MetadataExt as _;
+                    (reached.dev(), reached.ino())
+                });
+                if reached.ok() != Some(identity) {
+                    return Err(replaced(&path));
+                }
             }
         }
         Ok(())

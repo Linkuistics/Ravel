@@ -331,14 +331,38 @@ fn publishers_behind_a_barrier_and_an_existing_reader_see_no_partial_object() {
     );
 }
 
+/// Wait until the staging directory of the cache holds a name that `before`
+/// does not, or until `child` exits. Whether the name appeared.
+fn staging_appeared(fixture: &Fixture, before: &[String], child: &mut Child) -> bool {
+    let deadline = std::time::Instant::now() + Duration::from_secs(30);
+    loop {
+        if fixture
+            .names("staging")
+            .iter()
+            .any(|name| !before.contains(name))
+        {
+            return true;
+        }
+        if child.try_wait().unwrap().is_some() || std::time::Instant::now() > deadline {
+            return false;
+        }
+        thread::sleep(Duration::from_micros(200));
+    }
+}
+
 #[test]
 fn a_killed_publisher_never_publishes_a_partial_descriptor() {
     let fixture = Fixture::new();
     let source = fixture.root.join("source");
     let files = wide_source(&source, 300);
     fixture.skills(&source);
+    // A child counts as interrupted only when it was killed after its
+    // staging appeared, so it had begun to capture. The delays after that
+    // milestone sample capture and publication. No fixture can aim at the
+    // moment between the rename of an object and its seal.
     let mut interrupted = 0;
     for delay in [0, 5, 10, 20, 40, 60, 90, 130, 180, 250] {
+        let before = fixture.names("staging");
         let mut child = fixture
             .command()
             .args(["skills", "resolve", "--json"])
@@ -346,10 +370,11 @@ fn a_killed_publisher_never_publishes_a_partial_descriptor() {
             .stderr(Stdio::null())
             .spawn()
             .unwrap();
+        let reached = staging_appeared(&fixture, &before, &mut child);
         thread::sleep(Duration::from_millis(delay));
         let _ = child.kill();
         let status = child.wait().unwrap();
-        if status.code().is_none() {
+        if reached && status.code().is_none() {
             interrupted += 1;
         }
         descriptors_complete(&fixture, &files);
@@ -360,7 +385,7 @@ fn a_killed_publisher_never_publishes_a_partial_descriptor() {
     }
     assert!(
         interrupted > 0,
-        "no publisher was killed during its resolution"
+        "no publisher was killed after its capture began"
     );
     // A killed publisher leaves its staging. The next resolution succeeds and
     // removes only its own staging.
@@ -398,20 +423,34 @@ fn controlled_concurrent_edits_refuse_as_changed_and_every_published_object_is_c
     write(&source.join(churn), states[0]);
     fixture.skills(&source);
 
+    // The editor writes each state beside the source and renames it into
+    // place, so the file always holds one complete state. A truncating write
+    // could let a quiet capture keep an empty file, which the non-atomic
+    // contract allows.
     let stop = Arc::new(AtomicBool::new(false));
     let editor = {
-        let (stop, path) = (stop.clone(), source.join(churn));
+        let (stop, path, spare) = (
+            stop.clone(),
+            source.join(churn),
+            fixture.root.join("tmp/churn"),
+        );
         thread::spawn(move || {
             let mut index = 0;
             while !stop.load(Ordering::SeqCst) {
                 index = 1 - index;
-                fs::write(&path, states[index]).unwrap();
+                fs::write(&spare, states[index]).unwrap();
+                fs::rename(&spare, &path).unwrap();
                 thread::sleep(Duration::from_micros(300));
             }
         })
     };
+    // The scheduler decides whether an edit falls inside a capture, so the
+    // fixture resolves until it observes a refusal, within a bound.
     let (mut refused, mut succeeded) = (0, 0);
-    for _ in 0..6 {
+    for attempt in 0..40 {
+        if attempt >= 6 && refused > 0 {
+            break;
+        }
         let output = fixture.resolve();
         match output.status.code() {
             Some(0) => {
@@ -725,4 +764,42 @@ fn a_filesystem_that_keeps_case_and_normalisation_forms_keeps_both() {
         fs::read_to_string(tree.join("s/cafe\u{301}.md")).unwrap(),
         "nfd"
     );
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn a_link_that_only_the_source_filesystem_resolves_refuses_on_a_case_sensitive_cache() {
+    let mut fixture = Fixture::new();
+    // The source is on the case-insensitive volume of the temporary directory,
+    // so the link reaches `Guide.md` through another spelling.
+    let source = fixture.root.join("source");
+    write(&source.join("s/Guide.md"), "guide");
+    symlink("guide.md", source.join("s/alias.md")).unwrap();
+    assert_eq!(
+        fs::read_to_string(source.join("s/alias.md")).unwrap(),
+        "guide"
+    );
+    fixture.skills(&source);
+
+    // On a case-insensitive cache the retained link works, so it resolves.
+    let resolved = fixture.resolved();
+    let tree = PathBuf::from(resolved["sources"][0]["snapshotRoot"].as_str().unwrap());
+    assert_eq!(
+        fs::read_to_string(tree.join("s/alias.md")).unwrap(),
+        "guide"
+    );
+
+    // On a case-sensitive cache the same link would be dangling.
+    let volume = fixture.image("sensitive", "Case-sensitive APFS", "16m");
+    fixture.home = volume.join("home");
+    fs::create_dir_all(&fixture.home).unwrap();
+    fixture.skills(&source);
+    let error = fixture.refused(3);
+    assert_eq!(error["code"], "skill_resource_invalid", "{error}");
+    let message = error["message"].as_str().unwrap();
+    assert!(message.contains("s/alias.md"), "{message}");
+    assert!(message.contains("cache filesystem"), "{message}");
+    assert!(fixture.names("descriptors").is_empty());
+    assert!(fixture.names("snapshots").is_empty());
+    assert!(fixture.names("staging").is_empty());
 }

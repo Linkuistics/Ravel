@@ -261,6 +261,10 @@ every nonregular filesystem object refuse too. A source path can itself be a
 symlink. Ravel canonicalises the source root once, then applies the boundary
 to every captured entry.
 
+An admitted link must also work in the written tree on the cache filesystem.
+A link that the source filesystem resolves through another spelling of a name,
+and the cache filesystem does not, refuses as `skill_resource_invalid`.
+
 Each path must be exact UTF-8, with no NUL and no control character. Capture
 copies bytes, so a hard link in a mutable source never backs a snapshot.
 
@@ -269,7 +273,8 @@ spellings. Ravel then refuses as `skill_resource_invalid` before publication,
 and it names the paths. That includes a collision of case or of Unicode
 normalisation. Ravel never writes one entry over another, and it never
 normalises a name. It checks the written tree against the source manifest,
-including every directory segment.
+including every directory segment. A name or a link target in the written tree
+that is not exact UTF-8 matches no manifest entry.
 
 A relative reference to a supporting resource resolves against the directory
 of its skill. That includes a `../` reference that stays inside the source. The
@@ -367,6 +372,11 @@ or unsafe symlink reaches refuses as `skill_cache_unavailable`. Ravel does not
 walk a substituted cache tree. Cache writes use held directory identities and
 staging directories that only the owner can open.
 
+Before each publication, the cache paths must still reach the held root and
+each of its held directories. The staging name must still hold the staging
+directory that Ravel wrote and checked, before and after the rename. A
+replacement refuses as `skill_cache_unavailable`.
+
 Ravel materialises and checks each snapshot privately. The identity of a
 snapshot is a SHA-256 digest of a versioned, sorted and length-delimited
 manifest. The manifest holds the relative paths, the entry types, the
@@ -395,7 +405,9 @@ owns the lifetime trade-off. Snapshots and descriptors stay after a refusal,
 after a session or delegate exits, after a settings change and after an
 upgrade. A later cache format uses a new directory and keeps the older paths.
 Ordinary cleanup removes only the private staging objects of the resolver that
-made them, and it reports each cleanup failure.
+made them, and it reports each cleanup failure. It removes the contents through
+the held staging directory. It removes the staging name only while that name
+holds the same directory.
 
 Ravel has **no automatic collector and no prune command**. Manual removal
 requires that no affected reader runs. Removal of staging also requires that no

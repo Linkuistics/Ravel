@@ -72,7 +72,11 @@
   directory on the path to the cache and keeps the cache open while it writes.
   An unsafe or changed path refuses as `skill_cache_unavailable`. A failed removal of its own
   temporary directory after a successful run refuses as
-  `skill_cleanup_failed`, exit 5.
+  `skill_cleanup_failed`, exit 5. A cache directory or a temporary directory
+  that another writer replaces during the run refuses as
+  `skill_cache_unavailable`, and cleanup leaves the replacement in place. A
+  link that the source filesystem resolves and the cache filesystem does not
+  refuses as `skill_resource_invalid`.
 - Bound each skill resolution. At most 16 sources, 256 search directories and
   256 mandatory files can be configured. A mandatory file has at most 65,536
   bytes, a regular file 16 MiB, one source 128 MiB, all sources 512 MiB and

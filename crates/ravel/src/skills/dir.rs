@@ -318,6 +318,16 @@ impl Dir {
         self.unlink(name, true)
     }
 
+    /// Remove everything beneath this directory, restoring write permission
+    /// on it first. The directory itself stays.
+    pub fn clear(&self) -> io::Result<()> {
+        self.chmod(0o700)?;
+        for child in self.list()? {
+            self.remove_tree(&child)?;
+        }
+        Ok(())
+    }
+
     /// Rename `name` in this directory to `to_name` in `to`, failing with
     /// `EEXIST` or `ENOTEMPTY` when the destination exists.
     pub fn rename_noreplace(&self, name: &OsStr, to: &Dir, to_name: &OsStr) -> io::Result<()> {

@@ -665,6 +665,9 @@ pub(crate) mod faults {
         pub listed: Option<PathHook>,
         /// Before each check of the held cache root, with the cache path.
         pub publishing: Option<PathHook>,
+        /// After the check of a staging name, just before its rename, with
+        /// the staging path.
+        pub renaming: Option<PathHook>,
         /// Before the removal of a staging tree, with its path. An error
         /// stands for a failed removal.
         pub removing: Option<FailHook>,
@@ -709,6 +712,10 @@ pub(crate) mod faults {
 
     pub fn publishing(path: &Path) {
         fire(|hooks| &mut hooks.publishing, |hook| hook(path));
+    }
+
+    pub fn renaming(path: &Path) {
+        fire(|hooks| &mut hooks.renaming, |hook| hook(path));
     }
 
     pub fn limits() -> Option<super::bounds::Limits> {

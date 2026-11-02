@@ -100,13 +100,33 @@ impl Staging {
         self.dir.path()
     }
 
-    /// Remove this staging tree, and nothing else.
+    /// Remove this staging tree, and nothing else. The contents go through
+    /// the held directory. The name goes only while it still holds that
+    /// directory, so a directory that another writer put at the name stays.
     pub fn cleanup(&mut self) -> io::Result<()> {
         if !self.armed {
             return Ok(());
         }
         self.armed = false;
-        self.parent.remove_tree(&self.name)
+        #[cfg(test)]
+        super::faults::removing(self.dir.path())?;
+        self.dir.clear()?;
+        if !self.named()? {
+            return Err(io::Error::other(
+                "its name no longer holds the staging directory that Ravel made",
+            ));
+        }
+        self.parent.unlink(&self.name, true)
+    }
+
+    /// Whether the staging name still holds the held staging directory.
+    fn named(&self) -> io::Result<bool> {
+        let held = self.dir.stat()?.identity();
+        match self.parent.stat_at(&self.name) {
+            Ok(named) => Ok(named.identity() == held),
+            Err(error) if error.kind() == ErrorKind::NotFound => Ok(false),
+            Err(error) => Err(error),
+        }
     }
 
     /// The directory is published, so it is not staging any longer.
@@ -220,6 +240,29 @@ fn staged(
     written.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
     if written != entries {
         return Err(not_kept(root, source, &entries, &written));
+    }
+    // Each admitted link must work in the written tree too. A case-insensitive
+    // or normalising source filesystem can reach a target through another
+    // spelling of a name, which the cache filesystem does not resolve.
+    let tree_path = staging.path().join(tree);
+    for entry in &entries {
+        let Kind::Link { target } = &entry.kind else {
+            continue;
+        };
+        let origin = root.join(&entry.path);
+        match walk.chain(&tree_path, &entry.path, target) {
+            Ok(()) => {}
+            Err(Chain::Refused(_)) => {
+                return Err(walk.link_refused(
+                    &origin,
+                    target,
+                    "the cache filesystem does not resolve, although the source filesystem \
+                     does; spell each name on its path as the entry spells it",
+                ));
+            }
+            Err(Chain::Unreadable(path, error)) => return Err(walk.staging_failed(&path, &error)),
+            Err(Chain::Invalid(refusal)) => return Err(refusal),
+        }
     }
     let digest = hex(&Sha256::digest(&manifest));
     budget.total_bytes += walk.bytes;
@@ -603,9 +646,20 @@ impl Walk<'_> {
     /// source, with no cycle and no reserved entry, and return its target.
     fn link(&self, origin: &Path, relative: &str, target: &OsStr) -> Result<String, Refusal> {
         let target = self.link_text(origin, target)?;
+        match self.chain(self.root, relative, &target) {
+            Ok(()) => Ok(target),
+            Err(Chain::Refused(why)) => Err(self.link_refused(origin, &target, why)),
+            Err(Chain::Unreadable(path, error)) => Err(self.unreadable(&path, &error)),
+            Err(Chain::Invalid(refusal)) => Err(refusal),
+        }
+    }
+
+    /// Follow the link at `relative` with `target` below `base`, through
+    /// every link of its chain, on the filesystem that holds `base`.
+    fn chain(&self, base: &Path, relative: &str, target: &str) -> Result<(), Chain> {
         let mut current: Vec<String> = relative.split('/').map(str::to_owned).collect();
         current.pop();
-        let mut pending: Vec<String> = segments(&target);
+        let mut pending: Vec<String> = segments(target);
         let mut hops = 0;
         while !pending.is_empty() {
             let segment = pending.remove(0);
@@ -613,84 +667,46 @@ impl Walk<'_> {
                 "" | "." => {}
                 ".." => {
                     if current.pop().is_none() {
-                        return Err(self.link_refused(origin, &target, "leaves the source"));
+                        return Err(Chain::Refused("leaves the source"));
                     }
                 }
                 name => {
                     if RESERVED.contains(&name) {
-                        return Err(self.link_refused(
-                            origin,
-                            &target,
-                            "reaches an entry that capture leaves out",
-                        ));
+                        return Err(Chain::Refused("reaches an entry that capture leaves out"));
                     }
                     current.push(name.to_owned());
-                    let reached = self.root.join(current.join("/"));
+                    let reached = base.join(current.join("/"));
                     let metadata = match std::fs::symlink_metadata(&reached) {
                         Ok(metadata) => metadata,
                         Err(error) if error.kind() == ErrorKind::NotFound => {
-                            return Err(self.link_refused(origin, &target, "is dangling"));
+                            return Err(Chain::Refused("is dangling"));
                         }
-                        Err(error) => return Err(self.unreadable(&reached, &error)),
+                        Err(error) => return Err(Chain::Unreadable(reached, error)),
                     };
-                    if self.reserved_alias(&reached, name, &metadata)? {
-                        return Err(self.link_refused(
-                            origin,
-                            &target,
-                            "reaches an entry that capture leaves out",
-                        ));
+                    if reserved_alias(&reached, name, &metadata)? {
+                        return Err(Chain::Refused("reaches an entry that capture leaves out"));
                     }
                     if metadata.file_type().is_symlink() {
                         hops += 1;
                         if hops > LINK_HOPS {
-                            return Err(self.link_refused(origin, &target, "is a cycle"));
+                            return Err(Chain::Refused("is a cycle"));
                         }
                         let next = std::fs::read_link(&reached)
-                            .map_err(|error| self.unreadable(&reached, &error))?;
-                        let next = self.link_text(&reached, next.as_os_str())?;
+                            .map_err(|error| Chain::Unreadable(reached.clone(), error))?;
+                        let next = self
+                            .link_text(&reached, next.as_os_str())
+                            .map_err(Chain::Invalid)?;
                         current.pop();
                         let mut chained = segments(&next);
                         chained.extend(pending);
                         pending = chained;
                     } else if !pending.is_empty() && !metadata.is_dir() {
-                        return Err(self.link_refused(origin, &target, "is dangling"));
+                        return Err(Chain::Refused("is dangling"));
                     }
                 }
             }
         }
-        Ok(target)
-    }
-
-    /// Whether the entry `reached`, which a link names `name`, is a reserved
-    /// entry of its directory under another spelling. A case-insensitive or
-    /// normalising filesystem resolves such a spelling, but capture leaves
-    /// the stored entry out. A listed entry with the exact name is a distinct
-    /// entry, such as a hard link to a reserved file, and capture keeps it.
-    fn reserved_alias(
-        &self,
-        reached: &Path,
-        name: &str,
-        metadata: &std::fs::Metadata,
-    ) -> Result<bool, Refusal> {
-        let Some(parent) = reached.parent() else {
-            return Ok(false);
-        };
-        let identity = (metadata.dev(), metadata.ino());
-        let reserved = RESERVED.iter().any(|reserved| {
-            std::fs::symlink_metadata(parent.join(reserved))
-                .is_ok_and(|entry| (entry.dev(), entry.ino()) == identity)
-        });
-        if !reserved {
-            return Ok(false);
-        }
-        let listing = std::fs::read_dir(parent).map_err(|error| self.unreadable(parent, &error))?;
-        for entry in listing {
-            let entry = entry.map_err(|error| self.unreadable(parent, &error))?;
-            if entry.file_name().as_bytes() == name.as_bytes() {
-                return Ok(false);
-            }
-        }
-        Ok(true)
+        Ok(())
     }
 
     fn link_text(&self, origin: &Path, target: &OsStr) -> Result<String, Refusal> {
@@ -798,6 +814,40 @@ impl Walk<'_> {
     }
 }
 
+/// Why a link chain stops: a rule of the source boundary, an entry that
+/// cannot be read, or a link target that capture refuses.
+enum Chain {
+    Refused(&'static str),
+    Unreadable(PathBuf, io::Error),
+    Invalid(Refusal),
+}
+
+/// Whether the entry `reached`, which a link names `name`, is a reserved
+/// entry of its directory under another spelling. A case-insensitive or
+/// normalising filesystem resolves such a spelling, but capture leaves the
+/// stored entry out. A listed entry with the exact name is a distinct entry,
+/// such as a hard link to a reserved file, and capture keeps it.
+fn reserved_alias(reached: &Path, name: &str, metadata: &std::fs::Metadata) -> Result<bool, Chain> {
+    let Some(parent) = reached.parent() else {
+        return Ok(false);
+    };
+    let identity = (metadata.dev(), metadata.ino());
+    let reserved = RESERVED.iter().any(|reserved| {
+        std::fs::symlink_metadata(parent.join(reserved))
+            .is_ok_and(|entry| (entry.dev(), entry.ino()) == identity)
+    });
+    if !reserved {
+        return Ok(false);
+    }
+    let unreadable = |error| Chain::Unreadable(parent.to_owned(), error);
+    for entry in std::fs::read_dir(parent).map_err(unreadable)? {
+        if entry.map_err(unreadable)?.file_name().as_bytes() == name.as_bytes() {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
 /// A file copy that met an existing name, or that refused.
 enum Copy {
     Exists(io::Error),
@@ -809,14 +859,14 @@ fn segments(text: &str) -> Vec<String> {
 }
 
 /// The entries of a written tree, with the content digest of each file read
-/// back from storage. A name that is not UTF-8 keeps its lossy spelling, which
-/// can match no manifest path.
+/// back from storage. A name or a link target that is not exact UTF-8 reads
+/// back as [`exact`] spells it, which no manifest entry can equal.
 fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>, watch: &Watch) -> io::Result<()> {
     for raw in dir.list()? {
         watch.tick()?;
-        let name = String::from_utf8_lossy(raw.as_bytes());
+        let name = exact(&raw);
         let path = if relative.is_empty() {
-            name.into_owned()
+            name
         } else {
             format!("{relative}/{name}")
         };
@@ -846,7 +896,7 @@ fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>, watch: &Watch)
                 entries.push(Entry {
                     path,
                     kind: Kind::Link {
-                        target: String::from_utf8_lossy(target.as_bytes()).into_owned(),
+                        target: exact(&target),
                     },
                 });
             }
@@ -859,6 +909,17 @@ fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>, watch: &Watch)
         }
     }
     Ok(())
+}
+
+/// The text of `raw` when it is exact UTF-8. Otherwise a spelling that starts
+/// with NUL and escapes each byte. Capture refuses NUL in a name and in a link
+/// target, so no manifest entry can equal it, and a lossy spelling such as
+/// U+FFFD cannot stand for a byte that is not UTF-8.
+fn exact(raw: &OsStr) -> String {
+    match raw.to_str() {
+        Some(text) => text.to_owned(),
+        None => format!("\0{}", raw.as_bytes().escape_ascii()),
+    }
 }
 
 /// The versioned, sorted and length-delimited manifest: one line for each
@@ -994,11 +1055,43 @@ pub fn publish(
     if let Err(refusal) = watch.check().and_then(|()| cache.check()) {
         return Err(after_cleanup(refusal, &mut staging));
     }
+    // The rename moves whatever the staging name holds, so the name must
+    // still hold the directory that Ravel wrote and checked.
+    match staging.named() {
+        Ok(true) => {}
+        Ok(false) => {
+            let refusal = staging_replaced(staging.path(), None);
+            return Err(after_cleanup(refusal, &mut staging));
+        }
+        Err(error) => {
+            let refusal = unavailable(staging.path(), &error);
+            return Err(after_cleanup(refusal, &mut staging));
+        }
+    }
+    #[cfg(test)]
+    super::faults::renaming(staging.path());
     let renamed = staging
         .parent
         .rename_noreplace(&staging.name, parent, OsStr::new(name));
     match renamed {
         Ok(()) => {
+            // A substitution between the check and the rename published
+            // another directory under the name.
+            let published = staging.dir.stat().and_then(|held| {
+                parent
+                    .stat_at(OsStr::new(name))
+                    .map(|named| named.identity() == held.identity())
+            });
+            match published {
+                Ok(true) => {}
+                Ok(false) => {
+                    let refusal = staging_replaced(staging.path(), Some(&object));
+                    return Err(after_cleanup(refusal, &mut staging));
+                }
+                Err(error) => {
+                    return Err(after_cleanup(unavailable(&object, &error), &mut staging));
+                }
+            }
             staging.disarm();
             staging
                 .dir
@@ -1041,6 +1134,37 @@ pub fn publish(
             }
         }
         Err(error) => Err(after_cleanup(unavailable(&object, &error), &mut staging)),
+    }
+}
+
+/// The staging name held another directory when Ravel published it. With
+/// `published`, that directory now stands at the object name.
+fn staging_replaced(staging: &Path, published: Option<&Path>) -> Refusal {
+    match published {
+        None => refuse(
+            "skill_cache_unavailable",
+            format!(
+                "the staging {} was replaced before its publication; Ravel publishes only the \
+                 directory that it wrote and checked",
+                staging.display()
+            ),
+            "keep other writers out of ~/.cache/ravel/skills/v1 while Ravel resolves, then \
+             resolve again",
+        )
+        .source(staging.display().to_string()),
+        Some(object) => refuse(
+            "skill_cache_unavailable",
+            format!(
+                "the staging {} was replaced during its publication, so the object {} does not \
+                 hold the directory that Ravel wrote and checked",
+                staging.display(),
+                object.display()
+            ),
+            "keep other writers out of ~/.cache/ravel/skills/v1, stop the readers of the \
+             object, then move it out of the cache to quarantine it, or remove it, and resolve \
+             again",
+        )
+        .source(object.display().to_string()),
     }
 }
 

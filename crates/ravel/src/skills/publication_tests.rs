@@ -1,15 +1,20 @@
 //! Internal fault seams of capture and publication: controlled source edits
-//! at fixed points of the scan, a cache link replaced before publication, a
-//! planted winner and a failed removal of staging. The public fixtures in
+//! at fixed points of the scan, a cache link or cache directory replaced
+//! before publication, a staging directory replaced before or during its
+//! rename, a planted winner and a failed removal of staging. The public fixtures in
 //! `tests/skills_publication.rs` cover what the CLI can show without a seam.
 //!
 //! These edits are controlled, so each refusal here is certain. They do not
 //! prove that capture is atomic against every concurrent writer, which it is
 //! not (docs/specs/skill-discovery.md#local-freshness).
 
+use std::cell::Cell;
+use std::ffi::OsStr;
 use std::fs;
+use std::os::unix::ffi::OsStrExt as _;
 use std::os::unix::fs::{PermissionsExt as _, symlink};
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use serde_json::json;
 use sha2::{Digest as _, Sha256};
@@ -391,6 +396,216 @@ fn the_losing_publisher_reads_the_winner_back_and_reuses_only_an_identical_one()
             .join("snapshots")
             .join(&home.names("snapshots")[0]);
         assert!(winner.join("tree").exists(), "{case}");
+    }
+}
+
+#[test]
+fn a_replaced_cache_directory_refuses_and_its_substitute_receives_nothing() {
+    for child in ["staging", "snapshots", "descriptors"] {
+        let home = Home::new();
+        let held = home.cache().join(child);
+        let aside = home.cache().join(format!("{child}-held"));
+        let (from, to) = (held.clone(), aside.clone());
+        let mut swapped = false;
+        install(Hooks {
+            publishing: Some(Box::new(move |_| {
+                if !swapped {
+                    swapped = true;
+                    fs::rename(&from, &to).unwrap();
+                    fs::create_dir(&from).unwrap();
+                    fs::set_permissions(&from, fs::Permissions::from_mode(0o700)).unwrap();
+                }
+            })),
+            ..Hooks::default()
+        });
+        let refusal = home.resolve().unwrap_err();
+        install(Hooks::default());
+        assert_eq!(
+            refusal.code, "skill_cache_unavailable",
+            "{child}: {}",
+            refusal.message
+        );
+        assert!(
+            refusal.message.contains("no longer reaches"),
+            "{child}: {}",
+            refusal.message
+        );
+        assert!(
+            refusal.message.contains(&format!("v1/{child}")),
+            "{child}: {}",
+            refusal.message
+        );
+        // The substitute holds nothing, and the held directories no staging
+        // and no descriptor.
+        assert_eq!(fs::read_dir(&held).unwrap().count(), 0, "{child}");
+        for name in ["staging", "descriptors"] {
+            let dir = if name == child {
+                aside.clone()
+            } else {
+                home.cache().join(name)
+            };
+            assert_eq!(fs::read_dir(&dir).unwrap().count(), 0, "{child}: {name}");
+        }
+    }
+}
+
+/// Move the first capture staging aside at a hook point and put a copy with
+/// a changed resource at its name.
+fn substitute_staging(cache: PathBuf) -> impl FnMut(&Path) {
+    let mut done = false;
+    move |_| {
+        if done {
+            return;
+        }
+        let staging = cache.join("staging");
+        let Some(capture) = fs::read_dir(&staging)
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .find(|path| {
+                path.file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .starts_with("capture-")
+            })
+        else {
+            return;
+        };
+        done = true;
+        let aside = staging.join("aside");
+        fs::rename(&capture, &aside).unwrap();
+        let copied = std::process::Command::new("cp")
+            .arg("-R")
+            .arg(&aside)
+            .arg(&capture)
+            .status()
+            .unwrap();
+        assert!(copied.success());
+        let _ = std::process::Command::new("chmod")
+            .arg("-R")
+            .arg("u+w")
+            .arg(&capture)
+            .status();
+        fs::write(capture.join("tree/top.md"), "SUBSTITUTE").unwrap();
+    }
+}
+
+#[test]
+fn a_replaced_staging_is_never_published_and_cleanup_spares_it() {
+    let home = Home::new();
+    install(Hooks {
+        publishing: Some(Box::new(substitute_staging(home.cache()))),
+        ..Hooks::default()
+    });
+    let refusal = home.resolve().unwrap_err();
+    install(Hooks::default());
+    assert_eq!(
+        refusal.code, "skill_cache_unavailable",
+        "{}",
+        refusal.message
+    );
+    assert!(
+        refusal.message.contains("was replaced"),
+        "{}",
+        refusal.message
+    );
+    // Cleanup removed the contents of its own staging, which is now aside,
+    // and left the substitute at the staging name. It reports the name.
+    assert!(
+        refusal.message.contains("was not removed"),
+        "{}",
+        refusal.message
+    );
+    assert!(home.names("snapshots").is_empty());
+    assert!(home.names("descriptors").is_empty());
+    let staging = home.names("staging");
+    assert_eq!(staging.len(), 2, "{staging:?}");
+    let aside = home.cache().join("staging/aside");
+    assert_eq!(fs::read_dir(aside).unwrap().count(), 0);
+    let substitute = staging.iter().find(|name| *name != "aside").unwrap();
+    let substitute = home.cache().join("staging").join(substitute);
+    assert_eq!(
+        fs::read_to_string(substitute.join("tree/top.md")).unwrap(),
+        "SUBSTITUTE"
+    );
+}
+
+#[test]
+fn a_staging_replaced_just_before_its_rename_refuses_after_the_rename() {
+    let home = Home::new();
+    install(Hooks {
+        renaming: Some(Box::new(substitute_staging(home.cache()))),
+        ..Hooks::default()
+    });
+    let refusal = home.resolve().unwrap_err();
+    install(Hooks::default());
+    assert_eq!(
+        refusal.code, "skill_cache_unavailable",
+        "{}",
+        refusal.message
+    );
+    assert!(
+        refusal.message.contains("was replaced"),
+        "{}",
+        refusal.message
+    );
+    assert!(refusal.remedy.contains("quarantine"), "{}", refusal.remedy);
+    // The substitute took the snapshot name, so no descriptor names it.
+    assert!(home.names("descriptors").is_empty());
+    let aside = home.cache().join("staging/aside");
+    assert_eq!(fs::read_dir(aside).unwrap().count(), 0);
+}
+
+#[test]
+fn a_winner_that_differs_only_in_bytes_that_are_not_utf8_refuses_as_corrupt() {
+    // U+FFFD is valid UTF-8, so capture keeps it in a name and a link target.
+    // A lossy readback would spell the byte FF the same way.
+    let replacement = "\u{fffd}.md";
+    type Alter = Box<dyn Fn(&Path) -> bool>;
+    let alterations: Vec<(&str, Alter)> = vec![
+        (
+            "a link target",
+            Box::new(|tree: &Path| {
+                let link = tree.join("s/a/l.md");
+                fs::remove_file(&link).unwrap();
+                symlink(OsStr::from_bytes(b"\xff.md"), &link).unwrap();
+                true
+            }),
+        ),
+        (
+            "a file name",
+            Box::new(move |tree: &Path| {
+                // APFS refuses a name that is not UTF-8; Linux keeps it.
+                fs::rename(
+                    tree.join("s/a").join(replacement),
+                    tree.join("s/a").join(OsStr::from_bytes(b"\xff.md")),
+                )
+                .is_ok()
+            }),
+        ),
+    ];
+    for (case, alter) in alterations {
+        let home = Home::new();
+        fs::write(home.source.join("s/a").join(replacement), "r").unwrap();
+        symlink(replacement, home.source.join("s/a/l.md")).unwrap();
+        let altered = Rc::new(Cell::new(false));
+        let seen = altered.clone();
+        install(plant_winner(home.cache(), move |tree| {
+            seen.set(alter(tree));
+        }));
+        let outcome = home.resolve();
+        install(Hooks::default());
+        if !altered.get() {
+            eprintln!("{case}: this filesystem cannot hold the altered name");
+            continue;
+        }
+        let refusal = outcome.unwrap_err();
+        assert_eq!(
+            refusal.code, "skill_cache_corrupt",
+            "{case}: {}",
+            refusal.message
+        );
+        assert!(home.names("descriptors").is_empty(), "{case}");
     }
 }
 
