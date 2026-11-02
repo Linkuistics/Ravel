@@ -4,8 +4,9 @@ The [specification](specs/skill-discovery.md) states the proposed directory
 contract of the `skill-directory-delivery` line. This record gives the source
 observations behind it, the exact base of the line, the stage handoff and the
 checks of these documents. It also records the
-[handoff of the local stage](#local-stage-record) and the
-[withdrawal of Git acquisition](#withdrawal-of-git-acquisition). The design session read
+[handoff of the local stage](#local-stage-record), the
+[withdrawal of Git acquisition](#withdrawal-of-git-acquisition) and the
+[local-sources stage record](#local-sources-stage-record). The design session read
 Ravel source at `main` and changed no product code. The decision records own the decisions, and this
 record adds no second decision register.
 
@@ -201,7 +202,9 @@ implementation.
    reads local sources only, and its formula declares no Git. The next
    implementation stage rebases at entry in the same way. It replaces the
    temporary refusal and its fixture, as the
-   [implementation handoff](#implementation-handoff) lists.
+   [implementation handoff](#implementation-handoff) lists. Grove's
+   `ravel-local-sources-k90` did this work, and the
+   [local-sources stage record](#local-sources-stage-record) gives its build.
 6. Grove's `common-loading-acceptance-k29` runs the actual harness trials in
    sandbox homes. Rollout, under Grove's `discovery-rollout-k6`, owns the final
    rebase, the full checks, the landing on `main` and the 2.0.0 release
@@ -235,8 +238,8 @@ frame bound. It records each platform where no request can pass it. The
 ## Local stage record
 
 Grove's `ravel-local-handoff-k61` closed the local stage on 2026-11-02. The next
-implementation stage and Grove's dual-Ravel stage use this build as their base. Nobody
-pushed the line, and no release consumes it.
+implementation stage used this build as its base. Nobody pushed the line, and
+no release consumes it.
 
 | Subject | Record |
 | --- | --- |
@@ -326,8 +329,10 @@ cover it. Ravel `main` stays at `24a545236185`.
 
 ### Implementation handoff
 
-The specification now states the permanent outcome of a Git record. The next
-implementation stage changes the build to match it:
+The specification states the permanent outcome of a Git record. The next
+implementation stage changed the build to match it, as the
+[local-sources stage record](#local-sources-stage-record) shows. The list
+below is the work that it did:
 
 1. Make `type` accept only `local`, and check it before the other fields of a
    record.
@@ -344,6 +349,53 @@ implementation stage changes the build to match it:
 7. Make the public tamper test check the remedy of `skill_cache_corrupt`.
 8. Remove the Git parts of the book and of `CHANGELOG.md`.
 9. Remove the pinned-stage notes in code comments and tests.
+
+## Local-sources stage record
+
+Grove's `ravel-local-sources-k90` changed the build to the local-source
+contract on 2026-11-03. Grove's dual-Ravel stage uses this build as its
+directory build. Nobody pushed the line, and no release consumes it.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185b0910ba6117fe8f9e8b2e2c8a748`. `jj git fetch` reported no change, so the line needed no rebase. The stage worked above `7a894c782037`, the narrowing of Grove's `ravel-local-sources-k78` |
+| Build commit | `78332fcc367d7f28d04c3de10361b687bbf89319`, with the parent `7a894c782037`. Every check below ran on this commit, with an empty working copy |
+| Output commit | The child of the build commit. It changes only this record. Grove's task record names its identity |
+| Build identity | `9feb86b7982a3920f738b96ffd2d6e6bc1744d6345b87451196e9299721fb234`, from the routing notice of the directory launch in `task smoke:pair`. The output commit changes no input of the identity, so it has the same identity |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1, `rustc` commit `58cf8f9c3` of 2026-10-13. The SHA-256 of `Cargo.lock` is `a06e97c65ecca6d1490180467621834d4cd1c4a7d7fcffb142d4c86566e07266`, the same as at the local stage |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `151635d25169e6a76c7eed0a1de64af661b3d77554c9bbef88ab85a59afb823d`. The tree digest of `task smoke:pair` for the prefix is `c0682c0f891e66225c1f0ffce81fad6713d6fb029292d11e8b920fbe90deadf8` |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 728 of 728 run tests passed, and 48 were skipped |
+| `task test:cli` | Exit 0. 14 of 14 run tests passed, and 1 was skipped |
+| `task harness:smoke:test` | Exit 0 |
+| The seven book tasks | Each exits 0. `task docs:excerpts:test` killed 24 of 24 mutants |
+| `task test:native-linux PLATFORM=arm64` | Exit 0, with `failed=0` and unchanged subjects. 721 of 721 run tests passed, and 48 were skipped. The image is `ravel-native-linux:arm64`, Ubuntu 26.04.1, on kernel 7.0.14-linuxkit. The new fixtures ran with the Git of the image. No amd64 run occurred |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link |
+| `task smoke:pair` | Exit 0, against the Homebrew release at `/opt/homebrew/Cellar/ravel/1.1.0`. The two launches overlapped, each under its own home. The 1.1.0 release refused the `skills` settings with status 2. The tree digests of the 1.1.0 installation, the feature installation and the real `~/.config/ravel` were the same before and after. The real `~/.cache/ravel` was absent before and after |
+
+The build now refuses a missing `type`, or any value other than `local`, as
+`settings_invalid`, stage `cli`, exit 2, at `skills.sources[N].type`. Ravel
+reads `type` first, and it checks no other field of that record. The remedy
+says that `type` is `local`, and it tells the owner to make any checkout with
+a tool outside Ravel. Every other `settings_invalid` keeps the generic
+settings remedy.
+
+The "Local sources only" fixtures run at `skills resolve` and at
+`start-session`. Each puts a spy `git` first on the `PATH` of Ravel. A record
+with `type: "git"` and valid Git fields refuses with no cache, and no worker runs
+for the launch. A plain Git checkout with a changed tracked file and an
+untracked file then resolves and launches. The snapshot holds both changes and
+no `.git` entry, and the spy records no call. The launch tamper test also
+checks the remedy of `skill_cache_corrupt`.
+
+Controls failed as expected before the build commit. A parser that checked
+unknown fields before `type` failed the unit test and the resolve fixture.
+The generic remedy in place of the checkout remedy failed both public
+fixtures. The spy recorded a call when it ran.
 
 ## Consumer handoff
 
