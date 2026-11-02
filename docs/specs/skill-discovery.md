@@ -18,13 +18,8 @@ install or update them, as
 [skill sources are local directories](../adr/skill-sources-are-local-directories.md)
 records.
 
-The local stage of the line implements this contract, except the refusal of a
-source `type` other than `local`. Its build refuses a valid Git record with
-status 3 and the internal code `skill_git_unsupported`. It refuses a malformed
-Git record at the malformed field, and another type with the generic settings
-remedy. Its book and changelog still describe Git sources. The next
-implementation stage replaces all of these with the rule in
-[settings](#settings).
+The line implements this contract, with the refusal of a source `type` other
+than `local` in [settings](#settings).
 
 The [actual harness trials](#actual-harness-trials) are still ahead.
 The [design evidence](../skill-discovery-design-evidence.md)

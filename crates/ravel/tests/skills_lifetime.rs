@@ -6,9 +6,8 @@
 //! acceptance".
 //!
 //! These rows run here: "Lifetime", the unconfined part of "Nested sessions"
-//! and the fixture part of "Directory recovery". The Git half of "Lifetime",
-//! the loss of offline reuse, belongs to the pinned stage. Agent behaviour
-//! after a compaction belongs to the actual harness trials.
+//! and the fixture part of "Directory recovery". Agent behaviour after a
+//! compaction belongs to the actual harness trials.
 //!
 //! The fixture programs read the descriptor with `sed` and `grep`. The
 //! descriptor is compact JSON, and the temporary paths hold no quote or

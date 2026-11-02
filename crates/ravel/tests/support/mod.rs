@@ -112,3 +112,57 @@ pub fn mkfifo(path: &Path) {
     // SAFETY: a valid NUL-terminated temporary fixture path.
     assert_eq!(unsafe { libc::mkfifo(path.as_ptr(), 0o600) }, 0);
 }
+
+/// A plain Git checkout at `dir` with one commit, then uncommitted changes: a
+/// changed tracked file and an untracked file. The caller's own `git` makes
+/// it, with no global or system configuration and `scratch` as its HOME. It
+/// returns the committed and the working bytes of `SKILL.md`.
+pub fn git_checkout(dir: &Path, scratch: &Path) -> (&'static str, &'static str) {
+    const COMMITTED: &str = "committed\n";
+    const WORKING: &str = "uncommitted change\n";
+    let git = |args: &[&str]| {
+        let output = Command::new("git")
+            .current_dir(dir)
+            .env("HOME", scratch)
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .args([
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.invalid",
+            ])
+            .args([
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "init.defaultBranch=main",
+            ])
+            .args(args)
+            .output()
+            .expect("git starts");
+        assert!(
+            output.status.success(),
+            "git {args:?}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    };
+    write(&dir.join("s/x/SKILL.md"), COMMITTED);
+    git(&["init", "-q"]);
+    git(&["add", "-A"]);
+    git(&["commit", "-q", "-m", "fixture"]);
+    write(&dir.join("s/x/SKILL.md"), WORKING);
+    write(&dir.join("s/x/untracked.md"), "untracked\n");
+    (COMMITTED, WORKING)
+}
+
+/// A spy `git` at `bin/git` that records each call in `calls` and fails.
+pub fn spy_git(bin: &Path, calls: &Path) {
+    use std::os::unix::fs::PermissionsExt as _;
+    let path = bin.join("git");
+    write(
+        &path,
+        &format!("#!/bin/sh\nprintf '%s\\n' \"$*\" >> {calls:?}\nexit 1\n"),
+    );
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).unwrap();
+}

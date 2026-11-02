@@ -29,7 +29,7 @@ use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 use crate::settings::{SETTINGS_FILE, Settings};
 use bounds::{Actual, Limits};
 use cache::Cache;
-use settings::{Origin, SkillSettings};
+use settings::SkillSettings;
 use snapshot::{Budget, Expected, MANIFEST_FILE, TREE_DIR};
 use watch::Watch;
 
@@ -152,7 +152,6 @@ fn watched(
         "the configured mandatory files",
     )
     .map_err(|refusal| refusal.location("skills.mandatory"))?;
-    refuse_git(skills)?;
     let protected = Protected::new(home, also);
     let origins = skills
         .sources
@@ -319,30 +318,6 @@ fn bounded(subject: bounds::Subject, bound: u64, bytes: usize, what: &str) -> Re
     Ok(())
 }
 
-/// The local build acquires no Git source. It refuses a valid one before any
-/// acquisition, with no stable public code, until the pinned stage lands.
-fn refuse_git(skills: &SkillSettings) -> Result<(), Refusal> {
-    let Some((index, source)) = skills
-        .sources
-        .iter()
-        .enumerate()
-        .find(|(_, source)| matches!(source.origin, Origin::Git { .. }))
-    else {
-        return Ok(());
-    };
-    Err(refuse(
-        "skill_git_unsupported",
-        format!(
-            "the source {:?} is a valid Git source, but this build of Ravel acquires local \
-             sources only",
-            source.id
-        ),
-        "Git acquisition arrives with the unfinished pinned-delivery stage; use a local source \
-         for now, or remove the Git source from the settings",
-    )
-    .location(format!("skills.sources[{index}]")))
-}
-
 /// The protected paths: the configuration directory, the settings file, the
 /// cache and the inherited result channel, each also in its canonical form
 /// when it exists.
@@ -400,9 +375,7 @@ fn origin(
     source: &settings::SourceSetting,
     protected: &Protected,
 ) -> Result<LocalOrigin, Refusal> {
-    let Origin::Local { path } = &source.origin else {
-        unreachable!("Git sources refuse before this point");
-    };
+    let path = &source.path;
     let at = format!("skills.sources[{index}]");
     let missing = |what: String| {
         refuse(

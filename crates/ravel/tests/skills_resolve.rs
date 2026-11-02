@@ -1,6 +1,8 @@
 //! The public `ravel skills resolve` seam with local sources: temporary homes,
 //! working directories and source trees, and no configuration script.
 //! docs/specs/skill-discovery.md, "Test seams and acceptance".
+mod support;
+
 use std::fs;
 use std::os::unix::fs::{PermissionsExt as _, symlink};
 use std::path::{Path, PathBuf};
@@ -20,7 +22,12 @@ impl Fixture {
     fn new() -> Self {
         let root = tempfile::tempdir().unwrap().keep().canonicalize().unwrap();
         let home = root.join("home");
-        for path in [&home, &root.join("work"), &root.join("tmp")] {
+        for path in [
+            &home,
+            &root.join("work"),
+            &root.join("tmp"),
+            &root.join("bin"),
+        ] {
             fs::create_dir_all(path).unwrap();
         }
         Fixture { root, home }
@@ -32,7 +39,10 @@ impl Fixture {
             .env_clear()
             .env("HOME", &self.home)
             .env("TMPDIR", self.root.join("tmp"))
-            .env("PATH", "/usr/bin:/bin")
+            .env(
+                "PATH",
+                format!("{}:/usr/bin:/bin", self.root.join("bin").display()),
+            )
             .current_dir(self.root.join("work"));
         command
     }
@@ -258,10 +268,18 @@ fn directory_delivery_shows_retained_paths_in_configured_order() {
             "{root}"
         );
         assert!(root.contains(digest), "{root}");
-        // A Git-only field is absent from a local record.
-        for field in ["url", "revision", "subdir"] {
-            assert!(source.get(field).is_none(), "{field}");
-        }
+        // The source record holds exactly the specified fields.
+        let mut fields: Vec<&str> = source
+            .as_object()
+            .unwrap()
+            .keys()
+            .map(String::as_str)
+            .collect();
+        fields.sort_unstable();
+        assert_eq!(
+            fields,
+            ["id", "originPath", "resourceDigest", "snapshotRoot", "type"]
+        );
     }
     assert_eq!(
         paths(&resolved["directories"]),
@@ -820,29 +838,50 @@ fn a_source_that_overlaps_the_protected_configuration_or_the_cache_refuses() {
     }
 }
 
+/// "Local sources only": a Git record refuses at its `type` as a settings
+/// problem, and a Git checkout with uncommitted changes is an ordinary local
+/// source. A spy `git` first on `PATH` sees no call.
 #[test]
-fn a_valid_git_source_refuses_before_any_acquisition_without_a_settings_code() {
+fn a_git_record_refuses_at_its_type_and_a_checkout_resolves_without_git() {
     let fixture = Fixture::new();
+    let calls = fixture.root.join("git-calls");
+    support::spy_git(&fixture.root.join("bin"), &calls);
     let source = fixture.source("pack", &[("SKILL.md", "x")]);
     fixture.skills(skills(
         vec![
             local("pack", &source, &["."]),
-            json!({"id": "pinned", "type": "git", "url": "https://example.com/p.git",
+            json!({"id": "former", "type": "git", "url": "https://example.com/p.git",
                    "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".", "roots": ["."]}),
         ],
         vec![],
     ));
-    let error = fixture.refused(3);
-    assert_eq!(error["code"], "skill_git_unsupported");
-    assert_eq!(error["stage"], "skills");
-    assert_eq!(error["location"], "skills.sources[1]");
-    assert!(
-        error["remedy"]
-            .as_str()
-            .unwrap()
-            .contains("pinned-delivery stage")
-    );
+    let error = fixture.refused(2);
+    assert_eq!(error["code"], "settings_invalid", "{error}");
+    assert_eq!(error["stage"], "cli", "{error}");
+    assert_eq!(error["location"], "skills.sources[1].type", "{error}");
+    let remedy = error["remedy"].as_str().unwrap();
+    for text in ["\"local\"", "checkout", "outside Ravel"] {
+        assert!(remedy.contains(text), "{text}: {remedy}");
+    }
     assert!(!fixture.home.join(".cache").exists());
+
+    let checkout = fixture.root.join("sources/checkout");
+    fs::create_dir_all(&checkout).unwrap();
+    let (_, working) = support::git_checkout(&checkout, &fixture.root.join("tmp"));
+    fixture.skills(skills(vec![local("checkout", &checkout, &["s"])], vec![]));
+    let resolved = fixture.resolved();
+    assert_eq!(resolved["sources"][0]["type"], "local");
+    let tree = PathBuf::from(resolved["sources"][0]["snapshotRoot"].as_str().unwrap());
+    assert_eq!(
+        fs::read_to_string(tree.join("s/x/SKILL.md")).unwrap(),
+        working
+    );
+    assert_eq!(
+        fs::read_to_string(tree.join("s/x/untracked.md")).unwrap(),
+        "untracked\n"
+    );
+    assert!(!tree.join(".git").exists());
+    assert!(!calls.exists(), "{}", fs::read_to_string(&calls).unwrap());
 }
 
 #[test]

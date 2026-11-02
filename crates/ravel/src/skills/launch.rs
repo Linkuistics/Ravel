@@ -76,7 +76,7 @@ impl Delivery {
             .iter()
             .map(|source| {
                 let mut record = Map::new();
-                for field in ["id", "type", "resourceDigest", "revision"] {
+                for field in ["id", "type", "resourceDigest"] {
                     if let Some(value) = source.get(field) {
                         record.insert(field.to_owned(), value.clone());
                     }

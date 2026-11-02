@@ -5,9 +5,10 @@
 //!
 //! The launch parts of these rows run here: "Directory delivery", "Filesystem
 //! versus skill semantics", "Settings and bootstrap", "Relative resources",
-//! "Request and evaluation", "Host reads", "Standalone acquisition", the
-//! unconfined part of "Harness runs", the empty task of "Bounds and frames" and
-//! schema 3 and 4 with sources of "Version transition".
+//! "Local sources only", "Corrupt object", "Request and evaluation", "Host
+//! reads", "Standalone acquisition", the unconfined part of "Harness runs",
+//! the empty task of "Bounds and frames" and schema 3 and 4 with sources of
+//! "Version transition".
 
 mod support;
 
@@ -832,9 +833,14 @@ fn schema_3_refuses_with_sources_and_schema_4_launches_with_them() {
     assert!(notice["skills"].is_object(), "{notice}");
 }
 
+/// "Local sources only" at launch: a Git record refuses at its `type` before
+/// the worker, and a Git checkout with uncommitted changes launches. A spy
+/// `git` first on `PATH` sees no call.
 #[test]
-fn a_valid_git_source_refuses_the_launch_until_the_pinned_stage() {
+fn a_git_record_refuses_the_launch_at_its_type_and_a_checkout_launches_without_git() {
     let fixture = Fixture::new();
+    let calls = fixture.root.join("git-calls");
+    support::spy_git(&fixture.bin, &calls);
     fixture.skills(skills(
         vec![json!({
             "id": "g", "type": "git", "url": "https://example.com/r.git",
@@ -845,8 +851,35 @@ fn a_valid_git_source_refuses_the_launch_until_the_pinned_stage() {
     ));
     fixture.personal_rhai(UNPARSED);
     let refused = fixture.start_with(&[], "p");
-    assert_eq!(refused.refusal(3)["error"]["code"], "skill_git_unsupported");
+    let error = refused.refusal(2)["error"].clone();
+    assert_eq!(error["code"], "settings_invalid", "{error}");
+    assert_eq!(error["stage"], "cli", "{error}");
+    assert_eq!(error["location"], "skills.sources[0].type", "{error}");
+    let remedy = error["remedy"].as_str().unwrap();
+    for text in ["\"local\"", "checkout", "outside Ravel"] {
+        assert!(remedy.contains(text), "{text}: {remedy}");
+    }
     assert!(!fixture.home.join(".cache").exists());
+    assert!(fixture.left_in_tmp().is_empty());
+
+    let checkout = fixture.root.join("sources/checkout");
+    fs::create_dir_all(&checkout).unwrap();
+    let (_, working) = support::git_checkout(&checkout, &fixture.tmp);
+    fixture.skills(skills(vec![local("checkout", &checkout, &["s"])], vec![]));
+    fixture.personal_rhai(&route("fake-agent", "[]"));
+    let notice = fixture.start_with(&[], "p").report();
+    let descriptor: Value = serde_json::from_str(
+        &fs::read_to_string(notice["skills"]["descriptorPath"].as_str().unwrap()).unwrap(),
+    )
+    .unwrap();
+    let tree = PathBuf::from(descriptor["sources"][0]["snapshotRoot"].as_str().unwrap());
+    assert_eq!(
+        fs::read_to_string(tree.join("s/x/SKILL.md")).unwrap(),
+        working
+    );
+    assert!(tree.join("s/x/untracked.md").is_file());
+    assert!(!tree.join(".git").exists());
+    assert!(!calls.exists(), "{}", fs::read_to_string(&calls).unwrap());
 }
 
 #[test]
@@ -926,6 +959,10 @@ fn a_tampered_snapshot_and_an_unsafe_cache_path_refuse_the_launch_before_the_wor
         "{document}"
     );
     assert_eq!(document["error"]["stage"], "skills");
+    let remedy = document["error"]["remedy"].as_str().unwrap();
+    for text in ["stop the readers", "quarantine", "resolve again"] {
+        assert!(remedy.contains(text), "{text}: {remedy}");
+    }
     assert_eq!(refused.stderr.lines().count(), 1, "{}", refused.stderr);
     assert!(fixture.left_in_tmp().is_empty());
     assert_eq!(fs::read_to_string(&file).unwrap(), "tampered");

@@ -677,7 +677,11 @@ evaluates no configuration script, creates no result channel and launches no
 harness. It takes no skill name, task, prompt or source override. Ravel reads
 no `SKILL.md` file, no frontmatter and no skill name.
 
-For each configured local source, the command copies the current bytes of the
+Each source is a local directory. Ravel runs no Git or other VCS command and
+makes no network request for a source. A checkout of a repository is an
+ordinary local source, and a tool outside Ravel makes and updates it.
+
+For each configured source, the command copies the current bytes of the
 whole source directory. The copy leaves out each `.git` and `.jj` entry, at
 every level. The command checks each search directory and each mandatory file
 in the copy. Then it stores an immutable snapshot of the copy in the cache. It
@@ -720,7 +724,7 @@ With `--json`, a resolved object holds these members:
 | `schemaVersion` | `1`. |
 | `status` | `"resolved"`. A disabled object holds only `schemaVersion` and `status`. |
 | `descriptorPath` | The absolute path of the retained `directories.json`. |
-| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest`, `snapshotRoot` and, for a local source, `originPath`. |
+| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest`, `snapshotRoot` and `originPath`. |
 | `directories` | One record for each search directory: `source` and the absolute `path`. A repeated path appears once, at its first position. |
 | `mandatory` | One record for each mandatory file, in configured order: `source` and the absolute `path`. |
 | `instructions` | The discovery instructions, without the final newline of the plain form. |
@@ -846,10 +850,6 @@ HUP. Ravel then raises the same signal again, so the caller sees that signal.
 A signal that arrives before another refusal wins over that refusal. The
 report keeps the other refusal as the original failure. A launch applies the
 same deadline and the same cancellation before its worker starts.
-
-> **Note:** This build acquires local sources only. A valid Git source refuses
-> before any acquisition, with status 3. Its remedy names the unfinished
-> pinned-delivery stage. The refusal has no stable public code.
 
 ### Skill delivery at launch
 
@@ -1097,7 +1097,7 @@ after the supervision attempt. The tables below give each member.
 | `config` | The configuration script: `path`, the canonical path of its entry, `version`, the owner's `VERSION` string, and `modules`, the file measurements described below. |
 | `worker` | `path`, the re-executed binary, `version`, its package version, `buildId`, its build identity, and `rhaiVersion`, its Rhai version. Ravel checks the worker identity before evaluation. This is not code signing. |
 | `selectionMs` | The elapsed time of the evaluation of the configuration script, in milliseconds. |
-| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured` for a local source. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
+| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured`. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
 | `context` | `null` when there is no delivered selection context. Otherwise, the report in the next table. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message`, `diagnostics` and `harnessRuns`. Each has its field for the value with a unit (`ms`, `bytes`, `sources` or `runs`) and `from`. `from` gives `default`, `fixed`, `settings.json` or the flag that set the value. |
 | `configEnvironment` | An array of `{name, set}` grants. `set` is a boolean that shows whether the caller has the variable, never its value. Ravel does not add the [base variables](#variables-that-ravel-and-the-configuration-script-read) that `ravel::env` permits to this list. |
@@ -1443,9 +1443,8 @@ The first character is a letter or digit. Ravel refuses unknown nested fields.
 | `skills.schemaVersion` | Required. The integer `1`. |
 | `skills.sources` | Required array of source records, in the order of presentation. An empty array and an empty `mandatory` array disable delivery. |
 | `skills.sources[N].id` | Required unique token of 1 to 64 lowercase ASCII letters and digits. Single hyphens separate groups, and the first character is a letter. |
-| `skills.sources[N].type` | Required. `local`, or `git` for an exact commit. |
-| `skills.sources[N].path` | Local only, and required. An absolute UTF-8 directory path. Ravel expands no tilde and no environment variable. |
-| `skills.sources[N].url`, `.revision`, `.subdir` | Git only, and required. An HTTPS, SSH or `file://` URL without credentials, or an absolute path. A full lowercase commit ID of 40 or 64 hexadecimal digits. A normalised directory in the repository, `.` for its root. |
+| `skills.sources[N].type` | Required. `local`, the only source type. Ravel reads it before the other fields of the record. A missing value or another value refuses at this location. |
+| `skills.sources[N].path` | Required. An absolute UTF-8 directory path. Ravel expands no tilde and no environment variable. |
 | `skills.sources[N].roots` | Required nonempty array of search directories, relative to the source. `.` is the source itself. A repeated root refuses. |
 | `skills.mandatory` | Required array of records with exactly `source` and `path`, in the order to read them. `source` names a configured source ID. `path` is a file, relative to that source, and `.` is not a file. A repeated reference refuses. |
 | `skills.resolutionTimeoutMs` | Optional integer from 1,000 to 3,600,000. Default: 120,000. It bounds one complete resolution, and a breach refuses as `skill_resolution_timeout`, status 124. No flag changes it. |
@@ -1462,6 +1461,7 @@ These problems report `settings_invalid`, status 2:
 - a `configEnv` that is not an array of strings
 - a malformed `harnesses` entry or `budgets` object, also an invalid `harnessRuns` value
 - a malformed `skills` object, an unknown field in it, or a mandatory record that names an unknown source
+- a source `type` other than `local`, such as `git`. The remedy tells you to make any checkout of a repository with a tool outside Ravel, and to name its directory in a `local` record
 - a repeated member name in any object of the file, for every key
 
 Invalid `timeoutMs` or `contextBytes` values and malformed grant names use `malformed_input`, and

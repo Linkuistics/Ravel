@@ -32,8 +32,11 @@
   delivery disabled, the command prints nothing and creates no cache. The
   snapshots and descriptors stay after the session, after a change or removal
   of the source and after a change of the settings. Ravel has no collector
-  and no prune command. In this
-  build, a Git source refuses. A later stage of this release adds it.
+  and no prune command. A source is a local directory, and its `type` is
+  `local`. Another `type` refuses as `settings_invalid`, exit 2, at
+  `skills.sources[N].type`. The remedy tells the owner to make any checkout
+  with a tool outside Ravel. Ravel runs no VCS command and makes no network
+  request for a source.
   Two mandatory references that reach one retained file refuse as
   `skill_mandatory_invalid`. A link to another spelling of `.git` or `.jj`
   refuses as `skill_resource_invalid`. A source that holds the cache path

@@ -1,5 +1,5 @@
 //! The `skills` key of the owner settings file, checked whole before any
-//! acquisition. The skill discovery specification owns each rule here
+//! capture. The skill discovery specification owns each rule here
 //! (docs/specs/skill-discovery.md#settings).
 
 use std::collections::BTreeSet;
@@ -28,23 +28,14 @@ impl SkillSettings {
     }
 }
 
+/// A `local` source, the only source type.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SourceSetting {
     pub id: String,
-    pub origin: Origin,
+    /// An absolute directory path, exactly as configured.
+    pub path: String,
     /// Normalised search directories, relative to the source directory.
     pub roots: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Origin {
-    /// An absolute directory path, exactly as configured.
-    Local { path: String },
-    Git {
-        url: String,
-        revision: String,
-        subdir: String,
-    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -55,19 +46,28 @@ pub struct MandatorySetting {
     pub path: String,
 }
 
-/// A malformed value: where it is, and what is wrong with it.
+/// A malformed value: where it is, what is wrong with it and, where the
+/// generic settings remedy does not cover it, its own remedy.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Problem {
     pub location: String,
     pub what: String,
+    pub remedy: Option<&'static str>,
 }
 
 fn problem(location: impl Into<String>, what: impl Into<String>) -> Problem {
     Problem {
         location: location.into(),
         what: what.into(),
+        remedy: None,
     }
 }
+
+/// The remedy of a source `type` other than `local`. It covers a misspelt
+/// value and a former Git record alike.
+pub const TYPE_REMEDY: &str = "set type to \"local\", the only source type; make any checkout \
+     of a repository with a tool outside Ravel, and name its directory in a local record with \
+     path";
 
 /// Check the value of the `skills` key.
 pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
@@ -171,20 +171,23 @@ pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
 
 fn source(value: &Value, at: &str) -> Result<SourceSetting, Problem> {
     let fields = object(value, at)?;
-    let kind = string(required(fields, at, "type")?, &format!("{at}.type"))?;
-    let origin_fields: &[&str] = match kind {
-        "local" => &["path"],
-        "git" => &["url", "revision", "subdir"],
-        _ => {
-            return Err(problem(
-                format!("{at}.type"),
-                format!("is {kind:?}, not \"local\" or \"git\""),
-            ));
+    // `type` comes first: no other field of a record with another type is
+    // checked, so a former Git record refuses here and nowhere else.
+    let type_at = format!("{at}.type");
+    match fields.get("type") {
+        Some(Value::String(kind)) if kind == "local" => {}
+        found => {
+            let what = match found {
+                None => "is missing".to_owned(),
+                Some(value) => format!("is {value}, not \"local\""),
+            };
+            return Err(Problem {
+                remedy: Some(TYPE_REMEDY),
+                ..problem(type_at, what)
+            });
         }
-    };
-    let mut allowed = vec!["id", "type", "roots"];
-    allowed.extend_from_slice(origin_fields);
-    only(fields, at, &allowed)?;
+    }
+    only(fields, at, &["id", "type", "path", "roots"])?;
 
     let id_at = format!("{at}.id");
     let id = string(required(fields, at, "id")?, &id_at)?;
@@ -198,55 +201,17 @@ fn source(value: &Value, at: &str) -> Result<SourceSetting, Problem> {
         ));
     }
 
-    let origin = if kind == "local" {
-        let path_at = format!("{at}.path");
-        let path = string(required(fields, at, "path")?, &path_at)?;
-        if !path.starts_with('/') || has_control(path) {
-            return Err(problem(
-                path_at,
-                format!(
-                    "is {path:?}, not an absolute directory path; Ravel expands no tilde and no \
-                     environment variable"
-                ),
-            ));
-        }
-        Origin::Local {
-            path: path.to_owned(),
-        }
-    } else {
-        let url_at = format!("{at}.url");
-        let url = string(required(fields, at, "url")?, &url_at)?;
-        if !git_url(url) {
-            return Err(problem(
-                url_at,
-                format!(
-                    "is {url:?}, not an HTTPS, SSH or file:// URL without credentials, or the \
-                     absolute path of a local repository"
-                ),
-            ));
-        }
-        let revision_at = format!("{at}.revision");
-        let revision = string(required(fields, at, "revision")?, &revision_at)?;
-        if !matches!(revision.len(), 40 | 64)
-            || !revision
-                .bytes()
-                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-        {
-            return Err(problem(
-                revision_at,
-                format!(
-                    "is {revision:?}, not a full lowercase commit object ID of 40 or 64 \
-                     hexadecimal digits; a ref, a tag or an abbreviated ID refuses"
-                ),
-            ));
-        }
-        let subdir = relative(required(fields, at, "subdir")?, &format!("{at}.subdir"))?;
-        Origin::Git {
-            url: url.to_owned(),
-            revision: revision.to_owned(),
-            subdir,
-        }
-    };
+    let path_at = format!("{at}.path");
+    let path = string(required(fields, at, "path")?, &path_at)?;
+    if !path.starts_with('/') || has_control(path) {
+        return Err(problem(
+            path_at,
+            format!(
+                "is {path:?}, not an absolute directory path; Ravel expands no tilde and no \
+                 environment variable"
+            ),
+        ));
+    }
 
     let roots_at = format!("{at}.roots");
     let values = array(required(fields, at, "roots")?, &roots_at)?;
@@ -268,7 +233,7 @@ fn source(value: &Value, at: &str) -> Result<SourceSetting, Problem> {
 
     Ok(SourceSetting {
         id: id.to_owned(),
-        origin,
+        path: path.to_owned(),
         roots,
     })
 }
@@ -283,33 +248,6 @@ fn source_id(id: &str) -> bool {
                     .bytes()
                     .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
         })
-}
-
-/// An HTTPS, SSH or `file://` URL with no password, an scp-style SSH locator,
-/// or an absolute path. The pinned stage acquires them; this stage only
-/// checks their shape.
-fn git_url(url: &str) -> bool {
-    if url.is_empty() || has_control(url) || url.contains(char::is_whitespace) {
-        return false;
-    }
-    if url.starts_with('/') {
-        return true;
-    }
-    for scheme in ["https://", "ssh://", "file://"] {
-        if let Some(rest) = url.strip_prefix(scheme) {
-            let authority = rest.split('/').next().unwrap_or_default();
-            let credentials = authority.rsplit_once('@').map(|(user, _)| user);
-            // A user name is ordinary for SSH. A password is a credential.
-            let password = credentials.is_some_and(|user| user.contains(':'));
-            let https_user = scheme == "https://" && credentials.is_some();
-            return !rest.is_empty() && !password && !https_user;
-        }
-    }
-    // `user@host:path`, where no slash comes before the first colon.
-    !url.contains("://")
-        && url
-            .split_once(':')
-            .is_some_and(|(host, path)| !host.is_empty() && !host.contains('/') && !path.is_empty())
 }
 
 /// A normalised relative path: `.`, or segments with no empty segment, no
@@ -394,14 +332,12 @@ mod tests {
 
     #[test]
     fn a_complete_object_parses_in_configured_order() {
-        let git = json!({
-            "id": "research", "type": "git", "url": "https://example.com/r.git",
-            "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": "packs/r",
-            "roots": ["kinds", "craft"]
+        let research = json!({
+            "id": "research", "type": "local", "path": "/packs/r", "roots": ["kinds", "craft"]
         });
         let value = json!({
             "schemaVersion": 1, "resolutionTimeoutMs": 1000,
-            "sources": [local("core", json!([".", "skills"])), git],
+            "sources": [local("core", json!([".", "skills"])), research],
             "mandatory": [{"source": "research", "path": "kinds/a/SKILL.md"},
                           {"source": "core", "path": "spine.md"}]
         });
@@ -422,7 +358,7 @@ mod tests {
                 },
             ]
         );
-        assert!(matches!(settings.sources[1].origin, Origin::Git { .. }));
+        assert_eq!(settings.sources[1].path, "/packs/r");
     }
 
     #[test]
@@ -521,13 +457,6 @@ mod tests {
             ),
             (
                 skills(
-                    json!([{"id": "a", "type": "svn", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].type",
-            ),
-            (
-                skills(
                     json!([{"id": "a", "type": "local", "path": "~/p", "roots": ["."]}]),
                     json!([]),
                 ),
@@ -546,55 +475,6 @@ mod tests {
                     json!([]),
                 ),
                 "skills.sources[0].url",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "/r", "revision": "HEAD", "subdir": ".", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].revision",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "/r", "revision": "0123456789ABCDEF0123456789ABCDEF01234567", "subdir": ".", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].revision",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "/r", "revision": "0123456", "subdir": ".", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].revision",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "http://h/r", "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].url",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "https://u:p@h/r", "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].url",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "/r", "revision": "0123456789abcdef0123456789abcdef01234567", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].subdir",
-            ),
-            (
-                skills(
-                    json!([{"id": "a", "type": "git", "url": "/r", "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": "/x", "roots": ["."]}]),
-                    json!([]),
-                ),
-                "skills.sources[0].subdir",
             ),
             (
                 skills(json!([]), json!([{"source": "a", "path": "x"}])),
@@ -634,28 +514,49 @@ mod tests {
     }
 
     #[test]
-    fn git_locators_take_the_documented_shapes() {
-        for url in [
-            "https://example.com/r.git",
-            "ssh://git@example.com/r.git",
-            "git@example.com:org/r.git",
-            "file:///srv/r.git",
-            "/srv/r.git",
+    fn a_type_other_than_local_refuses_first_with_the_checkout_remedy() {
+        let ok = local("a", json!(["."]));
+        let git = json!({
+            "id": "research", "type": "git", "url": "https://example.com/r.git",
+            "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".",
+            "roots": ["."]
+        });
+        for record in [
+            git,
+            json!({"id": "a", "path": "/p", "roots": ["."]}),
+            json!({"id": "a", "type": "Local", "path": "/p", "roots": ["."]}),
+            json!({"id": "a", "type": "svn", "path": "/p", "roots": ["."]}),
+            json!({"id": "a", "type": 1, "path": "/p", "roots": ["."]}),
+            json!({"id": "a", "type": null, "path": "/p", "roots": ["."]}),
+            // No other field of the record is checked: neither the bad ID,
+            // nor the unknown field, nor the missing roots.
+            json!({"id": "A", "type": "git", "x": 1}),
         ] {
-            assert!(git_url(url), "{url}");
+            let found = parse(&skills(json!([ok, record]), json!([]))).unwrap_err();
+            assert_eq!(found.location, "skills.sources[1].type", "{record}");
+            assert_eq!(found.remedy, Some(TYPE_REMEDY), "{record}");
         }
-        for url in [
-            "",
-            "r.git",
-            "http://h/r",
-            "git://h/r",
-            "https://",
-            "https://u@h/r",
-            "ssh://u:p@h/r",
-            "h :r",
-            "./r",
+        let found = parse(&skills(json!([ok, {"type": "git"}]), json!([]))).unwrap_err();
+        assert_eq!(found.what, "is \"git\", not \"local\"");
+        for text in ["\"local\"", "checkout", "outside Ravel", "path"] {
+            assert!(TYPE_REMEDY.contains(text), "{text}");
+        }
+    }
+
+    #[test]
+    fn only_a_type_problem_carries_its_own_remedy() {
+        for value in [
+            skills(json!([local("A", json!(["."]))]), json!([])),
+            skills(
+                json!([{"id": "a", "type": "local", "url": "/r", "path": "/p", "roots": ["."]}]),
+                json!([]),
+            ),
+            skills(
+                json!([{"id": "a", "type": "local", "roots": ["."]}]),
+                json!([]),
+            ),
         ] {
-            assert!(!git_url(url), "{url}");
+            assert_eq!(parse(&value).unwrap_err().remedy, None, "{value}");
         }
     }
 }

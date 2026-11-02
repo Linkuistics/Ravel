@@ -119,10 +119,12 @@ impl Settings {
                 "budgets" => settings.budgets = budgets(&file, value)?,
                 "skills" => {
                     settings.skills = Some(skill_settings::parse(value).map_err(|problem| {
-                        invalid(
-                            &file,
-                            format!("is invalid at {}: it {}", problem.location, problem.what),
-                        )
+                        let what =
+                            format!("is invalid at {}: it {}", problem.location, problem.what);
+                        match problem.remedy {
+                            None => invalid(&file, what),
+                            Some(remedy) => invalid_with(&file, what, remedy),
+                        }
                         .location(problem.location)
                     })?);
                 }
@@ -189,12 +191,21 @@ fn budgets(file: &str, value: &Value) -> Result<BudgetSettings, Refusal> {
 }
 
 fn invalid(file: &str, what: impl std::fmt::Display) -> Refusal {
+    invalid_with(
+        file,
+        what,
+        "make it one JSON object, with no repeated member name, holding any of timeoutMs, contextBytes, configEnv (an array of variable names), harnesses, budgets and skills, or remove it to set nothing",
+    )
+}
+
+/// A `settings_invalid` refusal whose problem has its own remedy.
+fn invalid_with(file: &str, what: impl std::fmt::Display, remedy: &str) -> Refusal {
     Refusal::new(
         "settings_invalid",
         Stage::Cli,
         EXIT_MALFORMED,
         format!("the owner settings file {file} {what}"),
-        "make it one JSON object, with no repeated member name, holding any of timeoutMs, contextBytes, configEnv (an array of variable names), harnesses, budgets and skills, or remove it to set nothing",
+        remedy,
     )
     .source(file)
 }
