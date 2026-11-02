@@ -3,8 +3,9 @@
 The [specification](specs/skill-discovery.md) states the proposed directory
 contract of the `skill-directory-delivery` line. This record gives the source
 observations behind it, the exact base of the line, the stage handoff and the
-checks of these documents. The design session read Ravel source at `main` and
-changed no product code. The decision records own the decisions, and this
+checks of these documents. It also records the
+[handoff of the local stage](#local-stage-record). The design session read
+Ravel source at `main` and changed no product code. The decision records own the decisions, and this
 record adds no second decision register.
 
 ## Base of the line
@@ -225,6 +226,68 @@ Second, it establishes on which release platforms a request can pass the
 frame bound. It records each platform where no request can pass it. The
 [frame-bound platforms](#frame-bound-platforms) record the result of
 `ravel-schema-four-k53`.
+
+## Local stage record
+
+Grove's `ravel-local-handoff-k61` closed the local stage on 2026-11-02. The
+pinned stage and Grove's dual-Ravel stage use this build as their base. Nobody
+pushed the line, and no release consumes it.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185b0910ba6117fe8f9e8b2e2c8a748`. `jj git fetch` reported no change, so the line needed no rebase |
+| Build commit | `6436e66fdb308e1c06ee683b6e1b7bc341fabe8b`, with the parent `bc737938a72e`. Every check below ran on this commit, with an empty working copy |
+| Output commit | The child of the build commit. It changes only this record. Grove's task record and the brief of `ravel-pinned-delivery-k25` name its identity |
+| Build identity | `2ee59f33657690da4facfb7d055527cd3fd12268494dc03bb48e7c0e954bf312`, from the routing notice of the directory launch. It digests the Rust sources, the manifest, the build script and the lockfile, so the output commit has the same identity |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1, `rustc` commit `58cf8f9c3` of 2026-10-13, from `rust-toolchain.toml`. Cargo 1.99.1. Rhai 1.27.0. The SHA-256 of `Cargo.lock` is `a06e97c65ecca6d1490180467621834d4cd1c4a7d7fcffb142d4c86566e07266` |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0, host target `aarch64-apple-darwin` |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `456c0bb270ef161dd421e05a86fc7130f63f47a2ef8b43fe3df00c633f703fd0`. The tree digest of `task smoke:pair` for the prefix is `75ce73757643abfecf83d20635512d4343456ec810b729f71658f3974d404a6d`. An earlier installation from the same sources gave the same tree digest |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 727 of 727 run tests passed, and 48 were skipped |
+| `task test:cli` | Exit 0. 14 of 14 run tests passed, and 1 was skipped |
+| `task harness:smoke:test` | Exit 0 |
+| The seven book tasks | Each exits 0. `task docs:excerpts:test` killed 24 of 24 mutants |
+| `task test:native-linux PLATFORM=arm64` | Exit 0, with `failed=0`. 720 of 720 run tests passed, and 48 were skipped. The image is `ravel-native-linux:arm64`, Ubuntu 26.04.1 with glibc 2.43, on kernel 7.0.14-linuxkit. No amd64 run occurred |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link, each run with its own empty home under `env -i` |
+| `task smoke:pair` | Exit 0, as described below |
+
+The pair smoke ran the Homebrew release at `/opt/homebrew/Cellar/ravel/1.1.0`
+beside the installed feature build. The SHA-256 of its `bin/ravel` is
+`c52f990b2059c8bbe8efba10a741d3a0311000ac1712d71e882638f54c3ac1ed`. Its worker
+reported the build identity `fa130cc262cfb22541798debe937ecd9e81488ebef494d873d377978808c9d9c`
+and Bun 1.4.2.
+
+- The 1.1.0 release made a native-only launch under one temporary home. Its
+  fake program received the caller prompt byte for byte and no
+  `RAVEL_SKILL_DIRECTORIES`. It sent its result through the 1.1.0
+  executable.
+- The feature build made a directory launch under a second temporary home.
+  Its fake program received the preamble with the caller bytes. It read the
+  mandatory file at its retained path under that home, and
+  `RAVEL_SKILL_DIRECTORIES` named the retained descriptor.
+- Each fake program wrote a marker and waited for the marker of the other, so
+  the two sessions overlapped.
+- A settings file with `skills` under the first home made 1.1.0 refuse as
+  `settings_invalid`, exit 2, before it launched its fake program.
+- `sandbox-exec` denied both runs each read and write in the real home.
+- The tree digests of the 1.1.0 installation, the feature installation and the
+  real `~/.config/ravel` were the same before and after. The real
+  `~/.cache/ravel` was absent before and after. The 1.1.0 tree digest is
+  `ca5e9de82b220caf7973c10adc718e7225d07df0cb20903abca52ccdf621d796`.
+
+Five mutated copies of the script each failed with the expected message. A
+guard without its deny rule failed the guard control. A directory launch with
+the real home failed, because the guard hid the real configuration. A file
+added to the feature prefix failed the digest comparison. A settings file
+without `skills` failed the refusal check. A script that passed
+`originalPrompt` failed the preamble check.
+
+The pair smoke runs on macOS only, because its guard uses `sandbox-exec`.
+This stage ran no installed release of 1.1.0 on Linux. The local build refuses
+every Git source, so it needs no Git executable.
 
 ## Consumer handoff
 
