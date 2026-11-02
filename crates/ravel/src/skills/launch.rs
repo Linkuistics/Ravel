@@ -81,8 +81,14 @@ impl Delivery {
                         record.insert(field.to_owned(), value.clone());
                     }
                 }
-                // A local source is captured on each launch.
-                record.insert("disposition".to_owned(), "captured".into());
+                // A local source is captured on each launch. A Git source is
+                // fetched on each launch until the checked cache hit lands.
+                let disposition = if source["type"] == "git" {
+                    "acquired"
+                } else {
+                    "captured"
+                };
+                record.insert("disposition".to_owned(), disposition.into());
                 Value::Object(record)
             })
             .collect();

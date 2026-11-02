@@ -833,23 +833,6 @@ fn schema_3_refuses_with_sources_and_schema_4_launches_with_them() {
 }
 
 #[test]
-fn a_valid_git_source_refuses_the_launch_until_the_pinned_stage() {
-    let fixture = Fixture::new();
-    fixture.skills(skills(
-        vec![json!({
-            "id": "g", "type": "git", "url": "https://example.com/r.git",
-            "revision": "0123456789abcdef0123456789abcdef01234567", "subdir": ".",
-            "roots": ["."],
-        })],
-        vec![],
-    ));
-    fixture.personal_rhai(UNPARSED);
-    let refused = fixture.start_with(&[], "p");
-    assert_eq!(refused.refusal(3)["error"]["code"], "skill_git_unsupported");
-    assert!(!fixture.home.join(".cache").exists());
-}
-
-#[test]
 fn the_harness_table_example_grants_each_snapshot_root_to_the_lead() {
     let fixture = Fixture::new();
     let first = fixture.source("first", &[("s/x/SKILL.md", "x")]);

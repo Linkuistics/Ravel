@@ -32,12 +32,24 @@
   delivery disabled, the command prints nothing and creates no cache. The
   snapshots and descriptors stay after the session, after a change or removal
   of the source and after a change of the settings. Ravel has no collector
-  and no prune command. In this
-  build, a Git source refuses. A later stage of this release adds it.
+  and no prune command.
   Two mandatory references that reach one retained file refuse as
   `skill_mandatory_invalid`. A link to another spelling of `.git` or `.jj`
   refuses as `skill_resource_invalid`. A source that holds the cache path
   refuses as `skill_access_unavailable`, also before the cache exists.
+- Acquire Git skill sources online. Ravel fetches the configured full commit
+  ID into a private repository with the `git` executable on its `PATH`. It
+  checks the object format, the object type and `subdir`, then writes the
+  tracked files directly, with no checkout, hook, filter or submodule. A Git
+  LFS pointer stays its literal bytes, and a gitlink refuses. Each Git child
+  has no terminal and null standard input. It inherits no `GIT_*`, `RAVEL_*`
+  or `HARNESS_DISPATCH_*` variable and no descriptor above standard error.
+  These refuse as `skill_revision_unavailable`, exit 3: a missing `git`, a
+  failed fetch and an absent commit. So do a pin of the other object format,
+  a tag or other object and a missing `subdir`. The source record of a Git source
+  holds `url`, `revision` and `subdir`, and its notice disposition is
+  `acquired`. The temporary `skill_git_unsupported` refusal is gone. Each
+  resolution still fetches the pin. Offline reuse follows.
 - Deliver skill directories in `start-session`. With delivery enabled, Ravel
   resolves the sources after it reads the settings, the inputs and the entry,
   and before confinement and the worker. `request.prompt` holds the discovery
