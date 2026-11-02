@@ -19,8 +19,10 @@ use std::path::{Path, PathBuf};
 
 use sha2::{Digest as _, Sha256};
 
+use super::bounds::{self, Actual, Limits};
 use super::cache::{Cache, unavailable};
 use super::dir::{self, Dir, Stat, Type};
+use super::watch::{Watch, stopped};
 use super::{Located, refuse};
 use crate::refusal::Refusal;
 
@@ -135,18 +137,28 @@ impl Capture {
     }
 }
 
+/// The bounds of one resolution and the regular-file bytes of the sources
+/// that it captured before this one.
+pub struct Budget {
+    pub limits: Limits,
+    pub total_bytes: u64,
+}
+
 /// Copy the whole canonical source directory `root` into new staging in
 /// `cache`, then check the written tree against the manifest. `mandatory`
 /// holds the configured mandatory paths of this source, so that an unreadable
-/// one reports as mandatory guidance.
+/// one reports as mandatory guidance. The bytes of this source join
+/// `budget` when the capture succeeds.
 pub fn capture(
     root: &Path,
     cache: &Cache,
     source: &Located,
     mandatory: &BTreeSet<String>,
+    watch: &Watch,
+    budget: &mut Budget,
 ) -> Result<Capture, Refusal> {
     let mut staging = Staging::new(cache, "capture-")?;
-    match staged(root, &staging, source, mandatory) {
+    match staged(root, &staging, source, mandatory, watch, budget) {
         Ok((manifest, digest)) => Ok(Capture {
             staging,
             manifest,
@@ -161,11 +173,17 @@ fn staged(
     staging: &Staging,
     source: &Located,
     mandatory: &BTreeSet<String>,
+    watch: &Watch,
+    budget: &mut Budget,
 ) -> Result<(Vec<u8>, String), Refusal> {
     let mut walk = Walk {
         root,
         source,
         mandatory,
+        watch,
+        limits: budget.limits,
+        before: budget.total_bytes,
+        bytes: 0,
         entries: Vec::new(),
     };
     let from = Dir::open(root).map_err(|error| walk.unreadable(root, &error))?;
@@ -195,12 +213,15 @@ fn staged(
     // The written tree must hold exactly the entries of the manifest, with
     // every directory segment, or the cache filesystem did not keep them.
     let mut written = Vec::new();
-    read_tree(&to, "", &mut written).map_err(|error| walk.staging_failed(to.path(), &error))?;
+    read_tree(&to, "", &mut written, watch).map_err(|error| {
+        stopped(error).unwrap_or_else(|error| walk.staging_failed(to.path(), &error))
+    })?;
     written.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
     if written != entries {
         return Err(not_kept(root, source, &entries, &written));
     }
     let digest = hex(&Sha256::digest(&manifest));
+    budget.total_bytes += walk.bytes;
     Ok((manifest, digest))
 }
 
@@ -260,6 +281,12 @@ struct Walk<'a> {
     root: &'a Path,
     source: &'a Located,
     mandatory: &'a BTreeSet<String>,
+    watch: &'a Watch,
+    limits: Limits,
+    /// The regular-file bytes of the sources before this one.
+    before: u64,
+    /// The regular-file bytes of this source so far.
+    bytes: u64,
     entries: Vec<Entry>,
 }
 
@@ -289,6 +316,16 @@ impl Walk<'_> {
             }
             if RESERVED.contains(&name) {
                 continue;
+            }
+            self.watch.check()?;
+            if self.entries.len() as u64 >= self.limits.source_entries {
+                return Err(self.exceeded(
+                    bounds::SOURCE_ENTRIES,
+                    self.limits.source_entries,
+                    Actual::AtLeast(self.entries.len() as u64 + 1),
+                    &format!("the entries of the source {:?}", self.source.id),
+                    self.root,
+                ));
             }
             let name = name.to_owned();
             let path = if relative.is_empty() {
@@ -416,7 +453,7 @@ impl Walk<'_> {
     /// Copy the bytes of one regular file and return its entry. Capture
     /// copies bytes, so a hard link in the source never backs a snapshot.
     fn copy(
-        &self,
+        &mut self,
         from: &Dir,
         to: &Dir,
         raw: &OsStr,
@@ -424,6 +461,8 @@ impl Walk<'_> {
         relative: &str,
         first: &Stat,
     ) -> Result<Entry, Copy> {
+        let size = u64::try_from(first.size).unwrap_or(0);
+        self.admit(origin, size).map_err(Copy::Refused)?;
         let mut input = from.open_file(raw).map_err(|error| {
             Copy::Refused(match error.raw_os_error() {
                 Some(libc::ELOOP | libc::ENOENT) => {
@@ -468,6 +507,7 @@ impl Walk<'_> {
         let mut buffer = vec![0; 64 * 1024];
         let mut copied: u64 = 0;
         loop {
+            self.watch.check().map_err(Copy::Refused)?;
             let read = input
                 .read(&mut buffer)
                 .map_err(|error| Copy::Refused(self.unreadable(origin, &error)))?;
@@ -475,13 +515,19 @@ impl Walk<'_> {
                 break;
             }
             copied += read as u64;
+            // A file that grows past its first size changed, and Ravel stops
+            // before the growth can pass a bound.
+            if copied > size {
+                return Err(Copy::Refused(
+                    self.changed(origin, "changed while Ravel copied it"),
+                ));
+            }
             hasher.update(&buffer[..read]);
             output.write_all(&buffer[..read]).map_err(|error| {
                 Copy::Refused(self.staging_failed(&to.path().join(raw), &error))
             })?;
         }
-        output
-            .sync_all()
+        dir::flush_file(&output)
             .map_err(|error| Copy::Refused(self.staging_failed(&to.path().join(raw), &error)))?;
         #[cfg(test)]
         super::faults::copied(origin);
@@ -492,6 +538,7 @@ impl Walk<'_> {
                 self.changed(origin, "changed while Ravel copied it"),
             ));
         }
+        self.bytes += copied;
         Ok(Entry {
             path: relative.to_owned(),
             kind: Kind::File {
@@ -499,6 +546,56 @@ impl Walk<'_> {
                 digest: hex(&hasher.finalize()),
             },
         })
+    }
+
+    /// Refuse a regular file of `size` bytes that would pass a byte bound,
+    /// before Ravel copies any of its bytes. The bound of a mandatory file
+    /// has its check with the mandatory reference, which a link can reach.
+    fn admit(&self, origin: &Path, size: u64) -> Result<(), Refusal> {
+        let limits = self.limits;
+        if size > limits.resource_bytes {
+            return Err(self.exceeded(
+                bounds::RESOURCE_BYTES,
+                limits.resource_bytes,
+                Actual::Exact(size),
+                &format!("the file {}", origin.display()),
+                origin,
+            ));
+        }
+        let source = self.bytes + size;
+        if source > limits.source_bytes {
+            return Err(self.exceeded(
+                bounds::SOURCE_BYTES,
+                limits.source_bytes,
+                Actual::AtLeast(source),
+                &format!("the regular files of the source {:?}", self.source.id),
+                origin,
+            ));
+        }
+        let total = self.before + source;
+        if total > limits.total_bytes {
+            return Err(self.exceeded(
+                bounds::TOTAL_BYTES,
+                limits.total_bytes,
+                Actual::AtLeast(total),
+                "the regular files of all sources",
+                origin,
+            ));
+        }
+        Ok(())
+    }
+
+    fn exceeded(
+        &self,
+        subject: bounds::Subject,
+        bound: u64,
+        actual: Actual,
+        what: &str,
+        path: &Path,
+    ) -> Refusal {
+        bounds::exceeded(subject, bound, actual, what)
+            .source(path.display().to_string())
+            .location(self.source.location.clone())
     }
 
     /// Admit a relative link whose whole chain of targets ends inside the
@@ -674,8 +771,9 @@ fn segments(text: &str) -> Vec<String> {
 /// The entries of a written tree, with the content digest of each file read
 /// back from storage. A name that is not UTF-8 keeps its lossy spelling, which
 /// can match no manifest path.
-fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>) -> io::Result<()> {
+fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>, watch: &Watch) -> io::Result<()> {
     for raw in dir.list()? {
+        watch.tick()?;
         let name = String::from_utf8_lossy(raw.as_bytes());
         let path = if relative.is_empty() {
             name.into_owned()
@@ -689,7 +787,7 @@ fn read_tree(dir: &Dir, relative: &str, entries: &mut Vec<Entry>) -> io::Result<
                     path: path.clone(),
                     kind: Kind::Directory,
                 });
-                read_tree(&dir.open_dir(&raw)?, &path, entries)?;
+                read_tree(&dir.open_dir(&raw)?, &path, entries, watch)?;
             }
             Type::File => {
                 let mut file = dir.open_file(&raw)?;
@@ -758,12 +856,13 @@ pub fn hex(bytes: &[u8]) -> String {
 /// Remove write permission and set-ID bits from every entry beneath `dir`,
 /// deepest first, but not from `dir`, which the rename must still be able to
 /// move. A file keeps the difference between executable and not.
-fn seal_contents(dir: &Dir) -> io::Result<()> {
+fn seal_contents(dir: &Dir, watch: &Watch) -> io::Result<()> {
     for raw in dir.list()? {
+        watch.tick()?;
         match dir.stat_at(&raw)?.kind() {
             Type::Directory => {
                 let inner = dir.open_dir(&raw)?;
-                seal_contents(&inner)?;
+                seal_contents(&inner, watch)?;
                 inner.chmod(0o555)?;
             }
             Type::File => {
@@ -795,7 +894,7 @@ pub enum Expected<'a> {
 impl Expected<'_> {
     /// Whether the object `dir` holds exactly what it must, read back in
     /// full.
-    fn holds(&self, dir: &Dir) -> io::Result<bool> {
+    fn holds(&self, dir: &Dir, watch: &Watch) -> io::Result<bool> {
         let names = dir.list()?;
         let read = |name: &str| -> io::Result<Vec<u8>> {
             let mut bytes = Vec::new();
@@ -811,7 +910,12 @@ impl Expected<'_> {
                     return Ok(false);
                 }
                 let mut entries = Vec::new();
-                read_tree(&dir.open_dir(OsStr::new(TREE_DIR))?, "", &mut entries)?;
+                read_tree(
+                    &dir.open_dir(OsStr::new(TREE_DIR))?,
+                    "",
+                    &mut entries,
+                    watch,
+                )?;
                 entries.sort_by(|a, b| a.path.as_bytes().cmp(b.path.as_bytes()));
                 Ok(manifest(&entries) == *expected)
             }
@@ -832,15 +936,22 @@ pub fn publish(
     parent: &Dir,
     name: &str,
     expected: &Expected<'_>,
+    watch: &Watch,
 ) -> Result<(PathBuf, Published), Refusal> {
     let object = parent.path().join(name);
-    if let Err(error) = seal_contents(&staging.dir) {
+    if let Err(error) = seal_contents(&staging.dir, watch) {
+        let refusal = stopped(error).unwrap_or_else(|error| unavailable(staging.path(), &error));
+        return Err(after_cleanup(refusal, &mut staging));
+    }
+    // Each file had its own flush. One full flush of the device now orders
+    // them before the rename.
+    if let Err(error) = staging.dir.flush_device() {
         return Err(after_cleanup(
             unavailable(staging.path(), &error),
             &mut staging,
         ));
     }
-    if let Err(refusal) = cache.check() {
+    if let Err(refusal) = watch.check().and_then(|()| cache.check()) {
         return Err(after_cleanup(refusal, &mut staging));
     }
     let renamed = staging
@@ -858,7 +969,14 @@ pub fn publish(
         Err(error) if matches!(error.raw_os_error(), Some(libc::EEXIST | libc::ENOTEMPTY)) => {
             let holds = parent
                 .open_dir(OsStr::new(name))
-                .and_then(|winner| expected.holds(&winner));
+                .and_then(|winner| expected.holds(&winner, watch));
+            let holds = match holds {
+                Ok(holds) => Ok(holds),
+                Err(error) => match stopped(error) {
+                    Ok(refusal) => return Err(after_cleanup(refusal, &mut staging)),
+                    Err(error) => Err(error),
+                },
+            };
             match holds {
                 Ok(true) => {
                     staging
@@ -919,7 +1037,7 @@ pub fn cleanup_failed(path: &Path, error: &io::Error) -> Refusal {
 pub fn write_new(staging: &Staging, name: &str, bytes: &[u8]) -> io::Result<()> {
     let mut file: File = staging.dir.create(OsStr::new(name), 0o600)?;
     file.write_all(bytes)?;
-    file.sync_all()
+    dir::flush_file(&file)
 }
 
 #[cfg(test)]
@@ -958,6 +1076,7 @@ mod tests {
         let home = tempfile::tempdir().unwrap();
         let home = home.path().canonicalize().unwrap();
         let cache = Cache::open(&home).unwrap();
+        let watch = Watch::unbounded();
         let stage = |text: &[u8]| {
             let staging = Staging::new(&cache, "s-").unwrap();
             write_new(&staging, "m", text).unwrap();
@@ -970,6 +1089,7 @@ mod tests {
             &cache.descriptors,
             "obj",
             &expect(b"one"),
+            &watch,
         )
         .unwrap();
         assert_eq!(how, Published::New);
@@ -979,6 +1099,7 @@ mod tests {
             &cache.descriptors,
             "obj",
             &expect(b"one"),
+            &watch,
         )
         .unwrap();
         assert_eq!((again, how), (object.clone(), Published::Existing));
@@ -988,6 +1109,7 @@ mod tests {
             &cache.descriptors,
             "obj",
             &expect(b"two"),
+            &watch,
         )
         .unwrap_err();
         assert_eq!(refusal.code, "skill_cache_corrupt");

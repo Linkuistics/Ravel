@@ -56,6 +56,24 @@
   An unsafe or changed path refuses as `skill_cache_unavailable`. A failed removal of its own
   temporary directory after a successful run refuses as
   `skill_cleanup_failed`, exit 5.
+- Bound each skill resolution. At most 16 sources, 256 search directories and
+  256 mandatory files can be configured. A mandatory file has at most 65,536
+  bytes, a regular file 16 MiB, one source 128 MiB, all sources 512 MiB and
+  one source 20,000 entries. The descriptor and the discovery instructions
+  each have at most 1 MiB. A larger value refuses as `skill_limit_exceeded`,
+  exit 3, with the value, the bound and the subject. Ravel never truncates or
+  omits guidance to meet a bound.
+- Enforce `skills.resolutionTimeoutMs` for capture, checks and publication. A
+  resolution that passes it refuses as `skill_resolution_timeout`, exit 124,
+  with the deadline and the active source and operation. INT, TERM or HUP
+  during a resolution refuses as `skill_resolution_cancelled`, exit 128 plus
+  the signal number. Ravel removes its staging and raises the same signal
+  again. The signal wins over another refusal, which the report keeps. Both
+  `skills resolve` and `start-session` apply these rules.
+- Flush the copied files of a snapshot with one device flush before
+  publication. On macOS each file had its own full flush, at about 5 ms for
+  each file. A resolution of 2,000 small files took 10 seconds and now takes
+  less than 1 second.
 - Refuse a settings file that repeats a member name in any object, as
   `settings_invalid`, stage `cli`, exit 2. The `location` names the repeated
   member.

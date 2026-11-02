@@ -594,7 +594,7 @@ The primary outcome follows this order:
 
 | First applicable condition | Decision |
 |---|---|
-| Cancellation observation exists | `session_cancelled`, no result, selected signal |
+| Cancellation observation exists | `session_cancelled`, no result, selected signal. A cancelled skill resolution keeps its own refusal, `skill_resolution_cancelled` |
 | Original operation failed | Keep that failure and its status |
 | Otherwise, a cleanup failed | First cleanup error, status 5 |
 | Otherwise, an `Ended` reports a group that survives | `process_group_survived`, status 5 |

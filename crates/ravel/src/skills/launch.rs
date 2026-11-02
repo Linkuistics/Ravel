@@ -119,7 +119,13 @@ pub fn prepare(
         Resolution::Disabled => return Ok(None),
         Resolution::Resolved(resolved) => resolved,
     };
-    let prompt = wrap(&resolved.instructions, original, &mut random_nonce)?;
+    // A consumed signal wins over a refusal of the prepared prompt too.
+    let prompt = wrap(&resolved.instructions, original, &mut random_nonce).map_err(|refusal| {
+        let skills = settings.skills.as_ref().expect("delivery is enabled");
+        let watch = super::watch::Watch::start(skills);
+        watch.enter("the preparation of the prompt", None);
+        watch.overrule(refusal)
+    })?;
     Ok(Some(Delivery {
         descriptor_path: resolved.descriptor_path,
         descriptor: resolved.descriptor,

@@ -434,3 +434,128 @@ fn a_failed_removal_of_staging_refuses_as_cleanup_failed_or_joins_the_original_r
         refusal.message
     );
 }
+
+/// The bounds of the descriptor and the preamble cannot be reached on macOS
+/// within the other bounds, so these tests set each limit to the measured
+/// size and to one byte less.
+#[test]
+fn the_descriptor_and_the_preamble_pass_at_their_bounds_and_refuse_one_byte_more() {
+    use super::bounds::Limits;
+    let home = Home::new();
+    let settings = Settings::read(Some(home.home.as_os_str())).unwrap();
+    let Resolution::Resolved(first) = resolve(Some(&home.home), &settings).unwrap() else {
+        panic!("delivery is enabled");
+    };
+    let descriptor = fs::read(&first.descriptor_path).unwrap().len() as u64;
+    let preamble = first.instructions.len() as u64;
+    for (name, limits) in [
+        (
+            "descriptorBytes",
+            (
+                Limits {
+                    descriptor_bytes: descriptor - 1,
+                    ..Limits::SPECIFIED
+                },
+                Limits {
+                    descriptor_bytes: descriptor,
+                    ..Limits::SPECIFIED
+                },
+            ),
+        ),
+        (
+            "preambleBytes",
+            (
+                Limits {
+                    preamble_bytes: preamble - 1,
+                    ..Limits::SPECIFIED
+                },
+                Limits {
+                    preamble_bytes: preamble,
+                    ..Limits::SPECIFIED
+                },
+            ),
+        ),
+    ] {
+        // New content gives a new snapshot and a new descriptor of the same
+        // size, because each digest has a fixed length.
+        fs::write(home.source.join("s/a/notes.md"), name).unwrap();
+        let descriptors = home.names("descriptors");
+        install(Hooks {
+            limits: Some(limits.0),
+            ..Hooks::default()
+        });
+        let refusal = home.resolve().unwrap_err();
+        assert_eq!(refusal.code, "skill_limit_exceeded", "{}", refusal.message);
+        assert_eq!(refusal.bound.unwrap().name, name);
+        assert!(
+            refusal.message.contains("over the bound"),
+            "{}",
+            refusal.message
+        );
+        assert_eq!(home.names("descriptors"), descriptors);
+        assert!(home.names("staging").is_empty());
+        install(Hooks {
+            limits: Some(limits.1),
+            ..Hooks::default()
+        });
+        home.resolve().unwrap();
+        install(Hooks::default());
+        assert_eq!(home.names("descriptors").len(), descriptors.len() + 1);
+    }
+}
+
+/// A refusal that a resolution reaches after a signal was consumed reports
+/// the cancellation, and keeps the refusal as the original failure.
+#[test]
+fn a_consumed_signal_wins_over_a_resolution_refusal() {
+    use super::bounds::Limits;
+    let home = Home::new();
+    install(Hooks {
+        limits: Some(Limits {
+            sources: 0,
+            ..Limits::SPECIFIED
+        }),
+        signal: crate::cancellation::Signal::of(libc::SIGTERM),
+        ..Hooks::default()
+    });
+    let refusal = home.resolve().unwrap_err();
+    install(Hooks::default());
+    assert_eq!(refusal.code, "skill_resolution_cancelled");
+    assert_eq!(refusal.exit, 143);
+    assert!(
+        refusal.message.contains("original failure:"),
+        "{}",
+        refusal.message
+    );
+    assert!(
+        refusal.message.contains("skill_limit_exceeded"),
+        "{}",
+        refusal.message
+    );
+    assert!(!home.root.join("home").join(CACHE_ROOT).exists());
+}
+
+/// A deadline that passes during the copy of a file refuses and removes the
+/// staging of the capture.
+#[test]
+fn a_deadline_that_passes_during_a_copy_removes_the_staging() {
+    let home = Home::new();
+    let path = home.home.join(".config/ravel/settings.json");
+    let skills = json!({"skills": {"schemaVersion": 1, "resolutionTimeoutMs": 1000, "sources": [
+        {"id": "a", "type": "local", "path": home.source, "roots": ["s"]}
+    ], "mandatory": []}});
+    fs::write(path, skills.to_string()).unwrap();
+    install(Hooks {
+        copied: Some(Box::new(|_| {
+            std::thread::sleep(std::time::Duration::from_millis(1_050))
+        })),
+        ..Hooks::default()
+    });
+    let refusal = refused_cleanly(&home, "skill_resolution_timeout");
+    assert_eq!(refusal.exit, 124);
+    assert!(
+        refusal.message.contains("during capture"),
+        "{}",
+        refusal.message
+    );
+}

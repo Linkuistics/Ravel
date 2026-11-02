@@ -501,7 +501,9 @@ A skill refusal stops the launch before the worker starts. For example, a
 missing source or a missing mandatory file refuses with status 3, and no
 managed process starts. [Skill delivery at launch](06-reference.md#skill-delivery-at-launch)
 gives the parts of the prepared prompt, the refusals and the current limit
-for `--confine`.
+for `--confine`. A resolution also has fixed bounds and a deadline, which
+[Bounds, deadline and cancellation](06-reference.md#bounds-deadline-and-cancellation)
+gives.
 
 ## Accept a result only after success
 
@@ -1664,6 +1666,7 @@ caller. What Ravel stops depends on the phase of the session:
 
 | Phase | What runs | What Ravel does at a cancellation |
 |---|---|---|
+| Skill resolution | The copy and the storage of the skill sources, when the owner settings enable delivery | Removes its private temporary directory. Starts no worker. The refusal is `skill_resolution_cancelled`. |
 | Selection | The Rhai worker, and any harness run that the configuration script started | Attempts to stop and reap the harness run, then the worker. Launches no managed process. |
 | Supervision | The managed process and its process group | Attempts to stop the group, to reap the managed process and to recover the terminal. Returns no result, even after a sent result. |
 

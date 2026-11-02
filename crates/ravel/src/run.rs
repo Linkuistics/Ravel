@@ -421,7 +421,12 @@ fn settle(
     source: &str,
     diagnostics: &mut dyn io::Write,
 ) -> Result<String, Failure> {
+    // A cancellation of the skill resolution names its own stage, so it
+    // stays the primary outcome (docs/specs/skill-discovery.md#failures).
+    let resolution = matches!(&result, Err(failure)
+        if failure.refusal.signal.is_some() && failure.refusal.stage == Stage::Skills);
     if signal.is_some()
+        && !resolution
         && let Err(error) = &result
     {
         let _ = diagnostics.write_all(error.to_text().as_bytes());
@@ -435,6 +440,9 @@ fn settle(
     });
     if let Some(pgid) = group {
         let _ = writeln!(diagnostics, "ravel: process group {pgid} survived cleanup");
+    }
+    if resolution {
+        return result;
     }
     if let Some(signal) = signal {
         return Err(Refusal::new(
@@ -560,6 +568,36 @@ mod tests {
         assert!(diagnostics.contains("stdout is closed"));
         assert!(diagnostics.contains("config stdout: owner note"));
         assert!(diagnostics.contains("config stderr: owner warning"));
+    }
+
+    #[test]
+    fn a_cancelled_skill_resolution_stays_the_primary_outcome() {
+        let signal = Signal::of(libc::SIGTERM).unwrap();
+        let mut diagnostics = Vec::new();
+        let cancelled = Refusal::new(
+            "skill_resolution_cancelled",
+            Stage::Skills,
+            signal.exit(),
+            "the skill resolution was cancelled by SIGTERM during capture",
+            "run the same command again",
+        )
+        .signal(signal);
+        let result = settle(
+            Err(cancelled.into()),
+            None,
+            vec![Err(failed("cleanup", "channel cannot be removed"))],
+            Some(signal),
+            "policy.rhai",
+            &mut diagnostics,
+        )
+        .unwrap_err();
+        assert_eq!(result.refusal.code, "skill_resolution_cancelled");
+        assert_eq!(result.refusal.stage, Stage::Skills);
+        assert_eq!(result.refusal.exit, 143);
+        let diagnostics = String::from_utf8(diagnostics).unwrap();
+        assert!(diagnostics.contains("channel cannot be removed"));
+        // The refusal is reported once, by the caller, and not here as well.
+        assert!(!diagnostics.contains("during capture"), "{diagnostics}");
     }
 
     #[test]

@@ -5,6 +5,7 @@
 //! Ravel reads no `SKILL.md`, frontmatter or skill name here. It copies and
 //! checks files, and it shows directories.
 
+mod bounds;
 mod cache;
 pub mod command;
 mod dir;
@@ -14,6 +15,7 @@ mod preamble;
 mod publication_tests;
 pub mod settings;
 mod snapshot;
+pub mod watch;
 
 use std::collections::BTreeSet;
 use std::fs;
@@ -25,9 +27,11 @@ use sha2::{Digest as _, Sha256};
 
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 use crate::settings::{SETTINGS_FILE, Settings};
+use bounds::{Actual, Limits};
 use cache::Cache;
 use settings::{Origin, SkillSettings};
-use snapshot::{Expected, MANIFEST_FILE, TREE_DIR};
+use snapshot::{Budget, Expected, MANIFEST_FILE, TREE_DIR};
+use watch::Watch;
 
 /// The cache root, relative to HOME. A later cache format uses a new
 /// directory and keeps this one.
@@ -107,6 +111,45 @@ pub fn resolve_protecting(
     ) else {
         return Ok(Resolution::Disabled);
     };
+    let watch = Watch::start(skills);
+    let resolved = watched(home, skills, also, Limits::current(), &watch)
+        .and_then(|resolved| {
+            watch.enter("the end of the resolution", None);
+            watch.check().map(|()| resolved)
+        })
+        .map_err(|refusal| watch.overrule(refusal))?;
+    Ok(Resolution::Resolved(resolved))
+}
+
+/// The resolution of enabled delivery under `watch`, within `limits`.
+fn watched(
+    home: &Path,
+    skills: &SkillSettings,
+    also: &[&Path],
+    limits: Limits,
+    watch: &Watch,
+) -> Result<Resolved, Refusal> {
+    bounds::count(
+        bounds::SOURCES,
+        limits.sources,
+        skills.sources.len(),
+        "the configured sources",
+    )
+    .map_err(|refusal| refusal.location("skills.sources"))?;
+    bounds::count(
+        bounds::SEARCH_DIRECTORIES,
+        limits.search_directories,
+        skills.sources.iter().map(|source| source.roots.len()).sum(),
+        "the configured search directories",
+    )
+    .map_err(|refusal| refusal.location("skills.sources"))?;
+    bounds::count(
+        bounds::MANDATORY_FILES,
+        limits.mandatory_files,
+        skills.mandatory.len(),
+        "the configured mandatory files",
+    )
+    .map_err(|refusal| refusal.location("skills.mandatory"))?;
     refuse_git(skills)?;
     let protected = Protected::new(home, also);
     let origins = skills
@@ -115,9 +158,15 @@ pub fn resolve_protecting(
         .enumerate()
         .map(|(index, source)| origin(index, source, &protected))
         .collect::<Result<Vec<_>, _>>()?;
+    watch.enter("the opening of the cache", None);
+    watch.check()?;
     let cache = Cache::open(home)?;
     utf8(&cache.path)?;
 
+    let mut budget = Budget {
+        limits,
+        total_bytes: 0,
+    };
     let mut records = Vec::with_capacity(origins.len());
     for (index, (source, origin)) in skills.sources.iter().zip(&origins).enumerate() {
         let located = Located {
@@ -130,17 +179,39 @@ pub fn resolve_protecting(
             .filter(|reference| reference.source == index)
             .map(|reference| reference.path.clone())
             .collect();
-        let mut capture = snapshot::capture(&origin.canonical, &cache, &located, &mandatory)?;
-        let checked = check_roots(&capture.tree(), source, origin, &located).and_then(|()| {
-            skills
-                .mandatory
-                .iter()
-                .enumerate()
-                .filter(|(_, reference)| reference.source == index)
-                .try_for_each(|(position, reference)| {
-                    check_mandatory(&capture.tree(), &reference.path, origin, &located, position)
-                })
-        });
+        watch.enter("capture", Some(&located));
+        let mut capture = snapshot::capture(
+            &origin.canonical,
+            &cache,
+            &located,
+            &mandatory,
+            watch,
+            &mut budget,
+        )?;
+        watch.enter(
+            "the check of the roots and the mandatory files",
+            Some(&located),
+        );
+        let checked = watch
+            .check()
+            .and_then(|()| check_roots(&capture.tree(), source, origin, &located))
+            .and_then(|()| {
+                skills
+                    .mandatory
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, reference)| reference.source == index)
+                    .try_for_each(|(position, reference)| {
+                        check_mandatory(
+                            &capture.tree(),
+                            &reference.path,
+                            origin,
+                            &located,
+                            position,
+                            limits.mandatory_file_bytes,
+                        )
+                    })
+            });
         if let Err(refusal) = checked {
             return Err(snapshot::after_cleanup(refusal, &mut capture.staging));
         }
@@ -149,6 +220,7 @@ pub fn resolve_protecting(
             manifest,
             digest,
         } = capture;
+        watch.enter("the publication of the snapshot", Some(&located));
         if let Err(error) = snapshot::write_new(&staging, MANIFEST_FILE, &manifest) {
             let refusal = cache::unavailable(staging.path(), &error);
             return Err(snapshot::after_cleanup(refusal, &mut staging));
@@ -161,6 +233,7 @@ pub fn resolve_protecting(
             &Expected::Snapshot {
                 manifest: &manifest,
             },
+            watch,
         )?;
         records.push(Record {
             id: source.id.clone(),
@@ -170,9 +243,27 @@ pub fn resolve_protecting(
         });
     }
 
+    watch.enter("the publication of the descriptor", None);
+    watch.check()?;
     let descriptor = descriptor(skills, &records);
     let bytes = serde_json::to_vec(&descriptor).expect("a JSON value encodes");
+    bounded(
+        bounds::DESCRIPTOR_BYTES,
+        limits.descriptor_bytes,
+        bytes.len(),
+        "the descriptor",
+    )?;
     let digest = snapshot::hex(&Sha256::digest(&bytes));
+    // The preamble names the path that publication gives the descriptor, so
+    // both bounds refuse before anything is published.
+    let descriptor_path = utf8(&cache.descriptors.path().join(&digest).join(DESCRIPTOR_FILE))?;
+    let instructions = preamble::render(&descriptor, &descriptor_path);
+    bounded(
+        bounds::PREAMBLE_BYTES,
+        limits.preamble_bytes,
+        instructions.len(),
+        "the preamble",
+    )?;
     let mut staging = snapshot::Staging::new(&cache, "descriptor-")?;
     if let Err(error) = snapshot::write_new(&staging, DESCRIPTOR_FILE, &bytes) {
         let refusal = cache::unavailable(staging.path(), &error);
@@ -187,16 +278,25 @@ pub fn resolve_protecting(
             name: DESCRIPTOR_FILE,
             bytes: &bytes,
         },
+        watch,
     )?;
     // The reported paths must still name the held objects.
     cache.check()?;
-    let descriptor_path = utf8(&directory.join(DESCRIPTOR_FILE))?;
-    let instructions = preamble::render(&descriptor, &descriptor_path);
-    Ok(Resolution::Resolved(Resolved {
+    debug_assert_eq!(utf8(&directory.join(DESCRIPTOR_FILE))?, descriptor_path);
+    Ok(Resolved {
         descriptor_path,
         descriptor,
         instructions,
-    }))
+    })
+}
+
+/// Refuse the bytes of the descriptor or the preamble over their bound.
+fn bounded(subject: bounds::Subject, bound: u64, bytes: usize, what: &str) -> Result<(), Refusal> {
+    let bytes = bytes as u64;
+    if bytes > bound {
+        return Err(bounds::exceeded(subject, bound, Actual::Exact(bytes), what));
+    }
+    Ok(())
 }
 
 /// The local build acquires no Git source. It refuses a valid one before any
@@ -364,9 +464,26 @@ fn check_mandatory(
     origin: &LocalOrigin,
     located: &Located,
     position: usize,
+    bound: u64,
 ) -> Result<(), Refusal> {
     let path = origin.canonical.join(relative);
     let staged = tree.join(relative);
+    let at = format!("skills.mandatory[{position}]");
+    // A link inside the source can reach the file, so its size counts here
+    // as well as at the copy.
+    if let Ok(metadata) = fs::metadata(&staged)
+        && metadata.is_file()
+        && metadata.len() > bound
+    {
+        return Err(bounds::exceeded(
+            bounds::MANDATORY_FILE_BYTES,
+            bound,
+            Actual::Exact(metadata.len()),
+            &format!("the mandatory file {}", path.display()),
+        )
+        .source(path.display().to_string())
+        .location(at));
+    }
     let problem = match fs::metadata(&staged) {
         Err(error) if matches!(error.kind(), ErrorKind::NotFound | ErrorKind::NotADirectory) => {
             Some("does not exist in the captured source".to_owned())
@@ -393,7 +510,7 @@ fn check_mandatory(
             "restore the mandatory file as UTF-8 text, or change the mandatory reference deliberately",
         )
         .source(path.display().to_string())
-        .location(format!("skills.mandatory[{position}]"))),
+        .location(at)),
     }
 }
 
@@ -489,6 +606,11 @@ pub(crate) mod faults {
         /// Before the removal of a staging tree, with its path. An error
         /// stands for a failed removal.
         pub removing: Option<FailHook>,
+        /// Smaller bounds, so that a test can cross one that no fixture can
+        /// reach.
+        pub limits: Option<super::bounds::Limits>,
+        /// The signal that the watch of this thread sees as consumed.
+        pub signal: Option<crate::cancellation::Signal>,
     }
 
     thread_local! { pub static HOOKS: RefCell<Hooks> = RefCell::new(Hooks::default()); }
@@ -525,6 +647,14 @@ pub(crate) mod faults {
 
     pub fn publishing(path: &Path) {
         fire(|hooks| &mut hooks.publishing, |hook| hook(path));
+    }
+
+    pub fn limits() -> Option<super::bounds::Limits> {
+        HOOKS.with(|cell| cell.borrow().limits)
+    }
+
+    pub fn signal() -> Option<crate::cancellation::Signal> {
+        HOOKS.with(|cell| cell.borrow().signal)
     }
 
     pub fn removing(path: &Path) -> io::Result<()> {

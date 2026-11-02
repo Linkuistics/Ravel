@@ -23,3 +23,9 @@ unfulfilled_lint_expectations = "deny"
 # builds optimise the engine. Debug assertions stay on, as in every dev build.
 [profile.dev.package.rhai]
 opt-level = 3
+
+# The byte-bound tests of skill resolution capture up to 512 MiB, and each
+# byte is hashed at least twice. Unoptimised SHA-256 needs about nine seconds
+# for 128 MiB, so the test builds optimise the hash as well.
+[profile.dev.package.sha2]
+opt-level = 3

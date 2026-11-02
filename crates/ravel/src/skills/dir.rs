@@ -165,6 +165,24 @@ impl Dir {
         Ok(unsafe { File::from_raw_fd(fd) })
     }
 
+    /// Flush the whole storage device of this directory: on macOS its write
+    /// cache too, so that every earlier `fsync` reaches permanent storage.
+    // https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html
+    #[cfg(target_os = "macos")]
+    pub fn flush_device(&self) -> io::Result<()> {
+        // SAFETY: the descriptor is open; F_FULLFSYNC takes no argument.
+        checked(unsafe { libc::fcntl(self.fd.as_raw_fd(), libc::F_FULLFSYNC) }).map(drop)
+    }
+
+    /// On Linux, `fsync` of each file already reached the device, so this
+    /// flushes the directory alone.
+    // https://man7.org/linux/man-pages/man2/fsync.2.html
+    #[cfg(target_os = "linux")]
+    pub fn flush_device(&self) -> io::Result<()> {
+        // SAFETY: the descriptor is open.
+        checked(unsafe { libc::fsync(self.fd.as_raw_fd()) }).map(drop)
+    }
+
     /// The status of this directory.
     pub fn stat(&self) -> io::Result<Stat> {
         stat_fd(self.fd.as_raw_fd())
@@ -309,6 +327,15 @@ impl Dir {
 }
 
 /// Change the mode of an open file.
+/// Send the bytes of `file` to its device with a plain `fsync`. On macOS
+/// this does not flush the write cache of the device, which `sync_all` does
+/// for each file at about 5 ms. [`Dir::flush_device`] flushes it once
+/// before a publication.
+pub fn flush_file(file: &File) -> io::Result<()> {
+    // SAFETY: the descriptor is open.
+    checked(unsafe { libc::fsync(file.as_raw_fd()) }).map(drop)
+}
+
 pub fn chmod_file(file: &File, mode: u32) -> io::Result<()> {
     chmod_fd(file.as_raw_fd(), mode)
 }

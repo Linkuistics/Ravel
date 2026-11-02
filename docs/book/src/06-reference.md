@@ -701,6 +701,8 @@ The table gives the inputs and the outputs.
 | A settings problem | Nothing. The refusal goes to standard error. | `2` |
 | A skill refusal | Nothing. The refusal goes to standard error. | `3` |
 | An internal failure, such as `skill_cleanup_failed` | Nothing. The refusal goes to standard error. | `5` |
+| The resolution deadline passed | Nothing. The refusal goes to standard error. | `124` |
+| INT, TERM or HUP during the resolution | Nothing. The refusal goes to standard error, and Ravel raises the same signal again. | `130`, `143` or `129` |
 
 Delivery is disabled when the settings file is absent, when it has no `skills`
 key, or when `sources` and `mandatory` are both empty. Delivery is also
@@ -774,7 +776,7 @@ These skill refusals have stage `skills` and status 3:
 | `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
 | `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. So do two names that the filesystem of the cache cannot keep apart, and a name whose spelling it changes. | Repair, rename or remove the named entry. |
 | `skill_access_unavailable` | A source overlaps `$HOME/.config/ravel`, the settings file or the skill cache, also through a symbolic link. A launch also refuses a source that overlaps the directory of its configuration entry. | Move the source. |
-| `skill_limit_exceeded` | At launch, the prepared prompt is more than 1,048,576 bytes. | Give a smaller task that refers to other files, or configure fewer directories. |
+| `skill_limit_exceeded` | A count or a size passes a [bound of a resolution](#bounds-deadline-and-cancellation). At launch, the prepared prompt is more than 1,048,576 bytes. | Configure fewer or smaller sources, files or directories, or give a smaller task that refers to other files. |
 | `skill_cache_unavailable` | Ravel cannot use the cache. Examples are a permission and full storage. A directory on the path that another account can write, and a link on the path that changed during the run, also refuse. | Make the cache a private writable directory of your account, or free storage. |
 | `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then move it out of the cache or remove it, and resolve again. |
 
@@ -786,6 +788,57 @@ refusal keeps its code and also reports the failure.
 
 A run that stops because of a signal such as KILL can leave a temporary
 directory. Remove it only when no Ravel run is active.
+
+#### Bounds, deadline and cancellation
+
+Each resolution has fixed count and byte bounds. A value equal to a bound
+passes. A larger value refuses as `skill_limit_exceeded`, status 3. The
+refusal gives the value, the bound and the subject. Its `bound` member holds
+the name and the value of the bound. Ravel never truncates a file, omits a
+directory or a mandatory file, or disables delivery to meet a bound.
+
+| Subject | Bound | `bound.name` |
+|---|---|---|
+| Configured sources | 16 | `skillSources` |
+| Configured search directories, in all sources together | 256 | `skillSearchDirectories` |
+| Configured mandatory files | 256 | `skillMandatoryFiles` |
+| One mandatory file | 65,536 bytes | `mandatoryFileBytes` |
+| One regular file of a source | 16,777,216 bytes (16 MiB) | `resourceBytes` |
+| The regular files of one source | 134,217,728 bytes (128 MiB) | `sourceBytes` |
+| The regular files of all sources | 536,870,912 bytes (512 MiB) | `totalSourceBytes` |
+| The entries of one source, with directories and links | 20,000 | `sourceEntries` |
+| The descriptor | 1,048,576 bytes | `descriptorBytes` |
+| The discovery instructions | 1,048,576 bytes | `preambleBytes` |
+
+Ravel checks the three counts of the settings before it copies a file. It
+checks the other bounds during the copy, and it stops at the first entry or
+file that passes a bound. Then the value in the refusal starts with "at
+least", because Ravel did not count the rest of the source. Each source adds
+its bytes to the total, also when two sources name one directory. Ravel
+checks the descriptor and the discovery instructions before it stores the
+descriptor.
+
+The setting `skills.resolutionTimeoutMs` bounds one complete resolution: the
+copy, the checks and the storage. Its default is 120,000 ms. When that time
+passes, the run refuses as `skill_resolution_timeout`, status 124. The
+refusal gives the deadline and its origin. It also gives the source and the
+operation that were active. Raise the setting for valid sources on slow
+storage.
+
+Ravel examines the time between operations: at each entry, at each block of
+64 KiB of a copy and at each entry of a check. Ravel cannot interrupt one
+operating-system call that storage holds. The refusal then comes after that
+call returns.
+
+An INT, TERM or HUP signal during a resolution stops it at the next
+examination. Ravel removes its private temporary directory and stores no
+descriptor. The refusal is `skill_resolution_cancelled`, with status 128 plus
+the signal number: 130 for INT, 143 for TERM and 129 for HUP. Ravel then
+raises the same signal again, so the caller sees that signal.
+
+A signal that arrives before another refusal wins over that refusal. The
+report keeps the other refusal as the original failure. A launch applies the
+same deadline and the same cancellation before its worker starts.
 
 > **Note:** This build acquires local sources only. A valid Git source refuses
 > before any acquisition, with status 3. Its remedy names the unfinished
@@ -847,8 +900,8 @@ exit status. What does it mean, and what do you do next? Find the status in
 the table below. The status is the exit status of the Ravel CLI, not the exit
 status of the managed process.
 
-`ravel skills resolve` uses only 0, 2, 3 and 5, with the meanings in
-[its section](#skills-resolve).
+`ravel skills resolve` uses only 0, 2, 3, 5, 124 and 128 plus a signal
+number, with the meanings in [its section](#skills-resolve).
 
 For `start-session`, accept the result on standard output only when the final status
 is 0. Neither the exit status of the managed process nor an earlier
@@ -1386,7 +1439,7 @@ The first character is a letter or digit. Ravel refuses unknown nested fields.
 | `skills.sources[N].url`, `.revision`, `.subdir` | Git only, and required. An HTTPS, SSH or `file://` URL without credentials, or an absolute path. A full lowercase commit ID of 40 or 64 hexadecimal digits. A normalised directory in the repository, `.` for its root. |
 | `skills.sources[N].roots` | Required nonempty array of search directories, relative to the source. `.` is the source itself. A repeated root refuses. |
 | `skills.mandatory` | Required array of records with exactly `source` and `path`, in the order to read them. `source` names a configured source ID. `path` is a file, relative to that source, and `.` is not a file. A repeated reference refuses. |
-| `skills.resolutionTimeoutMs` | Optional integer from 1,000 to 3,600,000. Default: 120,000. It bounds one complete resolution. |
+| `skills.resolutionTimeoutMs` | Optional integer from 1,000 to 3,600,000. Default: 120,000. It bounds one complete resolution, and a breach refuses as `skill_resolution_timeout`, status 124. No flag changes it. |
 
 A relative path in `skills` is normalised. It has no absolute start, no empty
 segment, no `.` or `..` segment, no backslash, no control character and no
@@ -1717,7 +1770,9 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
 | `skill_access_unavailable` | `skills` | 3 | A source overlaps the protected configuration, the directory of the configuration entry or the skill cache. Move the source. In this build, `--confine` with delivery enabled also refuses. | [Skill delivery at launch](#skill-delivery-at-launch) |
-| `skill_limit_exceeded` | `skills` | 3 | The prepared prompt is more than 1,048,576 bytes. Give a smaller task that refers to other files. | [Skill delivery at launch](#skill-delivery-at-launch) |
+| `skill_limit_exceeded` | `skills` | 3 | A count or a size passes a bound of a resolution, or the prepared prompt is more than 1,048,576 bytes. Configure fewer or smaller sources, or give a smaller task that refers to other files. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |
+| `skill_resolution_timeout` | `skills` | 124 | The resolution passed `skills.resolutionTimeoutMs`. Raise the setting, or address the latency of the storage of the source. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |
+| `skill_resolution_cancelled` | `skills` | 129/130/143 | HUP, INT or TERM arrived during the resolution. Ravel removed its private temporary directory and raises the same signal again. Try again only if the caller still wants the work. | [Bounds, deadline and cancellation](#bounds-deadline-and-cancellation) |
 | `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache, because of a permission or full storage. Make the cache writable, or free storage. | [`skills resolve`](#skills-resolve) |
 | `skill_cache_corrupt` | `skills` | 3 | A cached object fails its check. Stop its readers, then remove it and resolve again. | [`skills resolve`](#skills-resolve) |
 | `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its own private temporary directory. Remove the named directory when no resolution runs. | [`skills resolve`](#skills-resolve) |

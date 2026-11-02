@@ -119,6 +119,11 @@ Diagnostics report the
 effective deadline. On a timeout they report the active source and operation.
 An owner raises the bound for valid sources on slow storage or a slow transport.
 
+Ravel examines the deadline and the cancellation latch between operations: at
+each entry, at each block of a copy and at each entry of a check or a seal. It
+cannot interrupt one system call that storage holds. The refusal then comes
+after that call returns.
+
 Each source record has these fields. An unknown field refuses.
 
 | Field | Meaning |
@@ -640,7 +645,14 @@ are constant, and the owner sets the resolution deadline.
 | One resolution, with capture, checks, transport and publication | `resolutionTimeoutMs`: 120,000 ms by default, from 1,000 to 3,600,000 |
 
 A breach of a byte or count bound refuses as `skill_limit_exceeded`. The
-refusal reports the actual value, the bound and the subject. For the prepared
+refusal reports the actual value, the bound and the subject. A value equal to
+a bound passes. The search-directory bound counts the configured roots of all
+sources, before the descriptor joins repeated paths. Ravel checks the three
+configured counts before acquisition. Capture stops at the first entry or file
+that passes a bound, so a refusal of the entries or the bytes of a source
+reports the count at that point as "at least" that value. The bytes of all
+sources count each configured source, also two that name one directory. Ravel
+checks the descriptor and the preamble before it publishes the descriptor. For the prepared
 prompt, it reports both prompt byte counts. It suggests a smaller task with
 references to supporting files. Ravel never truncates caller instructions,
 omits a configured directory, omits mandatory guidance or disables delivery to

@@ -17,6 +17,8 @@ pub struct SkillSettings {
     pub sources: Vec<SourceSetting>,
     pub mandatory: Vec<MandatorySetting>,
     pub resolution_timeout_ms: u64,
+    /// Whether the settings file sets `resolutionTimeoutMs`.
+    pub resolution_timeout_set: bool,
 }
 
 impl SkillSettings {
@@ -163,6 +165,7 @@ pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
         sources,
         mandatory,
         resolution_timeout_ms,
+        resolution_timeout_set: fields.contains_key("resolutionTimeoutMs"),
     })
 }
 
