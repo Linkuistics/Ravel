@@ -321,7 +321,7 @@ Homebrew Git 2.56. Both versions behaved the same.
 | F5 | Git removes `GIT_CONFIG_PARAMETERS` before it runs a local `upload-pack`. No setting that Ravel passed on the command line reached that server side |
 | F6 | Protocol 0 reports an object-format mismatch as "Server does not support this repository's object format", and Ravel gave the transport remedy |
 
-The integration applied none of its partial fixes. The removal of the Git path
+The integration applied none of its partial repairs. The removal of the Git path
 resolves all six findings, because no Git child remains. A jj backout of
 `1898dc8603a0` is commit `c2e24d371db2`. Its tree equals the local stage output
 `1d50dae5d29e`, so the checks of the [local stage record](#local-stage-record)
