@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant C as Caller
+  participant R as Ravel CLI
+  participant W as Rhai worker
+  participant F as Token file
+  participant M as Claude Code, confined
+  C->>R: start-session --confine
+  R->>R: Check each tokenHandoffs record in the settings
+  R->>R: Prepare confinement and refuse a grant over a token file
+  R->>W: Evaluate the request
+  W-->>R: Selection that names claude-code
+  R->>F: Check expires, file type, owner, mode and size
+  alt A check fails
+    R-->>C: token_handoff_unavailable, exit 3, nothing launched
+  else Every check passes
+    F-->>R: Token bytes, read once
+    R->>R: Socket pair: write, shut down and close Ravel's end
+    R->>M: Launch with the other end and the declared variable
+    M->>M: Read to end of stream and remove the variable
+  end

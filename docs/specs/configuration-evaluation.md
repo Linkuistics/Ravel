@@ -51,7 +51,7 @@ with a result channel of its own. The data helpers run in the worker.
 An LLM call is a harness run. The configuration script runs Claude Code or Codex
 noninteractively, with the arguments of that harness. The harness uses the
 owner's own sign-in. The configuration script reads the answer from the output of the run or
-from its result. Ravel holds no model credential, opens no network connection
+from its result. Ravel reads no sign-in, opens no network connection
 and builds no argument that is specific to a harness.
 
 The outcome of a host call is data that the script interprets. A harness run
@@ -233,10 +233,11 @@ Ravel never truncates the delivered context.
 
 | Map | Fields |
 |---|---|
-| Selected | `status: "selected"`, `program`, `args`, `provider`, `model`, `effort` and `reason` |
+| Selected | `status: "selected"`, `program`, `args`, `provider`, `model`, `effort` and `reason`, with the optional `tokenHandoffs` |
 | Refused | `status: "refused"`, `code`, `message` and `remedy` |
 
-All listed fields are required, and no unknown field is present. The strings are nonblank, except that an argument can be empty. `program` and every argument must contain no NUL.
+All listed fields are required, except `tokenHandoffs`, and no unknown field is present.
+`tokenHandoffs` names the [token handoffs](token-handoff.md#naming-a-handoff) that a confined launch receives. The strings are nonblank, except that an argument can be empty. `program` and every argument must contain no NUL.
 
 `args` is an array of UTF-8 strings. Ravel performs no shell expansion or word splitting. A shell runs only when the script selects one.
 
@@ -662,6 +663,7 @@ runner, and returns what happened. It never evaluates a configuration script.
 | `args` | Array of strings | Yes | The arguments after the program of the entry. No string holds a NUL |
 | `stdin` | String | No | Text for standard input. Without it, standard input is at end of file |
 | `timeoutMs` | Integer | No | The deadline of this run. Ravel lowers it to the time that remains |
+| `tokenHandoffs` | Array of strings | No | The [token handoffs](token-handoff.md#naming-a-handoff) that a confined run receives |
 
 The program of the run is the program of the entry, and the script supplies the
 arguments. The owner fixes the program, and the script supplies its argument vector. The script decides where a prompt goes: into an argument or into
@@ -682,6 +684,8 @@ A harness run has these properties:
   states.
 - Ravel confines it, with a private run directory of its own, when the caller
   passed `--confine`.
+- Under `--confine`, it receives the token handoffs that its request names, as
+  the [token handoff specification](token-handoff.md) states.
 
 The runner supervises the run as a job, and its process group is the scope of
 cleanup. A value sent on its channel triggers the escalation of a managed
@@ -700,7 +704,8 @@ has a bound of 1 MiB, and Ravel stops the run at the first byte beyond it.
 | `error` | `()`, or `#{ code, message }` when `status` is `unavailable` |
 
 `unavailable` has the codes `unknown_harness`, `harness_not_found`,
-`harness_not_executable` and `harness_launch_failed`. Those runs use no budget.
+`harness_not_executable`, `harness_launch_failed` and
+`token_handoff_unavailable`. Those runs use no budget.
 A run whose process group survives cleanup, or whose reap fails, ends the
 evaluation as `harness_cleanup_failed`, exit 5. The script interprets the
 output, the exit status and `result`, and Ravel judges none of them. A session
@@ -718,10 +723,11 @@ budget, the deadlines, the output bounds, the environment and the stop.
 The harness signs in with the owner's own sign-in, from its own store. Ravel
 reads no sign-in and passes none on. Anthropic permits the sign-in of a Claude
 subscription only in the unmodified Claude Code program. Its terms forbid
-software that collects, stores or passes on a sign-in or a session token
+developers to collect, store or intermediate a sign-in or a session token
 ([legal and compliance](https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use)).
 A harness run keeps that rule, because the program of the run is the harness
-itself.
+itself. A confined run can receive a token that the owner minted through a
+[token handoff](token-handoff.md).
 
 The script owns the question and the answer:
 
@@ -770,12 +776,14 @@ there. The notice reports the delivered context.
 
 ### Credentials
 
-Ravel holds no model credential. It reads no API key and no sign-in, and it
-stores and sends none. Each harness finds its own sign-in or key.
+Ravel reads no API key and no sign-in, and it stores none. Each harness finds
+its own sign-in or key. The one credential that Ravel passes on is a token that
+the owner minted and named in a [token handoff](token-handoff.md). Ravel sends
+it only to a confined launch that the configuration script names.
 
 Ravel trusts the configuration script, because the owner writes it. The credential rules
-therefore do not defend against the configuration script. They keep Ravel itself from holding
-or passing on a credential, as the terms of the harnesses require. The data
+therefore do not defend against the configuration script. They keep Ravel itself from collecting
+or passing on a sign-in, as the terms of the harnesses require. The data
 that a configuration script reads stays untrusted, such as a context document, a file or the
 answer of a model. That is why Ravel disables `eval`.
 
@@ -792,8 +800,9 @@ store can therefore fail, for example when it refreshes a token.
 
 Ravel does not
 widen the confinement for a sign-in. Whether a harness can use its sign-in
-inside confinement depends on the harness and the platform. The smoke tasks run
-unconfined.
+inside confinement depends on the harness and the platform. A confined Claude
+Code on macOS cannot reach its sign-in in the Keychain. A token handoff gives
+it an owner-minted token instead. The smoke tasks run unconfined.
 
 #### Sandbox home for real harness runs
 
@@ -896,9 +905,10 @@ script in its output.
 
 Settings remain at `$HOME/.config/ravel/settings.json`, including with an explicit `--config` entry. A missing settings file selects defaults. Without an absolute `HOME`, an explicit entry uses defaults.
 
-A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `configEnv`, `harnesses`, `budgets` and `skills`. Unknown keys refuse as `settings_invalid`, exit 2.
+A settings file must be a readable regular JSON object. Its only keys are `timeoutMs`, `contextBytes`, `configEnv`, `harnesses`, `budgets`, `skills` and `tokenHandoffs`. Unknown keys refuse as `settings_invalid`, exit 2.
 
 A member name that repeats in any object of the file refuses the same way. The [skill discovery specification](skill-discovery.md#settings) owns the `skills` object.
+The [token handoff specification](token-handoff.md#settings) owns the `tokenHandoffs` object.
 
 No key opens a persistent store. Flags override the timeout and context bounds. `--config-env` adds names to `configEnv`, with duplicates counted once.
 
@@ -1042,6 +1052,9 @@ The JSON routing notice uses schema version 2:
 - `bounds` includes `harnessRuns`.
 - `skills` reports skill delivery, or `null` when delivery is disabled. The
   [skill discovery specification](skill-discovery.md#diagnostics) defines it.
+- `tokenHandoffs` lists the token handoffs that Ravel delivered, and each entry
+  of `harnessRuns` has the same field. The
+  [token handoff specification](token-handoff.md#diagnostics) defines it.
 
 The JSON failure document uses schema version 2, with the owner refusal code
 in `configCode`. Routing notices retain version 2 and report `config` and
@@ -1093,6 +1106,7 @@ A Rhai function returns synchronously, so it cannot leave a promise unsettled.
 | `worker_missing` | `worker` | 5 | Ravel cannot re-execute its own binary |
 | `worker_identity_mismatch` | `worker` | 5 | The re-executed binary reports another build |
 | `worker_failed` | `worker` | 5 | The worker died, broke the protocol or failed its teardown |
+| `token_handoff_unavailable` | `handoff` | 3 | A named token file failed a check of the [token handoff specification](token-handoff.md#checks-and-the-read) |
 
 Settings problems in the new keys use `settings_invalid`, exit 2. A configuration script
 refusal stays `config_refused`, with the
@@ -1476,7 +1490,8 @@ script handles errors.
 
 ### Requirement: Credential boundary
 
-Ravel SHALL hold no model credential. A harness run SHALL receive the environment
+Ravel SHALL read no sign-in and no API key. It SHALL pass on only the tokens of
+[token handoffs](token-handoff.md). A harness run SHALL receive the environment
 of a managed process. `ravel::env` SHALL return no caller variable outside the
 readable names and the grants. Ravel SHALL remove no credential from a measured
 read or from the output of a harness run, because it trusts the configuration script.

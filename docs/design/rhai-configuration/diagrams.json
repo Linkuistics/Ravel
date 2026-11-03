@@ -73,7 +73,7 @@
       "group": "processes",
       "title": "The CLI acts and the worker computes",
       "source": "processes.mmd",
-      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment and launches jobs. A reader thread does its filesystem work, so the runtime keeps watching the deadline. The worker runs the Rhai script and asks for each host capability over fd 3. Ravel holds no model credential: a harness run reaches the model service with the owner's own sign-in. The launch after the reap is in the sequence view."
+      "caption": "Two processes during evaluation. Only the Ravel CLI reads files and the environment and launches jobs. A reader thread does its filesystem work, so the runtime keeps watching the deadline. The worker runs the Rhai script and asks for each host capability over fd 3. Ravel reads no sign-in: a harness run reaches the model service with the owner's own sign-in, or under confinement with a token handoff that the owner minted. The launch after the reap is in the sequence view."
     },
     {
       "id": "evaluation-sequence",

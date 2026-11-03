@@ -1,0 +1,18 @@
+flowchart TD
+  need["Start here: a confined Claude Code<br/>cannot reach its Keychain sign-in"]:::start
+  read["Ravel reads the sign-in<br/>and passes on the access token"]
+  grant["The profile admits<br/>the Keychain services and files"]
+  wrapper["A wrapper reads a token file<br/>through a runtime read"]
+  plain["A plaintext sign-in file<br/>inside the grants"]
+  handoff["Token handoff<br/>through a socket"]
+  readx["Rejected: the terms forbid it,<br/>and a run ends with the access token"]
+  grantx["Rejected: the agent could ask<br/>for any Keychain item"]
+  wrapperx["Rejected: the agent can read<br/>the one-year token"]
+  plainx["Rejected: a confined refresh<br/>rotates the owner's sign-in"]
+  agreed["Agreed by the owner<br/>on 2026-11-03"]
+  need --> read --> readx
+  need --> grant --> grantx
+  need --> wrapper --> wrapperx
+  need --> plain --> plainx
+  need --> handoff --> agreed
+  classDef start fill:#173451,color:#fff,stroke:#102a43,font-weight:bold

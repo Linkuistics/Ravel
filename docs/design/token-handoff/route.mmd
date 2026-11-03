@@ -1,0 +1,17 @@
+flowchart TD
+  mint["Start here: the owner runs<br/>claude setup-token once,<br/>outside any session"]:::start
+  file[("Token file, mode 0600<br/>settings: file, descriptorVariable, expires")]
+  own[("Owner's own sign-in<br/>Keychain or .credentials.json")]
+  script["Configuration script:<br/>tokenHandoffs in the selection"]
+  ravel["Ravel CLI, after the selection:<br/>checks and reads the file once"]
+  subgraph confined["Ravel confinement: no grant overlaps the token file"]
+    claude["Claude Code reads the socket<br/>to end of stream, removes the variable"]
+    agent["Agent tools:<br/>no token file, no Keychain"]
+  end
+  mint -->|1. the owner saves the token| file
+  script -->|2. names the handoff| ravel
+  file -->|3. read for a confined launch| ravel
+  ravel -->|4. token through an inherited socket| claude
+  claude -->|5. socket at end of stream| agent
+  ravel -.->|never opened| own
+  classDef start fill:#173451,color:#fff,stroke:#102a43,font-weight:bold

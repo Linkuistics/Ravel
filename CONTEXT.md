@@ -72,7 +72,7 @@ _Avoid_: host binding, SDK function
 
 **LLM call**: A **Harness run** in which the **Configuration script** asks a model one
 question and reads the answer as data. The **Harness** signs in with the
-**Owner**'s own sign-in, and Ravel holds no model credential.
+**Owner**'s own sign-in, and Ravel reads no sign-in.
 _Avoid_: API call, completion request, LLM endpoint
 
 **Provider**: The owner's label for the origin of the model that a selection
@@ -128,6 +128,13 @@ checks and reads the result.
 **Confinement**: Optional restrictions on the filesystem access and environment
 of a **Managed process** or a **Harness run**. Confinement does not apply to
 the **Configuration script** or its **Rhai worker**.
+
+**Token handoff**: A token that the **Owner** minted with the **Harness**,
+such as with `claude setup-token`, and that the **Settings** name by its file.
+Ravel sends it through an inherited socket to a confined **Managed process** or
+**Harness run** that the **Configuration script** names. Ravel never reads the
+sign-in store of a **Harness**.
+_Avoid_: credential forwarding, sign-in handoff
 
 ## Skill delivery
 
@@ -217,5 +224,13 @@ task?”
 
 Ravel maintainer: “Yes. The script makes an LLM call: a harness run of Claude
 Code or Codex, which your settings name. The harness signs in with your own
-sign-in, and the script reads the answer as data. Ravel never holds the
-credential. The provider in the selection stays your own label.”
+sign-in, and the script reads the answer as data. Ravel never reads your
+sign-in. The provider in the selection stays your own label.”
+
+Owner: “My confined Claude Code says it is not logged in. Can Ravel give it my
+sign-in?”
+
+Ravel maintainer: “No. Mint a token with `claude setup-token` and save it in a
+file that only you can read. Name the file in a token handoff in your settings,
+and name the handoff in the selection. Ravel then sends the token through a
+socket to the confined launch.”
