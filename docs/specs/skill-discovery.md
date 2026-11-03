@@ -240,9 +240,9 @@ preamble gives the agent these rules:
 | Request | Agent behaviour after the mandatory reads |
 | --- | --- |
 | A skill name, with or without a plugin namespace | Search the supplied directories first. Use native discovery when no supplied directory holds a match |
-| A concrete native tool or command | Use that mechanism first. When it reports no native match, say so. Then search the supplied directories for the same guidance before you report it missing. When it reports another error, report that error before dependent work and before any ending command |
+| A concrete native tool or command | Use that mechanism first. When it reports no native match, say so. Then search the supplied directories for the same guidance before you report it missing. When it reports another error, report that error in a visible reply to the human. Give that reply as its own step, before dependent work and before any ending command call |
 | A concrete file path | Read that path. When the read fails, report the failure before dependent work. Do not use another location |
-| An express restriction to one mechanism, such as "use only this native tool" | Obey the restriction. When that mechanism cannot load the guidance, report the limit before dependent work and before any ending command. Do not fall back |
+| An express restriction to one mechanism, such as "use only this native tool" | Obey the restriction. When that mechanism cannot load the guidance, report the limit in a visible reply to the human. Give that reply as its own step, before dependent work and before any ending command call. Do not fall back |
 
 The preamble also states one rule about skill metadata. When the metadata of a
 skill sets `disable-model-invocation: true`, the agent loads that skill only
@@ -251,10 +251,14 @@ its description matches the work. Ravel itself reads no metadata, so the agent
 applies this rule.
 
 The agent reports a native loader error other than "no match" before
-dependent work and before any ending command. The error is not permission to
-go around that loader. A report in these rules is text that the agent writes.
-A tool result alone is not a report. In a headless run, the text before the
-ending command is the only report that the human sees.
+dependent work and before any ending command call. The error is not permission
+to go around that loader. A report in these rules is a visible reply that the
+agent writes to the human. A tool result alone is not a report. Reasoning alone
+is not a report either, because the human may not see it.
+
+In a headless run, the visible text before the ending command is the only
+report that the human sees. The report of a loader error or of a blocked
+restriction is therefore its own step, before the ending command call.
 
 Two different matching files in the supplied
 directories need an explicit reference from the caller or the pack. Without

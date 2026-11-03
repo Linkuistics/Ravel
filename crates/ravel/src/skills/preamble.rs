@@ -12,9 +12,9 @@ Obligations:
 1. Read the mandatory files in the order above, with the supporting files that each one requires. Do this before you look for other skills and before any task action. This rule comes before a caller instruction to load a skill \"first\". You need not read the descriptor first, because this text gives the same paths.
 2. To find skills, list the SKILL.md files beneath the search directories and read their names and descriptions. Read an applicable skill before the work that it governs. Do not read every skill in advance. Read the supporting files of a skill relative to the directory of that skill. Do not search the files of a skill for nested skills unless the skill tells you to.
 3. When the caller names a skill, with or without a plugin namespace such as \"plugin:skill\", search these directories first. Use native skill discovery only when no directory holds a match.
-4. When the caller names a concrete native tool or command, use that mechanism first. When it reports no match, say so, then search these directories before you report the skill missing. When it reports another error, report that error in text before dependent work and before any ending command. Do not go around that mechanism.
+4. When the caller names a concrete native tool or command, use that mechanism first. When it reports no match, say so, then search these directories before you report the skill missing. When it reports another error, report that error in a visible reply to the human. Reasoning alone is not a report, because the human may not see it. Give that reply as its own step, before dependent work and before any ending command call. Do not go around that mechanism.
 5. When the caller names a concrete file path, read that path. When the read fails, report the failure before dependent work. Do not use another location.
-6. When the caller permits only one mechanism, obey that restriction. When that mechanism cannot load the guidance, report the limit in text before dependent work and before any ending command. Do not use another mechanism.
+6. When the caller permits only one mechanism, obey that restriction. When that mechanism cannot load the guidance, report the limit in a visible reply to the human. Reasoning alone is not a report, because the human may not see it. Give that reply as its own step, before dependent work and before any ending command call. Do not use another mechanism.
 7. When the metadata of a skill sets disable-model-invocation: true, load that skill only when the caller names it, by name or by path. Do not load it because its description matches the work.
 8. When two different files match one request and nothing names one of them, report the ambiguity before dependent work. The order of the directories does not choose a skill. Do not load a directory copy and a native copy of the same guidance only because both exist.
 9. Report a missing or unreadable file, or an ambiguous reference, before dependent work. Do not use another revision. A listed directory does not prove that guidance exists or that you read it.
@@ -93,22 +93,36 @@ mod tests {
         };
         assert!(
             obligation("4").contains(
-                "When it reports another error, report that error in text before dependent work \
-                 and before any ending command. Do not go around that mechanism."
+                "When it reports another error, report that error in a visible reply to the \
+                 human. "
             ),
             "{text}"
         );
         assert!(
             obligation("6").contains(
-                "When that mechanism cannot load the guidance, report the limit in text before \
-                 dependent work and before any ending command."
+                "When that mechanism cannot load the guidance, report the limit in a visible \
+                 reply to the human. "
             ),
             "{text}"
         );
+        // A report that stays in a thinking block does not reach the human,
+        // so each obligation says where the report goes and when it comes
+        // (Grove's claude-visible-report-k135).
+        for number in ["4", "6"] {
+            assert!(
+                obligation(number).contains(
+                    "Reasoning alone is not a report, because the human may not see it. Give \
+                     that reply as its own step, before dependent work and before any ending \
+                     command call."
+                ),
+                "obligation {number}: {text}"
+            );
+        }
         assert!(
             !text.contains("Another native error is a report."),
             "{text}"
         );
+        assert!(!text.contains(" in text before "), "{text}");
     }
 
     /// A resume that keeps the whole conversation keeps the guidance too.
