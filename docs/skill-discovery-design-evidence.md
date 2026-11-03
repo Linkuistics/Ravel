@@ -499,6 +499,55 @@ the preamble text changed, and no platform code changed. Grove's
 `stage-evidence-reconciliation-k125` decides which stage checks run again for
 this build.
 
+## Visible loader report record
+
+Grove's `claude-visible-report-k135` changed obligations 4 and 6 of the
+preamble again on 2026-11-03. Under the wording of the
+[loader report record](#loader-report-wording-record), two Claude Code trials
+wrote an accurate report only in a thinking block. The block came directly
+before the force-stop call, and no text block held the report. Nobody pushed
+the line, and no release consumes it.
+
+- Obligations 4 and 6 now put the report in a visible reply to the human.
+  They say that reasoning alone is not a report, because the human may not
+  see it.
+- Each of the two obligations makes that reply its own step, before dependent
+  work and before any ending command call.
+- Grove's ending wording did not change. Grove's `missing-kind` trial reported
+  in visible text under that wording, and the report is an obligation of this
+  preamble.
+
+The request table and the loader-error rule in
+`docs/specs/skill-discovery.md` state the same rules.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185`. `jj git fetch` reported no change, so the line needed no rebase. The stage worked above `e0fe5631fb0e`, the output commit of the loader report record |
+| Build commit | `e9cc79993b466eb1feeb4a8674390ac90738d819`, with the parent `e0fe5631fb0e`. Every check below ran on this commit, with an empty working copy |
+| Output commit | The child of the build commit. It changes only this record |
+| Build identity | `fd8dfdc28aec1a63f292a7f2ab2ce6c0789f74232a02b39b5b8f6693b7ba7bc9`. A script that applies the rule of `crates/ravel/build.rs` computed it, and the installed executable holds it twice. The same script gives `45eea220…` for the trees of `0fb12d5f` and `e0fe5631` |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1. `Cargo.lock` did not change |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `d076dc01fe3166ddd512f9b739ba81ad598a0cc0e03f2b552681b97387abfe06`. The prefix has no `libexec` |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 732 of 732 run tests passed, and 48 were skipped |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link |
+
+The unit test `loader_reports_come_before_any_ending_command` in
+`crates/ravel/src/skills/preamble.rs` pins the new sentences of obligations 4
+and 6. It failed against the earlier text, and it passes on the build commit.
+The installed executable holds the new sentence and not the earlier sentence
+of obligation 4. The same search finds the earlier sentence in the source of
+`e0fe5631`.
+
+This stage built no archives and ran no Linux or installed-pair check. Only
+the preamble text changed, and no platform code changed. Grove's
+`stage-evidence-reconciliation-k125` decides which stage checks run again for
+this build.
+
 ## Consumer handoff
 
 Grove's adoption design, `grove-rhai-skill-delivery-k35`, consumes these facts:
