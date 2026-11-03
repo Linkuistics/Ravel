@@ -9,7 +9,6 @@ This specification describes the active executable. The [glossary](../../CONTEXT
 The [configuration evaluation specification](configuration-evaluation.md) owns discovery, requests, selection context, selections, settings, evaluation and delivery.
 The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
 The [skill discovery specification](skill-discovery.md) owns skill sources, the prepared prompt and their read grants.
-The [token handoff specification](token-handoff.md) owns the owner-minted token that a confined harness receives.
 The [component explanation](../book/src/07-the-parts-of-ravel.md) describes the participants.
 These specifications remain the behavioural authority for that explanation.
 
@@ -91,7 +90,6 @@ Ravel propagates that signal after required cleanup attempts. A cleanup or super
 | CLI input failure | 2 |
 | Configuration refusal | 3 |
 | Skill-source refusal, stage `skills` | 3 |
-| Token handoff refusal, stage `handoff` | 3 |
 | Worker or supervision failure | 5 |
 | Whole evaluation timeout | 124 |
 | Skill resolution deadline | 124 |
@@ -112,9 +110,7 @@ A granted directory that overlaps the configuration directory, the settings file
 So does a writable grant that overlaps the skill cache, and a granted directory that the backend cannot list.
 A granted directory that changed after its check gives no grant, as the skill discovery specification states.
 
-Each declared token file is a protected path, and a delivered token handoff adds an inherited socket, as the [token handoff specification](token-handoff.md) states.
-
-The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. A delivered token handoff adds its declared variable. The backend's filesystem contract and platform limits live in
+The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. The backend's filesystem contract and platform limits live in
 [the runner explanation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).
 
 ## Verification and scope

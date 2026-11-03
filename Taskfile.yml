@@ -17,13 +17,6 @@ tasks:
     cmds:
       - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/skill-discovery
 
-  docs:token-handoff:
-    desc: Serve the editable token handoff views of the 2.0.0 design on localhost (Mermaid needs network access)
-    vars:
-      PORT: '{{.PORT | default "8779"}}'
-    cmds:
-      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/token-handoff
-
   docs:rhai-configuration:
     desc: Serve the editable Rhai configuration evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)
     vars:

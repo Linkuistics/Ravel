@@ -2,21 +2,17 @@
 
 A configuration script asks a model a question with `ravel::run_harness`. The harness is
 Claude Code or Codex, which the owner names in settings. The harness signs in
-with the owner's own subscription. Ravel never reads that sign-in, and it never
+with the owner's own subscription. Ravel holds no model credential, and it never
 calls a model service itself. It builds no argument that is specific to a
 harness, and it parses no output of a harness. The
 [configuration evaluation specification](../specs/configuration-evaluation.md#llm-calls-through-a-harness)
 states the rules.
 
-A confined harness run can receive a token that the owner minted, as
-[a confined harness receives an owner-minted token](a-confined-harness-receives-an-owner-minted-token.md)
-records.
-
 The trade-off is the sign-ins that the owner already uses against the weight of
 a harness process. A subscription sign-in works only in its own harness.
 Anthropic permits the sign-in of a Claude subscription only in the unmodified
-Claude Code program. Its terms forbid developers to collect, store or
-intermediate a sign-in or a session token
+Claude Code program. Its terms forbid software that collects, stores or passes
+on a sign-in or a session token
 ([legal and compliance](https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use)).
 The Codex documentation tells a general API caller to use a Platform API key
 ([Codex authentication](https://learn.chatgpt.com/docs/auth)).
