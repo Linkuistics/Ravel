@@ -240,9 +240,9 @@ preamble gives the agent these rules:
 | Request | Agent behaviour after the mandatory reads |
 | --- | --- |
 | A skill name, with or without a plugin namespace | Search the supplied directories first. Use native discovery when no supplied directory holds a match |
-| A concrete native tool or command | Use that mechanism first. When it reports no native match, say so. Then search the supplied directories for the same guidance before you report it missing |
+| A concrete native tool or command | Use that mechanism first. When it reports no native match, say so. Then search the supplied directories for the same guidance before you report it missing. When it reports another error, report that error before dependent work and before any ending command |
 | A concrete file path | Read that path. When the read fails, report the failure before dependent work. Do not use another location |
-| An express restriction to one mechanism, such as "use only this native tool" | Obey the restriction. When that mechanism cannot load the guidance, report the limit before dependent work. Do not fall back |
+| An express restriction to one mechanism, such as "use only this native tool" | Obey the restriction. When that mechanism cannot load the guidance, report the limit before dependent work and before any ending command. Do not fall back |
 
 The preamble also states one rule about skill metadata. When the metadata of a
 skill sets `disable-model-invocation: true`, the agent loads that skill only
@@ -250,8 +250,13 @@ when the caller names it, by name or by path. The agent never loads it because
 its description matches the work. Ravel itself reads no metadata, so the agent
 applies this rule.
 
-A native loader error other than "no match" is a report. It is not permission
-to go around that loader. Two different matching files in the supplied
+The agent reports a native loader error other than "no match" before
+dependent work and before any ending command. The error is not permission to
+go around that loader. A report in these rules is text that the agent writes.
+A tool result alone is not a report. In a headless run, the text before the
+ending command is the only report that the human sees.
+
+Two different matching files in the supplied
 directories need an explicit reference from the caller or the pack. Without
 one, the agent reports the ambiguity before dependent work. Source order
 chooses no winner.
@@ -481,10 +486,12 @@ agent:
 3. Report a missing or unreadable resource, or an ambiguous reference, before
    dependent work. Do not use another revision. Do not claim that a supplied
    directory proves that guidance exists or that the agent read it.
-4. Keep the descriptor path in a continuation or compaction summary. On
-   re-entry, recover the same directories and mandatory paths. Then read the
-   mandatory and relevant guidance again before work continues. Do not acquire
-   newer sources during a session.
+4. Keep the descriptor path in a continuation or compaction summary. A
+   re-entry is a compaction or a fresh context. A resume that keeps the whole
+   earlier conversation is not a re-entry and needs no re-read. The guidance
+   stays in that context. On re-entry, recover the same directories
+   and mandatory paths. Then read the mandatory and relevant guidance again
+   before work continues. Do not acquire newer sources during a session.
 5. Give each delegate the descriptor path, these obligations and read access
    to the resources. Omit the ending instructions of the parent, and forbid the
    delegate to send the result of the parent. Each delegate reads the mandatory
