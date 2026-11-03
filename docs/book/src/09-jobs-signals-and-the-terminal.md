@@ -291,6 +291,13 @@ settings. A runtime grant names one regular file, not a directory.
 The environment starts empty. Ravel adds HOME, USER, LOGNAME, PATH, LANG and
 LC_* values, private temporary-directory values, and this launch's result path.
 HOME's presence does not grant access to all files under it.
+These checks use paths, as [the limits](#know-the-guarantees-and-their-limits)
+state.
+
+The profile on macOS gives no access to the Keychain. A harness that keeps its
+sign-in there has no sign-in under confinement. Grove's confined trials
+measured this result for Claude Code 2.1.317 on 3 November 2026. Such a
+harness can run without `--confine`, inside its own sandbox.
 
 On macOS, `/usr/bin/sandbox-exec` applies a Seatbelt profile. Descendants
 inherit the restrictions. The profile allows the declared writable roots,
@@ -552,6 +559,7 @@ every descendant or hostile same-user process is absent.
 | Ravel returns a result only after that launch's child reap, confirmed group absence and successful required cleanup | Group membership defines the cleanup scope. A descendant that leaves the group lies outside it |
 | Ravel supervises shutdown while the CLI remains alive | Abrupt death of the CLI, for example from KILL, can orphan the managed job. Such death is not successful completion |
 | Ravel keeps the first complete result through a private inherited channel and rejects invalid result files | The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic |
+| Ravel refuses a confined grant that overlaps the configuration script directory or owner settings | The checks use paths. A process outside the launch can replace a granted path before the backend applies the grant. Another confined launch can do this through one of its writable roots. The grant then reaches the new target. On macOS the interval ends when the runner resolves the path again, and on Linux when bubblewrap mounts the path. Bubblewrap 0.10.0 can mount a checked open descriptor, but Ravel does not use that option |
 | Ravel verifies and reaps the Rhai worker before the managed launch | Configuration script remains trusted executable code. Detached configuration script children lie outside worker cleanup |
 | Ravel checks terminal recovery under the holder rules above | Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller |
 | Ravel retains failure reports and attempts required cleanup | A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result |
